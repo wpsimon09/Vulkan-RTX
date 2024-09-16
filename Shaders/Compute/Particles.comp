@@ -1,0 +1,51 @@
+#version 460
+
+// unifrom buffer objrect at binding 0
+layout(std140, binding = 0) uniform ParameterUBO{
+    float deltaTime;
+    float offset;
+    vec3 RayDirection;
+}ubo;
+
+//same as in c++ side
+struct Particle{
+    vec3 position;
+    vec3 velocity;
+    vec4 color;
+};
+
+// SSBO in
+layout(std140, binding = 1) readonly buffer ParticleSSBOIn{
+    Particle particlesIn[];
+};
+
+// SSBO out (here we will wrtie)
+layout(std140, binding = 2) buffer ParticleSSBOOut{
+    Particle particlesOut[];
+};
+
+//dimension of the invocation
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+void main() {
+    //retrieve the index of the work group at the x dimensions since we only have linear array
+    //and use it as the index to the particles array
+    uint index = gl_GlobalInvocationID.x;
+    Particle particleIn = particlesIn[index];
+
+    float trahsHold = 1.0f;
+
+    particlesOut[index].position.xy = particleIn.position.xy + particleIn.velocity.xy * ubo.deltaTime;
+
+
+/**
+    if((particlesOut[index].position.x <= -trahsHold) || (particlesOut[index].position.x >= trahsHold)){
+        particlesOut[index].velocity.x *= -1;
+    }
+    if((particlesOut[index].position.y <= -trahsHold) || (particlesOut[index].position.y >= trahsHold)){
+        particlesOut[index].velocity.y *= -1;
+    }
+    float depth = 25.0f;
+*/
+
+}
