@@ -6,7 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 set(TARGET Vulkan-RTX)
 set(SOURCES
-        src/main.cpp)
+        src/main.cpp
+        Includes/WindowManager/WindowManager.cpp
+        Includes/WindowManager/WindowManager.h)
 
 set(CFLAGS_RELEASE "-O2")
 set(CFLAGS_DEBUG "-g")
@@ -16,6 +18,7 @@ find_package(Vulkan REQUIRED)
 find_package(assimp REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 find_package(glm REQUIRED)
+
 
 # Add executable
 add_executable(${TARGET} ${SOURCES})
