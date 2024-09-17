@@ -4,8 +4,12 @@
 
 #include <iostream>
 
+#include "Application.h"
+
 int main()
 {
-    std::cout << "Hello World!" << std::endl;
+    Application application;
+    application.Init();
+    application.Run();
     return 0;
 }

@@ -11,18 +11,18 @@
 
 class WindowManager {
 public:
-    WindowManager();
+    WindowManager(int windowWidth, int windowHeight);
 
-    bool InitWindow();
+    void InitWindow();
 
-    const float& getWindowWidth() const;
-    const float& getWindowHeight() const;
-    const glm::vec2& getWindowDimensions();
+    const int getWindowWidth() const;
+    const int getWindowHeight() const;
+    GLFWwindow* GetWindow() const;
 
     ~WindowManager();
 private:
     GLFWwindow* m_window;
-    float m_width, m_height;
+    int m_width, m_height;
 
 
 };

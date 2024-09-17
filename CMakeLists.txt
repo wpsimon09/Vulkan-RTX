@@ -8,7 +8,9 @@ set(TARGET Vulkan-RTX)
 set(SOURCES
         src/main.cpp
         Includes/WindowManager/WindowManager.cpp
-        Includes/WindowManager/WindowManager.h)
+        Includes/WindowManager/WindowManager.h
+        Includes/Application.cpp
+        Includes/Application.h)
 
 set(CFLAGS_RELEASE "-O2")
 set(CFLAGS_DEBUG "-g")
