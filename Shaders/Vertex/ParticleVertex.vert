@@ -11,7 +11,7 @@ layout (binding = 0) uniform UnifromBufferObject {
     mat4 view;
     mat4 proj;
     mat4 normalMatix;
-}ubo;
+}ubo
 
 layout(location = 0) out vec3 outFragColor;
 
