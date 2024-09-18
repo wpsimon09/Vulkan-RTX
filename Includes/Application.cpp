@@ -5,19 +5,27 @@
 #include "Application.h"
 
 #include <memory>
+#include <stdexcept>
 
 #include "WindowManager/WindowManager.h"
 
 
-void Application::Init()
+Application::Application()
 {
     m_windowManager = std::make_unique<WindowManager>(800,600);
 }
 
-void Application::Run()
+void Application::Init()
 {
     m_windowManager->InitWindow();
+}
+
+void Application::Run()
+{
+    Init();
+    throw std::runtime_error("Test");
     MainLoop();
+
 }
 
 void Application::Update()

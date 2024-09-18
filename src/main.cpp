@@ -9,7 +9,14 @@
 int main()
 {
     Application application;
-    application.Init();
-    application.Run();
+    try
+    {
+        application.Run();
+    }catch(std::exception& e)
+    {
+        std::cerr<<"============================= *Fatal error occured* ============================================="<<std::endl;
+        std::cerr<<e.what()<<std::endl;
+        std::cerr<<"================================================================================================="<<std::endl;
+    }
     return 0;
 }
