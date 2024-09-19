@@ -2,13 +2,13 @@
 // Created by wpsimon09 on 17/09/24.
 //
 
-#include "Application.h"
+#include "Application.hpp"
 
 #include <memory>
 #include <stdexcept>
 
-#include "WindowManager/WindowManager.h"
-
+#include "WindowManager/WindowManager.hpp"
+import VDevices;
 
 Application::Application()
 {

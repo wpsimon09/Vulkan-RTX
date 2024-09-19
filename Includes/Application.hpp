@@ -6,7 +6,7 @@
 #define APPLICATION_H
 #include <memory>
 
-#include "WindowManager/WindowManager.h"
+#include "WindowManager/WindowManager.hpp"
 
 
 class Application {
