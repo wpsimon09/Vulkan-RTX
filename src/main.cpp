@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-# include "Application.hpp"
+import Application;
 
 int main()
 {

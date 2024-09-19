@@ -9,11 +9,7 @@ add_compile_options(-fmodules-ts)
 
 set(TARGET Vulkan-RTX)
 set(SOURCES
-        src/main.cxx
-        Includes/WindowManager/WindowManager.cpp
-        Includes/WindowManager/WindowManager.hpp
-        Includes/Application.cpp
-        Includes/Application.hpp
+        src/main.cpp
 )
 
 
@@ -21,9 +17,16 @@ set(CFLAGS_RELEASE "-O2")
 set(CFLAGS_DEBUG "-g")
 
 
+add_library(Modules)
+target_sources(Modules
+        PUBLIC
+            FILE_SET CXX_MODULES
+                FILES
+                Internal/Vulkan/VDevices.ixx
+                Includes/WindowManager/WindowManager.ixx
+                Includes/Application.ixx
 
-add_library(vDevices)
-target_sources(vDevices PUBLIC FILE_SET CXX_MODULES FILES Internal/Vulkan/VDevices.ixx)
+)
 
 # Find Vulkan, GLFW, and GLM
 find_package(Vulkan REQUIRED)
@@ -52,7 +55,7 @@ endif()
 
 
 # Link libraries
-target_link_libraries(${TARGET} PRIVATE glfw Vulkan::Vulkan assimp vDevices)
+target_link_libraries(${TARGET} PRIVATE glfw Vulkan::Vulkan assimp Modules)
 
 # Custom target for running the executable
 add_custom_target(run
