@@ -1,20 +1,29 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.28)
 project(Vulkan-RTX)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
+
+add_compile_options(-fmodules-ts)
 
 set(TARGET Vulkan-RTX)
 set(SOURCES
-        src/main.cpp
+        src/main.cxx
         Includes/WindowManager/WindowManager.cpp
         Includes/WindowManager/WindowManager.hpp
         Includes/Application.cpp
         Includes/Application.hpp
-        Internal/Vulkan/VDevices.ixx)
+)
+
 
 set(CFLAGS_RELEASE "-O2")
 set(CFLAGS_DEBUG "-g")
+
+
+
+add_library(vDevices)
+target_sources(vDevices PUBLIC FILE_SET CXX_MODULES FILES Internal/Vulkan/VDevices.ixx)
 
 # Find Vulkan, GLFW, and GLM
 find_package(Vulkan REQUIRED)
@@ -33,8 +42,6 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
         ${CMAKE_SOURCE_DIR}/Internal/Vulkan
 )
 
-add_compile_options(-fmodules-ts)
-
 # Set compile options based on build type
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_options(${TARGET} PRIVATE ${CFLAGS_RELEASE})
@@ -45,7 +52,7 @@ endif()
 
 
 # Link libraries
-target_link_libraries(${TARGET} PRIVATE glfw Vulkan::Vulkan assimp)
+target_link_libraries(${TARGET} PRIVATE glfw Vulkan::Vulkan assimp vDevices)
 
 # Custom target for running the executable
 add_custom_target(run

@@ -2,6 +2,7 @@
 // Created by wpsimon09 on 17/09/24.
 //
 
+
 #include "Application.hpp"
 
 #include <memory>
@@ -18,14 +19,13 @@ Application::Application()
 void Application::Init()
 {
     m_windowManager->InitWindow();
+    InitVulkan();
 }
 
 void Application::Run()
 {
     Init();
-    throw std::runtime_error("Test");
     MainLoop();
-
 }
 
 void Application::Update()

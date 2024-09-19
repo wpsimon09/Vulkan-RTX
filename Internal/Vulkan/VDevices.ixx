@@ -2,7 +2,8 @@
 // Created by wpsimon09 on 18/09/24.
 //
 
-#include <vulkan/vulkan.hpp>
+module;
+#include <vulkan/vulkan.h>
 #include <iostream>
 
 export module VDevices;
