@@ -5,7 +5,7 @@
 #include <iostream>
 
 import Application;
-
+import Logger;
 int main()
 {
     Application application;
@@ -14,9 +14,7 @@ int main()
         application.Run();
     }catch(std::exception& e)
     {
-        std::cerr<<"============================= *Fatal error occured* ============================================="<<std::endl;
-        std::cerr<<e.what()<<std::endl;
-        std::cerr<<"================================================================================================="<<std::endl;
+        Logger::LogError(e.what());
     }
     return 0;
 }

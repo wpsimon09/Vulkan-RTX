@@ -7,6 +7,7 @@ module;
 #include <iostream>
 
 import VSelector;
+import Logger;
 export module VInstance;
 
 export class VulkanInstance
@@ -41,7 +42,7 @@ VulkanInstance::VulkanInstance()
     }
     else
     {
-        std::cout << "Vulkan instance created successfuly \n";
+        Logger::LogSuccess("Vulkan instance created successfuly");
     }
 }
 

@@ -17,7 +17,8 @@ set(CFLAGS_RELEASE "-O2")
 set(CFLAGS_DEBUG "-g")
 
 
-add_library(Modules)
+add_library(Modules
+        Internal/Vulkan/VChecker.ixx)
 target_sources(Modules
         PUBLIC
             FILE_SET CXX_MODULES
@@ -27,7 +28,7 @@ target_sources(Modules
                 Includes/Application.ixx
                 Internal/Vulkan/VSelector.ixx
                 Internal/GlobalState.ixx
-
+                Includes/Logger.ixx
 )
 
 # Find Vulkan, GLFW, and GLM
