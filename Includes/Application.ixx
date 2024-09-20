@@ -9,7 +9,7 @@ module;
 export module Application;
 
 import Window;
-import VDevices;
+import VInstance;
 
 export class Application {
 public:
@@ -39,7 +39,6 @@ Application::Application()
 void Application::Init()
 {
     m_windowManager->InitWindow();
-    InitVulkan();
 }
 
 void Application::MainLoop()

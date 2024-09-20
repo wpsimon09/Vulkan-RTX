@@ -19,6 +19,8 @@ public:
     const int getWindowHeight() const;
     GLFWwindow* GetWindow() const;
 
+    static void GetRequiredExtensions(const char**& extensions, uint32_t& count );
+
     ~WindowManager();
 private:
     GLFWwindow* m_window;
@@ -54,6 +56,12 @@ GLFWwindow* WindowManager::GetWindow()const
 {
     return m_window;
 }
+
+void WindowManager::GetRequiredExtensions(const char**& extensions, uint32_t& count)
+{
+    extensions = glfwGetRequiredInstanceExtensions(&count);
+}
+
 
 WindowManager::~WindowManager()
 {
