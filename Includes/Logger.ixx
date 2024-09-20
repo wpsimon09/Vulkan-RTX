@@ -21,5 +21,10 @@ namespace Logger
     {
         std::cerr << "LOG::ERROR::[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] " << msg << std::endl;
     }
+
+    export void LogInfo(const std::string &msg)
+    {
+        std::cout << "LOG::INFO::[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] " << msg << std::endl;
+    }
 }
 

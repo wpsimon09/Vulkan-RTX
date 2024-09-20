@@ -8,7 +8,10 @@ module;
 
 import VSelector;
 import Logger;
+import GlobalState;
+import VChecker;
 export module VInstance;
+
 
 export class VulkanInstance
 {
@@ -22,6 +25,15 @@ export class VulkanInstance
 
 VulkanInstance::VulkanInstance()
 {
+    if(GlobalState::ENABLE_VALIDATION_LAYERS && !VChecker::CheckValidationLayerSupport())
+    {
+        throw std::runtime_error("Requested validation layers were not found");
+    }
+    else
+    {
+        Logger::LogSuccess("Valiation layers found") ;
+    }
+
     VkApplicationInfo appInfo{.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO};
     appInfo.pApplicationName = "Vulkan-RTX";
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
