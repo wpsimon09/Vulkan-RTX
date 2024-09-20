@@ -13,7 +13,7 @@ export class VulkanInstance
 {
     public:
         VulkanInstance();
-        const VkInstance& GetInstance();
+        const VkInstance& GetInstance() const;
         ~VulkanInstance();
     private:
         VkInstance m_vulkanInstance;
@@ -43,6 +43,11 @@ VulkanInstance::VulkanInstance()
     {
         std::cout << "Vulkan instance created successfuly \n";
     }
+}
+
+const VkInstance& VulkanInstance::GetInstance() const
+{
+    return m_vulkanInstance;
 }
 
 VulkanInstance::~VulkanInstance()

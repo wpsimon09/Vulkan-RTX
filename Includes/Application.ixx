@@ -29,11 +29,13 @@ public:
 
 private:
     std::unique_ptr<WindowManager> m_windowManager;
+    std::unique_ptr<VulkanInstance> m_vulkanInstance;
 };
 
 Application::Application()
 {
     m_windowManager = std::make_unique<WindowManager>(800,600);
+    m_vulkanInstance = std::make_unique<VulkanInstance>();
 }
 
 void Application::Init()
