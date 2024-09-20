@@ -17,15 +17,16 @@ set(CFLAGS_RELEASE "-O2")
 set(CFLAGS_DEBUG "-g")
 
 
-add_library(Modules
-        Internal/Vulkan/VSelector.ixx)
+add_library(Modules)
 target_sources(Modules
         PUBLIC
             FILE_SET CXX_MODULES
                 FILES
-        Internal/Vulkan/VInstance.ixx
+                Internal/Vulkan/VInstance.ixx
                 Includes/WindowManager/WindowManager.ixx
                 Includes/Application.ixx
+                Internal/Vulkan/VSelector.ixx
+                Internal/GlobalState.ixx
 
 )
 

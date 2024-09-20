@@ -6,7 +6,7 @@ module;
 #include <vulkan/vulkan.h>
 #include <iostream>
 
-import Window;
+import VSelector;
 export module VInstance;
 
 export class VulkanInstance
@@ -16,7 +16,7 @@ export class VulkanInstance
         const VkInstance& GetInstance();
         ~VulkanInstance();
     private:
-        VkInstance* m_vulkanInstance;
+        VkInstance m_vulkanInstance;
 };
 
 VulkanInstance::VulkanInstance()
@@ -31,16 +31,21 @@ VulkanInstance::VulkanInstance()
 
     VkInstanceCreateInfo createInfo{.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
     createInfo.pApplicationInfo = &appInfo;
+    auto extensions = VulkanSelector::GetRequiredExtensions();
+    createInfo.enabledExtensionCount = extensions.size();
+    createInfo.ppEnabledExtensionNames = extensions.data();
 
-    const char** glfwExtenstions;
-    uint32_t glfwExtensionCount;
-    WindowManager::GetRequiredExtensions(glfwExtenstions, glfwExtensionCount);
-    createInfo.enabledExtensionCount = glfwExtensionCount;
-    createInfo.ppEnabledExtensionNames = glfwExtenstions.
-    createInfo.pNext = nullptr;
-
+    if (vkCreateInstance(&createInfo, nullptr, &m_vulkanInstance) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create intance \n");
+    }
+    else
+    {
+        std::cout << "Vulkan instance created successfuly \n";
+    }
 }
 
 VulkanInstance::~VulkanInstance()
 {
+    vkDestroyInstance(m_vulkanInstance, nullptr);
 }
