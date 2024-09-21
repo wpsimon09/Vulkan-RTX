@@ -5,6 +5,7 @@ module;
 #include <vector>
 #include <iostream>
 #include <cstring>
+#include <vulkan/vulkan_enums.hpp>
 import Logger;
 export module VChecker;
 import vulkan_hpp;
@@ -18,9 +19,21 @@ namespace VChecker
     export bool CheckValidationLayerSupport()
     {
         u_int32_t layerCount;
-        vk::enumerateInstanceLayerProperties(&layerCount, nullptr);
+
+        if(vk::enumerateInstanceLayerProperties(&layerCount, nullptr) != vk::Result::eSuccess)
+        {
+            Logger::LogError("vk::enumerateInstanceLayerProperties failed");
+            return false;
+        }
+
+
         std::vector<vk::LayerProperties> availableLayers(layerCount);
-        vk::enumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+        if(vk::enumerateInstanceLayerProperties(&layerCount, availableLayers.data()) != vk::Result::eSuccess)
+        {
+            Logger::LogError("vk::enumerateInstanceLayerProperties failed");
+            return false;
+        }
+
         for (const char* layerName : validationLayers)
         {
             bool layerFound = false;

@@ -43,7 +43,7 @@ VulkanInstance::VulkanInstance()
     appInfo.apiVersion = vk::makeApiVersion(1,3,0);
     appInfo.pNext = nullptr;
 
-    vk::InstanceCreateInfo createInfo{.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
+    vk::InstanceCreateInfo createInfo;
     createInfo.pApplicationInfo = &appInfo;
     auto extensions = VulkanSelector::GetRequiredExtensions();
     createInfo.enabledExtensionCount = extensions.size();

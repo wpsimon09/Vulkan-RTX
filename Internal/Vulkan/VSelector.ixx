@@ -6,17 +6,17 @@ module;
 
 #include <vector>
 #include <iostream>
-#include <vulkan/vulkan.h>
 
 export module VSelector;
 import Window;
 import GlobalState;
+import vulkan_hpp;
 
 export namespace VulkanSelector
 {
      std::vector<const char*> GetRequiredExtensions()
      {
-          uint32_t glfwExtentionsCount = 0;
+          u_int32_t glfwExtentionsCount = 0;
           const char** glfwExtentions;
 
           WindowManager::GetRequiredExtensions(glfwExtentions, glfwExtentionsCount);
@@ -24,7 +24,7 @@ export namespace VulkanSelector
 
           if (GlobalState::ENABLE_VALIDATION_LAYERS)
           {
-               extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+               extensions.push_back(vk::EXTDebugUtilsExtensionName);
           }
 
           return extensions;
