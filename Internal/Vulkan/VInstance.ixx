@@ -3,24 +3,25 @@
 //
 
 module;
-#include <vulkan/vulkan.h>
 #include <iostream>
 
+import vulkan_hpp;
 import VSelector;
+import VChecker;
+
 import Logger;
 import GlobalState;
-import VChecker;
-export module VInstance;
 
+export module VInstance;
 
 export class VulkanInstance
 {
     public:
         VulkanInstance();
-        const VkInstance& GetInstance() const;
+        const vk::Instance& GetInstance() const;
         ~VulkanInstance();
     private:
-        VkInstance m_vulkanInstance;
+        vk::Instance m_vulkanInstance;
 };
 
 VulkanInstance::VulkanInstance()
@@ -34,36 +35,30 @@ VulkanInstance::VulkanInstance()
         Logger::LogSuccess("Valiation layers found") ;
     }
 
-    VkApplicationInfo appInfo{.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO};
+    vk::ApplicationInfo appInfo{};
     appInfo.pApplicationName = "Vulkan-RTX";
-    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.pEngineName = "No Engine";
-    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_3;
+    appInfo.applicationVersion = vk::makeVersion(1, 0, 0);
+    appInfo.pEngineName = "Vulkan.hpp";
+    appInfo.engineVersion =  vk::makeVersion(1, 0, 0);
+    appInfo.apiVersion = vk::makeApiVersion(1,3,0);
     appInfo.pNext = nullptr;
 
-    VkInstanceCreateInfo createInfo{.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
+    vk::InstanceCreateInfo createInfo{.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
     createInfo.pApplicationInfo = &appInfo;
     auto extensions = VulkanSelector::GetRequiredExtensions();
     createInfo.enabledExtensionCount = extensions.size();
     createInfo.ppEnabledExtensionNames = extensions.data();
 
-    if (vkCreateInstance(&createInfo, nullptr, &m_vulkanInstance) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to create intance \n");
-    }
-    else
-    {
-        Logger::LogSuccess("Vulkan instance created successfuly");
-    }
+    m_vulkanInstance = vk::createInstance(createInfo);
+    Logger::LogSuccess("Vulkan instance created successfuly");
 }
 
-const VkInstance& VulkanInstance::GetInstance() const
+const vk::Instance& VulkanInstance::GetInstance() const
 {
     return m_vulkanInstance;
 }
 
 VulkanInstance::~VulkanInstance()
 {
-    vkDestroyInstance(m_vulkanInstance, nullptr);
+    m_vulkanInstance.destroy();
 }
