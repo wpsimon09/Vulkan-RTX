@@ -3,11 +3,11 @@
 //
 module;
 #include <vector>
-#include <vulkan/vulkan.h>
 #include <iostream>
 #include <cstring>
 import Logger;
 export module VChecker;
+import vulkan_hpp;
 
 namespace VChecker
 {
@@ -17,17 +17,17 @@ namespace VChecker
 
     export bool CheckValidationLayerSupport()
     {
-        uint32_t layerCount;
-        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-        std::vector<VkLayerProperties> availableLayers(layerCount);
-        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+        u_int32_t layerCount;
+        vk::enumerateInstanceLayerProperties(&layerCount, nullptr);
+        std::vector<vk::LayerProperties> availableLayers(layerCount);
+        vk::enumerateInstanceLayerProperties(&layerCount, availableLayers.data());
         for (const char* layerName : validationLayers)
         {
             bool layerFound = false;
             for (const auto& layerProperties : availableLayers)
             {
                 std::string layerNamePrint = layerProperties.layerName;
-                Logger::LogInfo("Found layer" + layerNamePrint);
+                Logger::LogInfo("Found layer:" + layerNamePrint);
                 if(strcmp(layerName,layerProperties.layerName) == 0)
                 {
                     layerFound = true;

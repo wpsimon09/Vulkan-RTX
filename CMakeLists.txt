@@ -22,6 +22,7 @@ target_sources(Modules
         PUBLIC
             FILE_SET CXX_MODULES
                 FILES
+                External/VulkanModule/vulkan.cppm
                 Internal/Vulkan/VChecker.ixx
                 Internal/Vulkan/VInstance.ixx
                 Includes/WindowManager/WindowManager.ixx
@@ -29,7 +30,9 @@ target_sources(Modules
                 Internal/Vulkan/VSelector.ixx
                 Internal/GlobalState.ixx
                 Includes/Logger.ixx
+
 )
+
 
 # Find Vulkan, GLFW, and GLM
 find_package(Vulkan REQUIRED)
@@ -67,6 +70,7 @@ add_custom_target(run
         DEPENDS ${TARGET}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
+
 
 # Custom target for cleaning the build
 add_custom_target(reset
