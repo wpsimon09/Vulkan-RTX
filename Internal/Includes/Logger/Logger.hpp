@@ -10,7 +10,7 @@
 
 namespace Utils
 {
-    class VLogger
+    class Logger
     {
     public:
         static void LogSuccess(const std::string &msg);

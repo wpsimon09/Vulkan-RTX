@@ -4,20 +4,20 @@
 
 #include <iostream>
 #include "VulkanRtx.hpp"
-#include "Vulkan/Utils/VLogger.hpp"
+#include "Includes/Logger/Logger.hpp"
 
 int main()
 {
     Application application;
     try
     {
-        Utils::VLogger::LogSuccess("Starting the application...");
+        Utils::Logger::LogSuccess("Starting the application...");
         application.Run();
-        Utils::VLogger::LogInfo("Application is stopping...");
+        Utils::Logger::LogInfo("Application is stopping...");
 
     }catch(std::exception& e)
     {
-        Utils::VLogger::LogError(e.what());
+        Utils::Logger::LogError(e.what());
     }
     return 0;
 }

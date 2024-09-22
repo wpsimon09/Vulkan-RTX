@@ -3,7 +3,7 @@
 //
 
 #include "VInstance.hpp"
-#include "Vulkan/Utils/VLogger.hpp"
+#include "Includes/Logger/Logger.hpp"
 
 VulkanCore::VulkanInstance::VulkanInstance(std::string appname)
 {
@@ -19,7 +19,7 @@ VulkanCore::VulkanInstance::VulkanInstance(std::string appname)
 
     try{
         m_instance = vk::createInstance(instanceInfo);
-        Utils::VLogger::LogSuccess("Vulkan instance created");
+        Utils::Logger::LogSuccess("Vulkan instance created");
     }catch (vk::SystemError& err){
         throw std::runtime_error(err.what());
     }
@@ -27,5 +27,6 @@ VulkanCore::VulkanInstance::VulkanInstance(std::string appname)
 
 VulkanCore::VulkanInstance::~VulkanInstance()
 {
+    Utils::Logger::LogSuccess("Vulkan instance destroyed");
     m_instance.destroy();
 }
