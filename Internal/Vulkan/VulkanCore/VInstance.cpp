@@ -6,12 +6,14 @@
 #include "Includes/Logger/Logger.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Utils/VChecker.hpp"
+#include "Vulkan/Global/GlobalVariables.hpp"
 
 VulkanCore::VulkanInstance::VulkanInstance(std::string appname) {
-  if ( GlobalState::ValidationLayersEnabled && !
+  if ( GlobalState::ValidationLayersEnabled &&
        VulkanUtils::CheckValidationLayerSupport() ) {
     Utils::Logger::LogSuccess("Validation layers were found");
-  } else {
+  }
+  else {
     throw std::runtime_error("Failed to find validation layers");
   }
 
@@ -26,12 +28,13 @@ VulkanCore::VulkanInstance::VulkanInstance(std::string appname) {
   instanceInfo.pApplicationInfo = &applicationInfo;
 
   if ( GlobalState::ValidationLayersEnabled ) {
-
+    instanceInfo.enabledLayerCount = static_cast<uint32_t>(GlobalVariables::validationLayers.size());
+    instanceInfo.ppEnabledLayerNames  = GlobalVariables::validationLayers.data();
   }
 
   try {
     m_instance = vk::createInstance(instanceInfo);
-    Utils::Logger::LogSuccess("Vulkan instance created");
+    Utils::Logger::LogInfoVerboseOnly("Vulkan instance created");
   } catch ( vk::SystemError &err ) {
     throw std::runtime_error(err.what());
   }
@@ -40,4 +43,17 @@ VulkanCore::VulkanInstance::VulkanInstance(std::string appname) {
 VulkanCore::VulkanInstance::~VulkanInstance() {
   Utils::Logger::LogSuccess("Vulkan instance destroyed");
   m_instance.destroy();
+}
+
+void VulkanCore::VulkanInstance::PopulateDebugMessengerCreateInfo(
+    vk::DebugUtilsMessengerCreateInfoEXT &createInfo) {
+  createInfo.messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eError |
+    vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose |
+      vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
+      vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning;
+  createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+      VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+      VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+  createInfo.pfnUserCallback = debugCallback;
+  createInfo.pUserData = nullptr;
 }

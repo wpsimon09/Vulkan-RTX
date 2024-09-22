@@ -16,6 +16,7 @@ namespace VulkanCore
         explicit VulkanInstance(std::string appname);
         ~VulkanInstance();
     private:
+        void PopulateDebugMessengerCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo);
         vk::Instance m_instance;
     };
 }

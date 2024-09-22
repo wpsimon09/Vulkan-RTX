@@ -4,6 +4,8 @@
 
 #include "Logger.hpp"
 
+#include "Vulkan/Global/GlobalState.hpp"
+
 void Utils::Logger::LogSuccess(const std::string& msg)
 {
     auto time = std::chrono::system_clock::now();
@@ -26,4 +28,13 @@ void Utils::Logger::LogInfo(const std::string& msg)
     std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
     std::tm* localTime = std::localtime(&currentTime);
     std::cout << "LOG::INFO::[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg << std::endl;
+}
+
+void Utils::Logger::LogInfoVerboseOnly(const std::string &msg) {
+  if(GlobalState::Verbose) {
+    auto time = std::chrono::system_clock::now();
+    std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
+    std::tm* localTime = std::localtime(&currentTime);
+    std::cout << "LOG::INFO::[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg << std::endl;
+  }
 }

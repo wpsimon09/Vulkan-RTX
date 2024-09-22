@@ -24,6 +24,7 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/VInstance.hpp
         Internal/Vulkan/Utils/VChecker.cpp
         Internal/Vulkan/Utils/VChecker.hpp
+        Internal/Vulkan/Global/GlobalVariables.hpp
 )
 
 
