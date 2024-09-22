@@ -18,6 +18,10 @@ set(SOURCES
         Internal/Includes/WindowManager/WindowManager.cpp
         Internal/Includes/WindowManager/WindowManager.hpp
         Internal/Vulkan/Global/GlobalState.hpp
+        Internal/Vulkan/Utils/VLogger.cpp
+        Internal/Vulkan/Utils/VLogger.hpp
+        Internal/Vulkan/VulkanCore/VInstance.cpp
+        Internal/Vulkan/VulkanCore/VInstance.hpp
 )
 
 

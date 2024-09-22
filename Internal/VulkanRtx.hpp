@@ -6,13 +6,8 @@
 #define VULKANRTX_HPP
 
 #include <memory>
-
-// FORWARD DECLARATION
-class WindowManager;
-namespace VulkanCore
-{
-    class VulkanInstance;
-}
+#include "Includes/WindowManager/WindowManager.hpp"
+#include "Vulkan/VulkanCore/VInstance.hpp"
 
 
 class Application {

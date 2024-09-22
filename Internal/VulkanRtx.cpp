@@ -3,10 +3,7 @@
 //
 
 #include "VulkanRtx.hpp"
-
 #include <GLFW/glfw3.h>
-
-#include "Includes/WindowManager/WindowManager.hpp"
 
 
 Application::Application()
@@ -17,7 +14,7 @@ Application::Application()
 
 void Application::Init()
 {
-
+    m_windowManager->InitWindow();
 }
 
 void Application::MainLoop()
