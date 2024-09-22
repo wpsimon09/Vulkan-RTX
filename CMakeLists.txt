@@ -13,20 +13,17 @@ set(CFLAGS_DEBUG "-g")
 set(TARGET Vulkan-RTX)
 set(SOURCES
         src/main.cpp
+        Internal/VulkanRtx.cpp
+        Internal/VulkanRtx.hpp
+        Internal/Includes/WindowManager/WindowManager.cpp
+        Internal/Includes/WindowManager/WindowManager.hpp
+        Internal/Vulkan/Global/GlobalState.hpp
+        Internal/Vulkan/Utils/VLogger.cpp
+        Internal/Vulkan/Utils/VLogger.hpp
+        Internal/Vulkan/VulkanCore/VInstance.cpp
+        Internal/Vulkan/VulkanCore/VInstance.hpp
 )
 
-add_library(Modules)
-target_sources(Modules
-        PUBLIC
-            FILE_SET CXX_MODULES
-                FILES
-                Internal/Vulkan/Utils/VLogger.ixx
-                Internal/Vulkan/VDevices.ixx
-                Internal/Vulkan/VInstance.ixx
-                Internal/Vulkan/Global/GlobalState.ixx
-                Internal/Includes/WindowManager/WindowManager.ixx
-                Internal/Includes/Application.ixx
-)
 
 # Find Vulkan, GLFW, and GLM
 find_package(Vulkan REQUIRED)
@@ -41,8 +38,7 @@ add_executable(${TARGET} ${SOURCES})
 target_include_directories(${TARGET} PRIVATE ${GLM_INCLUDE_DIRS})
 
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
-        ${CMAKE_SOURCE_DIR}/Includes
-        ${CMAKE_SOURCE_DIR}/Internal/Vulkan
+        ${CMAKE_SOURCE_DIR}/Internal/
 )
 
 # Set compile options based on build type
@@ -53,4 +49,4 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # Link libraries
-target_link_libraries(${TARGET} PRIVATE glfw Vulkan::Vulkan assimp Modules)
+target_link_libraries(${TARGET} PRIVATE glfw Vulkan::Vulkan assimp)
