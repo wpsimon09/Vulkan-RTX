@@ -7,15 +7,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 add_compile_options(-fmodules-ts)
 
+set(CFLAGS_RELEASE "-O2")
+set(CFLAGS_DEBUG "-g")
+
 set(TARGET Vulkan-RTX)
 set(SOURCES
         src/main.cpp
 )
-
-
-set(CFLAGS_RELEASE "-O2")
-set(CFLAGS_DEBUG "-g")
-
 
 add_library(Modules)
 target_sources(Modules
@@ -25,6 +23,7 @@ target_sources(Modules
                 Internal/Vulkan/Utils/VLogger.ixx
                 Internal/Vulkan/VDevices.ixx
                 Internal/Vulkan/VInstance.ixx
+                Internal/Vulkan/Global/GlobalState.ixx
                 Internal/Includes/WindowManager/WindowManager.ixx
                 Internal/Includes/Application.ixx
 )
@@ -53,24 +52,5 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(${TARGET} PRIVATE ${CFLAGS_DEBUG})
 endif()
 
-
-
 # Link libraries
 target_link_libraries(${TARGET} PRIVATE glfw Vulkan::Vulkan assimp Modules)
-
-# Custom target for running the executable
-add_custom_target(run
-        COMMAND ./${TARGET}
-        COMMAND ./Shaders/compile.sh
-        DEPENDS ${TARGET}
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-
-# Custom target for cleaning the build
-add_custom_target(reset
-        COMMAND ${CMAKE_COMMAND} -E remove ${TARGET}
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-
-
-
