@@ -3,62 +3,11 @@
 //
 
 module;
-#include <iostream>
-#include <vulkan/vulkan.hpp>
 
-import VSelector;
-import VChecker;
-
-import Logger;
-import GlobalState;
 
 export module VInstance;
 
 export class VulkanInstance
 {
-    public:
-        VulkanInstance();
-        const vk::Instance& GetInstance() const;
-        ~VulkanInstance();
-    private:
-        vk::Instance m_vulkanInstance;
+
 };
-
-VulkanInstance::VulkanInstance()
-{
-    if(GlobalState::ENABLE_VALIDATION_LAYERS && !VChecker::CheckValidationLayerSupport())
-    {
-        throw std::runtime_error("Requested validation layers were not found");
-    }
-    else
-    {
-        Logger::LogSuccess("Valiation layers found") ;
-    }
-
-    vk::ApplicationInfo appInfo{};
-    appInfo.pApplicationName = "Vulkan-RTX";
-    appInfo.applicationVersion = vk::makeVersion(1, 0, 0);
-    appInfo.pEngineName = "Vulkan.hpp";
-    appInfo.engineVersion =  vk::makeVersion(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_1;
-    appInfo.pNext = nullptr;
-
-    vk::InstanceCreateInfo createInfo;
-    createInfo.pApplicationInfo = &appInfo;
-    auto extensions = VulkanSelector::GetRequiredExtensions();
-    createInfo.enabledExtensionCount = extensions.size();
-    createInfo.ppEnabledExtensionNames = extensions.data();
-
-    m_vulkanInstance = vk::createInstance(createInfo);
-    Logger::LogSuccess("Vulkan instance created successfuly");
-}
-
-const vk::Instance& VulkanInstance::GetInstance() const
-{
-    return m_vulkanInstance;
-}
-
-VulkanInstance::~VulkanInstance()
-{
-    m_vulkanInstance.destroy();
-}
