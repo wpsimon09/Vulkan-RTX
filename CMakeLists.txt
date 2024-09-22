@@ -23,8 +23,8 @@ target_sources(Modules
             FILE_SET CXX_MODULES
                 FILES
                 Internal/Vulkan/VDevices.ixx
-                Includes/WindowManager/WindowManager.ixx
-                Includes/Application.ixx
+        Internal/Includes/WindowManager/WindowManager.ixx
+        Internal/Includes/Application.ixx
 
 )
 

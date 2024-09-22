@@ -3,7 +3,6 @@
 //
 
 module;
-#include <vulkan/vulkan.h>
 #include <iostream>
 
 export module VDevices;
