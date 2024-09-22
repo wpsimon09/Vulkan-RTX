@@ -2,13 +2,15 @@
 // Created by wpsimon09 on 20/09/24.
 //
 module;
+
 #include <vector>
 #include <iostream>
 #include <cstring>
-#include <vulkan/vulkan_enums.hpp>
+#include <vulkan/vulkan.hpp>
+
 import Logger;
+
 export module VChecker;
-import vulkan_hpp;
 
 namespace VChecker
 {

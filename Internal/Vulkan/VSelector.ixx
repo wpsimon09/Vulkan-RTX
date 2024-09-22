@@ -6,11 +6,11 @@ module;
 
 #include <vector>
 #include <iostream>
+#include <vulkan/vulkan.hpp>
 
-export module VSelector;
 import Window;
 import GlobalState;
-import vulkan_hpp;
+export module VSelector;
 
 export namespace VulkanSelector
 {

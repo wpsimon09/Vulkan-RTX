@@ -22,7 +22,6 @@ target_sources(Modules
         PUBLIC
             FILE_SET CXX_MODULES
                 FILES
-                External/VulkanModule/vulkan.cppm
                 Internal/Vulkan/VChecker.ixx
                 Internal/Vulkan/VInstance.ixx
                 Includes/WindowManager/WindowManager.ixx
@@ -30,7 +29,6 @@ target_sources(Modules
                 Internal/Vulkan/VSelector.ixx
                 Internal/GlobalState.ixx
                 Includes/Logger.ixx
-
 )
 
 

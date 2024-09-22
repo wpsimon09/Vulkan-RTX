@@ -4,8 +4,8 @@
 
 module;
 #include <iostream>
+#include <vulkan/vulkan.hpp>
 
-import vulkan_hpp;
 import VSelector;
 import VChecker;
 
@@ -40,7 +40,7 @@ VulkanInstance::VulkanInstance()
     appInfo.applicationVersion = vk::makeVersion(1, 0, 0);
     appInfo.pEngineName = "Vulkan.hpp";
     appInfo.engineVersion =  vk::makeVersion(1, 0, 0);
-    appInfo.apiVersion = vk::makeApiVersion(1,3,0);
+    appInfo.apiVersion = VK_API_VERSION_1_1;
     appInfo.pNext = nullptr;
 
     vk::InstanceCreateInfo createInfo;
