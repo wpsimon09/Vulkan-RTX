@@ -1,31 +1,9 @@
 //
-// Created by wpsimon09 on 19/09/24.
+// Created by wpsimon09 on 22/09/24.
 //
-module;
 
-#define GLFW_INCLUDE_VULKAN;
-#include <GLFW/glfw3.h>
-#include "glm/glm.hpp"
+#include "WindowManager.hpp"
 
-export module Window;
-
-export class WindowManager {
-public:
-    WindowManager(int windowWidth, int windowHeight);
-
-    void InitWindow();
-
-    const int getWindowWidth() const;
-    const int getWindowHeight() const;
-    GLFWwindow* GetWindow() const;
-
-    static void GetRequiredExtensions(const char**& extensions, uint32_t& count );
-
-    ~WindowManager();
-private:
-    GLFWwindow* m_window;
-    int m_width, m_height;
-};
 
 WindowManager::WindowManager(int windowWidth, int windowHeight)
 {
@@ -67,6 +45,3 @@ WindowManager::~WindowManager()
 {
     glfwDestroyWindow(m_window);
 }
-
-
-
