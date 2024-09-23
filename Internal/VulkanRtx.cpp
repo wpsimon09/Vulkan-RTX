@@ -8,13 +8,14 @@
 
 Application::Application()
 {
-    m_windowManager = std::make_unique<WindowManager>(800,600);
-    m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX");
 }
 
 void Application::Init()
 {
+    m_windowManager = std::make_unique<WindowManager>(800,600);
     m_windowManager->InitWindow();
+
+    m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX");
 }
 
 void Application::MainLoop()
