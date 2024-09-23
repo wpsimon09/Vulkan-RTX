@@ -4,6 +4,7 @@
 
 #include "VInstance.hpp"
 #include "Includes/Logger/Logger.hpp"
+#include "Includes/WindowManager/WindowManager.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Utils/VChecker.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
@@ -50,8 +51,11 @@ VkBool32 VulkanCore::VulkanInstance::debugCallback(vk::DebugUtilsMessageTypeFlag
             }
         }
     }
+    std::string file = "Error in the file: \t";
+    file += __FILE__;
+    file += "\n";
 
-    Utils::Logger::LogError(message.str());
+    Utils::Logger::LogError(file + message.str() );
 
     return false;
 }
@@ -75,9 +79,19 @@ VulkanCore::VulkanInstance::VulkanInstance(std::string appname) {
     vk::InstanceCreateInfo instanceInfo;
     instanceInfo.pApplicationInfo = &applicationInfo;
 
+    uint32_t extensionCount = 0;
+    const char** extensions;
+
+    WindowManager::GetRequiredExtensions(extensions, extensionCount);
+
+    std::vector<const char*> extensionVector(extensions, extensions + extensionCount);
+    extensionVector.push_back(GlobalVariables::enabledExtensions);
+
     if (GlobalState::ValidationLayersEnabled) {
         instanceInfo.enabledLayerCount = static_cast<uint32_t>(GlobalVariables::validationLayers.size());
         instanceInfo.ppEnabledLayerNames = GlobalVariables::validationLayers.data();
+        instanceInfo.enabledExtensionCount = static_cast<uint32_t>(GlobalVariables::enabledExtensions.size());
+        instanceInfo.ppEnabledExtensionNames = GlobalVariables::enabledExtensions.data();
     }
 
     try {
@@ -87,6 +101,7 @@ VulkanCore::VulkanInstance::VulkanInstance(std::string appname) {
     catch (vk::SystemError &err) {
         throw std::runtime_error(err.what());
     }
+
 }
 
 VulkanCore::VulkanInstance::~VulkanInstance() {
@@ -96,16 +111,11 @@ VulkanCore::VulkanInstance::~VulkanInstance() {
 
 void VulkanCore::VulkanInstance::PopulateDebugMessengerCreateInfo(
     vk::DebugUtilsMessengerCreateInfoEXT &createInfo) {
-    createInfo.messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eError |
-        vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose |
-        vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
-        vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning;
-    createInfo.messageType =
-        vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
-        | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
-        | vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral;
+
+    vk::DebugUtilsMessageSeverityFlagsEXT severityFlags( vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+                                                         vk::DebugUtilsMessageSeverityFlagBitsEXT::eError );
+    vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags( vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+                                                        vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation );
 
 
-    createInfo.pfnUserCallback = debugCallback;
-    createInfo.pUserData = nullptr;
 }

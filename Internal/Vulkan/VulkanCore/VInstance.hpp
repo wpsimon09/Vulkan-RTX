@@ -29,6 +29,7 @@ namespace VulkanCore
         void PopulateDebugMessengerCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT &createInfo);
 
         vk::Instance m_instance;
+        vk::DebugUtilsMessengerEXT m_debugMessenger;
     };
 }
 
