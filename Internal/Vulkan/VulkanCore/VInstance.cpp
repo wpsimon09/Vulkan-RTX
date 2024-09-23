@@ -85,12 +85,12 @@ VulkanCore::VulkanInstance::VulkanInstance(std::string appname) {
     WindowManager::GetRequiredExtensions(extensions, extensionCount);
 
     std::vector<const char*> extensionVector(extensions, extensions + extensionCount);
-    extensionVector.push_back(GlobalVariables::enabledExtensions);
+    extensionVector.insert(extensionVector.end(), GlobalVariables::validationLayers.begin(), GlobalVariables::validationLayers.end());
 
     if (GlobalState::ValidationLayersEnabled) {
         instanceInfo.enabledLayerCount = static_cast<uint32_t>(GlobalVariables::validationLayers.size());
         instanceInfo.ppEnabledLayerNames = GlobalVariables::validationLayers.data();
-        instanceInfo.enabledExtensionCount = static_cast<uint32_t>(GlobalVariables::enabledExtensions.size());
+        instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensionVector.size());
         instanceInfo.ppEnabledExtensionNames = GlobalVariables::enabledExtensions.data();
     }
 
