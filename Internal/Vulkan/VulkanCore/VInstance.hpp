@@ -16,6 +16,10 @@ namespace VulkanCore
     public:
         explicit VulkanInstance(std::string appname);
 
+        static VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc( VkDebugUtilsMessageSeverityFlagBitsEXT       messageSeverity,
+                                                 VkDebugUtilsMessageTypeFlagsEXT              messageTypes,
+                                                 VkDebugUtilsMessengerCallbackDataEXT const * pCallbackData,
+                                                 void * /*pUserData*/ );
 
         ~VulkanInstance();
     private:

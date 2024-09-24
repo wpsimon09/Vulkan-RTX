@@ -10,17 +10,111 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 
 
-VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-    vk::DebugUtilsMessageTypeFlagBitsEXT messageSeverity,
-    vk::DebugUtilsMessageTypeFlagsEXT messageType,
-    const vk::DebugUtilsMessengerCallbackDataEXT *pCallbackData,
-    void *pUserData
-    ) {
 
-    std::ostringstream message;
+
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(VkInstance instance,const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator,VkDebugUtilsMessengerEXT *pMessenger) {
+    return GlobalVariables::pfnVkCreateDebugUtilsMessengerEXT(instance, pCreateInfo, pAllocator, pMessenger);
+}
+
+VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT messenger, VkAllocationCallbacks const *pAllocator) {
+    return GlobalVariables::pfnVkDestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
+}
+
+VulkanCore::VulkanInstance::VulkanInstance(std::string appname) {
+
+    //-------------------------------
+    // CHECK VALIDATION LAYER SUPPORT
+    //-------------------------------
+    if (GlobalState::ValidationLayersEnabled &&
+        VulkanUtils::CheckValidationLayerSupport()) {
+        Utils::Logger::LogSuccess("Validation are going to be used !");
+    }
+    else {
+        Utils::Logger::LogInfo("Validation layers are not going to be used");
+    }
+
+    //-------------------------------
+    // APPLICATION INFO
+    //-------------------------------
+    vk::ApplicationInfo applicationInfo;
+    applicationInfo.pApplicationName = appname.c_str();
+    applicationInfo.apiVersion = VK_API_VERSION_1_3;
+    applicationInfo.applicationVersion = 1;
+    applicationInfo.engineVersion = 1;
+    applicationInfo.pEngineName = "Vulkan.hpp";
+
+
+    //----------------------------------
+    // GET EXTENSIONS
+    //----------------------------------
+    uint32_t extensionCount = 0;
+    const char **extensions;
+    WindowManager::GetRequiredExtensions(extensions, extensionCount);
+    std::vector<const char *> extensionVector(extensions, extensions + extensionCount);
+
+    //-------------------------------
+    // INSTANCE CREATION
+    //-------------------------------
+    vk::InstanceCreateInfo instanceInfo;
+    instanceInfo.pApplicationInfo = &applicationInfo;
+    if (GlobalState::ValidationLayersEnabled) {
+        extensionVector.insert(extensionVector.end(), GlobalVariables::enabledExtensions.begin(), GlobalVariables::enabledExtensions.end());
+
+        instanceInfo.enabledLayerCount = static_cast<uint32_t>(GlobalVariables::validationLayers.size());
+        instanceInfo.ppEnabledLayerNames = GlobalVariables::validationLayers.data();
+
+        instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensionVector.size());
+        instanceInfo.ppEnabledExtensionNames = extensionVector.data();
+    }else {
+        instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensionVector.size());
+        instanceInfo.ppEnabledExtensionNames = extensionVector.data();
+    }
+
+    try {
+        m_instance = vk::createInstance(instanceInfo);
+        Utils::Logger::LogInfoVerboseOnly("Vulkan instance created");
+    }
+    catch (vk::SystemError &err) {
+        throw std::runtime_error(err.what());
+    }
+
+    //----------------------------------------------------------
+    // ADD CONFIGURE VALIDATION LAYERS ONCE INSTANCE IS CREATED
+    //---------------------------------------------------------
+    if(GlobalState::ValidationLayersEnabled) {
+        GlobalVariables::pfnVkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(m_instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
+        if (!GlobalVariables::pfnVkCreateDebugUtilsMessengerEXT) {
+            throw std::runtime_error("Failed to create debug messenger");
+        }
+        Utils::Logger::LogSuccess("Created create debug messenger");
+
+        GlobalVariables::pfnVkDestroyDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(m_instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
+
+        if (!GlobalVariables::pfnVkDestroyDebugUtilsMessengerEXT) {
+            throw std::runtime_error("Failed to create destroy debug messenger");
+        }
+        Utils::Logger::LogSuccess("Created destroy debug messenger");
+
+
+        vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError);
+        vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
+            vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+            vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+            vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
+
+        m_debugMessenger = m_instance.createDebugUtilsMessengerEXT(
+            vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &debugMessageFunc));
+    }
+
+
+}
+
+VkBool32 VulkanCore::VulkanInstance::debugMessageFunc(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
+  , VkDebugUtilsMessageTypeFlagsEXT messageTypes, VkDebugUtilsMessengerCallbackDataEXT const *pCallbackData, void *) {
+     std::ostringstream message;
 
     message << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)) << ": "
-        << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageType)) << ":\n";
+        << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes)) << ":\n";
     message << std::string("\t") << "messageIDName   = <" << pCallbackData->pMessageIdName << ">\n";
     message << std::string("\t") << "messageIdNumber = " << pCallbackData->messageIdNumber << "\n";
     message << std::string("\t") << "message         = <" << pCallbackData->pMessage << ">\n";
@@ -59,87 +153,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 
 }
 
-
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(VkInstance instance,const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator,VkDebugUtilsMessengerEXT *pMessenger) {
-    return GlobalVariables::pfnVkCreateDebugUtilsMessengerEXT(instance, pCreateInfo, pAllocator, pMessenger);
-}
-
-VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT messenger, VkAllocationCallbacks const *pAllocator) {
-    return GlobalVariables::pfnVkDestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
-}
-
-VulkanCore::VulkanInstance::VulkanInstance(std::string appname) {
-    if (GlobalState::ValidationLayersEnabled &&
-        VulkanUtils::CheckValidationLayerSupport()) {
-        Utils::Logger::LogSuccess("Validation layers were found");
-    }
-    else {
-        Utils::Logger::LogSuccess("Validation layers are not going to be used");
-    }
-
-    vk::ApplicationInfo applicationInfo;
-    applicationInfo.pApplicationName = appname.c_str();
-    applicationInfo.apiVersion = VK_API_VERSION_1_3;
-    applicationInfo.applicationVersion = 1;
-    applicationInfo.engineVersion = 1;
-    applicationInfo.pEngineName = "Vulkan.hpp";
-
-    vk::InstanceCreateInfo instanceInfo;
-    instanceInfo.pApplicationInfo = &applicationInfo;
-
-    uint32_t extensionCount = 0;
-    const char **extensions;
-
-    WindowManager::GetRequiredExtensions(extensions, extensionCount);
-
-    std::vector<const char *> extensionVector(extensions, extensions + extensionCount);
-
-    if (GlobalState::ValidationLayersEnabled) {
-        extensionVector.insert(extensionVector.end(), GlobalVariables::validationLayers.begin()
-                             , GlobalVariables::validationLayers.end());
-        instanceInfo.enabledLayerCount = static_cast<uint32_t>(GlobalVariables::validationLayers.size());
-        instanceInfo.ppEnabledLayerNames = GlobalVariables::validationLayers.data();
-        instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensionVector.size());
-        instanceInfo.ppEnabledExtensionNames = extensionVector.data();
-    }else {
-        instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensionVector.size());
-        instanceInfo.ppEnabledExtensionNames = extensionVector.data();
-    }
-
-    try {
-        m_instance = vk::createInstance(instanceInfo);
-        Utils::Logger::LogInfoVerboseOnly("Vulkan instance created");
-    }
-    catch (vk::SystemError &err) {
-        throw std::runtime_error(err.what());
-    }
-
-    if(GlobalState::ValidationLayersEnabled) {
-        GlobalVariables::pfnVkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(m_instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
-        if (!GlobalVariables::pfnVkCreateDebugUtilsMessengerEXT) {
-            throw std::runtime_error("Failed to create debug messenger");
-        }
-        Utils::Logger::LogSuccess("Created create debug messenger");
-
-        GlobalVariables::pfnVkDestroyDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
-            m_instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
-        if (!GlobalVariables::pfnVkDestroyDebugUtilsMessengerEXT) {
-            throw std::runtime_error("Failed to create destroy debug messenger");
-        }
-        Utils::Logger::LogSuccess("Created destroy debug messenger");
-
-
-        vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
-            vk::DebugUtilsMessageSeverityFlagBitsEXT::eError);
-        vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
-            vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-            vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
-        m_debugMessenger = m_instance.createDebugUtilsMessengerEXT(
-            vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, PFN_vkDebugUtilsMessengerCallbackEXT(&debugCallback)));
-    }
-
-
-}
 
 VulkanCore::VulkanInstance::~VulkanInstance() {
     Utils::Logger::LogInfoVerboseOnly("Vulkan instance destroyed");
