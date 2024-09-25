@@ -1,6 +1,7 @@
 //
 // Created by wpsimon09 on 22/09/24.
 //
+#pragma once
 
 #ifndef VINSTANCE_HPP
 #define VINSTANCE_HPP
@@ -20,6 +21,8 @@ namespace VulkanCore
                                                  VkDebugUtilsMessageTypeFlagsEXT              messageTypes,
                                                  VkDebugUtilsMessengerCallbackDataEXT const * pCallbackData,
                                                  void * /*pUserData*/ );
+
+        const vk::Instance& GetInstance() const { return m_instance; }
 
         ~VulkanInstance();
     private:

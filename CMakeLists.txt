@@ -20,11 +20,15 @@ set(SOURCES
         Internal/Vulkan/Global/GlobalState.hpp
         Internal/Includes/Logger/Logger.cpp
         Internal/Includes/Logger/Logger.hpp
-        Internal/Vulkan/VulkanCore/VInstance.cpp
-        Internal/Vulkan/VulkanCore/VInstance.hpp
+        Internal/Vulkan/VulkanCore/Instance/VInstance.cpp
+        Internal/Vulkan/VulkanCore/Instance/VInstance.hpp
         Internal/Vulkan/Utils/VChecker.cpp
         Internal/Vulkan/Utils/VChecker.hpp
         Internal/Vulkan/Global/GlobalVariables.hpp
+        Internal/Vulkan/VulkanCore/Device/VDevice.cpp
+        Internal/Vulkan/VulkanCore/Device/VDevice.hpp
+        Internal/Vulkan/Utils/VSelector.hpp
+        Internal/Vulkan/Utils/VSelector.cpp
 )
 
 

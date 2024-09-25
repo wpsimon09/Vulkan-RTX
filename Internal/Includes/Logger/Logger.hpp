@@ -1,7 +1,7 @@
 //
 // Created by wpsimon09 on 22/09/24.
 //
-
+#pragma once
 #ifndef VLOGGER_HPP
 #define VLOGGER_HPP
 
