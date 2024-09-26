@@ -8,7 +8,7 @@
 #include<vulkan/vulkan.hpp>
 
 
-namespace VulkacCore
+namespace VulkanCore
 {
 
     struct VQueueFamilyIndices
@@ -23,7 +23,7 @@ namespace VulkacCore
     class VDevice
     {
     public:
-        VDevice(vk::Instance& instance);
+        VDevice(const vk::Instance& instance);
 
         const vk::PhysicalDevice& GetPhysicalDevice() const;
         const vk::Device& GetDevice();
@@ -37,7 +37,7 @@ namespace VulkacCore
         vk::Queue m_computeQueue;
         vk::Queue m_transferQueue;
 
-        vk::Instance& m_insatnce;
+        const vk::Instance& m_insatnce;
 
     private:
         vk::PhysicalDevice PickPhysicalDevice();

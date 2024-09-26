@@ -44,4 +44,5 @@ bool VulkanUtils::CheckPhysicalDeviceCompatibility(vk::PhysicalDevice physicalDe
     auto properties = physicalDevice.getProperties();
     auto features = physicalDevice.getFeatures();
 
+
 }
