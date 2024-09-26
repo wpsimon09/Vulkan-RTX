@@ -27,8 +27,7 @@ set(SOURCES
         Internal/Vulkan/Global/GlobalVariables.hpp
         Internal/Vulkan/VulkanCore/Device/VDevice.cpp
         Internal/Vulkan/VulkanCore/Device/VDevice.hpp
-        Internal/Vulkan/Utils/VSelector.hpp
-        Internal/Vulkan/Utils/VSelector.cpp
+        Internal/Vulkan/Global/GlobalStructs.hpp
 )
 
 

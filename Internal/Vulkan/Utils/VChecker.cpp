@@ -39,3 +39,9 @@ bool VulkanUtils::  CheckValidationLayerSupport()
     }
     return true;
 }
+
+bool VulkanUtils::CheckPhysicalDeviceCompatibility(vk::PhysicalDevice physicalDevice) {
+    auto properties = physicalDevice.getProperties();
+    auto features = physicalDevice.getFeatures();
+
+}

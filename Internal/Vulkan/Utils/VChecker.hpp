@@ -6,6 +6,10 @@
 #define VCHECKER_HPP
 
 #include<vector>
+namespace vk
+{
+    class PhysicalDevice;
+}
 
 namespace VulkanUtils
 {
@@ -14,6 +18,8 @@ namespace VulkanUtils
     };
 
     bool CheckValidationLayerSupport();
+
+    bool CheckPhysicalDeviceCompatibility(vk::PhysicalDevice physicalDevice);
 };
 
 

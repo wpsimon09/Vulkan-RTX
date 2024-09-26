@@ -10,10 +10,25 @@
 
 namespace VulkacCore
 {
+
+    struct VQueueFamilyIndices
+    {
+        std::optional<uint32_t> graphicsFamily;
+        std::optional<uint32_t> presentFamily;
+        std::optional<uint32_t> computeFamily;
+
+        bool isComplete() const {return graphicsFamily.has_value() && presentFamily.has_value() && computeFamily.has_value();};
+    };
+
     class VDevice
     {
     public:
         VDevice(vk::Instance& instance);
+
+        const vk::PhysicalDevice& GetPhysicalDevice() const;
+        const vk::Device& GetDevice();
+
+        ~VDevice();
     private:
         vk::PhysicalDevice m_physicalDevice;
         vk::Device m_device; //logical device
@@ -23,6 +38,9 @@ namespace VulkacCore
         vk::Queue m_transferQueue;
 
         vk::Instance& m_insatnce;
+
+    private:
+        vk::PhysicalDevice PickPhysicalDevice();
     };
 }
 
