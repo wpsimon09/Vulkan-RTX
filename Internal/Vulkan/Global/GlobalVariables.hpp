@@ -16,10 +16,6 @@ namespace GlobalVariables {
     const std::vector<const char *> enabledExtensions = {
       static_cast<const char *>(VK_EXT_DEBUG_UTILS_EXTENSION_NAME)
     };
-
-    PFN_vkCreateDebugUtilsMessengerEXT  pfnVkCreateDebugUtilsMessengerEXT;
-    PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
-
 }
 
 #endif //GLOBALVARIABLES_HPP

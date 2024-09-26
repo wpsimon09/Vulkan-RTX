@@ -14,14 +14,15 @@ VulkanCore::VDevice::VDevice(const vk::Instance &instance):m_insatnce(instance) 
 
 vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice() {
     auto availablePhysicalDevices = m_insatnce.enumeratePhysicalDevices();
-    for(auto  &physicalDevice: availablePhysicalDevices) {
+    for(auto  physicalDevice: availablePhysicalDevices) {
         Utils::Logger::LogInfo("Found physical device: " + std::string(physicalDevice.getProperties().deviceName));
-        if(GlobalVariables::GlobalStructs::primaryDeviceFeatures.CheckAgainstRetrievedPhysicalDevice(physicalDevice.getProperties().deviceType, physicalDevice.getFeatures())){
+        if(GlobalVariables::GlobalStructs::primaryDeviceFeatures.CheckAgainstRetrievedPhysicalDevice(physicalDevice.getProperties().deviceType, physicalDevice.getFeatures()) ||
+           GlobalVariables::GlobalStructs::secondaryDeviceFeatures.CheckAgainstRetrievedPhysicalDevice(physicalDevice.getProperties().deviceType, physicalDevice.getFeatures())) {
+
+            Utils::Logger::LogSuccess("Going to use this device, terminating next searches");
             return physicalDevice;
-        }else if(GlobalVariables::GlobalStructs::primaryDeviceFeatures.CheckAgainstRetrievedPhysicalDevice(physicalDevice.getProperties().deviceType, physicalDevice.getFeatures())){
-            return physicalDevice;
-        }else {
-            throw std::runtime_error("Could not find a valid physical device try to disable some features");
         }
+        else
+            throw std::runtime_error("Could not find a valid physical device try to disable some features");
     }
 }

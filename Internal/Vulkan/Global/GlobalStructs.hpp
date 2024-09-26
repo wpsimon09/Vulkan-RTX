@@ -13,22 +13,31 @@ struct DesiredDeviceFeatures
     vk::PhysicalDeviceFeatures deviceFeatures;
 
     bool CheckAgainstRetrievedPhysicalDevice(vk::PhysicalDeviceType deviceType, vk::PhysicalDeviceFeatures deviceFeatures) {
-        if(deviceType != this->deviceType) return false;
-        if(deviceFeatures.geometryShader != this->deviceFeatures.geometryShader) return false;
+        Utils::Logger::LogInfoVerboseOnly("Checking device..." );
+        if(deviceType != this->deviceType) {
+            Utils::Logger::LogInfoVerboseOnly("Device type miss match");
+            return false;
+        }
+        if(deviceFeatures.geometryShader != this->deviceFeatures.geometryShader) {
+            Utils::Logger::LogInfoVerboseOnly("Device does not support geometry shader");
+            return false;
+        }
+        Utils::Logger::LogInfoVerboseOnly("Device has passed all the checks");
+        return true;
     }
 };
+
 
 namespace GlobalVariables::GlobalStructs
 {
     inline extern DesiredDeviceFeatures primaryDeviceFeatures = {
         .deviceType = vk::PhysicalDeviceType::eDiscreteGpu,
-        .deviceFeatures = {
-            .geometryShader = true,
-        }
+        .deviceFeatures = vk::PhysicalDeviceFeatures{}.setGeometryShader(VK_TRUE)
     };
+
     inline extern DesiredDeviceFeatures secondaryDeviceFeatures = {
-        .deviceType = vk::PhysicalDeviceType::eCpu,
-        .deviceFeatures = {}
+        .deviceType = vk::PhysicalDeviceType::eIntegratedGpu,
+        .deviceFeatures = vk::PhysicalDeviceFeatures{}
     };
 }
 

@@ -28,7 +28,7 @@ namespace VulkanCore
         const vk::PhysicalDevice& GetPhysicalDevice() const;
         const vk::Device& GetDevice();
 
-        ~VDevice();
+        ~VDevice() = default;
     private:
         vk::PhysicalDevice m_physicalDevice;
         vk::Device m_device; //logical device
