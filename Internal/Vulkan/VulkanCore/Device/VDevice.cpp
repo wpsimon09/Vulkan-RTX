@@ -9,9 +9,21 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 
 VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::PhysicalDevice &physicalDevice) {
-    uint32_t queueFamilyCount = 0;
-    vk::QueueFamilyProperties queueFamilyPorperties;
-    physicalDevice.getQueueFamilyProperties(&queueFamilyCount, &queueFamilyPorperties);
+    VulkanCore::VQueueFamilyIndices indices;
+
+    //get all queue families on the device
+    const std::vector<vk::QueueFamilyProperties> queueFamilyProperties = physicalDevice.getQueueFamilyProperties();
+
+    //select just the queue fmily index that supports graphics operations
+    std::vector<vk::QueueFamilyProperties>::const_iterator graphicsQueueFamilyProperty = std::find_if(
+        queueFamilyProperties.begin(),
+        queueFamilyProperties.end(),
+        []( vk::QueueFamilyProperties const & qfp ) { return qfp.queueFlags & vk::QueueFlagBits::eGraphics; } );
+
+    assert(graphicsQueueFamilyProperty != queueFamilyProperties.end());
+    indices.graphicsFamily = static_cast<uint32_t> (std::distance(queueFamilyProperties.begin(), graphicsQueueFamilyProperty));
+    Utils::Logger::LogInfoVerboseOnly("Found graphics queue family at index" + indices.graphicsFamily.value());
+
 }
 
 VulkanCore::VDevice::VDevice(const vk::Instance &instance):m_instance(instance) {
