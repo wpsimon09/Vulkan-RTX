@@ -32,7 +32,7 @@ namespace VulkanCore
         const vk::Device& GetDevice() {return m_device;};
         const VQueueFamilyIndices& GetQueueFamilyIndices() {return m_queueFamilyIndices;};
 
-        ~VDevice() = default;
+        ~VDevice();
     private:
         vk::PhysicalDevice m_physicalDevice;
         vk::Device m_device; //logical device
@@ -47,6 +47,7 @@ namespace VulkanCore
 
     private:
         vk::PhysicalDevice PickPhysicalDevice();
+        void CreateLogicalDevice();
     };
 }
 
