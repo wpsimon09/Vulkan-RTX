@@ -28,6 +28,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Device/VDevice.cpp
         Internal/Vulkan/VulkanCore/Device/VDevice.hpp
         Internal/Vulkan/Global/GlobalStructs.hpp
+        Internal/Vulkan/Utils/VGeneralUtils.hpp
+        Internal/Vulkan/Utils/VGeneralUtils.cpp
 )
 
 

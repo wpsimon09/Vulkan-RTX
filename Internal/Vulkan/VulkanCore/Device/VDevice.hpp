@@ -29,7 +29,7 @@ namespace VulkanCore
         VDevice(const vk::Instance& instance);
 
         const vk::PhysicalDevice& GetPhysicalDevice() const;
-        const vk::Device& GetDevice() {return m_device};
+        const vk::Device& GetDevice() {return m_device;};
         const VQueueFamilyIndices& GetQueueFamilyIndices() {return m_queueFamilyIndices;};
 
         ~VDevice() = default;

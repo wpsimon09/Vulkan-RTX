@@ -7,23 +7,15 @@
 #include "Includes/Logger/Logger.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 
 VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::PhysicalDevice &physicalDevice) {
     VulkanCore::VQueueFamilyIndices indices;
 
-    //get all queue families on the device
-    const std::vector<vk::QueueFamilyProperties> queueFamilyProperties = physicalDevice.getQueueFamilyProperties();
+    auto queueFamilyProperties = physicalDevice.getQueueFamilyProperties();;
 
-    //select just the queue fmily index that supports graphics operations
-    std::vector<vk::QueueFamilyProperties>::const_iterator graphicsQueueFamilyProperty = std::find_if(
-        queueFamilyProperties.begin(),
-        queueFamilyProperties.end(),
-        []( vk::QueueFamilyProperties const & qfp ) { return qfp.queueFlags & vk::QueueFlagBits::eGraphics; } );
-
-    assert(graphicsQueueFamilyProperty != queueFamilyProperties.end());
-    indices.graphicsFamily = static_cast<uint32_t> (std::distance(queueFamilyProperties.begin(), graphicsQueueFamilyProperty));
-    Utils::Logger::LogInfoVerboseOnly("Found graphics queue family at index" + indices.graphicsFamily.value());
-
+    indices.graphicsFamily = VulkanUtils::FindQueueFamily(queueFamilyProperties, vk::QueueFlagBits::eGraphics);
+    return indices;
 }
 
 VulkanCore::VDevice::VDevice(const vk::Instance &instance):m_instance(instance) {
