@@ -17,7 +17,7 @@ namespace VulkanCore
     class VulkanInstance
     {
     public:
-        explicit VulkanInstance(std::string appname,GLFWwindow* window);
+        explicit VulkanInstance(std::string appName,GLFWwindow* window);
 
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc( VkDebugUtilsMessageSeverityFlagBitsEXT       messageSeverity,
                                                  VkDebugUtilsMessageTypeFlagsEXT              messageTypes,
@@ -32,7 +32,7 @@ namespace VulkanCore
         vk::Instance m_instance;
         vk::DebugUtilsMessengerEXT m_debugMessenger;
     private:
-        void CreateInstance();
+        void CreateInstance(std::string appName);
         void CreateDebugUtilsMessenger();
         void CreateSurface(GLFWwindow* window);
     };

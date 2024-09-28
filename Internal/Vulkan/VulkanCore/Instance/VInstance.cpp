@@ -22,8 +22,8 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance instance, 
     return pfnVkDestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
 }
 
-VulkanCore::VulkanInstance::VulkanInstance(std::string appname, GLFWwindow *window) {
-    CreateInstance();
+VulkanCore::VulkanInstance::VulkanInstance(std::string appName, GLFWwindow *window) {
+    CreateInstance(appName);
     CreateDebugUtilsMessenger();
     CreateSurface(window);
 
@@ -83,7 +83,7 @@ VulkanCore::VulkanInstance::~VulkanInstance() {
     m_instance.destroy();
 }
 
-void VulkanCore::VulkanInstance::CreateInstance() {
+void VulkanCore::VulkanInstance::CreateInstance(std::string appName) {
      //-------------------------------
     // CHECK VALIDATION LAYER SUPPORT
     //-------------------------------
@@ -99,7 +99,7 @@ void VulkanCore::VulkanInstance::CreateInstance() {
     // APPLICATION INFO
     //-------------------------------
     vk::ApplicationInfo applicationInfo;
-    applicationInfo.pApplicationName = appname.c_str();
+    applicationInfo.pApplicationName = appName.c_str();
     applicationInfo.apiVersion = VK_API_VERSION_1_3;
     applicationInfo.applicationVersion = 1;
     applicationInfo.engineVersion = 1;
