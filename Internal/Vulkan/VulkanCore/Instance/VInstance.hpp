@@ -25,6 +25,7 @@ namespace VulkanCore
                                                  void * /*pUserData*/ );
 
         const vk::Instance& GetInstance() const { return m_instance; }
+        const vk::SurfaceKHR& GetSurface() const{ return m_surface;  }
 
         ~VulkanInstance();
     private:

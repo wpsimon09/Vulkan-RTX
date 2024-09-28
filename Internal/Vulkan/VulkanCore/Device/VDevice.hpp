@@ -11,6 +11,11 @@
 
 namespace VulkanCore
 {
+    class VulkanInstance;
+}
+
+namespace VulkanCore
+{
     struct VQueueFamilyIndices
     {
         std::optional<uint32_t> graphicsFamily;
@@ -20,13 +25,13 @@ namespace VulkanCore
         bool isComplete() const {return graphicsFamily.has_value() && presentFamily.has_value() && computeFamily.has_value();};
     };
 
-    VQueueFamilyIndices FindQueueFamilies(const vk::PhysicalDevice& physicalDevice);
+    VQueueFamilyIndices FindQueueFamilies(const vk::PhysicalDevice& physicalDevice, const VulkanCore::VulkanInstance& instance);
 
 
     class VDevice
     {
     public:
-        VDevice(const vk::Instance& instance);
+        VDevice(const VulkanCore::VulkanInstance& instance);
 
         const vk::PhysicalDevice& GetPhysicalDevice() const;
         const vk::Device& GetDevice() {return m_device;};
@@ -40,10 +45,11 @@ namespace VulkanCore
         vk::Queue m_graphicsQueue;
         vk::Queue m_computeQueue;
         vk::Queue m_transferQueue;
+        vk::Queue m_presentQueue;
 
         VQueueFamilyIndices m_queueFamilyIndices;
 
-        const vk::Instance& m_instance;
+        const VulkanCore::VulkanInstance& m_instance;
 
     private:
         vk::PhysicalDevice PickPhysicalDevice();
