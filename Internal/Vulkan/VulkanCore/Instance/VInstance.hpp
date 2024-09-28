@@ -10,12 +10,14 @@
 #include <vulkan/vulkan.hpp>
 
 
+class GLFWwindow;
+
 namespace VulkanCore
 {
     class VulkanInstance
     {
     public:
-        explicit VulkanInstance(std::string appname);
+        explicit VulkanInstance(std::string appname,GLFWwindow* window);
 
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc( VkDebugUtilsMessageSeverityFlagBitsEXT       messageSeverity,
                                                  VkDebugUtilsMessageTypeFlagsEXT              messageTypes,
@@ -26,8 +28,13 @@ namespace VulkanCore
 
         ~VulkanInstance();
     private:
+        vk::SurfaceKHR m_surface;
         vk::Instance m_instance;
         vk::DebugUtilsMessengerEXT m_debugMessenger;
+    private:
+        void CreateInstance();
+        void CreateDebugUtilsMessenger();
+        void CreateSurface(GLFWwindow* window);
     };
 }
 

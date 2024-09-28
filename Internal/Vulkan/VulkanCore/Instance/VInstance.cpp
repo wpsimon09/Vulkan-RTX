@@ -22,9 +22,69 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance instance, 
     return pfnVkDestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
 }
 
-VulkanCore::VulkanInstance::VulkanInstance(std::string appname) {
+VulkanCore::VulkanInstance::VulkanInstance(std::string appname, GLFWwindow *window) {
+    CreateInstance();
+    CreateDebugUtilsMessenger();
+    CreateSurface(window);
 
-    //-------------------------------
+}
+
+VkBool32 VulkanCore::VulkanInstance::debugMessageFunc(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
+                                                      , VkDebugUtilsMessageTypeFlagsEXT messageTypes, VkDebugUtilsMessengerCallbackDataEXT const *pCallbackData, void *) {
+     std::ostringstream message;
+
+    message << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)) << ": "
+        << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes)) << ":\n";
+    message << std::string("\t") << "messageIDName   = <" << pCallbackData->pMessageIdName << ">\n";
+    message << std::string("\t") << "messageIdNumber = " << pCallbackData->messageIdNumber << "\n";
+    message << std::string("\t") << "message         = <" << pCallbackData->pMessage << ">\n";
+    if (0 < pCallbackData->queueLabelCount) {
+        message << std::string("\t") << "Queue Labels:\n";
+        for (uint32_t i = 0; i < pCallbackData->queueLabelCount; i++) {
+            message << std::string("\t\t") << "LabelName = <" << pCallbackData->pQueueLabels[i].pLabelName << ">\n";
+        }
+    }
+    if (0 < pCallbackData->cmdBufLabelCount) {
+        message << std::string("\t") << "CommandBuffer Labels:\n";
+        for (uint32_t i = 0; i < pCallbackData->cmdBufLabelCount; i++) {
+            message << std::string("\t\t") << "LabelName = <" << pCallbackData->pCmdBufLabels[i].pLabelName << ">\n";
+        }
+    }
+    if (0 < pCallbackData->objectCount) {
+        message << std::string("\t") << "Objects:\n";
+        for (uint32_t i = 0; i < pCallbackData->objectCount; i++) {
+            message << std::string("\t\t") << "Object " << i << "\n";
+            message << std::string("\t\t\t") << "objectType   = " << vk::to_string(
+                static_cast<vk::ObjectType>(pCallbackData->pObjects[i].objectType)) << "\n";
+            message << std::string("\t\t\t") << "objectHandle = " << pCallbackData->pObjects[i].objectHandle << "\n";
+            if (pCallbackData->pObjects[i].pObjectName) {
+                message << std::string("\t\t\t") << "ObjectName   = <" << pCallbackData->pObjects[i].pObjectName <<
+                    ">\n";
+            }
+        }
+        std::string file = "Error in the file: \t";
+        file += __FILE__;
+        file += "\n";
+
+        Utils::Logger::LogError(file + message.str());
+
+        return false;
+    }
+
+}
+
+
+VulkanCore::VulkanInstance::~VulkanInstance() {
+    Utils::Logger::LogInfoVerboseOnly("Vulkan instance destroyed");
+    if(GlobalState::ValidationLayersEnabled) {
+        m_instance.destroyDebugUtilsMessengerEXT( m_debugMessenger );
+    }
+    m_instance.destroySurfaceKHR(m_surface);
+    m_instance.destroy();
+}
+
+void VulkanCore::VulkanInstance::CreateInstance() {
+     //-------------------------------
     // CHECK VALIDATION LAYER SUPPORT
     //-------------------------------
     if (GlobalState::ValidationLayersEnabled &&
@@ -79,7 +139,9 @@ VulkanCore::VulkanInstance::VulkanInstance(std::string appname) {
     catch (vk::SystemError &err) {
         throw std::runtime_error(err.what());
     }
+}
 
+void VulkanCore::VulkanInstance::CreateDebugUtilsMessenger() {
     //----------------------------------------------------------
     // ADD CONFIGURE VALIDATION LAYERS ONCE INSTANCE IS CREATED
     //---------------------------------------------------------
@@ -107,59 +169,15 @@ VulkanCore::VulkanInstance::VulkanInstance(std::string appname) {
         m_debugMessenger = m_instance.createDebugUtilsMessengerEXT(
             vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &debugMessageFunc));
     }
-
-
 }
 
-VkBool32 VulkanCore::VulkanInstance::debugMessageFunc(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
-  , VkDebugUtilsMessageTypeFlagsEXT messageTypes, VkDebugUtilsMessengerCallbackDataEXT const *pCallbackData, void *) {
-     std::ostringstream message;
-
-    message << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)) << ": "
-        << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes)) << ":\n";
-    message << std::string("\t") << "messageIDName   = <" << pCallbackData->pMessageIdName << ">\n";
-    message << std::string("\t") << "messageIdNumber = " << pCallbackData->messageIdNumber << "\n";
-    message << std::string("\t") << "message         = <" << pCallbackData->pMessage << ">\n";
-    if (0 < pCallbackData->queueLabelCount) {
-        message << std::string("\t") << "Queue Labels:\n";
-        for (uint32_t i = 0; i < pCallbackData->queueLabelCount; i++) {
-            message << std::string("\t\t") << "LabelName = <" << pCallbackData->pQueueLabels[i].pLabelName << ">\n";
+void VulkanCore::VulkanInstance::CreateSurface(GLFWwindow* window) {
+        VkSurfaceKHR surface;
+        if(glfwCreateWindowSurface(VkInstance(m_instance), window, nullptr, &surface) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create window surface");
         }
-    }
-    if (0 < pCallbackData->cmdBufLabelCount) {
-        message << std::string("\t") << "CommandBuffer Labels:\n";
-        for (uint32_t i = 0; i < pCallbackData->cmdBufLabelCount; i++) {
-            message << std::string("\t\t") << "LabelName = <" << pCallbackData->pCmdBufLabels[i].pLabelName << ">\n";
+        m_surface = vk::SurfaceKHR(surface);
+        if(m_surface != VK_NULL_HANDLE) {
+            Utils::Logger::LogSuccess("Vulkan surface created");
         }
-    }
-    if (0 < pCallbackData->objectCount) {
-        message << std::string("\t") << "Objects:\n";
-        for (uint32_t i = 0; i < pCallbackData->objectCount; i++) {
-            message << std::string("\t\t") << "Object " << i << "\n";
-            message << std::string("\t\t\t") << "objectType   = " << vk::to_string(
-                static_cast<vk::ObjectType>(pCallbackData->pObjects[i].objectType)) << "\n";
-            message << std::string("\t\t\t") << "objectHandle = " << pCallbackData->pObjects[i].objectHandle << "\n";
-            if (pCallbackData->pObjects[i].pObjectName) {
-                message << std::string("\t\t\t") << "ObjectName   = <" << pCallbackData->pObjects[i].pObjectName <<
-                    ">\n";
-            }
-        }
-        std::string file = "Error in the file: \t";
-        file += __FILE__;
-        file += "\n";
-
-        Utils::Logger::LogError(file + message.str());
-
-        return false;
-    }
-
-}
-
-
-VulkanCore::VulkanInstance::~VulkanInstance() {
-    Utils::Logger::LogInfoVerboseOnly("Vulkan instance destroyed");
-    if(GlobalState::ValidationLayersEnabled) {
-        m_instance.destroyDebugUtilsMessengerEXT( m_debugMessenger );
-    }
-    m_instance.destroy();
 }

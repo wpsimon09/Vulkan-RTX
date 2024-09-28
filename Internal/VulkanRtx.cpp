@@ -15,7 +15,7 @@ void Application::Init()
     m_windowManager = std::make_unique<WindowManager>(800,600);
     m_windowManager->InitWindow();
 
-    m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX");
+    m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
     m_vulkanDevice = std::make_unique<VulkanCore::VDevice>(m_vulkanInstance->GetInstance());
 }
 
