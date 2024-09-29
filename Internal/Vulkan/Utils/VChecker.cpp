@@ -40,9 +40,15 @@ bool VulkanUtils::  CheckValidationLayerSupport()
     return true;
 }
 
-bool VulkanUtils::CheckPhysicalDeviceCompatibility(vk::PhysicalDevice physicalDevice) {
-    auto properties = physicalDevice.getProperties();
-    auto features = physicalDevice.getFeatures();
+bool VulkanUtils::DoesDeviceSupportPresentation(const vk::SurfaceKHR& surface,const vk::PhysicalDevice& physicalDevice) {
+    vk::SurfaceCapabilitiesKHR surfaceCapabilities;
+    auto result = physicalDevice.getSurfaceCapabilitiesKHR(surface, &surfaceCapabilities);
+    assert(result == vk::Result::eSuccess);
 
+   auto surfaceFormats =  physicalDevice.getSurfaceFormatsKHR(surface);
 
+    if(surfaceFormats.empty()) {
+        return  false;
+    }return true;
 }
+

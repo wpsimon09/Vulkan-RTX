@@ -55,8 +55,8 @@ vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice() {
     auto availablePhysicalDevices = m_instance.GetInstance().enumeratePhysicalDevices();
     for(auto  physicalDevice: availablePhysicalDevices) {
         Utils::Logger::LogInfo("Found physical device: " + std::string(physicalDevice.getProperties().deviceName));
-        if(GlobalVariables::GlobalStructs::primaryDeviceFeatures.CheckAgainstRetrievedPhysicalDevice(physicalDevice.getProperties().deviceType, physicalDevice.getFeatures()) ||
-           GlobalVariables::GlobalStructs::secondaryDeviceFeatures.CheckAgainstRetrievedPhysicalDevice(physicalDevice.getProperties().deviceType, physicalDevice.getFeatures())) {
+        if(GlobalVariables::GlobalStructs::primaryDeviceFeatures.CheckAgainstRetrievedPhysicalDevice(physicalDevice, m_instance.GetSurface()) ||
+           GlobalVariables::GlobalStructs::secondaryDeviceFeatures.CheckAgainstRetrievedPhysicalDevice(physicalDevice, m_instance.GetSurface())) {
 
             Utils::Logger::LogSuccess("Going to use: " + std::string(physicalDevice.getProperties().deviceName) + " device, terminating next searches");
             return physicalDevice;

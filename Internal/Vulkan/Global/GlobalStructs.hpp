@@ -7,21 +7,29 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "Vulkan/Utils/VChecker.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
+
 struct DesiredDeviceFeatures
 {
     vk::PhysicalDeviceType deviceType;
     vk::PhysicalDeviceFeatures deviceFeatures;
 
-    bool CheckAgainstRetrievedPhysicalDevice(vk::PhysicalDeviceType deviceType, vk::PhysicalDeviceFeatures deviceFeatures) {
+    bool CheckAgainstRetrievedPhysicalDevice(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface) {
         Utils::Logger::LogInfoVerboseOnly("Checking device..." );
-        if(deviceType != this->deviceType) {
+        if(physicalDevice.getProperties().deviceType != this->deviceType) {
             Utils::Logger::LogInfoVerboseOnly("Device type miss match");
             return false;
         }
-        if(deviceFeatures.geometryShader != this->deviceFeatures.geometryShader) {
+        if(physicalDevice.getFeatures().geometryShader != this->deviceFeatures.geometryShader) {
             Utils::Logger::LogInfoVerboseOnly("Device does not support geometry shader");
             return false;
         }
+        if(VulkanUtils::DoesDeviceSupportPresentation(surface, physicalDevice)) {
+            Utils::Logger::LogInfoVerboseOnly("Device does not supports presentation");
+            return false;
+        }
+
         Utils::Logger::LogInfoVerboseOnly("Device has passed all the checks");
         return true;
     }

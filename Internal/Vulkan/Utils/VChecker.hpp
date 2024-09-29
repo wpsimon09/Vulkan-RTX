@@ -6,6 +6,9 @@
 #define VCHECKER_HPP
 
 #include<vector>
+
+#include "Vulkan/VulkanCore/Device/VDevice.hpp"
+
 namespace vk
 {
     class PhysicalDevice;
@@ -19,7 +22,7 @@ namespace VulkanUtils
 
     bool CheckValidationLayerSupport();
 
-    bool CheckPhysicalDeviceCompatibility(vk::PhysicalDevice physicalDevice);
+    bool DoesDeviceSupportPresentation(const vk::SurfaceKHR& surface,const vk::PhysicalDevice& physicalDevice);
 };
 
 

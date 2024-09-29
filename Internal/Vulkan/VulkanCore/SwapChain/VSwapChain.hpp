@@ -23,6 +23,8 @@ namespace VulkanCore{
             vk::Extent2D m_extent;
             vk::PresentModeKHR m_presentMode;
         private:
+
+
             void ChooseExtent();
             void ChooseFormat();
             void ChoosePresentMode();
