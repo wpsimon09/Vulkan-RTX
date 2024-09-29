@@ -20,13 +20,13 @@ void WindowManager::InitWindow()
     m_window = glfwCreateWindow(m_width, m_height, "Vulkan-RTX", NULL, NULL);
 }
 
-const int WindowManager::getWindowWidth() const
-{
+int WindowManager::GetWindowWidth() {
+    glfwGetFramebufferSize(m_window, &m_width, &m_height);
     return m_width;
 }
 
-const int WindowManager::getWindowHeight() const
-{
+int WindowManager::GetWindowHeight() {
+    glfwGetFramebufferSize(m_window, &m_width, &m_height);
     return m_height;
 }
 

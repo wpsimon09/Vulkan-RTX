@@ -6,6 +6,8 @@
 #include "VulkanRtx.hpp"
 #include "Includes/Logger/Logger.hpp"
 
+
+
 int main()
 {
     Application application;

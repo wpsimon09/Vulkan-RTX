@@ -9,6 +9,7 @@
 #include "Includes/WindowManager/WindowManager.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
+#include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 class Application {
 public:
@@ -32,6 +33,7 @@ private:
     std::unique_ptr<WindowManager> m_windowManager;
     std::unique_ptr<VulkanCore::VulkanInstance> m_vulkanInstance;
     std::unique_ptr<VulkanCore::VDevice> m_vulkanDevice;
+    std::unique_ptr<VulkanCore::VSwapChain> m_swapChain;
 };
 
 #endif //VULKANRTX_HPP

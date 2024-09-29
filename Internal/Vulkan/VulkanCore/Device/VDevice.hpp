@@ -33,9 +33,9 @@ namespace VulkanCore
     public:
         VDevice(const VulkanCore::VulkanInstance& instance);
 
-        const vk::PhysicalDevice& GetPhysicalDevice() const;
-        const vk::Device& GetDevice() {return m_device;};
-        const VQueueFamilyIndices& GetQueueFamilyIndices() {return m_queueFamilyIndices;};
+        const vk::PhysicalDevice& GetPhysicalDevice() const { return m_physicalDevice; } ;
+        const vk::Device& GetDevice() const {return m_device;};
+        const VQueueFamilyIndices& GetQueueFamilyIndices() const {return m_queueFamilyIndices;};
 
         ~VDevice();
     private:

@@ -22,9 +22,10 @@ namespace VulkanCore{
             vk::Format m_format;
             vk::Extent2D m_extent;
             vk::PresentModeKHR m_presentMode;
+
+            const VulkanCore::VDevice& m_device;
+            const VulkanCore::VulkanInstance& m_instance;
         private:
-
-
             void ChooseExtent();
             void ChooseFormat();
             void ChoosePresentMode();

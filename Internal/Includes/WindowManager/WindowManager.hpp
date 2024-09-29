@@ -16,16 +16,16 @@ public:
 
     void InitWindow();
 
-    const int getWindowWidth() const;
-    const int getWindowHeight() const;
+    static int GetWindowWidth() ;
+    static int GetWindowHeight();
     GLFWwindow* GetWindow() const;
 
     static void GetRequiredExtensions(const char**& extensions, uint32_t& count );
 
     ~WindowManager();
 private:
-    GLFWwindow* m_window;
-    int m_width, m_height;
+    static inline GLFWwindow* m_window;
+    static inline int m_width, m_height;
 };
 
 
