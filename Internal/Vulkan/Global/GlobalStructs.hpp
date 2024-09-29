@@ -15,7 +15,7 @@ struct DesiredDeviceFeatures
     vk::PhysicalDeviceType deviceType;
     vk::PhysicalDeviceFeatures deviceFeatures;
 
-    bool CheckAgainstRetrievedPhysicalDevice(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface) {
+    bool CheckAgainstRetrievedPhysicalDevice(const vk::PhysicalDevice& physicalDevice, const vk::SurfaceKHR& surface) const {
         Utils::Logger::LogInfoVerboseOnly("Checking device..." );
         if(physicalDevice.getProperties().deviceType != this->deviceType) {
             Utils::Logger::LogInfoVerboseOnly("Device type miss match");
@@ -25,7 +25,7 @@ struct DesiredDeviceFeatures
             Utils::Logger::LogInfoVerboseOnly("Device does not support geometry shader");
             return false;
         }
-        if(VulkanUtils::DoesDeviceSupportPresentation(surface, physicalDevice)) {
+        if(!VulkanUtils::DoesDeviceSupportPresentation(surface, physicalDevice)) {
             Utils::Logger::LogInfoVerboseOnly("Device does not supports presentation");
             return false;
         }

@@ -134,7 +134,7 @@ void VulkanCore::VulkanInstance::CreateInstance(std::string appName) {
 
     try {
         m_instance = vk::createInstance(instanceInfo);
-        Utils::Logger::LogInfoVerboseOnly("Vulkan instance created");
+        Utils::Logger::LogSuccess("Vulkan instance created");
     }
     catch (vk::SystemError &err) {
         throw std::runtime_error(err.what());

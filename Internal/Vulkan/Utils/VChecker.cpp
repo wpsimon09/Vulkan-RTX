@@ -46,9 +46,8 @@ bool VulkanUtils::DoesDeviceSupportPresentation(const vk::SurfaceKHR& surface,co
     assert(result == vk::Result::eSuccess);
 
    auto surfaceFormats =  physicalDevice.getSurfaceFormatsKHR(surface);
-
-    if(surfaceFormats.empty()) {
-        return  false;
+    auto presentationModes = physicalDevice.getSurfacePresentModesKHR(surface);
+    if(surfaceFormats.empty() || presentationModes.empty()) {
+        return false;
     }return true;
 }
-
