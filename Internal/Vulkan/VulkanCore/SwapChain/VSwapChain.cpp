@@ -116,6 +116,10 @@ void VulkanCore::VSwapChain::CreateSwapChain() {
         Utils::Logger::LogSuccess("Created swap chain");
     }
 
+
+}
+
+void VulkanCore::VSwapChain::RetrieveSwapChainImagesAndImageViews() {
     m_images = m_device.GetDevice().getSwapchainImagesKHR(m_swapChain);
 
     if(m_images.empty()) {
@@ -123,6 +127,7 @@ void VulkanCore::VSwapChain::CreateSwapChain() {
     }else {
         Utils::Logger::LogSuccess("Retrieved " + std::to_string(m_images.size()) + " swap chain images");
     }
+
 
 };
 

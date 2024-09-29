@@ -36,6 +36,8 @@ namespace VulkanCore{
             void ChoosePresentMode();
 
             void CreateSwapChain();
+
+            void RetrieveSwapChainImagesAndImageViews();
     };
 
 }
