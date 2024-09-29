@@ -30,6 +30,8 @@ set(SOURCES
         Internal/Vulkan/Global/GlobalStructs.hpp
         Internal/Vulkan/Utils/VGeneralUtils.hpp
         Internal/Vulkan/Utils/VGeneralUtils.cpp
+        Internal/Vulkan/VulkanCore/SwapChain/VSwapChain.cpp
+        Internal/Vulkan/VulkanCore/SwapChain/VSwapChain.hpp
 )
 
 

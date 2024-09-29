@@ -27,6 +27,8 @@ public:
     ~Application() = default;
 
 private:
+    inline static Application* instance = nullptr;
+
     std::unique_ptr<WindowManager> m_windowManager;
     std::unique_ptr<VulkanCore::VulkanInstance> m_vulkanInstance;
     std::unique_ptr<VulkanCore::VDevice> m_vulkanDevice;

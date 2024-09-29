@@ -5,6 +5,8 @@
 #include "VulkanRtx.hpp"
 #include <GLFW/glfw3.h>
 
+#include "Includes/Logger/Logger.hpp"
+
 
 Application::Application()
 {
@@ -32,6 +34,7 @@ void Application::MainLoop()
 void Application::Run()
 {
     Init();
+    Utils::Logger::LogSuccess("APPLICATION CONFIGURED SUCCESSFULLY !");
     MainLoop();
 }
 
