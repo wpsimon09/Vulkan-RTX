@@ -35,7 +35,7 @@ VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::Physical
     if(!presentSupport) {
         throw std::runtime_error("Device does not support presentation");
     }else {
-        Utils::Logger::LogInfoVerboseOnly("Found graphics queue family at index: " + std::to_string(indices.presentFamily.value()));
+        Utils::Logger::LogInfoVerboseOnly("Found transfer queue family at index: " + std::to_string(indices.presentFamily.value()));
 
     }
 

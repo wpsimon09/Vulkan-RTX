@@ -4,7 +4,7 @@
 
 #include "VulkanRtx.hpp"
 #include <GLFW/glfw3.h>
-
+#include <chrono>
 #include "Includes/Logger/Logger.hpp"
 
 
@@ -34,8 +34,16 @@ void Application::MainLoop()
 
 void Application::Run()
 {
+    auto start = std::chrono::high_resolution_clock::now();
+
     Init();
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+    Utils::Logger::LogInfo("Application took: " + std::to_string(duration.count()) + " milliseconds to set-up");
     Utils::Logger::LogSuccess("APPLICATION CONFIGURED SUCCESSFULLY !");
+
     MainLoop();
 }
 

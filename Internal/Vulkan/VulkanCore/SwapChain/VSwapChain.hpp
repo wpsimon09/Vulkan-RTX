@@ -14,14 +14,19 @@ namespace VulkanCore{
     class VSwapChain {
         public:
             VSwapChain(const VulkanCore::VDevice& device,const VulkanCore::VulkanInstance& instance);
-
-            const vk::Format& GetImageFormat() { return m_format; };
+            ~VSwapChain();
+            const vk::SurfaceFormatKHR& GetSurfaceFormatKHR() { return m_format; };
             const vk::Extent2D& GetExtent() { return m_extent; };
             const vk::PresentModeKHR& GetPresentMode() { return m_presentMode; };
         private:
-            vk::Format m_format;
+            vk::SurfaceFormatKHR m_format;
             vk::Extent2D m_extent;
             vk::PresentModeKHR m_presentMode;
+
+            vk::SwapchainKHR m_swapChain;
+
+            std::vector<vk::Image> m_images;
+            std::vector<vk::ImageView> m_imageViews;
 
             const VulkanCore::VDevice& m_device;
             const VulkanCore::VulkanInstance& m_instance;
@@ -29,6 +34,8 @@ namespace VulkanCore{
             void ChooseExtent();
             void ChooseFormat();
             void ChoosePresentMode();
+
+            void CreateSwapChain();
     };
 
 }
