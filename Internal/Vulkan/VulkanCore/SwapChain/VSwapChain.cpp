@@ -126,7 +126,7 @@ void VulkanCore::VSwapChain::RetrieveSwapChainImagesAndImageViews() {
     m_imageViews.resize(m_images.size());
 
     for(int i = 0; i < m_imageViews.size(); i++) {
-        m_imageViews[i] = VulkanUtils::GenerateImageView(m_device.GetDevice(), m_images[i]);
+        m_imageViews[i] = VulkanUtils::GenerateImageView(m_device.GetDevice(), m_images[i], 1, m_format.format);
     }
 
     assert(!m_imageViews.empty());
