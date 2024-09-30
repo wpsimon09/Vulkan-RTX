@@ -70,7 +70,7 @@ VkBool32 VulkanCore::VulkanInstance::debugMessageFunc(VkDebugUtilsMessageSeverit
 
         return false;
     }
-
+    return false;
 }
 
 

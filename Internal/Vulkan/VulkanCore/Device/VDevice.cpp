@@ -86,6 +86,14 @@ void VulkanCore::VDevice::CreateLogicalDevice() {
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
     deviceCreateInfo.ppEnabledExtensionNames = GlobalVariables::deviceLevelExtensions.data();
     deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(GlobalVariables::deviceLevelExtensions.size());
+
+    if(GlobalState::ValidationLayersEnabled) {
+        deviceCreateInfo.enabledLayerCount = GlobalVariables::validationLayers.size();
+        deviceCreateInfo.ppEnabledLayerNames = GlobalVariables::validationLayers.data();
+    }else {
+        deviceCreateInfo.enabledLayerCount = 0;
+    }
+
     m_device = m_physicalDevice.createDevice(deviceCreateInfo);
     assert(m_device);
     Utils::Logger::LogSuccess("Successfully created logical device");
