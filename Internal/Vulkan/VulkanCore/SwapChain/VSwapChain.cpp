@@ -8,12 +8,14 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Includes/WindowManager/WindowManager.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 
 VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const VulkanCore::VulkanInstance &instance): m_device(device), m_instance(instance) {
     ChooseExtent();
     ChooseFormat();
     ChoosePresentMode();
     CreateSwapChain();
+    RetrieveSwapChainImagesAndImageViews();
 }
 
 VulkanCore::VSwapChain::~VSwapChain() {
@@ -109,12 +111,8 @@ void VulkanCore::VSwapChain::CreateSwapChain() {
     }
 
     m_swapChain = m_device.GetDevice().createSwapchainKHR(swapChainCreateInfo, nullptr);
-
-    if(m_swapChain == VK_NULL_HANDLE) {
-        throw std::runtime_error("Failed to create swap chain!");
-    }else {
-        Utils::Logger::LogSuccess("Created swap chain");
-    }
+    assert(m_swapChain != VK_NULL_HANDLE);
+    Utils::Logger::LogSuccess("Swap chain created");
 
 
 }
@@ -122,12 +120,16 @@ void VulkanCore::VSwapChain::CreateSwapChain() {
 void VulkanCore::VSwapChain::RetrieveSwapChainImagesAndImageViews() {
     m_images = m_device.GetDevice().getSwapchainImagesKHR(m_swapChain);
 
-    if(m_images.empty()) {
-        throw std::runtime_error("Failed to get swap chain images!");
-    }else {
-        Utils::Logger::LogSuccess("Retrieved " + std::to_string(m_images.size()) + " swap chain images");
+    assert(!m_images.empty());
+    Utils::Logger::LogSuccess("Retrieved " + std::to_string(m_images.size()) + " swap chain images");
+
+    m_imageViews.resize(m_images.size());
+
+    for(int i = 0; i < m_imageViews.size(); i++) {
+        m_imageViews[i] = VulkanUtils::GenerateImageView(m_device.GetDevice(), m_images[i]);
     }
 
-
+    assert(!m_imageViews.empty());
+    Utils::Logger::LogSuccess("Created " + std::to_string(m_imageViews.size()) + " swap chain images views");
 };
 

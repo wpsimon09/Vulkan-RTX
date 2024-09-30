@@ -120,7 +120,7 @@ void VulkanCore::VulkanInstance::CreateInstance(std::string appName) {
     vk::InstanceCreateInfo instanceInfo;
     instanceInfo.pApplicationInfo = &applicationInfo;
     if (GlobalState::ValidationLayersEnabled) {
-        extensionVector.insert(extensionVector.end(), GlobalVariables::enabledExtensions.begin(), GlobalVariables::enabledExtensions.end());
+        extensionVector.insert(extensionVector.end(), GlobalVariables::instanceLevelExtensions.begin(), GlobalVariables::instanceLevelExtensions.end());
 
         instanceInfo.enabledLayerCount = static_cast<uint32_t>(GlobalVariables::validationLayers.size());
         instanceInfo.ppEnabledLayerNames = GlobalVariables::validationLayers.data();
@@ -131,6 +131,8 @@ void VulkanCore::VulkanInstance::CreateInstance(std::string appName) {
         instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensionVector.size());
         instanceInfo.ppEnabledExtensionNames = extensionVector.data();
     }
+
+    m_instanceExtensions = extensionVector;
 
     try {
         m_instance = vk::createInstance(instanceInfo);

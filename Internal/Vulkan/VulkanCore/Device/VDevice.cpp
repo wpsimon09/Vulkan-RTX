@@ -32,12 +32,9 @@ VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::Physical
         indices.presentFamily = i;
         break;
     }
-    if(!presentSupport) {
-        throw std::runtime_error("Device does not support presentation");
-    }else {
-        Utils::Logger::LogInfoVerboseOnly("Found transfer queue family at index: " + std::to_string(indices.presentFamily.value()));
+    assert(presentSupport == true);
+    Utils::Logger::LogInfoVerboseOnly("Found transfer queue family at index: " + std::to_string(indices.presentFamily.value()));
 
-    }
 
     return indices;
 }
@@ -87,24 +84,19 @@ void VulkanCore::VDevice::CreateLogicalDevice() {
     deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+    deviceCreateInfo.ppEnabledExtensionNames = GlobalVariables::deviceLevelExtensions.data();
+    deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(GlobalVariables::deviceLevelExtensions.size());
     m_device = m_physicalDevice.createDevice(deviceCreateInfo);
-    if(!m_device) {
-        throw std::runtime_error("Could not create logical device");
-    }else {
-        Utils::Logger::LogSuccess("Successfully created logical device");
-    }
+    assert(m_device);
+    Utils::Logger::LogSuccess("Successfully created logical device");
+
 
     m_graphicsQueue = m_device.getQueue(m_queueFamilyIndices.graphicsFamily.value(), 0);
-    if(!m_graphicsQueue) {
-        throw std::runtime_error("Could not retrieve graphics queue");
-    }else {
-        Utils::Logger::LogSuccess("Successfully retrieved graphics queue");
-    }
+    assert(m_graphicsQueue != VK_NULL_HANDLE);
+    Utils::Logger::LogSuccess("Successfully retrieved graphics queue");
 
-    m_presentQueue = m_device.getQueue(m_queueFamilyIndices.presentFamily.value(), 0);
-    if(!m_presentQueue) {
-        throw std::runtime_error("Could not retrieve present queue");
-    }else {
-        Utils::Logger::LogSuccess("Successfully retrieved present queue");
-    }
+
+    m_presentQueue = m_device.getQueue(m_queueFamilyIndices.presentFamily.value(), 0);if(!m_presentQueue)
+    assert(m_presentQueue != VK_NULL_HANDLE);Utils::Logger::LogSuccess("Successfully retrieved present queue");
+
 }
