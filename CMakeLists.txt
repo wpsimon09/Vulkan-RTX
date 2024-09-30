@@ -32,6 +32,8 @@ set(SOURCES
         Internal/Vulkan/Utils/VGeneralUtils.cpp
         Internal/Vulkan/VulkanCore/SwapChain/VSwapChain.cpp
         Internal/Vulkan/VulkanCore/SwapChain/VSwapChain.hpp
+        Internal/Vulkan/VulkanCore/Shader/VShader.cpp
+        Internal/Vulkan/VulkanCore/Shader/VShader.hpp
 )
 
 
