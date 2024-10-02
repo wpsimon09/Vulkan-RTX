@@ -8,6 +8,8 @@
 #include <memory>
 #include<vulkan/vulkan.hpp>
 
+#include "Vulkan/VulkanCore/VkObject.hpp"
+
 
 namespace VulkanCore
 {
@@ -28,7 +30,7 @@ namespace VulkanCore
     VQueueFamilyIndices FindQueueFamilies(const vk::PhysicalDevice& physicalDevice, const VulkanCore::VulkanInstance& instance);
 
 
-    class VDevice
+    class VDevice: VkObject
     {
     public:
         VDevice(const VulkanCore::VulkanInstance& instance);
@@ -37,7 +39,8 @@ namespace VulkanCore
         const vk::Device& GetDevice() const {return m_device;};
         const VQueueFamilyIndices& GetQueueFamilyIndices() const {return m_queueFamilyIndices;};
 
-        ~VDevice();
+        virtual void Destroy() override;
+
     private:
         vk::PhysicalDevice m_physicalDevice;
         vk::Device m_device; //logical device

@@ -7,14 +7,18 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "Vulkan/VulkanCore/VkObject.hpp"
+
 namespace VulkanCore{
     class VulkanInstance;
     class VDevice;
 
-    class VSwapChain {
+    class VSwapChain:public VkObject {
         public:
             VSwapChain(const VulkanCore::VDevice& device,const VulkanCore::VulkanInstance& instance);
-            ~VSwapChain();
+            ~VSwapChain() = default;
+            void Destroy() override;
+
             const vk::SurfaceFormatKHR& GetSurfaceFormatKHR() { return m_format; };
             const vk::Extent2D& GetExtent() { return m_extent; };
             const vk::PresentModeKHR& GetPresentMode() { return m_presentMode; };

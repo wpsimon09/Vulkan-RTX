@@ -7,11 +7,13 @@
 #include <string>
 #include <vulkan/vulkan.hpp>
 
+#include "Vulkan/VulkanCore/VkObject.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 
 namespace VulkanCore {
-    class VShader {
+
+    class VShader: public VkObject {
         public:
             VShader(const VulkanCore::VDevice& device ,const std::string& vertexSource, const std::string &fragmentSource, const std::string& computeSource = "");
 

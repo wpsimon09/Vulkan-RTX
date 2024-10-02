@@ -18,11 +18,14 @@ VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const Vulk
     RetrieveSwapChainImagesAndImageViews();
 }
 
-VulkanCore::VSwapChain::~VSwapChain() {
+
+void VulkanCore::VSwapChain::Destroy() {
     for (auto &image : m_images) {
+        m_device.GetDevice().destroyImage(image);
     }
     m_device.GetDevice().destroySwapchainKHR(m_swapChain);
 }
+
 
 void VulkanCore::VSwapChain::ChooseExtent() {
     Utils::Logger::LogInfoVerboseOnly("Choosing right extend...");

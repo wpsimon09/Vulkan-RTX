@@ -9,6 +9,7 @@
 #include "Includes/Logger/Logger.hpp"
 
 namespace VulkanCore {
+
     VShader::VShader(const VulkanCore::VDevice& device ,const std::string& vertexSource, const std::string &fragmentSource, const std::string& computeSource):m_device(device) {
         m_vertexSource = vertexSource;
         m_fragmentSource = fragmentSource;
@@ -80,7 +81,7 @@ namespace VulkanCore {
             computeShaderModuleCreateInfo.pCode = reinterpret_cast<uint32_t*>(computeSPRIV.data());
             computeShaderModuleCreateInfo.pNext= nullptr;
             m_computeShaderModule = m_device.GetDevice().createShaderModule(computeShaderModuleCreateInfo, nullptr);
-            assert(m_computeShaderModule != VK_NULL_HANDLE);
+            assert(m_computeShaderModule.value() != VK_NULL_HANDLE);
             Utils::Logger::LogInfoVerboseOnly("Created Compute shader module");
         }else
             Utils::Logger::LogInfoVerboseOnly("Compute shader was not specified");

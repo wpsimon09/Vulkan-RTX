@@ -50,3 +50,8 @@ void Application::Run()
 void Application::Update()
 {
 }
+
+Application::~Application() {
+    m_swapChain->Destroy();
+    m_vulkanDevice->Destroy();
+}

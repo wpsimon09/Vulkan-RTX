@@ -44,10 +44,6 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance):m_insta
     CreateLogicalDevice();
 }
 
-VulkanCore::VDevice::~VDevice() {
-    m_device.destroy();
-}
-
 vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice() {
     auto availablePhysicalDevices = m_instance.GetInstance().enumeratePhysicalDevices();
     for(auto  physicalDevice: availablePhysicalDevices) {
@@ -107,4 +103,8 @@ void VulkanCore::VDevice::CreateLogicalDevice() {
     m_presentQueue = m_device.getQueue(m_queueFamilyIndices.presentFamily.value(), 0);if(!m_presentQueue)
     assert(m_presentQueue != VK_NULL_HANDLE);Utils::Logger::LogSuccess("Successfully retrieved present queue");
 
+}
+
+void VulkanCore::VDevice::Destroy() {
+    m_device.destroy();
 }
