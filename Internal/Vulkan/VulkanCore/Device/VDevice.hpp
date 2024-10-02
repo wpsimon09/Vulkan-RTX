@@ -8,7 +8,7 @@
 #include <memory>
 #include<vulkan/vulkan.hpp>
 
-#include "Vulkan/VulkanCore/VkObject.hpp"
+#include "Vulkan/VulkanCore/VObject.hpp"
 
 
 namespace VulkanCore
@@ -30,7 +30,7 @@ namespace VulkanCore
     VQueueFamilyIndices FindQueueFamilies(const vk::PhysicalDevice& physicalDevice, const VulkanCore::VulkanInstance& instance);
 
 
-    class VDevice: VkObject
+    class VDevice: public VObject
     {
     public:
         VDevice(const VulkanCore::VulkanInstance& instance);

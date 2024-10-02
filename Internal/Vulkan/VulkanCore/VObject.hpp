@@ -8,7 +8,7 @@
 
 namespace VulkanCore
 {
-    class VkObject {
+    class VObject {
     public:
         virtual void Destroy(){};
     };

@@ -7,13 +7,13 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "Vulkan/VulkanCore/VkObject.hpp"
+#include "Vulkan/VulkanCore/VObject.hpp"
 
 namespace VulkanCore{
     class VulkanInstance;
     class VDevice;
 
-    class VSwapChain:public VkObject {
+    class VSwapChain:public VObject {
         public:
             VSwapChain(const VulkanCore::VDevice& device,const VulkanCore::VulkanInstance& instance);
             ~VSwapChain() = default;
