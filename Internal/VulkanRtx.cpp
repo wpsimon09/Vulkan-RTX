@@ -5,7 +5,12 @@
 #include "VulkanRtx.hpp"
 #include <GLFW/glfw3.h>
 #include <chrono>
+
 #include "Includes/Logger/Logger.hpp"
+#include "Includes/WindowManager/WindowManager.hpp"
+#include "Vulkan/VulkanCore/Instance/VInstance.hpp"
+#include "Vulkan/VulkanCore/Device/VDevice.hpp"
+#include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 
 Application::Application()
@@ -20,6 +25,7 @@ void Application::Init()
     m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
     m_vulkanDevice = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
     m_swapChain = std::make_unique<VulkanCore::VSwapChain>(*m_vulkanDevice, *m_vulkanInstance);
+
 }
 
 void Application::MainLoop()
