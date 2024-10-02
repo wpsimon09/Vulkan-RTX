@@ -20,8 +20,8 @@ VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const Vulk
 
 
 void VulkanCore::VSwapChain::Destroy() {
-    for (auto &image : m_images) {
-        m_device.GetDevice().destroyImage(image);
+    for (auto &imageView : m_imageViews) {
+        m_device.GetDevice().destroyImageView(imageView);
     }
     m_device.GetDevice().destroySwapchainKHR(m_swapChain);
 }
