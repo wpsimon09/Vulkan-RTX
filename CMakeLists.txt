@@ -36,6 +36,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Shader/VShader.hpp
         Internal/Vulkan/VulkanCore/VObject.cpp
         Internal/Vulkan/VulkanCore/VObject.hpp
+        Internal/Vulkan/VulkanCore/Pipeline/VPipeline.cpp
+        Internal/Vulkan/VulkanCore/Pipeline/VPipeline.hpp
 )
 
 
@@ -57,7 +59,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
 
 # Set compile options based on build type
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_options(${TARGET} PRIVATE ${CFLAGS_RELEASE})
+    target_compile_options(${TARGET} PRIVtATE ${CFLAGS_RELEASE})
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(${TARGET} PRIVATE ${CFLAGS_DEBUG})
 endif()

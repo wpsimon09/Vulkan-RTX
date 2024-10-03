@@ -21,6 +21,13 @@ namespace GlobalVariables {
       static_cast<const char *>(VK_KHR_SWAPCHAIN_EXTENSION_NAME),
     };
 
+    enum SHADER_TYPE
+    {
+        FRAGMENT = 0,
+        VERTEX = 1,
+        COMPUTE = 2,
+    };
+
 
 }
 

@@ -51,6 +51,27 @@ namespace VulkanCore {
         return buffer;
     }
 
+    const vk::ShaderModule & VShader::GetShaderModule(GlobalVariables::SHADER_TYPE shaderType) const {
+        switch(shaderType) {
+            case GlobalVariables::SHADER_TYPE::VERTEX: {
+                return m_vertexShaderModule;
+                break;
+            }
+            case GlobalVariables::SHADER_TYPE::FRAGMENT: {
+                return m_fragmentShaderModule;
+                break;
+            }
+            case GlobalVariables::SHADER_TYPE::COMPUTE: {
+                assert(m_computeShaderModule.has_value());
+                return m_computeShaderModule.value();
+                break;
+            }default: {
+                throw std::runtime_error("Unknown shader type");
+                break;
+            }
+        }
+    }
+
     void VShader::CreateShaderModules() {
 
         auto vertexSPRIV = ReadSPIRVShader(m_vertexSource);
