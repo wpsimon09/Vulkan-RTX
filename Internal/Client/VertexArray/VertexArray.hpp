@@ -37,15 +37,21 @@ namespace ApplicationCore
         std::optional<glm::vec3> normal;
         std::optional<glm::vec2> uv;
 
-        bool isComplete(){return position.has_value() && normal.has_value() && uv.has_value();}
+        bool IsComplete(){return position.has_value() && normal.has_value() && uv.has_value();}
     };
 
     class VertexArray {
     public:
         VertexArray(PRIMITIVE_TOPOLOGY topology,const std::vector<Vertex>& vertices,const std::vector<uint32_t>& indices);
+
+        const std::vector<Vertex>& GetVertices() { return m_vertice; };
+        const std::vector<uint32_t>& GetIndices() { return m_indices; };
+
+        int GetAttributeCount() {return 3;};
+
     private:
-        const std::vector<Vertex> m_vertice;
-        const std::vector<uint32_t> m_indices;
+        const std::vector<Vertex>& m_vertice;
+        const std::vector<uint32_t>& m_indices;
         PRIMITIVE_TOPOLOGY m_topology;
 
         //----------------------------
