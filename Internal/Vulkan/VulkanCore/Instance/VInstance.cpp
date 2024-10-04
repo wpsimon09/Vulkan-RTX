@@ -3,8 +3,8 @@
 //
 
 #include "VInstance.hpp"
-#include "Includes/Logger/Logger.hpp"
-#include "Includes/WindowManager/WindowManager.hpp"
+#include "Client/Logger/Logger.hpp"
+#include "Client/WindowManager/WindowManager.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Utils/VChecker.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"

@@ -3,11 +3,11 @@
 //
 
 #include "VGeneralUtils.hpp"
-#include "Includes/Logger/Logger.hpp"
+#include "Client/Logger/Logger.hpp"
 
 
 uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyProperties> &queueFamilyProperties,
-    vk::QueueFlagBits queueType) {
+                                      vk::QueueFlagBits queueType) {
     //select just the queue fmily index that supports graphics operations
     std::vector<vk::QueueFamilyProperties>::const_iterator graphicsQueueFamilyProperty = std::find_if(
         queueFamilyProperties.begin(),

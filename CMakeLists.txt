@@ -15,11 +15,11 @@ set(SOURCES
         src/main.cpp
         Internal/VulkanRtx.cpp
         Internal/VulkanRtx.hpp
-        Internal/Includes/WindowManager/WindowManager.cpp
-        Internal/Includes/WindowManager/WindowManager.hpp
+        Internal/Client/WindowManager/WindowManager.cpp
+        Internal/Client/WindowManager/WindowManager.hpp
         Internal/Vulkan/Global/GlobalState.hpp
-        Internal/Includes/Logger/Logger.cpp
-        Internal/Includes/Logger/Logger.hpp
+        Internal/Client/Logger/Logger.cpp
+        Internal/Client/Logger/Logger.hpp
         Internal/Vulkan/VulkanCore/Instance/VInstance.cpp
         Internal/Vulkan/VulkanCore/Instance/VInstance.hpp
         Internal/Vulkan/Utils/VChecker.cpp
@@ -38,8 +38,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/VObject.hpp
         Internal/Vulkan/VulkanCore/Pipeline/VPipeline.cpp
         Internal/Vulkan/VulkanCore/Pipeline/VPipeline.hpp
-        Internal/Includes/VertexArray/VertexArray.cpp
-        Internal/Includes/VertexArray/VertexArray.hpp
+        Internal/Client/VertexArray/VertexArray.cpp
+        Internal/Client/VertexArray/VertexArray.hpp
 )
 
 

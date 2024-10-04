@@ -6,8 +6,8 @@
 #include <GLFW/glfw3.h>
 #include <chrono>
 
-#include "Includes/Logger/Logger.hpp"
-#include "Includes/WindowManager/WindowManager.hpp"
+#include "Client/Logger/Logger.hpp"
+#include "Client/WindowManager/WindowManager.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
