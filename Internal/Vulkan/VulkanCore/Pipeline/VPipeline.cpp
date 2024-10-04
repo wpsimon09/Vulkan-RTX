@@ -8,22 +8,36 @@
 
 VulkanCore::VPipeline::VPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
                                  const VulkanCore::VShader &shaders):m_device(device), m_swapChain(swapChain), m_shaders(shaders) {
-    CreatePipeline();
 }
 
 void VulkanCore::VPipeline::CreatePipeline() {
-    vk::PipelineShaderStageCreateInfo shaderStages[2];
 
     vk::PipelineShaderStageCreateInfo vertexStage;
     vertexStage.stage = vk::ShaderStageFlagBits::eVertex;
     vertexStage.module = m_shaders.GetShaderModule(GlobalVariables::SHADER_TYPE::VERTEX);
     vertexStage.pName = "main";
 
-
-
     vk::PipelineShaderStageCreateInfo fragmentStage;
     fragmentStage.stage = vk::ShaderStageFlagBits::eFragment;
     vertexStage.module = m_shaders.GetShaderModule(GlobalVariables::SHADER_TYPE::FRAGMENT);
     fragmentStage.pName = "main";
+
+    std::array<vk::PipelineShaderStageCreateInfo,3> shaderStages = {vertexStage, fragmentStage};
+
+    //------------------------------
+    // DYNAMIC PARTS OF THE PIPELINE
+    //------------------------------
+    std::vector<vk::DynamicState> dynamicState = {
+        vk::DynamicState::eViewport,
+        vk::DynamicState::eScissor
+    };
+
+    vk::PipelineDynamicStateCreateInfo dynamicStateCreateInfo;
+    dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicState.size());
+    dynamicStateCreateInfo.pDynamicStates = dynamicState.data();
+
+    //------------------
+    // VERTEX ATTRIBUTES
+    //------------------
 
 }

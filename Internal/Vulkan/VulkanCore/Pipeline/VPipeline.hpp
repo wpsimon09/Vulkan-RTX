@@ -17,13 +17,12 @@ namespace VulkanCore
         VPipeline(const VulkanCore::VDevice &device,const VulkanCore::VSwapChain &swapChain,const VulkanCore::VShader &shaders);
 
         void DestoryPipeline();
-    private:
         void CreatePipeline();
+
     private:
         const VulkanCore::VShader &m_shaders;
         const VulkanCore::VDevice &m_device;
         const VulkanCore::VSwapChain &m_swapChain;
-
         vk::Pipeline m_pipeline;
 
     };

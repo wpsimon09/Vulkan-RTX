@@ -38,6 +38,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/VObject.hpp
         Internal/Vulkan/VulkanCore/Pipeline/VPipeline.cpp
         Internal/Vulkan/VulkanCore/Pipeline/VPipeline.hpp
+        Internal/Includes/VertexArray/VertexArray.cpp
+        Internal/Includes/VertexArray/VertexArray.hpp
 )
 
 
