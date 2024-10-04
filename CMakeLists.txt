@@ -40,6 +40,12 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Pipeline/VPipeline.hpp
         Internal/Client/VertexArray/VertexArray.cpp
         Internal/Client/VertexArray/VertexArray.hpp
+        Internal/Client/Rendering/Mesh/Geometry.cpp
+        Internal/Client/Rendering/Mesh/Geometry.hpp
+        Internal/Client/Rendering/Mesh/MeshData.hpp
+        Internal/Client/Enums/ClientEnums.hpp
+        Internal/Client/Client.cpp
+        Internal/Client/Client.hpp
 )
 
 

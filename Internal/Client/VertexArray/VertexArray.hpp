@@ -7,37 +7,17 @@
 
 #include <optional>
 #include <vector>
-
+#include "Client/Enums/ClientEnums.hpp"
 #include "glm/glm.hpp"
 
 
 namespace ApplicationCore
 {
-    enum PRIMITIVE_TOPOLOGY
-    {
-        //points
-        TOPOLOGY_POINT_LIST,
-
-        //lines
-        TOPOLOGY_LINE_LIST,
-        TOPOLOGY_LINE_STRIP,
-
-        //triangles
-        TOPOLOGY_TRIANGLE_LIST,
-        TOPOLOGY_TRIANGLE_STRIP,
-        TOPOLOGY_TRIANGLE_FAN,
-
-        //patch (tesselation only)
-        TOPOLOGY_PATCH
- };
-
     struct Vertex
     {
-        std::optional<glm::vec3> position;
-        std::optional<glm::vec3> normal;
-        std::optional<glm::vec2> uv;
-
-        bool IsComplete(){return position.has_value() && normal.has_value() && uv.has_value();}
+        glm::vec3 position;
+        glm::vec3 normal;
+        glm::vec2 uv;
     };
 
     class VertexArray {

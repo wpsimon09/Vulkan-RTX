@@ -53,6 +53,19 @@ void VulkanUtils::TransformVAOToVulkanRepresentation(const ApplicationCore::Vert
     attributeDescription[0].binding = 0;
     attributeDescription[0].location = 0;
     attributeDescription[0].format = vk::Format::eR32G32B32Sfloat;
+    attributeDescription[0].offset = offsetof(ApplicationCore::Vertex, position);
+
+    // NORMALS
+    attributeDescription[2].binding = 0;
+    attributeDescription[2].location = 1;
+    attributeDescription[2].format = vk::Format::eR32G32B32Sfloat;
+    attributeDescription[2].offset = offsetof(ApplicationCore::Vertex, normal);
+
+    // uv
+    attributeDescription[2].binding = 0;
+    attributeDescription[2].location = 2;
+    attributeDescription[2].format = vk::Format::eR32G32Sfloat;
+    attributeDescription[2].offset = offsetof(ApplicationCore::Vertex, uv);
 
 
 
