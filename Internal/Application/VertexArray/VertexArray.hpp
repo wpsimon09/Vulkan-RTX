@@ -29,23 +29,12 @@ namespace ApplicationCore
 
         int GetAttributeCount() {return 3;};
 
+         ~VertexArray();
+
     private:
         const std::vector<Vertex>& m_vertice;
         const std::vector<uint32_t>& m_indices;
         PRIMITIVE_TOPOLOGY m_topology;
-
-        //----------------------------
-        // EQUALITY OPERATORS OVERLOAD
-        //----------------------------
-        friend bool operator==(const VertexArray &lhs, const VertexArray &rhs) {
-            return lhs.m_vertice == rhs.m_vertice
-                && lhs.m_indices == rhs.m_indices
-                && lhs.m_topology == rhs.m_topology;
-        }
-
-        friend bool operator!=(const VertexArray &lhs, const VertexArray &rhs) {
-            return !(lhs == rhs);
-        }
     };
 }
 

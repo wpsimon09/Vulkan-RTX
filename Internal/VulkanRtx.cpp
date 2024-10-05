@@ -12,6 +12,7 @@
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VPipeline.hpp"
 
 
 Application::Application()

@@ -19,6 +19,8 @@ namespace VulkanCore
         void DestoryPipeline();
         void CreatePipeline();
 
+        ~VPipeline() = default;
+
     private:
         const VulkanCore::VShader &m_shaders;
         const VulkanCore::VDevice &m_device;

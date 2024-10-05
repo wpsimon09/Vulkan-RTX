@@ -7,8 +7,8 @@
 #include <memory>
 #include <vector>
 
-
 //TODO: this class is going to boot up the client site of the renderer like geometry creation, assets managers and all of that stuff, instance of this will be creatd in VulkaRT
+
 
 namespace ApplicationCore
 {
@@ -17,7 +17,7 @@ namespace ApplicationCore
 
 class Client {
 public:
-    Client() = default;
+    Client();
     void Init();
     void Update();
     ~Client();

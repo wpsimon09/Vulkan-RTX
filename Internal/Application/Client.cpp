@@ -5,9 +5,8 @@
 #include "Client.hpp"
 
 #include <cassert>
-
-#include "Logger/Logger.hpp"
 #include "Rendering/Mesh/Mesh.hpp"
+#include "Logger/Logger.hpp"
 
 void Client::Init() {
 
