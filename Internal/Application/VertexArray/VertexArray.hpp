@@ -29,7 +29,7 @@ namespace ApplicationCore
 
         int GetAttributeCount() {return 3;};
 
-         ~VertexArray();
+         ~VertexArray() = default;
 
     private:
         const std::vector<Vertex>& m_vertice;

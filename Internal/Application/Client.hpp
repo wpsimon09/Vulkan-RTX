@@ -17,10 +17,10 @@ namespace ApplicationCore
 
 class Client {
 public:
-    Client();
+    Client() = default;
     void Init();
     void Update();
-    ~Client();
+    ~Client() = default;
 private:
     std::vector<std::unique_ptr<class ApplicationCore::Mesh>> m_meshes;
 

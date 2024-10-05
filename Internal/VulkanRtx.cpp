@@ -6,13 +6,15 @@
 #include <GLFW/glfw3.h>
 #include <chrono>
 
-#include "Application/Client.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/WindowManager/WindowManager.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VPipeline.hpp"
+#include "Application/Client.hpp"
+#include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/VertexArray/VertexArray.hpp"
 
 
 Application::Application()

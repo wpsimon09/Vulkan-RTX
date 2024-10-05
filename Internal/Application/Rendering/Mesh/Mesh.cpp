@@ -3,7 +3,6 @@
 //
 
 #include "Mesh.hpp"
-
 #include "MeshData.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
@@ -12,6 +11,7 @@ ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType) {
     m_geometryType = geometryType;
     AssignMeshGeometryData();
 }
+
 
 void ApplicationCore::Mesh::AssignMeshGeometryData() {
     switch (m_geometryType) {
@@ -36,4 +36,5 @@ std::string ApplicationCore::Mesh::MeshGeometryTypeToString(MESH_GEOMETRY_TYPE g
         case MESH_GEOMETRY_POST_PROCESS:
             return "MESH_GEOMETRY_POST_PROCESS";
     }
+    return "UNKNOWN";
 }

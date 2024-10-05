@@ -5,8 +5,8 @@
 #ifndef MESH_HPP
 #define MESH_HPP
 
-#include "Application/Enums/ClientEnums.hpp"
 #include <memory>
+#include "Application/Enums/ClientEnums.hpp"
 
 namespace ApplicationCore
 {
@@ -15,7 +15,7 @@ namespace ApplicationCore
     public:
         Mesh(MESH_GEOMETRY_TYPE geometryType);
 
-        ~Mesh(){};
+
     private:
         void AssignMeshGeometryData();
         std::string MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType);

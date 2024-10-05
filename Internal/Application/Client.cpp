@@ -4,14 +4,14 @@
 
 #include "Client.hpp"
 
-#include <cassert>
-#include "Rendering/Mesh/Mesh.hpp"
 #include "Logger/Logger.hpp"
+#include "Rendering/Mesh/Mesh.hpp"
+#include "VertexArray/VertexArray.hpp"
+#include <cassert>
 
 void Client::Init() {
 
     auto start = std::chrono::high_resolution_clock::now();
-
 
     m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_PLANE));
     assert(!m_meshes.empty());
