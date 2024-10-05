@@ -16,7 +16,7 @@ ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType) {
 void ApplicationCore::Mesh::AssignMeshGeometryData() {
     switch (m_geometryType) {
     case MESH_GEOMETRY_PLANE: {
-        std::make_unique<VertexArray>(TOPOLOGY_TRIANGLE_LIST,ApplicationCore::MeshData::planeVertices, ApplicationCore::MeshData::planeIndices) ;
+        m_vertexArray = std::make_unique<ApplicationCore::VertexArray>(TOPOLOGY_TRIANGLE_LIST,ApplicationCore::MeshData::planeVertices, ApplicationCore::MeshData::planeIndices) ;
         break;
     };
         default:

@@ -20,7 +20,7 @@ namespace VulkanCore{
             void Destroy() override;
 
             const vk::SurfaceFormatKHR& GetSurfaceFormatKHR() { return m_format; };
-            const vk::Extent2D& GetExtent() { return m_extent; };
+            const vk::Extent2D& GetExtent() const { return m_extent; };
             const vk::PresentModeKHR& GetPresentMode() { return m_presentMode; };
         private:
             vk::SurfaceFormatKHR m_format;

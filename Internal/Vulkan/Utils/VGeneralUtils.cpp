@@ -39,10 +39,8 @@ vk::ImageView VulkanUtils::GenerateImageView(const vk::Device &logicalDevice, co
     return imageView;
 }
 
-void VulkanUtils::TransformVAOToVulkanRepresentation(const ApplicationCore::VertexArray &vertexArray,
-    vk::VertexInputBindingDescription &bindingDescription, std::vector<vk::VertexInputAttributeDescription> &attributeDescription,
-    vk::PrimitiveTopology primitiveTopology) {
-
+void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBindingDescription &bindingDescription,
+    std::vector<vk::VertexInputAttributeDescription> &attributeDescription) {
     bindingDescription.binding = 0;
     bindingDescription.stride = sizeof(ApplicationCore::Vertex);
     bindingDescription.inputRate = vk::VertexInputRate::eVertex;
@@ -66,9 +64,6 @@ void VulkanUtils::TransformVAOToVulkanRepresentation(const ApplicationCore::Vert
     attributeDescription[2].location = 2;
     attributeDescription[2].format = vk::Format::eR32G32Sfloat;
     attributeDescription[2].offset = offsetof(ApplicationCore::Vertex, uv);
-
-
-
 }
 
 
