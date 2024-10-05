@@ -11,74 +11,19 @@
 
 VulkanCore::VPipeline::VPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
                                  const VulkanCore::VShader &shaders):m_device(device), m_swapChain(swapChain), m_shaders(shaders) {
+    CreatePipeline();
 }
 
 void VulkanCore::VPipeline::CreatePipeline() {
-    vk::PipelineShaderStageCreateInfo vertexStage;
-    vertexStage.stage = vk::ShaderStageFlagBits::eVertex;
-    vertexStage.module = m_shaders.GetShaderModule(GlobalVariables::SHADER_TYPE::VERTEX);
-    vertexStage.pName = "main";
 
-    vk::PipelineShaderStageCreateInfo fragmentStage;
-    fragmentStage.stage = vk::ShaderStageFlagBits::eFragment;
-    vertexStage.module = m_shaders.GetShaderModule(GlobalVariables::SHADER_TYPE::FRAGMENT);
-    fragmentStage.pName = "main";
+    CreateShaderStages();
 
-    std::array<vk::PipelineShaderStageCreateInfo,3> shaderStages = {vertexStage, fragmentStage};
+    CreateVertexInputBindingAndAttributes();
 
+    CreatePrimitiveAssembler();
 
+    CreateDynamicViewPort();
 
-    //------------------
-    // VERTEX ATTRIBUTES
-    //------------------
-    vk::VertexInputBindingDescription bindingDescription = {};
-    std::vector<vk::VertexInputAttributeDescription> attributeDescriptions = {};
-
-    VulkanUtils::GetVertexBindingAndAttributeDescription(bindingDescription, attributeDescriptions);
-
-    //--------------------
-    // TOPOLOGY
-    //--------------------
-    vk::PipelineInputAssemblyStateCreateInfo inputAssembly = {};
-    inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
-    inputAssembly.primitiveRestartEnable = vk::False;
-
-    //--------------------
-    // TOPOLOGY
-    //--------------------
-    vk::Viewport viewport = {};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width =(float) m_swapChain.GetExtent().width;
-    viewport.height =(float) m_swapChain.GetExtent().height;
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-
-    //-------------------
-    // SCISSORS
-    //-------------------
-    vk::Rect2D scissors = {};
-    scissors.extent = m_swapChain.GetExtent();
-    scissors.offset =vk::Offset2D( {0,0});
-
-    //------------------------------
-    // DYNAMIC PARTS OF THE PIPELINE
-    //------------------------------
-    std::vector<vk::DynamicState> dynamicState = {
-        vk::DynamicState::eViewport,
-        vk::DynamicState::eScissor
-    };
-
-    //--------------------------------------
-    // CREATING DYNAMIC PIPELINE INFO STATES
-    //--------------------------------------
-    vk::PipelineDynamicStateCreateInfo dynamicStateCreateInfo;
-    dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicState.size());
-    dynamicStateCreateInfo.pDynamicStates = dynamicState.data();
-
-    vk::PipelineViewportStateCreateInfo viewportStateCreateInfo = {};
-    viewportStateCreateInfo.viewportCount = 1;
-    viewportStateCreateInfo.scissorCount = 1;
 
     //--------------------------
     // RASTERIZER
@@ -143,4 +88,76 @@ void VulkanCore::VPipeline::CreatePipeline() {
     //-------------------------
     // PIPELINE LAYOUT
     //-------------------------
+    vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
+    pipelineLayoutCreateInfo.setLayoutCount = 0;
+    pipelineLayoutCreateInfo.pSetLayouts = nullptr;
+    pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+    pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+    assert(m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout)== vk::Result::eSuccess);
+
+    Utils::Logger::LogSuccess("Created pipeline layout");
+}
+
+void VulkanCore::VPipeline::CreateShaderStages() {
+    vk::PipelineShaderStageCreateInfo vertexStage;
+    vertexStage.stage = vk::ShaderStageFlagBits::eVertex;
+    vertexStage.module = m_shaders.GetShaderModule(GlobalVariables::SHADER_TYPE::VERTEX);
+    vertexStage.pName = "main";
+
+    vk::PipelineShaderStageCreateInfo fragmentStage;
+    fragmentStage.stage = vk::ShaderStageFlagBits::eFragment;
+    vertexStage.module = m_shaders.GetShaderModule(GlobalVariables::SHADER_TYPE::FRAGMENT);
+    fragmentStage.pName = "main";
+
+    m_shaderStages = {vertexStage, fragmentStage};
+
+}
+
+void VulkanCore::VPipeline::CreateVertexInputBindingAndAttributes() {
+    //------------------
+    // VERTEX ATTRIBUTES
+    //------------------
+    VulkanUtils::GetVertexBindingAndAttributeDescription(m_vertexInputBindingDescription, m_vertexInputAttributeDescription);
+
+}
+
+void VulkanCore::VPipeline::CreatePrimitiveAssembler() {
+    //--------------------
+    // TOPOLOGY
+    //--------------------
+    m_inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
+    m_inputAssembly.primitiveRestartEnable = vk::False;
+}
+
+void VulkanCore::VPipeline::CreateDynamicViewPort() {
+    //--------------------
+    // VIEW PORT
+    //--------------------
+    m_viewport.x = 0.0f;
+    m_viewport.y = 0.0f;
+    m_viewport.width =(float) m_swapChain.GetExtent().width;
+    m_viewport.height =(float) m_swapChain.GetExtent().height;
+    m_viewport.minDepth = 0.0f;
+    m_viewport.maxDepth = 1.0f;
+
+    //-------------------
+    // SCISSORS
+    //-------------------
+    m_scissor.extent = m_swapChain.GetExtent();
+    m_scissor.offset =vk::Offset2D( {0,0});
+
+    //------------------------------
+    // DYNAMIC PARTS OF THE PIPELINE
+    //------------------------------
+    m_dynamicStates = {
+        vk::DynamicState::eViewport,
+        vk::DynamicState::eScissor
+    };
+
+    m_viewportState.scissorCount = 1;
+    m_viewportState.viewportCount = 1;
+}
+
+void VulkanCore::VPipeline::CreateDynamicState() {
+
 }

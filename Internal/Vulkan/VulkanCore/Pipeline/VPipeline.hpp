@@ -20,13 +20,31 @@ namespace VulkanCore
         void CreatePipeline();
 
         ~VPipeline() = default;
+    protected:
+        virtual void CreateShaderStages();
+        virtual void CreateVertexInputBindingAndAttributes();
+        virtual void CreatePrimitiveAssembler();
+        virtual void CreateDynamicViewPort();
+        virtual void CreateDynamicState();
 
-    private:
+    protected:
         const VulkanCore::VShader &m_shaders;
         const VulkanCore::VDevice &m_device;
         const VulkanCore::VSwapChain &m_swapChain;
         vk::Pipeline m_pipeline;
+        vk::PipelineLayout m_pipelineLayout;
 
+        //------------------------------
+        //PIPELINE CREATE INFO VARIABLES
+        //------------------------------
+        std::array<vk::PipelineShaderStageCreateInfo, 2> m_shaderStages;
+        vk::VertexInputBindingDescription m_vertexInputBindingDescription;
+        std::vector<vk::VertexInputAttributeDescription> m_vertexInputAttributeDescription;
+        vk::PipelineInputAssemblyStateCreateInfo m_inputAssembly;
+        vk::Viewport m_viewport;
+        vk::Rect2D m_scissor;
+        vk::PipelineViewportStateCreateInfo m_viewportState;
+        std::vector<vk::DynamicState> m_dynamicStates;
     };
 }
 
