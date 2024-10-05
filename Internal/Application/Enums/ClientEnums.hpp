@@ -23,5 +23,14 @@ enum PRIMITIVE_TOPOLOGY
     TOPOLOGY_PATCH
 };
 
+enum MESH_GEOMETRY_TYPE
+{
+    MESH_GEOMETRY_CUBE = "cube",
+    MESH_GEOMETRY_SPHERE = "sphere",
+    MESH_GEOMETRY_PLANE = "plane",
+    MESH_GEOMETRY_POST_PROCESS = "post proecess"
+};
+
+
 
 #endif //CLIENTENUMS_HPP

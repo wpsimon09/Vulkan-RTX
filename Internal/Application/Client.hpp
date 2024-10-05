@@ -8,6 +8,9 @@
 //TODO: this class is going to boot up the client site of the renderer like geometry creation, assets managers and all of that stuff, instance of this will be creatd in VulkaRT
 
 class Client {
+public:
+    Client();
+private:
 
 };
 

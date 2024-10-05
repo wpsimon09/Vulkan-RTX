@@ -15,11 +15,11 @@ set(SOURCES
         src/main.cpp
         Internal/VulkanRtx.cpp
         Internal/VulkanRtx.hpp
-        Internal/Client/WindowManager/WindowManager.cpp
-        Internal/Client/WindowManager/WindowManager.hpp
+        Internal/Application/WindowManager/WindowManager.cpp
+        Internal/Application/WindowManager/WindowManager.hpp
         Internal/Vulkan/Global/GlobalState.hpp
-        Internal/Client/Logger/Logger.cpp
-        Internal/Client/Logger/Logger.hpp
+        Internal/Application/Logger/Logger.cpp
+        Internal/Application/Logger/Logger.hpp
         Internal/Vulkan/VulkanCore/Instance/VInstance.cpp
         Internal/Vulkan/VulkanCore/Instance/VInstance.hpp
         Internal/Vulkan/Utils/VChecker.cpp
@@ -38,14 +38,14 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/VObject.hpp
         Internal/Vulkan/VulkanCore/Pipeline/VPipeline.cpp
         Internal/Vulkan/VulkanCore/Pipeline/VPipeline.hpp
-        Internal/Client/VertexArray/VertexArray.cpp
-        Internal/Client/VertexArray/VertexArray.hpp
-        Internal/Client/Rendering/Mesh/Geometry.cpp
-        Internal/Client/Rendering/Mesh/Geometry.hpp
-        Internal/Client/Rendering/Mesh/MeshData.hpp
-        Internal/Client/Enums/ClientEnums.hpp
-        Internal/Client/Client.cpp
-        Internal/Client/Client.hpp
+        Internal/Application/VertexArray/VertexArray.cpp
+        Internal/Application/VertexArray/VertexArray.hpp
+        Internal/Application/Rendering/Mesh/MeshData.hpp
+        Internal/Application/Enums/ClientEnums.hpp
+        Internal/Application/Client.cpp
+        Internal/Application/Client.hpp
+        Internal/Application/Rendering/Mesh/Mesh.cpp
+        Internal/Application/Rendering/Mesh/Mesh.hpp
 )
 
 

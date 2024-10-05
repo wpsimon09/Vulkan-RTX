@@ -4,10 +4,10 @@
 
 #include "VSwapChain.hpp"
 
-#include "Client/Logger/Logger.hpp"
+#include "Application/Logger/Logger.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
-#include "Client/WindowManager/WindowManager.hpp"
+#include "Application/WindowManager/WindowManager.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 
 VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const VulkanCore::VulkanInstance &instance): m_device(device), m_instance(instance) {

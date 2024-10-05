@@ -6,7 +6,7 @@
 
 #include <fstream>
 
-#include "Client/Logger/Logger.hpp"
+#include "Application/Logger/Logger.hpp"
 
 namespace VulkanCore {
 

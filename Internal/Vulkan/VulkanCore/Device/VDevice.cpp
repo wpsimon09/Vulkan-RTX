@@ -6,7 +6,7 @@
 
 #include <set>
 
-#include "Client/Logger/Logger.hpp"
+#include "Application/Logger/Logger.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"

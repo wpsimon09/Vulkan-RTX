@@ -21,7 +21,7 @@ namespace VulkanUtils
         const ApplicationCore::VertexArray& vertexArray, vk::VertexInputBindingDescription &bindingDescription,
         std::vector<vk::VertexInputAttributeDescription> &attributeDescription,
         vk::PrimitiveTopology primitiveTopology = vk::PrimitiveTopology::eTriangleList
-        );
+    );
 }
 
 #endif //VGENERALUTILS_HPP

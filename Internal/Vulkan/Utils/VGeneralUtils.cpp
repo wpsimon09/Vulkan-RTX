@@ -3,8 +3,8 @@
 //
 
 #include "VGeneralUtils.hpp"
-#include "Client/Logger/Logger.hpp"
-#include "Client/VertexArray/VertexArray.hpp"
+#include "Application/Logger/Logger.hpp"
+#include "Application/VertexArray/VertexArray.hpp"
 
 
 uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyProperties> &queueFamilyProperties,

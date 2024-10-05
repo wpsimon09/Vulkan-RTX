@@ -7,7 +7,7 @@
 
 #include <optional>
 #include <vector>
-#include "Client/Enums/ClientEnums.hpp"
+#include "Application/Enums/ClientEnums.hpp"
 #include "glm/glm.hpp"
 
 
