@@ -49,8 +49,9 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Pipeline/VPipelineManager.cpp
         Internal/Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp
         Internal/Vulkan/Global/GlobalVulkanEnums.hpp
-        Internal/Vulkan/VulkanCore/Pipeline/VConcretePipelines/PbrRasterOpaquePipeline.cpp
-        Internal/Vulkan/VulkanCore/Pipeline/VConcretePipelines/PbrRasterOpaquePipeline.hpp
+        Internal/Vulkan/VulkanCore/RenderPass/VRenderPass.cpp
+        Internal/Vulkan/VulkanCore/RenderPass/VRenderPass.hpp
+
 )
 
 
