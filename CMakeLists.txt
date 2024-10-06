@@ -46,6 +46,11 @@ set(SOURCES
         Internal/Application/Client.hpp
         Internal/Application/Rendering/Mesh/Mesh.cpp
         Internal/Application/Rendering/Mesh/Mesh.hpp
+        Internal/Vulkan/VulkanCore/Pipeline/VPipelineManager.cpp
+        Internal/Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp
+        Internal/Vulkan/Global/GlobalVulkanEnums.hpp
+        Internal/Vulkan/VulkanCore/Pipeline/VConcretePipelines/PbrRasterOpaquePipeline.cpp
+        Internal/Vulkan/VulkanCore/Pipeline/VConcretePipelines/PbrRasterOpaquePipeline.hpp
 )
 
 

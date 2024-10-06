@@ -11,10 +11,9 @@
 
 VulkanCore::VPipeline::VPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
                                  const VulkanCore::VShader &shaders):m_device(device), m_swapChain(swapChain), m_shaders(shaders) {
-    CreatePipeline();
 }
 
-void VulkanCore::VPipeline::CreatePipeline() {
+void VulkanCore::VPipeline::Init() {
 
     CreateShaderStages();
     CreateVertexInputBindingAndAttributes();
@@ -26,6 +25,11 @@ void VulkanCore::VPipeline::CreatePipeline() {
     CreateDepthStencil();
     CreateColorBlend();
     CreatePipelineLayout();
+}
+
+const vk::GraphicsPipelineCreateInfo VulkanCore::VPipeline::GetPiplineCreateInfoStruct() const {
+    vk::GraphicsPipelineCreateInfo info = {};
+
 }
 
 void VulkanCore::VPipeline::CreateShaderStages() {

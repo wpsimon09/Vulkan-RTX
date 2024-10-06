@@ -1,0 +1,13 @@
+//
+// Created by wpsimon09 on 06/10/24.
+//
+
+#ifndef GLOBALVULKANENUMS_HPP
+#define GLOBALVULKANENUMS_HPP
+
+enum PIPELINE_TYPE
+{
+    RASTER_BASIC,
+};
+
+#endif //GLOBALVULKANENUMS_HPP

@@ -6,40 +6,38 @@
 #define VPIPELINE_HPP
 #include <vulkan/vulkan.hpp>
 
+#include "Vulkan/VulkanCore/VObject.hpp"
+
 namespace VulkanCore
 {
     class VSwapChain;
     class VDevice;
     class VShader;
 
-
-    /**
-     * This calss is a base class for every rasterization pipeline that will be created in this application.
-     * New pipeline will inherit this class and override functions that needs to be different.
-     * So for example if new pipeline has a different shader it will inherit this class and just override CreateShaderStagesFunction.
-     */
-    class VPipeline
+    class VPipeline: public VObject
     {
     public:
         VPipeline(const VulkanCore::VDevice &device,const VulkanCore::VSwapChain &swapChain,const VulkanCore::VShader &shaders);
 
-        void DestoryPipeline();
-        void CreatePipeline();
-
+        /**
+         * Fills in all structs required to create pipeline. Structs can be modified with setters
+         */
+        void Init();
+        const vk::GraphicsPipelineCreateInfo GetPiplineCreateInfoStruct() const;
         ~VPipeline() = default;
-    protected:
-        virtual void CreateShaderStages();
-        virtual void CreateVertexInputBindingAndAttributes();
-        virtual void CreatePrimitiveAssembler();
-        virtual void CreateDynamicViewPort();
-        virtual void CreateDynamicState();
-        virtual void CreateRasterizer();
-        virtual void CreateMultisampling();
-        virtual void CreateDepthStencil();
-        virtual void CreateColorBlend();
-        virtual void CreatePipelineLayout(vk::DescriptorSetLayout* descriptorSet = nullptr, int descriptorCounts = 0) ;
+    private:
+        void CreateShaderStages();
+        void CreateVertexInputBindingAndAttributes();
+        void CreatePrimitiveAssembler();
+        void CreateDynamicViewPort();
+        void CreateDynamicState();
+        void CreateRasterizer();
+        void CreateMultisampling();
+        void CreateDepthStencil();
+        void CreateColorBlend();
+        void CreatePipelineLayout(vk::DescriptorSetLayout* descriptorSet = nullptr, int descriptorCounts = 0) ;
 
-    protected:
+    private:
         const VulkanCore::VShader &m_shaders;
         const VulkanCore::VDevice &m_device;
         const VulkanCore::VSwapChain &m_swapChain;
@@ -48,10 +46,10 @@ namespace VulkanCore
         vk::Pipeline m_pipeline;
         vk::PipelineCache m_pipelineCache;
 
-
         //------------------------------
         //PIPELINE CREATE INFO VARIABLES
         //------------------------------
+    private:
         std::array<vk::PipelineShaderStageCreateInfo, 2> m_shaderStages;
         vk::VertexInputBindingDescription m_vertexInputBindingDescription;
         std::vector<vk::VertexInputAttributeDescription> m_vertexInputAttributeDescription;
@@ -68,6 +66,53 @@ namespace VulkanCore
         vk::PipelineColorBlendStateCreateInfo m_colorBlendState;
         vk::PipelineLayout m_pipelineLayout;
 
+    public:
+        void SetVertexInputBindingDescription(
+            const vk::VertexInputBindingDescription &vertexInputBindingDescription) {
+            m_vertexInputBindingDescription = vertexInputBindingDescription;
+        }
+
+        void SetVertexInputAttributeDescription(
+            const std::vector<vk::VertexInputAttributeDescription> &vertexInputAttributesDescription) {
+            m_vertexInputAttributeDescription = vertexInputAttributesDescription;
+        }
+
+        void SetInputAssemply(const vk::PipelineInputAssemblyStateCreateInfo &inputAssemebly) {
+            m_inputAssembly = inputAssemebly;
+        }
+
+        void SetDynamicStateInfo(const vk::PipelineDynamicStateCreateInfo &dynamicStateInfo) {
+            m_dynamicStateInfo = dynamicStateInfo;
+        }
+
+        void AddDynamicState(const vk::DynamicState &newDynamicState) {
+            m_dynamicStates.emplace_back(newDynamicState);
+        }
+
+        void SetRasterizer(const vk::PipelineRasterizationStateCreateInfo &rasterizer) {
+            m_rasterizer = rasterizer;
+        }
+
+        void SetMultisampling(const vk::PipelineMultisampleStateCreateInfo &multisampling) {
+            m_multisampling = multisampling;
+        }
+
+        void SetDepthStencil(const vk::PipelineDepthStencilStateCreateInfo &m_depth_stencil) {
+            m_depthStencil = m_depth_stencil;
+        }
+
+        void SetColorBlendAttachmentState(
+            const vk::PipelineColorBlendAttachmentState &m_color_blend_attachment_state) {
+            m_colorBlendAttachmentState = m_color_blend_attachment_state;
+        }
+
+        void SetColorBlendState(const vk::PipelineColorBlendStateCreateInfo &m_color_blend_state) {
+            m_colorBlendState = m_color_blend_state;
+        }
+
+        void SetPipelineLayout(const vk::PipelineLayout &m_pipeline_layout) {
+            m_pipelineLayout = m_pipeline_layout;
+        }
     };
 }
 
