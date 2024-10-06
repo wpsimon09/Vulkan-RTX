@@ -24,66 +24,9 @@ void VulkanCore::VPipeline::CreatePipeline() {
 
     CreateDynamicViewPort();
 
+    CreateDynamicState();
 
-    //--------------------------
-    // RASTERIZER
-    //--------------------------
-    vk::PipelineRasterizationStateCreateInfo rasterizationStateCreateInfo = {};
-    rasterizationStateCreateInfo.depthClampEnable = vk::False;
-    rasterizationStateCreateInfo.polygonMode = vk::PolygonMode::eFill;
-    rasterizationStateCreateInfo.rasterizerDiscardEnable = VK_FALSE;
-    rasterizationStateCreateInfo.lineWidth = 1.0f;
-    rasterizationStateCreateInfo.cullMode = vk::CullModeFlagBits::eBack;
-    rasterizationStateCreateInfo.frontFace = vk::FrontFace::eCounterClockwise;
-    rasterizationStateCreateInfo.depthBiasEnable = VK_FALSE;
-    rasterizationStateCreateInfo.depthBiasConstantFactor = 0.0F;
-    rasterizationStateCreateInfo.depthBiasClamp = 0.0f;
-    rasterizationStateCreateInfo.depthBiasSlopeFactor = 0.0f;
-
-    //-----------------------
-    // MULTISAMPLING
-    //-----------------------
-    vk::PipelineMultisampleStateCreateInfo multisampleCreateInfo{};
-    multisampleCreateInfo.sampleShadingEnable = vk::False;
-    multisampleCreateInfo.rasterizationSamples = vk::SampleCountFlagBits::e1;
-    multisampleCreateInfo.minSampleShading = 1.0f;
-    multisampleCreateInfo.pSampleMask = nullptr;
-    multisampleCreateInfo.alphaToCoverageEnable = VK_FALSE;
-    multisampleCreateInfo.alphaToOneEnable = VK_FALSE;
-
-    //------------------
-    // DEPTH AND STENCIL
-    //------------------
-    //!
-
-    //--------------------
-    // COLOUR BLENDING
-    //--------------------
-    vk::PipelineColorBlendAttachmentState colorBlendAttachmentState = {};
-    colorBlendAttachmentState.colorWriteMask =
-        vk::ColorComponentFlagBits::eR |
-        vk::ColorComponentFlagBits::eG |
-        vk::ColorComponentFlagBits::eB |
-        vk::ColorComponentFlagBits::eA;
-    colorBlendAttachmentState.blendEnable = vk::False;
-    colorBlendAttachmentState.srcColorBlendFactor = vk::BlendFactor::eOne;
-    colorBlendAttachmentState.dstColorBlendFactor = vk::BlendFactor::eZero;
-    colorBlendAttachmentState.colorBlendOp = vk::BlendOp::eAdd;
-    colorBlendAttachmentState.srcAlphaBlendFactor = vk::BlendFactor::eOne;
-    colorBlendAttachmentState.dstAlphaBlendFactor = vk::BlendFactor::eZero;
-    colorBlendAttachmentState.colorBlendOp = vk::BlendOp::eAdd;
-    colorBlendAttachmentState.alphaBlendOp = vk::BlendOp::eAdd;
-
-    vk::PipelineColorBlendStateCreateInfo colorBlendStateCreateInfo = {};
-    colorBlendStateCreateInfo.logicOpEnable = VK_FALSE;
-    colorBlendStateCreateInfo.logicOp = vk::LogicOp::eCopy;
-    colorBlendStateCreateInfo.logicOpEnable = vk::False;
-    colorBlendStateCreateInfo.attachmentCount = 1;
-    colorBlendStateCreateInfo.pAttachments = &colorBlendAttachmentState;
-    colorBlendStateCreateInfo.blendConstants[0] = 0.0f;
-    colorBlendStateCreateInfo.blendConstants[1] = 0.0f;
-    colorBlendStateCreateInfo.blendConstants[2] = 0.0f;
-    colorBlendStateCreateInfo.blendConstants[3] = 0.0f;
+    CreateRasterizer();
 
     //-------------------------
     // PIPELINE LAYOUT
@@ -114,17 +57,10 @@ void VulkanCore::VPipeline::CreateShaderStages() {
 }
 
 void VulkanCore::VPipeline::CreateVertexInputBindingAndAttributes() {
-    //------------------
-    // VERTEX ATTRIBUTES
-    //------------------
     VulkanUtils::GetVertexBindingAndAttributeDescription(m_vertexInputBindingDescription, m_vertexInputAttributeDescription);
-
 }
 
 void VulkanCore::VPipeline::CreatePrimitiveAssembler() {
-    //--------------------
-    // TOPOLOGY
-    //--------------------
     m_inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
     m_inputAssembly.primitiveRestartEnable = vk::False;
 }
@@ -146,6 +82,13 @@ void VulkanCore::VPipeline::CreateDynamicViewPort() {
     m_scissor.extent = m_swapChain.GetExtent();
     m_scissor.offset =vk::Offset2D( {0,0});
 
+
+    m_viewportState.scissorCount = 1;
+    m_viewportState.viewportCount = 1;
+}
+
+void VulkanCore::VPipeline::CreateDynamicState() {
+
     //------------------------------
     // DYNAMIC PARTS OF THE PIPELINE
     //------------------------------
@@ -154,10 +97,69 @@ void VulkanCore::VPipeline::CreateDynamicViewPort() {
         vk::DynamicState::eScissor
     };
 
-    m_viewportState.scissorCount = 1;
-    m_viewportState.viewportCount = 1;
+    m_dynamicStateInfo.dynamicStateCount = m_dynamicStates.size();
+    m_dynamicStateInfo.pDynamicStates = m_dynamicStates.data();
 }
 
-void VulkanCore::VPipeline::CreateDynamicState() {
+void VulkanCore::VPipeline::CreateRasterizer() {
+    m_rasterizer.depthClampEnable = vk::False;
+    m_rasterizer.polygonMode = vk::PolygonMode::eFill;
+    m_rasterizer.rasterizerDiscardEnable = VK_FALSE;
+    m_rasterizer.lineWidth = 1.0f;
+    m_rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+    m_rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
+    m_rasterizer.depthBiasEnable = VK_FALSE;
+    m_rasterizer.depthBiasConstantFactor = 0.0F;
+    m_rasterizer.depthBiasClamp = 0.0f;
+    m_rasterizer.depthBiasSlopeFactor = 0.0f;
+}
+
+void VulkanCore::VPipeline::CreateMultisampling() {
+    m_multisampling.sampleShadingEnable = vk::False;
+    m_multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+    m_multisampling.minSampleShading = 1.0f;
+    m_multisampling.pSampleMask = nullptr;
+    m_multisampling.alphaToCoverageEnable = VK_FALSE;
+    m_multisampling.alphaToOneEnable = VK_FALSE;
+}
+
+void VulkanCore::VPipeline::CreateDepthStencil() {
+    m_depthStencil.depthTestEnable = vk::False;
+    m_depthStencil.depthWriteEnable = vk::False;
+}
+
+void VulkanCore::VPipeline::CreateColorBlend() {
+    //--------------------
+    // COLOUR BLENDING
+    //--------------------
+    m_colorBlendAttachmentState.colorWriteMask =
+        vk::ColorComponentFlagBits::eR |
+        vk::ColorComponentFlagBits::eG |
+        vk::ColorComponentFlagBits::eB |
+        vk::ColorComponentFlagBits::eA;
+    m_colorBlendAttachmentState.blendEnable = vk::False;
+    m_colorBlendAttachmentState.srcColorBlendFactor = vk::BlendFactor::eOne;
+    m_colorBlendAttachmentState.dstColorBlendFactor = vk::BlendFactor::eZero;
+    m_colorBlendAttachmentState.colorBlendOp = vk::BlendOp::eAdd;
+    m_colorBlendAttachmentState.srcAlphaBlendFactor = vk::BlendFactor::eOne;
+    m_colorBlendAttachmentState.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    m_colorBlendAttachmentState.colorBlendOp = vk::BlendOp::eAdd;
+    m_colorBlendAttachmentState.alphaBlendOp = vk::BlendOp::eAdd;
+
+    m_colorBlendState.logicOpEnable = VK_FALSE;
+    m_colorBlendState.logicOp = vk::LogicOp::eCopy;
+    m_colorBlendState.logicOpEnable = vk::False;
+    m_colorBlendState.attachmentCount = 1;
+    m_colorBlendState.pAttachments = &m_colorBlendAttachmentState;
+    m_colorBlendState.blendConstants[0] = 0.0f;
+    m_colorBlendState.blendConstants[1] = 0.0f;
+    m_colorBlendState.blendConstants[2] = 0.0f;
+    m_colorBlendState.blendConstants[3] = 0.0f;
 
 }
+
+
+
+
+
+
