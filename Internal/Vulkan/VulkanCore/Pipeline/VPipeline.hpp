@@ -53,6 +53,7 @@ namespace VulkanCore
         std::array<vk::PipelineShaderStageCreateInfo, 2> m_shaderStages;
         vk::VertexInputBindingDescription m_vertexInputBindingDescription;
         std::vector<vk::VertexInputAttributeDescription> m_vertexInputAttributeDescription;
+        vk::PipelineVertexInputStateCreateInfo m_vertexInputState;
         vk::PipelineInputAssemblyStateCreateInfo m_inputAssembly;
         vk::Viewport m_viewport;
         vk::Rect2D m_scissor;

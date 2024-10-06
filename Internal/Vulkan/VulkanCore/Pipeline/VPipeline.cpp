@@ -30,6 +30,30 @@ void VulkanCore::VPipeline::Init() {
 const vk::GraphicsPipelineCreateInfo VulkanCore::VPipeline::GetPiplineCreateInfoStruct() const {
     vk::GraphicsPipelineCreateInfo info = {};
 
+    //----------------------------------------
+    // SHADERS
+    // ---------------------------------------
+    info.stageCount = m_shaderStages.size();
+    info.pStages = m_shaderStages.data();
+    //---------------------------------------
+
+    //----------------------------------------
+    // FIXED FUNCTIONALITY
+    // ---------------------------------------
+    info.pVertexInputState = &m_vertexInputState;
+    info.pInputAssemblyState = &m_inputAssembly;
+    info.pViewportState = &m_viewportState;
+    info.pRasterizationState = &m_rasterizer;
+    info.pMultisampleState = &m_multisampling;
+    info.pDepthStencilState = &m_depthStencil;
+    info.pColorBlendState = &m_colorBlendState;
+    info.pDynamicState = &m_dynamicStateInfo;
+    info.layout = m_pipelineLayout;
+
+
+    //---------------------------------------
+
+
 }
 
 void VulkanCore::VPipeline::CreateShaderStages() {
@@ -48,7 +72,12 @@ void VulkanCore::VPipeline::CreateShaderStages() {
 }
 
 void VulkanCore::VPipeline::CreateVertexInputBindingAndAttributes() {
-    VulkanUtils::GetVertexBindingAndAttributeDescription(m_vertexInputBindingDescription, m_vertexInputAttributeDescription);
+    VulkanUtils::GetVertexBindingAndAttributeDescription(m_vertexInputBindingDescription, m_vertexInputAttributeDescription);ň
+    m_vertexInputState.vertexAttributeDescriptionCount = m_vertexInputAttributeDescription.size();
+    m_vertexInputState.vertexBindingDescriptionCount = 1;
+
+    m_vertexInputState.pVertexAttributeDescriptions = m_vertexInputAttributeDescription.data();
+    m_vertexInputState.pVertexBindingDescriptions = &m_vertexInputBindingDescription;
 }
 
 void VulkanCore::VPipeline::CreatePrimitiveAssembler() {
