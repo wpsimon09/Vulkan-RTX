@@ -37,7 +37,7 @@ namespace VulkanCore
         virtual void CreateMultisampling();
         virtual void CreateDepthStencil();
         virtual void CreateColorBlend();
-        virtual void CreatePipelineLayout();
+        virtual void CreatePipelineLayout(vk::DescriptorSetLayout* descriptorSet = nullptr, int descriptorCounts = 0) ;
 
     protected:
         const VulkanCore::VShader &m_shaders;

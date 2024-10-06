@@ -17,28 +17,15 @@ VulkanCore::VPipeline::VPipeline(const VulkanCore::VDevice &device, const Vulkan
 void VulkanCore::VPipeline::CreatePipeline() {
 
     CreateShaderStages();
-
     CreateVertexInputBindingAndAttributes();
-
     CreatePrimitiveAssembler();
-
     CreateDynamicViewPort();
-
     CreateDynamicState();
-
     CreateRasterizer();
-
-    //-------------------------
-    // PIPELINE LAYOUT
-    //-------------------------
-    vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
-    pipelineLayoutCreateInfo.setLayoutCount = 0;
-    pipelineLayoutCreateInfo.pSetLayouts = nullptr;
-    pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-    pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
-    assert(m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout)== vk::Result::eSuccess);
-
-    Utils::Logger::LogSuccess("Created pipeline layout");
+    CreateMultisampling();
+    CreateDepthStencil();
+    CreateColorBlend();
+    CreatePipelineLayout();
 }
 
 void VulkanCore::VPipeline::CreateShaderStages() {
@@ -156,6 +143,16 @@ void VulkanCore::VPipeline::CreateColorBlend() {
     m_colorBlendState.blendConstants[2] = 0.0f;
     m_colorBlendState.blendConstants[3] = 0.0f;
 
+}
+
+void VulkanCore::VPipeline::CreatePipelineLayout(vk::DescriptorSetLayout* descriptorSet,  int descriptorCounts) {
+    vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
+    pipelineLayoutCreateInfo.setLayoutCount = descriptorCounts;
+    pipelineLayoutCreateInfo.pSetLayouts = descriptorSet;
+    pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+    pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+    assert(m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout)== vk::Result::eSuccess);
+    Utils::Logger::LogSuccess("Created pipeline layout");
 }
 
 
