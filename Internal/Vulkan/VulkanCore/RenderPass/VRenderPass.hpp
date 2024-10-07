@@ -7,14 +7,19 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "Vulkan/VulkanCore/VObject.hpp"
+
 namespace VulkanCore
 {
     class VDevice;
     class VSwapChain;
 
-    class VRenderPass {
+    class VRenderPass:VObject {
     public:
         VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain);
+        void Destroy() override;
+    private:
+        void CreateRenderPass();
     private:
         const VulkanCore::VDevice& m_device;
         const VulkanCore::VSwapChain& m_swapChain;

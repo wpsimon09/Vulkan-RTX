@@ -19,9 +19,9 @@ namespace VulkanCore{
             ~VSwapChain() = default;
             void Destroy() override;
 
-            const vk::SurfaceFormatKHR& GetSurfaceFormatKHR() { return m_format; };
+            const vk::SurfaceFormatKHR& GetSurfaceFormatKHR() const { return m_format; };
             const vk::Extent2D& GetExtent() const { return m_extent; };
-            const vk::PresentModeKHR& GetPresentMode() { return m_presentMode; };
+            const vk::PresentModeKHR& GetPresentMode() const { return m_presentMode; };
         private:
             vk::SurfaceFormatKHR m_format;
             vk::Extent2D m_extent;
