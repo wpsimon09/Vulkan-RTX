@@ -10,7 +10,7 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 VulkanCore::VPipeline::VPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
-                                 const VulkanCore::VShader &shaders):m_device(device), m_swapChain(swapChain), m_shaders(shaders) {
+                                 const VulkanCore::VShader &shaders):m_device(device), m_swapChain(swapChain), m_shaders(shaders), VObject() {
 }
 
 void VulkanCore::VPipeline::Init() {
@@ -25,6 +25,10 @@ void VulkanCore::VPipeline::Init() {
     CreateDepthStencil();
     CreateColorBlend();
     CreatePipelineLayout();
+}
+
+void VulkanCore::VPipeline::Destroy() {
+    m_device.GetDevice().destroyPipelineLayout(m_pipelineLayout);
 }
 
 const vk::GraphicsPipelineCreateInfo VulkanCore::VPipeline::GetPiplineCreateInfoStruct() const {

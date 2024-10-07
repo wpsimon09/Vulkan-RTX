@@ -20,6 +20,18 @@ namespace VulkanCore
         const VulkanCore::VSwapChain& m_swapChain;
 
         vk::AttachmentDescription m_colourAttachmentDescription;
+        vk::AttachmentReference m_colourAttachmentRef;
+
+        // will be used later once i see something on the screen
+        //vk::AttachmentDescription m_depthStencilAttachmentDescription;
+        //vk::AttachmentReference m_depthStencilAttachmentRef;
+
+        vk::AttachmentDescription m_resolveColourAttachmentDescription;
+        vk::AttachmentReference m_resolveColourAttachmentRef;
+
+        vk::SubpassDescription m_subPass;
+
+        vk::RenderPass m_renderPass;
     };
 }
 

@@ -23,6 +23,8 @@ namespace VulkanCore
          * Fills in all structs required to create pipeline. Structs can be modified with setters
          */
         void Init();
+        void Destroy() override;
+
         const vk::GraphicsPipelineCreateInfo GetPiplineCreateInfoStruct() const;
         ~VPipeline() = default;
     private:
