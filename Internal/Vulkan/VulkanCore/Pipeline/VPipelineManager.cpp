@@ -4,21 +4,58 @@
 
 #include "VPipelineManager.hpp"
 
-
+#include "VGraphicsPipeline.hpp"
+#include "Application/Logger/Logger.hpp"
+#include "Vulkan/VulkanCore/Shader/VShader.hpp"
 
 
 VulkanCore::VPipelineManager::VPipelineManager(const VulkanCore::VDevice &device,
-    const VulkanCore::VSwapChain &swapChain, const VulkanCore::VRenderPass &renderPass)
+                                               const VulkanCore::VSwapChain &swapChain, const VulkanCore::VRenderPass &renderPass)
         :m_device(device), m_swapChain(swapChain), m_renderPass(m_renderPass){
 }
 
 void VulkanCore::VPipelineManager::DestoryPipelines() {
+    for (auto &pipeline :m_pipelines) {
+        pipeline.second->Destroy();
+    }
 }
 
 
 void VulkanCore::VPipelineManager::CreatePipelines() {
+
+    GeneratePipelines();
+    Utils::Logger::LogInfoVerboseOnly("Creating " + std::to_string(m_pipelines.size()) + "graphics pipelines..." );
+
+    std::vector<vk::GraphicsPipelineCreateInfo> graphicsPipelineCreateInfos;
+    for(auto &pipeline: m_pipelines) {
+        graphicsPipelineCreateInfos.emplace_back(pipeline.second->GetGraphicsPipelineCreateInfoStruct());
+    }
+
+
+    auto createdVkPipelines = m_device.GetDevice().createGraphicsPipelines(nullptr, graphicsPipelineCreateInfos,nullptr);
+
+    assert(createdVkPipelines.value.size() == m_pipelines.size());
+    Utils::Logger::LogSuccess("Successfully created " + std::to_string(m_pipelines.size()) + "graphics pipelines");
+
+    Utils::Logger::LogInfoVerboseOnly("Binding pipelines...");
+    int i = 0;
+    for(auto pipeline: m_pipelines) {
+        pipeline.second->SetCreatedPipeline(createdVkPipelines.value[i]);
+        i++;
+    }
+    Utils::Logger::LogSuccess("Successfully created " + std::to_string(i) + "graphics pipelines");
+
+
 }
 
-std::vector<vk::GraphicsPipelineCreateInfo> VulkanCore::VPipelineManager::ConfigurePipelines() {
+void VulkanCore::VPipelineManager::GeneratePipelines() {
 
+    auto basicPipelineShaderVertexSource = "Shaders/Vertex/TriangleVertex.vert";
+    auto basicPipelineFragmentShaderSource = "Shaders/Fragment/TriangleFragment.frag";
+    auto basicPipelineShader = VulkanCore::VShader(m_device, basicPipelineShaderVertexSource, basicPipelineFragmentShaderSource);
+    auto basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain,basicPipelineShader, m_renderPass  );
+    basicPipeline->Init();
+
+    m_pipelines.emplace(std::make_pair(PIPELINE_TYPE_RASTER_BASIC, std::move(basicPipeline)));
 }
+

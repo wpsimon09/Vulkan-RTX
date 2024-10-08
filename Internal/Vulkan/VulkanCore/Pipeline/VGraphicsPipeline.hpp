@@ -6,6 +6,7 @@
 #define VPIPELINE_HPP
 #include <vulkan/vulkan.hpp>
 
+#include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
 
 namespace VulkanCore
@@ -15,10 +16,10 @@ namespace VulkanCore
     class VRenderPass;
     class VShader;
 
-    class VPipeline: public VObject
+    class VGraphicsPipeline: public VObject
     {
     public:
-        VPipeline(const VulkanCore::VDevice &device,const VulkanCore::VSwapChain &swapChain,const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass);
+        VGraphicsPipeline(const VulkanCore::VDevice &device,const VulkanCore::VSwapChain &swapChain,const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass);
 
         /**
          * Fills in all structs required to create pipeline. Structs can be modified with setters
@@ -26,8 +27,8 @@ namespace VulkanCore
         void Init();
         void Destroy() override;
 
-        const vk::GraphicsPipelineCreateInfo GetPiplineCreateInfoStruct() const;
-        ~VPipeline() = default;
+        const vk::GraphicsPipelineCreateInfo GetGraphicsPipelineCreateInfoStruct() const;
+        ~VGraphicsPipeline() = default;
     private:
         void CreateShaderStages();
         void CreateVertexInputBindingAndAttributes();
@@ -71,7 +72,15 @@ namespace VulkanCore
         vk::PipelineColorBlendStateCreateInfo m_colorBlendState;
         vk::PipelineLayout m_pipelineLayout;
 
+    //-----------------
+    // SETTERS
+    //-----------------
     public:
+        void SetCreatedPipeline(vk::Pipeline pipeline) {
+            assert(pipeline);
+            m_pipeline = pipeline;
+        }
+
         void SetVertexInputBindingDescription(
             const vk::VertexInputBindingDescription &vertexInputBindingDescription) {
             m_vertexInputBindingDescription = vertexInputBindingDescription;

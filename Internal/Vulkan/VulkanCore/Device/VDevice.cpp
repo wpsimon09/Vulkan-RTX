@@ -94,16 +94,13 @@ void VulkanCore::VDevice::CreateLogicalDevice() {
     assert(m_device);
     Utils::Logger::LogInfoVerboseOnly("Successfully created logical device");
 
-
     m_graphicsQueue = m_device.getQueue(m_queueFamilyIndices.graphicsFamily.value(), 0);
     assert(m_graphicsQueue != VK_NULL_HANDLE);
     Utils::Logger::LogSuccess("Successfully retrieved graphics queue");
 
-
     m_presentQueue = m_device.getQueue(m_queueFamilyIndices.presentFamily.value(), 0);if(!m_presentQueue)
     assert(m_presentQueue != VK_NULL_HANDLE);
     Utils::Logger::LogSuccess("Successfully retrieved present queue");
-
 }
 
 void VulkanCore::VDevice::Destroy() {

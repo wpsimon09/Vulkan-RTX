@@ -36,8 +36,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Shader/VShader.hpp
         Internal/Vulkan/VulkanCore/VObject.cpp
         Internal/Vulkan/VulkanCore/VObject.hpp
-        Internal/Vulkan/VulkanCore/Pipeline/VPipeline.cpp
-        Internal/Vulkan/VulkanCore/Pipeline/VPipeline.hpp
+        Internal/Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.cpp
+        Internal/Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp
         Internal/Application/VertexArray/VertexArray.cpp
         Internal/Application/VertexArray/VertexArray.hpp
         Internal/Application/Rendering/Mesh/MeshData.hpp

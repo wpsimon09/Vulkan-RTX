@@ -2,7 +2,7 @@
 // Created by wpsimon09 on 03/10/24.
 //
 
-#include "VPipeline.hpp"
+#include "VGraphicsPipeline.hpp"
 
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
@@ -11,13 +11,13 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 
-VulkanCore::VPipeline::VPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
+VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
     const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass)
         : m_device{device}, m_swapChain{swapChain}, m_shaders{shaders},m_renderPass{renderPass}, VObject()
 {}
 
 
-void VulkanCore::VPipeline::Init() {
+void VulkanCore::VGraphicsPipeline::Init() {
 
     CreateShaderStages();
     CreateVertexInputBindingAndAttributes();
@@ -31,11 +31,11 @@ void VulkanCore::VPipeline::Init() {
     CreatePipelineLayout();
 }
 
-void VulkanCore::VPipeline::Destroy() {
+void VulkanCore::VGraphicsPipeline::Destroy() {
     m_device.GetDevice().destroyPipelineLayout(m_pipelineLayout);
 }
 
-const vk::GraphicsPipelineCreateInfo VulkanCore::VPipeline::GetPiplineCreateInfoStruct() const {
+const vk::GraphicsPipelineCreateInfo VulkanCore::VGraphicsPipeline::GetGraphicsPipelineCreateInfoStruct() const {
     vk::GraphicsPipelineCreateInfo info = {};
 
     //----------------------------------------
@@ -64,7 +64,7 @@ const vk::GraphicsPipelineCreateInfo VulkanCore::VPipeline::GetPiplineCreateInfo
 
 }
 
-void VulkanCore::VPipeline::CreateShaderStages() {
+void VulkanCore::VGraphicsPipeline::CreateShaderStages() {
     vk::PipelineShaderStageCreateInfo vertexStage;
     vertexStage.stage = vk::ShaderStageFlagBits::eVertex;
     vertexStage.module = m_shaders.GetShaderModule(GlobalVariables::SHADER_TYPE::VERTEX);
@@ -79,7 +79,7 @@ void VulkanCore::VPipeline::CreateShaderStages() {
 
 }
 
-void VulkanCore::VPipeline::CreateVertexInputBindingAndAttributes() {
+void VulkanCore::VGraphicsPipeline::CreateVertexInputBindingAndAttributes() {
     VulkanUtils::GetVertexBindingAndAttributeDescription(m_vertexInputBindingDescription, m_vertexInputAttributeDescription);
     m_vertexInputState.vertexAttributeDescriptionCount = m_vertexInputAttributeDescription.size();
     m_vertexInputState.vertexBindingDescriptionCount = 1;
@@ -88,12 +88,12 @@ void VulkanCore::VPipeline::CreateVertexInputBindingAndAttributes() {
     m_vertexInputState.pVertexBindingDescriptions = &m_vertexInputBindingDescription;
 }
 
-void VulkanCore::VPipeline::CreatePrimitiveAssembler() {
+void VulkanCore::VGraphicsPipeline::CreatePrimitiveAssembler() {
     m_inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
     m_inputAssembly.primitiveRestartEnable = vk::False;
 }
 
-void VulkanCore::VPipeline::CreateDynamicViewPort() {
+void VulkanCore::VGraphicsPipeline::CreateDynamicViewPort() {
     //--------------------
     // VIEW PORT
     //--------------------
@@ -115,7 +115,7 @@ void VulkanCore::VPipeline::CreateDynamicViewPort() {
     m_viewportState.viewportCount = 1;
 }
 
-void VulkanCore::VPipeline::CreateDynamicState() {
+void VulkanCore::VGraphicsPipeline::CreateDynamicState() {
 
     //------------------------------
     // DYNAMIC PARTS OF THE PIPELINE
@@ -129,7 +129,7 @@ void VulkanCore::VPipeline::CreateDynamicState() {
     m_dynamicStateInfo.pDynamicStates = m_dynamicStates.data();
 }
 
-void VulkanCore::VPipeline::CreateRasterizer() {
+void VulkanCore::VGraphicsPipeline::CreateRasterizer() {
     m_rasterizer.depthClampEnable = vk::False;
     m_rasterizer.polygonMode = vk::PolygonMode::eFill;
     m_rasterizer.rasterizerDiscardEnable = VK_FALSE;
@@ -142,7 +142,7 @@ void VulkanCore::VPipeline::CreateRasterizer() {
     m_rasterizer.depthBiasSlopeFactor = 0.0f;
 }
 
-void VulkanCore::VPipeline::CreateMultisampling() {
+void VulkanCore::VGraphicsPipeline::CreateMultisampling() {
     m_multisampling.sampleShadingEnable = vk::False;
     m_multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
     m_multisampling.minSampleShading = 1.0f;
@@ -151,12 +151,12 @@ void VulkanCore::VPipeline::CreateMultisampling() {
     m_multisampling.alphaToOneEnable = VK_FALSE;
 }
 
-void VulkanCore::VPipeline::CreateDepthStencil() {
+void VulkanCore::VGraphicsPipeline::CreateDepthStencil() {
     m_depthStencil.depthTestEnable = vk::False;
     m_depthStencil.depthWriteEnable = vk::False;
 }
 
-void VulkanCore::VPipeline::CreateColorBlend() {
+void VulkanCore::VGraphicsPipeline::CreateColorBlend() {
     //--------------------
     // COLOUR BLENDING
     //--------------------
@@ -186,7 +186,7 @@ void VulkanCore::VPipeline::CreateColorBlend() {
 
 }
 
-void VulkanCore::VPipeline::CreatePipelineLayout(vk::DescriptorSetLayout* descriptorSet,  int descriptorCounts) {
+void VulkanCore::VGraphicsPipeline::CreatePipelineLayout(vk::DescriptorSetLayout* descriptorSet,  int descriptorCounts) {
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
     pipelineLayoutCreateInfo.setLayoutCount = descriptorCounts;
     pipelineLayoutCreateInfo.pSetLayouts = descriptorSet;

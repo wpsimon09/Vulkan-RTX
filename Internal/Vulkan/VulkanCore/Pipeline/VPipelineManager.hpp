@@ -6,9 +6,7 @@
 #define VPIPELINEMANAGER_HPP
 
 #include <map>
-#include <vector>
-#include <vulkan/vulkan.hpp>
-
+#include <memory>
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 
 namespace VulkanCore
@@ -16,7 +14,7 @@ namespace VulkanCore
     class VRenderPass;
     class VDevice;
     class VSwapChain;
-    class VPipeline;
+    class VGraphicsPipeline;
 
     class VPipelineManager {
     public:
@@ -27,13 +25,13 @@ namespace VulkanCore
 
         ~VPipelineManager() = default;
     private:
-        std::vector<vk::GraphicsPipelineCreateInfo> ConfigurePipelines();
+        void GeneratePipelines();
 
     private:
         const VDevice &m_device;
         const VSwapChain &m_swapChain;
         const VRenderPass &m_renderPass;
-        std::map<PIPELINE_TYPE, vk::Pipeline> m_pipelines;
+        std::map<PIPELINE_TYPE, std::unique_ptr<VGraphicsPipeline>> m_pipelines;
     };
 }
 

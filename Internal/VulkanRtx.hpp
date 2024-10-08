@@ -13,7 +13,7 @@ namespace VulkanCore
 {
     class VRenderPass;
     class VPipelineManager;
-    class VPipeline;
+    class VGraphicsPipeline;
     class VSwapChain;
     class VDevice;
     class VulkanInstance;
