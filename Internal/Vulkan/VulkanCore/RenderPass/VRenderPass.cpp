@@ -4,6 +4,7 @@
 
 #include "VRenderPass.hpp"
 
+#include "Application/Logger/Logger.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
@@ -42,6 +43,21 @@ void VulkanCore::VRenderPass::CreateRenderPass() {
     m_resolveColourAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     m_resolveColourAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
     m_resolveColourAttachmentDescription.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+
+    CreateMainSubPass();
+
+    std::array<vk::AttachmentDescription, 2> attachments = {m_colourAttachmentDescription, m_resolveColourAttachmentDescription};
+    vk::RenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.attachmentCount = attachments.size();
+    renderPassInfo.pAttachments = attachments.data();
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &m_subPass;
+    renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies = &m_subPassDependency;
+
+    m_device.GetDevice().createRenderPass(renderPassInfo, nullptr, &m_renderPass);
+    assert(m_renderPass);
+    Utils::Logger::LogSuccess("Created main render pass  render pass");
 }
 
 void VulkanCore::VRenderPass::CreateMainSubPass() {
