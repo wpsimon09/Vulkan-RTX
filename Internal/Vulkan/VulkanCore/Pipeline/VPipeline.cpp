@@ -9,8 +9,12 @@
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
+
 VulkanCore::VPipeline::VPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
-                                 const VulkanCore::VShader &shaders):m_device(device), m_swapChain(swapChain), m_shaders(shaders), VObject() {
+    const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass)
+: m_device{device}, m_swapChain{swapChain}, m_shaders{shaders},m_renderPass{renderPass} {}:
+
+{
 }
 
 void VulkanCore::VPipeline::Init() {

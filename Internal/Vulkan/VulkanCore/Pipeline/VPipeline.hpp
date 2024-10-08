@@ -12,12 +12,13 @@ namespace VulkanCore
 {
     class VSwapChain;
     class VDevice;
+    class VRenderPass;
     class VShader;
 
     class VPipeline: public VObject
     {
     public:
-        VPipeline(const VulkanCore::VDevice &device,const VulkanCore::VSwapChain &swapChain,const VulkanCore::VShader &shaders);
+        VPipeline(const VulkanCore::VDevice &device,const VulkanCore::VSwapChain &swapChain,const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass);
 
         /**
          * Fills in all structs required to create pipeline. Structs can be modified with setters
@@ -43,6 +44,7 @@ namespace VulkanCore
         const VulkanCore::VShader &m_shaders;
         const VulkanCore::VDevice &m_device;
         const VulkanCore::VSwapChain &m_swapChain;
+        const VulkanCore::VRenderPass &m_renderPass;
 
         // pipeline handler
         vk::Pipeline m_pipeline;
