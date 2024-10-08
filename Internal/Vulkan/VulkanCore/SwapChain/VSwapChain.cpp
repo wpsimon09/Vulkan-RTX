@@ -20,9 +20,13 @@ VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const Vulk
 
 
 void VulkanCore::VSwapChain::Destroy() {
+    int i = m_imageViews.size();
     for (auto &imageView : m_imageViews) {
         m_device.GetDevice().destroyImageView(imageView);
+        Utils::Logger::LogInfoVerboseOnly("Swap chain image: " + std::to_string(i) + " destroyed !");
+        i--;
     }
+    Utils::Logger::LogInfoVerboseOnly("Swap chain destroyed !");
     m_device.GetDevice().destroySwapchainKHR(m_swapChain);
 }
 

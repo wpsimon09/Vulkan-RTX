@@ -47,7 +47,7 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance):m_insta
 vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice() {
     auto availablePhysicalDevices = m_instance.GetInstance().enumeratePhysicalDevices();
     for(auto  physicalDevice: availablePhysicalDevices) {
-        Utils::Logger::LogInfo("Found physical device: " + std::string(physicalDevice.getProperties().deviceName));
+        Utils::Logger::LogInfoVerboseOnly("Found physical device: " + std::string(physicalDevice.getProperties().deviceName));
         if(GlobalVariables::GlobalStructs::primaryDeviceFeatures.CheckAgainstRetrievedPhysicalDevice(physicalDevice, m_instance.GetSurface()) ||
            GlobalVariables::GlobalStructs::secondaryDeviceFeatures.CheckAgainstRetrievedPhysicalDevice(physicalDevice, m_instance.GetSurface())) {
 
@@ -92,7 +92,7 @@ void VulkanCore::VDevice::CreateLogicalDevice() {
 
     m_device = m_physicalDevice.createDevice(deviceCreateInfo);
     assert(m_device);
-    Utils::Logger::LogSuccess("Successfully created logical device");
+    Utils::Logger::LogInfoVerboseOnly("Successfully created logical device");
 
 
     m_graphicsQueue = m_device.getQueue(m_queueFamilyIndices.graphicsFamily.value(), 0);
@@ -101,10 +101,12 @@ void VulkanCore::VDevice::CreateLogicalDevice() {
 
 
     m_presentQueue = m_device.getQueue(m_queueFamilyIndices.presentFamily.value(), 0);if(!m_presentQueue)
-    assert(m_presentQueue != VK_NULL_HANDLE);Utils::Logger::LogSuccess("Successfully retrieved present queue");
+    assert(m_presentQueue != VK_NULL_HANDLE);
+    Utils::Logger::LogSuccess("Successfully retrieved present queue");
 
 }
 
 void VulkanCore::VDevice::Destroy() {
     m_device.destroy();
+    Utils::Logger::LogInfoVerboseOnly("Logical device destroyed");
 }

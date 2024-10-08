@@ -9,10 +9,12 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain):VObject(),m_device(device), m_swapChain(swapChain) {
+    Utils::Logger::LogInfoVerboseOnly("Creating render pass...");
     CreateRenderPass();
 }
 
 void VulkanCore::VRenderPass::Destroy() {
+    Utils::Logger::LogInfoVerboseOnly("Render pass destoryed");
     m_device.GetDevice().destroyRenderPass(m_renderPass);
 }
 
@@ -61,7 +63,7 @@ void VulkanCore::VRenderPass::CreateRenderPass() {
 
     m_renderPass = m_device.GetDevice().createRenderPass(renderPassInfo);
     assert(m_renderPass);
-    Utils::Logger::LogSuccess("Created main render pass ");
+    Utils::Logger::LogSuccess("Render pass created");
 }
 
 void VulkanCore::VRenderPass::CreateMainSubPass() {

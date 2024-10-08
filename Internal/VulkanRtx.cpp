@@ -69,8 +69,7 @@ void Application::Update()
 }
 
 Application::~Application() {
-
-
+    m_mainRenderPass->Destroy();
     m_swapChain->Destroy();
     m_vulkanDevice->Destroy();
 }
