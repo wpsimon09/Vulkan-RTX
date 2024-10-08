@@ -42,6 +42,24 @@ void VulkanCore::VRenderPass::CreateRenderPass() {
     m_resolveColourAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     m_resolveColourAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
     m_resolveColourAttachmentDescription.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+}
+
+void VulkanCore::VRenderPass::CreateMainSubPass() {
+    m_subPass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+    m_subPass.colorAttachmentCount = 1;
+    m_subPass.pColorAttachments = &m_colourAttachmentRef;
+    m_subPass.pResolveAttachments = &m_resolveColourAttachmentRef;
+    m_subPass.pDepthStencilAttachment = nullptr; //TODO: create depth buffer
+
+    m_subPassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    m_subPassDependency.dstSubpass = 0;
+
+    // at what stage this sub pass is happening and what memory we want to access
+    m_subPassDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    m_subPassDependency.srcAccessMask = vk::AccessFlagBits::eNone;
+
+    m_subPassDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    m_subPassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite ;
 
 }
 

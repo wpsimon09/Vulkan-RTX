@@ -20,6 +20,7 @@ namespace VulkanCore
         void Destroy() override;
     private:
         void CreateRenderPass();
+        void CreateMainSubPass();
     private:
         const VulkanCore::VDevice& m_device;
         const VulkanCore::VSwapChain& m_swapChain;
@@ -35,6 +36,7 @@ namespace VulkanCore
         vk::AttachmentReference m_resolveColourAttachmentRef;
 
         vk::SubpassDescription m_subPass;
+        vk::SubpassDependency m_subPassDependency;
 
         vk::RenderPass m_renderPass;
     };

@@ -53,8 +53,6 @@ const vk::GraphicsPipelineCreateInfo VulkanCore::VPipeline::GetPiplineCreateInfo
     info.pColorBlendState = &m_colorBlendState;
     info.pDynamicState = &m_dynamicStateInfo;
     info.layout = m_pipelineLayout;
-
-
     //---------------------------------------
 
 
