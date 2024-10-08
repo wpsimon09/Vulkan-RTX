@@ -6,16 +6,16 @@
 
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 
 VulkanCore::VPipeline::VPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
     const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass)
-: m_device{device}, m_swapChain{swapChain}, m_shaders{shaders},m_renderPass{renderPass} {}:
+        : m_device{device}, m_swapChain{swapChain}, m_shaders{shaders},m_renderPass{renderPass}, VObject()
+{}
 
-{
-}
 
 void VulkanCore::VPipeline::Init() {
 
@@ -57,8 +57,10 @@ const vk::GraphicsPipelineCreateInfo VulkanCore::VPipeline::GetPiplineCreateInfo
     info.pColorBlendState = &m_colorBlendState;
     info.pDynamicState = &m_dynamicStateInfo;
     info.layout = m_pipelineLayout;
+    info.renderPass = m_renderPass.GetRenderPass();
     //---------------------------------------
 
+    return info;
 
 }
 
@@ -78,7 +80,7 @@ void VulkanCore::VPipeline::CreateShaderStages() {
 }
 
 void VulkanCore::VPipeline::CreateVertexInputBindingAndAttributes() {
-    VulkanUtils::GetVertexBindingAndAttributeDescription(m_vertexInputBindingDescription, m_vertexInputAttributeDescription);ň
+    VulkanUtils::GetVertexBindingAndAttributeDescription(m_vertexInputBindingDescription, m_vertexInputAttributeDescription);
     m_vertexInputState.vertexAttributeDescriptionCount = m_vertexInputAttributeDescription.size();
     m_vertexInputState.vertexBindingDescriptionCount = 1;
 
@@ -106,7 +108,7 @@ void VulkanCore::VPipeline::CreateDynamicViewPort() {
     // SCISSORS
     //-------------------
     m_scissor.extent = m_swapChain.GetExtent();
-    m_scissor.offset =vk::Offset2D( {0,0});
+    m_scissor.offset =vk::Offset2D(0,0);
 
 
     m_viewportState.scissorCount = 1;

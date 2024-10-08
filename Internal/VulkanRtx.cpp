@@ -15,6 +15,7 @@
 #include "Application/Client.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 
 
@@ -33,7 +34,9 @@ void Application::Init()
     m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
     m_vulkanDevice = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
     m_swapChain = std::make_unique<VulkanCore::VSwapChain>(*m_vulkanDevice, *m_vulkanInstance);
-    m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass(*m_vulkanDevice, *m_swapChain);
+    m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(*m_vulkanDevice, *m_swapChain);
+    //m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(*m_vulkanDevice, *m_swapChain);
+
 }
 
 void Application::MainLoop()

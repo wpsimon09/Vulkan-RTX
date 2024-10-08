@@ -8,7 +8,7 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
-VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain):m_device(device),m_swapChain(swapChain), VObject() {
+VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain):VObject(),m_device(device), m_swapChain(swapChain) {
     CreateRenderPass();
 }
 
@@ -59,9 +59,9 @@ void VulkanCore::VRenderPass::CreateRenderPass() {
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &m_subPassDependency;
 
-    m_device.GetDevice().createRenderPass(renderPassInfo, nullptr, &m_renderPass);
+    m_renderPass = m_device.GetDevice().createRenderPass(renderPassInfo);
     assert(m_renderPass);
-    Utils::Logger::LogSuccess("Created main render pass  render pass");
+    Utils::Logger::LogSuccess("Created main render pass ");
 }
 
 void VulkanCore::VRenderPass::CreateMainSubPass() {
@@ -81,8 +81,4 @@ void VulkanCore::VRenderPass::CreateMainSubPass() {
     m_subPassDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
     m_subPassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite ;
 
-}
-
-void VulkanCore::VRenderPass::Destroy() {
-    m_device.GetDevice().destroyRenderPass(m_renderPass);
 }

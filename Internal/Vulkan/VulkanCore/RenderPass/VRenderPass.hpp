@@ -18,6 +18,9 @@ namespace VulkanCore
     public:
         VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain);
         void Destroy() override;
+
+        const vk::RenderPass & GetRenderPass() const {return m_renderPass;}
+
     private:
         void CreateRenderPass();
         void CreateMainSubPass();

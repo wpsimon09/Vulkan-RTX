@@ -7,24 +7,20 @@
 
 #include <map>
 #include <vector>
+#include <vulkan/vulkan.hpp>
 
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 
-namespace vk
-{
-    class Pipeline;
-    struct GraphicsPipelineCreateInfo;
-}
-
 namespace VulkanCore
 {
+    class VRenderPass;
     class VDevice;
     class VSwapChain;
     class VPipeline;
 
     class VPipelineManager {
     public:
-        VPipelineManager(const VulkanCore::VDevice &device,const VulkanCore::VSwapChain &swapChain);
+        VPipelineManager(const VulkanCore::VDevice &device,const VulkanCore::VSwapChain &swapChain, const VulkanCore::VRenderPass &renderPass);
 
         void DestoryPipelines();
         void CreatePipelines();
@@ -36,6 +32,7 @@ namespace VulkanCore
     private:
         const VDevice &m_device;
         const VSwapChain &m_swapChain;
+        const VRenderPass &m_renderPass;
         std::map<PIPELINE_TYPE, vk::Pipeline> m_pipelines;
     };
 }

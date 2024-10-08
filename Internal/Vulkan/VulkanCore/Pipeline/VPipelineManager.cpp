@@ -5,11 +5,11 @@
 #include "VPipelineManager.hpp"
 
 
-VulkanCore::VPipelineManager::VPipelineManager(const VulkanCore::VDevice &device,
-    const VulkanCore::VSwapChain &swapChain):m_device(device), m_swapChain(swapChain) {
 
-    ConfigurePipelines();
-    CreatePipelines();
+
+VulkanCore::VPipelineManager::VPipelineManager(const VulkanCore::VDevice &device,
+    const VulkanCore::VSwapChain &swapChain, const VulkanCore::VRenderPass &renderPass)
+        :m_device(device), m_swapChain(swapChain), m_renderPass(m_renderPass){
 }
 
 void VulkanCore::VPipelineManager::DestoryPipelines() {
