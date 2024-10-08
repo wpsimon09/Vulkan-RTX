@@ -15,6 +15,7 @@
 #include "Application/Client.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 
 
 Application::Application()
@@ -32,7 +33,7 @@ void Application::Init()
     m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
     m_vulkanDevice = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
     m_swapChain = std::make_unique<VulkanCore::VSwapChain>(*m_vulkanDevice, *m_vulkanInstance);
-
+    m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass(*m_vulkanDevice, *m_swapChain);
 }
 
 void Application::MainLoop()
@@ -65,6 +66,8 @@ void Application::Update()
 }
 
 Application::~Application() {
+
+
     m_swapChain->Destroy();
     m_vulkanDevice->Destroy();
 }

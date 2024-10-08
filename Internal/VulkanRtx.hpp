@@ -11,6 +11,8 @@ class Client;
 
 namespace VulkanCore
 {
+    class VRenderPass;
+    class VPipelineManager;
     class VPipeline;
     class VSwapChain;
     class VDevice;
@@ -41,7 +43,8 @@ private:
     std::unique_ptr<class VulkanCore::VulkanInstance> m_vulkanInstance;
     std::unique_ptr<class VulkanCore::VDevice> m_vulkanDevice;
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
-    std::unique_ptr<class VulkanCore::VPipeline> m_pipeline;
+    std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;
+    std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
 };
 
 #endif //VULKANRTX_HPP

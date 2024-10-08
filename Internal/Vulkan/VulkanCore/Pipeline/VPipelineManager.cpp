@@ -19,6 +19,6 @@ void VulkanCore::VPipelineManager::DestoryPipelines() {
 void VulkanCore::VPipelineManager::CreatePipelines() {
 }
 
-void VulkanCore::VPipelineManager::ConfigurePipelines() {
+std::vector<vk::GraphicsPipelineCreateInfo> VulkanCore::VPipelineManager::ConfigurePipelines() {
 
 }

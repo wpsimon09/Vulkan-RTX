@@ -12,6 +12,10 @@ VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice &device, const Vu
     CreateRenderPass();
 }
 
+void VulkanCore::VRenderPass::Destroy() {
+    m_device.GetDevice().destroyRenderPass(m_renderPass);
+}
+
 void VulkanCore::VRenderPass::CreateRenderPass() {
 
     //------------------------
