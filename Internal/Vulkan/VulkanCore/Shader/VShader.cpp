@@ -34,7 +34,7 @@ namespace VulkanCore {
         std::ifstream file(SPIRVShader, std::ios::ate | std::ios::binary);
 
         if(!file.is_open()) {
-            const auto err = "Failed to open SPIRV shader file at path" + SPIRVShader;
+            const auto err = "Failed to open SPIRV shader file at path: " + SPIRVShader;
             throw std::runtime_error(err);
         }
 
@@ -95,7 +95,7 @@ namespace VulkanCore {
         Utils::Logger::LogInfoVerboseOnly("Created Fragment shader module");
 
 
-        if(!m_computeSource.has_value()) {
+        if(m_computeSource.has_value()) {
             auto computeSPRIV = ReadSPIRVShader(m_computeSource.value());
             vk::ShaderModuleCreateInfo computeShaderModuleCreateInfo;
             computeShaderModuleCreateInfo.codeSize = computeSPRIV.size();   ;

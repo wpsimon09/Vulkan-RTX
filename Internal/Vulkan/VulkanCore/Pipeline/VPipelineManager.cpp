@@ -39,7 +39,7 @@ void VulkanCore::VPipelineManager::CreatePipelines() {
 
     Utils::Logger::LogInfoVerboseOnly("Binding pipelines...");
     int i = 0;
-    for(auto pipeline: m_pipelines) {
+    for(auto &pipeline: m_pipelines) {
         pipeline.second->SetCreatedPipeline(createdVkPipelines.value[i]);
         i++;
     }
@@ -52,8 +52,8 @@ void VulkanCore::VPipelineManager::GeneratePipelines() {
 
     auto basicPipelineShaderVertexSource = "Shaders/Vertex/TriangleVertex.vert";
     auto basicPipelineFragmentShaderSource = "Shaders/Fragment/TriangleFragment.frag";
-    auto basicPipelineShader = VulkanCore::VShader(m_device, basicPipelineShaderVertexSource, basicPipelineFragmentShaderSource);
-    auto basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain,basicPipelineShader, m_renderPass  );
+    VulkanCore::VShader shader(m_device, basicPipelineShaderVertexSource, basicPipelineFragmentShaderSource);
+    auto basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain,shader, m_renderPass  );
     basicPipeline->Init();
 
     m_pipelines.emplace(std::make_pair(PIPELINE_TYPE_RASTER_BASIC, std::move(basicPipeline)));
