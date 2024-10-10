@@ -20,8 +20,8 @@ namespace VulkanCore
     public:
         VPipelineManager(const VulkanCore::VDevice &device,const VulkanCore::VSwapChain &swapChain, const VulkanCore::VRenderPass &renderPass);
 
-        void DestoryPipelines();
-        void CreatePipelines();
+        void DestroyPipelines();
+        void InstantiatePipelines();
 
         ~VPipelineManager() = default;
     private:

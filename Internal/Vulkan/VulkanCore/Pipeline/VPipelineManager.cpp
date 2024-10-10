@@ -11,20 +11,20 @@
 
 VulkanCore::VPipelineManager::VPipelineManager(const VulkanCore::VDevice &device,
                                                const VulkanCore::VSwapChain &swapChain, const VulkanCore::VRenderPass &renderPass)
-        :m_device(device), m_swapChain(swapChain), m_renderPass(m_renderPass){
+        :m_device(device), m_swapChain(swapChain), m_renderPass(renderPass){
 }
 
-void VulkanCore::VPipelineManager::DestoryPipelines() {
+void VulkanCore::VPipelineManager::DestroyPipelines() {
     for (auto &pipeline :m_pipelines) {
         pipeline.second->Destroy();
     }
 }
 
 
-void VulkanCore::VPipelineManager::CreatePipelines() {
+void VulkanCore::VPipelineManager::InstantiatePipelines() {
 
     GeneratePipelines();
-    Utils::Logger::LogInfoVerboseOnly("Creating " + std::to_string(m_pipelines.size()) + "graphics pipelines..." );
+    Utils::Logger::LogInfoVerboseOnly("Creating " + std::to_string(m_pipelines.size()) + " graphics pipelines..." );
 
     std::vector<vk::GraphicsPipelineCreateInfo> graphicsPipelineCreateInfos;
     for(auto &pipeline: m_pipelines) {
@@ -32,7 +32,7 @@ void VulkanCore::VPipelineManager::CreatePipelines() {
     }
 
 
-    auto createdVkPipelines = m_device.GetDevice().createGraphicsPipelines(nullptr, graphicsPipelineCreateInfos,nullptr);
+    auto createdVkPipelines = m_device.GetDevice().createGraphicsPipelines(nullptr, graphicsPipelineCreateInfos);
 
     assert(createdVkPipelines.value.size() == m_pipelines.size());
     Utils::Logger::LogSuccess("Successfully created " + std::to_string(m_pipelines.size()) + "graphics pipelines");
@@ -40,6 +40,12 @@ void VulkanCore::VPipelineManager::CreatePipelines() {
     Utils::Logger::LogInfoVerboseOnly("Binding pipelines...");
     int i = 0;
     for(auto &pipeline: m_pipelines) {
+
+        assert(createdVkPipelines.result == vk::Result::eSuccess);
+        if(createdVkPipelines.result == vk::Result::ePipelineCompileRequired) {
+            throw("Pipeline at index " + std::to_string(i) + " needs to be compiled");
+        }
+
         pipeline.second->SetCreatedPipeline(createdVkPipelines.value[i]);
         i++;
     }

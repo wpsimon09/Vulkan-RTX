@@ -82,7 +82,7 @@ namespace VulkanCore {
         vertexShaderModuleCreateInfo.pCode = reinterpret_cast<uint32_t*>(vertexSPRIV.data());
         vertexShaderModuleCreateInfo.pNext= nullptr;
         m_vertexShaderModule = m_device.GetDevice().createShaderModule(vertexShaderModuleCreateInfo, nullptr);
-        assert(m_vertexShaderModule != VK_NULL_HANDLE);
+        assert(m_vertexShaderModule);
         Utils::Logger::LogInfoVerboseOnly("Created Vertex shader module");
 
 
@@ -91,7 +91,7 @@ namespace VulkanCore {
         fragmentShaderModuleCreateInfo.pCode = reinterpret_cast<uint32_t*>(fragmentSPRIV.data());
         fragmentShaderModuleCreateInfo.pNext= nullptr;
         m_fragmentShaderModule = m_device.GetDevice().createShaderModule(fragmentShaderModuleCreateInfo, nullptr);
-        assert(m_fragmentShaderModule != VK_NULL_HANDLE);
+        assert(m_fragmentShaderModule);
         Utils::Logger::LogInfoVerboseOnly("Created Fragment shader module");
 
 
@@ -102,7 +102,7 @@ namespace VulkanCore {
             computeShaderModuleCreateInfo.pCode = reinterpret_cast<uint32_t*>(computeSPRIV.data());
             computeShaderModuleCreateInfo.pNext= nullptr;
             m_computeShaderModule = m_device.GetDevice().createShaderModule(computeShaderModuleCreateInfo, nullptr);
-            assert(m_computeShaderModule.value() != VK_NULL_HANDLE);
+            assert(m_computeShaderModule.value());
             Utils::Logger::LogInfoVerboseOnly("Created Compute shader module");
         }else
             Utils::Logger::LogInfoVerboseOnly("Compute shader was not specified");

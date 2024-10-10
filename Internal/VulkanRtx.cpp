@@ -36,7 +36,7 @@ void Application::Init()
     m_swapChain = std::make_unique<VulkanCore::VSwapChain>(*m_vulkanDevice, *m_vulkanInstance);
     m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(*m_vulkanDevice, *m_swapChain);
     m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(*m_vulkanDevice, *m_swapChain, *m_mainRenderPass);
-    m_pipelineManager->CreatePipelines();
+    m_pipelineManager->InstantiatePipelines();
 }
 
 void Application::MainLoop()
@@ -70,7 +70,7 @@ void Application::Update()
 
 Application::~Application() {
     m_mainRenderPass->Destroy();
-    m_pipelineManager->DestoryPipelines();
+    m_pipelineManager->DestroyPipelines();
     m_swapChain->Destroy();
     m_vulkanDevice->Destroy();
 }
