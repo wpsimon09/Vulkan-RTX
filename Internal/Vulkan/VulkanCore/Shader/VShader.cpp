@@ -48,6 +48,7 @@ namespace VulkanCore {
 
         file.close();
 
+        assert(buffer.size() == fileSize);
         return buffer;
     }
 

@@ -54,10 +54,10 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
     attributeDescription[0].offset = offsetof(ApplicationCore::Vertex, position);
 
     // NORMALS
-    attributeDescription[2].binding = 0;
-    attributeDescription[2].location = 1;
-    attributeDescription[2].format = vk::Format::eR32G32B32Sfloat;
-    attributeDescription[2].offset = offsetof(ApplicationCore::Vertex, normal);
+    attributeDescription[1].binding = 0;
+    attributeDescription[1].location = 1;
+    attributeDescription[1].format = vk::Format::eR32G32B32Sfloat;
+    attributeDescription[1].offset = offsetof(ApplicationCore::Vertex, normal);
 
     // uv
     attributeDescription[2].binding = 0;

@@ -43,25 +43,22 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
 
         assert(createdVkPipelines.result == vk::Result::eSuccess);
         if(createdVkPipelines.result == vk::Result::ePipelineCompileRequired) {
-            throw("Pipeline at index %d needs to be compiled", std::to_string(i).c_str());
+            throw std::runtime_error("Pipeline at index " + std::to_string(i) + " needs to be compiled");
         }
 
         pipeline.second->SetCreatedPipeline(createdVkPipelines.value[i]);
         i++;
     }
     Utils::Logger::LogSuccess("Successfully created " + std::to_string(i) + "graphics pipelines");
-
-
 }
 
 void VulkanCore::VPipelineManager::GeneratePipelines() {
 
     auto basicPipelineShaderVertexSource = "Shaders/Compiled/TriangleVertex.spv";
     auto basicPipelineFragmentShaderSource = "Shaders/Compiled/TriangleFragment.spv";
-    VulkanCore::VShader shader(m_device, basicPipelineShaderVertexSource, basicPipelineFragmentShaderSource);
-    auto basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain,shader, m_renderPass  );
+    m_baseShader = std::make_unique<VShader>(m_device, basicPipelineShaderVertexSource, basicPipelineFragmentShaderSource);
+    auto basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain,*m_baseShader, m_renderPass  );
     basicPipeline->Init();
 
     m_pipelines.emplace(std::make_pair(PIPELINE_TYPE_RASTER_BASIC, std::move(basicPipeline)));
 }
-

@@ -11,6 +11,7 @@
 
 namespace VulkanCore
 {
+    class VShader;
     class VRenderPass;
     class VDevice;
     class VSwapChain;
@@ -31,6 +32,8 @@ namespace VulkanCore
         const VDevice &m_device;
         const VSwapChain &m_swapChain;
         const VRenderPass &m_renderPass;
+
+        std::unique_ptr<VShader> m_baseShader;
         std::map<PIPELINE_TYPE, std::unique_ptr<VGraphicsPipeline>> m_pipelines;
     };
 }

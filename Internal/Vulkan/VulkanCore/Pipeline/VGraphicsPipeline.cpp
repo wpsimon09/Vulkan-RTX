@@ -53,12 +53,16 @@ const vk::GraphicsPipelineCreateInfo VulkanCore::VGraphicsPipeline::GetGraphicsP
     info.pViewportState = &m_viewportState;
     info.pRasterizationState = &m_rasterizer;
     info.pMultisampleState = &m_multisampling;
-    info.pDepthStencilState = &m_depthStencil;
+    info.pDepthStencilState = nullptr;
     info.pColorBlendState = &m_colorBlendState;
     info.pDynamicState = &m_dynamicStateInfo;
     info.layout = m_pipelineLayout;
     info.renderPass = m_renderPass.GetRenderPass();
     //---------------------------------------
+
+
+    info.pNext = nullptr;
+    info.basePipelineIndex = -1;
 
     return info;
 

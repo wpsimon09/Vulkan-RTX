@@ -17,6 +17,7 @@
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
+#include "Vulkan/VulkanCore/Shader/VShader.hpp"
 
 
 Application::Application()
