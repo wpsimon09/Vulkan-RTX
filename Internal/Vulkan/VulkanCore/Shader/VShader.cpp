@@ -34,7 +34,7 @@ namespace VulkanCore {
         std::ifstream file(SPIRVShader, std::ios::ate | std::ios::binary);
 
         if(!file.is_open()) {
-            const auto err = "Failed to open SPIRV shader file at path: " + SPIRVShader;
+            const auto err = "Failed to open SPIRV shader file at path: " + SPIRVShader + " did you compile the shaders using compile.sh script ?";
             throw std::runtime_error(err);
         }
 
@@ -74,6 +74,8 @@ namespace VulkanCore {
 
     void VShader::CreateShaderModules() {
 
+        Utils::Logger::LogInfoVerboseOnly("Creating shader modules...");
+
         auto vertexSPRIV = ReadSPIRVShader(m_vertexSource);
         auto fragmentSPRIV = ReadSPIRVShader(m_fragmentSource);
 
@@ -107,5 +109,6 @@ namespace VulkanCore {
         }else
             Utils::Logger::LogInfoVerboseOnly("Compute shader was not specified");
 
+        Utils::Logger::LogSuccess("Shader modules created !");
     }
 }// VulkanCore
