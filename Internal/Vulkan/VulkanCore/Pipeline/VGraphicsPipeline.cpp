@@ -76,7 +76,7 @@ void VulkanCore::VGraphicsPipeline::CreateShaderStages() {
 
     vk::PipelineShaderStageCreateInfo fragmentStage;
     fragmentStage.stage = vk::ShaderStageFlagBits::eFragment;
-    vertexStage.module = m_shaders.GetShaderModule(GlobalVariables::SHADER_TYPE::FRAGMENT);
+    fragmentStage.module = m_shaders.GetShaderModule(GlobalVariables::SHADER_TYPE::FRAGMENT);
     fragmentStage.pName = "main";
 
     m_shaderStages = {vertexStage, fragmentStage};

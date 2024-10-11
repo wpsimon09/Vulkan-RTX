@@ -30,7 +30,7 @@ namespace VulkanCore {
         Utils::Logger::LogInfoVerboseOnly("Deleted all unnecessary shader modules");
     }
 
-    std::vector<char> VShader::ReadSPIRVShader(const std::string &SPIRVShader) {
+    std::vector<char> VShader::ReadSPIRVShader(const std::string& SPIRVShader) {
         std::ifstream file(SPIRVShader, std::ios::ate | std::ios::binary);
 
         if(!file.is_open()) {
@@ -39,7 +39,7 @@ namespace VulkanCore {
         }
 
         //create buffer to hold the binary
-        size_t fileSize = (size_t)file.tellg();
+        size_t fileSize = (size_t) file.tellg();
         std::vector<char>buffer(fileSize);
 
         //go back to the begining and read the file again to get the content
