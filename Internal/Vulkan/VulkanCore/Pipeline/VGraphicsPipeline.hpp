@@ -28,6 +28,7 @@ namespace VulkanCore
         void Destroy() override;
 
         const vk::GraphicsPipelineCreateInfo GetGraphicsPipelineCreateInfoStruct() const;
+        const vk::Pipeline& GetPipelineInstance() const {return m_pipeline;};
         ~VGraphicsPipeline() = default;
     private:
         void CreateShaderStages();

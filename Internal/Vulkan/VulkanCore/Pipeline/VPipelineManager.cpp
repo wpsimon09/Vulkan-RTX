@@ -15,8 +15,10 @@ VulkanCore::VPipelineManager::VPipelineManager(const VulkanCore::VDevice &device
 }
 
 void VulkanCore::VPipelineManager::DestroyPipelines() {
+    m_baseShader->DestroyExistingShaderModules();
     for (auto &pipeline :m_pipelines) {
         pipeline.second->Destroy();
+        m_device.GetDevice().destroyPipeline(pipeline.second->GetPipelineInstance());
     }
 }
 
@@ -27,7 +29,7 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
     Utils::Logger::LogInfoVerboseOnly("Creating " + std::to_string(m_pipelines.size()) + " graphics pipelines..." );
 
     std::vector<vk::GraphicsPipelineCreateInfo> graphicsPipelineCreateInfos;
-    for(auto &pipeline: m_pipelines) {
+        for(auto &pipeline: m_pipelines) {
         graphicsPipelineCreateInfos.emplace_back(pipeline.second->GetGraphicsPipelineCreateInfoStruct());
     }
 

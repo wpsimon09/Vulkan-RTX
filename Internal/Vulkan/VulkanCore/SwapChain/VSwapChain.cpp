@@ -30,7 +30,6 @@ void VulkanCore::VSwapChain::Destroy() {
     m_device.GetDevice().destroySwapchainKHR(m_swapChain);
 }
 
-
 void VulkanCore::VSwapChain::ChooseExtent() {
     Utils::Logger::LogInfoVerboseOnly("Choosing right extend...");
     auto capabilities = m_device.GetPhysicalDevice().getSurfaceCapabilitiesKHR(m_instance.GetSurface());

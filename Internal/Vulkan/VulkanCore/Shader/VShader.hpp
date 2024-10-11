@@ -17,7 +17,7 @@ namespace VulkanCore {
     class VShader: public VObject {
         public:
             VShader(const VulkanCore::VDevice& device ,const std::string& vertexSource, const std::string &fragmentSource, const std::string& computeSource = "");
-            void DeleteExistingShaderModules();
+            void DestroyExistingShaderModules();
             std::vector<char> ReadSPIRVShader(const std::string& SPIRVShader);
             const vk::ShaderModule& GetShaderModule(GlobalVariables::SHADER_TYPE shaderType) const;
         private:

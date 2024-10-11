@@ -21,7 +21,7 @@ namespace VulkanCore {
 
     }
 
-    void VShader::DeleteExistingShaderModules() {
+    void VShader::DestroyExistingShaderModules() {
         m_device.GetDevice().destroyShaderModule(m_vertexShaderModule);
         m_device.GetDevice().destroyShaderModule(m_fragmentShaderModule);
         if(m_computeShaderModule.has_value()) {
