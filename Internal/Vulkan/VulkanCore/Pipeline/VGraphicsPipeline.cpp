@@ -196,7 +196,7 @@ void VulkanCore::VGraphicsPipeline::CreatePipelineLayout(vk::DescriptorSetLayout
     pipelineLayoutCreateInfo.pSetLayouts = descriptorSet;
     pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
     pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
-    assert(m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout)== vk::Result::eSuccess);
+    assert(m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout) == vk::Result::eSuccess);
     Utils::Logger::LogSuccess("Created pipeline layout");
 }
 

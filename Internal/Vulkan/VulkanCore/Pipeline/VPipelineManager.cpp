@@ -54,8 +54,8 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
 
 void VulkanCore::VPipelineManager::GeneratePipelines() {
 
-    auto basicPipelineShaderVertexSource = "Shaders/Compiled/TriangleVertex.spv";
-    auto basicPipelineFragmentShaderSource = "Shaders/Compiled/TriangleFragment.spv";
+    auto basicPipelineShaderVertexSource = "Shaders/Compiled/BaseTriangleVertex.spv";
+    auto basicPipelineFragmentShaderSource = "Shaders/Compiled/BaseTriangleFragment.spv";
     m_baseShader = std::make_unique<VShader>(m_device, basicPipelineShaderVertexSource, basicPipelineFragmentShaderSource);
     auto basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain,*m_baseShader, m_renderPass  );
     basicPipeline->Init();

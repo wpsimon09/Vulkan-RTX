@@ -56,11 +56,9 @@ namespace VulkanCore {
         switch(shaderType) {
             case GlobalVariables::SHADER_TYPE::VERTEX: {
                 return m_vertexShaderModule;
-                break;
             }
             case GlobalVariables::SHADER_TYPE::FRAGMENT: {
                 return m_fragmentShaderModule;
-                break;
             }
             case GlobalVariables::SHADER_TYPE::COMPUTE: {
                 assert(m_computeShaderModule.has_value());
