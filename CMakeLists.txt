@@ -53,6 +53,10 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/RenderPass/VRenderPass.hpp
         Internal/Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.cpp
         Internal/Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp
+        Internal/Vulkan/Utils/VImageView/VImageView.cpp
+        Internal/Vulkan/Utils/VImageView/VImageView.hpp
+        Internal/Vulkan/Utils/VImage/VImage.cpp
+        Internal/Vulkan/Utils/VImage/VImage.hpp
 
 )
 

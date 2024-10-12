@@ -9,6 +9,8 @@
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Application/WindowManager/WindowManager.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/Utils/VImage/VImage.hpp"
+#include "Vulkan/Utils/VImageView/VImageView.hpp"
 
 VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const VulkanCore::VulkanInstance &instance): m_device(device), m_instance(instance) {
     ChooseExtent();
@@ -20,10 +22,10 @@ VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const Vulk
 
 
 void VulkanCore::VSwapChain::Destroy() {
-    int i = m_imageViews.size();
-    for (auto &imageView : m_imageViews) {
-        m_device.GetDevice().destroyImageView(imageView);
-        Utils::Logger::LogInfoVerboseOnly("Swap chain image: " + std::to_string(i) + " destroyed !");
+    int i = m_images.size();
+    for (auto &image : m_images) {
+        image.Destroy();
+        Utils::Logger::LogInfoVerboseOnly("Swap chain image and image view: " + std::to_string(i) + " destroyed !");
         i--;
     }
     Utils::Logger::LogInfoVerboseOnly("Swap chain destroyed !");
@@ -124,18 +126,15 @@ void VulkanCore::VSwapChain::CreateSwapChain() {
 }
 
 void VulkanCore::VSwapChain::RetrieveSwapChainImagesAndImageViews() {
-    m_images = m_device.GetDevice().getSwapchainImagesKHR(m_swapChain);
+    auto swapChainImages = m_device.GetDevice().getSwapchainImagesKHR(m_swapChain);
+
+    m_images.resize(swapChainImages.size());
+    assert(m_images.size() == swapChainImages.size());
+    for (size_t i = 0; i < swapChainImages.size(); i++) {
+        m_images[i] = VulkanUtils::VImage(m_device, swapChainImages[i], m_extent.width, m_extent.height);
+    }
 
     assert(!m_images.empty());
     Utils::Logger::LogSuccess("Retrieved " + std::to_string(m_images.size()) + " swap chain images");
-
-    m_imageViews.resize(m_images.size());
-
-    for(int i = 0; i < m_imageViews.size(); i++) {
-        m_imageViews[i] = VulkanUtils::GenerateImageView(m_device.GetDevice(), m_images[i], 1, m_format.format);
-    }
-
-    assert(!m_imageViews.empty());
-    Utils::Logger::LogSuccess("Created " + std::to_string(m_imageViews.size()) + " swap chain images views");
 };
 

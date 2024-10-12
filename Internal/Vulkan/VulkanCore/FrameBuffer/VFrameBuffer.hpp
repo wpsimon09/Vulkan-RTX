@@ -7,6 +7,10 @@
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include <vulkan/vulkan.hpp>
 
+namespace VulkanUtils
+{
+    class VImage;
+}
 namespace VulkanCore
 {
     class VRenderPass;
@@ -15,9 +19,9 @@ namespace VulkanCore
 
     class VFrameBuffer:public VObject {
     public:
-        VFrameBuffer(const VDevice& device, const VRenderPass& renderPass, const VSwapChain& swapChain);
+        VFrameBuffer(const VDevice& device, const VRenderPass& renderPass, const std::vector<VulkanUtils::VImage> attachments, uint32_t width, uint32_t height);
 
-        const vk::Framebuffer& GetFrameBuffer() { return m_frameBuffer.value;}
+        const vk::Framebuffer& GetFrameBuffer() { return m_frameBuffer;}
 
         void Destroy() override;
 

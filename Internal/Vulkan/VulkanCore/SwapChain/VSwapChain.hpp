@@ -5,9 +5,15 @@
 #ifndef VSWAPCHAIN_HPP
 #define VSWAPCHAIN_HPP
 
+#include <memory>
 #include <vulkan/vulkan.hpp>
 
 #include "Vulkan/VulkanCore/VObject.hpp"
+
+namespace VulkanUtils
+{
+    class VImage;
+}
 
 namespace VulkanCore{
     class VulkanInstance;
@@ -22,7 +28,6 @@ namespace VulkanCore{
             const vk::SurfaceFormatKHR& GetSurfaceFormatKHR() const { return m_format; };
             const vk::Extent2D& GetExtent() const { return m_extent; };
             const vk::PresentModeKHR& GetPresentMode() const { return m_presentMode; };
-            const std::vector<vk::ImageView> &GetImageViews() const { return m_imageViews; };
         private:
             vk::SurfaceFormatKHR m_format;
             vk::Extent2D m_extent;
@@ -30,8 +35,7 @@ namespace VulkanCore{
 
             vk::SwapchainKHR m_swapChain;
 
-            std::vector<vk::Image> m_images;
-            std::vector<vk::ImageView> m_imageViews;
+            std::vector<VulkanUtils::VImage> m_images;
 
             const VulkanCore::VDevice& m_device;
             const VulkanCore::VulkanInstance& m_instance;
