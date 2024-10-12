@@ -19,7 +19,7 @@ namespace VulkanCore
 
     class VFrameBuffer:public VObject {
     public:
-        VFrameBuffer(const VDevice& device, const VRenderPass& renderPass, const std::vector<VulkanUtils::VImage> attachments, uint32_t width, uint32_t height);
+        VFrameBuffer(const VDevice &device, const VRenderPass &renderPass, std::vector<std::reference_wrapper<const VulkanUtils::VImage>> attachments, uint32_t width, uint32_t height);
 
         const vk::Framebuffer& GetFrameBuffer() { return m_frameBuffer;}
 

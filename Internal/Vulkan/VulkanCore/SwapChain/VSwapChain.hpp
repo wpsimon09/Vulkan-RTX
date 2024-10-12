@@ -16,18 +16,25 @@ namespace VulkanUtils
 }
 
 namespace VulkanCore{
+    class VRenderPass;
+    class VFrameBuffer;
     class VulkanInstance;
     class VDevice;
 
     class VSwapChain:public VObject {
         public:
             VSwapChain(const VulkanCore::VDevice& device,const VulkanCore::VulkanInstance& instance);
-            ~VSwapChain() = default;
+
             void Destroy() override;
+            void CreateSwapChainFrameBuffers(const VulkanCore::VRenderPass& renderPass);
+
+            ~VSwapChain() = default;
 
             const vk::SurfaceFormatKHR& GetSurfaceFormatKHR() const { return m_format; };
             const vk::Extent2D& GetExtent() const { return m_extent; };
             const vk::PresentModeKHR& GetPresentMode() const { return m_presentMode; };
+            const std::vector<std::reference_wrapper<const VulkanUtils::VImage>> GetImages() const;
+            const std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>> GetSwapChainFrameBuffers() const;
         private:
             vk::SurfaceFormatKHR m_format;
             vk::Extent2D m_extent;
@@ -35,7 +42,8 @@ namespace VulkanCore{
 
             vk::SwapchainKHR m_swapChain;
 
-            std::vector<VulkanUtils::VImage> m_images;
+            std::vector<std::unique_ptr<VulkanUtils::VImage>> m_images;
+            std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_swapChainFrameBuffers;
 
             const VulkanCore::VDevice& m_device;
             const VulkanCore::VulkanInstance& m_instance;
@@ -47,6 +55,7 @@ namespace VulkanCore{
             void CreateSwapChain();
 
             void RetrieveSwapChainImagesAndImageViews();
+
     };
 
 }

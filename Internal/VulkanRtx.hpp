@@ -47,7 +47,6 @@ private:
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
     std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;
     std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
-    std::vector<std::unique_ptr<class VulkanCore::VFrameBuffer>> m_frameBuffers;
 };
 
 #endif //VULKANRTX_HPP

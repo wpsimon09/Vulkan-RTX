@@ -15,9 +15,11 @@
 #include "Application/Client.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
+#include "Vulkan/Utils/VImage/VImage.hpp"
 
 
 Application::Application()
@@ -39,10 +41,7 @@ void Application::Init()
     m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(*m_vulkanDevice, *m_swapChain, *m_mainRenderPass);
     m_pipelineManager->InstantiatePipelines();
 
-    m_frameBuffers.reserve(m_swapChain->GetImageViews().size());
-    for (auto &swapChainImageView : m_swapChain->GetImageViews()) {
-
-    }
+    m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
 }
 
 void Application::MainLoop()

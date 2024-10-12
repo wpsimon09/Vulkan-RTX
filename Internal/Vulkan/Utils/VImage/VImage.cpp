@@ -7,7 +7,7 @@
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
-VulkanUtils::VImage::VImage(const VulkanCore::VDevice &device, vk::Image &image, int widht, int height,
+VulkanUtils::VImage::VImage(const VulkanCore::VDevice &device, vk::Image image, int widht, int height,
                             uint32_t mipLevels, vk::Format format, vk::ImageAspectFlags aspecFlags):
     m_device(device), m_image(image) {
 
