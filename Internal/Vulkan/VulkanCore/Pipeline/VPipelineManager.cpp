@@ -37,7 +37,7 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
     auto createdVkPipelines = m_device.GetDevice().createGraphicsPipelines(nullptr, graphicsPipelineCreateInfos);
 
     assert(createdVkPipelines.value.size() == m_pipelines.size());
-    Utils::Logger::LogSuccess("Successfully created " + std::to_string(m_pipelines.size()) + "graphics pipelines");
+    Utils::Logger::LogSuccess("Successfully created " + std::to_string(m_pipelines.size()) + " graphics pipelines");
 
     Utils::Logger::LogInfoVerboseOnly("Binding pipelines...");
     int i = 0;
@@ -51,7 +51,7 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
         pipeline.second->SetCreatedPipeline(createdVkPipelines.value[i]);
         i++;
     }
-    Utils::Logger::LogSuccess("Successfully created " + std::to_string(i) + "graphics pipelines");
+    Utils::Logger::LogSuccess("Successfully bound " + std::to_string(i) + " graphics pipelines");
 }
 
 void VulkanCore::VPipelineManager::GeneratePipelines() {

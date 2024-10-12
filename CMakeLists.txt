@@ -51,6 +51,8 @@ set(SOURCES
         Internal/Vulkan/Global/GlobalVulkanEnums.hpp
         Internal/Vulkan/VulkanCore/RenderPass/VRenderPass.cpp
         Internal/Vulkan/VulkanCore/RenderPass/VRenderPass.hpp
+        Internal/Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.cpp
+        Internal/Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp
 
 )
 

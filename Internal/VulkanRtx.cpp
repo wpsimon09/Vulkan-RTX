@@ -38,6 +38,11 @@ void Application::Init()
     m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(*m_vulkanDevice, *m_swapChain);
     m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(*m_vulkanDevice, *m_swapChain, *m_mainRenderPass);
     m_pipelineManager->InstantiatePipelines();
+
+    m_frameBuffers.reserve(m_swapChain->GetImageViews().size());
+    for (auto &swapChainImageView : m_swapChain->GetImageViews()) {
+
+    }
 }
 
 void Application::MainLoop()
