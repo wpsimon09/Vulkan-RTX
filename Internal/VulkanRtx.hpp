@@ -8,6 +8,8 @@
 #include <memory>
 #include <vector>
 
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
+
 namespace VulkanCore
 {
     class VCommandPool;
@@ -53,6 +55,7 @@ private:
     std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;
     std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
     std::unique_ptr<class VulkanCore::VCommandPool> m_renderingCommandPool;
+    std::unique_ptr<class VulkanCore::VCommandBuffer> m_renderingCommandBuffer;
 };
 
 #endif //VULKANRTX_HPP

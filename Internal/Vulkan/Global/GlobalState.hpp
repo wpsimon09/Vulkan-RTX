@@ -9,6 +9,7 @@ namespace GlobalState
 {
     inline static bool ValidationLayersEnabled = true;
     inline static bool Verbose = true;
+    inline static bool AutoCommandBufferFlags = true;
 }
 
 #endif //GLOBALSTATE_HPP

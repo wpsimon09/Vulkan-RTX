@@ -43,11 +43,15 @@ void Application::Init()
     m_pipelineManager->InstantiatePipelines();
     m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
     m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(*m_vulkanDevice, QUEUE_FAMILY_INDEX_GRAPHICS);
+    m_renderingCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(*m_vulkanDevice, *m_renderingCommandPool);;
 
 }
 
 void Application::MainLoop()
 {
+    m_renderingCommandBuffer->BeginRecording();
+    m_renderingCommandBuffer->EndRecording();
+
     while(!glfwWindowShouldClose(m_windowManager->GetWindow()))
     {
         Update();
@@ -78,6 +82,8 @@ void Application::Update()
 Application::~Application() {
     m_mainRenderPass->Destroy();
     m_pipelineManager->DestroyPipelines();
+    m_renderingCommandBuffer->Destroy();
+    m_renderingCommandPool->Destroy();
     m_swapChain->Destroy();
     m_vulkanDevice->Destroy();
 }

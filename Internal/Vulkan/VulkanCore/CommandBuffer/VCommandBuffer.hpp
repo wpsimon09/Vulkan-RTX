@@ -9,18 +9,22 @@
 
 namespace VulkanCore {
 class VDevice;
+class VCommandPool;
 
 class VCommandBuffer: public VObject {
 public:
-    explicit VCommandBuffer(const VulkanCore::VDevice& device);
+    explicit VCommandBuffer(const VulkanCore::VDevice& device, const VulkanCore::VCommandPool& commandPool);
 
     void Destroy() override;
 
+    void BeginRecording();
+    void EndRecording();
+
     ~VCommandBuffer() = default;
-
-
 private:
-    vk::CommandBuffer commandBuffer;
+    const VulkanCore::VCommandPool& m_commandPool;
+    bool m_isCurrentlyRecording;
+    vk::CommandBuffer m_commandBuffer;
 };
 
 } // VulkanCore
