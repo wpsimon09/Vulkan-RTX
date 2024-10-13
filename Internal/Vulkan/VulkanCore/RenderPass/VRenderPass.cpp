@@ -41,6 +41,7 @@ void VulkanCore::VRenderPass::CreateRenderPass() {
     // RESOLVE ATTACHEMENT
     // it transition the image format from colour attachment to the format that is suitable to present the images on the screen
     //----------------------------------------------------------------------------------------------------------------------------
+    /*
     m_resolveColourAttachmentDescription.format =   m_swapChain.GetSurfaceFormatKHR().format;
     m_resolveColourAttachmentDescription.samples = vk::SampleCountFlagBits::e1;
     m_resolveColourAttachmentDescription.loadOp = vk::AttachmentLoadOp::eDontCare;
@@ -49,10 +50,11 @@ void VulkanCore::VRenderPass::CreateRenderPass() {
     m_resolveColourAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     m_resolveColourAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
     m_resolveColourAttachmentDescription.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+    */
 
     CreateMainSubPass();
 
-    std::array<vk::AttachmentDescription, 2> attachments = {m_colourAttachmentDescription, m_resolveColourAttachmentDescription};
+    std::array<vk::AttachmentDescription, 1> attachments = {m_colourAttachmentDescription};
     vk::RenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.attachmentCount = attachments.size();
     renderPassInfo.pAttachments = attachments.data();
@@ -70,7 +72,6 @@ void VulkanCore::VRenderPass::CreateMainSubPass() {
     m_subPass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
     m_subPass.colorAttachmentCount = 1;
     m_subPass.pColorAttachments = &m_colourAttachmentRef;
-    m_subPass.pResolveAttachments = &m_resolveColourAttachmentRef;
     m_subPass.pDepthStencilAttachment = nullptr; //TODO: create depth buffer
 
     m_subPassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
