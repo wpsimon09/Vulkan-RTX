@@ -33,7 +33,6 @@ VulkanCore::VFrameBuffer::VFrameBuffer(const VDevice &device, const VRenderPass 
 
 void VulkanCore::VFrameBuffer::Destroy() {
     m_device.GetDevice().destroyFramebuffer(m_frameBuffer);
-    assert(m_frameBuffer == VK_NULL_HANDLE);
     Utils::Logger::LogInfoVerboseOnly("Frame buffer destroyed ");
 }
 

@@ -22,7 +22,7 @@ namespace VulkanUtils
 
         void Destroy() override;
 
-        ~VImage();
+        ~VImage() = default;
     private:
         //TODO: later implement this or use the VMA lybrary to allocate images and generate their image views ;
         void GenerateImage() {};
@@ -34,9 +34,12 @@ namespace VulkanUtils
         uint32_t m_mipLevels;
         vk::Format m_format;
         vk::ImageAspectFlags m_aspectFlags;
+        bool isSwapChainImage = false;
         int m_width, m_height;
 
     public:
+        const bool& GetIsSwapChainImage() const {return isSwapChainImage;};
+
         [[nodiscard]] const vk::Image & GetImage() const {
             return m_image;
         }

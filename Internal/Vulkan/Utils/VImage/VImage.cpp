@@ -17,17 +17,14 @@ VulkanUtils::VImage::VImage(const VulkanCore::VDevice &device, vk::Image image, 
     m_format = format;
     m_aspectFlags = aspecFlags;
 
+    isSwapChainImage = true;
+
     GenerateImageView();
 }
 
 void VulkanUtils::VImage::Destroy() {
     m_device.GetDevice().destroyImageView(m_imageView);
-    m_device.GetDevice().destroyImage(m_image);
     Utils::Logger::LogInfoVerboseOnly("Deleted image and its image view");
-}
-
-VulkanUtils::VImage::~VImage() {
-    Destroy();
 }
 
 void VulkanUtils::VImage::GenerateImageView() {
