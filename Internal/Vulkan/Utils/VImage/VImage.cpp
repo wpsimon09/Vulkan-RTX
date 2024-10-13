@@ -24,6 +24,9 @@ VulkanUtils::VImage::VImage(const VulkanCore::VDevice &device, vk::Image image, 
 
 void VulkanUtils::VImage::Destroy() {
     m_device.GetDevice().destroyImageView(m_imageView);
+    if(!isSwapChainImage) {
+        m_device.GetDevice().destroyImage(m_image);
+    }
     Utils::Logger::LogInfoVerboseOnly("Deleted image and its image view");
 }
 

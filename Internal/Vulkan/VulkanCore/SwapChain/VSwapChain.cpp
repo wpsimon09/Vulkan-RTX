@@ -24,20 +24,20 @@ VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const Vulk
 
 
 void VulkanCore::VSwapChain::Destroy() {
-    int i = m_images.size();
+    Utils::Logger::LogInfoVerboseOnly("Destroying swap chain image views... ");
     for (auto &image : m_images) {
         image->Destroy();
-        Utils::Logger::LogInfoVerboseOnly("Swap chain image and image view: " + std::to_string(i) + " destroyed !");
-        i--;
     }
-    i = m_swapChainFrameBuffers.size();
+    Utils::Logger::LogInfoVerboseOnly("Swap chain image views  destroyed !");
+
+    Utils::Logger::LogInfoVerboseOnly("Destroying swap chain FrameBuffers...");
     for(auto &frameBuffer:m_swapChainFrameBuffers) {
         frameBuffer->Destroy();
-        Utils::Logger::LogInfoVerboseOnly("Swap chain frame buffer " + std::to_string(i) + " destroyed !");
-        i--;
     }
-    Utils::Logger::LogInfoVerboseOnly("Swap chain destroyed !");
+    Utils::Logger::LogInfoVerboseOnly("Swap chain images destroyed !");
+
     m_device.GetDevice().destroySwapchainKHR(m_swapChain);
+    Utils::Logger::LogInfoVerboseOnly("Swap chain destroyed !");
 }
 
 const std::vector<std::reference_wrapper<const VulkanUtils::VImage>> VulkanCore::VSwapChain::GetImages() const {
