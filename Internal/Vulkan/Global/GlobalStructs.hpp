@@ -38,12 +38,12 @@ struct DesiredDeviceFeatures
 
 namespace GlobalVariables::GlobalStructs
 {
-    inline extern DesiredDeviceFeatures primaryDeviceFeatures = {
+    inline DesiredDeviceFeatures primaryDeviceFeatures = {
         .deviceType = vk::PhysicalDeviceType::eDiscreteGpu,
         .deviceFeatures = vk::PhysicalDeviceFeatures{}.setGeometryShader(VK_TRUE)
     };
 
-    inline extern DesiredDeviceFeatures secondaryDeviceFeatures = {
+    inline DesiredDeviceFeatures secondaryDeviceFeatures = {
         .deviceType = vk::PhysicalDeviceType::eIntegratedGpu,
         .deviceFeatures = vk::PhysicalDeviceFeatures{}
     };

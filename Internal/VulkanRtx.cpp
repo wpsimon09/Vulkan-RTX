@@ -20,6 +20,7 @@
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/Utils/VImage/VImage.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 
 
 Application::Application()
@@ -40,8 +41,9 @@ void Application::Init()
     m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(*m_vulkanDevice, *m_swapChain);
     m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(*m_vulkanDevice, *m_swapChain, *m_mainRenderPass);
     m_pipelineManager->InstantiatePipelines();
-
     m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
+    m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(*m_vulkanDevice, QUEUE_FAMILY_INDEX_GRAPHICS);
+
 }
 
 void Application::MainLoop()

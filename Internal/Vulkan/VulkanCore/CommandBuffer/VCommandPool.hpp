@@ -4,23 +4,23 @@
 
 #ifndef COMMANDPOOL_HPP
 #define COMMANDPOOL_HPP
-#include "CommandBuffer.hpp"
+#include <vulkan/vulkan.hpp>
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
 
 namespace VulkanCore {
 class VDevice;
 
-class CommandPool:public VObject {
+class VCommandPool:public VObject {
 public:
-    explicit CommandPool(const VulkanCore::VDevice& device, QUEUE_FAMILY_INDEX_TYPE queueFamilyType);
+    explicit VCommandPool(const VulkanCore::VDevice& device, QUEUE_FAMILY_INDEX_TYPE queueFamilyType);
 
     void Destroy() override;
 
     const vk::CommandPool& GetCommandBufferPool() const { return m_commandPool; };
     const std::pair<QUEUE_FAMILY_INDEX_TYPE, uint32_t>& GetQueueFamily() const{return m_queueFamilyIndex;}
 
-    ~CommandPool() = default;
+    ~VCommandPool() = default;
 private:
     void CreateCommandPool();
 

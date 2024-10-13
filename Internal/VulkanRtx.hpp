@@ -8,6 +8,11 @@
 #include <memory>
 #include <vector>
 
+namespace VulkanCore
+{
+    class VCommandPool;
+}
+
 class Client;
 
 namespace VulkanCore
@@ -47,6 +52,7 @@ private:
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
     std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;
     std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
+    std::unique_ptr<class VulkanCore::VCommandPool> m_renderingCommandPool;
 };
 
 #endif //VULKANRTX_HPP

@@ -10,13 +10,13 @@
 namespace VulkanCore {
 class VDevice;
 
-class CommandBuffer: public VObject {
+class VCommandBuffer: public VObject {
 public:
-    explicit CommandBuffer(const VulkanCore::VDevice& device);
+    explicit VCommandBuffer(const VulkanCore::VDevice& device);
 
     void Destroy() override;
 
-    ~CommandBuffer() = default;
+    ~VCommandBuffer() = default;
 
 
 private:

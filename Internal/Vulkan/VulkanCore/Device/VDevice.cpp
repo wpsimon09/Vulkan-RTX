@@ -27,11 +27,13 @@ VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::Physical
     // TRANSFER QUEUE FAMILY
     //----------------------
     vk::Bool32 presentSupport = false;
+    unsigned int presentFamilyIndex = 0;
     for(int i = 0; i<queueFamilyProperties.size(); i++) {
         presentSupport = physicalDevice.getSurfaceSupportKHR(i, instance.GetSurface());
-        indices.presentFamily->second = i;
+        presentFamilyIndex = i;
         break;
     }
+    indices.presentFamily = std::make_pair(QUEUE_FAMILY_INDEX_PRESENT, presentFamilyIndex);
     assert(presentSupport == true);
     Utils::Logger::LogInfoVerboseOnly("Found transfer queue family at index: " + std::to_string(indices.presentFamily.value().second));
 
@@ -61,7 +63,7 @@ vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice() {
 void VulkanCore::VDevice::CreateLogicalDevice() {
     m_queueFamilyIndices = FindQueueFamilies(m_physicalDevice, m_instance);
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
-    std::set<uint32_t> uniqueQueueFamilies = {m_queueFamilyIndices.graphicsFamily.value(), m_queueFamilyIndices.presentFamily.value()};
+    std::set<uint32_t> uniqueQueueFamilies = {m_queueFamilyIndices.graphicsFamily.value().second, m_queueFamilyIndices.presentFamily.value().second};
 
     // we have to tell logical device what queue families it will have
     float queuePriority = 1.0f;
@@ -110,6 +112,18 @@ const uint32_t & VulkanCore::VDevice::GetConcreteQueueFamilyIndex(QUEUE_FAMILY_I
             return m_queueFamilyIndices.graphicsFamily.value().second;
         case QUEUE_FAMILY_INDEX_PRESENT:
             return m_queueFamilyIndices.presentFamily.value().second;
+    default:
+        throw std::runtime_error("Invalid queue family index");
+    }
+}
+
+const std::string & VulkanCore::VDevice::GetQueueFamilyString(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const {
+    assert(m_queueFamilyIndices.isComplete());
+    switch(queueFamilyType) {
+    case QUEUE_FAMILY_INDEX_GRAPHICS:
+        return "GRAPHICS";
+    case QUEUE_FAMILY_INDEX_PRESENT:
+        return "PRESENT";
     default:
         throw std::runtime_error("Invalid queue family index");
     }

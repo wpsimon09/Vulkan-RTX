@@ -132,7 +132,7 @@ void VulkanCore::VSwapChain::CreateSwapChain() {
     swapChainCreateInfo.clipped = VK_TRUE;
     swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    std::vector<uint32_t> queueFamilyIndices = {m_device.GetQueueFamilyIndices().graphicsFamily.value(), m_device.GetQueueFamilyIndices().presentFamily.value()};
+    std::vector<uint32_t> queueFamilyIndices = {m_device.GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_GRAPHICS), m_device.GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_PRESENT)};
 
     //graphics vs transfer
     if(queueFamilyIndices[0] == queueFamilyIndices[1]) {
