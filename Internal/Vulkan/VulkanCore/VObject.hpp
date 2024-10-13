@@ -10,6 +10,7 @@ namespace VulkanCore
 {
     class VObject {
     public:
+        virtual ~VObject() = default;
         virtual void Destroy(){};
     };
 }

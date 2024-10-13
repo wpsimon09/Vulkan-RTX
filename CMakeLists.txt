@@ -56,6 +56,10 @@ set(SOURCES
         Internal/Vulkan/Utils/VImage/VImage.cpp
         Internal/Vulkan/Utils/VImage/VImage.hpp
         External/VMA/vk_mem_alloc_implementation.cpp
+        Internal/Vulkan/VulkanCore/CommandBuffer/CommandBuffer.cpp
+        Internal/Vulkan/VulkanCore/CommandBuffer/CommandBuffer.hpp
+        Internal/Vulkan/VulkanCore/CommandBuffer/CommandPool.cpp
+        Internal/Vulkan/VulkanCore/CommandBuffer/CommandPool.hpp
 
 )
 

@@ -21,7 +21,7 @@ VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::Physical
     //------------------------
     // NORMAL QUEUE FAMILIES
     //------------------------
-    indices.graphicsFamily = VulkanUtils::FindQueueFamily(queueFamilyProperties, vk::QueueFlagBits::eGraphics);
+    indices.graphicsFamily = std::make_pair(QUEUE_FAMILY_INDEX_GRAPHICS,VulkanUtils::FindQueueFamily(queueFamilyProperties, vk::QueueFlagBits::eGraphics));
 
     //----------------------
     // TRANSFER QUEUE FAMILY
@@ -29,11 +29,11 @@ VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::Physical
     vk::Bool32 presentSupport = false;
     for(int i = 0; i<queueFamilyProperties.size(); i++) {
         presentSupport = physicalDevice.getSurfaceSupportKHR(i, instance.GetSurface());
-        indices.presentFamily = i;
+        indices.presentFamily->second = i;
         break;
     }
     assert(presentSupport == true);
-    Utils::Logger::LogInfoVerboseOnly("Found transfer queue family at index: " + std::to_string(indices.presentFamily.value()));
+    Utils::Logger::LogInfoVerboseOnly("Found transfer queue family at index: " + std::to_string(indices.presentFamily.value().second));
 
 
     return indices;
@@ -94,13 +94,25 @@ void VulkanCore::VDevice::CreateLogicalDevice() {
     assert(m_device);
     Utils::Logger::LogInfoVerboseOnly("Successfully created logical device");
 
-    m_graphicsQueue = m_device.getQueue(m_queueFamilyIndices.graphicsFamily.value(), 0);
+    m_graphicsQueue = m_device.getQueue(m_queueFamilyIndices.graphicsFamily.value().second, 0);
     assert(m_graphicsQueue != VK_NULL_HANDLE);
     Utils::Logger::LogSuccess("Successfully retrieved graphics queue");
 
-    m_presentQueue = m_device.getQueue(m_queueFamilyIndices.presentFamily.value(), 0);if(!m_presentQueue)
+    m_presentQueue = m_device.getQueue(m_queueFamilyIndices.presentFamily.value().second, 0);if(!m_presentQueue)
     assert(m_presentQueue != VK_NULL_HANDLE);
     Utils::Logger::LogSuccess("Successfully retrieved present queue");
+}
+
+const uint32_t & VulkanCore::VDevice::GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const {
+    assert(m_queueFamilyIndices.isComplete());
+    switch(queueFamilyType) {
+        case QUEUE_FAMILY_INDEX_GRAPHICS:
+            return m_queueFamilyIndices.graphicsFamily.value().second;
+        case QUEUE_FAMILY_INDEX_PRESENT:
+            return m_queueFamilyIndices.presentFamily.value().second;
+    default:
+        throw std::runtime_error("Invalid queue family index");
+    }
 }
 
 void VulkanCore::VDevice::Destroy() {
