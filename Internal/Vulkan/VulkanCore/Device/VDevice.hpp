@@ -42,7 +42,7 @@ namespace VulkanCore
         const vk::Device& GetDevice() const {return m_device;};
         const VQueueFamilyIndices& GetQueueFamilyIndices() const {return m_queueFamilyIndices;};
         const uint32_t& GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
-        const std::string& GetQueueFamilyString(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
+        const std::string GetQueueFamilyString(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
         virtual void Destroy() override;
 
     private:

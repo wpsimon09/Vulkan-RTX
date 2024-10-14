@@ -117,7 +117,7 @@ const uint32_t & VulkanCore::VDevice::GetConcreteQueueFamilyIndex(QUEUE_FAMILY_I
     }
 }
 
-const std::string & VulkanCore::VDevice::GetQueueFamilyString(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const {
+const std::string VulkanCore::VDevice::GetQueueFamilyString(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const {
     assert(m_queueFamilyIndices.isComplete());
     switch(queueFamilyType) {
     case QUEUE_FAMILY_INDEX_GRAPHICS:
