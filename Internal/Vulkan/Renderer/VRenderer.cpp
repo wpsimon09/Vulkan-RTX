@@ -33,11 +33,19 @@ namespace Renderer {
         m_renderingCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(device, *m_renderingCommandPool);
     }
 
+    void VRenderer::Render() {
+
+    }
+
     void VRenderer::Destroy() {
         m_mainRenderPass->Destroy();
         m_pipelineManager->DestroyPipelines();
         m_renderingCommandBuffer->Destroy();
         m_renderingCommandPool->Destroy();
         m_swapChain->Destroy();
+    }
+
+    void VRenderer::PrepareViewPort(int imageIndex) {
+
     }
 } // Renderer

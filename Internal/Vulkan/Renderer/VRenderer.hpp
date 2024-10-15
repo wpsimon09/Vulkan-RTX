@@ -24,7 +24,6 @@ namespace Renderer {
 class VRenderer {
 public:
     VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice& device, const Client& client);
-    void Init();
     void Render();
     void Destroy();
     ~VRenderer() = default;
