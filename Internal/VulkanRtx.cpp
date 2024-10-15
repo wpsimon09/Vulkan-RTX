@@ -15,6 +15,7 @@
 #include "Application/Client.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/Renderer/VRenderer.hpp"
 #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
@@ -37,20 +38,11 @@ void Application::Init()
 
     m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
     m_vulkanDevice = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
-    m_swapChain = std::make_unique<VulkanCore::VSwapChain>(*m_vulkanDevice, *m_vulkanInstance);
-    m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(*m_vulkanDevice, *m_swapChain);
-    m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(*m_vulkanDevice, *m_swapChain, *m_mainRenderPass);
-    m_pipelineManager->InstantiatePipelines();
-    m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
-    m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(*m_vulkanDevice, QUEUE_FAMILY_INDEX_GRAPHICS);
-    m_renderingCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(*m_vulkanDevice, *m_renderingCommandPool);;
-
+    m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_client);
 }
 
 void Application::MainLoop()
 {
-    m_renderingCommandBuffer->BeginRecording();
-    m_renderingCommandBuffer->EndRecording();
 
     while(!glfwWindowShouldClose(m_windowManager->GetWindow()))
     {
@@ -80,10 +72,6 @@ void Application::Update()
 }
 
 Application::~Application() {
-    m_mainRenderPass->Destroy();
-    m_pipelineManager->DestroyPipelines();
-    m_renderingCommandBuffer->Destroy();
-    m_renderingCommandPool->Destroy();
-    m_swapChain->Destroy();
+    m_renderer->Destroy();
     m_vulkanDevice->Destroy();
 }

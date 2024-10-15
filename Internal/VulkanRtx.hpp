@@ -10,6 +10,11 @@
 
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
+namespace Renderer
+{
+    class VRenderer;
+}
+
 namespace VulkanCore
 {
     class VCommandPool;
@@ -51,11 +56,7 @@ private:
     std::unique_ptr<class WindowManager> m_windowManager;
     std::unique_ptr<class VulkanCore::VulkanInstance> m_vulkanInstance;
     std::unique_ptr<class VulkanCore::VDevice> m_vulkanDevice;
-    std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
-    std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;
-    std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
-    std::unique_ptr<class VulkanCore::VCommandPool> m_renderingCommandPool;
-    std::unique_ptr<class VulkanCore::VCommandBuffer> m_renderingCommandBuffer;
+    std::unique_ptr<class Renderer::VRenderer> m_renderer;
 };
 
 #endif //VULKANRTX_HPP

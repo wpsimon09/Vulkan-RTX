@@ -60,6 +60,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandPool.cpp
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp
+        Internal/Vulkan/Renderer/VRenderer.cpp
+        Internal/Vulkan/Renderer/VRenderer.hpp
 
 )
 
