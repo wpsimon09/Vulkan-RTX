@@ -3,3 +3,8 @@
 //
 
 #include "VObject.hpp"
+
+
+VulkanCore::VObject::VObject() {
+    m_ID = ++globalIDCounter;
+}

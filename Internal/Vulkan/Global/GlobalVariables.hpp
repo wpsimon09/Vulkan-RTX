@@ -9,15 +9,15 @@
 
 
 namespace GlobalVariables {
-    const std::vector<const char *> validationLayers = {
+    inline const std::vector<const char *> validationLayers = {
       "VK_LAYER_KHRONOS_validation"
     };
 
-    const std::vector<const char *> instanceLevelExtensions = {
+    inline const std::vector<const char *> instanceLevelExtensions = {
       static_cast<const char *>(VK_EXT_DEBUG_UTILS_EXTENSION_NAME),
     };
 
-    const std::vector<const char *> deviceLevelExtensions = {
+    inline const std::vector<const char *> deviceLevelExtensions = {
       static_cast<const char *>(VK_KHR_SWAPCHAIN_EXTENSION_NAME),
     };
 
@@ -28,6 +28,7 @@ namespace GlobalVariables {
         COMPUTE = 2,
     };
 
+    inline int ID_COUNTER = 0;
 
 }
 
