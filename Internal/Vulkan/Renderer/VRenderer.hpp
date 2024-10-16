@@ -28,10 +28,12 @@ public:
     void Destroy();
     ~VRenderer() = default;
 private:
-    void PrepareViewPort(int imageIndex);
+    void StartRenderPass();
+    void PrepareViewPort();
 private:
     const Client& m_client;
     const VulkanCore::VDevice& m_device;
+    int m_currentImageIndex = 0;
 
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
     std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;

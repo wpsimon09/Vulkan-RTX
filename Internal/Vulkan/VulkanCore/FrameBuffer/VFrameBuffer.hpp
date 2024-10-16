@@ -21,7 +21,7 @@ namespace VulkanCore
     public:
         VFrameBuffer(const VDevice &device, const VRenderPass &renderPass, std::vector<std::reference_wrapper<const VulkanUtils::VImage>> attachments, uint32_t width, uint32_t height);
 
-        const vk::Framebuffer& GetFrameBuffer() { return m_frameBuffer;}
+        const vk::Framebuffer& GetFrameBuffer() const { return m_frameBuffer;}
 
         void Destroy() override;
 

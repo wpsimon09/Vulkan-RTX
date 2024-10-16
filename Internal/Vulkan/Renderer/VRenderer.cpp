@@ -45,7 +45,22 @@ namespace Renderer {
         m_swapChain->Destroy();
     }
 
-    void VRenderer::PrepareViewPort(int imageIndex) {
+    void VRenderer::StartRenderPass() {
+        vk::RenderPassBeginInfo renderPassBeginInfo;
+        renderPassBeginInfo.renderPass = m_mainRenderPass->GetRenderPass();
+        renderPassBeginInfo.framebuffer = m_swapChain->GetSwapChainFrameBuffers()[m_currentImageIndex].get().GetFrameBuffer();
+        renderPassBeginInfo.renderArea.offset.x = 0;
+        renderPassBeginInfo.renderArea.offset.y = 0;
+        renderPassBeginInfo.renderArea.extent = m_swapChain->GetExtent();
 
+        vk::ClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+        renderPassBeginInfo.clearValueCount = 1;
+        renderPassBeginInfo.pClearValues = &clearColor;
+
+        m_renderingCommandBuffer->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
     }
+
+    void VRenderer::PrepareViewPort() {
+    }
+
 } // Renderer

@@ -17,6 +17,8 @@ public:
 
     void Destroy() override;
 
+    const vk::CommandBuffer& GetCommandBuffer() const {return m_commandBuffer;};
+
     void BeginRecording();
     void EndRecording();
 
