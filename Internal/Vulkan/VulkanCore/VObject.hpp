@@ -17,7 +17,7 @@ namespace VulkanCore
     public:
          const int GetID() const {return m_ID;}
     private:
-         int m_ID;
+        int m_ID;
 
         friend bool operator==(const VObject &lhs, const VObject &rhs) {
             return lhs.m_ID == rhs.m_ID;

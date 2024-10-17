@@ -6,6 +6,11 @@
 #define VRENDERER_HPP
 #include <memory>
 
+namespace vk
+{
+    class Pipeline;
+}
+
 class Client;
 namespace VulkanCore
 {
@@ -29,7 +34,7 @@ public:
     ~VRenderer() = default;
 private:
     void StartRenderPass();
-    void PrepareViewPort();
+    void PrepareViewPort(const vk::Pipeline& pipeline);
 private:
     const Client& m_client;
     const VulkanCore::VDevice& m_device;

@@ -60,7 +60,24 @@ namespace Renderer {
         m_renderingCommandBuffer->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
     }
 
-    void VRenderer::PrepareViewPort() {
+    void VRenderer::PrepareViewPort(const vk::Pipeline &pipeline) {
+        m_renderingCommandBuffer->GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline );
+
+        vk::Viewport viewport = {};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(m_swapChain->GetExtent().width);
+        viewport.height = static_cast<float>(m_swapChain->GetExtent().height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        m_renderingCommandBuffer->GetCommandBuffer().setViewport(0,1, &viewport);
+
+        vk::Rect2D scissors;
+        scissors.offset.x = 0;
+        scissors.offset.y = 0;
+        scissors.extent = m_swapChain->GetExtent();
+        m_renderingCommandBuffer->GetCommandBuffer().setScissor(0,1, &scissors);
     }
+
 
 } // Renderer
