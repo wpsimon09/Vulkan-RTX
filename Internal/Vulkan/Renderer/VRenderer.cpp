@@ -53,7 +53,7 @@ namespace Renderer {
         renderPassBeginInfo.renderArea.offset.y = 0;
         renderPassBeginInfo.renderArea.extent = m_swapChain->GetExtent();
 
-        vk::ClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+        vk::ClearValue clearColor = {{0.0f, 0.0f, 0.0f, 1.0f}};
         renderPassBeginInfo.clearValueCount = 1;
         renderPassBeginInfo.pClearValues = &clearColor;
 
