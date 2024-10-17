@@ -60,6 +60,18 @@ namespace Renderer {
         m_renderingCommandBuffer->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
     }
 
+    void VRenderer::RecordCommandBuffer(const vk::Pipeline &pipeline) {
+        m_renderingCommandBuffer->BeginRecording();
+        StartRenderPass();
+        PrepareViewPort(pipeline);
+        Draw(pipeline);
+        m_renderingCommandBuffer->EndRecording();
+    }
+
+    void VRenderer::EndRenderPass() {
+        m_renderingCommandBuffer->GetCommandBuffer().endRenderPass();
+    }
+
     void VRenderer::PrepareViewPort(const vk::Pipeline &pipeline) {
         m_renderingCommandBuffer->GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline );
 
@@ -77,6 +89,10 @@ namespace Renderer {
         scissors.offset.y = 0;
         scissors.extent = m_swapChain->GetExtent();
         m_renderingCommandBuffer->GetCommandBuffer().setScissor(0,1, &scissors);
+    }
+
+    void VRenderer::Draw(const vk::Pipeline &pipeline) {
+        m_renderingCommandBuffer->GetCommandBuffer().draw(3,1,0,0);
     }
 
 

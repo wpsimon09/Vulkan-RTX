@@ -33,8 +33,12 @@ public:
     void Destroy();
     ~VRenderer() = default;
 private:
+
     void StartRenderPass();
+    void RecordCommandBuffer(const vk::Pipeline& pipeline);
     void PrepareViewPort(const vk::Pipeline& pipeline);
+    void Draw(const vk::Pipeline& pipeline);
+    void EndRenderPass();
 private:
     const Client& m_client;
     const VulkanCore::VDevice& m_device;
