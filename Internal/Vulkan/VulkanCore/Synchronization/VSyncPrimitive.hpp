@@ -10,12 +10,13 @@
 namespace VulkanCore {
     class VDevice;
 
-    template<typename T>
+    template<class  T>
     class VSyncPrimitive:public VObject {
     public:
-        VSyncPrimitive(const VDevice& device, bool startAtInSignalState = false);
+        explicit VSyncPrimitive(const VDevice& device, bool startAtInSignalState = false);
         void Destroy() override;
     private:
+        const VDevice& m_device;
         T m_syncPrimitive;
     };
 

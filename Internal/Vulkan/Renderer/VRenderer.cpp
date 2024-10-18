@@ -3,6 +3,7 @@
 //
 
 #include "VRenderer.hpp"
+#include "VRenderer.hpp"
 
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
@@ -18,6 +19,7 @@
 #include "Vulkan/Utils/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 
 namespace Renderer {
@@ -31,6 +33,7 @@ namespace Renderer {
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
         m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(device, QUEUE_FAMILY_INDEX_GRAPHICS);
         m_renderingCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(device, *m_renderingCommandPool);
+        CreateSyncPrimitives();
     }
 
     void VRenderer::Render() {
@@ -70,6 +73,10 @@ namespace Renderer {
 
     void VRenderer::EndRenderPass() {
         m_renderingCommandBuffer->GetCommandBuffer().endRenderPass();
+    }
+
+    void VRenderer::CreateSyncPrimitives() {
+        m_imageAvailableSemaphore = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(*m_device);
     }
 
     void VRenderer::PrepareViewPort(const vk::Pipeline &pipeline) {
