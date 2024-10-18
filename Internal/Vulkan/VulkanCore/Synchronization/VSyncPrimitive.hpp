@@ -38,14 +38,16 @@ namespace VulkanCore {
         };
         void Destroy() override {
                 VObject::Destroy();
-                Utils::Logger::LogInfoVerboseOnly("Destroying synchronization primitive !");
                 if constexpr (std::is_same<T, vk::Semaphore>::value) {
+                    Utils::Logger::LogInfoVerboseOnly("Destroying semaphore !");
                     m_device.GetDevice().destroySemaphore(m_syncPrimitive);
+                    Utils::Logger::LogInfoVerboseOnly("Semaphore destroyed !");
                 }
                 if constexpr (std::is_same<T, vk::Fence>::value) {
+                    Utils::Logger::LogInfoVerboseOnly("Destroying fence !");
                     m_device.GetDevice().destroyFence(m_syncPrimitive);
+                    Utils::Logger::LogInfoVerboseOnly("Destroying semaphore !");
                 }
-                Utils::Logger::LogInfoVerboseOnly("Synchronization primitive destryed !");
             };
     private:
         const VDevice& m_device;

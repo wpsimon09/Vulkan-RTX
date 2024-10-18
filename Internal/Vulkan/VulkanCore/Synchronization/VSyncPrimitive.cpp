@@ -4,11 +4,6 @@
 
 #include "VSyncPrimitive.hpp"
 
-#include <type_traits>
-#include <vulkan/vulkan.hpp>
-
-#include "Application/Logger/Logger.hpp"
-#include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {
 

@@ -43,6 +43,9 @@ namespace Renderer {
     }
 
     void VRenderer::Destroy() {
+        m_imageAvailableSemaphore->Destroy();
+        m_renderFinishedSemaphore->Destroy();
+        m_isFrameFinishFence->Destroy();
         m_mainRenderPass->Destroy();
         m_pipelineManager->DestroyPipelines();
         m_renderingCommandBuffer->Destroy();
@@ -79,6 +82,8 @@ namespace Renderer {
 
     void VRenderer::CreateSyncPrimitives() {
         m_imageAvailableSemaphore = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+        m_renderFinishedSemaphore = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+        m_isFrameFinishFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device, true);
     }
 
     void VRenderer::PrepareViewPort(const vk::Pipeline &pipeline) {
