@@ -28,6 +28,8 @@ namespace VulkanCore {
                 vk::FenceCreateInfo fenceCreateInfo;
                 if(startAtInSignalState) {
                     fenceCreateInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+                    Utils::Logger::LogSuccess("Fence will start at signalled state !");
+
                 }
                 m_syncPrimitive = device.GetDevice().createFence(fenceCreateInfo);
                 assert(m_syncPrimitive);

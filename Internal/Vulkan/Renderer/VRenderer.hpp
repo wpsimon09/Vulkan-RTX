@@ -32,13 +32,23 @@ public:
     ~VRenderer() = default;
 private:
 
+    //==================================
+    // FOR COMMAND BUFFER
+    //==================================
     void StartRenderPass();
     void RecordCommandBuffer(const vk::Pipeline& pipeline);
     void PrepareViewPort(const vk::Pipeline& pipeline);
     void Draw(const vk::Pipeline& pipeline);
     void EndRenderPass();
-
     void CreateSyncPrimitives();
+    //====================================
+
+    //=====================================
+    // FOR MAIN LOOP
+    //=====================================
+    void FetchSwapChainImage();
+    //=====================================
+
 private:
     const Client& m_client;
     const VulkanCore::VDevice& m_device;

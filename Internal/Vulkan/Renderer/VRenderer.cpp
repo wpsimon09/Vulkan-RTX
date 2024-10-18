@@ -41,21 +41,15 @@ namespace Renderer {
     void VRenderer::Render() {
         m_isFrameFinishFence->WaitForFence();
 
+        FetchSwapChainImage();
+
         m_isFrameFinishFence->ResetFence();
 
     }
 
-    void VRenderer::Destroy() {
-        m_imageAvailableSemaphore->Destroy();
-        m_renderFinishedSemaphore->Destroy();
-        m_isFrameFinishFence->Destroy();
-        m_mainRenderPass->Destroy();
-        m_pipelineManager->DestroyPipelines();
-        m_renderingCommandBuffer->Destroy();
-        m_renderingCommandPool->Destroy();
-        m_swapChain->Destroy();
-    }
-
+    //==============================================================================
+    // FOR COMMAND BUFFER
+    //==============================================================================
     void VRenderer::StartRenderPass() {
         vk::RenderPassBeginInfo renderPassBeginInfo;
         renderPassBeginInfo.renderPass = m_mainRenderPass->GetRenderPass();
@@ -89,6 +83,7 @@ namespace Renderer {
         m_isFrameFinishFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device, true);
     }
 
+
     void VRenderer::PrepareViewPort(const vk::Pipeline &pipeline) {
         m_renderingCommandBuffer->GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline );
 
@@ -111,6 +106,31 @@ namespace Renderer {
     void VRenderer::Draw(const vk::Pipeline &pipeline) {
         m_renderingCommandBuffer->GetCommandBuffer().draw(3,1,0,0);
     }
+    //===============================================================================================================
 
+
+    //===============================================================================================================
+    // FOR RENDER DRAWING
+    //=================================================================================================================
+
+    void VRenderer::FetchSwapChainImage() {
+
+        m_currentImageIndex = m_device.GetDevice().acquireNextImageKHR(
+            m_swapChain->GetSwapChain(), //swap chain
+            UINT64_MAX, // timeoout
+            m_imageAvailableSemaphore->GetSyncPrimitive()//signal semaphore
+            );
+    }
+
+    void VRenderer::Destroy() {
+        m_imageAvailableSemaphore->Destroy();
+        m_renderFinishedSemaphore->Destroy();
+        m_isFrameFinishFence->Destroy();
+        m_mainRenderPass->Destroy();
+        m_pipelineManager->DestroyPipelines();
+        m_renderingCommandBuffer->Destroy();
+        m_renderingCommandPool->Destroy();
+        m_swapChain->Destroy();
+    }
 
 } // Renderer

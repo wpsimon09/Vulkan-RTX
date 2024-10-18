@@ -30,6 +30,7 @@ namespace VulkanCore{
 
             ~VSwapChain() = default;
 
+            const vk::SwapchainKHR& GetSwapChain() { return m_swapChain; } const;
             const vk::SurfaceFormatKHR& GetSurfaceFormatKHR() const { return m_format; };
             const vk::Extent2D& GetExtent() const { return m_extent; };
             const vk::PresentModeKHR& GetPresentMode() const { return m_presentMode; };
@@ -48,6 +49,7 @@ namespace VulkanCore{
             const VulkanCore::VDevice& m_device;
             const VulkanCore::VulkanInstance& m_instance;
         private:
+
             void ChooseExtent();
             void ChooseFormat();
             void ChoosePresentMode();
