@@ -17,6 +17,7 @@ namespace Utils
         static void LogError(const std::string &msg);
         static void LogInfo(const std::string &msg);
         static void LogInfoVerboseOnly(const std::string &msg);
+        static void LogInfoVerboseRendering(const std::string &msg);
     private:
 
     };

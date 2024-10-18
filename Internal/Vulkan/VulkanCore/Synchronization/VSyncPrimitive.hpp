@@ -49,10 +49,26 @@ namespace VulkanCore {
                     Utils::Logger::LogInfoVerboseOnly("Destroying semaphore !");
                 }
             };
+
+        void WaitForFence() const {
+            static_assert(std::is_same_v<T, vk::Fence>);
+            Utils::Logger::LogInfoVerboseRendering("Waiting for fence !");
+            m_device.GetDevice().waitForFences(1, &m_syncPrimitive, VK_TRUE , UINT64_MAX);
+        };
+
+        void ResetFence() const {
+            static_assert(std::is_same_v<T, vk::Fence>);
+            Utils::Logger::LogInfoVerboseRendering("Resetting fence !");
+            m_device.GetDevice().resetFences(1, &m_syncPrimitive);
+        }
+
+        const T& GetSyncPrimitive() const { return m_syncPrimitive; }
+
     private:
         const VDevice& m_device;
         T m_syncPrimitive;
     };
+
 
 
 } // VulkanCore

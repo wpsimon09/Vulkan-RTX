@@ -44,7 +44,7 @@ public:
 
     void Update();
 
-    void Render(){};
+    void Render();
 
     void MainLoop();
 

@@ -38,3 +38,12 @@ void Utils::Logger::LogInfoVerboseOnly(const std::string &msg) {
     std::cout << "LOG::INFO::[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg << std::endl;
   }
 }
+
+void Utils::Logger::LogInfoVerboseRendering(const std::string &msg) {
+    if(GlobalState::VerboseInRendering && GlobalState::Verbose) {
+        auto time = std::chrono::system_clock::now();
+        std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
+        std::tm* localTime = std::localtime(&currentTime);
+        std::cout << "LOG::INFO::[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg << std::endl;
+    }
+}

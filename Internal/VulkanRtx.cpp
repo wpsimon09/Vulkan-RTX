@@ -71,7 +71,12 @@ void Application::Update()
 {
 }
 
+void Application::Render() {
+    m_renderer->Render();
+}
+
 Application::~Application() {
+    m_vulkanDevice->GetDevice().waitIdle();
     m_renderer->Destroy();
     m_vulkanDevice->Destroy();
 }

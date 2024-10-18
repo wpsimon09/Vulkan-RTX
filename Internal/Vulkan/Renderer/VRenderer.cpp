@@ -39,6 +39,9 @@ namespace Renderer {
     }
 
     void VRenderer::Render() {
+        m_isFrameFinishFence->WaitForFence();
+
+        m_isFrameFinishFence->ResetFence();
 
     }
 
