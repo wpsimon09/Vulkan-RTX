@@ -62,6 +62,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp
         Internal/Vulkan/Renderer/VRenderer.cpp
         Internal/Vulkan/Renderer/VRenderer.hpp
+        Internal/Vulkan/VulkanCore/Synchronization/VSyncPrimitive.cpp
+        Internal/Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp
 
 )
 
