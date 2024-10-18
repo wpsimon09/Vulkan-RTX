@@ -5,6 +5,8 @@
 #include "VRenderer.hpp"
 #include "VRenderer.hpp"
 
+#include <vulkan/vulkan_handles.hpp>
+
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
@@ -76,7 +78,7 @@ namespace Renderer {
     }
 
     void VRenderer::CreateSyncPrimitives() {
-        m_imageAvailableSemaphore = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(*m_device);
+        m_imageAvailableSemaphore = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
     }
 
     void VRenderer::PrepareViewPort(const vk::Pipeline &pipeline) {

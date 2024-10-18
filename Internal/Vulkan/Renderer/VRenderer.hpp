@@ -5,14 +5,9 @@
 #ifndef VRENDERER_HPP
 #define VRENDERER_HPP
 #include <memory>
-#include <vulkan/vulkan_handles.hpp>
 
-namespace vk
-{
-    class Pipeline;
-    class Semaphore;
-    class Fence;
-}
+#include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
+#include <vulkan/vulkan.hpp>
 
 class Client;
 namespace VulkanCore
@@ -24,7 +19,6 @@ namespace VulkanCore
     class VRenderPass;
     class VPipelineManager;
     class VSwapChain;
-    class VSyncPrimitive;
 
 }
 
@@ -50,9 +44,9 @@ private:
     const VulkanCore::VDevice& m_device;
     int m_currentImageIndex = 0;
 
-    std::unique_ptr<class VulkanCore::VSyncPrimitive<vk::Semaphore>> m_imageAvailableSemaphore;
-    std::unique_ptr<class VulkanCore::VSyncPrimitive<vk::Semaphore>> m_renderFinishedSemaphore;
-    std::unique_ptr<class VulkanCore::VSyncPrimitive<vk::Fence>> m_isFrameFinishFence;
+    std::unique_ptr< VulkanCore::VSyncPrimitive<vk::Semaphore>> m_imageAvailableSemaphore;
+    std::unique_ptr< VulkanCore::VSyncPrimitive<vk::Semaphore>> m_renderFinishedSemaphore;
+    std::unique_ptr< VulkanCore::VSyncPrimitive<vk::Fence>> m_isFrameFinishFence;
 
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
     std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;
