@@ -54,6 +54,12 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
     m_baseShader->DestroyExistingShaderModules();
 }
 
+const VulkanCore::VGraphicsPipeline & VulkanCore::VPipelineManager::GetPipeline(PIPELINE_TYPE pipeline) const {
+    auto foundPipeline = m_pipelines.find(pipeline);
+    assert(foundPipeline != m_pipelines.end());
+    return *foundPipeline->second;
+}
+
 void VulkanCore::VPipelineManager::GeneratePipelines() {
 
     auto basicPipelineShaderVertexSource = "Shaders/Compiled/BaseTriangleVertex.spv";

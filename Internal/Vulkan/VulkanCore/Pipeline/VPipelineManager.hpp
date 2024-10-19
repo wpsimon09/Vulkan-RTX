@@ -24,6 +24,8 @@ namespace VulkanCore
         void DestroyPipelines();
         void InstantiatePipelines();
 
+        const VGraphicsPipeline& GetPipeline(PIPELINE_TYPE pipeline) const;
+
         ~VPipelineManager() = default;
     private:
         void GeneratePipelines();

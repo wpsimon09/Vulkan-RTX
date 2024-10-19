@@ -12,6 +12,7 @@
 class Client;
 namespace VulkanCore
 {
+    class VGraphicsPipeline;
     class VulkanInstance;
     class VDevice;
     class VCommandBuffer;
@@ -36,9 +37,9 @@ private:
     // FOR COMMAND BUFFER
     //==================================
     void StartRenderPass();
-    void RecordCommandBuffer(const vk::Pipeline& pipeline);
-    void PrepareViewPort(const vk::Pipeline& pipeline);
-    void Draw(const vk::Pipeline& pipeline);
+    void RecordCommandBuffer(const VulkanCore::VGraphicsPipeline& pipeline);
+    void PrepareViewPort(const VulkanCore::VGraphicsPipeline& pipeline);
+    void Draw(const VulkanCore::VGraphicsPipeline& pipeline);
     void EndRenderPass();
     void CreateSyncPrimitives();
     //====================================

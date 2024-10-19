@@ -42,14 +42,26 @@ namespace Renderer {
         m_isFrameFinishFence->WaitForFence();
 
         FetchSwapChainImage();
-
         m_isFrameFinishFence->ResetFence();
-
+    
+        m_renderingCommandBuffer->GetCommandBuffer().reset();
+        for (auto tzname : m_pipelineManager->Get) {
+            
+        }
+        
     }
 
     //==============================================================================
     // FOR COMMAND BUFFER
     //==============================================================================
+    void VRenderer::RecordCommandBuffer(const VulkanCore::VGraphicsPipeline& pipeline) {
+        m_renderingCommandBuffer->BeginRecording();
+        StartRenderPass();
+        PrepareViewPort(pipeline);
+        Draw(pipeline);
+        m_renderingCommandBuffer->EndRecording();
+    }
+
     void VRenderer::StartRenderPass() {
         vk::RenderPassBeginInfo renderPassBeginInfo;
         renderPassBeginInfo.renderPass = m_mainRenderPass->GetRenderPass();
@@ -65,13 +77,6 @@ namespace Renderer {
         m_renderingCommandBuffer->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
     }
 
-    void VRenderer::RecordCommandBuffer(const vk::Pipeline &pipeline) {
-        m_renderingCommandBuffer->BeginRecording();
-        StartRenderPass();
-        PrepareViewPort(pipeline);
-        Draw(pipeline);
-        m_renderingCommandBuffer->EndRecording();
-    }
 
     void VRenderer::EndRenderPass() {
         m_renderingCommandBuffer->GetCommandBuffer().endRenderPass();
@@ -84,8 +89,8 @@ namespace Renderer {
     }
 
 
-    void VRenderer::PrepareViewPort(const vk::Pipeline &pipeline) {
-        m_renderingCommandBuffer->GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline );
+    void VRenderer::PrepareViewPort(const VulkanCore::VGraphicsPipeline& pipeline) {
+        m_renderingCommandBuffer->GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance() );
 
         vk::Viewport viewport = {};
         viewport.x = 0.0f;
@@ -103,7 +108,7 @@ namespace Renderer {
         m_renderingCommandBuffer->GetCommandBuffer().setScissor(0,1, &scissors);
     }
 
-    void VRenderer::Draw(const vk::Pipeline &pipeline) {
+    void VRenderer::Draw(const VulkanCore::VGraphicsPipeline& pipeline) {
         m_renderingCommandBuffer->GetCommandBuffer().draw(3,1,0,0);
     }
     //===============================================================================================================
@@ -115,11 +120,16 @@ namespace Renderer {
 
     void VRenderer::FetchSwapChainImage() {
 
-        m_currentImageIndex = m_device.GetDevice().acquireNextImageKHR(
+        auto imageIndex = m_device.GetDevice().acquireNextImageKHR(
             m_swapChain->GetSwapChain(), //swap chain
             UINT64_MAX, // timeoout
             m_imageAvailableSemaphore->GetSyncPrimitive()//signal semaphore
             );
+        switch (imageIndex.result) {
+            case vk::Result::eSuccess: m_currentImageIndex = imageIndex.value; break;
+            case vk::Result::eErrorOutOfDateKHR: throw std::runtime_error("Swap chain returned out of date, we have to implement resizing of the frame buffer "); break;
+            default: break;
+        }
     }
 
     void VRenderer::Destroy() {
