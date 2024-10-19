@@ -35,13 +35,15 @@ private:
     //==================================
     // FOR INITIALIZATION
     //==================================
-    void AllocaateAllCommandBuffers();
+    void CreateCommandBufferPools();
+    //==================================
 
     //==================================
     // FOR COMMAND BUFFER
     //==================================
     void StartRenderPass();
     void RecordDefaultCommandBuffers();
+    void RecordCommandBufferForPipeline(std::vector<const VulkanCore::VGraphicsPipeline&> pipelines, const VulkanCore::VCommandPool& commandPool);
     void EndRenderPass();
     void CreateSyncPrimitives();
     //====================================

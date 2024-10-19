@@ -10,16 +10,19 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {
-    VCommandBuffer::VCommandBuffer(const VulkanCore::VDevice &device, const VulkanCore::VCommandPool &commandPool):m_commandPool(commandPool), VObject() {
-        Utils::Logger::LogInfoVerboseOnly("Creating command buffer...");
+
+    VCommandBuffer::VCommandBuffer(const VulkanCore::VDevice &device, const VulkanCore::VCommandPool &commandPool,
+        bool isPrimary):m_commandPool(commandPool) {
+        Utils::Logger::LogInfoVerboseOnly(isPrimary ? "Creating primary command buffer..." : "Creating secondary command buffer...");
         vk::CommandBufferAllocateInfo allocInfo{};
         allocInfo.commandBufferCount = 1;
         allocInfo.commandPool = m_commandPool.GetCommandBufferPool();
-        allocInfo.level = vk::CommandBufferLevel::ePrimary;
+        allocInfo.level = isPrimary ? vk::CommandBufferLevel::ePrimary : vk::CommandBufferLevel::eSecondary;
         // we are only creating single command buffer here, this can be later put inside the command buffer manager that will create command buffer for each required operation
         m_commandBuffer = device.GetDevice().allocateCommandBuffers(allocInfo)[0];
         assert(m_commandBuffer);
-        Utils::Logger::LogSuccess("Created command buffer that can be used with " + device.GetQueueFamilyString(commandPool.GetQueueFamily().first) + " queue");
+        Utils::Logger::LogSuccess(isPrimary ? "Creating PRIMARY " : "Created SECONDARY" + std::string( "which can be used which ") + device.GetQueueFamilyString(commandPool.GetQueueFamily().first) + " queue");
+
     }
 
     void VCommandBuffer::Destroy() {

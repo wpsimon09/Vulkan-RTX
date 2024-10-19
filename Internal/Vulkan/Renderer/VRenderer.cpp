@@ -5,6 +5,7 @@
 #include "VRenderer.hpp"
 #include "VRenderer.hpp"
 
+#include <thread>
 #include <vulkan/vulkan_handles.hpp>
 
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
@@ -33,7 +34,7 @@ namespace Renderer {
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(device, *m_swapChain, *m_mainRenderPass);
         m_pipelineManager->InstantiatePipelines();
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
-        AllocaateAllCommandBuffers();
+        CreateCommandBufferPools();
         CreateSyncPrimitives();
     }
 
@@ -42,22 +43,19 @@ namespace Renderer {
 
         FetchSwapChainImage();
         m_isFrameFinishFence->ResetFence();
-    
-        for (auto &pipeline : m_pipelineManager->GetAllPipelines()) {
-            //m_baseCommandBuffer->GetCommandBuffer().reset();
 
-        }
         
     }
 
-    void VRenderer::AllocaateAllCommandBuffers() {
+    void VRenderer::CreateCommandBufferPools() {
         auto pipelines = m_pipelineManager->GetAllPipelines();
-        m_pipelineSpecificCommandPools.reserve(pipelines.size());
-        m_pipelineSpecificCommandPools.reserve(pipelines.size());
-        for (auto &pipeline: pipelines) {
-            m_pipelineSpecificCommandPools.emplace_back(std::make_unique<VulkanCore::VCommandPool>(m_device, QUEUE_FAMILY_INDEX_GRAPHICS));
-            m_pipelineSpecificCommandBuffers.emplace_back(std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_pipelineSpecificCommandPools.back()));
-        }
+
+        Utils::Logger::LogInfo("Allocating command pools...");
+        double threadAmount = 0.7;
+        int maxThreads = std::floor(std::thread::hardware_concurrency() * threadAmount);
+        Utils::Logger::LogInfoVerboseOnly("Number of available cores is: " + std::to_string(std::thread::hardware_concurrency()) + " going to use " + std::to_string(threadAmount * 100) + "%  which results in "+ std::to_string(maxThreads) + " threads being used for command buffer recording");
+
+
     }
 
     //==============================================================================
@@ -82,6 +80,11 @@ namespace Renderer {
         m_baseCommandBuffer->BeginRecording();
         StartRenderPass();
         m_baseCommandBuffer->EndRecording();
+    }
+
+    void VRenderer::RecordCommandBufferForPipeline(std::vector<const VulkanCore::VGraphicsPipeline &> pipelines,
+        const VulkanCore::VCommandPool &commandPool) {
+
     }
 
 

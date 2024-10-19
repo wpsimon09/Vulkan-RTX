@@ -14,7 +14,7 @@ class VCommandPool;
 
 class VCommandBuffer: public VObject {
 public:
-    explicit VCommandBuffer(const VulkanCore::VDevice& device, const VulkanCore::VCommandPool& commandPool);
+    explicit VCommandBuffer(const VulkanCore::VDevice& device, const VulkanCore::VCommandPool& commandPool, bool isPrimary = true);
 
     void Destroy() override;
 
