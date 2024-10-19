@@ -46,7 +46,6 @@ namespace Renderer {
     
         for (auto &pipeline : m_pipelineManager->GetAllPipelines()) {
             m_renderingCommandBuffer->GetCommandBuffer().reset();
-            RecordCommandBuffer(pipeline);
 
         }
         
@@ -55,14 +54,6 @@ namespace Renderer {
     //==============================================================================
     // FOR COMMAND BUFFER
     //==============================================================================
-    void VRenderer::RecordCommandBuffer(const VulkanCore::VGraphicsPipeline& pipeline) {
-        m_renderingCommandBuffer->BeginRecording();
-        StartRenderPass();
-        PrepareViewPort(pipeline);
-        Draw(pipeline);
-        m_renderingCommandBuffer->EndRecording();
-    }
-
     void VRenderer::StartRenderPass() {
         vk::RenderPassBeginInfo renderPassBeginInfo;
         renderPassBeginInfo.renderPass = m_mainRenderPass->GetRenderPass();
@@ -76,6 +67,12 @@ namespace Renderer {
         renderPassBeginInfo.pClearValues = &clearColor;
 
         m_renderingCommandBuffer->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
+    }
+
+    void VRenderer::RecordDefaultCommandBuffers() {
+        m_renderingCommandBuffer->BeginRecording();
+        StartRenderPass();
+        m_renderingCommandBuffer->EndRecording();
     }
 
 

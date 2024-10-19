@@ -37,9 +37,7 @@ private:
     // FOR COMMAND BUFFER
     //==================================
     void StartRenderPass();
-    void RecordCommandBuffer(const VulkanCore::VGraphicsPipeline& pipeline);
-    void PrepareViewPort(const VulkanCore::VGraphicsPipeline& pipeline);
-    void Draw(const VulkanCore::VGraphicsPipeline& pipeline);
+    void RecordDefaultCommandBuffers();
     void EndRenderPass();
     void CreateSyncPrimitives();
     //====================================
@@ -56,9 +54,9 @@ private:
     const VulkanCore::VDevice& m_device;
     int m_currentImageIndex = 0;
 
-    std::unique_ptr< VulkanCore::VSyncPrimitive<vk::Semaphore>> m_imageAvailableSemaphore;
-    std::unique_ptr< VulkanCore::VSyncPrimitive<vk::Semaphore>> m_renderFinishedSemaphore;
-    std::unique_ptr< VulkanCore::VSyncPrimitive<vk::Fence>> m_isFrameFinishFence;
+    std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>> m_imageAvailableSemaphore;
+    std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>> m_renderFinishedSemaphore;
+    std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Fence>> m_isFrameFinishFence;
 
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
     std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;

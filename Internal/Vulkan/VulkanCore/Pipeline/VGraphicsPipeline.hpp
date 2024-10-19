@@ -19,9 +19,10 @@ namespace VulkanCore
     class VShader;
     class VCommandBuffer;
 
+    using Command = std::function<void(vk::CommandBuffer cmd)>;
+
     class VGraphicsPipeline: public VObject
     {
-    using Command = std::function<void(vk::CommandBuffer cmd)>;
 
     public:
         VGraphicsPipeline(const VulkanCore::VDevice &device,const VulkanCore::VSwapChain &swapChain,const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass);
@@ -37,6 +38,8 @@ namespace VulkanCore
 
         const vk::GraphicsPipelineCreateInfo GetGraphicsPipelineCreateInfoStruct() const;
         const vk::Pipeline& GetPipelineInstance() const {return m_pipeline;};
+        const PIPELINE_TYPE GetPipelineType() const {return m_pipelineType;};
+
         ~VGraphicsPipeline() = default;
     private:
         void CreateShaderStages();
@@ -62,6 +65,9 @@ namespace VulkanCore
 
         // pipeline commands
         std::vector<Command> m_pipelineCommands;
+
+        // pipeline type
+        PIPELINE_TYPE m_pipelineType;
 
         //------------------------------
         //PIPELINE CREATE INFO VARIABLES
@@ -138,6 +144,10 @@ namespace VulkanCore
 
         void SetPipelineLayout(const vk::PipelineLayout &m_pipeline_layout) {
             m_pipelineLayout = m_pipeline_layout;
+        }
+
+        void SetPipelineType(PIPELINE_TYPE type) {
+            m_pipelineType = type;
         }
     };
 }

@@ -38,8 +38,11 @@ void VulkanCore::VGraphicsPipeline::Destroy() {
 
 const void VulkanCore::VGraphicsPipeline::RecordPipelineCommands(VulkanCore::VCommandBuffer &commandBuffer) const {
 
-    commandBuffer.GetCommandBuffer().begin();
-
+    commandBuffer.BeginRecording();
+    for (auto &command : m_pipelineCommands) {
+        command(commandBuffer.GetCommandBuffer());
+    }
+    commandBuffer.EndRecording();
 }
 
 const void VulkanCore::VGraphicsPipeline::AddCommand(const Command &command) {
