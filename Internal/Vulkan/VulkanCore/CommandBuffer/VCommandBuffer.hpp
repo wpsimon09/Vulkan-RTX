@@ -19,6 +19,7 @@ public:
     void Destroy() override;
 
     const vk::CommandBuffer& GetCommandBuffer() const {return m_commandBuffer;};
+    const bool GetIsRecording()const { return m_isCurrentlyRecording; }
 
     void BeginRecording();
     void EndRecording();

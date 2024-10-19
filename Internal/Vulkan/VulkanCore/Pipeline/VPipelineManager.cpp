@@ -60,6 +60,16 @@ const VulkanCore::VGraphicsPipeline & VulkanCore::VPipelineManager::GetPipeline(
     return *foundPipeline->second;
 }
 
+const std::vector<std::reference_wrapper<const VulkanCore::VGraphicsPipeline>> VulkanCore::VPipelineManager::GetAllPipelines() const {
+    std::vector<std::reference_wrapper<VGraphicsPipeline>> pipelines;
+    pipelines.reserve(m_pipelines.size());
+    for(auto &pipeline: m_pipelines) {
+        pipelines.emplace_back(std::ref(*pipeline.second));
+    }
+    return pipelines;
+
+}
+
 void VulkanCore::VPipelineManager::GeneratePipelines() {
 
     auto basicPipelineShaderVertexSource = "Shaders/Compiled/BaseTriangleVertex.spv";

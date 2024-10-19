@@ -48,6 +48,7 @@ private:
     // FOR MAIN LOOP
     //=====================================
     void FetchSwapChainImage();
+    void SubmitCommandBuffer();
     //=====================================
 
 private:

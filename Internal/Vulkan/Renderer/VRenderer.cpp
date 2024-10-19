@@ -44,9 +44,10 @@ namespace Renderer {
         FetchSwapChainImage();
         m_isFrameFinishFence->ResetFence();
     
-        m_renderingCommandBuffer->GetCommandBuffer().reset();
-        for (auto tzname : m_pipelineManager->Get) {
-            
+        for (auto &pipeline : m_pipelineManager->GetAllPipelines()) {
+            m_renderingCommandBuffer->GetCommandBuffer().reset();
+            RecordCommandBuffer(pipeline);
+
         }
         
     }
@@ -130,6 +131,21 @@ namespace Renderer {
             case vk::Result::eErrorOutOfDateKHR: throw std::runtime_error("Swap chain returned out of date, we have to implement resizing of the frame buffer "); break;
             default: break;
         }
+    }
+
+    void VRenderer::SubmitCommandBuffer() {
+        assert(!m_renderingCommandBuffer->GetIsRecording());
+        vk::SubmitInfo submitInfo;
+        std::array<vk::Semaphore,1> waitSemaphores = { m_imageAvailableSemaphore->GetSyncPrimitive() };
+        std::array<vk::PipelineStageFlags,1> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
+
+        submitInfo.waitSemaphoreCount = waitSemaphores.size();
+        submitInfo.pWaitSemaphores = waitSemaphores.data();
+        submitInfo.pWaitDstStageMask = waitStages.data();
+
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &m_renderingCommandBuffer->GetCommandBuffer();
+
     }
 
     void VRenderer::Destroy() {

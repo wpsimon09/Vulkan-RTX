@@ -7,6 +7,8 @@
 
 #include <map>
 #include <memory>
+#include <vector>
+
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 
 namespace VulkanCore
@@ -25,6 +27,7 @@ namespace VulkanCore
         void InstantiatePipelines();
 
         const VGraphicsPipeline& GetPipeline(PIPELINE_TYPE pipeline) const;
+        const std::vector<std::reference_wrapper<const VGraphicsPipeline>> GetAllPipelines() const;
 
         ~VPipelineManager() = default;
     private:
