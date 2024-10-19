@@ -36,12 +36,14 @@ namespace Renderer {
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
+
     }
 
     void VRenderer::Render() {
         m_isFrameFinishFence->WaitForFence();
 
         FetchSwapChainImage();
+        RecordAllCommandBuffers();
         m_isFrameFinishFence->ResetFence();
 
         
@@ -54,8 +56,14 @@ namespace Renderer {
         double threadAmount = 0.7;
         int maxThreads = std::floor(std::thread::hardware_concurrency() * threadAmount);
         Utils::Logger::LogInfoVerboseOnly("Number of available cores is: " + std::to_string(std::thread::hardware_concurrency()) + " going to use " + std::to_string(threadAmount * 100) + "%  which results in "+ std::to_string(maxThreads) + " threads being used for command buffer recording");
+        m_availableRecordingThreads = maxThreads;
 
-
+        //allocate command buffers
+        for(int i = 0; i < maxThreads; i++) {
+            m_pipelineSpecificCommandPools.push_back(std::make_unique<VulkanCore::VCommandPool>(m_device, QUEUE_FAMILY_INDEX_GRAPHICS));
+            m_pipelineSpecificCommandBuffers.push_back(std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_pipelineSpecificCommandPools.back(), true));
+        }
+        Utils::Logger::LogInfo("Command pools and command buffers allocated !");
     }
 
     //==============================================================================
@@ -82,10 +90,40 @@ namespace Renderer {
         m_baseCommandBuffer->EndRecording();
     }
 
-    void VRenderer::RecordCommandBufferForPipeline(std::vector<const VulkanCore::VGraphicsPipeline &> pipelines,
-        const VulkanCore::VCommandPool &commandPool) {
+    void VRenderer::RecordAllCommandBuffers() {
+
+
+        RecordDefaultCommandBuffers();
+        int totalCommandBuffers = m_pipelineSpecificCommandBuffers.size();
+        int pipelineGroupSize = m_pipelineSpecificCommandBuffers.size() / m_availableRecordingThreads;
+        if(pipelineGroupSize == 0) pipelineGroupSize = 1;
+        int reminder = totalCommandBuffers % m_availableRecordingThreads;
+        int currentIndex = 0;
+
+        std::vector<std::thread> threads;
+
+        for(int i = 0; i < m_availableRecordingThreads; i++) {
+            int currentGroupSize = pipelineGroupSize + (reminder > 0 ? 1 : 0);
+            if(reminder > 0) reminder--;
+
+            if(currentIndex + currentGroupSize > totalCommandBuffers) {
+                currentGroupSize = totalCommandBuffers - currentIndex;
+            }
+
+            if(currentGroupSize > 0) {
+                threads.push_back(std::thread(&VRenderer::RecordDefaultCommandBuffers, this, currentIndex, currentIndex+ currentGroupSize));
+                RecordCommandBufferForPipeline(currentIndex, currentIndex + currentGroupSize);
+            }
+
+            currentIndex += currentGroupSize;
+        }
 
     }
+
+    void VRenderer::RecordCommandBufferForPipeline(int start, int finish) {
+        std::cout<<"Doing something on thread";
+    }
+
 
 
     void VRenderer::EndRenderPass() {

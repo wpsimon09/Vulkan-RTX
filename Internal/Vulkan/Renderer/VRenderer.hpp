@@ -43,7 +43,8 @@ private:
     //==================================
     void StartRenderPass();
     void RecordDefaultCommandBuffers();
-    void RecordCommandBufferForPipeline(std::vector<const VulkanCore::VGraphicsPipeline&> pipelines, const VulkanCore::VCommandPool& commandPool);
+    void RecordAllCommandBuffers();
+    void RecordCommandBufferForPipeline(int start, int finish);
     void EndRenderPass();
     void CreateSyncPrimitives();
     //====================================
@@ -59,6 +60,7 @@ private:
     const Client& m_client;
     const VulkanCore::VDevice& m_device;
     int m_currentImageIndex = 0;
+    int m_availableRecordingThreads = 0;
 
     std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>> m_imageAvailableSemaphore;
     std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>> m_renderFinishedSemaphore;
