@@ -61,7 +61,7 @@ const VulkanCore::VGraphicsPipeline & VulkanCore::VPipelineManager::GetPipeline(
 }
 
 const std::vector<std::reference_wrapper<const VulkanCore::VGraphicsPipeline>> VulkanCore::VPipelineManager::GetAllPipelines() const {
-    std::vector<std::reference_wrapper<VGraphicsPipeline>> pipelines;
+    std::vector<std::reference_wrapper<const VGraphicsPipeline>> pipelines;
     pipelines.reserve(m_pipelines.size());
     for(auto &pipeline: m_pipelines) {
         pipelines.emplace_back(std::ref(*pipeline.second));

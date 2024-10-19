@@ -6,6 +6,7 @@
 
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
@@ -33,6 +34,16 @@ void VulkanCore::VGraphicsPipeline::Init() {
 
 void VulkanCore::VGraphicsPipeline::Destroy() {
     m_device.GetDevice().destroyPipelineLayout(m_pipelineLayout);
+}
+
+const void VulkanCore::VGraphicsPipeline::RecordPipelineCommands(VulkanCore::VCommandBuffer &commandBuffer) const {
+
+    commandBuffer.GetCommandBuffer().begin();
+
+}
+
+const void VulkanCore::VGraphicsPipeline::AddCommand(const Command &command) {
+    m_pipelineCommands.emplace_back(command);
 }
 
 const vk::GraphicsPipelineCreateInfo VulkanCore::VGraphicsPipeline::GetGraphicsPipelineCreateInfoStruct() const {

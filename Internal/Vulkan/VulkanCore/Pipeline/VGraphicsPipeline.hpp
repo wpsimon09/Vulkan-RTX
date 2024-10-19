@@ -4,10 +4,12 @@
 
 #ifndef VPIPELINE_HPP
 #define VPIPELINE_HPP
+#include <functional>
 #include <vulkan/vulkan.hpp>
 
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
+
 
 namespace VulkanCore
 {
@@ -15,9 +17,12 @@ namespace VulkanCore
     class VDevice;
     class VRenderPass;
     class VShader;
+    class VCommandBuffer;
 
     class VGraphicsPipeline: public VObject
     {
+    using Command = std::function<void(vk::CommandBuffer cmd)>;
+
     public:
         VGraphicsPipeline(const VulkanCore::VDevice &device,const VulkanCore::VSwapChain &swapChain,const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass);
 
@@ -26,6 +31,9 @@ namespace VulkanCore
          */
         void Init();
         void Destroy() override;
+        const void RecordPipelineCommands(VulkanCore::VCommandBuffer &commandBuffer) const;
+        const void AddCommand(const Command &command);
+
 
         const vk::GraphicsPipelineCreateInfo GetGraphicsPipelineCreateInfoStruct() const;
         const vk::Pipeline& GetPipelineInstance() const {return m_pipeline;};
@@ -51,6 +59,9 @@ namespace VulkanCore
         // pipeline handler
         vk::Pipeline m_pipeline;
         vk::PipelineCache m_pipelineCache;
+
+        // pipeline commands
+        std::vector<Command> m_pipelineCommands;
 
         //------------------------------
         //PIPELINE CREATE INFO VARIABLES
