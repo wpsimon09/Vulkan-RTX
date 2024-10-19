@@ -32,6 +32,10 @@ public:
     void Destroy();
     ~VRenderer() = default;
 private:
+    //==================================
+    // FOR INITIALIZATION
+    //==================================
+    void AllocaateAllCommandBuffers();
 
     //==================================
     // FOR COMMAND BUFFER
@@ -61,8 +65,11 @@ private:
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
     std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;
     std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
-    std::unique_ptr<class VulkanCore::VCommandPool> m_renderingCommandPool;
-    std::unique_ptr<class VulkanCore::VCommandBuffer> m_renderingCommandBuffer;
+    std::unique_ptr<class VulkanCore::VCommandPool> m_baseCommandPool;
+    std::unique_ptr<class VulkanCore::VCommandBuffer> m_baseCommandBuffer;
+    std::vector<std::unique_ptr<class VulkanCore::VCommandPool>> m_pipelineSpecificCommandPools;
+    std::vector<std::unique_ptr<class VulkanCore::VCommandBuffer>> m_pipelineSpecificCommandBuffers;
+
 };
 
 } // Renderer

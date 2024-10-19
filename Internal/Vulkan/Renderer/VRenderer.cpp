@@ -33,8 +33,7 @@ namespace Renderer {
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(device, *m_swapChain, *m_mainRenderPass);
         m_pipelineManager->InstantiatePipelines();
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
-        m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(device, QUEUE_FAMILY_INDEX_GRAPHICS);
-        m_renderingCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(device, *m_renderingCommandPool);
+        AllocaateAllCommandBuffers();
         CreateSyncPrimitives();
     }
 
@@ -45,10 +44,20 @@ namespace Renderer {
         m_isFrameFinishFence->ResetFence();
     
         for (auto &pipeline : m_pipelineManager->GetAllPipelines()) {
-            m_renderingCommandBuffer->GetCommandBuffer().reset();
+            //m_baseCommandBuffer->GetCommandBuffer().reset();
 
         }
         
+    }
+
+    void VRenderer::AllocaateAllCommandBuffers() {
+        auto pipelines = m_pipelineManager->GetAllPipelines();
+        m_pipelineSpecificCommandPools.reserve(pipelines.size());
+        m_pipelineSpecificCommandPools.reserve(pipelines.size());
+        for (auto &pipeline: pipelines) {
+            m_pipelineSpecificCommandPools.emplace_back(std::make_unique<VulkanCore::VCommandPool>(m_device, QUEUE_FAMILY_INDEX_GRAPHICS));
+            m_pipelineSpecificCommandBuffers.emplace_back(std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_pipelineSpecificCommandPools.back()));
+        }
     }
 
     //==============================================================================
@@ -66,18 +75,18 @@ namespace Renderer {
         renderPassBeginInfo.clearValueCount = 1;
         renderPassBeginInfo.pClearValues = &clearColor;
 
-        m_renderingCommandBuffer->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
+        m_baseCommandBuffer->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
     }
 
     void VRenderer::RecordDefaultCommandBuffers() {
-        m_renderingCommandBuffer->BeginRecording();
+        m_baseCommandBuffer->BeginRecording();
         StartRenderPass();
-        m_renderingCommandBuffer->EndRecording();
+        m_baseCommandBuffer->EndRecording();
     }
 
 
     void VRenderer::EndRenderPass() {
-        m_renderingCommandBuffer->GetCommandBuffer().endRenderPass();
+        m_baseCommandBuffer->GetCommandBuffer().endRenderPass();
     }
 
     void VRenderer::CreateSyncPrimitives() {
@@ -87,28 +96,6 @@ namespace Renderer {
     }
 
 
-    void VRenderer::PrepareViewPort(const VulkanCore::VGraphicsPipeline& pipeline) {
-        m_renderingCommandBuffer->GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance() );
-
-        vk::Viewport viewport = {};
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.width = static_cast<float>(m_swapChain->GetExtent().width);
-        viewport.height = static_cast<float>(m_swapChain->GetExtent().height);
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
-        m_renderingCommandBuffer->GetCommandBuffer().setViewport(0,1, &viewport);
-
-        vk::Rect2D scissors;
-        scissors.offset.x = 0;
-        scissors.offset.y = 0;
-        scissors.extent = m_swapChain->GetExtent();
-        m_renderingCommandBuffer->GetCommandBuffer().setScissor(0,1, &scissors);
-    }
-
-    void VRenderer::Draw(const VulkanCore::VGraphicsPipeline& pipeline) {
-        m_renderingCommandBuffer->GetCommandBuffer().draw(3,1,0,0);
-    }
     //===============================================================================================================
 
 
@@ -131,7 +118,7 @@ namespace Renderer {
     }
 
     void VRenderer::SubmitCommandBuffer() {
-        assert(!m_renderingCommandBuffer->GetIsRecording());
+        assert(!m_baseCommandBuffer->GetIsRecording());
         vk::SubmitInfo submitInfo;
         std::array<vk::Semaphore,1> waitSemaphores = { m_imageAvailableSemaphore->GetSyncPrimitive() };
         std::array<vk::PipelineStageFlags,1> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
@@ -141,7 +128,7 @@ namespace Renderer {
         submitInfo.pWaitDstStageMask = waitStages.data();
 
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_renderingCommandBuffer->GetCommandBuffer();
+        submitInfo.pCommandBuffers = &m_baseCommandBuffer->GetCommandBuffer();
 
     }
 
@@ -151,8 +138,14 @@ namespace Renderer {
         m_isFrameFinishFence->Destroy();
         m_mainRenderPass->Destroy();
         m_pipelineManager->DestroyPipelines();
-        m_renderingCommandBuffer->Destroy();
-        m_renderingCommandPool->Destroy();
+        m_baseCommandBuffer->Destroy();
+        m_baseCommandPool->Destroy();
+        for (auto &commandBuffer : m_pipelineSpecificCommandBuffers) {
+            commandBuffer->Destroy();
+        }
+        for (auto &commandPool : m_pipelineSpecificCommandPools) {
+            commandPool->Destroy();
+        }
         m_swapChain->Destroy();
     }
 
