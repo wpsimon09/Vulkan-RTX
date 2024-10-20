@@ -22,12 +22,12 @@ namespace VulkanCore {
     public:
         explicit VBuffer(const VDevice& device);
 
+        const vk::Buffer& GetBuffer() const { return m_bufferVK; }
+
         void MakeVertexBuffer(const ApplicationCore::Mesh& mesh);
         void MakeIndexBuffer();
         void MakeImageBuffer();
         void MakeUniformBuffer();
-
-        void GetBuffer();
 
         void Destroy() override;
         ~VBuffer() override = default;

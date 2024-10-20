@@ -109,7 +109,7 @@ void VulkanCore::VPipelineManager::SpecifyPipelineCommands(VGraphicsPipeline &pi
             cmd.setScissor(0, 1, &scissors);
 
             cmd.draw(3, 1,1, 0);
-            Utils::Logger::LogInfoVerboseOnly("Specified commands for the BasicRasterPipeline");
+            Utils::Logger::LogInfoVerboseRendering("Specified commands for the BasicRasterPipeline");
 
         });
 
