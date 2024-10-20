@@ -5,8 +5,9 @@
 #ifndef VVERTEXBUFFER_HPP
 #define VVERTEXBUFFER_HPP
 #include "Vulkan/VulkanCore/VObject.hpp"
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 #include "VMA/vk_mem_alloc.h"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
 namespace ApplicationCore
 {
@@ -19,20 +20,23 @@ namespace VulkanCore {
 
     class VBuffer:public VObject {
     public:
-        VBuffer(const VDevice& device);
+        explicit VBuffer(const VDevice& device);
 
         const void MakeVertexBuffer(const ApplicationCore::Mesh& mesh) const;
         void MakeIndexBuffer();
         void MakeImageBuffer();
         void MakeUniformBuffer();
 
+        void GetBuffer();
+
         void Destroy() override;
         ~VBuffer() override = default;
     private:
         const VDevice& m_device;
         bool m_isInitialized = false;
-        VmaAllocation m_allocation = nullptr;
-        vk::Buffer m_buffer;
+        void** m_mappedData;
+        VmaAllocation* m_allocation = nullptr;
+        VkBuffer* m_buffer;
     };
 } // VulkanCore
 

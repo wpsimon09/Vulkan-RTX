@@ -9,6 +9,11 @@
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 #include <vulkan/vulkan.hpp>
 
+namespace VulkanCore
+{
+    class VBuffer;
+}
+
 class Client;
 namespace VulkanCore
 {
@@ -69,6 +74,7 @@ private:
     std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
     std::unique_ptr<class VulkanCore::VCommandPool> m_baseCommandPool;
     std::unique_ptr<class VulkanCore::VCommandBuffer> m_baseCommandBuffer;
+    std::unique_ptr<class VulkanCore::VBuffer> m_vertexBuffer_GPU;
 };
 
 } // Renderer

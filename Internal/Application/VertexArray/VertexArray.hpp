@@ -24,8 +24,8 @@ namespace ApplicationCore
     public:
         VertexArray(PRIMITIVE_TOPOLOGY topology,const std::vector<Vertex>& vertices,const std::vector<uint32_t>& indices);
 
-        const std::vector<Vertex>& GetVertices() { return m_vertice; };
-        const std::vector<uint32_t>& GetIndices() { return m_indices; };
+        const std::vector<Vertex>& GetVertices() const { return m_vertice; };
+        const std::vector<uint32_t>& GetIndices() const { return m_indices; };
 
         int GetAttributeCount() {return 3;};
 
