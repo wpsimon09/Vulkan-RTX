@@ -22,6 +22,8 @@
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/Utils/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+
 
 
 Application::Application()

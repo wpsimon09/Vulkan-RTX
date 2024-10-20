@@ -22,7 +22,7 @@ namespace VulkanCore {
     public:
         explicit VBuffer(const VDevice& device);
 
-        const void MakeVertexBuffer(const ApplicationCore::Mesh& mesh) const;
+        void MakeVertexBuffer(const ApplicationCore::Mesh& mesh);
         void MakeIndexBuffer();
         void MakeImageBuffer();
         void MakeUniformBuffer();
@@ -34,9 +34,10 @@ namespace VulkanCore {
     private:
         const VDevice& m_device;
         bool m_isInitialized = false;
-        void** m_mappedData;
-        VmaAllocation* m_allocation = nullptr;
-        VkBuffer* m_buffer;
+        void* m_mappedData;
+        VmaAllocation m_allocation;
+        VkBuffer m_bufferVMA;
+        vk::Buffer m_bufferVK;
     };
 } // VulkanCore
 

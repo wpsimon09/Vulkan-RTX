@@ -19,6 +19,7 @@ class Client {
 public:
     Client() = default;
     void Init();
+    const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> GetMeshes() const;
     void Update();
     ~Client() = default;
 private:

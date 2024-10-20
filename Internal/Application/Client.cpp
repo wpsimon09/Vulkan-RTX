@@ -22,6 +22,15 @@ void Client::Init() {
     Utils::Logger::LogSuccess("Client side initialized in: " +  std::to_string(duration.count()) + "seconds");
 }
 
+const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> Client::GetMeshes() const {
+    std::vector<std::reference_wrapper<ApplicationCore::Mesh>> result;
+    result.reserve(m_meshes.size());
+    for (auto &mesh : m_meshes) {
+        result.push_back(std::ref(*mesh));
+    }
+    return result;
+}
+
 void Client::Update() {
     // TODO: camera updates, scene movement, proecessing user input etc...
 }

@@ -20,6 +20,7 @@
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/Utils/VImage/VImage.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
@@ -36,6 +37,9 @@ namespace Renderer {
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
+
+        m_vertexBuffer_GPU = std::make_unique<VulkanCore::VBuffer>(m_device);
+        m_vertexBuffer_GPU->MakeVertexBuffer(m_client.GetMeshes()[0]);
     }
 
     void VRenderer::Render() {
@@ -127,6 +131,7 @@ namespace Renderer {
     }
 
     void VRenderer::Destroy() {
+        m_vertexBuffer_GPU->Destroy();
         m_imageAvailableSemaphore->Destroy();
         m_renderFinishedSemaphore->Destroy();
         m_isFrameFinishFence->Destroy();
