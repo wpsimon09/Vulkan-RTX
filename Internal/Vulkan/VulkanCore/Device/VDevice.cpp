@@ -44,6 +44,7 @@ VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::Physical
 VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance):m_instance(instance) {
     m_physicalDevice = PickPhysicalDevice();
     CreateLogicalDevice();
+    CreateVmaAllocator(instance);
 }
 
 vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice() {
@@ -103,6 +104,16 @@ void VulkanCore::VDevice::CreateLogicalDevice() {
     m_presentQueue = m_device.getQueue(m_queueFamilyIndices.presentFamily.value().second, 0);if(!m_presentQueue)
     assert(m_presentQueue != VK_NULL_HANDLE);
     Utils::Logger::LogSuccess("Successfully retrieved present queue");
+}
+
+void VulkanCore::VDevice::CreateVmaAllocator(const VulkanCore::VulkanInstance &instance) {
+    Utils::Logger::LogInfoVerboseOnly("Creating VMA allocator");
+    VmaAllocatorCreateInfo allocatorInfo = {};
+    allocatorInfo.physicalDevice = m_physicalDevice;
+    allocatorInfo.device = m_device;
+    allocatorInfo.instance = instance.GetInstance();
+    assert(vmaCreateAllocator(&allocatorInfo, &m_vmaAllocator) == VK_SUCCESS);
+    Utils::Logger::LogSuccess("Successfully created Vulkan Memory Allocator instance");
 }
 
 const uint32_t & VulkanCore::VDevice::GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const {

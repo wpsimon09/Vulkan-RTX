@@ -12,6 +12,9 @@ ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType) {
     AssignMeshGeometryData();
 }
 
+const size_t ApplicationCore::Mesh::GetMeshVertexArraySize() const {
+    return m_vertexArray->GetVertices().size() * sizeof(Vertex);
+}
 
 void ApplicationCore::Mesh::AssignMeshGeometryData() {
     switch (m_geometryType) {

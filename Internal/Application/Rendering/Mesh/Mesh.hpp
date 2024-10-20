@@ -14,7 +14,8 @@ namespace ApplicationCore
     class Mesh {
     public:
         Mesh(MESH_GEOMETRY_TYPE geometryType);
-
+        const size_t GetMeshVertexArraySize() const;
+        const size_t GetMeshIndexArraySize() const;
     private:
         void AssignMeshGeometryData();
         std::string MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType);

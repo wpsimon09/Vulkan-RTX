@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <vector>
+#include <VMA/vk_mem_alloc.h>
 
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
@@ -57,6 +58,7 @@ private:
     std::unique_ptr<class VulkanCore::VulkanInstance> m_vulkanInstance;
     std::unique_ptr<class VulkanCore::VDevice> m_vulkanDevice;
     std::unique_ptr<class Renderer::VRenderer> m_renderer;
+    VmaAllocator m_allocator;
 };
 
 #endif //VULKANRTX_HPP

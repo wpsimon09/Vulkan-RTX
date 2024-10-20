@@ -66,6 +66,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp
         Internal/Vulkan/VFrameData/VFrameData.cpp
         Internal/Vulkan/VFrameData/VFrameData.hpp
+        Internal/Vulkan/VulkanCore/Buffer/VBuffer.cpp
+        Internal/Vulkan/VulkanCore/Buffer/VBuffer.hpp
 
 )
 
@@ -84,6 +86,9 @@ target_include_directories(${TARGET} PRIVATE ${GLM_INCLUDE_DIRS})
 
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
         ${CMAKE_SOURCE_DIR}/Internal/
+        ${CMAKE_SOURCE_DIR}/External/
+
+
 )
 
 # Set compile options based on build type

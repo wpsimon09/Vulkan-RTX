@@ -6,6 +6,7 @@
 #define VDEVICE_HPP
 
 #include <memory>
+#include <VMA/vk_mem_alloc.h>
 #include<vulkan/vulkan.hpp>
 
 #include "Vulkan/VulkanCore/VObject.hpp"
@@ -43,6 +44,7 @@ namespace VulkanCore
         const VQueueFamilyIndices& GetQueueFamilyIndices() const {return m_queueFamilyIndices;};
         const uint32_t& GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
         const std::string GetQueueFamilyString(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
+        const VmaAllocator& GetAllocator() const { return m_vmaAllocator; };
         virtual void Destroy() override;
 
     private:
@@ -58,9 +60,11 @@ namespace VulkanCore
 
         const VulkanCore::VulkanInstance& m_instance;
 
+        VmaAllocator m_vmaAllocator;
     private:
         vk::PhysicalDevice PickPhysicalDevice();
         void CreateLogicalDevice();
+        void CreateVmaAllocator(const VulkanCore::VulkanInstance& instance);
     };
 }
 
