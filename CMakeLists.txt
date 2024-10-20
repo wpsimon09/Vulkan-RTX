@@ -64,6 +64,8 @@ set(SOURCES
         Internal/Vulkan/Renderer/VRenderer.hpp
         Internal/Vulkan/VulkanCore/Synchronization/VSyncPrimitive.cpp
         Internal/Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp
+        Internal/Vulkan/VFrameData/VFrameData.cpp
+        Internal/Vulkan/VFrameData/VFrameData.hpp
 
 )
 

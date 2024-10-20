@@ -36,33 +36,21 @@ namespace Renderer {
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
-
     }
 
     void VRenderer::Render() {
         m_isFrameFinishFence->WaitForFence();
-
         FetchSwapChainImage();
-        RecordAllCommandBuffers();
+        RecordCommandBuffersForPipelines();
         m_isFrameFinishFence->ResetFence();
-
-        
     }
 
     void VRenderer::CreateCommandBufferPools() {
         auto pipelines = m_pipelineManager->GetAllPipelines();
 
         Utils::Logger::LogInfo("Allocating command pools...");
-        double threadAmount = 0.7;
-        int maxThreads = std::floor(std::thread::hardware_concurrency() * threadAmount);
-        Utils::Logger::LogInfoVerboseOnly("Number of available cores is: " + std::to_string(std::thread::hardware_concurrency()) + " going to use " + std::to_string(threadAmount * 100) + "%  which results in "+ std::to_string(maxThreads) + " threads being used for command buffer recording");
-        m_availableRecordingThreads = maxThreads;
-
-        //allocate command buffers
-        for(int i = 0; i < maxThreads; i++) {
-            m_pipelineSpecificCommandPools.push_back(std::make_unique<VulkanCore::VCommandPool>(m_device, QUEUE_FAMILY_INDEX_GRAPHICS));
-            m_pipelineSpecificCommandBuffers.push_back(std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_pipelineSpecificCommandPools.back(), true));
-        }
+        m_baseCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, QUEUE_FAMILY_INDEX_GRAPHICS);
+        m_baseCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_baseCommandPool);
         Utils::Logger::LogInfo("Command pools and command buffers allocated !");
     }
 
@@ -84,47 +72,14 @@ namespace Renderer {
         m_baseCommandBuffer->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
     }
 
-    void VRenderer::RecordDefaultCommandBuffers() {
+    void VRenderer::RecordCommandBuffersForPipelines() {
         m_baseCommandBuffer->BeginRecording();
         StartRenderPass();
+        for (auto &pipeline : m_pipelineManager->GetAllPipelines()) {
+            pipeline.get().RecordPipelineCommands(*m_baseCommandBuffer);
+        }
         m_baseCommandBuffer->EndRecording();
     }
-
-    void VRenderer::RecordAllCommandBuffers() {
-
-
-        RecordDefaultCommandBuffers();
-        int totalCommandBuffers = m_pipelineSpecificCommandBuffers.size();
-        int pipelineGroupSize = m_pipelineSpecificCommandBuffers.size() / m_availableRecordingThreads;
-        if(pipelineGroupSize == 0) pipelineGroupSize = 1;
-        int reminder = totalCommandBuffers % m_availableRecordingThreads;
-        int currentIndex = 0;
-
-        std::vector<std::thread> threads;
-
-        for(int i = 0; i < m_availableRecordingThreads; i++) {
-            int currentGroupSize = pipelineGroupSize + (reminder > 0 ? 1 : 0);
-            if(reminder > 0) reminder--;
-
-            if(currentIndex + currentGroupSize > totalCommandBuffers) {
-                currentGroupSize = totalCommandBuffers - currentIndex;
-            }
-
-            if(currentGroupSize > 0) {
-                threads.push_back(std::thread(&VRenderer::RecordDefaultCommandBuffers, this, currentIndex, currentIndex+ currentGroupSize));
-                RecordCommandBufferForPipeline(currentIndex, currentIndex + currentGroupSize);
-            }
-
-            currentIndex += currentGroupSize;
-        }
-
-    }
-
-    void VRenderer::RecordCommandBufferForPipeline(int start, int finish) {
-        std::cout<<"Doing something on thread";
-    }
-
-
 
     void VRenderer::EndRenderPass() {
         m_baseCommandBuffer->GetCommandBuffer().endRenderPass();
@@ -135,8 +90,6 @@ namespace Renderer {
         m_renderFinishedSemaphore = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_isFrameFinishFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device, true);
     }
-
-
     //===============================================================================================================
 
 
@@ -181,12 +134,6 @@ namespace Renderer {
         m_pipelineManager->DestroyPipelines();
         m_baseCommandBuffer->Destroy();
         m_baseCommandPool->Destroy();
-        for (auto &commandBuffer : m_pipelineSpecificCommandBuffers) {
-            commandBuffer->Destroy();
-        }
-        for (auto &commandPool : m_pipelineSpecificCommandPools) {
-            commandPool->Destroy();
-        }
         m_swapChain->Destroy();
     }
 

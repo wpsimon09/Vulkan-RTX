@@ -82,6 +82,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines() {
     auto basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_baseShader, m_renderPass);
     basicPipeline->Init();
     basicPipeline->SetPipelineType(PIPELINE_TYPE_RASTER_BASIC);
+    SpecifyPipelineCommands(*basicPipeline);
     m_pipelines.emplace(std::make_pair(PIPELINE_TYPE_RASTER_BASIC, std::move(basicPipeline)));
 }
 

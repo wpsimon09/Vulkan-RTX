@@ -42,9 +42,7 @@ private:
     // FOR COMMAND BUFFER
     //==================================
     void StartRenderPass();
-    void RecordDefaultCommandBuffers();
-    void RecordAllCommandBuffers();
-    void RecordCommandBufferForPipeline(int start, int finish);
+    void RecordCommandBuffersForPipelines();
     void EndRenderPass();
     void CreateSyncPrimitives();
     //====================================
@@ -71,9 +69,6 @@ private:
     std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
     std::unique_ptr<class VulkanCore::VCommandPool> m_baseCommandPool;
     std::unique_ptr<class VulkanCore::VCommandBuffer> m_baseCommandBuffer;
-    std::vector<std::unique_ptr<class VulkanCore::VCommandPool>> m_pipelineSpecificCommandPools;
-    std::vector<std::unique_ptr<class VulkanCore::VCommandBuffer>> m_pipelineSpecificCommandBuffers;
-
 };
 
 } // Renderer
