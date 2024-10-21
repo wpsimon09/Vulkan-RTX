@@ -68,6 +68,8 @@ set(SOURCES
         Internal/Vulkan/VFrameData/VFrameData.hpp
         Internal/Vulkan/VulkanCore/Buffer/VBuffer.cpp
         Internal/Vulkan/VulkanCore/Buffer/VBuffer.hpp
+        Internal/Application/AssetsManger/AssetsManager.cpp
+        Internal/Application/AssetsManger/AssetsManager.hpp
 
 )
 

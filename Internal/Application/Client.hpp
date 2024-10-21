@@ -12,6 +12,7 @@
 
 namespace ApplicationCore
 {
+    class AssetsManager;
     class Mesh;
 }
 
@@ -20,9 +21,11 @@ public:
     Client() = default;
     void Init();
     const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> GetMeshes() const;
+    const void MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager);
     void Update();
     ~Client() = default;
 private:
+    std::unique_ptr<ApplicationCore::AssetsManager> m_assetsManager;
     std::vector<std::unique_ptr<class ApplicationCore::Mesh>> m_meshes;
 
 };

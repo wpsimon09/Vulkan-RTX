@@ -37,9 +37,6 @@ namespace Renderer {
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
-
-        m_vertexBuffer_GPU = std::make_unique<VulkanCore::VBuffer>(m_device);
-        m_vertexBuffer_GPU->MakeVertexBuffer(m_client.GetMeshes()[0]);
     }
 
     void VRenderer::Render() {
@@ -79,14 +76,7 @@ namespace Renderer {
     void VRenderer::RecordCommandBuffersForPipelines() {
         m_baseCommandBuffer->BeginRecording();
         StartRenderPass();
-        std::vector<const vk::Buffer> buffers= {m_vertexBuffer_GPU->GetBuffer()};
-        std::vector<vk::DeviceSize> offsets = {0};
-        for (auto &pipeline : m_pipelineManager->GetAllPipelines()) {
-            pipeline.AddCommand([&](vk::CommandBuffer cmd) {
-                cmd.bindVertexBuffers(0,1, buffers.data(), offsets.data() );
-        });
-            pipeline.get().RecordPipelineCommands(*m_baseCommandBuffer);
-        }
+
         m_baseCommandBuffer->EndRecording();
     }
 

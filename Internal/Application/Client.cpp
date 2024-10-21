@@ -31,6 +31,11 @@ const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> Client::GetMesh
     return result;
 }
 
+const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager) {
+    Utils::Logger::LogSuccess("")
+    m_assetsManager = std::move(assetsManager);
+}
+
 void Client::Update() {
     // TODO: camera updates, scene movement, proecessing user input etc...
 }

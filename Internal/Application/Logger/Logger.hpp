@@ -16,6 +16,11 @@ namespace Utils
         static void LogSuccess(const std::string &msg);
         static void LogError(const std::string &msg);
         static void LogInfo(const std::string &msg);
+        static void LogSuccessClient(const std::string &msg);
+        static void LogErrorClient(const std::string &msg);
+        static void LogInfoClient(const std::string &msg);
+        static void LogInfoVerboseOnlyClient(const std::string &msg);
+
         static void LogInfoVerboseOnly(const std::string &msg);
         static void LogInfoVerboseRendering(const std::string &msg);
     private:
