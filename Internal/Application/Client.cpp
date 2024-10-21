@@ -13,7 +13,8 @@ void Client::Init() {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_PLANE));
+    assert(m_assetsManager);
+    m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_PLANE, *m_assetsManager));
     assert(!m_meshes.empty());
 
     auto end = std::chrono::high_resolution_clock::now();

@@ -13,3 +13,7 @@ ApplicationCore::VertexArray::VertexArray(const VulkanCore::VDevice &device, PRI
     m_vertexBuffer = std::make_unique<VulkanCore::VBuffer>(device);
     m_vertexBuffer->MakeVertexBuffer(m_vertice);
 }
+
+void ApplicationCore::VertexArray::Destroy() const {
+    m_vertexBuffer->Destroy();
+}

@@ -13,6 +13,12 @@ namespace ApplicationCore {
         LoadPredefinedMeshes();
     }
 
+    void AssetsManager::DeleteAll() {
+        for (auto& mesh: m_meshData) {
+            mesh.second->Destroy();
+        }
+    }
+
     const VertexArray & AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) const {
         auto result = m_meshData.find(geometryType);
         assert(result != m_meshData.end());

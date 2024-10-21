@@ -126,7 +126,6 @@ namespace Renderer {
     }
 
     void VRenderer::Destroy() {
-        m_vertexBuffer_GPU->Destroy();
         m_imageAvailableSemaphore->Destroy();
         m_renderFinishedSemaphore->Destroy();
         m_isFrameFinishFence->Destroy();
