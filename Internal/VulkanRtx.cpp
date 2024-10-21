@@ -13,6 +13,7 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Application/Client.hpp"
+#include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Renderer/VRenderer.hpp"
@@ -35,12 +36,14 @@ void Application::Init()
     m_windowManager = std::make_unique<WindowManager>(800,600);
     m_windowManager->InitWindow();
 
-    m_client = std::make_unique<Client>();
-    m_client->Init();
-
     m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
     m_vulkanDevice = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
     m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_client);
+
+    m_client = std::make_unique<Client>();
+    auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice);
+    m_client->MountAssetsManger(std::move(assetManger));
+    m_client->Init();
 
 }
 

@@ -8,23 +8,19 @@
 #include "Application/VertexArray/VertexArray.hpp"
 
 ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType) {
+}
+
+ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType, const ApplicationCore::AssetsManager &assetsManger) {
     m_geometryType = geometryType;
-    AssignMeshGeometryData();
+    AssignMeshGeometryData(assetsManger);
 }
 
 const size_t ApplicationCore::Mesh::GetMeshVertexArraySize() const {
     return m_vertexArray->GetVertices().size() * sizeof(Vertex);
 }
 
-void ApplicationCore::Mesh::AssignMeshGeometryData() {
-    switch (m_geometryType) {
-    case MESH_GEOMETRY_PLANE: {
-        m_vertexArray = std::make_unique<ApplicationCore::VertexArray>(TOPOLOGY_TRIANGLE_LIST,ApplicationCore::MeshData::planeVertices, ApplicationCore::MeshData::planeIndices) ;
-        break;
-    };
-        default:
-            break;
-    }
+void ApplicationCore::Mesh::AssignMeshGeometryData(const ApplicationCore::AssetsManager &assetsManger) {
+    m_vertexArray
     Utils::Logger::LogInfoVerboseOnly("Assigning vertices of type: " + MeshGeometryTypeToString(m_geometryType));
 }
 

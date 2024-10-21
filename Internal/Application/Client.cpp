@@ -19,7 +19,7 @@ void Client::Init() {
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-    Utils::Logger::LogSuccess("Client side initialized in: " +  std::to_string(duration.count()) + "seconds");
+    Utils::Logger::LogSuccessClient("Client side initialized in: " +  std::to_string(duration.count()) + "seconds");
 }
 
 const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> Client::GetMeshes() const {
@@ -32,8 +32,10 @@ const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> Client::GetMesh
 }
 
 const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager) {
-    Utils::Logger::LogSuccess("")
+    Utils::Logger::LogInfoClient("Mounting assets manger...");
     m_assetsManager = std::move(assetsManager);
+    assert(m_assetsManager);
+    Utils::Logger::LogInfoClient("Mounted assets manager successfuly to the client");
 }
 
 void Client::Update() {

@@ -11,7 +11,7 @@
 
 namespace ApplicationCore
 {
-    class Mesh;
+    struct Vertex;
 }
 
 namespace VulkanCore {
@@ -24,7 +24,7 @@ namespace VulkanCore {
 
         const vk::Buffer& GetBuffer() const { return m_bufferVK; }
 
-        void MakeVertexBuffer(const ApplicationCore::Mesh& mesh);
+        void MakeVertexBuffer(const std::vector< ApplicationCore::Vertex>& vertices);
         void MakeIndexBuffer();
         void MakeImageBuffer();
         void MakeUniformBuffer();

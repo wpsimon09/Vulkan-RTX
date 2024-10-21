@@ -15,11 +15,11 @@ namespace VulkanCore {
     VBuffer::VBuffer(const VDevice &device): VObject(), m_device(device) {
     }
 
-    void VBuffer::MakeVertexBuffer(const ApplicationCore::Mesh &mesh) {
+    void VBuffer::MakeVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices) {
         Utils::Logger::LogInfo("Allocating Vertex buffer for the mesh");
 
         VkBufferCreateInfo bufferCreateInfo = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
-        bufferCreateInfo.size = mesh.GetMeshVertexArraySize();
+        bufferCreateInfo.size = vertices.size() * sizeof(ApplicationCore::Vertex);
         bufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
         VmaAllocationCreateInfo allocationCreateInfo = {};
@@ -29,7 +29,7 @@ namespace VulkanCore {
 
         Utils::Logger::LogInfoVerboseOnly("Filling buffer with vertex data");
         vmaMapMemory(m_device.GetAllocator(), m_allocation, &m_mappedData);
-        memcpy(m_mappedData, mesh.GetVertexArray().GetVertices().data(), mesh.GetVertexArray().GetVertices().size());
+        memcpy(m_mappedData, vertices.data(), vertices.size());
         assert(sizeof(m_mappedData) > 0);
         vmaUnmapMemory(m_device.GetAllocator() , m_allocation);
 

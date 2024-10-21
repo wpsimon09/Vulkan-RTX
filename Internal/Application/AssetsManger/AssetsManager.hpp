@@ -9,6 +9,11 @@
 
 #include "Application/Enums/ClientEnums.hpp"
 
+namespace ApplicationCore
+{
+    class VertexArray;
+}
+
 namespace VulkanCore
 {
     class VBuffer;
@@ -17,20 +22,16 @@ namespace VulkanCore
 
 namespace ApplicationCore {
 
-struct MeshAsset
-{
-    std::unique_ptr<VulkanCore::VBuffer> vertexBuffer;
-};
-
 class AssetsManager {
 public:
     AssetsManager(const VulkanCore::VDevice& device);
     void DeleteAll();
+    const VertexArray& GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) const;
     ~AssetsManager();
 
 private:
     const VulkanCore::VDevice& m_device;
-    std::map<PRIMITIVE_TOPOLOGY, std::unique_ptr<VulkanCore::VBuffer>> m_meshData;
+    std::map<MESH_GEOMETRY_TYPE, std::unique_ptr<VertexArray>> m_meshData;
 
 private:
     void LoadPredefinedMeshes();
