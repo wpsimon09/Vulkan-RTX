@@ -7,6 +7,7 @@
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "vulkan/vulkan.h"
 
@@ -31,7 +32,7 @@ namespace VulkanCore {
 
         Utils::Logger::LogInfoVerboseOnly("Filling buffer with vertex data");
         vmaMapMemory(m_device.GetAllocator(), m_allocation, &m_mappedData);
-        memcpy(m_mappedData, vertices.data(), vertices.size());
+        memcpy(m_mappedData, vertices.data(), vertices.size() * sizeof(ApplicationCore::Vertex));
         assert(sizeof(m_mappedData) > 0);
         vmaUnmapMemory(m_device.GetAllocator() , m_allocation);
 
@@ -56,13 +57,17 @@ namespace VulkanCore {
 
         Utils::Logger::LogInfoVerboseOnly("Filling buffer with vertex data");
         vmaMapMemory(m_device.GetAllocator(), m_allocation, &m_mappedData);
-        memcpy(m_mappedData, indices.data(), indices.size());
+        memcpy(m_mappedData, indices.data(), indices.size() * sizeof(uint32_t));
         assert(sizeof(m_mappedData) > 0);
         vmaUnmapMemory(m_device.GetAllocator() , m_allocation);
 
         m_bufferVK = vk::Buffer(m_bufferVMA);
         m_isInitialized = true;
         Utils::Logger::LogSuccess("Vertex buffer filled successfully ");
+    }
+
+    void VBuffer::CheckIfValid() {
+
     }
 
 

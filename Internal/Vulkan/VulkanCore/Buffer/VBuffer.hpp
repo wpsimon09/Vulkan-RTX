@@ -26,6 +26,7 @@ namespace VulkanCore {
 
         void MakeVertexBuffer(const std::vector< ApplicationCore::Vertex>& vertices);
         void MakeIndexBuffer(const std::vector< uint32_t>& indices);
+        void CheckIfValid();
         void MakeImageBuffer();
         void MakeUniformBuffer();
 

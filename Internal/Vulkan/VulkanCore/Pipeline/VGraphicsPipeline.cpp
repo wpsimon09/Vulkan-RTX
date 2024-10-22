@@ -149,7 +149,7 @@ void VulkanCore::VGraphicsPipeline::CreateRasterizer() {
     m_rasterizer.polygonMode = vk::PolygonMode::eFill;
     m_rasterizer.rasterizerDiscardEnable = VK_FALSE;
     m_rasterizer.lineWidth = 1.0f;
-    m_rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+    m_rasterizer.cullMode = vk::CullModeFlagBits::eNone;
     m_rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
     m_rasterizer.depthBiasEnable = VK_FALSE;
     m_rasterizer.depthBiasConstantFactor = 0.0F;
