@@ -37,16 +37,26 @@ namespace VulkanCore
     class VDevice: public VObject
     {
     public:
+
         VDevice(const VulkanCore::VulkanInstance& instance);
 
+        //----------------------------------------------------------------------------------------
+        //   GETTERS
+        //----------------------------------------------------------------------------------------
         const vk::PhysicalDevice& GetPhysicalDevice() const { return m_physicalDevice; } ;
         const vk::Device& GetDevice() const {return m_device;};
         const VQueueFamilyIndices& GetQueueFamilyIndices() const {return m_queueFamilyIndices;};
+        const VmaAllocator& GetAllocator() const { return m_vmaAllocator; };
+        const vk::Queue & GetGraphicsQueue() const { return m_graphicsQueue; }
+        const vk::Queue & GetComputeQueue() const { return m_computeQueue; }
+        const vk::Queue & GetTransferQueue() const { return m_transferQueue; }
+        const vk::Queue & GetPresentQueue() const { return m_presentQueue; }
+        //----------------------------------------------------------------------------------------
+
         const uint32_t& GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
         const std::string GetQueueFamilyString(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
-        const VmaAllocator& GetAllocator() const { return m_vmaAllocator; };
-        virtual void Destroy() override;
 
+        virtual void Destroy() override;
     private:
         vk::PhysicalDevice m_physicalDevice;
         vk::Device m_device; //logical device

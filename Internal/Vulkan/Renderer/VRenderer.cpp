@@ -42,9 +42,11 @@ namespace Renderer {
 
     void VRenderer::Render() {
         m_isFrameFinishFence->WaitForFence();
+        m_isFrameFinishFence->ResetFence();
+        m_baseCommandBuffer->Reset();
         FetchSwapChainImage();
         RecordCommandBuffersForPipelines();
-        m_isFrameFinishFence->ResetFence();
+        SubmitCommandBuffer();
     }
 
     void VRenderer::CreateCommandBufferPools() {
@@ -95,11 +97,12 @@ namespace Renderer {
         scissors.extent = m_swapChain->GetExtent();
         m_baseCommandBuffer->GetCommandBuffer().setScissor(0,1, &scissors);
 
-        std::vector<vk::Buffer> vertexBuffers = { m_client.GetMeshes()[0].get().GetVertexArray()->GetVertexBuffer().GetBuffer() };
+        auto mesh = m_client.GetMeshes()[0].get();
+        std::vector<vk::Buffer> vertexBuffers = { mesh.GetVertexArray()->GetVertexBuffer().GetBuffer() };
         std::vector<vk::DeviceSize> offsets = {0};
+        m_baseCommandBuffer->GetCommandBuffer().bindIndexBuffer(mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),0, vk::IndexType::eUint32);
         m_baseCommandBuffer->GetCommandBuffer().bindVertexBuffers(0,1,vertexBuffers.data(), offsets.data());
-
-
+        m_baseCommandBuffer->GetCommandBuffer().draw(mesh.GetMeshVertexArraySize(),1,0,0);
 
         EndRenderPass();
         m_baseCommandBuffer->EndRecording();
@@ -147,6 +150,12 @@ namespace Renderer {
 
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_baseCommandBuffer->GetCommandBuffer();
+
+        std::vector<vk::Semaphore> signalSemaphores = {m_renderFinishedSemaphore->GetSyncPrimitive()};
+        submitInfo.signalSemaphoreCount = signalSemaphores.size();
+        submitInfo.pSignalSemaphores = signalSemaphores.data();
+
+        assert(m_device.GetGraphicsQueue().submit( 1 ,&submitInfo, m_isFrameFinishFence->GetSyncPrimitive()) == vk::Result::eSuccess);
     }
 
     void VRenderer::Destroy() {
