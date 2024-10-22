@@ -35,6 +35,7 @@ namespace Renderer {
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(device, *m_swapChain, *m_mainRenderPass);
         m_pipelineManager->InstantiatePipelines();
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
+        m_graphicsPipeline = &m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_BASIC);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
     }
@@ -76,7 +77,31 @@ namespace Renderer {
     void VRenderer::RecordCommandBuffersForPipelines() {
         m_baseCommandBuffer->BeginRecording();
         StartRenderPass();
+        m_baseCommandBuffer->GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics,m_graphicsPipeline->GetPipelineInstance());
+        vk::Viewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
 
+        viewport.width = static_cast<float>(m_swapChain->GetExtent().width);
+        viewport.height = static_cast<float>(m_swapChain->GetExtent().height);
+
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        m_baseCommandBuffer->GetCommandBuffer().setViewport(0,1, &viewport);
+
+        vk::Rect2D scissors{};
+        scissors.offset.x = 0;
+        scissors.offset.y = 0;
+        scissors.extent = m_swapChain->GetExtent();
+        m_baseCommandBuffer->GetCommandBuffer().setScissor(0,1, &scissors);
+
+        std::vector<vk::Buffer> vertexBuffers = { m_client.GetMeshes()[0].get().GetVertexArray()->GetVertexBuffer().GetBuffer() };
+        std::vector<vk::DeviceSize> offsets = {0};
+        m_baseCommandBuffer->GetCommandBuffer().bindVertexBuffers(0,1,vertexBuffers.data(), offsets.data());
+
+
+
+        EndRenderPass();
         m_baseCommandBuffer->EndRecording();
     }
 
@@ -122,7 +147,6 @@ namespace Renderer {
 
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_baseCommandBuffer->GetCommandBuffer();
-
     }
 
     void VRenderer::Destroy() {

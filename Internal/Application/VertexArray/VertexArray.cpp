@@ -11,7 +11,9 @@ ApplicationCore::VertexArray::VertexArray(const VulkanCore::VDevice &device, PRI
     const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices):m_vertice(vertices), m_indices(indices) {
     m_topology = topology;
     m_vertexBuffer = std::make_unique<VulkanCore::VBuffer>(device);
+    m_indexBuffer = std::make_unique<VulkanCore::VBuffer>(device);
     m_vertexBuffer->MakeVertexBuffer(m_vertice);
+    m_indexBuffer->MakeIndexBuffer(m_indices);
 }
 
 void ApplicationCore::VertexArray::Destroy() const {

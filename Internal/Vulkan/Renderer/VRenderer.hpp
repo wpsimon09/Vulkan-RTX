@@ -74,6 +74,8 @@ private:
     std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
     std::unique_ptr<class VulkanCore::VCommandPool> m_baseCommandPool;
     std::unique_ptr<class VulkanCore::VCommandBuffer> m_baseCommandBuffer;
+    const VulkanCore::VGraphicsPipeline* m_graphicsPipeline;
+
 };
 
 } // Renderer

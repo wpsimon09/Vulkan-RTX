@@ -7,6 +7,8 @@
 #include "Logger/Logger.hpp"
 #include "Rendering/Mesh/Mesh.hpp"
 #include "VertexArray/VertexArray.hpp"
+#include "Application/AssetsManger/AssetsManager.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include <cassert>
 
 void Client::Init() {

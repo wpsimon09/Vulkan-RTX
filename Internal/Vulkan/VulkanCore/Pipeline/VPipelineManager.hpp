@@ -32,7 +32,6 @@ namespace VulkanCore
         ~VPipelineManager() = default;
     private:
         void GeneratePipelines();
-        void SpecifyPipelineCommands(VGraphicsPipeline& pipeline);
 
     private:
         const VDevice &m_device;

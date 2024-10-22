@@ -82,38 +82,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines() {
     auto basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_baseShader, m_renderPass);
     basicPipeline->Init();
     basicPipeline->SetPipelineType(PIPELINE_TYPE_RASTER_BASIC);
-    SpecifyPipelineCommands(*basicPipeline);
     m_pipelines.emplace(std::make_pair(PIPELINE_TYPE_RASTER_BASIC, std::move(basicPipeline)));
 }
 
-void VulkanCore::VPipelineManager::SpecifyPipelineCommands(VGraphicsPipeline &pipeline) {
 
-
-    switch (pipeline.GetPipelineType()) {
-    case PIPELINE_TYPE_RASTER_BASIC: {
-        pipeline.AddCommand([&](vk::CommandBuffer cmd) {
-            cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance());
-            vk::Viewport viewport = {};
-            viewport.x = 0.0f;
-            viewport.y = 0.0f;
-            viewport.width = static_cast<float>(m_swapChain.GetExtent().width);
-            viewport.height = static_cast<float>(m_swapChain.GetExtent().height);
-            viewport.minDepth = 0.0f;
-            viewport.maxDepth = 1.0f;
-            cmd.setViewport(0, 1, &viewport);
-
-            vk::Rect2D scissors;
-            scissors.offset.x = 0;
-            scissors.offset.y = 0;
-            scissors.extent = m_swapChain.GetExtent();
-            cmd.setScissor(0, 1, &scissors);
-
-            cmd.draw(3, 1,1, 0);
-            Utils::Logger::LogInfoVerboseRendering("Specified commands for the BasicRasterPipeline");
-
-        });
-
-        break;
-    }
-    }
-}

@@ -40,6 +40,7 @@ void Application::Init()
     m_vulkanDevice = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
 
     m_client = std::make_unique<Client>();
+
     auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice);
     m_client->MountAssetsManger(std::move(assetManger));
     m_client->Init();
