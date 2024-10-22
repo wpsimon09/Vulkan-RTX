@@ -104,7 +104,7 @@ namespace Renderer {
         std::vector<vk::DeviceSize> offsets = {0};
         m_baseCommandBuffer->GetCommandBuffer().bindIndexBuffer(mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),0, vk::IndexType::eUint32);
         m_baseCommandBuffer->GetCommandBuffer().bindVertexBuffers(0,1,vertexBuffers.data(), offsets.data());
-        m_baseCommandBuffer->GetCommandBuffer().draw(mesh.GetMeshVertexArraySize(),1,0,0);
+        m_baseCommandBuffer->GetCommandBuffer().drawIndexed(mesh.GetMeshIndexCount(), 1, 0,0,0);
 
         EndRenderPass();
         m_baseCommandBuffer->EndRecording();

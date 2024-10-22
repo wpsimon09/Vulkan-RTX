@@ -68,7 +68,7 @@ namespace VulkanCore {
 
     void VBuffer::Destroy() {
         vmaDestroyBuffer(m_device.GetAllocator(), m_bufferVMA, m_allocation);
-        m_device.GetDevice().destroyBuffer(m_bufferVK);
+        //m_device.GetDevice().destroyBuffer(m_bufferVK);
     }
 
 

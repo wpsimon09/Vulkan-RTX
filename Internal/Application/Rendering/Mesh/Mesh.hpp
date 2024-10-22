@@ -17,8 +17,10 @@ namespace ApplicationCore
         Mesh(MESH_GEOMETRY_TYPE geometryType, const ApplicationCore::AssetsManager& assetsManger);
         const size_t GetMeshVertexArraySize() const;
         const size_t GetMeshIndexArraySize() const;
+        const uint32_t GetMeshIndexCount() const;
+        const uint32_t GetMeshVertexCount() const;
         const VertexArray* GetVertexArray() const {return m_vertexArray;}
-        void Destroy();;
+        void Destroy();
 
     private:
         void AssignMeshGeometryData(const ApplicationCore::AssetsManager& assetsManger);
