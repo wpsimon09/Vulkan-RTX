@@ -14,8 +14,8 @@ namespace ApplicationCore {
     }
 
     void AssetsManager::DeleteAll() {
-        for (auto& mesh: m_meshData) {
-            mesh.second->Destroy();
+        for (auto& meshData: m_meshData) {
+            meshData.second->Destroy();
         }
     }
 
@@ -27,5 +27,6 @@ namespace ApplicationCore {
 
     void AssetsManager::LoadPredefinedMeshes() {
         m_meshData.insert(std::make_pair(MESH_GEOMETRY_PLANE, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::planeVertices, MeshData::planeIndices)));
+        m_meshData.insert(std::make_pair(MESH_GEOMETRY_CUBE, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::cubeVertices, MeshData::cubeIndices)));
     }
 } // ApplicationCore

@@ -16,7 +16,7 @@ void Client::Init() {
     auto start = std::chrono::high_resolution_clock::now();
 
     assert(m_assetsManager);
-    m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_PLANE, *m_assetsManager));
+    m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, *m_assetsManager));
     assert(!m_meshes.empty());
 
     auto end = std::chrono::high_resolution_clock::now();
@@ -40,6 +40,16 @@ const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsMana
     assert(m_assetsManager);
     Utils::Logger::LogInfoClient("Mounted assets manager successfuly to the client");
 }
+
+const void Client::Destory() {
+    Utils::Logger::LogInfoVerboseOnlyClient("Destroying client...");
+    assert(m_assetsManager);
+    Utils::Logger::LogInfoVerboseOnlyClient("Destroying assets manager...");
+    m_assetsManager->DeleteAll();
+    Utils::Logger::LogInfoVerboseOnlyClient("Assets manager destroyed");
+    Utils::Logger::LogInfoVerboseOnlyClient("Destroyed client");
+}
+
 
 void Client::Update() {
     // TODO: camera updates, scene movement, proecessing user input etc...

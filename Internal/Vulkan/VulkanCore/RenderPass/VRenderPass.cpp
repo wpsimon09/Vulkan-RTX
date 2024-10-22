@@ -30,7 +30,7 @@ void VulkanCore::VRenderPass::CreateRenderPass() {
     m_colourAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     m_colourAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     m_colourAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
-    m_colourAttachmentDescription.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    m_colourAttachmentDescription.finalLayout = vk::ImageLayout::ePresentSrcKHR;
 
     //-----------------
     // DEPTH ATTACHMENT

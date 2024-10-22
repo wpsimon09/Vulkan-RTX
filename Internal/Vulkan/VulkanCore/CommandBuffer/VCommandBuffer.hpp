@@ -20,7 +20,7 @@ public:
 
     const vk::CommandBuffer& GetCommandBuffer() const {return m_commandBuffer;};
     const bool GetIsRecording()const { return m_isCurrentlyRecording; }
-    const void Reset() const;
+    const void Reset();
 
     void BeginRecording();
     void EndRecording();

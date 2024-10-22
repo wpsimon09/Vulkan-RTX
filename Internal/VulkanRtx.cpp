@@ -85,6 +85,7 @@ void Application::Render() {
 
 Application::~Application() {
     m_vulkanDevice->GetDevice().waitIdle();
+    m_client->Destory();
     m_renderer->Destroy();
     m_vulkanDevice->Destroy();
 }

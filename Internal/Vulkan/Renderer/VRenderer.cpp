@@ -42,11 +42,13 @@ namespace Renderer {
 
     void VRenderer::Render() {
         m_isFrameFinishFence->WaitForFence();
+        FetchSwapChainImage();
         m_isFrameFinishFence->ResetFence();
         m_baseCommandBuffer->Reset();
-        FetchSwapChainImage();
         RecordCommandBuffersForPipelines();
         SubmitCommandBuffer();
+        PresentResults();
+
     }
 
     void VRenderer::CreateCommandBufferPools() {
@@ -129,7 +131,7 @@ namespace Renderer {
         auto imageIndex = m_device.GetDevice().acquireNextImageKHR(
             m_swapChain->GetSwapChain(), //swap chain
             UINT64_MAX, // timeoout
-            m_imageAvailableSemaphore->GetSyncPrimitive()//signal semaphore
+            m_imageAvailableSemaphore->GetSyncPrimitive()//signal semaphore,
             );
         switch (imageIndex.result) {
             case vk::Result::eSuccess: m_currentImageIndex = imageIndex.value; break;
@@ -156,6 +158,21 @@ namespace Renderer {
         submitInfo.pSignalSemaphores = signalSemaphores.data();
 
         assert(m_device.GetGraphicsQueue().submit( 1 ,&submitInfo, m_isFrameFinishFence->GetSyncPrimitive()) == vk::Result::eSuccess);
+        Utils::Logger::LogInfoVerboseRendering("Successfully submitted the command buffer");
+    }
+
+    void VRenderer::PresentResults() {
+        // TODO: finish up
+        vk::PresentInfoKHR presentInfo;
+        presentInfo.waitSemaphoreCount = 1 ;
+        presentInfo.pWaitSemaphores = &m_renderFinishedSemaphore->GetSyncPrimitive();
+
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = &m_swapChain->GetSwapChain();
+        presentInfo.pImageIndices = &m_currentImageIndex;
+        presentInfo.pResults = nullptr;
+        assert(m_device.GetPresentQueue().presentKHR(&presentInfo) == vk::Result::eSuccess);
+        Utils::Logger::LogInfoVerboseRendering("Image presented to the view successfully");
     }
 
     void VRenderer::Destroy() {

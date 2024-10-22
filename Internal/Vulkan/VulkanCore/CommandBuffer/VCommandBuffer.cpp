@@ -29,8 +29,9 @@ namespace VulkanCore {
         //this is optional since command buffers are dealocated once command pool is destroyed
     }
 
-    const void VCommandBuffer::Reset() const {
+    const void VCommandBuffer::Reset() {
         m_commandBuffer.reset();
+        m_isCurrentlyRecording = false;
     }
 
     void VCommandBuffer::BeginRecording() {

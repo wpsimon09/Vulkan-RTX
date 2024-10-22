@@ -17,6 +17,7 @@ const size_t ApplicationCore::Mesh::GetMeshVertexArraySize() const {
     return m_vertexArray->GetVertices().size() * sizeof(Vertex);
 }
 
+
 void ApplicationCore::Mesh::AssignMeshGeometryData(const ApplicationCore::AssetsManager &assetsManger) {
     m_vertexArray = &assetsManger.GetVertexArrayForGeometryType(m_geometryType);
     Utils::Logger::LogInfoVerboseOnly("Assigning vertices of type: " + MeshGeometryTypeToString(m_geometryType));

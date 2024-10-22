@@ -18,4 +18,5 @@ ApplicationCore::VertexArray::VertexArray(const VulkanCore::VDevice &device, PRI
 
 void ApplicationCore::VertexArray::Destroy() const {
     m_vertexBuffer->Destroy();
+    m_indexBuffer->Destroy();
 }

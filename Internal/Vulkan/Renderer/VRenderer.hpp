@@ -57,12 +57,13 @@ private:
     //=====================================
     void FetchSwapChainImage();
     void SubmitCommandBuffer();
+    void PresentResults();
     //=====================================
 
 private:
     const Client& m_client;
     const VulkanCore::VDevice& m_device;
-    int m_currentImageIndex = 0;
+    uint32_t m_currentImageIndex = 0;
     int m_availableRecordingThreads = 0;
 
     std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>> m_imageAvailableSemaphore;
