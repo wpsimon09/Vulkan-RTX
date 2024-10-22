@@ -22,7 +22,7 @@ public:
     void Init();
     const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> GetMeshes() const;
     const void MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager);
-    const void Destory();
+    const void Destroy();
     void Update();
     ~Client() = default;
 private:

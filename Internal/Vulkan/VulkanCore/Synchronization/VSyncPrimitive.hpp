@@ -39,7 +39,6 @@ namespace VulkanCore {
 
         };
         void Destroy() override {
-                VObject::Destroy();
                 if constexpr (std::is_same<T, vk::Semaphore>::value) {
                     Utils::Logger::LogInfoVerboseOnly("Destroying semaphore !");
                     m_device.GetDevice().destroySemaphore(m_syncPrimitive);

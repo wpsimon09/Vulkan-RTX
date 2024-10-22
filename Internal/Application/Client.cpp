@@ -41,7 +41,7 @@ const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsMana
     Utils::Logger::LogInfoClient("Mounted assets manager successfuly to the client");
 }
 
-const void Client::Destory() {
+const void Client::Destroy() {
     Utils::Logger::LogInfoVerboseOnlyClient("Destroying client...");
     assert(m_assetsManager);
     Utils::Logger::LogInfoVerboseOnlyClient("Destroying assets manager...");
