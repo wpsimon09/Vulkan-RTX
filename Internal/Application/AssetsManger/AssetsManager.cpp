@@ -33,7 +33,7 @@ namespace ApplicationCore
                                                     MeshData::planeIndices);
                     break;
                     }
-                case MESH_GEOMETRY_SPHERE: {
+             case MESH_GEOMETRY_SPHERE: {
                     std::vector<Vertex> vertices;
                     std::vector<uint32_t> indices;
                     MeshData::GenerateSphere(vertices, indices);
@@ -41,15 +41,19 @@ namespace ApplicationCore
                                                     std::move(indices));
                     break;
                     }
-            case MESH_GEOMETRY_CUBE:
+             case MESH_GEOMETRY_CUBE:
                 vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::cubeVertices,
                                                     MeshData::cubeIndices);
                 break;
-        case MESH_GEOMETRY_TRIANGLE: {
-            vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::triangleVertices,
+             case MESH_GEOMETRY_TRIANGLE: {
+                vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::triangleVertices,
                                                 MeshData::triangleIndices);
-            break;
+                break;
         }
+            case MESH_GEOMETRY_CROSS: {
+                 vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST,MeshData::crossVertices, MeshData::crossIndices);
+                 break;
+             }
         default: ;
             throw std::runtime_error("This geometry type is not supported !");
         }
