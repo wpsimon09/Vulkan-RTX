@@ -22,11 +22,10 @@ namespace VulkanCore {
         m_commandBuffer = device.GetDevice().allocateCommandBuffers(allocInfo)[0];
         assert(m_commandBuffer);
         Utils::Logger::LogSuccess(isPrimary ? "Creating PRIMARY " : "Created SECONDARY" + std::string( "which can be used which ") + device.GetQueueFamilyString(commandPool.GetQueueFamily().first) + " queue");
-
     }
 
     void VCommandBuffer::Destroy() {
-        //this is optional since command buffers are dealocated once command pool is destroyed
+        //this is optional since command buffers are deallocated once command pool is destroyed
     }
 
     const void VCommandBuffer::Reset() {
@@ -35,7 +34,7 @@ namespace VulkanCore {
     }
 
     void VCommandBuffer::BeginRecording() {
-        Utils::Logger::LogInfoVerboseOnly("Begin recording command buffer...");
+        Utils::Logger::LogInfoVerboseRendering("Begin recording command buffer...");
         vk::CommandBufferBeginInfo beginInfo{};
 
         if(m_commandPool.GetQueueFamily().first == QUEUE_FAMILY_INDEX_TRANSFER && GlobalState::AutoCommandBufferFlags) {
@@ -52,6 +51,6 @@ namespace VulkanCore {
         assert(m_isCurrentlyRecording == true);
         m_isCurrentlyRecording = false;
         m_commandBuffer.end();
-        Utils::Logger::LogInfo("Ended recording command buffer...");
+        Utils::Logger::LogInfoVerboseRendering("Ended recording command buffer...");
     }
 } // VulkanCore

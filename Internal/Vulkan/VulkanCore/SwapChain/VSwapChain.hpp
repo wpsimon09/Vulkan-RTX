@@ -27,10 +27,11 @@ namespace VulkanCore{
 
             void Destroy() override;
             void CreateSwapChainFrameBuffers(const VulkanCore::VRenderPass& renderPass);
+            void RecreateSwapChain();
 
             ~VSwapChain() = default;
 
-            const vk::SwapchainKHR& GetSwapChain() const { return m_swapChain; } ;
+            const vk::SwapchainKHR& GetSwapChain() const { return m_swapChain; };
             const vk::SurfaceFormatKHR& GetSurfaceFormatKHR() const { return m_format; };
             const vk::Extent2D& GetExtent() const { return m_extent; };
             const vk::PresentModeKHR& GetPresentMode() const { return m_presentMode; };

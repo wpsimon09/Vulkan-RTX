@@ -26,18 +26,22 @@ namespace VulkanCore {
 
         void MakeVertexBuffer(const std::vector< ApplicationCore::Vertex>& vertices);
         void MakeIndexBuffer(const std::vector< uint32_t>& indices);
-        void CheckIfValid();
         void MakeImageBuffer();
         void MakeUniformBuffer();
 
         void Destroy() override;
         ~VBuffer() override = default;
     private:
+        void CreateStagingBuffer(VkDeviceSize size);
+        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlagBits usage);
+    private:
         const VDevice& m_device;
         bool m_isInitialized = false;
         void* m_mappedData;
         VmaAllocation m_allocation;
         VkBuffer m_bufferVMA;
+        VmaAllocation m_stagingAllocation;
+        VkBuffer m_stagingBuffer;
         vk::Buffer m_bufferVK;
     };
 } // VulkanCore

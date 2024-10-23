@@ -19,15 +19,7 @@ namespace VulkanCore {
     void VBuffer::MakeVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices) {
         assert(!m_isInitialized);
         Utils::Logger::LogInfo("Allocating Vertex buffer for the mesh");
-
-        VkBufferCreateInfo bufferCreateInfo = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
-        bufferCreateInfo.size = vertices.size() * sizeof(ApplicationCore::Vertex);
-        bufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-
-        VmaAllocationCreateInfo allocationCreateInfo = {};
-        allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
-        allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
-        assert(vmaCreateBuffer(m_device.GetAllocator(),&bufferCreateInfo,&allocationCreateInfo, &m_bufferVMA,&m_allocation,nullptr) == VK_SUCCESS);
+        CreateBuffer(vertices.size() * sizeof(ApplicationCore::Vertex), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         Utils::Logger::LogSuccess("Vertex Buffer allocated successfully");
 
         Utils::Logger::LogInfoVerboseOnly("Filling buffer with vertex data");
@@ -44,15 +36,7 @@ namespace VulkanCore {
     void VBuffer::MakeIndexBuffer(const std::vector<uint32_t> &indices) {
         assert(!m_isInitialized);
         Utils::Logger::LogInfo("Allocating Vertex buffer for the mesh");
-
-        VkBufferCreateInfo bufferCreateInfo = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
-        bufferCreateInfo.size = indices.size() * sizeof(uint32_t);
-        bufferCreateInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-
-        VmaAllocationCreateInfo allocationCreateInfo = {};
-        allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
-        allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
-        assert(vmaCreateBuffer(m_device.GetAllocator(),&bufferCreateInfo,&allocationCreateInfo, &m_bufferVMA,&m_allocation,nullptr) == VK_SUCCESS);
+        CreateBuffer(indices.size() * sizeof(uint32_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
         Utils::Logger::LogSuccess("Vertex Buffer allocated successfully");
 
         Utils::Logger::LogInfoVerboseOnly("Filling buffer with vertex data");
@@ -66,14 +50,37 @@ namespace VulkanCore {
         Utils::Logger::LogSuccess("Vertex buffer filled successfully ");
     }
 
-    void VBuffer::CheckIfValid() {
-
-    }
-
-
     void VBuffer::Destroy() {
         vmaDestroyBuffer(m_device.GetAllocator(), m_bufferVMA, m_allocation);
         //m_device.GetDevice().destroyBuffer(m_bufferVK);
+    }
+
+    void VBuffer::CreateStagingBuffer(VkDeviceSize size) {
+        VmaAllocationCreateInfo vmaStagingAllocationCreateInfo;
+        vmaStagingAllocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+        vmaStagingAllocationCreateInfo.flags =  VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+
+        VkBufferCreateInfo stagingBufferCreateInfo = {};
+        stagingBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        stagingBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        stagingBufferCreateInfo.size = size;
+
+        Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
+        assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo,&vmaStagingAllocationCreateInfo, &m_stagingBuffer,&m_stagingAllocation,nullptr) == VK_SUCCESS);
+        Utils::Logger::LogSuccess("Staging buffer created");
+
+    }
+
+    void VBuffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlagBits usage) {
+        VkBufferCreateInfo bufferCreateInfo = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+        bufferCreateInfo.size = size;
+        bufferCreateInfo.usage = usage;
+
+        VmaAllocationCreateInfo allocationCreateInfo = {};
+        allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+        allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+        assert(vmaCreateBuffer(m_device.GetAllocator(),&bufferCreateInfo,&allocationCreateInfo, &m_bufferVMA,&m_allocation,nullptr) == VK_SUCCESS);
+        Utils::Logger::LogSuccess("Vertex Buffer allocated successfully");
     }
 
 
