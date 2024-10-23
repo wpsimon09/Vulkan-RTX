@@ -10,7 +10,6 @@
 
 namespace ApplicationCore {
     AssetsManager::AssetsManager(const VulkanCore::VDevice &device):m_device(device) {
-        LoadPredefinedMeshes();
     }
 
     void AssetsManager::DeleteAll() {
@@ -19,36 +18,37 @@ namespace ApplicationCore {
         }
     }
 
-    const VertexArray & AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType)  {
+    VertexArray & AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) {
         auto result = m_meshData.find(geometryType);
         if(result != m_meshData.end()) {
             return *result->second;
         }else {
+            std::unique_ptr<VertexArray> vao;
             switch (geometryType) {
             case MESH_GEOMETRY_PLANE: {
-                m_meshData.insert(std::make_pair(geometryType, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::planeVertices, MeshData::planeIndices)));
+                vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::planeVertices, MeshData::planeIndices);
                 break;
             }
             case MESH_GEOMETRY_SPHERE: {
                 std::vector<Vertex> vertices;
                 std::vector<uint32_t> indices;
                 MeshData::GenerateSphere(vertices, indices);
-                m_meshData.insert(std::make_pair(geometryType, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_STRIP, std::move(vertices), std::move(indices))));
-                break;
-
-            }
-            case MESH_GEOMETRY_CUBE: {
-                m_meshData.insert(std::make_pair(geometryType, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::cubeVertices, MeshData::cubeIndices)));
+                vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_STRIP, std::move(vertices), std::move(indices));
                 break;
             }
-            case MESH_GEOMETRY_TRIANGLE:
-                m_meshData.insert(std::make_pair(geometryType, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::triangleVertices, MeshData::triangleIndices)));
+            case MESH_GEOMETRY_CUBE:
+                vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::cubeVertices, MeshData::cubeIndices);
                 break;
             }
-            return *m_meshData.end()->second;
+            case MESH_GEOMETRY_TRIANGLE: {
+                vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::triangleVertices, MeshData::triangleIndices);
+                break;
+            }
+            default: ;
+                throw std::runtime_error("This geometry type is not supported !");
+            }
+            auto inserted = m_meshData.insert(std::make_pair(geometryType, std::move(vao)));
+            return *inserted.first->second;
         }
-    }
-
-    void AssetsManager::LoadPredefinedMeshes() {
     }
 } // ApplicationCore

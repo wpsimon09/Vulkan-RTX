@@ -115,7 +115,7 @@ namespace ApplicationCore::MeshData
                 float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
 
                 Vertex tempVertex {};
-                tempVertex.pos = glm::vec3(xPos, yPos, zPos);
+                tempVertex.position = glm::vec3(xPos, yPos, zPos);
                 tempVertex.normal = glm::vec3(xPos, yPos, zPos);
                 tempVertex.uv = glm::vec2(xSegment, ySegment);
                 vertices.push_back(tempVertex);

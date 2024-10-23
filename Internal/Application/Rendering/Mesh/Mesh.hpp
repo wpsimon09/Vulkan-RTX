@@ -14,7 +14,7 @@ namespace ApplicationCore
     class VertexArray;
     class Mesh {
     public:
-        Mesh(MESH_GEOMETRY_TYPE geometryType, const ApplicationCore::AssetsManager& assetsManger);
+        Mesh(MESH_GEOMETRY_TYPE geometryType, ApplicationCore::AssetsManager& assetsManger);
         const size_t GetMeshVertexArraySize() const;
         const size_t GetMeshIndexArraySize() const;
         const uint32_t GetMeshIndexCount() const;
@@ -23,11 +23,11 @@ namespace ApplicationCore
         void Destroy();
 
     private:
-        void AssignMeshGeometryData(const ApplicationCore::AssetsManager& assetsManger);
+        const void AssignMeshGeometryData(ApplicationCore::AssetsManager& assetsManger);
         std::string MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType);
     private:
         MESH_GEOMETRY_TYPE m_geometryType;
-        const VertexArray* m_vertexArray;
+        VertexArray* m_vertexArray;
     };
 }
 

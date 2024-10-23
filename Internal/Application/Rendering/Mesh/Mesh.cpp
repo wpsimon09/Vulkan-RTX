@@ -8,7 +8,7 @@
 #include "Application/Logger/Logger.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 
-ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType, const ApplicationCore::AssetsManager &assetsManger) {
+ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType,ApplicationCore::AssetsManager &assetsManger) {
     m_geometryType = geometryType;
     AssignMeshGeometryData(assetsManger);
 }
@@ -30,7 +30,7 @@ const uint32_t ApplicationCore::Mesh::GetMeshVertexCount() const {
 }
 
 
-void ApplicationCore::Mesh::AssignMeshGeometryData(const ApplicationCore::AssetsManager &assetsManger) {
+const void ApplicationCore::Mesh::AssignMeshGeometryData(ApplicationCore::AssetsManager &assetsManger) {
     m_vertexArray = &assetsManger.GetVertexArrayForGeometryType(m_geometryType);
     Utils::Logger::LogInfoVerboseOnly("Assigning vertices of type: " + MeshGeometryTypeToString(m_geometryType));
 }
