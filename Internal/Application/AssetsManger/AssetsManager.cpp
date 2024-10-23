@@ -19,15 +19,36 @@ namespace ApplicationCore {
         }
     }
 
-    const VertexArray & AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) const {
+    const VertexArray & AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType)  {
         auto result = m_meshData.find(geometryType);
-        assert(result != m_meshData.end());
-        return *result->second;
+        if(result != m_meshData.end()) {
+            return *result->second;
+        }else {
+            switch (geometryType) {
+            case MESH_GEOMETRY_PLANE: {
+                m_meshData.insert(std::make_pair(geometryType, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::planeVertices, MeshData::planeIndices)));
+                break;
+            }
+            case MESH_GEOMETRY_SPHERE: {
+                std::vector<Vertex> vertices;
+                std::vector<uint32_t> indices;
+                MeshData::GenerateSphere(vertices, indices);
+                m_meshData.insert(std::make_pair(geometryType, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_STRIP, std::move(vertices), std::move(indices))));
+                break;
+
+            }
+            case MESH_GEOMETRY_CUBE: {
+                m_meshData.insert(std::make_pair(geometryType, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::cubeVertices, MeshData::cubeIndices)));
+                break;
+            }
+            case MESH_GEOMETRY_TRIANGLE:
+                m_meshData.insert(std::make_pair(geometryType, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::triangleVertices, MeshData::triangleIndices)));
+                break;
+            }
+            return *m_meshData.end()->second;
+        }
     }
 
     void AssetsManager::LoadPredefinedMeshes() {
-        m_meshData.insert(std::make_pair(MESH_GEOMETRY_PLANE, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::planeVertices, MeshData::planeIndices)));
-        m_meshData.insert(std::make_pair(MESH_GEOMETRY_CUBE, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::cubeVertices, MeshData::cubeIndices)));
-        m_meshData.insert(std::make_pair(MESH_GEOMETRY_TRIANGLE, std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::triangleVertices, MeshData::triangleIndices)));
     }
 } // ApplicationCore

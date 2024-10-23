@@ -26,7 +26,7 @@ class AssetsManager {
 public:
     AssetsManager(const VulkanCore::VDevice& device);
     void DeleteAll();
-    const VertexArray& GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) const;
+    const VertexArray& GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) ;
     ~AssetsManager() = default;
 
 private:
