@@ -7,6 +7,11 @@
 #include <cstdint>
 #include <vulkan/vulkan.hpp>
 
+namespace VulkanCore
+{
+    class VCommandPool;
+}
+
 namespace ApplicationCore
 {
     class VertexArray;
@@ -20,6 +25,8 @@ namespace VulkanUtils
     void GetVertexBindingAndAttributeDescription(vk::VertexInputBindingDescription &bindingDescription,
         std::vector<vk::VertexInputAttributeDescription> &attributeDescription
     );
+
+    void CopyBuffers(VulkanCore::VCommandPool &commandPool, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size);
 }
 
 #endif //VGENERALUTILS_HPP
