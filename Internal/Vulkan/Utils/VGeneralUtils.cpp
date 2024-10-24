@@ -3,6 +3,9 @@
 //
 
 #include "VGeneralUtils.hpp"
+
+#include <bits/fs_fwd.h>
+
 #include "Application/Logger/Logger.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
@@ -73,6 +76,23 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffe
     const vk::Buffer &dstBuffer, vk::DeviceSize size) {
     auto cmdBuffer = VulkanCore::VCommandBuffer(device, device.GetTransferCommandPool());
     Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
+
+    cmdBuffer.BeginRecording();
+
+    vk::BufferCopy bufferCopy{};
+    bufferCopy.srcOffset = 0;
+    bufferCopy.dstOffset = 0;
+    bufferCopy.size = size;
+    cmdBuffer.GetCommandBuffer().copyBuffer(srcBuffer, dstBuffer, bufferCopy);
+
+    cmdBuffer.EndRecording();
+
+    vk::SubmitInfo submitInfo{};
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &cmdBuffer.GetCommandBuffer();
+
+    assert(device.GetTransferQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess);
+    Utils::Logger::LogSuccess("Buffer copy completed !");
 }
 
 

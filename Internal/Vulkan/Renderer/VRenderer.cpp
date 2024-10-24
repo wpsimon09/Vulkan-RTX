@@ -162,7 +162,6 @@ namespace Renderer {
     }
 
     void VRenderer::PresentResults() {
-        // TODO: finish up
         vk::PresentInfoKHR presentInfo;
         presentInfo.waitSemaphoreCount = 1 ;
         presentInfo.pWaitSemaphores = &m_renderFinishedSemaphore->GetSyncPrimitive();

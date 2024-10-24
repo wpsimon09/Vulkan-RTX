@@ -33,7 +33,8 @@ namespace VulkanCore {
         ~VBuffer() override = default;
     private:
         void CreateStagingBuffer(VkDeviceSize size);
-        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlagBits usage);
+        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage);
+        void DestroyStagingBuffer() const;
     private:
         const VDevice& m_device;
         bool m_isInitialized = false;
@@ -45,6 +46,8 @@ namespace VulkanCore {
         vk::Buffer m_bufferVK;
         std::vector<uint32_t> m_sharedQueueFamilyIndices;
     };
+
+
 } // VulkanCore
 
 #endif //VVERTEXBUFFER_HPP

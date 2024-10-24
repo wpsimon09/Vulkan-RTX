@@ -20,6 +20,7 @@ namespace VulkanCore {
         allocInfo.level = isPrimary ? vk::CommandBufferLevel::ePrimary : vk::CommandBufferLevel::eSecondary;
         // we are only creating single command buffer here, this can be later put inside the command buffer manager that will create command buffer for each required operation
         m_commandBuffer = device.GetDevice().allocateCommandBuffers(allocInfo)[0];
+        m_isCurrentlyRecording = false;
         assert(m_commandBuffer);
         Utils::Logger::LogSuccess(isPrimary ? "Creating PRIMARY " : "Created SECONDARY" + std::string( "which can be used which ") + device.GetQueueFamilyString(commandPool.GetQueueFamily().first) + " queue");
     }
