@@ -29,33 +29,33 @@ namespace VulkanCore {
         // - STAGING
         // - GPU ONLY
         //----------------------
-        Utils::Logger::LogInfoVerboseOnly("Allocating Vertex buffer and staging buffer for the mesh ");
+        Utils::Logger::LogInfoVerboseOnly("Allocating Vertex buffer and staging buffer for the mesh...");
         CreateBuffer(vertices.size() * sizeof(ApplicationCore::Vertex), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
         CreateStagingBuffer(vertices.size() * sizeof(ApplicationCore::Vertex));
-        Utils::Logger::LogSuccess("Vertex Buffer allocated successfully");
+        Utils::Logger::LogSuccess("Vertex Buffer and staging buffer allocated successfully");
 
         //----------------------------
         // MAP DATA TO STAGING BUFFER
         //----------------------------
-        Utils::Logger::LogInfoVerboseOnly("Filling buffer with vertex data");
+        Utils::Logger::LogInfoVerboseOnly("Filling buffer with vertex data...");
         vmaMapMemory(m_device.GetAllocator(), m_stagingAllocation, &m_mappedData);
         memcpy(m_mappedData, vertices.data(), vertices.size() * sizeof(ApplicationCore::Vertex));
         vmaUnmapMemory(m_device.GetAllocator() , m_stagingAllocation);
-        Utils::Logger::LogSuccess("Vertex Buffer mapped successfully");
+        Utils::Logger::LogSuccess("Vertex Buffer filled successfully...");
 
         //-----------------------------------------------------
         // COPY THE DATA FROM STAGING BUFFER TO GPU ONLY BUFFER
         //-----------------------------------------------------
-        Utils::Logger::LogInfoVerboseOnly("Transferring data from staging buffer to the buffer located on the GPU !");
+        Utils::Logger::LogInfoVerboseOnly("Transferring data from staging buffer to the buffer located on the GPU...");
         VulkanUtils::CopyBuffers(m_device, m_stagingBuffer, m_bufferVMA, vertices.capacity()*sizeof(ApplicationCore::Vertex));
-        Utils::Logger::LogSuccess("Transferring to GPU buffer completed");
+        Utils::Logger::LogSuccess("Transferring to GPU buffer completed...");
 
         //-------------------------------------------------------
         // FINISHING UP
         //-------------------------------------------------------
         m_bufferVK = vk::Buffer(m_bufferVMA);
         m_isInitialized = true;
-        Utils::Logger::LogSuccess("Vertex buffer filled successfully ");
+        Utils::Logger::LogSuccess("Vertex buffer created !");
         DestroyStagingBuffer();
 
     }
@@ -68,35 +68,34 @@ namespace VulkanCore {
         // - STAGING
         // - GPU ONLY
         //----------------------
-        Utils::Logger::LogInfoVerboseOnly("Allocating Vertex buffer and staging buffer for the mesh ");
+        Utils::Logger::LogInfo("Allocating Index buffer and staging buffer for the mesh ");
         CreateBuffer(indices.size() * sizeof(ApplicationCore::Vertex), VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
         CreateStagingBuffer(indices.size() * sizeof(ApplicationCore::Vertex));
-        Utils::Logger::LogSuccess("Vertex Buffer allocated successfully");
+        Utils::Logger::LogInfoVerboseOnly("Index Buffer allocated successfully");
 
         //----------------------------
         // MAP DATA TO STAGING BUFFER
         //----------------------------
-        Utils::Logger::LogInfoVerboseOnly("Filling buffer with vertex data");
+        Utils::Logger::LogInfoVerboseOnly("Filling Index buffer with vertex data");
         vmaMapMemory(m_device.GetAllocator(), m_stagingAllocation, &m_mappedData);
         memcpy(m_mappedData, indices.data(), indices.size() * sizeof(ApplicationCore::Vertex));
         vmaUnmapMemory(m_device.GetAllocator() , m_stagingAllocation);
-        Utils::Logger::LogSuccess("Vertex Buffer mapped successfully");
+        Utils::Logger::LogInfoVerboseOnly("Index Buffer mapped successfully");
 
         //-----------------------------------------------------
         // COPY THE DATA FROM STAGING BUFFER TO GPU ONLY BUFFER
         //-----------------------------------------------------
         Utils::Logger::LogInfoVerboseOnly("Transferring data from staging buffer to the buffer located on the GPU !");
         VulkanUtils::CopyBuffers(m_device, m_stagingBuffer, m_bufferVMA, indices.capacity()*sizeof(ApplicationCore::Vertex));
-        Utils::Logger::LogSuccess("Transferring to GPU buffer completed");
+        Utils::Logger::LogInfoVerboseOnly("Transferring to GPU buffer completed");
 
         //-------------------------------------------------------
         // FINISHING UP
         //-------------------------------------------------------
         m_bufferVK = vk::Buffer(m_bufferVMA);
         m_isInitialized = true;
-        Utils::Logger::LogSuccess("Vertex buffer filled successfully ");
+        Utils::Logger::LogSuccess("Index buffer created successfully ");
         DestroyStagingBuffer();
-
     }
 
     void VBuffer::Destroy() {
