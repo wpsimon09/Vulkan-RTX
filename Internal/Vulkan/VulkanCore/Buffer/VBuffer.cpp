@@ -14,6 +14,10 @@
 namespace VulkanCore {
 
     VBuffer::VBuffer(const VDevice &device): VObject(), m_device(device) {
+        m_sharedQueueFamilyIndices = {
+            device.GetQueueFamilyIndices().graphicsFamily.value().second,
+            device.GetQueueFamilyIndices().transferFamily.value().second
+        };
     }
 
     void VBuffer::MakeVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices) {
@@ -64,6 +68,10 @@ namespace VulkanCore {
         stagingBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         stagingBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         stagingBufferCreateInfo.size = size;
+        stagingBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        stagingBufferCreateInfo.queueFamilyIndexCount = m_sharedQueueFamilyIndices.size();
+        stagingBufferCreateInfo.pQueueFamilyIndices = m_sharedQueueFamilyIndices.data();
+
 
         Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
         assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo,&vmaStagingAllocationCreateInfo, &m_stagingBuffer,&m_stagingAllocation,nullptr) == VK_SUCCESS);
@@ -75,6 +83,10 @@ namespace VulkanCore {
         VkBufferCreateInfo bufferCreateInfo = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
         bufferCreateInfo.size = size;
         bufferCreateInfo.usage = usage;
+        bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        bufferCreateInfo.queueFamilyIndexCount = m_sharedQueueFamilyIndices.size();
+        bufferCreateInfo.pQueueFamilyIndices = m_sharedQueueFamilyIndices.data();
+
 
         VmaAllocationCreateInfo allocationCreateInfo = {};
         allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;

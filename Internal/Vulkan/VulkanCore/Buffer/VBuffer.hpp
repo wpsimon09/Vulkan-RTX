@@ -43,6 +43,7 @@ namespace VulkanCore {
         VmaAllocation m_stagingAllocation;
         VkBuffer m_stagingBuffer;
         vk::Buffer m_bufferVK;
+        std::vector<uint32_t> m_sharedQueueFamilyIndices;
     };
 } // VulkanCore
 
