@@ -5,8 +5,10 @@
 #include "VGeneralUtils.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
+#include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyProperties> &queueFamilyProperties,
                                       vk::QueueFlagBits queueType) {
@@ -67,10 +69,11 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
     attributeDescription[2].offset = offsetof(ApplicationCore::Vertex, uv);
 }
 
-void VulkanUtils::CopyBuffers(VulkanCore::VCommandPool &commandPool, const vk::Buffer &srcBuffer,
+void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffer &srcBuffer,
     const vk::Buffer &dstBuffer, vk::DeviceSize size) {
-
-
+    auto cmdBuffer = VulkanCore::VCommandBuffer(device, device.GetTransferCommandPool());
+    Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
 }
+
 
 

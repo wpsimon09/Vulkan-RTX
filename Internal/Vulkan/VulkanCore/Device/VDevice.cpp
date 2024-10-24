@@ -11,6 +11,7 @@
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 
 VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::PhysicalDevice &physicalDevice,const VulkanCore::VulkanInstance& instance) {
@@ -22,21 +23,24 @@ VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::Physical
     // NORMAL QUEUE FAMILIES
     //------------------------
     indices.graphicsFamily = std::make_pair(QUEUE_FAMILY_INDEX_GRAPHICS,VulkanUtils::FindQueueFamily(queueFamilyProperties, vk::QueueFlagBits::eGraphics));
+    indices.transferFamily = std::make_pair(QUEUE_FAMILY_INDEX_TRANSFER, VulkanUtils::FindQueueFamily(queueFamilyProperties, vk::QueueFlagBits::eTransfer));
 
     //----------------------
-    // TRANSFER QUEUE FAMILY
+    // PRESENT QUEUE FAMILY
     //----------------------
     vk::Bool32 presentSupport = false;
     unsigned int presentFamilyIndex = 0;
     for(int i = 0; i<queueFamilyProperties.size(); i++) {
         presentSupport = physicalDevice.getSurfaceSupportKHR(i, instance.GetSurface());
-        presentFamilyIndex = i;
+        if(presentSupport) {
+            presentFamilyIndex = i;
+        }
         break;
     }
+
     indices.presentFamily = std::make_pair(QUEUE_FAMILY_INDEX_PRESENT, presentFamilyIndex);
     assert(presentSupport == true);
     Utils::Logger::LogInfoVerboseOnly("Found transfer queue family at index: " + std::to_string(indices.presentFamily.value().second));
-
 
     return indices;
 }
@@ -45,6 +49,7 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance):m_insta
     m_physicalDevice = PickPhysicalDevice();
     CreateLogicalDevice();
     CreateVmaAllocator(instance);
+    m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(*this, QUEUE_FAMILY_INDEX_TRANSFER);
 }
 
 vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice() {
@@ -95,15 +100,20 @@ void VulkanCore::VDevice::CreateLogicalDevice() {
 
     m_device = m_physicalDevice.createDevice(deviceCreateInfo);
     assert(m_device);
-    Utils::Logger::LogInfoVerboseOnly("Successfully created logical device");
+    Utils::Logger::LogSuccess("Successfully created logical device");
 
     m_graphicsQueue = m_device.getQueue(m_queueFamilyIndices.graphicsFamily.value().second, 0);
     assert(m_graphicsQueue != VK_NULL_HANDLE);
     Utils::Logger::LogSuccess("Successfully retrieved graphics queue");
 
-    m_presentQueue = m_device.getQueue(m_queueFamilyIndices.presentFamily.value().second, 0);if(!m_presentQueue)
+    m_presentQueue = m_device.getQueue(m_queueFamilyIndices.presentFamily.value().second, 0);
     assert(m_presentQueue != VK_NULL_HANDLE);
     Utils::Logger::LogSuccess("Successfully retrieved present queue");
+
+    m_transferQueue = m_device.getQueue(m_queueFamilyIndices.transferFamily.value().second, 0);
+    assert(m_presentQueue != VK_NULL_HANDLE);
+    Utils::Logger::LogSuccess("Successfully retrieved transfer queue");
+
 }
 
 void VulkanCore::VDevice::CreateVmaAllocator(const VulkanCore::VulkanInstance &instance) {
@@ -123,6 +133,8 @@ const uint32_t & VulkanCore::VDevice::GetConcreteQueueFamilyIndex(QUEUE_FAMILY_I
             return m_queueFamilyIndices.graphicsFamily.value().second;
         case QUEUE_FAMILY_INDEX_PRESENT:
             return m_queueFamilyIndices.presentFamily.value().second;
+        case QUEUE_FAMILY_INDEX_TRANSFER:
+            return m_queueFamilyIndices.transferFamily.value().second;
     default:
         throw std::runtime_error("Invalid queue family index");
     }
@@ -135,6 +147,8 @@ const std::string VulkanCore::VDevice::GetQueueFamilyString(QUEUE_FAMILY_INDEX_T
         return "GRAPHICS";
     case QUEUE_FAMILY_INDEX_PRESENT:
         return "PRESENT";
+    case QUEUE_FAMILY_INDEX_TRANSFER:
+        return "TRANSFER";
     default:
         throw std::runtime_error("Invalid queue family index");
     }
@@ -143,5 +157,6 @@ const std::string VulkanCore::VDevice::GetQueueFamilyString(QUEUE_FAMILY_INDEX_T
 void VulkanCore::VDevice::Destroy() {
     vmaDestroyAllocator(m_vmaAllocator);
     m_device.destroy();
+    m_transferCommandPool->Destroy();
     Utils::Logger::LogInfoVerboseOnly("Logical device destroyed");
 }

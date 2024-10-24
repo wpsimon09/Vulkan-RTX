@@ -9,6 +9,7 @@
 
 namespace VulkanCore
 {
+    class VDevice;
     class VCommandPool;
 }
 
@@ -26,7 +27,7 @@ namespace VulkanUtils
         std::vector<vk::VertexInputAttributeDescription> &attributeDescription
     );
 
-    void CopyBuffers(VulkanCore::VCommandPool &commandPool, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size);
+    void CopyBuffers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size);
 }
 
 #endif //VGENERALUTILS_HPP
