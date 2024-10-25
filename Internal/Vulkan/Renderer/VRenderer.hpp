@@ -55,7 +55,7 @@ private:
     //=====================================
     // FOR MAIN LOOP
     //=====================================
-    void FetchSwapChainImage();
+    vk::Result FetchSwapChainImage();
     void SubmitCommandBuffer();
     void PresentResults();
     //=====================================

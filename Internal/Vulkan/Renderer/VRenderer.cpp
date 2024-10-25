@@ -42,7 +42,8 @@ namespace Renderer {
 
     void VRenderer::Render() {
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
-        FetchSwapChainImage();
+        //rerender the frame if image to present on is out of date
+        if(FetchSwapChainImage() == vk::Result::eEventReset) return;
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
         m_baseCommandBuffers[m_currentFrameIndex]->Reset();
         RecordCommandBuffersForPipelines();
@@ -133,7 +134,7 @@ namespace Renderer {
     // FOR RENDER DRAWING
     //=================================================================================================================
 
-    void VRenderer::FetchSwapChainImage() {
+    vk::Result VRenderer::FetchSwapChainImage() {
 
         auto imageIndex = m_device.GetDevice().acquireNextImageKHR(
             m_swapChain->GetSwapChain(), //swap chain
@@ -141,8 +142,9 @@ namespace Renderer {
             m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive()//signal semaphore,
             );
         switch (imageIndex.result) {
-            case vk::Result::eSuccess: m_currentImageIndex = imageIndex.value; break;
-            case vk::Result::eErrorOutOfDateKHR: throw std::runtime_error("Swap chain returned out of date, we have to implement resizing of the frame buffer "); break;
+            case vk::Result::eSuccess: m_currentImageIndex = imageIndex.value; return vk::Result::eSuccess;
+            case vk::Result::eErrorOutOfDateKHR: m_swapChain->RecreateSwapChain(); return vk::Result::eEventReset;
+            case vk::Result::eSuboptimalKHR: throw std::runtime_error("could not acquire next image KHR"); break;
             default: break;
         }
     }

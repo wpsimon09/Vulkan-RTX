@@ -174,6 +174,17 @@ void VulkanCore::VSwapChain::CreateSwapChainFrameBuffers(const VulkanCore::VRend
 }
 
 void VulkanCore::VSwapChain::RecreateSwapChain() {
+    Utils::Logger::LogInfo("Recreating swap chain...");
+    m_device.GetDevice().waitIdle();
 
+    Destroy();
+
+    ChooseExtent();
+    ChooseFormat();
+    ChoosePresentMode();
+    CreateSwapChain();
+    RetrieveSwapChainImagesAndImageViews();
+
+    Utils::Logger::LogSuccess("Swap chain recreated");
 };
 
