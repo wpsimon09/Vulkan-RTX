@@ -64,6 +64,7 @@ private:
     const Client& m_client;
     const VulkanCore::VDevice& m_device;
     uint32_t m_currentImageIndex = 0;
+    uint32_t m_currentFrameIndex = 0;
     int m_availableRecordingThreads = 0;
 
     std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;

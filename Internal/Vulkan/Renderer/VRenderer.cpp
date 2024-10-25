@@ -41,14 +41,14 @@ namespace Renderer {
     }
 
     void VRenderer::Render() {
-        m_isFrameFinishFences[m_currentImageIndex]->WaitForFence();
+        m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
         FetchSwapChainImage();
-        m_isFrameFinishFences[m_currentImageIndex]->ResetFence();
-        m_baseCommandBuffers[m_currentImageIndex]->Reset();
+        m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
+        m_baseCommandBuffers[m_currentFrameIndex]->Reset();
         RecordCommandBuffersForPipelines();
         SubmitCommandBuffer();
         PresentResults();
-        m_currentImageIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
+        m_currentFrameIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }
 
     void VRenderer::CreateCommandBufferPools() {
@@ -61,7 +61,6 @@ namespace Renderer {
         }
         Utils::Logger::LogInfo("Command pools and command buffers allocated !");
     }
-
 
     //==============================================================================
     // FOR COMMAND BUFFER
@@ -78,13 +77,13 @@ namespace Renderer {
         renderPassBeginInfo.clearValueCount = 1;
         renderPassBeginInfo.pClearValues = &clearColor;
 
-        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
     }
 
     void VRenderer::RecordCommandBuffersForPipelines() {
-        m_baseCommandBuffers[m_currentImageIndex]->BeginRecording();
+        m_baseCommandBuffers[m_currentFrameIndex]->BeginRecording();
         StartRenderPass();
-        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics,m_graphicsPipeline->GetPipelineInstance());
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics,m_graphicsPipeline->GetPipelineInstance());
         vk::Viewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
@@ -94,27 +93,27 @@ namespace Renderer {
 
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
-        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().setViewport(0,1, &viewport);
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().setViewport(0,1, &viewport);
 
         vk::Rect2D scissors{};
         scissors.offset.x = 0;
         scissors.offset.y = 0;
         scissors.extent = m_swapChain->GetExtent();
-        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().setScissor(0,1, &scissors);
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().setScissor(0,1, &scissors);
 
         auto mesh = m_client.GetMeshes()[0].get();
         std::vector<vk::Buffer> vertexBuffers = { mesh.GetVertexArray()->GetVertexBuffer().GetBuffer() };
         std::vector<vk::DeviceSize> offsets = {0};
-        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().bindIndexBuffer(mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),0, vk::IndexType::eUint32);
-        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().bindVertexBuffers(0,1,vertexBuffers.data(), offsets.data());
-        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().drawIndexed(mesh.GetMeshIndexCount(), 1, 0,0,0);
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindIndexBuffer(mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),0, vk::IndexType::eUint32);
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindVertexBuffers(0,1,vertexBuffers.data(), offsets.data());
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(mesh.GetMeshIndexCount(), 1, 0,0,0);
 
         EndRenderPass();
-        m_baseCommandBuffers[m_currentImageIndex]->EndRecording();
+        m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
     }
 
     void VRenderer::EndRenderPass() {
-        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().endRenderPass();
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().endRenderPass();
     }
 
     void VRenderer::CreateSyncPrimitives() {
@@ -139,7 +138,7 @@ namespace Renderer {
         auto imageIndex = m_device.GetDevice().acquireNextImageKHR(
             m_swapChain->GetSwapChain(), //swap chain
             UINT64_MAX, // timeoout
-            m_imageAvailableSemaphores[m_currentImageIndex]->GetSyncPrimitive()//signal semaphore,
+            m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive()//signal semaphore,
             );
         switch (imageIndex.result) {
             case vk::Result::eSuccess: m_currentImageIndex = imageIndex.value; break;
@@ -149,9 +148,9 @@ namespace Renderer {
     }
 
     void VRenderer::SubmitCommandBuffer() {
-        assert(!m_baseCommandBuffers[m_currentImageIndex]->GetIsRecording());
+        assert(!m_baseCommandBuffers[m_currentFrameIndex]->GetIsRecording());
         vk::SubmitInfo submitInfo;
-        std::array<vk::Semaphore,1> waitSemaphores = { m_imageAvailableSemaphores[m_currentImageIndex]->GetSyncPrimitive() };
+        std::array<vk::Semaphore,1> waitSemaphores = { m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive() };
         std::array<vk::PipelineStageFlags,1> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
 
         submitInfo.waitSemaphoreCount = waitSemaphores.size();
@@ -159,20 +158,20 @@ namespace Renderer {
         submitInfo.pWaitDstStageMask = waitStages.data();
 
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer();
+        submitInfo.pCommandBuffers = &m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer();
 
-        std::vector<vk::Semaphore> signalSemaphores = {m_renderFinishedSemaphores[m_currentImageIndex]->GetSyncPrimitive()};
+        std::vector<vk::Semaphore> signalSemaphores = {m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
         submitInfo.signalSemaphoreCount = signalSemaphores.size();
         submitInfo.pSignalSemaphores = signalSemaphores.data();
 
-        assert(m_device.GetGraphicsQueue().submit( 1 ,&submitInfo, m_isFrameFinishFences[m_currentImageIndex]->GetSyncPrimitive()) == vk::Result::eSuccess);
+        assert(m_device.GetGraphicsQueue().submit( 1 ,&submitInfo, m_isFrameFinishFences[m_currentFrameIndex]->GetSyncPrimitive()) == vk::Result::eSuccess);
         Utils::Logger::LogInfoVerboseRendering("Successfully submitted the command buffer");
     }
 
     void VRenderer::PresentResults() {
         vk::PresentInfoKHR presentInfo;
         presentInfo.waitSemaphoreCount = 1 ;
-        presentInfo.pWaitSemaphores = &m_renderFinishedSemaphores[m_currentImageIndex]->GetSyncPrimitive();
+        presentInfo.pWaitSemaphores = &m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive();
 
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_swapChain->GetSwapChain();

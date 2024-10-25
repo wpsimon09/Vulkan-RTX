@@ -175,6 +175,5 @@ void VulkanCore::VSwapChain::CreateSwapChainFrameBuffers(const VulkanCore::VRend
 
 void VulkanCore::VSwapChain::RecreateSwapChain() {
 
-
 };
 
