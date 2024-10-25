@@ -41,24 +41,27 @@ namespace Renderer {
     }
 
     void VRenderer::Render() {
-        m_isFrameFinishFence->WaitForFence();
+        m_isFrameFinishFences[m_currentImageIndex]->WaitForFence();
         FetchSwapChainImage();
-        m_isFrameFinishFence->ResetFence();
-        m_baseCommandBuffer->Reset();
+        m_isFrameFinishFences[m_currentImageIndex]->ResetFence();
+        m_baseCommandBuffers[m_currentImageIndex]->Reset();
         RecordCommandBuffersForPipelines();
         SubmitCommandBuffer();
         PresentResults();
-
+        m_currentImageIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }
 
     void VRenderer::CreateCommandBufferPools() {
-        auto pipelines = m_pipelineManager->GetAllPipelines();
 
         Utils::Logger::LogInfo("Allocating command pools...");
         m_baseCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, QUEUE_FAMILY_INDEX_GRAPHICS);
-        m_baseCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_baseCommandPool);
+        m_baseCommandBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+            m_baseCommandBuffers[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_baseCommandPool);
+        }
         Utils::Logger::LogInfo("Command pools and command buffers allocated !");
     }
+
 
     //==============================================================================
     // FOR COMMAND BUFFER
@@ -75,13 +78,13 @@ namespace Renderer {
         renderPassBeginInfo.clearValueCount = 1;
         renderPassBeginInfo.pClearValues = &clearColor;
 
-        m_baseCommandBuffer->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
+        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
     }
 
     void VRenderer::RecordCommandBuffersForPipelines() {
-        m_baseCommandBuffer->BeginRecording();
+        m_baseCommandBuffers[m_currentImageIndex]->BeginRecording();
         StartRenderPass();
-        m_baseCommandBuffer->GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics,m_graphicsPipeline->GetPipelineInstance());
+        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics,m_graphicsPipeline->GetPipelineInstance());
         vk::Viewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
@@ -91,33 +94,38 @@ namespace Renderer {
 
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
-        m_baseCommandBuffer->GetCommandBuffer().setViewport(0,1, &viewport);
+        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().setViewport(0,1, &viewport);
 
         vk::Rect2D scissors{};
         scissors.offset.x = 0;
         scissors.offset.y = 0;
         scissors.extent = m_swapChain->GetExtent();
-        m_baseCommandBuffer->GetCommandBuffer().setScissor(0,1, &scissors);
+        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().setScissor(0,1, &scissors);
 
         auto mesh = m_client.GetMeshes()[0].get();
         std::vector<vk::Buffer> vertexBuffers = { mesh.GetVertexArray()->GetVertexBuffer().GetBuffer() };
         std::vector<vk::DeviceSize> offsets = {0};
-        m_baseCommandBuffer->GetCommandBuffer().bindIndexBuffer(mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),0, vk::IndexType::eUint32);
-        m_baseCommandBuffer->GetCommandBuffer().bindVertexBuffers(0,1,vertexBuffers.data(), offsets.data());
-        m_baseCommandBuffer->GetCommandBuffer().drawIndexed(mesh.GetMeshIndexCount(), 1, 0,0,0);
+        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().bindIndexBuffer(mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),0, vk::IndexType::eUint32);
+        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().bindVertexBuffers(0,1,vertexBuffers.data(), offsets.data());
+        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().drawIndexed(mesh.GetMeshIndexCount(), 1, 0,0,0);
 
         EndRenderPass();
-        m_baseCommandBuffer->EndRecording();
+        m_baseCommandBuffers[m_currentImageIndex]->EndRecording();
     }
 
     void VRenderer::EndRenderPass() {
-        m_baseCommandBuffer->GetCommandBuffer().endRenderPass();
+        m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer().endRenderPass();
     }
 
     void VRenderer::CreateSyncPrimitives() {
-        m_imageAvailableSemaphore = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
-        m_renderFinishedSemaphore = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
-        m_isFrameFinishFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device, true);
+        m_imageAvailableSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        m_renderFinishedSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        m_isFrameFinishFences.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        for(int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+            m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+            m_renderFinishedSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+            m_isFrameFinishFences[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device, true);
+        }
     }
     //===============================================================================================================
 
@@ -131,7 +139,7 @@ namespace Renderer {
         auto imageIndex = m_device.GetDevice().acquireNextImageKHR(
             m_swapChain->GetSwapChain(), //swap chain
             UINT64_MAX, // timeoout
-            m_imageAvailableSemaphore->GetSyncPrimitive()//signal semaphore,
+            m_imageAvailableSemaphores[m_currentImageIndex]->GetSyncPrimitive()//signal semaphore,
             );
         switch (imageIndex.result) {
             case vk::Result::eSuccess: m_currentImageIndex = imageIndex.value; break;
@@ -141,9 +149,9 @@ namespace Renderer {
     }
 
     void VRenderer::SubmitCommandBuffer() {
-        assert(!m_baseCommandBuffer->GetIsRecording());
+        assert(!m_baseCommandBuffers[m_currentImageIndex]->GetIsRecording());
         vk::SubmitInfo submitInfo;
-        std::array<vk::Semaphore,1> waitSemaphores = { m_imageAvailableSemaphore->GetSyncPrimitive() };
+        std::array<vk::Semaphore,1> waitSemaphores = { m_imageAvailableSemaphores[m_currentImageIndex]->GetSyncPrimitive() };
         std::array<vk::PipelineStageFlags,1> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
 
         submitInfo.waitSemaphoreCount = waitSemaphores.size();
@@ -151,20 +159,20 @@ namespace Renderer {
         submitInfo.pWaitDstStageMask = waitStages.data();
 
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_baseCommandBuffer->GetCommandBuffer();
+        submitInfo.pCommandBuffers = &m_baseCommandBuffers[m_currentImageIndex]->GetCommandBuffer();
 
-        std::vector<vk::Semaphore> signalSemaphores = {m_renderFinishedSemaphore->GetSyncPrimitive()};
+        std::vector<vk::Semaphore> signalSemaphores = {m_renderFinishedSemaphores[m_currentImageIndex]->GetSyncPrimitive()};
         submitInfo.signalSemaphoreCount = signalSemaphores.size();
         submitInfo.pSignalSemaphores = signalSemaphores.data();
 
-        assert(m_device.GetGraphicsQueue().submit( 1 ,&submitInfo, m_isFrameFinishFence->GetSyncPrimitive()) == vk::Result::eSuccess);
+        assert(m_device.GetGraphicsQueue().submit( 1 ,&submitInfo, m_isFrameFinishFences[m_currentImageIndex]->GetSyncPrimitive()) == vk::Result::eSuccess);
         Utils::Logger::LogInfoVerboseRendering("Successfully submitted the command buffer");
     }
 
     void VRenderer::PresentResults() {
         vk::PresentInfoKHR presentInfo;
         presentInfo.waitSemaphoreCount = 1 ;
-        presentInfo.pWaitSemaphores = &m_renderFinishedSemaphore->GetSyncPrimitive();
+        presentInfo.pWaitSemaphores = &m_renderFinishedSemaphores[m_currentImageIndex]->GetSyncPrimitive();
 
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_swapChain->GetSwapChain();
@@ -175,12 +183,14 @@ namespace Renderer {
     }
 
     void VRenderer::Destroy() {
-        m_imageAvailableSemaphore->Destroy();
-        m_renderFinishedSemaphore->Destroy();
-        m_isFrameFinishFence->Destroy();
+        for(int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+            m_imageAvailableSemaphores[i]->Destroy();
+            m_renderFinishedSemaphores[i]->Destroy();
+            m_isFrameFinishFences[i]->Destroy();
+            m_baseCommandBuffers[i]->Destroy();
+        }
         m_mainRenderPass->Destroy();
         m_pipelineManager->DestroyPipelines();
-        m_baseCommandBuffer->Destroy();
         m_baseCommandPool->Destroy();
         m_swapChain->Destroy();
     }

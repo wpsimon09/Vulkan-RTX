@@ -5,6 +5,7 @@
 #ifndef VGENERALUTILS_HPP
 #define VGENERALUTILS_HPP
 #include <cstdint>
+#include <memory>
 #include <vulkan/vulkan.hpp>
 
 namespace VulkanCore

@@ -36,7 +36,6 @@ namespace VulkanCore {
                 Utils::Logger::LogSuccess("Created fence !");
 
             }
-
         };
         void Destroy() override {
                 if constexpr (std::is_same<T, vk::Semaphore>::value) {

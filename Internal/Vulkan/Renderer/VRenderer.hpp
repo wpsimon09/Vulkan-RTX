@@ -41,6 +41,7 @@ private:
     // FOR INITIALIZATION
     //==================================
     void CreateCommandBufferPools();
+    void CreateSyncPrimitives();
     //==================================
 
     //==================================
@@ -49,7 +50,6 @@ private:
     void StartRenderPass();
     void RecordCommandBuffersForPipelines();
     void EndRenderPass();
-    void CreateSyncPrimitives();
     //====================================
 
     //=====================================
@@ -66,15 +66,15 @@ private:
     uint32_t m_currentImageIndex = 0;
     int m_availableRecordingThreads = 0;
 
-    std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>> m_imageAvailableSemaphore;
-    std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>> m_renderFinishedSemaphore;
-    std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Fence>> m_isFrameFinishFence;
+    std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
+    std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_renderFinishedSemaphores;
+    std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Fence>>> m_isFrameFinishFences;
 
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
     std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;
     std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
     std::unique_ptr<class VulkanCore::VCommandPool> m_baseCommandPool;
-    std::unique_ptr<class VulkanCore::VCommandBuffer> m_baseCommandBuffer;
+    std::vector<std::unique_ptr<class VulkanCore::VCommandBuffer>> m_baseCommandBuffers;
     const VulkanCore::VGraphicsPipeline* m_graphicsPipeline;
 
 };
