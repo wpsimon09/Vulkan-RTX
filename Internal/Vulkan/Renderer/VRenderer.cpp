@@ -142,9 +142,19 @@ namespace Renderer {
             m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive()//signal semaphore,
             );
         switch (imageIndex.result) {
-            case vk::Result::eSuccess: m_currentImageIndex = imageIndex.value; return vk::Result::eSuccess;
-            case vk::Result::eErrorOutOfDateKHR: m_swapChain->RecreateSwapChain(); return vk::Result::eEventReset;
-            case vk::Result::eSuboptimalKHR: throw std::runtime_error("could not acquire next image KHR"); break;
+            case vk::Result::eSuccess: {
+                m_currentImageIndex = imageIndex.value;
+                Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
+                return vk::Result::eSuccess;
+            }
+            case vk::Result::eErrorOutOfDateKHR: {
+                m_swapChain->RecreateSwapChain();
+                Utils::Logger::LogError("Swap chain was out of date ");
+                return vk::Result::eEventReset;
+            }
+            case vk::Result::eSuboptimalKHR: {
+                throw std::runtime_error("Suboptimal swap chain retrieved");
+            };
             default: break;
         }
     }
@@ -179,7 +189,14 @@ namespace Renderer {
         presentInfo.pSwapchains = &m_swapChain->GetSwapChain();
         presentInfo.pImageIndices = &m_currentImageIndex;
         presentInfo.pResults = nullptr;
-        assert(m_device.GetPresentQueue().presentKHR(&presentInfo) == vk::Result::eSuccess);
+        vk::Result result;
+        try{
+            result = m_device.GetPresentQueue().presentKHR(&presentInfo);
+        }catch (std::exception& e) {
+            if(result == vk::Result::eSuboptimalKHR || result == vk::Result::eErrorOutOfDateKHR) {
+                m_swapChain->RecreateSwapChain();
+            }
+        }
         Utils::Logger::LogInfoVerboseRendering("Image presented to the view successfully");
     }
 

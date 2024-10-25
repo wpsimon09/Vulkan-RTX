@@ -10,6 +10,7 @@
 
 namespace VulkanCore
 {
+    class VSwapChain;
     class VDevice;
     class VCommandPool;
 }
@@ -29,6 +30,10 @@ namespace VulkanUtils
     );
 
     void CopyBuffers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size);
+
+    std::pair<vk::Result, uint32_t> SwapChainNextImageKHRWrapper(const VulkanCore::VSwapChain& swapChain, uint64_t timeOut, vk::Semaphore semaphore, vk::Fence fence);
+
+    vk::Result PresentQueueWrapper(vk::Queue queue, const vk::PresentInfoKHR &presentInfo);
 }
 
 #endif //VGENERALUTILS_HPP

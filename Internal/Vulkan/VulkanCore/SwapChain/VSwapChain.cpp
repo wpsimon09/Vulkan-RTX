@@ -26,13 +26,15 @@ VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const Vulk
 void VulkanCore::VSwapChain::Destroy() {
     Utils::Logger::LogInfoVerboseOnly("Destroying swap chain image views... ");
     for (auto &image : m_images) {
-        image->Destroy();
+        if(image)
+            image->Destroy();
     }
     Utils::Logger::LogInfoVerboseOnly("Swap chain image views destroyed !");
 
     Utils::Logger::LogInfoVerboseOnly("Destroying swap chain FrameBuffers...");
     for(auto &frameBuffer:m_swapChainFrameBuffers) {
-        frameBuffer->Destroy();
+        if(frameBuffer)
+            frameBuffer->Destroy();
     }
     Utils::Logger::LogInfoVerboseOnly("Swap chain frame buffers destroyed !");
 

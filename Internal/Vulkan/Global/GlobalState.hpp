@@ -9,7 +9,7 @@ namespace GlobalState
 {
     inline static bool ValidationLayersEnabled = true;
     inline static bool Verbose = true;
-    inline static bool VerboseInRendering = false;
+    inline static bool VerboseInRendering = true;
     inline static bool AutoCommandBufferFlags = true;
 }
 
