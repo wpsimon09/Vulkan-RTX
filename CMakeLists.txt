@@ -74,6 +74,7 @@ set(SOURCES
         Internal/Application/Rendering/Transformations/Transformations.hpp
         Internal/Application/Rendering/Camera/Camera.cpp
         Internal/Application/Rendering/Camera/Camera.hpp
+        Internal/Application/Structs/ApplicationStructs.hpp
 
 )
 

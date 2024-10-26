@@ -38,10 +38,6 @@ public:
 
     float GetNearPlane() {return this->m_nearPlane;}
 
-    bool GetIsFirstMouse() const {return m_isFirstMouse;}
-
-    void SetIsFirstMouse(bool val = false ) {this->m_isFirstMouse = val;}
-
     void Update();
 
     ~Camera() = default;
@@ -63,7 +59,6 @@ private:
 
     float m_farPlane;
     float m_nearPlane;
-    bool m_isFirstMouse = true;
 };
 
 } // ApplicationCore
