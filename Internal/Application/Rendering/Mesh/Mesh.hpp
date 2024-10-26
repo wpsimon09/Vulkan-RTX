@@ -10,6 +10,11 @@
 
 namespace ApplicationCore
 {
+    class Transformations;
+}
+
+namespace ApplicationCore
+{
     class AssetsManager;
     class VertexArray;
     class Mesh {
@@ -19,12 +24,17 @@ namespace ApplicationCore
         const size_t GetMeshIndexArraySize() const;
         const uint32_t GetMeshIndexCount() const;
         const uint32_t GetMeshVertexCount() const;
+        const ApplicationCore::Transformations& GetTransformations() const { return *m_transformations; };
         const VertexArray* GetVertexArray() const {return m_vertexArray;}
+
+        void Update();
+
         void Destroy();
 
     private:
         const void AssignMeshGeometryData(ApplicationCore::AssetsManager& assetsManger);
         std::string MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType);
+        std::unique_ptr<ApplicationCore::Transformations> m_transformations;
     private:
         MESH_GEOMETRY_TYPE m_geometryType;
         VertexArray* m_vertexArray;

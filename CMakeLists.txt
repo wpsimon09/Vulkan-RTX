@@ -70,6 +70,10 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Buffer/VBuffer.hpp
         Internal/Application/AssetsManger/AssetsManager.cpp
         Internal/Application/AssetsManger/AssetsManager.hpp
+        Internal/Application/Rendering/Transformations/Transformations.cpp
+        Internal/Application/Rendering/Transformations/Transformations.hpp
+        Internal/Application/Rendering/Camera/Camera.cpp
+        Internal/Application/Rendering/Camera/Camera.hpp
 
 )
 
