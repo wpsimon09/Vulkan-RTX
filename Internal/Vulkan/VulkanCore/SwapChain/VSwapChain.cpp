@@ -30,12 +30,13 @@ void VulkanCore::VSwapChain::Destroy() {
             image->Destroy();
     }
     Utils::Logger::LogInfoVerboseOnly("Swap chain image views destroyed !");
-
+    m_images.clear();
     Utils::Logger::LogInfoVerboseOnly("Destroying swap chain FrameBuffers...");
     for(auto &frameBuffer:m_swapChainFrameBuffers) {
         if(frameBuffer)
             frameBuffer->Destroy();
     }
+    m_swapChainFrameBuffers.clear();
     Utils::Logger::LogInfoVerboseOnly("Swap chain frame buffers destroyed !");
 
     m_device.GetDevice().destroySwapchainKHR(m_swapChain);
@@ -175,7 +176,7 @@ void VulkanCore::VSwapChain::CreateSwapChainFrameBuffers(const VulkanCore::VRend
 
 }
 
-void VulkanCore::VSwapChain::RecreateSwapChain() {
+void VulkanCore::VSwapChain::RecreateSwapChain(const VulkanCore::VRenderPass& renderPass) {
     Utils::Logger::LogInfo("Recreating swap chain...");
     m_device.GetDevice().waitIdle();
 
@@ -186,7 +187,9 @@ void VulkanCore::VSwapChain::RecreateSwapChain() {
     ChoosePresentMode();
     CreateSwapChain();
     RetrieveSwapChainImagesAndImageViews();
+    CreateSwapChainFrameBuffers(renderPass);
 
-    Utils::Logger::LogSuccess("Swap chain recreated");
+
+    Utils::Logger::LogSuccess("Swap chain recreated ");
 };
 

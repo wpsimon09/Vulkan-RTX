@@ -64,6 +64,8 @@ VkBool32 VulkanCore::VulkanInstance::debugMessageFunc(VkDebugUtilsMessageSeverit
         }
         std::string file = "Error in the file: \t";
         file += __FILE__;
+        file += "\n\tLine:";
+        file += __LINE__;
         file += "\n";
 
         Utils::Logger::LogError(file + message.str());

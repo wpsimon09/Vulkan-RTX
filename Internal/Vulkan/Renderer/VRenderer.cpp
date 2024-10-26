@@ -15,6 +15,7 @@
 #include "Application/Client.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
@@ -43,7 +44,10 @@ namespace Renderer {
     void VRenderer::Render() {
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
         //rerender the frame if image to present on is out of date
-        if(FetchSwapChainImage() == vk::Result::eEventReset) return;
+        if(FetchSwapChainImage() == vk::Result::eEventReset) {
+            Utils::Logger::LogInfoVerboseRendering("Received event reset signal, resetting the rendering....");
+            return;
+        }
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
         m_baseCommandBuffers[m_currentFrameIndex]->Reset();
         RecordCommandBuffersForPipelines();
@@ -136,20 +140,16 @@ namespace Renderer {
 
     vk::Result VRenderer::FetchSwapChainImage() {
 
-        auto imageIndex = m_device.GetDevice().acquireNextImageKHR(
-            m_swapChain->GetSwapChain(), //swap chain
-            UINT64_MAX, // timeoout
-            m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive()//signal semaphore,
-            );
-        switch (imageIndex.result) {
+       auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX, *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
+        switch (imageIndex.first) {
             case vk::Result::eSuccess: {
-                m_currentImageIndex = imageIndex.value;
+                m_currentImageIndex = imageIndex.second;
                 Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
                 return vk::Result::eSuccess;
             }
             case vk::Result::eErrorOutOfDateKHR: {
-                m_swapChain->RecreateSwapChain();
-                Utils::Logger::LogError("Swap chain was out of date ");
+                m_swapChain->RecreateSwapChain(*m_mainRenderPass);
+                Utils::Logger::LogError("Swap chain was out of date, trying to recreate it...  ");
                 return vk::Result::eEventReset;
             }
             case vk::Result::eSuboptimalKHR: {
@@ -189,13 +189,9 @@ namespace Renderer {
         presentInfo.pSwapchains = &m_swapChain->GetSwapChain();
         presentInfo.pImageIndices = &m_currentImageIndex;
         presentInfo.pResults = nullptr;
-        vk::Result result;
-        try{
-            result = m_device.GetPresentQueue().presentKHR(&presentInfo);
-        }catch (std::exception& e) {
-            if(result == vk::Result::eSuboptimalKHR || result == vk::Result::eErrorOutOfDateKHR) {
-                m_swapChain->RecreateSwapChain();
-            }
+        vk::Result result = VulkanUtils::PresentQueueWrapper(m_device.GetPresentQueue(), presentInfo);
+        if(result == vk::Result::eSuboptimalKHR || result == vk::Result::eErrorOutOfDateKHR) {
+            m_swapChain->RecreateSwapChain(*m_mainRenderPass);
         }
         Utils::Logger::LogInfoVerboseRendering("Image presented to the view successfully");
     }

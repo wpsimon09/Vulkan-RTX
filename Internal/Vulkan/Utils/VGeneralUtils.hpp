@@ -7,6 +7,9 @@
 #include <cstdint>
 #include <memory>
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
+
+#include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 namespace VulkanCore
 {
@@ -31,7 +34,7 @@ namespace VulkanUtils
 
     void CopyBuffers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size);
 
-    std::pair<vk::Result, uint32_t> SwapChainNextImageKHRWrapper(const VulkanCore::VSwapChain& swapChain, uint64_t timeOut, vk::Semaphore semaphore, vk::Fence fence);
+    std::pair<vk::Result, uint32_t> SwapChainNextImageKHRWrapper(const VulkanCore::VDevice& device,const VulkanCore::VSwapChain& swapChain, uint64_t timeOut, const VulkanCore::VSyncPrimitive<vk::Semaphore>& semaphore, VulkanCore::VSyncPrimitive<vk::Fence>* fence);
 
     vk::Result PresentQueueWrapper(vk::Queue queue, const vk::PresentInfoKHR &presentInfo);
 }

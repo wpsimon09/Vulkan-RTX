@@ -96,21 +96,22 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffe
     Utils::Logger::LogSuccess("Buffer copy completed !");
 }
 
-std::pair<vk::Result, uint32_t> VulkanUtils::SwapChainNextImageKHRWrapper(const VulkanCore::VSwapChain &swapChain,
-    uint64_t timeOut, vk::Semaphore semaphore, vk::Fence fence) {
-
-    //make normal vulkan call here without the vk::hpp handler
+std::pair<vk::Result, uint32_t> VulkanUtils::SwapChainNextImageKHRWrapper(const VulkanCore::VDevice &device,
+    const VulkanCore::VSwapChain &swapChain, uint64_t timeOut, const VulkanCore::VSyncPrimitive<vk::Semaphore>& semaphore,
+    VulkanCore::VSyncPrimitive<vk::Fence> *fence) {
     uint32_t image_index;
-    vk::Result result = static_cast<vk::Result>(swapChain.GetSwapChain.getDispatcher()->vkAcquireNextImageKHR(
-        static_cast<VkDevice>(swapchain.getDevice()), static_cast<VkSwapchainKHR>(*swapchain),
-        timeout, static_cast<VkSemaphore>(semaphore), static_cast<VkFence>(fence), &image_index));
+    auto result = static_cast<vk::Result>(vkAcquireNextImageKHR(
+            device.GetDevice(),
+            swapChain.GetSwapChain(),
+            timeOut,
+            semaphore.GetSyncPrimitive(),
+            nullptr,
+            &image_index
+        ));
     return std::make_pair(result, image_index);
 }
 
 vk::Result VulkanUtils::PresentQueueWrapper(vk::Queue queue, const vk::PresentInfoKHR &presentInfo) {
-
+    auto result = static_cast<vk::Result>(vkQueuePresentKHR(queue,reinterpret_cast<const VkPresentInfoKHR*>(&presentInfo)));
+    return result;
 }
-
-
-
-
