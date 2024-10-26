@@ -22,7 +22,12 @@ public:
 
     static void GetRequiredExtensions(const char**& extensions, uint32_t& count );
 
+
     ~WindowManager();
+private:
+    static void MousePositionCallback(GLFWwindow *window, double xpos, double ypos);
+    static void MouseClickCallback(GLFWwindow *window, int button, int action, int mods);
+    static void MouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 private:
     static inline GLFWwindow* m_window;
     static inline int m_width, m_height;

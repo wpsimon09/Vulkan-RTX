@@ -18,6 +18,11 @@ void WindowManager::InitWindow()
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     m_window = glfwCreateWindow(m_width, m_height, "Vulkan-RTX", NULL, NULL);
+
+    //Call backs
+    glfwSetCursorPosCallback(m_window, MousePositionCallback);
+    glfwSetMouseButtonCallback(m_window, MouseClickCallback);
+    glfwSetScrollCallback(m_window, MouseScrollCallback);
 }
 
 int WindowManager::GetWindowWidth() {
@@ -44,4 +49,15 @@ void WindowManager::GetRequiredExtensions(const char**& extensions, uint32_t& co
 WindowManager::~WindowManager()
 {
     glfwDestroyWindow(m_window);
+}
+
+void WindowManager::MousePositionCallback(GLFWwindow *window, double xpos, double ypos) {
+
+}
+
+void WindowManager::MouseClickCallback(GLFWwindow *window, int button, int action, int mods) {
+
+}
+
+void WindowManager::MouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
 }
