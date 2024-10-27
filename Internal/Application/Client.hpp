@@ -12,6 +12,11 @@
 
 namespace ApplicationCore
 {
+    class Camera;
+}
+
+namespace ApplicationCore
+{
     class AssetsManager;
     class Mesh;
 }
@@ -28,7 +33,7 @@ public:
 private:
     std::unique_ptr<ApplicationCore::AssetsManager> m_assetsManager;
     std::vector<std::unique_ptr<class ApplicationCore::Mesh>> m_meshes;
-
+    std::unique_ptr<ApplicationCore::Camera> m_camera;
 };
 
 

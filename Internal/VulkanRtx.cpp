@@ -77,6 +77,9 @@ void Application::Run()
 
 void Application::Update()
 {
+    if(m_windowManager->GetIsDirty()) {
+        m_client->Update();
+    }
 }
 
 void Application::Render() {

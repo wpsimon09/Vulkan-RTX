@@ -11,6 +11,8 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include <cassert>
 
+#include "Rendering/Camera/Camera.hpp"
+
 void Client::Init() {
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -18,6 +20,11 @@ void Client::Init() {
     assert(m_assetsManager);
     m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CROSS, *m_assetsManager));
     assert(!m_meshes.empty());
+
+    Utils::Logger::LogInfoVerboseOnly("Creating camera...");
+    m_camera = std::make_unique<ApplicationCore::Camera>();
+    Utils::Logger::LogSuccessClient("Camera creatd");
+
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

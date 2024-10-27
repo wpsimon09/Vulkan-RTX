@@ -7,14 +7,13 @@
 
 namespace ApplicationCore
 {
-    Camera::Camera(GLFWwindow *window, glm::vec3 center, glm::vec3 up, float radius, float minRadius,
+    Camera::Camera(glm::vec3 center, glm::vec3 up, float radius, float minRadius,
                    float azimuthAngle, float polarAngle) {
         m_center = center;
         m_worldUp = up;
 
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-        m_projection = glm::perspective(glm::radians(65.0f), (float)width / (float)height, 0.1f, 700.0f);
+        float width = 800, height = 600;
+        m_projection = glm::perspective(glm::radians(65.0f), width / height, 0.1f, 700.0f);
         m_farPlane = 700.0f;;
         m_nearPlane = 0.1f;
 
@@ -73,7 +72,6 @@ namespace ApplicationCore
     }
 
     void Camera::ProcessResize(int newWidht, int newHeight) {
-        ;
         m_projection = glm::perspective(glm::radians(65.0f), (float)newWidht / (float)newHeight, 0.1f, 470.0f);
         m_farPlane = GetFarPlane();
         m_nearPlane = 0.1f;

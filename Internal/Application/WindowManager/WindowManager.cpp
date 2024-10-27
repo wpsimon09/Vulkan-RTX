@@ -8,11 +8,11 @@
 
 #include "Application/Structs/ApplicationStructs.hpp"
 
-WindowManager::WindowManager(int windowWidth, int windowHeight)
+WindowManager::WindowManager(int windowWidth, int windowHeight):m_cameraMovement{0.0f, 0.0f, 0.0f}
 {
     m_width = windowWidth;
     m_height = windowHeight;
-    m_cameraMovement = { 0.0f, 0.0f, 0.0f };
+    m_isDirty = false;
 }
 
 void WindowManager::InitWindow()
@@ -22,8 +22,10 @@ void WindowManager::InitWindow()
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     m_window = glfwCreateWindow(m_width, m_height, "Vulkan-RTX", NULL, NULL);
+    glfwSetWindowUserPointer(m_window, this);
 
     //Call backs
+
     glfwSetCursorPosCallback(m_window, MousePositionCallback);
     glfwSetMouseButtonCallback(m_window, MouseClickCallback);
     glfwSetScrollCallback(m_window, MouseScrollCallback);
@@ -56,41 +58,47 @@ WindowManager::~WindowManager()
 }
 
 void WindowManager::MousePositionCallback(GLFWwindow *window, double xpos, double ypos) {
-    m_mousePos.x = static_cast<float>(xpos);
-    m_mousePos.y = static_cast<float>(ypos);
+    auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(m_window));
+    winm->m_mousePos.x = static_cast<float>(xpos);
+    winm->m_mousePos.y = static_cast<float>(ypos);
 
     auto pointerX = (float)xpos;
     auto pointerY = (float)ypos;
-    if (m_isFirstMouse)
+    if (winm->m_isFirstMouse)
     {
-        m_lastX = xpos;
-        m_lastY = ypos;
-        m_isFirstMouse = false;;
+        winm->m_lastX = xpos;
+        winm->m_lastY = ypos;
+        winm->m_isFirstMouse = false;;
     }
 
-    float xOffset = xpos - m_lastX;
-    float yOffset = m_lastY - ypos; // Invert the sign here
+    float xOffset = xpos - winm->m_lastX;
+    float yOffset = winm->m_lastY - ypos; // Invert the sign here
 
-    m_lastX = xpos;
-    m_lastY = ypos;
+    winm->m_lastX = xpos;
+    winm->m_lastY = ypos;
 
     xOffset *= 0.01;
     yOffset *= 0.01;
 
-    if (xOffset != 0.0 && m_isMousePressed)
+    if (xOffset != 0.0 && winm->m_isMousePressed)
     {
-        m_cameraMovement.RotateAzimuthValue =  xOffset;
+        // have isDirty = true here and in the getter set dirty to false so that cmare is not calculating new stuff every frameP
+        // in camera update send this to the camera to know how much to rotate, if nothing happend than dont send it
+        winm->m_cameraMovement.RotateAzimuthValue =  xOffset;
     }
 
-    if (yOffset != 0.0 && m_isMousePressed)
+    if (yOffset != 0.0 && winm->m_isMousePressed)
     {
-        m_cameraMovement.RotatePolarValue = -yOffset;
+        winm->m_cameraMovement.RotatePolarValue = -yOffset;
     }
 }
 
 void WindowManager::MouseClickCallback(GLFWwindow *window, int button, int action, int mods) {
+    auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
 
 }
 
 void WindowManager::MouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
+    auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer((window)));
+    winm->m_cameraMovement.ZoomValue = (float)yoffset;
 }

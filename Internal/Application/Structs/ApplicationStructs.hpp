@@ -5,11 +5,13 @@
 #ifndef APPLICATIONSTRUCTS_HPP
 #define APPLICATIONSTRUCTS_HPP
 
-struct CameraMovement
+struct CameraUpdateInfo
 {
     float RotatePolarValue;
     float RotateAzimuthValue;
     float ZoomValue;
+    float NewWidth;
+    float NewHeight;
 };
 
 #endif //APPLICATIONSTRUCTS_HPP
