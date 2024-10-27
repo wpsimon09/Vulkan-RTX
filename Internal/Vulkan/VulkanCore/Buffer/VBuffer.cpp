@@ -29,6 +29,7 @@ namespace VulkanCore {
         // - STAGING
         // - GPU ONLY
         //----------------------
+        m_bufferType = vk::BufferUsageFlagBits::eVertexBuffer;
         Utils::Logger::LogInfoVerboseOnly("Allocating Vertex buffer and staging buffer for the mesh...");
         CreateBuffer(vertices.size() * sizeof(ApplicationCore::Vertex), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
         CreateStagingBuffer(vertices.size() * sizeof(ApplicationCore::Vertex));
@@ -68,6 +69,7 @@ namespace VulkanCore {
         // - STAGING
         // - GPU ONLY
         //----------------------
+        m_bufferType = vk::BufferUsageFlagBits::eIndexBuffer;
         Utils::Logger::LogInfo("Allocating Index buffer and staging buffer for the mesh ");
         CreateBuffer(indices.size() * sizeof(ApplicationCore::Vertex), VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
         CreateStagingBuffer(indices.size() * sizeof(ApplicationCore::Vertex));
