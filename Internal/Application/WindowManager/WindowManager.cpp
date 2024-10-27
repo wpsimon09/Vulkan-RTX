@@ -25,20 +25,22 @@ void WindowManager::InitWindow()
     glfwSetWindowUserPointer(m_window, this);
 
     //Call backs
-
+    glfwSetFramebufferSizeCallback(m_window, FrameBufferResizeCallback);
     glfwSetCursorPosCallback(m_window, MousePositionCallback);
     glfwSetMouseButtonCallback(m_window, MouseClickCallback);
     glfwSetScrollCallback(m_window, MouseScrollCallback);
 }
 
 int WindowManager::GetWindowWidth() {
-    glfwGetFramebufferSize(m_window, &m_width, &m_height);
-    return m_width;
+    auto winm = reinterpret_cast<WindowManager*>(m_window);
+    glfwGetFramebufferSize(m_window, &winm->m_width, &winm->m_height);
+    return winm->m_width;
 }
 
 int WindowManager::GetWindowHeight() {
-    glfwGetFramebufferSize(m_window, &m_width, &m_height);
-    return m_height;
+    auto winm = reinterpret_cast<WindowManager*>(m_window);
+    glfwGetFramebufferSize(m_window, &winm->m_width, &winm->m_height);
+    return winm->m_height;
 }
 
 GLFWwindow* WindowManager::GetWindow()const
@@ -101,4 +103,12 @@ void WindowManager::MouseClickCallback(GLFWwindow *window, int button, int actio
 void WindowManager::MouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer((window)));
     winm->m_cameraMovement.ZoomValue = (float)yoffset;
+}
+
+void WindowManager::FrameBufferResizeCallback(GLFWwindow *window, int width, int height) {
+    auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
+    winm->m_width = width;
+    winm->m_height = height;
+    winm->m_cameraMovement.NewHeight = static_cast<float>(height);
+    winm->m_cameraMovement.NewWidth = static_cast<float>(width);
 }

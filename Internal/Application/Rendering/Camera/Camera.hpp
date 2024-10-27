@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+struct CameraUpdateInfo;
 class GLFWwindow;
 namespace ApplicationCore {
 class Camera {
@@ -38,7 +39,7 @@ public:
 
     float GetNearPlane() {return this->m_nearPlane;}
 
-    void Update();
+    void Update(const CameraUpdateInfo& cameraUpdateInfo);
 
     ~Camera() = default;
 

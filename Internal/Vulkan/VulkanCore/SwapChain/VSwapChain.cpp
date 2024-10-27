@@ -51,7 +51,7 @@ const std::vector<std::reference_wrapper<const VulkanUtils::VImage>> VulkanCore:
     }
     return imagesToReturn;
 }
-
+    
 const std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>> VulkanCore::VSwapChain::GetSwapChainFrameBuffers() const {
     std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>> frameBuffers;
     frameBuffers.reserve(m_swapChainFrameBuffers.size());

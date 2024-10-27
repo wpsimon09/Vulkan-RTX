@@ -24,6 +24,9 @@
 #include "Vulkan/Utils/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+#include "Application/Rendering/Camera/Camera.hpp"
+#include "Application/Rendering/Transformations/Transformations.hpp"
+
 
 
 
@@ -78,7 +81,7 @@ void Application::Run()
 void Application::Update()
 {
     if(m_windowManager->GetIsDirty()) {
-        m_client->Update();
+        m_client->Update(m_windowManager->GetCameraMovement());
     }
 }
 

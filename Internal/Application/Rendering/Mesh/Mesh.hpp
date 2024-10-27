@@ -11,12 +11,9 @@
 namespace ApplicationCore
 {
     class Transformations;
-}
-
-namespace ApplicationCore
-{
     class AssetsManager;
     class VertexArray;
+
     class Mesh {
     public:
         Mesh(MESH_GEOMETRY_TYPE geometryType, ApplicationCore::AssetsManager& assetsManger);

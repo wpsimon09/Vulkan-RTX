@@ -3,6 +3,9 @@
 //
 
 #include "VInstance.hpp"
+
+#include <GLFW/glfw3.h>
+
 #include "Application/Logger/Logger.hpp"
 #include "Application/WindowManager/WindowManager.hpp"
 #include "Vulkan/Global/GlobalState.hpp"

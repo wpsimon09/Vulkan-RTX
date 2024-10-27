@@ -10,6 +10,8 @@
 //TODO: this class is going to boot up the client site of the renderer like geometry creation, assets managers and all of that stuff, instance of this will be creatd in VulkaRT
 
 
+struct CameraUpdateInfo;
+
 namespace ApplicationCore
 {
     class Camera;
@@ -28,7 +30,7 @@ public:
     const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> GetMeshes() const;
     const void MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager);
     const void Destroy();
-    void Update();
+    void Update(const CameraUpdateInfo& cameraUpdateInfo);
     ~Client() = default;
 private:
     std::unique_ptr<ApplicationCore::AssetsManager> m_assetsManager;

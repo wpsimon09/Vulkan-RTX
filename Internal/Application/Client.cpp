@@ -7,11 +7,12 @@
 #include "Logger/Logger.hpp"
 #include "Rendering/Mesh/Mesh.hpp"
 #include "VertexArray/VertexArray.hpp"
+#include "Rendering/Transformations/Transformations.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include "Rendering/Camera/Camera.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include <cassert>
 
-#include "Rendering/Camera/Camera.hpp"
 
 void Client::Init() {
 
@@ -57,7 +58,8 @@ const void Client::Destroy() {
     Utils::Logger::LogInfoVerboseOnlyClient("Destroyed client");
 }
 
-
-void Client::Update() {
-    // TODO: camera updates, scene movement, proecessing user input etc...
+void Client::Update(const CameraUpdateInfo &cameraUpdateInfo) {
+    m_camera->Update(cameraUpdateInfo);
 }
+
+

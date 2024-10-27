@@ -106,7 +106,7 @@ namespace Renderer {
         scissors.extent = m_swapChain->GetExtent();
         m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().setScissor(0,1, &scissors);
 
-        auto mesh = m_client.GetMeshes()[0].get();
+        const auto &mesh = m_client.GetMeshes()[0].get();
         std::vector<vk::Buffer> vertexBuffers = { mesh.GetVertexArray()->GetVertexBuffer().GetBuffer() };
         std::vector<vk::DeviceSize> offsets = {0};
         m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindIndexBuffer(mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),0, vk::IndexType::eUint32);

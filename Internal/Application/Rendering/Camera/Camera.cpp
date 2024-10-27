@@ -3,11 +3,12 @@
 //
 
 #include "Camera.hpp"
+
+#include "Application/Logger/Logger.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
 #include "GLFW/glfw3.h"
 
-namespace ApplicationCore
-{
-    Camera::Camera(glm::vec3 center, glm::vec3 up, float radius, float minRadius,
+    ApplicationCore::Camera::Camera(glm::vec3 center, glm::vec3 up, float radius, float minRadius,
                    float azimuthAngle, float polarAngle) {
         m_center = center;
         m_worldUp = up;
@@ -24,7 +25,7 @@ namespace ApplicationCore
         m_position = getEye();
     }
 
-    void Camera::RotateAzimutn(float radians) {
+    void ApplicationCore::Camera::RotateAzimutn(float radians) {
         m_azimuthAngle += radians;
         const auto fullCircle = 2.0f * glm::pi<float>();
         m_azimuthAngle = fmodf(m_azimuthAngle, fullCircle);
@@ -34,7 +35,7 @@ namespace ApplicationCore
         m_position = getEye();
     }
 
-    void Camera::RotatePolar(float radains) {
+    void ApplicationCore::Camera::RotatePolar(float radains) {
         m_polarAngle += radains;
 
         const auto polarCap = glm::pi<float>() / 2 - 0.001f;
@@ -49,7 +50,7 @@ namespace ApplicationCore
         m_position = getEye();
     }
 
-    void Camera::Zoom(float by) {
+    void ApplicationCore::Camera::Zoom(float by) {
         m_radius -= by;
 
         if (m_radius < m_minRadius) {
@@ -58,7 +59,7 @@ namespace ApplicationCore
         m_position = getEye();
     }
 
-    void Camera::MoveHorizontal(float distance) {
+    void ApplicationCore::Camera::MoveHorizontal(float distance) {
         const auto pos = getEye();
         const glm::vec3 viewVector = glm::normalize(m_position - m_center);
         const glm::vec3 strafeVector = glm::normalize(glm::cross(viewVector, m_worldUp));
@@ -66,23 +67,27 @@ namespace ApplicationCore
         m_position = getEye();
     }
 
-    void Camera::MoveVertical(float distance) {
+    void ApplicationCore::Camera::MoveVertical(float distance) {
         m_center += m_worldUp + distance;
         m_position = getEye();
     }
 
-    void Camera::ProcessResize(int newWidht, int newHeight) {
+    void ApplicationCore::Camera::ProcessResize(int newWidht, int newHeight) {
         m_projection = glm::perspective(glm::radians(65.0f), (float)newWidht / (float)newHeight, 0.1f, 470.0f);
         m_farPlane = GetFarPlane();
         m_nearPlane = 0.1f;
         m_position = getEye();
     }
 
-    void Camera::Update() {
 
+    void ApplicationCore::Camera::Update(const CameraUpdateInfo &cameraUpdateInfo) {
+        Utils::Logger::LogInfo("Updating camera");
+        RotateAzimutn(cameraUpdateInfo.RotateAzimuthValue);
+        RotatePolar(cameraUpdateInfo.RotatePolarValue);
+        Zoom(cameraUpdateInfo.ZoomValue);
     }
 
-    glm::vec3 Camera::getEye() {
+    glm::vec3 ApplicationCore::Camera::getEye() {
         const auto sineAzimuth = sin(m_azimuthAngle);
         const auto cosineAzimuzh = cos(m_azimuthAngle);
         const auto sinePolar = sin(m_polarAngle);
@@ -95,4 +100,4 @@ namespace ApplicationCore
         return {x, y, z};
     }
 
-} // ApplicationCore
+// ApplicationCore

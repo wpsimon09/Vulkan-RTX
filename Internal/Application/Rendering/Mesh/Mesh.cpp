@@ -11,6 +11,7 @@
 
 ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType,ApplicationCore::AssetsManager &assetsManger) {
     m_geometryType = geometryType;
+    m_transformations = std::make_unique<Transformations>();
     AssignMeshGeometryData(assetsManger);
 }
 
