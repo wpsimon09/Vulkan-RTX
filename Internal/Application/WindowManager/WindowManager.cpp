@@ -87,16 +87,33 @@ void WindowManager::MousePositionCallback(GLFWwindow *window, double xpos, doubl
         // have isDirty = true here and in the getter set dirty to false so that cmare is not calculating new stuff every frameP
         // in camera update send this to the camera to know how much to rotate, if nothing happend than dont send it
         winm->m_cameraMovement.RotateAzimuthValue =  xOffset;
+        winm->m_isDirty = true;
     }
 
     if (yOffset != 0.0 && winm->m_isMousePressed)
     {
         winm->m_cameraMovement.RotatePolarValue = -yOffset;
+        winm->m_isDirty = true;
     }
 }
 
 void WindowManager::MouseClickCallback(GLFWwindow *window, int button, int action, int mods) {
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
+    GLFWcursor* hand = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+    GLFWcursor* cursor = glfwCreateStandardCursor(GLFW_CURSOR_NORMAL);
+    if (button == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        if (action == GLFW_PRESS)
+        {
+            winm->m_isMousePressed = true;
+            glfwSetCursor(winm->m_window, hand);
+        }
+        else if (action == GLFW_RELEASE)
+        {
+            winm->m_isMousePressed = false;
+            glfwSetCursor(winm->m_window, cursor);
+        }
+    }
 
 }
 
