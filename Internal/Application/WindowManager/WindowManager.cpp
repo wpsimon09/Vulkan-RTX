@@ -99,7 +99,7 @@ void WindowManager::MousePositionCallback(GLFWwindow *window, double xpos, doubl
 
 void WindowManager::MouseClickCallback(GLFWwindow *window, int button, int action, int mods) {
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
-    GLFWcursor* hand = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+    GLFWcursor* hand = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
     GLFWcursor* cursor = glfwCreateStandardCursor(GLFW_CURSOR_NORMAL);
     if (button == GLFW_MOUSE_BUTTON_LEFT)
     {

@@ -10,6 +10,7 @@
 #include "Application/Logger/Logger.hpp"
 #include "VMA/vk_mem_alloc.h"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
+#include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace ApplicationCore
 {
@@ -31,7 +32,7 @@ namespace VulkanCore {
         void MakeIndexBuffer(const std::vector< uint32_t>& indices);
 
         template<typename T>
-        void MakeUniformBuffer(T uniformBuffer);
+        void MakeUniformBuffer(const T& uniformBuffer);
         void MakeImageBuffer();
 
         void Destroy() override;
@@ -54,17 +55,18 @@ namespace VulkanCore {
     };
 
     template <typename T>
-    void VBuffer::MakeUniformBuffer(T uniformBuffer) {
+    void VBuffer::MakeUniformBuffer(const T& uniformBuffer) {
         VkDeviceSize size = sizeof(uniformBuffer);
         assert(!m_isInitialized);
 
         //---------------------
         // CREATE BUFFERS
         // - GPU<->CPU VISIBLE
+        // - persistently mapped
         //----------------------
         Utils::Logger::LogInfoVerboseOnly("Allocating Vertex buffer and staging buffer for the mesh...");
         m_bufferType = vk::BufferUsageFlagBits::eUniformBuffer;
-        CreateBuffer(size,VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+        CreateBuffer(size,VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
         Utils::Logger::LogSuccess("Vertex Buffer and staging buffer allocated successfully");
 
         //----------------------------

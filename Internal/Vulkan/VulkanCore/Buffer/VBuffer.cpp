@@ -19,6 +19,7 @@ namespace VulkanCore {
             device.GetQueueFamilyIndices().graphicsFamily.value().second,
             device.GetQueueFamilyIndices().transferFamily.value().second
         };
+        m_isInitialized = false;
     }
 
     void VBuffer::MakeVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices) {
@@ -138,7 +139,7 @@ namespace VulkanCore {
         allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
         allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
         assert(vmaCreateBuffer(m_device.GetAllocator(),&bufferCreateInfo,&allocationCreateInfo, &m_bufferVMA,&m_allocation,nullptr) == VK_SUCCESS);
-        Utils::Logger::LogSuccess("Vertex Buffer allocated successfully");
+        Utils::Logger::LogSuccess("Buffer allocated successfully");
     }
 
     void VBuffer::DestroyStagingBuffer() const {
