@@ -75,8 +75,6 @@ set(SOURCES
         Internal/Application/Rendering/Camera/Camera.cpp
         Internal/Application/Rendering/Camera/Camera.hpp
         Internal/Application/Structs/ApplicationStructs.hpp
-        Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSetLayoutBuilder.cpp
-        Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSetLayoutBuilder.hpp
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.cpp
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp
 
