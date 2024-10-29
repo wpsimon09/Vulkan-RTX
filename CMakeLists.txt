@@ -77,6 +77,8 @@ set(SOURCES
         Internal/Application/Structs/ApplicationStructs.hpp
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.cpp
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp
+        Internal/Vulkan/VulkanCore/Descriptors/VDescriptorPool.cpp
+        Internal/Vulkan/VulkanCore/Descriptors/VDescriptorPool.hpp
 
 )
 
