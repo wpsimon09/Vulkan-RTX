@@ -5,7 +5,7 @@
 #ifndef WINDOWMANAGER_HPP
 #define WINDOWMANAGER_HPP
 
-#define GLFW_INCLUDE_VULKAN;
+#define GLFW_INCLUDE_VULKAN
 #include <glm/vec2.hpp>
 
 #include "Application/Structs/ApplicationStructs.hpp"

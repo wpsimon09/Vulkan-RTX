@@ -64,17 +64,17 @@ namespace VulkanCore {
         // - GPU<->CPU VISIBLE
         // - persistently mapped
         //----------------------
-        Utils::Logger::LogInfoVerboseOnly("Allocating Vertex buffer and staging buffer for the mesh...");
+        Utils::Logger::LogInfoVerboseOnly("Allocating Uniform buffer....");
         m_bufferType = vk::BufferUsageFlagBits::eUniformBuffer;
         CreateBuffer(size,VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
-        Utils::Logger::LogSuccess("Vertex Buffer and staging buffer allocated successfully");
+        Utils::Logger::LogSuccess("Allocation completed successfully !");
 
         //----------------------------
         // MAP DATA TO STAGING BUFFER
         //----------------------------
         Utils::Logger::LogInfoVerboseOnly("Mapping uniform buffer...");
         vmaMapMemory(m_device.GetAllocator(), m_allocation, &m_mappedData);
-        Utils::Logger::LogSuccess("Unifomr buffer mapped successfully");
+        Utils::Logger::LogSuccess("Uniform buffer is going to bre persistently mapped ");
 
         //-------------------------------------------------------
         // FINISHING UP
