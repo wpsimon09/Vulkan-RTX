@@ -79,6 +79,9 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorPool.cpp
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorPool.hpp
+        Internal/Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.cpp
+        Internal/Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp
+        Internal/Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp
 
 )
 

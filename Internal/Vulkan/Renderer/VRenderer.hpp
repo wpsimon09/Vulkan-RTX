@@ -10,6 +10,11 @@
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 #include <vulkan/vulkan.hpp>
 
+namespace VulkanUtils
+{
+    class VUniformBufferManager;
+}
+
 namespace VulkanCore
 {
     class VBuffer;
@@ -33,13 +38,6 @@ namespace VulkanCore
 
 namespace Renderer {
 
-    struct CameraUniform
-    {
-        glm::mat4 view;
-        glm::mat4 proj;
-        std::vector<std::unique_ptr<VulkanCore::VBuffer>> buffer;
-    };
-
 class VRenderer {
 public:
     VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice& device, const Client& client);
@@ -52,7 +50,6 @@ private:
     //==================================
     void CreateCommandBufferPools();
     void CreateSyncPrimitives();
-    void CreateUniformBuffers();
     //==================================
 
     //==================================
@@ -87,9 +84,8 @@ private:
     std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
     std::unique_ptr<class VulkanCore::VCommandPool> m_baseCommandPool;
     std::vector<std::unique_ptr<class VulkanCore::VCommandBuffer>> m_baseCommandBuffers;
-
+    std::unique_ptr<VulkanUtils::VUniformBufferManager> m_uniformBufferManager;
     const VulkanCore::VGraphicsPipeline* m_graphicsPipeline;
-    std::unique_ptr<CameraUniform> m_cameraUniform;
 };
 
 } // Renderer

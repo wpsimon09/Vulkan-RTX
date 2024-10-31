@@ -21,6 +21,7 @@
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/Utils/VImage/VImage.hpp"
+#include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
@@ -37,9 +38,10 @@ namespace Renderer {
         m_pipelineManager->InstantiatePipelines();
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
         m_graphicsPipeline = &m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_BASIC);
+        m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(m_device, m_client);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
-        CreateUniformBuffers();
+
     }
 
     void VRenderer::Render() {
@@ -133,14 +135,6 @@ namespace Renderer {
         }
     }
 
-    void VRenderer::CreateUniformBuffers() {
-        m_cameraUniform = std::make_unique<CameraUniform>();
-        m_cameraUniform->buffer.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
-            m_cameraUniform->buffer[i] = std::make_unique<VulkanCore::VBuffer>(m_device);
-            m_cameraUniform->buffer[i]->MakeUniformBuffer(*m_cameraUniform);
-        }
-    }
 
     //===============================================================================================================
 
@@ -213,7 +207,6 @@ namespace Renderer {
             m_renderFinishedSemaphores[i]->Destroy();
             m_isFrameFinishFences[i]->Destroy();
             m_baseCommandBuffers[i]->Destroy();
-            m_cameraUniform->buffer[i]->Destroy();
         }
         m_mainRenderPass->Destroy();
         m_pipelineManager->DestroyPipelines();

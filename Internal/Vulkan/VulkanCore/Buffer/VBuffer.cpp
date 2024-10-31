@@ -123,7 +123,6 @@ namespace VulkanCore {
         Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
         assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo,&vmaStagingAllocationCreateInfo, &m_stagingBuffer,&m_stagingAllocation,nullptr) == VK_SUCCESS);
         Utils::Logger::LogSuccess("Staging buffer created");
-
     }
 
     void VBuffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage) {
