@@ -5,11 +5,19 @@
 #include "VUniformBufferManager.hpp"
 
 #include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
+
 
 VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDevice &device, const Client &client):m_device(device),m_client(client) {
     CreateUniforms();
 
+}
+
+void VulkanUtils::VUniformBufferManager::Destroy() const {
+    for (auto& buffer : m_cameraUniform->buffer) {
+        buffer->Destroy();
+    }
 }
 
 void VulkanUtils::VUniformBufferManager::CreateUniforms() {

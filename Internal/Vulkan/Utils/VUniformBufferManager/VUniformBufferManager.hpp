@@ -13,8 +13,9 @@ class Client;
 namespace VulkanUtils
 {
     class VUniformBufferManager {
+    public:
         VUniformBufferManager(const VulkanCore::VDevice& device, const Client& client);
-
+        void Destroy() const;
     private:
         void CreateUniforms();
     private:

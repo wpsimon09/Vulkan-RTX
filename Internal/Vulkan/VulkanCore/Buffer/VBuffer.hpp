@@ -18,7 +18,6 @@ namespace ApplicationCore
 }
 
 namespace VulkanCore {
-    class VDevice;
     class VGraphicsPipeline;
 
     class VBuffer:public VObject {

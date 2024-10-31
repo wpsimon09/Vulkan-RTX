@@ -8,8 +8,10 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
-
+namespace VulkanCore
+{
+    class VBuffer;
+}
 
 namespace PerFrameUBO
 {
