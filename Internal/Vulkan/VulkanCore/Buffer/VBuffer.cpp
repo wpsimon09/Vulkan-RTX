@@ -20,6 +20,7 @@ namespace VulkanCore {
             device.GetQueueFamilyIndices().transferFamily.value().second
         };
         m_isInitialized = false;
+        m_isPresistentlyMapped = false;
     }
 
     void VBuffer::MakeVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices) {
@@ -102,8 +103,10 @@ namespace VulkanCore {
     }
 
     void VBuffer::Destroy() {
+        if(m_isPresistentlyMapped) {
+            vmaUnmapMemory(m_device.GetAllocator(), m_allocation);
+        }
         vmaDestroyBuffer(m_device.GetAllocator(), m_bufferVMA, m_allocation);
-        //m_device.GetDevice().destroyBuffer(m_bufferVK);
     }
 
     void VBuffer::CreateStagingBuffer(VkDeviceSize size) {

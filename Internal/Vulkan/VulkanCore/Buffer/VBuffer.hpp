@@ -43,6 +43,7 @@ namespace VulkanCore {
     private:
         const VDevice& m_device;
         bool m_isInitialized = false;
+        bool m_isPresistentlyMapped = false;
         void* m_mappedData;
         VmaAllocation m_allocation;
         VkBuffer m_bufferVMA;
@@ -55,6 +56,7 @@ namespace VulkanCore {
 
     template <typename T>
     void VBuffer::MakeUniformBuffer(const T& uniformBuffer) {
+        m_isPresistentlyMapped = true;
         VkDeviceSize size = sizeof(uniformBuffer);
         assert(!m_isInitialized);
 

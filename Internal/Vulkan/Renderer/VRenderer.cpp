@@ -31,14 +31,13 @@
 namespace Renderer {
 
     VRenderer::VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
-        const Client &client):m_device(device), m_client(client) {
+        const Client &client,const VulkanUtils::VUniformBufferManager& uniformBufferManager):m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager) {
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance);
         m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain);
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(device, *m_swapChain, *m_mainRenderPass);
         m_pipelineManager->InstantiatePipelines();
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
         m_graphicsPipeline = &m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_BASIC);
-        m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(m_device, m_client);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
 

@@ -40,7 +40,7 @@ namespace Renderer {
 
 class VRenderer {
 public:
-    VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice& device, const Client& client);
+    VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice& device, const Client& client, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
     void Render();
     void Destroy();
     ~VRenderer() = default;
@@ -71,6 +71,8 @@ private:
 private:
     const Client& m_client;
     const VulkanCore::VDevice& m_device;
+    const VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
+
     uint32_t m_currentImageIndex = 0;
     uint32_t m_currentFrameIndex = 0;
     int m_availableRecordingThreads = 0;
@@ -84,7 +86,6 @@ private:
     std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
     std::unique_ptr<class VulkanCore::VCommandPool> m_baseCommandPool;
     std::vector<std::unique_ptr<class VulkanCore::VCommandBuffer>> m_baseCommandBuffers;
-    std::unique_ptr<VulkanUtils::VUniformBufferManager> m_uniformBufferManager;
     const VulkanCore::VGraphicsPipeline* m_graphicsPipeline;
 };
 

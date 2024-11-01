@@ -49,7 +49,8 @@ void Application::Init()
     m_client->MountAssetsManger(std::move(assetManger));
     m_client->Init();
 
-    m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_client);
+    m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice, *m_client);
+    m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_client, *m_uniformBufferManager);
 
 }
 
@@ -94,5 +95,6 @@ Application::~Application() {
     m_vulkanDevice->GetDevice().waitIdle();
     m_renderer->Destroy();
     m_client->Destroy();
+    m_uniformBufferManager->Destroy();
     m_vulkanDevice->Destroy();
 }

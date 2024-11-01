@@ -10,14 +10,17 @@
 
 
 VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDevice &device, const Client &client):m_device(device),m_client(client) {
+    Utils::Logger::LogInfoVerboseOnly("Creating uniform buffer manager...");
     CreateUniforms();
-
+    Utils::Logger::LogSuccess("Uniform buffer manager created successfully");
 }
 
 void VulkanUtils::VUniformBufferManager::Destroy() const {
-    for (auto& buffer : m_cameraUniform->buffer) {
+    Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager...");
+    for (auto &buffer : m_cameraUniform->buffer) {
         buffer->Destroy();
     }
+    Utils::Logger::LogInfoVerboseOnly("Uniform buffer manager destroyed");
 }
 
 void VulkanUtils::VUniformBufferManager::CreateUniforms() {
