@@ -20,6 +20,7 @@ namespace VulkanCore
         explicit VDescriptorSetLayout(const VulkanCore::VDevice &device, std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding>& bindings);
         const vk::DescriptorSetLayout& GetDescriptorSetLayout()  const {return m_descriptorSetLayout;};
 
+        void Destroy() override;
     private:
         std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding>& m_descriptorSetLayoutBindings;
         const VDevice& m_device;

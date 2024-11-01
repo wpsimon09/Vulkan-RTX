@@ -28,6 +28,10 @@ namespace VulkanCore {
         Utils::Logger::LogSuccess("Descriptor set layout created");
     }
 
+    void VDescriptorSetLayout::Destroy() {
+        m_device.GetDevice().destroyDescriptorSetLayout(m_descriptorSetLayout);
+    }
+
     VDescriptorSetLayoutBuilder::VDescriptorSetLayoutBuilder(const VulkanCore::VDevice &device):m_device(device) { }
 
     VDescriptorSetLayoutBuilder & VDescriptorSetLayoutBuilder::AddBinding(uint32_t binding, vk::DescriptorType type,
