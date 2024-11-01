@@ -14,6 +14,11 @@ namespace VulkanCore
         VObject();
         virtual void Destroy(){};
         virtual ~VObject() = default;
+
+        VObject(const VObject&) = delete;
+        VObject& operator=(const VObject&) = delete;
+
+
     public:
          const int GetID() const {return m_ID;}
     private:
