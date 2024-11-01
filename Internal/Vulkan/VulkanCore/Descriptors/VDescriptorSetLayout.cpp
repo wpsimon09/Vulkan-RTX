@@ -12,6 +12,7 @@ namespace VulkanCore {
     VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice &device, std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding>& bindings):
         m_device(device), m_descriptorSetLayoutBindings(bindings),VObject() {
 
+        Utils::Logger::LogInfoVerboseOnly("Creating descriptor set layout");
         std::vector<vk::DescriptorSetLayoutBinding> setBindings;
         for (auto &binding : m_descriptorSetLayoutBindings) {
             setBindings.push_back(binding.second);
@@ -23,10 +24,11 @@ namespace VulkanCore {
 
         m_descriptorSetLayout = m_device.GetDevice().createDescriptorSetLayout(info);
         assert(m_descriptorSetLayout && "Failed to create descriptor set layout");
+
+        Utils::Logger::LogSuccess("Descriptor set layout created");
     }
 
-    VDescriptorSetLayoutBuilder::VDescriptorSetLayoutBuilder(const VulkanCore::VDevice &device):m_device(device) {
-    }
+    VDescriptorSetLayoutBuilder::VDescriptorSetLayoutBuilder(const VulkanCore::VDevice &device):m_device(device) { }
 
     VDescriptorSetLayoutBuilder & VDescriptorSetLayoutBuilder::AddBinding(uint32_t binding, vk::DescriptorType type,
         vk::ShaderStageFlags stage, uint32_t descriptorCount) {
