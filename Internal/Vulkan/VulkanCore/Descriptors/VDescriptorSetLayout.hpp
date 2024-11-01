@@ -13,6 +13,7 @@
 namespace VulkanCore
 {
     class VDevice;
+    class VDescriptorWriter;
 
     class VDescriptorSetLayout : VObject
     {
@@ -25,6 +26,8 @@ namespace VulkanCore
         std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding>& m_descriptorSetLayoutBindings;
         const VDevice& m_device;
         vk::DescriptorSetLayout m_descriptorSetLayout;
+
+        friend class VulkanCore::VDescriptorWriter;
     };
 
     class VDescriptorSetLayoutBuilder{
@@ -35,6 +38,7 @@ namespace VulkanCore
     private:
         std::unordered_map<uint32_t,vk::DescriptorSetLayoutBinding> m_descriptorBindings;
         const VulkanCore::VDevice& m_device;
+
     };
 
 } // VulkanCore

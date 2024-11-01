@@ -23,9 +23,9 @@ public:
     void Overwrite(vk::DescriptorSet &descriptorSet);
 
 private:
-    const VulkanCore::VDescriptorSetLayout& descriptorSetLayout;
-    const VulkanCore::VDescriptorPool& descriptorPool;
-    std::vector<vk::WriteDescriptorSet> descriptorWrites;
+    const VulkanCore::VDescriptorSetLayout& m_descriptorSetLayout;
+    const VulkanCore::VDescriptorPool& m_descriptorPool;
+    std::vector<vk::WriteDescriptorSet> m_descriptorWrites;
 };
 
 } // VulkanCore

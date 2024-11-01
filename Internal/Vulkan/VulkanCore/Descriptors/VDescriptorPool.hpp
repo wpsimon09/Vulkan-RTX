@@ -12,6 +12,7 @@
 namespace VulkanCore {
     class VDescriptorPool;
     class VDevice;
+    class VDescriptorWriter;
 
 class VDescriptorPool: public VObject {
     class Builder
@@ -40,6 +41,7 @@ private:
     const VulkanCore::VDevice& m_device;
     vk::DescriptorPool m_descriptorPool;
 
+    friend class VulkanCore::VDescriptorWriter;
 
 };
 
