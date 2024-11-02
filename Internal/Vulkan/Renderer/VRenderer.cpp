@@ -16,6 +16,7 @@
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/Utils/VDescriptorSetManager/VDescriptorSetManager.hpp"
 #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
@@ -28,10 +29,13 @@
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 
-namespace Renderer {
+namespace Renderer
+{
 
     VRenderer::VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
-        const Client &client,const VulkanUtils::VUniformBufferManager& uniformBufferManager):m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager) {
+                         const Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager,
+                         const VulkanUtils::VDescriptorSetManager &descriptorSetManager):
+        m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager), m_descriptorSetManager(descriptorSetManager) {
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance);
         m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain);
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(device, *m_swapChain, *m_mainRenderPass);
@@ -46,7 +50,7 @@ namespace Renderer {
     void VRenderer::Render() {
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
         //rerender the frame if image to present on is out of date
-        if(FetchSwapChainImage() == vk::Result::eEventReset) {
+        if (FetchSwapChainImage() == vk::Result::eEventReset) {
             Utils::Logger::LogInfoVerboseRendering("Received event reset signal, resetting the rendering....");
             return;
         }
@@ -63,7 +67,7 @@ namespace Renderer {
         Utils::Logger::LogInfo("Allocating command pools...");
         m_baseCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, QUEUE_FAMILY_INDEX_GRAPHICS);
         m_baseCommandBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
             m_baseCommandBuffers[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_baseCommandPool);
         }
         Utils::Logger::LogInfo("Command pools and command buffers allocated !");
@@ -75,7 +79,8 @@ namespace Renderer {
     void VRenderer::StartRenderPass() {
         vk::RenderPassBeginInfo renderPassBeginInfo;
         renderPassBeginInfo.renderPass = m_mainRenderPass->GetRenderPass();
-        renderPassBeginInfo.framebuffer = m_swapChain->GetSwapChainFrameBuffers()[m_currentImageIndex].get().GetFrameBuffer();
+        renderPassBeginInfo.framebuffer = m_swapChain->GetSwapChainFrameBuffers()[m_currentImageIndex].get().
+            GetFrameBuffer();
         renderPassBeginInfo.renderArea.offset.x = 0;
         renderPassBeginInfo.renderArea.offset.y = 0;
         renderPassBeginInfo.renderArea.extent = m_swapChain->GetExtent();
@@ -84,13 +89,15 @@ namespace Renderer {
         renderPassBeginInfo.clearValueCount = 1;
         renderPassBeginInfo.pClearValues = &clearColor;
 
-        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().beginRenderPass(
+            &renderPassBeginInfo, vk::SubpassContents::eInline);
     }
 
     void VRenderer::RecordCommandBuffersForPipelines() {
         m_baseCommandBuffers[m_currentFrameIndex]->BeginRecording();
         StartRenderPass();
-        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics,m_graphicsPipeline->GetPipelineInstance());
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindPipeline(
+            vk::PipelineBindPoint::eGraphics, m_graphicsPipeline->GetPipelineInstance());
         vk::Viewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
@@ -100,20 +107,22 @@ namespace Renderer {
 
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
-        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().setViewport(0,1, &viewport);
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().setViewport(0, 1, &viewport);
 
         vk::Rect2D scissors{};
         scissors.offset.x = 0;
         scissors.offset.y = 0;
         scissors.extent = m_swapChain->GetExtent();
-        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().setScissor(0,1, &scissors);
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().setScissor(0, 1, &scissors);
 
         const auto &mesh = m_client.GetMeshes()[0].get();
-        std::vector<vk::Buffer> vertexBuffers = { mesh.GetVertexArray()->GetVertexBuffer().GetBuffer() };
+        std::vector<vk::Buffer> vertexBuffers = {mesh.GetVertexArray()->GetVertexBuffer().GetBuffer()};
         std::vector<vk::DeviceSize> offsets = {0};
-        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindIndexBuffer(mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),0, vk::IndexType::eUint32);
-        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindVertexBuffers(0,1,vertexBuffers.data(), offsets.data());
-        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(mesh.GetMeshIndexCount(), 1, 0,0,0);
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindIndexBuffer(
+            mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(), 0, vk::IndexType::eUint32);
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindVertexBuffers(
+            0, 1, vertexBuffers.data(), offsets.data());
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(mesh.GetMeshIndexCount(), 1, 0, 0, 0);
 
         EndRenderPass();
         m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
@@ -127,14 +136,16 @@ namespace Renderer {
         m_imageAvailableSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         m_renderFinishedSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         m_isFrameFinishFences.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-        for(int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
             m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
             m_renderFinishedSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
             m_isFrameFinishFences[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device, true);
         }
     }
 
-
+    void VRenderer::CreateDescriptorSets() const {
+        m_descriptorSetManager->CreateGlobalDescriptorSets(m_uniformBufferManager.GetGlobalBufferDescriptorInfo());
+    }
     //===============================================================================================================
 
 
@@ -144,30 +155,34 @@ namespace Renderer {
 
     vk::Result VRenderer::FetchSwapChainImage() {
 
-       auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX, *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
+        auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
+                                                                    *m_imageAvailableSemaphores[m_currentFrameIndex],
+                                                                    nullptr);
         switch (imageIndex.first) {
-            case vk::Result::eSuccess: {
-                m_currentImageIndex = imageIndex.second;
-                Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
-                return vk::Result::eSuccess;
-            }
-            case vk::Result::eErrorOutOfDateKHR: {
-                m_swapChain->RecreateSwapChain(*m_mainRenderPass);
-                Utils::Logger::LogError("Swap chain was out of date, trying to recreate it...  ");
-                return vk::Result::eEventReset;
-            }
-            case vk::Result::eSuboptimalKHR: {
-                throw std::runtime_error("Suboptimal swap chain retrieved");
-            };
-            default: break;
+        case vk::Result::eSuccess: {
+            m_currentImageIndex = imageIndex.second;
+            Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
+            return vk::Result::eSuccess;
+        }
+        case vk::Result::eErrorOutOfDateKHR: {
+            m_swapChain->RecreateSwapChain(*m_mainRenderPass);
+            Utils::Logger::LogError("Swap chain was out of date, trying to recreate it...  ");
+            return vk::Result::eEventReset;
+        }
+        case vk::Result::eSuboptimalKHR: {
+            throw std::runtime_error("Suboptimal swap chain retrieved");
+        };
+        default:
+            break;
         }
     }
 
     void VRenderer::SubmitCommandBuffer() {
         assert(!m_baseCommandBuffers[m_currentFrameIndex]->GetIsRecording());
         vk::SubmitInfo submitInfo;
-        std::array<vk::Semaphore,1> waitSemaphores = { m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive() };
-        std::array<vk::PipelineStageFlags,1> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
+        std::array<vk::Semaphore, 1> waitSemaphores = {
+            m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
+        std::array<vk::PipelineStageFlags, 1> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
 
         submitInfo.waitSemaphoreCount = waitSemaphores.size();
         submitInfo.pWaitSemaphores = waitSemaphores.data();
@@ -176,17 +191,20 @@ namespace Renderer {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer();
 
-        std::vector<vk::Semaphore> signalSemaphores = {m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
+        std::vector<vk::Semaphore> signalSemaphores = {
+            m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
         submitInfo.signalSemaphoreCount = signalSemaphores.size();
         submitInfo.pSignalSemaphores = signalSemaphores.data();
 
-        assert(m_device.GetGraphicsQueue().submit( 1 ,&submitInfo, m_isFrameFinishFences[m_currentFrameIndex]->GetSyncPrimitive()) == vk::Result::eSuccess);
+        assert(
+            m_device.GetGraphicsQueue().submit( 1 ,&submitInfo, m_isFrameFinishFences[m_currentFrameIndex]->
+                GetSyncPrimitive()) == vk::Result::eSuccess);
         Utils::Logger::LogInfoVerboseRendering("Successfully submitted the command buffer");
     }
 
     void VRenderer::PresentResults() {
         vk::PresentInfoKHR presentInfo;
-        presentInfo.waitSemaphoreCount = 1 ;
+        presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = &m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive();
 
         presentInfo.swapchainCount = 1;
@@ -194,14 +212,14 @@ namespace Renderer {
         presentInfo.pImageIndices = &m_currentImageIndex;
         presentInfo.pResults = nullptr;
         vk::Result result = VulkanUtils::PresentQueueWrapper(m_device.GetPresentQueue(), presentInfo);
-        if(result == vk::Result::eSuboptimalKHR || result == vk::Result::eErrorOutOfDateKHR) {
+        if (result == vk::Result::eSuboptimalKHR || result == vk::Result::eErrorOutOfDateKHR) {
             m_swapChain->RecreateSwapChain(*m_mainRenderPass);
         }
         Utils::Logger::LogInfoVerboseRendering("Image presented to the view successfully");
     }
 
     void VRenderer::Destroy() {
-        for(int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
             m_imageAvailableSemaphores[i]->Destroy();
             m_renderFinishedSemaphores[i]->Destroy();
             m_isFrameFinishFences[i]->Destroy();

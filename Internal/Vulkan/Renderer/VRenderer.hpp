@@ -12,6 +12,7 @@
 
 namespace VulkanUtils
 {
+    class VDescriptorSetManager;
     class VUniformBufferManager;
 }
 
@@ -21,8 +22,8 @@ namespace VulkanCore
 }
 
 
-
 class Client;
+
 namespace VulkanCore
 {
     class VGraphicsPipeline;
@@ -36,58 +37,65 @@ namespace VulkanCore
 
 }
 
-namespace Renderer {
+namespace Renderer
+{
 
-class VRenderer {
-public:
-    VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice& device, const Client& client, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
-    void Render();
-    void Destroy();
-    ~VRenderer() = default;
-private:
-    //==================================
-    // FOR INITIALIZATION
-    //==================================
-    void CreateCommandBufferPools();
-    void CreateSyncPrimitives();
-    //==================================
+    class VRenderer
+    {
+    public:
+        VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device, const Client &client,
+                  const VulkanUtils::VUniformBufferManager &uniformBufferManager,
+                  const VulkanUtils::VDescriptorSetManager &descriptorSetManager);
+        void Render();
+        void Destroy();
+        ~VRenderer() = default;
 
-    //==================================
-    // FOR COMMAND BUFFER
-    //==================================
-    void StartRenderPass();
-    void RecordCommandBuffersForPipelines();
-    void EndRenderPass();
-    //====================================
+    private:
+        //==================================
+        // FOR INITIALIZATION
+        //==================================
+        void CreateCommandBufferPools();
+        void CreateSyncPrimitives();
+        void CreateDescriptorSets() const;
+        //==================================
 
-    //=====================================
-    // FOR MAIN LOOP
-    //=====================================
-    vk::Result FetchSwapChainImage();
-    void SubmitCommandBuffer();
-    void PresentResults();
-    //=====================================
+        //==================================
+        // FOR COMMAND BUFFER
+        //==================================
+        void StartRenderPass();
+        void RecordCommandBuffersForPipelines();
+        void EndRenderPass();
+        //====================================
 
-private:
-    const Client& m_client;
-    const VulkanCore::VDevice& m_device;
-    const VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
+        //=====================================
+        // FOR MAIN LOOP
+        //=====================================
+        vk::Result FetchSwapChainImage();
+        void SubmitCommandBuffer();
+        void PresentResults();
+        //=====================================
 
-    uint32_t m_currentImageIndex = 0;
-    uint32_t m_currentFrameIndex = 0;
-    int m_availableRecordingThreads = 0;
+    private:
+        const Client &m_client;
+        const VulkanCore::VDevice &m_device;
+        const VulkanUtils::VUniformBufferManager &m_uniformBufferManager;
+        const VulkanUtils::VDescriptorSetManager &m_descriptorSetManager;
 
-    std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
-    std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_renderFinishedSemaphores;
-    std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Fence>>> m_isFrameFinishFences;
+        uint32_t m_currentImageIndex = 0;
+        uint32_t m_currentFrameIndex = 0;
+        int m_availableRecordingThreads = 0;
 
-    std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
-    std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;
-    std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
-    std::unique_ptr<class VulkanCore::VCommandPool> m_baseCommandPool;
-    std::vector<std::unique_ptr<class VulkanCore::VCommandBuffer>> m_baseCommandBuffers;
-    const VulkanCore::VGraphicsPipeline* m_graphicsPipeline;
-};
+        std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
+        std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_renderFinishedSemaphores;
+        std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Fence>>> m_isFrameFinishFences;
+
+        std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
+        std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;
+        std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
+        std::unique_ptr<class VulkanCore::VCommandPool> m_baseCommandPool;
+        std::vector<std::unique_ptr<class VulkanCore::VCommandBuffer>> m_baseCommandBuffers;
+        const VulkanCore::VGraphicsPipeline *m_graphicsPipeline;
+    };
 
 } // Renderer
 

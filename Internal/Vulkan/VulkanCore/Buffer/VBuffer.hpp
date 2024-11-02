@@ -9,6 +9,7 @@
 
 #include "Application/Logger/Logger.hpp"
 #include "VMA/vk_mem_alloc.h"
+#include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
@@ -27,11 +28,15 @@ namespace VulkanCore {
         const vk::Buffer& GetBuffer() const {return m_bufferVK; }
         const void* GetMapPointer() const { assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer); return m_mappedData;}
 
+        vk::DescriptorBufferInfo *GetBufferInfoForDescriptor() {return &m_bufferInfo;}
+
         void MakeVertexBuffer(const std::vector< ApplicationCore::Vertex>& vertices);
+
         void MakeIndexBuffer(const std::vector< uint32_t>& indices);
 
         template<typename T>
         void MakeUniformBuffer(const T& uniformBuffer);
+
         void MakeImageBuffer();
 
         void Destroy() override;
@@ -52,6 +57,7 @@ namespace VulkanCore {
         vk::Buffer m_bufferVK;
         vk::BufferUsageFlags m_bufferType;
         std::vector<uint32_t> m_sharedQueueFamilyIndices;
+        vk::DescriptorBufferInfo m_bufferInfo;;
     };
 
     template <typename T>

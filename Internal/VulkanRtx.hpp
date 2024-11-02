@@ -13,6 +13,11 @@
 
 namespace VulkanUtils
 {
+    class VDescriptorSetManager;
+}
+
+namespace VulkanUtils
+{
     class VUniformBufferManager;
 }
 
@@ -60,6 +65,7 @@ private:
     std::unique_ptr<class Client> m_client;
 
     std::unique_ptr<class WindowManager> m_windowManager;
+    std::unique_ptr<class VulkanUtils::VDescriptorSetManager> m_descriptorSetManager;
     std::unique_ptr<class VulkanUtils::VUniformBufferManager> m_uniformBufferManager;
     std::unique_ptr<class VulkanCore::VulkanInstance> m_vulkanInstance;
     std::unique_ptr<class VulkanCore::VDevice> m_vulkanDevice;

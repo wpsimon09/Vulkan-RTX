@@ -15,6 +15,7 @@ namespace VulkanUtils
     class VUniformBufferManager {
     public:
         VUniformBufferManager(const VulkanCore::VDevice& device, const Client& client);
+        std::vector<vk::DescriptorBufferInfo *> GetGlobalBufferDescriptorInfo() const;
         void Destroy() const;
     private:
         void CreateUniforms();

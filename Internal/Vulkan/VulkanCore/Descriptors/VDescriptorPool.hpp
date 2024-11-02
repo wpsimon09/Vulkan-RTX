@@ -15,6 +15,7 @@ namespace VulkanCore {
     class VDescriptorWriter;
 
 class VDescriptorPool: public VObject {
+public:
     class Builder
     {
         public:

@@ -27,8 +27,8 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
-
-
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorPool.hpp"
+#include "Vulkan/Utils/VDescriptorSetManager/VDescriptorSetManager.hpp"
 
 
 Application::Application()
@@ -49,8 +49,9 @@ void Application::Init()
     m_client->MountAssetsManger(std::move(assetManger));
     m_client->Init();
 
+    m_descriptorSetManager = std::make_unique<VulkanUtils::VDescriptorSetManager>(*m_vulkanDevice);
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice, *m_client);
-    m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_client, *m_uniformBufferManager);
+    m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_client, *m_uniformBufferManager, *m_descriptorSetManager);
 
 }
 
@@ -95,6 +96,7 @@ Application::~Application() {
     m_vulkanDevice->GetDevice().waitIdle();
     m_renderer->Destroy();
     m_client->Destroy();
+    m_descriptorSetManager->Destroy();
     m_uniformBufferManager->Destroy();
     m_vulkanDevice->Destroy();
 }
