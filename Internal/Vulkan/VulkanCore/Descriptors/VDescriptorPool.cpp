@@ -44,7 +44,7 @@ namespace VulkanCore {
         m_descriptorPool = m_device.GetDevice().createDescriptorPool(info);
     }
 
-    void VDescriptorPool::AllocateDescriptor(vk::DescriptorSetLayout layout, vk::DescriptorSet &descriptorSet) {
+    void VDescriptorPool::AllocateDescriptor(vk::DescriptorSetLayout layout, vk::DescriptorSet &descriptorSet) const {
         vk::DescriptorSetAllocateInfo info = {};
         info.descriptorPool = m_descriptorPool;
         info.descriptorSetCount = 1;

@@ -33,7 +33,7 @@ class VDescriptorPool: public VObject {
 
 public:
     explicit VDescriptorPool(const VulkanCore::VDevice& device, uint32_t maxSets, vk::DescriptorPoolCreateFlags flags, const std::vector<vk::DescriptorPoolSize> &poolSizes);
-    void AllocateDescriptor(vk::DescriptorSetLayout layout, vk::DescriptorSet& descriptorSet);
+    void AllocateDescriptor(vk::DescriptorSetLayout layout, vk::DescriptorSet& descriptorSet) const;
     void FreeDescriptor(std::vector<vk::DescriptorSet> &descriptorSets);
     void ResetPool();
     void Destroy() override;

@@ -19,7 +19,7 @@ public:
     VDescriptorWriter& WriteBuffer(uint32_t binding, vk::DescriptorBufferInfo* bufferInfo );
     VDescriptorWriter& WriteImage(uint32_t binding, vk::DescriptorImageInfo* imageInfo );
 
-    bool Build(vk::DescriptorSet &descriptorSet);
+    void Build(vk::DescriptorSet &descriptorSet) const;
     void Overwrite(vk::DescriptorSet &descriptorSet);
 
 private:
