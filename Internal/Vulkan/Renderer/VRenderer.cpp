@@ -34,7 +34,7 @@ namespace Renderer
 
     VRenderer::VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
                          const Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager,
-                         const VulkanUtils::VDescriptorSetManager &descriptorSetManager):
+                         VulkanUtils::VDescriptorSetManager &descriptorSetManager):
         m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager), m_descriptorSetManager(descriptorSetManager) {
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance);
         m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain);
@@ -144,7 +144,7 @@ namespace Renderer
     }
 
     void VRenderer::CreateDescriptorSets() const {
-        m_descriptorSetManager->CreateGlobalDescriptorSets(m_uniformBufferManager.GetGlobalBufferDescriptorInfo());
+        m_descriptorSetManager.CreateGlobalDescriptorSets(m_uniformBufferManager.GetGlobalBufferDescriptorInfo());
     }
     //===============================================================================================================
 

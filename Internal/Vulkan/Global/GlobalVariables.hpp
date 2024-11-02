@@ -28,7 +28,7 @@ namespace GlobalVariables {
         COMPUTE = 2,
     };
 
-    inline int MAX_FRAMES_IN_FLIGHT = 2;
+    inline constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
     inline int ID_COUNTER = 0;
 

@@ -15,7 +15,7 @@ VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDev
     Utils::Logger::LogSuccess("Uniform buffer manager created successfully");
 }
 
-std::vector<vk::DescriptorBufferInfo *> VulkanUtils::VUniformBufferManager::GetGlobalBufferDescriptorInfo() const {
+std::vector<vk::DescriptorBufferInfo *> &VulkanUtils::VUniformBufferManager::GetGlobalBufferDescriptorInfo() const {
     return m_cameraUniform->descriptorBufferInfo;
 }
 
@@ -28,7 +28,7 @@ void VulkanUtils::VUniformBufferManager::Destroy() const {
 }
 
 void VulkanUtils::VUniformBufferManager::CreateUniforms() {
-    m_cameraUniform = std::make_unique<PerFrameUBO::CameraUniform>{};
+    m_cameraUniform = std::make_unique<PerFrameUBO::CameraUniform>();
     m_cameraUniform->buffer.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_cameraUniform->descriptorBufferInfo.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
