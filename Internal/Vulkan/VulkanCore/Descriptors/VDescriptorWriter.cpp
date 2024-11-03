@@ -15,7 +15,7 @@ namespace VulkanCore {
     }
 
     VDescriptorWriter & VDescriptorWriter::WriteBuffer(uint32_t binding, vk::DescriptorBufferInfo *bufferInfo) {
-        assert(m_descriptorSetLayout.m_descriptorSetLayoutBindings.count(binding) == 1 && "Binidng does not exist in the layout");
+        assert(m_descriptorSetLayout.m_descriptorSetLayoutBindings.count(binding) == 1);
         auto &bindingDescription = m_descriptorSetLayout.m_descriptorSetLayoutBindings[binding];
         // we are not writing to array of descriptors therfore we have to have only one descriptor that we are creating write object for
         assert(bindingDescription.descriptorCount == 1 && "Expected more than one binding");

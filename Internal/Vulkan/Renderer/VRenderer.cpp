@@ -38,12 +38,13 @@ namespace Renderer
         m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager), m_descriptorSetManager(descriptorSetManager) {
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance);
         m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain);
-        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(device, *m_swapChain, *m_mainRenderPass);
+        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(device, *m_swapChain, *m_mainRenderPass, descriptorSetManager);
         m_pipelineManager->InstantiatePipelines();
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
         m_graphicsPipeline = &m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_BASIC);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
+        CreateDescriptorSets();
 
     }
 

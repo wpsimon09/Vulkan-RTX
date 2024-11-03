@@ -23,6 +23,11 @@ namespace VulkanCore {
         m_isPresistentlyMapped = false;
     }
 
+    vk::DescriptorBufferInfo * VBuffer::GetBufferInfoForDescriptor() {
+        assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer && "This buffer is not uniform buffer and therefore can not be used in descriptors");
+        return &m_descriptorBufferInfo;
+    }
+
     void VBuffer::MakeVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices) {
         assert(!m_isInitialized);
 

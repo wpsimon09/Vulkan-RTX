@@ -28,7 +28,7 @@ namespace VulkanCore {
         const vk::Buffer& GetBuffer() const {return m_bufferVK; }
         const void* GetMapPointer() const { assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer); return m_mappedData;}
 
-        vk::DescriptorBufferInfo *GetBufferInfoForDescriptor() {return &m_bufferInfo;}
+        vk::DescriptorBufferInfo *GetBufferInfoForDescriptor();
 
         void MakeVertexBuffer(const std::vector< ApplicationCore::Vertex>& vertices);
 
@@ -57,7 +57,7 @@ namespace VulkanCore {
         vk::Buffer m_bufferVK;
         vk::BufferUsageFlags m_bufferType;
         std::vector<uint32_t> m_sharedQueueFamilyIndices;
-        vk::DescriptorBufferInfo m_bufferInfo;;
+        vk::DescriptorBufferInfo m_descriptorBufferInfo;;
     };
 
     template <typename T>
@@ -90,6 +90,10 @@ namespace VulkanCore {
         m_isInitialized = true;
         Utils::Logger::LogSuccess("Uniform buffer created !");
         DestroyStagingBuffer();
+
+        m_descriptorBufferInfo.buffer = m_bufferVK;
+        m_descriptorBufferInfo.range = size;
+        m_descriptorBufferInfo.offset = 0;
 
     }
 

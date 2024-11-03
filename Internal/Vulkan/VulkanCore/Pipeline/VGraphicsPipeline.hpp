@@ -21,11 +21,13 @@ namespace VulkanCore
 
     using Command = std::function<void(vk::CommandBuffer cmd)>;
 
-    class VGraphicsPipeline: public VObject
+    class VGraphicsPipeline : public VObject
     {
 
     public:
-        VGraphicsPipeline(const VulkanCore::VDevice &device,const VulkanCore::VSwapChain &swapChain,const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass);
+        VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
+                          const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass,
+                          const std::vector<vk::DescriptorSetLayout>& pipelineLayout);
 
         /**
          * Fills in all structs required to create pipeline. Structs can be modified with setters
@@ -37,10 +39,11 @@ namespace VulkanCore
 
 
         const vk::GraphicsPipelineCreateInfo GetGraphicsPipelineCreateInfoStruct() const;
-        const vk::Pipeline& GetPipelineInstance() const {return m_pipeline;};
-        const PIPELINE_TYPE GetPipelineType() const {return m_pipelineType;};
+        const vk::Pipeline &GetPipelineInstance() const { return m_pipeline; };
+        const PIPELINE_TYPE GetPipelineType() const { return m_pipelineType; };
 
         ~VGraphicsPipeline() = default;
+
     private:
         void CreateShaderStages();
         void CreateVertexInputBindingAndAttributes();
@@ -51,7 +54,7 @@ namespace VulkanCore
         void CreateMultisampling();
         void CreateDepthStencil();
         void CreateColorBlend();
-        void CreatePipelineLayout(vk::DescriptorSetLayout* descriptorSet = nullptr, int descriptorCounts = 0) ;
+        void CreatePipelineLayout();
 
     private:
         const VulkanCore::VShader &m_shaders;
@@ -89,10 +92,11 @@ namespace VulkanCore
         vk::PipelineColorBlendAttachmentState m_colorBlendAttachmentState;
         vk::PipelineColorBlendStateCreateInfo m_colorBlendState;
         vk::PipelineLayout m_pipelineLayout;
+        const std::vector<vk::DescriptorSetLayout>& m_pipelineLayouts;
 
-    //-----------------
-    // SETTERS
-    //-----------------
+        //-----------------
+        // SETTERS
+        //-----------------
     public:
         void SetCreatedPipeline(vk::Pipeline pipeline) {
             assert(pipeline);

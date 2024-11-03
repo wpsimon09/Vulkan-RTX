@@ -13,8 +13,8 @@
 
 
 VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
-    const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass)
-        : m_device{device}, m_swapChain{swapChain}, m_shaders{shaders},m_renderPass{renderPass}, VObject()
+    const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass,const std::vector<vk::DescriptorSetLayout>& pipelineLayout)
+        : m_device{device}, m_swapChain{swapChain}, m_shaders{shaders},m_renderPass{renderPass}, m_pipelineLayouts(pipelineLayout), VObject()
 {}
 
 
@@ -201,11 +201,11 @@ void VulkanCore::VGraphicsPipeline::CreateColorBlend() {
 
 }
 
-void VulkanCore::VGraphicsPipeline::CreatePipelineLayout(vk::DescriptorSetLayout* descriptorSet,  int descriptorCounts) {
+void VulkanCore::VGraphicsPipeline::CreatePipelineLayout() {
     Utils::Logger::LogSuccess("Creating pipeline layout...");
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
-    pipelineLayoutCreateInfo.setLayoutCount = descriptorCounts;
-    pipelineLayoutCreateInfo.pSetLayouts = descriptorSet;
+    pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(m_pipelineLayouts.size());
+    pipelineLayoutCreateInfo.pSetLayouts = m_pipelineLayouts.data();
     pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
     pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
     assert(m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout) == vk::Result::eSuccess);

@@ -25,6 +25,8 @@ public:
     // images and other buffers can be passed later as parameters
     void CreateGlobalDescriptorSets(std::vector<vk::DescriptorBufferInfo *>& bufferDescriptorInfo) ;
 
+    const vk::DescriptorSetLayout& GetGlobalDescriptorSetLayout() const;
+
     void Destroy();
 private:
     const VulkanCore::VDevice& m_device;
