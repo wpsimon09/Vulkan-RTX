@@ -32,6 +32,8 @@ public:
     const void Destroy();
     void Update(const CameraUpdateInfo& cameraUpdateInfo);
     ~Client() = default;
+    const ApplicationCore::Camera& GetCamera() const {return *m_camera;};
+
 private:
     std::unique_ptr<ApplicationCore::AssetsManager> m_assetsManager;
     std::vector<std::unique_ptr<class ApplicationCore::Mesh>> m_meshes;

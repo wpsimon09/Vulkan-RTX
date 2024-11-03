@@ -4,6 +4,7 @@
 
 #include "VUniformBufferManager.hpp"
 
+#include "Application/Client.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
@@ -19,6 +20,10 @@ std::vector<vk::DescriptorBufferInfo *> &VulkanUtils::VUniformBufferManager::Get
     return m_cameraUniform->descriptorBufferInfo;
 }
 
+void VulkanUtils::VUniformBufferManager::UpdateAllUnifromBuffers(int frameIndex) {
+    m_client.GetCamera();
+}
+
 void VulkanUtils::VUniformBufferManager::Destroy() const {
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager...");
     for (auto &buffer : m_cameraUniform->buffer) {
@@ -28,6 +33,7 @@ void VulkanUtils::VUniformBufferManager::Destroy() const {
 }
 
 void VulkanUtils::VUniformBufferManager::CreateUniforms() {
+    m_cameraUniform2 = std::make_unique<VUniform<PerFrameUBO::CameraUniform>>(m_device);
     m_cameraUniform = std::make_unique<PerFrameUBO::CameraUniform>();
     m_cameraUniform->buffer.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_cameraUniform->descriptorBufferInfo.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);

@@ -7,7 +7,7 @@
 #include <memory>
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "UnifromsRegistry.hpp"
-
+#include "VUniform.hpp"
 class Client;
 
 namespace VulkanUtils
@@ -16,12 +16,14 @@ namespace VulkanUtils
     public:
         VUniformBufferManager(const VulkanCore::VDevice& device, const Client& client);
         std::vector<vk::DescriptorBufferInfo *>& GetGlobalBufferDescriptorInfo() const;
+        void UpdateAllUnifromBuffers(int frameIndex);
         void Destroy() const;
     private:
         void CreateUniforms();
     private:
         const VulkanCore::VDevice& m_device;
         const Client& m_client;
+        std::unique_ptr<VulkanUtils::VUniform<PerFrameUBO::CameraUniform>> m_cameraUniform2;
         std::unique_ptr<PerFrameUBO::CameraUniform> m_cameraUniform;
     };
 }
