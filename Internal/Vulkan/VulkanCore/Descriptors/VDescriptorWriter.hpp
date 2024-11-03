@@ -14,7 +14,7 @@ class VDescriptorPool;
 
 class VDescriptorWriter:public VObject {
 public:
-    explicit VDescriptorWriter(const VulkanCore::VDescriptorSetLayout& descriptorSetLayout, const VulkanCore::VDescriptorPool& descriptorPool );
+    explicit VDescriptorWriter(VulkanCore::VDescriptorSetLayout& descriptorSetLayout, const VulkanCore::VDescriptorPool& descriptorPool );
 
     VDescriptorWriter& WriteBuffer(uint32_t binding, vk::DescriptorBufferInfo* bufferInfo );
     VDescriptorWriter& WriteImage(uint32_t binding, vk::DescriptorImageInfo* imageInfo );
@@ -23,7 +23,7 @@ public:
     void Overwrite(vk::DescriptorSet &descriptorSet);
 
 private:
-    const VulkanCore::VDescriptorSetLayout& m_descriptorSetLayout;
+    VulkanCore::VDescriptorSetLayout& m_descriptorSetLayout;
     const VulkanCore::VDescriptorPool& m_descriptorPool;
     std::vector<vk::WriteDescriptorSet> m_descriptorWrites;
 };

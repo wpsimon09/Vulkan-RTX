@@ -18,7 +18,7 @@ namespace VulkanUtils {
         .AddPoolsSize(vk::DescriptorType::eUniformBuffer, GlobalVariables::MAX_FRAMES_IN_FLIGHT)
         .Build();
 
-        m_globalDescriptorLayout = VulkanCore::VDescriptorSetLayoutBuilder(m_device)
+        m_globalDescriptorLayout = VulkanCore::VDescriptorSetLayout::Builder(m_device)
             .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
             .Build();
 

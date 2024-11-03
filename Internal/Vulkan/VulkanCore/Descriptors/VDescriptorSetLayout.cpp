@@ -9,8 +9,8 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {
-    VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice &device, std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding>& bindings):
-        m_device(device), m_descriptorSetLayoutBindings(bindings),VObject() {
+    VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice &device, std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> bindings):
+        m_device(device), m_descriptorSetLayoutBindings(std::move(bindings)),VObject() {
 
         Utils::Logger::LogInfoVerboseOnly("Creating descriptor set layout");
         std::vector<vk::DescriptorSetLayoutBinding> setBindings;
@@ -32,9 +32,9 @@ namespace VulkanCore {
         m_device.GetDevice().destroyDescriptorSetLayout(m_descriptorSetLayout);
     }
 
-    VDescriptorSetLayoutBuilder::VDescriptorSetLayoutBuilder(const VulkanCore::VDevice &device):m_device(device) { }
+    VDescriptorSetLayout::Builder::Builder(const VulkanCore::VDevice &device):m_device(device) { }
 
-    VDescriptorSetLayoutBuilder & VDescriptorSetLayoutBuilder::AddBinding(uint32_t binding, vk::DescriptorType type,
+    VDescriptorSetLayout::Builder & VDescriptorSetLayout::Builder::AddBinding(uint32_t binding, vk::DescriptorType type,
         vk::ShaderStageFlags stage, uint32_t descriptorCount) {
 
         assert(m_descriptorBindings.count(binding) == 0 && "Binding already exists");
@@ -49,7 +49,7 @@ namespace VulkanCore {
         return *this;
     }
 
-    std::unique_ptr<VulkanCore::VDescriptorSetLayout> VDescriptorSetLayoutBuilder::Build() {
+    std::unique_ptr<VulkanCore::VDescriptorSetLayout> VDescriptorSetLayout::Builder::Build() {
         return std::make_unique<VDescriptorSetLayout>(m_device, m_descriptorBindings);
     }
 } // VulkanCore

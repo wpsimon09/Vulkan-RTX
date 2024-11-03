@@ -10,7 +10,7 @@
 
 namespace VulkanCore {
 
-    VDescriptorWriter::VDescriptorWriter(const VulkanCore::VDescriptorSetLayout &descriptorSetLayout,
+    VDescriptorWriter::VDescriptorWriter(VulkanCore::VDescriptorSetLayout &descriptorSetLayout,
         const VulkanCore::VDescriptorPool &descriptorPool):m_descriptorSetLayout(descriptorSetLayout), m_descriptorPool(descriptorPool) {
     }
 
