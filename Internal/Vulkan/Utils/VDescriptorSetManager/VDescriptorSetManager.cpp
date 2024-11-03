@@ -25,7 +25,7 @@ namespace VulkanUtils {
     }
 
     void VDescriptorSetManager::CreateGlobalDescriptorSets  (
-        std::vector<vk::DescriptorBufferInfo*> &bufferDescriptorInfo){
+        const std::vector<vk::DescriptorBufferInfo> &bufferDescriptorInfo){
         m_globalDescriptorSets.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         assert(m_globalDescriptorSets.size() == bufferDescriptorInfo.size() && "Global uniform buffer descriptor size does not match the global uniform buffers size");
         for (size_t i = 0; i < m_globalDescriptorSets.size(); i++) {

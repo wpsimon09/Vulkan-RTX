@@ -16,7 +16,7 @@ class VDescriptorWriter:public VObject {
 public:
     explicit VDescriptorWriter(VulkanCore::VDescriptorSetLayout& descriptorSetLayout, const VulkanCore::VDescriptorPool& descriptorPool );
 
-    VDescriptorWriter& WriteBuffer(uint32_t binding, vk::DescriptorBufferInfo* bufferInfo );
+    VDescriptorWriter& WriteBuffer(uint32_t binding, vk::DescriptorBufferInfo bufferInfo );
     VDescriptorWriter& WriteImage(uint32_t binding, vk::DescriptorImageInfo* imageInfo );
 
     void Build(vk::DescriptorSet &descriptorSet) const;

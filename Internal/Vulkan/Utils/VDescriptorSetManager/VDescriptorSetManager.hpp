@@ -23,7 +23,7 @@ public:
     explicit VDescriptorSetManager(const VulkanCore::VDevice& device);
 
     // images and other buffers can be passed later as parameters
-    void CreateGlobalDescriptorSets(std::vector<vk::DescriptorBufferInfo *>& bufferDescriptorInfo) ;
+    void CreateGlobalDescriptorSets(const std::vector<vk::DescriptorBufferInfo>& bufferDescriptorInfo) ;
 
     const VulkanCore::VDescriptorSetLayout& GetGlobalDescriptorSetLayout() const;
 

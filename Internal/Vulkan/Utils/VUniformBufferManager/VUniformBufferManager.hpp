@@ -15,16 +15,15 @@ namespace VulkanUtils
     class VUniformBufferManager {
     public:
         VUniformBufferManager(const VulkanCore::VDevice& device, const Client& client);
-        std::vector<vk::DescriptorBufferInfo *>& GetGlobalBufferDescriptorInfo() const;
-        void UpdateAllUnifromBuffers(int frameIndex);
+        const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;
+        void UpdateAllUniformBuffers(int frameIndex);
         void Destroy() const;
     private:
         void CreateUniforms();
     private:
         const VulkanCore::VDevice& m_device;
         const Client& m_client;
-        std::unique_ptr<VulkanUtils::VUniform<PerFrameUBO::CameraUniform>> m_cameraUniform2;
-        std::unique_ptr<PerFrameUBO::CameraUniform> m_cameraUniform;
+        std::unique_ptr<VulkanUtils::VUniform<PerFrameUBO::CameraUniform>> m_cameraUniform;
     };
 }
 

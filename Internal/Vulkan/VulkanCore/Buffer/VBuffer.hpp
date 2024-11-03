@@ -28,7 +28,7 @@ namespace VulkanCore {
         const vk::Buffer& GetBuffer() const {return m_bufferVK; }
         const void* GetMapPointer() const { assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer); return m_mappedData;}
 
-        vk::DescriptorBufferInfo *GetBufferInfoForDescriptor();
+        vk::DescriptorBufferInfo &GetBufferInfoForDescriptor();
 
         void MakeVertexBuffer(const std::vector< ApplicationCore::Vertex>& vertices);
 
