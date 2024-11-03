@@ -26,11 +26,15 @@ namespace VulkanCore {
     }
 
     std::unique_ptr<VDescriptorPool> VDescriptorPool::Builder::Build() const {
+        Utils::Logger::LogInfoVerboseOnly("Creating pool to allocate descriptor sets from");
         vk::DescriptorPoolCreateInfo info = {};
         info.flags = m_poolFlags;
         info.maxSets = m_maxSets;
         info.pPoolSizes = m_poolSizes.data();
-        return  std::make_unique<VDescriptorPool>(m_device, m_maxSets, m_poolFlags, m_poolSizes);
+        auto result = std::make_unique<VDescriptorPool>(m_device, m_maxSets, m_poolFlags, m_poolSizes);
+        assert(result);
+        Utils::Logger::LogSuccess("Descriptor pool created, buffer can be allocated from");
+        return  result;
     }
 
     VDescriptorPool::VDescriptorPool(const VulkanCore::VDevice &device, uint32_t maxSets,
@@ -45,6 +49,7 @@ namespace VulkanCore {
     }
 
     void VDescriptorPool::AllocateDescriptor(vk::DescriptorSetLayout layout, vk::DescriptorSet &descriptorSet) const {
+        Utils::Logger::LogInfoVerboseOnly("Allocating descriptor set...");
         vk::DescriptorSetAllocateInfo info = {};
         info.descriptorPool = m_descriptorPool;
         info.descriptorSetCount = 1;
@@ -52,6 +57,8 @@ namespace VulkanCore {
         info.descriptorSetCount = 1;
 
         descriptorSet = m_device.GetDevice().allocateDescriptorSets(info).front();
+
+        Utils::Logger::LogSuccess("Descriptor set allocated");
     }
 
     void VDescriptorPool::FreeDescriptor(std::vector<vk::DescriptorSet> &descriptorSets) {

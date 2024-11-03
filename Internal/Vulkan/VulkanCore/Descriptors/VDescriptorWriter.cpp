@@ -15,6 +15,8 @@ namespace VulkanCore {
     }
 
     VDescriptorWriter & VDescriptorWriter::WriteBuffer(uint32_t binding, vk::DescriptorBufferInfo *bufferInfo) {
+        Utils::Logger::LogInfoVerboseOnly("Creating writable descriptor objects...");
+
         assert(m_descriptorSetLayout.m_descriptorSetLayoutBindings.count(binding) == 1);
         auto &bindingDescription = m_descriptorSetLayout.m_descriptorSetLayoutBindings[binding];
         // we are not writing to array of descriptors therfore we have to have only one descriptor that we are creating write object for
@@ -26,6 +28,7 @@ namespace VulkanCore {
         descriptorWrite.descriptorCount = 1;
 
         m_descriptorWrites.push_back(descriptorWrite);
+        Utils::Logger::LogSuccess("Writable buffer created !");
         return *this;
     }
 
@@ -34,10 +37,13 @@ namespace VulkanCore {
     }
 
     void VDescriptorWriter::Build(vk::DescriptorSet &descriptorSet) const {
+        Utils::Logger::LogInfoVerboseOnly("Creating descriptor set...");
         m_descriptorPool.AllocateDescriptor(m_descriptorSetLayout.GetLayout(), descriptorSet);
+        Utils::Logger::LogSuccess("Descriptor set created !");
     }
 
-    void VDescriptorWriter::Overwrite(vk::DescriptorSet &descriptorSet) {
+    void VDescriptorWriter::Overwrite(const vk::DescriptorSet &descriptorSet) {
+
         for(auto& write: m_descriptorWrites) {
             write.dstSet = descriptorSet;
         }

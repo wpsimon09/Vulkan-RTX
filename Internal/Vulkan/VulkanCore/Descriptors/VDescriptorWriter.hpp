@@ -20,7 +20,7 @@ public:
     VDescriptorWriter& WriteImage(uint32_t binding, vk::DescriptorImageInfo* imageInfo );
 
     void Build(vk::DescriptorSet &descriptorSet) const;
-    void Overwrite(vk::DescriptorSet &descriptorSet);
+    void Overwrite(const vk::DescriptorSet &descriptorSet);
 
 private:
     VulkanCore::VDescriptorSetLayout& m_descriptorSetLayout;
