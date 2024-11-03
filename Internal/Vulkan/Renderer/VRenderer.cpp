@@ -50,6 +50,7 @@ namespace Renderer
 
     void VRenderer::Render() {
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
+        m_uniformBufferManager.UpdateAllUniformBuffers(m_currentFrameIndex);
         //rerender the frame if image to present on is out of date
         if (FetchSwapChainImage() == vk::Result::eEventReset) {
             Utils::Logger::LogInfoVerboseRendering("Received event reset signal, resetting the rendering....");

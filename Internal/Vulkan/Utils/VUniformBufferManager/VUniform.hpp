@@ -16,8 +16,10 @@ template<typename T>
 class VUniform {
 public:
     explicit VUniform(const VulkanCore::VDevice& device);
-    void CopyDataIntoBuffer(void* data, int imageIndex) const;
+    const T& GetUBOStruct(){return *m_uniformCPU;};
+    void UpdateGPUBuffer(int frameIndex);
     const std::vector<vk::DescriptorBufferInfo>& GetDescriptorBufferInfos() const {return m_bufferInfo;};
+    void Destory() const;
 private:
     std::unique_ptr<T> m_uniformCPU;
     std::vector<std::unique_ptr<VulkanCore::VBuffer>> m_uniformGPU;
@@ -38,8 +40,15 @@ VUniform<T>::VUniform(const VulkanCore::VDevice& device) {
 }
 
 template <typename T>
-void VUniform<T>::CopyDataIntoBuffer(void *data, int imageIndex) const {
-    memcpy(m_uniformGPU[imageIndex].get()->GetBuffer(), data, sizeof(T));
+void VUniform<T>::UpdateGPUBuffer(int frameIndex) {
+    memcpy(m_uniformGPU[frameIndex].get()->GetBuffer(), m_uniformCPU.get(), sizeof(T));
+}
+
+template <typename T>
+void VUniform<T>::Destory() const {
+    for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+        m_uniformGPU[i]->Destroy();
+    }
 }
 
 } // VulkanUtils

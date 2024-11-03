@@ -20,8 +20,6 @@ namespace PerFrameUBO
     {
         glm::mat4 view;
         glm::mat4 proj;
-        std::vector<std::unique_ptr<VulkanCore::VBuffer>> buffer;
-        std::vector<vk::DescriptorBufferInfo*> descriptorBufferInfo;
     };
 }
 

@@ -5,6 +5,7 @@
 #include "VUniformBufferManager.hpp"
 
 #include "Application/Client.hpp"
+#include "Application/Rendering/Camera/Camera.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
@@ -20,8 +21,11 @@ const std::vector<vk::DescriptorBufferInfo> &VulkanUtils::VUniformBufferManager:
     return m_cameraUniform->GetDescriptorBufferInfos();
 }
 
-void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex) {
-
+void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex) const {
+    auto uboRepresentation = m_cameraUniform->GetUBOStruct();
+    uboRepresentation.proj = m_client.GetCamera().GetPojectionMatix();
+    uboRepresentation.view = m_client.GetCamera().GetViewMatrix();
+    m_cameraUniform->UpdateGPUBuffer(frameIndex);
 }
 
 void VulkanUtils::VUniformBufferManager::Destroy() const {
