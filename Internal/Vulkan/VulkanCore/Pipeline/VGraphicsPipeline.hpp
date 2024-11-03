@@ -9,7 +9,12 @@
 
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
+#include "vector"
 
+namespace VulkanCore
+{
+    class VDescriptorSetLayout;
+}
 
 namespace VulkanCore
 {
@@ -26,8 +31,7 @@ namespace VulkanCore
 
     public:
         VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
-                          const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass,
-                          const std::vector<vk::DescriptorSetLayout>& pipelineLayout);
+                          const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass);
 
         /**
          * Fills in all structs required to create pipeline. Structs can be modified with setters
@@ -36,6 +40,7 @@ namespace VulkanCore
         void Destroy() override;
         const void RecordPipelineCommands(VulkanCore::VCommandBuffer &commandBuffer) const;
         const void AddCommand(const Command &command);
+        const void AddPipelineLayout(std::reference_wrapper<const VulkanCore::VDescriptorSetLayout> descriptorSetLayout);
 
 
         const vk::GraphicsPipelineCreateInfo GetGraphicsPipelineCreateInfoStruct() const;
@@ -92,7 +97,7 @@ namespace VulkanCore
         vk::PipelineColorBlendAttachmentState m_colorBlendAttachmentState;
         vk::PipelineColorBlendStateCreateInfo m_colorBlendState;
         vk::PipelineLayout m_pipelineLayout;
-        const std::vector<vk::DescriptorSetLayout>& m_pipelineLayouts;
+        std::vector<std::reference_wrapper<const VulkanCore::VDescriptorSetLayout>> m_pipelineLayouts;
 
         //-----------------
         // SETTERS

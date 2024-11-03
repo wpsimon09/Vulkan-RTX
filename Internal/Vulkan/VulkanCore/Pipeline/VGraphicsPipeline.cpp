@@ -10,12 +10,14 @@
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 
 
 VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
-    const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass,const std::vector<vk::DescriptorSetLayout>& pipelineLayout)
-        : m_device{device}, m_swapChain{swapChain}, m_shaders{shaders},m_renderPass{renderPass}, m_pipelineLayouts(pipelineLayout), VObject()
+    const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass)
+        : VObject(), m_shaders{shaders}, m_device{device},m_swapChain{swapChain}, m_renderPass{renderPass}
 {}
+
 
 
 void VulkanCore::VGraphicsPipeline::Init() {
@@ -45,6 +47,12 @@ const void VulkanCore::VGraphicsPipeline::RecordPipelineCommands(VulkanCore::VCo
 const void VulkanCore::VGraphicsPipeline::AddCommand(const Command &command) {
     m_pipelineCommands.emplace_back(command);
 }
+
+const void VulkanCore::VGraphicsPipeline::AddPipelineLayout(std::reference_wrapper<const VulkanCore::VDescriptorSetLayout> descriptorSetLayout) {
+    m_pipelineLayouts.emplace_back(descriptorSetLayout);
+}
+
+
 
 const vk::GraphicsPipelineCreateInfo VulkanCore::VGraphicsPipeline::GetGraphicsPipelineCreateInfoStruct() const {
     vk::GraphicsPipelineCreateInfo info = {};
@@ -204,8 +212,16 @@ void VulkanCore::VGraphicsPipeline::CreateColorBlend() {
 void VulkanCore::VGraphicsPipeline::CreatePipelineLayout() {
     Utils::Logger::LogSuccess("Creating pipeline layout...");
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
-    pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(m_pipelineLayouts.size());
-    pipelineLayoutCreateInfo.pSetLayouts = m_pipelineLayouts.data();
+
+    std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;
+    descriptorSetLayouts.reserve(m_pipelineLayouts.size());
+
+    for (auto m_pipelineLayout : m_pipelineLayouts) {
+        descriptorSetLayouts.push_back(m_pipelineLayout.get().GetLayout());
+    }
+    pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
+    pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+
     pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
     pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
     assert(m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout) == vk::Result::eSuccess);

@@ -35,8 +35,8 @@ namespace VulkanUtils {
         }
     }
 
-    const vk::DescriptorSetLayout& VDescriptorSetManager::GetGlobalDescriptorSetLayout() const {
-        return m_globalDescriptorLayout->GetDescriptorSetLayout();
+    const VulkanCore::VDescriptorSetLayout& VDescriptorSetManager::GetGlobalDescriptorSetLayout() const {
+        return *m_globalDescriptorLayout;
     }
 
     void VDescriptorSetManager::Destroy() {

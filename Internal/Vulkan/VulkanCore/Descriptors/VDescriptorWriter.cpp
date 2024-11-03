@@ -34,7 +34,7 @@ namespace VulkanCore {
     }
 
     void VDescriptorWriter::Build(vk::DescriptorSet &descriptorSet) const {
-        m_descriptorPool.AllocateDescriptor(m_descriptorSetLayout.GetDescriptorSetLayout(), descriptorSet);
+        m_descriptorPool.AllocateDescriptor(m_descriptorSetLayout.GetLayout(), descriptorSet);
     }
 
     void VDescriptorWriter::Overwrite(vk::DescriptorSet &descriptorSet) {
