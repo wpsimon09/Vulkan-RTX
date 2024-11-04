@@ -14,7 +14,7 @@ namespace VulkanCore {
         const VulkanCore::VDescriptorPool &descriptorPool):m_descriptorSetLayout(descriptorSetLayout), m_descriptorPool(descriptorPool) {
     }
 
-    VDescriptorWriter & VDescriptorWriter::WriteBuffer(uint32_t binding, vk::DescriptorBufferInfo bufferInfo) {
+    VDescriptorWriter & VDescriptorWriter::WriteBuffer(uint32_t binding,const vk::DescriptorBufferInfo& bufferInfo) {
         Utils::Logger::LogInfoVerboseOnly("Creating writable descriptor objects...");
 
         assert(m_descriptorSetLayout.m_descriptorSetLayoutBindings.count(binding) == 1);

@@ -10,6 +10,11 @@
 
 namespace VulkanCore
 {
+    class VDescriptorWriter;
+}
+
+namespace VulkanCore
+{
     class VDescriptorSetLayout;
     class VBuffer;
     class VDescriptorPool;
@@ -27,11 +32,14 @@ public:
 
     const VulkanCore::VDescriptorSetLayout& GetGlobalDescriptorSetLayout() const;
 
+    void UpdateDescriptorSets(int frameIndex);
+
     void Destroy();
 private:
     const VulkanCore::VDevice& m_device;
     std::unique_ptr<VulkanCore::VDescriptorPool> m_descriptorPoolGlobal;
     std::unique_ptr<VulkanCore::VDescriptorSetLayout> m_globalDescriptorLayout;
+    std::unique_ptr<VulkanCore::VDescriptorWriter> m_descriptorWriter;
     std::vector<vk::DescriptorSet> m_globalDescriptorSets;
 };
 
