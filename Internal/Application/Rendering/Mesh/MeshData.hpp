@@ -148,16 +148,16 @@ namespace ApplicationCore::MeshData
 
     const std::vector<Vertex> crossVertices = {
         // Vertical bar (shifted down)
-        {{-0.1f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},  // Bottom-left
-        {{ 0.1f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // Bottom-right
-        {{ 0.1f,  0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},  // Top-right
-        {{-0.1f,  0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},  // Top-left
+        {{-0.1f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},  // Bottom-left
+        {{ 0.1f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // Bottom-right
+        {{ 0.1f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},  // Top-right
+        {{-0.1f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},  // Top-left
 
         // Horizontal bar (higher up on Y-axis)
-        {{-0.4f,  0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},  // Left of horizontal bar
-        {{ 0.4f,  0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // Right of horizontal bar
-        {{ 0.4f,  0.2f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},  // Top-right corner
-        {{-0.4f,  0.2f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}   // Top-left corner
+        {{-0.4f,  0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},  // Left of horizontal bar
+        {{ 0.4f,  0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // Right of horizontal bar
+        {{ 0.4f,  0.2f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},  // Top-right corner
+        {{-0.4f,  0.2f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}   // Top-left corner
     };
 
     const std::vector<uint32_t> crossIndices = {
