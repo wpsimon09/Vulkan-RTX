@@ -41,7 +41,7 @@ VUniform<T>::VUniform(const VulkanCore::VDevice& device) {
 
 template <typename T>
 void VUniform<T>::UpdateGPUBuffer(int frameIndex) {
-    memcpy(m_uniformGPU[frameIndex].get()->GetBuffer(), m_uniformCPU.get(), sizeof(T));
+    memcpy(m_uniformGPU[frameIndex]->GetMapPointer(), m_uniformCPU.get(), sizeof(T));
 }
 
 template <typename T>

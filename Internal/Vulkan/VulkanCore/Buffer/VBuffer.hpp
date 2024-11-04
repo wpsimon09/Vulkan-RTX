@@ -26,7 +26,8 @@ namespace VulkanCore {
         explicit VBuffer(const VDevice& device);
 
         const vk::Buffer& GetBuffer() const {return m_bufferVK; }
-        const void* GetMapPointer() const { assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer); return m_mappedData;}
+
+        void* GetMapPointer() const { assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer); return m_mappedData;}
 
         vk::DescriptorBufferInfo &GetBufferInfoForDescriptor();
 

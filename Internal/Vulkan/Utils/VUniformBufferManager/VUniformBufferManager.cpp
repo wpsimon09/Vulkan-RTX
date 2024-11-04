@@ -30,7 +30,7 @@ void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex)
 
 void VulkanUtils::VUniformBufferManager::Destroy() const {
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager...");
-
+    m_cameraUniform->Destory();
     Utils::Logger::LogInfoVerboseOnly("Uniform buffer manager destroyed");
 }
 
