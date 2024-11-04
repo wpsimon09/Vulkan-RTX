@@ -11,5 +11,5 @@ layout(binding = 0) uniform UnifromBufferObject{
 
 
 void main() {
-    gl_Position = vec4(inPosition, 1.0f);
+    gl_Position =  ubo.projection * ubo.view * mat4(1.0f) * vec4(inPosition,1.0);
 }

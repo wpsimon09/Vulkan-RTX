@@ -23,12 +23,19 @@ namespace VulkanCore
 
 namespace VulkanUtils {
 
+struct DescriptorSet
+{
+
+};
+
 class VDescriptorSetManager {
 public:
     explicit VDescriptorSetManager(const VulkanCore::VDevice& device);
 
     // images and other buffers can be passed later as parameters
     void CreateGlobalDescriptorSets(const std::vector<vk::DescriptorBufferInfo>& bufferDescriptorInfo) ;
+
+    const vk::DescriptorSet& GetGlobalDescriptorSet(int imageIndex) const;
 
     const VulkanCore::VDescriptorSetLayout& GetGlobalDescriptorSetLayout() const;
 
@@ -39,7 +46,7 @@ private:
     const VulkanCore::VDevice& m_device;
     std::unique_ptr<VulkanCore::VDescriptorPool> m_descriptorPoolGlobal;
     std::unique_ptr<VulkanCore::VDescriptorSetLayout> m_globalDescriptorLayout;
-    std::unique_ptr<VulkanCore::VDescriptorWriter> m_descriptorWriter;
+    std::vector<std::unique_ptr<VulkanCore::VDescriptorWriter>> m_descriptorWriter;
     std::vector<vk::DescriptorSet> m_globalDescriptorSets;
 };
 

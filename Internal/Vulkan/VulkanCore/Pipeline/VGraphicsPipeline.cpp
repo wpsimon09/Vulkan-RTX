@@ -87,6 +87,10 @@ const vk::GraphicsPipelineCreateInfo VulkanCore::VGraphicsPipeline::GetGraphicsP
 
 }
 
+const vk::PipelineLayout & VulkanCore::VGraphicsPipeline::GetPipelineLayout() const {
+    return m_pipelineLayout;
+}
+
 void VulkanCore::VGraphicsPipeline::CreateShaderStages() {
     vk::PipelineShaderStageCreateInfo vertexStage;
     vertexStage.stage = vk::ShaderStageFlagBits::eVertex;

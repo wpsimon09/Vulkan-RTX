@@ -44,7 +44,8 @@ namespace VulkanCore
 
 
         const vk::GraphicsPipelineCreateInfo GetGraphicsPipelineCreateInfoStruct() const;
-        const vk::Pipeline &GetPipelineInstance() const { return m_pipeline; };
+        const vk::Pipeline &GetPipelineInstance() const { return m_pipeline; }
+        const vk::PipelineLayout &GetPipelineLayout() const;;
         const PIPELINE_TYPE GetPipelineType() const { return m_pipelineType; };
 
         ~VGraphicsPipeline() = default;

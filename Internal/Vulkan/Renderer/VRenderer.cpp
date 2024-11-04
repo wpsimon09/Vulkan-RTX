@@ -124,6 +124,12 @@ namespace Renderer
             mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(), 0, vk::IndexType::eUint32);
         m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindVertexBuffers(
             0, 1, vertexBuffers.data(), offsets.data());
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics,
+            m_graphicsPipeline->GetPipelineLayout(),
+            0,
+            m_descriptorSetManager.GetGlobalDescriptorSet(m_currentFrameIndex),
+            nullptr);
         m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(mesh.GetMeshIndexCount(), 1, 0, 0, 0);
 
         EndRenderPass();
