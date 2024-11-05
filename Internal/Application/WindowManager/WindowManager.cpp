@@ -120,6 +120,7 @@ void WindowManager::MouseClickCallback(GLFWwindow *window, int button, int actio
 void WindowManager::MouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer((window)));
     winm->m_cameraMovement.ZoomValue = (float)yoffset;
+    winm->m_isDirty = true;
 }
 
 void WindowManager::FrameBufferResizeCallback(GLFWwindow *window, int width, int height) {

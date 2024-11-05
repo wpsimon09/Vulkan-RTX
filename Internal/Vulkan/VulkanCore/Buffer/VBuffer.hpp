@@ -93,7 +93,7 @@ namespace VulkanCore {
         DestroyStagingBuffer();
 
         m_descriptorBufferInfo.buffer = m_bufferVK;
-        m_descriptorBufferInfo.range = vk::WholeSize;
+        m_descriptorBufferInfo.range = sizeof(T);
         m_descriptorBufferInfo.offset = 0;
 
     }

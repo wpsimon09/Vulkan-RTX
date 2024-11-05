@@ -56,8 +56,8 @@ namespace Renderer
             return;
         }
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
-        m_uniformBufferManager.UpdateAllUniformBuffers(m_currentFrameIndex);
         m_baseCommandBuffers[m_currentFrameIndex]->Reset();
+        m_uniformBufferManager.UpdateAllUniformBuffers(m_currentFrameIndex);
         RecordCommandBuffersForPipelines();
         SubmitCommandBuffer();
         PresentResults();
