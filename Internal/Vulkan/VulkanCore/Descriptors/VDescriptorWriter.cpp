@@ -25,6 +25,7 @@ namespace VulkanCore {
         descriptorWrite.descriptorType = m_descriptorSetLayout.m_descriptorSetLayoutBindings[binding].descriptorType;
         descriptorWrite.dstBinding = binding;
         descriptorWrite.pBufferInfo = &bufferInfo;
+        descriptorWrite.pImageInfo = nullptr;
         descriptorWrite.descriptorCount = 1;
 
         m_descriptorWrites.push_back(descriptorWrite);

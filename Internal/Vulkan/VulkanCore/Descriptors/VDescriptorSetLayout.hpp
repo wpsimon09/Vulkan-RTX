@@ -27,7 +27,6 @@ namespace VulkanCore
             std::unique_ptr<VulkanCore::VDescriptorSetLayout> Build();
 
         private:
-            // this has lot of elements in for some reason
             std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> m_descriptorBindings;
             const VulkanCore::VDevice &m_device;
         };

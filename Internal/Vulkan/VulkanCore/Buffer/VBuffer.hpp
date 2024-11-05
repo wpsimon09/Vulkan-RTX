@@ -92,6 +92,8 @@ namespace VulkanCore {
         Utils::Logger::LogSuccess("Uniform buffer created !");
         DestroyStagingBuffer();
 
+        // size if only 8 bites but should be 128
+
         m_descriptorBufferInfo.buffer = m_bufferVK;
         m_descriptorBufferInfo.range = sizeof(T);
         m_descriptorBufferInfo.offset = 0;
