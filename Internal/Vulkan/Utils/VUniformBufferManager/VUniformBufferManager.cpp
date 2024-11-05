@@ -22,9 +22,8 @@ const std::vector<vk::DescriptorBufferInfo> &VulkanUtils::VUniformBufferManager:
 }
 
 void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex) const {
-    auto uboRepresentation = m_cameraUniform->GetUBOStruct();
-    uboRepresentation.proj = m_client.GetCamera().GetProjectionMatrix();
-    uboRepresentation.view = m_client.GetCamera().GetViewMatrix();
+    m_cameraUniform->GetUBOStruct().proj = m_client.GetCamera().GetProjectionMatrix();
+    m_cameraUniform->GetUBOStruct().view = m_client.GetCamera().GetViewMatrix();
     m_cameraUniform->UpdateGPUBuffer(frameIndex);
 }
 

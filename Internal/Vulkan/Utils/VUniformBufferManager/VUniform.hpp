@@ -16,7 +16,7 @@ template<typename T>
 class VUniform {
 public:
     explicit VUniform(const VulkanCore::VDevice& device);
-    const T& GetUBOStruct(){return *m_uniformCPU;};
+    T& GetUBOStruct(){return *m_uniformCPU;};
     void UpdateGPUBuffer(int frameIndex);
     const std::vector<vk::DescriptorBufferInfo>& GetDescriptorBufferInfos() const {return m_bufferInfo;};
     void Destory() const;
