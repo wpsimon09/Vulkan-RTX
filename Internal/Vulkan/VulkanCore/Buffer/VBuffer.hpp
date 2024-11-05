@@ -36,7 +36,7 @@ namespace VulkanCore {
         void MakeIndexBuffer(const std::vector< uint32_t>& indices);
 
         template<typename T>
-        void MakeUniformBuffer(const T& uniformBuffer);
+        void MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size);
 
         void MakeImageBuffer();
 
@@ -62,9 +62,8 @@ namespace VulkanCore {
     };
 
     template <typename T>
-    void VBuffer::MakeUniformBuffer(const T& uniformBuffer) {
+    void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size) {
         m_isPresistentlyMapped = true;
-        VkDeviceSize size = sizeof(uniformBuffer);
         assert(!m_isInitialized);
 
         //---------------------
@@ -92,10 +91,8 @@ namespace VulkanCore {
         Utils::Logger::LogSuccess("Uniform buffer created !");
         DestroyStagingBuffer();
 
-        // size if only 8 bites but should be 128
-
         m_descriptorBufferInfo.buffer = m_bufferVK;
-        m_descriptorBufferInfo.range = sizeof(T);
+        m_descriptorBufferInfo.range = size;
         m_descriptorBufferInfo.offset = 0;
 
     }

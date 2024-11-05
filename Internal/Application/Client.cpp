@@ -19,7 +19,7 @@ void Client::Init() {
     auto start = std::chrono::high_resolution_clock::now();
 
     assert(m_assetsManager);
-    m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, *m_assetsManager));
+    m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CROSS, *m_assetsManager));
     assert(!m_meshes.empty());
 
     Utils::Logger::LogInfoVerboseOnly("Creating camera...");
@@ -58,7 +58,7 @@ const void Client::Destroy() {
     Utils::Logger::LogInfoVerboseOnlyClient("Destroyed client");
 }
 
-void Client::Update(const CameraUpdateInfo &cameraUpdateInfo) {
+void Client::Update(CameraUpdateInfo &cameraUpdateInfo) {
     m_camera->Update(cameraUpdateInfo);
 }
 

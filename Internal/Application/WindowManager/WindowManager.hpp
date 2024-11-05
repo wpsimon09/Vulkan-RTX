@@ -18,7 +18,7 @@ public:
 
     void InitWindow();
     bool GetIsDirty() const { return m_isDirty; };
-    const CameraUpdateInfo& GetCameraMovement() { m_isDirty = false ; return m_cameraMovement; };
+    CameraUpdateInfo& GetCameraMovement() { m_isDirty = false ; return m_cameraMovement; };
 
     static int GetWindowWidth() ;
     static int GetWindowHeight();

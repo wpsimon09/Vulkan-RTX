@@ -12,6 +12,14 @@ struct CameraUpdateInfo
     float ZoomValue;
     float NewWidth;
     float NewHeight;
+
+    void Reset() {
+        RotatePolarValue = 0;
+        RotateAzimuthValue = 0;
+        ZoomValue = 0;
+        NewWidth = 0;
+        NewHeight = 0;
+    }
 };
 
 #endif //APPLICATIONSTRUCTS_HPP

@@ -39,7 +39,7 @@ public:
 
     float GetNearPlane() {return this->m_nearPlane;}
 
-    void Update(const CameraUpdateInfo& cameraUpdateInfo);
+    void Update(CameraUpdateInfo& cameraUpdateInfo);
 
     ~Camera() = default;
 

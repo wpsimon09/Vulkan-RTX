@@ -30,7 +30,7 @@ public:
     const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> GetMeshes() const;
     const void MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager);
     const void Destroy();
-    void Update(const CameraUpdateInfo& cameraUpdateInfo);
+    void Update(CameraUpdateInfo& cameraUpdateInfo);
     ~Client() = default;
     const ApplicationCore::Camera& GetCamera() const {return *m_camera;};
 

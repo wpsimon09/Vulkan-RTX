@@ -80,11 +80,13 @@
     }
 
 
-    void ApplicationCore::Camera::Update(const CameraUpdateInfo &cameraUpdateInfo) {
+    void ApplicationCore::Camera::Update(CameraUpdateInfo &cameraUpdateInfo)  {
         Utils::Logger::LogInfo("Updating camera");
         RotateAzimutn(cameraUpdateInfo.RotateAzimuthValue);
         RotatePolar(cameraUpdateInfo.RotatePolarValue);
         Zoom(cameraUpdateInfo.ZoomValue);
+        cameraUpdateInfo.Reset();
+
     }
 
     glm::vec3 ApplicationCore::Camera::getEye() {

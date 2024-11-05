@@ -34,7 +34,7 @@ VUniform<T>::VUniform(const VulkanCore::VDevice& device) {
 
     for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
         m_uniformGPU[i] = std::make_unique<VulkanCore::VBuffer>(device);
-        m_uniformGPU[i]->MakeUniformBuffer(m_uniformCPU.get());
+        m_uniformGPU[i]->MakeUniformBuffer(m_uniformCPU.get(), sizeof(T));
         m_bufferInfo[i] = m_uniformGPU[i]->GetBufferInfoForDescriptor();
     }
 }
