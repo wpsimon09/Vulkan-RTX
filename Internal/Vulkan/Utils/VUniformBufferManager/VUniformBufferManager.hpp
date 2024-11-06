@@ -24,6 +24,8 @@ namespace VulkanUtils
         const VulkanCore::VDevice& m_device;
         const Client& m_client;
         std::unique_ptr<VulkanUtils::VUniform<PerFrameUBO::CameraUniform>> m_cameraUniform;
+
+        std::vector<std::unique_ptr<VulkanUtils::VUniform<PerObjectUBO::ObjectDataUniform>>> m_objectDataUnifrom;
     };
 }
 

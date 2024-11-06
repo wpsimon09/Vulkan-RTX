@@ -30,7 +30,10 @@ namespace PerMaterialUBO
 
 namespace PerObjectUBO
 {
-
+    struct ObjectDataUniform
+    {
+        glm::mat4 model;
+    };
 }
 
 

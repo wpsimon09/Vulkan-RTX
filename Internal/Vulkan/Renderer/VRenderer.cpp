@@ -130,7 +130,10 @@ namespace Renderer
             0,
             m_descriptorSetManager.GetGlobalDescriptorSet(m_currentFrameIndex),
             nullptr);
-        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(mesh.GetMeshIndexCount(), 1, 0, 0, 0);
+        for(auto &mesh: m_client.GetMeshes()) {
+            m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(mesh.get().GetMeshIndexCount(), 1, 0, 0, 0);
+        }
+
 
         EndRenderPass();
         m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();

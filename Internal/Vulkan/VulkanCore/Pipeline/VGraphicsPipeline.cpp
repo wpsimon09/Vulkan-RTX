@@ -158,7 +158,7 @@ void VulkanCore::VGraphicsPipeline::CreateDynamicState() {
 
 void VulkanCore::VGraphicsPipeline::CreateRasterizer() {
     m_rasterizer.depthClampEnable = vk::False;
-    m_rasterizer.polygonMode = vk::PolygonMode::eLine;
+    m_rasterizer.polygonMode = vk::PolygonMode::eFill;
     m_rasterizer.rasterizerDiscardEnable = VK_FALSE;
     m_rasterizer.lineWidth = 1.0f;
     m_rasterizer.cullMode = vk::CullModeFlagBits::eNone;

@@ -20,6 +20,7 @@ void Client::Init() {
 
     assert(m_assetsManager);
     m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CROSS, *m_assetsManager));
+    m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, *m_assetsManager));
     assert(!m_meshes.empty());
 
     Utils::Logger::LogInfoVerboseOnly("Creating camera...");
