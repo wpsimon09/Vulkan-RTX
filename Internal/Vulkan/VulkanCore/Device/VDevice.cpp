@@ -89,6 +89,10 @@ void VulkanCore::VDevice::CreateLogicalDevice() {
     deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
     deviceCreateInfo.ppEnabledExtensionNames = GlobalVariables::deviceLevelExtensions.data();
+    for (auto deviceExtension : GlobalVariables::deviceLevelExtensions) {
+        Utils::Logger::LogInfo("Going to use extension:\t" + std::string(deviceExtension));
+    }
+
     deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(GlobalVariables::deviceLevelExtensions.size());
 
     if(GlobalState::ValidationLayersEnabled) {

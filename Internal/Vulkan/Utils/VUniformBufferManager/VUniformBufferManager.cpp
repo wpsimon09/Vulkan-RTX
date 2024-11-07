@@ -24,6 +24,10 @@ const std::vector<vk::DescriptorBufferInfo> &VulkanUtils::VUniformBufferManager:
     return m_cameraUniform->GetDescriptorBufferInfos();
 }
 
+const std::vector<vk::DescriptorBufferInfo> VulkanUtils::VUniformBufferManager::
+GetPerObjectDescriptorBufferInfo() const {
+}
+
 
 void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex) const {
     m_cameraUniform->GetUBOStruct().proj = m_client.GetCamera().GetProjectionMatrix();

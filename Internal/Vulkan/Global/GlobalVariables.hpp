@@ -19,6 +19,7 @@ namespace GlobalVariables {
 
     inline const std::vector<const char *> deviceLevelExtensions = {
       static_cast<const char *>(VK_KHR_SWAPCHAIN_EXTENSION_NAME),
+      static_cast<const char *>(VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME)
     };
 
     enum SHADER_TYPE

@@ -40,7 +40,9 @@ namespace GlobalVariables::GlobalStructs
 {
     inline DesiredDeviceFeatures primaryDeviceFeatures = {
         .deviceType = vk::PhysicalDeviceType::eDiscreteGpu,
-        .deviceFeatures = vk::PhysicalDeviceFeatures{}.setGeometryShader(VK_TRUE)
+        .deviceFeatures =
+            vk::PhysicalDeviceFeatures{}.setGeometryShader(VK_TRUE),
+
     };
 
     inline DesiredDeviceFeatures secondaryDeviceFeatures = {

@@ -39,13 +39,14 @@ Application::Application()
 
 void Application::Init()
 {
+    m_client = std::make_unique<Client>();
+
     m_windowManager = std::make_unique<WindowManager>(800,600);
     m_windowManager->InitWindow();
 
     m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
     m_vulkanDevice = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
 
-    m_client = std::make_unique<Client>();
 
     auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice);
     m_client->MountAssetsManger(std::move(assetManger));
