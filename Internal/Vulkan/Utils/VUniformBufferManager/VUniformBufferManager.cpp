@@ -8,6 +8,7 @@
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
+#include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
@@ -30,9 +31,9 @@ void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex)
     m_cameraUniform->UpdateGPUBuffer(frameIndex);
 
     for (int i = 0; i< m_client.GetMeshes().size(); i++) {
-        m_objectDataUnifrom[i]->GetUBOStruct().model = m_client.GetMeshes()[i].get().GetTransformations().GetModelMatrix();
+        m_objectDataUniforms[i]->GetUBOStruct().model = m_client.GetMeshes()[i].get().GetTransformations().GetModelMatrix();
+        m_objectDataUniforms[i]->UpdateGPUBuffer(frameIndex);
     }
-
 
 
 }
@@ -40,7 +41,7 @@ void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex)
 void VulkanUtils::VUniformBufferManager::Destroy() const {
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager...");
     m_cameraUniform->Destory();
-    for(auto &ubo: m_objectDataUnifrom) {
+    for(auto &ubo: m_objectDataUniforms) {
         ubo->Destory();
     }
     Utils::Logger::LogInfoVerboseOnly("Uniform buffer manager destroyed");
@@ -50,12 +51,17 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
 
     // allocate per model Uniform buffers
     Utils::Logger::LogInfoVerboseOnly("Allocating 100 uniform buffers before hand");
-    m_objectDataUnifrom.resize(100);
-    assert(m_objectDataUnifrom.size() == 100 && "Failed to allocate 100 buffers");
+    GlobalState::LoggingEnabled = false;
+    m_objectDataUniforms.resize(100);
+    assert(m_objectDataUniforms.size() == 100 && "Failed to allocate 100 buffers");
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for per object data");
-    std::generate_n(m_objectDataUnifrom.begin(), 100, [&]() {
+    std::generate_n(m_objectDataUniforms.begin(), 100, [&]() {
+
         return std::make_unique<VUniform<PerObjectUBO::ObjectDataUniform>>(m_device);
     });
+    assert(m_objectDataUniforms.size() == 100 && "Failed to allocate 100 buffers");
+    GlobalState::LoggingEnabled = true;
+    Utils::Logger::LogSuccess("Allocated 100 uniform buffers for each of the mesh");
 
     // allocate per Frame uniform buffers
     m_cameraUniform = std::make_unique<VUniform<PerFrameUBO::CameraUniform>>(m_device);

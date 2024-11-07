@@ -8,14 +8,20 @@
 
 void Utils::Logger::LogSuccess(const std::string& msg)
 {
-    auto time = std::chrono::system_clock::now();
-    std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
-    std::tm* localTime = std::localtime(&currentTime);
-    std::cout << "✔ LOG::SUCCESS::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - "<< msg << std::endl;
+    if(!GlobalState::LoggingEnabled)
+        return;
+
+        auto time = std::chrono::system_clock::now();
+        std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
+        std::tm* localTime = std::localtime(&currentTime);
+        std::cout << "✔ LOG::SUCCESS::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - "<< msg << std::endl;
 }
 
 void Utils::Logger::LogError(const std::string& msg)
 {
+    if(!GlobalState::LoggingEnabled)
+        return;;
+
     auto time = std::chrono::system_clock::now();
     std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
     std::tm* localTime = std::localtime(&currentTime);
@@ -24,6 +30,8 @@ void Utils::Logger::LogError(const std::string& msg)
 
 void Utils::Logger::LogInfo(const std::string& msg)
 {
+    if(!GlobalState::LoggingEnabled)
+        return;;
     auto time = std::chrono::system_clock::now();
     std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
     std::tm* localTime = std::localtime(&currentTime);
@@ -31,6 +39,8 @@ void Utils::Logger::LogInfo(const std::string& msg)
 }
 
 void Utils::Logger::LogSuccessClient(const std::string &msg) {
+    if(!GlobalState::LoggingEnabled)
+        return;;
     auto time = std::chrono::system_clock::now();
     std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
     std::tm* localTime = std::localtime(&currentTime);
@@ -38,6 +48,8 @@ void Utils::Logger::LogSuccessClient(const std::string &msg) {
 }
 
 void Utils::Logger::LogErrorClient(const std::string &msg) {
+    if(!GlobalState::LoggingEnabled)
+        return;
     auto time = std::chrono::system_clock::now();
     std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
     std::tm* localTime = std::localtime(&currentTime);
@@ -52,7 +64,7 @@ void Utils::Logger::LogInfoClient(const std::string &msg) {
 }
 
 void Utils::Logger::LogInfoVerboseOnlyClient(const std::string &msg) {
-    if(GlobalState::Verbose) {
+    if(GlobalState::Verbose && GlobalState::LoggingEnabled) {
         auto time = std::chrono::system_clock::now();
         std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
         std::tm* localTime = std::localtime(&currentTime);
@@ -61,7 +73,7 @@ void Utils::Logger::LogInfoVerboseOnlyClient(const std::string &msg) {
 }
 
 void Utils::Logger::LogInfoVerboseOnly(const std::string &msg) {
-  if(GlobalState::Verbose) {
+  if(GlobalState::Verbose && GlobalState::LoggingEnabled) {
     auto time = std::chrono::system_clock::now();
     std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
     std::tm* localTime = std::localtime(&currentTime);
@@ -70,7 +82,7 @@ void Utils::Logger::LogInfoVerboseOnly(const std::string &msg) {
 }
 
 void Utils::Logger::LogInfoVerboseRendering(const std::string &msg) {
-    if(GlobalState::VerboseInRendering && GlobalState::Verbose) {
+    if(GlobalState::VerboseInRendering && GlobalState::Verbose && GlobalState::LoggingEnabled) {
         auto time = std::chrono::system_clock::now();
         std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
         std::tm* localTime = std::localtime(&currentTime);

@@ -15,7 +15,8 @@ namespace VulkanUtils
     class VUniformBufferManager {
     public:
         VUniformBufferManager(const VulkanCore::VDevice& device, const Client& client);
-        const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;
+        const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const; // per frame in flight
+        const std::vector<vk::DescriptorBufferInfo> GetPerObjectDescriptorBufferInfo() const; // per object per frame in flight
         void UpdateAllUniformBuffers(int frameIndex) const;
         void Destroy() const;
     private:
@@ -23,9 +24,9 @@ namespace VulkanUtils
     private:
         const VulkanCore::VDevice& m_device;
         const Client& m_client;
-        std::unique_ptr<VulkanUtils::VUniform<PerFrameUBO::CameraUniform>> m_cameraUniform;
 
-        std::vector<std::unique_ptr<VulkanUtils::VUniform<PerObjectUBO::ObjectDataUniform>>> m_objectDataUnifrom;
+        std::unique_ptr<VulkanUtils::VUniform<PerFrameUBO::CameraUniform>> m_cameraUniform;
+        std::vector<std::unique_ptr<VulkanUtils::VUniform<PerObjectUBO::ObjectDataUniform>>> m_objectDataUniforms;
     };
 }
 
