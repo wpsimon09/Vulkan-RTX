@@ -35,11 +35,9 @@ public:
     // images and other buffers can be passed later as parameters
     void CreateGlobalDescriptorSets(const std::vector<vk::DescriptorBufferInfo>& bufferDescriptorInfo) ;
 
-    const vk::DescriptorSet& GetGlobalDescriptorSet(int imageIndex) const;
+    const VulkanCore::VDescriptorSet& GetGlobalDescriptorSet() const {return *m_globalDescriptorSet;};
 
     const VulkanCore::VDescriptorSetLayout& GetGlobalDescriptorSetLayout() const;
-
-    void UpdateDescriptorSets(int frameIndex);
 
     void Destroy();
 private:
@@ -50,7 +48,6 @@ private:
     std::unique_ptr<VulkanCore::VDescriptorPool> m_globalDescriptorPool;
     std::unique_ptr<VulkanCore::VDescriptorSetLayout> m_globalDescriptorLayout;
     std::vector<std::unique_ptr<VulkanCore::VDescriptorSet>> m_descriptorWriter;
-    std::vector<vk::DescriptorSet> m_globalDescriptorSets;
 };
 
 } // VulkanUtils

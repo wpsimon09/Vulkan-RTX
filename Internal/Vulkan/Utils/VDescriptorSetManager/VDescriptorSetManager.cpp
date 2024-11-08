@@ -19,36 +19,21 @@ namespace VulkanUtils {
         .AddPoolsSize(vk::DescriptorType::eUniformBuffer, GlobalVariables::MAX_FRAMES_IN_FLIGHT)
         .Build();
 
+
+
         m_globalDescriptorLayout = VulkanCore::VDescriptorSetLayout::Builder(m_device)
             .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
             .Build();
-
     }
 
     void VDescriptorSetManager::CreateGlobalDescriptorSets  (
         const std::vector<vk::DescriptorBufferInfo> &bufferDescriptorInfo){
         m_globalDescriptorSet = std::make_unique<VulkanCore::VDescriptorSet>(*m_globalDescriptorLayout, *m_globalDescriptorPool);
-
-        assert(m_globalDescriptorSets.size() == bufferDescriptorInfo.size() && "Global uniform buffer descriptor size does not match the global uniform buffers size");
-        for (size_t i = 0; i < m_globalDescriptorSets.size(); i++) {
-            m_descriptorWriter[i] = std::make_unique<VulkanCore::VDescriptorSet>(*m_globalDescriptorLayout, *m_globalDescriptorPool);
-                m_descriptorWriter[i]->WriteBuffer(0, bufferDescriptorInfo[i])
-                                        .Build(m_globalDescriptorSets[i]);
-                m_descriptorWriter[i]->Overwrite(m_globalDescriptorSets[i]);
-        }
+        m_globalDescriptorSet->WriteBuffer(0, bufferDescriptorInfo);
     }
-
-    const vk::DescriptorSet & VDescriptorSetManager::GetGlobalDescriptorSet(int imageIndex) const {
-        return m_globalDescriptorSets[imageIndex];
-    }
-
 
     const VulkanCore::VDescriptorSetLayout& VDescriptorSetManager::GetGlobalDescriptorSetLayout() const {
         return *m_globalDescriptorLayout;
-    }
-
-    void VDescriptorSetManager::UpdateDescriptorSets(int frameIndex) {
-        m_descriptorWriter[frameIndex]->Overwrite(m_globalDescriptorSets[frameIndex]);
     }
 
     void VDescriptorSetManager::Destroy() {
