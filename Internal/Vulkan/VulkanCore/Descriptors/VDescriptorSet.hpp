@@ -12,12 +12,13 @@ namespace VulkanCore {
 class VDescriptorSetLayout;
 class VDescriptorPool;
 
-class VDescriptorWriter:public VObject {
+class VDescriptorSet:public VObject {
 public:
-    explicit VDescriptorWriter(VulkanCore::VDescriptorSetLayout& descriptorSetLayout, const VulkanCore::VDescriptorPool& descriptorPool );
+    explicit VDescriptorSet(VulkanCore::VDescriptorSetLayout& descriptorSetLayout, const VulkanCore::VDescriptorPool& descriptorPool );
+    VDescriptorSet& WriteBuffer(uint32_t binding, const vk::DescriptorBufferInfo &bufferInfo );
+    VDescriptorSet& WriteImage(uint32_t binding, vk::DescriptorImageInfo* imageInfo );
 
-    VDescriptorWriter& WriteBuffer(uint32_t binding, const vk::DescriptorBufferInfo &bufferInfo );
-    VDescriptorWriter& WriteImage(uint32_t binding, vk::DescriptorImageInfo* imageInfo );
+    static  vk::WriteDescriptorSet WriteBuffer(uint32_t binding, uint32_t set,vk::DescriptorType dstType, vk::DescriptorBufferInfo& bufferInfo);
 
     void Build(vk::DescriptorSet &descriptorSet) const;
     void Overwrite(const vk::DescriptorSet &descriptorSet);
@@ -26,6 +27,7 @@ private:
     VulkanCore::VDescriptorSetLayout& m_descriptorSetLayout;
     const VulkanCore::VDescriptorPool& m_descriptorPool;
     std::vector<vk::WriteDescriptorSet> m_descriptorWrites;
+    std::vector<vk::DescriptorSet> m_descriptorSets; // per frame in flight
 };
 
 } // VulkanCore

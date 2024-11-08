@@ -12,7 +12,7 @@
 namespace VulkanCore {
     class VDescriptorPool;
     class VDevice;
-    class VDescriptorWriter;
+    class VDescriptorSet;
 
 class VDescriptorPool: public VObject {
 public:
@@ -35,6 +35,7 @@ public:
 public:
     explicit VDescriptorPool(const VulkanCore::VDevice& device, uint32_t maxSets, vk::DescriptorPoolCreateFlags flags, const std::vector<vk::DescriptorPoolSize> &poolSizes);
     void AllocateDescriptor(vk::DescriptorSetLayout layout, vk::DescriptorSet& descriptorSet) const;
+    vk::DescriptorSet AllocateDescriptor(vk::DescriptorSetLayout layout) const;
     void FreeDescriptor(std::vector<vk::DescriptorSet> &descriptorSets);
     void ResetPool();
     void Destroy() override;
@@ -42,7 +43,7 @@ private:
     const VulkanCore::VDevice& m_device;
     vk::DescriptorPool m_descriptorPool;
 
-    friend class VulkanCore::VDescriptorWriter;
+    friend class VulkanCore::VDescriptorSet;
 
 };
 

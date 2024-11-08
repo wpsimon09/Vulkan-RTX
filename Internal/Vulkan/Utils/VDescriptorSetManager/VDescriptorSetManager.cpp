@@ -8,12 +8,13 @@
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorPool.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorSet.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
-#include "Vulkan/VulkanCore/Descriptors/VDescriptorWriter.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorSet.hpp"
 
 namespace VulkanUtils {
     VDescriptorSetManager::VDescriptorSetManager(const VulkanCore::VDevice &device):m_device(device) {
-        m_descriptorPoolGlobal = VulkanCore::VDescriptorPool::Builder(m_device)
+        m_globalDescriptorPool = VulkanCore::VDescriptorPool::Builder(m_device)
         .AddMaxSets(GlobalVariables::MAX_FRAMES_IN_FLIGHT)
         .AddPoolsSize(vk::DescriptorType::eUniformBuffer, GlobalVariables::MAX_FRAMES_IN_FLIGHT)
         .Build();
@@ -26,11 +27,11 @@ namespace VulkanUtils {
 
     void VDescriptorSetManager::CreateGlobalDescriptorSets  (
         const std::vector<vk::DescriptorBufferInfo> &bufferDescriptorInfo){
-        m_globalDescriptorSets.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-        m_descriptorWriter.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        m_globalDescriptorSet = std::make_unique<VulkanCore::VDescriptorSet>(*m_globalDescriptorLayout, *m_globalDescriptorPool);
+
         assert(m_globalDescriptorSets.size() == bufferDescriptorInfo.size() && "Global uniform buffer descriptor size does not match the global uniform buffers size");
         for (size_t i = 0; i < m_globalDescriptorSets.size(); i++) {
-            m_descriptorWriter[i] = std::make_unique<VulkanCore::VDescriptorWriter>(*m_globalDescriptorLayout, *m_descriptorPoolGlobal);
+            m_descriptorWriter[i] = std::make_unique<VulkanCore::VDescriptorSet>(*m_globalDescriptorLayout, *m_globalDescriptorPool);
                 m_descriptorWriter[i]->WriteBuffer(0, bufferDescriptorInfo[i])
                                         .Build(m_globalDescriptorSets[i]);
                 m_descriptorWriter[i]->Overwrite(m_globalDescriptorSets[i]);

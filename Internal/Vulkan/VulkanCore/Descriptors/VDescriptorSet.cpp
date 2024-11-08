@@ -2,19 +2,26 @@
 // Created by wpsimon09 on 01/11/24.
 //
 
-#include "VDescriptorWriter.hpp"
+#include "VDescriptorSet.hpp"
 
 #include "VDescriptorPool.hpp"
 #include "VDescriptorSetLayout.hpp"
+#include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {
 
-    VDescriptorWriter::VDescriptorWriter(VulkanCore::VDescriptorSetLayout &descriptorSetLayout,
+    VDescriptorSet::VDescriptorSet(VulkanCore::VDescriptorSetLayout &descriptorSetLayout,
         const VulkanCore::VDescriptorPool &descriptorPool):m_descriptorSetLayout(descriptorSetLayout), m_descriptorPool(descriptorPool) {
+
+        m_descriptorSets.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+
+        for(auto& descriptorSet: m_descriptorSets) {
+            descriptorSet = m_descriptorPool.AllocateDescriptor(m_descriptorSetLayout.GetLayout());
+        }
     }
 
-    VDescriptorWriter & VDescriptorWriter::WriteBuffer(uint32_t binding,const vk::DescriptorBufferInfo& bufferInfo) {
+    VDescriptorSet & VDescriptorSet::WriteBuffer(uint32_t binding,const vk::DescriptorBufferInfo& bufferInfo) {
         Utils::Logger::LogInfoVerboseOnly("Creating writable descriptor objects...");
 
         assert(m_descriptorSetLayout.m_descriptorSetLayoutBindings.count(binding) == 1);
@@ -33,17 +40,17 @@ namespace VulkanCore {
         return *this;
     }
 
-    VDescriptorWriter & VDescriptorWriter::WriteImage(uint32_t binding, vk::DescriptorImageInfo *imageInfo) {
+    VDescriptorSet & VDescriptorSet::WriteImage(uint32_t binding, vk::DescriptorImageInfo *imageInfo) {
         return *this;
     }
 
-    void VDescriptorWriter::Build(vk::DescriptorSet &descriptorSet) const {
+    void VDescriptorSet::Build(vk::DescriptorSet &descriptorSet) const {
         Utils::Logger::LogInfoVerboseOnly("Creating descriptor set...");
         m_descriptorPool.AllocateDescriptor(m_descriptorSetLayout.GetLayout(), descriptorSet);
         Utils::Logger::LogSuccess("Descriptor set created !");
     }
 
-    void VDescriptorWriter::Overwrite(const vk::DescriptorSet &descriptorSet) {
+    void VDescriptorSet::Overwrite(const vk::DescriptorSet &descriptorSet) {
 
         for(auto& write: m_descriptorWrites) {
             write.dstSet = descriptorSet;

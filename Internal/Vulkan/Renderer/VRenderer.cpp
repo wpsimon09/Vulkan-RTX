@@ -26,6 +26,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorSet.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 
@@ -130,7 +131,9 @@ namespace Renderer
             0,
             m_descriptorSetManager.GetGlobalDescriptorSet(m_currentFrameIndex),
             nullptr);
+        vk::DescriptorBufferInfo write = m_uniformBufferManager.GetGlobalBufferDescriptorInfo()[m_currentFrameIndex];
         for(auto &mesh: m_client.GetMeshes()) {
+
             m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(mesh.get().GetMeshIndexCount(), 1, 0, 0, 0);
         }
 

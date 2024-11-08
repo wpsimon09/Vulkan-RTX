@@ -10,7 +10,7 @@
 
 namespace VulkanCore
 {
-    class VDescriptorWriter;
+    class VDescriptorSet;
 }
 
 namespace VulkanCore
@@ -44,9 +44,12 @@ public:
     void Destroy();
 private:
     const VulkanCore::VDevice& m_device;
-    std::unique_ptr<VulkanCore::VDescriptorPool> m_descriptorPoolGlobal;
+
+    std::unique_ptr<VulkanCore::VDescriptorSet> m_globalDescriptorSet; // per frame in flight
+
+    std::unique_ptr<VulkanCore::VDescriptorPool> m_globalDescriptorPool;
     std::unique_ptr<VulkanCore::VDescriptorSetLayout> m_globalDescriptorLayout;
-    std::vector<std::unique_ptr<VulkanCore::VDescriptorWriter>> m_descriptorWriter;
+    std::vector<std::unique_ptr<VulkanCore::VDescriptorSet>> m_descriptorWriter;
     std::vector<vk::DescriptorSet> m_globalDescriptorSets;
 };
 

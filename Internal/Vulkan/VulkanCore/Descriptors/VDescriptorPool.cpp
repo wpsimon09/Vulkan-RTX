@@ -61,6 +61,19 @@ namespace VulkanCore {
         Utils::Logger::LogSuccess("Descriptor set allocated");
     }
 
+    vk::DescriptorSet VDescriptorPool::AllocateDescriptor(vk::DescriptorSetLayout layout) const {
+        Utils::Logger::LogInfoVerboseOnly("Allocating descriptor set...");
+        vk::DescriptorSetAllocateInfo info = {};
+        info.descriptorPool = m_descriptorPool;
+        info.descriptorSetCount = 1;
+        info.pSetLayouts = &layout;
+        info.descriptorSetCount = 1;
+
+        return m_device.GetDevice().allocateDescriptorSets(info).front();
+
+        Utils::Logger::LogSuccess("Descriptor set allocated");
+    }
+
     void VDescriptorPool::FreeDescriptor(std::vector<vk::DescriptorSet> &descriptorSets) {
         m_device.GetDevice().freeDescriptorSets(m_descriptorPool, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data());
     }

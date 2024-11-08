@@ -13,7 +13,7 @@
 namespace VulkanCore
 {
     class VDevice;
-    class VDescriptorWriter;
+    class VDescriptorSet;
 
     class VDescriptorSetLayout : VObject
     {
@@ -43,7 +43,7 @@ namespace VulkanCore
         const VDevice &m_device;
         vk::DescriptorSetLayout m_descriptorSetLayout;
 
-        friend class VulkanCore::VDescriptorWriter;
+        friend class VulkanCore::VDescriptorSet;
     };
 
 
