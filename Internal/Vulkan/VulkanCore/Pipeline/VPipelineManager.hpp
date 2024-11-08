@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
+#include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
 
 namespace VulkanUtils
 {
@@ -29,7 +30,7 @@ namespace VulkanCore
     public:
         VPipelineManager(
             const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
-            const VulkanCore::VRenderPass &renderPass, VulkanUtils::VDescriptorSetManager &descriptorSetManager
+            const VulkanCore::VRenderPass &renderPass, VulkanUtils::VPushDescriptorManager &pushDescriptorSetManager
             );
 
         void DestroyPipelines();
@@ -47,7 +48,7 @@ namespace VulkanCore
         const VDevice &m_device;
         const VSwapChain &m_swapChain;
         const VRenderPass &m_renderPass;
-        VulkanUtils::VDescriptorSetManager &m_descriptorSetManager;
+        VulkanUtils::VPushDescriptorManager &m_descriptorSetManager;
 
         std::unique_ptr<VShader> m_baseShader;
         std::map<PIPELINE_TYPE, std::unique_ptr<VGraphicsPipeline>> m_pipelines;

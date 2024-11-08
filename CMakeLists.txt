@@ -77,17 +77,15 @@ set(SOURCES
         Internal/Application/Structs/ApplicationStructs.hpp
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.cpp
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp
-        Internal/Vulkan/VulkanCore/Descriptors/VDescriptorPool.cpp
-        Internal/Vulkan/VulkanCore/Descriptors/VDescriptorPool.hpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.cpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp
         Internal/Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp
-        Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSet.cpp
-        Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSet.hpp
         Internal/Vulkan/Utils/VDescriptorSetManager/VDescriptorSetManager.cpp
         Internal/Vulkan/Utils/VDescriptorSetManager/VDescriptorSetManager.hpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniform.cpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniform.hpp
+        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.cpp
+        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp
 
 )
 

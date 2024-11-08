@@ -39,12 +39,12 @@ namespace VulkanCore {
 
         assert(m_descriptorBindings.count(binding) == 0 && "Binding already exists");
 
-        vk::DescriptorSetLayoutBinding layout{};
-        layout.binding = binding;
-        layout.descriptorType = type;
-        layout.descriptorCount = descriptorCount;
-        layout.stageFlags = stage;
-        m_descriptorBindings[binding] = layout;
+        vk::DescriptorSetLayoutBinding bindingInfo{};
+        bindingInfo.binding = binding;
+        bindingInfo.descriptorType = type;
+        bindingInfo.descriptorCount = descriptorCount;
+        bindingInfo.stageFlags = stage;
+        m_descriptorBindings[binding] = bindingInfo;
 
         return *this;
     }

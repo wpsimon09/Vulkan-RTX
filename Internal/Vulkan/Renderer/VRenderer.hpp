@@ -44,8 +44,8 @@ namespace Renderer
     {
     public:
         VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device, const Client &client,
-                  const VulkanUtils::VUniformBufferManager &uniformBufferManager,
-                  VulkanUtils::VDescriptorSetManager &descriptorSetManager);
+                  const VulkanUtils::VUniformBufferManager &uniformBufferManager);
+
         void Render();
         void Destroy();
         ~VRenderer() = default;
@@ -64,6 +64,7 @@ namespace Renderer
         //==================================
         void StartRenderPass();
         void RecordCommandBuffersForPipelines();
+        void PushDescriptors();
         void EndRenderPass();
         //====================================
 
@@ -79,7 +80,6 @@ namespace Renderer
         const Client &m_client;
         const VulkanCore::VDevice &m_device;
         const VulkanUtils::VUniformBufferManager &m_uniformBufferManager;
-        VulkanUtils::VDescriptorSetManager &m_descriptorSetManager;
 
         uint32_t m_currentImageIndex = 0;
         uint32_t m_currentFrameIndex = 0;

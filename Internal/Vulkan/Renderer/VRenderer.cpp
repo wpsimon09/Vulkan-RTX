@@ -16,7 +16,6 @@
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
-#include "Vulkan/Utils/VDescriptorSetManager/VDescriptorSetManager.hpp"
 #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
@@ -26,7 +25,6 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
-#include "Vulkan/VulkanCore/Descriptors/VDescriptorSet.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 
@@ -34,12 +32,11 @@ namespace Renderer
 {
 
     VRenderer::VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
-                         const Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager,
-                         VulkanUtils::VDescriptorSetManager &descriptorSetManager):
-        m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager), m_descriptorSetManager(descriptorSetManager) {
+                         const Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager):
+        m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager) {
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance);
         m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain);
-        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(device, *m_swapChain, *m_mainRenderPass, descriptorSetManager);
+        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(device, *m_swapChain, *m_mainRenderPass);
         m_pipelineManager->InstantiatePipelines();
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
         m_graphicsPipeline = &m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_BASIC);
@@ -125,21 +122,19 @@ namespace Renderer
             mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(), 0, vk::IndexType::eUint32);
         m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindVertexBuffers(
             0, 1, vertexBuffers.data(), offsets.data());
-        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindDescriptorSets(
-            vk::PipelineBindPoint::eGraphics,
-            m_graphicsPipeline->GetPipelineLayout(),
-            0,
-            m_descriptorSetManager.GetGlobalDescriptorSet(m_currentFrameIndex),
-            nullptr);
-        vk::DescriptorBufferInfo write = m_uniformBufferManager.GetGlobalBufferDescriptorInfo()[m_currentFrameIndex];
-        for(auto &mesh: m_client.GetMeshes()) {
 
+        for(auto &mesh: m_client.GetMeshes()) {
+            PushDescriptors();
             m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(mesh.get().GetMeshIndexCount(), 1, 0, 0, 0);
         }
 
 
         EndRenderPass();
         m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
+    }
+
+    void VRenderer::PushDescriptors() {
+
     }
 
     void VRenderer::EndRenderPass() {
@@ -157,9 +152,6 @@ namespace Renderer
         }
     }
 
-    void VRenderer::CreateDescriptorSets() const {
-        m_descriptorSetManager.CreateGlobalDescriptorSets(m_uniformBufferManager.GetGlobalBufferDescriptorInfo());
-    }
     //===============================================================================================================
 
 

@@ -10,11 +10,24 @@
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include <vulkan/vulkan.hpp>
 
+namespace VulkanUtils
+{
+    class VPushDescriptorManager;
+}
+
 namespace VulkanCore
 {
     class VDevice;
     class VDescriptorSet;
 
+    /**
+     * Class that represents descriptor set layout bindings it will contain binding for each descriptor
+     * exam
+     * 0, UBO
+     * 1, UBO
+     * 2, IMAGE
+     * 3, UBO []
+     */
     class VDescriptorSetLayout : VObject
     {
     public:
@@ -44,6 +57,7 @@ namespace VulkanCore
         vk::DescriptorSetLayout m_descriptorSetLayout;
 
         friend class VulkanCore::VDescriptorSet;
+        friend class VulkanUtils::VPushDescriptorManager
     };
 
 

@@ -29,7 +29,7 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorPool.hpp"
 #include "Vulkan/Utils/VDescriptorSetManager/VDescriptorSetManager.hpp"
-#include "Vulkan/VulkanCore/Descriptors/VDescriptorWriter.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorSet.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 
 
