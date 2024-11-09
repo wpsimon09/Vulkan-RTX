@@ -18,20 +18,23 @@ namespace VulkanUtils {
     }
 
     void VPushDescriptorManager::
-    AddBufferEntry(uint32_t binding, vk::DescriptorBufferInfo &bufferInfo) {
+    AddBufferEntry(uint32_t binding, size_t offset, size_t stride) {
         assert(m_descriptorSetLayout->m_descriptorSetLayoutBindings.count(binding) == 1);
         vk::DescriptorUpdateTemplateEntry entry{};
-        entry.descriptorCount = 0;
-        entry.offset = 0;
-        entry.stride = 0;
+        entry.descriptorCount = 1;
+        entry.offset = offset;
+        entry.stride = stride;
         entry.dstBinding = binding;
         entry.descriptorType = m_descriptorSetLayout->m_descriptorSetLayoutBindings[binding].descriptorType;
         entry.dstArrayElement = 0;
 
         m_descriptorTemplateEntries.push_back(entry);
+
     }
 
     void VPushDescriptorManager::CreateUpdateTemplate(const VulkanCore::VGraphicsPipeline &pipeline) {
+        Utils::Logger::LogInfo("Creating update template object....");
+        assert(!m_descriptorTemplateEntries.empty() && "No template entries found");
         vk::DescriptorUpdateTemplateCreateInfo createInfo{};
         createInfo.descriptorUpdateEntryCount = static_cast<uint32_t>(m_descriptorTemplateEntries.size());
         createInfo.pDescriptorUpdateEntries = m_descriptorTemplateEntries.data();
@@ -41,6 +44,9 @@ namespace VulkanUtils {
         createInfo.pipelineLayout = pipeline.GetPipelineLayout();
 
         m_descriptorUpdateTemplate = m_device.GetDevice().createDescriptorUpdateTemplate(createInfo);
+
+        assert(m_descriptorUpdateTemplate);
+        Utils::Logger::LogSuccess(  "Update template created !");
     }
 
 } // VulkanUtils

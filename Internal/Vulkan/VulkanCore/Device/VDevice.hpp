@@ -61,6 +61,8 @@ namespace VulkanCore
         const std::string GetQueueFamilyString(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
 
         virtual void Destroy() override;
+
+        vk::DispatchLoaderDynamic DispatchLoader;
     private:
         vk::PhysicalDevice m_physicalDevice;
         vk::Device m_device; //logical device
@@ -69,8 +71,6 @@ namespace VulkanCore
         vk::Queue m_computeQueue;
         vk::Queue m_transferQueue;
         vk::Queue m_presentQueue;
-
-
         std::unique_ptr<VulkanCore::VCommandPool> m_transferCommandPool;
         VQueueFamilyIndices m_queueFamilyIndices;
 

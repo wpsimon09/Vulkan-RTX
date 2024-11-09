@@ -50,6 +50,7 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance):m_insta
     CreateLogicalDevice();
     CreateVmaAllocator(instance);
     m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(*this, QUEUE_FAMILY_INDEX_TRANSFER);
+    DispatchLoader = vk::DispatchLoaderDynamic(m_instance.GetInstance(), vkGetInstanceProcAddr);
 }
 
 vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice() {

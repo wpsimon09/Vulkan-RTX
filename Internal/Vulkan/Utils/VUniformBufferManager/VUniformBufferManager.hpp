@@ -16,7 +16,7 @@ namespace VulkanUtils
     public:
         VUniformBufferManager(const VulkanCore::VDevice& device, const Client& client);
         const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const; // per frame in flight
-        const std::vector<vk::DescriptorBufferInfo> GetPerObjectDescriptorBufferInfo() const; // per object per frame in flight
+        const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const; // per object per frame in flight
         void UpdateAllUniformBuffers(int frameIndex) const;
         void Destroy() const;
     private:

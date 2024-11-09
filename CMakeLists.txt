@@ -80,8 +80,6 @@ set(SOURCES
         Internal/Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.cpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp
         Internal/Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp
-        Internal/Vulkan/Utils/VDescriptorSetManager/VDescriptorSetManager.cpp
-        Internal/Vulkan/Utils/VDescriptorSetManager/VDescriptorSetManager.hpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniform.cpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniform.hpp
         Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.cpp

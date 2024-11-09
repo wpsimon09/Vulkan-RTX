@@ -61,7 +61,7 @@ namespace Renderer
         //==================================
         void CreateCommandBufferPools();
         void CreateSyncPrimitives();
-        void CreateDescriptorSets() const;
+        void CreateTemplateEntries();
         //==================================
 
         //==================================

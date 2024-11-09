@@ -21,6 +21,7 @@ namespace VulkanCore {
         vk::DescriptorSetLayoutCreateInfo info{};
         info.bindingCount = static_cast<uint32_t>(setBindings.size());
         info.pBindings = setBindings.data();
+        info.flags = vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR;
 
         m_descriptorSetLayout = m_device.GetDevice().createDescriptorSetLayout(info);
         assert(m_descriptorSetLayout && "Failed to create descriptor set layout");

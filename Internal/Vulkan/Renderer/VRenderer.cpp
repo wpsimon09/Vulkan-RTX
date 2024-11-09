@@ -33,19 +33,21 @@ namespace Renderer
 
     VRenderer::VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
                          const Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager,
-                         VulkanUtils::VPushDescriptorManager& pushDescriptorSetManager):
-        m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager),m_pushDescriptorSetManager(pushDescriptorSetManager) {
+                         VulkanUtils::VPushDescriptorManager &pushDescriptorSetManager):
+        m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager),
+        m_pushDescriptorSetManager(pushDescriptorSetManager) {
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance);
         m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain);
-        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(device, *m_swapChain, *m_mainRenderPass, m_pushDescriptorSetManager);
+        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(
+            device, *m_swapChain, *m_mainRenderPass, m_pushDescriptorSetManager);
         m_pipelineManager->InstantiatePipelines();
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
         m_graphicsPipeline = &m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_BASIC);
-        m_pushDescriptorSetManager.CreateUpdateTemplate(*m_graphicsPipeline);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
-        CreateDescriptorSets();
 
+        CreateTemplateEntries();
+        m_pushDescriptorSetManager.CreateUpdateTemplate(*m_graphicsPipeline);
     }
 
     void VRenderer::Render() {
@@ -121,22 +123,37 @@ namespace Renderer
         std::vector<vk::Buffer> vertexBuffers = {mesh.GetVertexArray()->GetVertexBuffer().GetBuffer()};
         std::vector<vk::DeviceSize> offsets = {0};
         m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindIndexBuffer(
-            mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(), 0, vk::IndexType::eUint32);
+            mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),
+            0,
+            vk::IndexType::eUint32);
+
         m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindVertexBuffers(
-            0, 1, vertexBuffers.data(), offsets.data());
+            0, 1,
+            vertexBuffers.data(),
+            offsets.data());
 
-        for(auto &mesh: m_client.GetMeshes()) {
+        m_pushDescriptorSetManager.GetDescriptorSetDataStruct().cameraUBOBuffer = m_uniformBufferManager.
+            GetGlobalBufferDescriptorInfo()[m_currentFrameIndex];
+
+        for (int i = 0; i < m_client.GetMeshes().size(); i++) {
+            m_pushDescriptorSetManager.GetDescriptorSetDataStruct().meshUBBOBuffer = m_uniformBufferManager.
+                GetPerObjectDescriptorBufferInfo(i)[m_currentFrameIndex];
+
             PushDescriptors();
-            m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(mesh.get().GetMeshIndexCount(), 1, 0, 0, 0);
+            m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(
+                m_client.GetMeshes()[i].get().GetMeshIndexCount(), 1, 0, 0, 0);
         }
-
 
         EndRenderPass();
         m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
     }
 
     void VRenderer::PushDescriptors() {
-
+        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().pushDescriptorSetWithTemplateKHR(
+            m_pushDescriptorSetManager.GetTemplate(),
+            m_graphicsPipeline->GetPipelineLayout(), 0,
+            m_pushDescriptorSetManager.GetDescriptorSetDataStruct(),
+            m_device.DispatchLoader);
     }
 
     void VRenderer::EndRenderPass() {
@@ -152,6 +169,11 @@ namespace Renderer
             m_renderFinishedSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
             m_isFrameFinishFences[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device, true);
         }
+    }
+
+    void VRenderer::CreateTemplateEntries() {
+        m_pushDescriptorSetManager.AddBufferEntry(0, offsetof(VulkanUtils::DescriptorSetData, cameraUBOBuffer), 0);
+        m_pushDescriptorSetManager.AddBufferEntry(0, offsetof(VulkanUtils::DescriptorSetData, meshUBBOBuffer), 0);
     }
 
     //===============================================================================================================
