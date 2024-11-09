@@ -33,10 +33,12 @@ const std::vector<vk::DescriptorBufferInfo> & VulkanUtils::VUniformBufferManager
 void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex) const {
     m_cameraUniform->GetUBOStruct().proj = m_client.GetCamera().GetProjectionMatrix();
     m_cameraUniform->GetUBOStruct().view = m_client.GetCamera().GetViewMatrix();
+    m_cameraUniform->GetUBOStruct().playerPosition = glm::vec4(m_client.GetCamera().GetPosition(),1.0f);
     m_cameraUniform->UpdateGPUBuffer(frameIndex);
 
     for (int i = 0; i< m_client.GetMeshes().size(); i++) {
         m_objectDataUniforms[i]->GetUBOStruct().model = m_client.GetMeshes()[i].get().GetTransformations().GetModelMatrix();
+        m_objectDataUniforms[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse(m_objectDataUniforms[i]->GetUBOStruct().model));
         m_objectDataUniforms[i]->UpdateGPUBuffer(frameIndex);
     }
 
@@ -69,5 +71,5 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for each of the mesh");
 
     // allocate per Frame uniform buffers
-    m_cameraUniform = std::make_unique<VUniform<PerFrameUBO::CameraUniform>>(m_device);
+    m_cameraUniform = std::make_unique<VUniform<PerFrameUBO::GlobalUniform>>(m_device);
 }

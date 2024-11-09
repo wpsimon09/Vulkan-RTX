@@ -31,7 +31,7 @@ namespace ApplicationCore
     public:
         VertexArray(const VulkanCore::VDevice& device,PRIMITIVE_TOPOLOGY topology,const std::vector<Vertex>& vertices,const std::vector<uint32_t>& indices);
 
-        const std::vector<Vertex>& GetVertices() const { return m_vertice; }
+        const std::vector<Vertex>& GetVertices() const { return m_vertices; }
         const std::vector<uint32_t>& GetIndices() const { return m_indices; };
         const VulkanCore::VBuffer& GetVertexBuffer() const {return *m_vertexBuffer; }
         const VulkanCore::VBuffer& GetIndexBuffer() const {return *m_indexBuffer; }
@@ -44,7 +44,7 @@ namespace ApplicationCore
     private:
         std::unique_ptr<VulkanCore::VBuffer> m_vertexBuffer;
         std::unique_ptr<VulkanCore::VBuffer> m_indexBuffer;
-        const std::vector<Vertex>& m_vertice;
+        const std::vector<Vertex>& m_vertices;
         const std::vector<uint32_t>& m_indices;
         PRIMITIVE_TOPOLOGY m_topology;
     };

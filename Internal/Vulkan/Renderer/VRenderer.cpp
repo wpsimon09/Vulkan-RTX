@@ -119,9 +119,19 @@ namespace Renderer
         scissors.extent = m_swapChain->GetExtent();
         m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().setScissor(0, 1, &scissors);
 
-        const auto &mesh = m_client.GetMeshes()[0].get();
+
+
+        m_pushDescriptorSetManager.GetDescriptorSetDataStruct().cameraUBOBuffer = m_uniformBufferManager.
+            GetGlobalBufferDescriptorInfo()[m_currentFrameIndex];
+
+        for (int i = 0; i < m_client.GetMeshes().size(); i++) {
+            m_pushDescriptorSetManager.GetDescriptorSetDataStruct().meshUBBOBuffer = m_uniformBufferManager.
+                GetPerObjectDescriptorBufferInfo(i)[m_currentFrameIndex];
+
+        const auto &mesh = m_client.GetMeshes()[i].get();
         std::vector<vk::Buffer> vertexBuffers = {mesh.GetVertexArray()->GetVertexBuffer().GetBuffer()};
         std::vector<vk::DeviceSize> offsets = {0};
+
         m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindIndexBuffer(
             mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),
             0,
@@ -131,13 +141,6 @@ namespace Renderer
             0, 1,
             vertexBuffers.data(),
             offsets.data());
-
-        m_pushDescriptorSetManager.GetDescriptorSetDataStruct().cameraUBOBuffer = m_uniformBufferManager.
-            GetGlobalBufferDescriptorInfo()[m_currentFrameIndex];
-
-        for (int i = 0; i < m_client.GetMeshes().size(); i++) {
-            m_pushDescriptorSetManager.GetDescriptorSetDataStruct().meshUBBOBuffer = m_uniformBufferManager.
-                GetPerObjectDescriptorBufferInfo(i)[m_currentFrameIndex];
 
             PushDescriptors();
             m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(

@@ -32,12 +32,14 @@ private:
     static void MouseClickCallback(GLFWwindow *window, int button, int action, int mods);
     static void MouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
     static void FrameBufferResizeCallback(GLFWwindow *window, int width, int height);
+    static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 private:
     bool m_isFirstMouse = false;
     CameraUpdateInfo m_cameraMovement;
     static inline GLFWwindow* m_window;
     int m_width, m_height;
     bool m_isMousePressed;
+    bool m_isShiftPressed;
     float m_lastX = 0.0f, m_lastY = 0.0f;
     bool m_isDirty = false;
     glm::vec2 m_mousePos;

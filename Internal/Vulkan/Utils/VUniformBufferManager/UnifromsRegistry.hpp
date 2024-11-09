@@ -16,10 +16,12 @@ namespace VulkanCore
 
 namespace PerFrameUBO
 {
-    struct CameraUniform
+    struct GlobalUniform
     {
         glm::mat4 view;
         glm::mat4 proj;
+        glm::vec4 lightPosition = glm::vec4(2.0f, 10.0f, 2.0f,1.0f);
+        glm::vec4 playerPosition;
     };
 }
 
@@ -33,6 +35,7 @@ namespace PerObjectUBO
     struct ObjectDataUniform
     {
         glm::mat4 model;
+        glm::mat4 normalMatrix;
     };
 }
 

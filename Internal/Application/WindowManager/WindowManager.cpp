@@ -13,6 +13,8 @@ WindowManager::WindowManager(int windowWidth, int windowHeight):m_cameraMovement
     m_width = windowWidth;
     m_height = windowHeight;
     m_isDirty = false;
+    m_isMousePressed = false;
+    m_isShiftPressed = false;
 }
 
 void WindowManager::InitWindow()
@@ -29,6 +31,7 @@ void WindowManager::InitWindow()
     glfwSetCursorPosCallback(m_window, MousePositionCallback);
     glfwSetMouseButtonCallback(m_window, MouseClickCallback);
     glfwSetScrollCallback(m_window, MouseScrollCallback);
+    glfwSetKeyCallback(m_window, KeyCallback);
 }
 
 int WindowManager::GetWindowWidth() {
@@ -82,17 +85,36 @@ void WindowManager::MousePositionCallback(GLFWwindow *window, double xpos, doubl
     xOffset *= 0.01;
     yOffset *= 0.01;
 
-    if (xOffset != 0.0 && winm->m_isMousePressed)
+
+    // only rotate Azimuth
+    if (xOffset != 0.0 && winm->m_isMousePressed && !winm->m_isShiftPressed)
     {
-        // have isDirty = true here and in the getter set dirty to false so that cmare is not calculating new stuff every frameP
-        // in camera update send this to the camera to know how much to rotate, if nothing happend than dont send it
         winm->m_cameraMovement.RotateAzimuthValue =  xOffset;
+        winm->m_cameraMovement.MoveX = 0.f;
         winm->m_isDirty = true;
     }
 
-    if (yOffset != 0.0 && winm->m_isMousePressed)
+    // only rotate Polar
+    if (yOffset != 0.0 && winm->m_isMousePressed && !winm->m_isShiftPressed)
     {
         winm->m_cameraMovement.RotatePolarValue = -yOffset;
+        winm->m_cameraMovement.MoveY = 0.f;
+        winm->m_isDirty = true;
+    }
+
+    // only move X
+    if (xOffset != 0.0 && winm->m_isShiftPressed && !winm->m_isMousePressed)
+    {
+        winm->m_cameraMovement.MoveX =  xOffset;
+        winm->m_cameraMovement.RotateAzimuthValue =  0.f;
+        winm->m_isDirty = true;
+    }
+
+    // only move Y
+    if (yOffset != 0.0 && winm->m_isShiftPressed && !winm->m_isMousePressed)
+    {
+        winm->m_cameraMovement.MoveY = -yOffset;
+        winm->m_cameraMovement.RotatePolarValue = 0.f;
         winm->m_isDirty = true;
     }
 }
@@ -129,4 +151,12 @@ void WindowManager::FrameBufferResizeCallback(GLFWwindow *window, int width, int
     winm->m_height = height;
     winm->m_cameraMovement.NewHeight = static_cast<float>(height);
     winm->m_cameraMovement.NewWidth = static_cast<float>(width);
+}
+
+void WindowManager::KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+    auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
+    if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_PRESS)
+        winm->m_isShiftPressed = true;
+    if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_RELEASE)
+        winm->m_isShiftPressed = false;
 }

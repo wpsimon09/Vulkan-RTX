@@ -29,7 +29,6 @@ public:
     void ComputeModelMatrix();
     void ComputeModelMatrix(const glm::mat4 &parentGlobalMatrix);
 
-    virtual ~Transformations()=default;
 
     const glm::vec3 &GetPosition() const;
     void SetPosition(const glm::vec3 &position);
@@ -47,6 +46,7 @@ public:
 
     const glm::mat4 &GetModelMatrix() const {return this->m_modelMatrix;}
 
+    virtual ~Transformations()=default;
 };
 
 }

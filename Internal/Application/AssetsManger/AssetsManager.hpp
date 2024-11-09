@@ -32,9 +32,6 @@ public:
 private:
     const VulkanCore::VDevice& m_device;
     std::map<MESH_GEOMETRY_TYPE, std::unique_ptr<VertexArray>> m_meshData;
-
-private:
-    void LoadPredefinedMeshes();
 };
 
 } // ApplicationCore

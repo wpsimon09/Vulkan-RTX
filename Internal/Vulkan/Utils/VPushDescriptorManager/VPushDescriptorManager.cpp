@@ -49,4 +49,9 @@ namespace VulkanUtils {
         Utils::Logger::LogSuccess(  "Update template created !");
     }
 
+    void VPushDescriptorManager::Destroy() {
+        m_descriptorSetLayout->Destroy();
+        m_device.GetDevice().destroyDescriptorUpdateTemplate(m_descriptorUpdateTemplate);
+    }
+
 } // VulkanUtils

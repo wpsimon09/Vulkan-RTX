@@ -21,6 +21,7 @@ void Client::Init() {
     assert(m_assetsManager);
     m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CROSS, *m_assetsManager));
     m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, *m_assetsManager));
+    m_meshes[1]->GetTransformations().SetPosition(0.0f, -4.0f, 0.0f);
     assert(!m_meshes.empty());
 
     Utils::Logger::LogInfoVerboseOnly("Creating camera...");
@@ -61,6 +62,9 @@ const void Client::Destroy() {
 
 void Client::Update(CameraUpdateInfo &cameraUpdateInfo) {
     m_camera->Update(cameraUpdateInfo);
+    for (auto &mesh : m_meshes) {
+        mesh->Update();
+    }
 }
 
 

@@ -97,5 +97,6 @@ Application::~Application() {
     m_renderer->Destroy();
     m_client->Destroy();
     m_uniformBufferManager->Destroy();
+    m_pushDescriptorSetManager->Destroy();
     m_vulkanDevice->Destroy();
 }

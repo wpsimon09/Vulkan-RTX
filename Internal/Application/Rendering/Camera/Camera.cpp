@@ -61,11 +61,12 @@
 
     void ApplicationCore::Camera::MoveHorizontal(float distance) {
         const auto pos = getEye();
-        const glm::vec3 viewVector = glm::normalize(m_position - m_center);
+        const glm::vec3 viewVector = glm::normalize(pos - m_center);
         const glm::vec3 strafeVector = glm::normalize(glm::cross(viewVector, m_worldUp));
-        m_center += m_worldUp + distance;
+        m_center += strafeVector + distance;
         m_position = getEye();
     }
+
 
     void ApplicationCore::Camera::MoveVertical(float distance) {
         m_center += m_worldUp + distance;
@@ -85,6 +86,8 @@
         RotateAzimutn(cameraUpdateInfo.RotateAzimuthValue);
         RotatePolar(cameraUpdateInfo.RotatePolarValue);
         Zoom(cameraUpdateInfo.ZoomValue);
+        MoveHorizontal(cameraUpdateInfo.MoveX);
+        MoveVertical(cameraUpdateInfo.MoveY);
         cameraUpdateInfo.Reset();
 
     }

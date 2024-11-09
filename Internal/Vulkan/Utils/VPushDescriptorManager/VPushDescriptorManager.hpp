@@ -41,6 +41,8 @@ public:
     DescriptorSetData& GetDescriptorSetDataStruct() { return m_descriptorSetData; };
     const VulkanCore::VDescriptorSetLayout& GetLayout() const {return *m_descriptorSetLayout;}
 
+    void Destroy();
+
 private:
     const VulkanCore::VDevice& m_device;
     vk::DescriptorUpdateTemplate m_descriptorUpdateTemplate;
