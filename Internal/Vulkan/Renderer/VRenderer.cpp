@@ -173,7 +173,7 @@ namespace Renderer
 
     void VRenderer::CreateTemplateEntries() {
         m_pushDescriptorSetManager.AddBufferEntry(0, offsetof(VulkanUtils::DescriptorSetData, cameraUBOBuffer), 0);
-        m_pushDescriptorSetManager.AddBufferEntry(0, offsetof(VulkanUtils::DescriptorSetData, meshUBBOBuffer), 0);
+        m_pushDescriptorSetManager.AddBufferEntry(1, offsetof(VulkanUtils::DescriptorSetData, meshUBBOBuffer), 0);
     }
 
     //===============================================================================================================
