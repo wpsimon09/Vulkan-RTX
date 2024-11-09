@@ -57,7 +57,7 @@ namespace VulkanCore
         vk::DescriptorSetLayout m_descriptorSetLayout;
 
         friend class VulkanCore::VDescriptorSet;
-        friend class VulkanUtils::VPushDescriptorManager
+        friend class VulkanUtils::VPushDescriptorManager;
     };
 
 

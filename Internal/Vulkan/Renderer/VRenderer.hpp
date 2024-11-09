@@ -12,6 +12,11 @@
 
 namespace VulkanUtils
 {
+    class VPushDescriptorManager;
+}
+
+namespace VulkanUtils
+{
     class VDescriptorSetManager;
     class VUniformBufferManager;
 }
@@ -44,7 +49,7 @@ namespace Renderer
     {
     public:
         VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device, const Client &client,
-                  const VulkanUtils::VUniformBufferManager &uniformBufferManager);
+                  const VulkanUtils::VUniformBufferManager &uniformBufferManager, VulkanUtils::VPushDescriptorManager& pushDescriptorSetManager);
 
         void Render();
         void Destroy();
@@ -80,7 +85,7 @@ namespace Renderer
         const Client &m_client;
         const VulkanCore::VDevice &m_device;
         const VulkanUtils::VUniformBufferManager &m_uniformBufferManager;
-
+        VulkanUtils::VPushDescriptorManager &m_pushDescriptorSetManager;
         uint32_t m_currentImageIndex = 0;
         uint32_t m_currentFrameIndex = 0;
         int m_availableRecordingThreads = 0;

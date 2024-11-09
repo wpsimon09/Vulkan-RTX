@@ -32,14 +32,16 @@ namespace Renderer
 {
 
     VRenderer::VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
-                         const Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager):
-        m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager) {
+                         const Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager,
+                         VulkanUtils::VPushDescriptorManager& pushDescriptorSetManager):
+        m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager),m_pushDescriptorSetManager(pushDescriptorSetManager) {
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance);
         m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain);
-        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(device, *m_swapChain, *m_mainRenderPass);
+        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(device, *m_swapChain, *m_mainRenderPass, m_pushDescriptorSetManager);
         m_pipelineManager->InstantiatePipelines();
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
         m_graphicsPipeline = &m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_BASIC);
+        m_pushDescriptorSetManager.CreateUpdateTemplate(*m_graphicsPipeline);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
         CreateDescriptorSets();

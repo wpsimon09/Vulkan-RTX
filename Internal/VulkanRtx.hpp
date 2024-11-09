@@ -13,12 +13,16 @@
 
 namespace VulkanUtils
 {
-    class VDescriptorSetManager;
 }
 
 namespace VulkanUtils
 {
+    class VPushDescriptorManager;
     class VUniformBufferManager;
+}
+
+namespace VulkanUtils
+{
 }
 
 namespace Renderer
@@ -26,15 +30,11 @@ namespace Renderer
     class VRenderer;
 }
 
-namespace VulkanCore
-{
-    class VCommandPool;
-}
-
 class Client;
 
 namespace VulkanCore
 {
+    class VCommandPool;
     class VFrameBuffer;
     class VRenderPass;
     class VPipelineManager;
@@ -65,7 +65,7 @@ private:
     std::unique_ptr<class Client> m_client;
 
     std::unique_ptr<class WindowManager> m_windowManager;
-    std::unique_ptr<class VulkanUtils::VDescriptorSetManager> m_descriptorSetManager;
+    std::unique_ptr<class VulkanUtils::VPushDescriptorManager> m_pushDescriptorSetManager;
     std::unique_ptr<class VulkanUtils::VUniformBufferManager> m_uniformBufferManager;
     std::unique_ptr<class VulkanCore::VulkanInstance> m_vulkanInstance;
     std::unique_ptr<class VulkanCore::VDevice> m_vulkanDevice;

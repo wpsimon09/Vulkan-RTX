@@ -14,8 +14,8 @@
 VulkanCore::VPipelineManager::VPipelineManager(const VulkanCore::VDevice &device,
                                                const VulkanCore::VSwapChain &swapChain,
                                                const VulkanCore::VRenderPass &renderPass,
-                                               VulkanUtils::VPushDescriptorManager& pushDescriptorManager) :
-    m_device(device), m_swapChain(swapChain), m_renderPass(renderPass), m_descriptorSetManager(pushDescriptorManager) {
+                                               const VulkanUtils::VPushDescriptorManager& pushDescriptorManager) :
+    m_device(device), m_swapChain(swapChain), m_renderPass(renderPass), m_pushDescriptorSetManager(pushDescriptorManager) {
 }
 
 void VulkanCore::VPipelineManager::DestroyPipelines() {
@@ -75,14 +75,13 @@ VulkanCore::VPipelineManager::GetAllPipelines() const {
 
 }
 
-void VulkanCore::VPipelineManager::GeneratePipelines() {
+void VulkanCore::VPipelineManager::GeneratePipelines()  {
 
     auto basicPipelineShaderVertexSource = "Shaders/Compiled/BaseTriangleVertex.spv";
     auto basicPipelineFragmentShaderSource = "Shaders/Compiled/BaseTriangleFragment.spv";
     m_baseShader = std::make_unique<VShader>(m_device, basicPipelineShaderVertexSource,
                                              basicPipelineFragmentShaderSource);
-    auto basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_baseShader, m_renderPass);
-    basicPipeline->AddPipelineLayout(std::ref(m_descriptorSetManager.GetGlobalDescriptorSetLayout()));
+    auto basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_baseShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
     basicPipeline->Init();
     basicPipeline->SetPipelineType(PIPELINE_TYPE_RASTER_BASIC);
     m_pipelines.insert(std::make_pair(PIPELINE_TYPE_RASTER_BASIC, std::move(basicPipeline)));

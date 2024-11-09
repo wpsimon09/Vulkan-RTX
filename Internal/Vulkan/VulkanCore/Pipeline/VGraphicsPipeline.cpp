@@ -14,8 +14,8 @@
 
 
 VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
-    const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass)
-        : VObject(), m_shaders{shaders}, m_device{device},m_swapChain{swapChain}, m_renderPass{renderPass}
+    const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass, const VulkanCore::VDescriptorSetLayout &descriptorLayout)
+        : VObject(), m_shaders(shaders), m_device(device),m_swapChain(swapChain), m_renderPass(renderPass), m_descriptorSetLayout(descriptorLayout)
 {}
 
 
@@ -47,11 +47,6 @@ const void VulkanCore::VGraphicsPipeline::RecordPipelineCommands(VulkanCore::VCo
 const void VulkanCore::VGraphicsPipeline::AddCommand(const Command &command) {
     m_pipelineCommands.emplace_back(command);
 }
-
-const void VulkanCore::VGraphicsPipeline::AddPipelineLayout(std::reference_wrapper<const VulkanCore::VDescriptorSetLayout> descriptorSetLayout) {
-    m_pipelineLayouts.emplace_back(descriptorSetLayout);
-}
-
 
 
 const vk::GraphicsPipelineCreateInfo VulkanCore::VGraphicsPipeline::GetGraphicsPipelineCreateInfoStruct() const {
@@ -217,14 +212,8 @@ void VulkanCore::VGraphicsPipeline::CreatePipelineLayout() {
     Utils::Logger::LogSuccess("Creating pipeline layout...");
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 
-    std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;
-    descriptorSetLayouts.reserve(m_pipelineLayouts.size());
-
-    for (auto m_pipelineLayout : m_pipelineLayouts) {
-        descriptorSetLayouts.push_back(m_pipelineLayout.get().GetLayout());
-    }
-    pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
-    pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+    pipelineLayoutCreateInfo.setLayoutCount = 1;
+    pipelineLayoutCreateInfo.pSetLayouts = &m_descriptorSetLayout.GetLayout();
 
     pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
     pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;

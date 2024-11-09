@@ -31,7 +31,8 @@ namespace VulkanCore
 
     public:
         VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
-                          const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass);
+                          const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass,
+                          const VulkanCore::VDescriptorSetLayout &descriptorLayout);
 
         /**
          * Fills in all structs required to create pipeline. Structs can be modified with setters
@@ -40,8 +41,6 @@ namespace VulkanCore
         void Destroy() override;
         const void RecordPipelineCommands(VulkanCore::VCommandBuffer &commandBuffer) const;
         const void AddCommand(const Command &command);
-        const void AddPipelineLayout(std::reference_wrapper<const VulkanCore::VDescriptorSetLayout> descriptorSetLayout);
-
 
         const vk::GraphicsPipelineCreateInfo GetGraphicsPipelineCreateInfoStruct() const;
         const vk::Pipeline &GetPipelineInstance() const { return m_pipeline; }
@@ -67,6 +66,7 @@ namespace VulkanCore
         const VulkanCore::VDevice &m_device;
         const VulkanCore::VSwapChain &m_swapChain;
         const VulkanCore::VRenderPass &m_renderPass;
+        const VulkanCore::VDescriptorSetLayout& m_descriptorSetLayout;
 
         // pipeline handler
         vk::Pipeline m_pipeline;
@@ -98,7 +98,6 @@ namespace VulkanCore
         vk::PipelineColorBlendAttachmentState m_colorBlendAttachmentState;
         vk::PipelineColorBlendStateCreateInfo m_colorBlendState;
         vk::PipelineLayout m_pipelineLayout;
-        std::vector<std::reference_wrapper<const VulkanCore::VDescriptorSetLayout>> m_pipelineLayouts;
 
         //-----------------
         // SETTERS
