@@ -4,6 +4,8 @@
 #pragma once
 #ifndef APPLICATIONSTRUCTS_HPP
 #define APPLICATIONSTRUCTS_HPP
+#include <iostream>
+#include <ostream>
 
 struct CameraUpdateInfo
 {
@@ -23,6 +25,16 @@ struct CameraUpdateInfo
         NewHeight = 0;
         MoveX = 0;
         MoveY = 0;
+    }
+
+    void Print() const {
+        std::cout << "===================================================="<<std::endl;
+        std::cout << "RotatePolarValue: " << RotatePolarValue << std::endl;
+        std::cout << "RotateAzimuthValue: " << RotateAzimuthValue << std::endl;
+        std::cout << "ZoomValue: " << ZoomValue << std::endl;
+        std::cout << "MoveX: " << MoveX << std::endl;
+        std::cout << "MoveY: " << MoveY << std::endl;
+        std::cout << "===================================================="<<std::endl;
     }
 };
 

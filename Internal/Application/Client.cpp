@@ -22,6 +22,8 @@ void Client::Init() {
     m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CROSS, *m_assetsManager));
     m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, *m_assetsManager));
     m_meshes[1]->GetTransformations().SetPosition(0.0f, -4.0f, 0.0f);
+    m_meshes[1]->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
+    m_meshes[0]->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
     assert(!m_meshes.empty());
 
     Utils::Logger::LogInfoVerboseOnly("Creating camera...");

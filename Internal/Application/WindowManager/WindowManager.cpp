@@ -85,12 +85,16 @@ void WindowManager::MousePositionCallback(GLFWwindow *window, double xpos, doubl
     xOffset *= 0.01;
     yOffset *= 0.01;
 
+    winm->m_cameraMovement.RotateAzimuthValue = 0.0f;
+    winm->m_cameraMovement.RotatePolarValue = 0.0f;
+    winm->m_cameraMovement.MoveX = 0.0f;
+    winm->m_cameraMovement.MoveY = 0.0f;
+
 
     // only rotate Azimuth
     if (xOffset != 0.0 && winm->m_isMousePressed && !winm->m_isShiftPressed)
     {
         winm->m_cameraMovement.RotateAzimuthValue =  xOffset;
-        winm->m_cameraMovement.MoveX = 0.f;
         winm->m_isDirty = true;
     }
 
@@ -98,7 +102,6 @@ void WindowManager::MousePositionCallback(GLFWwindow *window, double xpos, doubl
     if (yOffset != 0.0 && winm->m_isMousePressed && !winm->m_isShiftPressed)
     {
         winm->m_cameraMovement.RotatePolarValue = -yOffset;
-        winm->m_cameraMovement.MoveY = 0.f;
         winm->m_isDirty = true;
     }
 
@@ -106,7 +109,6 @@ void WindowManager::MousePositionCallback(GLFWwindow *window, double xpos, doubl
     if (xOffset != 0.0 && winm->m_isShiftPressed && !winm->m_isMousePressed)
     {
         winm->m_cameraMovement.MoveX =  xOffset;
-        winm->m_cameraMovement.RotateAzimuthValue =  0.f;
         winm->m_isDirty = true;
     }
 
@@ -114,7 +116,6 @@ void WindowManager::MousePositionCallback(GLFWwindow *window, double xpos, doubl
     if (yOffset != 0.0 && winm->m_isShiftPressed && !winm->m_isMousePressed)
     {
         winm->m_cameraMovement.MoveY = -yOffset;
-        winm->m_cameraMovement.RotatePolarValue = 0.f;
         winm->m_isDirty = true;
     }
 }

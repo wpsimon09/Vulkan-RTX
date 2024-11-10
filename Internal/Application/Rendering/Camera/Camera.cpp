@@ -60,17 +60,20 @@
     }
 
     void ApplicationCore::Camera::MoveHorizontal(float distance) {
-        const auto pos = getEye();
-        const glm::vec3 viewVector = glm::normalize(pos - m_center);
-        const glm::vec3 strafeVector = glm::normalize(glm::cross(viewVector, m_worldUp));
-        m_center += strafeVector + distance;
-        m_position = getEye();
+        if(distance > 0.f) {
+            const auto pos = getEye();
+            const glm::vec3 viewVector = glm::normalize(pos - m_center);
+            const glm::vec3 strafeVector = glm::normalize(glm::cross(viewVector, m_worldUp));
+            m_center += strafeVector + distance;
+            m_position = getEye();
+        }
     }
 
-
     void ApplicationCore::Camera::MoveVertical(float distance) {
-        m_center += m_worldUp + distance;
-        m_position = getEye();
+        if(distance >0.0f) {
+            m_center += m_worldUp + distance;
+            m_position = getEye();
+        }
     }
 
     void ApplicationCore::Camera::ProcessResize(int newWidht, int newHeight) {
@@ -83,9 +86,14 @@
 
     void ApplicationCore::Camera::Update(CameraUpdateInfo &cameraUpdateInfo)  {
         Utils::Logger::LogInfo("Updating camera");
+        cameraUpdateInfo.Print();
+
         RotateAzimutn(cameraUpdateInfo.RotateAzimuthValue);
         RotatePolar(cameraUpdateInfo.RotatePolarValue);
         Zoom(cameraUpdateInfo.ZoomValue);
+        if(cameraUpdateInfo.NewHeight > 0.0f || cameraUpdateInfo.NewWidth > 0.0f) {
+            ProcessResize(cameraUpdateInfo.NewWidth, cameraUpdateInfo.NewHeight);
+        }
         MoveHorizontal(cameraUpdateInfo.MoveX);
         MoveVertical(cameraUpdateInfo.MoveY);
         cameraUpdateInfo.Reset();
