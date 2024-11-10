@@ -61,7 +61,7 @@
 
     void ApplicationCore::Camera::MoveHorizontal(float distance) {
         if(distance != 0.f) {
-            float speed = 1.5;
+            float speed = 3.5;
             const auto pos = getEye();
             const glm::vec3 viewVector = glm::normalize(pos - m_center);
                 const glm::vec3 strafeVector = glm::normalize(glm::cross(viewVector, m_worldUp));
@@ -72,7 +72,7 @@
 
     void ApplicationCore::Camera::MoveVertical(float distance) {
         if(distance !=0.0f) {
-            float speed = 1.5;
+            float speed = 3.5;
             m_center += m_worldUp * (speed * distance);
             m_position = getEye();
         }
