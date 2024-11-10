@@ -10,12 +10,8 @@
 
 #include "Vulkan/VulkanCore/VObject.hpp"
 
-namespace VulkanUtils
-{
-    class VImage;
-}
-
 namespace VulkanCore{
+    class VImage;
     class VRenderPass;
     class VFrameBuffer;
     class VulkanInstance;
@@ -35,7 +31,7 @@ namespace VulkanCore{
             const vk::SurfaceFormatKHR& GetSurfaceFormatKHR() const { return m_format; };
             const vk::Extent2D& GetExtent() const { return m_extent; };
             const vk::PresentModeKHR& GetPresentMode() const { return m_presentMode; };
-            const std::vector<std::reference_wrapper<const VulkanUtils::VImage>> GetImages() const;
+            const std::vector<std::reference_wrapper<const VulkanCore::VImage>> GetImages() const;
             const std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>> GetSwapChainFrameBuffers() const;
         private:
             vk::SurfaceFormatKHR m_format;
@@ -44,7 +40,7 @@ namespace VulkanCore{
 
             vk::SwapchainKHR m_swapChain;
 
-            std::vector<std::unique_ptr<VulkanUtils::VImage>> m_images;
+            std::vector<std::unique_ptr<VulkanCore::VImage>> m_images;
             std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_swapChainFrameBuffers;
 
             const VulkanCore::VDevice& m_device;

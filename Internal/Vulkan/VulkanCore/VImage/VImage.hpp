@@ -13,7 +13,7 @@ namespace VulkanCore
     class VDevice;
 }
 
-namespace VulkanUtils
+namespace VulkanCore
 {
     class VImage:public VulkanCore::VObject {
     public:

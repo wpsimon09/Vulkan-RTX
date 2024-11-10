@@ -11,7 +11,7 @@
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Application/WindowManager/WindowManager.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
-#include "Vulkan/Utils/VImage/VImage.hpp"
+#include "Vulkan/VulkanCore//VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
 
 VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const VulkanCore::VulkanInstance &instance): m_device(device), m_instance(instance) {
@@ -43,8 +43,8 @@ void VulkanCore::VSwapChain::Destroy() {
     Utils::Logger::LogInfoVerboseOnly("Swap chain destroyed !");
 }
 
-const std::vector<std::reference_wrapper<const VulkanUtils::VImage>> VulkanCore::VSwapChain::GetImages() const {
-    std::vector<std::reference_wrapper<const VulkanUtils::VImage>> imagesToReturn;
+const std::vector<std::reference_wrapper<const VulkanCore::VImage>> VulkanCore::VSwapChain::GetImages() const {
+    std::vector<std::reference_wrapper<const VulkanCore::VImage>> imagesToReturn;
     imagesToReturn.reserve(m_images.size());
     for (auto &image : m_images) {
         imagesToReturn.emplace_back(std::ref(*image));
@@ -159,7 +159,7 @@ void VulkanCore::VSwapChain::RetrieveSwapChainImagesAndImageViews() {
     m_images.resize(swapChainImages.size());
     assert(m_images.size() == swapChainImages.size());
     for (size_t i = 0; i < swapChainImages.size(); i++) {
-        m_images[i] = std::make_unique<VulkanUtils::VImage>(m_device, swapChainImages[i], m_extent.width, m_extent.height, 1, m_format.format);
+        m_images[i] = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i], m_extent.width, m_extent.height, 1, m_format.format);
     }
 
     assert(!m_images.empty());
@@ -170,7 +170,7 @@ void VulkanCore::VSwapChain::CreateSwapChainFrameBuffers(const VulkanCore::VRend
     m_swapChainFrameBuffers.resize(m_images.size());
     assert(m_images.size() == m_swapChainFrameBuffers.size());
     for(size_t i = 0; i < m_images.size(); i++) {
-        std::vector<std::reference_wrapper<const VulkanUtils::VImage>> attachments = { *m_images[i] };
+        std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments = { *m_images[i] };
         m_swapChainFrameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device,renderPass,attachments, m_extent.width, m_extent.height)  ;
     }
 

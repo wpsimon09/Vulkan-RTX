@@ -20,7 +20,7 @@
 #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
-#include "Vulkan/Utils/VImage/VImage.hpp"
+#include "Vulkan/VulkanCore//VImage/VImage.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"

@@ -7,7 +7,7 @@
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
-VulkanUtils::VImage::VImage(const VulkanCore::VDevice &device, vk::Image image, int widht, int height,
+VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, vk::Image image, int widht, int height,
                             uint32_t mipLevels, vk::Format format, vk::ImageAspectFlags aspecFlags):
     m_device(device), m_image(image) {
 
@@ -22,7 +22,7 @@ VulkanUtils::VImage::VImage(const VulkanCore::VDevice &device, vk::Image image, 
     GenerateImageView();
 }
 
-void VulkanUtils::VImage::Destroy() {
+void VulkanCore::VImage::Destroy() {
     m_device.GetDevice().destroyImageView(m_imageView);
     if(!isSwapChainImage) {
         m_device.GetDevice().destroyImage(m_image);
@@ -30,7 +30,7 @@ void VulkanUtils::VImage::Destroy() {
     Utils::Logger::LogInfoVerboseOnly("Deleted image and its image view");
 }
 
-void VulkanUtils::VImage::GenerateImageView() {
+void VulkanCore::VImage::GenerateImageView() {
     vk::ImageViewCreateInfo createInfo{};
     createInfo.image = m_image;
     createInfo.format = m_format;

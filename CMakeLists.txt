@@ -53,8 +53,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/RenderPass/VRenderPass.hpp
         Internal/Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.cpp
         Internal/Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp
-        Internal/Vulkan/Utils/VImage/VImage.cpp
-        Internal/Vulkan/Utils/VImage/VImage.hpp
+        Internal/Vulkan/VulkanCore/VImage/VImage.cpp
+        Internal/Vulkan/VulkanCore/VImage/VImage.hpp
         External/VMA/vk_mem_alloc_implementation.cpp
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.cpp
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp
