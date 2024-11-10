@@ -106,16 +106,16 @@ void WindowManager::MousePositionCallback(GLFWwindow *window, double xpos, doubl
     }
 
     // only move X
-    if (xOffset != 0.0 && winm->m_isShiftPressed && !winm->m_isMousePressed)
+    if (xOffset != 0.0 && winm->m_isShiftPressed && winm->m_isMousePressed)
     {
         winm->m_cameraMovement.MoveX =  xOffset;
         winm->m_isDirty = true;
     }
 
     // only move Y
-    if (yOffset != 0.0 && winm->m_isShiftPressed && !winm->m_isMousePressed)
+    if (yOffset != 0.0 && winm->m_isShiftPressed && winm->m_isMousePressed)
     {
-        winm->m_cameraMovement.MoveY = -yOffset;
+        winm->m_cameraMovement.MoveY = yOffset;
         winm->m_isDirty = true;
     }
 }
