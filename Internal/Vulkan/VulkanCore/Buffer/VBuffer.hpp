@@ -18,39 +18,50 @@ namespace ApplicationCore
     struct Vertex;
 }
 
-namespace VulkanCore {
+namespace VulkanCore
+{
     class VGraphicsPipeline;
 
-    class VBuffer:public VObject {
+    class VBuffer : public VObject
+    {
     public:
-        explicit VBuffer(const VDevice& device);
+        explicit VBuffer(const VDevice &device);
 
-        const vk::Buffer& GetBuffer() const {return m_bufferVK; }
+        const vk::Buffer &GetBuffer() const { return m_bufferVK; }
 
-        void* GetMapPointer() const { assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer); return m_mappedData;}
+        void *GetMapPointer() const {
+            assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer);
+            return m_mappedData;
+        }
+
+        void *MapStagingBuffer();
+
+        void UnMapStagingBuffer();
 
         vk::DescriptorBufferInfo &GetBufferInfoForDescriptor();
 
-        void MakeVertexBuffer(const std::vector< ApplicationCore::Vertex>& vertices);
+        void MakeVertexBuffer(const std::vector<ApplicationCore::Vertex> &vertices);
 
-        void MakeIndexBuffer(const std::vector< uint32_t>& indices);
+        void MakeIndexBuffer(const std::vector<uint32_t> &indices);
 
-        template<typename T>
-        void MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size);
-
-        void MakeImageBuffer();
+        template <typename T>
+        void MakeUniformBuffer(const T &uniformBuffer, vk::DeviceSize size);
 
         void Destroy() override;
-        ~VBuffer() override = default;
-    private:
+
         void CreateStagingBuffer(VkDeviceSize size);
+
         void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage);
+
         void DestroyStagingBuffer() const;
+
+        ~VBuffer() override = default;
+
     private:
-        const VDevice& m_device;
+        const VDevice &m_device;
         bool m_isInitialized = false;
         bool m_isPresistentlyMapped = false;
-        void* m_mappedData;
+        void *m_mappedData;
         VmaAllocation m_allocation;
         VkBuffer m_bufferVMA;
         VmaAllocation m_stagingAllocation;
@@ -62,7 +73,7 @@ namespace VulkanCore {
     };
 
     template <typename T>
-    void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size) {
+    void VBuffer::MakeUniformBuffer(const T &uniformBuffer, vk::DeviceSize size) {
         m_isPresistentlyMapped = true;
         assert(!m_isInitialized);
 
@@ -73,7 +84,7 @@ namespace VulkanCore {
         //----------------------
         Utils::Logger::LogInfoVerboseOnly("Allocating Uniform buffer....");
         m_bufferType = vk::BufferUsageFlagBits::eUniformBuffer;
-        CreateBuffer(size,VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+        CreateBuffer(size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
         Utils::Logger::LogSuccess("Allocation completed successfully !");
 
         //----------------------------

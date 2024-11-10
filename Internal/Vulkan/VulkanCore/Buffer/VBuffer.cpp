@@ -23,6 +23,17 @@ namespace VulkanCore {
         m_isPresistentlyMapped = false;
     }
 
+    void * VBuffer::MapStagingBuffer() {
+        Utils::Logger::LogInfo("Mapping staging buffer...");
+        vmaMapMemory(m_device.GetAllocator(), m_stagingAllocation, &m_mappedData);
+        return m_mappedData;
+    }
+
+    void VBuffer::UnMapStagingBuffer() {
+        Utils::Logger::LogInfo("Unmapping staging buffer...");
+        vmaUnmapMemory(m_device.GetAllocator() , m_stagingAllocation);
+    }
+
     vk::DescriptorBufferInfo & VBuffer::GetBufferInfoForDescriptor() {
         assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer && "This buffer is not uniform buffer and therefore can not be used in descriptors");
         return m_descriptorBufferInfo;

@@ -4,6 +4,8 @@
 
 #ifndef VIMAGE_HPP
 #define VIMAGE_HPP
+#include <VMA/vk_mem_alloc.h>
+#include <bits/fs_path.h>
 #include <vulkan/vulkan.hpp>
 #include "Vulkan/VulkanCore/VObject.hpp"
 
@@ -20,20 +22,25 @@ namespace VulkanCore
         // creates image and iamge views from existing image, mostly used for retrieving SwapChain images
         VImage(const VulkanCore::VDevice& device,vk::Image image, int widht, int height, uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
 
+        VImage(const VulkanCore::VDevice& device,std::string path,uint32_t mipLevels, vk::Format format, vk::ImageAspectFlags aspecFlags);
+
         void Destroy() override;
 
         ~VImage() = default;
     private:
-        //TODO: later implement this or use the VMA lybrary to allocate images and generate their image views ;
-        void GenerateImage() {};
+        void GenerateImage(std::string path );
+
         void GenerateImageView();
     private:
         const VulkanCore::VDevice& m_device;
-        vk::Image m_image;
+        vk::Image m_imageVK;
+        VkImage m_imageVMA;
         vk::ImageView m_imageView;
+        VmaAllocation m_imageAllocation;
         uint32_t m_mipLevels;
         vk::Format m_format;
         vk::ImageAspectFlags m_aspectFlags;
+        vk::DeviceSize m_imageSize;
         bool isSwapChainImage = false;
         int m_width, m_height;
 
@@ -41,7 +48,7 @@ namespace VulkanCore
         const bool& GetIsSwapChainImage() const {return isSwapChainImage;};
 
         [[nodiscard]] const vk::Image & GetImage() const {
-            return m_image;
+            return m_imageVK;
         }
 
         [[nodiscard]] const vk::ImageView & GetImageView() const {
