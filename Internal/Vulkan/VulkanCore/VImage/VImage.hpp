@@ -12,6 +12,7 @@
 
 namespace VulkanCore
 {
+    class VCommandBuffer;
     class VDevice;
 }
 
@@ -26,23 +27,31 @@ namespace VulkanCore
 
         void Destroy() override;
 
+        void TransitionImageLayout(vk::ImageLayout targetLayout);
+
         ~VImage() = default;
     private:
         void GenerateImage(std::string path );
 
+
         void GenerateImageView();
     private:
         const VulkanCore::VDevice& m_device;
-        vk::Image m_imageVK;
+
         VkImage m_imageVMA;
+        vk::Image m_imageVK;
         vk::ImageView m_imageView;
-        VmaAllocation m_imageAllocation;
-        uint32_t m_mipLevels;
         vk::Format m_format;
         vk::ImageAspectFlags m_aspectFlags;
         vk::DeviceSize m_imageSize;
+        vk::ImageLayout m_imageLayout;
+        VmaAllocation m_imageAllocation;
+
+        uint32_t m_mipLevels;
         bool isSwapChainImage = false;
         int m_width, m_height;
+
+        std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCommandBuffer;
 
     public:
         const bool& GetIsSwapChainImage() const {return isSwapChainImage;};

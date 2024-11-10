@@ -24,6 +24,7 @@ public:
 
     void BeginRecording();
     void EndRecording();
+    void EndAndFlush(const vk::Queue& queue);
 
     ~VCommandBuffer() = default;
 private:

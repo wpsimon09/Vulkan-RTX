@@ -29,6 +29,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,u
     m_aspectFlags = aspecFlags;
 
     isSwapChainImage = false;
+    m_transferCommandBuffer = std::make_unique<VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
     GenerateImage(path);
 }
 
@@ -37,7 +38,46 @@ void VulkanCore::VImage::Destroy() {
     if(!isSwapChainImage) {
         m_device.GetDevice().destroyImage(m_imageVK);
     }
-    Utils::Logger::LogInfoVerboseOnly("Deleted image and its image view");
+    Utils::Logger::LogInfoVerboseOnly(  "Deleted image and its image view");
+}
+
+void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout targetLayout) {
+        Utils::Logger::LogInfoVerboseOnly("Transition image layout...");
+
+        // record
+        m_transferCommandBuffer->BeginRecording();
+
+        vk::ImageMemoryBarrier barrier{};
+        barrier.oldLayout = m_imageLayout;
+        barrier.newLayout = targetLayout;
+        barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
+        barrier.dstQueueFamilyIndex= vk::QueueFamilyIgnored;
+        barrier.image = m_imageVK;
+        barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+        barrier.subresourceRange.baseMipLevel = 0;
+        barrier.subresourceRange.levelCount = 1;
+        barrier.subresourceRange.baseArrayLayer = 0;
+        barrier.subresourceRange.layerCount = 1;
+        barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite; // finish
+        barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite; // finish
+
+        m_transferCommandBuffer->GetCommandBuffer().pipelineBarrier(
+            0, 0,
+            0,
+            0, nullptr,
+            0, nullptr,
+            1, &barrier);
+
+        // end recording
+
+        //submit
+        vk::SubmitInfo submitInfo{};
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &cmdBuffer.GetCommandBuffer();
+
+        //check
+        assert(device.GetTransferQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess);
+        Utils::Logger::LogSuccess("Buffer copy completed !");
 }
 
 void VulkanCore::VImage::GenerateImage(std::string path) {
@@ -77,13 +117,15 @@ void VulkanCore::VImage::GenerateImage(std::string path) {
     imageInfo.sharingMode  = static_cast<VkSharingMode>(vk::SharingMode::eExclusive);
     imageInfo.samples  = static_cast<VkSampleCountFlagBits>(vk::SampleCountFlagBits::e1);
 
-    m_imageVK = m_device.GetDevice().createImage(imageInfo);
+    //m_imageVK = m_device.GetDevice().createImage(imageInfo);
 
     // create vma allocation
     VmaAllocationCreateInfo imageAllocationInfo = {};
     imageAllocationInfo.usage = VMA_MEMORY_USAGE_AUTO;
     imageAllocationInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
     vmaCreateImage(m_device.GetAllocator(), &imageInfo, &imageAllocationInfo, &m_imageVMA, &m_imageAllocation, nullptr);
+
+    m_imageVK = m_imageVMA;
 }
 
 void VulkanCore::VImage::GenerateImageView() {

@@ -48,10 +48,20 @@ namespace VulkanCore {
         m_commandBuffer.begin(beginInfo);
     }
 
+
     void VCommandBuffer::EndRecording() {
         assert(m_isCurrentlyRecording == true);
         m_isCurrentlyRecording = false;
         m_commandBuffer.end();
         Utils::Logger::LogInfoVerboseRendering("Ended recording command buffer...");
+    }
+
+    void VCommandBuffer::EndAndFlush(const vk::Queue queue) {
+        EndRecording();
+        vk::SubmitInfo submitInfo;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &m_commandBuffer;
+
+        assert(queue.submit(1,&submitInfo, VK_NULL_HANDLE) == vk::Result::eSuccess);
     }
 } // VulkanCore

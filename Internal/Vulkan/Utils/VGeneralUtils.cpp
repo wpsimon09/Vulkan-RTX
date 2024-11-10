@@ -96,9 +96,13 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffe
     Utils::Logger::LogSuccess("Buffer copy completed !");
 }
 
+void VulkanUtils::TransitionImageLayou(const VulkanCore::VDevice &device,
+
+}
+
 std::pair<vk::Result, uint32_t> VulkanUtils::SwapChainNextImageKHRWrapper(const VulkanCore::VDevice &device,
-    const VulkanCore::VSwapChain &swapChain, uint64_t timeOut, const VulkanCore::VSyncPrimitive<vk::Semaphore>& semaphore,
-    VulkanCore::VSyncPrimitive<vk::Fence> *fence) {
+                                                                          const VulkanCore::VSwapChain &swapChain, uint64_t timeOut, const VulkanCore::VSyncPrimitive<vk::Semaphore>& semaphore,
+                                                                          VulkanCore::VSyncPrimitive<vk::Fence> *fence) {
     uint32_t image_index;
     auto result = static_cast<vk::Result>(vkAcquireNextImageKHR(
             device.GetDevice(),
