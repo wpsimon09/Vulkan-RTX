@@ -41,7 +41,10 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,u
     //make buffer layout best for shader to read from
     TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
     m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+    m_device.GetTransferQueue().waitIdle();
     m_stagingBufferWithPixelData->Destroy();
+
+    GenerateImageView();
 }
 
 void VulkanCore::VImage::Destroy() {
