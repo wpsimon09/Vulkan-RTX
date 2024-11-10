@@ -66,7 +66,7 @@ namespace VulkanCore {
         // COPY THE DATA FROM STAGING BUFFER TO GPU ONLY BUFFER
         //-----------------------------------------------------
         Utils::Logger::LogInfoVerboseOnly("Transferring data from staging buffer to the buffer located on the GPU...");
-        VulkanUtils::CopyBuffers(m_device, m_stagingBuffer, m_bufferVMA, vertices.capacity()*sizeof(ApplicationCore::Vertex));
+        VulkanUtils::CopyBuffers(m_device, m_stagingBufferVMA, m_bufferVMA, vertices.capacity()*sizeof(ApplicationCore::Vertex));
         Utils::Logger::LogSuccess("Transferring to GPU buffer completed...");
 
         //-------------------------------------------------------
@@ -106,7 +106,7 @@ namespace VulkanCore {
         // COPY THE DATA FROM STAGING BUFFER TO GPU ONLY BUFFER
         //-----------------------------------------------------
         Utils::Logger::LogInfoVerboseOnly("Transferring data from staging buffer to the buffer located on the GPU !");
-        VulkanUtils::CopyBuffers(m_device, m_stagingBuffer, m_bufferVMA, indices.capacity()*sizeof(ApplicationCore::Vertex));
+        VulkanUtils::CopyBuffers(m_device, m_stagingBufferVMA, m_bufferVMA, indices.capacity()*sizeof(ApplicationCore::Vertex));
         Utils::Logger::LogInfoVerboseOnly("Transferring to GPU buffer completed");
 
         //-------------------------------------------------------
@@ -140,7 +140,8 @@ namespace VulkanCore {
 
 
         Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
-        assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo,&vmaStagingAllocationCreateInfo, &m_stagingBuffer,&m_stagingAllocation,nullptr) == VK_SUCCESS);
+        assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo,&vmaStagingAllocationCreateInfo, &m_stagingBufferVMA,&m_stagingAllocation,nullptr) == VK_SUCCESS);
+        m_stagingBufferVK = m_stagingBufferVMA;
         Utils::Logger::LogSuccess("Staging buffer created");
     }
 
@@ -161,7 +162,7 @@ namespace VulkanCore {
     }
 
     void VBuffer::DestroyStagingBuffer() const {
-        vmaDestroyBuffer(m_device.GetAllocator(), m_stagingBuffer, m_stagingAllocation);
+        vmaDestroyBuffer(m_device.GetAllocator(), m_stagingBufferVMA, m_stagingAllocation);
     }
 
 } // VulkanCore

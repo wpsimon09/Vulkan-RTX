@@ -12,6 +12,7 @@
 
 namespace VulkanCore
 {
+    class VBuffer;
     class VCommandBuffer;
     class VDevice;
 }
@@ -32,7 +33,7 @@ namespace VulkanCore
         ~VImage() = default;
     private:
         void GenerateImage(std::string path );
-
+        void CopyFromBufferToImage();
 
         void GenerateImageView();
     private:
@@ -45,6 +46,7 @@ namespace VulkanCore
         vk::ImageAspectFlags m_aspectFlags;
         vk::DeviceSize m_imageSize;
         vk::ImageLayout m_imageLayout;
+        std::unique_ptr<VulkanCore::VBuffer> m_stagingBufferWithPixelData;
         VmaAllocation m_imageAllocation;
 
         uint32_t m_mipLevels;

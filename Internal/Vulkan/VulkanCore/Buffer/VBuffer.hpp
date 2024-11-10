@@ -28,6 +28,7 @@ namespace VulkanCore
         explicit VBuffer(const VDevice &device);
 
         const vk::Buffer &GetBuffer() const { return m_bufferVK; }
+        const vk::Buffer &GetStagingBuffer() const { return m_stagingBufferVK; }
 
         void *GetMapPointer() const {
             assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer);
@@ -59,17 +60,26 @@ namespace VulkanCore
 
     private:
         const VDevice &m_device;
-        bool m_isInitialized = false;
-        bool m_isPresistentlyMapped = false;
-        void *m_mappedData;
+
+        // normal buffer
         VmaAllocation m_allocation;
-        VkBuffer m_bufferVMA;
-        VmaAllocation m_stagingAllocation;
-        VkBuffer m_stagingBuffer;
         vk::Buffer m_bufferVK;
+        VkBuffer m_bufferVMA;
+
+        // staging buffer
+        VmaAllocation m_stagingAllocation;
+        VkBuffer m_stagingBufferVMA;
+        vk::Buffer m_stagingBufferVK;
+
+        // others
         vk::BufferUsageFlags m_bufferType;
         std::vector<uint32_t> m_sharedQueueFamilyIndices;
         vk::DescriptorBufferInfo m_descriptorBufferInfo;;
+
+        bool m_isInitialized = false;
+        bool m_isPresistentlyMapped = false;
+        void *m_mappedData;
+
     };
 
     template <typename T>

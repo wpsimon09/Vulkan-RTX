@@ -56,7 +56,7 @@ namespace VulkanCore {
         Utils::Logger::LogInfoVerboseRendering("Ended recording command buffer...");
     }
 
-    void VCommandBuffer::EndAndFlush(const vk::Queue queue) {
+    void VCommandBuffer::EndAndFlush(const vk::Queue &queue) {
         EndRecording();
         vk::SubmitInfo submitInfo;
         submitInfo.commandBufferCount = 1;
