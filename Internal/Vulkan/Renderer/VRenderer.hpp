@@ -100,7 +100,11 @@ namespace Renderer
         std::unique_ptr<class VulkanCore::VCommandPool> m_baseCommandPool;
         std::vector<std::unique_ptr<class VulkanCore::VCommandBuffer>> m_baseCommandBuffers;
         const VulkanCore::VGraphicsPipeline *m_graphicsPipeline;
+
+
+        std::unique_ptr<class VulkanCore::VImage> m_testimg;
     };
+
 
 } // Renderer
 

@@ -33,7 +33,6 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,u
 
     // this command buffer will record all commands that are needed for image to be created and execute them all at once
     m_transferCommandBuffer->BeginRecording();
-
     GenerateImage(path);
     // make buffer layout best for transition data into
     TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal);
@@ -113,7 +112,7 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout targetLayout) {
     Utils::Logger::LogInfoVerboseOnly("Transition image layout...");
 
     // record
-    m_transferCommandBuffer->BeginRecording();
+    //m_transferCommandBuffer->BeginRecording();
 
     vk::PipelineStageFlags srcStageFlags;
     vk::PipelineStageFlags dstStageFlags;

@@ -48,6 +48,7 @@ namespace Renderer
 
         CreateTemplateEntries();
         m_pushDescriptorSetManager.CreateUpdateTemplate(*m_graphicsPipeline);
+        m_testimg = std::make_unique<VulkanCore::VImage>(m_device, "/home/wpsimon09/Desktop/Textures/tiles/albedo.png");
     }
 
     void VRenderer::Render() {

@@ -84,6 +84,7 @@ set(SOURCES
         Internal/Vulkan/Utils/VUniformBufferManager/VUniform.hpp
         Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.cpp
         Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp
+        External/stb_image/stb_image.cpp
 
 )
 

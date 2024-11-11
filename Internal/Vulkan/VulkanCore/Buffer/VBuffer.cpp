@@ -126,9 +126,6 @@ namespace VulkanCore {
     }
 
     void VBuffer::CreateStagingBuffer(VkDeviceSize size) {
-        VmaAllocationCreateInfo vmaStagingAllocationCreateInfo;
-        vmaStagingAllocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
-        vmaStagingAllocationCreateInfo.flags =  VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 
         VkBufferCreateInfo stagingBufferCreateInfo = {};
         stagingBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -138,9 +135,13 @@ namespace VulkanCore {
         stagingBufferCreateInfo.queueFamilyIndexCount = m_sharedQueueFamilyIndices.size();
         stagingBufferCreateInfo.pQueueFamilyIndices = m_sharedQueueFamilyIndices.data();
 
+        VmaAllocationCreateInfo stagingAllocationCreateInfo = {};
+        stagingAllocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+        stagingAllocationCreateInfo.flags =  VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+        stagingAllocationCreateInfo.priority = 1.0f;
 
         Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
-        assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo,&vmaStagingAllocationCreateInfo, &m_stagingBufferVMA,&m_stagingAllocation,nullptr) == VK_SUCCESS);
+        assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo, &stagingAllocationCreateInfo, &m_stagingBufferVMA, &m_stagingAllocation,nullptr) == VK_SUCCESS);
         m_stagingBufferVK = m_stagingBufferVMA;
         Utils::Logger::LogSuccess("Staging buffer created");
     }
