@@ -33,7 +33,7 @@ namespace VulkanCore {
         Utils::Logger::LogInfo("Unmapping staging buffer...");
         vmaUnmapMemory(m_device.GetAllocator() , m_stagingAllocation);
     }
-    t
+
     vk::DescriptorBufferInfo & VBuffer::GetBufferInfoForDescriptor() {
         assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer && "This buffer is not uniform buffer and therefore can not be used in descriptors");
         return m_descriptorBufferInfo;
