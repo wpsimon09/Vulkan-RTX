@@ -263,6 +263,7 @@ namespace Renderer
         m_pipelineManager->DestroyPipelines();
         m_baseCommandPool->Destroy();
         m_swapChain->Destroy();
+        m_testimg->Destroy();
     }
 
 } // Renderer

@@ -61,6 +61,8 @@ vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice() {
            GlobalVariables::GlobalStructs::secondaryDeviceFeatures.CheckAgainstRetrievedPhysicalDevice(physicalDevice, m_instance.GetSurface())) {
 
             Utils::Logger::LogSuccess("Going to use: " + std::string(physicalDevice.getProperties().deviceName) + " device, terminating next searches");
+
+            GlobalVariables::GlobalStructs::GpuProperties = physicalDevice.getProperties();
             return physicalDevice;
         }
     }

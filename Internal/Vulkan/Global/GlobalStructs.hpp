@@ -49,6 +49,8 @@ namespace GlobalVariables::GlobalStructs
         .deviceType = vk::PhysicalDeviceType::eIntegratedGpu,
         .deviceFeatures = vk::PhysicalDeviceFeatures{}
     };
+
+    inline vk::PhysicalDeviceProperties GpuProperties = {};
 }
 
 #endif //GLOBALSTRUCTS_HPP

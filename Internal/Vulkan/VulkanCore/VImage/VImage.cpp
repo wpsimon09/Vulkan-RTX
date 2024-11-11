@@ -5,6 +5,8 @@
 #include "VImage.hpp"
 
 #include "Application/Logger/Logger.hpp"
+#include "Vulkan/Global/GlobalStructs.hpp"
+#include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "stb_image/stb_image.h"
 
@@ -49,7 +51,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,u
 void VulkanCore::VImage::Destroy() {
     m_device.GetDevice().destroyImageView(m_imageView);
     if(!isSwapChainImage) {
-        m_device.GetDevice().destroyImage(m_imageVK);
+        vmaDestroyImage(m_device.GetAllocator(), m_imageVMA, m_imageAllocation);
     }
     Utils::Logger::LogInfoVerboseOnly(  "Deleted image and its image view");
 }
@@ -205,4 +207,17 @@ void VulkanCore::VImage::GenerateImageView() {
     assert(m_imageView);
     Utils::Logger::LogInfoVerboseOnly("2D Image view created" );
 
+}
+
+void VulkanCore::VImage::CreteImageSampler() {
+    vk::SamplerCreateInfo samplerInfo;
+    samplerInfo.magFilter = vk::Filter::eLinear;
+    samplerInfo.minFilter = vk::Filter::eLinear;
+    samplerInfo.addressModeU = vk::SamplerAddressMode::eRepeat;
+    samplerInfo.addressModeV = vk::SamplerAddressMode::eRepeat;
+    samplerInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
+    samplerInfo.anisotropyEnable = true;
+    auto maxAntistropy = GlobalVariables::GlobalStructs::GpuProperties.limits.maxSamplerAnisotropy ;
+    assert(maxAntistropy > 0);
+    samplerInfo.maxAnisotropy = ;
 }

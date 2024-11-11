@@ -34,19 +34,21 @@ namespace VulkanCore
     private:
         void GenerateImage(std::string path );
         void CopyFromBufferToImage();
-
         void GenerateImageView();
+        void CreteImageSampler();
     private:
         const VulkanCore::VDevice& m_device;
 
         VkImage m_imageVMA;
         vk::Image m_imageVK;
         vk::ImageView m_imageView;
+        vk::Sampler m_sampler;
         vk::Format m_format;
         vk::ImageAspectFlags m_aspectFlags;
         vk::DeviceSize m_imageSize;
         vk::ImageLayout m_imageLayout;
         std::unique_ptr<VulkanCore::VBuffer> m_stagingBufferWithPixelData;
+        vk::Sampler m_imageSampler;
         VmaAllocation m_imageAllocation;
 
         uint32_t m_mipLevels;
