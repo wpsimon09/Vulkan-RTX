@@ -41,7 +41,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,u
     TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
     m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
     m_device.GetTransferQueue().waitIdle();
-    m_stagingBufferWithPixelData->Destroy();
+    m_stagingBufferWithPixelData->DestroyStagingBuffer();
 
     GenerateImageView();
 }
@@ -80,6 +80,7 @@ void VulkanCore::VImage::GenerateImage(std::string path) {
     m_stagingBufferWithPixelData->CreateStagingBuffer(m_imageSize);
     auto mappedStagingBuffer = m_stagingBufferWithPixelData->MapStagingBuffer();
     memcpy(mappedStagingBuffer, pixels, static_cast<size_t>(m_imageSize));
+    m_stagingBufferWithPixelData->UnMapStagingBuffer();
     Utils::Logger::LogInfoVerboseOnly("Image data copied");
 
     //create vulkan represetnation of the image
@@ -167,15 +168,26 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout targetLayout) {
 //-----------------------------
 void VulkanCore::VImage::CopyFromBufferToImage() {
     Utils::Logger::LogInfoVerboseOnly("Copying image from buffer to image...");
-    vk::BufferImageCopy imageCopyInfo{
-        0, 0,0,
-        {   vk::ImageAspectFlagBits::eColor, 0, 0, 1},
-        {0,0,0},
-        {static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height), 0}
-    };
+    vk::BufferImageCopy region = {};
+    region.bufferOffset = 0;
+    region.bufferRowLength = 0;
+    region.bufferImageHeight = 0;
+
+    region.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+    region.imageSubresource.mipLevel = 0;
+    region.imageSubresource.baseArrayLayer = 0;
+    region.imageSubresource.layerCount = 1;
+
+    region.imageOffset.x = 0;;
+    region.imageOffset.y = 0;;
+    region.imageOffset.z = 0;;
+
+    region.imageExtent.width = m_width;
+    region.imageExtent.height = m_height;
+    region.imageExtent.depth = 1;
 
     assert(m_transferCommandBuffer->GetIsRecording() && "Command buffer that will copy buffer to image is not recording");
-    m_transferCommandBuffer->GetCommandBuffer().copyBufferToImage(m_stagingBufferWithPixelData->GetStagingBuffer(), m_imageVK, vk::ImageLayout::eTransferDstOptimal,1, &imageCopyInfo);
+    m_transferCommandBuffer->GetCommandBuffer().copyBufferToImage(m_stagingBufferWithPixelData->GetStagingBuffer(), m_imageVK, vk::ImageLayout::eTransferDstOptimal,1, &region);
 }
 
 void VulkanCore::VImage::GenerateImageView() {
