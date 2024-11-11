@@ -71,6 +71,9 @@ void VulkanCore::VImage::GenerateImage(std::string path) {
         Utils::Logger::LogInfoVerboseOnly("Image read successfully !");
     }
 
+    m_width = texWidth;
+    m_height = texHeight;
+
     // copy pixel data to the staging buffer
     Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
     m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device);
@@ -81,6 +84,7 @@ void VulkanCore::VImage::GenerateImage(std::string path) {
 
     //create vulkan represetnation of the image
     VkImageCreateInfo imageInfo = {};
+    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.imageType = VK_IMAGE_TYPE_2D;
     imageInfo.extent.width = m_width;
     imageInfo.extent.height = m_height;
@@ -100,7 +104,8 @@ void VulkanCore::VImage::GenerateImage(std::string path) {
     VmaAllocationCreateInfo imageAllocationInfo = {};
     imageAllocationInfo.usage = VMA_MEMORY_USAGE_AUTO;
     imageAllocationInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
-    vmaCreateImage(m_device.GetAllocator(), &imageInfo, &imageAllocationInfo, &m_imageVMA, &m_imageAllocation, nullptr);
+    assert(vmaCreateImage(m_device.GetAllocator(), &imageInfo, &imageAllocationInfo, &m_imageVMA, &m_imageAllocation, nullptr) == VK_SUCCESS);
+
 
     m_imageVK = m_imageVMA;
 }

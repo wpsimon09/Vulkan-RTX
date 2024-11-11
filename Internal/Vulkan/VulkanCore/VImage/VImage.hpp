@@ -24,7 +24,7 @@ namespace VulkanCore
         // creates image and iamge views from existing image, mostly used for retrieving SwapChain images
         explicit VImage(const VulkanCore::VDevice& device,vk::Image image, int widht, int height, uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
 
-        explicit VImage(const VulkanCore::VDevice& device,std::string path,uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
+        explicit VImage(const VulkanCore::VDevice& device,std::string path,uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
 
         void Destroy() override;
 
