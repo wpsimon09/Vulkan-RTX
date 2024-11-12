@@ -28,6 +28,7 @@
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 
 
 Application::Application()
@@ -44,6 +45,7 @@ void Application::Init()
     m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
     m_vulkanDevice = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
 
+    VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
 
     auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice);
     m_client->MountAssetsManger(std::move(assetManger));
@@ -97,6 +99,7 @@ Application::~Application() {
     m_renderer->Destroy();
     m_client->Destroy();
     m_uniformBufferManager->Destroy();
+    VulkanCore::VSamplers::DestroyAllSamplers(*m_vulkanDevice);
     m_pushDescriptorSetManager->Destroy();
     m_vulkanDevice->Destroy();
 }
