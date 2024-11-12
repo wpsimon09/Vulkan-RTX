@@ -30,6 +30,8 @@ namespace VulkanCore
 
         void TransitionImageLayout(vk::ImageLayout targetLayout);
 
+        vk::DescriptorImageInfo GetDescriptorImageInfo(vk::Sampler &sampler);
+
         ~VImage() = default;
     private:
         void GenerateImage(std::string path );

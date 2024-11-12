@@ -21,6 +21,7 @@ layout (location = 0) out vec3 normal;
 layout (location = 1) out vec3 cameraPosition;
 layout (location = 2) out vec3 fragPos;
 layout (location = 3) out vec3 lightPos;
+layout (location = 4) out vec2 uv;
 
 void main() {
     gl_Position = ubo.view * ubo.projection * ubo_model.model * vec4(inPosition,1.0);
@@ -28,5 +29,5 @@ void main() {
     cameraPosition = ubo.cameraPostiion.xyz;
     fragPos = vec3(ubo_model.model * vec4(inPosition,1.0));
     lightPos = ubo.lightPosition.xyz;
-
+    uv = inUv;
 }

@@ -22,7 +22,7 @@ public:
     void Destory() const;
 private:
     std::unique_ptr<T> m_uniformCPU;
-    std::vector<std::unique_ptr<VulkanCore::VBuffer>> m_uniformGPU;
+    std::vector<std::unique_ptr<VulkanCore::VBuffer>> m_uniformGPU; // per frame in flight
     std::vector<vk::DescriptorBufferInfo> m_bufferInfo;
 };
 

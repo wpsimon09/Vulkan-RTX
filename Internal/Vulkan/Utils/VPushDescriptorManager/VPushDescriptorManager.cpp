@@ -14,12 +14,13 @@ namespace VulkanUtils {
         m_descriptorSetLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
             .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex,1)
             .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex,1)
+            .AddBinding(2, vk::DescriptorType::eSampler,vk::ShaderStageFlagBits::eFragment,1)
             .Build();
     }
 
     void VPushDescriptorManager::
-    AddBufferEntry(uint32_t binding, size_t offset, size_t stride) {
-        assert(m_descriptorSetLayout->m_descriptorSetLayoutBindings.count(binding) == 1);
+    AddUpdateEntry(uint32_t binding, size_t offset, size_t stride) {
+        assert(m_descriptorSetLayout->m_descriptorSetLayoutBindings.count(binding) == 1 && "Binding is not part of the descriptor layout !");
         vk::DescriptorUpdateTemplateEntry entry{};
         entry.descriptorCount = 1;
         entry.offset = offset;
@@ -31,6 +32,7 @@ namespace VulkanUtils {
         m_descriptorTemplateEntries.push_back(entry);
 
     }
+
 
     void VPushDescriptorManager::CreateUpdateTemplate(const VulkanCore::VGraphicsPipeline &pipeline) {
         Utils::Logger::LogInfo("Creating update template object....");

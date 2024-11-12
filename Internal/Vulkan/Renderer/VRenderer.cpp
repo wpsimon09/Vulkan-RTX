@@ -25,6 +25,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 
@@ -125,6 +126,8 @@ namespace Renderer
         m_pushDescriptorSetManager.GetDescriptorSetDataStruct().cameraUBOBuffer = m_uniformBufferManager.
             GetGlobalBufferDescriptorInfo()[m_currentFrameIndex];
 
+        m_pushDescriptorSetManager.GetDescriptorSetDataStruct().albedoTextureImage = m_testimg->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
         for (int i = 0; i < m_client.GetMeshes().size(); i++) {
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().meshUBBOBuffer = m_uniformBufferManager.
                 GetPerObjectDescriptorBufferInfo(i)[m_currentFrameIndex];
@@ -176,8 +179,9 @@ namespace Renderer
     }
 
     void VRenderer::CreateTemplateEntries() {
-        m_pushDescriptorSetManager.AddBufferEntry(0, offsetof(VulkanUtils::DescriptorSetData, cameraUBOBuffer), 0);
-        m_pushDescriptorSetManager.AddBufferEntry(1, offsetof(VulkanUtils::DescriptorSetData, meshUBBOBuffer), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(0, offsetof(VulkanUtils::DescriptorSetData, cameraUBOBuffer), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(1, offsetof(VulkanUtils::DescriptorSetData, meshUBBOBuffer), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(2, offsetof(VulkanUtils::DescriptorSetData, albedoTextureImage), 0);
     }
 
     //===============================================================================================================

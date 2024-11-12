@@ -6,6 +6,9 @@ layout (location = 0) in vec3 normal;
 layout (location = 1) in vec3 cameraPosition;
 layout (location = 2) in vec3 fragPos;
 layout (location = 3) in vec3 lightPos;
+layout (location = 4) in vec2 uv;
+
+layout (binding = 1) uniform sampler2D albedoTexture;
 
 float roughness = 0.5;
 float metlaness = 0.2;
@@ -71,6 +74,8 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 vec3 CalculateIrrandiance(){
     vec3 N = normalize(normal);
     vec3 V = normalize(cameraPosition - fragPos);
+
+    albedo = texture(albedoTexture, uv).rgb;
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metlaness);

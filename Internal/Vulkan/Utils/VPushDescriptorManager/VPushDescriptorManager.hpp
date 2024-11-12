@@ -27,14 +27,14 @@ struct DescriptorSetData
 {
     vk::DescriptorBufferInfo cameraUBOBuffer; // for camera uniform buffer
     vk::DescriptorBufferInfo meshUBBOBuffer; // for mesh uniform buffer
+    vk::DescriptorImageInfo albedoTextureImage; // for albedo texture
 };
 
 class VPushDescriptorManager {
 public:
     explicit VPushDescriptorManager(const VulkanCore::VDevice& device);
 
-    void AddBufferEntry(uint32_t binding,size_t offset, size_t stride );
-    void AddImageEntry(uint32_t binding, vk::DescriptorImageInfo* imageInfo ){};
+    void AddUpdateEntry(uint32_t binding,size_t offset, size_t stride );
     void CreateUpdateTemplate(const VulkanCore::VGraphicsPipeline& pipeline);
     const vk::DescriptorUpdateTemplate& GetTemplate() const {return m_descriptorUpdateTemplate;}
 

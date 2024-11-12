@@ -44,7 +44,6 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,u
     m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
     m_device.GetTransferQueue().waitIdle();
     m_stagingBufferWithPixelData->DestroyStagingBuffer();
-
     GenerateImageView();
 }
 
@@ -151,6 +150,9 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout targetLayout) {
         srcStageFlags = vk::PipelineStageFlagBits::eTransfer;
         dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
     }
+    else {
+        throw std::runtime_error("Unsupported layout transition");
+    }
 
     assert(m_transferCommandBuffer->GetIsRecording() && "Command buffer that will transfer image layout is not recording !");
     m_transferCommandBuffer->GetCommandBuffer().pipelineBarrier(
@@ -162,6 +164,14 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout targetLayout) {
       );
 
     m_imageLayout = targetLayout;
+}
+
+vk::DescriptorImageInfo VulkanCore::VImage::GetDescriptorImageInfo(vk::Sampler &sampler) {
+    vk::DescriptorImageInfo imageInfo{};
+    imageInfo.imageLayout = m_imageLayout;
+    imageInfo.imageView = m_imageView;
+    imageInfo.sampler = sampler;
+    return imageInfo;
 }
 
 
