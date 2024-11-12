@@ -209,15 +209,3 @@ void VulkanCore::VImage::GenerateImageView() {
 
 }
 
-void VulkanCore::VImage::CreteImageSampler() {
-    vk::SamplerCreateInfo samplerInfo;
-    samplerInfo.magFilter = vk::Filter::eLinear;
-    samplerInfo.minFilter = vk::Filter::eLinear;
-    samplerInfo.addressModeU = vk::SamplerAddressMode::eRepeat;
-    samplerInfo.addressModeV = vk::SamplerAddressMode::eRepeat;
-    samplerInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
-    samplerInfo.anisotropyEnable = true;
-    auto maxAntistropy = GlobalVariables::GlobalStructs::GpuProperties.limits.maxSamplerAnisotropy ;
-    assert(maxAntistropy > 0);
-    samplerInfo.maxAnisotropy = ;
-}

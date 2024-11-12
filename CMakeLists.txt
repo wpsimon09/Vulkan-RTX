@@ -85,6 +85,10 @@ set(SOURCES
         Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.cpp
         Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp
         External/stb_image/stb_image.cpp
+        Internal/Vulkan/VulkanCore/VImage/VSampler.cpp
+        Internal/Vulkan/VulkanCore/VImage/VSampler.hpp
+        Internal/Vulkan/Utils/VSamplerRegistry/VSamplerRegistry.cpp
+        Internal/Vulkan/Utils/VSamplerRegistry/VSamplerRegistry.hpp
 
 )
 
