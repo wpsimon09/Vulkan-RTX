@@ -8,7 +8,7 @@ layout (location = 2) in vec3 fragPos;
 layout (location = 3) in vec3 lightPos;
 layout (location = 4) in vec2 uv;
 
-layout (binding = 1) uniform sampler2D albedoTexture;
+layout (binding = 2) uniform sampler2D albedoTexture;
 
 float roughness = 0.5;
 float metlaness = 0.2;

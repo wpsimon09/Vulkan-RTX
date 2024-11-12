@@ -14,7 +14,7 @@ namespace VulkanUtils {
         m_descriptorSetLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
             .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex,1)
             .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex,1)
-            .AddBinding(2, vk::DescriptorType::eSampler,vk::ShaderStageFlagBits::eFragment,1)
+            .AddBinding(2, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1)
             .Build();
     }
 
