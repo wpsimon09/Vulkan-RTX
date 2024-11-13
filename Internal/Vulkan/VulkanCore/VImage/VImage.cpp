@@ -25,25 +25,33 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, vk::Image image, i
     GenerateImageView();
 }
 
-VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,uint32_t mipLevels, vk::Format format, vk::ImageAspectFlags aspecFlags): m_device(device) {
+VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,uint32_t mipLevels, vk::Format format, vk::ImageAspectFlags aspecFlags):
+        m_device(device){
+
     m_mipLevels = mipLevels;
     m_format = format;
     m_aspectFlags = aspecFlags;
-
     isSwapChainImage = false;
     m_transferCommandBuffer = std::make_unique<VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
 
     // this command buffer will record all commands that are needed for image to be created and execute them all at once
     m_transferCommandBuffer->BeginRecording();
     GenerateImage(path);
+
     // make buffer layout best for transition data into
-    TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal);
+    TransitionImageLayout(vk::ImageLayout::eUndefined,vk::ImageLayout::eTransferDstOptimal);
+
+    // fill image with image data
     CopyFromBufferToImage();
+
     //make buffer layout best for shader to read from
-    TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
+    TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+
     m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+
     m_device.GetTransferQueue().waitIdle();
     m_stagingBufferWithPixelData->DestroyStagingBuffer();
+
     GenerateImageView();
 }
 
@@ -115,9 +123,10 @@ void VulkanCore::VImage::GenerateImage(std::string path) {
 //--------------------------
 // IMAGE LAYOUT TRANSITION
 //--------------------------
-void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout targetLayout) {
+void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk::ImageLayout targetLayout) {
     Utils::Logger::LogInfoVerboseOnly("Transition image layout...");
 
+    m_imageLayout = targetLayout;
     // record
     //m_transferCommandBuffer->BeginRecording();
 
@@ -125,7 +134,7 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout targetLayout) {
     vk::PipelineStageFlags dstStageFlags;
 
     vk::ImageMemoryBarrier barrier{};
-    barrier.oldLayout = m_imageLayout;
+    barrier.oldLayout = currentLayout;
     barrier.newLayout = targetLayout;
     barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
     barrier.dstQueueFamilyIndex= vk::QueueFamilyIgnored;
@@ -136,14 +145,14 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout targetLayout) {
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
 
-    if(m_imageLayout==vk::ImageLayout::eUndefined && targetLayout == vk::ImageLayout::eTransferDstOptimal){
+    if(currentLayout==vk::ImageLayout::eUndefined && targetLayout == vk::ImageLayout::eTransferDstOptimal){
         barrier.srcAccessMask = {};
         barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
 
         srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
         dstStageFlags = vk::PipelineStageFlagBits::eTransfer;
     }
-    else if(m_imageLayout == vk::ImageLayout::eTransferDstOptimal && targetLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
+    else if(currentLayout == vk::ImageLayout::eTransferDstOptimal && targetLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
         barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
         barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 
@@ -163,7 +172,6 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout targetLayout) {
           1, &barrier
       );
 
-    m_imageLayout = targetLayout;
 }
 
 vk::DescriptorImageInfo VulkanCore::VImage::GetDescriptorImageInfo(vk::Sampler &sampler) {

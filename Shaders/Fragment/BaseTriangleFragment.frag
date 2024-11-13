@@ -13,7 +13,7 @@ layout (binding = 2) uniform sampler2D albedoTexture;
 float roughness = 0.5;
 float metlaness = 0.2;
 float ao = 0.7;
-vec3 albedo = vec3(0.0, 0.0, 0.7);
+vec3 albedo;
 
 vec3 lightColor = vec3(4.0);
 
@@ -108,7 +108,7 @@ vec3 CalculateIrrandiance(){
 void main() {
 
 
-    vec3 ambient = vec3(0.3) * albedo * ao;
+    vec3 ambient = vec3(0.7) * albedo * ao;
     vec3 color = ambient + CalculateIrrandiance();
 
     outColor = vec4(color,1.0);

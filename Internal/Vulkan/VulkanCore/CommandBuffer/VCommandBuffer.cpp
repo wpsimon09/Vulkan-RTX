@@ -61,7 +61,6 @@ namespace VulkanCore {
         vk::SubmitInfo submitInfo;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_commandBuffer;
-
         assert(queue.submit(1,&submitInfo, VK_NULL_HANDLE) == vk::Result::eSuccess);
     }
 } // VulkanCore

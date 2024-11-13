@@ -8,6 +8,7 @@
 #include <vulkan/vulkan.hpp>
 #include "memory"
 #include "Vulkan/VulkanCore/VObject.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 
 namespace VulkanCore
@@ -28,7 +29,7 @@ namespace VulkanCore
 
         void Destroy() override;
 
-        void TransitionImageLayout(vk::ImageLayout targetLayout);
+        void TransitionImageLayout(vk::ImageLayout currentLayout,vk::ImageLayout targetLayout);
 
         vk::DescriptorImageInfo GetDescriptorImageInfo(vk::Sampler &sampler);
 
@@ -37,7 +38,6 @@ namespace VulkanCore
         void GenerateImage(std::string path );
         void CopyFromBufferToImage();
         void GenerateImageView();
-        void CreteImageSampler();
     private:
         const VulkanCore::VDevice& m_device;
 
