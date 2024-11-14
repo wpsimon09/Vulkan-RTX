@@ -15,7 +15,7 @@ float metlaness = 0.2;
 float ao = 0.7;
 vec3 albedo;
 
-vec3 lightColor = vec3(4.0);
+vec3 lightColor = vec3(40.0);
 
 const float PI = 3.14159265359;
 
@@ -108,8 +108,8 @@ vec3 CalculateIrrandiance(){
 void main() {
 
 
-    vec3 ambient = vec3(0.7) * albedo * ao;
-    vec3 color = ambient + CalculateIrrandiance();
-
+    vec3 ambient = vec3(0.2) * ao;
+    vec3 color = CalculateIrrandiance();
+    color *= ambient;
     outColor = vec4(color,1.0);
 }

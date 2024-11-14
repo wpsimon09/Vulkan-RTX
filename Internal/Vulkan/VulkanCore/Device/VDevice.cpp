@@ -45,13 +45,6 @@ VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::Physical
     return indices;
 }
 
-VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance):m_instance(instance) {
-    m_physicalDevice = PickPhysicalDevice();
-    CreateLogicalDevice();
-    CreateVmaAllocator(instance);
-    m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(*this, QUEUE_FAMILY_INDEX_TRANSFER);
-    DispatchLoader = vk::DispatchLoaderDynamic(m_instance.GetInstance(), vkGetInstanceProcAddr);
-}
 
 vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice() {
     auto availablePhysicalDevices = m_instance.GetInstance().enumeratePhysicalDevices();
@@ -69,6 +62,15 @@ vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice() {
     throw std::runtime_error("Could not find a valid physical device try to disable some features");
 }
 
+VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance):m_instance(instance) {
+    m_physicalDevice = PickPhysicalDevice();
+    CreateLogicalDevice();
+    CreateVmaAllocator(instance);
+    m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(*this, QUEUE_FAMILY_INDEX_TRANSFER);
+    DispatchLoader = vk::DispatchLoaderDynamic(m_instance.GetInstance(), vkGetInstanceProcAddr);
+}
+
+
 void VulkanCore::VDevice::CreateLogicalDevice() {
     m_queueFamilyIndices = FindQueueFamilies(m_physicalDevice, m_instance);
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
@@ -85,6 +87,8 @@ void VulkanCore::VDevice::CreateLogicalDevice() {
     }
 
     vk::PhysicalDeviceFeatures deviceFeatures{};
+
+    deviceFeatures.samplerAnisotropy = true;
 
     //create the logical device
     vk::DeviceCreateInfo deviceCreateInfo{};

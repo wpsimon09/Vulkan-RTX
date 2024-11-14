@@ -110,7 +110,6 @@ namespace VulkanCore
         m_bufferVK = vk::Buffer(m_bufferVMA);
         m_isInitialized = true;
         Utils::Logger::LogSuccess("Uniform buffer created !");
-        DestroyStagingBuffer();
 
         m_descriptorBufferInfo.buffer = m_bufferVK;
         m_descriptorBufferInfo.range = size;

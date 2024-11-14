@@ -13,6 +13,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
+#define MAX_UBO_COUNT 10
 
 VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDevice &device, const Client &client):m_device(device),m_client(client) {
     Utils::Logger::LogInfoVerboseOnly("Creating uniform buffer manager...");
@@ -41,8 +42,6 @@ void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex)
         m_objectDataUniforms[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse(m_objectDataUniforms[i]->GetUBOStruct().model));
         m_objectDataUniforms[i]->UpdateGPUBuffer(frameIndex);
     }
-
-
 }
 
 void VulkanUtils::VUniformBufferManager::Destroy() const {
@@ -59,13 +58,14 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
     // allocate per model Uniform buffers
     Utils::Logger::LogInfoVerboseOnly("Allocating 100 uniform buffers before hand");
     GlobalState::LoggingEnabled = false;
-    m_objectDataUniforms.resize(100);
-    assert(m_objectDataUniforms.size() == 100 && "Failed to allocate 100 buffers");
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for per object data");
-    std::generate_n(m_objectDataUniforms.begin(), 100, [&]() {
-        return std::make_unique<VUniform<PerObjectUBO::ObjectDataUniform>>(m_device);
-    });
-    assert(m_objectDataUniforms.size() == 100 && "Failed to allocate 100 buffers");
+    m_objectDataUniforms.resize(MAX_UBO_COUNT);
+
+    for(int i = 0; i <MAX_UBO_COUNT; i++) {
+        m_objectDataUniforms[i] = (std::make_unique<VUniform<PerObjectUBO::ObjectDataUniform>>(m_device));
+    }
+
+    //assert(m_objectDataUniforms.size() == MAX_UBO_COUNT && "Failed to allocate 20 buffers");
     GlobalState::LoggingEnabled = true;
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for each of the mesh");
 
