@@ -63,7 +63,6 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
     assert(m_objectDataUniforms.size() == 100 && "Failed to allocate 100 buffers");
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for per object data");
     std::generate_n(m_objectDataUniforms.begin(), 100, [&]() {
-
         return std::make_unique<VUniform<PerObjectUBO::ObjectDataUniform>>(m_device);
     });
     assert(m_objectDataUniforms.size() == 100 && "Failed to allocate 100 buffers");
