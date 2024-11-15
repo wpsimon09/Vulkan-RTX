@@ -55,6 +55,7 @@ namespace VulkanCore
         const vk::Queue & GetComputeQueue() const { return m_computeQueue; }
         const vk::Queue & GetTransferQueue() const { return m_transferQueue; }
         const vk::Queue & GetPresentQueue() const { return m_presentQueue; }
+        const vk::Format & GetDepthFormat() const { return m_depthFormat; }
         //----------------------------------------------------------------------------------------
 
         const uint32_t& GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
@@ -71,6 +72,9 @@ namespace VulkanCore
         vk::Queue m_computeQueue;
         vk::Queue m_transferQueue;
         vk::Queue m_presentQueue;
+
+        vk::Format m_depthFormat;
+
         std::unique_ptr<VulkanCore::VCommandPool> m_transferCommandPool;
         VQueueFamilyIndices m_queueFamilyIndices;
 
@@ -81,6 +85,7 @@ namespace VulkanCore
         vk::PhysicalDevice PickPhysicalDevice();
         void CreateLogicalDevice();
         void CreateVmaAllocator(const VulkanCore::VulkanInstance& instance);
+        void RetreiveDepthFormat();
     };
 }
 

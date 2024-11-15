@@ -38,13 +38,13 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,u
     m_transferCommandBuffer->BeginRecording();
     GenerateImage(path);
 
-    // make buffer layout best for transition data into
+    //make buffer layout best for shader to read from
     TransitionImageLayout(vk::ImageLayout::eUndefined,vk::ImageLayout::eTransferDstOptimal);
 
     // fill image with image data
     CopyFromBufferToImage();
 
-    //make buffer layout best for shader to read from
+    // make buffer layout best for transition data into
     TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
 
     m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
@@ -53,6 +53,18 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,u
     m_stagingBufferWithPixelData->DestroyStagingBuffer();
 
     GenerateImageView();
+}
+
+VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t width, uint32_t height, uint32_t mipLevels,
+    vk::Format format, vk::ImageAspectFlags aspecFlags) {
+    m_mipLevels = mipLevels;
+    m_format = format;
+    m_aspectFlags = aspecFlags;
+    isSwapChainImage = false;
+    m_width = width;
+    m_height = height;
+
+
 }
 
 void VulkanCore::VImage::Destroy() {
@@ -68,29 +80,34 @@ void VulkanCore::VImage::Destroy() {
 //------------------------------------------------------------
 void VulkanCore::VImage::GenerateImage(std::string path) {
     Utils::Logger::LogInfoVerboseOnly("Generating image...");
-    int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load(path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-    m_imageSize = texWidth * texHeight * 4;
 
-    if(!pixels) {
-        Utils::Logger::LogError("Failed to generate texture at path: \t" + path);
-        return;
+    if(!path.empty()) {
+        int texWidth, texHeight, texChannels;
+        stbi_uc* pixels = stbi_load(path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+        m_imageSize = texWidth * texHeight * 4;
+
+        if(!pixels) {
+            Utils::Logger::LogError("Failed to generate texture at path: \t" + path);
+            return;
+        }
+        else {
+            Utils::Logger::LogInfoVerboseOnly("Image read successfully !");
+        }
+
+        m_width = texWidth;
+        m_height = texHeight;
+
+        // copy pixel data to the staging buffer
+        Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
+        m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device);
+        m_stagingBufferWithPixelData->CreateStagingBuffer(m_imageSize);
+        auto mappedStagingBuffer = m_stagingBufferWithPixelData->MapStagingBuffer();
+        memcpy(mappedStagingBuffer, pixels, static_cast<size_t>(m_imageSize));
+        m_stagingBufferWithPixelData->UnMapStagingBuffer();
+        Utils::Logger::LogInfoVerboseOnly("Image data copied");
+    }else {
+        Utils::Logger::LogInfoVerboseOnly("Path is empty, creating empty image based on the provided parameters ");
     }
-    else {
-        Utils::Logger::LogInfoVerboseOnly("Image read successfully !");
-    }
-
-    m_width = texWidth;
-    m_height = texHeight;
-
-    // copy pixel data to the staging buffer
-    Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
-    m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device);
-    m_stagingBufferWithPixelData->CreateStagingBuffer(m_imageSize);
-    auto mappedStagingBuffer = m_stagingBufferWithPixelData->MapStagingBuffer();
-    memcpy(mappedStagingBuffer, pixels, static_cast<size_t>(m_imageSize));
-    m_stagingBufferWithPixelData->UnMapStagingBuffer();
-    Utils::Logger::LogInfoVerboseOnly("Image data copied");
 
     //create vulkan represetnation of the image
     VkImageCreateInfo imageInfo = {};
