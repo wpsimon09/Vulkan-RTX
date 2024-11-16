@@ -7,8 +7,9 @@
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
-VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain):VObject(),m_device(device), m_swapChain(swapChain) {
+VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,const VulkanCore::VImage& depthBuffer):VObject(),m_device(device), m_swapChain(swapChain), m_depthBuffer(depthBuffer) {
     Utils::Logger::LogInfoVerboseOnly("Creating render pass...");
     CreateRenderPass();
 }
@@ -32,10 +33,24 @@ void VulkanCore::VRenderPass::CreateRenderPass() {
     m_colourAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
     m_colourAttachmentDescription.finalLayout = vk::ImageLayout::ePresentSrcKHR;
 
+    m_colourAttachmentRef.attachment = 0;
+    m_colourAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+
     //-----------------
     // DEPTH ATTACHMENT
     //-----------------
-    // WILL BE FILLED IN LATER
+    m_depthStencilAttachmentDescription.format = m_depthBuffer.GetFormat();
+    m_depthStencilAttachmentDescription.samples = vk::SampleCountFlagBits::e1;
+    m_depthStencilAttachmentDescription.loadOp = vk::AttachmentLoadOp::eClear;
+    m_depthStencilAttachmentDescription.storeOp = vk::AttachmentStoreOp::eDontCare;
+    m_depthStencilAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    m_depthStencilAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    m_depthStencilAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
+    m_depthStencilAttachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+    m_depthStencilAttachmentRef.attachment = 1;
+    m_depthStencilAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
 
     //----------------------------------------------------------------------------------------------------------------------------
     // RESOLVE ATTACHEMENT
@@ -54,7 +69,7 @@ void VulkanCore::VRenderPass::CreateRenderPass() {
 
     CreateMainSubPass();
 
-    std::array<vk::AttachmentDescription, 1> attachments = {m_colourAttachmentDescription};
+    std::array<vk::AttachmentDescription, 2> attachments = {m_colourAttachmentDescription, m_depthStencilAttachmentDescription};
     vk::RenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.attachmentCount = attachments.size();
     renderPassInfo.pAttachments = attachments.data();
@@ -72,7 +87,7 @@ void VulkanCore::VRenderPass::CreateMainSubPass() {
     m_subPass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
     m_subPass.colorAttachmentCount = 1;
     m_subPass.pColorAttachments = &m_colourAttachmentRef;
-    m_subPass.pDepthStencilAttachment = nullptr; //TODO: create depth buffer
+    m_subPass.pDepthStencilAttachment = &m_depthStencilAttachmentRef;
 
     m_subPassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     m_subPassDependency.dstSubpass = 0;
@@ -82,6 +97,6 @@ void VulkanCore::VRenderPass::CreateMainSubPass() {
     m_subPassDependency.srcAccessMask = vk::AccessFlagBits::eNone;
 
     m_subPassDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-    m_subPassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite ;
+    m_subPassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite; ;
 
 }

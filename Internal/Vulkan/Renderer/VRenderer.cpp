@@ -37,8 +37,11 @@ namespace Renderer
                          VulkanUtils::VPushDescriptorManager &pushDescriptorSetManager):
         m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager),
         m_pushDescriptorSetManager(pushDescriptorSetManager) {
-        m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance);
-        m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain);
+
+        //resized later in swap chain creation
+        m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, 1);
+        m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance, *m_depthBuffer);
+        m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain, *m_depthBuffer);
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(
             device, *m_swapChain, *m_mainRenderPass, m_pushDescriptorSetManager);
         m_pipelineManager->InstantiatePipelines();
@@ -91,9 +94,13 @@ namespace Renderer
         renderPassBeginInfo.renderArea.offset.y = 0;
         renderPassBeginInfo.renderArea.extent = m_swapChain->GetExtent();
 
-        vk::ClearValue clearColor = {{0.0f, 0.0f, 0.0f, 1.0f}};
-        renderPassBeginInfo.clearValueCount = 1;
-        renderPassBeginInfo.pClearValues = &clearColor;
+        std::array<vk::ClearValue,2> clearColors = {};
+        clearColors[0].color =  {0.2f, 0.2f, 0.2f, 1.0f};
+        clearColors[1].depthStencil.depth = 1.0f;
+        clearColors[1].depthStencil.stencil = 0.0f;
+
+        renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearColors.size());
+        renderPassBeginInfo.pClearValues = clearColors.data();
 
         m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().beginRenderPass(
             &renderPassBeginInfo, vk::SubpassContents::eInline);

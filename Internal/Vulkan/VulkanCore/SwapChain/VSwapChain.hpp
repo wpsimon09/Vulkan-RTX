@@ -10,50 +10,56 @@
 
 #include "Vulkan/VulkanCore/VObject.hpp"
 
-namespace VulkanCore{
+namespace VulkanCore
+{
     class VImage;
     class VRenderPass;
     class VFrameBuffer;
     class VulkanInstance;
     class VDevice;
 
-    class VSwapChain:public VObject {
-        public:
-            VSwapChain(const VulkanCore::VDevice& device,const VulkanCore::VulkanInstance& instance);
+    class VSwapChain : public VObject
+    {
+    public:
+        VSwapChain(const VulkanCore::VDevice &device,
+                   const VulkanCore::VulkanInstance &instance,
+                   std::optional<std::reference_wrapper<VulkanCore::VImage>> depthBufferImage);
 
-            void Destroy() override;
-            void CreateSwapChainFrameBuffers(const VulkanCore::VRenderPass& renderPass);
-            void RecreateSwapChain(const VulkanCore::VRenderPass& renderPass);
+        void Destroy() override;
+        void CreateSwapChainFrameBuffers(const VulkanCore::VRenderPass &renderPass);
+        void RecreateSwapChain(const VulkanCore::VRenderPass &renderPass);
 
-            ~VSwapChain() = default;
+        ~VSwapChain() = default;
 
-            const vk::SwapchainKHR& GetSwapChain() const { return m_swapChain; };
-            const vk::SurfaceFormatKHR& GetSurfaceFormatKHR() const { return m_format; };
-            const vk::Extent2D& GetExtent() const { return m_extent; };
-            const vk::PresentModeKHR& GetPresentMode() const { return m_presentMode; };
-            const std::vector<std::reference_wrapper<const VulkanCore::VImage>> GetImages() const;
-            const std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>> GetSwapChainFrameBuffers() const;
-        private:
-            vk::SurfaceFormatKHR m_format;
-            vk::Extent2D m_extent;
-            vk::PresentModeKHR m_presentMode;
+        const vk::SwapchainKHR &GetSwapChain() const { return m_swapChain; };
+        const vk::SurfaceFormatKHR &GetSurfaceFormatKHR() const { return m_format; };
+        const vk::Extent2D &GetExtent() const { return m_extent; };
+        const vk::PresentModeKHR &GetPresentMode() const { return m_presentMode; };
+        const std::vector<std::reference_wrapper<const VulkanCore::VImage>> GetImages() const;
+        const std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>> GetSwapChainFrameBuffers() const;
 
-            vk::SwapchainKHR m_swapChain;
+    private:
+        vk::SurfaceFormatKHR m_format;
+        vk::Extent2D m_extent;
+        vk::PresentModeKHR m_presentMode;
 
-            std::vector<std::unique_ptr<VulkanCore::VImage>> m_images;
-            std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_swapChainFrameBuffers;
+        vk::SwapchainKHR m_swapChain;
 
-            const VulkanCore::VDevice& m_device;
-            const VulkanCore::VulkanInstance& m_instance;
-        private:
+        std::vector<std::unique_ptr<VulkanCore::VImage>> m_images;
+        std::optional<std::reference_wrapper<VulkanCore::VImage>> m_depthBuffer;
+        std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_swapChainFrameBuffers;
 
-            void ChooseExtent();
-            void ChooseFormat();
-            void ChoosePresentMode();
+        const VulkanCore::VDevice &m_device;
+        const VulkanCore::VulkanInstance &m_instance;
 
-            void CreateSwapChain();
+    private:
+        void ChooseExtent();
+        void ChooseFormat();
+        void ChoosePresentMode();
 
-            void RetrieveSwapChainImagesAndImageViews();
+        void CreateSwapChain();
+
+        void RetrieveSwapChainImagesAndImageViews();
 
     };
 

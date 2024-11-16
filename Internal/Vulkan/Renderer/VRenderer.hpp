@@ -99,6 +99,7 @@ namespace Renderer
         std::unique_ptr<class VulkanCore::VRenderPass> m_mainRenderPass;
         std::unique_ptr<class VulkanCore::VCommandPool> m_baseCommandPool;
         std::vector<std::unique_ptr<class VulkanCore::VCommandBuffer>> m_baseCommandBuffers;
+        std::unique_ptr<class VulkanCore::VImage> m_depthBuffer;
         const VulkanCore::VGraphicsPipeline *m_graphicsPipeline;
 
 

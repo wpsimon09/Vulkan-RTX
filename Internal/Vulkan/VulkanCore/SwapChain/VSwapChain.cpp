@@ -14,7 +14,9 @@
 #include "Vulkan/VulkanCore//VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
 
-VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const VulkanCore::VulkanInstance &instance): m_device(device), m_instance(instance) {
+VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const VulkanCore::VulkanInstance &instance,
+                                   std::optional<std::reference_wrapper<VulkanCore::VImage>> depthBufferImage):
+    m_device(device), m_instance(instance), m_depthBuffer(depthBufferImage) {
     ChooseExtent();
     ChooseFormat();
     ChoosePresentMode();
@@ -26,14 +28,14 @@ VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const Vulk
 void VulkanCore::VSwapChain::Destroy() {
     Utils::Logger::LogInfoVerboseOnly("Destroying swap chain image views... ");
     for (auto &image : m_images) {
-        if(image)
+        if (image)
             image->Destroy();
     }
     Utils::Logger::LogInfoVerboseOnly("Swap chain image views destroyed !");
     m_images.clear();
     Utils::Logger::LogInfoVerboseOnly("Destroying swap chain FrameBuffers...");
-    for(auto &frameBuffer:m_swapChainFrameBuffers) {
-        if(frameBuffer)
+    for (auto &frameBuffer : m_swapChainFrameBuffers) {
+        if (frameBuffer)
             frameBuffer->Destroy();
     }
     m_swapChainFrameBuffers.clear();
@@ -51,8 +53,9 @@ const std::vector<std::reference_wrapper<const VulkanCore::VImage>> VulkanCore::
     }
     return imagesToReturn;
 }
-    
-const std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>> VulkanCore::VSwapChain::GetSwapChainFrameBuffers() const {
+
+const std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>>
+VulkanCore::VSwapChain::GetSwapChainFrameBuffers() const {
     std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>> frameBuffers;
     frameBuffers.reserve(m_swapChainFrameBuffers.size());
     for (auto &swapChainFrameBuffer : m_swapChainFrameBuffers) {
@@ -64,31 +67,33 @@ const std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>> Vulkan
 void VulkanCore::VSwapChain::ChooseExtent() {
     Utils::Logger::LogInfoVerboseOnly("Choosing right extend...");
     auto capabilities = m_device.GetPhysicalDevice().getSurfaceCapabilitiesKHR(m_instance.GetSurface());
-    if(capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         m_extent = capabilities.currentExtent;
         Utils::Logger::LogInfoVerboseOnly("Going to use default swap chain extend");
         return;
     }
 
-    vk::Extent2D acctualExtend ={
+    vk::Extent2D acctualExtend = {
         static_cast<uint32_t>(WindowManager::GetWindowWidth()),
         static_cast<uint32_t>(WindowManager::GetWindowHeight()),
     };
 
     acctualExtend.width = std::clamp(acctualExtend.width, capabilities.minImageExtent.width,
-                                        capabilities.maxImageExtent.width);
+                                     capabilities.maxImageExtent.width);
     acctualExtend.height = std::clamp(acctualExtend.height, capabilities.minImageExtent.height,
                                       capabilities.maxImageExtent.height);
 
     m_extent = acctualExtend;
-    Utils::Logger::LogInfoVerboseOnly("Current extend of the window is going ot be set \n \t Width:: " + std::to_string(acctualExtend.width) + "\n"  + "\tHeight:: " + std::to_string(acctualExtend.height));
+    Utils::Logger::LogInfoVerboseOnly(
+        "Current extend of the window is going ot be set \n \t Width:: " + std::to_string(acctualExtend.width) + "\n" +
+        "\tHeight:: " + std::to_string(acctualExtend.height));
 }
 
 void VulkanCore::VSwapChain::ChooseFormat() {
     Utils::Logger::LogInfoVerboseOnly("Choosing surface format...");
     auto availableFormats = m_device.GetPhysicalDevice().getSurfaceFormatsKHR(m_instance.GetSurface());
-    for(auto &format: availableFormats) {
-        if(format.format == vk::Format::eB8G8R8A8Srgb && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
+    for (auto &format : availableFormats) {
+        if (format.format == vk::Format::eB8G8R8A8Srgb && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
             m_format = format;
             break;
         }
@@ -100,8 +105,8 @@ void VulkanCore::VSwapChain::ChooseFormat() {
 void VulkanCore::VSwapChain::ChoosePresentMode() {
     Utils::Logger::LogInfoVerboseOnly("Choosing surface present mode...");
     auto availablePresentModes = m_device.GetPhysicalDevice().getSurfacePresentModesKHR(m_instance.GetSurface());
-    for(auto &presentMode: availablePresentModes) {
-        if(presentMode == vk::PresentModeKHR::eMailbox) {
+    for (auto &presentMode : availablePresentModes) {
+        if (presentMode == vk::PresentModeKHR::eMailbox) {
             m_presentMode = presentMode;
             break;
         }
@@ -116,7 +121,7 @@ void VulkanCore::VSwapChain::CreateSwapChain() {
     auto capabilites = m_device.GetPhysicalDevice().getSurfaceCapabilitiesKHR(m_instance.GetSurface());
     auto minImageCount = capabilites.minImageCount + 1;
 
-    if(capabilites.maxImageCount > 0 && minImageCount > capabilites.maxImageCount) {
+    if (capabilites.maxImageCount > 0 && minImageCount > capabilites.maxImageCount) {
         minImageCount = capabilites.maxImageCount;
     }
 
@@ -135,15 +140,17 @@ void VulkanCore::VSwapChain::CreateSwapChain() {
     swapChainCreateInfo.clipped = VK_TRUE;
     swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    std::vector<uint32_t> queueFamilyIndices = {m_device.GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_GRAPHICS), m_device.GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_PRESENT)};
+    std::vector<uint32_t> queueFamilyIndices = {m_device.GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_GRAPHICS),
+                                                m_device.GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_PRESENT)};
 
     //graphics vs transfer
-    if(queueFamilyIndices[0] == queueFamilyIndices[1]) {
+    if (queueFamilyIndices[0] == queueFamilyIndices[1]) {
         swapChainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;
         swapChainCreateInfo.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size());
-        swapChainCreateInfo.pQueueFamilyIndices =  queueFamilyIndices.data();
+        swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices.data();
 
-    } else {
+    }
+    else {
         swapChainCreateInfo.imageSharingMode = vk::SharingMode::eExclusive;
     }
 
@@ -159,24 +166,32 @@ void VulkanCore::VSwapChain::RetrieveSwapChainImagesAndImageViews() {
     m_images.resize(swapChainImages.size());
     assert(m_images.size() == swapChainImages.size());
     for (size_t i = 0; i < swapChainImages.size(); i++) {
-        m_images[i] = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i], m_extent.width, m_extent.height, 1, m_format.format);
+        m_images[i] = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i], m_extent.width,
+                                                           m_extent.height, 1, m_format.format);
     }
 
     assert(!m_images.empty());
     Utils::Logger::LogSuccess("Retrieved " + std::to_string(m_images.size()) + " swap chain images");
 }
 
-void VulkanCore::VSwapChain::CreateSwapChainFrameBuffers(const VulkanCore::VRenderPass& renderPass) {
+void VulkanCore::VSwapChain::CreateSwapChainFrameBuffers(const VulkanCore::VRenderPass &renderPass) {
     m_swapChainFrameBuffers.resize(m_images.size());
     assert(m_images.size() == m_swapChainFrameBuffers.size());
-    for(size_t i = 0; i < m_images.size(); i++) {
-        std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments = { *m_images[i] };
-        m_swapChainFrameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device,renderPass,attachments, m_extent.width, m_extent.height)  ;
+    std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
+    for (size_t i = 0; i < m_images.size(); i++) {
+        if(m_depthBuffer.has_value()) {
+            m_depthBuffer.value().get().Resize(m_extent.width, m_extent.height);
+            attachments = {*m_images[i], m_depthBuffer.value()};
+        }else {
+            attachments = {*m_images[i]};
+        }
+        m_swapChainFrameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(
+            m_device, renderPass, attachments, m_extent.width, m_extent.height);
     }
 
 }
 
-void VulkanCore::VSwapChain::RecreateSwapChain(const VulkanCore::VRenderPass& renderPass) {
+void VulkanCore::VSwapChain::RecreateSwapChain(const VulkanCore::VRenderPass &renderPass) {
     Utils::Logger::LogInfo("Recreating swap chain...");
     m_device.GetDevice().waitIdle();
 
@@ -192,4 +207,3 @@ void VulkanCore::VSwapChain::RecreateSwapChain(const VulkanCore::VRenderPass& re
 
     Utils::Logger::LogSuccess("Swap chain recreated ");
 };
-

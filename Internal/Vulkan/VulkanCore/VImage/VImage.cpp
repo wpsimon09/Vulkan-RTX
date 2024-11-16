@@ -56,7 +56,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,u
 }
 
 VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t width, uint32_t height, uint32_t mipLevels,
-    vk::Format format, vk::ImageAspectFlags aspecFlags) {
+    vk::Format format, vk::ImageAspectFlags aspecFlags):m_device(device) {
     m_mipLevels = mipLevels;
     m_format = format;
     m_aspectFlags = aspecFlags;
@@ -64,7 +64,21 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t width, ui
     m_width = width;
     m_height = height;
 
+    GenerateImage("");
+    GenerateImageView();
+}
 
+void VulkanCore::VImage::Resize(uint32_t newWidth, uint32_t newHeight)  {
+    m_width = newWidth;
+    m_height = newHeight;
+
+    if(m_isDepthBuffer) {
+        Destroy();
+        GenerateImage("");
+        GenerateImageView();
+    }else {
+        Utils::Logger::LogError("Image is not a depth buffer and can not be resized, for now only the support for the depth buffer is resi");
+    }
 }
 
 void VulkanCore::VImage::Destroy() {
@@ -121,7 +135,12 @@ void VulkanCore::VImage::GenerateImage(std::string path) {
     imageInfo.format = static_cast<VkFormat>(m_format);
     imageInfo.tiling = static_cast<VkImageTiling>(vk::ImageTiling::eOptimal);
     imageInfo.initialLayout = static_cast<VkImageLayout>(vk::ImageLayout::eUndefined);
-    imageInfo.usage = static_cast<VkImageUsageFlags>(vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
+    if(m_aspectFlags & vk::ImageAspectFlagBits::eDepth) {
+        imageInfo.usage = static_cast<VkImageUsageFlags>(vk::ImageUsageFlagBits::eDepthStencilAttachment);
+    }
+    else {
+        imageInfo.usage = static_cast<VkImageUsageFlags>(vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
+    }
     imageInfo.sharingMode  = static_cast<VkSharingMode>(vk::SharingMode::eExclusive);
     imageInfo.samples  = static_cast<VkSampleCountFlagBits>(vk::SampleCountFlagBits::e1);
 
@@ -228,6 +247,10 @@ void VulkanCore::VImage::CopyFromBufferToImage() {
 }
 
 void VulkanCore::VImage::GenerateImageView() {
+    if(m_aspectFlags == vk::ImageAspectFlagBits::eDepth) {
+        m_isDepthBuffer = true;
+    }
+
     vk::ImageViewCreateInfo createInfo{};
     createInfo.image = m_imageVK;
     createInfo.format = m_format;

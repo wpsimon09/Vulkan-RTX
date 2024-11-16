@@ -67,7 +67,7 @@ const vk::GraphicsPipelineCreateInfo VulkanCore::VGraphicsPipeline::GetGraphicsP
     info.pViewportState = &m_viewportState;
     info.pRasterizationState = &m_rasterizer;
     info.pMultisampleState = &m_multisampling;
-    info.pDepthStencilState = nullptr;
+    info.pDepthStencilState = &m_depthStencil;
     info.pColorBlendState = &m_colorBlendState;
     info.pDynamicState = &m_dynamicStateInfo;
     info.layout = m_pipelineLayout;
@@ -174,8 +174,14 @@ void VulkanCore::VGraphicsPipeline::CreateMultisampling() {
 }
 
 void VulkanCore::VGraphicsPipeline::CreateDepthStencil() {
-    m_depthStencil.depthTestEnable = vk::False;
-    m_depthStencil.depthWriteEnable = vk::False;
+    m_depthStencil.depthTestEnable = vk::True;
+    m_depthStencil.depthWriteEnable = vk::True;
+    m_depthStencil.depthCompareOp = vk::CompareOp::eLess;
+    m_depthStencil.depthBoundsTestEnable = vk::False;
+    m_depthStencil.minDepthBounds = 0.0f;
+    m_depthStencil.maxDepthBounds = 1.0f;
+    m_depthStencil.stencilTestEnable = vk::False;
+
 }
 
 void VulkanCore::VGraphicsPipeline::CreateColorBlend() {

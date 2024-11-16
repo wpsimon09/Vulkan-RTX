@@ -20,30 +20,41 @@ namespace VulkanCore
 
 namespace VulkanCore
 {
-    class VImage:public VulkanCore::VObject {
+    class VImage : public VulkanCore::VObject
+    {
     public:
         // creates image and iamge views from existing image, mostly used for retrieving SwapChain images
-        explicit VImage(const VulkanCore::VDevice& device,vk::Image image, int widht, int height, uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
+        explicit VImage(const VulkanCore::VDevice &device, vk::Image image, int widht, int height,
+                        uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Srgb,
+                        vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
 
         // allocates new image from the image on the machine
-        explicit VImage(const VulkanCore::VDevice& device,std::string path,uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
+        explicit VImage(const VulkanCore::VDevice &device, std::string path, uint32_t mipLevels = 1,
+                        vk::Format format = vk::Format::eR8G8B8A8Unorm,
+                        vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
 
         //allocated new image that can be used for depth attachment or for multisample attachment
-        explicit VImage(const VulkanCore::VDevice& device,uint32_t width, uint32_t height,uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eDepth);
+        explicit VImage(const VulkanCore::VDevice &device, uint32_t width, uint32_t height, uint32_t mipLevels = 1,
+                        vk::Format format = vk::Format::eD32Sfloat,
+                        vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eDepth);
+
+        void Resize(uint32_t newWidth, uint32_t newHeight) ;
 
         void Destroy() override;
 
-        void TransitionImageLayout(vk::ImageLayout currentLayout,vk::ImageLayout targetLayout);
+        void TransitionImageLayout(vk::ImageLayout currentLayout, vk::ImageLayout targetLayout);
 
         vk::DescriptorImageInfo GetDescriptorImageInfo(vk::Sampler &sampler);
 
         ~VImage() = default;
+
     private:
-        void GenerateImage(std::string path );
+        void GenerateImage(std::string path);
         void CopyFromBufferToImage();
         void GenerateImageView();
+
     private:
-        const VulkanCore::VDevice& m_device;
+        const VulkanCore::VDevice &m_device;
 
         VkImage m_imageVMA;
         vk::Image m_imageVK;
@@ -56,6 +67,7 @@ namespace VulkanCore
         std::unique_ptr<VulkanCore::VBuffer> m_stagingBufferWithPixelData;
         vk::Sampler m_imageSampler;
         VmaAllocation m_imageAllocation;
+        bool m_isDepthBuffer;
 
         uint32_t m_mipLevels;
         bool isSwapChainImage = false;
@@ -64,13 +76,15 @@ namespace VulkanCore
         std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCommandBuffer;
 
     public:
-        const bool& GetIsSwapChainImage() const {return isSwapChainImage;};
+        const bool &GetIsSwapChainImage() const { return isSwapChainImage; };
 
-        [[nodiscard]] const vk::Image & GetImage() const {
+        const bool GetIsDepthBuffer() const { return m_isDepthBuffer; };
+
+        [[nodiscard]] const vk::Image &GetImage() const {
             return m_imageVK;
         }
 
-        [[nodiscard]] const vk::ImageView & GetImageView() const {
+        [[nodiscard]] const vk::ImageView &GetImageView() const {
             return m_imageView;
         }
 
@@ -82,7 +96,7 @@ namespace VulkanCore
             return m_format;
         }
 
-        [[nodiscard]] const vk::ImageAspectFlags & GetAspectFlag() const {
+        [[nodiscard]] const vk::ImageAspectFlags &GetAspectFlag() const {
             return m_aspectFlags;
         }
 
