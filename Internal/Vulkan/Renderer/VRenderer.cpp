@@ -275,6 +275,7 @@ namespace Renderer
         m_baseCommandPool->Destroy();
         m_swapChain->Destroy();
         m_testimg->Destroy();
+        m_depthBuffer->Destroy();
     }
 
 } // Renderer

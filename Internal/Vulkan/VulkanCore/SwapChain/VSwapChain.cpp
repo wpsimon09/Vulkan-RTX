@@ -22,6 +22,7 @@ VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const Vulk
     ChoosePresentMode();
     CreateSwapChain();
     RetrieveSwapChainImagesAndImageViews();
+    m_depthBuffer.value().get().Resize(m_extent.width, m_extent.height);
 }
 
 
@@ -180,7 +181,6 @@ void VulkanCore::VSwapChain::CreateSwapChainFrameBuffers(const VulkanCore::VRend
     std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
     for (size_t i = 0; i < m_images.size(); i++) {
         if(m_depthBuffer.has_value()) {
-            m_depthBuffer.value().get().Resize(m_extent.width, m_extent.height);
             attachments = {*m_images[i], m_depthBuffer.value()};
         }else {
             attachments = {*m_images[i]};
@@ -202,6 +202,7 @@ void VulkanCore::VSwapChain::RecreateSwapChain(const VulkanCore::VRenderPass &re
     ChoosePresentMode();
     CreateSwapChain();
     RetrieveSwapChainImagesAndImageViews();
+    m_depthBuffer.value().get().Resize(m_extent.width, m_extent.height);
     CreateSwapChainFrameBuffers(renderPass);
 
 
