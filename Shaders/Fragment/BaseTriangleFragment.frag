@@ -10,12 +10,12 @@ layout (location = 4) in vec2 uv;
 
 layout (binding = 2) uniform sampler2D albedoTexture;
 
-float roughness = 0.5;
-float metlaness = 0.2;
+float roughness = 0.4;
+float metlaness = 1.0;
 float ao = 0.7;
 vec3 albedo;
 
-vec3 lightColor = vec3(40.0);
+vec3 lightColor = vec3(4.0);
 
 const float PI = 3.14159265359;
 
@@ -76,6 +76,7 @@ vec3 CalculateIrrandiance(){
 
     albedo = texture(albedoTexture, uv).rgb;
 
+
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metlaness);
 
@@ -106,9 +107,8 @@ vec3 CalculateIrrandiance(){
 
 void main() {
 
-
-    vec3 ambient = vec3(0.4) * ao;
     vec3 color = CalculateIrrandiance();
-    color *= ambient;
+    vec3 ambient = ao * albedo;
+    color += ambient;
     outColor = vec4(color,1.0);
 }

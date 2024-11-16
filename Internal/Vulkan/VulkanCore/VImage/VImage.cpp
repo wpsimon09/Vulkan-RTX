@@ -71,7 +71,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t width, ui
 void VulkanCore::VImage::Resize(uint32_t newWidth, uint32_t newHeight)  {
     m_width = newWidth;
     m_height = newHeight;
-
+    Utils::Logger::LogInfo("Resizing the image...");
     if(m_isDepthBuffer) {
         Destroy();
         GenerateImage("");
