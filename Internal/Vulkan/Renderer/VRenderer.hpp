@@ -68,7 +68,7 @@ namespace Renderer
         // FOR COMMAND BUFFER
         //==================================
         void StartRenderPass();
-        void RecordCommandBuffersForPipelines();
+        void RecordCommandBuffersForPipelines(const vk::Pipeline &pipeline);
         void PushDescriptors();
         void EndRenderPass();
         //====================================
@@ -103,7 +103,7 @@ namespace Renderer
         const VulkanCore::VGraphicsPipeline *m_graphicsPipeline;
 
 
-        std::unique_ptr<class VulkanCore::VImage> m_testimg;
+        std::shared_ptr<class VulkanCore::VImage> m_testimg;
     };
 
 

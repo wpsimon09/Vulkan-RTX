@@ -20,18 +20,18 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, vk::Image image, i
     m_format = format;
     m_aspectFlags = aspecFlags;
 
-    isSwapChainImage = true;
+    m_isSwapChainImage = true;
 
     GenerateImageView();
 }
 
-VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,uint32_t mipLevels, vk::Format format, vk::ImageAspectFlags aspecFlags):
+VulkanCore::VImage::VImage(const VulkanCore::VDevice &device,const  std::string& path,uint32_t mipLevels, vk::Format format, vk::ImageAspectFlags aspecFlags):
         m_device(device){
 
     m_mipLevels = mipLevels;
     m_format = format;
     m_aspectFlags = aspecFlags;
-    isSwapChainImage = false;
+    m_isSwapChainImage = false;
     m_transferCommandBuffer = std::make_unique<VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
 
     // this command buffer will record all commands that are needed for image to be created and execute them all at once
@@ -53,6 +53,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, std::string path,u
     m_stagingBufferWithPixelData->DestroyStagingBuffer();
 
     GenerateImageView();
+    m_isSwapChainImage = true;
 }
 
 VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t width, uint32_t height, uint32_t mipLevels,
@@ -60,7 +61,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t width, ui
     m_mipLevels = mipLevels;
     m_format = format;
     m_aspectFlags = aspecFlags;
-    isSwapChainImage = false;
+    m_isSwapChainImage = false;
     m_width = width;
     m_height = height;
 
@@ -76,6 +77,7 @@ void VulkanCore::VImage::Resize(uint32_t newWidth, uint32_t newHeight)  {
         Destroy();
         GenerateImage("");
         GenerateImageView();
+        Utils::Logger::LogSuccess("Image resizeed !");
     }else {
         Utils::Logger::LogError("Image is not a depth buffer and can not be resized, for now only the support for the depth buffer is resi");
     }
@@ -83,7 +85,7 @@ void VulkanCore::VImage::Resize(uint32_t newWidth, uint32_t newHeight)  {
 
 void VulkanCore::VImage::Destroy() {
     m_device.GetDevice().destroyImageView(m_imageView);
-    if(!isSwapChainImage) {
+    if(!m_isSwapChainImage) {
         vmaDestroyImage(m_device.GetAllocator(), m_imageVMA, m_imageAllocation);
     }
     Utils::Logger::LogInfoVerboseOnly(  "Deleted image and its image view");
@@ -92,7 +94,7 @@ void VulkanCore::VImage::Destroy() {
 //------------------------------------------------------------
 // ALLOCATE IMAGE , FILL WITH DATA, MAKE IT SHADER ACCESSIBLE
 //------------------------------------------------------------
-void VulkanCore::VImage::GenerateImage(std::string path) {
+void VulkanCore::VImage::GenerateImage(const std::string& path) {
     Utils::Logger::LogInfoVerboseOnly("Generating image...");
 
     if(!path.empty()) {
@@ -102,8 +104,16 @@ void VulkanCore::VImage::GenerateImage(std::string path) {
 
         if(!pixels) {
             Utils::Logger::LogError("Failed to generate texture at path: \t" + path);
-            return;
+            Utils::Logger::LogInfo("Failing back to the default texture");
+
+            pixels = stbi_load("Resources/DefaultTexture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+            m_imageSize = texWidth * texHeight * 4;
+
+            if(!pixels) {
+                throw std::runtime_error("Fallback to default texture failed, this should never happen !");
+            }
         }
+
         else {
             Utils::Logger::LogInfoVerboseOnly("Image read successfully !");
         }

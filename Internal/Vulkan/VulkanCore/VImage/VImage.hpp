@@ -29,7 +29,7 @@ namespace VulkanCore
                         vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
 
         // allocates new image from the image on the machine
-        explicit VImage(const VulkanCore::VDevice &device, std::string path, uint32_t mipLevels = 1,
+        explicit VImage(const VulkanCore::VDevice &device,const std::string& path, uint32_t mipLevels = 1,
                         vk::Format format = vk::Format::eR8G8B8A8Unorm,
                         vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
 
@@ -44,12 +44,14 @@ namespace VulkanCore
 
         void TransitionImageLayout(vk::ImageLayout currentLayout, vk::ImageLayout targetLayout);
 
+        bool IsValid() const {return m_isValid;}
+
         vk::DescriptorImageInfo GetDescriptorImageInfo(vk::Sampler &sampler);
 
         ~VImage() = default;
 
     private:
-        void GenerateImage(std::string path);
+        void GenerateImage(const std::string& path);
         void CopyFromBufferToImage();
         void GenerateImageView();
 
@@ -64,19 +66,22 @@ namespace VulkanCore
         vk::ImageAspectFlags m_aspectFlags;
         vk::DeviceSize m_imageSize;
         vk::ImageLayout m_imageLayout;
-        std::unique_ptr<VulkanCore::VBuffer> m_stagingBufferWithPixelData;
         vk::Sampler m_imageSampler;
         VmaAllocation m_imageAllocation;
-        bool m_isDepthBuffer;
+
 
         uint32_t m_mipLevels;
-        bool isSwapChainImage = false;
         int m_width, m_height;
 
+        bool m_isDepthBuffer;
+        bool m_isSwapChainImage = false;
+        bool m_isValid = false;
+
+        std::unique_ptr<VulkanCore::VBuffer> m_stagingBufferWithPixelData;
         std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCommandBuffer;
 
     public:
-        const bool &GetIsSwapChainImage() const { return isSwapChainImage; };
+        const bool &GetIsSwapChainImage() const { return m_isSwapChainImage; };
 
         const bool GetIsDepthBuffer() const { return m_isDepthBuffer; };
 

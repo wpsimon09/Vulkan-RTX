@@ -4,14 +4,22 @@
 
 #include "AssetsManager.hpp"
 
+#include <mutex>
+#include <shared_mutex>
+#include <thread>
+#include <future>
+
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage.hpp"
+
 namespace ApplicationCore
 {
     AssetsManager::AssetsManager(const VulkanCore::VDevice &device):
-        m_device(device) {
+        m_device(device){
+        m_defaultTexture = std::make_shared<VulkanCore::VImage>(m_device,"Resources/DefaultTexture.jpg");
     }
 
     void AssetsManager::DeleteAll() {
@@ -61,6 +69,22 @@ namespace ApplicationCore
             return *inserted.first->second;
         }
     }
+
+    std::shared_ptr<VulkanCore::VImage> AssetsManager::GetTexture(const std::string &path) {
+            std::shared_lock<std::shared_mutex> lock(m_mutex);
+            if (m_textures.contains(path)) {
+                return m_textures[path];
+            }
+            else {
+                m_textures[path] = LoadTexture(path);
+                return m_textures[path];
+            }
+    }
+
+    std::shared_ptr<VulkanCore::VImage> AssetsManager::LoadTexture(const std::string &path) {
+        return std::make_shared<VulkanCore::VImage>(m_device, path);
+    }
+
 }
 
 // ApplicationCore

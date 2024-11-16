@@ -83,8 +83,20 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
                                              basicPipelineFragmentShaderSource);
     auto basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_baseShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
     basicPipeline->Init();
-    basicPipeline->SetPipelineType(PIPELINE_TYPE_RASTER_BASIC);
-    m_pipelines.insert(std::make_pair(PIPELINE_TYPE_RASTER_BASIC, std::move(basicPipeline)));
+    basicPipeline->SetPipelineType(PIPELINE_TYPE_RASTER_PBR_TEXTURED);
+    m_pipelines.insert(std::make_pair(PIPELINE_TYPE_RASTER_PBR_TEXTURED, std::move(basicPipeline)));
+
+    basicPipelineShaderVertexSource = "Shaders/Compiled/BaseTriangleVertex.spv";
+    basicPipelineFragmentShaderSource = "Shaders/Compiled/GGXColorFragment.spv";
+    m_baseShader = std::make_unique<VShader>(m_device, basicPipelineShaderVertexSource,
+                                             basicPipelineFragmentShaderSource);
+    basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_baseShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
+    basicPipeline->Init();
+    basicPipeline->SetPipelineType(PIPELINE_TYPE_RASTER_PBR_COLOURED);
+    m_pipelines.insert(std::make_pair(PIPELINE_TYPE_RASTER_PBR_COLOURED, std::move(basicPipeline)));
+
+
+
 }
 
 

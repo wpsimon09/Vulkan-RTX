@@ -21,12 +21,12 @@ void Client::Init() {
     assert(m_assetsManager);
     m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, *m_assetsManager));
     m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, *m_assetsManager));
-    m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_TRIANGLE, *m_assetsManager));
+    m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, *m_assetsManager));
     m_meshes[1]->GetTransformations().SetPosition(20.0f, -4.0f, 0.0f);
     m_meshes[1]->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
     m_meshes[0]->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
     m_meshes[2]->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
-    m_meshes[2]->GetTransformations().SetPosition(-10.0f, -4.0f, 0.0f);
+    m_meshes[2]->GetTransformations().SetPosition(-10.0f, -14.0f, 0.0f);
     assert(!m_meshes.empty());
 
     Utils::Logger::LogInfoVerboseOnly("Creating camera...");

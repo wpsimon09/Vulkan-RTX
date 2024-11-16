@@ -13,6 +13,7 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Application/Client.hpp"
+#include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
@@ -46,13 +47,13 @@ namespace Renderer
             device, *m_swapChain, *m_mainRenderPass, m_pushDescriptorSetManager);
         m_pipelineManager->InstantiatePipelines();
         m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
-        m_graphicsPipeline = &m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_BASIC);
+        m_graphicsPipeline = &m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
 
         CreateTemplateEntries();
         m_pushDescriptorSetManager.CreateUpdateTemplate(*m_graphicsPipeline);
-        m_testimg = std::make_unique<VulkanCore::VImage>(m_device, "/home/wpsimon09/Desktop/Textures/tiles/albedo.png");
+        m_testimg = m_client.GetAssetsManager().GetTexture("/home/wpsimon09/Desktop/Textures/susko.jpg");
     }
 
     void VRenderer::Render() {
@@ -65,7 +66,12 @@ namespace Renderer
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
         m_baseCommandBuffers[m_currentFrameIndex]->Reset();
         m_uniformBufferManager.UpdateAllUniformBuffers(m_currentFrameIndex);
-        RecordCommandBuffersForPipelines();
+        m_baseCommandBuffers[m_currentFrameIndex]->BeginRecording();
+        StartRenderPass();
+        //RecordCommandBuffersForPipelines(m_graphicsPipeline->GetPipelineInstance());
+        RecordCommandBuffersForPipelines(m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_COLOURED).GetPipelineInstance());
+        EndRenderPass();
+        m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
         SubmitCommandBuffer();
         PresentResults();
         m_currentFrameIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
@@ -106,11 +112,9 @@ namespace Renderer
             &renderPassBeginInfo, vk::SubpassContents::eInline);
     }
 
-    void VRenderer::RecordCommandBuffersForPipelines() {
-        m_baseCommandBuffers[m_currentFrameIndex]->BeginRecording();
-        StartRenderPass();
+    void VRenderer::RecordCommandBuffersForPipelines(const vk::Pipeline &pipeline) {
         m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindPipeline(
-            vk::PipelineBindPoint::eGraphics, m_graphicsPipeline->GetPipelineInstance());
+            vk::PipelineBindPoint::eGraphics, pipeline);
         vk::Viewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
@@ -135,31 +139,34 @@ namespace Renderer
 
         m_pushDescriptorSetManager.GetDescriptorSetDataStruct().albedoTextureImage = m_testimg->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-        for (int i = 0; i < m_client.GetMeshes().size(); i++) {
+        // for each mesh
+        for (int i = 0; i < m_client.GetMeshes().size(); i++)
+        {
+            if(i>1) {
+                m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindPipeline(
+            vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED).GetPipelineInstance());
+            }
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().meshUBBOBuffer = m_uniformBufferManager.
                 GetPerObjectDescriptorBufferInfo(i)[m_currentFrameIndex];
 
-        const auto &mesh = m_client.GetMeshes()[i].get();
-        std::vector<vk::Buffer> vertexBuffers = {mesh.GetVertexArray()->GetVertexBuffer().GetBuffer()};
-        std::vector<vk::DeviceSize> offsets = {0};
+            const auto &mesh = m_client.GetMeshes()[i].get();
+            std::vector<vk::Buffer> vertexBuffers = {mesh.GetVertexArray()->GetVertexBuffer().GetBuffer()};
+            std::vector<vk::DeviceSize> offsets = {0};
 
-        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindIndexBuffer(
-            mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),
-            0,
-            vk::IndexType::eUint32);
+            m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindIndexBuffer(
+                mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),
+                0,
+                vk::IndexType::eUint32);
 
-        m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindVertexBuffers(
-            0, 1,
-            vertexBuffers.data(),
-            offsets.data());
+            m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindVertexBuffers(
+                0, 1,
+                vertexBuffers.data(),
+                offsets.data());
 
-            PushDescriptors();
-            m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(
-                m_client.GetMeshes()[i].get().GetMeshIndexCount(), 1, 0, 0, 0);
+                PushDescriptors();
+                m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(
+                    m_client.GetMeshes()[i].get().GetMeshIndexCount(), 1, 0, 0, 0);
         }
-
-        EndRenderPass();
-        m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
     }
 
     void VRenderer::PushDescriptors() {
