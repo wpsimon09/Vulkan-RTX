@@ -4,10 +4,12 @@
 
 #ifndef ASSETSMANAGER_HPP
 #define ASSETSMANAGER_HPP
+#include <future>
 #include <map>
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
+#include <unordered_map>
 
 #include "Application/Enums/ClientEnums.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
@@ -35,15 +37,17 @@ public:
     ~AssetsManager() = default;
 
 private:
-    std::shared_ptr<VulkanCore::VImage>LoadTexture(const std::string& path);
+    void StartLoadingTexture(const std::string& path);
 
     const VulkanCore::VDevice& m_device;
     std::map<MESH_GEOMETRY_TYPE, std::unique_ptr<VertexArray>> m_meshData;
-    std::map<std::string, std::shared_ptr<VulkanCore::VImage>> m_textures;
 
-    std::shared_mutex m_mutex;
+    std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_textures; //access only from main thread
+    std::unordered_map<std::string, std::future<std::shared_ptr<VulkanCore::VImage>>> m_texturesToLoad; // accessed only from loading thread
 
-    std::weak_ptr<VulkanCore::VImage> m_defaultTexture;
+    std::mutex m_mutex;
+
+    std::shared_ptr<VulkanCore::VImage> m_defaultTexture;
 
 };
 
