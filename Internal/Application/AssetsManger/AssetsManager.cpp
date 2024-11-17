@@ -77,14 +77,16 @@ namespace ApplicationCore
 
     std::shared_ptr<VulkanCore::VImage> AssetsManager::GetTexture(const std::string &path) {
             std::lock_guard<std::mutex> lock(m_mutex);
-            if (m_textures.contains(path) || !m_textures.contains(path)) {
+            if (m_textures.contains(path)) {
                 return m_textures[path];
             }else {
-                StartLoadingTexture(path);
-                m_textures[path] = m_defaultTexture;
-            }
+                if(!m_texturesToLoad.contains(path)) {
+                    StartLoadingTexture(path);
+                    m_textures[path] = m_defaultTexture;
+                }
 
-            return m_textures[path]; ;
+                return m_textures[path]; ;
+            }
     }
 
     bool AssetsManager::Sync() {

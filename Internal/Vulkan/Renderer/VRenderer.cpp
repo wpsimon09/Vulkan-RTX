@@ -75,9 +75,7 @@ namespace Renderer
         m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
         SubmitCommandBuffer();
         PresentResults();
-        if(m_client.GetAssetsManager().Sync()) {
-            m_testimg = m_client.GetAssetsManager().GetTexture(m_testimg->GetPath());
-        }
+        m_client.GetAssetsManager().Sync();
         m_currentFrameIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }
 
