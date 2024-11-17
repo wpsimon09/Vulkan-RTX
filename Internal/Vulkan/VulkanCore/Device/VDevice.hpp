@@ -61,6 +61,8 @@ namespace VulkanCore
         const uint32_t& GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
         const std::string GetQueueFamilyString(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
 
+        mutable std::mutex DeviceMutex;
+
         virtual void Destroy() override;
 
         vk::DispatchLoaderDynamic DispatchLoader;

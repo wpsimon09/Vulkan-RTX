@@ -34,6 +34,8 @@ public:
     VertexArray& GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType);
     std::shared_ptr<VulkanCore::VImage> GetTexture(const std::string& path);
 
+    bool Sync();
+
     ~AssetsManager() = default;
 
 private:

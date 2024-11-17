@@ -76,13 +76,33 @@ namespace ApplicationCore
     }
 
     std::shared_ptr<VulkanCore::VImage> AssetsManager::GetTexture(const std::string &path) {
-            if (m_textures.contains(path)) {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            if (m_textures.contains(path) || !m_textures.contains(path)) {
                 return m_textures[path];
+            }else {
+                StartLoadingTexture(path);
+                m_textures[path] = m_defaultTexture;
             }
-            StartLoadingTexture(path);
-            m_textures[path] = m_defaultTexture;
 
             return m_textures[path]; ;
+    }
+
+    bool AssetsManager::Sync() {
+        if(!m_texturesToLoad.empty()) {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            for (auto it = m_texturesToLoad.begin(); it != m_texturesToLoad.end();) {
+                if (it->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+                    Utils::Logger::LogSuccess("Texture image loaded, swapping default texture for the loaded texture");
+                    m_textures[it->first] = it->second.get();
+                    it = m_texturesToLoad.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+            return true;
+        }
+        Utils::Logger::LogInfoVerboseRendering("Nothing to sync...");
+        return false;
     }
 
 
@@ -90,10 +110,8 @@ namespace ApplicationCore
         auto texture = std::async([this, path]() {
            return std::make_shared<VulkanCore::VImage>(m_device, path);
         });
-        m_textures[path] = texture.get();
+        m_texturesToLoad[path] = std::move(texture);
     }
 }
-
-
 
 // ApplicationCore

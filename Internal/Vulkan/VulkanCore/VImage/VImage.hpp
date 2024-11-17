@@ -46,6 +46,8 @@ namespace VulkanCore
 
         bool IsValid() const {return m_isValid;}
 
+        std::string GetPath() {return m_path;}
+
         vk::DescriptorImageInfo GetDescriptorImageInfo(vk::Sampler &sampler);
 
         ~VImage() = default;
@@ -76,6 +78,8 @@ namespace VulkanCore
         bool m_isDepthBuffer;
         bool m_isSwapChainImage = false;
         bool m_isValid = false;
+
+        std::string m_path;
 
         std::unique_ptr<VulkanCore::VBuffer> m_stagingBufferWithPixelData;
         std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCommandBuffer;

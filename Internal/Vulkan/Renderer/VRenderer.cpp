@@ -33,7 +33,7 @@
 namespace Renderer
 {
 
-    VRenderer::VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
+    VRenderer:: VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
                          const Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager,
                          VulkanUtils::VPushDescriptorManager &pushDescriptorSetManager):
         m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager),
@@ -57,6 +57,7 @@ namespace Renderer
     }
 
     void VRenderer::Render() {
+        std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
         //rerender the frame if image to present on is out of date
         if (FetchSwapChainImage() == vk::Result::eEventReset) {
@@ -74,6 +75,9 @@ namespace Renderer
         m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
         SubmitCommandBuffer();
         PresentResults();
+        if(m_client.GetAssetsManager().Sync()) {
+            m_testimg = m_client.GetAssetsManager().GetTexture(m_testimg->GetPath());
+        }
         m_currentFrameIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }
 

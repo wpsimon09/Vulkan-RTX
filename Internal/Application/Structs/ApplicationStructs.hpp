@@ -28,6 +28,7 @@ struct CameraUpdateInfo
     }
 
     void Print() const {
+        /**
         std::cout << "===================================================="<<std::endl;
         std::cout << "RotatePolarValue: " << RotatePolarValue << std::endl;
         std::cout << "RotateAzimuthValue: " << RotateAzimuthValue << std::endl;
@@ -35,6 +36,7 @@ struct CameraUpdateInfo
         std::cout << "MoveX: " << MoveX << std::endl;
         std::cout << "MoveY: " << MoveY << std::endl;
         std::cout << "===================================================="<<std::endl;
+         */
     }
 };
 
