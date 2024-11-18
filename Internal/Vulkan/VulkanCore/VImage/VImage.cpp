@@ -37,13 +37,13 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device,const  std::string&
     m_transferCommandBuffer = std::make_unique<VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
     m_path = path;
 
-    // lock the ciritical section
-    std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
-
     // this command buffer will record all commands that are needed for image to be created and execute them all at once
     m_transferCommandBuffer->BeginRecording();
     GenerateImage(path);
 
+
+    // lock the ciritical section
+    std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
     //make buffer layout best for shader to read from
     TransitionImageLayout(vk::ImageLayout::eUndefined,vk::ImageLayout::eTransferDstOptimal);
 
@@ -59,7 +59,6 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device,const  std::string&
     m_stagingBufferWithPixelData->DestroyStagingBuffer();
 
     GenerateImageView();
-    m_isSwapChainImage = true;
 }
 
 VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t width, uint32_t height, uint32_t mipLevels,

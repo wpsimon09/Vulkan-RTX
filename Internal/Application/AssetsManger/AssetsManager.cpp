@@ -92,11 +92,13 @@ namespace ApplicationCore
     bool AssetsManager::Sync() {
         if(!m_texturesToLoad.empty()) {
             std::unique_lock<std::mutex> lock(m_mutex);
+            //for each texture that is being processed by separate thread
             for (auto it = m_texturesToLoad.begin(); it != m_texturesToLoad.end();) {
                 if (it->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
                     Utils::Logger::LogSuccess("Texture image loaded, swapping default texture for the loaded texture");
                     m_textures[it->first] = it->second.get();
-                    it = m_texturesToLoad.erase(it);
+                    m_textures[it->first]->SetIsLoaded(true);
+                    //it = m_texturesToLoad.erase(it);
                 } else {
                     ++it;
                 }

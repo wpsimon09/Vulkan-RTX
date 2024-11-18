@@ -46,6 +46,9 @@ namespace VulkanCore
 
         bool IsValid() const {return m_isValid;}
 
+        bool IsLoaded() const {return m_isLoaded;}
+        void SetIsLoaded(bool status) {m_isLoaded = status;}
+
         std::string GetPath() {return m_path;}
 
         vk::DescriptorImageInfo GetDescriptorImageInfo(vk::Sampler &sampler);
@@ -71,13 +74,13 @@ namespace VulkanCore
         vk::Sampler m_imageSampler;
         VmaAllocation m_imageAllocation;
 
-
         uint32_t m_mipLevels;
         int m_width, m_height;
 
         bool m_isDepthBuffer;
         bool m_isSwapChainImage = false;
         bool m_isValid = false;
+        bool m_isLoaded = false;
 
         std::string m_path;
 

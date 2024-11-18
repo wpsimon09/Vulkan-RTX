@@ -103,7 +103,7 @@ namespace Renderer
         const VulkanCore::VGraphicsPipeline *m_graphicsPipeline;
 
 
-        std::shared_ptr<class VulkanCore::VImage> m_testimg;
+        std::weak_ptr<class VulkanCore::VImage> m_testimg;
     };
 
 

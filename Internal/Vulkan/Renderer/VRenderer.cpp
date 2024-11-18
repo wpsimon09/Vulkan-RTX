@@ -134,12 +134,10 @@ namespace Renderer
         scissors.extent = m_swapChain->GetExtent();
         m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().setScissor(0, 1, &scissors);
 
-
-
         m_pushDescriptorSetManager.GetDescriptorSetDataStruct().cameraUBOBuffer = m_uniformBufferManager.
             GetGlobalBufferDescriptorInfo()[m_currentFrameIndex];
 
-        m_pushDescriptorSetManager.GetDescriptorSetDataStruct().albedoTextureImage = m_testimg->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+        m_pushDescriptorSetManager.GetDescriptorSetDataStruct().albedoTextureImage = m_testimg.lock()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
         // for each mesh
         for (int i = 0; i < m_client.GetMeshes().size(); i++)
@@ -283,7 +281,7 @@ namespace Renderer
         m_pipelineManager->DestroyPipelines();
         m_baseCommandPool->Destroy();
         m_swapChain->Destroy();
-        m_testimg->Destroy();
+        m_testimg.lock()->Destroy();
         m_depthBuffer->Destroy();
     }
 

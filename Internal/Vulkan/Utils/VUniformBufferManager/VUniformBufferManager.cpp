@@ -36,7 +36,7 @@ void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex)
     m_cameraUniform->GetUBOStruct().view = m_client.GetCamera().GetViewMatrix();
     m_cameraUniform->GetUBOStruct().playerPosition = glm::vec4(m_client.GetCamera().GetPosition(),1.0f);
     m_cameraUniform->GetUBOStruct().lightPosition = glm::vec4(2.0f, -90.0f, 10.0f,0.0f);
-    m_cameraUniform->UpdateGPUBuffer(frameIndex);
+    m_cameraUniform->UpdateGPUBuffer(frameIndex);   
 
     for (int i = 0; i< m_client.GetMeshes().size(); i++) {
         m_objectDataUniforms[i]->GetUBOStruct().model = m_client.GetMeshes()[i].get().GetTransformations().GetModelMatrix();
