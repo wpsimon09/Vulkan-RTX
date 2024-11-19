@@ -91,10 +91,14 @@ namespace ApplicationCore
             std::unique_lock<std::mutex> lock(m_mutex);
             //for each texture that is being processed by separate thread
             for (auto it = m_texturesToLoad.begin(); it != m_texturesToLoad.end();) {
-                if (it->second.first.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+                if (it->second->futureImage.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
                     Utils::Logger::LogSuccess("Texture image loaded, swapping default texture for the loaded texture");
-                    m_textures[it->first] = it->second.second;
-                    m_textures[it->first]->SetIsLoaded(true);
+                    m_textures[it->first] = it->second->futureImage.get();
+
+                    // swap the textures here
+                    it->second->image = m_textures[it->first];
+
+                    //m_textures[it->first]->SetIsLoaded(true);
                     it = m_texturesToLoad.erase(it);
                 } else {
                     ++it;
@@ -111,7 +115,11 @@ namespace ApplicationCore
         auto texture = std::async([this, path]() {
            return std::make_shared<VulkanCore::VImage>(m_device, path);
         });
-        m_texturesToLoad[path] = std::make_pair(std::move(texture), texturePtr);
+
+        auto textureToLoad =  std::make_unique<TextureToLoad>(texturePtr);
+        textureToLoad->futureImage = std::move(texture);
+
+        m_texturesToLoad[path] = std::move(textureToLoad);
     }
 }
 

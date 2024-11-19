@@ -27,6 +27,12 @@ namespace VulkanCore
 
 namespace ApplicationCore {
 
+struct TextureToLoad
+{
+    std::shared_ptr<VulkanCore::VImage>& image;
+    std::future<std::shared_ptr<VulkanCore::VImage>> futureImage;
+};
+
 class AssetsManager {
 public:
     AssetsManager(const VulkanCore::VDevice& device);
@@ -40,15 +46,14 @@ public:
     ~AssetsManager() = default;
 
 private:
-    void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texturePtr, const std::string& path);
+
+    void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage> &texturePtr, const std::string& path);
 
     const VulkanCore::VDevice& m_device;
     std::map<MESH_GEOMETRY_TYPE, std::unique_ptr<VertexArray>> m_meshData;
 
     std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_textures; //access only from main thread
-    std::unordered_map<std::string, std::pair<
-        std::future<std::shared_ptr<VulkanCore::VImage>>,std::shared_ptr<VulkanCore::VImage>
-        >> m_texturesToLoad; // accessed only from loading thread
+    std::unordered_map<std::string, std::unique_ptr<TextureToLoad>> m_texturesToLoad; // accessed only from loading thread
 
     std::mutex m_mutex;
 
