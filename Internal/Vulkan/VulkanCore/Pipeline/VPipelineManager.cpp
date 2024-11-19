@@ -36,7 +36,6 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
         graphicsPipelineCreateInfos.emplace_back(pipeline.second->GetGraphicsPipelineCreateInfoStruct());
     }
 
-
     auto createdVkPipelines = m_device.GetDevice().createGraphicsPipelines(nullptr, graphicsPipelineCreateInfos);
 
     assert(createdVkPipelines.value.size() == m_pipelines.size());
@@ -94,8 +93,6 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     basicPipeline->Init();
     basicPipeline->SetPipelineType(PIPELINE_TYPE_RASTER_PBR_COLOURED);
     m_pipelines.insert(std::make_pair(PIPELINE_TYPE_RASTER_PBR_COLOURED, std::move(basicPipeline)));
-
-
 
 }
 

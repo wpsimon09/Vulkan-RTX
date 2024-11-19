@@ -75,18 +75,15 @@ namespace ApplicationCore
         }
     }
 
-    std::shared_ptr<VulkanCore::VImage> AssetsManager::GetTexture(const std::string &path) {
+    void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string &path) {
             std::lock_guard<std::mutex> lock(m_mutex);
-            if (m_textures.contains(path)) {
-                return m_textures[path];
-            }else {
-                if(!m_texturesToLoad.contains(path)) {
-                    StartLoadingTexture(path);
+            if (!m_textures.contains(path)) {
+                if (!m_texturesToLoad.contains(path)) {
+                    StartLoadingTexture(texture, path);
                     m_textures[path] = m_defaultTexture;
                 }
-
-                return m_textures[path]; ;
             }
+            texture = m_textures[path];
     }
 
     bool AssetsManager::Sync() {
@@ -94,11 +91,11 @@ namespace ApplicationCore
             std::unique_lock<std::mutex> lock(m_mutex);
             //for each texture that is being processed by separate thread
             for (auto it = m_texturesToLoad.begin(); it != m_texturesToLoad.end();) {
-                if (it->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+                if (it->second.first.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
                     Utils::Logger::LogSuccess("Texture image loaded, swapping default texture for the loaded texture");
-                    m_textures[it->first] = it->second.get();
+                    m_textures[it->first] = it->second.second;
                     m_textures[it->first]->SetIsLoaded(true);
-                    //it = m_texturesToLoad.erase(it);
+                    it = m_texturesToLoad.erase(it);
                 } else {
                     ++it;
                 }
@@ -110,11 +107,11 @@ namespace ApplicationCore
     }
 
 
-    void AssetsManager::StartLoadingTexture(const std::string &path) {
+    void AssetsManager::StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texturePtr, const std::string &path) {
         auto texture = std::async([this, path]() {
            return std::make_shared<VulkanCore::VImage>(m_device, path);
         });
-        m_texturesToLoad[path] = std::move(texture);
+        m_texturesToLoad[path] = std::make_pair(std::move(texture), texturePtr);
     }
 }
 

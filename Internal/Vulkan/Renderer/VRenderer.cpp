@@ -53,11 +53,12 @@ namespace Renderer
 
         CreateTemplateEntries();
         m_pushDescriptorSetManager.CreateUpdateTemplate(*m_graphicsPipeline);
-        m_testimg = m_client.GetAssetsManager().GetTexture("/home/wpsimon09/Desktop/Textures/susko.jpg");
+        m_client.GetAssetsManager().GetTexture(m_testimg, "/home/wpsimon09/Desktop/Textures/susko.jpg");
     }
 
     void VRenderer::Render() {
         std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
+        m_client.GetAssetsManager().Sync();
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
         //rerender the frame if image to present on is out of date
         if (FetchSwapChainImage() == vk::Result::eEventReset) {
@@ -75,7 +76,6 @@ namespace Renderer
         m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
         SubmitCommandBuffer();
         PresentResults();
-        m_client.GetAssetsManager().Sync();
         m_currentFrameIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }
 
@@ -137,7 +137,7 @@ namespace Renderer
         m_pushDescriptorSetManager.GetDescriptorSetDataStruct().cameraUBOBuffer = m_uniformBufferManager.
             GetGlobalBufferDescriptorInfo()[m_currentFrameIndex];
 
-        m_pushDescriptorSetManager.GetDescriptorSetDataStruct().albedoTextureImage = m_testimg.lock()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+        m_pushDescriptorSetManager.GetDescriptorSetDataStruct().albedoTextureImage = m_testimg->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
         // for each mesh
         for (int i = 0; i < m_client.GetMeshes().size(); i++)
@@ -281,7 +281,6 @@ namespace Renderer
         m_pipelineManager->DestroyPipelines();
         m_baseCommandPool->Destroy();
         m_swapChain->Destroy();
-        m_testimg.lock()->Destroy();
         m_depthBuffer->Destroy();
     }
 

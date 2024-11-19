@@ -32,20 +32,23 @@ public:
     AssetsManager(const VulkanCore::VDevice& device);
     void DeleteAll();
     VertexArray& GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType);
-    std::shared_ptr<VulkanCore::VImage> GetTexture(const std::string& path);
+
+    void GetTexture(std::shared_ptr<VulkanCore::VImage> &texture,const std::string& path);
 
     bool Sync();
 
     ~AssetsManager() = default;
 
 private:
-    void StartLoadingTexture(const std::string& path);
+    void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texturePtr, const std::string& path);
 
     const VulkanCore::VDevice& m_device;
     std::map<MESH_GEOMETRY_TYPE, std::unique_ptr<VertexArray>> m_meshData;
 
     std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_textures; //access only from main thread
-    std::unordered_map<std::string, std::future<std::shared_ptr<VulkanCore::VImage>>> m_texturesToLoad; // accessed only from loading thread
+    std::unordered_map<std::string, std::pair<
+        std::future<std::shared_ptr<VulkanCore::VImage>>,std::shared_ptr<VulkanCore::VImage>
+        >> m_texturesToLoad; // accessed only from loading thread
 
     std::mutex m_mutex;
 
