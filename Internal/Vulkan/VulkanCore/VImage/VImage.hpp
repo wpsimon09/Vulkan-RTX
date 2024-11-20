@@ -5,8 +5,10 @@
 #ifndef VIMAGE_HPP
 #define VIMAGE_HPP
 #include <VMA/vk_mem_alloc.h>
+#include <stb_image/stb_image.h>
 #include <vulkan/vulkan.hpp>
 #include "memory"
+#include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
@@ -28,15 +30,11 @@ namespace VulkanCore
                         uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Srgb,
                         vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
 
-        // allocates new image from the image on the machine
-        explicit VImage(const VulkanCore::VDevice &device,const std::string& path, uint32_t mipLevels = 1,
+        // allocates new image from the image on the machine based on the provided falg it can be frame buffer
+        explicit VImage(const VulkanCore::VDevice &device, uint32_t mipLevels = 1,
                         vk::Format format = vk::Format::eR8G8B8A8Unorm,
                         vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
 
-        //allocated new image that can be used for depth attachment or for multisample attachment
-        explicit VImage(const VulkanCore::VDevice &device, uint32_t width, uint32_t height, uint32_t mipLevels = 1,
-                        vk::Format format = vk::Format::eD32Sfloat,
-                        vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eDepth);
 
         void Resize(uint32_t newWidth, uint32_t newHeight) ;
 
@@ -47,7 +45,10 @@ namespace VulkanCore
         bool IsValid() const {return m_isValid;}
 
         bool IsLoaded() const {return m_isLoaded;}
+
         void SetIsLoaded(bool status) {m_isLoaded = status;}
+
+        void FillWithImageData(GlobalVariables::GlobalStructs::ImageData& imageData);
 
         std::string GetPath() {return m_path;}
 
@@ -56,9 +57,10 @@ namespace VulkanCore
         ~VImage() = default;
 
     private:
-        void GenerateImage(const std::string& path);
+        void GenerateImage();
         void CopyFromBufferToImage();
         void GenerateImageView();
+        void AllocateImage(size_t imageSize);
 
     private:
         const VulkanCore::VDevice &m_device;
@@ -77,15 +79,18 @@ namespace VulkanCore
         uint32_t m_mipLevels;
         int m_width, m_height;
 
+        // boolean flags
         bool m_isDepthBuffer;
         bool m_isSwapChainImage = false;
         bool m_isValid = false;
         bool m_isLoaded = false;
 
+        // path for the future reference
         std::string m_path;
 
         std::unique_ptr<VulkanCore::VBuffer> m_stagingBufferWithPixelData;
         std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCommandBuffer;
+
 
     public:
         const bool &GetIsSwapChainImage() const { return m_isSwapChainImage; };

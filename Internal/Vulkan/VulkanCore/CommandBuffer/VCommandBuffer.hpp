@@ -28,6 +28,7 @@ public:
 
     ~VCommandBuffer() = default;
 private:
+    const VulkanCore::VDevice& m_device;
     const VulkanCore::VCommandPool& m_commandPool;
     bool m_isCurrentlyRecording;
     vk::CommandBuffer m_commandBuffer;

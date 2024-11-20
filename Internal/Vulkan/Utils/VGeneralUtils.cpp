@@ -96,6 +96,31 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffe
     Utils::Logger::LogSuccess("Buffer copy completed !");
 }
 
+GlobalVariables::GlobalStructs::ImageData VulkanUtils::LoadImage(const std::string &path) {
+
+    GlobalVariables::GlobalStructs::ImageData imageData{};
+
+    imageData.pixels = stbi_load(path.c_str(), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha);
+    imageData.size = imageData.widht * imageData.height * 4;
+
+    if (!imageData.pixels) {
+        Utils::Logger::LogError("Failed to generate texture at path: \t" + path);
+        Utils::Logger::LogInfo("Failing back to the default texture");
+
+        imageData.pixels = stbi_load("Resources/DefaultTexture.jpg", &imageData.widht, &imageData.widht, &imageData.widht, STBI_rgb_alpha);
+        imageData.size = imageData.widht * imageData.height * 4;
+
+        if (!imageData.pixels) {
+            throw std::runtime_error("Fallback to default texture failed, this should never happen !");
+        }
+    }else {
+        Utils::Logger::LogSuccess("Image at path:\t" + path + "\n read successfully");
+    }
+
+    return imageData;
+
+}
+
 std::pair<vk::Result, uint32_t> VulkanUtils::SwapChainNextImageKHRWrapper(const VulkanCore::VDevice &device,
                                                                           const VulkanCore::VSwapChain &swapChain, uint64_t timeOut, const VulkanCore::VSyncPrimitive<vk::Semaphore>& semaphore,
                                                                           VulkanCore::VSyncPrimitive<vk::Fence> *fence) {

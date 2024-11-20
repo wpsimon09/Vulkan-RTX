@@ -13,6 +13,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
 namespace ApplicationCore
@@ -98,7 +99,6 @@ namespace ApplicationCore
                     // swap the textures here
                     it->second->image = m_textures[it->first];
 
-                    //m_textures[it->first]->SetIsLoaded(true);
                     it = m_texturesToLoad.erase(it);
                 } else {
                     ++it;
@@ -113,7 +113,7 @@ namespace ApplicationCore
 
     void AssetsManager::StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texturePtr, const std::string &path) {
         auto texture = std::async([this, path]() {
-           return std::make_shared<VulkanCore::VImage>(m_device, path);
+            VulkanUtils::LoadImage()
         });
 
         auto textureToLoad =  std::make_unique<TextureToLoad>(texturePtr);

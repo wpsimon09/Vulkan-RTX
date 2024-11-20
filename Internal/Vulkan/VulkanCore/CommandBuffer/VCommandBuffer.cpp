@@ -12,7 +12,7 @@
 namespace VulkanCore {
 
     VCommandBuffer::VCommandBuffer(const VulkanCore::VDevice &device, const VulkanCore::VCommandPool &commandPool,
-        bool isPrimary):m_commandPool(commandPool) {
+        bool isPrimary):m_device(device), m_commandPool(commandPool) {
         Utils::Logger::LogInfoVerboseOnly(isPrimary ? "Creating primary command buffer..." : "Creating secondary command buffer...");
         vk::CommandBufferAllocateInfo allocInfo{};
         allocInfo.commandBufferCount = 1;
@@ -57,6 +57,7 @@ namespace VulkanCore {
     }
 
     void VCommandBuffer::EndAndFlush(const vk::Queue &queue) {
+        std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
         EndRecording();
         vk::SubmitInfo submitInfo;
         submitInfo.commandBufferCount = 1;
