@@ -20,7 +20,6 @@ namespace ApplicationCore
 {
     AssetsManager::AssetsManager(const VulkanCore::VDevice &device):
         m_device(device) {
-        m_defaultTexture = std::make_shared<VulkanCore::VImage>(m_device, "Resources/DefaultTexture.jpg");
     }
 
     void AssetsManager::DeleteAll() {
@@ -80,8 +79,9 @@ namespace ApplicationCore
             std::lock_guard<std::mutex> lock(m_mutex);
             if (!m_textures.contains(path)) {
                 if (!m_texturesToLoad.contains(path)) {
-                    StartLoadingTexture(texture, path);
-                    m_textures[path] = m_defaultTexture;
+                    //StartLoadingTexture(texture, path);
+                    //m_textures[path] = m_defaultTexture;
+                    m_textures[path] = std::make_shared<VulkanCore::VImage>(m_device);
                 }
             }
             texture = m_textures[path];
@@ -113,11 +113,11 @@ namespace ApplicationCore
 
     void AssetsManager::StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texturePtr, const std::string &path) {
         auto texture = std::async([this, path]() {
-            VulkanUtils::LoadImage()
+            //VulkanUtils::LoadImage()
         });
 
         auto textureToLoad =  std::make_unique<TextureToLoad>(texturePtr);
-        textureToLoad->futureImage = std::move(texture);
+        //textureToLoad->futureImage = std::move(texture);
 
         m_texturesToLoad[path] = std::move(textureToLoad);
     }

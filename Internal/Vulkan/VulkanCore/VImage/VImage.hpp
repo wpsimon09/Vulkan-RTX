@@ -48,7 +48,7 @@ namespace VulkanCore
 
         void SetIsLoaded(bool status) {m_isLoaded = status;}
 
-        void FillWithImageData(GlobalVariables::GlobalStructs::ImageData& imageData);
+        void FillWithImageData(VulkanStrucuts::ImageData& imageData, bool transitionToShaderReadOnly = true);
 
         std::string GetPath() {return m_path;}
 

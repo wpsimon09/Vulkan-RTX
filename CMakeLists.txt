@@ -87,6 +87,7 @@ set(SOURCES
         External/stb_image/stb_image.cpp
         Internal/Vulkan/VulkanCore/Samplers/VSamplers.hpp
         Internal/Vulkan/VulkanCore/Samplers/VSamplers.cpp
+        Internal/Vulkan/Global/VulkanStructs.hpp
 
 )
 

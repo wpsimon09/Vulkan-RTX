@@ -40,7 +40,7 @@ namespace Renderer
         m_pushDescriptorSetManager(pushDescriptorSetManager) {
 
         //resized later in swap chain creation
-        m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, 1);
+        m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth);
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance, *m_depthBuffer);
         m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain, *m_depthBuffer);
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(

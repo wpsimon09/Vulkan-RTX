@@ -11,6 +11,7 @@
 #include <vulkan/vulkan.h>
 
 #include "Vulkan/Global/GlobalStructs.hpp"
+#include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 namespace VulkanCore
@@ -36,7 +37,7 @@ namespace VulkanUtils
 
     void CopyBuffers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size);
 
-    GlobalVariables::GlobalStructs::ImageData LoadImage(const std::string &path);
+    VulkanStrucuts::ImageData LoadImage(const std::string &path);
 
     std::pair<vk::Result, uint32_t> SwapChainNextImageKHRWrapper(const VulkanCore::VDevice& device,const VulkanCore::VSwapChain& swapChain, uint64_t timeOut, const VulkanCore::VSyncPrimitive<vk::Semaphore>& semaphore, VulkanCore::VSyncPrimitive<vk::Fence>* fence);
 
