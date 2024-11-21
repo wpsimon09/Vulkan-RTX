@@ -57,7 +57,6 @@ namespace Renderer
     }
 
     void VRenderer::Render() {
-        std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
         m_client.GetAssetsManager().Sync();
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
         //rerender the frame if image to present on is out of date
@@ -74,6 +73,7 @@ namespace Renderer
         RecordCommandBuffersForPipelines(m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_COLOURED).GetPipelineInstance());
         EndRenderPass();
         m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
+        std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
         SubmitCommandBuffer();
         PresentResults();
         m_currentFrameIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;

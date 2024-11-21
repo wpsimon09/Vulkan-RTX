@@ -112,7 +112,7 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
 
 }
 
-void VulkanCore::VImage::FillWithImageData(VulkanStrucuts::ImageData &imageData, bool transitionToShaderReadOnly,bool destroyCurrentImage) {
+void VulkanCore::VImage::FillWithImageData(const VulkanStrucuts::ImageData& imageData, bool transitionToShaderReadOnly, bool destroyCurrentImage) {
 
     if(destroyCurrentImage)
     {
@@ -145,6 +145,8 @@ void VulkanCore::VImage::FillWithImageData(VulkanStrucuts::ImageData &imageData,
 
     // execute the recorded commands
     m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+
+    m_device.GetTransferQueue().waitIdle();
 }
 
 vk::DescriptorImageInfo VulkanCore::VImage::GetDescriptorImageInfo(vk::Sampler &sampler) {

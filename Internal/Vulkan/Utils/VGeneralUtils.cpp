@@ -4,6 +4,7 @@
 
 #include "VGeneralUtils.hpp"
 
+#include <thread>
 #include <bits/fs_fwd.h>
 
 #include "Application/Logger/Logger.hpp"
@@ -116,6 +117,7 @@ VulkanStrucuts::ImageData VulkanUtils::LoadImage(const std::string &path) {
     }else {
         Utils::Logger::LogSuccess("Image at path:\t" + path + "\n read successfully");
     }
+    std::this_thread::sleep_for(std::chrono::seconds(7));
 
     return imageData;
 
