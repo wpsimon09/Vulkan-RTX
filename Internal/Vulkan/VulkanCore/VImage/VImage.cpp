@@ -42,10 +42,10 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t mipLevels
         dummyImageData.height = 1;
         dummyImageData.widht = 1;
 
-        uint32_t dummyPixels[] = { 0xFFFF69B4 };
+        uint32_t dummyPixels[] = { 0xFFFF69B4, 0xFFFFFFF };
         // dummy data for pink color if proper image is not loaded yet
         dummyImageData.pixels = dummyPixels;
-        FillWithImageData(dummyImageData);
+        FillWithImageData(dummyImageData, true);
         GenerateImageView();
     }
     if(m_aspectFlags & vk::ImageAspectFlagBits::eDepth) {
@@ -112,7 +112,12 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
 
 }
 
-void VulkanCore::VImage::FillWithImageData(VulkanStrucuts::ImageData &imageData, bool transitionToShaderReadOnly) {
+void VulkanCore::VImage::FillWithImageData(VulkanStrucuts::ImageData &imageData, bool transitionToShaderReadOnly,bool destroyCurrentImage) {
+
+    if(destroyCurrentImage)
+    {
+        Resize(imageData.widht, imageData.height);
+    }
 
     m_transferCommandBuffer->BeginRecording();
     // copy pixel data to the staging buffer
@@ -130,7 +135,7 @@ void VulkanCore::VImage::FillWithImageData(VulkanStrucuts::ImageData &imageData,
     TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
     CopyFromBufferToImage();
 
-    if(transitionToShaderReadOnly) {
+    if(!transitionToShaderReadOnly) {
         Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is false, this image will remain in Dst copy layout !");
         m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
         return;
@@ -138,6 +143,7 @@ void VulkanCore::VImage::FillWithImageData(VulkanStrucuts::ImageData &imageData,
     Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is true, executing transition...");
     TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
 
+    // execute the recorded commands
     m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
 }
 
@@ -238,16 +244,10 @@ void VulkanCore::VImage::Resize(uint32_t newWidth, uint32_t newHeight) {
     m_width = newWidth;
     m_height = newHeight;
     Utils::Logger::LogInfo("Resizing the image...");
-    if (m_isDepthBuffer) {
         Destroy();
         AllocateImage(m_imageSize);
         GenerateImageView();
-        Utils::Logger::LogSuccess("Image resizeed !");
-    }
-    else {
-        Utils::Logger::LogError(
-            "Image is not a depth buffer and can not be resized, for now this function only supports the depth buffer");
-    }
+        Utils::Logger::LogSuccess("Image resized, its data will not be preserved to preserve data call FillImageWithData() !");
 }
 
 void VulkanCore::VImage::Destroy() {

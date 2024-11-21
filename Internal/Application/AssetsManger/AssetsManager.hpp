@@ -27,11 +27,6 @@ namespace VulkanCore
 
 namespace ApplicationCore {
 
-struct TextureToLoad
-{
-    std::shared_ptr<VulkanCore::VImage>& image;
-    std::future<std::shared_ptr<VulkanCore::VImage>> futureImage;
-};
 
 class AssetsManager {
 public:
@@ -53,7 +48,7 @@ private:
     std::map<MESH_GEOMETRY_TYPE, std::unique_ptr<VertexArray>> m_meshData;
 
     std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_textures; //access only from main thread
-    std::unordered_map<std::string, std::unique_ptr<TextureToLoad>> m_texturesToLoad; // accessed only from loading thread
+    std::unordered_map<std::string, std::future<VulkanStrucuts::ImageData>> m_texturesToLoad; // accessed only from loading thread
 
     std::mutex m_mutex;
 

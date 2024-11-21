@@ -29,7 +29,6 @@ namespace ApplicationCore
         for (auto &texture : m_textures) {
             texture.second->Destroy();
         }
-        m_defaultTexture->Destroy();
     }
 
     VertexArray &AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) {
@@ -113,13 +112,13 @@ namespace ApplicationCore
 
     void AssetsManager::StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texturePtr, const std::string &path) {
         auto texture = std::async([this, path]() {
-            //VulkanUtils::LoadImage()
+            return VulkanUtils::LoadImage(path);
         });
 
         auto textureToLoad =  std::make_unique<TextureToLoad>(texturePtr);
         //textureToLoad->futureImage = std::move(texture);
 
-        m_texturesToLoad[path] = std::move(textureToLoad);
+        m_texturesToLoad[path] = std::move(texture);
     }
 }
 
