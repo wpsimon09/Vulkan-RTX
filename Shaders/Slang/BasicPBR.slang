@@ -23,7 +23,8 @@ struct PermodelData {
     float4x4 normalMatrix;
 };
 
-ParameterBlock<PermodelData> perModelData; 
+[[vk::binding(0,0)]]
+ParameterBlock<PermodelData> perModelData : register(b0); 
 
 
 struct GlobalData {
@@ -33,6 +34,7 @@ struct GlobalData {
     float3 cameraPostiion;
 };
 
+[[vk::binding(0,1)]]
 ParameterBlock<GlobalData> globalData;
 
 [shader("vertex")]
@@ -57,9 +59,4 @@ VertexOutput vertexMain(VertexInput VAO) // input uniform{
     out.vertexData.outPos = mul(viewProj, float4(FragmentWorldPos, 1.0));
 
     return out;
-}
-
-[shader("fragment")]
-float4 framentMain(CoarseVertex coarseVertex: DATA) {
-    return float4(1, 0, 0, 1);
 }
