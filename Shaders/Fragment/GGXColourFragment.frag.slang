@@ -11,6 +11,6 @@ ConstantBuffer<Texture2D> albedo;
 
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn ) :SV_Target {
-    return float4(1.0, 1.0,0.0,1.0); 
+    return float4(fsIn.uv, 0.5,1.0); 
 }
 

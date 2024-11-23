@@ -143,8 +143,8 @@ namespace Renderer
         for (int i = 0; i < m_client.GetMeshes().size(); i++)
         {
             if(i>1) {
-                m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindPipeline(
-            vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED).GetPipelineInstance());
+                /*m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindPipeline(
+            vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED).GetPipelineInstance());*/
             }
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().meshUBBOBuffer = m_uniformBufferManager.
                 GetPerObjectDescriptorBufferInfo(i)[m_currentFrameIndex];

@@ -76,8 +76,8 @@ VulkanCore::VPipelineManager::GetAllPipelines() const {
 
 void VulkanCore::VPipelineManager::GeneratePipelines()  {
 
-    auto basicPipelineShaderVertexSource = "Shaders/Slang/shader.spv";
-    auto basicPipelineFragmentShaderSource = "Shaders/Compiled/BaseTriangleFragment.spv";
+    auto basicPipelineShaderVertexSource = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
+    auto basicPipelineFragmentShaderSource = "Shaders/Compiled/GGXColourFragment.frag.slang.spv";
     m_baseShader = std::make_unique<VShader>(m_device, basicPipelineShaderVertexSource,
                                              basicPipelineFragmentShaderSource);
     auto basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_baseShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
@@ -86,7 +86,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     m_pipelines.insert(std::make_pair(PIPELINE_TYPE_RASTER_PBR_TEXTURED, std::move(basicPipeline)));
 
     //basicPipelineShaderVertexSource = "Shaders/Compiled/shader.spv.spv";
-    basicPipelineFragmentShaderSource = "Shaders/Compiled/GGXColorFragment.spv";
+    basicPipelineFragmentShaderSource = "Shaders/Compiled/GGXColourFragment.frag.slang.spv";
     m_baseShader = std::make_unique<VShader>(m_device, basicPipelineShaderVertexSource,
                                              basicPipelineFragmentShaderSource);
     basicPipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_baseShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());

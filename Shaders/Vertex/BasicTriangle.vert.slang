@@ -17,11 +17,9 @@ struct VertexOutput {
     float4 sv_position : SV_Position;
 }
 
-
-
 struct GlobalData {
-    float4x4 projection;
-    float4x4 view;
+    column_major float4x4 projection;
+    column_major float4x4 view;
     float4 lightPosition;
     float4 cameraPostiion;
 };
@@ -30,16 +28,17 @@ struct GlobalData {
 ConstantBuffer<GlobalData> globalData;
 
 struct PermodelData {
-    float4x4 modelMatrix;
-    float4x4 normalMatrix;
+    column_major float4x4 modelMatrix;
+    column_major float4x4 normalMatrix;
 };
 
 [[vk::binding(1,0)]]
 ConstantBuffer<PermodelData> perModelData ; 
 
 [shader("vertex")]
-VertexOutput vertexMain(VertexInput VAO) // input uniform{
+VertexOutput vertexMain(VertexInput VAO) // VAO input{
 {
+    // sotre for later
     float3 vertexPos = VAO.inPosition;
     float3 normal = VAO.inNormal;
     float2 uv = VAO.inUV;
@@ -53,7 +52,8 @@ VertexOutput vertexMain(VertexInput VAO) // input uniform{
     out.vertexData.lightPos = globalData.lightPosition.xyz;
     out.vertexData.normal = NormalWorldPos;
     out.vertexData.uv = uv;
-    float4x4 viewProj = mul(globalData.projection, globalData.view);
+
+    float4x4 viewProj = mul(globalData.view, globalData.projection);
     out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
 
     return out;
