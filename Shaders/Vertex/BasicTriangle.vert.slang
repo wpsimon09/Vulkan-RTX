@@ -4,7 +4,7 @@ struct VertexInput {
     float2 inUV : UV;
 };
 
-struct CoarseVertex {
+struct FragmentShaderIn {
     float3 normal : OUT_NORMAL;
     float3 cameraPos : OUT_CAM_POS;
     float3 fragPos : OUT_FRAG_POS;
@@ -14,7 +14,7 @@ struct CoarseVertex {
 };
 
 struct VertexOutput {
-    CoarseVertex vertexData : DATA;
+    FragmentShaderIn vertexData : DATA;
     float4 position : SV_Position;
 }
 
@@ -24,7 +24,7 @@ struct PermodelData {
 };
 
 [[vk::binding(0,0)]]
-ParameterBlock<PermodelData> perModelData : register(b0); 
+ConstantBuffer<PermodelData> perModelData ; 
 
 
 struct GlobalData {
@@ -34,8 +34,9 @@ struct GlobalData {
     float3 cameraPostiion;
 };
 
-[[vk::binding(0,1)]]
-ParameterBlock<GlobalData> globalData;
+[[vk::binding(1,0)]]
+ConstantBuffer<GlobalData> globalData;
+
 
 [shader("vertex")]
 VertexOutput vertexMain(VertexInput VAO) // input uniform{
