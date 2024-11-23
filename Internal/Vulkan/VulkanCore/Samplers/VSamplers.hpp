@@ -18,6 +18,8 @@ namespace VulkanCore::VSamplers
     void CreateAllSamplers(const VulkanCore::VDevice& device);
 
     void DestroyAllSamplers(const VulkanCore::VDevice& device);
+
+    void GetSamplerDescriptorInfo(const vk::Sampler &sampler);
 }
 
 #endif //VSAMPLERS_HPP

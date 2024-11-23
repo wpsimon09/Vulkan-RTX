@@ -6,11 +6,22 @@ struct FragmentShaderIn {
     float2 uv : OUT_UV;
 };
 
+struct TextureSampler{
+    Texture2D texture;
+    SamplerState sampler;
+    float4 Sample(float2 uv) {
+        return texture.Sample(sampler, uv);
+    }
+}
+
 [[vk::binding(2,0)]]
-ConstantBuffer<Texture2D> albedo;
+ConstantBuffer<TextureSampler> albedo;
 
 [shader("pixel")]
-float4 fragmentMain(FragmentShaderIn fsIn ) :SV_Target {
-    return float4(fsIn.uv, 0.5,1.0); 
+float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
+    float4 fragColor;
+    fragColor = albedo.Sample(fsIn.uv);
+
+    return fragColor; 
 }
 

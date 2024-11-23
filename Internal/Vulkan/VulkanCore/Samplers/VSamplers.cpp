@@ -46,4 +46,9 @@ namespace VulkanCore::VSamplers
         device.GetDevice().destroySampler(VulkanCore::VSamplers::Sampler2D);
         Utils::Logger::LogSuccess("Sampler destroyed successfully");
     }
+
+    void GetSamplerDescriptorInfo(const vk::Sampler& sampler)
+    {
+
+    }
 }
