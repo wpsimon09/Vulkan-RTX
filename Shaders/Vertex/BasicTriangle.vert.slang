@@ -10,33 +10,32 @@ struct FragmentShaderIn {
     float3 fragPos : OUT_FRAG_POS;
     float3 lightPos : OUT_LIGHT_POS;
     float2 uv : OUT_UV;
-    float4 outPos : SV_Position;
 };
 
 struct VertexOutput {
     FragmentShaderIn vertexData : DATA;
-    float4 position : SV_Position;
+    float4 sv_position : SV_Position;
 }
+
+
+
+struct GlobalData {
+    float4x4 projection;
+    float4x4 view;
+    float4 lightPosition;
+    float4 cameraPostiion;
+};
+
+[[vk::binding(0,0)]]
+ConstantBuffer<GlobalData> globalData;
 
 struct PermodelData {
     float4x4 modelMatrix;
     float4x4 normalMatrix;
 };
 
-[[vk::binding(0,0)]]
-ConstantBuffer<PermodelData> perModelData ; 
-
-
-struct GlobalData {
-    float4x4 projection;
-    float4x4 view;
-    float3 lightPosition;
-    float3 cameraPostiion;
-};
-
 [[vk::binding(1,0)]]
-ConstantBuffer<GlobalData> globalData;
-
+ConstantBuffer<PermodelData> perModelData ; 
 
 [shader("vertex")]
 VertexOutput vertexMain(VertexInput VAO) // input uniform{
@@ -48,16 +47,14 @@ VertexOutput vertexMain(VertexInput VAO) // input uniform{
     float3 FragmentWorldPos = mul(perModelData.modelMatrix, float4(vertexPos, 1.0)).xyz;
     float3 NormalWorldPos = mul(perModelData.normalMatrix, float4(normal, 1.0)).xyz;
 
-    
-
     VertexOutput out;
-    out.vertexData.cameraPos = globalData.cameraPostiion;
+    out.vertexData.cameraPos = globalData.cameraPostiion.xyz;
     out.vertexData.fragPos = FragmentWorldPos;
-    out.vertexData.lightPos = globalData.lightPosition;
+    out.vertexData.lightPos = globalData.lightPosition.xyz;
     out.vertexData.normal = NormalWorldPos;
     out.vertexData.uv = uv;
     float4x4 viewProj = mul(globalData.projection, globalData.view);
-    out.vertexData.outPos = mul(viewProj, float4(FragmentWorldPos, 1.0));
+    out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
 
     return out;
 }
