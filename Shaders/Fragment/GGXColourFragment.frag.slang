@@ -120,8 +120,12 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
     float3 N = normalize(fsIn.normal);
     float3 L = normalize(fsIn.lightPos - fsIn.fragPos);
 
-    let color = brdf.Evaluate(V, L, N) * lightColor;
+    float3 color = brdf.Evaluate(V, L, N) * lightColor;
 
-    return fragColor; 
-}
+    float3 ambient = brdf.albedo * 0.7;
+
+    color += ambient;
+
+    return float4(color.xyz, 1.0);
+}   
 
