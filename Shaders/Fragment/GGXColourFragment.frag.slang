@@ -16,6 +16,8 @@ struct TextureSampler{
     }
 }
 
+
+
 interface IBRDF {
 
     /**
@@ -34,7 +36,7 @@ struct CookTorrence_GGX: IBRDF {
     float metallnes;
     float ao;
 
-    float DistributionGGX(float N, float H)  {
+    float DistributionGGX(float3 N, float3 H)  {
         float a = roughness * roughness;
         float apow = a* a;
         float NdotH = max(dot(N, H), 0.0);
@@ -57,11 +59,44 @@ struct CookTorrence_GGX: IBRDF {
         return num / deonm;
     }
 
-    float GeometryShlickGGX()
+    float GeometrySmith(float3 N, float3 V, float3 L) {
+        float NdotV = max(dot(N, V), 0.0);
+        float ggx2 = GeometryShlickGGX(NdotV);
+
+        float NdotL = max(dot(N, L), 0.0);
+        float ggx1 = GeometryShlickGGX(NdotL);
+
+        return ggx1 * ggx2;
+    }
+
+    float3 FresnelShlick(float cosThete, float3 F0) {
+        return F0 + (1.0 - F0) * pow(1.0 - cosThete, 5.0);
+    }
 
     float3 Evaluate(float3 V, float3 L, float3 N) {
 
-        return 0;
+        float3 F0 = float3(0.04);
+        F0 = lerp(F0, albedo, metallnes);
+        float3 H = normalize(V + L);
+
+        float NDF = DistributionGGX(N, H);
+        float G = GeometrySmith(N, V, L);
+        float3 F = FresnelShlick(max(dot(H, V), 0.0), F0);
+
+        float3 numerator = NDF * G * F;
+
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+
+        float3 specular = numerator/(max(denominator, 0.0));
+
+        float3 ks = F;
+        float3 kd = float3(1.0) - ks;
+
+        kd *= 1.0 - metallnes;
+
+        float NdotL = max(dot(N, L), 0.0);
+
+        return (kd * albedo / PI + specular) * NdotL;
     }
 }
 
@@ -70,8 +105,22 @@ ConstantBuffer<TextureSampler> albedo;
 
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
+
+    float3 lightColor = float3(20.0);
+
     float4 fragColor;
     fragColor = albedo.Sample(fsIn.uv);
+
+    CookTorrence_GGX brdf;
+    brdf.albedo = fragColor.xyz;
+    brdf.roughness = 0.4;
+    brdf.metallnes = 0;
+
+    float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
+    float3 N = normalize(fsIn.normal);
+    float3 L = normalize(fsIn.lightPos - fsIn.fragPos);
+
+    let color = brdf.Evaluate(V, L, N) * lightColor;
 
     return fragColor; 
 }
