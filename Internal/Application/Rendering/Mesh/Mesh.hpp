@@ -10,6 +10,11 @@
 
 namespace ApplicationCore
 {
+    class SceneNode;
+}
+
+namespace ApplicationCore
+{
     class Transformations;
     class AssetsManager;
     class VertexArray;
@@ -35,6 +40,8 @@ namespace ApplicationCore
     private:
         MESH_GEOMETRY_TYPE m_geometryType;
         VertexArray* m_vertexArray;
+
+        friend class ApplicationCore::SceneNode;
     };
 }
 

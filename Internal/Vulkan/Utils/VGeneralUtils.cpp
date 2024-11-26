@@ -97,9 +97,9 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffe
     Utils::Logger::LogSuccess("Buffer copy completed !");
 }
 
-VulkanStrucuts::ImageData VulkanUtils::LoadImage(const std::string &path) {
+VulkanStructs::ImageData VulkanUtils::LoadImage(const std::string &path) {
 
-    VulkanStrucuts::ImageData imageData{};
+    VulkanStructs::ImageData imageData{};
 
     imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load(path.c_str(), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
     imageData.channels = 4;

@@ -8,7 +8,7 @@
 #include <stb_image/stb_image.h>
 #include <vulkan/vulkan.hpp>
 
-namespace VulkanStrucuts
+namespace VulkanStructs
 {
     struct ImageData
     {
@@ -23,17 +23,19 @@ namespace VulkanStrucuts
         }
     };
 
-    struct DrawCall
+    struct DrawCallData
     {
         uint32_t indexCount;
         uint32_t firstIndex;
-
-
+        std::vector<ApplicationCore::Vertex> vertices;
+        std::vector<uint32_t> indices;
+        // material
     };
 
     struct RenderContext
     {
-        std::vector<DrawCall> DrawCalls;
+        // Pipeline
+        std::vector<DrawCallData> DrawCalls;
     };
 }
 

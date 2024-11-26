@@ -37,7 +37,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t mipLevels
     if(aspecFlags & vk::ImageAspectFlagBits::eColor) {
         AllocateImage(0);
         m_isDepthBuffer = false;
-        VulkanStrucuts::ImageData dummyImageData = {};
+        VulkanStructs::ImageData dummyImageData = {};
         dummyImageData.channels = 4;
         dummyImageData.height = 1;
         dummyImageData.widht = 1;
@@ -112,7 +112,7 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
 
 }
 
-void VulkanCore::VImage::FillWithImageData(const VulkanStrucuts::ImageData& imageData, bool transitionToShaderReadOnly, bool destroyCurrentImage) {
+void VulkanCore::VImage::FillWithImageData(const VulkanStructs::ImageData& imageData, bool transitionToShaderReadOnly, bool destroyCurrentImage) {
 
     if(destroyCurrentImage)
     {

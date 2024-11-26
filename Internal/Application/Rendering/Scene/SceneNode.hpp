@@ -7,6 +7,13 @@
 #include <memory>
 #include <vector>
 
+
+namespace VulkanStructs
+{
+    struct DrawCallData;
+    struct RenderContext;
+}
+
 namespace ApplicationCore
 {
     class Transformations;
@@ -23,7 +30,7 @@ namespace ApplicationCore
 
         void Update() const;
 
-        void Render(struct RenderingContext& renderingContext);
+        void Render(std::vector<VulkanStructs::DrawCallData>& renderingContext);
 
     private:
         Transformations& m_transformation;

@@ -7,6 +7,9 @@
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
+#include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/Global/VulkanStructs.hpp"
+
 
 namespace ApplicationCore {
     SceneNode::SceneNode(std::shared_ptr<Mesh> mesh): m_transformation(mesh.get()->GetTransformations())
@@ -56,7 +59,14 @@ namespace ApplicationCore {
 
     }
 
-    void SceneNode::Render(struct RenderingContext& renderingContext)
+    void SceneNode::Render(std::vector<VulkanStructs::DrawCallData>& renderingContext)
     {
+        if(m_mesh)
+        {
+            // populate rendering context data strucutre
+        }
     }
+
+
+
 } // ApplicationCore
