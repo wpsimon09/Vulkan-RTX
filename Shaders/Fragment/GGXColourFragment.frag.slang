@@ -8,13 +8,6 @@ struct FragmentShaderIn {
     float2 uv : OUT_UV;
 };
 
-struct TextureSampler{
-    Texture2D texture;
-    SamplerState sampler;
-    float4 Sample(float2 uv) {
-        return texture.Sample(sampler, uv);
-    }
-}
 
 
 
@@ -87,26 +80,26 @@ struct CookTorrence_GGX: IBRDF {
 
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
 
-        float3 specular = numerator/(max(denominator, 0.0));
+        float3 specular = numerator/(max(denominator, 0.001));
 
         float3 ks = F;
         float3 kd = float3(1.0) - ks;
 
         kd *= 1.0 - metallnes;
 
-        float NdotL = max(dot(N, L), 0.0);
+        float NdotL = max(dot(N, L), 0.000001);
 
         return (kd * albedo / PI + specular) * NdotL;
     }
 }
 
 [[vk::binding(2,0)]]
-ConstantBuffer<TextureSampler> albedo;
+ConstantBuffer<Sampler2D> albedo;
 
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
-    float3 lightColor = float3(20.0);
+    float3 lightColor = float3(10.0);
 
     float4 fragColor;
     fragColor = albedo.Sample(fsIn.uv);
@@ -114,18 +107,20 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
     CookTorrence_GGX brdf;
     brdf.albedo = fragColor.xyz;
     brdf.roughness = 0.4;
-    brdf.metallnes = 0;
+    brdf.metallnes = 0.1;
+    brdf.ao = 1;
 
     float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
     float3 N = normalize(fsIn.normal);
+
     float3 L = normalize(fsIn.lightPos - fsIn.fragPos);
 
     float3 color = brdf.Evaluate(V, L, N) * lightColor;
 
-    float3 ambient = brdf.albedo * 0.7;
+    float3 ambient = brdf.albedo * brdf.ao * 0.8 * max(dot(N, float3(0, 1, 0)), 0.2);;
 
-    color += ambient;
+    float3 finalColor = max(color,float(0.0)) + ambient;
 
-    return float4(color.xyz, 1.0);
+    return float4(finalColor, 1.0);
 }   
 
