@@ -22,6 +22,19 @@ namespace VulkanStrucuts
             stbi_image_free(pixels);
         }
     };
+
+    struct DrawCall
+    {
+        uint32_t indexCount;
+        uint32_t firstIndex;
+
+
+    };
+
+    struct RenderContext
+    {
+        std::vector<DrawCall> DrawCalls;
+    };
 }
 
 #endif //VULKANSTRUCTS_HPP

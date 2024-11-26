@@ -78,7 +78,7 @@ struct CookTorrence_GGX: IBRDF {
 
         float3 numerator = NDF * G * F;
 
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.01);
 
         float3 specular = numerator/(max(denominator, 0.001));
 
@@ -87,7 +87,7 @@ struct CookTorrence_GGX: IBRDF {
 
         kd *= 1.0 - metallnes;
 
-        float NdotL = max(dot(N, L), 0.000001);
+        float NdotL = max(dot(N, L), 0);
 
         return (kd * albedo / PI + specular) * NdotL;
     }
@@ -117,7 +117,7 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     float3 color = brdf.Evaluate(V, L, N) * lightColor;
 
-    float3 ambient = brdf.albedo * brdf.ao * 0.8 * max(dot(N, float3(0, 1, 0)), 0.2);;
+    float3 ambient = brdf.albedo * brdf.ao * 0.8;
 
     float3 finalColor = max(color,float(0.0)) + ambient;
 

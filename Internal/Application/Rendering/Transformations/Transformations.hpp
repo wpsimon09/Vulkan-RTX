@@ -27,7 +27,7 @@ public:
     Transformations(glm::vec3 position, glm::vec3 scale, glm::vec3 rotations);
 
     void ComputeModelMatrix();
-    void ComputeModelMatrix(const glm::mat4 &parentGlobalMatrix);
+    void ComputeModelMatrix(glm::mat4 &parentGlobalMatrix);
 
 
     const glm::vec3 &GetPosition() const;
@@ -44,7 +44,7 @@ public:
 
     bool HasChanged() {return m_isDirty;}
 
-    const glm::mat4 &GetModelMatrix() const {return this->m_modelMatrix;}
+    glm::mat4 &GetModelMatrix() {return m_modelMatrix;}
 
     virtual ~Transformations()=default;
 };

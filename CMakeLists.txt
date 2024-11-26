@@ -88,6 +88,12 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Samplers/VSamplers.hpp
         Internal/Vulkan/VulkanCore/Samplers/VSamplers.cpp
         Internal/Vulkan/Global/VulkanStructs.hpp
+        Internal/Application/Rendering/Material/Material.cpp
+        Internal/Application/Rendering/Material/Material.hpp
+        Internal/Application/Rendering/Scene/Scene.cpp
+        Internal/Application/Rendering/Scene/Scene.hpp
+        Internal/Application/Rendering/Scene/SceneNode.cpp
+        Internal/Application/Rendering/Scene/SceneNode.hpp
 
 )
 

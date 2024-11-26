@@ -47,7 +47,7 @@ void ApplicationCore::Transformations::ComputeModelMatrix() {
 }
 
 
-void ApplicationCore::Transformations::ComputeModelMatrix(const glm::mat4 &parentGlobalMatrix) {
+void ApplicationCore::Transformations::ComputeModelMatrix(glm::mat4 &parentGlobalMatrix)  {
     m_modelMatrix = parentGlobalMatrix * ComputeLocalModelMatrix();
     m_isDirty = false;
 }
