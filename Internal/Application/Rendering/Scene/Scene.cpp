@@ -4,5 +4,46 @@
 
 #include "Scene.hpp"
 
+#include "SceneNode.hpp"
+#include "Application/Enums/ClientEnums.hpp"
+#include "Application/Logger/Logger.hpp"
+#include "Application/Rendering/Camera/Camera.hpp"
+#include "Application/Rendering/Mesh/Mesh.hpp"
+
 namespace ApplicationCore {
+
+    Scene::Scene(AssetsManager& assetsManager): m_assetsManager(assetsManager)
+    {
+    }
+
+    void Scene::Init()
+    {
+        m_root = std::make_unique<SceneNode>();
+        Utils::Logger::LogInfoVerboseOnly("Creating camera...");
+        m_camera = std::make_unique<Camera>();
+        Utils::Logger::LogSuccessClient("Camera creatd");
+    }
+
+    void Scene::Update()
+    {
+    }
+
+    void Scene::BuildDefaultScene()
+    {
+
+        // cube 1
+        auto cube1 =std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, m_assetsManager);
+        cube1->GetTransformations().SetPosition(20.0f, -4.0f, 0.0f);
+        cube1->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
+
+        auto cube2 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, m_assetsManager);
+        cube2->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
+
+        auto cube3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, m_assetsManager);
+        cube3->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
+        cube3->GetTransformations().SetPosition(-10.0f, -14.0f, 0.0f);
+
+
+        m_root->AddChild()
+    }
 } // ApplicationCore

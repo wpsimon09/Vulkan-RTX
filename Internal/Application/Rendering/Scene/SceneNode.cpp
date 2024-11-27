@@ -9,10 +9,11 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
 namespace ApplicationCore {
-    SceneNode::SceneNode(std::shared_ptr<Mesh> mesh): m_transformation(mesh.get()->GetTransformations())
+    SceneNode::SceneNode(std::shared_ptr<Mesh> mesh): m_transformation(mesh ? mesh->GetTransformations() : &m_localTransformation)
     {
         if(mesh)
         {
@@ -24,11 +25,17 @@ namespace ApplicationCore {
         }
     }
 
-    void SceneNode::AddChild(std::shared_ptr<SceneNode> child)
+    SceneNode::SceneNode(): m_transformation(&m_localTransformation)
+    {
+        m_parent = nullptr;
+        m_mesh = nullptr;
+    }
+
+    void SceneNode::AddChild(std::unique_ptr<SceneNode> child)
     {
         if(child)
         {
-            m_children.emplace_back(child);
+            m_children.emplace_back(std::move(child));
             m_isParentNode = true;
         }
         else
@@ -37,7 +44,20 @@ namespace ApplicationCore {
         }
     }
 
-    std::vector<std::shared_ptr<SceneNode>>& SceneNode::GetChildren()
+    void SceneNode::AddChild(std::shared_ptr<Mesh> child)
+    {
+        if(child)
+        {
+            m_children.emplace_back(std::make_unique<SceneNode>(child));
+            m_isParentNode = true;
+        }
+        else
+        {
+            Utils::Logger::LogErrorClient("Failed to add child node, child node is nullptr");
+        }
+    }
+
+    std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildren()
     {
         return m_children;
     }
@@ -46,10 +66,10 @@ namespace ApplicationCore {
     {
         if(m_parent)
         {
-            m_transformation.ComputeModelMatrix(m_parent->m_transformation.GetModelMatrix());
+            m_transformation->ComputeModelMatrix(m_parent->m_transformation->GetModelMatrix());
         }else
         {
-            m_transformation.ComputeModelMatrix();
+            m_transformation->ComputeModelMatrix();
         }
 
         for(auto& child : m_children)
@@ -59,11 +79,17 @@ namespace ApplicationCore {
 
     }
 
-    void SceneNode::Render(std::vector<VulkanStructs::DrawCallData>& renderingContext)
+    void SceneNode::Render(std::vector<VulkanStructs::DrawCallData>& renderingContext) const
     {
         if(m_mesh)
         {
-            // populate rendering context data strucutre
+            VulkanStructs::DrawCallData data{};
+            data.indexBuffer = m_mesh->m_vertexArray->GetIndexBuffer().GetBuffer();
+            data.vertexBuffer = m_mesh->m_vertexArray->GetVertexBuffer().GetBuffer();
+            data.modelMatrix = m_transformation->GetModelMatrix();
+            data.firstIndex = 1;
+            data.indexCount = m_mesh->GetMeshIndexCount();
+            renderingContext.emplace_back(data);
         }
     }
 

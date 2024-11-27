@@ -7,6 +7,8 @@
 #include <memory>
 #include <vector>
 
+#include "Application/Rendering/Transformations/Transformations.hpp"
+
 
 namespace VulkanStructs
 {
@@ -23,20 +25,23 @@ namespace ApplicationCore
     class SceneNode{
     public:
         explicit SceneNode(std::shared_ptr<Mesh> mesh);
+        explicit SceneNode();
 
-        void AddChild(std::shared_ptr<SceneNode> child);
+        void AddChild(std::unique_ptr<SceneNode> child);
+        void AddChild(std::shared_ptr<Mesh> child);
 
-        std::vector<std::shared_ptr<SceneNode>>& GetChildren();
+        std::vector<std::reference_wrapper<SceneNode>> GetChildren();
 
         void Update() const;
 
-        void Render(std::vector<VulkanStructs::DrawCallData>& renderingContext);
+        void Render(std::vector<VulkanStructs::DrawCallData>& renderingContext) const;
 
     private:
-        Transformations& m_transformation;
+        Transformations* m_transformation;
+        Transformations m_localTransformation;
         std::shared_ptr<SceneNode> m_parent;
         std::shared_ptr<Mesh> m_mesh;
-        std::vector<std::shared_ptr<SceneNode>> m_children;
+        std::vector<std::unique_ptr<SceneNode>> m_children;
         bool m_isParentNode = false;
     };
 

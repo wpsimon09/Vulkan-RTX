@@ -8,20 +8,27 @@
 #include <vector>
 
 
+namespace ApplicationCore
+{
+    class AssetsManager;
+}
+
 namespace ApplicationCore {
 
 class Scene {
 public:
-    Scene();
+    Scene(AssetsManager& assetsManager);
 
     void Init();
     void Update();
 
+private:
+    void BuildDefaultScene();
 
 private:
-    std::unique_ptr<class Camera> _m_camera;
+    std::unique_ptr<class Camera> m_camera;
     std::unique_ptr<class SceneNode> m_root;
-    std::vector<std::shared_ptr<class Mesh>> m_meshes;
+    AssetsManager& m_assetsManager;
 };
 
 } // ApplicationCore

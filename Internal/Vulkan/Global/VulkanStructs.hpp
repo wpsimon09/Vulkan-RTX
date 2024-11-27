@@ -25,11 +25,14 @@ namespace VulkanStructs
 
     struct DrawCallData
     {
-        uint32_t indexCount;
-        uint32_t firstIndex;
-        std::vector<ApplicationCore::Vertex> vertices;
-        std::vector<uint32_t> indices;
-        // material
+        uint32_t indexCount = 0;
+        uint32_t firstIndex =0;
+        VkBuffer& vertexBuffer;
+        VkBuffer& indexBuffer;
+        glm::mat4& modelMatrix;
+        uint32_t instanceCount = 1;
+        // material descriptor
+
     };
 
     struct RenderContext
