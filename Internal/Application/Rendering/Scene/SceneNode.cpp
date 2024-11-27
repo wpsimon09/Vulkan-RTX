@@ -59,7 +59,11 @@ namespace ApplicationCore {
 
     std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildren()
     {
-        return m_children;
+        std::vector<std::reference_wrapper<SceneNode>> result;
+        for (auto &child : m_children)
+        {
+            result.emplace_back(std::ref(*child));
+        }
     }
 
     void SceneNode::Update() const
@@ -83,10 +87,10 @@ namespace ApplicationCore {
     {
         if(m_mesh)
         {
-            VulkanStructs::DrawCallData data{};
-            data.indexBuffer = m_mesh->m_vertexArray->GetIndexBuffer().GetBuffer();
-            data.vertexBuffer = m_mesh->m_vertexArray->GetVertexBuffer().GetBuffer();
-            data.modelMatrix = m_transformation->GetModelMatrix();
+            VulkanStructs::DrawCallData data(
+                m_mesh->m_vertexArray->GetVertexBuffer().GetBuffer(),
+                m_mesh->m_vertexArray->GetIndexBuffer().GetBuffer(),
+                m_transformation->GetModelMatrix());
             data.firstIndex = 1;
             data.indexCount = m_mesh->GetMeshIndexCount();
             renderingContext.emplace_back(data);

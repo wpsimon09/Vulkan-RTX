@@ -39,7 +39,7 @@ void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex)
     m_cameraUniform->UpdateGPUBuffer(frameIndex);   
 
     for (int i = 0; i< m_client.GetMeshes().size(); i++) {
-        m_objectDataUniforms[i]->GetUBOStruct().model = m_client.GetMeshes()[i].get().GetTransformations().GetModelMatrix();
+        m_objectDataUniforms[i]->GetUBOStruct().model = m_client.GetMeshes()[i].get().GetTransformations()->GetModelMatrix();
         m_objectDataUniforms[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse(m_objectDataUniforms[i]->GetUBOStruct().model));
         m_objectDataUniforms[i]->UpdateGPUBuffer(frameIndex);
     }

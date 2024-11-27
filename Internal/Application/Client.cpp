@@ -13,6 +13,9 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include <cassert>
 
+#include "Rendering/Scene/SceneNode.hpp"
+#include "Rendering/Scene/Scene.hpp"
+
 
 void Client::Init() {
 
@@ -22,17 +25,19 @@ void Client::Init() {
     m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, *m_assetsManager));
     m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, *m_assetsManager));
     m_meshes.push_back(std::make_unique<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, *m_assetsManager));
-    m_meshes[1]->GetTransformations().SetPosition(20.0f, -4.0f, 0.0f);
-    m_meshes[1]->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
-    m_meshes[0]->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
-    m_meshes[2]->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
-    m_meshes[2]->GetTransformations().SetPosition(-10.0f, -14.0f, 0.0f);
+    m_meshes[1]->GetTransformations()->SetPosition(20.0f, -4.0f, 0.0f);
+    m_meshes[1]->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
+    m_meshes[0]->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
+    m_meshes[2]->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
+    m_meshes[2]->GetTransformations()->SetPosition(-10.0f, -14.0f, 0.0f);
     assert(!m_meshes.empty());
 
     Utils::Logger::LogInfoVerboseOnly("Creating camera...");
     m_camera = std::make_unique<ApplicationCore::Camera>();
     Utils::Logger::LogSuccessClient("Camera creatd");
 
+    m_scene = std::make_unique<ApplicationCore::Scene>(*m_assetsManager);
+    m_scene->Init();
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

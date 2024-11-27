@@ -16,6 +16,11 @@
 
 namespace ApplicationCore
 {
+    class Scene;
+}
+
+namespace ApplicationCore
+{
     class VertexArray;
 }
 

@@ -22,6 +22,8 @@ namespace ApplicationCore {
         Utils::Logger::LogInfoVerboseOnly("Creating camera...");
         m_camera = std::make_unique<Camera>();
         Utils::Logger::LogSuccessClient("Camera creatd");
+
+        BuildDefaultScene();
     }
 
     void Scene::Update()
@@ -33,17 +35,19 @@ namespace ApplicationCore {
 
         // cube 1
         auto cube1 =std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, m_assetsManager);
-        cube1->GetTransformations().SetPosition(20.0f, -4.0f, 0.0f);
-        cube1->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
+        cube1->GetTransformations()->SetPosition(20.0f, -4.0f, 0.0f);
+        cube1->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 
         auto cube2 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, m_assetsManager);
-        cube2->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
+        cube2->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 
         auto cube3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_CUBE, m_assetsManager);
-        cube3->GetTransformations().SetScale(10.0f, 10.0f ,10.0f);
-        cube3->GetTransformations().SetPosition(-10.0f, -14.0f, 0.0f);
+        cube3->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
+        cube3->GetTransformations()->SetPosition(-10.0f, -14.0f, 0.0f);
 
 
-        m_root->AddChild()
+        m_root->AddChild(cube1);
+        m_root->AddChild(cube2);
+        m_root->AddChild(cube3);
     }
 } // ApplicationCore

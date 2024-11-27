@@ -27,12 +27,16 @@ namespace VulkanStructs
     {
         uint32_t indexCount = 0;
         uint32_t firstIndex =0;
-        VkBuffer& vertexBuffer;
-        VkBuffer& indexBuffer;
+        const VkBuffer& vertexBuffer;
+        const VkBuffer& indexBuffer;
         glm::mat4& modelMatrix;
         uint32_t instanceCount = 1;
         // material descriptor
 
+        DrawCallData(const VkBuffer& vertex, const VkBuffer& index, glm::mat4& model): vertexBuffer(vertex), indexBuffer(index), modelMatrix(model)
+        {
+
+        }
     };
 
     struct RenderContext

@@ -29,7 +29,8 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
-
+#include "Application/Rendering/Scene/Scene.hpp"
+#include "Application/Rendering/Scene/SceneNode.hpp"
 
 Application::Application()
 {

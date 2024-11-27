@@ -14,6 +14,7 @@ struct CameraUpdateInfo;
 
 namespace ApplicationCore
 {
+    class Scene;
     class Camera;
 }
 
@@ -41,6 +42,7 @@ private:
     std::unique_ptr<ApplicationCore::AssetsManager> m_assetsManager;
     std::vector<std::unique_ptr<class ApplicationCore::Mesh>> m_meshes;
     std::unique_ptr<ApplicationCore::Camera> m_camera;
+    std::unique_ptr<ApplicationCore::Scene> m_scene;
 };
 
 

@@ -26,7 +26,7 @@ namespace ApplicationCore
         const size_t GetMeshIndexArraySize() const;
         const uint32_t GetMeshIndexCount() const;
         const uint32_t GetMeshVertexCount() const;
-        ApplicationCore::Transformations& GetTransformations() const { return *m_transformations; };
+        ApplicationCore::Transformations* GetTransformations() const { return m_transformations.get(); };
         const VertexArray* GetVertexArray() const {return m_vertexArray;}
 
         void Update();
