@@ -34,10 +34,10 @@ namespace Renderer
 {
 
     VRenderer:: VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
-                         const Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager,
+                        Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager,
                          VulkanUtils::VPushDescriptorManager &pushDescriptorSetManager):
         m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager),
-        m_pushDescriptorSetManager(pushDescriptorSetManager) {
+        m_pushDescriptorSetManager(pushDescriptorSetManager), m_renderContext() {
 
         //resized later in swap chain creation
         m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth);
@@ -58,6 +58,7 @@ namespace Renderer
 
     void VRenderer::Render() {
         m_client.GetAssetsManager().Sync();
+        m_client.Render(m_renderContext.DrawCalls);
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
         //rerender the frame if image to present on is out of date
         if (FetchSwapChainImage() == vk::Result::eEventReset) {

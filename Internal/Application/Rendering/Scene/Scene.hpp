@@ -7,9 +7,12 @@
 #include <memory>
 #include <vector>
 
+#include "Vulkan/Global/VulkanStructs.hpp"
+
 
 namespace ApplicationCore
 {
+    class SceneNode;
     class AssetsManager;
 }
 
@@ -21,13 +24,14 @@ public:
 
     void Init();
     void Update();
+    void Render(std::vector<VulkanStructs::DrawCallData>& ctx,SceneNode& sceneNode = *m_root);
 
 private:
     void BuildDefaultScene();
 
 private:
     std::unique_ptr<class Camera> m_camera;
-    std::unique_ptr<class SceneNode> m_root;
+    inline static std::unique_ptr<class SceneNode> m_root;
     AssetsManager& m_assetsManager;
 };
 

@@ -7,6 +7,7 @@
 
 #include <stb_image/stb_image.h>
 #include <vulkan/vulkan.hpp>
+#include "glm/glm.hpp"
 
 namespace VulkanStructs
 {

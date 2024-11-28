@@ -2,35 +2,46 @@
 // Created by wpsimon09 on 22/09/24.
 //
 
-#include "VulkanRtx.hpp"
-#include <GLFW/glfw3.h>
-#include <chrono>
+    #include "VulkanRtx.hpp"
+    #include <GLFW/glfw3.h>
+    #include <chrono>
 
-#include "Application/Logger/Logger.hpp"
-#include "Application/WindowManager/WindowManager.hpp"
-#include "Vulkan/VulkanCore/Instance/VInstance.hpp"
-#include "Vulkan/VulkanCore/Device/VDevice.hpp"
-#include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
-#include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
-#include "Application/Client.hpp"
-#include "Application/AssetsManger/AssetsManager.hpp"
-#include "Application/Rendering/Mesh/Mesh.hpp"
-#include "Application/VertexArray/VertexArray.hpp"
-#include "Vulkan/Renderer/VRenderer.hpp"
-#include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
-#include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
-#include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
-#include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
-#include "Vulkan/VulkanCore/Shader/VShader.hpp"
-#include "Vulkan/VulkanCore//VImage/VImage.hpp"
-#include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
-#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
-#include "Application/Rendering/Camera/Camera.hpp"
-#include "Application/Rendering/Transformations/Transformations.hpp"
-#include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
-#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
-#include "Application/Rendering/Scene/Scene.hpp"
-#include "Application/Rendering/Scene/SceneNode.hpp"
+    // Application Headers
+    #include "Application/Logger/Logger.hpp"
+    #include "Application/WindowManager/WindowManager.hpp"
+    #include "Application/Client.hpp"
+    #include "Application/AssetsManger/AssetsManager.hpp"
+    #include "Application/Rendering/Mesh/Mesh.hpp"
+    #include "Application/VertexArray/VertexArray.hpp"
+    #include "Application/Rendering/Camera/Camera.hpp"
+    #include "Application/Rendering/Transformations/Transformations.hpp"
+    #include "Application/Rendering/Scene/Scene.hpp"
+    #include "Application/Rendering/Scene/SceneNode.hpp"
+
+    // Vulkan Core
+    #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
+    #include "Vulkan/VulkanCore/Device/VDevice.hpp"
+    #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
+    #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
+    #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
+    #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
+    #include "Vulkan/VulkanCore/Shader/VShader.hpp"
+    #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
+    #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+    #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
+    #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
+    #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
+    #include "Vulkan/VulkanCore/VImage/VImage.hpp"
+
+    // Vulkan Utilities
+    #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
+
+    // Vulkan Renderer
+    #include "Vulkan/Renderer/VRenderer.hpp"
+
+    // Application Entry
+    #include "VulkanRtx.hpp"
+
 
 Application::Application()
 {

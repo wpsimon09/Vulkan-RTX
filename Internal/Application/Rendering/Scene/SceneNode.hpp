@@ -33,9 +33,10 @@ namespace ApplicationCore
         std::vector<std::reference_wrapper<SceneNode>> GetChildren();
 
         void Update() const;
-
         void Render(std::vector<VulkanStructs::DrawCallData>& renderingContext) const;
 
+
+        bool HasMesh() const { return m_hasMesh; }
     private:
         Transformations* m_transformation;
         Transformations m_localTransformation;
@@ -43,6 +44,7 @@ namespace ApplicationCore
         std::shared_ptr<Mesh> m_mesh;
         std::vector<std::unique_ptr<SceneNode>> m_children;
         bool m_isParentNode = false;
+        bool m_hasMesh = false;
     };
 
 }// ApplicationCore

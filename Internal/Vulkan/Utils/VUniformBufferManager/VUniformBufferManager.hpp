@@ -8,6 +8,12 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "UnifromsRegistry.hpp"
 #include "VUniform.hpp"
+
+namespace VulkanStructs
+{
+    struct DrawCallData;
+}
+
 class Client;
 
 namespace VulkanUtils
@@ -17,7 +23,7 @@ namespace VulkanUtils
         VUniformBufferManager(const VulkanCore::VDevice& device, const Client& client);
         const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const; // per frame in flight
         const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const; // per object per frame in flight
-        void UpdateAllUniformBuffers(int frameIndex) const;
+        void UpdateAllUniformBuffers(int frameIndex, std::vector<VulkanStructs::DrawCallData>& drawCalls) const;
         void Destroy() const;
     private:
         void CreateUniforms();

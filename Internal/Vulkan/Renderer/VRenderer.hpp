@@ -10,6 +10,8 @@
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 #include <vulkan/vulkan.hpp>
 
+#include "Vulkan/Global/VulkanStructs.hpp"
+
 namespace VulkanUtils
 {
     class VPushDescriptorManager;
@@ -48,10 +50,10 @@ namespace Renderer
     class VRenderer
     {
     public:
-        VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device, const Client &client,
+        VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device, Client &client,
                   const VulkanUtils::VUniformBufferManager &uniformBufferManager, VulkanUtils::VPushDescriptorManager& pushDescriptorSetManager);
 
-        void Render();
+        void Render() ;
         void Destroy();
         ~VRenderer() = default;
 
@@ -82,7 +84,7 @@ namespace Renderer
         //=====================================
 
     private:
-        const Client &m_client;
+        Client &m_client;
         const VulkanCore::VDevice &m_device;
         const VulkanUtils::VUniformBufferManager &m_uniformBufferManager;
         VulkanUtils::VPushDescriptorManager &m_pushDescriptorSetManager;
@@ -101,7 +103,7 @@ namespace Renderer
         std::vector<std::unique_ptr<class VulkanCore::VCommandBuffer>> m_baseCommandBuffers;
         std::unique_ptr<class VulkanCore::VImage> m_depthBuffer;
         const VulkanCore::VGraphicsPipeline *m_graphicsPipeline;
-
+        VulkanStructs::RenderContext m_renderContext;
 
         std::shared_ptr<class VulkanCore::VImage> m_testimg;
     };

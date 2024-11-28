@@ -10,6 +10,11 @@
 //TODO: this class is going to boot up the client site of the renderer like geometry creation, assets managers and all of that stuff, instance of this will be creatd in VulkaRT
 
 
+namespace VulkanStructs
+{
+    struct DrawCallData;
+}
+
 struct CameraUpdateInfo;
 
 namespace ApplicationCore
@@ -29,6 +34,7 @@ public:
     Client() = default;
     void Init();
     const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> GetMeshes() const;
+    const void Render(std::vector<VulkanStructs::DrawCallData>& ctx);
     const void MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager);
     const void Destroy();
 

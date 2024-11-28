@@ -19,6 +19,7 @@ namespace ApplicationCore {
         {
             m_parent = nullptr;
             m_mesh = mesh;
+            m_hasMesh = true;
         }else
         {
             Utils::Logger::LogErrorClient("Mesh is nullptr, creating scene node with no mesh assigned to it....");
@@ -64,6 +65,8 @@ namespace ApplicationCore {
         {
             result.emplace_back(std::ref(*child));
         }
+
+        return result;
     }
 
     void SceneNode::Update() const

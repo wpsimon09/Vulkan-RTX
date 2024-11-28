@@ -54,6 +54,11 @@ const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> Client::GetMesh
     return result;
 }
 
+const void Client::Render(std::vector<VulkanStructs::DrawCallData>& ctx)
+{
+    m_scene->Render(ctx);
+}
+
 const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager) {
     Utils::Logger::LogInfoClient("Mounting assets manger...");
     m_assetsManager = std::move(assetsManager);
@@ -72,9 +77,7 @@ const void Client::Destroy() {
 
 void Client::Update(CameraUpdateInfo &cameraUpdateInfo) {
     m_camera->Update(cameraUpdateInfo);
-    for (auto &mesh : m_meshes) {
-        mesh->Update();
-    }
+    m_scene->Update();
 }
 
 

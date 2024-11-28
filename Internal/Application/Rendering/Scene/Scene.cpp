@@ -28,6 +28,21 @@ namespace ApplicationCore {
 
     void Scene::Update()
     {
+        m_root->Update();
+    }
+
+    void Scene::Render(std::vector<VulkanStructs::DrawCallData>& ctx,SceneNode& sceneNode )
+    {
+        if (sceneNode.HasMesh())
+        {
+            sceneNode.Render(ctx);
+        }
+
+        for (auto &child : sceneNode.GetChildren())
+        {
+            Render(ctx, child);
+        }
+
     }
 
     void Scene::BuildDefaultScene()
