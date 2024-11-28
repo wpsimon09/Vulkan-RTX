@@ -77,6 +77,7 @@ namespace Renderer
         std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
         SubmitCommandBuffer();
         PresentResults();
+        m_renderContext.DrawCalls.clear();
         m_currentFrameIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }
 

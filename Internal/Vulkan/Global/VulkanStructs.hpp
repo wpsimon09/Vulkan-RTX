@@ -28,8 +28,8 @@ namespace VulkanStructs
     {
         uint32_t indexCount = 0;
         uint32_t firstIndex =0;
-        const VkBuffer& vertexBuffer;
-        const VkBuffer& indexBuffer;
+        VkBuffer vertexBuffer;
+        VkBuffer indexBuffer;
         glm::mat4& modelMatrix;
         uint32_t instanceCount = 1;
         // material descriptor

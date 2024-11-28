@@ -29,6 +29,7 @@ namespace ApplicationCore {
     void Scene::Update()
     {
         m_root->Update();
+        m_root-
     }
 
     void Scene::Render(std::vector<VulkanStructs::DrawCallData>& ctx,SceneNode& sceneNode )
