@@ -67,7 +67,7 @@ namespace Renderer
         }
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
         m_baseCommandBuffers[m_currentFrameIndex]->Reset();
-        m_uniformBufferManager.UpdateAllUniformBuffers(m_currentFrameIndex);
+        m_uniformBufferManager.UpdateAllUniformBuffers(m_currentFrameIndex, m_renderContext.DrawCalls);
         m_baseCommandBuffers[m_currentFrameIndex]->BeginRecording();
         StartRenderPass();
         //RecordCommandBuffersForPipelines(m_graphicsPipeline->GetPipelineInstance());
@@ -141,7 +141,7 @@ namespace Renderer
         m_pushDescriptorSetManager.GetDescriptorSetDataStruct().albedoTextureImage = m_testimg->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
         // for each mesh
-        for (int i = 0; i < m_client.GetMeshes().size(); i++)
+        for (int i = 0; i < m_renderContext.DrawCalls.size(); i++)
         {
             if(i>1) {
                 m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindPipeline(
@@ -150,12 +150,12 @@ namespace Renderer
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().meshUBBOBuffer = m_uniformBufferManager.
                 GetPerObjectDescriptorBufferInfo(i)[m_currentFrameIndex];
 
-            const auto &mesh = m_client.GetMeshes()[i].get();
-            std::vector<vk::Buffer> vertexBuffers = {mesh.GetVertexArray()->GetVertexBuffer().GetBuffer()};
+
+            std::vector<vk::Buffer> vertexBuffers = {m_renderContext.DrawCalls[i].vertexBuffer};
             std::vector<vk::DeviceSize> offsets = {0};
 
             m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindIndexBuffer(
-                mesh.GetVertexArray()->GetIndexBuffer().GetBuffer(),
+                m_renderContext.DrawCalls[i].indexBuffer,
                 0,
                 vk::IndexType::eUint32);
 
@@ -166,7 +166,7 @@ namespace Renderer
 
                 PushDescriptors();
                 m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(
-                    m_client.GetMeshes()[i].get().GetMeshIndexCount(), 1, 0, 0, 0);
+                    m_renderContext.DrawCalls[i].indexCount, 1, 0, 0, 0);
         }
     }
 
