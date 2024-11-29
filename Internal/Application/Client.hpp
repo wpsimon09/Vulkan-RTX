@@ -40,7 +40,8 @@ public:
 
     ApplicationCore::AssetsManager& GetAssetsManager() const {return *m_assetsManager;};
 
-    void Update(CameraUpdateInfo& cameraUpdateInfo);
+    void Update();
+    void UpdateCamera(CameraUpdateInfo& cameraUpdateInfo);
     ~Client() = default;
     const ApplicationCore::Camera& GetCamera() const {return *m_camera;};
 

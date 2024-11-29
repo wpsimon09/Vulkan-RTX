@@ -37,10 +37,11 @@ namespace ApplicationCore
 
 
         bool HasMesh() const { return m_hasMesh; }
-    private:
+    public:
         Transformations* m_transformation;
+    private:
         Transformations m_localTransformation;
-        std::shared_ptr<SceneNode> m_parent;
+        SceneNode* m_parent;
         std::shared_ptr<Mesh> m_mesh;
         std::vector<std::unique_ptr<SceneNode>> m_children;
         bool m_isParentNode = false;

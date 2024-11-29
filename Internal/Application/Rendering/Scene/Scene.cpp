@@ -4,6 +4,8 @@
 
 #include "Scene.hpp"
 
+#include <GLFW/glfw3.h>
+
 #include "SceneNode.hpp"
 #include "Application/Enums/ClientEnums.hpp"
 #include "Application/Logger/Logger.hpp"
@@ -28,8 +30,8 @@ namespace ApplicationCore {
 
     void Scene::Update()
     {
+        m_root->m_transformation->SetRotations(1.0f, glm::degrees(sin(glfwGetTime())), 1.0F);
         m_root->Update();
-        m_root-
     }
 
     void Scene::Render(std::vector<VulkanStructs::DrawCallData>& ctx,SceneNode& sceneNode )
@@ -61,9 +63,13 @@ namespace ApplicationCore {
         cube3->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
         cube3->GetTransformations()->SetPosition(-10.0f, -14.0f, 0.0f);
 
+        auto plane = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_PLANE, m_assetsManager);
+        plane->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
+        plane->GetTransformations()->SetPosition(-10.0f, 24.0f, 0.0f);
 
         m_root->AddChild(cube1);
         m_root->AddChild(cube2);
         m_root->AddChild(cube3);
+        m_root->AddChild(plane);
     }
 } // ApplicationCore

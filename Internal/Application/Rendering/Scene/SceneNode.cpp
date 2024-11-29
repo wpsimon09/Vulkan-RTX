@@ -38,6 +38,7 @@ namespace ApplicationCore {
         {
             m_children.emplace_back(std::move(child));
             m_isParentNode = true;
+            m_parent = this;
         }
         else
         {
@@ -50,6 +51,7 @@ namespace ApplicationCore {
         if(child)
         {
             m_children.emplace_back(std::make_unique<SceneNode>(child));
+            m_parent = this;
             m_isParentNode = true;
         }
         else

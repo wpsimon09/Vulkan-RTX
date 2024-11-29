@@ -64,8 +64,12 @@ const void Client::Destroy() {
     Utils::Logger::LogInfoVerboseOnlyClient("Destroyed client");
 }
 
-void Client::Update(CameraUpdateInfo &cameraUpdateInfo) {
+void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
+{
     m_camera->Update(cameraUpdateInfo);
+}
+
+void Client::Update() {
     m_scene->Update();
 }
 
