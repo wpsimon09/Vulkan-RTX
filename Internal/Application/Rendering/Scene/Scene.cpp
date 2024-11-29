@@ -63,7 +63,7 @@ namespace ApplicationCore {
         cube3->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
         cube3->GetTransformations()->SetPosition(-10.0f, -14.0f, 0.0f);
 
-        auto plane = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_PLANE, m_assetsManager);
+        auto plane = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
         plane->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
         plane->GetTransformations()->SetPosition(-10.0f, 24.0f, 0.0f);
 

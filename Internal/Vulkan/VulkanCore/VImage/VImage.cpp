@@ -254,6 +254,10 @@ void VulkanCore::VImage::Resize(uint32_t newWidth, uint32_t newHeight) {
 
 void VulkanCore::VImage::Destroy() {
     m_device.GetDevice().destroyImageView(m_imageView);
+    if (m_stagingBufferWithPixelData)
+    {
+        m_stagingBufferWithPixelData->Destroy();
+    }
     if (!m_isSwapChainImage) {
         vmaDestroyImage(m_device.GetAllocator(), m_imageVMA, m_imageAllocation);
     }

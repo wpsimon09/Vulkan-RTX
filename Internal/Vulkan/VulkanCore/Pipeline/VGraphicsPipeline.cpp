@@ -111,7 +111,7 @@ void VulkanCore::VGraphicsPipeline::CreateVertexInputBindingAndAttributes() {
 }
 
 void VulkanCore::VGraphicsPipeline::CreatePrimitiveAssembler() {
-    m_inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
+    m_inputAssembly.topology = vk::PrimitiveTopology::eLineList;
     m_inputAssembly.primitiveRestartEnable = vk::False;
 }
 
@@ -126,7 +126,7 @@ void VulkanCore::VGraphicsPipeline::CreateDynamicViewPort() {
     m_viewport.minDepth = 0.0f;
     m_viewport.maxDepth = 1.0f;
 
-    //-------------------
+    //-------------------P
     // SCISSORS
     //-------------------
     m_scissor.extent = m_swapChain.GetExtent();
