@@ -61,6 +61,7 @@ namespace VulkanCore
         void CopyFromBufferToImage();
         void GenerateImageView();
         void AllocateImage(size_t imageSize);
+        void Refresh();
 
     private:
         const VulkanCore::VDevice &m_device;

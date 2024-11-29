@@ -242,18 +242,22 @@ void VulkanCore::VImage::AllocateImage(size_t imageSize) {
     m_imageVK = m_imageVMA;
 }
 
+void VulkanCore::VImage::Refresh()
+{
+    m_device.GetDevice().destroyImageView(m_imageView);
+}
+
 void VulkanCore::VImage::Resize(uint32_t newWidth, uint32_t newHeight) {
     m_width = newWidth;
     m_height = newHeight;
     Utils::Logger::LogInfo("Resizing the image...");
-        Destroy();
+        Refresh();
         AllocateImage(m_imageSize);
         GenerateImageView();
         Utils::Logger::LogSuccess("Image resized, its data will not be preserved to preserve data call FillImageWithData() !");
 }
 
 void VulkanCore::VImage::Destroy() {
-    m_device.GetDevice().destroyImageView(m_imageView);
     if (m_stagingBufferWithPixelData)
     {
         m_stagingBufferWithPixelData->Destroy();

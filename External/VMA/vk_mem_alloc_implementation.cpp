@@ -3,6 +3,13 @@
 //
 
 #define VMA_IMPLEMENTATION
-#define VMA_DEBUG_LOG(args)
-#define VMA_LEAK_LOG(args)
+
+#define VMA_LEAK_LOG_FORMAT(format, ...)    printf("----------------------------------------------------------------------------------------------------------------\n");\
+do { \
+printf("LOG::VMA::");\
+printf((format),__VA_ARGS__); \
+printf("\n"); \
+} while(false);\
+printf("----------------------------------------------------------------------------------------------------------------\n");
+
 #include "vk_mem_alloc.h"
