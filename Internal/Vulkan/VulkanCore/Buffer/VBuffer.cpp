@@ -14,7 +14,7 @@
 
 namespace VulkanCore {
 
-    VBuffer::VBuffer(const VDevice &device): VObject(), m_device(device) {
+    VBuffer::VBuffer(const VDevice &device, const std::string& name): VObject(), m_device(device), m_allocationName(name) {
         m_sharedQueueFamilyIndices = {
             device.GetQueueFamilyIndices().graphicsFamily.value().second,
             device.GetQueueFamilyIndices().transferFamily.value().second
@@ -127,6 +127,8 @@ namespace VulkanCore {
 
     void VBuffer::CreateStagingBuffer(VkDeviceSize size) {
 
+        std::string allocationNme = "Allocation of staging buffer for " + m_allocationName;
+
         VkBufferCreateInfo stagingBufferCreateInfo = {};
         stagingBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         stagingBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
@@ -140,9 +142,13 @@ namespace VulkanCore {
         stagingAllocationCreateInfo.flags =  VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT ;
         stagingAllocationCreateInfo.priority = 1.0f;
 
+
         Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
         assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo, &stagingAllocationCreateInfo, &m_stagingBufferVMA, &m_stagingAllocation,nullptr) == VK_SUCCESS);
         m_stagingBufferVK = m_stagingBufferVMA;
+
+        vmaSetAllocationName(m_device.GetAllocator(), m_stagingAllocation, allocationNme.c_str());
+
         Utils::Logger::LogSuccess("Staging buffer created");
     }
 
@@ -159,6 +165,8 @@ namespace VulkanCore {
         allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
         allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
         assert(vmaCreateBuffer(m_device.GetAllocator(),&bufferCreateInfo,&allocationCreateInfo, &m_bufferVMA,&m_allocation,nullptr) == VK_SUCCESS);
+
+        vmaSetAllocationName(m_device.GetAllocator(), m_allocation, m_allocationName.c_str());
         Utils::Logger::LogSuccess("Buffer allocated successfully");
     }
 

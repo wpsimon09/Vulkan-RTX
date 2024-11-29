@@ -123,7 +123,7 @@ void VulkanCore::VImage::FillWithImageData(const VulkanStructs::ImageData& image
     // copy pixel data to the staging buffer
     Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
 
-    m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device);
+    m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE STAGING BUFFER, REAL BUFFER ==>");
     m_stagingBufferWithPixelData->CreateStagingBuffer(imageData.GetSize());
 
     memcpy(m_stagingBufferWithPixelData->MapStagingBuffer(), imageData.pixels, imageData.GetSize());
@@ -238,6 +238,7 @@ void VulkanCore::VImage::AllocateImage(size_t imageSize) {
     assert(
         vmaCreateImage(m_device.GetAllocator(), &imageInfo, &imageAllocationInfo, &m_imageVMA, &m_imageAllocation,
             nullptr) == VK_SUCCESS);
+    vmaSetAllocationName(m_device.GetAllocator(), m_imageAllocation, "<== IMAGE ==>");
 
     m_imageVK = m_imageVMA;
 }
@@ -258,11 +259,11 @@ void VulkanCore::VImage::Resize(uint32_t newWidth, uint32_t newHeight) {
 }
 
 void VulkanCore::VImage::Destroy() {
-    if (m_stagingBufferWithPixelData)
-    {
-        m_stagingBufferWithPixelData->Destroy();
-    }
     if (!m_isSwapChainImage) {
+        if (m_stagingBufferWithPixelData)
+        {
+            //m_stagingBufferWithPixelData->Destroy();
+        }
         vmaDestroyImage(m_device.GetAllocator(), m_imageVMA, m_imageAllocation);
     }
     Utils::Logger::LogInfoVerboseOnly("Deleted image and its image view");

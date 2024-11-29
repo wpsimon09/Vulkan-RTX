@@ -25,7 +25,7 @@ namespace VulkanCore
     class VBuffer : public VObject
     {
     public:
-        explicit VBuffer(const VDevice &device);
+        explicit VBuffer(const VDevice &device,const std::string& name = "");
 
         const vk::Buffer &GetBuffer() const { return m_bufferVK; }
         const vk::Buffer &GetStagingBuffer() const { return m_stagingBufferVK; }
@@ -74,7 +74,8 @@ namespace VulkanCore
         // others
         vk::BufferUsageFlags m_bufferType;
         std::vector<uint32_t> m_sharedQueueFamilyIndices;
-        vk::DescriptorBufferInfo m_descriptorBufferInfo;;
+        vk::DescriptorBufferInfo m_descriptorBufferInfo;
+        const std::string m_allocationName;
 
         bool m_isInitialized = false;
         bool m_isPresistentlyMapped = false;
