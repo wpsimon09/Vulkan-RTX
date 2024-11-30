@@ -33,45 +33,45 @@ namespace ApplicationCore
 
     VertexArray &AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) {
         auto result = m_meshData.find(geometryType);
+        // if they are loaded return the loaded result
         if (result != m_meshData.end()) {
             return *result->second;
         }
-        else {
-            std::unique_ptr<VertexArray> vao;
-            switch (geometryType) {
-            case MESH_GEOMETRY_PLANE: {
-                vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::planeVertices,
-                                                    MeshData::planeIndices);
-                break;
-            }
-            case MESH_GEOMETRY_SPHERE: {
-                std::vector<Vertex> vertices;
-                std::vector<uint32_t> indices;
-                MeshData::GenerateSphere(vertices, indices);
-                vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_STRIP, std::move(vertices),
-                                                    std::move(indices));
-                break;
-            }
-            case MESH_GEOMETRY_CUBE:
-                vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::cubeVertices,
-                                                    MeshData::cubeIndices);
-                break;
-            case MESH_GEOMETRY_TRIANGLE: {
-                vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::triangleVertices,
-                                                    MeshData::triangleIndices);
-                break;
-            }
-            case MESH_GEOMETRY_CROSS: {
-                vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::crossVertices,
-                                                    MeshData::crossIndices);
-                break;
-            }
-            default: ;
-                throw std::runtime_error("This geometry type is not supported !");
-            }
-            auto inserted = m_meshData.insert(std::make_pair(geometryType, std::move(vao)));
-            return *inserted.first->second;
+        // load them otherwise
+        std::unique_ptr<VertexArray> vao;
+        switch (geometryType) {
+        case MESH_GEOMETRY_PLANE: {
+            vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::planeVertices,
+                                                MeshData::planeIndices);
+            break;
         }
+        case MESH_GEOMETRY_SPHERE: {
+            std::vector<Vertex> vertices;
+            std::vector<uint32_t> indices;
+            MeshData::GenerateSphere(vertices, indices);
+            vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_STRIP, vertices,
+                                                indices);
+            break;
+        }
+        case MESH_GEOMETRY_CUBE:
+            vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::cubeVertices,
+                                                MeshData::cubeIndices);
+            break;
+        case MESH_GEOMETRY_TRIANGLE: {
+            vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::triangleVertices,
+                                                MeshData::triangleIndices);
+            break;
+        }
+        case MESH_GEOMETRY_CROSS: {
+            vao = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::crossVertices,
+                                                MeshData::crossIndices);
+            break;
+        }
+        default: ;
+            throw std::runtime_error("This geometry type is not supported !");
+        }
+        auto inserted = m_meshData.insert(std::make_pair(geometryType, std::move(vao)));
+        return *inserted.first->second;
     }
 
     void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string &path) {

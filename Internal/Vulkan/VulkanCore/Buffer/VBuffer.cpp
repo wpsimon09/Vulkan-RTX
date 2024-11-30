@@ -87,18 +87,22 @@ namespace VulkanCore {
         // - STAGING
         // - GPU ONLY
         //----------------------
+
+        vk::DeviceSize IndexBufferSize = indices.size() * sizeof(uint32_t);
+
         m_bufferType = vk::BufferUsageFlagBits::eIndexBuffer;
-        Utils::Logger::LogInfo("Allocating Index buffer and staging buffer for the mesh ");
-        CreateBuffer(indices.size() * sizeof(ApplicationCore::Vertex), VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
-        CreateStagingBuffer(indices.size() * sizeof(ApplicationCore::Vertex));
+        Utils::Logger::LogInfo("Allocating Index and Staging buffer for the mesh ");
+        CreateBuffer(IndexBufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+        CreateStagingBuffer(IndexBufferSize);
         Utils::Logger::LogInfoVerboseOnly("Index Buffer allocated successfully");
 
         //----------------------------
         // MAP DATA TO STAGING BUFFER
         //----------------------------
         Utils::Logger::LogInfoVerboseOnly("Filling Index buffer with vertex data");
-        vmaMapMemory(m_device.GetAllocator(), m_stagingAllocation, &m_mappedData);
-        memcpy(m_mappedData, indices.data(), indices.size() * sizeof(ApplicationCore::Vertex));
+        assert(vmaMapMemory(m_device.GetAllocator(), m_stagingAllocation, &m_mappedData)
+            == VK_SUCCESS && "Failed to map GPU memeory to CPU !");
+        memcpy(m_mappedData, indices.data(), IndexBufferSize);
         vmaUnmapMemory(m_device.GetAllocator() , m_stagingAllocation);
         Utils::Logger::LogInfoVerboseOnly("Index Buffer mapped successfully");
 
@@ -106,7 +110,7 @@ namespace VulkanCore {
         // COPY THE DATA FROM STAGING BUFFER TO GPU ONLY BUFFER
         //-----------------------------------------------------
         Utils::Logger::LogInfoVerboseOnly("Transferring data from staging buffer to the buffer located on the GPU !");
-        VulkanUtils::CopyBuffers(m_device, m_stagingBufferVMA, m_bufferVMA, indices.capacity()*sizeof(ApplicationCore::Vertex));
+        VulkanUtils::CopyBuffers(m_device, m_stagingBufferVMA, m_bufferVMA, IndexBufferSize);
         Utils::Logger::LogInfoVerboseOnly("Transferring to GPU buffer completed");
 
         //-------------------------------------------------------
@@ -150,7 +154,7 @@ namespace VulkanCore {
 
         vmaSetAllocationName(m_device.GetAllocator(), m_stagingAllocation, allocationNme.c_str());
 
-        Utils::Logger::LogSuccess("Staging buffer created");
+        Utils::Logger::LogSuccess("Staging buffer created || SIZE: " + std::to_string(size) + "bytes ||");
     }
 
     void VBuffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage) {
@@ -168,7 +172,7 @@ namespace VulkanCore {
         assert(vmaCreateBuffer(m_device.GetAllocator(),&bufferCreateInfo,&allocationCreateInfo, &m_bufferVMA,&m_allocation,nullptr) == VK_SUCCESS);
 
         vmaSetAllocationName(m_device.GetAllocator(), m_allocation, m_allocationName.c_str());
-        Utils::Logger::LogSuccess("Buffer allocated successfully");
+        Utils::Logger::LogSuccess("Buffer allocated successfully || SIZE: "+ std::to_string(size) + " bytes || ");
     }
 
     void VBuffer::DestroyStagingBuffer() const {

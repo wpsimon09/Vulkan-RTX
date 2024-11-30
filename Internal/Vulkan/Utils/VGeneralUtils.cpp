@@ -85,6 +85,7 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffe
     bufferCopy.srcOffset = 0;
     bufferCopy.dstOffset = 0;
     bufferCopy.size = size;
+
     cmdBuffer.GetCommandBuffer().copyBuffer(srcBuffer, dstBuffer, bufferCopy);
 
     cmdBuffer.EndRecording();

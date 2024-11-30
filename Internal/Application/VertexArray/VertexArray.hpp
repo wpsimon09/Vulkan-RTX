@@ -33,6 +33,7 @@ namespace ApplicationCore
 
         const std::vector<Vertex>& GetVertices() const { return m_vertices; }
         const std::vector<uint32_t>& GetIndices() const { return m_indices; };
+
         const VulkanCore::VBuffer& GetVertexBuffer() const {return *m_vertexBuffer; }
         const VulkanCore::VBuffer& GetIndexBuffer() const {return *m_indexBuffer; }
         void Destroy() const;;
