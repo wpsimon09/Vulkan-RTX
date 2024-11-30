@@ -45,8 +45,8 @@ namespace ApplicationCore
     private:
         std::unique_ptr<VulkanCore::VBuffer> m_vertexBuffer;
         std::unique_ptr<VulkanCore::VBuffer> m_indexBuffer;
-        const std::vector<Vertex>& m_vertices;
-        const std::vector<uint32_t>& m_indices;
+        const std::vector<Vertex> m_vertices;
+        const std::vector<uint32_t> m_indices;
         PRIMITIVE_TOPOLOGY m_topology;
     };
 }
