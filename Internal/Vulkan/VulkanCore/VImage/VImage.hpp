@@ -61,7 +61,7 @@ namespace VulkanCore
         void CopyFromBufferToImage();
         void GenerateImageView();
         void AllocateImage(size_t imageSize);
-        void Refresh();
+
 
     private:
         const VulkanCore::VDevice &m_device;
@@ -69,12 +69,10 @@ namespace VulkanCore
         VkImage m_imageVMA;
         vk::Image m_imageVK;
         vk::ImageView m_imageView;
-        vk::Sampler m_sampler;
         vk::Format m_format;
         vk::ImageAspectFlags m_aspectFlags;
         vk::DeviceSize m_imageSize;
         vk::ImageLayout m_imageLayout;
-        vk::Sampler m_imageSampler;
         VmaAllocation m_imageAllocation;
 
         uint32_t m_mipLevels;

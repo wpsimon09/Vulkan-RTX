@@ -122,6 +122,7 @@ namespace VulkanCore {
         if(m_isPresistentlyMapped) {
             vmaUnmapMemory(m_device.GetAllocator(), m_allocation);
         }
+
         vmaDestroyBuffer(m_device.GetAllocator(), m_bufferVMA, m_allocation);
     }
 

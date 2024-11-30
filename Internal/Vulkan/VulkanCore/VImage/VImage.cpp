@@ -123,7 +123,7 @@ void VulkanCore::VImage::FillWithImageData(const VulkanStructs::ImageData& image
     // copy pixel data to the staging buffer
     Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
 
-    m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE STAGING BUFFER, REAL BUFFER ==>");
+    m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE STAGING BUFFER ==>" + m_path);
     m_stagingBufferWithPixelData->CreateStagingBuffer(imageData.GetSize());
 
     memcpy(m_stagingBufferWithPixelData->MapStagingBuffer(), imageData.pixels, imageData.GetSize());
@@ -147,6 +147,7 @@ void VulkanCore::VImage::FillWithImageData(const VulkanStructs::ImageData& image
     m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
 
     m_device.GetTransferQueue().waitIdle();
+    m_stagingBufferWithPixelData->DestroyStagingBuffer();
 }
 
 vk::DescriptorImageInfo VulkanCore::VImage::GetDescriptorImageInfo(vk::Sampler &sampler) {
@@ -186,6 +187,7 @@ void VulkanCore::VImage::CopyFromBufferToImage() {
     m_transferCommandBuffer->GetCommandBuffer().copyBufferToImage(m_stagingBufferWithPixelData->GetStagingBuffer(),
                                                                   m_imageVK, vk::ImageLayout::eTransferDstOptimal, 1,
                                                                   &region);
+
 }
 
 void VulkanCore::VImage::GenerateImageView() {
@@ -243,16 +245,12 @@ void VulkanCore::VImage::AllocateImage(size_t imageSize) {
     m_imageVK = m_imageVMA;
 }
 
-void VulkanCore::VImage::Refresh()
-{
-    m_device.GetDevice().destroyImageView(m_imageView);
-}
 
 void VulkanCore::VImage::Resize(uint32_t newWidth, uint32_t newHeight) {
     m_width = newWidth;
     m_height = newHeight;
     Utils::Logger::LogInfo("Resizing the image...");
-        Refresh();
+        Destroy();
         AllocateImage(m_imageSize);
         GenerateImageView();
         Utils::Logger::LogSuccess("Image resized, its data will not be preserved to preserve data call FillImageWithData() !");
@@ -260,11 +258,8 @@ void VulkanCore::VImage::Resize(uint32_t newWidth, uint32_t newHeight) {
 
 void VulkanCore::VImage::Destroy() {
     if (!m_isSwapChainImage) {
-        if (m_stagingBufferWithPixelData)
-        {
-            //m_stagingBufferWithPixelData->Destroy();
-        }
         vmaDestroyImage(m_device.GetAllocator(), m_imageVMA, m_imageAllocation);
     }
+    m_device.GetDevice().destroyImageView(m_imageView);
     Utils::Logger::LogInfoVerboseOnly("Deleted image and its image view");
 }
