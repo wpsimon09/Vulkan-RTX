@@ -99,14 +99,14 @@ ConstantBuffer<Sampler2D> albedo;
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
-    float3 lightColor = float3(10.0);
+    float3 lightColor = float3(2.0);
 
     float4 fragColor;
     fragColor = albedo.Sample(fsIn.uv);
 
     CookTorrence_GGX brdf;
     brdf.albedo = fragColor.xyz;
-    brdf.roughness = 0.4;
+    brdf.roughness = 0.5;
     brdf.metallnes = 0.1;
     brdf.ao = 1;
 

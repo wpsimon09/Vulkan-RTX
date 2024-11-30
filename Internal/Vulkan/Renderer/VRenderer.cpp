@@ -53,7 +53,7 @@ namespace Renderer
 
         CreateTemplateEntries();
         m_pushDescriptorSetManager.CreateUpdateTemplate(*m_graphicsPipeline);
-        m_client.GetAssetsManager().GetTexture(m_testimg, "/home/wpsimon09/Desktop/Textures/sporic.jpg");
+        m_client.GetAssetsManager().GetTexture(m_testimg, "/home/wpsimon09/Desktop/Textures/hangar-black/albedo.png");
     }
 
     void VRenderer::Render() {

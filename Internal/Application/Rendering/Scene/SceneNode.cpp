@@ -4,6 +4,8 @@
 
 #include "SceneNode.hpp"
 
+#include <GLFW/glfw3.h>
+
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
@@ -79,6 +81,7 @@ namespace ApplicationCore {
             m_transformation->ComputeModelMatrix(m_parent->m_transformation->GetModelMatrix());
         }else
         {
+            //m_transformation->SetRotations(1.0f, glm::degrees(sin(glfwGetTime())), 1.0F);
             m_transformation->ComputeModelMatrix();
         }
 
