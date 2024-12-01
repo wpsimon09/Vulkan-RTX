@@ -10,6 +10,7 @@
 
 namespace ApplicationCore
 {
+    class Material;
     class SceneNode;
 }
 
@@ -40,6 +41,7 @@ namespace ApplicationCore
     private:
         MESH_GEOMETRY_TYPE m_geometryType;
         VertexArray* m_vertexArray;
+        Material* m_material;
 
         friend class ApplicationCore::SceneNode;
     };

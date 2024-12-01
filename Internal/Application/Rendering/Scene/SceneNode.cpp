@@ -81,7 +81,6 @@ namespace ApplicationCore {
             m_transformation->ComputeModelMatrix(m_parent->m_transformation->GetModelMatrix());
         }else
         {
-            //m_transformation->SetRotations(1.0f, glm::degrees(sin(glfwGetTime())), 1.0F);
             m_transformation->ComputeModelMatrix();
         }
 

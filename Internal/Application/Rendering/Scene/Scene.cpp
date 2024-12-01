@@ -51,24 +51,25 @@ namespace ApplicationCore {
     {
 
         // cube 1
-        auto cube1 =std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
-        cube1->GetTransformations()->SetPosition(20.0f, -4.0f, 0.0f);
-        cube1->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
+        auto obj1 =std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
+        obj1->GetTransformations()->SetPosition(0.0f, 10.0f, 0.0f);
+        obj1->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 
-        auto cube2 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
-        cube2->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
+        auto obj2 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
+        obj2->GetTransformations()->SetPosition(20.0f, -10.0f, 0.0f);
+        obj2->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 
-        auto cube3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
-        cube3->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
-        cube3->GetTransformations()->SetPosition(-10.0f, -14.0f, 0.0f);
+        auto obj3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
+        obj3->GetTransformations()->SetPosition(40.0f, 10.0f, 0.0f);
+        obj3->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 
-        auto sphere = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
-        sphere->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
-        sphere->GetTransformations()->SetPosition(-10.0f, 24.0f, 0.0f);
+        auto obj4 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
+        obj4->GetTransformations()->SetPosition(60.0f, -10.0f, 0.0f);
+        obj4->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 
-        m_root->AddChild(cube1);
-        m_root->AddChild(cube2);
-        m_root->AddChild(cube3);
-        m_root->AddChild(sphere);
+        m_root->AddChild(obj1);
+        m_root->AddChild(obj2);
+        m_root->AddChild(obj3);
+        m_root->AddChild(obj4);
     }
 } // ApplicationCore
