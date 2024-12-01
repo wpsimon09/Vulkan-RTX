@@ -9,7 +9,45 @@ struct FragmentShaderIn {
 };
 
 
+struct MaterialConstantValues{
+    float roughness;
+    float metalness;
+    float ao;
+    float padding;
 
+    float4 diffuse;
+
+    float4 emissive_strength;
+}
+
+struct MaterialFeatures{
+    bool hasDiffuseTexture;
+    bool hasEmissiveTexture;
+    bool hasNormalTexture;
+    bool hasArmTexture;
+}
+
+struct Material{
+    MaterialConstantValues Values;
+    MaterialFeatures Features;
+};
+
+ConstantBuffer<Material> _mat;
+
+[[vk::binding(3, 0)]]
+ConstantBuffer<Material> _materialDstSet;
+
+[[vk::binding(4, 0)]]
+ConstantBuffer<Sampler2D> _albedoMap;
+
+[[vk::binding(5, 0)]]
+ConstantBuffer<Sampler2D> _armMap;
+
+[[vk::binding(6, 0)]]
+ConstantBuffer<Sampler2D> _normalMap;
+
+[[vk::binding(7, 0)]]
+ConstantBuffer<Sampler2D> _emissiveMap;
 
 interface IBRDF {
 
@@ -25,9 +63,36 @@ interface IBRDF {
 struct CookTorrence_GGX: IBRDF {
 
     float3 albedo;
+
     float roughness;
+
     float metallnes;
+
     float ao;
+
+    [mutating]
+    void FillWithData(Material mat, float2 uv) {
+        if (mat.Features.hasDiffuseTexture) {
+            this.albedo = _albedoMap.Sample(uv).rgb;
+        } else { 
+            this.albedo = mat.Values.diffuse.rgb;
+        }
+
+        if (mat.Features.hasArmTexture) {
+            float3 armValues = _armMap.Sample(uv).rgb;
+            this.roughness = armValues.r;
+            this.metallnes = armValues.b;
+            this.ao =        armValues.g;
+        } else {
+            this.roughness = mat.Values.roughness;
+            this.metallnes = mat.Values.metalness;
+            this.ao =        mat.Values.ao;
+        }
+
+        if (mat.Features.hasEmissiveTexture) {
+            //TODO: add suport for emmision
+        }
+    }
 
     float DistributionGGX(float3 N, float3 H)  {
         float a = roughness * roughness;
@@ -75,6 +140,7 @@ struct CookTorrence_GGX: IBRDF {
         float NDF = DistributionGGX(N, H);
         float G = GeometrySmith(N, V, L);
         float3 F = FresnelShlick(max(dot(H, V), 0.0), F0);
+        
 
         float3 numerator = NDF * G * F;
 
@@ -91,27 +157,30 @@ struct CookTorrence_GGX: IBRDF {
 
         return (kd * albedo / PI + specular) * NdotL;
     }
+
 }
 
-[[vk::binding(2,0)]]
-ConstantBuffer<Sampler2D> albedo;
+
 
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     float3 lightColor = float3(2.0);
 
-    float4 fragColor;
-    fragColor = albedo.Sample(fsIn.uv);
+    //float4 fragColor;
+    //fragColor = _albedoMap.Sample(fsIn.uv);
 
     CookTorrence_GGX brdf;
-    brdf.albedo = fragColor.xyz;
-    brdf.roughness = 0.5;
-    brdf.metallnes = 0.1;
-    brdf.ao = 1;
-
+    brdf.FillWithData(_materialDstSet, fsIn.uv);
+    
     float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
-    float3 N = normalize(fsIn.normal);
+
+    float3 N;
+    if (_materialDstSet.Features.hasNormalTexture) {
+        N = _normalMap.Sample(fsIn.uv).rgb;
+    } else {
+        N = normalize(fsIn.normal);
+    }
 
     float3 L = normalize(fsIn.lightPos - fsIn.fragPos);
 
@@ -121,6 +190,6 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     float3 finalColor = max(color,float(0.0)) + ambient;
 
-    return float4(finalColor, 1.0);
+    return float4(float3(1.0), 1.0);
 }   
 
