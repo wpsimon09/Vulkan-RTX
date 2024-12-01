@@ -6,6 +6,7 @@
 #define VUNIFORMBUFFERMANAGER_HPP
 #include <memory>
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+#include "Application/Rendering/Material/Material.hpp"
 #include "UnifromsRegistry.hpp"
 #include "VUniform.hpp"
 
@@ -33,6 +34,7 @@ namespace VulkanUtils
 
         std::unique_ptr<VulkanUtils::VUniform<PerFrameUBO::GlobalUniform>> m_cameraUniform;
         std::vector<std::unique_ptr<VulkanUtils::VUniform<PerObjectUBO::ObjectDataUniform>>> m_objectDataUniforms;
+        std::vector<std::unique_ptr<VulkanUtils::VUniform<PBRMaterialDescription>>> m_materialDataUniforms;
     };
 }
 

@@ -7,9 +7,11 @@
 #include <GLFW/glfw3.h>
 
 #include "SceneNode.hpp"
+#include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Enums/ClientEnums.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
+#include "Application/Rendering/Material/Material.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 
 namespace ApplicationCore {
@@ -49,21 +51,28 @@ namespace ApplicationCore {
 
     void Scene::BuildDefaultScene()
     {
+        MaterialPaths materialPaths;
+        materialPaths.DiffuseMapPath = "/home/wpsimon09/Desktop/Textures/hangar-black/albedo.png";
+        materialPaths.ArmMapPath = "/home/wpsimon09/Desktop/Textures/hangar-black/arm.png";
+        materialPaths.NormalMapPath = "/home/wpsimon09/Desktop/Textures/hangar-black/normal.png";
+
+        auto hangarBlackMaterial = m_assetsManager.GetMaterial(materialPaths);
+
 
         // cube 1
-        auto obj1 =std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
+        auto obj1 =std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,hangarBlackMaterial, m_assetsManager);
         obj1->GetTransformations()->SetPosition(0.0f, 10.0f, 0.0f);
         obj1->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 
-        auto obj2 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
+        auto obj2 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,hangarBlackMaterial, m_assetsManager);
         obj2->GetTransformations()->SetPosition(20.0f, -10.0f, 0.0f);
         obj2->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 
-        auto obj3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
+        auto obj3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,hangarBlackMaterial, m_assetsManager);
         obj3->GetTransformations()->SetPosition(40.0f, 10.0f, 0.0f);
         obj3->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 
-        auto obj4 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, m_assetsManager);
+        auto obj4 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,hangarBlackMaterial, m_assetsManager);
         obj4->GetTransformations()->SetPosition(60.0f, -10.0f, 0.0f);
         obj4->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 

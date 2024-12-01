@@ -47,6 +47,9 @@ void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex,
         m_objectDataUniforms[i]->UpdateGPUBuffer(frameIndex);
     }
 
+    // draw call will contain the material for now
+
+
 }
 
 void VulkanUtils::VUniformBufferManager::Destroy() const {
@@ -54,6 +57,10 @@ void VulkanUtils::VUniformBufferManager::Destroy() const {
     m_cameraUniform->Destory();
     for(auto &ubo: m_objectDataUniforms) {
         ubo->Destory();
+    }
+    for (auto& mat: m_materialDataUniforms)
+    {
+        mat->Destory();
     }
     Utils::Logger::LogInfoVerboseOnly("Uniform buffer manager destroyed");
 }
@@ -65,9 +72,13 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
     GlobalState::LoggingEnabled = false;
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for per object data");
     m_objectDataUniforms.resize(MAX_UBO_COUNT);
+    m_materialDataUniforms.resize(MAX_UBO_COUNT);
 
     for(int i = 0; i <MAX_UBO_COUNT; i++) {
         m_objectDataUniforms[i] = (std::make_unique<VUniform<PerObjectUBO::ObjectDataUniform>>(m_device));
+    }
+    for(int i = 0; i <MAX_UBO_COUNT; i++) {
+        m_materialDataUniforms[i] = (std::make_unique<VUniform<PBRMaterialDescription>>(m_device));
     }
 
     //assert(m_objectDataUniforms.size() == MAX_UBO_COUNT && "Failed to allocate 20 buffers");

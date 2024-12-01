@@ -6,13 +6,20 @@
 #include "MeshData.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Logger/Logger.hpp"
+#include "Application/Rendering/Material/Material.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 
-ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType,ApplicationCore::AssetsManager &assetsManger) {
+ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType,std::shared_ptr<Material> material, ApplicationCore::AssetsManager &assetsManger) {
     m_geometryType = geometryType;
     m_transformations = std::make_unique<Transformations>();
     AssignMeshGeometryData(assetsManger);
+
+    MaterialPaths paths{
+        "sdfsd", "sdfsd", "sdsf"
+    };
+
+    m_material = material;
 }
 
 const size_t ApplicationCore::Mesh::GetMeshVertexArraySize() const {
@@ -34,6 +41,11 @@ const uint32_t ApplicationCore::Mesh::GetMeshVertexCount() const {
 
 void ApplicationCore::Mesh::Update() {
     m_transformations->ComputeModelMatrix();
+}
+
+void ApplicationCore::Mesh::Destroy()
+{
+
 }
 
 const void ApplicationCore::Mesh::AssignMeshGeometryData(ApplicationCore::AssetsManager &assetsManger) {

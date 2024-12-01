@@ -9,6 +9,7 @@
 #include <thread>
 #include <future>
 
+#include "Application/Rendering/Material/Material.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Application/Rendering/Mesh/MeshData.hpp"
@@ -20,6 +21,7 @@ namespace ApplicationCore
 {
     AssetsManager::AssetsManager(const VulkanCore::VDevice &device):
         m_device(device) {
+        m_dummyTexture = std::make_shared<VulkanCore::VImage>(device);
     }
 
     void AssetsManager::DeleteAll() {
@@ -82,6 +84,15 @@ namespace ApplicationCore
                 }
             }
             texture = m_textures[path];
+    }
+
+    std::shared_ptr<ApplicationCore::Material> AssetsManager::GetMaterial(const MaterialPaths& path)
+    {
+        if (!m_materials.contains(path))
+        {
+            m_materials[path] = std::make_shared<Material>(path, *this);
+        }
+        return m_materials[path];
     }
 
     bool AssetsManager::Sync() {

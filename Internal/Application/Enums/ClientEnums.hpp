@@ -33,7 +33,7 @@ enum MESH_GEOMETRY_TYPE
     MESH_GEOMETRY_CROSS
 };
 
-enum MaterialType
+enum MATERIAL_TYPE
 {
     PBR_DIFFUSE_MAP = 0,
     PBR_ARM ,

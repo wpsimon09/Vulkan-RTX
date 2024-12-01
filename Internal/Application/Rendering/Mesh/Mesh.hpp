@@ -22,7 +22,7 @@ namespace ApplicationCore
 
     class Mesh {
     public:
-        Mesh(MESH_GEOMETRY_TYPE geometryType, ApplicationCore::AssetsManager& assetsManger);
+        explicit Mesh(MESH_GEOMETRY_TYPE geometryType,std::shared_ptr<Material> material, ApplicationCore::AssetsManager& assetsManger);
         const size_t GetMeshVertexArraySize() const;
         const size_t GetMeshIndexArraySize() const;
         const uint32_t GetMeshIndexCount() const;
@@ -41,7 +41,7 @@ namespace ApplicationCore
     private:
         MESH_GEOMETRY_TYPE m_geometryType;
         VertexArray* m_vertexArray;
-        Material* m_material;
+        std::shared_ptr<Material> m_material;
 
         friend class ApplicationCore::SceneNode;
     };

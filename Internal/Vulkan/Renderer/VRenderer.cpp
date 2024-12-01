@@ -198,6 +198,8 @@ namespace Renderer
         m_pushDescriptorSetManager.AddUpdateEntry(0, offsetof(VulkanUtils::DescriptorSetData, cameraUBOBuffer), 0);
         m_pushDescriptorSetManager.AddUpdateEntry(1, offsetof(VulkanUtils::DescriptorSetData, meshUBBOBuffer), 0);
         m_pushDescriptorSetManager.AddUpdateEntry(2, offsetof(VulkanUtils::DescriptorSetData, albedoTextureImage), 0);
+        // update entry for texutures
+        // update entry for material UBo
     }
 
     //===============================================================================================================
