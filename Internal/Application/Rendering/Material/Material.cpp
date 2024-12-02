@@ -30,6 +30,12 @@ namespace ApplicationCore {
         }
         else
             m_assetManager.GetDummyTexture(m_textures[MATERIAL_TYPE::PBR_ARM]);
+
+        //m_assetManager.GetTexture(m_textures[MATERIAL_TYPE::PBR_ARM], m_materialPaths.ArmMapPath);
+        m_materialDescription.features.hasEmissiveTexture = false;
+        m_assetManager.GetDummyTexture(m_textures[MATERIAL_TYPE::PBR_EMISSIVE_MAP]);
+
+
     }
 
     void Material::Sync()

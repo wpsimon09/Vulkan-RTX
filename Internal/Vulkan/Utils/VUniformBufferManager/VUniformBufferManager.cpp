@@ -26,6 +26,13 @@ const std::vector<vk::DescriptorBufferInfo> &VulkanUtils::VUniformBufferManager:
     return m_cameraUniform->GetDescriptorBufferInfos();
 }
 
+const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::GetPerMaterialDescriptorBufferInfo(
+    int meshIndex) const
+{
+    // returns 2 buffer descriptor info for each frame in flight
+    return m_materialDataUniforms[meshIndex]->GetDescriptorBufferInfos();
+}
+
 const std::vector<vk::DescriptorBufferInfo> & VulkanUtils::VUniformBufferManager::GetPerObjectDescriptorBufferInfo(
     int meshIndex) const {
     // returns 2 buffer descriptor info for each frame in flight

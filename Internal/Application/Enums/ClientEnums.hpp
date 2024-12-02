@@ -38,6 +38,7 @@ enum MATERIAL_TYPE
     PBR_DIFFUSE_MAP = 0,
     PBR_ARM ,
     PBR_NORMAL_MAP,
+    PBR_EMISSIVE_MAP,
 };
 
 

@@ -141,10 +141,7 @@ namespace Renderer
         // for each mesh
         for (int i = 0; i < m_renderContext.DrawCalls.size(); i++)
         {
-            if(i>1) {
-                m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindPipeline(
-            vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED).GetPipelineInstance());
-            }
+
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().meshUBBOBuffer = m_uniformBufferManager.
                 GetPerObjectDescriptorBufferInfo(i)[m_currentFrameIndex];
 
@@ -157,8 +154,11 @@ namespace Renderer
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().normalTextureImage =
             m_renderContext.DrawCalls[i].material->GetTexture(PBR_NORMAL_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
+            m_pushDescriptorSetManager.GetDescriptorSetDataStruct().normalTextureImage =
+            m_renderContext.DrawCalls[i].material->GetTexture(PBR_EMISSIVE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().pbrMaterialDescription =
-            m_renderContext.DrawCalls[i].material->GetMaterialDescription();
+            m_uniformBufferManager.GetPerMaterialDescriptorBufferInfo(i)[m_currentFrameIndex];
 
 
             std::vector<vk::Buffer> vertexBuffers = {m_renderContext.DrawCalls[i].vertexBuffer};
