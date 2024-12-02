@@ -26,8 +26,13 @@ namespace VulkanUtils {
 struct DescriptorSetData
 {
     vk::DescriptorBufferInfo cameraUBOBuffer; // for camera uniform buffer
+    vk::DescriptorBufferInfo pbrMaterialDescription; // for material uniform buffer
     vk::DescriptorBufferInfo meshUBBOBuffer; // for mesh uniform buffer
-    vk::DescriptorImageInfo albedoTextureImage; // for albedo texture
+
+    vk::DescriptorImageInfo diffuseTextureImage; // for diffuse
+    vk::DescriptorImageInfo normalTextureImage; // for normal
+    vk::DescriptorImageInfo armTextureImage; // for arm
+    vk::DescriptorImageInfo emissiveTextureImage; // for emisive texture
 };
 
 class VPushDescriptorManager {

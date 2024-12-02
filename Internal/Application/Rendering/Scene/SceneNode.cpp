@@ -101,6 +101,7 @@ namespace ApplicationCore {
                 m_transformation->GetModelMatrix());
             data.firstIndex = 1;
             data.indexCount = m_mesh->GetMeshIndexCount();
+            data.material = m_mesh->m_material;
             renderingContext.emplace_back(data);
         }
     }

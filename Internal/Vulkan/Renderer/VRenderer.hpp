@@ -104,8 +104,6 @@ namespace Renderer
         std::unique_ptr<class VulkanCore::VImage> m_depthBuffer;
         const VulkanCore::VGraphicsPipeline *m_graphicsPipeline;
         VulkanStructs::RenderContext m_renderContext;
-
-        std::shared_ptr<class VulkanCore::VImage> m_testimg;
     };
 
 

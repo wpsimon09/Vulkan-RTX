@@ -7,6 +7,8 @@
 
 #include <stb_image/stb_image.h>
 #include <vulkan/vulkan.hpp>
+
+#include "Application/Rendering/Material/Material.hpp"
 #include "glm/glm.hpp"
 
 namespace VulkanStructs
@@ -33,6 +35,7 @@ namespace VulkanStructs
         glm::mat4& modelMatrix;
         uint32_t instanceCount = 1;
         // material descriptor
+        std::shared_ptr<ApplicationCore::Material> material;
 
         DrawCallData(const VkBuffer& vertex, const VkBuffer& index, glm::mat4& model): vertexBuffer(vertex), indexBuffer(index), modelMatrix(model)
         {

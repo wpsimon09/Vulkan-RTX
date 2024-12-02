@@ -12,9 +12,18 @@
 namespace VulkanUtils {
     VPushDescriptorManager::VPushDescriptorManager(const VulkanCore::VDevice &device): m_device(device) {
         m_descriptorSetLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
+            // global datat
             .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex,1)
-            .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex,1)
-            .AddBinding(2, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1)
+
+            // per material datat
+            .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment,1)
+            .AddBinding(2, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // albedo
+            .AddBinding(3, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // normal
+            .AddBinding(4, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // arm
+            .AddBinding(5, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // emissive
+
+            // per object data
+            .AddBinding(6, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex,1)
             .Build();
     }
 

@@ -53,7 +53,6 @@ namespace Renderer
 
         CreateTemplateEntries();
         m_pushDescriptorSetManager.CreateUpdateTemplate(*m_graphicsPipeline);
-        m_client.GetAssetsManager().GetTexture(m_testimg, "/home/wpsimon09/Desktop/Textures/hangar-black/albedo.png");
     }
 
     void VRenderer::Render() {
@@ -139,8 +138,6 @@ namespace Renderer
         m_pushDescriptorSetManager.GetDescriptorSetDataStruct().cameraUBOBuffer = m_uniformBufferManager.
             GetGlobalBufferDescriptorInfo()[m_currentFrameIndex];
 
-        m_pushDescriptorSetManager.GetDescriptorSetDataStruct().albedoTextureImage = m_testimg->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-
         // for each mesh
         for (int i = 0; i < m_renderContext.DrawCalls.size(); i++)
         {
@@ -150,6 +147,18 @@ namespace Renderer
             }
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().meshUBBOBuffer = m_uniformBufferManager.
                 GetPerObjectDescriptorBufferInfo(i)[m_currentFrameIndex];
+
+            m_pushDescriptorSetManager.GetDescriptorSetDataStruct().diffuseTextureImage =
+            m_renderContext.DrawCalls[i].material->GetTexture(PBR_DIFFUSE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+            m_pushDescriptorSetManager.GetDescriptorSetDataStruct().armTextureImage =
+            m_renderContext.DrawCalls[i].material->GetTexture(PBR_ARM)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+            m_pushDescriptorSetManager.GetDescriptorSetDataStruct().normalTextureImage =
+            m_renderContext.DrawCalls[i].material->GetTexture(PBR_NORMAL_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+            m_pushDescriptorSetManager.GetDescriptorSetDataStruct().pbrMaterialDescription =
+            m_renderContext.DrawCalls[i].material->GetMaterialDescription();
 
 
             std::vector<vk::Buffer> vertexBuffers = {m_renderContext.DrawCalls[i].vertexBuffer};
@@ -196,8 +205,12 @@ namespace Renderer
 
     void VRenderer::CreateTemplateEntries() {
         m_pushDescriptorSetManager.AddUpdateEntry(0, offsetof(VulkanUtils::DescriptorSetData, cameraUBOBuffer), 0);
-        m_pushDescriptorSetManager.AddUpdateEntry(1, offsetof(VulkanUtils::DescriptorSetData, meshUBBOBuffer), 0);
-        m_pushDescriptorSetManager.AddUpdateEntry(2, offsetof(VulkanUtils::DescriptorSetData, albedoTextureImage), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(1, offsetof(VulkanUtils::DescriptorSetData, pbrMaterialDescription), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(2, offsetof(VulkanUtils::DescriptorSetData, meshUBBOBuffer), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(3, offsetof(VulkanUtils::DescriptorSetData, diffuseTextureImage), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(4, offsetof(VulkanUtils::DescriptorSetData, normalTextureImage), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(5, offsetof(VulkanUtils::DescriptorSetData, armTextureImage), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(6, offsetof(VulkanUtils::DescriptorSetData, emissiveTextureImage), 0);
         // update entry for texutures
         // update entry for material UBo
     }

@@ -20,7 +20,8 @@
 namespace ApplicationCore
 {
     AssetsManager::AssetsManager(const VulkanCore::VDevice &device):
-        m_device(device) {
+        m_device(device), m_materials()
+    {
         m_dummyTexture = std::make_shared<VulkanCore::VImage>(device);
     }
 
@@ -86,7 +87,7 @@ namespace ApplicationCore
             texture = m_textures[path];
     }
 
-    std::shared_ptr<ApplicationCore::Material> AssetsManager::GetMaterial(const MaterialPaths& path)
+    std::shared_ptr<ApplicationCore::Material> AssetsManager::GetMaterial(MaterialPaths& path)
     {
         if (!m_materials.contains(path))
         {

@@ -12,6 +12,7 @@
 #include <unordered_map>
 
 #include "Application/Enums/ClientEnums.hpp"
+#include "Application/Rendering/Material/MaterialStructs.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
 struct MaterialPaths;
@@ -37,8 +38,23 @@ namespace VulkanCore
     class VDevice;
 }
 
-namespace ApplicationCore {
+namespace std
+{
+    template<> struct hash<MaterialPaths>
+    {
+        size_t operator()(const MaterialPaths& other) const
+        {
+            size_t h1 = std::hash<std::string>{}(other.DiffuseMapPath);
+            size_t h2 = std::hash<std::string>{}(other.ArmMapPath);
+            size_t h3 = std::hash<std::string>{}(other.NormalMapPath);
 
+            return h1 ^ (h2 << 1) ^ (h3 << 2);
+        }
+    };
+}
+
+
+namespace ApplicationCore {
 
 class AssetsManager {
 public:
@@ -47,7 +63,7 @@ public:
     VertexArray& GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType);
 
     void GetTexture(std::shared_ptr<VulkanCore::VImage> &texture,const std::string& path);
-    std::shared_ptr<ApplicationCore::Material> GetMaterial(const MaterialPaths& path);
+    std::shared_ptr<ApplicationCore::Material> GetMaterial(MaterialPaths& path);
     void GetDummyTexture(std::shared_ptr<VulkanCore::VImage> &texture) const {texture = m_dummyTexture;};
 
     bool Sync();

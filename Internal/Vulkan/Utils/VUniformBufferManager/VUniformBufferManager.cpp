@@ -42,6 +42,8 @@ void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex,
     m_cameraUniform->UpdateGPUBuffer(frameIndex);
 
     for (int i = 0; i< drawCalls.size(); i++) {
+        m_materialDataUniforms[i]->GetUBOStruct() = drawCalls[i].material->GetMaterialDescription();
+
         m_objectDataUniforms[i]->GetUBOStruct().model = drawCalls[i].modelMatrix;
         m_objectDataUniforms[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse( drawCalls[i].modelMatrix));
         m_objectDataUniforms[i]->UpdateGPUBuffer(frameIndex);

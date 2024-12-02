@@ -94,6 +94,7 @@ set(SOURCES
         Internal/Application/Rendering/Scene/Scene.hpp
         Internal/Application/Rendering/Scene/SceneNode.cpp
         Internal/Application/Rendering/Scene/SceneNode.hpp
+        Internal/Application/Rendering/Material/MaterialStructs.hpp
 
 )
 

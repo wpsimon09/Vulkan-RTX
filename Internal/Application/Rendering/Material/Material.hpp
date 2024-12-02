@@ -6,47 +6,14 @@
 #define MATERIAL_HPP
 #include <array>
 #include <memory>
-#include <string>
-#include <vector>
-#include <glm/vec4.hpp>
+#include "Application/Enums/ClientEnums.hpp"
+
 
 #ifndef MAX_TEXTURE_COUNT
  // diffuse, normal, arm ,emissive
  #define MAX_TEXTURE_COUNT 4
 #endif
-
-struct PBRMaterialNoTexture
-{
-    float roughness{0.0f};
-    float metalness{0.0f};
-    float ao{0.0f};
-    float padding{0.0f};
-
-    glm::vec4 diffuse{1.0f, 0.0f, 0.0f, 1.0f};
-
-    glm::vec4 emissive_strength{0.0f,0.0f, 0.0f, 0.0f};
-};
-
-struct PBRMaterialFeaturees
-{
-    bool hasDiffuseTexture{false};
-    bool hasEmissiveTexture{false};
-    bool hasNormalTexture{false};
-    bool hasArmTexture{false};
-};
-
-struct MaterialPaths
-{
-    std::string DiffuseMapPath;
-    std::string ArmMapPath;
-    std::string NormalMapPath;
-};
-
-struct PBRMaterialDescription
-{
-    PBRMaterialNoTexture values;
-    PBRMaterialFeaturees features;
-};
+#include "MaterialStructs.hpp"
 
 namespace VulkanCore
 {
@@ -63,6 +30,8 @@ public:
     explicit Material(MaterialPaths& materialPaths, AssetsManager& assets_manager);
 
     PBRMaterialDescription& GetMaterialDescription(){ return m_materialDescription; };
+
+    std::shared_ptr<VulkanCore::VImage>& GetTexture(MATERIAL_TYPE type){ return m_textures[type];}
 
     void Sync();
 private:

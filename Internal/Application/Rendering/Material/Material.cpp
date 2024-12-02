@@ -5,7 +5,6 @@
 #include "Material.hpp"
 
 #include "Application/AssetsManger/AssetsManager.hpp"
-#include "Application/Enums/ClientEnums.hpp"
 namespace ApplicationCore {
     Material::Material(MaterialPaths& materialPaths,AssetsManager& assets_manager): m_assetManager(assets_manager), m_materialPaths(materialPaths), m_materialDescription()
     {
