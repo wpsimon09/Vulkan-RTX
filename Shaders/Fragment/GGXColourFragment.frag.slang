@@ -32,23 +32,25 @@ struct Material{
     MaterialFeatures Features;
 };
 
-ConstantBuffer<Material> _mat;
-
 [[vk::binding(2, 0)]]
-ConstantBuffer<Material> _materialDstSet;
+ConstantBuffer<MaterialConstantValues> _materialNoTextureValues;
 
 [[vk::binding(3, 0)]]
-ConstantBuffer<Sampler2D> _albedoMap;
+ConstantBuffer<MaterialFeatures> _features;
 
 [[vk::binding(4, 0)]]
-ConstantBuffer<Sampler2D> _normalMap;
+ConstantBuffer<Sampler2D> _albedoMap;
 
 [[vk::binding(5, 0)]]
-ConstantBuffer<Sampler2D> _armMap;
-
+ConstantBuffer<Sampler2D> _normalMap;
 
 [[vk::binding(6, 0)]]
+ConstantBuffer<Sampler2D> _armMap;
+
+[[vk::binding(7, 0)]]
 ConstantBuffer<Sampler2D> _emissiveMap;
+
+
 
 interface IBRDF {
 
@@ -166,6 +168,10 @@ struct CookTorrence_GGX: IBRDF {
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
+    Material _materialDstSet;
+    _materialDstSet.Features = _features;
+    _materialDstSet.Values = _materialNoTextureValues;
+
     float3 lightColor = float3(2.0);
 
     //float4 fragColor;
@@ -191,6 +197,6 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     float3 finalColor = max(color,float(0.0)) + ambient;
 
-    return float4((float)_materialDstSet.Features.hasNormalTexture,0.0,0.0, 1.0);
+    return float4(color, 1.0);
 }   
 
