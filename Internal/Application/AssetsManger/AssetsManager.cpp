@@ -32,6 +32,7 @@ namespace ApplicationCore
         for (auto &texture : m_textures) {
             texture.second->Destroy();
         }
+        m_dummyTexture->Destroy();
     }
 
     VertexArray &AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) {
