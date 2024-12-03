@@ -175,6 +175,7 @@ namespace Renderer
                 offsets.data());
 
                 PushDescriptors();
+
                 m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(
                     m_renderContext.DrawCalls[i].indexCount, 1, 0, 0, 0);
         }

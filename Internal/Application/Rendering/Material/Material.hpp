@@ -33,7 +33,6 @@ public:
 
     std::shared_ptr<VulkanCore::VImage>& GetTexture(MATERIAL_TYPE type){ return m_textures[type];}
 
-    void Sync();
 private:
     std::array<std::shared_ptr<VulkanCore::VImage>,MAX_TEXTURE_COUNT> m_textures;
     PBRMaterialDescription m_materialDescription;
