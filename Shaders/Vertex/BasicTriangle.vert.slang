@@ -32,7 +32,7 @@ struct PermodelData {
     column_major float4x4 normalMatrix;
 };
 
-[[vk::binding(6,0)]]
+[[vk::binding(1,0)]]
 ConstantBuffer<PermodelData> perModelData ; 
 
 [shader("vertex")]

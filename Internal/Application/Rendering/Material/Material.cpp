@@ -38,8 +38,5 @@ namespace ApplicationCore {
 
     }
 
-    void Material::Sync()
-    {
-        m_assetManager.Sync();
-    }
+
 } // ApplicationCore

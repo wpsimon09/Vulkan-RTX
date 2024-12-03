@@ -34,20 +34,20 @@ struct Material{
 
 ConstantBuffer<Material> _mat;
 
-[[vk::binding(1, 0)]]
+[[vk::binding(2, 0)]]
 ConstantBuffer<Material> _materialDstSet;
 
-[[vk::binding(2, 0)]]
+[[vk::binding(3, 0)]]
 ConstantBuffer<Sampler2D> _albedoMap;
 
-[[vk::binding(3, 0)]]
+[[vk::binding(4, 0)]]
 ConstantBuffer<Sampler2D> _normalMap;
 
-[[vk::binding(4, 0)]]
+[[vk::binding(5, 0)]]
 ConstantBuffer<Sampler2D> _armMap;
 
 
-[[vk::binding(5, 0)]]
+[[vk::binding(6, 0)]]
 ConstantBuffer<Sampler2D> _emissiveMap;
 
 interface IBRDF {
@@ -191,6 +191,6 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     float3 finalColor = max(color,float(0.0)) + ambient;
 
-    return float4(float3(1.0), 1.0);
+    return float4((float)_materialDstSet.Features.hasNormalTexture,0.0,0.0, 1.0);
 }   
 
