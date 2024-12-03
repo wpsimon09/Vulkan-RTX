@@ -157,8 +157,11 @@ namespace Renderer
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().emissiveTextureImage =
             m_renderContext.DrawCalls[i].material->GetTexture(PBR_EMISSIVE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-            m_pushDescriptorSetManager.GetDescriptorSetDataStruct().pbrMaterialDescription =
-            m_uniformBufferManager.GetPerMaterialDescriptorBufferInfo(i)[m_currentFrameIndex];
+            m_pushDescriptorSetManager.GetDescriptorSetDataStruct().pbrMaterialFeatures =
+            m_uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(i)[m_currentFrameIndex];
+
+            m_pushDescriptorSetManager.GetDescriptorSetDataStruct().pbrMaterialNoTexture =
+            m_uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(i)[m_currentFrameIndex];
 
 
             std::vector<vk::Buffer> vertexBuffers = {m_renderContext.DrawCalls[i].vertexBuffer};
@@ -210,11 +213,12 @@ namespace Renderer
         // per object
         m_pushDescriptorSetManager.AddUpdateEntry(1, offsetof(VulkanUtils::DescriptorSetData, meshUBBOBuffer), 0);
         // per material
-        m_pushDescriptorSetManager.AddUpdateEntry(2, offsetof(VulkanUtils::DescriptorSetData, pbrMaterialDescription), 0);
-        m_pushDescriptorSetManager.AddUpdateEntry(3, offsetof(VulkanUtils::DescriptorSetData, diffuseTextureImage), 0);
-        m_pushDescriptorSetManager.AddUpdateEntry(4, offsetof(VulkanUtils::DescriptorSetData, normalTextureImage), 0);
-        m_pushDescriptorSetManager.AddUpdateEntry(5, offsetof(VulkanUtils::DescriptorSetData, armTextureImage), 0);
-        m_pushDescriptorSetManager.AddUpdateEntry(6, offsetof(VulkanUtils::DescriptorSetData, emissiveTextureImage), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(2, offsetof(VulkanUtils::DescriptorSetData, pbrMaterialNoTexture), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(3, offsetof(VulkanUtils::DescriptorSetData, pbrMaterialFeatures), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(4, offsetof(VulkanUtils::DescriptorSetData, diffuseTextureImage), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(5, offsetof(VulkanUtils::DescriptorSetData, normalTextureImage), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(6, offsetof(VulkanUtils::DescriptorSetData, armTextureImage), 0);
+        m_pushDescriptorSetManager.AddUpdateEntry(7, offsetof(VulkanUtils::DescriptorSetData, emissiveTextureImage), 0);
     }
 
     //===============================================================================================================

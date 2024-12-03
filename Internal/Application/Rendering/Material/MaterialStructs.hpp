@@ -21,10 +21,10 @@ struct PBRMaterialNoTexture
 
 struct PBRMaterialFeaturees
 {
-    bool hasDiffuseTexture{false};
-    bool hasEmissiveTexture{false};
-    bool hasNormalTexture{false};
-    bool hasArmTexture{false};
+    int hasDiffuseTexture{false};
+    int hasEmissiveTexture{false};
+    int hasNormalTexture{false};
+    int hasArmTexture{false};
 };
 
 struct MaterialPaths
@@ -38,9 +38,6 @@ struct MaterialPaths
         return DiffuseMapPath == other.DiffuseMapPath && ArmMapPath == other.ArmMapPath &&  NormalMapPath == other.NormalMapPath;
     }
 };
-
-
-
 
 
 struct PBRMaterialDescription

@@ -22,9 +22,12 @@ namespace VulkanUtils
     class VUniformBufferManager {
     public:
         VUniformBufferManager(const VulkanCore::VDevice& device, const Client& client);
+
         const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const; // per frame in flight
-        const std::vector<vk::DescriptorBufferInfo>& GetPerMaterialDescriptorBufferInfo(int meshIndex) const; // per object per frame in flight
+        const std::vector<vk::DescriptorBufferInfo>& GetMaterialFeaturesDescriptorBufferInfo(int meshIndex) const; // per object per frame in flight
+        const std::vector<vk::DescriptorBufferInfo>& GetPerMaterialNoMaterialDescrptorBufferInfo(int meshIndex) const; // per object per frame in flight
         const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const; // per object per frame in flight
+
         void UpdateAllUniformBuffers(int frameIndex, std::vector<VulkanStructs::DrawCallData>& drawCalls) const;
         void Destroy() const;
     private:
@@ -35,7 +38,8 @@ namespace VulkanUtils
 
         std::unique_ptr<VulkanUtils::VUniform<PerFrameUBO::GlobalUniform>> m_cameraUniform;
         std::vector<std::unique_ptr<VulkanUtils::VUniform<PerObjectUBO::ObjectDataUniform>>> m_objectDataUniforms;
-        std::vector<std::unique_ptr<VulkanUtils::VUniform<PBRMaterialDescription>>> m_materialDataUniforms;
+        std::vector<std::unique_ptr<VulkanUtils::VUniform<PBRMaterialFeaturees>>> m_materialFeaturesUniform;
+        std::vector<std::unique_ptr<VulkanUtils::VUniform<PBRMaterialNoTexture>>> m_materialNoTextureUniform;
     };
 }
 

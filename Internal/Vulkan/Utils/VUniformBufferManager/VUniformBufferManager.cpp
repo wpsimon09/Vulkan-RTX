@@ -26,11 +26,17 @@ const std::vector<vk::DescriptorBufferInfo> &VulkanUtils::VUniformBufferManager:
     return m_cameraUniform->GetDescriptorBufferInfos();
 }
 
-const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::GetPerMaterialDescriptorBufferInfo(
+const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::GetMaterialFeaturesDescriptorBufferInfo(
     int meshIndex) const
 {
     // returns 2 buffer descriptor info for each frame in flight
-    return m_materialDataUniforms[meshIndex]->GetDescriptorBufferInfos();
+    return m_materialFeaturesUniform[meshIndex]->GetDescriptorBufferInfos();
+}
+
+const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::
+GetPerMaterialNoMaterialDescrptorBufferInfo(int meshIndex) const
+{
+    return m_materialNoTextureUniform[meshIndex]->GetDescriptorBufferInfos();
 }
 
 const std::vector<vk::DescriptorBufferInfo> & VulkanUtils::VUniformBufferManager::GetPerObjectDescriptorBufferInfo(
@@ -49,25 +55,29 @@ void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex,
     m_cameraUniform->UpdateGPUBuffer(frameIndex);
 
     for (int i = 0; i< drawCalls.size(); i++) {
-        m_materialDataUniforms[i]->GetUBOStruct() = drawCalls[i].material->GetMaterialDescription();
+        m_materialFeaturesUniform[i]->GetUBOStruct() = drawCalls[i].material->GetMaterialDescription().features;
+        m_materialFeaturesUniform[i]->UpdateGPUBuffer(frameIndex);
+
+        m_materialNoTextureUniform[i]->GetUBOStruct() = drawCalls[i].material->GetMaterialDescription().values;
+        m_materialNoTextureUniform[i]->UpdateGPUBuffer(frameIndex);
 
         m_objectDataUniforms[i]->GetUBOStruct().model = drawCalls[i].modelMatrix;
         m_objectDataUniforms[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse( drawCalls[i].modelMatrix));
         m_objectDataUniforms[i]->UpdateGPUBuffer(frameIndex);
     }
-
-    // draw call will contain the material for now
-
-
 }
 
 void VulkanUtils::VUniformBufferManager::Destroy() const {
-    Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager...");
+    Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager and all its data...");
     m_cameraUniform->Destory();
     for(auto &ubo: m_objectDataUniforms) {
         ubo->Destory();
     }
-    for (auto& mat: m_materialDataUniforms)
+    for (auto& mat: m_materialFeaturesUniform)
+    {
+        mat->Destory();
+    }
+    for (auto& mat: m_materialNoTextureUniform)
     {
         mat->Destory();
     }
@@ -80,14 +90,21 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
     Utils::Logger::LogInfoVerboseOnly("Allocating 100 uniform buffers before hand");
     GlobalState::LoggingEnabled = false;
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for per object data");
+
     m_objectDataUniforms.resize(MAX_UBO_COUNT);
-    m_materialDataUniforms.resize(MAX_UBO_COUNT);
+    m_materialFeaturesUniform.resize(MAX_UBO_COUNT);
+    m_materialNoTextureUniform.resize(MAX_UBO_COUNT);
 
     for(int i = 0; i <MAX_UBO_COUNT; i++) {
         m_objectDataUniforms[i] = (std::make_unique<VUniform<PerObjectUBO::ObjectDataUniform>>(m_device));
     }
+
     for(int i = 0; i <MAX_UBO_COUNT; i++) {
-        m_materialDataUniforms[i] = (std::make_unique<VUniform<PBRMaterialDescription>>(m_device));
+        m_materialFeaturesUniform[i] = (std::make_unique<VUniform<PBRMaterialFeaturees>>(m_device));
+    }
+
+    for(int i = 0; i <MAX_UBO_COUNT; i++) {
+        m_materialNoTextureUniform[i] = (std::make_unique<VUniform<PBRMaterialNoTexture>>(m_device));
     }
 
     //assert(m_objectDataUniforms.size() == MAX_UBO_COUNT && "Failed to allocate 20 buffers");

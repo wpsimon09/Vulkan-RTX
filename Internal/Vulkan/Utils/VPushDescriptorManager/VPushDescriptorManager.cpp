@@ -17,11 +17,12 @@ namespace VulkanUtils {
             // per object data
             .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex,1)
             // per material datat
-            .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment,1) // material description
-            .AddBinding(3, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // albedo
-            .AddBinding(4, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // normal
-            .AddBinding(5, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // arm
-            .AddBinding(6, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // emissive
+            .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment,1) // material features
+            .AddBinding(3, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment,1) // material no texture data
+            .AddBinding(4, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // albedo
+            .AddBinding(5, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // normal
+            .AddBinding(6, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // arm
+            .AddBinding(7, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // emissive
 
             .Build();
     }
