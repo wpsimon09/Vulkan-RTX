@@ -58,6 +58,9 @@ namespace ApplicationCore {
 
         auto hangarBlackMaterial = m_assetsManager.GetMaterial(materialPaths);
 
+        MaterialPaths defaultMaterial;
+
+        auto defaultMat = m_assetsManager.GetMaterial(defaultMaterial);
 
         // cube 1
         auto obj1 =std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,hangarBlackMaterial, m_assetsManager);
@@ -68,11 +71,11 @@ namespace ApplicationCore {
         obj2->GetTransformations()->SetPosition(20.0f, -10.0f, 0.0f);
         obj2->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 
-        auto obj3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,hangarBlackMaterial, m_assetsManager);
+        auto obj3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat, m_assetsManager);
         obj3->GetTransformations()->SetPosition(40.0f, 10.0f, 0.0f);
         obj3->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 
-        auto obj4 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,hangarBlackMaterial, m_assetsManager);
+        auto obj4 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat, m_assetsManager);
         obj4->GetTransformations()->SetPosition(60.0f, -10.0f, 0.0f);
         obj4->GetTransformations()->SetScale(10.0f, 10.0f ,10.0f);
 

@@ -9,12 +9,12 @@
 
 struct PBRMaterialNoTexture
 {
-    float roughness{0.0f};
-    float metalness{0.0f};
-    float ao{0.0f};
+    float roughness{0.4f};
+    float metalness{0.2f};
+    float ao{0.2f};
     float padding{0.0f};
 
-    glm::vec4 diffuse{1.0f, 0.0f, 0.0f, 1.0f};
+    glm::vec4 diffuse{0.2f, 0.9f, 0.4f, 1.0f};
 
     glm::vec4 emissive_strength{0.0f,0.0f, 0.0f, 0.0f};
 };

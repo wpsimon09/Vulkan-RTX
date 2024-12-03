@@ -83,9 +83,9 @@ struct CookTorrence_GGX: IBRDF {
 
         if (mat.Features.hasArmTexture) {
             float3 armValues = _armMap.Sample(uv).rgb;
-            this.roughness = armValues.r;
+            this.ao =        armValues.r;
+            this.roughness = armValues.g;
             this.metallnes = armValues.b;
-            this.ao =        armValues.g;
         } else {
             this.roughness = mat.Values.roughness;
             this.metallnes = mat.Values.metalness;
@@ -193,10 +193,10 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     float3 color = brdf.Evaluate(V, L, N) * lightColor;
 
-    float3 ambient = brdf.albedo * brdf.ao * 0.8;
+    float3 ambient = brdf.albedo * 0.8;
 
     float3 finalColor = max(color,float(0.0)) + ambient;
 
-    return float4(N, 1.0);
+    return float4(finalColor, 1.0);
 }   
 
