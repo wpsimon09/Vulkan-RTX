@@ -90,7 +90,11 @@ namespace ApplicationCore
 
     std::shared_ptr<ApplicationCore::Material> AssetsManager::GetMaterial(MaterialPaths& path)
     {
-        if (!m_materials.contains(path))
+        if (!m_materials.contains(path) )
+        {
+            m_materials[path] = std::make_shared<Material>(path, *this);
+        }
+        else if (path.isTextureLess())
         {
             m_materials[path] = std::make_shared<Material>(path, *this);
         }

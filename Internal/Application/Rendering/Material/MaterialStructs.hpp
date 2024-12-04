@@ -37,6 +37,11 @@ struct MaterialPaths
     {
         return DiffuseMapPath == other.DiffuseMapPath && ArmMapPath == other.ArmMapPath &&  NormalMapPath == other.NormalMapPath;
     }
+
+    bool isTextureLess() const
+    {
+        return DiffuseMapPath.empty() && ArmMapPath.empty() && NormalMapPath.empty();
+    }
 };
 
 
