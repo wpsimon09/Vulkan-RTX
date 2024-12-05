@@ -65,34 +65,39 @@ namespace ApplicationCore {
 
         MaterialPaths defaultMaterial2;
         auto defaultMat2 = m_assetsManager.GetMaterial(defaultMaterial2);
-        defaultMat2->GetMaterialDescription().values.diffuse = glm::vec4(0.2f, 0.2f, 0.2f,1.0f);
-        defaultMat2->GetMaterialDescription().values.roughness = 0.2;
+        defaultMat2->GetMaterialDescription().values.diffuse = glm::vec4(0.0f, 0.2f, 1.0f,1.0f);
+        defaultMat2->GetMaterialDescription().values.roughness = 0.6;
 
         MaterialPaths defaultMaterial3;
         auto defaultMat3 = m_assetsManager.GetMaterial(defaultMaterial3);
-        defaultMat3->GetMaterialDescription().values.diffuse = glm::vec4(0.1f, 0.1f, 0.1f,1.0f);
-        defaultMat3->GetMaterialDescription().values.roughness = 0.5;
+        defaultMat3->GetMaterialDescription().values.diffuse = glm::vec4(0.8f, 0.8f, 0.8f,1.0f);
+        defaultMat3->GetMaterialDescription().values.roughness = 0.6;
         defaultMat3->GetMaterialDescription().values.metalness = 1.0;
 
+        MaterialPaths defaultMaterial4;
+        auto defaultMat4 = m_assetsManager.GetMaterial(defaultMaterial4);
+        defaultMat4->GetMaterialDescription().values.roughness = 0.2;
+        defaultMat4->GetMaterialDescription().values.metalness = 1.0;
+
         // cube 1
-        auto obj1 =std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat2, m_assetsManager);
-        obj1->GetTransformations()->SetPosition(0.0f, 0.0f, 0.0f);
-        obj1->GetTransformations()->SetScale(2.0f, 2.0f ,2.0f);
+        auto obj1 =std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat4, m_assetsManager);
+        obj1->GetTransformations()->SetPosition(0.0f, -3.0f, 0.0f);
+        obj1->GetTransformations()->SetScale(3.0f, 3.0f ,3.0f);
 
         auto obj2 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat, m_assetsManager);
-        obj2->GetTransformations()->SetPosition(6.0f, 10.0f, 0.0f);
+        obj2->GetTransformations()->SetPosition(6.0f, -4.0f, 0.0f);
         obj2->GetTransformations()->SetScale(4.0f, 4.0f ,4.0f);
 
         auto obj3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,hangarBlackMaterial, m_assetsManager);
-        obj3->GetTransformations()->SetPosition(17.0f, 15.0f, 0.0f);
+        obj3->GetTransformations()->SetPosition(17.0f, -6.0f, 0.0f);
         obj3->GetTransformations()->SetScale(6.0f, 6.0f ,6.0f);
 
-        auto obj4 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,hangarBlackMaterial, m_assetsManager);
-        obj4->GetTransformations()->SetPosition(32.0f, 7.0f, 0.0f);
+        auto obj4 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat3, m_assetsManager);
+        obj4->GetTransformations()->SetPosition(32.0f, -8.0f, 0.0f);
         obj4->GetTransformations()->SetScale(8.0f, 8.0f ,8.0f);
 
-        auto obj5 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat3, m_assetsManager);
-        obj5->GetTransformations()->SetPosition(0.0f, 25.5f, 0.0f);
+        auto obj5 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat2, m_assetsManager);
+        obj5->GetTransformations()->SetPosition(0.0f, 2.5f, 0.0f);
         obj5->GetTransformations()->SetScale(80.0f,2.0f ,80.0f);
 
         m_root->AddChild(obj1);
