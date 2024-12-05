@@ -111,7 +111,7 @@ void VulkanCore::VGraphicsPipeline::CreateVertexInputBindingAndAttributes() {
 }
 
 void VulkanCore::VGraphicsPipeline::CreatePrimitiveAssembler() {
-    m_inputAssembly.topology = vk::PrimitiveTopology::eTriangleStrip;
+    m_inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
     m_inputAssembly.primitiveRestartEnable = vk::False;
 }
 

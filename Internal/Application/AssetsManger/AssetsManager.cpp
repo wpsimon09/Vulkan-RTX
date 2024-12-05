@@ -71,6 +71,11 @@ namespace ApplicationCore
                                                 MeshData::crossIndices);
             break;
         }
+        case MESH_GEOMETRY_POST_PROCESS: {
+            m_meshData[geometryType] = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::fullscreenQuadVertices,
+                                                MeshData::fullscreenQuadIndices);
+            break;
+        }
         default: ;
             throw std::runtime_error("This geometry type is not supported !");
         }

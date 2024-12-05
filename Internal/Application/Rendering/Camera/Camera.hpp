@@ -35,6 +35,8 @@ public:
 
     glm::vec3 GetPosition() const {return this->m_position;};
 
+    glm::vec2 GetCameraPlaneWidthAndHeight() const;
+
     float GetFarPlane() {return this->m_farPlane;}
 
     float GetNearPlane() {return this->m_nearPlane;}
@@ -50,6 +52,8 @@ private:
     float m_minRadius;
     float m_azimuthAngle;
     float m_polarAngle;
+    float m_FOV;
+    float m_aspect;
 
     glm::vec3 m_position;
     glm::vec3 m_center;

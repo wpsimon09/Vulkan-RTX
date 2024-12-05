@@ -14,6 +14,8 @@
         m_worldUp = up;
 
         float width = 800, height = 600;
+
+        m_aspect = width / height;
         m_projection = glm::perspective(glm::radians(65.0f), width / height, 0.1f, 700.0f);
         m_farPlane = 700.0f;;
         m_nearPlane = 0.1f;
@@ -23,6 +25,8 @@
         m_azimuthAngle = azimuthAngle;
         m_polarAngle = polarAngle;
         m_position = getEye();
+
+        m_FOV = 65.0f;
     }
 
     void ApplicationCore::Camera::RotateAzimutn(float radians) {
@@ -79,12 +83,22 @@
     }
 
     void ApplicationCore::Camera::ProcessResize(int newWidht, int newHeight) {
+        m_aspect = (float)newWidht / (float)newHeight;
         m_projection = glm::perspective(glm::radians(65.0f), (float)newWidht / (float)newHeight, 0.1f, 470.0f);
         m_farPlane = GetFarPlane();
         m_nearPlane = 0.1f;
         m_position = getEye();
     }
 
+
+    glm::vec2 ApplicationCore::Camera::GetCameraPlaneWidthAndHeight() const
+    {
+        // projection plane width and height
+        float planeHeight = m_nearPlane * glm::tan(glm::radians(m_FOV * 0.5f)) *2 ;
+        float planeWidth = planeHeight * m_aspect;
+
+        return {planeWidth, planeHeight};
+    }
 
     void ApplicationCore::Camera::Update(CameraUpdateInfo &cameraUpdateInfo)  {
         //Utils::Logger::LogInfo("Updating camera");

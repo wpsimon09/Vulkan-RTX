@@ -168,6 +168,20 @@ namespace ApplicationCore::MeshData
         4, 5, 6, 6, 7, 4
     };
 
+    const std::vector<Vertex> fullscreenQuadVertices = {
+        // Fullscreen quad vertices
+        {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // Bottom-left
+        {{ 1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}}, // Bottom-right
+        {{ 1.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}, // Top-right
+        {{-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}  // Top-left
+    };
+
+    const std::vector<uint32_t> fullscreenQuadIndices = {
+        // Fullscreen quad indices
+        0, 1, 2, 2, 3, 0
+    };
+
+
 
 }
 

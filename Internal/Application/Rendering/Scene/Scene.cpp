@@ -100,13 +100,14 @@ namespace ApplicationCore {
         obj5->GetTransformations()->SetPosition(0.0f, 2.5f, 0.0f);
         obj5->GetTransformations()->SetScale(80.0f,2.0f ,80.0f);
 
+        auto obj6 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_POST_PROCESS,defaultMat2, m_assetsManager);
+
         m_root->AddChild(obj1);
         m_root->AddChild(obj2);
         m_root->AddChild(obj3);
         m_root->AddChild(obj4);
         m_root->AddChild(obj5);
-
-        assert(m_root->GetChildren().size() == 5 && "Not all meshes are in the scene node");
+        m_root->AddChild(obj6);
 
         Utils::Logger::LogSuccessClient("Default scene build");
     }
