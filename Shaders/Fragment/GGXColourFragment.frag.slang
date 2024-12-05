@@ -163,6 +163,23 @@ struct CookTorrence_GGX: IBRDF {
 
 }
 
+float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N ,float3 P)
+{
+    float3 tangentNormal = normalMap.Sample(UV).xyz * 2.0 - 1.0;
+
+    float3 Q1  = ddx(P);
+    float3 Q2  = ddy(P);
+    
+    float2 st1 = ddx(UV);            
+    float2 st2 = ddy(UV);
+
+    float3 N   = normalize(N);
+    float3 T  = normalize(Q1*st2.y - Q2*st1.y);
+    float3 B  = -normalize(cross(N, T));
+    float3x3 TBN = float3x3(T, B, N);
+
+    return normalize(mul(tangentNormal, TBN));
+}
 
 
 [shader("pixel")]
@@ -172,11 +189,8 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
     _materialDstSet.Features = _features;
     _materialDstSet.Values = _materialNoTextureValues;
 
-    float3 lightColor = float3(2.0);
-
-    //float4 fragColor;
-    //fragColor = _albedoMap.Sample(fsIn.uv);
-
+    float3 lightColor = float3(10.0);
+    
     CookTorrence_GGX brdf;
     brdf.FillWithData(_materialDstSet, fsIn.uv);
     
@@ -184,7 +198,7 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     float3 N;
     if (_materialDstSet.Features.hasNormalTexture) {
-        N = _normalMap.Sample(fsIn.uv).rgb;
+        N = normalize(SampleNormalMap(_normalMap, fsIn.uv, fsIn.normal, fsIn.fragPos));
     } else {
         N = normalize(fsIn.normal);
     }
@@ -197,6 +211,6 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     float3 finalColor = max(color,float(0.0)) + ambient;
 
-    return float4(finalColor, 1.0);
+    return float4(finalColor , 1.0);
 }   
 

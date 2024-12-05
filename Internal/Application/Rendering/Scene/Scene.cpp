@@ -52,7 +52,7 @@ namespace ApplicationCore {
     void Scene::BuildDefaultScene()
     {
         MaterialPaths materialPaths;
-        materialPaths.DiffuseMapPath = "";
+        materialPaths.DiffuseMapPath = "/home/wpsimon09/Desktop/Textures/hangar-black/albedo.png";
         materialPaths.ArmMapPath = "/home/wpsimon09/Desktop/Textures/hangar-black/arm.png";
         materialPaths.NormalMapPath = "/home/wpsimon09/Desktop/Textures/hangar-black/normal.png";
 
@@ -66,21 +66,22 @@ namespace ApplicationCore {
         MaterialPaths defaultMaterial2;
         auto defaultMat2 = m_assetsManager.GetMaterial(defaultMaterial2);
         defaultMat2->GetMaterialDescription().values.diffuse = glm::vec4(0.2f, 0.2f, 0.2f,1.0f);
+        defaultMat2->GetMaterialDescription().values.roughness = 0.2;
         // cube 1
         auto obj1 =std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,hangarBlackMaterial, m_assetsManager);
         obj1->GetTransformations()->SetPosition(0.0f, 0.0f, 0.0f);
         obj1->GetTransformations()->SetScale(2.0f, 2.0f ,2.0f);
 
         auto obj2 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,hangarBlackMaterial, m_assetsManager);
-        obj2->GetTransformations()->SetPosition(4.0f, 10.0f, 0.0f);
+        obj2->GetTransformations()->SetPosition(6.0f, 10.0f, 0.0f);
         obj2->GetTransformations()->SetScale(4.0f, 4.0f ,4.0f);
 
         auto obj3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat, m_assetsManager);
-        obj3->GetTransformations()->SetPosition(10.0f, 15.0f, 0.0f);
+        obj3->GetTransformations()->SetPosition(17.0f, 15.0f, 0.0f);
         obj3->GetTransformations()->SetScale(6.0f, 6.0f ,6.0f);
 
         auto obj4 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat, m_assetsManager);
-        obj4->GetTransformations()->SetPosition(20.0f, 7.0f, 0.0f);
+        obj4->GetTransformations()->SetPosition(32.0f, 7.0f, 0.0f);
         obj4->GetTransformations()->SetScale(8.0f, 8.0f ,8.0f);
 
         auto obj5 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat2, m_assetsManager);
@@ -92,5 +93,9 @@ namespace ApplicationCore {
         m_root->AddChild(obj3);
         m_root->AddChild(obj4);
         m_root->AddChild(obj5);
+
+        assert(m_root->GetChildren().size() == 5 && "Not all meshes are in the scene node");
+
+        Utils::Logger::LogSuccessClient("Default scene build");
     }
 } // ApplicationCore
