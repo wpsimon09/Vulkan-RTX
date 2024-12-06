@@ -104,9 +104,9 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     Ray ray;
     ray.origin = fsIn.cameraPos;
-    ray.dir = normalize(viewPoint.xyz - ray.origin);
+    ray.dir = -normalize(viewPoint.xyz - ray.origin);
 
     //return float4(normalize(viewPointLocal), 1.0);
-    //return float4(float3(RaySphere(ray, 0, 1).didHit), 1.0);
-    return float4(ray.dir,0.0);
+    return float4(float3(RaySphere(ray, 0, 1).didHit), 1.0);
+    //return float4(ray.dir,0.0);
 }
