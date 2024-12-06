@@ -31,15 +31,17 @@ public:
 
     glm::mat4 GetProjectionMatrix() const {return this->m_projection;}
 
-    glm::mat4 GetViewMatrix() const {return glm::lookAt(this->m_position,m_center, this->m_worldUp);};
+    glm::mat4 GetViewMatrix() const {return glm::lookAt(this->m_position,m_center, this->m_worldUp);}
+
+    glm::mat4 GetInverseViewMatrix() const {return glm::inverse(glm::lookAt(this->m_position,m_center, this->m_worldUp)); };
 
     glm::vec3 GetPosition() const {return this->m_position;};
 
     glm::vec2 GetCameraPlaneWidthAndHeight() const;
 
-    float GetFarPlane() {return this->m_farPlane;}
+    float GetFarPlane() const {return this->m_farPlane;}
 
-    float GetNearPlane() {return this->m_nearPlane;}
+    float GetNearPlane() const {return this->m_nearPlane;}
 
     void Update(CameraUpdateInfo& cameraUpdateInfo);
 

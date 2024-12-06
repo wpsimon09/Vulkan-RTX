@@ -93,8 +93,6 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     basicPipeline->SetPipelineType(PIPELINE_TYPE_RASTER_PBR_COLOURED);
     m_pipelines.insert(std::make_pair(PIPELINE_TYPE_RASTER_PBR_COLOURED, std::move(basicPipeline)));
 
-
-
 }
 
 

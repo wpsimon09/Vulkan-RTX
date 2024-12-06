@@ -94,6 +94,7 @@
     glm::vec2 ApplicationCore::Camera::GetCameraPlaneWidthAndHeight() const
     {
         // projection plane width and height
+
         float planeHeight = m_nearPlane * glm::tan(glm::radians(m_FOV * 0.5f)) *2 ;
         float planeWidth = planeHeight * m_aspect;
 
@@ -114,6 +115,12 @@
         MoveVertical(cameraUpdateInfo.MoveY);
         cameraUpdateInfo.Reset();
 
+        glm::vec3 direction = glm::normalize(m_center - m_position);
+
+        std::cout << "Direction X: " << direction.x << std::endl;
+        std::cout << "Direction Y: " << direction.y << std::endl;
+        std::cout << "Direction Z: " << direction.z << std::endl;
+
     }
 
     glm::vec3 ApplicationCore::Camera::getEye() {
@@ -125,6 +132,7 @@
         const auto x = m_center.x + m_radius * cosinePolar * cosineAzimuzh;
         const auto y = m_center.y + m_radius * sinePolar;
         const auto z = m_center.z + m_radius * cosinePolar * sineAzimuth;
+
 
         return {x, y, z};
     }
