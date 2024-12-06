@@ -102,11 +102,11 @@ namespace ApplicationCore {
 
         auto obj6 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_POST_PROCESS,defaultMat2, m_assetsManager);
 
-        m_root->AddChild(obj1);
-        m_root->AddChild(obj2);
-        m_root->AddChild(obj3);
-        m_root->AddChild(obj4);
-        m_root->AddChild(obj5);
+        //m_root->AddChild(obj1);
+        //m_root->AddChild(obj2);
+        //m_root->AddChild(obj3);
+        //m_root->AddChild(obj4);
+        //m_root->AddChild(obj5);
         m_root->AddChild(obj6);
 
         Utils::Logger::LogSuccessClient("Default scene build");

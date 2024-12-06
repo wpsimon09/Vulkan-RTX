@@ -60,7 +60,107 @@ struct HitInfo {
     float dst;
     float3 hitPoint;
     float3 normal;
+    RayTracingMaterial hitMaterial;
 }
+
+struct RayTracingMaterial {
+    float3 color;
+}
+
+struct Sphere {
+    float3 position;
+    float radius;
+    RayTracingMaterial mat;
+}
+
+Sphere[] BuildScene() {
+
+    // Material definitions
+    RayTracingMaterial redMaterial;
+    redMaterial.color = float3(0.9, 0.0, 0.0);
+
+    RayTracingMaterial greenMaterial;
+    greenMaterial.color = float3(0.0, 0.9, 0.0);
+
+    RayTracingMaterial blueMaterial;
+    blueMaterial.color = float3(0.0, 0.0, 0.9);
+
+    RayTracingMaterial yellowMaterial;
+    yellowMaterial.color = float3(1.0, 1.0, 0.0);
+
+    RayTracingMaterial grayMaterial;
+    grayMaterial.color = float3(0.5, 0.5, 0.5);
+
+    RayTracingMaterial purpleMaterial;
+    purpleMaterial.color = float3(0.6, 0.0, 0.6);
+
+    RayTracingMaterial orangeMaterial;
+    orangeMaterial.color = float3(1.0, 0.5, 0.0);
+
+    RayTracingMaterial sunMaterial;
+    sunMaterial.color = float3(1.0, 1.0, 1.0); // Bright yellow
+
+    RayTracingMaterial lightMaterial;
+    lightMaterial.color = float3(1.0, 1.0, 1.0); // White light
+
+    RayTracingMaterial floorMaterial;
+    floorMaterial.color = float3(0.4); // Dark gray for the floor
+
+    // Sphere definitions
+    Sphere floorSphere;
+    floorSphere.position = float3(0.0, -50.0, 0.0); // Below the scene
+    floorSphere.radius = 50.0;                      // Huge sphere for the floor
+    floorSphere.mat = floorMaterial;
+
+    Sphere sunSphere;
+    sunSphere.position = float3(0.0, 20.0, -80.0); // High above the scene
+    sunSphere.radius = 40.0;                        // Large sphere for the sun
+    sunSphere.mat = sunMaterial;
+
+    Sphere sphere1;
+    sphere1.position = float3(-15.0, -5.0, -25.0);
+    sphere1.radius = 4.0;
+    sphere1.mat = redMaterial;
+
+    Sphere sphere2;
+    sphere2.position = float3(12.0, -8.0, -30.0);
+    sphere2.radius = 5.0;
+    sphere2.mat = greenMaterial;
+
+    Sphere sphere3;
+    sphere3.position = float3(-7.0, -3.0, -15.0);
+    sphere3.radius = 3.5;
+    sphere3.mat = blueMaterial;
+
+    Sphere sphere4;
+    sphere4.position = float3(8.0, -6.0, -20.0);
+    sphere4.radius = 2.5;
+    sphere4.mat = yellowMaterial;
+
+    Sphere sphere5;
+    sphere5.position = float3(5.0, -5.0, -10.0);
+    sphere5.radius = 3.0;
+    sphere5.mat = grayMaterial;
+
+    Sphere sphere6;
+    sphere6.position = float3(-10.0, -5.0, -5.0);
+    sphere6.radius = 2.0;
+    sphere6.mat = purpleMaterial;
+
+    Sphere sphere7;
+    sphere7.position = float3(3.0, -4.0, -18.0);
+    sphere7.radius = 3.5;
+    sphere7.mat = orangeMaterial;
+
+
+    // Array of spheres in the scene
+    return {
+        floorSphere, sunSphere, sphere1, sphere2, sphere3,
+        sphere4, sphere5, sphere6, sphere7
+    };
+
+}
+
 
 HitInfo RaySphere(Ray ray, float3 spherecenter, float radius)
 {
@@ -77,19 +177,40 @@ HitInfo RaySphere(Ray ray, float3 spherecenter, float radius)
 
     // hit hits the sphere at least once 
     if(discriminatn >= 0){
+
+        // calculate the x1 of the quadratic equation to hae the front point and not the one in the back 
         float dst = (-b -sqrt(discriminatn)) / (2 * a);
         
         // ray hits sphere more than once 
         if(dst >= 0){
             hitInfo.didHit = true;
             hitInfo.dst = dst;
-
             // get the hit poinnt
             hitInfo.hitPoint = ray.origin + ray.dir * dst;
             hitInfo.normal = normalize(hitInfo.hitPoint - spherecenter);
         }
     }
     return hitInfo;
+}
+
+HitInfo CalculateRayCollision(Ray ray, Sphere spheres[], int sphereCount) {
+    HitInfo defautlHitInfo;
+    defautlHitInfo.didHit = false;
+    defautlHitInfo.hitMaterial.color = float3(0, 0, 0);
+    defautlHitInfo.dst = 1040002;
+
+    HitInfo closestHit = defautlHitInfo;
+
+    for (int i = 0; i < sphereCount; i++) {
+        Sphere sphere = spheres[i];
+        HitInfo hitInfo = RaySphere(ray, sphere.position, sphere.radius);
+
+        if (hitInfo.didHit && hitInfo.dst < closestHit.dst){
+            closestHit = hitInfo;
+            closestHit.hitMaterial  = spheres[i].mat;
+        }
+    }
+    return closestHit;
 }
 
 [shader("pixel")]
@@ -99,14 +220,24 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
     _materialDstSet.Features = _features;
     _materialDstSet.Values = _materialNoTextureValues;
 
+    Sphere sceneData[] = BuildScene();
+
     float3 viewPointLocal = float3((fsIn.uv)- 0.5, 1) * fsIn.viewParameters.xyz;
     float4 viewPoint = mul(fsIn.localToWorldMatrix, float4(viewPointLocal,1));
 
     Ray ray;
     ray.origin = fsIn.cameraPos;
-    ray.dir = -normalize(viewPoint.xyz - ray.origin);
+    // due to Vulkan corrdingate system this has to be negative
+    ray.dir = normalize(ray.origin - viewPoint.xyz);
 
     //return float4(normalize(viewPointLocal), 1.0);
-    return float4(float3(RaySphere(ray, 0, 1).didHit), 1.0);
+
+    HitInfo result = CalculateRayCollision(ray, sceneData, 9);
+
+
+    return float4(result.hitMaterial.color.xyz, 1);
+
     //return float4(ray.dir,0.0);
+
+    //return float4(sceneData.getCount());
 }
