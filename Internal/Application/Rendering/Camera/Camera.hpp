@@ -33,7 +33,9 @@ public:
 
     glm::mat4 GetViewMatrix() const {return glm::lookAt(this->m_position,m_center, this->m_worldUp);}
 
-    glm::mat4 GetInverseViewMatrix() const {return glm::inverse(glm::lookAt(this->m_position,m_center, this->m_worldUp)); };
+    glm::mat4 GetInverseViewMatrix() const {return glm::inverse(glm::lookAt(this->m_position,m_center, this->m_worldUp)); }
+
+    glm::vec2 GetScreenSize() const {return m_screenSize;};
 
     glm::vec3 GetPosition() const {return this->m_position;};
 
@@ -60,6 +62,7 @@ private:
     glm::vec3 m_position;
     glm::vec3 m_center;
     glm::vec3 m_worldUp;
+    glm::vec2 m_screenSize;
 
 
     glm::mat4 m_projection = glm::mat4(1.0f);

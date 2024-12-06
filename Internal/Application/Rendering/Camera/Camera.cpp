@@ -26,6 +26,8 @@
         m_polarAngle = polarAngle;
         m_position = getEye();
 
+        m_screenSize = {width, height};
+
         m_FOV = 65.0f;
     }
 
@@ -88,6 +90,8 @@
         m_farPlane = GetFarPlane();
         m_nearPlane = 0.1f;
         m_position = getEye();
+
+        m_screenSize = {newWidht, newHeight};
     }
 
 

@@ -6,6 +6,7 @@ struct FragmentShaderIn {
     float2 uv : OUT_UV;
     float4 viewParameters : OUT_VIEW_PARMAS;
     float4x4 localToWorldMatrix : OUT_MODEL_MATRIX;
+    float2 screenSize : OUT_SCREEN_SIZE;
 };
 
 
@@ -61,16 +62,21 @@ struct HitInfo {
     float3 hitPoint;
     float3 normal;
     RayTracingMaterial hitMaterial;
+    __init() { didHit = false; dst = 40000; hitPoint = float3(0); normal = float3(0, 1, 0);}
 }
 
 struct RayTracingMaterial {
     float3 color;
+    float3 emissiveColour;
+    float emissionStrength;
+    __init() { color = float3(0.0); emissiveColour = float3(0.0); emissionStrength = 0.0;}
 }
 
 struct Sphere {
     float3 position;
     float radius;
     RayTracingMaterial mat;
+    __init() {position = float3(0) ; radius = 1;}
 }
 
 Sphere[] BuildScene() {
@@ -78,7 +84,7 @@ Sphere[] BuildScene() {
     // Material definitions
     RayTracingMaterial redMaterial;
     redMaterial.color = float3(0.9, 0.0, 0.0);
-
+    
     RayTracingMaterial greenMaterial;
     greenMaterial.color = float3(0.0, 0.9, 0.0);
 
@@ -98,7 +104,9 @@ Sphere[] BuildScene() {
     orangeMaterial.color = float3(1.0, 0.5, 0.0);
 
     RayTracingMaterial sunMaterial;
-    sunMaterial.color = float3(1.0, 1.0, 1.0); // Bright yellow
+    sunMaterial.color = float3(0.0); // Bright yellow
+    sunMaterial.emissiveColour = float3(1.0, 1.0, 1.0);
+    sunMaterial.emissionStrength = 10;
 
     RayTracingMaterial lightMaterial;
     lightMaterial.color = float3(1.0, 1.0, 1.0); // White light
@@ -113,8 +121,8 @@ Sphere[] BuildScene() {
     floorSphere.mat = floorMaterial;
 
     Sphere sunSphere;
-    sunSphere.position = float3(0.0, 20.0, -80.0); // High above the scene
-    sunSphere.radius = 40.0;                        // Large sphere for the sun
+    sunSphere.position = float3(0.0, 20.0, -120.0); // High above the scene
+    sunSphere.radius = 70.0;                        // Large sphere for the sun
     sunSphere.mat = sunMaterial;
 
     Sphere sphere1;
@@ -213,6 +221,60 @@ HitInfo CalculateRayCollision(Ray ray, Sphere spheres[], int sphereCount) {
     return closestHit;
 }
 
+float RandomValue(inout uint state) {
+    state = state * 747796405 + 2891336453;
+    uint result = ((state >> ((state >> 28) + 4)) ^ state) * 277803737;
+    result = (result >> 22) ^ result;
+    return float(result) / 4294967295.0;
+}
+
+float RandomValueNormalDistribution(inout uint state) {
+    float theta = 2 * 3.1415926 * RandomValue(state);
+    float rho = sqrt(-2 * log(RandomValue(state)));
+    return rho * cos(theta);
+}
+
+float3 RandomDirection(inout uint state) {
+
+    float x = RandomValueNormalDistribution(state);
+    float y = RandomValueNormalDistribution(state);
+    float z = RandomValueNormalDistribution(state);
+    return normalize(float3(x, y, z));
+}
+
+float3 RandomHemisphereDirection(float3 normal, inout uint rngState)
+{
+    float3 dir = RandomDirection(rngState);
+    return dir * sign(dot(normal, dir));
+}
+
+float3 Trace(Ray ray, int MaxBounceCount, inout uint rngState) {
+    Sphere sceneData[] = BuildScene();
+    float3 rayColour = 1;
+    float3 incomingLight = 0;
+    for (int i = 0; i <= MaxBounceCount; i++)
+    {
+        HitInfo hitInfo = CalculateRayCollision(ray, sceneData, 10);
+        if (hitInfo.didHit) {
+            // if hit is detected set ray origing from camera to the hit point
+            ray.origin = hitInfo.hitPoint;
+            ray.dir = RandomHemisphereDirection(hitInfo.normal, rngState);
+
+            // calcualte the newe colour of the ray (pixel)
+            RayTracingMaterial hitMaterial = hitInfo.hitMaterial;
+            float3 emittedLight = hitMaterial.emissiveColour * hitMaterial.emissionStrength;
+            incomingLight += emittedLight * rayColour;
+            rayColour *= hitMaterial.color;
+        
+        } else 
+        {
+            break;
+        }
+    }
+
+    return incomingLight;
+}
+
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
@@ -220,7 +282,13 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
     _materialDstSet.Features = _features;
     _materialDstSet.Values = _materialNoTextureValues;
 
-    Sphere sceneData[] = BuildScene();
+    uint2 numPixels;
+    numPixels.x = (uint)fsIn.screenSize.x;
+    numPixels.y = (uint)fsIn.screenSize.y;
+
+    uint2 pixelCoord = (uint)(fsIn.uv.x) * (uint)(fsIn.uv.y) * numPixels;
+    uint pixelIndex = pixelCoord.y * numPixels.x + pixelCoord.x;
+    uint rngState = pixelIndex;
 
     float3 viewPointLocal = float3((fsIn.uv)- 0.5, 1) * fsIn.viewParameters.xyz;
     float4 viewPoint = mul(fsIn.localToWorldMatrix, float4(viewPointLocal,1));
@@ -230,14 +298,6 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
     // due to Vulkan corrdingate system this has to be negative
     ray.dir = normalize(ray.origin - viewPoint.xyz);
 
-    //return float4(normalize(viewPointLocal), 1.0);
-
-    HitInfo result = CalculateRayCollision(ray, sceneData, 9);
-
-
-    return float4(result.hitMaterial.color.xyz, 1);
-
-    //return float4(ray.dir,0.0);
-
-    //return float4(sceneData.getCount());
+    float3 col = Trace(ray, 2, rngState);
+    return float4(col,1.0);
 }

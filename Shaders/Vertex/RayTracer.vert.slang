@@ -12,6 +12,7 @@ struct FragmentShaderIn {
     float2 uv : OUT_UV;
     float4 viewParameters : OUT_VIEW_PARMAS;
     float4x4 localToWorldMatrix : OUT_MODEL_MATRIX;
+    float2 screenSize : OUT_SCREEN_SIZE;
 };
 
 struct VertexOutput {
@@ -27,6 +28,10 @@ struct GlobalData {
     float4 lightPosition;
     float4 cameraPostiion;
     float4 viewParams;
+
+    float padding;
+    float padding2;
+    float2 screenSize;
 };
 
 [[vk::binding(0,0)]]
@@ -58,7 +63,8 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
     out.vertexData.normal = NormalWorldPos;
     out.vertexData.uv = uv;
     out.vertexData.viewParameters = globalData.viewParams;
-    out.vertexData.localToWorldMatrix =  globalData.inverseView;
+    out.vertexData.localToWorldMatrix = globalData.inverseView;
+    out.vertexData.screenSize = globalData.screenSize;
 
     float4x4 viewProj = mul(globalData.view, globalData.projection);
     out.sv_position = float4(vertexPos, 1.0);
