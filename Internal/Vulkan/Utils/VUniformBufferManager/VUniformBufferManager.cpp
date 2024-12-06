@@ -97,6 +97,7 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
 
     m_objectDataUniforms.resize(MAX_UBO_COUNT);
     m_materialFeaturesUniform.resize(MAX_UBO_COUNT);
+
     m_materialNoTextureUniform.resize(MAX_UBO_COUNT);
 
     for(int i = 0; i <MAX_UBO_COUNT; i++) {
