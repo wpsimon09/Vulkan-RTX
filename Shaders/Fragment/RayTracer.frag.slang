@@ -112,7 +112,7 @@ Sphere[] BuildScene() {
     lightMaterial.color = float3(1.0, 1.0, 1.0); // White light
 
     RayTracingMaterial floorMaterial;
-    floorMaterial.color = float3(0.4); // Dark gray for the floor
+    floorMaterial.color = float3(0.8); // Dark gray for the floor
 
     // Sphere definitions
     Sphere floorSphere;
@@ -121,7 +121,7 @@ Sphere[] BuildScene() {
     floorSphere.mat = floorMaterial;
 
     Sphere sunSphere;
-    sunSphere.position = float3(0.0, 20.0, -120.0); // High above the scene
+    sunSphere.position = float3(0.0, 20.0, -180.0); // High above the scene
     sunSphere.radius = 70.0;                        // Large sphere for the sun
     sunSphere.mat = sunMaterial;
 
@@ -289,11 +289,18 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     Ray ray;
     ray.origin = fsIn.cameraPos;
-
+    
     // due to Vulkan corrdingate system this has to be negative
     ray.dir = normalize(ray.origin - viewPoint.xyz);
+    
+    int raysPerPixel = 10;
+    float3 totalIncomingLight = 0; 
 
-    float3 col = Trace(ray, 5, rngState);
+        for (int rayIndex = 0; rayIndex < raysPerPixel; rayIndex++) {
+        totalIncomingLight += Trace(ray, 15, rngState);
+    }
+
+    float3 col = totalIncomingLight / raysPerPixel;
 
     return float4(col, 1);
 }
