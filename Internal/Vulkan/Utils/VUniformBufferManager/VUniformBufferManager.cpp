@@ -54,7 +54,7 @@ void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex,
     m_cameraUniform->GetUBOStruct().screenSize = m_client.GetCamera().GetScreenSize();
 
     m_cameraUniform->GetUBOStruct().playerPosition = glm::vec4(m_client.GetCamera().GetPosition(),1.0f);
-    m_cameraUniform->GetUBOStruct().lightPosition = glm::vec4(2.0f, -90.0f, 10.0f,0.0f);
+    m_cameraUniform->GetUBOStruct().lightPosition = m_client.GetLightPosition();
     m_cameraUniform->GetUBOStruct().viewParams = glm::vec4(m_client.GetCamera().GetCameraPlaneWidthAndHeight(), m_client.GetCamera().GetNearPlane(),1.0f);
     m_cameraUniform->UpdateGPUBuffer(frameIndex);
 

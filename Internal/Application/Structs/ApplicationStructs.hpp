@@ -40,4 +40,25 @@ struct CameraUpdateInfo
     }
 };
 
+struct LightUpdateInfo
+{
+    float moveX = 0.0f;
+    float moveY = 0.0f;
+    float moveZ = 0.0f;
+    void Reset()
+    {
+        moveX = 0.0f;
+        moveY = 0.0f;
+        moveZ = 0.0f;
+    }
+    void Print() const {
+
+        std::cout << "===================================================="<<std::endl;
+        std::cout << "Movex: " << moveX << std::endl;
+        std::cout << "MoveY: " << moveY << std::endl;
+        std::cout << "===================================================="<<std::endl;
+
+    }
+};
+
 #endif //APPLICATIONSTRUCTS_HPP

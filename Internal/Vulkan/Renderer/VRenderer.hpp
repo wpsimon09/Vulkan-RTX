@@ -105,8 +105,6 @@ namespace Renderer
         const VulkanCore::VGraphicsPipeline *m_graphicsPipeline;
         VulkanStructs::RenderContext m_renderContext;
     };
-
-
 } // Renderer
 
 #endif //VRENDERER_HPP

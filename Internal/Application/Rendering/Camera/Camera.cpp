@@ -107,7 +107,7 @@
 
     void ApplicationCore::Camera::Update(CameraUpdateInfo &cameraUpdateInfo)  {
         //Utils::Logger::LogInfo("Updating camera");
-        cameraUpdateInfo.Print();
+        //cameraUpdateInfo.Print();
 
         RotateAzimutn(cameraUpdateInfo.RotateAzimuthValue);
         RotatePolar(cameraUpdateInfo.RotatePolarValue);

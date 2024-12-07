@@ -8,7 +8,7 @@
 
 #include "Application/Structs/ApplicationStructs.hpp"
 
-WindowManager::WindowManager(int windowWidth, int windowHeight):m_cameraMovement{0.0f, 0.0f, 0.0f}
+WindowManager::WindowManager(int windowWidth, int windowHeight):m_cameraMovement{0.0f, 0.0f, 0.0f}, m_lightUpdate()
 {
     m_width = windowWidth;
     m_height = windowHeight;
@@ -156,8 +156,21 @@ void WindowManager::FrameBufferResizeCallback(GLFWwindow *window, int width, int
 
 void WindowManager::KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
+    winm->m_isDirty = true;
+
     if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_PRESS)
         winm->m_isShiftPressed = true;
     if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_RELEASE)
         winm->m_isShiftPressed = false;
+
+    if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+        winm->m_lightUpdate.moveY += 0.3;
+    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+        winm->m_lightUpdate.moveY -= 0.3;
+    if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
+        winm->m_lightUpdate.moveX -= 0.3;
+    if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
+        winm->m_lightUpdate.moveX += 0.3;
+
+
 }

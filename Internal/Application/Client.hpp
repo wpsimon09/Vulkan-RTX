@@ -6,6 +6,10 @@
 #define CLIENT_HPP
 #include <memory>
 #include <vector>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+
+#include "Structs/ApplicationStructs.hpp"
 
 //TODO: this class is going to boot up the client site of the renderer like geometry creation, assets managers and all of that stuff, instance of this will be creatd in VulkaRT
 
@@ -38,10 +42,13 @@ public:
     const void MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager);
     const void Destroy();
 
-    ApplicationCore::AssetsManager& GetAssetsManager() const {return *m_assetsManager;};
+    ApplicationCore::AssetsManager& GetAssetsManager() const {return *m_assetsManager;}
+
+    glm::vec4 GetLightPosition() const {return glm::vec4(m_sunLightPosition,1.0);};
 
     void Update();
     void UpdateCamera(CameraUpdateInfo& cameraUpdateInfo);
+    void UpdateLight(LightUpdateInfo& lightUpdateInfo);
     ~Client() = default;
     const ApplicationCore::Camera& GetCamera() const {return *m_camera;};
 
@@ -50,6 +57,7 @@ private:
     std::vector<std::unique_ptr<class ApplicationCore::Mesh>> m_meshes;
     std::unique_ptr<ApplicationCore::Camera> m_camera;
     std::unique_ptr<ApplicationCore::Scene> m_scene;
+    glm::vec3 m_sunLightPosition = glm::vec3(0.0f, 5.0f, -20.0f);
 };
 
 

@@ -1,3 +1,93 @@
+Sphere[] BuildScene() {
+
+    // Material definitions
+    RayTracingMaterial redMaterial;
+    redMaterial.color = float3(0.9, 0.0, 0.0);
+    
+    RayTracingMaterial greenMaterial;
+    greenMaterial.color = float3(0.0, 0.9, 0.0);
+
+    RayTracingMaterial blueMaterial;
+    blueMaterial.color = float3(0.0, 0.0, 0.9);
+
+    RayTracingMaterial yellowMaterial;
+    yellowMaterial.color = float3(1.0, 1.0, 0.0);
+
+    RayTracingMaterial grayMaterial;
+    grayMaterial.color = float3(0.5, 0.5, 0.5);
+
+    RayTracingMaterial purpleMaterial;
+    purpleMaterial.color = float3(0.6, 0.0, 0.6);
+
+    RayTracingMaterial orangeMaterial;
+    orangeMaterial.color = float3(1.0, 0.5, 0.0);
+
+    RayTracingMaterial sunMaterial;
+    sunMaterial.color = float3(0.0); // Bright yellow
+    sunMaterial.emissiveColour = float3(1.0, 1.0, 1.0);
+    sunMaterial.emissionStrength = 20;
+
+    RayTracingMaterial lightMaterial;
+    lightMaterial.color = float3(1.0, 1.0, 1.0); // White light
+
+    RayTracingMaterial floorMaterial;
+    floorMaterial.color = float3(0.8); // Dark gray for the floor
+
+    // Sphere definitions
+    Sphere floorSphere;
+    floorSphere.position = float3(0.0, -50.0, 0.0); // Below the scene
+    floorSphere.radius = 50.0;                      // Huge sphere for the floor
+    floorSphere.mat = floorMaterial;
+
+    Sphere sunSphere;
+    sunSphere.position = float3(0.0, 100.0, -280.0); // High above the scene
+    sunSphere.radius = 80.0;                        // Large sphere for the sun
+    sunSphere.mat = sunMaterial;
+
+    Sphere sphere1;
+    sphere1.position = float3(-15.0, -5.0, -25.0);
+    sphere1.radius = 4.0;
+    sphere1.mat = redMaterial;
+
+    Sphere sphere2;
+    sphere2.position = float3(12.0, -8.0, -30.0);
+    sphere2.radius = 5.0;
+    sphere2.mat = greenMaterial;
+
+    Sphere sphere3;
+    sphere3.position = float3(-7.0, -3.0, -15.0);
+    sphere3.radius = 3.5;
+    sphere3.mat = blueMaterial;
+
+    Sphere sphere4;
+    sphere4.position = float3(8.0, -6.0, -20.0);
+    sphere4.radius = 2.5;
+    sphere4.mat = yellowMaterial;
+
+    Sphere sphere5;
+    sphere5.position = float3(5.0, -5.0, -10.0);
+    sphere5.radius = 3.0;
+    sphere5.mat = grayMaterial;
+
+    Sphere sphere6;
+    sphere6.position = float3(-10.0, -5.0, -5.0);
+    sphere6.radius = 2.0;
+    sphere6.mat = purpleMaterial;
+
+    Sphere sphere7;
+    sphere7.position = float3(3.0, -4.0, -18.0);
+    sphere7.radius = 3.5;
+    sphere7.mat = orangeMaterial;
+
+
+    // Array of spheres in the scene
+    return {
+        floorSphere, sphere1, sphere2, sphere3,
+        sphere4, sphere5, sphere6, sphere7
+    };
+
+}
+
 struct FragmentShaderIn {
     float3 normal : OUT_NORMAL;
     float3 cameraPos : OUT_CAM_POS;
@@ -60,94 +150,18 @@ struct Sphere {
     __init() {position = float3(0) ; radius = 1;}
 }
 
-Sphere[] BuildScene() {
+float3 GatherEnvLight(Ray ray, float3 sunLightPosition, float sunFocus, float sunIntensity) {
+    float3 SkyColorHorizon = float3(0.6, 0.6, 0.9);
+    float3 SkyColorZenith = float3(0.2, 0.2, 0.9);
+    float3 GroundColor = float3(0.4, 0.4, 0.4);
 
-    // Material definitions
-    RayTracingMaterial redMaterial;
-    redMaterial.color = float3(0.9, 0.0, 0.0);
+    float skyGradientT = pow(smoothstep(0, 0.4, ray.dir.y),0.35);
+    float groundToSkyT = smoothstep(-0.01, 0, ray.dir.y);
     
-    RayTracingMaterial greenMaterial;
-    greenMaterial.color = float3(0.0, 0.9, 0.0);
-
-    RayTracingMaterial blueMaterial;
-    blueMaterial.color = float3(0.0, 0.0, 0.9);
-
-    RayTracingMaterial yellowMaterial;
-    yellowMaterial.color = float3(1.0, 1.0, 0.0);
-
-    RayTracingMaterial grayMaterial;
-    grayMaterial.color = float3(0.5, 0.5, 0.5);
-
-    RayTracingMaterial purpleMaterial;
-    purpleMaterial.color = float3(0.6, 0.0, 0.6);
-
-    RayTracingMaterial orangeMaterial;
-    orangeMaterial.color = float3(1.0, 0.5, 0.0);
-
-    RayTracingMaterial sunMaterial;
-    sunMaterial.color = float3(0.0); // Bright yellow
-    sunMaterial.emissiveColour = float3(1.0, 1.0, 1.0);
-    sunMaterial.emissionStrength = 10;
-
-    RayTracingMaterial lightMaterial;
-    lightMaterial.color = float3(1.0, 1.0, 1.0); // White light
-
-    RayTracingMaterial floorMaterial;
-    floorMaterial.color = float3(0.8); // Dark gray for the floor
-
-    // Sphere definitions
-    Sphere floorSphere;
-    floorSphere.position = float3(0.0, -50.0, 0.0); // Below the scene
-    floorSphere.radius = 50.0;                      // Huge sphere for the floor
-    floorSphere.mat = floorMaterial;
-
-    Sphere sunSphere;
-    sunSphere.position = float3(0.0, 20.0, -180.0); // High above the scene
-    sunSphere.radius = 70.0;                        // Large sphere for the sun
-    sunSphere.mat = sunMaterial;
-
-    Sphere sphere1;
-    sphere1.position = float3(-15.0, -5.0, -25.0);
-    sphere1.radius = 4.0;
-    sphere1.mat = redMaterial;
-
-    Sphere sphere2;
-    sphere2.position = float3(12.0, -8.0, -30.0);
-    sphere2.radius = 5.0;
-    sphere2.mat = greenMaterial;
-
-    Sphere sphere3;
-    sphere3.position = float3(-7.0, -3.0, -15.0);
-    sphere3.radius = 3.5;
-    sphere3.mat = blueMaterial;
-
-    Sphere sphere4;
-    sphere4.position = float3(8.0, -6.0, -20.0);
-    sphere4.radius = 2.5;
-    sphere4.mat = yellowMaterial;
-
-    Sphere sphere5;
-    sphere5.position = float3(5.0, -5.0, -10.0);
-    sphere5.radius = 3.0;
-    sphere5.mat = grayMaterial;
-
-    Sphere sphere6;
-    sphere6.position = float3(-10.0, -5.0, -5.0);
-    sphere6.radius = 2.0;
-    sphere6.mat = purpleMaterial;
-
-    Sphere sphere7;
-    sphere7.position = float3(3.0, -4.0, -18.0);
-    sphere7.radius = 3.5;
-    sphere7.mat = orangeMaterial;
-
-
-    // Array of spheres in the scene
-    return {
-        floorSphere, sunSphere, sphere1, sphere2, sphere3,
-        sphere4, sphere5, sphere6, sphere7
-    };
-
+    float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
+    float sun = pow(max(0, dot(ray.dir, normalize(sunLightPosition))), sunFocus) * sunIntensity;
+    
+    return lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1);
 }
 
 
@@ -157,6 +171,7 @@ HitInfo RaySphere(Ray ray, float3 spherecenter, float radius)
     float3 offsetRayOrigin = ray.origin - spherecenter;
 
     // each variable is a part of quadratic equation that is determining weather ray hit the sphere surface 
+    // 
     float a = dot(ray.dir, ray.dir);
     float b = 2 * dot(offsetRayOrigin, ray.dir);
     float c = dot(offsetRayOrigin, offsetRayOrigin) - radius * radius;
@@ -224,13 +239,13 @@ float3 RandomHemisphereDirection(float3 normal, inout uint rngState)
     return dir * sign(dot(normal, dir));
 }
 
-float3 Trace(Ray ray, int MaxBounceCount, inout uint rngState) {
+float3 Trace(Ray ray,float3 lightPos, int MaxBounceCount, inout uint rngState) {
     Sphere sceneData[] = BuildScene();
     float3 rayColour = 1;
     float3 incomingLight = 0;
     for (int i = 0; i <= MaxBounceCount; i++)
     {
-        HitInfo hitInfo = CalculateRayCollision(ray, sceneData, 10);
+        HitInfo hitInfo = CalculateRayCollision(ray, sceneData, 9);
         if (hitInfo.didHit) {
             // if hit is detected set ray origing from camera to the hit point
             ray.origin = hitInfo.hitPoint;
@@ -245,6 +260,7 @@ float3 Trace(Ray ray, int MaxBounceCount, inout uint rngState) {
         
         } else 
         {
+            incomingLight += GatherEnvLight(ray, lightPos, 130.5, 20.8) * rayColour;
             break;
         }
     }
@@ -254,7 +270,7 @@ float3 Trace(Ray ray, int MaxBounceCount, inout uint rngState) {
 
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
-    
+
     uint2 numPixels = fsIn.screenSize;
 
     uint2 pixelCoord = fsIn.uv * numPixels;
@@ -267,14 +283,13 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
     Ray ray;
     ray.origin = fsIn.cameraPos;
     
-    // due to Vulkan corrdingate system this has to be negative
     ray.dir = normalize(ray.origin - viewPoint.xyz);
     
-    int raysPerPixel = 10;
+    int raysPerPixel = 13;
     float3 totalIncomingLight = 0; 
 
         for (int rayIndex = 0; rayIndex < raysPerPixel; rayIndex++) {
-        totalIncomingLight += Trace(ray, 15, rngState);
+        totalIncomingLight += Trace(ray, fsIn.lightPos, 15, rngState);
     }
 
     float3 col = totalIncomingLight / raysPerPixel;

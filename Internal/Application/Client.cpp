@@ -70,6 +70,14 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_camera->Update(cameraUpdateInfo);
 }
 
+void Client::UpdateLight(LightUpdateInfo& lightUpdateInfo)
+{
+    m_sunLightPosition.x += lightUpdateInfo.moveX;
+    m_sunLightPosition.y += lightUpdateInfo.moveY;
+
+    lightUpdateInfo.Reset();
+}
+
 void Client::Update() {
     m_scene->Update();
 }
