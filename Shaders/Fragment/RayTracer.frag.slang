@@ -9,7 +9,6 @@ struct FragmentShaderIn {
     float2 screenSize : OUT_SCREEN_SIZE;
 };
 
-
 struct MaterialConstantValues{
     float roughness;
     float metalness;
@@ -32,24 +31,6 @@ struct Material{
     MaterialConstantValues Values;
     MaterialFeatures Features;
 };
-
-[[vk::binding(2, 0)]]
-ConstantBuffer<MaterialConstantValues> _materialNoTextureValues;
-
-[[vk::binding(3, 0)]]
-ConstantBuffer<MaterialFeatures> _features;
-
-[[vk::binding(4, 0)]]
-ConstantBuffer<Sampler2D> _albedoMap;
-
-[[vk::binding(5, 0)]]
-ConstantBuffer<Sampler2D> _normalMap;
-
-[[vk::binding(6, 0)]]
-ConstantBuffer<Sampler2D> _armMap;
-
-[[vk::binding(7, 0)]]
-ConstantBuffer<Sampler2D> _emissiveMap;
 
 struct Ray{
     float3 origin;
@@ -273,11 +254,7 @@ float3 Trace(Ray ray, int MaxBounceCount, inout uint rngState) {
 
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
-
-    Material _materialDstSet;
-    _materialDstSet.Features = _features;
-    _materialDstSet.Values = _materialNoTextureValues;
-
+    
     uint2 numPixels = fsIn.screenSize;
 
     uint2 pixelCoord = fsIn.uv * numPixels;
