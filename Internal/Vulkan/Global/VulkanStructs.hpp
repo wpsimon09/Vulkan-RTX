@@ -43,8 +43,15 @@ namespace VulkanStructs
         }
     };
 
+    struct RenderingMetaData
+    {
+        bool bRasterPass = true;
+        bool bRTXPass = false;
+    };
+
     struct RenderContext
     {
+        RenderingMetaData metaData;
         // Pipeline
         std::vector<DrawCallData> DrawCalls;
     };

@@ -8,7 +8,7 @@
 
 #include "Application/Structs/ApplicationStructs.hpp"
 
-WindowManager::WindowManager(int windowWidth, int windowHeight):m_cameraMovement{0.0f, 0.0f, 0.0f}, m_lightUpdate()
+WindowManager::WindowManager(int windowWidth, int windowHeight):m_cameraMovement{0.0f, 0.0f, 0.0f}, m_clientUpdate()
 {
     m_width = windowWidth;
     m_height = windowHeight;
@@ -164,17 +164,23 @@ void WindowManager::KeyCallback(GLFWwindow *window, int key, int scancode, int a
         winm->m_isShiftPressed = false;
 
     if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-        winm->m_lightUpdate.moveY += 0.5;
+        winm->m_clientUpdate.moveLightY += 0.5;
     if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-        winm->m_lightUpdate.moveY -= 0.5;
+        winm->m_clientUpdate.moveLightY -= 0.5;
     if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
-        winm->m_lightUpdate.moveX -= 0.5;
+        winm->m_clientUpdate.moveLightX -= 0.5;
     if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-        winm->m_lightUpdate.moveX += 0.5;
+        winm->m_clientUpdate.moveLightX += 0.5;
     if (key == GLFW_KEY_R && action == GLFW_PRESS)
-        winm->m_cameraMovement.MoveNear += 0.2;
-    if (key == GLFW_KEY_T && action == GLFW_PRESS)
-        winm->m_cameraMovement.MoveNear -= 0.2;
+    {
+        if (winm->m_clientUpdate.isRTXon)
+        {
+            winm->m_clientUpdate.isRTXon = false;
+        }else
+        {
+            winm->m_clientUpdate.isRTXon = true;
+        }
+    }
 
 
 }

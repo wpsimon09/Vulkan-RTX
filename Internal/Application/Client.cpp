@@ -44,7 +44,7 @@ const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> Client::GetMesh
     return result;
 }
 
-const void Client::Render(std::vector<VulkanStructs::DrawCallData>& ctx)
+const void Client::Render(VulkanStructs::RenderContext& ctx)
 {
     m_scene->Render(ctx);
 }
@@ -70,10 +70,10 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_camera->Update(cameraUpdateInfo);
 }
 
-void Client::UpdateLight(LightUpdateInfo& lightUpdateInfo)
+void Client::UpdateLight(ClientUpdateInfo& lightUpdateInfo)
 {
-    m_sunLightPosition.x += lightUpdateInfo.moveX;
-    m_sunLightPosition.y += lightUpdateInfo.moveY;
+    m_sunLightPosition.x += lightUpdateInfo.moveLightX;
+    m_sunLightPosition.y += lightUpdateInfo.moveLightY;
 
     lightUpdateInfo.Reset();
 }

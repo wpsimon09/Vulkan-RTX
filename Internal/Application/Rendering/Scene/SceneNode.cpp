@@ -91,7 +91,7 @@ namespace ApplicationCore {
 
     }
 
-    void SceneNode::Render(std::vector<VulkanStructs::DrawCallData>& renderingContext) const
+    void SceneNode::Render(VulkanStructs::RenderContext& renderingContext) const
     {
         if(m_mesh)
         {
@@ -102,7 +102,7 @@ namespace ApplicationCore {
             data.firstIndex = 1;
             data.indexCount = m_mesh->GetMeshIndexCount();
             data.material = m_mesh->m_material;
-            renderingContext.emplace_back(data);
+            renderingContext.DrawCalls.emplace_back(data);
         }
     }
 

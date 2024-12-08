@@ -18,7 +18,7 @@ public:
 
     void InitWindow();
     bool GetIsDirty() const { return m_isDirty; }
-    LightUpdateInfo& GetLightMovement()   { m_isDirty = false;  return m_lightUpdate;    };
+    ClientUpdateInfo& GetLightMovement()   { m_isDirty = false;  return m_clientUpdate;    };
     CameraUpdateInfo& GetCameraMovement() { m_isDirty = false ; return m_cameraMovement; };
 
     static int GetWindowWidth() ;
@@ -37,7 +37,7 @@ private:
 private:
     bool m_isFirstMouse = false;
     CameraUpdateInfo m_cameraMovement;
-    LightUpdateInfo m_lightUpdate;
+    ClientUpdateInfo m_clientUpdate;
     static inline GLFWwindow* m_window;
     int m_width, m_height;
     bool m_isMousePressed;

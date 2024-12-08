@@ -16,6 +16,11 @@
 
 namespace VulkanStructs
 {
+    struct RenderContext;
+}
+
+namespace VulkanStructs
+{
     struct DrawCallData;
 }
 
@@ -38,7 +43,7 @@ public:
     Client() = default;
     void Init();
     const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> GetMeshes() const;
-    const void Render(std::vector<VulkanStructs::DrawCallData>& ctx);
+    const void Render(VulkanStructs::RenderContext& ctx);
     const void MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager);
     const void Destroy();
 
@@ -48,7 +53,7 @@ public:
 
     void Update();
     void UpdateCamera(CameraUpdateInfo& cameraUpdateInfo);
-    void UpdateLight(LightUpdateInfo& lightUpdateInfo);
+    void UpdateLight(ClientUpdateInfo& lightUpdateInfo);
     ~Client() = default;
     const ApplicationCore::Camera& GetCamera() const {return *m_camera;};
 

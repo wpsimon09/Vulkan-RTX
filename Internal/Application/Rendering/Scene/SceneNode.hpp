@@ -33,7 +33,7 @@ namespace ApplicationCore
         std::vector<std::reference_wrapper<SceneNode>> GetChildren();
 
         void Update() const;
-        void Render(std::vector<VulkanStructs::DrawCallData>& renderingContext) const;
+        void Render(VulkanStructs::RenderContext& renderingContext) const;
 
 
         bool HasMesh() const { return m_hasMesh; }
