@@ -95,14 +95,18 @@ namespace ApplicationCore {
     {
         if(m_mesh)
         {
-            VulkanStructs::DrawCallData data(
-                m_mesh->m_vertexArray->GetVertexBuffer().GetBuffer(),
-                m_mesh->m_vertexArray->GetIndexBuffer().GetBuffer(),
-                m_transformation->GetModelMatrix());
-            data.firstIndex = 1;
-            data.indexCount = m_mesh->GetMeshIndexCount();
-            data.material = m_mesh->m_material;
-            renderingContext.DrawCalls.emplace_back(data);
+            // check if the mesh can be rendered in the given context
+            if (m_mesh->GetRenderingMetaData() == renderingContext.metaData)
+            {
+                VulkanStructs::DrawCallData data(
+                    m_mesh->m_vertexArray->GetVertexBuffer().GetBuffer(),
+                    m_mesh->m_vertexArray->GetIndexBuffer().GetBuffer(),
+                    m_transformation->GetModelMatrix());
+                data.firstIndex = 1;
+                data.indexCount = m_mesh->GetMeshIndexCount();
+                data.material = m_mesh->m_material;
+                renderingContext.DrawCalls.emplace_back(data);
+            }
         }
     }
 

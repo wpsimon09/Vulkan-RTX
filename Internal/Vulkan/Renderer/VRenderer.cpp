@@ -60,15 +60,17 @@ namespace Renderer
 
     void VRenderer::Render() {
         m_client.GetAssetsManager().Sync();
-
+        vk::Pipeline pipeline;
         if (m_client.GetIsRTXOn())
         {
-            m_client.Render(m_rasterRenderContext);
-            m_renderingContext = &m_rasterRenderContext;
-        }else
-        {
+            pipeline = m_pipelineManager->GetPipeline(PIPELINE_TYPE_RTX).GetPipelineInstance();
             m_client.Render(m_rayTracingRenderContext);
             m_renderingContext = &m_rayTracingRenderContext;
+        }else
+        {
+            pipeline = m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED).GetPipelineInstance();
+            m_client.Render(m_rasterRenderContext);
+            m_renderingContext = &m_rasterRenderContext;
         }
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
         //rerender the frame if image to present on is out of date
@@ -83,7 +85,7 @@ namespace Renderer
         StartRenderPass();
         //RecordCommandBuffersForPipelines(m_graphicsPipeline->GetPipelineInstance());
 
-        RecordCommandBuffersForPipelines(m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED).GetPipelineInstance());
+        RecordCommandBuffersForPipelines(pipeline);
         EndRenderPass();
         m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
         std::lock_guard<std::mutex> lock(m_device.DeviceMutex);

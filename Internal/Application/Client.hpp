@@ -63,7 +63,7 @@ private:
     std::vector<std::unique_ptr<class ApplicationCore::Mesh>> m_meshes;
     std::unique_ptr<ApplicationCore::Camera> m_camera;
     std::unique_ptr<ApplicationCore::Scene> m_scene;
-    glm::vec3 m_sunLightPosition = glm::vec3(0.0f, 5.0f, -1.0f);
+    glm::vec3 m_sunLightPosition = glm::vec3(0.0f, 90.0f, -1.0f);
 
     bool m_isRTXOn = false;
 };
