@@ -51,6 +51,8 @@ namespace VulkanCore
         const VulkanUtils::VPushDescriptorManager &m_pushDescriptorSetManager;
 
         std::unique_ptr<VShader> m_baseShader;
+        std::unique_ptr<VShader> m_rtxShader ;
+
         std::map<PIPELINE_TYPE, std::unique_ptr<VGraphicsPipeline>> m_pipelines;
     };
 }

@@ -103,7 +103,8 @@ namespace Renderer
         std::vector<std::unique_ptr<class VulkanCore::VCommandBuffer>> m_baseCommandBuffers;
         std::unique_ptr<class VulkanCore::VImage> m_depthBuffer;
         const VulkanCore::VGraphicsPipeline *m_graphicsPipeline;
-        VulkanStructs::RenderContext m_renderContext;
+        VulkanStructs::RenderContext m_rasterRenderContext;
+        VulkanStructs::RenderContext m_rayTracingRenderContext;
     };
 } // Renderer
 

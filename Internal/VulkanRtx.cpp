@@ -100,7 +100,7 @@ void Application::Update()
     m_client->Update();
     if(m_windowManager->GetIsDirty()) {
         m_client->UpdateCamera(m_windowManager->GetCameraMovement());
-        m_client->UpdateLight(m_windowManager->GetLightMovement());
+        m_client->UpdateClient(m_windowManager->GetLightMovement());
     }
 }
 

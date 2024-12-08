@@ -47,6 +47,11 @@ namespace VulkanStructs
     {
         bool bRasterPass = true;
         bool bRTXPass = false;
+
+        bool operator==(const RenderingMetaData& other) const
+        {
+            return bRasterPass == other.bRasterPass && bRTXPass == other.bRTXPass;
+        }
     };
 
     struct RenderContext

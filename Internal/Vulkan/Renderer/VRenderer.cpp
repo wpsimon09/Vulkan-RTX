@@ -37,7 +37,7 @@ namespace Renderer
                         Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager,
                          VulkanUtils::VPushDescriptorManager &pushDescriptorSetManager):
         m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager),
-        m_pushDescriptorSetManager(pushDescriptorSetManager), m_renderContext() {
+        m_pushDescriptorSetManager(pushDescriptorSetManager), m_rasterRenderContext() {
 
         m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth);
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance, *m_depthBuffer);
@@ -49,14 +49,25 @@ namespace Renderer
         m_graphicsPipeline = &m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
-
         CreateTemplateEntries();
         m_pushDescriptorSetManager.CreateUpdateTemplate(*m_graphicsPipeline);
+
+
+        m_rayTracingRenderContext.metaData.bRasterPass = false;
+        m_rayTracingRenderContext.metaData.bRTXPass = true;
+
     }
 
     void VRenderer::Render() {
         m_client.GetAssetsManager().Sync();
-        m_client.Render(m_renderContext);
+
+        if (m_client.GetIsRTXOn())
+        {
+            m_client.Render(m_rasterRenderContext);
+        }else
+        {
+            m_client.Render(m_rayTracingRenderContext);
+        }
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
         //rerender the frame if image to present on is out of date
         if (FetchSwapChainImage() == vk::Result::eEventReset) {
@@ -65,17 +76,18 @@ namespace Renderer
         }
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
         m_baseCommandBuffers[m_currentFrameIndex]->Reset();
-        m_uniformBufferManager.UpdateAllUniformBuffers(m_currentFrameIndex, m_renderContext.DrawCalls);
+        m_uniformBufferManager.UpdateAllUniformBuffers(m_currentFrameIndex, m_rasterRenderContext.DrawCalls);
         m_baseCommandBuffers[m_currentFrameIndex]->BeginRecording();
         StartRenderPass();
         //RecordCommandBuffersForPipelines(m_graphicsPipeline->GetPipelineInstance());
-        RecordCommandBuffersForPipelines(m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_COLOURED).GetPipelineInstance());
+
+        RecordCommandBuffersForPipelines(m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED).GetPipelineInstance());
         EndRenderPass();
         m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
         std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
         SubmitCommandBuffer();
         PresentResults();
-        m_renderContext.DrawCalls.clear();
+        m_rasterRenderContext.DrawCalls.clear();
         m_currentFrameIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }
 
@@ -138,23 +150,23 @@ namespace Renderer
             GetGlobalBufferDescriptorInfo()[m_currentFrameIndex];
 
         // for each mesh
-        for (int i = 0; i < m_renderContext.DrawCalls.size(); i++)
+        for (int i = 0; i < m_rasterRenderContext.DrawCalls.size(); i++)
         {
 
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().meshUBBOBuffer = m_uniformBufferManager.
                 GetPerObjectDescriptorBufferInfo(i)[m_currentFrameIndex];
 
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().diffuseTextureImage =
-            m_renderContext.DrawCalls[i].material->GetTexture(PBR_DIFFUSE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            m_rasterRenderContext.DrawCalls[i].material->GetTexture(PBR_DIFFUSE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().armTextureImage =
-            m_renderContext.DrawCalls[i].material->GetTexture(PBR_ARM)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            m_rasterRenderContext.DrawCalls[i].material->GetTexture(PBR_ARM)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().normalTextureImage =
-            m_renderContext.DrawCalls[i].material->GetTexture(PBR_NORMAL_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            m_rasterRenderContext.DrawCalls[i].material->GetTexture(PBR_NORMAL_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().emissiveTextureImage =
-            m_renderContext.DrawCalls[i].material->GetTexture(PBR_EMISSIVE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            m_rasterRenderContext.DrawCalls[i].material->GetTexture(PBR_EMISSIVE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().pbrMaterialFeatures =
             m_uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(i)[m_currentFrameIndex];
@@ -163,11 +175,11 @@ namespace Renderer
             m_uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(i)[m_currentFrameIndex];
 
 
-            std::vector<vk::Buffer> vertexBuffers = {m_renderContext.DrawCalls[i].vertexBuffer};
+            std::vector<vk::Buffer> vertexBuffers = {m_rasterRenderContext.DrawCalls[i].vertexBuffer};
             std::vector<vk::DeviceSize> offsets = {0};
 
             m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindIndexBuffer(
-                m_renderContext.DrawCalls[i].indexBuffer,
+                m_rasterRenderContext.DrawCalls[i].indexBuffer,
                 0,
                 vk::IndexType::eUint32);
 
@@ -179,7 +191,7 @@ namespace Renderer
                 PushDescriptors();
 
                 m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(
-                    m_renderContext.DrawCalls[i].indexCount, 1, 0, 0, 0);
+                    m_rasterRenderContext.DrawCalls[i].indexCount, 1, 0, 0, 0);
         }
     }
 

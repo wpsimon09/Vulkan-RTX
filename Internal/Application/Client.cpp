@@ -70,10 +70,14 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_camera->Update(cameraUpdateInfo);
 }
 
-void Client::UpdateLight(ClientUpdateInfo& lightUpdateInfo)
+void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)
 {
     m_sunLightPosition.x += lightUpdateInfo.moveLightX;
     m_sunLightPosition.y += lightUpdateInfo.moveLightY;
+    m_isRTXOn = lightUpdateInfo.isRTXon;
+
+    if (m_isRTXOn) {std::cout<<"RTX on"<<std::endl;}
+    else {std::cout<<"RTX off"<<std::endl;}
 
     lightUpdateInfo.Reset();
 }

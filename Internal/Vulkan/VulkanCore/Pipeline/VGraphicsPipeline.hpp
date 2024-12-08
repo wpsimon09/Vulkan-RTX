@@ -158,6 +158,11 @@ namespace VulkanCore
         void SetPipelineType(PIPELINE_TYPE type) {
             m_pipelineType = type;
         }
+
+        void SetPrimitiveTopology(vk::PrimitiveTopology topology)
+        {
+            m_inputAssembly.topology = topology;
+        }
     };
 }
 

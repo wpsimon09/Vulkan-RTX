@@ -53,16 +53,19 @@ public:
 
     void Update();
     void UpdateCamera(CameraUpdateInfo& cameraUpdateInfo);
-    void UpdateLight(ClientUpdateInfo& lightUpdateInfo);
+    void UpdateClient(ClientUpdateInfo& lightUpdateInfo);
     ~Client() = default;
     const ApplicationCore::Camera& GetCamera() const {return *m_camera;};
-
+public:
+    bool GetIsRTXOn() const {return m_isRTXOn;};
 private:
     std::unique_ptr<ApplicationCore::AssetsManager> m_assetsManager;
     std::vector<std::unique_ptr<class ApplicationCore::Mesh>> m_meshes;
     std::unique_ptr<ApplicationCore::Camera> m_camera;
     std::unique_ptr<ApplicationCore::Scene> m_scene;
     glm::vec3 m_sunLightPosition = glm::vec3(0.0f, 5.0f, -1.0f);
+
+    bool m_isRTXOn = false;
 };
 
 
