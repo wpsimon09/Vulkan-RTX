@@ -257,7 +257,7 @@ float3 Trace(Ray ray,float3 lightPos, int MaxBounceCount, inout uint rngState) {
         
         } else 
         {
-            incomingLight += GatherEnvLight(ray, lightPos, 160.5, 20.8) * rayColour;
+            incomingLight += GatherEnvLight(ray, lightPos, 160.5, 100.8) * rayColour;
             break;
         }
     }
@@ -273,7 +273,7 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     uint2 numPixels = fsIn.screenSize;
 
-    uint2 pixelCoord = fsIn.uv * numPixels;
+    uint2 pixelCoord = (fsIn.uv) * numPixels;
     uint pixelIndex = pixelCoord.y * numPixels.x + pixelCoord.x;
     uint rngState = pixelIndex;
 
@@ -290,10 +290,8 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
         float2 defocuseJitter = RandomPointInCircle(rngState) * DefocuseStreanth/numPixels.x;
         ray.origin = fsIn.cameraPos;
 
-        float2 jitter = RandomPointInCircle(rngState) * DivergeStrength / numPixels.x;
-        float3 jitterViewPoint = viewPoint.xyz + camRight * jitter.x + camUp * jitter.y;
-        ray.dir = normalize(ray.origin - viewPoint.xyz);
-        
+        ray.dir = -normalize(viewPoint.xyz - ray.origin);
+        ray.dir.x *= -1.0;
     
         for (int rayIndex = 0; rayIndex < raysPerPixel; rayIndex++) {
         totalIncomingLight += Trace(ray, fsIn.lightPos, 15, rngState);

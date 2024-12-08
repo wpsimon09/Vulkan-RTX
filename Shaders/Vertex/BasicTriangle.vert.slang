@@ -20,8 +20,15 @@ struct VertexOutput {
 struct GlobalData {
     column_major float4x4 projection;
     column_major float4x4 view;
+    column_major float4x4 inverseView;
+
     float4 lightPosition;
     float4 cameraPostiion;
+    float4 viewParams;
+
+    float padding;
+    float padding2;
+    float2 screenSize;
 };
 
 [[vk::binding(0,0)]]
