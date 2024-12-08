@@ -136,6 +136,12 @@ namespace ApplicationCore {
         sphere7->GetTransformations()->SetPosition(3.0f, 4.0f, -18.0f);
         sphere7->GetTransformations()->SetScale(3.5f, 3.5f, 3.5f);
 
+        auto rayTracerPlane = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_POST_PROCESS, blueMat, m_assetsManager);
+        rayTracerPlane->GetRenderingMetaData().bRasterPass = false;
+        rayTracerPlane->GetRenderingMetaData().bRTXPass = true;
+
+
+
         m_root->AddChild(floorSphere);
         m_root->AddChild(sunSphere);
 
@@ -146,6 +152,8 @@ namespace ApplicationCore {
         m_root->AddChild(sphere5);  // Gray Sphere
         m_root->AddChild(sphere6);  // Purple Sphere
         m_root->AddChild(sphere7);
+
+        m_root->AddChild(rayTracerPlane);
 
         Utils::Logger::LogSuccessClient("Default scene build");
     }

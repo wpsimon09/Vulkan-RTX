@@ -10,7 +10,7 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 
-ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType,std::shared_ptr<Material> material, ApplicationCore::AssetsManager &assetsManger) {
+ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType,std::shared_ptr<Material> material, ApplicationCore::AssetsManager &assetsManger):m_renderingMetaData() {
     m_geometryType = geometryType;
     m_transformations = std::make_unique<Transformations>();
     AssignMeshGeometryData(assetsManger);

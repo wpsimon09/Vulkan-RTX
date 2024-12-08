@@ -7,32 +7,32 @@
 
 #include <memory>
 #include "Application/Enums/ClientEnums.hpp"
+#include "Vulkan/Global/VulkanStructs.hpp"
+
 
 namespace ApplicationCore
 {
     class Material;
     class SceneNode;
-}
-
-namespace ApplicationCore
-{
     class Transformations;
     class AssetsManager;
     class VertexArray;
 
-    class Mesh {
+    class Mesh{
     public:
         explicit Mesh(MESH_GEOMETRY_TYPE geometryType,std::shared_ptr<Material> material, ApplicationCore::AssetsManager& assetsManger);
-        const size_t GetMeshVertexArraySize() const;
-        const size_t GetMeshIndexArraySize() const;
-        const uint32_t GetMeshIndexCount() const;
-        const uint32_t GetMeshVertexCount() const;
-        ApplicationCore::Transformations* GetTransformations() const { return m_transformations.get(); };
-        const VertexArray* GetVertexArray() const {return m_vertexArray;}
 
         void Update();
 
         void Destroy();
+    public:
+        const size_t GetMeshVertexArraySize() const;
+        const size_t GetMeshIndexArraySize() const;
+        const uint32_t GetMeshIndexCount() const;
+        const uint32_t GetMeshVertexCount() const;
+        VulkanStructs::RenderingMetaData& GetRenderingMetaData()  {return m_renderingMetaData;}
+        ApplicationCore::Transformations* GetTransformations() const { return m_transformations.get(); };
+        const VertexArray* GetVertexArray() const {return m_vertexArray;}
 
     private:
         const void AssignMeshGeometryData(ApplicationCore::AssetsManager& assetsManger);
@@ -42,6 +42,7 @@ namespace ApplicationCore
         MESH_GEOMETRY_TYPE m_geometryType;
         VertexArray* m_vertexArray;
         std::shared_ptr<Material> m_material;
+        VulkanStructs::RenderingMetaData m_renderingMetaData;
 
         friend class ApplicationCore::SceneNode;
     };
