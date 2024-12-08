@@ -164,13 +164,17 @@ void WindowManager::KeyCallback(GLFWwindow *window, int key, int scancode, int a
         winm->m_isShiftPressed = false;
 
     if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-        winm->m_lightUpdate.moveY += 0.3;
+        winm->m_lightUpdate.moveY += 0.5;
     if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-        winm->m_lightUpdate.moveY -= 0.3;
+        winm->m_lightUpdate.moveY -= 0.5;
     if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
-        winm->m_lightUpdate.moveX -= 0.3;
+        winm->m_lightUpdate.moveX -= 0.5;
     if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-        winm->m_lightUpdate.moveX += 0.3;
+        winm->m_lightUpdate.moveX += 0.5;
+    if (key == GLFW_KEY_R && action == GLFW_PRESS)
+        winm->m_cameraMovement.MoveNear += 0.2;
+    if (key == GLFW_KEY_T && action == GLFW_PRESS)
+        winm->m_cameraMovement.MoveNear -= 0.2;
 
 
 }

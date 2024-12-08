@@ -1,3 +1,5 @@
+#define PI 3.14159265359
+
 Sphere[] BuildScene() {
 
     // Material definitions
@@ -6,6 +8,7 @@ Sphere[] BuildScene() {
     
     RayTracingMaterial greenMaterial;
     greenMaterial.color = float3(0.0, 0.9, 0.0);
+    greenMaterial.smoothenss = 1.0;
 
     RayTracingMaterial blueMaterial;
     blueMaterial.color = float3(0.0, 0.0, 0.9);
@@ -32,6 +35,7 @@ Sphere[] BuildScene() {
 
     RayTracingMaterial floorMaterial;
     floorMaterial.color = float3(0.8); // Dark gray for the floor
+    //floorMaterial.smoothenss = 0.9;
 
     // Sphere definitions
     Sphere floorSphere;
@@ -99,29 +103,6 @@ struct FragmentShaderIn {
     float2 screenSize : OUT_SCREEN_SIZE;
 };
 
-struct MaterialConstantValues{
-    float roughness;
-    float metalness;
-    float ao;
-    float padding;
-
-    float4 diffuse;
-
-    float4 emissive_strength;
-}
-
-struct MaterialFeatures{
-    bool hasDiffuseTexture;
-    bool hasEmissiveTexture;
-    bool hasNormalTexture;
-    bool hasArmTexture;
-}
-
-struct Material{
-    MaterialConstantValues Values;
-    MaterialFeatures Features;
-};
-
 struct Ray{
     float3 origin;
     float3 dir;
@@ -140,7 +121,8 @@ struct RayTracingMaterial {
     float3 color;
     float3 emissiveColour;
     float emissionStrength;
-    __init() { color = float3(0.0); emissiveColour = float3(0.0); emissionStrength = 0.0;}
+    float smoothenss;
+    __init() { color = float3(0.0); emissiveColour = float3(0.0); emissionStrength = 0.0; smoothenss = 0.1;};
 }
 
 struct Sphere {
@@ -151,9 +133,9 @@ struct Sphere {
 }
 
 float3 GatherEnvLight(Ray ray, float3 sunLightPosition, float sunFocus, float sunIntensity) {
-    float3 SkyColorHorizon = float3(0.6, 0.6, 0.9);
-    float3 SkyColorZenith = float3(0.2, 0.2, 0.9);
-    float3 GroundColor = float3(0.4, 0.4, 0.4);
+    float3 SkyColorHorizon = float3(1.0, 1.0, 1.0);
+    float3 SkyColorZenith = float3(0.7  , 0.7, 0.9);
+    float3 GroundColor = float3(0.4, 0.4,0.4);
 
     float skyGradientT = pow(smoothstep(0, 0.4, ray.dir.y),0.35);
     float groundToSkyT = smoothstep(-0.01, 0, ray.dir.y);
@@ -239,6 +221,14 @@ float3 RandomHemisphereDirection(float3 normal, inout uint rngState)
     return dir * sign(dot(normal, dir));
 }
 
+
+float2 RandomPointInCircle(inout uint rngState){
+    float angle = RandomValue(rngState) + 2 * PI;
+    float2 pointOnCircle = float2(cos(angle), sin(angle));
+
+    return pointOnCircle * sqrt(RandomValue(rngState));
+}
+
 float3 Trace(Ray ray,float3 lightPos, int MaxBounceCount, inout uint rngState) {
     Sphere sceneData[] = BuildScene();
     float3 rayColour = 1;
@@ -249,7 +239,10 @@ float3 Trace(Ray ray,float3 lightPos, int MaxBounceCount, inout uint rngState) {
         if (hitInfo.didHit) {
             // if hit is detected set ray origing from camera to the hit point
             ray.origin = hitInfo.hitPoint;
-            ray.dir = RandomHemisphereDirection(hitInfo.normal, rngState);
+            float3 diffuseDir = normalize(hitInfo.normal + RandomHemisphereDirection(hitInfo.normal, rngState));
+            float3 specularDir = reflect(ray.dir, hitInfo.normal);
+            
+            ray.dir = lerp(diffuseDir, specularDir, hitInfo.hitMaterial.smoothenss);
 
             // calcualte the newe colour of the ray (pixel)
             RayTracingMaterial hitSphereMaterial = hitInfo.hitMaterial;
@@ -260,7 +253,7 @@ float3 Trace(Ray ray,float3 lightPos, int MaxBounceCount, inout uint rngState) {
         
         } else 
         {
-            incomingLight += GatherEnvLight(ray, lightPos, 130.5, 20.8) * rayColour;
+            incomingLight += GatherEnvLight(ray, lightPos, 160.5, 600.8) * rayColour;
             break;
         }
     }
@@ -271,6 +264,9 @@ float3 Trace(Ray ray,float3 lightPos, int MaxBounceCount, inout uint rngState) {
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
+    float DivergeStrength = 10;
+    float DefocuseStreanth = 2;
+
     uint2 numPixels = fsIn.screenSize;
 
     uint2 pixelCoord = fsIn.uv * numPixels;
@@ -280,14 +276,21 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
     float3 viewPointLocal = float3((fsIn.uv)- 0.5, 1) * fsIn.viewParameters.xyz;
     float4 viewPoint = mul(fsIn.localToWorldMatrix, float4(viewPointLocal,1));
 
-    Ray ray;
-    ray.origin = fsIn.cameraPos;
-    
-    ray.dir = normalize(ray.origin - viewPoint.xyz);
-    
-    int raysPerPixel = 13;
+    float3 camRight = fsIn.localToWorldMatrix._m00_m10_m20;
+    float3 camUp = fsIn.localToWorldMatrix._m01_m11_m21;
+    int raysPerPixel = 15;
     float3 totalIncomingLight = 0; 
+    
+        Ray ray;
+        
+        float2 defocuseJitter = RandomPointInCircle(rngState) * DefocuseStreanth/numPixels.x;
+        ray.origin = fsIn.cameraPos;
 
+        float2 jitter = RandomPointInCircle(rngState) * DivergeStrength / numPixels.x;
+        float3 jitterViewPoint = viewPoint.xyz + camRight * jitter.x + camUp * jitter.y;
+        ray.dir = normalize(ray.origin - viewPoint.xyz);
+        
+    
         for (int rayIndex = 0; rayIndex < raysPerPixel; rayIndex++) {
         totalIncomingLight += Trace(ray, fsIn.lightPos, 15, rngState);
     }

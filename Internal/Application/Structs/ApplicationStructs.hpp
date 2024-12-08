@@ -16,6 +16,7 @@ struct CameraUpdateInfo
     float NewHeight = 0.0f;
     float MoveX = 0.0f;
     float MoveY = 0.0f;
+    float MoveNear = 0.0f;
 
     void Reset() {
         RotatePolarValue = 0;
@@ -25,6 +26,7 @@ struct CameraUpdateInfo
         NewHeight = 0;
         MoveX = 0;
         MoveY = 0;
+        MoveNear = 0;
     }
 
     void Print() const {

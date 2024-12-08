@@ -58,56 +58,95 @@ namespace ApplicationCore {
 
         auto hangarBlackMaterial = m_assetsManager.GetMaterial(materialPaths);
 
-        MaterialPaths defaultMaterial;
-        auto defaultMat = m_assetsManager.GetMaterial(defaultMaterial);
-        defaultMat->GetMaterialDescription().values.diffuse = glm::vec4(0.8, 0.0, 0.1, 1.0);
+        // Create materials
+        MaterialPaths redMaterialPath, greenMaterialPath, blueMaterialPath, yellowMaterialPath, grayMaterialPath;
+        MaterialPaths purpleMaterialPath, orangeMaterialPath, sunMaterialPath, floorMaterialPath;
 
+        // Red Material
+        auto redMat = m_assetsManager.GetMaterial(redMaterialPath);
+        redMat->GetMaterialDescription().values.diffuse = glm::vec4(0.9f, 0.0f, 0.0f, 1.0f);
 
-        MaterialPaths defaultMaterial2;
-        auto defaultMat2 = m_assetsManager.GetMaterial(defaultMaterial2);
-        defaultMat2->GetMaterialDescription().values.diffuse = glm::vec4(0.0f, 0.2f, 1.0f,1.0f);
-        defaultMat2->GetMaterialDescription().values.roughness = 0.6;
+        // Green Material
+        auto greenMat = m_assetsManager.GetMaterial(greenMaterialPath);
+        greenMat->GetMaterialDescription().values.diffuse = glm::vec4(0.0f, 0.9f, 0.0f, 1.0f);
+        greenMat->GetMaterialDescription().values.roughness = 1.0f;
 
-        MaterialPaths defaultMaterial3;
-        auto defaultMat3 = m_assetsManager.GetMaterial(defaultMaterial3);
-        defaultMat3->GetMaterialDescription().values.diffuse = glm::vec4(0.8f, 0.8f, 0.8f,1.0f);
-        defaultMat3->GetMaterialDescription().values.roughness = 0.6;
-        defaultMat3->GetMaterialDescription().values.metalness = 1.0;
+        // Blue Material
+        auto blueMat = m_assetsManager.GetMaterial(blueMaterialPath);
+        blueMat->GetMaterialDescription().values.diffuse = glm::vec4(0.0f, 0.0f, 0.9f, 1.0f);
 
-        MaterialPaths defaultMaterial4;
-        auto defaultMat4 = m_assetsManager.GetMaterial(defaultMaterial4);
-        defaultMat4->GetMaterialDescription().values.roughness = 0.2;
-        defaultMat4->GetMaterialDescription().values.metalness = 1.0;
+        // Yellow Material
+        auto yellowMat = m_assetsManager.GetMaterial(yellowMaterialPath);
+        yellowMat->GetMaterialDescription().values.diffuse = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
 
-        // cube 1
-        auto obj1 =std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat4, m_assetsManager);
-        obj1->GetTransformations()->SetPosition(0.0f, -3.0f, 0.0f);
-        obj1->GetTransformations()->SetScale(3.0f, 3.0f ,3.0f);
+        // Gray Material
+        auto grayMat = m_assetsManager.GetMaterial(grayMaterialPath);
+        grayMat->GetMaterialDescription().values.diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 
-        auto obj2 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat, m_assetsManager);
-        obj2->GetTransformations()->SetPosition(6.0f, -4.0f, 0.0f);
-        obj2->GetTransformations()->SetScale(4.0f, 4.0f ,4.0f);
+        // Purple Material
+        auto purpleMat = m_assetsManager.GetMaterial(purpleMaterialPath);
+        purpleMat->GetMaterialDescription().values.diffuse = glm::vec4(0.6f, 0.0f, 0.6f, 1.0f);
 
-        auto obj3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,hangarBlackMaterial, m_assetsManager);
-        obj3->GetTransformations()->SetPosition(17.0f, -6.0f, 0.0f);
-        obj3->GetTransformations()->SetScale(6.0f, 6.0f ,6.0f);
+        // Orange Material
+        auto orangeMat = m_assetsManager.GetMaterial(orangeMaterialPath);
+        orangeMat->GetMaterialDescription().values.diffuse = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f);
 
-        auto obj4 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat3, m_assetsManager);
-        obj4->GetTransformations()->SetPosition(32.0f, -8.0f, 0.0f);
-        obj4->GetTransformations()->SetScale(8.0f, 8.0f ,8.0f);
+        // Sun Material (Emissive)
+        auto sunMat = m_assetsManager.GetMaterial(sunMaterialPath);
+        sunMat->GetMaterialDescription().values.diffuse = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        sunMat->GetMaterialDescription().values.emissive_strength = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
 
-        auto obj5 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE,defaultMat2, m_assetsManager);
-        obj5->GetTransformations()->SetPosition(0.0f, 2.5f, 0.0f);
-        obj5->GetTransformations()->SetScale(80.0f,2.0f ,80.0f);
+        // Floor Material
+        auto floorMat = m_assetsManager.GetMaterial(floorMaterialPath);
+        floorMat->GetMaterialDescription().values.diffuse = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
 
-        auto obj6 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_POST_PROCESS,defaultMat2, m_assetsManager);
+        // Create spheres
+        auto floorSphere = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, floorMat, m_assetsManager);
+        floorSphere->GetTransformations()->SetPosition(0.0f, 50.0f, 0.0f);
+        floorSphere->GetTransformations()->SetScale(50.0f, 50.0f, 50.0f);
 
-        //m_root->AddChild(obj1);
-        //m_root->AddChild(obj2);
-        //m_root->AddChild(obj3);
-        //m_root->AddChild(obj4);
-        //m_root->AddChild(obj5);
-        m_root->AddChild(obj6);
+        auto sunSphere = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, sunMat, m_assetsManager);
+        sunSphere->GetTransformations()->SetPosition(0.0f, 100.0f, -280.0f);
+        sunSphere->GetTransformations()->SetScale(80.0f, 80.0f, 80.0f);
+
+        auto sphere1 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, redMat, m_assetsManager);
+        sphere1->GetTransformations()->SetPosition(-15.0f, 5.0f, -25.0f);
+        sphere1->GetTransformations()->SetScale(4.0f, 4.0f, 4.0f);
+
+        auto sphere2 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, greenMat, m_assetsManager);
+        sphere2->GetTransformations()->SetPosition(12.0f, 8.0f, -30.0f);
+        sphere2->GetTransformations()->SetScale(5.0f, 5.0f, 5.0f);
+
+        auto sphere3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, blueMat, m_assetsManager);
+        sphere3->GetTransformations()->SetPosition(-7.0f, 3.0f, -15.0f);
+        sphere3->GetTransformations()->SetScale(3.5f, 3.5f, 3.5f);
+
+        auto sphere4 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, yellowMat, m_assetsManager);
+        sphere4->GetTransformations()->SetPosition(8.0f, 6.0f, -20.0f);
+        sphere4->GetTransformations()->SetScale(2.5f, 2.5f, 2.5f);
+
+        auto sphere5 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, grayMat, m_assetsManager);
+        sphere5->GetTransformations()->SetPosition(5.0f, 5.0f, -10.0f);
+        sphere5->GetTransformations()->SetScale(3.0f, 3.0f, 3.0f);
+
+        auto sphere6 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, purpleMat, m_assetsManager);
+        sphere6->GetTransformations()->SetPosition(-10.0f, 5.0f, -5.0f);
+        sphere6->GetTransformations()->SetScale(2.0f, 2.0f, 2.0f);
+
+        auto sphere7 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, orangeMat, m_assetsManager);
+        sphere7->GetTransformations()->SetPosition(3.0f, 4.0f, -18.0f);
+        sphere7->GetTransformations()->SetScale(3.5f, 3.5f, 3.5f);
+
+        m_root->AddChild(floorSphere);
+        m_root->AddChild(sunSphere);
+
+        m_root->AddChild(sphere1);  // Red Sphere
+        m_root->AddChild(sphere2);  // Green Sphere
+        m_root->AddChild(sphere3);  // Blue Sphere
+        m_root->AddChild(sphere4);  // Yellow Sphere
+        m_root->AddChild(sphere5);  // Gray Sphere
+        m_root->AddChild(sphere6);  // Purple Sphere
+        m_root->AddChild(sphere7);
 
         Utils::Logger::LogSuccessClient("Default scene build");
     }
