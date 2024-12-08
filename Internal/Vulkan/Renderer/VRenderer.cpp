@@ -37,7 +37,7 @@ namespace Renderer
                         Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager,
                          VulkanUtils::VPushDescriptorManager &pushDescriptorSetManager):
         m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager),
-        m_pushDescriptorSetManager(pushDescriptorSetManager), m_rasterRenderContext() {
+        m_pushDescriptorSetManager(pushDescriptorSetManager), m_rasterRenderContext(), m_rayTracingRenderContext() {
 
         m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth);
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance, *m_depthBuffer);
@@ -64,9 +64,11 @@ namespace Renderer
         if (m_client.GetIsRTXOn())
         {
             m_client.Render(m_rasterRenderContext);
+            m_renderingContext = &m_rasterRenderContext;
         }else
         {
             m_client.Render(m_rayTracingRenderContext);
+            m_renderingContext = &m_rayTracingRenderContext;
         }
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
         //rerender the frame if image to present on is out of date
@@ -76,7 +78,7 @@ namespace Renderer
         }
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
         m_baseCommandBuffers[m_currentFrameIndex]->Reset();
-        m_uniformBufferManager.UpdateAllUniformBuffers(m_currentFrameIndex, m_rasterRenderContext.DrawCalls);
+        m_uniformBufferManager.UpdateAllUniformBuffers(m_currentFrameIndex, m_renderingContext->DrawCalls);
         m_baseCommandBuffers[m_currentFrameIndex]->BeginRecording();
         StartRenderPass();
         //RecordCommandBuffersForPipelines(m_graphicsPipeline->GetPipelineInstance());
@@ -87,7 +89,7 @@ namespace Renderer
         std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
         SubmitCommandBuffer();
         PresentResults();
-        m_rasterRenderContext.DrawCalls.clear();
+        m_renderingContext->DrawCalls.clear();
         m_currentFrameIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }
 
@@ -150,23 +152,23 @@ namespace Renderer
             GetGlobalBufferDescriptorInfo()[m_currentFrameIndex];
 
         // for each mesh
-        for (int i = 0; i < m_rasterRenderContext.DrawCalls.size(); i++)
+        for (int i = 0; i < m_renderingContext->DrawCalls.size(); i++)
         {
 
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().meshUBBOBuffer = m_uniformBufferManager.
                 GetPerObjectDescriptorBufferInfo(i)[m_currentFrameIndex];
 
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().diffuseTextureImage =
-            m_rasterRenderContext.DrawCalls[i].material->GetTexture(PBR_DIFFUSE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            m_renderingContext->DrawCalls[i].material->GetTexture(PBR_DIFFUSE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().armTextureImage =
-            m_rasterRenderContext.DrawCalls[i].material->GetTexture(PBR_ARM)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            m_renderingContext->DrawCalls[i].material->GetTexture(PBR_ARM)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().normalTextureImage =
-            m_rasterRenderContext.DrawCalls[i].material->GetTexture(PBR_NORMAL_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            m_renderingContext->DrawCalls[i].material->GetTexture(PBR_NORMAL_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().emissiveTextureImage =
-            m_rasterRenderContext.DrawCalls[i].material->GetTexture(PBR_EMISSIVE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            m_renderingContext->DrawCalls[i].material->GetTexture(PBR_EMISSIVE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             m_pushDescriptorSetManager.GetDescriptorSetDataStruct().pbrMaterialFeatures =
             m_uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(i)[m_currentFrameIndex];
@@ -175,11 +177,11 @@ namespace Renderer
             m_uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(i)[m_currentFrameIndex];
 
 
-            std::vector<vk::Buffer> vertexBuffers = {m_rasterRenderContext.DrawCalls[i].vertexBuffer};
+            std::vector<vk::Buffer> vertexBuffers = {m_renderingContext->DrawCalls[i].vertexBuffer};
             std::vector<vk::DeviceSize> offsets = {0};
 
             m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().bindIndexBuffer(
-                m_rasterRenderContext.DrawCalls[i].indexBuffer,
+                m_renderingContext->DrawCalls[i].indexBuffer,
                 0,
                 vk::IndexType::eUint32);
 
@@ -191,7 +193,7 @@ namespace Renderer
                 PushDescriptors();
 
                 m_baseCommandBuffers[m_currentFrameIndex]->GetCommandBuffer().drawIndexed(
-                    m_rasterRenderContext.DrawCalls[i].indexCount, 1, 0, 0, 0);
+                    m_renderingContext->DrawCalls[i].indexCount, 1, 0, 0, 0);
         }
     }
 
