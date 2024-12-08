@@ -120,9 +120,11 @@ struct HitInfo {
 struct RayTracingMaterial {
     float3 color;
     float3 emissiveColour;
+    float3 specularColour;
     float emissionStrength;
     float smoothenss;
-    __init() { color = float3(0.0); emissiveColour = float3(0.0); emissionStrength = 0.0; smoothenss = 0.1;};
+    float smoothenssProbability;
+    __init() { color = float3(0.0); emissiveColour = float3(0.0); emissionStrength = 0.0; smoothenss = 0.1; smoothenssProbability = 0.3; specularColour = float3(1.0);};
 }
 
 struct Sphere {
@@ -242,18 +244,20 @@ float3 Trace(Ray ray,float3 lightPos, int MaxBounceCount, inout uint rngState) {
             float3 diffuseDir = normalize(hitInfo.normal + RandomHemisphereDirection(hitInfo.normal, rngState));
             float3 specularDir = reflect(ray.dir, hitInfo.normal);
             
-            ray.dir = lerp(diffuseDir, specularDir, hitInfo.hitMaterial.smoothenss);
+            bool isSpecular = hitInfo.hitMaterial.smoothenssProbability >= RandomValue(rngState);
+
+            ray.dir = lerp(diffuseDir, specularDir, hitInfo.hitMaterial.smoothenss * isSpecular);
 
             // calcualte the newe colour of the ray (pixel)
             RayTracingMaterial hitSphereMaterial = hitInfo.hitMaterial;
             float3 emittedLight = hitSphereMaterial.emissiveColour * hitSphereMaterial.emissionStrength;
             incomingLight += emittedLight * rayColour;
-            rayColour *= hitSphereMaterial.color;
+            rayColour *= lerp(hitSphereMaterial.color, hitSphereMaterial.specularColour, isSpecular);
             //incomingLight = ray.dir;
         
         } else 
         {
-            incomingLight += GatherEnvLight(ray, lightPos, 160.5, 600.8) * rayColour;
+            incomingLight += GatherEnvLight(ray, lightPos, 160.5, 20.8) * rayColour;
             break;
         }
     }
