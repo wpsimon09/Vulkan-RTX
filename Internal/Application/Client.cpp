@@ -18,6 +18,10 @@
 #include "Rendering/Scene/Scene.hpp"
 
 
+Client::Client(): m_globalRenderingData()
+{
+}
+
 void Client::Init() {
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -68,16 +72,22 @@ const void Client::Destroy() {
 void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 {
     m_camera->Update(cameraUpdateInfo);
+
+    m_globalRenderingData.proj = m_camera->GetProjectionMatrix();
+    m_globalRenderingData.view = m_camera->GetViewMatrix();
+    m_globalRenderingData.inverseView = m_camera->GetInverseViewMatrix();
+    m_globalRenderingData.screenSize = m_camera->GetScreenSize();
+    m_globalRenderingData.viewParams = glm::vec4(m_camera->GetCameraPlaneWidthAndHeight(), m_camera->GetNearPlane(),1.0f);
+    m_globalRenderingData.playerPosition = glm::vec4(m_camera->GetPosition(),1.0f);
 }
 
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)
 {
     m_sunLightPosition.x += lightUpdateInfo.moveLightX;
     m_sunLightPosition.y += lightUpdateInfo.moveLightY;
-    m_isRTXOn = lightUpdateInfo.isRTXon;
+    m_isRTXOn =             lightUpdateInfo.isRTXon;
 
-    if (m_isRTXOn) {std::cout<<"RTX on"<<std::endl;}
-    else {std::cout<<"RTX off"<<std::endl;}
+    m_globalRenderingData.lightPosition = glm::vec4(m_sunLightPosition, 1.0f);
 
     lightUpdateInfo.Reset();
 }

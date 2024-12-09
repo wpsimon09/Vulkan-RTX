@@ -99,9 +99,9 @@ namespace ApplicationCore {
         auto floorMat = m_assetsManager.GetMaterial(floorMaterialPath);
         floorMat->GetMaterialDescription().values.diffuse = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
 
-        // Create spheres
+       // Create spheres
         auto floorSphere = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, floorMat, m_assetsManager);
-        floorSphere->GetTransformations()->SetPosition(0.0f, 50.0f, 0.0f);
+        floorSphere->GetTransformations()->SetPosition(0.0f, -50.0f, 0.0f);
         floorSphere->GetTransformations()->SetScale(50.0f, 50.0f, 50.0f);
 
         auto sunSphere = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, sunMat, m_assetsManager);
@@ -109,31 +109,31 @@ namespace ApplicationCore {
         sunSphere->GetTransformations()->SetScale(80.0f, 80.0f, 80.0f);
 
         auto sphere1 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, redMat, m_assetsManager);
-        sphere1->GetTransformations()->SetPosition(-15.0f, 5.0f, -25.0f);
+        sphere1->GetTransformations()->SetPosition(-15.0f, -5.0f, -25.0f);
         sphere1->GetTransformations()->SetScale(4.0f, 4.0f, 4.0f);
 
         auto sphere2 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, greenMat, m_assetsManager);
-        sphere2->GetTransformations()->SetPosition(12.0f, 8.0f, -30.0f);
+        sphere2->GetTransformations()->SetPosition(12.0f, -8.0f, -30.0f);
         sphere2->GetTransformations()->SetScale(5.0f, 5.0f, 5.0f);
 
         auto sphere3 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, blueMat, m_assetsManager);
-        sphere3->GetTransformations()->SetPosition(-7.0f, 3.0f, -15.0f);
+        sphere3->GetTransformations()->SetPosition(-7.0f, -3.0f, -15.0f);
         sphere3->GetTransformations()->SetScale(3.5f, 3.5f, 3.5f);
 
         auto sphere4 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, yellowMat, m_assetsManager);
-        sphere4->GetTransformations()->SetPosition(8.0f, 6.0f, -20.0f);
+        sphere4->GetTransformations()->SetPosition(8.0f, -6.0f, -20.0f);
         sphere4->GetTransformations()->SetScale(2.5f, 2.5f, 2.5f);
 
         auto sphere5 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, grayMat, m_assetsManager);
-        sphere5->GetTransformations()->SetPosition(5.0f, 5.0f, -10.0f);
+        sphere5->GetTransformations()->SetPosition(5.0f, -5.0f, -10.0f);
         sphere5->GetTransformations()->SetScale(3.0f, 3.0f, 3.0f);
 
         auto sphere6 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, purpleMat, m_assetsManager);
-        sphere6->GetTransformations()->SetPosition(-10.0f, 5.0f, -5.0f);
+        sphere6->GetTransformations()->SetPosition(-10.0f, -5.0f, -5.0f);
         sphere6->GetTransformations()->SetScale(2.0f, 2.0f, 2.0f);
 
         auto sphere7 = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_SPHERE, orangeMat, m_assetsManager);
-        sphere7->GetTransformations()->SetPosition(3.0f, 4.0f, -18.0f);
+        sphere7->GetTransformations()->SetPosition(3.0f, -4.0f, -18.0f);
         sphere7->GetTransformations()->SetScale(3.5f, 3.5f, 3.5f);
 
         auto rayTracerPlane = std::make_shared<ApplicationCore::Mesh>(MESH_GEOMETRY_POST_PROCESS, blueMat, m_assetsManager);

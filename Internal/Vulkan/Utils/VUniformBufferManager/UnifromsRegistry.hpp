@@ -14,31 +14,25 @@ namespace VulkanCore
     class VBuffer;
 }
 
-namespace PerFrameUBO
+struct GlobalUniform
 {
-    struct GlobalUniform
-    {
-        glm::mat4 view;
-        glm::mat4 proj;
-        glm::mat4 inverseView;
+    glm::mat4 view;
+    glm::mat4 proj;
+    glm::mat4 inverseView;
 
-        glm::vec4 lightPosition = glm::vec4(2.0f, 10.0f, 2.0f,1.0f);
-        glm::vec4 playerPosition;
-        glm::vec4 viewParams;
-        float padding;
-        float padding2;
-        glm::vec2 screenSize;
-    };
-}
+    glm::vec4 lightPosition = glm::vec4(2.0f, 10.0f, 2.0f,1.0f);
+    glm::vec4 playerPosition;
+    glm::vec4 viewParams;
+    float padding;
+    float padding2;
+    glm::vec2 screenSize;
+};
 
-namespace PerObjectUBO
+struct ObjectDataUniform
 {
-    struct ObjectDataUniform
-    {
-        glm::mat4 model;
-        glm::mat4 normalMatrix;
-    };
-}
+    glm::mat4 model;
+    glm::mat4 normalMatrix;
+};
 
 
 #endif //UNIFROMDEFINITION_HPP

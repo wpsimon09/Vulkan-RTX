@@ -16,14 +16,14 @@
 
 #define MAX_UBO_COUNT 10
 
-VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDevice &device, const Client &client):m_device(device),m_client(client) {
+VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDevice &device):m_device(device) {
     Utils::Logger::LogInfoVerboseOnly("Creating uniform buffer manager...");
     CreateUniforms();
     Utils::Logger::LogSuccess("Uniform buffer manager created successfully");
 }
 
 const std::vector<vk::DescriptorBufferInfo> &VulkanUtils::VUniformBufferManager::GetGlobalBufferDescriptorInfo() const {
-    return m_cameraUniform->GetDescriptorBufferInfos();
+    return m_perFrameUniform->GetDescriptorBufferInfos();
 }
 
 const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::GetMaterialFeaturesDescriptorBufferInfo(
@@ -42,48 +42,47 @@ GetPerMaterialNoMaterialDescrptorBufferInfo(int meshIndex) const
 const std::vector<vk::DescriptorBufferInfo> & VulkanUtils::VUniformBufferManager::GetPerObjectDescriptorBufferInfo(
     int meshIndex) const {
     // returns 2 buffer descriptor info for each frame in flight
-    return m_objectDataUniforms[meshIndex]->GetDescriptorBufferInfos();
+    return m_perObjectUniform[meshIndex]->GetDescriptorBufferInfos();
 }
 
-void VulkanUtils::VUniformBufferManager::UpdateAllUniformBuffers(int frameIndex,
+void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const
+{
+
+    m_perFrameUniform->GetUBOStruct() = perFrameData;
+    m_perFrameUniform->UpdateGPUBuffer(frameIndex);
+}
+
+void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameIndex,
     std::vector<VulkanStructs::DrawCallData>& drawCalls) const
 {
-    m_cameraUniform->GetUBOStruct().proj = m_client.GetCamera().GetProjectionMatrix();
-    m_cameraUniform->GetUBOStruct().view = m_client.GetCamera().GetViewMatrix();
-    m_cameraUniform->GetUBOStruct().inverseView = m_client.GetCamera().GetInverseViewMatrix();
-
-    m_cameraUniform->GetUBOStruct().screenSize = m_client.GetCamera().GetScreenSize();
-
-    m_cameraUniform->GetUBOStruct().playerPosition = glm::vec4(m_client.GetCamera().GetPosition(),1.0f);
-    if (m_client.GetIsRTXOn())
+    assert(drawCalls.size() < MAX_UBO_COUNT && "Draw calls are bigger than allocated uniform buffers on GPU");
+    for (int i = 0; i < drawCalls.size(); i++)
     {
-        m_cameraUniform->GetUBOStruct().lightPosition = m_client.GetLightPosition();
-        m_cameraUniform->GetUBOStruct().lightPosition.y *= -1.0f;
-    }else
-    {
-        m_cameraUniform->GetUBOStruct().lightPosition = m_client.GetLightPosition();
+        m_perObjectUniform[i]->GetUBOStruct().model = drawCalls[i].modelMatrix;
+        m_perObjectUniform[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse( drawCalls[i].modelMatrix));
+        m_perObjectUniform[i]->UpdateGPUBuffer(frameIndex);
 
-    }
-    m_cameraUniform->GetUBOStruct().viewParams = glm::vec4(m_client.GetCamera().GetCameraPlaneWidthAndHeight(), m_client.GetCamera().GetNearPlane(),1.0f);
-    m_cameraUniform->UpdateGPUBuffer(frameIndex);
-
-    for (int i = 0; i< drawCalls.size(); i++) {
         m_materialFeaturesUniform[i]->GetUBOStruct() = drawCalls[i].material->GetMaterialDescription().features;
         m_materialFeaturesUniform[i]->UpdateGPUBuffer(frameIndex);
 
         m_materialNoTextureUniform[i]->GetUBOStruct() = drawCalls[i].material->GetMaterialDescription().values;
         m_materialNoTextureUniform[i]->UpdateGPUBuffer(frameIndex);
-
-        m_objectDataUniforms[i]->GetUBOStruct().model = drawCalls[i].modelMatrix;
-        m_objectDataUniforms[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse( drawCalls[i].modelMatrix));
-        m_objectDataUniforms[i]->UpdateGPUBuffer(frameIndex);
     }
+
 }
+
+void VulkanUtils::VUniformBufferManager::UpdatePerMaterialUniformData(int frameIndex,
+    const std::shared_ptr<ApplicationCore::Material>& material) const
+{
+}
+
+
+
 
 void VulkanUtils::VUniformBufferManager::Destroy() const {
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager and all its data...");
-    m_cameraUniform->Destory();
-    for(auto &ubo: m_objectDataUniforms) {
+    m_perFrameUniform->Destory();
+    for(auto &ubo: m_perObjectUniform) {
         ubo->Destory();
     }
     for (auto& mat: m_materialFeaturesUniform)
@@ -104,13 +103,13 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
     GlobalState::LoggingEnabled = false;
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for per object data");
 
-    m_objectDataUniforms.resize(MAX_UBO_COUNT);
+    m_perObjectUniform.resize(MAX_UBO_COUNT);
     m_materialFeaturesUniform.resize(MAX_UBO_COUNT);
 
     m_materialNoTextureUniform.resize(MAX_UBO_COUNT);
 
     for(int i = 0; i <MAX_UBO_COUNT; i++) {
-        m_objectDataUniforms[i] = (std::make_unique<VUniform<PerObjectUBO::ObjectDataUniform>>(m_device));
+        m_perObjectUniform[i] = (std::make_unique<VUniform<ObjectDataUniform>>(m_device));
     }
 
     for(int i = 0; i <MAX_UBO_COUNT; i++) {
@@ -127,5 +126,5 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
 
 
     // allocate per Frame uniform buffers
-    m_cameraUniform = std::make_unique<VUniform<PerFrameUBO::GlobalUniform>>(m_device);
+    m_perFrameUniform = std::make_unique<VUniform<GlobalUniform>>(m_device);
 }

@@ -80,7 +80,10 @@ namespace Renderer
         }
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
         m_baseCommandBuffers[m_currentFrameIndex]->Reset();
-        m_uniformBufferManager.UpdateAllUniformBuffers(m_currentFrameIndex, m_renderingContext->DrawCalls);
+
+        m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,m_client.GetGlobalDataUpdateInformation());
+        m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderingContext->DrawCalls);
+
         m_baseCommandBuffers[m_currentFrameIndex]->BeginRecording();
         StartRenderPass();
         //RecordCommandBuffersForPipelines(m_graphicsPipeline->GetPipelineInstance());

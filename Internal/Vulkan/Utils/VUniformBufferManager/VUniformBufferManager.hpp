@@ -21,23 +21,28 @@ namespace VulkanUtils
 {
     class VUniformBufferManager {
     public:
-        VUniformBufferManager(const VulkanCore::VDevice& device, const Client& client);
+        VUniformBufferManager(const VulkanCore::VDevice& device);
 
         const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const; // per frame in flight
         const std::vector<vk::DescriptorBufferInfo>& GetMaterialFeaturesDescriptorBufferInfo(int meshIndex) const; // per object per frame in flight
         const std::vector<vk::DescriptorBufferInfo>& GetPerMaterialNoMaterialDescrptorBufferInfo(int meshIndex) const; // per object per frame in flight
         const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const; // per object per frame in flight
 
-        void UpdateAllUniformBuffers(int frameIndex, std::vector<VulkanStructs::DrawCallData>& drawCalls) const;
+        void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
+
+        void UpdatePerObjectUniformData(int frameIndex, std::vector<VulkanStructs::DrawCallData>& drawCalls) const;
+
+        void UpdatePerMaterialUniformData(int frameIndex, const std::shared_ptr<ApplicationCore::Material>& material) const;
+
         void Destroy() const;
     private:
         void CreateUniforms();
     private:
         const VulkanCore::VDevice& m_device;
-        const Client& m_client;
 
-        std::unique_ptr<VulkanUtils::VUniform<PerFrameUBO::GlobalUniform>> m_cameraUniform;
-        std::vector<std::unique_ptr<VulkanUtils::VUniform<PerObjectUBO::ObjectDataUniform>>> m_objectDataUniforms;
+        std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>> m_perFrameUniform;
+        std::vector<std::unique_ptr<VulkanUtils::VUniform<ObjectDataUniform>>> m_perObjectUniform;
+
         std::vector<std::unique_ptr<VulkanUtils::VUniform<PBRMaterialFeaturees>>> m_materialFeaturesUniform;
         std::vector<std::unique_ptr<VulkanUtils::VUniform<PBRMaterialNoTexture>>> m_materialNoTextureUniform;
     };

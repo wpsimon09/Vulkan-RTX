@@ -29,7 +29,7 @@ public:
 
     void ProcessResize(int newWidht, int newHeight);
 
-    glm::mat4 GetProjectionMatrix() const {return this->m_projection;}
+    glm::mat4 GetProjectionMatrix() const { return this->m_projection;}
 
     glm::mat4 GetViewMatrix() const {return glm::lookAt(this->m_position,m_center, this->m_worldUp);}
 

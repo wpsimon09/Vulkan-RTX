@@ -20,7 +20,7 @@ struct VertexOutput {
 struct GlobalData {
     column_major float4x4 projection;
     column_major float4x4 view;
-    column_major float4x4 inverseView;
+    float4x4 inverseView;
 
     float4 lightPosition;
     float4 cameraPostiion;

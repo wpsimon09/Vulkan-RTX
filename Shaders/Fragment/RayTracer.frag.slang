@@ -49,37 +49,37 @@ Sphere[] BuildScene() {
     sunSphere.mat = sunMaterial;
 
     Sphere sphere1;
-    sphere1.position = float3(-15.0, -5.0, -25.0);
+    sphere1.position = float3(15.0, -5.0, -25.0);
     sphere1.radius = 4.0;
     sphere1.mat = redMaterial;
 
     Sphere sphere2;
-    sphere2.position = float3(12.0, -8.0, -30.0);
+    sphere2.position = float3(-12.0, -8.0, -30.0);
     sphere2.radius = 5.0;
     sphere2.mat = greenMaterial;
 
     Sphere sphere3;
-    sphere3.position = float3(-7.0, -3.0, -15.0);
+    sphere3.position = float3(7.0, -3.0, -15.0);
     sphere3.radius = 3.5;
     sphere3.mat = blueMaterial;
 
     Sphere sphere4;
-    sphere4.position = float3(8.0, -6.0, -20.0);
+    sphere4.position = float3(-8.0, -6.0, -20.0);
     sphere4.radius = 2.5;
     sphere4.mat = yellowMaterial;
 
     Sphere sphere5;
-    sphere5.position = float3(5.0, -5.0, -10.0);
+    sphere5.position = float3(-5.0, -5.0, -10.0);
     sphere5.radius = 3.0;
     sphere5.mat = grayMaterial;
 
     Sphere sphere6;
-    sphere6.position = float3(-10.0, -5.0, -5.0);
+    sphere6.position = float3(10.0, -5.0, -5.0);
     sphere6.radius = 2.0;
     sphere6.mat = purpleMaterial;
 
     Sphere sphere7;
-    sphere7.position = float3(3.0, -4.0, -18.0);
+    sphere7.position = float3(-3.0, -4.0, -18.0);
     sphere7.radius = 3.5;
     sphere7.mat = orangeMaterial;
 
@@ -291,8 +291,9 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
         ray.origin = fsIn.cameraPos;
 
         ray.dir = -normalize(viewPoint.xyz - ray.origin);
-        ray.dir.x *= -1.0;
-    
+        //ray.dir.x *= -1.0;
+        //ray.dir.y *= -1.0;
+
         for (int rayIndex = 0; rayIndex < raysPerPixel; rayIndex++) {
         totalIncomingLight += Trace(ray, fsIn.lightPos, 15, rngState);
     }

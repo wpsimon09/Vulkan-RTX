@@ -18,6 +18,7 @@
         m_aspect = width / height;
         m_nearPlane = 0.1f;
         m_projection = glm::perspective(glm::radians(65.0f), width / height, m_nearPlane, 700.0f);
+        m_projection[1][1] *= -1;
         m_farPlane = 700.0f;;
 
         m_radius = radius;
@@ -88,6 +89,7 @@
     void ApplicationCore::Camera::ProcessResize(int newWidht, int newHeight) {
         m_aspect = (float)newWidht / (float)newHeight;
         m_projection = glm::perspective(glm::radians(65.0f), (float)newWidht / (float)newHeight, m_nearPlane, 470.0f);
+        m_projection[1][1] *= -1;
         m_farPlane = GetFarPlane();
         m_position = getEye();
 
@@ -99,7 +101,7 @@
     {
         // projection plane width and height
 
-        float planeHeight = m_nearPlane * glm::tan(glm::radians(m_FOV * 0.5f)) *2 ;
+        float planeHeight = m_nearPlane * glm::tan(glm::radians(m_FOV * 0.5f)) * 2 ;
         float planeWidth = planeHeight * m_aspect;
 
         return {planeWidth, planeHeight};
@@ -120,7 +122,7 @@
 
         m_nearPlane += cameraUpdateInfo.MoveNear;
 
-        m_projection = glm::perspective(glm::radians(65.0f), (float)m_screenSize.x / (float)m_screenSize.y, m_nearPlane, 470.0f);
+        //m_projection = glm::perspective(glm::radians(65.0f), (float)m_screenSize.x / (float)m_screenSize.y, m_nearPlane, 470.0f);
 
         cameraUpdateInfo.Reset();
 
