@@ -1,14 +1,17 @@
 # Vulkan RTX
 
-Simple Vulkan physically based render that can render meshes in classic rasterisation pipeline. But also contains Ray tracer that renders the scene on the full screen Quad
+Simple Vulkan physically based render that can render meshes in classic rasterisation pipeline. But also contains Ray tracer that renders the scene on the full screen Quad by utilising the 
+ray tracing technology. 
 
 The goal is to eventually transition from a purely shader-based ray tracing implementation to leveraging Vulkan's dedicated ray tracing pipeline
 
+
 ## Used technology
 
-_Rendering API_ - Vulkan (`vulkan.hpp`)
-_Shading Language_ - Slang
-_Language_ - C++
+- _Rendering API_ - Vulkan (`vulkan.hpp`)
+- _Shading Language_ - Slang
+- _Language_ - C++
+- _Math_ - glm  
 
 ## Notes
 
@@ -19,3 +22,9 @@ _Language_ - C++
 
 ## Little showcase 
 
+### RTX OFF
+![image](https://github.com/user-attachments/assets/217f5722-8050-405f-aa7c-cb540129c5a7)
+
+
+### RTX ON
+![image](https://github.com/user-attachments/assets/82947f57-1f2e-4615-96e6-388133e085ae)
