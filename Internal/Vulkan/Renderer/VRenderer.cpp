@@ -56,6 +56,7 @@ namespace Renderer
         m_rayTracingRenderContext.metaData.bRasterPass = false;
         m_rayTracingRenderContext.metaData.bRTXPass = true;
 
+        m_renderingContext = &m_rasterRenderContext;
     }
 
     void VRenderer::Render(GlobalUniform& globalUniformUpdateInfo) {
