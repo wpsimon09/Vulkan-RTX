@@ -59,7 +59,7 @@ public:
 
     void MainLoop();
 
-    ~Application() ;
+    ~Application();
 
 private:
     std::unique_ptr<class Client> m_client;

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Painterly Cottage
+* source:	https://sketchfab.com/3d-models/painterly-cottage-0772aec70d584c60a27000af5f6c1ef4
+* author:	glenatron (https://sketchfab.com/glenatron)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Painterly Cottage" (https://sketchfab.com/3d-models/painterly-cottage-0772aec70d584c60a27000af5f6c1ef4) by glenatron (https://sketchfab.com/glenatron) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)

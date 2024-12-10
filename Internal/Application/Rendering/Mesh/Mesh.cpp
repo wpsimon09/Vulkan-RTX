@@ -1,6 +1,5 @@
 //
 // Created by wpsimon09 on 05/10/24.
-//
 
 #include "Mesh.hpp"
 #include "MeshData.hpp"
@@ -10,16 +9,14 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 
-ApplicationCore::Mesh::Mesh(MESH_GEOMETRY_TYPE geometryType,std::shared_ptr<Material> material, ApplicationCore::AssetsManager &assetsManger):m_renderingMetaData() {
+
+ApplicationCore::Mesh::Mesh(VertexArray* geometryData, std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType)
+{
     m_geometryType = geometryType;
+    m_vertexArray = geometryData;
     m_transformations = std::make_unique<Transformations>();
-    AssignMeshGeometryData(assetsManger);
-
-    MaterialPaths paths{
-        "sdfsd", "sdfsd", "sdsf"
-    };
-
     m_material = material;
+
 }
 
 const size_t ApplicationCore::Mesh::GetMeshVertexArraySize() const {
@@ -48,10 +45,6 @@ void ApplicationCore::Mesh::Destroy()
 
 }
 
-const void ApplicationCore::Mesh::AssignMeshGeometryData(ApplicationCore::AssetsManager &assetsManger) {
-    m_vertexArray = &assetsManger.GetVertexArrayForGeometryType(m_geometryType);
-    Utils::Logger::LogInfoVerboseOnly("Assigning vertices of type: " + MeshGeometryTypeToString(m_geometryType));
-}
 
 std::string ApplicationCore::Mesh::MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType) {
     switch (geometryType) {
@@ -63,6 +56,8 @@ std::string ApplicationCore::Mesh::MeshGeometryTypeToString(MESH_GEOMETRY_TYPE g
             return "MESH_GEOMETRY_SPHERE";
         case MESH_GEOMETRY_POST_PROCESS:
             return "MESH_GEOMETRY_POST_PROCESS";
+        case MESH_GEOMETRY_CUSTOM:
+            return "MESH_GEOMETRY_CUSTOM";
     }
     return "UNKNOWN";
 }

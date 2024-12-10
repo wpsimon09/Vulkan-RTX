@@ -10,6 +10,7 @@
 #include "Rendering/Transformations/Transformations.hpp"
 #include "Application/Rendering/Material/Material.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/GLTFLoader/GltfLoader.hpp"
 #include "Rendering/Camera/Camera.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include <cassert>

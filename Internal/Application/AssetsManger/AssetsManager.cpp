@@ -35,11 +35,11 @@ namespace ApplicationCore
         m_dummyTexture->Destroy();
     }
 
-    VertexArray &AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) {
+    VertexArray *AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) {
         auto result = m_meshData.find(geometryType);
         // if they are loaded return the loaded result
         if (result != m_meshData.end()) {
-            return *result->second;
+            return result->second.get();
         }
         // load them otherwise
         std::unique_ptr<VertexArray> vao;
@@ -79,7 +79,7 @@ namespace ApplicationCore
         default: ;
             throw std::runtime_error("This geometry type is not supported !");
         }
-        return *m_meshData[geometryType];
+        return m_meshData[geometryType].get();
     }
 
     void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string &path) {

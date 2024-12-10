@@ -60,7 +60,7 @@ class AssetsManager {
 public:
     explicit AssetsManager(const VulkanCore::VDevice& device);
     void DeleteAll();
-    VertexArray& GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType);
+    VertexArray* GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType);
 
     void GetTexture(std::shared_ptr<VulkanCore::VImage> &texture,const std::string& path);
     std::shared_ptr<ApplicationCore::Material> GetMaterial(MaterialPaths& path);

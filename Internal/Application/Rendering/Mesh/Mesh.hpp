@@ -20,7 +20,7 @@ namespace ApplicationCore
 
     class Mesh{
     public:
-        explicit Mesh(MESH_GEOMETRY_TYPE geometryType,std::shared_ptr<Material> material, ApplicationCore::AssetsManager& assetsManger);
+        explicit Mesh(VertexArray* geometryData, std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType = MESH_GEOMETRY_CUSTOM);
 
         void Update();
 
