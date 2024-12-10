@@ -36,7 +36,7 @@ namespace Renderer
     VRenderer:: VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
                         Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager,
                          VulkanUtils::VPushDescriptorManager &pushDescriptorSetManager):
-        m_device(device), m_client(client), m_uniformBufferManager(uniformBufferManager),
+        m_device(device), m_uniformBufferManager(uniformBufferManager),
         m_pushDescriptorSetManager(pushDescriptorSetManager), m_rasterRenderContext(), m_rayTracingRenderContext() {
 
         m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth);
@@ -58,18 +58,15 @@ namespace Renderer
 
     }
 
-    void VRenderer::Render() {
-        m_client.GetAssetsManager().Sync();
+    void VRenderer::Render(GlobalUniform& globalUniformUpdateInfo) {
         vk::Pipeline pipeline;
-        if (m_client.GetIsRTXOn())
+        if (m_isRTXOn)
         {
             pipeline = m_pipelineManager->GetPipeline(PIPELINE_TYPE_RTX).GetPipelineInstance();
-            m_client.Render(m_rayTracingRenderContext);
             m_renderingContext = &m_rayTracingRenderContext;
         }else
         {
             pipeline = m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED).GetPipelineInstance();
-            m_client.Render(m_rasterRenderContext);
             m_renderingContext = &m_rasterRenderContext;
         }
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
@@ -81,7 +78,7 @@ namespace Renderer
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
         m_baseCommandBuffers[m_currentFrameIndex]->Reset();
 
-        m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,m_client.GetGlobalDataUpdateInformation());
+        m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
         m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderingContext->DrawCalls);
 
         m_baseCommandBuffers[m_currentFrameIndex]->BeginRecording();

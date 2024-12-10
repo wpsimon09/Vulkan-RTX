@@ -105,7 +105,10 @@ void Application::Update()
 }
 
 void Application::Render() {
-    m_renderer->Render();
+    m_client->GetAssetsManager().Sync();
+    m_client->Render(m_renderer->GetRenderingContext());
+    m_renderer->SetRtxStatus(m_client->GetIsRTXOn());
+    m_renderer->Render(m_client->GetGlobalDataUpdateInformation());
 }
 
 Application::~Application() {

@@ -24,7 +24,7 @@ public:
 
     void Init();
     void Update();
-    void Render(VulkanStructs::RenderContext& ctx,SceneNode& sceneNode = *m_root);
+    void Render(VulkanStructs::RenderContext* ctx,SceneNode& sceneNode = *m_root);
 
 private:
     void BuildDefaultScene();

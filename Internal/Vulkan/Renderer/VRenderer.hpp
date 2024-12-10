@@ -53,9 +53,12 @@ namespace Renderer
         VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device, Client &client,
                   const VulkanUtils::VUniformBufferManager &uniformBufferManager, VulkanUtils::VPushDescriptorManager& pushDescriptorSetManager);
 
-        void Render() ;
+        void Render(GlobalUniform& globalUniformUpdateInfo) ;
         void Destroy();
         ~VRenderer() = default;
+    public:
+        void SetRtxStatus(bool newStatus) {m_isRTXOn = newStatus;}
+        VulkanStructs::RenderContext* GetRenderingContext() const{return m_renderingContext;}
 
     private:
         //==================================
@@ -82,15 +85,14 @@ namespace Renderer
         void SubmitCommandBuffer();
         void PresentResults();
         //=====================================
-
     private:
-        Client &m_client;
         const VulkanCore::VDevice &m_device;
         const VulkanUtils::VUniformBufferManager &m_uniformBufferManager;
         VulkanUtils::VPushDescriptorManager &m_pushDescriptorSetManager;
         uint32_t m_currentImageIndex = 0;
         uint32_t m_currentFrameIndex = 0;
         int m_availableRecordingThreads = 0;
+        bool m_isRTXOn = false;
 
         std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
         std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_renderFinishedSemaphores;
@@ -109,6 +111,8 @@ namespace Renderer
 
         // points to one of the rendering contexts
         VulkanStructs::RenderContext* m_renderingContext;;
+
+
     };
 } // Renderer
 

@@ -35,7 +35,7 @@ namespace ApplicationCore {
         m_root->Update();
     }
 
-    void Scene::Render(VulkanStructs::RenderContext& ctx,SceneNode& sceneNode )
+    void Scene::Render(VulkanStructs::RenderContext* ctx,SceneNode& sceneNode )
     {
         if (sceneNode.HasMesh())
         {
