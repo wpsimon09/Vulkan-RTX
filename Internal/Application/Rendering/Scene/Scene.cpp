@@ -55,8 +55,14 @@ namespace ApplicationCore {
         red_brick.DiffuseMapPath = "/home/wpsimon09/Desktop/Textures/red-brick/albedo.png";
         red_brick.ArmMapPath = "/home/wpsimon09/Desktop/Textures/red-brick/arm.png";
         red_brick.NormalMapPath = "/home/wpsimon09/Desktop/Textures/red-brick/normal.png";
-
         auto redBrickMaterial = m_assetsManager.GetMaterial(red_brick);
+
+        MaterialPaths hangaBlack;
+        hangaBlack.DiffuseMapPath = "/home/wpsimon09/Desktop/Textures/tiles/albedo.png";
+        hangaBlack.ArmMapPath = "/home/wpsimon09/Desktop/Textures/tiles/arm.png";
+        hangaBlack.NormalMapPath = "/home/wpsimon09/Desktop/Textures/tiles/normal.png";
+
+        auto hangaBlackMaterial = m_assetsManager.GetMaterial(hangaBlack);
 
         // Create materials
         MaterialPaths redMaterialPath, greenMaterialPath, blueMaterialPath, yellowMaterialPath, grayMaterialPath;
@@ -138,7 +144,7 @@ namespace ApplicationCore {
         sphere6->GetTransformations()->SetPosition(-10.0f, -5.0f, -5.0f);
         sphere6->GetTransformations()->SetScale(2.0f, 2.0f, 2.0f);
 
-        auto sphere7 = std::make_shared<ApplicationCore::Mesh>(sphereVertexArray, orangeMat, MESH_GEOMETRY_SPHERE);
+        auto sphere7 = std::make_shared<ApplicationCore::Mesh>(sphereVertexArray, hangaBlackMaterial, MESH_GEOMETRY_SPHERE);
         sphere7->GetTransformations()->SetPosition(3.0f, -4.0f, -18.0f);
         sphere7->GetTransformations()->SetScale(3.5f, 3.5f, 3.5f);
 

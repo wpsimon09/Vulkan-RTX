@@ -21,6 +21,7 @@ class GLTFLoader {
 public:
     GLTFLoader(const VulkanCore::VDevice& device , const ApplicationCore::AssetsManager& assetsManager);
 
+    std::shared_ptr<SceneNode> Load(std::string path);
 
     ~GLTFLoader() = default;
 private:
