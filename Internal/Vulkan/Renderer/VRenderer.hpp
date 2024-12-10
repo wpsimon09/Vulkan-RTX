@@ -29,8 +29,6 @@ namespace VulkanCore
 }
 
 
-class Client;
-
 namespace VulkanCore
 {
     class VGraphicsPipeline;
@@ -50,7 +48,7 @@ namespace Renderer
     class VRenderer
     {
     public:
-        VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device, Client &client,
+        VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
                   const VulkanUtils::VUniformBufferManager &uniformBufferManager, VulkanUtils::VPushDescriptorManager& pushDescriptorSetManager);
 
         void Render(GlobalUniform& globalUniformUpdateInfo) ;

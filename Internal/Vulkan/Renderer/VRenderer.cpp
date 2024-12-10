@@ -34,7 +34,7 @@ namespace Renderer
 {
 
     VRenderer:: VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
-                        Client &client, const VulkanUtils::VUniformBufferManager &uniformBufferManager,
+                        const VulkanUtils::VUniformBufferManager &uniformBufferManager,
                          VulkanUtils::VPushDescriptorManager &pushDescriptorSetManager):
         m_device(device), m_uniformBufferManager(uniformBufferManager),
         m_pushDescriptorSetManager(pushDescriptorSetManager), m_rasterRenderContext(), m_rayTracingRenderContext() {

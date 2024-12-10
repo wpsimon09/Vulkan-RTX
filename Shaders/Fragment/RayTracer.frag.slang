@@ -231,8 +231,7 @@ float2 RandomPointInCircle(inout uint rngState){
     return pointOnCircle * sqrt(RandomValue(rngState));
 }
 
-float3 Trace(Ray ray,float3 lightPos, int MaxBounceCount, inout uint rngState) {
-    Sphere sceneData[] = BuildScene();
+float3 Trace(Ray ray,Sphere[] sceneData, float3 lightPos, int MaxBounceCount, inout uint rngState) {
     float3 rayColour = 1;
     float3 incomingLight = 0;
     for (int i = 0; i <= MaxBounceCount; i++)
@@ -285,17 +284,19 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
     int raysPerPixel = 15;
     float3 totalIncomingLight = 0; 
     
-        Ray ray;
-        
-        float2 defocuseJitter = RandomPointInCircle(rngState) * DefocuseStreanth/numPixels.x;
-        ray.origin = fsIn.cameraPos;
+    Ray ray;
+    
+    float2 defocuseJitter = RandomPointInCircle(rngState) * DefocuseStreanth/numPixels.x;
+    ray.origin = fsIn.cameraPos;
 
-        ray.dir = -normalize(viewPoint.xyz - ray.origin);
-        //ray.dir.x *= -1.0;
-        //ray.dir.y *= -1.0;
+    ray.dir = -normalize(viewPoint.xyz - ray.origin);
+    //ray.dir.x *= -1.0;
+    //ray.dir.y *= -1.0;
 
-        for (int rayIndex = 0; rayIndex < raysPerPixel; rayIndex++) {
-        totalIncomingLight += Trace(ray, fsIn.lightPos, 15, rngState);
+    Sphere scene[] = BuildScene();
+
+    for (int rayIndex = 0; rayIndex < raysPerPixel; rayIndex++) {
+        totalIncomingLight += Trace(ray,scene, fsIn.lightPos, 15, rngState);
     }
 
     float3 col = totalIncomingLight / raysPerPixel;
