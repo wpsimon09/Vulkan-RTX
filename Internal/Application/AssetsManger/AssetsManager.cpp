@@ -106,6 +106,14 @@ namespace ApplicationCore
         return m_materials[path];
     }
 
+    void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<Mesh> mesh)
+    {
+        if (!m_meshes.contains(meshName))
+        {
+            m_meshes[meshName] = mesh;
+        }
+    }
+
     bool AssetsManager::Sync() {
         if(!m_texturesToLoad.empty()) {
             std::unique_lock<std::mutex> lock(m_mutex);

@@ -34,6 +34,7 @@ void Client::Init() {
     m_scene = std::make_unique<ApplicationCore::Scene>(*m_assetsManager);
     m_scene->Init();
 
+
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
@@ -57,6 +58,7 @@ const void Client::Render(VulkanStructs::RenderContext* ctx)
 const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager) {
     Utils::Logger::LogInfoClient("Mounting assets manger...");
     m_assetsManager = std::move(assetsManager);
+    m_gltfLoader = std::make_unique<ApplicationCore::GLTFLoader>(*m_assetsManager);
     assert(m_assetsManager);
     Utils::Logger::LogInfoClient("Mounted assets manager successfuly to the client");
 }

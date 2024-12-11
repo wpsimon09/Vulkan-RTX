@@ -15,10 +15,16 @@
 #include "Application/Rendering/Material/MaterialStructs.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
+namespace ApplicationCore
+{
+    class GLTFLoader;
+}
+
 struct MaterialPaths;
 
 namespace ApplicationCore
 {
+    class Mesh;
     class Material;
 }
 
@@ -64,6 +70,7 @@ public:
 
     void GetTexture(std::shared_ptr<VulkanCore::VImage> &texture,const std::string& path);
     std::shared_ptr<ApplicationCore::Material> GetMaterial(MaterialPaths& path);
+    void AddMesh(std::string meshName, std::shared_ptr<Mesh> mesh);
     void GetDummyTexture(std::shared_ptr<VulkanCore::VImage> &texture) const {texture = m_dummyTexture;};
 
     bool Sync();
@@ -79,10 +86,13 @@ private:
     std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_textures; //access only from main thread
     std::unordered_map<MaterialPaths, std::shared_ptr<ApplicationCore::Material>> m_materials;
     std::unordered_map<std::string, std::future<VulkanStructs::ImageData>> m_texturesToLoad; // accessed only from loading thread
+    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::Mesh>> m_meshes;
 
     std::mutex m_mutex;
 
     std::shared_ptr<VulkanCore::VImage> m_dummyTexture;
+
+    friend class ApplicationCore::GLTFLoader;
 };
 
 } // ApplicationCore

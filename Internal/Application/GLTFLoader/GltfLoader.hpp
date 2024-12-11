@@ -7,6 +7,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
+#include <filesystem>
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 
@@ -19,9 +20,9 @@ class SceneNode;
 
 class GLTFLoader {
 public:
-    GLTFLoader(const VulkanCore::VDevice& device , const ApplicationCore::AssetsManager& assetsManager);
+    GLTFLoader(const ApplicationCore::AssetsManager& assetsManager);
 
-    std::shared_ptr<SceneNode> Load(std::string path);
+    std::shared_ptr<SceneNode> Load(std::filesystem::path gltfPath);
 
     ~GLTFLoader() = default;
 private:
