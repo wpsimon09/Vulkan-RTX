@@ -68,6 +68,8 @@ void Application::Init()
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
     m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
 
+
+    m_client->GetGLTFLoader().LoadGLTFScene("Resources/cottage/scene.gltf");
 }
 
 void Application::MainLoop()

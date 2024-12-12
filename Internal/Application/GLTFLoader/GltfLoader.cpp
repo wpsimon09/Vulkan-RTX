@@ -14,7 +14,7 @@ namespace ApplicationCore {
         Utils::Logger::LogSuccess("Crated GLTFLoader !");
     }
 
-    std::shared_ptr<SceneNode> GLTFLoader::Load(std::filesystem::path gltfPath)
+    std::shared_ptr<SceneNode> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath)
     {
         fastgltf::GltfDataBuffer data;
         data.FromPath(gltfPath);
@@ -35,9 +35,10 @@ namespace ApplicationCore {
 
         }else
         {
-            Utils::Logger::LogErrorClient("Failed to load GLTF file: " + gltfPath.string());
-            //Utils::Logger::LogInfoClient(fastgltf::getErrorMessage(load.error()));
+            Utils::Logger::LogErrorClient("Failed to load GLTF file: " + gltfPath.string() + "fastgltf says: ");
+            //Utils::Logger::LogErrorClient( fastgltf::to_underlying<const char*>(load.error));
         }
 
+        return nullptr;
     }
 } // ApplicationCore

@@ -58,6 +58,7 @@ public:
     glm::vec4 GetLightPosition() const {return glm::vec4(m_sunLightPosition,1.0);}
 
     GlobalUniform& GetGlobalDataUpdateInformation(){return m_globalRenderingData;};
+    ApplicationCore::GLTFLoader& GetGLTFLoader() const {return *m_gltfLoader;};
 
     void Update();
     void UpdateCamera(CameraUpdateInfo& cameraUpdateInfo);

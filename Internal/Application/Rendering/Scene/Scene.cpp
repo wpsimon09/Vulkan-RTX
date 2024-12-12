@@ -103,7 +103,7 @@ namespace ApplicationCore {
         sunMat->GetMaterialDescription().values.emissive_strength = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
 
         // Floor Material
-        auto floorMat = m_assetsManager.GetMaterial(floorMaterialPath);
+        auto floorMat = m_assetsManager.GetMaterial(hangaBlack);
         floorMat->GetMaterialDescription().values.diffuse = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
 
 
@@ -112,7 +112,7 @@ namespace ApplicationCore {
 
 
        // Create spheres
-        auto floorSphere = std::make_shared<ApplicationCore::Mesh>(sphereVertexArray, redBrickMaterial, MESH_GEOMETRY_SPHERE);
+        auto floorSphere = std::make_shared<ApplicationCore::Mesh>(sphereVertexArray, hangaBlackMaterial, MESH_GEOMETRY_SPHERE);
         floorSphere->GetTransformations()->SetPosition(0.0f, -50.0f, 0.0f);
         floorSphere->GetTransformations()->SetScale(50.0f, 50.0f, 50.0f);
 
@@ -144,7 +144,7 @@ namespace ApplicationCore {
         sphere6->GetTransformations()->SetPosition(-10.0f, -5.0f, -5.0f);
         sphere6->GetTransformations()->SetScale(2.0f, 2.0f, 2.0f);
 
-        auto sphere7 = std::make_shared<ApplicationCore::Mesh>(sphereVertexArray, hangaBlackMaterial, MESH_GEOMETRY_SPHERE);
+        auto sphere7 = std::make_shared<ApplicationCore::Mesh>(sphereVertexArray, redBrickMaterial, MESH_GEOMETRY_SPHERE);
         sphere7->GetTransformations()->SetPosition(3.0f, -4.0f, -18.0f);
         sphere7->GetTransformations()->SetScale(3.5f, 3.5f, 3.5f);
 
