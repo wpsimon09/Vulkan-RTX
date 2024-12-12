@@ -21,23 +21,27 @@ namespace ApplicationCore {
 
         Utils::Logger::LogInfoClient("Loading model from path: " + gltfPath.string());
 
-        constexpr auto gltfOptions = fastgltf::Options::LoadGLBBuffers | fastgltf::Options::LoadExternalBuffers;
+        constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble | fastgltf::Options::LoadGLBBuffers | fastgltf::Options::LoadExternalBuffers;
 
         fastgltf::Asset gltf;
         fastgltf::Parser parser {};
 
-        auto load = parser.loadGltf(data, gltfPath.parent_path(), gltfOptions);
+        auto type = fastgltf::determineGltfFileType(data);
 
-        if (load)
+        if (type == fastgltf::GltfType::glTF)
         {
-            gltf = std::move(load.get());
+            auto load = parser.loadGltfJson(data, gltfPath.parent_path(), gltfOptions);
+            if (load)
+            {
+                gltf = std::move(load.get());
+            }
+            else
+            {
+                Utils::Logger::LogErrorClient("Failed to load GLTF file: " + gltfPath.string());
+                Utils::Logger::LogErrorClient( "fastgltf says: " + std::string(fastgltf::getErrorMessage(load.error())));
+            }
+        }if ()
 
-
-        }else
-        {
-            Utils::Logger::LogErrorClient("Failed to load GLTF file: " + gltfPath.string() + "fastgltf says: ");
-            //Utils::Logger::LogErrorClient( fastgltf::to_underlying<const char*>(load.error));
-        }
 
         return nullptr;
     }
