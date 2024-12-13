@@ -16,7 +16,6 @@
 
 namespace ApplicationCore {
 
-struct MaterialPaths;
 class VertexArray;
 class AssetsManager;
 class Mesh;

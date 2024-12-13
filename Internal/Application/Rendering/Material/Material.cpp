@@ -3,6 +3,8 @@
 //
 
 #include "Material.hpp"
+#include "MaterialStructs.hpp"
+
 
 #include "Application/AssetsManger/AssetsManager.hpp"
 namespace ApplicationCore {
