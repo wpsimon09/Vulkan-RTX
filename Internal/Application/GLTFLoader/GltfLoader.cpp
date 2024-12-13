@@ -6,6 +6,9 @@
 #include <fastgltf/core.hpp>
 
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/Rendering/Scene/SceneNode.hpp"
+#include "fastgltf/tools.hpp"
 
 namespace ApplicationCore {
 
@@ -16,33 +19,66 @@ namespace ApplicationCore {
 
     std::shared_ptr<SceneNode> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath)
     {
-        fastgltf::GltfDataBuffer data;
-        data.FromPath(gltfPath);
 
         Utils::Logger::LogInfoClient("Loading model from path: " + gltfPath.string());
 
-        constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble | fastgltf::Options::LoadGLBBuffers | fastgltf::Options::LoadExternalBuffers;
+        m_rootNode = std::make_shared<SceneNode>();
 
-        fastgltf::Asset gltf;
         fastgltf::Parser parser {};
 
-        auto type = fastgltf::determineGltfFileType(data);
+        constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble | fastgltf::Options::LoadGLBBuffers | fastgltf::Options::LoadExternalBuffers;
 
-        if (type == fastgltf::GltfType::glTF)
+        auto gltfFile = fastgltf::MappedGltfFile::FromPath(gltfPath);
+        if (!bool(gltfFile))
         {
-            auto load = parser.loadGltfJson(data, gltfPath.parent_path(), gltfOptions);
-            if (load)
-            {
-                gltf = std::move(load.get());
-            }
-            else
-            {
-                Utils::Logger::LogErrorClient("Failed to load GLTF file: " + gltfPath.string());
-                Utils::Logger::LogErrorClient( "fastgltf says: " + std::string(fastgltf::getErrorMessage(load.error())));
-            }
-        }if ()
+            Utils::Logger::LogErrorClient("Failed to load GLTF file: " + gltfPath.string());
+            Utils::Logger::LogErrorClient( "fastgltf says: " + std::string(fastgltf::getErrorMessage(gltfFile.error())));
+            return nullptr;
+        }
 
+        fastgltf::Asset gltf;
 
-        return nullptr;
+        auto asset = parser.loadGltf(gltfFile.get(), gltfPath.parent_path(), gltfOptions);
+        if (asset.error() != fastgltf::Error::None)
+        {
+            Utils::Logger::LogErrorClient("Failed to parse GLTF file " + gltfPath.string());
+            Utils::Logger::LogErrorClient("fastgltf says: " + std::string(fastgltf::getErrorMessage(gltfFile.error())));
+        }
+        else
+        {
+
+            // temporal data that will hold everything
+            std::vector<std::shared_ptr<Mesh>> meshes;
+            std::vector<std::shared_ptr<VertexArray>> vertexArrays;
+            std::vector<std::shared_ptr<SceneNode>> nodes;
+            std::vector<std::shared_ptr<Material>> materials;
+
+            std::vector<uint32_t> indices;
+            std::vector<Vertex> vertices;
+
+            gltf = std::move(asset.get());
+            Utils::Logger::LogSuccessClient("GLTF File parsed successfully !");
+
+            for (fastgltf::Mesh& m: gltf.meshes)
+            {
+                for (auto& p : m.primitives)
+                {
+                    indices.clear();
+                    vertices.clear();
+
+                    //=========================================
+                    // INDICES LOADING
+                    //=========================================
+                    fastgltf::Accessor& indexAccessor = gltf.accessors[p.indicesAccessor.value()];
+                    indices.reserve(indices.size() + indexAccessor.count());
+                    fastgltf::iterateAccessor<std::uint32_t>(gltf, indexAccessor,[&](std::uint32_t index)
+                    {
+                       indices.push_back(index);
+                    });
+                }
+            }
+        }
+
+        return m_rootNode;
     }
 } // ApplicationCore

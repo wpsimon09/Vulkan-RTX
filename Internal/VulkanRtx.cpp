@@ -70,6 +70,7 @@ void Application::Init()
 
 
     m_client->GetGLTFLoader().LoadGLTFScene("Resources/cottage/scene.gltf");
+    m_client->GetGLTFLoader().LoadGLTFScene("Resources/cottage-glb/painterly_cottage.glb");
 }
 
 void Application::MainLoop()
