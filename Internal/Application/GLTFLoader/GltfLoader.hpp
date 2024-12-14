@@ -27,15 +27,16 @@ class GLTFLoader {
 public:
     GLTFLoader(ApplicationCore::AssetsManager& assetsManager);
 
-    std::shared_ptr<SceneNode> LoadGLTFScene(std::filesystem::path gltfPath);
+    std::unique_ptr<    SceneNode> LoadGLTFScene(std::filesystem::path gltfPath);
 
     ~GLTFLoader() = default;
 
 private:
+
     const VulkanCore::VDevice& m_device;
     ApplicationCore::AssetsManager& m_assetsManager;
 
-    std::shared_ptr<SceneNode> m_rootNode;
+    std::unique_ptr<SceneNode> m_rootNode;
     std::vector<std::shared_ptr<SceneNode>> m_topNodes;
 
     std::shared_ptr<SceneNode> m_modelRoot;
@@ -45,7 +46,8 @@ private:
     std::vector<std::shared_ptr<VertexArray>> vertexArrays;
     std::vector<std::shared_ptr<SceneNode>> nodes;
     std::vector<std::shared_ptr<Material>> materials;
-
+private:
+    void PostLoadClear();
 };
 
 } // ApplicationCore

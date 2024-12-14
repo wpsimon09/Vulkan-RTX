@@ -17,9 +17,9 @@
 
         m_aspect = width / height;
         m_nearPlane = 0.1f;
-        m_projection = glm::perspective(glm::radians(65.0f), width / height, m_nearPlane, 700.0f);
+        m_projection = glm::perspective(glm::radians(65.0f), width / height, m_nearPlane, 1700.0f);
         m_projection[1][1] *= -1;
-        m_farPlane = 700.0f;;
+        m_farPlane = 1700.0f;;
 
         m_radius = radius;
         m_minRadius = minRadius;
@@ -88,7 +88,7 @@
 
     void ApplicationCore::Camera::ProcessResize(int newWidht, int newHeight) {
         m_aspect = (float)newWidht / (float)newHeight;
-        m_projection = glm::perspective(glm::radians(65.0f), (float)newWidht / (float)newHeight, m_nearPlane, 470.0f);
+        m_projection = glm::perspective(glm::radians(65.0f), (float)newWidht / (float)newHeight, m_nearPlane, m_farPlane);
         m_projection[1][1] *= -1;
         m_farPlane = GetFarPlane();
         m_position = getEye();

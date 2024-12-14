@@ -72,7 +72,7 @@ public:
     void AddMesh(std::string meshName, std::shared_ptr<Mesh> mesh);
     void GetDummyTexture(std::shared_ptr<VulkanCore::VImage> &texture) const {texture = m_dummyTexture;}
 
-    std::shared_ptr<ApplicationCore::Material> GetMaterial(MaterialPaths& path) ;
+    std::shared_ptr<ApplicationCore::Material> GetMaterial(MaterialPaths& path);
     std::vector<std::shared_ptr<VertexArray>>& GetVertexData()  {return m_vertexArrays;};
 
     bool Sync();

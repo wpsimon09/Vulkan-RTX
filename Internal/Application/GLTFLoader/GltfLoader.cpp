@@ -20,12 +20,12 @@ namespace ApplicationCore {
         Utils::Logger::LogSuccess("Crated GLTFLoader !");
     }
 
-    std::shared_ptr<SceneNode> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath)
+    std::unique_ptr<SceneNode> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath)
     {
 
         Utils::Logger::LogInfoClient("Loading model from path: " + gltfPath.string());
 
-        m_rootNode = std::make_shared<SceneNode>();
+        m_rootNode = std::make_unique<SceneNode>();
 
         MaterialPaths paths;
         std::shared_ptr<Material> mat = std::make_shared<ApplicationCore::Material>(paths, m_assetsManager);
@@ -158,6 +158,7 @@ namespace ApplicationCore {
 
                 // create shared ptr to mesh
                 auto createdMehs = std::make_shared<Mesh>(m_assetsManager.GetVertexData().back(), mat);
+                createdMehs->SetName(std::string(m.name));
 
                 // store the shared ptr to mesh
                 m_assetsManager.AddMesh(std::string(m.name), createdMehs);
@@ -166,6 +167,11 @@ namespace ApplicationCore {
             }
         }
 
-        return m_rootNode;
+        return std::move(m_rootNode);
+    }
+
+    void GLTFLoader::PostLoadClear()
+    {
+        m_meshes.clear();
     }
 } // ApplicationCore

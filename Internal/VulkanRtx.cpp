@@ -69,8 +69,10 @@ void Application::Init()
     m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
 
 
-    m_client->GetGLTFLoader().LoadGLTFScene("Resources/cottage/scene.gltf");
-    m_client->GetGLTFLoader().LoadGLTFScene("Resources/cottage-glb/painterly_cottage.glb");
+
+    m_client->GetScene().AddNode(m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene/scene.gltf"));
+
+    m_client->GetScene().AddNode(m_client->GetGLTFLoader().LoadGLTFScene("Resources/cottage/scene.gltf"));
 }
 
 void Application::MainLoop()

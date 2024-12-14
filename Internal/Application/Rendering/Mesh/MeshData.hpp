@@ -104,6 +104,8 @@ namespace ApplicationCore::MeshData
         const unsigned int X_SEGMENTS = 64;
         const unsigned int Y_SEGMENTS = 64;
         const float PI = 3.14159265359f;
+
+        // Generate vertices
         for (unsigned int x = 0; x <= X_SEGMENTS; ++x)
         {
             for (unsigned int y = 0; y <= Y_SEGMENTS; ++y)
@@ -116,32 +118,32 @@ namespace ApplicationCore::MeshData
 
                 Vertex tempVertex {};
                 tempVertex.position = glm::vec3(xPos, yPos, zPos);
-                tempVertex.normal = glm::vec3(xPos, yPos, zPos);
-                tempVertex.uv = glm::vec2(xSegment, ySegment);
+                tempVertex.normal = glm::vec3(xPos, yPos, zPos); // Normals are the same as the position for a unit sphere
+                tempVertex.uv = glm::vec2(xSegment, ySegment); // Texture coordinates
                 vertices.push_back(tempVertex);
             }
         }
 
-        bool oddRow = false;
+        // Generate indices for triangle list
         for (unsigned int y = 0; y < Y_SEGMENTS; ++y)
         {
-            if (!oddRow)
+            for (unsigned int x = 0; x < X_SEGMENTS; ++x)
             {
-                for (unsigned int x = 0; x <= X_SEGMENTS; ++x)
-                {
-                    indices.push_back(y * (X_SEGMENTS + 1) + x);
-                    indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
-                }
+                // Calculate the indices for the four vertices of the current quad
+                unsigned int topLeft = y * (X_SEGMENTS + 1) + x;
+                unsigned int topRight = y * (X_SEGMENTS + 1) + (x + 1);
+                unsigned int bottomLeft = (y + 1) * (X_SEGMENTS + 1) + x;
+                unsigned int bottomRight = (y + 1) * (X_SEGMENTS + 1) + (x + 1);
+
+                // Add two triangles for the current quad
+                indices.push_back(topLeft);
+                indices.push_back(bottomLeft);
+                indices.push_back(topRight);
+
+                indices.push_back(topRight);
+                indices.push_back(bottomLeft);
+                indices.push_back(bottomRight);
             }
-            else
-            {
-                for (int x = X_SEGMENTS; x >= 0; --x)
-                {
-                    indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
-                    indices.push_back(y * (X_SEGMENTS + 1) + x);
-                }
-            }
-            oddRow = !oddRow;
         }
 
     }

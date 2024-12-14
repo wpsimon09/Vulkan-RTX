@@ -84,7 +84,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     auto pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_baseShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
     pipeline->SetPipelineType(PIPELINE_TYPE_RASTER_PBR_TEXTURED);
-    pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleStrip);
+    pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     m_pipelines[PIPELINE_TYPE_RASTER_PBR_TEXTURED] = std::move(pipeline);
 
     auto rtxVertexShaderPath = "Shaders/Compiled/RayTracer.vert.slang.spv";

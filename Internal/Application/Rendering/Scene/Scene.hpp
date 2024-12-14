@@ -26,6 +26,8 @@ public:
     void Update();
     void Render(VulkanStructs::RenderContext* ctx,SceneNode& sceneNode = *m_root);
 
+    void AddNode(std::unique_ptr<SceneNode> sceneNode);
+
 private:
     void BuildDefaultScene();
 

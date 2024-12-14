@@ -10,6 +10,7 @@
 #include <future>
 
 #include "Application/Rendering/Material/Material.hpp"
+#include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Application/Rendering/Mesh/MeshData.hpp"
@@ -29,8 +30,14 @@ namespace ApplicationCore
         for (auto &meshData : m_preloadedMeshData) {
             meshData.second->Destroy();
         }
+        for (auto &vao : m_vertexArrays) {
+            vao->Destroy();
+        }
         for (auto &texture : m_textures) {
             texture.second->Destroy();
+        }
+        for (auto& mesh: m_meshes){
+            mesh.second->Destroy();
         }
         m_dummyTexture->Destroy();
     }
