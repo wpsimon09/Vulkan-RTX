@@ -154,7 +154,6 @@ namespace ApplicationCore {
                 }
 
                 vertexArrays.push_back(std::make_shared<VertexArray>(m_assetsManager.m_device, TOPOLOGY_TRIANGLE_LIST, vertices, indices));
-
                 //meshes.push_back(std::make_shared<Mesh>())
             }
         }

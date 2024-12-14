@@ -7,11 +7,21 @@
 
 namespace GlobalState
 {
-    inline static bool ValidationLayersEnabled = true;
-    inline static bool LoggingEnabled = true;
-    inline static bool Verbose = true;
-    inline static bool VerboseInRendering = false;
-    inline static bool AutoCommandBufferFlags = true;
+    inline bool ValidationLayersEnabled = true;
+    inline bool LoggingEnabled = true;
+    inline bool Verbose = true;
+    inline bool VerboseInRendering = false;
+    inline bool AutoCommandBufferFlags = true;
+
+    inline void EnableLogging()
+    {
+        LoggingEnabled = true;
+    }
+
+    inline void DisableLogging()
+    {
+        LoggingEnabled = false;
+    }
 }
 
 #endif //GLOBALSTATE_HPP

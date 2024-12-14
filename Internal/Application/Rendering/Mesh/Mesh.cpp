@@ -15,6 +15,7 @@ ApplicationCore::Mesh::Mesh(VertexArray* geometryData, std::shared_ptr<Material>
     m_geometryType = geometryType;
     m_vertexArray = geometryData;
     m_transformations = std::make_unique<Transformations>();
+
     m_material = material;
 
 }

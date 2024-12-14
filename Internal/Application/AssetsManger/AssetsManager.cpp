@@ -47,6 +47,7 @@ namespace ApplicationCore
         case MESH_GEOMETRY_PLANE: {
             m_meshData[geometryType] = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::planeVertices,
                                                 MeshData::planeIndices);
+
             break;
         }
         case MESH_GEOMETRY_SPHERE: {

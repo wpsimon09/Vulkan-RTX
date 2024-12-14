@@ -14,7 +14,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
-#define MAX_UBO_COUNT 10
+#define MAX_UBO_COUNT 300
 
 VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDevice &device):m_device(device) {
     Utils::Logger::LogInfoVerboseOnly("Creating uniform buffer manager...");
@@ -100,7 +100,7 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
 
     // allocate per model Uniform buffers
     Utils::Logger::LogInfoVerboseOnly("Allocating 100 uniform buffers before hand");
-    GlobalState::LoggingEnabled = false;
+    GlobalState::DisableLogging();
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for per object data");
 
     m_perObjectUniform.resize(MAX_UBO_COUNT);
@@ -121,7 +121,7 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
     }
 
     //assert(m_objectDataUniforms.size() == MAX_UBO_COUNT && "Failed to allocate 20 buffers");
-    GlobalState::LoggingEnabled = true;
+    GlobalState::EnableLogging();
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for each of the mesh");
 
 
