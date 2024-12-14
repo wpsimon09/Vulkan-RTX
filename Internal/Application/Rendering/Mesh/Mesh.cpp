@@ -10,7 +10,7 @@
 #include "Application/VertexArray/VertexArray.hpp"
 
 
-ApplicationCore::Mesh::Mesh(VertexArray* geometryData, std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType)
+ApplicationCore::Mesh::Mesh(std::shared_ptr<VertexArray> geometryData, std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType)
 {
     m_geometryType = geometryType;
     m_vertexArray = geometryData;
@@ -44,6 +44,11 @@ void ApplicationCore::Mesh::Update() {
 void ApplicationCore::Mesh::Destroy()
 {
 
+}
+
+void ApplicationCore::Mesh::SetName(std::string name)
+{
+    m_name = name;
 }
 
 

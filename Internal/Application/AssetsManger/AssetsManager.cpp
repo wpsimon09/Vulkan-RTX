@@ -26,7 +26,7 @@ namespace ApplicationCore
     }
 
     void AssetsManager::DeleteAll() {
-        for (auto &meshData : m_meshData) {
+        for (auto &meshData : m_preloadedMeshData) {
             meshData.second->Destroy();
         }
         for (auto &texture : m_textures) {
@@ -35,17 +35,17 @@ namespace ApplicationCore
         m_dummyTexture->Destroy();
     }
 
-    VertexArray *AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) {
-        auto result = m_meshData.find(geometryType);
+    std::shared_ptr<VertexArray> AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType) {
+        auto result = m_preloadedMeshData.find(geometryType);
         // if they are loaded return the loaded result
-        if (result != m_meshData.end()) {
-            return result->second.get();
+        if (result != m_preloadedMeshData.end()) {
+            return result->second;
         }
         // load them otherwise
         std::unique_ptr<VertexArray> vao;
         switch (geometryType) {
         case MESH_GEOMETRY_PLANE: {
-            m_meshData[geometryType] = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::planeVertices,
+            m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::planeVertices,
                                                 MeshData::planeIndices);
 
             break;
@@ -54,33 +54,33 @@ namespace ApplicationCore
             std::vector<Vertex> vertices;
             std::vector<uint32_t> indices;
             MeshData::GenerateSphere(vertices, indices);
-            m_meshData[geometryType] =  std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_STRIP, vertices,
+            m_preloadedMeshData[geometryType] =  std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_STRIP, vertices,
                                                 indices);
             break;
         }
         case MESH_GEOMETRY_CUBE:
-            m_meshData[geometryType] = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::cubeVertices,
+            m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::cubeVertices,
                                                    MeshData::cubeIndices);
             break;
         case MESH_GEOMETRY_TRIANGLE: {
-            m_meshData[geometryType] = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::triangleVertices,
+            m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::triangleVertices,
                                                 MeshData::triangleIndices);
             break;
         }
         case MESH_GEOMETRY_CROSS: {
-            m_meshData[geometryType] = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::crossVertices,
+            m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::crossVertices,
                                                 MeshData::crossIndices);
             break;
         }
         case MESH_GEOMETRY_POST_PROCESS: {
-            m_meshData[geometryType] = std::make_unique<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::fullscreenQuadVertices,
+            m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::fullscreenQuadVertices,
                                                 MeshData::fullscreenQuadIndices);
             break;
         }
         default: ;
             throw std::runtime_error("This geometry type is not supported !");
         }
-        return m_meshData[geometryType].get();
+        return m_preloadedMeshData[geometryType];
     }
 
     void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string &path) {

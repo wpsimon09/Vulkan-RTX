@@ -15,7 +15,7 @@
 
 namespace ApplicationCore {
 
-    GLTFLoader::GLTFLoader(const ApplicationCore::AssetsManager& assetsManager):m_device(assetsManager.m_device),  m_assetsManager(assetsManager)
+    GLTFLoader::GLTFLoader(ApplicationCore::AssetsManager& assetsManager):m_device(assetsManager.m_device),  m_assetsManager(assetsManager)
     {
         Utils::Logger::LogSuccess("Crated GLTFLoader !");
     }
@@ -27,7 +27,11 @@ namespace ApplicationCore {
 
         m_rootNode = std::make_shared<SceneNode>();
 
+        MaterialPaths paths;
+        std::shared_ptr<Material> mat = std::make_shared<ApplicationCore::Material>(paths, m_assetsManager);
+
         fastgltf::Parser parser {};
+
 
         constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble | fastgltf::Options::LoadExternalBuffers;
 
@@ -51,10 +55,6 @@ namespace ApplicationCore {
         {
 
             // temporal data that will hold everything
-            std::vector<std::shared_ptr<Mesh>> meshes;
-            std::vector<std::shared_ptr<VertexArray>> vertexArrays;
-            std::vector<std::shared_ptr<SceneNode>> nodes;
-            std::vector<std::shared_ptr<Material>> materials;
 
             std::vector<uint32_t> indices;
             std::vector<Vertex> vertices;
@@ -153,8 +153,16 @@ namespace ApplicationCore {
 
                 }
 
-                vertexArrays.push_back(std::make_shared<VertexArray>(m_assetsManager.m_device, TOPOLOGY_TRIANGLE_LIST, vertices, indices));
-                //meshes.push_back(std::make_shared<Mesh>())
+                // store vertex array to assets manager
+                m_assetsManager.GetVertexData().push_back(std::make_shared<VertexArray>(m_assetsManager.m_device, TOPOLOGY_TRIANGLE_LIST, vertices, indices));
+
+                // create shared ptr to mesh
+                auto createdMehs = std::make_shared<Mesh>(m_assetsManager.GetVertexData().back(), mat);
+
+                // store the shared ptr to mesh
+                m_assetsManager.AddMesh(std::string(m.name), createdMehs);
+
+                m_rootNode->AddChild(createdMehs);
             }
         }
 

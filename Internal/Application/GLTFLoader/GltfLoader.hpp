@@ -15,8 +15,9 @@
 
 
 namespace ApplicationCore {
+    class Material;
 
-class VertexArray;
+    class VertexArray;
 class AssetsManager;
 class Mesh;
 
@@ -24,7 +25,7 @@ class SceneNode;
 
 class GLTFLoader {
 public:
-    GLTFLoader(const ApplicationCore::AssetsManager& assetsManager);
+    GLTFLoader(ApplicationCore::AssetsManager& assetsManager);
 
     std::shared_ptr<SceneNode> LoadGLTFScene(std::filesystem::path gltfPath);
 
@@ -32,13 +33,18 @@ public:
 
 private:
     const VulkanCore::VDevice& m_device;
-    const ApplicationCore::AssetsManager& m_assetsManager;
+    ApplicationCore::AssetsManager& m_assetsManager;
 
     std::shared_ptr<SceneNode> m_rootNode;
     std::vector<std::shared_ptr<SceneNode>> m_topNodes;
 
     std::shared_ptr<SceneNode> m_modelRoot;
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::Mesh>> m_meshes;
+
+    std::vector<std::shared_ptr<Mesh>> meshes;
+    std::vector<std::shared_ptr<VertexArray>> vertexArrays;
+    std::vector<std::shared_ptr<SceneNode>> nodes;
+    std::vector<std::shared_ptr<Material>> materials;
 
 };
 

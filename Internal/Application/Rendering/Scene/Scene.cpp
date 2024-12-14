@@ -107,11 +107,11 @@ namespace ApplicationCore {
         floorMat->GetMaterialDescription().values.diffuse = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
 
 
-        VertexArray *sphereVertexArray = m_assetsManager.GetVertexArrayForGeometryType(MESH_GEOMETRY_SPHERE);
-        VertexArray *postProcessVertexArray = m_assetsManager.GetVertexArrayForGeometryType(MESH_GEOMETRY_POST_PROCESS);
+        std::shared_ptr<VertexArray> sphereVertexArray = m_assetsManager.GetVertexArrayForGeometryType(MESH_GEOMETRY_SPHERE);
+        std::shared_ptr<VertexArray> postProcessVertexArray = m_assetsManager.GetVertexArrayForGeometryType(MESH_GEOMETRY_POST_PROCESS);
 
 
-       // Create spheres
+        // Create spheres
         auto floorSphere = std::make_shared<ApplicationCore::Mesh>(sphereVertexArray, hangaBlackMaterial, MESH_GEOMETRY_SPHERE);
         floorSphere->GetTransformations()->SetPosition(0.0f, -50.0f, 0.0f);
         floorSphere->GetTransformations()->SetScale(50.0f, 50.0f, 50.0f);
