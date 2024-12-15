@@ -28,7 +28,10 @@ namespace ApplicationCore {
         m_rootNode = std::make_unique<SceneNode>();
 
         MaterialPaths paths;
+        paths.DiffuseMapPath = "sdfsdf";
+
         std::shared_ptr<Material> mat = std::make_shared<ApplicationCore::Material>(paths, m_assetsManager);
+
 
         fastgltf::Parser parser {};
 
@@ -54,8 +57,21 @@ namespace ApplicationCore {
         else
         {
 
-            // temporal data that will hold everything
+            //==============================================================
+            // TEXTURE LOADING
+            //==============================================================
 
+
+            //==============================================================
+            // MATERIAL
+            //==============================================================
+
+
+            //==============================================================
+            // MESHES LOADING
+            //==============================================================
+
+            // temporal data that will hold everything
             std::vector<uint32_t> indices;
             std::vector<Vertex> vertices;
 
@@ -147,7 +163,7 @@ namespace ApplicationCore {
                         }
                         else
                         {
-                            Utils::Logger::LogErrorClient("Failed to find attribute 'NORMAL'");
+                            Utils::Logger::LogErrorClient("Failed to find attribute 'TEXTURE COORD'");
                         }
                     }
 

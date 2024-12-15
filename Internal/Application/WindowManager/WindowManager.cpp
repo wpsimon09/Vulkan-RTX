@@ -108,14 +108,14 @@ void WindowManager::MousePositionCallback(GLFWwindow *window, double xpos, doubl
     // only move X
     if (xOffset != 0.0 && winm->m_isShiftPressed && winm->m_isMousePressed)
     {
-        winm->m_cameraMovement.MoveX =  xOffset;
+        winm->m_cameraMovement.MoveX =  4.3f *  xOffset;
         winm->m_isDirty = true;
     }
 
     // only move Y
     if (yOffset != 0.0 && winm->m_isShiftPressed && winm->m_isMousePressed)
     {
-        winm->m_cameraMovement.MoveY = yOffset;
+        winm->m_cameraMovement.MoveY = 4.3f *   yOffset;
         winm->m_isDirty = true;
     }
 }
@@ -158,10 +158,23 @@ void WindowManager::KeyCallback(GLFWwindow *window, int key, int scancode, int a
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
     winm->m_isDirty = true;
 
+    const float movementSpeed = 0.5;
+
     if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_PRESS)
         winm->m_isShiftPressed = true;
     if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_RELEASE)
         winm->m_isShiftPressed = false;
+    if (key == GLFW_KEY_W && action == GLFW_PRESS)
+        winm->m_cameraMovement.ZoomValue = movementSpeed;
+
+    if (key == GLFW_KEY_A && action == GLFW_PRESS)
+        winm->m_cameraMovement.MoveX = -movementSpeed;;
+
+    if (key == GLFW_KEY_S && action == GLFW_PRESS)
+        winm->m_cameraMovement.ZoomValue = -movementSpeed;;
+
+    if (key == GLFW_KEY_D && action == GLFW_PRESS)
+        winm->m_cameraMovement.MoveX = movementSpeed;
 
     if (key == GLFW_KEY_UP && action == GLFW_PRESS)
         winm->m_clientUpdate.moveLightY += 0.5;

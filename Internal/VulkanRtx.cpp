@@ -72,7 +72,11 @@ void Application::Init()
 
     m_client->GetScene().AddNode(m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene/scene.gltf"));
 
-    m_client->GetScene().AddNode(m_client->GetGLTFLoader().LoadGLTFScene("Resources/cottage/scene.gltf"));
+    m_client->GetScene().AddNode(m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/great_mountain/scene.gltf"));
+
+    auto cottage = m_client->GetGLTFLoader().LoadGLTFScene("Resources/cottage-glb/painterly_cottage.glb");
+    cottage->m_transformation->SetScale(10.f, 10.f, 10.f);
+    m_client->GetScene().AddNode(std::move(cottage));
 }
 
 void Application::MainLoop()
