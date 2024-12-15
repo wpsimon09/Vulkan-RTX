@@ -158,7 +158,7 @@ void WindowManager::KeyCallback(GLFWwindow *window, int key, int scancode, int a
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
     winm->m_isDirty = true;
 
-    const float movementSpeed = 0.5;
+    const float movementSpeed = 2.5;
 
     if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_PRESS)
         winm->m_isShiftPressed = true;

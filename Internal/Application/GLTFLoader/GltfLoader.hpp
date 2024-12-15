@@ -44,10 +44,12 @@ private:
 
     std::vector<std::shared_ptr<Mesh>> meshes;
     std::vector<std::shared_ptr<VertexArray>> vertexArrays;
+    std::vector<std::shared_ptr<VulkanCore::VImage>> m_textures;
     std::vector<std::shared_ptr<SceneNode>> nodes;
     std::vector<std::shared_ptr<Material>> materials;
 private:
     void PostLoadClear();
+    void LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image);
 };
 
 } // ApplicationCore

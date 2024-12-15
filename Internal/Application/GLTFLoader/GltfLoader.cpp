@@ -27,10 +27,6 @@ namespace ApplicationCore {
 
         m_rootNode = std::make_unique<SceneNode>();
 
-        MaterialPaths paths;
-        paths.DiffuseMapPath = "sdfsdf";
-
-        std::shared_ptr<Material> mat = std::make_shared<ApplicationCore::Material>(paths, m_assetsManager);
 
 
         fastgltf::Parser parser {};
@@ -57,15 +53,46 @@ namespace ApplicationCore {
         else
         {
 
+            gltf = std::move(asset.get());
+            Utils::Logger::LogSuccessClient("GLTF File parsed successfully !");
+
             //==============================================================
             // TEXTURE LOADING
             //==============================================================
-
+            for (auto & image : gltf.images)
+            {
+                LoadImage(gltf,gltfPath.parent_path(), image);
+            }
 
             //==============================================================
             // MATERIAL
             //==============================================================
+            for (fastgltf::Material& m : gltf.materials)
+            {
+                MaterialPaths paths = {};
+                std::shared_ptr<Material> material = std::make_shared<ApplicationCore::Material>(paths, m_assetsManager);
+                material->GetMaterialDescription().values.diffuse.x = m.pbrData.baseColorFactor.x();
+                material->GetMaterialDescription().values.diffuse.y = m.pbrData.baseColorFactor.y();
+                material->GetMaterialDescription().values.diffuse.z = m.pbrData.baseColorFactor.z();
 
+                material->GetMaterialDescription().values.metalness = m.pbrData.metallicFactor;
+                material->GetMaterialDescription().values.roughness = m.pbrData.roughnessFactor;
+                //material->GetMaterialDescription().values.ao = m.pbrData.
+
+                if (m.pbrData.metallicRoughnessTexture.has_value())
+                {
+                    material->GetTexture(MATERIAL_TYPE::PBR_ARM) = m_textures[m.pbrData.metallicRoughnessTexture.value().textureIndex];
+                    material->GetMaterialDescription().features.hasDiffuseTexture = true;
+                }
+                if (m.pbrData.baseColorTexture.has_value())
+                {
+                    material->GetTexture(MATERIAL_TYPE::PBR_DIFFUSE_MAP) = m_textures[m.pbrData.baseColorTexture.value().textureIndex];
+                    material->GetMaterialDescription().features.hasArmTexture= true;
+                }
+
+                materials.emplace_back(material);
+
+            }
 
             //==============================================================
             // MESHES LOADING
@@ -75,16 +102,22 @@ namespace ApplicationCore {
             std::vector<uint32_t> indices;
             std::vector<Vertex> vertices;
 
-            gltf = std::move(asset.get());
-            Utils::Logger::LogSuccessClient("GLTF File parsed successfully !");
-
             for (fastgltf::Mesh& m: gltf.meshes)
             {
                 indices.clear();
                 vertices.clear();
 
+                MaterialPaths paths;
+
+                std::shared_ptr<Material> mat = std::make_shared<ApplicationCore::Material>(paths, m_assetsManager);
+
+
                 for (auto& p : m.primitives)
                 {
+                    if (p.materialIndex.has_value())
+                    {
+                        mat = materials[p.materialIndex.value()];
+                    }
 
                     size_t initialIndex = vertices.size();
 
@@ -167,6 +200,8 @@ namespace ApplicationCore {
                         }
                     }
 
+
+
                 }
 
                 // store vertex array to assets manager
@@ -189,5 +224,28 @@ namespace ApplicationCore {
     void GLTFLoader::PostLoadClear()
     {
         m_meshes.clear();
+    }
+
+    void GLTFLoader::LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image)
+    {
+        std::visit(
+        fastgltf::visitor {
+            [](auto& arg) {},
+            [&](fastgltf::sources::URI& filePath){
+                std::shared_ptr<VulkanCore::VImage> loadedTexture;
+                const std::string path (  filePath.uri.path().begin(), filePath.uri.path().end());
+                m_assetsManager.GetTexture(loadedTexture, parentPath + "/" + path);
+                m_textures.emplace_back(loadedTexture);
+            },
+            [&](fastgltf::sources::Vector& vector) {
+                // fill your implementation
+
+            },
+            [&](fastgltf::sources::BufferView& view) {
+                // fill your implementation
+            },
+        }, image.data);
+
+
     }
 } // ApplicationCore
