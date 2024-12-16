@@ -118,6 +118,7 @@ void VulkanCore::VImage::FillWithImageData(const VulkanStructs::ImageData& image
     {
         Resize(imageData.widht, imageData.height);
     }
+    m_path = imageData.fileName;
 
     m_transferCommandBuffer->BeginRecording();
     // copy pixel data to the staging buffer

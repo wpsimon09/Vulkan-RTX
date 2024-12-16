@@ -211,6 +211,6 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     float3 finalColor = max(color,float(0.0)) + ambient;
 
-    return float4(finalColor , 1.0);
+    return float4(finalColor, 1.0);
 }   
 

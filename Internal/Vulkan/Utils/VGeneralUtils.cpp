@@ -104,6 +104,7 @@ VulkanStructs::ImageData VulkanUtils::LoadImage(const std::string &path) {
 
     imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load(path.c_str(), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
     imageData.channels = 4;
+    imageData.fileName = path;
 
     if (!imageData.pixels) {
         Utils::Logger::LogError("Failed to generate texture at path: \t" + path);
@@ -111,6 +112,7 @@ VulkanStructs::ImageData VulkanUtils::LoadImage(const std::string &path) {
 
         imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load("Resources/DefaultTexture.jpg", &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
         imageData.channels = 4;
+        imageData.fileName = path;
 
         if (!imageData.pixels) {
             throw std::runtime_error("Fallback to default texture failed, this should never happen !");
@@ -119,7 +121,7 @@ VulkanStructs::ImageData VulkanUtils::LoadImage(const std::string &path) {
         Utils::Logger::LogSuccess("Image at path:\t" + path + "\n read successfully");
     }
       //-> to test the concurrency uncomment this line
-    std::this_thread::sleep_for(std::chrono::seconds(7));
+    //std::this_thread::sleep_for(std::chrono::seconds(7));
 
     return imageData;
 

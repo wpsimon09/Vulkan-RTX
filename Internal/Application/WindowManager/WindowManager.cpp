@@ -8,11 +8,11 @@
 
 #include "Application/Structs/ApplicationStructs.hpp"
 
-WindowManager::WindowManager(int windowWidth, int windowHeight):m_cameraMovement{0.0f, 0.0f, 0.0f}, m_clientUpdate()
+WindowManager::WindowManager(int windowWidth, int windowHeight):    m_cameraMovement{0.0f, 0.0f, 0.0f}, m_clientUpdate()
 {
     m_width = windowWidth;
     m_height = windowHeight;
-    m_isDirty = false;
+    m_isDirty = true;
     m_isMousePressed = false;
     m_isShiftPressed = false;
 }
@@ -142,7 +142,7 @@ void WindowManager::MouseClickCallback(GLFWwindow *window, int button, int actio
 
 void WindowManager::MouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer((window)));
-    winm->m_cameraMovement.ZoomValue = (float)yoffset;
+    winm->m_cameraMovement.ZoomValue = 4.0f * (float)yoffset;
     winm->m_isDirty = true;
 }
 

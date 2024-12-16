@@ -89,6 +89,12 @@ namespace ApplicationCore {
                     material->GetTexture(MATERIAL_TYPE::PBR_DIFFUSE_MAP) = m_textures[m.pbrData.baseColorTexture.value().textureIndex];
                     material->GetMaterialDescription().features.hasArmTexture= true;
                 }
+                if (m.normalTexture.has_value())
+                {
+                    material->GetTexture(PBR_NORMAL_MAP) = m_textures[m.normalTexture.value().textureIndex];
+                    material->GetMaterialDescription().features.hasNormalTexture = true;
+
+                }
 
                 materials.emplace_back(material);
 
@@ -213,17 +219,39 @@ namespace ApplicationCore {
 
                 // store the shared ptr to mesh
                 m_assetsManager.AddMesh(std::string(m.name), createdMehs);
+                meshes.push_back(createdMehs);
 
-                m_rootNode->AddChild(createdMehs);
+                //m_rootNode->AddChild(createdMehs);
+            }
+
+            //=====================================
+            // LOAD NODES
+            //=====================================
+            for (auto &node : gltf.nodes)
+            {
+
+                std::unique_ptr<ApplicationCore::SceneNode> newNode;
+                if (node.meshIndex.has_value())
+                {
+                    newNode = std::make_unique<ApplicationCore::SceneNode>(meshes[node.meshIndex.value()]);
+                }else
+                {
+                    newNode = std::make_unique<ApplicationCore::SceneNode>();
+                }
+                m_rootNode->AddChild(std::move(newNode));
             }
         }
-
+        PostLoadClear();
         return std::move(m_rootNode);
     }
 
     void GLTFLoader::PostLoadClear()
     {
         m_meshes.clear();
+        materials.clear();
+        m_textures.clear();
+        vertexArrays.clear();
+        meshes.clear();
     }
 
     void GLTFLoader::LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image)

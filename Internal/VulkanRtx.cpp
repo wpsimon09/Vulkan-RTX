@@ -72,11 +72,10 @@ void Application::Init()
 
     m_client->GetScene().AddNode(m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene/scene.gltf"));
 
-    m_client->GetScene().AddNode(m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/great_mountain/scene.gltf"));
-
-    auto cottage = m_client->GetGLTFLoader().LoadGLTFScene("Resources/cottage-glb/painterly_cottage.glb");
-    cottage->m_transformation->SetScale(10.f, 10.f, 10.f);
-    m_client->GetScene().AddNode(std::move(cottage));
+    auto car = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/dodge_challenger_-_muscle_car_-_low-poly/scene.gltf");
+    car->m_transformation->SetScale(20.f, 20.f, 20.f);
+    car->m_transformation->SetRotations(0.f, 90.f, 0.f);
+    m_client->GetScene().AddNode(std::move(car));
 }
 
 void Application::MainLoop()
