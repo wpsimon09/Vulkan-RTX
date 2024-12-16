@@ -68,14 +68,14 @@ void Application::Init()
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
     m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
 
-
-
     m_client->GetScene().AddNode(m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene/scene.gltf"));
 
     auto car = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/dodge_challenger_-_muscle_car_-_low-poly/scene.gltf");
     car->m_transformation->SetScale(20.f, 20.f, 20.f);
     car->m_transformation->SetRotations(0.f, 90.f, 0.f);
     m_client->GetScene().AddNode(std::move(car));
+    m_client->GetScene().PrintSceneGraph();
+
 }
 
 void Application::MainLoop()

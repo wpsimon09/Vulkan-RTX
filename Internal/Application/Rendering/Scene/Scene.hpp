@@ -28,9 +28,10 @@ public:
 
     void AddNode(std::unique_ptr<SceneNode> sceneNode);
 
+    void PrintSceneGraph();
 private:
     void BuildDefaultScene();
-
+    void PrintSceneDatat(int depth, SceneNode& sceneNodes);
 private:
     std::unique_ptr<class Camera> m_camera;
     inline static std::unique_ptr<class SceneNode> m_root;

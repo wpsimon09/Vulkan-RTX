@@ -238,7 +238,8 @@ namespace ApplicationCore {
                 {
                     newNode = std::make_unique<ApplicationCore::SceneNode>();
                 }
-                m_rootNode->AddChild(std::move(newNode));
+                newNode->SetName(std::string(node.name));
+
             }
         }
         PostLoadClear();

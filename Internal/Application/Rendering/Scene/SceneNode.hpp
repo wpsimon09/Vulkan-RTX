@@ -30,6 +30,9 @@ namespace ApplicationCore
         void AddChild(std::unique_ptr<SceneNode> child);
         void AddChild(std::shared_ptr<Mesh> child);
 
+        std::string_view GetName() {return m_name;} const
+        void SetName(const std::string& name) {m_name = name;}
+
         std::vector<std::reference_wrapper<SceneNode>> GetChildren();
 
         void Update() const;
@@ -43,6 +46,7 @@ namespace ApplicationCore
         Transformations m_localTransformation;
         SceneNode* m_parent;
         std::shared_ptr<Mesh> m_mesh;
+        std::string m_name;
         std::vector<std::unique_ptr<SceneNode>> m_children;
         bool m_isParentNode = false;
         bool m_hasMesh = false;
