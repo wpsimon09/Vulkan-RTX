@@ -51,7 +51,7 @@ namespace ApplicationCore {
 
     void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode)
     {
-        m_root->AddChild(std::move(sceneNode));
+        m_root->AddChild(sceneNode);
     }
 
 

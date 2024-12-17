@@ -221,7 +221,7 @@ namespace ApplicationCore {
                 m_assetsManager.AddMesh(std::string(m.name), createdMehs);
                 m_meshes.push_back(createdMehs);
 
-                m_rootNode->AddChild(createdMehs);
+                //m_rootNode->AddChild(createdMehs);
             }
 
             //=====================================
@@ -232,16 +232,44 @@ namespace ApplicationCore {
                 std::shared_ptr<ApplicationCore::SceneNode> newNode;
                 if (node.meshIndex.has_value())
                 {
-                    newNode = std::make_unique<ApplicationCore::SceneNode>(m_meshes[node.meshIndex.value()]);
+                    newNode = std::make_shared<ApplicationCore::SceneNode>(m_meshes[node.meshIndex.value()]);
                 }else
                 {
-                    newNode = std::make_unique<ApplicationCore::SceneNode>();
+                    newNode = std::make_shared<ApplicationCore::SceneNode>();
                 }
                 newNode->SetName(std::string(node.name));
-
+                if (auto newTransform = std::get_if<fastgltf::math::fmat4x4>(&node.transform))
+                {
+                    //newNode->m_transformation->SetModelMatrix(VulkanUtils::FastGLTFToGLMMat4(*newTransform));
+                }
                 m_nodes.push_back(newNode);
             }
         }
+
+        // construct the hierarchy
+        for (int i = 0; i<gltf.nodes.size(); i++)
+        {
+            std::shared_ptr<SceneNode> sceneNode = m_nodes[i];
+
+            for (auto c : gltf.nodes[i].children)
+            {
+                sceneNode->AddChild(m_nodes[c]);
+            }
+        }
+
+        for (auto & m_node : m_nodes)
+        {
+            if (m_node->IsParent())
+            {
+                m_topNodes.push_back(m_node);
+            }
+        }
+
+        for (const auto& topNode : m_topNodes)
+        {
+            m_rootNode->AddChild(topNode);
+        }
+
         PostLoadClear();
         return m_rootNode;
     }

@@ -38,6 +38,7 @@ namespace ApplicationCore
         void Update() const;
         void Render(VulkanStructs::RenderContext* renderingContext) const;
 
+        bool IsParent() const { return m_parent == nullptr; }
 
         bool HasMesh() const { return m_hasMesh; }
     public:

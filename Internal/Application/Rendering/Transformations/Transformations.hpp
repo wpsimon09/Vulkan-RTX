@@ -46,6 +46,8 @@ public:
 
     glm::mat4 &GetModelMatrix() {return m_modelMatrix;}
 
+    void SetModelMatrix(glm::mat4 modelMatrix) {m_modelMatrix = modelMatrix;}
+
     virtual ~Transformations()=default;
 };
 

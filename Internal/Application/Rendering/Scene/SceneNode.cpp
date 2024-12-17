@@ -39,8 +39,8 @@ namespace ApplicationCore {
         if(child)
         {
             m_children.emplace_back(child);
+            child->m_parent = this;
             m_isParentNode = true;
-            m_parent = this;
         }
         else
         {

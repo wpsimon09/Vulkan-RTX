@@ -127,6 +127,15 @@ VulkanStructs::ImageData VulkanUtils::LoadImage(const std::string &path) {
 
 }
 
+glm::mat4 VulkanUtils::FastGLTFToGLMMat4(fastgltf::math::fmat4x4& matrix)
+{
+    glm::mat4 newMatrix;
+    for (int row = 0; row < 4; ++row)
+        for (int col = 0; col < 4; ++col)
+            newMatrix[row][col] = matrix[row][col];
+    return newMatrix;
+}
+
 std::pair<vk::Result, uint32_t> VulkanUtils::SwapChainNextImageKHRWrapper(const VulkanCore::VDevice &device,
                                                                           const VulkanCore::VSwapChain &swapChain, uint64_t timeOut, const VulkanCore::VSyncPrimitive<vk::Semaphore>& semaphore,
                                                                           VulkanCore::VSyncPrimitive<vk::Fence> *fence) {
