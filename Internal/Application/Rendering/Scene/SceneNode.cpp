@@ -34,11 +34,11 @@ namespace ApplicationCore {
         m_mesh = nullptr;
     }
 
-    void SceneNode::AddChild(std::unique_ptr<SceneNode> child)
+    void SceneNode::AddChild(std::shared_ptr<SceneNode> child)
     {
         if(child)
         {
-            m_children.emplace_back(std::move(child));
+            m_children.emplace_back(child);
             m_isParentNode = true;
             m_parent = this;
         }
@@ -52,9 +52,9 @@ namespace ApplicationCore {
     {
         if(child)
         {
-            auto newNode = std::make_unique<SceneNode>(child);
+            auto newNode = std::make_shared<SceneNode>(child);
             newNode->m_parent = this;
-            m_children.emplace_back(std::move(newNode));
+            m_children.emplace_back(newNode);
             m_isParentNode = true;
         }
         else

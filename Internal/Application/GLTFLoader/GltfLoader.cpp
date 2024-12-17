@@ -20,7 +20,7 @@ namespace ApplicationCore {
         Utils::Logger::LogSuccess("Crated GLTFLoader !");
     }
 
-    std::unique_ptr<SceneNode> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath)
+    std::shared_ptr<SceneNode> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath)
     {
 
         Utils::Logger::LogInfoClient("Loading model from path: " + gltfPath.string());
@@ -219,9 +219,9 @@ namespace ApplicationCore {
 
                 // store the shared ptr to mesh
                 m_assetsManager.AddMesh(std::string(m.name), createdMehs);
-                meshes.push_back(createdMehs);
+                m_meshes.push_back(createdMehs);
 
-                //m_rootNode->AddChild(createdMehs);
+                m_rootNode->AddChild(createdMehs);
             }
 
             //=====================================
@@ -229,30 +229,29 @@ namespace ApplicationCore {
             //=====================================
             for (auto &node : gltf.nodes)
             {
-
-                std::unique_ptr<ApplicationCore::SceneNode> newNode;
+                std::shared_ptr<ApplicationCore::SceneNode> newNode;
                 if (node.meshIndex.has_value())
                 {
-                    newNode = std::make_unique<ApplicationCore::SceneNode>(meshes[node.meshIndex.value()]);
+                    newNode = std::make_unique<ApplicationCore::SceneNode>(m_meshes[node.meshIndex.value()]);
                 }else
                 {
                     newNode = std::make_unique<ApplicationCore::SceneNode>();
                 }
                 newNode->SetName(std::string(node.name));
 
+                m_nodes.push_back(newNode);
             }
         }
         PostLoadClear();
-        return std::move(m_rootNode);
+        return m_rootNode;
     }
 
     void GLTFLoader::PostLoadClear()
     {
-        m_meshes.clear();
-        materials.clear();
         m_textures.clear();
+        materials.clear();
         vertexArrays.clear();
-        meshes.clear();
+        m_meshes.clear();
     }
 
     void GLTFLoader::LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image)

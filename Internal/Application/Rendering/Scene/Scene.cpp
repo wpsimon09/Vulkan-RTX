@@ -23,7 +23,7 @@ namespace ApplicationCore {
 
     void Scene::Init()
     {
-        m_root = std::make_unique<SceneNode>();
+        m_root = std::make_shared<SceneNode>();
         Utils::Logger::LogInfoVerboseOnly("Creating camera...");
         m_camera = std::make_unique<Camera>();
         Utils::Logger::LogSuccessClient("Camera creatd");
@@ -49,7 +49,7 @@ namespace ApplicationCore {
         }
     }
 
-    void Scene::AddNode(std::unique_ptr<SceneNode> sceneNode)
+    void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode)
     {
         m_root->AddChild(std::move(sceneNode));
     }

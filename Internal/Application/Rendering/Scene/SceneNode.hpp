@@ -27,7 +27,7 @@ namespace ApplicationCore
         explicit SceneNode(std::shared_ptr<Mesh> mesh);
         explicit SceneNode();
 
-        void AddChild(std::unique_ptr<SceneNode> child);
+        void AddChild(std::shared_ptr<SceneNode> child);
         void AddChild(std::shared_ptr<Mesh> child);
 
         std::string_view GetName() {return m_name;} const
@@ -47,7 +47,7 @@ namespace ApplicationCore
         SceneNode* m_parent;
         std::shared_ptr<Mesh> m_mesh;
         std::string m_name;
-        std::vector<std::unique_ptr<SceneNode>> m_children;
+        std::vector<std::shared_ptr<SceneNode>> m_children;
         bool m_isParentNode = false;
         bool m_hasMesh = false;
     };

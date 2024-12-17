@@ -26,7 +26,7 @@ public:
     void Update();
     void Render(VulkanStructs::RenderContext* ctx,SceneNode& sceneNode = *m_root);
 
-    void AddNode(std::unique_ptr<SceneNode> sceneNode);
+    void AddNode(std::shared_ptr<SceneNode> sceneNode);
 
     void PrintSceneGraph();
 private:
@@ -34,7 +34,7 @@ private:
     void PrintSceneDatat(int depth, SceneNode& sceneNodes);
 private:
     std::unique_ptr<class Camera> m_camera;
-    inline static std::unique_ptr<class SceneNode> m_root;
+    inline static std::shared_ptr<class SceneNode> m_root;
     AssetsManager& m_assetsManager;
 };
 
