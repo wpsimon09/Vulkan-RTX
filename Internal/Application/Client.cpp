@@ -97,8 +97,6 @@ void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)
 
 void Client::Update() {
     m_scene->Update();
-
-
 }
 
 

@@ -70,15 +70,11 @@ void Application::Init()
 
     auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene/scene.gltf");
     m_client->GetScene().AddNode(sponsa);
-    m_client->GetScene().PrintSceneGraph();
-
 
     auto car = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/dodge_challenger_-_muscle_car_-_low-poly/scene.gltf");
-    car->m_transformation->SetScale(20.f, 20.f, 20.f);
-    car->m_transformation->SetRotations(0.f, 90.f, 0.f);
-    m_client->GetScene().PrintSceneGraph();
     m_client->GetScene().AddNode(car);
-
+    car->m_transformation->SetScale(10.0f, 10.0f, 10.0f);
+    car->m_transformation->SetPosition(2.0f, 2.0f, 2.0f );
 
 }
 
@@ -112,8 +108,8 @@ void Application::Update()
 {
     m_client->Update();
     if(m_windowManager->GetIsDirty()) {
-        m_client->UpdateCamera(m_windowManager->GetCameraMovement());
-        m_client->UpdateClient(m_windowManager->GetLightMovement());
+    m_client->UpdateCamera(m_windowManager->GetCameraMovement());
+    m_client->UpdateClient(m_windowManager->GetLightMovement());
     }
 }
 

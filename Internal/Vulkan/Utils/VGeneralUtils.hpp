@@ -39,12 +39,15 @@ namespace VulkanUtils
     void CopyBuffers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size);
 
     VulkanStructs::ImageData LoadImage(const std::string &path);
+    VulkanStructs::ImageData LoadImage(const fastgltf::sources::Vector &data,std::string& textureID);
 
     glm::mat4 FastGLTFToGLMMat4(fastgltf::math::fmat4x4& matrix);
 
     std::pair<vk::Result, uint32_t> SwapChainNextImageKHRWrapper(const VulkanCore::VDevice& device,const VulkanCore::VSwapChain& swapChain, uint64_t timeOut, const VulkanCore::VSyncPrimitive<vk::Semaphore>& semaphore, VulkanCore::VSyncPrimitive<vk::Fence>* fence);
 
     vk::Result PresentQueueWrapper(vk::Queue queue, const vk::PresentInfoKHR &presentInfo);
+
+    std::string random_string( size_t length );
 }
 
 #endif //VGENERALUTILS_HPP

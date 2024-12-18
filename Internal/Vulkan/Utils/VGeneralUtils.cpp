@@ -127,6 +127,34 @@ VulkanStructs::ImageData VulkanUtils::LoadImage(const std::string &path) {
 
 }
 
+VulkanStructs::ImageData VulkanUtils::LoadImage(const fastgltf::sources::Vector& data, std::string& textureID)
+{
+    VulkanStructs::ImageData imageData{};
+
+    imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load_from_memory(reinterpret_cast<stbi_uc const*>(data.bytes.data()), static_cast<int>(data.bytes.size()), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
+    imageData.channels = 4;
+    imageData.fileName = textureID;
+
+    if (!imageData.pixels) {
+        Utils::Logger::LogError("Failed to generate texture that was loaded from memory, textureID was:" + textureID);
+        Utils::Logger::LogInfo("Failing back to the default texture");
+
+        imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load("Resources/DefaultTexture.jpg", &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
+        imageData.channels = 4;
+        imageData.fileName = "Resources/DefaultTexture.jpg";
+
+        if (!imageData.pixels) {
+            throw std::runtime_error("Fallback to default texture failed, this should never happen !");
+        }
+    }else {
+        Utils::Logger::LogSuccess("Image from buffer with ID:\t" + textureID + "\n read successfully");
+    }
+    //-> to test the concurrency uncomment this line
+    //std::this_thread::sleep_for(std::chrono::seconds(7));
+
+    return imageData;
+}
+
 glm::mat4 VulkanUtils::FastGLTFToGLMMat4(fastgltf::math::fmat4x4& matrix)
 {
     glm::mat4 newMatrix;
@@ -154,4 +182,22 @@ std::pair<vk::Result, uint32_t> VulkanUtils::SwapChainNextImageKHRWrapper(const 
 vk::Result VulkanUtils::PresentQueueWrapper(vk::Queue queue, const vk::PresentInfoKHR &presentInfo) {
     auto result = static_cast<vk::Result>(vkQueuePresentKHR(queue,reinterpret_cast<const VkPresentInfoKHR*>(&presentInfo)));
     return result;
+}
+
+std::string VulkanUtils::random_string(size_t length)
+{
+    {
+        auto randchar = []() -> char
+        {
+            const char charset[] =
+            "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
+            const size_t max_index = (sizeof(charset) - 1);
+            return charset[ rand() % max_index ];
+        };
+        std::string str(length,0);
+        std::generate_n( str.begin(), length, randchar );
+        return str;
+    }
 }

@@ -69,6 +69,8 @@ public:
     std::shared_ptr<VertexArray> GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType);
 
     void GetTexture(std::shared_ptr<VulkanCore::VImage> &texture,const std::string& path);
+    void GetTexture(std::shared_ptr<VulkanCore::VImage> &texture,const std::string& textureID,const fastgltf::sources::Vector& data);
+
     void AddMesh(std::string meshName, std::shared_ptr<Mesh> mesh);
     void GetDummyTexture(std::shared_ptr<VulkanCore::VImage> &texture) const {texture = m_dummyTexture;}
 
@@ -81,6 +83,7 @@ public:
 private:
 
     void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage> &texturePtr, const std::string& path);
+    void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage> &texture,const std::string& textureID,const fastgltf::sources::Vector& data);
 
     const VulkanCore::VDevice& m_device;
 
