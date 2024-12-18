@@ -36,17 +36,10 @@ private:
     const VulkanCore::VDevice& m_device;
     ApplicationCore::AssetsManager& m_assetsManager;
 
-    std::shared_ptr<SceneNode> m_rootNode;
-    std::vector<std::shared_ptr<SceneNode>> m_topNodes;
-    std::vector<std::shared_ptr<SceneNode>> m_nodes;
 
-    std::vector<std::shared_ptr<Mesh>> m_meshes;
-    std::vector<std::shared_ptr<VertexArray>> vertexArrays;
-    std::vector<std::shared_ptr<VulkanCore::VImage>> m_textures;
-    std::vector<std::shared_ptr<Material>> materials;
 private:
     void PostLoadClear();
-    void LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image);
+    void LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image, std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage);
 };
 
 } // ApplicationCore

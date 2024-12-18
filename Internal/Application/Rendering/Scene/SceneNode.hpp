@@ -27,7 +27,7 @@ namespace ApplicationCore
         explicit SceneNode(std::shared_ptr<Mesh> mesh);
         explicit SceneNode();
 
-        void AddChild(std::shared_ptr<SceneNode> child);
+        void AddChild(const std::shared_ptr<SceneNode>& child);
         void AddChild(std::shared_ptr<Mesh> child);
 
         std::string_view GetName() {return m_name;} const

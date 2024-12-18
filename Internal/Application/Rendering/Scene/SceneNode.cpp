@@ -34,7 +34,7 @@ namespace ApplicationCore {
         m_mesh = nullptr;
     }
 
-    void SceneNode::AddChild(std::shared_ptr<SceneNode> child)
+    void SceneNode::AddChild(const std::shared_ptr<SceneNode>& child)
     {
         if(child)
         {

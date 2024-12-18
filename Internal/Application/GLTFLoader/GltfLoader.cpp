@@ -23,6 +23,16 @@ namespace ApplicationCore {
     std::shared_ptr<SceneNode> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath)
     {
 
+        // temp data
+        std::shared_ptr<SceneNode> m_rootNode;
+        std::vector<std::shared_ptr<SceneNode>> m_topNodes;
+        std::vector<std::shared_ptr<SceneNode>> m_nodes;
+
+        std::vector<std::shared_ptr<Mesh>> m_meshes;
+        std::vector<std::shared_ptr<VertexArray>> vertexArrays;
+        std::vector<std::shared_ptr<VulkanCore::VImage>> m_textures;
+        std::vector<std::shared_ptr<Material>> materials;
+
         Utils::Logger::LogInfoClient("Loading model from path: " + gltfPath.string());
 
         m_rootNode = std::make_unique<SceneNode>();
@@ -61,7 +71,7 @@ namespace ApplicationCore {
             //==============================================================
             for (auto & image : gltf.images)
             {
-                LoadImage(gltf,gltfPath.parent_path(), image);
+                LoadImage(gltf,gltfPath.parent_path(), image, m_textures);
             }
 
             //==============================================================
@@ -271,18 +281,15 @@ namespace ApplicationCore {
         }
 
         PostLoadClear();
-        return m_rootNode;
+        return  std::move(m_rootNode);
     }
 
     void GLTFLoader::PostLoadClear()
     {
-        m_textures.clear();
-        materials.clear();
-        vertexArrays.clear();
-        m_meshes.clear();
+
     }
 
-    void GLTFLoader::LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image)
+    void GLTFLoader::LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image,std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage)
     {
         std::visit(
         fastgltf::visitor {
@@ -291,7 +298,7 @@ namespace ApplicationCore {
                 std::shared_ptr<VulkanCore::VImage> loadedTexture;
                 const std::string path (  filePath.uri.path().begin(), filePath.uri.path().end());
                 m_assetsManager.GetTexture(loadedTexture, parentPath + "/" + path);
-                m_textures.emplace_back(loadedTexture);
+                imageStorage.emplace_back(loadedTexture);
             },
             [&](fastgltf::sources::Vector& vector) {
                 // fill your implementation
