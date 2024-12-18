@@ -136,6 +136,7 @@ VulkanStructs::ImageData VulkanUtils::LoadImage(const fastgltf::sources::Vector&
     imageData.fileName = textureID;
 
     if (!imageData.pixels) {
+
         Utils::Logger::LogError("Failed to generate texture that was loaded from memory, textureID was:" + textureID);
         Utils::Logger::LogInfo("Failing back to the default texture");
 
@@ -149,6 +150,7 @@ VulkanStructs::ImageData VulkanUtils::LoadImage(const fastgltf::sources::Vector&
     }else {
         Utils::Logger::LogSuccess("Image from buffer with ID:\t" + textureID + "\n read successfully");
     }
+
     //-> to test the concurrency uncomment this line
     //std::this_thread::sleep_for(std::chrono::seconds(7));
 

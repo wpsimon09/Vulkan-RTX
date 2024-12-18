@@ -166,10 +166,10 @@ namespace ApplicationCore
     void AssetsManager::StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID,
         const fastgltf::sources::Vector& data)
     {
-        auto texture = std::async([this, textureID]() {
+        auto txt = std::async([this, textureID]() {
             return VulkanUtils::LoadImage(textureID);
         });
-        m_texturesToLoad[textureID] = std::move(texture);
+        m_texturesToLoad[textureID] = std::move(txt);
     }
 }
 

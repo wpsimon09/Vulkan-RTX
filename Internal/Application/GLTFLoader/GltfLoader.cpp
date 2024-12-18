@@ -301,8 +301,10 @@ namespace ApplicationCore {
                 imageStorage.emplace_back(loadedTexture);
             },
             [&](fastgltf::sources::Vector& vector) {
-                // fill your implementation
-
+               std::shared_ptr<VulkanCore::VImage> loadedTexture;
+               const std::string textureID = VulkanUtils::random_string(4);
+               m_assetsManager.GetTexture(loadedTexture, textureID, vector);
+               imageStorage.emplace_back(loadedTexture);
             },
             [&](fastgltf::sources::BufferView& view) {
                 // fill your implementation
