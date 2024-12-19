@@ -13,16 +13,16 @@
 #include "Application/VertexArray/VertexArray.hpp"
 #include "fastgltf/tools.hpp"
 
-namespace ApplicationCore {
-
-    GLTFLoader::GLTFLoader(ApplicationCore::AssetsManager& assetsManager):m_device(assetsManager.m_device),  m_assetsManager(assetsManager)
+namespace ApplicationCore
+{
+    GLTFLoader::GLTFLoader(ApplicationCore::AssetsManager& assetsManager): m_device(assetsManager.m_device),
+                                                                           m_assetsManager(assetsManager)
     {
         Utils::Logger::LogSuccess("Crated GLTFLoader !");
     }
 
     std::shared_ptr<SceneNode> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath)
     {
-
         // temp data
         std::shared_ptr<SceneNode> m_rootNode;
         std::vector<std::shared_ptr<SceneNode>> m_topNodes;
@@ -38,17 +38,17 @@ namespace ApplicationCore {
         m_rootNode = std::make_unique<SceneNode>();
 
 
+        fastgltf::Parser parser{};
 
-        fastgltf::Parser parser {};
 
-
-        constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble | fastgltf::Options::LoadExternalBuffers;
+        constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble |
+            fastgltf::Options::LoadExternalBuffers;
 
         auto gltfFile = fastgltf::MappedGltfFile::FromPath(gltfPath);
         if (!bool(gltfFile))
         {
             Utils::Logger::LogErrorClient("Failed to load GLTF file: " + gltfPath.string());
-            Utils::Logger::LogErrorClient( "fastgltf says: " + std::string(fastgltf::getErrorMessage(gltfFile.error())));
+            Utils::Logger::LogErrorClient("fastgltf says: " + std::string(fastgltf::getErrorMessage(gltfFile.error())));
             return nullptr;
         }
 
@@ -62,16 +62,15 @@ namespace ApplicationCore {
         }
         else
         {
-
             gltf = std::move(asset.get());
             Utils::Logger::LogSuccessClient("GLTF File parsed successfully !");
 
             //==============================================================
             // TEXTURE LOADING
             //==============================================================
-            for (auto & image : gltf.images)
+            for (auto& image : gltf.images)
             {
-                LoadImage(gltf,gltfPath.parent_path(), image, m_textures);
+                LoadImage(gltf, gltfPath.parent_path(), image, m_textures);
             }
 
             //==============================================================
@@ -80,7 +79,8 @@ namespace ApplicationCore {
             for (fastgltf::Material& m : gltf.materials)
             {
                 MaterialPaths paths = {};
-                std::shared_ptr<Material> material = std::make_shared<ApplicationCore::Material>(paths, m_assetsManager);
+                std::shared_ptr<Material> material = std::make_shared<
+                    ApplicationCore::Material>(paths, m_assetsManager);
                 material->GetMaterialDescription().values.diffuse.x = m.pbrData.baseColorFactor.x();
                 material->GetMaterialDescription().values.diffuse.y = m.pbrData.baseColorFactor.y();
                 material->GetMaterialDescription().values.diffuse.z = m.pbrData.baseColorFactor.z();
@@ -91,23 +91,23 @@ namespace ApplicationCore {
 
                 if (m.pbrData.metallicRoughnessTexture.has_value())
                 {
-                    material->GetTexture(MATERIAL_TYPE::PBR_ARM) = m_textures[m.pbrData.metallicRoughnessTexture.value().textureIndex];
+                    material->GetTexture(MATERIAL_TYPE::PBR_ARM) = m_textures[m.pbrData.metallicRoughnessTexture.value()
+                                                                               .textureIndex];
                     material->GetMaterialDescription().features.hasDiffuseTexture = true;
                 }
                 if (m.pbrData.baseColorTexture.has_value())
                 {
-                    material->GetTexture(MATERIAL_TYPE::PBR_DIFFUSE_MAP) = m_textures[m.pbrData.baseColorTexture.value().textureIndex];
-                    material->GetMaterialDescription().features.hasArmTexture= true;
+                    material->GetTexture(MATERIAL_TYPE::PBR_DIFFUSE_MAP) = m_textures[m.pbrData.baseColorTexture.value()
+                        .textureIndex];
+                    material->GetMaterialDescription().features.hasArmTexture = true;
                 }
                 if (m.normalTexture.has_value())
                 {
                     material->GetTexture(PBR_NORMAL_MAP) = m_textures[m.normalTexture.value().textureIndex];
                     material->GetMaterialDescription().features.hasNormalTexture = true;
-
                 }
 
                 materials.emplace_back(material);
-
             }
 
             //==============================================================
@@ -118,7 +118,7 @@ namespace ApplicationCore {
             std::vector<uint32_t> indices;
             std::vector<Vertex> vertices;
 
-            for (fastgltf::Mesh& m: gltf.meshes)
+            for (fastgltf::Mesh& m : gltf.meshes)
             {
                 indices.clear();
                 vertices.clear();
@@ -143,9 +143,9 @@ namespace ApplicationCore {
                     {
                         fastgltf::Accessor& indexAccessor = gltf.accessors[p.indicesAccessor.value()];
                         indices.reserve(indices.size() + indexAccessor.count);
-                        fastgltf::iterateAccessor<std::uint32_t>(gltf, indexAccessor,[&](std::uint32_t index)
+                        fastgltf::iterateAccessor<std::uint32_t>(gltf, indexAccessor, [&](std::uint32_t index)
                         {
-                           indices.push_back(index);
+                            indices.push_back(index);
                         });
                     }
 
@@ -164,15 +164,16 @@ namespace ApplicationCore {
                             vertices.resize(vertices.size() + posAccessor.count);
 
                             fastgltf::iterateAccessorWithIndex<glm::vec3>(gltf, posAccessor,
-                            [&](glm::vec3 v, size_t index) {
-                                Vertex newvtx{};
-                                newvtx.position = v;
-                                // instad of use push_back or emplace_back access directly through index
-                                // initial index is allways 0
-                                vertices[initialIndex + index] = newvtx;
-                            });
-
-                        }else
+                                                                          [&](glm::vec3 v, size_t index)
+                                                                          {
+                                                                              Vertex newvtx{};
+                                                                              newvtx.position = v;
+                                                                              // instad of use push_back or emplace_back access directly through index
+                                                                              // initial index is allways 0
+                                                                              vertices[initialIndex + index] = newvtx;
+                                                                          });
+                        }
+                        else
                         {
                             Utils::Logger::LogErrorClient("Failed to find attribute 'POSITION'");
                         }
@@ -182,14 +183,15 @@ namespace ApplicationCore {
                     // VERTEX NORMALS
                     //=========================================
                     {
-                        auto normals =  p.findAttribute("NORMAL");
+                        auto normals = p.findAttribute("NORMAL");
                         if (normals != p.attributes.end())
                         {
                             auto& normalAccesor = gltf.accessors[normals->accessorIndex];
                             fastgltf::iterateAccessorWithIndex<glm::vec3>(gltf, normalAccesor,
-                                            [&](glm::vec3 n, size_t index) {
-                                                vertices[initialIndex + index].normal = n;
-                                            });
+                                                                          [&](glm::vec3 n, size_t index)
+                                                                          {
+                                                                              vertices[initialIndex + index].normal = n;
+                                                                          });
                         }
                         else
                         {
@@ -201,27 +203,26 @@ namespace ApplicationCore {
                     // TEXTURE COORDINATES
                     //=========================================
                     {
-                        auto uv =  p.findAttribute("TEXCOORD_0");
+                        auto uv = p.findAttribute("TEXCOORD_0");
                         if (uv != p.attributes.end())
                         {
                             auto& uvAccessor = gltf.accessors[uv->accessorIndex];
-                            fastgltf::iterateAccessorWithIndex<glm::vec2>(gltf,uvAccessor,
-                                            [&](glm::vec2 uv, size_t index) {
-                                                vertices[initialIndex + index].uv = uv;
-                                            });
+                            fastgltf::iterateAccessorWithIndex<glm::vec2>(gltf, uvAccessor,
+                                                                          [&](glm::vec2 uv, size_t index)
+                                                                          {
+                                                                              vertices[initialIndex + index].uv = uv;
+                                                                          });
                         }
                         else
                         {
                             Utils::Logger::LogErrorClient("Failed to find attribute 'TEXTURE COORD'");
                         }
                     }
-
-
-
                 }
 
                 // store vertex array to assets manager
-                m_assetsManager.GetVertexData().push_back(std::make_shared<VertexArray>(m_assetsManager.m_device, TOPOLOGY_TRIANGLE_LIST, vertices, indices));
+                m_assetsManager.GetVertexData().push_back(
+                    std::make_shared<VertexArray>(m_assetsManager.m_device, TOPOLOGY_TRIANGLE_LIST, vertices, indices));
 
                 // create shared ptr to mesh
                 auto createdMehs = std::make_shared<Mesh>(m_assetsManager.GetVertexData().back(), mat);
@@ -237,13 +238,14 @@ namespace ApplicationCore {
             //=====================================
             // LOAD NODES
             //=====================================
-            for (auto &node : gltf.nodes)
+            for (auto& node : gltf.nodes)
             {
                 std::shared_ptr<ApplicationCore::SceneNode> newNode;
                 if (node.meshIndex.has_value())
                 {
                     newNode = std::make_shared<ApplicationCore::SceneNode>(m_meshes[node.meshIndex.value()]);
-                }else
+                }
+                else
                 {
                     newNode = std::make_shared<ApplicationCore::SceneNode>();
                 }
@@ -257,7 +259,7 @@ namespace ApplicationCore {
         }
 
         // construct the hierarchy
-        for (int i = 0; i<gltf.nodes.size(); i++)
+        for (int i = 0; i < gltf.nodes.size(); i++)
         {
             std::shared_ptr<SceneNode> sceneNode = m_nodes[i];
 
@@ -267,7 +269,7 @@ namespace ApplicationCore {
             }
         }
 
-        for (auto & m_node : m_nodes)
+        for (auto& m_node : m_nodes)
         {
             if (m_node->IsParent())
             {
@@ -281,36 +283,56 @@ namespace ApplicationCore {
         }
 
         PostLoadClear();
-        return  std::move(m_rootNode);
+        return std::move(m_rootNode);
     }
 
-    void GLTFLoader::PostLoadClear()
-    {
-
-    }
-
-    void GLTFLoader::LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image,std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage)
+    void GLTFLoader::LoadImage(fastgltf::Asset& asset, std::string parentPath, fastgltf::Image& image,
+                               std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage)
     {
         std::visit(
-        fastgltf::visitor {
-            [](auto& arg) {},
-            [&](fastgltf::sources::URI& filePath){
-                std::shared_ptr<VulkanCore::VImage> loadedTexture;
-                const std::string path (  filePath.uri.path().begin(), filePath.uri.path().end());
-                m_assetsManager.GetTexture(loadedTexture, parentPath + "/" + path);
-                imageStorage.emplace_back(loadedTexture);
-            },
-            [&](fastgltf::sources::Vector& vector) {
-               std::shared_ptr<VulkanCore::VImage> loadedTexture;
-               const std::string textureID = VulkanUtils::random_string(4);
-               m_assetsManager.GetTexture(loadedTexture, textureID, vector);
-               imageStorage.emplace_back(loadedTexture);
-            },
-            [&](fastgltf::sources::BufferView& view) {
-                // fill your implementation
-            },
-        }, image.data);
+            fastgltf::visitor{
+                [](auto& arg)
+                {
+                },
 
+                [&](fastgltf::sources::URI& filePath)
+                {
+                    std::shared_ptr<VulkanCore::VImage> loadedTexture;
+                    const std::string path(filePath.uri.path().begin(), filePath.uri.path().end());
+                    m_assetsManager.GetTexture(loadedTexture, parentPath + "/" + path);
+                    imageStorage.emplace_back(loadedTexture);
+                },
 
+                [&](fastgltf::sources::Vector& vector)
+                {
+                    std::shared_ptr<VulkanCore::VImage> loadedTexture;
+                    const std::string textureID = VulkanUtils::random_string(4);
+                    m_assetsManager.GetTexture(loadedTexture, textureID, vector);
+                    imageStorage.emplace_back(loadedTexture);
+                },
+
+                [&](fastgltf::sources::BufferView& view)
+                {
+                    auto& bufferView = asset.bufferViews[view.bufferViewIndex];
+                    auto& buffer = asset.buffers[bufferView.bufferIndex];
+
+                    std::visit(fastgltf::visitor{
+                                   // We only care about VectorWithMime here, because we
+                                   // specify LoadExternalBuffers, meaning all buffers
+                                   // are already loaded into a vector.
+                                   [](auto& arg)
+                                   {
+                                   },
+                                   [&](fastgltf::sources::Vector& vector)
+                                   {
+                                       std::shared_ptr<VulkanCore::VImage> loadedTexture;
+                                       const std::string textureID = VulkanUtils::random_string(4);
+                                       m_assetsManager.GetTexture(loadedTexture, textureID, vector);
+                                       imageStorage.emplace_back(loadedTexture);
+                                   }
+                               },
+                               buffer.data);
+                },
+            }, image.data);
     }
 } // ApplicationCore
