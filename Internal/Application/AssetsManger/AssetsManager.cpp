@@ -110,7 +110,7 @@ namespace ApplicationCore
         std::lock_guard<std::mutex> lock(m_mutex);
         if (!m_textures.contains(textureID)) {
             if (!m_texturesToLoad.contains(textureID)) {
-                StartLoadingTexture(texture, textureID);
+                StartLoadingTexture(texture, textureID, data);
                 m_textures[textureID] = std::make_shared<VulkanCore::VImage>(m_device);
             }
         }
