@@ -14,6 +14,7 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
 
 uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyProperties> &queueFamilyProperties,
                                       vk::QueueFlagBits queueType) {
@@ -127,11 +128,11 @@ VulkanStructs::ImageData VulkanUtils::LoadImage(const std::string &path) {
 
 }
 
-VulkanStructs::ImageData VulkanUtils::LoadImage(const fastgltf::sources::Vector& data, std::string& textureID)
+VulkanStructs::ImageData VulkanUtils::LoadImage(const TextureBufferInfo& data, const std::string& textureID)
 {
     VulkanStructs::ImageData imageData{};
 
-    imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load_from_memory(reinterpret_cast<stbi_uc const*>(data.bytes.data()), static_cast<int>(data.bytes.size()), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
+    imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load_from_memory(reinterpret_cast<stbi_uc const*>(data.data), static_cast<int>(data.size), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
     imageData.channels = 4;
     imageData.fileName = textureID;
 

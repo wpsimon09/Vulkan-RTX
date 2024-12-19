@@ -62,8 +62,13 @@ struct ClientUpdateInfo
         std::cout << "MoveY: " << moveLightY << std::endl;
         std::cout << "===================================================="<<std::endl;
         */
-
     }
+};
+
+struct TextureBufferInfo
+{
+    std::byte* data;
+    size_t size;
 };
 
 #endif //APPLICATIONSTRUCTS_HPP

@@ -72,11 +72,9 @@ void Application::Init()
     m_client->GetScene().AddNode(sponsa);
 
     //auto car = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/dodge_challenger_-_muscle_car_-_low-poly/scene.gltf");
-    auto stormTrooper = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/storm-trooper.glb");
+    //auto stormTrooper = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/storm-trooper.glb");
+    auto stormTrooper = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/storm-trooper/scene.gltf");
     m_client->GetScene().AddNode(stormTrooper);
-    stormTrooper->m_transformation->SetScale(10.0f, 10.0f, 10.0f);
-    stormTrooper->m_transformation->SetPosition(2.0f, 2.0f, 2.0f );
-
 }
 
 void Application::MainLoop()

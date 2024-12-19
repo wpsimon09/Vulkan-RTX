@@ -15,6 +15,8 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
+struct TextureBufferInfo;
+
 namespace VulkanCore
 {
     class VSwapChain;
@@ -39,7 +41,7 @@ namespace VulkanUtils
     void CopyBuffers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size);
 
     VulkanStructs::ImageData LoadImage(const std::string &path);
-    VulkanStructs::ImageData LoadImage(const fastgltf::sources::Vector &data,std::string& textureID);
+    VulkanStructs::ImageData LoadImage(const TextureBufferInfo& data, const std::string& textureID);
 
     glm::mat4 FastGLTFToGLMMat4(fastgltf::math::fmat4x4& matrix);
 

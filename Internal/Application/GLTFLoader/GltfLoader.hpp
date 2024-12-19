@@ -32,11 +32,8 @@ public:
     ~GLTFLoader() = default;
 
 private:
-
     const VulkanCore::VDevice& m_device;
     ApplicationCore::AssetsManager& m_assetsManager;
-
-
 private:
     void PostLoadClear();
     void LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image, std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage);

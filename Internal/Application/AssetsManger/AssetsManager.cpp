@@ -17,6 +17,8 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
+
 
 namespace ApplicationCore
 {
@@ -101,7 +103,7 @@ namespace ApplicationCore
             texture = m_textures[path];
     }
 
-    void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID ,const fastgltf::sources::Vector& data)
+    void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID ,TextureBufferInfo& data)
     {
         // texture ID is a randomly generated string that is used to look up textures of which only data are available and no paths
         // this will most likely be used only within the editor that I plan to build in future
@@ -164,10 +166,10 @@ namespace ApplicationCore
     }
 
     void AssetsManager::StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID,
-        const fastgltf::sources::Vector& data)
+                                            TextureBufferInfo& data)
     {
-        auto txt = std::async([this, textureID]() {
-            return VulkanUtils::LoadImage(textureID);
+        auto txt = std::async([this, textureID, data]() {
+            return VulkanUtils::LoadImage(data, textureID);
         });
         m_texturesToLoad[textureID] = std::move(txt);
     }

@@ -10,6 +10,7 @@
 #include "Application/Rendering/Material/MaterialStructs.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "fastgltf/tools.hpp"
 
@@ -282,7 +283,6 @@ namespace ApplicationCore
             m_rootNode->AddChild(topNode);
         }
 
-        PostLoadClear();
         return std::move(m_rootNode);
     }
 
@@ -307,7 +307,11 @@ namespace ApplicationCore
                 {
                     std::shared_ptr<VulkanCore::VImage> loadedTexture;
                     const std::string textureID = VulkanUtils::random_string(4);
-                    m_assetsManager.GetTexture(loadedTexture, textureID, vector);
+                    TextureBufferInfo bufferInfo{};
+                    bufferInfo.data = vector.bytes.data();
+                    bufferInfo.size = vector.bytes.size();
+
+                    m_assetsManager.GetTexture(loadedTexture, textureID, bufferInfo);
                     imageStorage.emplace_back(loadedTexture);
                 },
 
@@ -327,7 +331,22 @@ namespace ApplicationCore
                                    {
                                        std::shared_ptr<VulkanCore::VImage> loadedTexture;
                                        const std::string textureID = VulkanUtils::random_string(4);
-                                       m_assetsManager.GetTexture(loadedTexture, textureID, vector);
+                                       TextureBufferInfo textureBufferInfo{};
+                                       textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
+                                       textureBufferInfo.size = vector.bytes.size();
+
+                                       m_assetsManager.GetTexture(loadedTexture, textureID, textureBufferInfo);
+                                       imageStorage.emplace_back(loadedTexture);
+                                   },
+                                    [&](fastgltf::sources::Array& vector)
+                                   {
+                                       std::shared_ptr<VulkanCore::VImage> loadedTexture;
+                                       const std::string textureID = VulkanUtils::random_string(4);
+                                       TextureBufferInfo textureBufferInfo{};
+                                       textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
+                                       textureBufferInfo.size = vector.bytes.size();
+
+                                       m_assetsManager.GetTexture(loadedTexture, textureID, textureBufferInfo);
                                        imageStorage.emplace_back(loadedTexture);
                                    }
                                },
