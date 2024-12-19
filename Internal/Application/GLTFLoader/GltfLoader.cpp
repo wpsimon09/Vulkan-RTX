@@ -94,13 +94,13 @@ namespace ApplicationCore
                 {
                     material->GetTexture(MATERIAL_TYPE::PBR_ARM) = m_textures[m.pbrData.metallicRoughnessTexture.value()
                                                                                .textureIndex];
-                    material->GetMaterialDescription().features.hasDiffuseTexture = true;
+                    material->GetMaterialDescription().features.hasArmTexture = true;
                 }
                 if (m.pbrData.baseColorTexture.has_value())
                 {
                     material->GetTexture(MATERIAL_TYPE::PBR_DIFFUSE_MAP) = m_textures[m.pbrData.baseColorTexture.value()
                         .textureIndex];
-                    material->GetMaterialDescription().features.hasArmTexture = true;
+                    material->GetMaterialDescription().features.hasDiffuseTexture = true;
                 }
                 if (m.normalTexture.has_value())
                 {
