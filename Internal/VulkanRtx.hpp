@@ -13,6 +13,11 @@
 
 namespace VulkanUtils
 {
+    class ImGuiInitializer;
+}
+
+namespace VulkanUtils
+{
 }
 
 namespace VulkanUtils
@@ -70,6 +75,7 @@ private:
     std::unique_ptr<class VulkanCore::VulkanInstance> m_vulkanInstance;
     std::unique_ptr<class VulkanCore::VDevice> m_vulkanDevice;
     std::unique_ptr<class Renderer::VRenderer> m_renderer;
+    std::unique_ptr<class VulkanUtils::ImGuiInitializer> m_imguiInitializer;
 };
 
 #endif //VULKANRTX_HPP

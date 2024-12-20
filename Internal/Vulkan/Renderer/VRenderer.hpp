@@ -56,6 +56,7 @@ namespace Renderer
         ~VRenderer() = default;
     public:
         void SetRtxStatus(bool newStatus) {m_isRTXOn = newStatus;}
+        const VulkanCore::VRenderPass& GetRenderPass() const {return *m_mainRenderPass;}
         VulkanStructs::RenderContext* GetRenderingContext() const{return m_renderingContext;}
 
     private:

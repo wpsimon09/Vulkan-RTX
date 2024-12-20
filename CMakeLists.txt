@@ -95,6 +95,8 @@ set(SOURCES
         Internal/Application/Rendering/Material/MaterialStructs.hpp
         Internal/Application/GLTFLoader/GltfLoader.cpp
         Internal/Application/GLTFLoader/GltfLoader.hpp
+        Internal/Vulkan/Utils/VImGuiInitializer/ImGuiInitializer.cpp
+        Internal/Vulkan/Utils/VImGuiInitializer/ImGuiInitializer.hpp
 
 )
 
@@ -108,15 +110,26 @@ find_package(glm REQUIRED)
 # Add executable
 add_executable(${TARGET} ${SOURCES})
 
+#ImGui set up
+set(IMGUI_PATH "${CMAKE_SOURCE_DIR}/External/imgui")
+
+file(GLOB IMGUI_SOURCES ${IMGUI_PATH}/*.cpp)
+add_library("ImGui" STATIC ${IMGUI_SOURCES})
+target_include_directories("ImGui" PUBLIC ${IMGUI_PATH})
+target_include_directories("ImGui" PUBLIC ${IMGUI_PATH}/backends)
+
+target_link_libraries(${TARGET} PUBLIC ImGui)
+
+
 # Include GLM headers
 add_subdirectory(${CMAKE_SOURCE_DIR}/External/fastgltf)
 target_link_libraries(${TARGET} PRIVATE fastgltf)
 target_include_directories(${TARGET} PRIVATE ${GLM_INCLUDE_DIRS})
 
+
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
         ${CMAKE_SOURCE_DIR}/Internal/
         ${CMAKE_SOURCE_DIR}/External/
-
 )
 
 # Set compile options based on build type

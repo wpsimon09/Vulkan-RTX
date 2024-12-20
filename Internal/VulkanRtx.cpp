@@ -43,6 +43,8 @@
     // Application Entry
     #include "VulkanRtx.hpp"
 
+#include "Vulkan/Utils/VImGuiInitializer/ImGuiInitializer.hpp"
+
 
 Application::Application()
 {
@@ -68,7 +70,11 @@ void Application::Init()
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
     m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
 
-    auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
+
+    m_imguiInitializer = std::make_unique<VulkanUtils::ImGuiInitializer>(m_vulkanDevice*, *m_vulkanInstance, m_renderer);
+
+    //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
+    auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene.glb");
     m_client->GetScene().AddNode(sponsa);
 
     //auto car = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/dodge_challenger_-_muscle_car_-_low-poly/scene.gltf");
