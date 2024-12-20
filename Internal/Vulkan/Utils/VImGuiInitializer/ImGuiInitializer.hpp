@@ -30,7 +30,10 @@ public:
         const WindowManager& windowManager
     );
     void Initialize();
+    void BeginRender();
     void Render(VulkanCore::VCommandBuffer& commandBuffer);
+    void EndRender();
+    void Destroy();
 private:
 
     const VulkanCore::VDevice& m_device;

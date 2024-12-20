@@ -68,4 +68,37 @@ namespace VulkanUtils
 
         Utils::Logger::LogSuccess("ImGui successfully initialized");
     }
+
+    void ImGuiInitializer::BeginRender()
+    {
+        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplVulkan_NewFrame();
+        ImGui::NewFrame();
+    }
+
+    void ImGuiInitializer::EndRender()
+    {
+
+    }
+
+    void ImGuiInitializer::Render(VulkanCore::VCommandBuffer& commandBuffer)
+    {
+        ImGui::ShowDemoWindow();
+
+        ImGui::Render();
+        ImDrawData* drawData = ImGui::GetDrawData();
+
+        assert(commandBuffer.GetIsRecording() && "Command buffer that the UI tried to render to is not accepting new commands ");
+        ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer.GetCommandBuffer());
+    }
+
+    void ImGuiInitializer::Destroy()
+    {
+        Utils::Logger::LogInfoVerboseOnly("Destroying ImGuiInitializer...");
+        ImGui_ImplVulkan_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+        m_device.GetDevice().destroyDescriptorPool(m_imguiDescriptorPool);
+        Utils::Logger::LogSuccess("ImGui successfully destroyed");
+    }
 } // VulkanUtils

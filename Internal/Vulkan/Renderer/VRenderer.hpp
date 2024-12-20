@@ -14,6 +14,11 @@
 
 namespace VulkanUtils
 {
+    class ImGuiInitializer;
+}
+
+namespace VulkanUtils
+{
     class VPushDescriptorManager;
 }
 
@@ -51,7 +56,7 @@ namespace Renderer
         VRenderer(const VulkanCore::VulkanInstance &instance, const VulkanCore::VDevice &device,
                   const VulkanUtils::VUniformBufferManager &uniformBufferManager, VulkanUtils::VPushDescriptorManager& pushDescriptorSetManager);
 
-        void Render(GlobalUniform& globalUniformUpdateInfo) ;
+        void Render(GlobalUniform& globalUniformUpdateInfo, VulkanUtils::ImGuiInitializer& uiInitializer) ;
         void Destroy();
         ~VRenderer() = default;
     public:

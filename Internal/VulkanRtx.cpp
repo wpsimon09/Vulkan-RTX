@@ -91,6 +91,7 @@ void Application::MainLoop()
     {
         Update();
         Render();
+
         glfwPollEvents();
     }
 }
@@ -120,10 +121,13 @@ void Application::Update()
 }
 
 void Application::Render() {
+    // generate draw calls
     m_client->GetAssetsManager().Sync();
     m_client->Render(m_renderer->GetRenderingContext()); // here
+
+    // render using vulkan
     m_renderer->SetRtxStatus(m_client->GetIsRTXOn());
-    m_renderer->Render(m_client->GetGlobalDataUpdateInformation());
+    m_renderer->Render(m_client->GetGlobalDataUpdateInformation(), *m_imguiInitializer);
 }
 
 Application::~Application() {
@@ -133,5 +137,7 @@ Application::~Application() {
     m_uniformBufferManager->Destroy();
     VulkanCore::VSamplers::DestroyAllSamplers(*m_vulkanDevice);
     m_pushDescriptorSetManager->Destroy();
+    m_imguiInitializer->Destroy();
+
     m_vulkanDevice->Destroy();
 }

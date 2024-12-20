@@ -17,6 +17,7 @@
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/Utils/VImGuiInitializer/ImGuiInitializer.hpp"
 #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
@@ -59,7 +60,7 @@ namespace Renderer
         m_renderingContext = &m_rasterRenderContext;
     }
 
-    void VRenderer::Render(GlobalUniform& globalUniformUpdateInfo) {
+    void VRenderer::Render(GlobalUniform& globalUniformUpdateInfo,VulkanUtils::ImGuiInitializer& uiInitializer) {
         vk::Pipeline pipeline;
         if (m_isRTXOn)
         {
@@ -79,6 +80,8 @@ namespace Renderer
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
         m_baseCommandBuffers[m_currentFrameIndex]->Reset();
 
+        uiInitializer.BeginRender();
+
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
         m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderingContext->DrawCalls);
 
@@ -87,8 +90,12 @@ namespace Renderer
         //RecordCommandBuffersForPipelines(m_graphicsPipeline->GetPipelineInstance());
 
         RecordCommandBuffersForPipelines(pipeline);
+
+        uiInitializer.Render(*m_baseCommandBuffers[m_currentFrameIndex]);
+
         EndRenderPass();
         m_baseCommandBuffers[m_currentFrameIndex]->EndRecording();
+        uiInitializer.EndRender();
         std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
         SubmitCommandBuffer();
         PresentResults();
