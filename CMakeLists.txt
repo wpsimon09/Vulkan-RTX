@@ -113,7 +113,14 @@ add_executable(${TARGET} ${SOURCES})
 #ImGui set up
 set(IMGUI_PATH "${CMAKE_SOURCE_DIR}/External/imgui")
 
-file(GLOB IMGUI_SOURCES ${IMGUI_PATH}/*.cpp)
+file(GLOB IMGUI_SOURCES
+        ${IMGUI_PATH}/*.cpp
+        ${IMGUI_PATH}/backends/imgui_impl_glfw.h
+        ${IMGUI_PATH}/backends/imgui_impl_glfw.cpp
+        ${IMGUI_PATH}/backends/imgui_impl_vulkan.cpp
+        ${IMGUI_PATH}/backends/imgui_impl_vulkan.h
+)
+
 add_library("ImGui" STATIC ${IMGUI_SOURCES})
 target_include_directories("ImGui" PUBLIC ${IMGUI_PATH})
 target_include_directories("ImGui" PUBLIC ${IMGUI_PATH}/backends)

@@ -9,8 +9,10 @@
 #include "imgui_impl_vulkan.h"
 
 #include "Application/Logger/Logger.hpp"
+#include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
+#include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 
 
 namespace VulkanUtils
@@ -43,21 +45,26 @@ namespace VulkanUtils
         m_io = &ImGui::GetIO();
         m_io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         m_io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        m_io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         ImGui::StyleColorsDark();
 
         ImGui_ImplGlfw_InitForVulkan(m_windowManager.GetWindow(), true);
-        ImGui_ImplVulkan_InitInfo vkInitInfo = {};
-        vkInitInfo.Instance = m_instance.GetInstance();
-        vkInitInfo.PhysicalDevice = m_device.GetPhysicalDevice();
-        vkInitInfo.Device = m_device.GetDevice();
-        vkInitInfo.QueueFamily = m_device.GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_GRAPHICS);
-        vkInitInfo.Queue = m_device.GetGraphicsQueue();
-        vkInitInfo.PipelineCache = m_imguiPipelineCache;
-        vkInitInfo.DescriptorPool = m_imguiDescriptorPool;
+        ImGui_ImplVulkan_InitInfo imGuiVkInitInfo = {};
+        imGuiVkInitInfo.Instance = m_instance.GetInstance();
+        imGuiVkInitInfo.PhysicalDevice = m_device.GetPhysicalDevice();
+        imGuiVkInitInfo.Device = m_device.GetDevice();
+        imGuiVkInitInfo.QueueFamily = m_device.GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_GRAPHICS);
+        imGuiVkInitInfo.Queue = m_device.GetGraphicsQueue();
+        imGuiVkInitInfo.PipelineCache = m_imguiPipelineCache;
+        imGuiVkInitInfo.DescriptorPool = m_imguiDescriptorPool;
+        imGuiVkInitInfo.RenderPass = m_renderPass.GetRenderPass();
+        imGuiVkInitInfo.Subpass = 0;
+        imGuiVkInitInfo.MinImageCount = GlobalVariables::MAX_FRAMES_IN_FLIGHT;
+        imGuiVkInitInfo.ImageCount = GlobalVariables::MAX_FRAMES_IN_FLIGHT;
+        imGuiVkInitInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
-
-
+        ImGui_ImplVulkan_Init(&imGuiVkInitInfo);
 
         Utils::Logger::LogSuccess("ImGui successfully initialized");
     }
