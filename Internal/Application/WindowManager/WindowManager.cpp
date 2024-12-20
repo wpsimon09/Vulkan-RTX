@@ -124,7 +124,7 @@ void WindowManager::MouseClickCallback(GLFWwindow *window, int button, int actio
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
     GLFWcursor* hand = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
     GLFWcursor* cursor = glfwCreateStandardCursor(GLFW_CURSOR_NORMAL);
-    if (button == GLFW_MOUSE_BUTTON_LEFT)
+    if (button == GLFW_MOUSE_BUTTON_RIGHT)
     {
         if (action == GLFW_PRESS)
         {
