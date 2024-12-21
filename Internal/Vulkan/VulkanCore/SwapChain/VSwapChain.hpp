@@ -22,8 +22,7 @@ namespace VulkanCore
     {
     public:
         VSwapChain(const VulkanCore::VDevice &device,
-                   const VulkanCore::VulkanInstance &instance,
-                   std::optional<std::reference_wrapper<VulkanCore::VImage>> depthBufferImage);
+                   const VulkanCore::VulkanInstance &instance);
 
         void Destroy() override;
         void CreateSwapChainFrameBuffers(const VulkanCore::VRenderPass &renderPass);
@@ -31,7 +30,8 @@ namespace VulkanCore
 
         ~VSwapChain() = default;
 
-        const vk::SwapchainKHR &GetSwapChain() const { return m_swapChain; };
+        const vk::SwapchainKHR &GetSwapChain() const { return m_swapChain; }
+        const VulkanCore::VImage& GetDepthBuffer() const {return *m_depthBuffer; }
         const vk::SurfaceFormatKHR &GetSurfaceFormatKHR() const { return m_format; };
         const vk::Extent2D &GetExtent() const { return m_extent; };
         const vk::PresentModeKHR &GetPresentMode() const { return m_presentMode; };
@@ -46,7 +46,10 @@ namespace VulkanCore
         vk::SwapchainKHR m_swapChain;
 
         std::vector<std::unique_ptr<VulkanCore::VImage>> m_images;
-        std::optional<std::reference_wrapper<VulkanCore::VImage>> m_depthBuffer;
+
+        std::unique_ptr<VulkanCore::VImage> m_depthBuffer;
+        std::unique_ptr<VulkanCore::VImage> m_colourBuffer;
+
         std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_swapChainFrameBuffers;
 
         const VulkanCore::VDevice &m_device;

@@ -6,9 +6,7 @@
 
 #include <imgui.h>
 
-VEditor::ViewPort::ViewPort(vk::ImageView& rendererOutput)
+VEditor::ViewPort::ViewPort(vk::ImageView& rendererOutput): m_rendererOutput(rendererOutput)
 {
-    ImGui::Textu textureID;
 
-    ImGui::Image()
 }

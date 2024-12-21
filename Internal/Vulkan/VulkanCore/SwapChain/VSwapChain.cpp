@@ -14,15 +14,19 @@
 #include "Vulkan/VulkanCore//VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
 
-VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const VulkanCore::VulkanInstance &instance,
-                                   std::optional<std::reference_wrapper<VulkanCore::VImage>> depthBufferImage):
-    m_device(device), m_instance(instance), m_depthBuffer(depthBufferImage) {
+VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const VulkanCore::VulkanInstance &instance):
+    m_device(device), m_instance(instance){
     ChooseExtent();
     ChooseFormat();
     ChoosePresentMode();
     CreateSwapChain();
     RetrieveSwapChainImagesAndImageViews();
-    m_depthBuffer.value().get().Resize(m_extent.width, m_extent.height);
+
+    m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth);
+    m_colourBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_format.format, vk::ImageAspectFlagBits::eColor);
+
+    m_depthBuffer->Resize(m_extent.width, m_extent.height);
+    m_colourBuffer->Resize(m_extent.width, m_extent.height);
 }
 
 
@@ -41,6 +45,9 @@ void VulkanCore::VSwapChain::Destroy() {
     }
     m_swapChainFrameBuffers.clear();
     Utils::Logger::LogInfoVerboseOnly("Swap chain frame buffers destroyed !");
+
+    m_depthBuffer->Destroy();
+    m_colourBuffer->Destroy();
 
     m_device.GetDevice().destroySwapchainKHR(m_swapChain);
     Utils::Logger::LogInfoVerboseOnly("Swap chain destroyed !");
@@ -180,11 +187,8 @@ void VulkanCore::VSwapChain::CreateSwapChainFrameBuffers(const VulkanCore::VRend
     assert(m_images.size() == m_swapChainFrameBuffers.size());
     std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
     for (size_t i = 0; i < m_images.size(); i++) {
-        if(m_depthBuffer.has_value()) {
-            attachments = {*m_images[i], m_depthBuffer.value()};
-        }else {
-            attachments = {*m_images[i]};
-        }
+        attachments = {*m_images[i], *m_depthBuffer};
+
         m_swapChainFrameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(
             m_device, renderPass, attachments, m_extent.width, m_extent.height);
     }
@@ -202,7 +206,7 @@ void VulkanCore::VSwapChain::RecreateSwapChain(const VulkanCore::VRenderPass &re
     ChoosePresentMode();
     CreateSwapChain();
     RetrieveSwapChainImagesAndImageViews();
-    m_depthBuffer.value().get().Resize(m_extent.width, m_extent.height);
+    m_depthBuffer->Resize(m_extent.width, m_extent.height);
     CreateSwapChainFrameBuffers(renderPass);
 
 

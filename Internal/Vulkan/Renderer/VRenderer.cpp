@@ -40,9 +40,9 @@ namespace Renderer
         m_device(device), m_uniformBufferManager(uniformBufferManager),
         m_pushDescriptorSetManager(pushDescriptorSetManager), m_rasterRenderContext(), m_rayTracingRenderContext() {
 
-        m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth);
-        m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance, *m_depthBuffer);
-        m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain, *m_depthBuffer);
+
+        m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance);
+        m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain, m_swapChain->GetDepthBuffer());
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(
             device, *m_swapChain, *m_mainRenderPass, m_pushDescriptorSetManager);
         m_pipelineManager->InstantiatePipelines();
@@ -327,7 +327,6 @@ namespace Renderer
         m_pipelineManager->DestroyPipelines();
         m_baseCommandPool->Destroy();
         m_swapChain->Destroy();
-        m_depthBuffer->Destroy();
     }
 
 } // Renderer
