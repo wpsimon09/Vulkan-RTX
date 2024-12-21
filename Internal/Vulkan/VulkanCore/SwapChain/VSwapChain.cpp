@@ -23,10 +23,10 @@ VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const Vulk
     RetrieveSwapChainImagesAndImageViews();
 
     m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth);
-    m_colourBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_format.format, vk::ImageAspectFlagBits::eColor);
+    m_msaaColourBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_format.format, vk::ImageAspectFlagBits::eColor);
 
     m_depthBuffer->Resize(m_extent.width, m_extent.height);
-    m_colourBuffer->Resize(m_extent.width, m_extent.height);
+    m_msaaColourBuffer->Resize(m_extent.width, m_extent.height);
 }
 
 
@@ -47,7 +47,7 @@ void VulkanCore::VSwapChain::Destroy() {
     Utils::Logger::LogInfoVerboseOnly("Swap chain frame buffers destroyed !");
 
     m_depthBuffer->Destroy();
-    m_colourBuffer->Destroy();
+    m_msaaColourBuffer->Destroy();
 
     m_device.GetDevice().destroySwapchainKHR(m_swapChain);
     Utils::Logger::LogInfoVerboseOnly("Swap chain destroyed !");

@@ -103,6 +103,12 @@ set(SOURCES
         Internal/Edittor/UserInterface/IUserInterfaceElement.hpp
         Internal/Edittor/ViewPort/ViewPort.cpp
         Internal/Edittor/ViewPort/ViewPort.hpp
+        Internal/Vulkan/Renderer/SceneRenderer.cpp
+        Internal/Vulkan/Renderer/SceneRenderer.hpp
+        Internal/Vulkan/Renderer/UserInterfaceRenderer.cpp
+        Internal/Vulkan/Renderer/UserInterfaceRenderer.hpp
+        Internal/Vulkan/Renderer/RenderingSystem.cpp
+        Internal/Vulkan/Renderer/RenderingSystem.hpp
 
 )
 

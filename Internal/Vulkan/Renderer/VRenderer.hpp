@@ -101,6 +101,7 @@ namespace Renderer
         std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
         std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_renderFinishedSemaphores;
         std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Fence>>> m_isFrameFinishFences;
+        std::vector<std::unique_ptr<VulkanCore::VImage>> m_sceneImages;
 
         std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
         std::unique_ptr<class VulkanCore::VPipelineManager> m_pipelineManager;

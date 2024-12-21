@@ -48,7 +48,8 @@ namespace VulkanCore
         std::vector<std::unique_ptr<VulkanCore::VImage>> m_images;
 
         std::unique_ptr<VulkanCore::VImage> m_depthBuffer;
-        std::unique_ptr<VulkanCore::VImage> m_colourBuffer;
+        std::unique_ptr<VulkanCore::VImage> m_msaaColourBuffer;
+        std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_colourBuffers;
 
         std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_swapChainFrameBuffers;
 
