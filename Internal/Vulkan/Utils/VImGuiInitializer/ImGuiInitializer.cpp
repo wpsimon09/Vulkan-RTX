@@ -83,8 +83,6 @@ namespace VulkanUtils
 
     void ImGuiInitializer::Render(VulkanCore::VCommandBuffer& commandBuffer)
     {
-        ImGui::ShowDemoWindow();
-
         ImGui::Render();
         ImDrawData* drawData = ImGui::GetDrawData();
 

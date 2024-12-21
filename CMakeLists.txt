@@ -97,6 +97,12 @@ set(SOURCES
         Internal/Application/GLTFLoader/GltfLoader.hpp
         Internal/Vulkan/Utils/VImGuiInitializer/ImGuiInitializer.cpp
         Internal/Vulkan/Utils/VImGuiInitializer/ImGuiInitializer.hpp
+        Internal/Edittor/Index.cpp
+        Internal/Edittor/Index.hpp
+        Internal/Edittor/UserInterface/IUserInterfaceElement.cpp
+        Internal/Edittor/UserInterface/IUserInterfaceElement.hpp
+        Internal/Edittor/ViewPort/ViewPort.cpp
+        Internal/Edittor/ViewPort/ViewPort.hpp
 
 )
 
