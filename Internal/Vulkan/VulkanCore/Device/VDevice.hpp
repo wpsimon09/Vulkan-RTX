@@ -1,4 +1,4 @@
-//
+    //
 // Created by wpsimon09 on 25/09/24.
 //
 #pragma once
@@ -56,6 +56,7 @@ namespace VulkanCore
         const vk::Queue & GetTransferQueue() const { return m_transferQueue; }
         const vk::Queue & GetPresentQueue() const { return m_presentQueue; }
         const vk::Format & GetDepthFormat() const { return m_depthFormat; }
+        const vk::SampleCountFlagBits GetSampleCount() const { return m_sampleCount; }
         //----------------------------------------------------------------------------------------
 
         const uint32_t& GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
@@ -76,6 +77,7 @@ namespace VulkanCore
         vk::Queue m_presentQueue;
 
         vk::Format m_depthFormat;
+        vk::SampleCountFlagBits m_sampleCount;
 
         std::unique_ptr<VulkanCore::VCommandPool> m_transferCommandPool;
         VQueueFamilyIndices m_queueFamilyIndices;
@@ -88,6 +90,7 @@ namespace VulkanCore
         void CreateLogicalDevice();
         void CreateVmaAllocator(const VulkanCore::VulkanInstance& instance);
         void RetreiveDepthFormat();
+        void FetchMaxSampleCount();
     };
 }
 

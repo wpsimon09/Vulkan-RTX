@@ -21,7 +21,7 @@ struct DesiredDeviceFeatures
             Utils::Logger::LogInfoVerboseOnly("Device type miss match");
             return false;
         }
-        if(physicalDevice.getFeatures().geometryShader != this->deviceFeatures.geometryShader) {
+        if(physicalDevice.getFeatures().geometryShader != this->deviceFeatures.geometryShader ) {
             Utils::Logger::LogInfoVerboseOnly("Device does not support geometry shader");
             return false;
         }

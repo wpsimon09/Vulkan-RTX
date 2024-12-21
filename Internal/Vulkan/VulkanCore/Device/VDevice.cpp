@@ -66,6 +66,7 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance):m_insta
     m_physicalDevice = PickPhysicalDevice();
     CreateLogicalDevice();
     CreateVmaAllocator(instance);
+    FetchMaxSampleCount();
     m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(*this, QUEUE_FAMILY_INDEX_TRANSFER);
     DispatchLoader = vk::DispatchLoaderDynamic(m_instance.GetInstance(), vkGetInstanceProcAddr);
     m_depthFormat = vk::Format::eD32Sfloat;
@@ -136,6 +137,41 @@ void VulkanCore::VDevice::CreateVmaAllocator(const VulkanCore::VulkanInstance &i
     allocatorInfo.instance = instance.GetInstance();
     assert(vmaCreateAllocator(&allocatorInfo, &m_vmaAllocator) == VK_SUCCESS);
     Utils::Logger::LogSuccess("Successfully created Vulkan Memory Allocator instance");
+}
+
+void VulkanCore::VDevice::FetchMaxSampleCount()
+{
+    auto &gpuProperteis = GlobalVariables::GlobalStructs::GpuProperties;
+
+    vk::SampleCountFlags maxSampleCount = gpuProperteis.limits.framebufferColorSampleCounts & gpuProperteis.limits.framebufferDepthSampleCounts;
+
+    if (maxSampleCount & vk::SampleCountFlagBits::e64) {
+        m_sampleCount = vk::SampleCountFlagBits::e64;
+        return;
+    }
+    if (maxSampleCount & vk::SampleCountFlagBits::e32) {
+        m_sampleCount = vk::SampleCountFlagBits::e32;
+        return;
+    }
+    if (maxSampleCount & vk::SampleCountFlagBits::e16) {
+        m_sampleCount = vk::SampleCountFlagBits::e16;
+        return;
+    }
+    if (maxSampleCount & vk::SampleCountFlagBits::e8) {
+        m_sampleCount = vk::SampleCountFlagBits::e8;
+        return;
+    }
+    if (maxSampleCount & vk::SampleCountFlagBits::e4) {
+        m_sampleCount = vk::SampleCountFlagBits::e4;
+        return;
+    }
+    if (maxSampleCount & vk::SampleCountFlagBits::e2) {
+        m_sampleCount = vk::SampleCountFlagBits::e2;
+        return;
+    }
+
+    //default
+    m_sampleCount = vk::SampleCountFlagBits::e1;
 }
 
 const uint32_t & VulkanCore::VDevice::GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const {
