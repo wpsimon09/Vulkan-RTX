@@ -9,9 +9,15 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
-VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,const VulkanCore::VImage& depthBuffer):VObject(),m_device(device), m_swapChain(swapChain), m_depthBuffer(depthBuffer) {
+VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,const VulkanCore::VImage& depthBuffer):
+VObject(),m_device(device), m_swapChain(swapChain), m_depthBuffer(depthBuffer), m_colourBuffer(swapChain->) {
     Utils::Logger::LogInfoVerboseOnly("Creating render pass...");
     CreateRenderPass();
+}
+
+VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VImage& colourBuffer,
+    const VulkanCore::VImage& depthBuffer)
+{
 }
 
 void VulkanCore::VRenderPass::Destroy() {

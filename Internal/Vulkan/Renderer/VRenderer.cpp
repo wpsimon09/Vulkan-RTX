@@ -73,6 +73,8 @@ namespace Renderer
         }
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
         //rerender the frame if image to present on is out of date
+
+        // will not be in scene pass, instead this will be the VImage which will be used for rendering
         if (FetchSwapChainImage() == vk::Result::eEventReset) {
             Utils::Logger::LogInfoVerboseRendering("Received event reset signal, resetting the rendering....");
             return;

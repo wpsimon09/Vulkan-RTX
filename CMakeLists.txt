@@ -109,6 +109,8 @@ set(SOURCES
         Internal/Vulkan/Renderer/UserInterfaceRenderer.hpp
         Internal/Vulkan/Renderer/RenderingSystem.cpp
         Internal/Vulkan/Renderer/RenderingSystem.hpp
+        Internal/Vulkan/Renderer/RenderTarget/RenderTarget.cpp
+        Internal/Vulkan/Renderer/RenderTarget/RenderTarget.hpp
 
 )
 

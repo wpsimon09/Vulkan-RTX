@@ -18,6 +18,7 @@ namespace VulkanCore
     class VRenderPass:VObject {
     public:
         VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain, const VulkanCore::VImage& depthBuffer);
+        VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VImage& colourBuffer, const VulkanCore::VImage& depthBuffer);
         void Destroy() override;
 
         const vk::RenderPass& GetRenderPass() const {return m_renderPass;}
@@ -29,6 +30,7 @@ namespace VulkanCore
         const VulkanCore::VDevice& m_device;
         const VulkanCore::VSwapChain& m_swapChain;
         const VulkanCore::VImage& m_depthBuffer;
+        const VulkanCore::VImage& m_colourBuffer;
 
         vk::AttachmentDescription m_colourAttachmentDescription;
         vk::AttachmentReference m_colourAttachmentRef;
