@@ -25,6 +25,7 @@ namespace VulkanCore
                    const VulkanCore::VulkanInstance &instance);
 
         void Destroy() override;
+        void DestroyForResize();
         void CreateSwapChainFrameBuffers(const VulkanCore::VRenderPass &renderPass);
         void RecreateSwapChain(const VulkanCore::VRenderPass &renderPass);
 

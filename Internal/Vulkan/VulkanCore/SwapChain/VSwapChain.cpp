@@ -53,6 +53,27 @@ void VulkanCore::VSwapChain::Destroy() {
     Utils::Logger::LogInfoVerboseOnly("Swap chain destroyed !");
 }
 
+void VulkanCore::VSwapChain::DestroyForResize()
+{
+    Utils::Logger::LogInfoVerboseOnly("Destroying swap chain image views... ");
+    for (auto &image : m_images) {
+        if (image)
+            image->Destroy();
+    }
+    Utils::Logger::LogInfoVerboseOnly("Swap chain image views destroyed !");
+    m_images.clear();
+    Utils::Logger::LogInfoVerboseOnly("Destroying swap chain FrameBuffers...");
+    for (auto &frameBuffer : m_swapChainFrameBuffers) {
+        if (frameBuffer)
+            frameBuffer->Destroy();
+    }
+    m_swapChainFrameBuffers.clear();
+    Utils::Logger::LogInfoVerboseOnly("Swap chain frame buffers destroyed !");
+
+    m_device.GetDevice().destroySwapchainKHR(m_swapChain);
+    Utils::Logger::LogInfoVerboseOnly("Swap chain destroyed !");
+}
+
 const std::vector<std::reference_wrapper<const VulkanCore::VImage>> VulkanCore::VSwapChain::GetImages() const {
     std::vector<std::reference_wrapper<const VulkanCore::VImage>> imagesToReturn;
     imagesToReturn.reserve(m_images.size());
@@ -199,7 +220,7 @@ void VulkanCore::VSwapChain::RecreateSwapChain(const VulkanCore::VRenderPass &re
     Utils::Logger::LogInfo("Recreating swap chain...");
     m_device.GetDevice().waitIdle();
 
-    Destroy();
+    DestroyForResize();
 
     ChooseExtent();
     ChooseFormat();
