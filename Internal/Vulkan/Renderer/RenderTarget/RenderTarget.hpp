@@ -22,13 +22,17 @@ class RenderTarget {
 public:
     RenderTarget(const VulkanCore::VDevice& device,int width, int height, vk::Format colourFormat = vk::Format::eR8G8B8A8Unorm);
 
-    ~RenderTarget(){}
-    void Finalize(int frameIndex);
+    void HandleResize(int newWidth, int newHeight);
+
+    void Destroy();
+    void DestroyForResize();
+
+    ~RenderTarget() = default;
 private:
     std::vector<std::unique_ptr<VulkanCore::VImage>> m_colourBuffer; // for internal engine use
     std::unique_ptr<VulkanCore::VImage> m_depthBuffer; // for internal engine use
     std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_frameBuffers; // for passing to the Vulkan
-    std::unique_ptr<std::unique_ptr<VulkanCore::VRenderPass>> m_renderPass; // puting it all together
+    std::unique_ptr<VulkanCore::VRenderPass> m_renderPass; // putting it all together
 private:
     const VulkanCore::VDevice& m_device;
 

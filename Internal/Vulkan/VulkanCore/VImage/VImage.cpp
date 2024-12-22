@@ -267,7 +267,7 @@ void VulkanCore::VImage::AllocateImage(size_t imageSize) {
 void VulkanCore::VImage::Resize(uint32_t newWidth, uint32_t newHeight) {
     m_width = newWidth;
     m_height = newHeight;
-    Utils::Logger::LogInfo("Resizing the image...");
+    Utils::Logger::LogInfoVerboseOnly("Resizing the image...");
         Destroy();
         AllocateImage(m_imageSize);
         GenerateImageView();

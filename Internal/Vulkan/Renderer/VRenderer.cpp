@@ -107,13 +107,13 @@ namespace Renderer
 
     void VRenderer::CreateCommandBufferPools() {
 
-        Utils::Logger::LogInfo("Allocating command pools...");
+        Utils::Logger::LogInfoVerboseOnly("Allocating command pools...");
         m_baseCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, QUEUE_FAMILY_INDEX_GRAPHICS);
         m_baseCommandBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
             m_baseCommandBuffers[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_baseCommandPool);
         }
-        Utils::Logger::LogInfo("Command pools and command buffers allocated !");
+        Utils::Logger::LogInfoVerboseOnly("Command pools and command buffers allocated !");
     }
 
     //==============================================================================

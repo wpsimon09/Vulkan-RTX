@@ -39,7 +39,7 @@ namespace VulkanCore {
         vk::CommandBufferBeginInfo beginInfo{};
 
         if(m_commandPool.GetQueueFamily().first == QUEUE_FAMILY_INDEX_TRANSFER && GlobalState::AutoCommandBufferFlags) {
-            Utils::Logger::LogInfo("Command buffer is going to be used with transfer family. Setting flags to be eOneTimeSubmit, this can be changed in global state by setting variable AutoCommandBufferFlags to false!");
+            Utils::Logger::LogInfoVerboseOnly(  "Command buffer is going to be used with transfer family. Setting flags to be eOneTimeSubmit, this can be changed in global state by setting variable AutoCommandBufferFlags to false!");
             beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
         }
         beginInfo.pInheritanceInfo = nullptr;

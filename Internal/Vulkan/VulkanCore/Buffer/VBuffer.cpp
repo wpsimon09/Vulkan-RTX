@@ -24,13 +24,13 @@ namespace VulkanCore {
     }
 
     void * VBuffer::MapStagingBuffer() {
-        Utils::Logger::LogInfo("Mapping staging buffer...");
+        Utils::Logger::LogInfoVerboseOnly("Mapping staging buffer...");
         vmaMapMemory(m_device.GetAllocator(), m_stagingAllocation, &m_mappedData);
         return m_mappedData;
     }
 
     void VBuffer::UnMapStagingBuffer() {
-        Utils::Logger::LogInfo("Unmapping staging buffer...");
+        Utils::Logger::LogInfoVerboseOnly("Unmapping staging buffer...");
         vmaUnmapMemory(m_device.GetAllocator() , m_stagingAllocation);
     }
 
@@ -91,7 +91,7 @@ namespace VulkanCore {
         vk::DeviceSize IndexBufferSize = indices.size() * sizeof(uint32_t);
 
         m_bufferType = vk::BufferUsageFlagBits::eIndexBuffer;
-        Utils::Logger::LogInfo("Allocating Index and Staging buffer for the mesh ");
+        Utils::Logger::LogInfoVerboseOnly("Allocating Index and Staging buffer for the mesh ");
         CreateBuffer(IndexBufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
         CreateStagingBuffer(IndexBufferSize);
         Utils::Logger::LogInfoVerboseOnly("Index Buffer allocated successfully");

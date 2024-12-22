@@ -18,6 +18,7 @@
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
+#include "Vulkan/Global/GlobalState.hpp"
 
 
 namespace ApplicationCore
@@ -56,7 +57,6 @@ namespace ApplicationCore
         case MESH_GEOMETRY_PLANE: {
             m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::planeVertices,
                                                 MeshData::planeIndices);
-
             break;
         }
         case MESH_GEOMETRY_SPHERE: {
@@ -145,8 +145,10 @@ namespace ApplicationCore
             for (auto it = m_texturesToLoad.begin(); it != m_texturesToLoad.end();) {
                 if (it->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
                     Utils::Logger::LogSuccess("Texture image loaded, swapping default texture for the loaded texture");
+                    GlobalState::DisableLogging();
                     m_textures[it->first]->FillWithImageData(it->second.get(), true, true);
                     it = m_texturesToLoad.erase(it);
+                    GlobalState::EnableLogging();
                 } else {
                     ++it;
                 }
