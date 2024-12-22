@@ -51,6 +51,7 @@ namespace VulkanCore
         void FillWithImageData(const VulkanStructs::ImageData& imageData, bool transitionToShaderReadOnly = true, bool destroyCurrentImage = false);
 
         std::string GetPath() {return m_path;}
+        const vk::ImageLayout& GetCurrentLayout() const {return m_imageLayout;};
 
         vk::DescriptorImageInfo GetDescriptorImageInfo(vk::Sampler &sampler);
 

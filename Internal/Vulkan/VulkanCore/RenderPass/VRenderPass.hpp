@@ -17,18 +17,17 @@ namespace VulkanCore
 
     class VRenderPass:VObject {
     public:
-        VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain, const VulkanCore::VImage& depthBuffer);
-        VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VImage& colourBuffer, const VulkanCore::VImage& depthBuffer);
+        VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VImage& colourBuffer, const VulkanCore::VImage& depthBuffer, bool ForSwapChain = true);
         void Destroy() override;
 
         const vk::RenderPass& GetRenderPass() const {return m_renderPass;}
 
     private:
-        void CreateRenderPass();
+        void CreateRenderPassForSwapChain();
+        void CreateRenderPassForCustomImage();
         void CreateMainSubPass();
     private:
         const VulkanCore::VDevice& m_device;
-        const VulkanCore::VSwapChain& m_swapChain;
         const VulkanCore::VImage& m_depthBuffer;
         const VulkanCore::VImage& m_colourBuffer;
 

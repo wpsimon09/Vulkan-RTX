@@ -9,15 +9,19 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
-VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,const VulkanCore::VImage& depthBuffer):
-VObject(),m_device(device), m_swapChain(swapChain), m_depthBuffer(depthBuffer), m_colourBuffer(swapChain->) {
-    Utils::Logger::LogInfoVerboseOnly("Creating render pass...");
-    CreateRenderPass();
-}
 
 VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VImage& colourBuffer,
-    const VulkanCore::VImage& depthBuffer)
+    const VulkanCore::VImage& depthBuffer, bool ForSwapChain): m_device(device), m_colourBuffer(colourBuffer), m_depthBuffer(depthBuffer)
 {
+    Utils::Logger::LogInfoVerboseOnly("Creating render pass...");
+    if (ForSwapChain)
+    {
+        CreateRenderPassForSwapChain();
+    }else
+    {
+        CreateRenderPassForSwapChain();
+    }
+
 }
 
 void VulkanCore::VRenderPass::Destroy() {
@@ -25,12 +29,12 @@ void VulkanCore::VRenderPass::Destroy() {
     m_device.GetDevice().destroyRenderPass(m_renderPass);
 }
 
-void VulkanCore::VRenderPass::CreateRenderPass() {
+void VulkanCore::VRenderPass::CreateRenderPassForSwapChain() {
 
     //------------------------
     // BASIC COLOUR ATTACHMENT
     //------------------------
-    m_colourAttachmentDescription.format = m_swapChain.GetSurfaceFormatKHR().format;
+    m_colourAttachmentDescription.format = m_colourBuffer.GetFormat();
     m_colourAttachmentDescription.samples = vk::SampleCountFlagBits::e1;
     m_colourAttachmentDescription.loadOp = vk::AttachmentLoadOp::eClear;
     m_colourAttachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
@@ -51,6 +55,72 @@ void VulkanCore::VRenderPass::CreateRenderPass() {
     m_depthStencilAttachmentDescription.storeOp = vk::AttachmentStoreOp::eDontCare;
     m_depthStencilAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     m_depthStencilAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    m_depthStencilAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
+    m_depthStencilAttachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+    m_depthStencilAttachmentRef.attachment = 1;
+    m_depthStencilAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+
+    //----------------------------------------------------------------------------------------------------------------------------
+    // RESOLVE ATTACHEMENT
+    // it transition the image format from colour attachment to the format that is suitable to present the images on the screen
+    //----------------------------------------------------------------------------------------------------------------------------
+    /*
+    m_resolveColourAttachmentDescription.format =   m_swapChain.GetSurfaceFormatKHR().format;
+    m_resolveColourAttachmentDescription.samples = vk::SampleCountFlagBits::e1;
+    m_resolveColourAttachmentDescription.loadOp = vk::AttachmentLoadOp::eDontCare;
+    m_resolveColourAttachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
+    m_resolveColourAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    m_resolveColourAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    m_resolveColourAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
+    m_resolveColourAttachmentDescription.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+    */
+
+    CreateMainSubPass();
+
+    std::array<vk::AttachmentDescription, 2> attachments = {m_colourAttachmentDescription, m_depthStencilAttachmentDescription};
+    vk::RenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.attachmentCount = attachments.size();
+    renderPassInfo.pAttachments = attachments.data();
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &m_subPass;
+    renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies = &m_subPassDependency;
+
+    m_renderPass = m_device.GetDevice().createRenderPass(renderPassInfo);
+    assert(m_renderPass);
+    Utils::Logger::LogSuccess("Render pass created");
+}
+
+void VulkanCore::VRenderPass::CreateRenderPassForCustomImage()
+{
+    //------------------------
+    // BASIC COLOUR ATTACHMENT
+    //------------------------
+    m_colourAttachmentDescription.format = m_colourBuffer.GetFormat();
+    m_colourAttachmentDescription.samples = vk::SampleCountFlagBits::e1;
+    m_colourAttachmentDescription.loadOp = vk::AttachmentLoadOp::eClear;
+    m_colourAttachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
+    m_colourAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    m_colourAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    assert(m_colourBuffer.GetCurrentLayout() == vk::ImageLayout::eColorAttachmentOptimal && "Color buffer must be in color attachment optimal");
+    m_colourAttachmentDescription.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    m_colourAttachmentDescription.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+    m_colourAttachmentRef.attachment = 0;
+    m_colourAttachmentRef.layout = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+    //-----------------
+    // DEPTH ATTACHMENT
+    //-----------------
+    m_depthStencilAttachmentDescription.format = m_depthBuffer.GetFormat();
+    m_depthStencilAttachmentDescription.samples = vk::SampleCountFlagBits::e1;
+    m_depthStencilAttachmentDescription.loadOp = vk::AttachmentLoadOp::eClear;
+    m_depthStencilAttachmentDescription.storeOp = vk::AttachmentStoreOp::eDontCare;
+    m_depthStencilAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    m_depthStencilAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    assert(m_depthBuffer.GetCurrentLayout() == vk::ImageLayout::eColorAttachmentOptimal && "Color buffer must be in color attachment optimal");
     m_depthStencilAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
     m_depthStencilAttachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 

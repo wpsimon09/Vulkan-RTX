@@ -41,6 +41,7 @@ namespace Renderer {
 class RenderingSystem {
 public:
 private:
+    /*
     const VulkanCore::VDevice &m_device;
     const VulkanUtils::VUniformBufferManager &m_uniformBufferManager;
     VulkanUtils::VPushDescriptorManager &m_pushDescriptorSetManager;
@@ -57,6 +58,7 @@ private:
 
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
+    */
 
 
 

@@ -83,8 +83,10 @@ namespace VulkanCore
 
     };
 
+
     template <typename T>
     void VBuffer::MakeUniformBuffer(const T &uniformBuffer, vk::DeviceSize size) {
+
         m_isPresistentlyMapped = true;
         assert(!m_isInitialized);
 

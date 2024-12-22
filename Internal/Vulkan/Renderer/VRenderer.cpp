@@ -42,7 +42,7 @@ namespace Renderer
 
 
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance);
-        m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, *m_swapChain, m_swapChain->GetDepthBuffer());
+        m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, m_swapChain->GetImages()[0], m_swapChain->GetDepthBuffer());
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(
             device, *m_swapChain, *m_mainRenderPass, m_pushDescriptorSetManager);
         m_pipelineManager->InstantiatePipelines();
@@ -129,6 +129,7 @@ namespace Renderer
         renderPassBeginInfo.renderArea.extent = m_swapChain->GetExtent();
 
         std::array<vk::ClearValue,2> clearColors = {};
+
         clearColors[0].color =  {0.2f, 0.2f, 0.2f, 1.0f};
         clearColors[1].depthStencil.depth = 1.0f;
         clearColors[1].depthStencil.stencil = 0.0f;

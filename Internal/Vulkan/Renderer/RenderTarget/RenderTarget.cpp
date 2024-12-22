@@ -6,6 +6,8 @@
 
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
+#include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
+
 
 namespace Renderer {
     RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int height, vk::Format colourFormat):

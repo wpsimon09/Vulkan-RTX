@@ -70,6 +70,7 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
     Utils::Logger::LogInfoVerboseOnly("Transition image layout...");
 
     m_imageLayout = targetLayout;
+
     vk::PipelineStageFlags srcStageFlags;
     vk::PipelineStageFlags dstStageFlags;
 
