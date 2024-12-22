@@ -19,7 +19,7 @@ VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice& device, const Vu
         CreateRenderPassForSwapChain();
     }else
     {
-        CreateRenderPassForSwapChain();
+        CreateRenderPassForCustomImage();
     }
 
 }
