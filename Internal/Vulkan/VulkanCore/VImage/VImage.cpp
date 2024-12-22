@@ -281,7 +281,9 @@ void VulkanCore::VImage::Resize(uint32_t newWidth, uint32_t newHeight) {
 
 void VulkanCore::VImage::Destroy() {
     if (!m_isSwapChainImage) {
-        vmaDestroyImage(m_device.GetAllocator(), m_imageVMA, m_imageAllocation);
+
+            vmaDestroyImage(m_device.GetAllocator(), m_imageVMA, m_imageAllocation);
+
     }
     m_device.GetDevice().destroyImageView(m_imageView);
     Utils::Logger::LogInfoVerboseOnly("Deleted image and its image view");
