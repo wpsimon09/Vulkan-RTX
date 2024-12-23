@@ -11,6 +11,8 @@ namespace Renderer {
     SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device,
         VulkanUtils::VPushDescriptorManager& pushDescriptorManager): m_device(device), m_pushDescriptorManager(pushDescriptorManager), BaseRenderer(device)
     {
+        // create render target
+
         //---------------------------------------------------------------------------------------------------------------------------
         // CREATING TEMPLATE ENTRIES
         //---------------------------------------------------------------------------------------------------------------------------
