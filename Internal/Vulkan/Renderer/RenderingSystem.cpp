@@ -36,21 +36,5 @@ namespace Renderer {
         //---------------------------------------------------------------------------------------------------------------------------
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(m_device, instance);
 
-        //---------------------------------------------------------------------------------------------------------------------------
-        // CREATING TEMPLATE ENTRIES
-        //---------------------------------------------------------------------------------------------------------------------------
-        // global
-        m_pushDescriptorSetManager.AddUpdateEntry(0, offsetof(VulkanUtils::DescriptorSetData, cameraUBOBuffer), 0);
-        // per object
-        m_pushDescriptorSetManager.AddUpdateEntry(1, offsetof(VulkanUtils::DescriptorSetData, meshUBBOBuffer), 0);
-        // per material
-        m_pushDescriptorSetManager.AddUpdateEntry(2, offsetof(VulkanUtils::DescriptorSetData, pbrMaterialNoTexture), 0);
-        m_pushDescriptorSetManager.AddUpdateEntry(3, offsetof(VulkanUtils::DescriptorSetData, pbrMaterialFeatures), 0);
-        m_pushDescriptorSetManager.AddUpdateEntry(4, offsetof(VulkanUtils::DescriptorSetData, diffuseTextureImage), 0);
-        m_pushDescriptorSetManager.AddUpdateEntry(5, offsetof(VulkanUtils::DescriptorSetData, normalTextureImage), 0);
-        m_pushDescriptorSetManager.AddUpdateEntry(6, offsetof(VulkanUtils::DescriptorSetData, armTextureImage), 0);
-        m_pushDescriptorSetManager.AddUpdateEntry(7, offsetof(VulkanUtils::DescriptorSetData, emissiveTextureImage), 0);
-
-
     }
 } // Renderer

@@ -10,6 +10,11 @@
 
 #include "Vulkan/VulkanCore/VObject.hpp"
 
+namespace Renderer
+{
+    class RenderTarget;
+}
+
 namespace VulkanCore
 {
     class VImage;
@@ -28,6 +33,7 @@ namespace VulkanCore
         void DestroyForResize();
         void CreateSwapChainFrameBuffers(const VulkanCore::VRenderPass &renderPass);
         void RecreateSwapChain(const VulkanCore::VRenderPass &renderPass);
+        void CreateSwapChainRenderTarget(const VulkanCore::VRenderPass &renderPass);
 
         ~VSwapChain() = default;
 
@@ -51,11 +57,12 @@ namespace VulkanCore
         std::unique_ptr<VulkanCore::VImage> m_depthBuffer;
         std::unique_ptr<VulkanCore::VImage> m_msaaColourBuffer;
         std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_colourBuffers;
-
         std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_swapChainFrameBuffers;
+        std::vector<std::unique_ptr<Renderer::RenderTarget>> m_swapChainRenderTargets;
 
         const VulkanCore::VDevice &m_device;
         const VulkanCore::VulkanInstance &m_instance;
+
 
     private:
         void ChooseExtent();

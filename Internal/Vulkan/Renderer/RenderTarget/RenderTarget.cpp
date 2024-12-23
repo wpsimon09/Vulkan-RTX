@@ -46,6 +46,35 @@ namespace Renderer {
         Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
     }
 
+    RenderTarget::RenderTarget(const VulkanCore::VDevice& device, std::vector<vk::Image>& swapChainImages,
+        vk::Format& swapChainFormat, vk::Extent2D swapChainExtend): m_device()
+    {
+        m_colourBuffer.resize(swapChainImages.size());
+        m_frameBuffers.resize(swapChainImages.size());
+
+        m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(),
+                                                             vk::ImageAspectFlagBits::eDepth);
+        m_depthBuffer->Resize(swapChainExtend.width, swapChainExtend.height);
+
+        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
+            m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i],
+                                                                     swapChainExtend.width, swapChainExtend.height
+                                                                     , 1,
+                                                                     swapChainFormat);
+        }
+
+        m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer ,true);
+
+        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
+            std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
+            attachments.emplace_back(*m_colourBuffer[i]);
+            attachments.emplace_back(*m_depthBuffer);
+            m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, swapChainExtend.width, swapChainExtend.width);
+        }
+    }
+
     void RenderTarget::HandleResize(int newWidth, int newHeight)
     {
     }

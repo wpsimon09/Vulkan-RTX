@@ -233,4 +233,19 @@ void VulkanCore::VSwapChain::RecreateSwapChain(const VulkanCore::VRenderPass &re
 
 
     Utils::Logger::LogSuccess("Swap chain recreated ");
+}
+
+void VulkanCore::VSwapChain::CreateSwapChainRenderTarget(const VulkanCore::VRenderPass& renderPass)
+{
+    auto swapChainImages = m_device.GetDevice().getSwapchainImagesKHR(m_swapChain);
+
+    m_images.resize(swapChainImages.size());
+    assert(m_images.size() == swapChainImages.size());
+    for (size_t i = 0; i < swapChainImages.size(); i++) {
+        m_images[i] = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i], m_extent.width,
+                                                           m_extent.height, 1, m_format.format);
+    }
+
+    assert(!m_images.empty());
+    Utils::Logger::LogSuccess("Retrieved " + std::to_string(m_images.size()) + " swap chain images");
 };
