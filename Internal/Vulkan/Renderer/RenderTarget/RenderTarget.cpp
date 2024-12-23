@@ -14,7 +14,7 @@
 
 namespace Renderer {
     RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int height, vk::Format colourFormat):
-        m_device(device)
+        m_device(device), m_width(width), m_height(height)
     {
 
         Utils::Logger::LogInfoVerboseOnly("Creating render target...");
@@ -49,6 +49,7 @@ namespace Renderer {
     RenderTarget::RenderTarget(const VulkanCore::VDevice& device, std::vector<vk::Image>& swapChainImages,
         vk::Format& swapChainFormat, vk::Extent2D swapChainExtend): m_device()
     {
+        Utils::Logger::LogInfoVerboseOnly("Creating render target for swap chain images...");
         m_colourBuffer.resize(swapChainImages.size());
         m_frameBuffers.resize(swapChainImages.size());
 
@@ -73,11 +74,14 @@ namespace Renderer {
             attachments.emplace_back(*m_depthBuffer);
             m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, swapChainExtend.width, swapChainExtend.width);
         }
+
+        Utils::Logger::LogSuccess("Render target for swap chain created created");
     }
 
     void RenderTarget::HandleResize(int newWidth, int newHeight)
     {
         m_device.GetDevice().waitIdle();
+        DestroyForResize();
         for (auto &colourBuffer : m_colourBuffer)
         {
             colourBuffer->Resize(newWidth, newHeight);

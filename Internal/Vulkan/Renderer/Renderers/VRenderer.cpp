@@ -42,11 +42,11 @@ namespace Renderer
 
 
         m_swapChain = std::make_unique<VulkanCore::VSwapChain>(device, instance);
-        m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, m_swapChain->GetImages()[0], m_swapChain->GetDepthBuffer());
+       // m_mainRenderPass = std::make_unique<VulkanCore::VRenderPass>(device, m_swapChain->GetImages()[0], m_swapChain->GetDepthBuffer());
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(
             device, *m_swapChain, *m_mainRenderPass, m_pushDescriptorSetManager);
         m_pipelineManager->InstantiatePipelines();
-        m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
+        //m_swapChain->CreateSwapChainFrameBuffers(*m_mainRenderPass);
         m_graphicsPipeline = &m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED);
         CreateCommandBufferPools();
         CreateSyncPrimitives();
@@ -123,8 +123,8 @@ namespace Renderer
     void VRenderer::StartRenderPass() {
         vk::RenderPassBeginInfo renderPassBeginInfo;
         renderPassBeginInfo.renderPass = m_mainRenderPass->GetRenderPass();
-        renderPassBeginInfo.framebuffer = m_swapChain->GetSwapChainFrameBuffers()[m_currentImageIndex].get().
-            GetFrameBuffer();
+        //renderPassBeginInfo.framebuffer = m_swapChain->GetSwapChainFrameBuffers()[m_currentImageIndex].get().
+            //GetFrameBuffer();
         renderPassBeginInfo.renderArea.offset.x = 0;
         renderPassBeginInfo.renderArea.offset.y = 0;
         renderPassBeginInfo.renderArea.extent = m_swapChain->GetExtent();
@@ -268,7 +268,7 @@ namespace Renderer
             return vk::Result::eSuccess;
         }
         case vk::Result::eErrorOutOfDateKHR: {
-            m_swapChain->RecreateSwapChain(*m_mainRenderPass);
+            //m_swapChain->RecreateSwapChain(*m_mainRenderPass);
             Utils::Logger::LogError("Swap chain was out of date, trying to recreate it...  ");
             return vk::Result::eEventReset;
         }
@@ -316,7 +316,7 @@ namespace Renderer
         presentInfo.pResults = nullptr;
         vk::Result result = VulkanUtils::PresentQueueWrapper(m_device.GetPresentQueue(), presentInfo);
         if (result == vk::Result::eSuboptimalKHR || result == vk::Result::eErrorOutOfDateKHR) {
-            m_swapChain->RecreateSwapChain(*m_mainRenderPass);
+            //m_swapChain->RecreateSwapChain(*m_mainRenderPass);
         }
         Utils::Logger::LogInfoVerboseRendering("Image presented to the view successfully");
     }

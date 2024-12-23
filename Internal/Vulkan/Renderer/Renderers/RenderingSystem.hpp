@@ -10,6 +10,11 @@
 
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
+namespace VulkanCore
+{
+    class VPipelineManager;
+}
+
 namespace Renderer
 {
     class UserInterfaceRenderer;
@@ -60,6 +65,7 @@ private:
 
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
+    std::unique_ptr<VulkanCore::VPipelineManager> m_pipelineManager;
 
 
 

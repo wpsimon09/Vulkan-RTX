@@ -13,12 +13,19 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 
 namespace Renderer {
     RenderingSystem::RenderingSystem(VulkanCore::VulkanInstance instance,const VulkanCore::VDevice& device,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
          VulkanUtils::VPushDescriptorManager& pushDescriptorManager): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager)
     {
+
+        //---------------------------------------------------------------------------------------------------------------------------
+        // Swap chain creation
+        //---------------------------------------------------------------------------------------------------------------------------
+        m_swapChain = std::make_unique<VulkanCore::VSwapChain>(m_device, instance);
+
         //------------------------------------------------------------------------------------------------------------------------
         // CREATE SYNCHRONIZATION PRIMITIVES
         //------------------------------------------------------------------------------------------------------------------------
@@ -31,10 +38,14 @@ namespace Renderer {
             m_isFrameFinishFences[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device, true);
         }
 
-        //---------------------------------------------------------------------------------------------------------------------------
-        // Swap chain creation
-        //---------------------------------------------------------------------------------------------------------------------------
-        m_swapChain = std::make_unique<VulkanCore::VSwapChain>(m_device, instance);
+        //----------------------------------------------------------------------------------------------------------------------------
+        // Renderers creation
+        //----------------------------------------------------------------------------------------------------------------------------
+        m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager, 800, 600);
 
+        //------------------------------------------------------------------------------------------------------------------------
+        // CREATE PIPELINE MANAGER
+        //------------------------------------------------------------------------------------------------------------------------
+        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(m_device, *m_swapChain, )
     }
 } // Renderer

@@ -39,13 +39,13 @@
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 
 // Vulkan Renderer
-#include "Vulkan/Renderer/VRenderer.hpp"
+#include "Vulkan/Renderer/Renderers/VRenderer.hpp"
 
 // Application Entry
 #include "VulkanRtx.hpp"
-#include "Vulkan/Renderer/RenderingSystem.hpp"
-#include "Vulkan/Renderer/SceneRenderer.hpp"
-#include "Vulkan/Renderer/UserInterfaceRenderer.hpp"
+#include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
+#include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
+#include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
 
 
 // Im gui entry
@@ -76,7 +76,7 @@ void Application::Init()
 
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 
-    m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
+    //m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
 
     m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
 
@@ -136,8 +136,8 @@ void Application::Render() {
     m_client->Render(m_renderer->GetRenderingContext()); // here
 
     // render using vulkan
-    m_renderer->SetRtxStatus(m_client->GetIsRTXOn());
-    m_renderer->Render(m_client->GetGlobalDataUpdateInformation(), *m_imguiInitializer);
+    //m_renderer->SetRtxStatus(m_client->GetIsRTXOn());
+    //m_renderer->Render(m_client->GetGlobalDataUpdateInformation(), *m_imguiInitializer);
 }
 
 Application::~Application() {

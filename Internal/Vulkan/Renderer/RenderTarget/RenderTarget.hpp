@@ -8,6 +8,11 @@
 #include <vector>
 #include <vulkan/vulkan.hpp>
 
+namespace Renderer
+{
+    class BaseRenderer;
+}
+
 namespace VulkanCore
 {
     class VRenderPass;
@@ -23,8 +28,9 @@ public:
     RenderTarget(const VulkanCore::VDevice& device,int width, int height, vk::Format colourFormat = vk::Format::eR8G8B8A8Unorm);
     RenderTarget(const VulkanCore::VDevice& device, std::vector<vk::Image>& swapChainImages, vk::Format& swapChainFormat, vk::Extent2D swapChainExtend)
 
-    void HandleResize(int newWidth, int newHeight);
 
+
+    void HandleResize(int newWidth, int newHeight);
     void Destroy();
     void DestroyForResize();
 
@@ -36,7 +42,9 @@ private:
     std::unique_ptr<VulkanCore::VRenderPass> m_renderPass; // putting it all together
 private:
     const VulkanCore::VDevice& m_device;
+    int m_width, m_height;
 
+    friend Renderer::BaseRenderer;
 };
 
 } // Renderer
