@@ -4,14 +4,16 @@
 
 #ifndef FRAMEBUFFER_HPP
 #define FRAMEBUFFER_HPP
+
+#include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include <vulkan/vulkan.hpp>
 
 namespace VulkanCore
 {
+    class VDevice;
     class VImage;
     class VRenderPass;
-    class VDevice;
     class VSwapChain;
 
     class VFrameBuffer:public VObject {

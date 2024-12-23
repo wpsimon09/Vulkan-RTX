@@ -11,6 +11,11 @@
 
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
+namespace Renderer
+{
+    class RenderingSystem;
+}
+
 namespace VulkanUtils
 {
     class ImGuiInitializer;
@@ -76,6 +81,7 @@ private:
     std::unique_ptr<class VulkanCore::VDevice> m_vulkanDevice;
     std::unique_ptr<class Renderer::VRenderer> m_renderer;
     std::unique_ptr<class VulkanUtils::ImGuiInitializer> m_imguiInitializer;
+    std::unique_ptr<class Renderer::RenderingSystem> m_renderingSystem;
 };
 
 #endif //VULKANRTX_HPP

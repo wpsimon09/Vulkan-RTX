@@ -12,6 +12,8 @@
 
 #include "Vulkan/Global/VulkanStructs.hpp"
 
+struct GlobalUniform;
+
 namespace VulkanUtils
 {
     class ImGuiInitializer;

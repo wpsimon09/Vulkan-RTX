@@ -11,7 +11,6 @@
 
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
-#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 namespace VulkanCore
 {

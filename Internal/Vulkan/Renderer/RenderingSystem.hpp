@@ -27,6 +27,7 @@ namespace VulkanStructs
 
 namespace VulkanCore
 {
+    class VSwapChain;
     class VDevice;
 }
 
@@ -40,8 +41,9 @@ namespace Renderer {
 
 class RenderingSystem {
 public:
+    RenderingSystem(const VulkanCore::VulkanInstance instance, const VulkanCore::VDevice& device, const VulkanUtils::VUniformBufferManager& uniformBufferManager,  VulkanUtils::VPushDescriptorManager& pushDescriptorManager);
 private:
-    /*
+
     const VulkanCore::VDevice &m_device;
     const VulkanUtils::VUniformBufferManager &m_uniformBufferManager;
     VulkanUtils::VPushDescriptorManager &m_pushDescriptorSetManager;
@@ -58,7 +60,7 @@ private:
 
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
-    */
+
 
 
 

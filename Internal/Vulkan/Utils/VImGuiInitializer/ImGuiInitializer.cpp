@@ -10,9 +10,11 @@
 
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
 
 namespace VulkanUtils

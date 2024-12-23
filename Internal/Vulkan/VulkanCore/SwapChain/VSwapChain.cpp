@@ -11,8 +11,9 @@
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Application/WindowManager/WindowManager.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
-#include "Vulkan/VulkanCore//VImage/VImage.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const VulkanCore::VulkanInstance &instance):
     m_device(device), m_instance(instance){

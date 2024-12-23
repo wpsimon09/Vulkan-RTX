@@ -4,10 +4,12 @@
 
 #include "VPushDescriptorManager.hpp"
 
+#include "Application/Logger/Logger.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 namespace VulkanUtils {
     VPushDescriptorManager::VPushDescriptorManager(const VulkanCore::VDevice &device): m_device(device) {

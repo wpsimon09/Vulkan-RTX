@@ -13,6 +13,10 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 
+namespace VulkanCore
+{
+    class VImage;
+}
 
 namespace ApplicationCore {
     class Material;

@@ -2,47 +2,53 @@
 // Created by wpsimon09 on 22/09/24.
 //
 
-    #include "VulkanRtx.hpp"
-    #include <GLFW/glfw3.h>
-    #include <chrono>
+#include "VulkanRtx.hpp"
+#include <GLFW/glfw3.h>
+#include <chrono>
 
-    // Application Headers
-    #include "Application/Logger/Logger.hpp"
-    #include "Application/WindowManager/WindowManager.hpp"
-    #include "Application/Client.hpp"
-    #include "Application/AssetsManger/AssetsManager.hpp"
-    #include "Application/Rendering/Mesh/Mesh.hpp"
-    #include "Application/VertexArray/VertexArray.hpp"
-    #include "Application/Rendering/Camera/Camera.hpp"
-    #include "Application/Rendering/Transformations/Transformations.hpp"
-    #include "Application/Rendering/Scene/Scene.hpp"
-    #include "Application/Rendering/Scene/SceneNode.hpp"
+// Application Headers
+#include "Application/Logger/Logger.hpp"
+#include "Application/WindowManager/WindowManager.hpp"
+#include "Application/Client.hpp"
+#include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/VertexArray/VertexArray.hpp"
+#include "Application/Rendering/Camera/Camera.hpp"
+#include "Application/Rendering/Transformations/Transformations.hpp"
+#include "Application/Rendering/Scene/Scene.hpp"
+#include "Application/Rendering/Scene/SceneNode.hpp"
 
-    // Vulkan Core
-    #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
-    #include "Vulkan/VulkanCore/Device/VDevice.hpp"
-    #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
-    #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
-    #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
-    #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
-    #include "Vulkan/VulkanCore/Shader/VShader.hpp"
-    #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
-    #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
-    #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
-    #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
-    #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
-    #include "Application/GLTFLoader/GltfLoader.hpp"
-    #include "Vulkan/VulkanCore/VImage/VImage.hpp"
+// Vulkan Core
+#include "Vulkan/VulkanCore/Instance/VInstance.hpp"
+#include "Vulkan/VulkanCore/Device/VDevice.hpp"
+#include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
+#include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
+#include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
+#include "Vulkan/VulkanCore/Shader/VShader.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
+#include "Application/GLTFLoader/GltfLoader.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
-    // Vulkan Utilities
-    #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 
-    // Vulkan Renderer
-    #include "Vulkan/Renderer/VRenderer.hpp"
+// Vulkan Utilities
+#include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 
-    // Application Entry
-    #include "VulkanRtx.hpp"
+// Vulkan Renderer
+#include "Vulkan/Renderer/VRenderer.hpp"
 
+// Application Entry
+#include "VulkanRtx.hpp"
+#include "Vulkan/Renderer/RenderingSystem.hpp"
+#include "Vulkan/Renderer/SceneRenderer.hpp"
+#include "Vulkan/Renderer/UserInterfaceRenderer.hpp"
+
+
+// Im gui entry
 #include "Vulkan/Utils/VImGuiInitializer/ImGuiInitializer.hpp"
 
 
@@ -67,12 +73,16 @@ void Application::Init()
     m_client->Init();
 
     m_pushDescriptorSetManager = std::make_unique<VulkanUtils::VPushDescriptorManager>(*m_vulkanDevice);
+
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
+
     m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
 
+    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
 
     m_imguiInitializer = std::make_unique<VulkanUtils::ImGuiInitializer>(*m_vulkanDevice, *m_vulkanInstance, m_renderer->GetRenderPass(), *m_windowManager);
     m_imguiInitializer->Initialize();
+
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene.glb");

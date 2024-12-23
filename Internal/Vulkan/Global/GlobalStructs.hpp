@@ -9,6 +9,7 @@
 
 #include "Vulkan/Utils/VChecker.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Application/Logger/Logger.hpp"
 
 struct DesiredDeviceFeatures
 {

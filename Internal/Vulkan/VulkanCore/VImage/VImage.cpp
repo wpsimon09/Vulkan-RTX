@@ -12,6 +12,8 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "stb_image/stb_image.h"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
 VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, vk::Image image, int widht, int height,
                            uint32_t mipLevels, vk::Format format, vk::ImageAspectFlags aspecFlags):

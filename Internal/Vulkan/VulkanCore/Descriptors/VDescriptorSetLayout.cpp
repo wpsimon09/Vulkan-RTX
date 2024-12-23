@@ -6,6 +6,7 @@
 
 #include <functional>
 
+#include "Application/Logger/Logger.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {

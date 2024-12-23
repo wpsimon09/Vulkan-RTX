@@ -5,8 +5,11 @@
 #include "RenderTarget.hpp"
 
 #include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
 namespace Renderer {

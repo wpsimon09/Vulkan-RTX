@@ -67,6 +67,7 @@ namespace Renderer
             pipeline = m_pipelineManager->GetPipeline(PIPELINE_TYPE_RTX).GetPipelineInstance();
             m_renderingContext = &m_rayTracingRenderContext;
         }else
+
         {
             pipeline = m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED).GetPipelineInstance();
             m_renderingContext = &m_rasterRenderContext;
@@ -253,7 +254,8 @@ namespace Renderer
     //===============================================================================================================
     // FOR RENDER DRAWING
     //=================================================================================================================
-
+    //-----
+    //-----
     vk::Result VRenderer::FetchSwapChainImage() {
 
         auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,

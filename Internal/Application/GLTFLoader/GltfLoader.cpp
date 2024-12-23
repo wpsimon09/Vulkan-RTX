@@ -14,6 +14,8 @@
 #include "Application/VertexArray/VertexArray.hpp"
 #include "fastgltf/tools.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 namespace ApplicationCore
 {

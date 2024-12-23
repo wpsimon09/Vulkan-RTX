@@ -25,7 +25,7 @@ namespace VulkanCore
     class VBuffer : public VObject
     {
     public:
-        explicit VBuffer(const VDevice &device,const std::string& name = "");
+        explicit VBuffer(const VulkanCore::VDevice &device,const std::string& name = "");
 
         const vk::Buffer &GetBuffer() const { return m_bufferVK; }
         const vk::Buffer &GetStagingBuffer() const { return m_stagingBufferVK; }
@@ -59,7 +59,7 @@ namespace VulkanCore
         ~VBuffer() override = default;
 
     private:
-        const VDevice &m_device;
+        const VulkanCore::VDevice &m_device;
 
         // normal buffer
         VmaAllocation m_allocation;
