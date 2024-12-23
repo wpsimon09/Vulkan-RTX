@@ -25,7 +25,14 @@ namespace Renderer {
 class RenderTarget;
 class SceneRenderer: public Renderer::BaseRenderer{
 public:
-    SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VPushDescriptorManager& pushDescriptorManager);
+    SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width, int height);
+
+protected:
+    void CreateRenderTargets(std::optional<VulkanCore::VSwapChain&> swapChain = std::nullopt) override;
+    void RecordCommandBuffer(const VulkanCore::VGraphicsPipeline& pipeline) override;
+    void Render(const VulkanStructs::RenderContext& renderContext,
+        const VulkanCore::VGraphicsPipeline& pipeline) override;
+
 private:
     VulkanUtils::VPushDescriptorManager& m_pushDescriptorManager;
     const VulkanCore::VDevice& m_device;

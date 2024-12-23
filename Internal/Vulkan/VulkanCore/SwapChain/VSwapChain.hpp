@@ -18,8 +18,6 @@ namespace Renderer
 namespace VulkanCore
 {
     class VImage;
-    class VRenderPass;
-    class VFrameBuffer;
     class VulkanInstance;
     class VDevice;
 
@@ -30,7 +28,7 @@ namespace VulkanCore
                    const VulkanCore::VulkanInstance &instance);
 
         void Destroy() override;
-        void RecreateSwapChain(const VulkanCore::VRenderPass &renderPass);
+        void RecreateSwapChain();
 
         ~VSwapChain() = default;
 

@@ -77,14 +77,34 @@ namespace Renderer {
 
     void RenderTarget::HandleResize(int newWidth, int newHeight)
     {
+        m_device.GetDevice().waitIdle();
+        for (auto &colourBuffer : m_colourBuffer)
+        {
+            colourBuffer->Resize(newWidth, newHeight);
+        }
+        m_depthBuffer->Resize(newWidth, newHeight);
     }
 
     void RenderTarget::Destroy()
     {
+        Utils::Logger::LogInfoVerboseOnly("Destroying render target...");
+        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
+            m_colourBuffer[i]->Destroy();
+            m_frameBuffers[i]->Destroy();
+        }
+        m_depthBuffer->Destroy();
+
+        Utils::Logger::LogSuccess("Render target destroyed");
     }
 
     void RenderTarget::DestroyForResize()
     {
+        for (auto& frameBuffer : m_frameBuffers)
+        {
+            frameBuffer->Destroy();
+        }
+        m_renderPass->Destroy();
     }
 
 } // Renderer

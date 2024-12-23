@@ -60,8 +60,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandPool.cpp
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp
-        Internal/Vulkan/Renderer/VRenderer.cpp
-        Internal/Vulkan/Renderer/VRenderer.hpp
+        Internal/Vulkan/Renderer/Renderers/VRenderer.cpp
+        Internal/Vulkan/Renderer/Renderers/VRenderer.hpp
         Internal/Vulkan/VulkanCore/Synchronization/VSyncPrimitive.cpp
         Internal/Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp
         Internal/Vulkan/VulkanCore/Buffer/VBuffer.cpp
@@ -103,16 +103,16 @@ set(SOURCES
         Internal/Edittor/UserInterface/IUserInterfaceElement.hpp
         Internal/Edittor/ViewPort/ViewPort.cpp
         Internal/Edittor/ViewPort/ViewPort.hpp
-        Internal/Vulkan/Renderer/SceneRenderer.cpp
-        Internal/Vulkan/Renderer/SceneRenderer.hpp
-        Internal/Vulkan/Renderer/UserInterfaceRenderer.cpp
-        Internal/Vulkan/Renderer/UserInterfaceRenderer.hpp
-        Internal/Vulkan/Renderer/RenderingSystem.cpp
-        Internal/Vulkan/Renderer/RenderingSystem.hpp
+        Internal/Vulkan/Renderer/Renderers/SceneRenderer.cpp
+        Internal/Vulkan/Renderer/Renderers/SceneRenderer.hpp
+        Internal/Vulkan/Renderer/Renderers/UserInterfaceRenderer.cpp
+        Internal/Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp
+        Internal/Vulkan/Renderer/Renderers/RenderingSystem.cpp
+        Internal/Vulkan/Renderer/Renderers/RenderingSystem.hpp
         Internal/Vulkan/Renderer/RenderTarget/RenderTarget.cpp
         Internal/Vulkan/Renderer/RenderTarget/RenderTarget.hpp
-        Internal/Vulkan/Renderer/BaseRenderer.cpp
-        Internal/Vulkan/Renderer/BaseRenderer.hpp
+        Internal/Vulkan/Renderer/Renderers/BaseRenderer.cpp
+        Internal/Vulkan/Renderer/Renderers/BaseRenderer.hpp
 
 )
 

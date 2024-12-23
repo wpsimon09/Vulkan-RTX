@@ -137,7 +137,7 @@ void VulkanCore::VSwapChain::RetrieveSwapChainImages() {
 }
 
 
-void VulkanCore::VSwapChain::RecreateSwapChain(const VulkanCore::VRenderPass &renderPass) {
+void VulkanCore::VSwapChain::RecreateSwapChain() {
     Utils::Logger::LogInfo("Recreating swap chain...");
     m_device.GetDevice().waitIdle();
 

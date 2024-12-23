@@ -4,14 +4,22 @@
 
 #include "SceneRenderer.hpp"
 
+#include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
 
 namespace Renderer {
 
+
     SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device,
-        VulkanUtils::VPushDescriptorManager& pushDescriptorManager): m_device(device), m_pushDescriptorManager(pushDescriptorManager), BaseRenderer(device)
+        VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width, int height): BaseRenderer(device),
+        m_pushDescriptorManager(pushDescriptorManager),
+        m_device(m_device)
     {
-        // create render target
+
+        m_width = width;
+        m_height = height;
+        SceneRenderer::CreateRenderTargets();
 
         //---------------------------------------------------------------------------------------------------------------------------
         // CREATING TEMPLATE ENTRIES
@@ -27,5 +35,14 @@ namespace Renderer {
         m_pushDescriptorManager.AddUpdateEntry(5, offsetof(VulkanUtils::DescriptorSetData, normalTextureImage), 0);
         m_pushDescriptorManager.AddUpdateEntry(6, offsetof(VulkanUtils::DescriptorSetData, armTextureImage), 0);
         m_pushDescriptorManager.AddUpdateEntry(7, offsetof(VulkanUtils::DescriptorSetData, emissiveTextureImage), 0);
+    }
+
+    void SceneRenderer::CreateRenderTargets(std::optional<VulkanCore::VSwapChain&>)
+    {
+        m_renderTargets.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; ++i)
+        {
+            m_renderTargets[i] = std::make_unique<Renderer::RenderTarget>(m_device,m_width, m_height);
+        }
     }
 } // Renderer

@@ -8,6 +8,7 @@
 
 namespace VulkanCore
 {
+    class VSwapChain;
     class VGraphicsPipeline;
 }
 
@@ -31,12 +32,15 @@ namespace Renderer
         explicit BaseRenderer(const VulkanCore::VDevice& device);
 
     protected:
+        virtual void CreateRenderTargets(std::optional<VulkanCore::VSwapChain&> swapChain = std::nullopt) {};
         virtual void RecordCommandBuffer(const VulkanCore::VGraphicsPipeline& pipeline) = 0;
         virtual void Render(const VulkanStructs::RenderContext& renderContext,const VulkanCore::VGraphicsPipeline& pipeline) = 0;
     protected:
         std::vector<std::unique_ptr<Renderer::RenderTarget>> m_renderTargets; // render to these images, per frame in flight
         const VulkanCore::VDevice& m_device;
         VulkanCore::VSyncPrimitive<vk::Semaphore> m_rendererFinishedSemaphore;
+
+        int m_width, m_height;
     };
 } // Renderer
 
