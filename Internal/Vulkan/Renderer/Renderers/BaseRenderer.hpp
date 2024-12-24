@@ -40,7 +40,8 @@ namespace Renderer
         const VulkanCore::VRenderPass& GetRenderPass(int currentFrame ) const {return *m_renderTargets[currentFrame]->m_renderPass;};
         const VulkanCore::VImage& GetRenderedImage(int currentFrame ) const {return *m_renderTargets[currentFrame]->m_colourBuffer[currentFrame];}; // i have to place fence to access the image
         const VulkanCore::VFrameBuffer& GetFrameBuffer(int currentFrame ) const {return *m_renderTargets[currentFrame]->m_frameBuffers[currentFrame];};
-
+        const int& GetTargeWidth() const  {return m_width;}
+        const int& GetTargeHeight() const {return m_height;}
         virtual void Render(int currentFrameIndex, GlobalUniform& globalUniformUpdateInfo, const VulkanStructs::RenderContext& renderContext,const VulkanCore::VGraphicsPipeline& pipeline) = 0;
     protected:
         virtual void CreateRenderTargets(VulkanCore::VSwapChain* swapChain = nullptr) {};

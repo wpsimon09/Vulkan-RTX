@@ -22,7 +22,7 @@ namespace Renderer {
 
         m_width = width;
         m_height = height;
-        SceneRenderer::CreateRenderTargets();
+        SceneRenderer::CreateRenderTargets(nullptr);
 
         //---------------------------------------------------------------------------------------------------------------------------
         // CREATING TEMPLATE ENTRIES
@@ -49,14 +49,52 @@ namespace Renderer {
         }
     }
 
-    void SceneRenderer::RecordCommandBuffer(const VulkanCore::VGraphicsPipeline& pipeline)
+
+    void SceneRenderer::Render(int currentFrameIndex, GlobalUniform& globalUniformUpdateInfo,
+        const VulkanStructs::RenderContext& renderContext, const VulkanCore::VGraphicsPipeline& pipeline)
     {
+        auto &renderTarget = m_renderTargets[currentFrameIndex];
+        m_commandBuffers[currentFrameIndex]->Reset();
+
+        //=====================================================
+        // STARTING THE RENDER PASS
+        //=====================================================
+        RecordCommandBuffer(currentFrameIndex, pipeline);
+
+        //===============================================================
+
 
     }
 
-    void SceneRenderer::Render(GlobalUniform& globalUniformUpdateInfo,
-                               const VulkanStructs::RenderContext& renderContext, const VulkanCore::VGraphicsPipeline& pipeline)
+    void SceneRenderer::RecordCommandBuffer(int currentFrameIndex, const VulkanCore::VGraphicsPipeline& pipeline)
     {
 
+        m_commandBuffers[currentFrameIndex]->BeginRecording();
+
+        //==============================================
+        // CREATAE RENDER PASS INFO
+        //==============================================
+        vk::RenderPassBeginInfo renderPassBeginInfo;
+        renderPassBeginInfo.renderPass = GetRenderPass(currentFrameIndex).GetRenderPass();
+        renderPassBeginInfo.renderArea.offset.x = 0;
+        renderPassBeginInfo.renderArea.offset.y = 0;
+        renderPassBeginInfo.renderArea.extent.width = static_cast<uint32_t>(GetTargeWidth()),
+        renderPassBeginInfo.renderArea.extent.height = static_cast<uint32_t>(GetTargeHeight());
+
+        //==============================================
+        // CONFIGURE CLEAR
+        //==============================================
+        std::array<vk::ClearValue,2> clearColors = {};
+        clearColors[0].color =  {0.2f, 0.2f, 0.2f, 1.0f};
+        clearColors[1].depthStencil.depth = 1.0f;
+        clearColors[1].depthStencil.stencil = 0.0f;
+        renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearColors.size());
+        renderPassBeginInfo.pClearValues = clearColors.data();
+
+        //==============================================
+        // START RENDER PASS
+        //==============================================
+        m_commandBuffers[currentFrameIndex]->GetCommandBuffer().beginRenderPass(
+            &renderPassBeginInfo, vk::SubpassContents::eInline);
     }
 } // Renderer

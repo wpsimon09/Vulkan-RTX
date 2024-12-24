@@ -42,6 +42,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t mipLevels
     m_isSwapChainImage = false;
     m_transferCommandBuffer = std::make_unique<VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
 
+    // resize is called later so this is correct, i just didn`t want to bloat the constructor arguments
     m_width = m_height = 1;
 
 

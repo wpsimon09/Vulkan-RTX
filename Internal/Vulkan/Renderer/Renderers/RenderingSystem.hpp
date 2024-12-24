@@ -49,11 +49,15 @@ namespace Renderer {
 
 class RenderingSystem {
 public:
-    RenderingSystem(const VulkanCore::VulkanInstance instance, const VulkanCore::VDevice& device, const VulkanUtils::VUniformBufferManager& uniformBufferManager,  VulkanUtils::VPushDescriptorManager& pushDescriptorManager);
+    RenderingSystem(const VulkanCore::VulkanInstance& instance, const VulkanCore::VDevice& device, const VulkanUtils::VUniformBufferManager& uniformBufferManager,  VulkanUtils::VPushDescriptorManager& pushDescriptorManager);
 
+    VulkanStructs::RenderContext* GetRenderContext() const {return m_renderingContext;}
 public:
     void Render(GlobalUniform& globalUniformUpdateInfo);
+
     void Update();
+    void Destroy();
+
 private:
 
     const VulkanCore::VDevice &m_device;
@@ -68,7 +72,9 @@ private:
 
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
 
-    VulkanStructs::RenderContext m_renderingContext;
+    VulkanStructs::RenderContext* m_renderingContext;
+
+    VulkanStructs::RenderContext m_mainRenderContext;
 
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;

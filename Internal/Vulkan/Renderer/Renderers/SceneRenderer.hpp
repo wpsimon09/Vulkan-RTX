@@ -26,11 +26,13 @@ class RenderTarget;
 class SceneRenderer: public Renderer::BaseRenderer{
 public:
     SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width, int height);
-    void Render(GlobalUniform& globalUniformUpdateInfo, const VulkanStructs::RenderContext& renderContext, const VulkanCore::VGraphicsPipeline& pipeline) override;
+
+    void Render(int currentFrameIndex, GlobalUniform& globalUniformUpdateInfo,
+        const VulkanStructs::RenderContext& renderContext, const VulkanCore::VGraphicsPipeline& pipeline) override;
 
 protected:
-    void CreateRenderTargets(VulkanCore::VSwapChain* swapChain  = nullptr) override;
-    void RecordCommandBuffer(const VulkanCore::VGraphicsPipeline& pipeline) override;
+    void CreateRenderTargets(VulkanCore::VSwapChain* swapChain) override;
+    void RecordCommandBuffer(int currentFrameIndex, const VulkanCore::VGraphicsPipeline& pipeline) override;
 
 private:
     VulkanUtils::VPushDescriptorManager& m_pushDescriptorManager;

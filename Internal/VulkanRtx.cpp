@@ -80,8 +80,8 @@ void Application::Init()
 
     m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
 
-    m_imguiInitializer = std::make_unique<VulkanUtils::ImGuiInitializer>(*m_vulkanDevice, *m_vulkanInstance, m_renderer->GetRenderPass(), *m_windowManager);
-    m_imguiInitializer->Initialize();
+    //m_imguiInitializer = std::make_unique<VulkanUtils::ImGuiInitializer>(*m_vulkanDevice, *m_vulkanInstance, m_renderer->GetRenderPass(), *m_windowManager);
+    //m_imguiInitializer->Initialize();
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene.glb");
@@ -132,7 +132,7 @@ void Application::Update()
 void Application::Render() {
     // generate draw calls
     m_client->GetAssetsManager().Sync();
-    m_client->Render(m_renderer->GetRenderingContext()); // here
+    m_client->Render(m_renderingSystem->GetRenderContext()); // here
 
     // render using vulkan
     //m_renderer->SetRtxStatus(m_client->GetIsRTXOn());
@@ -141,7 +141,7 @@ void Application::Render() {
 
 Application::~Application() {
     m_vulkanDevice->GetDevice().waitIdle();
-    m_renderer->Destroy();
+    m_renderingSystem->Destroy();
     m_client->Destroy();
     m_uniformBufferManager->Destroy();
     VulkanCore::VSamplers::DestroyAllSamplers(*m_vulkanDevice);
