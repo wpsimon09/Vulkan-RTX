@@ -22,19 +22,32 @@ namespace Renderer {
         m_colourBuffer.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         m_frameBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
 
-        m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth);
+        //==========================
+        // CREATE DEPTH ATTACHMENT
+        //==========================
+        m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth,
+            vk::ImageUsageFlagBits::eDepthStencilAttachment);
         m_depthBuffer->Resize(width, height);
         m_depthBuffer->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
+        //==========================
+        // CREATE COLOUR ATTACHMENT
+        //==========================
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
-            m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device);
+            m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor, vk::ImageUsageFlagBits::eColorAttachment);
             m_colourBuffer[i]->Resize(width, height);
             m_colourBuffer[i]->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
         }
 
+        //==========================
+        // CREATE RENDER PASS
+        //==========================
         m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer ,false);
 
+        //==========================
+        // CREATE FRAME BUFFERS
+        //==========================
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
             std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
@@ -49,14 +62,22 @@ namespace Renderer {
     RenderTarget::RenderTarget(const VulkanCore::VDevice& device, std::vector<vk::Image>& swapChainImages,
         vk::Format& swapChainFormat, vk::Extent2D swapChainExtend): m_device(device)
     {
+
         Utils::Logger::LogInfoVerboseOnly("Creating render target for swap chain images...");
         m_colourBuffer.resize(swapChainImages.size());
         m_frameBuffers.resize(swapChainImages.size());
 
+
+        //==========================
+        // CREATE DEPTH ATTACHMENT
+        //==========================
         m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(),
                                                              vk::ImageAspectFlagBits::eDepth);
         m_depthBuffer->Resize(swapChainExtend.width, swapChainExtend.height);
 
+        //==========================
+        // CREATE COLOUR ATTACHMENT
+        //==========================
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
             m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i],
@@ -66,6 +87,7 @@ namespace Renderer {
         }
 
         m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer ,true);
+
 
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {

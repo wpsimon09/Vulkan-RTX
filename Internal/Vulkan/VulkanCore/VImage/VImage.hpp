@@ -28,13 +28,14 @@ namespace VulkanCore
         // creates image and iamge views from existing image, mostly used for retrieving SwapChain images
         explicit VImage(const VulkanCore::VDevice &device, vk::Image image, int widht, int height,
                         uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Srgb,
-                        vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
+                        vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor,
+                        std::optional<vk::ImageUsageFlags> imageUsage = std::nullopt);
 
         // allocates new image from the image on the machine based on the provided falg it can be frame buffer
         explicit VImage(const VulkanCore::VDevice &device, uint32_t mipLevels = 1,
                         vk::Format format = vk::Format::eR8G8B8A8Unorm,
-                        vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
-
+                        vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor,
+                        std::optional<vk::ImageUsageFlags> imageUsage = std::nullopt);
 
         void Resize(uint32_t newWidth, uint32_t newHeight) ;
 
@@ -75,6 +76,7 @@ namespace VulkanCore
         vk::ImageLayout m_imageLayout;
         VmaAllocation m_imageAllocation;
 
+
         uint32_t m_mipLevels;
         int m_width, m_height;
 
@@ -90,6 +92,7 @@ namespace VulkanCore
         std::unique_ptr<VulkanCore::VBuffer> m_stagingBufferWithPixelData;
         std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCommandBuffer;
 
+        std::optional<vk::ImageUsageFlags> m_imageUsage;
 
     public:
         const bool &GetIsSwapChainImage() const { return m_isSwapChainImage; };
