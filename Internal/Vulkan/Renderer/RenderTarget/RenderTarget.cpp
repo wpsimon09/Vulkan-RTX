@@ -47,7 +47,7 @@ namespace Renderer {
     }
 
     RenderTarget::RenderTarget(const VulkanCore::VDevice& device, std::vector<vk::Image>& swapChainImages,
-        vk::Format& swapChainFormat, vk::Extent2D swapChainExtend): m_device()
+        vk::Format& swapChainFormat, vk::Extent2D swapChainExtend): m_device(device)
     {
         Utils::Logger::LogInfoVerboseOnly("Creating render target for swap chain images...");
         m_colourBuffer.resize(swapChainImages.size());

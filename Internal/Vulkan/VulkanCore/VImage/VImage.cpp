@@ -66,6 +66,8 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t mipLevels
 void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk::ImageLayout targetLayout) {
     Utils::Logger::LogInfoVerboseOnly("Transition image layout...");
 
+    bool flushAfterTransition = false;
+
     m_imageLayout = targetLayout;
 
     vk::PipelineStageFlags srcStageFlags;
@@ -106,6 +108,14 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
         srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
         dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
     }
+    else if (currentLayout == vk::ImageLayout::eUndefined && targetLayout ==
+        vk::ImageLayout::eDepthStencilAttachmentOptimal) {
+        barrier.srcAccessMask = {};
+        barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+        dstStageFlags = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    }
     else if (currentLayout == vk::ImageLayout::eColorAttachmentOptimal && targetLayout ==
         vk::ImageLayout::eShaderReadOnlyOptimal) {
         barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
@@ -118,16 +128,22 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
         throw std::runtime_error("Unsupported layout transition");
     }
 
-    assert(
-        m_transferCommandBuffer->GetIsRecording() &&
-        "Command buffer that will transfer image layout is not recording !");
-    m_transferCommandBuffer->GetCommandBuffer().pipelineBarrier(
-        srcStageFlags, dstStageFlags,
-        {},
-        0, nullptr,
-        0, nullptr,
-        1, &barrier
-        );
+    if(! m_transferCommandBuffer->GetIsRecording())
+    {
+        flushAfterTransition = true;
+        m_transferCommandBuffer->BeginRecording();
+    }
+        m_transferCommandBuffer->GetCommandBuffer().pipelineBarrier(
+            srcStageFlags, dstStageFlags,
+            {},
+            0, nullptr,
+            0, nullptr,
+            1, &barrier
+            );
+    if (flushAfterTransition)
+    {
+        m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+    }
 
 }
 

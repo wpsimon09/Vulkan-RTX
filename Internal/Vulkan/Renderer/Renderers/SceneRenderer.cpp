@@ -5,8 +5,11 @@
 #include "SceneRenderer.hpp"
 
 #include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
+
 
 namespace Renderer {
 
@@ -14,7 +17,7 @@ namespace Renderer {
     SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device,
         VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width, int height): BaseRenderer(device),
         m_pushDescriptorManager(pushDescriptorManager),
-        m_device(m_device)
+        m_device(device)
     {
 
         m_width = width;
@@ -37,12 +40,22 @@ namespace Renderer {
         m_pushDescriptorManager.AddUpdateEntry(7, offsetof(VulkanUtils::DescriptorSetData, emissiveTextureImage), 0);
     }
 
-    void SceneRenderer::CreateRenderTargets(std::optional<VulkanCore::VSwapChain&>)
+    void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
     {
         m_renderTargets.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; ++i)
         {
             m_renderTargets[i] = std::make_unique<Renderer::RenderTarget>(m_device,m_width, m_height);
         }
+    }
+
+    void SceneRenderer::RecordCommandBuffer(const VulkanCore::VGraphicsPipeline& pipeline)
+    {
+    }
+
+    void SceneRenderer::Render(GlobalUniform& globalUniformUpdateInfo,
+                               const VulkanStructs::RenderContext& renderContext, const VulkanCore::VGraphicsPipeline& pipeline)
+    {
+
     }
 } // Renderer

@@ -120,7 +120,7 @@ void VulkanCore::VRenderPass::CreateRenderPassForCustomImage()
     m_depthStencilAttachmentDescription.storeOp = vk::AttachmentStoreOp::eDontCare;
     m_depthStencilAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     m_depthStencilAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    assert(m_depthBuffer.GetCurrentLayout() == vk::ImageLayout::eColorAttachmentOptimal && "Color buffer must be in color attachment optimal");
+    assert(m_depthBuffer.GetCurrentLayout() == vk::ImageLayout::eDepthStencilAttachmentOptimal && "Color buffer must be in color attachment optimal");
     m_depthStencilAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
     m_depthStencilAttachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 

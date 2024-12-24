@@ -83,7 +83,6 @@ void Application::Init()
     m_imguiInitializer = std::make_unique<VulkanUtils::ImGuiInitializer>(*m_vulkanDevice, *m_vulkanInstance, m_renderer->GetRenderPass(), *m_windowManager);
     m_imguiInitializer->Initialize();
 
-
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene.glb");
     m_client->GetScene().AddNode(sponsa);

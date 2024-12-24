@@ -8,7 +8,10 @@
 #include <vector>
 #include <glm/fwd.hpp>
 
+#include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
+
+struct GlobalUniform;
 
 namespace VulkanCore
 {
@@ -47,6 +50,10 @@ namespace Renderer {
 class RenderingSystem {
 public:
     RenderingSystem(const VulkanCore::VulkanInstance instance, const VulkanCore::VDevice& device, const VulkanUtils::VUniformBufferManager& uniformBufferManager,  VulkanUtils::VPushDescriptorManager& pushDescriptorManager);
+
+public:
+    void Render(GlobalUniform& globalUniformUpdateInfo);
+    void Update();
 private:
 
     const VulkanCore::VDevice &m_device;
@@ -61,14 +68,11 @@ private:
 
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
 
-    VulkanStructs::RenderContext* m_renderingContext;;
+    VulkanStructs::RenderContext m_renderingContext;
 
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
     std::unique_ptr<VulkanCore::VPipelineManager> m_pipelineManager;
-
-
-
 
 };
 

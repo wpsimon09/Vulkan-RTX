@@ -26,7 +26,7 @@ namespace Renderer {
 class RenderTarget {
 public:
     RenderTarget(const VulkanCore::VDevice& device,int width, int height, vk::Format colourFormat = vk::Format::eR8G8B8A8Unorm);
-    RenderTarget(const VulkanCore::VDevice& device, std::vector<vk::Image>& swapChainImages, vk::Format& swapChainFormat, vk::Extent2D swapChainExtend)
+    RenderTarget(const VulkanCore::VDevice& device, std::vector<vk::Image>& swapChainImages, vk::Format& swapChainFormat, vk::Extent2D swapChainExtend);
 
 
 

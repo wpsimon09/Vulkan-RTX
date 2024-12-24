@@ -58,7 +58,6 @@ namespace VulkanCore
         ~VImage() = default;
 
     private:
-        void GenerateImage();
         void CopyFromBufferToImage();
         void GenerateImageView();
         void AllocateImage(size_t imageSize);

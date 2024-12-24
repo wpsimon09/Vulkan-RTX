@@ -14,11 +14,14 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
+#include "Vulkan/VulkanCore/Shader/VShader.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
+
 
 namespace Renderer {
     RenderingSystem::RenderingSystem(VulkanCore::VulkanInstance instance,const VulkanCore::VDevice& device,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-         VulkanUtils::VPushDescriptorManager& pushDescriptorManager): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager)
+         VulkanUtils::VPushDescriptorManager& pushDescriptorManager): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_renderingContext{}
     {
 
         //---------------------------------------------------------------------------------------------------------------------------
@@ -46,6 +49,22 @@ namespace Renderer {
         //------------------------------------------------------------------------------------------------------------------------
         // CREATE PIPELINE MANAGER
         //------------------------------------------------------------------------------------------------------------------------
-        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(m_device, *m_swapChain, )
+        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(m_device, *m_swapChain, m_sceneRenderer->GetRenderPass(0), m_pushDescriptorSetManager) ;
+        m_pipelineManager->InstantiatePipelines();
+
+        m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED));
+    }
+
+    void RenderingSystem::Render(GlobalUniform& globalUniformUpdateInfo)
+    {
+        // render scene
+        m_sceneRenderer->Render(globalUniformUpdateInfo, m_renderingContext, m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED)  );
+        // render UI
+        // present swap chain
+    }
+
+    void RenderingSystem::Update()
+    {
+
     }
 } // Renderer
