@@ -14,4 +14,14 @@ namespace Renderer {
     BaseRenderer::BaseRenderer(const VulkanCore::VDevice& device):m_device(device), m_rendererFinishedSemaphore(device, false){
         m_commandBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     }
+
+    void BaseRenderer::Destroy()
+    {
+        for (uint32_t i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; ++i)
+        {
+            m_commandBuffers[i]->Destroy();
+            m_renderTargets[i]->Destroy();
+            m_rendererFinishedSemaphore.Destroy();
+        }
+    }
 } // Renderer

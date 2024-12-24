@@ -82,6 +82,13 @@ namespace Renderer {
 
     void RenderingSystem::Destroy()
     {
-
+        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
+            m_imageAvailableSemaphores[i]->Destroy();
+            m_renderFinishedSemaphores[i]->Destroy();
+            m_isFrameFinishFences[i]->Destroy();
+        }
+        m_sceneRenderer->Destroy();
+        m_pipelineManager->DestroyPipelines();
     }
 } // Renderer
