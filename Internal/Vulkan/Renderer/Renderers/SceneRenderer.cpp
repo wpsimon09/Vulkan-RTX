@@ -51,6 +51,7 @@ namespace Renderer {
 
     void SceneRenderer::RecordCommandBuffer(const VulkanCore::VGraphicsPipeline& pipeline)
     {
+
     }
 
     void SceneRenderer::Render(GlobalUniform& globalUniformUpdateInfo,

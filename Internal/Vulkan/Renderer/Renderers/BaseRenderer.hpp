@@ -41,10 +41,10 @@ namespace Renderer
         const VulkanCore::VImage& GetRenderedImage(int currentFrame ) const {return *m_renderTargets[currentFrame]->m_colourBuffer[currentFrame];}; // i have to place fence to access the image
         const VulkanCore::VFrameBuffer& GetFrameBuffer(int currentFrame ) const {return *m_renderTargets[currentFrame]->m_frameBuffers[currentFrame];};
 
-        virtual void Render(GlobalUniform& globalUniformUpdateInfo, const VulkanStructs::RenderContext& renderContext,const VulkanCore::VGraphicsPipeline& pipeline) = 0;
+        virtual void Render(int currentFrameIndex, GlobalUniform& globalUniformUpdateInfo, const VulkanStructs::RenderContext& renderContext,const VulkanCore::VGraphicsPipeline& pipeline) = 0;
     protected:
         virtual void CreateRenderTargets(VulkanCore::VSwapChain* swapChain = nullptr) {};
-        virtual void RecordCommandBuffer(const VulkanCore::VGraphicsPipeline& pipeline) = 0;
+        virtual void RecordCommandBuffer(int currentFrameIndex, const VulkanCore::VGraphicsPipeline& pipeline) = 0;
 
     protected:
         std::vector<std::unique_ptr<Renderer::RenderTarget>> m_renderTargets; // render to these images, per frame in flight
