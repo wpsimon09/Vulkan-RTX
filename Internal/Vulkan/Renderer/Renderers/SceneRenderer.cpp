@@ -58,21 +58,37 @@ namespace Renderer {
 
     void SceneRenderer::Render(int currentFrameIndex, GlobalUniform& globalUniformUpdateInfo,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-        const VulkanStructs::RenderContext& renderContext, const VulkanCore::VGraphicsPipeline& pipeline)
+        const VulkanStructs::RenderContext& renderContext, const VulkanCore::VGraphicsPipeline& pipeline
+        )
     {
         m_renderContextPtr = &renderContext;
 
         auto &renderTarget = m_renderTargets[currentFrameIndex];
         m_commandBuffers[currentFrameIndex]->Reset();
 
+        m_commandBuffers[currentFrameIndex]->BeginRecording();
+
         //=====================================================
         // RECORD COMMAND BUFFER
-        //=====================================================
+        //=====================================================ň
         RecordCommandBuffer(currentFrameIndex, uniformBufferManager, pipeline );
 
         //=====================================================
-        // Submit recorded command buffer
+        // SUBMIT RECORDED COMMAND BUFFER
         //=====================================================
+        vk::SubmitInfo submitInfo;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
+
+        std::vector<vk::Semaphore> signalSemahores = {m_rendererFinishedSemaphore[currentFrameIndex]->GetSyncPrimitive()};
+        submitInfo.signalSemaphoreCount = signalSemahores.size();
+        submitInfo.pSignalSemaphores = signalSemahores.data();
+
+        m_commandBuffers[currentFrameIndex]->EndRecording();
+
+        assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess &&
+            "Failed to submit command buffer !");
+
 
     }
 
@@ -88,14 +104,12 @@ namespace Renderer {
     void SceneRenderer::RecordCommandBuffer(int currentFrameIndex,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager, const VulkanCore::VGraphicsPipeline& pipeline)
     {
-
-        m_commandBuffers[currentFrameIndex]->BeginRecording();
-
         //==============================================
         // CREATE RENDER PASS INFO
         //==============================================
         vk::RenderPassBeginInfo renderPassBeginInfo;
         renderPassBeginInfo.renderPass = GetRenderPass(currentFrameIndex).GetRenderPass();
+        renderPassBeginInfo.framebuffer = GetFrameBuffer(currentFrameIndex).GetFrameBuffer();
         renderPassBeginInfo.renderArea.offset.x = 0;
         renderPassBeginInfo.renderArea.offset.y = 0;
         renderPassBeginInfo.renderArea.extent.width = static_cast<uint32_t>(GetTargeWidth()),
@@ -186,9 +200,6 @@ namespace Renderer {
         }
 
         cmdBuffer.endRenderPass();
-
-        m_commandBuffers[currentFrameIndex]->EndRecording();
-
     }
 
     void SceneRenderer::Destroy()

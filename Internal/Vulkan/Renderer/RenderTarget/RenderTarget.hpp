@@ -29,7 +29,6 @@ public:
     RenderTarget(const VulkanCore::VDevice& device, std::vector<vk::Image>& swapChainImages, vk::Format& swapChainFormat, vk::Extent2D swapChainExtend);
 
 
-
     void HandleResize(int newWidth, int newHeight);
     void Destroy();
     void DestroyForResize();

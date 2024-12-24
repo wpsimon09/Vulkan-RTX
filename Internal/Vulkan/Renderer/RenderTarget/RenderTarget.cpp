@@ -16,6 +16,7 @@ namespace Renderer {
     RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int height, vk::Format colourFormat):
         m_device(device), m_width(width), m_height(height)
     {
+        // for custom attachemnt
 
         Utils::Logger::LogInfoVerboseOnly("Creating render target...");
 
@@ -35,7 +36,8 @@ namespace Renderer {
         //==========================
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
-            m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor, vk::ImageUsageFlagBits::eColorAttachment);
+            m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
+                vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eInputAttachment);
             m_colourBuffer[i]->Resize(width, height);
             m_colourBuffer[i]->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
         }
@@ -62,6 +64,8 @@ namespace Renderer {
     RenderTarget::RenderTarget(const VulkanCore::VDevice& device, std::vector<vk::Image>& swapChainImages,
         vk::Format& swapChainFormat, vk::Extent2D swapChainExtend): m_device(device)
     {
+
+        // for swap chain
 
         Utils::Logger::LogInfoVerboseOnly("Creating render target for swap chain images...");
         m_colourBuffer.resize(swapChainImages.size());

@@ -11,8 +11,13 @@
 
 
 namespace Renderer {
-    BaseRenderer::BaseRenderer(const VulkanCore::VDevice& device):m_device(device), m_rendererFinishedSemaphore(device, false){
+    BaseRenderer::BaseRenderer(const VulkanCore::VDevice& device):m_device(device){
         m_commandBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        m_rendererFinishedSemaphore.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        for (uint32_t i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; ++i)
+        {
+            m_rendererFinishedSemaphore[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device, true);
+        }
     }
 
     void BaseRenderer::Destroy()
@@ -21,7 +26,7 @@ namespace Renderer {
         {
             m_commandBuffers[i]->Destroy();
             m_renderTargets[i]->Destroy();
-            m_rendererFinishedSemaphore.Destroy();
+            m_rendererFinishedSemaphore[i]->Destroy();
         }
     }
 } // Renderer

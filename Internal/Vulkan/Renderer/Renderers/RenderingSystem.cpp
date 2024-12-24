@@ -17,6 +17,7 @@
 #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 
 
 namespace Renderer {
@@ -54,7 +55,7 @@ namespace Renderer {
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(m_device, *m_swapChain, m_sceneRenderer->GetRenderPass(0), m_pushDescriptorSetManager) ;
         m_pipelineManager->InstantiatePipelines();
 
-        //m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED));
+        m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED));
     }
 
     void RenderingSystem::Render(GlobalUniform& globalUniformUpdateInfo)
@@ -66,12 +67,11 @@ namespace Renderer {
         m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderingContext->DrawCalls);
 
         // render scene
-        m_sceneRenderer->Render(m_currentFrameIndex,globalUniformUpdateInfo, *m_renderingContext, m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED)  );
+        m_sceneRenderer->Render(m_currentFrameIndex,globalUniformUpdateInfo, m_uniformBufferManager, *m_renderingContext, m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED)  );
 
         // render UI
 
         // present swap chain
-
         m_currentFrameIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }
 

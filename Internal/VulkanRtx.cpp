@@ -134,6 +134,9 @@ void Application::Render() {
     m_client->GetAssetsManager().Sync();
     m_client->Render(m_renderingSystem->GetRenderContext()); // here
 
+
+    m_renderingSystem->Render(m_client->GetGlobalDataUpdateInformation());
+    m_renderingSystem->GetRenderContext()->DrawCalls.clear();
     // render using vulkan
     //m_renderer->SetRtxStatus(m_client->GetIsRTXOn());
     //m_renderer->Render(m_client->GetGlobalDataUpdateInformation(), *m_imguiInitializer);
