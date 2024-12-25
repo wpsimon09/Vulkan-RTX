@@ -38,9 +38,8 @@ namespace VulkanCore
         vk::AttachmentDescription m_depthStencilAttachmentDescription;
         vk::AttachmentReference m_depthStencilAttachmentRef;
 
-        // will be used later once i see something on the screen this is part of the multisampling config
-        //vk::AttachmentDescription m_resolveColourAttachmentDescription;
-        //vk::AttachmentReference m_resolveColourAttachmentRef;
+        vk::AttachmentDescription m_resolveColourAttachmentDescription;
+        vk::AttachmentReference m_resolveColourAttachmentRef;
 
         vk::SubpassDescription m_subPass;
         vk::SubpassDependency m_subPassDependency;

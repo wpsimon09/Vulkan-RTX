@@ -29,7 +29,7 @@ namespace Renderer {
         m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth,
             vk::ImageUsageFlagBits::eDepthStencilAttachment);
         m_depthBuffer->Resize(width, height);
-        m_depthBuffer->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+        //m_depthBuffer->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
         //==========================
         // CREATE COLOUR ATTACHMENT
@@ -39,7 +39,7 @@ namespace Renderer {
             m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
                 vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eInputAttachment);
             m_colourBuffer[i]->Resize(width, height);
-            m_colourBuffer[i]->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
+            //m_colourBuffer[i]->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
         }
 
         //==========================

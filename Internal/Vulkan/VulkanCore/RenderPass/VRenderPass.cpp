@@ -104,12 +104,12 @@ void VulkanCore::VRenderPass::CreateRenderPassForCustomImage()
     m_colourAttachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
     m_colourAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     m_colourAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    assert(m_colourBuffer.GetCurrentLayout() == vk::ImageLayout::eColorAttachmentOptimal && "Color buffer must be in color attachment optimal");
-    m_colourAttachmentDescription.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
-    m_colourAttachmentDescription.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    //assert(m_colourBuffer.GetCurrentLayout() == vk::ImageLayout::eColorAttachmentOptimal && "Color buffer must be in color attachment optimal");
+    m_colourAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
+    m_colourAttachmentDescription.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
 
     m_colourAttachmentRef.attachment = 0;
-    m_colourAttachmentRef.layout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    m_colourAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
 
     //-----------------
     // DEPTH ATTACHMENT
@@ -120,7 +120,7 @@ void VulkanCore::VRenderPass::CreateRenderPassForCustomImage()
     m_depthStencilAttachmentDescription.storeOp = vk::AttachmentStoreOp::eDontCare;
     m_depthStencilAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     m_depthStencilAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    assert(m_depthBuffer.GetCurrentLayout() == vk::ImageLayout::eDepthStencilAttachmentOptimal && "Color buffer must be in color attachment optimal");
+    //assert(m_depthBuffer.GetCurrentLayout() == vk::ImageLayout::eDepthStencilAttachmentOptimal && "Color buffer must be in color attachment optimal");
     m_depthStencilAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
     m_depthStencilAttachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
@@ -168,11 +168,14 @@ void VulkanCore::VRenderPass::CreateMainSubPass() {
     m_subPassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     m_subPassDependency.dstSubpass = 0;
 
-    // at what stage this sub pass is happening and what memory we want to access
-    m_subPassDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-    m_subPassDependency.srcAccessMask = vk::AccessFlagBits::eNone;
+    m_subPassDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+    m_subPassDependency.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
 
-    m_subPassDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-    m_subPassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite; ;
+    // Access masks for the transition
+    m_subPassDependency.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+    m_subPassDependency.dstStageMask = vk::PipelineStageFlagBits::eFragmentShader;
+
+    // Ensure dependency flags for synchronization
+    //m_subPassDependency.dependencyFlags = vk::DependencyFlagBits::eByRegion;
 
 }
