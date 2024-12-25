@@ -65,7 +65,7 @@ namespace VulkanCore {
         void ResetFence() const {
             static_assert(std::is_same_v<T, vk::Fence>);
             Utils::Logger::LogInfoVerboseRendering("Resetting fence !");
-            m_device.GetDevice().resetFences(1, &m_syncPrimitive);
+            assert(m_device.GetDevice().resetFences(1, &m_syncPrimitive) == vk::Result::eSuccess);
         }
 
         const T& GetSyncPrimitive() const { return m_syncPrimitive; }

@@ -13,19 +13,14 @@
 
 struct GlobalUniform;
 
-namespace VulkanCore
-{
-    class VPipelineManager;
-}
-
 namespace Renderer
 {
     class UserInterfaceRenderer;
+    class SceneRenderer;
 }
 
 namespace Renderer
 {
-    class SceneRenderer;
 }
 
 namespace VulkanStructs
@@ -35,12 +30,14 @@ namespace VulkanStructs
 
 namespace VulkanCore
 {
+    class VPipelineManager;
     class VSwapChain;
     class VDevice;
 }
 
 namespace VulkanUtils
 {
+    class ImGuiInitializer;
     class VUniformBufferManager;
     class VPushDescriptorManager;
 }
@@ -49,7 +46,11 @@ namespace Renderer {
 
 class RenderingSystem {
 public:
-    RenderingSystem(const VulkanCore::VulkanInstance& instance, const VulkanCore::VDevice& device, const VulkanUtils::VUniformBufferManager& uniformBufferManager,  VulkanUtils::VPushDescriptorManager& pushDescriptorManager);
+    RenderingSystem(const VulkanCore::VulkanInstance& instance,
+                    const VulkanCore::VDevice& device,
+                    const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                    VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
+                    VulkanUtils::ImGuiInitializer &imGuiInitiliazer);
 
     VulkanStructs::RenderContext* GetRenderContext() const {return m_renderingContext;}
 public:
@@ -61,6 +62,8 @@ private:
 
     const VulkanCore::VDevice &m_device;
     const VulkanUtils::VUniformBufferManager &m_uniformBufferManager;
+    VulkanUtils::ImGuiInitializer &m_guiInitializer;
+
     VulkanUtils::VPushDescriptorManager &m_pushDescriptorSetManager;
     uint32_t m_currentImageIndex = 0;
     glm::uint32_t m_currentFrameIndex = 0;

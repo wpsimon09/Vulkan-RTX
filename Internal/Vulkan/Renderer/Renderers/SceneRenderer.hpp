@@ -13,6 +13,7 @@
 namespace VulkanUtils
 {
     class VPushDescriptorManager;
+    class ImGuiInitializer;
 }
 
 namespace VulkanCore

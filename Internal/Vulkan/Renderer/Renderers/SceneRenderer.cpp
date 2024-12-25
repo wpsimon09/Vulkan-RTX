@@ -8,6 +8,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
+#include "Vulkan/Utils/VImGuiInitializer/ImGuiInitializer.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
@@ -63,15 +64,17 @@ namespace Renderer {
     {
         m_renderContextPtr = &renderContext;
 
-        auto &renderTarget = m_renderTargets[currentFrameIndex];
+        auto &renderTarget = m_renderTargets;
         m_commandBuffers[currentFrameIndex]->Reset();
-
-        m_commandBuffers[currentFrameIndex]->BeginRecording();
 
         //=====================================================
         // RECORD COMMAND BUFFER
         //=====================================================ň
+        m_commandBuffers[currentFrameIndex]->BeginRecording();
+
         RecordCommandBuffer(currentFrameIndex, uniformBufferManager, pipeline );
+
+        m_commandBuffers[currentFrameIndex]->EndRecording();
 
         //=====================================================
         // SUBMIT RECORDED COMMAND BUFFER
@@ -81,12 +84,11 @@ namespace Renderer {
         submitInfo.pCommandBuffers = &m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
 
         std::vector<vk::Semaphore> signalSemahores = {m_rendererFinishedSemaphore[currentFrameIndex]->GetSyncPrimitive()};
-        //submitInfo.signalSemaphoreCount = signalSemahores.size();
-        //submitInfo.pSignalSemaphores = signalSemahores.data();
+        submitInfo.signalSemaphoreCount = signalSemahores.size();
+        submitInfo.pSignalSemaphores = signalSemahores.data();
 
-        m_commandBuffers[currentFrameIndex]->EndRecording();
 
-        assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, renderingFinishedFence.GetSyncPrimitive()) == vk::Result::eSuccess &&
+        assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess &&
             "Failed to submit command buffer !");
 
 
@@ -94,11 +96,9 @@ namespace Renderer {
 
     void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
     {
-        m_renderTargets.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; ++i)
-        {
-            m_renderTargets[i] = std::make_unique<Renderer::RenderTarget>(m_device,m_width, m_height);
-        }
+
+        m_renderTargets = std::make_unique<Renderer::RenderTarget>(m_device,m_width, m_height);
+
     }
 
     void SceneRenderer::RecordCommandBuffer(int currentFrameIndex,

@@ -61,8 +61,8 @@ namespace Renderer {
         Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
     }
 
-    RenderTarget::RenderTarget(const VulkanCore::VDevice& device, std::vector<vk::Image>& swapChainImages,
-        vk::Format& swapChainFormat, vk::Extent2D swapChainExtend): m_device(device)
+    RenderTarget::RenderTarget(const VulkanCore::VDevice& device, const std::vector<vk::Image>& swapChainImages,
+        const vk::Format& swapChainFormat, const vk::Extent2D swapChainExtend): m_device(device), m_width(swapChainExtend.width), m_height(swapChainExtend.height)
     {
 
         // for swap chain
@@ -98,7 +98,7 @@ namespace Renderer {
             std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
             attachments.emplace_back(*m_colourBuffer[i]);
             attachments.emplace_back(*m_depthBuffer);
-            m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, swapChainExtend.width, swapChainExtend.width);
+            m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, swapChainExtend.width, swapChainExtend.height);
         }
 
         Utils::Logger::LogSuccess("Render target for swap chain created created");

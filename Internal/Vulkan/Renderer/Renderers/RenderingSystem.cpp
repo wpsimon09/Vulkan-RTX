@@ -23,7 +23,8 @@
 namespace Renderer {
     RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance& instance,const VulkanCore::VDevice& device,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-         VulkanUtils::VPushDescriptorManager& pushDescriptorManager): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext{}
+         VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
+         VulkanUtils::ImGuiInitializer &imGuiInitiliazer): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext{}, m_guiInitializer(imGuiInitiliazer)
     {
         m_renderingContext = &m_mainRenderContext;
 
@@ -48,6 +49,7 @@ namespace Renderer {
         // Renderers creation
         //----------------------------------------------------------------------------------------------------------------------------
         m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager, 800, 600);
+        m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, m_swapChain.get(), imGuiInitiliazer);
 
         //------------------------------------------------------------------------------------------------------------------------
         // CREATE PIPELINE MANAGER
@@ -61,6 +63,30 @@ namespace Renderer {
     void RenderingSystem::Render(GlobalUniform& globalUniformUpdateInfo)
     {
         m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
+
+        //=================================================
+        // GET SWAP IMAGE INDEX
+        //=================================================
+        auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
+                                                                 *m_imageAvailableSemaphores[m_currentFrameIndex],
+                                                                 nullptr);
+        switch (imageIndex.first) {
+        case vk::Result::eSuccess: {
+                m_currentImageIndex = imageIndex.second;
+                Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
+        }
+        case vk::Result::eErrorOutOfDateKHR: {
+                //m_swapChain->RecreateSwapChain();
+                Utils::Logger::LogError("Swap chain was out of date, trying to recreate it...  ");
+                return;
+        }
+        case vk::Result::eSuboptimalKHR: {
+                throw std::runtime_error("Suboptimal swap chain retrieved");
+        };
+        default:
+            break;
+        }
+
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
 
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
@@ -69,10 +95,17 @@ namespace Renderer {
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex,*m_isFrameFinishFences[m_currentFrameIndex],globalUniformUpdateInfo, m_uniformBufferManager, *m_renderingContext, m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED)  );
 
-        // render UI
+        // gather all semaphores presentation should wait on
+        std::vector<std::pair<vk::Semaphore, vk::PipelineStageFlags>> uiWaitSemaphores = {
+            {m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), vk::PipelineStageFlagBits::eColorAttachmentOutput},
+            {m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex), vk::PipelineStageFlagBits::eFragmentShader}
+            //TODO:  here is going to be one more that will transition image layout to the shader read only
+        };
 
-        // present swap chain
-        m_currentFrameIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
+        // render UI and present to swap chain
+        m_uiRenderer->RenderAndPresent(m_currentFrameIndex,m_currentImageIndex, *m_isFrameFinishFences[m_currentFrameIndex], uiWaitSemaphores );
+
+        m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }
 
     void RenderingSystem::Update()
