@@ -98,7 +98,7 @@ namespace Renderer {
             std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
             attachments.emplace_back(*m_colourBuffer[i]);
             attachments.emplace_back(*m_depthBuffer);
-            m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, swapChainExtend.width, swapChainExtend.width);
+            m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, swapChainExtend.width, swapChainExtend.height);
         }
 
         Utils::Logger::LogSuccess("Render target for swap chain created created");
