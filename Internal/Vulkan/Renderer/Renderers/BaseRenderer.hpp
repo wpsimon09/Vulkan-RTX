@@ -50,16 +50,23 @@ namespace Renderer
         const int& GetTargeWidth() const  {return m_width;}
         const int& GetTargeHeight() const {return m_height;}
         virtual void Destroy();
-        virtual void Render(int currentFrameIndex, GlobalUniform& globalUniformUpdateInfo, const VulkanUtils::VUniformBufferManager& uniformBufferManager ,const VulkanStructs::RenderContext& renderContext,const VulkanCore::VGraphicsPipeline& pipeline) = 0;
+        virtual void Render(int currentFrameIndex,
+                            const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence,
+                            GlobalUniform& globalUniformUpdateInfo,
+                            const VulkanUtils::VUniformBufferManager& uniformBufferManager ,
+                            const VulkanStructs::RenderContext& renderContext,
+                            const VulkanCore::VGraphicsPipeline& pipeline) = 0;
     protected:
         virtual void CreateRenderTargets(VulkanCore::VSwapChain* swapChain = nullptr) {};
-        virtual void RecordCommandBuffer(int currentFrameIndex,const VulkanUtils::VUniformBufferManager& uniformBufferManager , const VulkanCore::VGraphicsPipeline& pipeline) = 0;
+        virtual void RecordCommandBuffer(int currentFrameIndex,
+                                        const VulkanUtils::VUniformBufferManager& uniformBufferManager ,
+                                        const VulkanCore::VGraphicsPipeline& pipeline) = 0;
 
     protected:
         std::vector<std::unique_ptr<Renderer::RenderTarget>> m_renderTargets; // render to these images, per frame in flight
         std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_commandBuffers;
         const VulkanCore::VDevice& m_device;
-        std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Fence>>> m_rendererFinishedSemaphore;
+        std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_rendererFinishedSemaphore;
 
         int m_width, m_height;
     };

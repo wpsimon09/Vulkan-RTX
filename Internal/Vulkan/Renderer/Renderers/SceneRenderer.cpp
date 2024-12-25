@@ -56,7 +56,7 @@ namespace Renderer {
 
     }
 
-    void SceneRenderer::Render(int currentFrameIndex, GlobalUniform& globalUniformUpdateInfo,
+    void SceneRenderer::Render(int currentFrameIndex, const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence,GlobalUniform& globalUniformUpdateInfo,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
         const VulkanStructs::RenderContext& renderContext, const VulkanCore::VGraphicsPipeline& pipeline
         )
@@ -81,12 +81,12 @@ namespace Renderer {
         submitInfo.pCommandBuffers = &m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
 
         std::vector<vk::Semaphore> signalSemahores = {m_rendererFinishedSemaphore[currentFrameIndex]->GetSyncPrimitive()};
-        submitInfo.signalSemaphoreCount = signalSemahores.size();
-        submitInfo.pSignalSemaphores = signalSemahores.data();
+        //submitInfo.signalSemaphoreCount = signalSemahores.size();
+        //submitInfo.pSignalSemaphores = signalSemahores.data();
 
         m_commandBuffers[currentFrameIndex]->EndRecording();
 
-        assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess &&
+        assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, renderingFinishedFence.GetSyncPrimitive()) == vk::Result::eSuccess &&
             "Failed to submit command buffer !");
 
 

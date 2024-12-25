@@ -26,7 +26,7 @@ class RenderTarget;
 class SceneRenderer: public Renderer::BaseRenderer{
 public:
     SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width, int height);
-    void Render(int currentFrameIndex, GlobalUniform& globalUniformUpdateInfo, const VulkanUtils::VUniformBufferManager& uniformBufferManager, const VulkanStructs::RenderContext& renderContext, const VulkanCore::VGraphicsPipeline& pipeline) override;
+    void Render(int currentFrameIndex, const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence,GlobalUniform& globalUniformUpdateInfo, const VulkanUtils::VUniformBufferManager& uniformBufferManager, const VulkanStructs::RenderContext& renderContext, const VulkanCore::VGraphicsPipeline& pipeline) override;
 
     void Destroy() override;
 protected:
