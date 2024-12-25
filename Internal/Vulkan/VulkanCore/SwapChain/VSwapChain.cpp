@@ -21,77 +21,19 @@ VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const Vulk
     ChooseFormat();
     ChoosePresentMode();
     CreateSwapChain();
-    RetrieveSwapChainImagesAndImageViews();
-
-    m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth);
-    m_msaaColourBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_format.format, vk::ImageAspectFlagBits::eColor);
-
-    m_depthBuffer->Resize(m_extent.width, m_extent.height);
-    m_msaaColourBuffer->Resize(m_extent.width, m_extent.height);
+    RetrieveSwapChainImages();
 }
 
 
 void VulkanCore::VSwapChain::Destroy() {
-    Utils::Logger::LogInfoVerboseOnly("Destroying swap chain image views... ");
-    for (auto &image : m_images) {
-        if (image)
-            image->Destroy();
+    Utils::Logger::LogInfoVerboseOnly("Destroying swap chain images... ");
+    for (auto &image : m_swapChainImages) {
+        m_device.GetDevice().destroyImage(image);
     }
-    Utils::Logger::LogInfoVerboseOnly("Swap chain image views destroyed !");
-    m_images.clear();
-    Utils::Logger::LogInfoVerboseOnly("Destroying swap chain FrameBuffers...");
-    for (auto &frameBuffer : m_swapChainFrameBuffers) {
-        if (frameBuffer)
-            frameBuffer->Destroy();
-    }
-    m_swapChainFrameBuffers.clear();
-    Utils::Logger::LogInfoVerboseOnly("Swap chain frame buffers destroyed !");
-
-    m_depthBuffer->Destroy();
-    m_msaaColourBuffer->Destroy();
 
     m_device.GetDevice().destroySwapchainKHR(m_swapChain);
+
     Utils::Logger::LogInfoVerboseOnly("Swap chain destroyed !");
-}
-
-void VulkanCore::VSwapChain::DestroyForResize()
-{
-    Utils::Logger::LogInfoVerboseOnly("Destroying swap chain image views... ");
-    for (auto &image : m_images) {
-        if (image)
-            image->Destroy();
-    }
-    Utils::Logger::LogInfoVerboseOnly("Swap chain image views destroyed !");
-    m_images.clear();
-    Utils::Logger::LogInfoVerboseOnly("Destroying swap chain FrameBuffers...");
-    for (auto &frameBuffer : m_swapChainFrameBuffers) {
-        if (frameBuffer)
-            frameBuffer->Destroy();
-    }
-    m_swapChainFrameBuffers.clear();
-    Utils::Logger::LogInfoVerboseOnly("Swap chain frame buffers destroyed !");
-
-    m_device.GetDevice().destroySwapchainKHR(m_swapChain);
-    Utils::Logger::LogInfoVerboseOnly("Swap chain destroyed !");
-}
-
-const std::vector<std::reference_wrapper<const VulkanCore::VImage>> VulkanCore::VSwapChain::GetImages() const {
-    std::vector<std::reference_wrapper<const VulkanCore::VImage>> imagesToReturn;
-    imagesToReturn.reserve(m_images.size());
-    for (auto &image : m_images) {
-        imagesToReturn.emplace_back(std::ref(*image));
-    }
-    return imagesToReturn;
-}
-
-const std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>>
-VulkanCore::VSwapChain::GetSwapChainFrameBuffers() const {
-    std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>> frameBuffers;
-    frameBuffers.reserve(m_swapChainFrameBuffers.size());
-    for (auto &swapChainFrameBuffer : m_swapChainFrameBuffers) {
-        frameBuffers.emplace_back(std::ref(*swapChainFrameBuffer));
-    }
-    return frameBuffers;
 }
 
 void VulkanCore::VSwapChain::ChooseExtent() {
@@ -190,47 +132,22 @@ void VulkanCore::VSwapChain::CreateSwapChain() {
 
 }
 
-void VulkanCore::VSwapChain::RetrieveSwapChainImagesAndImageViews() {
-    auto swapChainImages = m_device.GetDevice().getSwapchainImagesKHR(m_swapChain);
-
-    m_images.resize(swapChainImages.size());
-    assert(m_images.size() == swapChainImages.size());
-    for (size_t i = 0; i < swapChainImages.size(); i++) {
-        m_images[i] = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i], m_extent.width,
-                                                           m_extent.height, 1, m_format.format);
-    }
-
-    assert(!m_images.empty());
-    Utils::Logger::LogSuccess("Retrieved " + std::to_string(m_images.size()) + " swap chain images");
+void VulkanCore::VSwapChain::RetrieveSwapChainImages() {
+    m_swapChainImages = m_device.GetDevice().getSwapchainImagesKHR(m_swapChain);
 }
 
-void VulkanCore::VSwapChain::CreateSwapChainFrameBuffers(const VulkanCore::VRenderPass &renderPass) {
-    m_swapChainFrameBuffers.resize(m_images.size());
-    assert(m_images.size() == m_swapChainFrameBuffers.size());
-    std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
-    for (size_t i = 0; i < m_images.size(); i++) {
-        attachments = {*m_images[i], *m_depthBuffer};
 
-        m_swapChainFrameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(
-            m_device, renderPass, attachments, m_extent.width, m_extent.height);
-    }
-
-}
-
-void VulkanCore::VSwapChain::RecreateSwapChain(const VulkanCore::VRenderPass &renderPass) {
+void VulkanCore::VSwapChain::RecreateSwapChain() {
     Utils::Logger::LogInfo("Recreating swap chain...");
     m_device.GetDevice().waitIdle();
 
-    DestroyForResize();
-
+    Destroy();
     ChooseExtent();
     ChooseFormat();
     ChoosePresentMode();
     CreateSwapChain();
-    RetrieveSwapChainImagesAndImageViews();
-    m_depthBuffer->Resize(m_extent.width, m_extent.height);
-    CreateSwapChainFrameBuffers(renderPass);
+    RetrieveSwapChainImages();
 
 
     Utils::Logger::LogSuccess("Swap chain recreated ");
-};
+}

@@ -10,11 +10,14 @@
 
 #include "Vulkan/VulkanCore/VObject.hpp"
 
+namespace Renderer
+{
+    class RenderTarget;
+}
+
 namespace VulkanCore
 {
     class VImage;
-    class VRenderPass;
-    class VFrameBuffer;
     class VulkanInstance;
     class VDevice;
 
@@ -25,19 +28,15 @@ namespace VulkanCore
                    const VulkanCore::VulkanInstance &instance);
 
         void Destroy() override;
-        void DestroyForResize();
-        void CreateSwapChainFrameBuffers(const VulkanCore::VRenderPass &renderPass);
-        void RecreateSwapChain(const VulkanCore::VRenderPass &renderPass);
+        void RecreateSwapChain();
 
         ~VSwapChain() = default;
 
         const vk::SwapchainKHR &GetSwapChain() const { return m_swapChain; }
-        const VulkanCore::VImage& GetDepthBuffer() const {return *m_depthBuffer; }
         const vk::SurfaceFormatKHR &GetSurfaceFormatKHR() const { return m_format; };
         const vk::Extent2D &GetExtent() const { return m_extent; };
         const vk::PresentModeKHR &GetPresentMode() const { return m_presentMode; };
-        const std::vector<std::reference_wrapper<const VulkanCore::VImage>> GetImages() const;
-        const std::vector<std::reference_wrapper<const VulkanCore::VFrameBuffer>> GetSwapChainFrameBuffers() const;
+        const std::vector<vk::Image>& GetSwapChainImages() const { return m_swapChainImages; };
 
     private:
         vk::SurfaceFormatKHR m_format;
@@ -46,17 +45,10 @@ namespace VulkanCore
 
         vk::SwapchainKHR m_swapChain;
 
-        std::vector<std::unique_ptr<VulkanCore::VImage>> m_images;
-
-        std::unique_ptr<VulkanCore::VImage> m_depthBuffer;
-        std::unique_ptr<VulkanCore::VImage> m_msaaColourBuffer;
-        std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_colourBuffers;
-
-        std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_swapChainFrameBuffers;
+        std::vector<vk::Image> m_swapChainImages;
 
         const VulkanCore::VDevice &m_device;
         const VulkanCore::VulkanInstance &m_instance;
-
     private:
         void ChooseExtent();
         void ChooseFormat();
@@ -64,7 +56,7 @@ namespace VulkanCore
 
         void CreateSwapChain();
 
-        void RetrieveSwapChainImagesAndImageViews();
+        void RetrieveSwapChainImages();
 
     };
 

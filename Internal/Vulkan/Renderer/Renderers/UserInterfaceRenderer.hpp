@@ -9,7 +9,7 @@
 namespace Renderer
 {
     class UserInterfaceRenderer {
-
+        // add swap chain to constructor of this fucker
     };
 }
 

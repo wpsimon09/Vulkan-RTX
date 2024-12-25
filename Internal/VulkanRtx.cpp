@@ -39,13 +39,13 @@
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 
 // Vulkan Renderer
-#include "Vulkan/Renderer/VRenderer.hpp"
+#include "Vulkan/Renderer/Renderers/VRenderer.hpp"
 
 // Application Entry
 #include "VulkanRtx.hpp"
-#include "Vulkan/Renderer/RenderingSystem.hpp"
-#include "Vulkan/Renderer/SceneRenderer.hpp"
-#include "Vulkan/Renderer/UserInterfaceRenderer.hpp"
+#include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
+#include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
+#include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
 
 
 // Im gui entry
@@ -76,13 +76,12 @@ void Application::Init()
 
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 
-    m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
+    //m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
 
     m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
 
-    m_imguiInitializer = std::make_unique<VulkanUtils::ImGuiInitializer>(*m_vulkanDevice, *m_vulkanInstance, m_renderer->GetRenderPass(), *m_windowManager);
-    m_imguiInitializer->Initialize();
-
+    //m_imguiInitializer = std::make_unique<VulkanUtils::ImGuiInitializer>(*m_vulkanDevice, *m_vulkanInstance, m_renderer->GetRenderPass(), *m_windowManager);
+    //m_imguiInitializer->Initialize();
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene.glb");
@@ -133,16 +132,19 @@ void Application::Update()
 void Application::Render() {
     // generate draw calls
     m_client->GetAssetsManager().Sync();
-    m_client->Render(m_renderer->GetRenderingContext()); // here
+    m_client->Render(m_renderingSystem->GetRenderContext()); // here
 
+
+    m_renderingSystem->Render(m_client->GetGlobalDataUpdateInformation());
+    m_renderingSystem->GetRenderContext()->DrawCalls.clear();
     // render using vulkan
-    m_renderer->SetRtxStatus(m_client->GetIsRTXOn());
-    m_renderer->Render(m_client->GetGlobalDataUpdateInformation(), *m_imguiInitializer);
+    //m_renderer->SetRtxStatus(m_client->GetIsRTXOn());
+    //m_renderer->Render(m_client->GetGlobalDataUpdateInformation(), *m_imguiInitializer);
 }
 
 Application::~Application() {
     m_vulkanDevice->GetDevice().waitIdle();
-    m_renderer->Destroy();
+    m_renderingSystem->Destroy();
     m_client->Destroy();
     m_uniformBufferManager->Destroy();
     VulkanCore::VSamplers::DestroyAllSamplers(*m_vulkanDevice);
