@@ -19,14 +19,15 @@
 
 namespace VulkanUtils
 {
-    ImGuiInitializer::ImGuiInitializer(const VulkanCore::VDevice& device, const VulkanCore::VulkanInstance& instance,
-                                       const VulkanCore::VRenderPass& renderPass, const WindowManager& windowManager
-    ): m_device(device), m_instance(instance), m_renderPass(renderPass), m_windowManager(windowManager)
+    ImGuiInitializer::ImGuiInitializer(const VulkanCore::VDevice& device,
+                                       const VulkanCore::VulkanInstance& instance,
+                                       const WindowManager& windowManager
+        ): m_device(device), m_instance(instance), m_windowManager(windowManager)
     {
         m_io = nullptr;
     }
 
-    void ImGuiInitializer::Initialize()
+    void ImGuiInitializer::Initialize(const VulkanCore::VRenderPass& renderPass)
     {
         Utils::Logger::LogInfo("Startin to initialize ImGui...");
 
@@ -60,7 +61,7 @@ namespace VulkanUtils
         imGuiVkInitInfo.Queue = m_device.GetGraphicsQueue();
         imGuiVkInitInfo.PipelineCache = m_imguiPipelineCache;
         imGuiVkInitInfo.DescriptorPool = m_imguiDescriptorPool;
-        imGuiVkInitInfo.RenderPass = m_renderPass.GetRenderPass();
+        imGuiVkInitInfo.RenderPass = renderPass.GetRenderPass();
         imGuiVkInitInfo.Subpass = 0;
         imGuiVkInitInfo.MinImageCount = GlobalVariables::MAX_FRAMES_IN_FLIGHT;
         imGuiVkInitInfo.ImageCount = GlobalVariables::MAX_FRAMES_IN_FLIGHT;

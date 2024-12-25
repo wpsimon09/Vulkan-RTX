@@ -23,7 +23,8 @@
 namespace Renderer {
     RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance& instance,const VulkanCore::VDevice& device,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-         VulkanUtils::VPushDescriptorManager& pushDescriptorManager): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext{}
+         VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
+         VulkanUtils::ImGuiInitializer &imGuiInitiliazer): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext{}, m_guiInitializer(imGuiInitiliazer)
     {
         m_renderingContext = &m_mainRenderContext;
 
@@ -48,6 +49,7 @@ namespace Renderer {
         // Renderers creation
         //----------------------------------------------------------------------------------------------------------------------------
         m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager, 800, 600);
+        m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, m_swapChain.get(), imGuiInitiliazer);
 
         //------------------------------------------------------------------------------------------------------------------------
         // CREATE PIPELINE MANAGER
@@ -69,10 +71,10 @@ namespace Renderer {
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex,*m_isFrameFinishFences[m_currentFrameIndex],globalUniformUpdateInfo, m_uniformBufferManager, *m_renderingContext, m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED)  );
 
-        // render UI
+        // render UI and present to swap chain
+        m_uiRenderer->RenderAndPresnet(m_currentFrameIndex);
 
-        // present swap chain
-        m_currentFrameIndex = (m_currentImageIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
+        m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }
 
     void RenderingSystem::Update()

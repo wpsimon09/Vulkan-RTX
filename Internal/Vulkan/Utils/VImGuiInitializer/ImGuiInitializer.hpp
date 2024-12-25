@@ -26,10 +26,9 @@ public:
     explicit ImGuiInitializer(
         const VulkanCore::VDevice& device,
         const VulkanCore::VulkanInstance& instance,
-        const VulkanCore::VRenderPass& renderPass,
         const WindowManager& windowManager
     );
-    void Initialize();
+    void Initialize(const VulkanCore::VRenderPass& renderPass);
     void BeginRender();
     void Render(VulkanCore::VCommandBuffer& commandBuffer);
     void EndRender();
@@ -38,7 +37,6 @@ private:
 
     const VulkanCore::VDevice& m_device;
     const VulkanCore::VulkanInstance& m_instance;
-    const VulkanCore::VRenderPass& m_renderPass;
     const WindowManager& m_windowManager;
 
     vk::PipelineCache m_imguiPipelineCache;

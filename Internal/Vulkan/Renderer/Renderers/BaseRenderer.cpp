@@ -25,8 +25,8 @@ namespace Renderer {
         for (uint32_t i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; ++i)
         {
             m_commandBuffers[i]->Destroy();
-            m_renderTargets[i]->Destroy();
             m_rendererFinishedSemaphore[i]->Destroy();
         }
+            m_renderTargets->Destroy();
     }
 } // Renderer
