@@ -84,11 +84,11 @@ namespace Renderer {
         submitInfo.pCommandBuffers = &m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
 
         std::vector<vk::Semaphore> signalSemahores = {m_rendererFinishedSemaphore[currentFrameIndex]->GetSyncPrimitive()};
-        //submitInfo.signalSemaphoreCount = signalSemahores.size();
-        //submitInfo.pSignalSemaphores = signalSemahores.data();
+        submitInfo.signalSemaphoreCount = signalSemahores.size();
+        submitInfo.pSignalSemaphores = signalSemahores.data();
 
 
-        assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, renderingFinishedFence.GetSyncPrimitive()) == vk::Result::eSuccess &&
+        assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess &&
             "Failed to submit command buffer !");
 
 
