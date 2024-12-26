@@ -77,8 +77,8 @@ namespace Renderer {
         }
         case vk::Result::eErrorOutOfDateKHR: {
                 //m_swapChain->RecreateSwapChain();
-                Utils::Logger::LogError("Swap chain was out of date, trying to recreate it...  ");
-                return;
+               // Utils::Logger::LogError("Swap chain was out of date, trying to recreate it...  ");
+                //return;
         }
         case vk::Result::eSuboptimalKHR: {
                 throw std::runtime_error("Suboptimal swap chain retrieved");
@@ -86,6 +86,7 @@ namespace Renderer {
         default:
             break;
         }
+
 
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
 
