@@ -12,6 +12,7 @@ The goal is to eventually transition from a purely shader-based ray tracing impl
 - _Shading Language_ - Slang
 - _Language_ - C++
 - _Math_ - glm  
+- _Dear::ImGui_ - User interface
 
 ## Notes
 
