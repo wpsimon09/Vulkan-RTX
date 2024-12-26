@@ -16,7 +16,7 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 Renderer::UserInterfaceRenderer::UserInterfaceRenderer(const VulkanCore::VDevice& device,
-    const VulkanCore::VSwapChain# swapChain, VulkanUtils::ImGuiInitializer& imGuiInitilaizer): m_device(device),
+    const VulkanCore::VSwapChain& swapChain, VulkanUtils::ImGuiInitializer& imGuiInitilaizer): m_device(device),
     m_imguiInitializer(imGuiInitilaizer)
 {
     m_commandPool = std::make_unique<VulkanCore::VCommandPool>(device, QUEUE_FAMILY_INDEX_GRAPHICS);
@@ -28,13 +28,13 @@ Renderer::UserInterfaceRenderer::UserInterfaceRenderer(const VulkanCore::VDevice
         m_ableToPresentSemaphore[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(device, false);
     }
 
-    m_renderTarget = std::make_unique<Renderer::RenderTarget>(m_device, *swapChain);
+    m_renderTarget = std::make_unique<Renderer::RenderTarget>(m_device, swapChain);
     imGuiInitilaizer.Initialize(*m_renderTarget->m_renderPass);
 }
 
 void Renderer::UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, int swapChainImageIndex,
     const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence,
-    std::vector<std::pair<vk::Semaphore, vk::PipelineStageFlags>>& waitSemaphores)
+    std::vector<vk::Semaphore>& waitSemaphores, std::vector<vk::PipelineStageFlags>& pipelineStages)
 {
     //=============================
     // RECORD CMD BUFFER
@@ -49,24 +49,17 @@ void Renderer::UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, in
     //===========================
     assert(!m_commandBuffer[currentFrameIndex]->GetIsRecording());
 
-    std::vector<vk::Semaphore> waitSemaphoresArray;
-    std::vector<vk::PipelineStageFlags> pipelineStagesArray;
+
+    vk::SubmitInfo submitInfo;
+    submitInfo.waitSemaphoreCount = waitSemaphores.size();
+    submitInfo.pWaitSemaphores = waitSemaphores.data();
+    submitInfo.pWaitDstStageMask = pipelineStages.data();
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &m_commandBuffer[currentFrameIndex]->GetCommandBuffer();
+
     std::vector<vk::Semaphore> signalSemaphores = {
         m_ableToPresentSemaphore[currentFrameIndex]->GetSyncPrimitive()
     };
-
-    for (auto& semaphorAndStage : waitSemaphores)
-    {
-        waitSemaphoresArray.push_back(semaphorAndStage.first);
-        pipelineStagesArray.push_back(semaphorAndStage.second);
-    }
-
-    vk::SubmitInfo submitInfo;
-    submitInfo.waitSemaphoreCount = waitSemaphoresArray.size();
-    submitInfo.pWaitSemaphores = waitSemaphoresArray.data();
-    submitInfo.pWaitDstStageMask = pipelineStagesArray.data();
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &m_commandBuffer[currentFrameIndex]->GetCommandBuffer();
 
     submitInfo.signalSemaphoreCount = signalSemaphores.size();
     submitInfo.pSignalSemaphores = signalSemaphores.data();
