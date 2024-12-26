@@ -40,8 +40,8 @@ namespace Renderer {
         m_renderFinishedSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         m_isFrameFinishFences.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
-            m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
-            m_renderFinishedSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+            m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device, false);
+            m_renderFinishedSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device, false);
             m_isFrameFinishFences[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device, true);
         }
 
@@ -76,12 +76,14 @@ namespace Renderer {
                 Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
         }
         case vk::Result::eErrorOutOfDateKHR: {
-                //m_swapChain->RecreateSwapChain();
-               // Utils::Logger::LogError("Swap chain was out of date, trying to recreate it...  ");
-                //return;
+                m_swapChain->RecreateSwapChain();
+                m_uiRenderer->GetRenderTarget().HandleSwapChainResize(m_swapChain);
+                Utils::Logger::LogError("Swap chain was out of date, trying to recreate it...  ");
+                return;
         }
         case vk::Result::eSuboptimalKHR: {
-                throw std::runtime_error("Suboptimal swap chain retrieved");
+                //m_swapChain->RecreateSwapChain();
+                //return;
         };
         default:
             break;

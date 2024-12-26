@@ -16,7 +16,7 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 Renderer::UserInterfaceRenderer::UserInterfaceRenderer(const VulkanCore::VDevice& device,
-    VulkanCore::VSwapChain* swapChain, VulkanUtils::ImGuiInitializer& imGuiInitilaizer): m_device(device),
+    const VulkanCore::VSwapChain# swapChain, VulkanUtils::ImGuiInitializer& imGuiInitilaizer): m_device(device),
     m_imguiInitializer(imGuiInitilaizer)
 {
     m_commandPool = std::make_unique<VulkanCore::VCommandPool>(device, QUEUE_FAMILY_INDEX_GRAPHICS);
@@ -28,7 +28,7 @@ Renderer::UserInterfaceRenderer::UserInterfaceRenderer(const VulkanCore::VDevice
         m_ableToPresentSemaphore[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(device, false);
     }
 
-    m_renderTarget = std::make_unique<Renderer::RenderTarget>(m_device, swapChain->GetSwapChainImages(), swapChain->GetSurfaceFormatKHR().format, swapChain->GetExtent());
+    m_renderTarget = std::make_unique<Renderer::RenderTarget>(m_device, *swapChain);
     imGuiInitilaizer.Initialize(*m_renderTarget->m_renderPass);
 }
 
@@ -71,7 +71,9 @@ void Renderer::UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, in
     submitInfo.signalSemaphoreCount = signalSemaphores.size();
     submitInfo.pSignalSemaphores = signalSemaphores.data();
 
-    assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess);
+    auto result = m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr);
+
+    assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 
     //===========================
     // PRESENT TO SCREEN

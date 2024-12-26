@@ -37,11 +37,12 @@ namespace Renderer
     public:
         explicit UserInterfaceRenderer(
             const VulkanCore::VDevice& device,
-            VulkanCore::VSwapChain* swapChain,
+            const VulkanCore::VSwapChain& swapChain,
             VulkanUtils::ImGuiInitializer& imGuiInitilaizer);
 
-        void RenderAndPresent(int currentFrameIndex,int swapChainImageIndex, const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence,  std::vector<std::pair<vk::Semaphore, vk::PipelineStageFlags>>& waitSemaphores);
+            void RenderAndPresent(int currentFrameIndex,int swapChainImageIndex, const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence,  std::vector<std::pair<vk::Semaphore, vk::PipelineStageFlags>>& waitSemaphores);
 
+            RenderTarget& GetRenderTarget() const {return *m_renderTarget;};
     private:
         const VulkanCore::VDevice& m_device;
 
