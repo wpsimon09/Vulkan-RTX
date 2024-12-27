@@ -17,7 +17,7 @@
 
 Renderer::UserInterfaceRenderer::UserInterfaceRenderer(const VulkanCore::VDevice& device,
     const VulkanCore::VSwapChain& swapChain, VulkanUtils::ImGuiInitializer& imGuiInitilaizer): m_device(device),
-    m_imguiInitializer(imGuiInitilaizer)
+    m_imguiInitializer(imGuiInitilaizer), m_swapChain(swapChain)
 {
     m_commandPool = std::make_unique<VulkanCore::VCommandPool>(device, QUEUE_FAMILY_INDEX_GRAPHICS);
     m_commandBuffer.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
@@ -32,10 +32,12 @@ Renderer::UserInterfaceRenderer::UserInterfaceRenderer(const VulkanCore::VDevice
     imGuiInitilaizer.Initialize(*m_renderTarget->m_renderPass);
 }
 
-void Renderer::UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, int swapChainImageIndex,
-    const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence,
-    std::vector<vk::Semaphore>& waitSemaphores, std::vector<vk::PipelineStageFlags>& pipelineStages)
+void Renderer::UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex,
+                                                       const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence,
+                                                       std::vector<vk::Semaphore>& waitSemaphores, std::vector<vk::PipelineStageFlags>& pipelineStages)
 {
+
+    m_commandBuffer[currentFrameIndex]->Reset();
     //=============================
     // RECORD CMD BUFFER
     //=============================
@@ -64,7 +66,7 @@ void Renderer::UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, in
     submitInfo.signalSemaphoreCount = signalSemaphores.size();
     submitInfo.pSignalSemaphores = signalSemaphores.data();
 
-    auto result = m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr);
+    auto result = m_device.GetGraphicsQueue().submit(1, &submitInfo, renderingFinishedFence.GetSyncPrimitive());
 
     assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 
@@ -72,7 +74,15 @@ void Renderer::UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, in
     // PRESENT TO SCREEN
     //===========================
     //TODO: tmrw
-
+    vk::PresentInfoKHR presentInfo;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = &m_ableToPresentSemaphore[currentFrameIndex]->GetSyncPrimitive();
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = &m_swapChain.GetSwapChain();
+    presentInfo.pImageIndices = &swapChainImageIndex;
+    presentInfo.pResults = nullptr;
+    vk::Result presentResult = VulkanUtils::PresentQueueWrapper(m_device.GetPresentQueue(), presentInfo);
+    //assert(presentResult == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 }
 
 void Renderer::UserInterfaceRenderer::RecordCommandBuffer(int currentFrameIndex)

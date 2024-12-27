@@ -40,12 +40,12 @@ namespace Renderer
             const VulkanCore::VSwapChain& swapChain,
             VulkanUtils::ImGuiInitializer& imGuiInitilaizer);
 
-            void RenderAndPresent(int currentFrameIndex,int swapChainImageIndex, const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence,  std::vector<vk::Semaphore>& waitSemaphores, std::vector<vk::PipelineStageFlags>& pipelineStages);
+            void RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex, const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence, std::vector<vk::Semaphore>& waitSemaphores, std::vector<vk::PipelineStageFlags>& pipelineStages);
 
             RenderTarget& GetRenderTarget() const {return *m_renderTarget;};
     private:
         const VulkanCore::VDevice& m_device;
-
+        const VulkanCore::VSwapChain& m_swapChain;
         std::unique_ptr<Renderer::RenderTarget> m_renderTarget;
         std::unique_ptr<VulkanCore::VCommandPool> m_commandPool;
         std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_commandBuffer;

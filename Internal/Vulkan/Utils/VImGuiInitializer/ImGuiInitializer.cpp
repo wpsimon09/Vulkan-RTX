@@ -77,6 +77,7 @@ namespace VulkanUtils
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplVulkan_NewFrame();
         ImGui::NewFrame();
+        ImGui::ShowDemoWindow();
     }
 
     void ImGuiInitializer::EndRender()
@@ -88,6 +89,7 @@ namespace VulkanUtils
     {
         ImGui::Render();
         ImDrawData* drawData = ImGui::GetDrawData();
+
 
         assert(commandBuffer.GetIsRecording() && "Command buffer that the UI tried to render to is not accepting new commands ");
         ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer.GetCommandBuffer());

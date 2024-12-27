@@ -140,7 +140,6 @@ namespace Renderer {
 
         m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer ,true);
 
-        // TODO: dont use depth for swap chain
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
             std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
