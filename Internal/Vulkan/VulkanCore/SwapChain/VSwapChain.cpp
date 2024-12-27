@@ -27,9 +27,6 @@ VulkanCore::VSwapChain::VSwapChain(const VulkanCore::VDevice &device, const Vulk
 
 void VulkanCore::VSwapChain::Destroy() {
     Utils::Logger::LogInfoVerboseOnly("Destroying swap chain images... ");
-    for (auto &image : m_swapChainImages) {
-        m_device.GetDevice().destroyImage(image);
-    }
 
     m_device.GetDevice().destroySwapchainKHR(m_swapChain);
 

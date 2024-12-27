@@ -20,6 +20,7 @@ namespace Renderer
 
 namespace VulkanCore
 {
+    class VSwapChain;
     class VRenderPass;
     class VDevice;
     class VFrameBuffer;
@@ -31,10 +32,11 @@ namespace Renderer {
 class RenderTarget {
 public:
     RenderTarget(const VulkanCore::VDevice& device,int width, int height, vk::Format colourFormat = vk::Format::eR8G8B8A8Unorm);
-    RenderTarget(const VulkanCore::VDevice& device, const std::vector<vk::Image>& swapChainImages, const vk::Format& swapChainFormat, const vk::Extent2D swapChainExtend);
+    RenderTarget(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain);
 
 
     void HandleResize(int newWidth, int newHeight);
+    void HandleSwapChainResize(const VulkanCore::VSwapChain& swapChain);
     void Destroy();
     void DestroyForResize();
 
@@ -50,6 +52,8 @@ private:
 
     friend Renderer::BaseRenderer;
     friend Renderer::UserInterfaceRenderer;
+
+    void CreateRenderTargetForSwapChain(const VulkanCore::VSwapChain& swapChain);
 };
 
 } // Renderer

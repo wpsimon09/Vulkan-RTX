@@ -66,7 +66,7 @@ private:
 
     VulkanUtils::VPushDescriptorManager &m_pushDescriptorSetManager;
     uint32_t m_currentImageIndex = 0;
-    glm::uint32_t m_currentFrameIndex = 0;
+    uint32_t m_currentFrameIndex = 0;
 
     std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
     std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_renderFinishedSemaphores;

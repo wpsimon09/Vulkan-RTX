@@ -10,6 +10,7 @@
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+#include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 
 namespace Renderer {
@@ -61,46 +62,9 @@ namespace Renderer {
         Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
     }
 
-    RenderTarget::RenderTarget(const VulkanCore::VDevice& device, const std::vector<vk::Image>& swapChainImages,
-        const vk::Format& swapChainFormat, const vk::Extent2D swapChainExtend): m_device(device), m_width(swapChainExtend.width), m_height(swapChainExtend.height)
+    RenderTarget::RenderTarget(const VulkanCore::VDevice& device,const VulkanCore::VSwapChain& swapChain): m_device(device), m_width(swapChain.GetExtent().width), m_height(swapChain.GetExtent().height)
     {
-
-        // for swap chain
-
-        Utils::Logger::LogInfoVerboseOnly("Creating render target for swap chain images...");
-        m_colourBuffer.resize(swapChainImages.size());
-        m_frameBuffers.resize(swapChainImages.size());
-
-
-        //==========================
-        // CREATE DEPTH ATTACHMENT
-        //==========================
-        m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(),
-                                                             vk::ImageAspectFlagBits::eDepth);
-        m_depthBuffer->Resize(swapChainExtend.width, swapChainExtend.height);
-
-        //==========================
-        // CREATE COLOUR ATTACHMENT
-        //==========================
-        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-        {
-            m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i],
-                                                                     swapChainExtend.width, swapChainExtend.height
-                                                                     , 1,
-                                                                     swapChainFormat);
-        }
-
-        m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer ,true);
-
-
-        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-        {
-            std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
-            attachments.emplace_back(*m_colourBuffer[i]);
-            attachments.emplace_back(*m_depthBuffer);
-            m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, swapChainExtend.width, swapChainExtend.height);
-        }
-
+        CreateRenderTargetForSwapChain(swapChain);
         Utils::Logger::LogSuccess("Render target for swap chain created created");
     }
 
@@ -115,6 +79,13 @@ namespace Renderer {
         m_depthBuffer->Resize(newWidth, newHeight);
     }
 
+    void RenderTarget::HandleSwapChainResize(const VulkanCore::VSwapChain& swapChain)
+    {
+        Destroy();
+        CreateRenderTargetForSwapChain(swapChain);
+        Utils::Logger::LogSuccess("Render target for swap chain recreated");
+    }
+
     void RenderTarget::Destroy()
     {
         Utils::Logger::LogInfoVerboseOnly("Destroying render target...");
@@ -124,6 +95,7 @@ namespace Renderer {
             m_frameBuffers[i]->Destroy();
         }
         m_depthBuffer->Destroy();
+        m_renderPass->Destroy();
 
         Utils::Logger::LogSuccess("Render target destroyed");
     }
@@ -137,4 +109,43 @@ namespace Renderer {
         m_renderPass->Destroy();
     }
 
+    void RenderTarget::CreateRenderTargetForSwapChain(const VulkanCore::VSwapChain& swapChain)
+    {
+        auto swapChainImages = swapChain.GetSwapChainImages();
+        auto swapChainExtent = swapChain.GetExtent();
+        auto swapChainFormat = swapChain.GetSurfaceFormatKHR().format;
+        // for swap chain
+        Utils::Logger::LogInfoVerboseOnly("Creating render target for swap chain images...");
+        m_colourBuffer.resize(swapChainImages.size());
+        m_frameBuffers.resize(swapChainImages.size());
+
+
+        //==========================
+        // CREATE DEPTH ATTACHMENT
+        //==========================
+        m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(),
+                                                             vk::ImageAspectFlagBits::eDepth, vk::ImageUsageFlagBits::eDepthStencilAttachment);
+        m_depthBuffer->Resize(swapChainExtent.width, swapChainExtent.height);
+
+        //==========================
+        // CREATE COLOUR ATTACHMENT
+        //==========================
+        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
+            m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i],
+                                                                     swapChainExtent.width, swapChainExtent.height
+                                                                     , 1,
+                                                                     swapChainFormat);
+        }
+
+        m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer ,true);
+
+        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
+            std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
+            attachments.emplace_back(*m_colourBuffer[i]);
+            attachments.emplace_back(*m_depthBuffer);
+            m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, swapChainExtent.width, swapChainExtent.height);
+        }
+    }
 } // Renderer

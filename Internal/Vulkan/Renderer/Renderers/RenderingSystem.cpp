@@ -40,8 +40,8 @@ namespace Renderer {
         m_renderFinishedSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         m_isFrameFinishFences.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
-            m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
-            m_renderFinishedSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+            m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device, false);
+            m_renderFinishedSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device, false);
             m_isFrameFinishFences[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device, true);
         }
 
@@ -49,7 +49,7 @@ namespace Renderer {
         // Renderers creation
         //----------------------------------------------------------------------------------------------------------------------------
         m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager, 800, 600);
-        m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, m_swapChain.get(), imGuiInitiliazer);
+        m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, *m_swapChain, imGuiInitiliazer);
 
         //------------------------------------------------------------------------------------------------------------------------
         // CREATE PIPELINE MANAGER
@@ -67,25 +67,29 @@ namespace Renderer {
         //=================================================
         // GET SWAP IMAGE INDEX
         //=================================================
-        auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
+        auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain,UINT64_MAX,
                                                                  *m_imageAvailableSemaphores[m_currentFrameIndex],
                                                                  nullptr);
         switch (imageIndex.first) {
         case vk::Result::eSuccess: {
                 m_currentImageIndex = imageIndex.second;
                 Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
+                break;
         }
         case vk::Result::eErrorOutOfDateKHR: {
-                //m_swapChain->RecreateSwapChain();
+                m_swapChain->RecreateSwapChain();
+                m_uiRenderer->GetRenderTarget().HandleSwapChainResize(*m_swapChain);
                 Utils::Logger::LogError("Swap chain was out of date, trying to recreate it...  ");
                 return;
         }
         case vk::Result::eSuboptimalKHR: {
-                throw std::runtime_error("Suboptimal swap chain retrieved");
+                //m_swapChain->RecreateSwapChain();
+                //return;
         };
         default:
             break;
         }
+
 
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
 
@@ -96,14 +100,11 @@ namespace Renderer {
         m_sceneRenderer->Render(m_currentFrameIndex,*m_isFrameFinishFences[m_currentFrameIndex],globalUniformUpdateInfo, m_uniformBufferManager, *m_renderingContext, m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED)  );
 
         // gather all semaphores presentation should wait on
-        std::vector<std::pair<vk::Semaphore, vk::PipelineStageFlags>> uiWaitSemaphores = {
-            {m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), vk::PipelineStageFlagBits::eColorAttachmentOutput},
-            {m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex), vk::PipelineStageFlagBits::eFragmentShader}
-            //TODO:  here is going to be one more that will transition image layout to the shader read only
-        };
+        std::vector<vk::Semaphore> waitSemaphores = {m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};
+        std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,vk::PipelineStageFlagBits::eFragmentShader};
 
         // render UI and present to swap chain
-        m_uiRenderer->RenderAndPresent(m_currentFrameIndex,m_currentImageIndex, *m_isFrameFinishFences[m_currentFrameIndex], uiWaitSemaphores );
+        m_uiRenderer->RenderAndPresent(m_currentFrameIndex,m_currentImageIndex, *m_isFrameFinishFences[m_currentFrameIndex], waitSemaphores, waitStages );
 
         m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }

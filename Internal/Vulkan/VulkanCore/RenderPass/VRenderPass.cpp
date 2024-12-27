@@ -44,7 +44,7 @@ void VulkanCore::VRenderPass::CreateRenderPassForSwapChain() {
     m_colourAttachmentDescription.finalLayout = vk::ImageLayout::ePresentSrcKHR;
 
     m_colourAttachmentRef.attachment = 0;
-    m_colourAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+    m_colourAttachmentRef.layout = vk::ImageLayout::ePresentSrcKHR;
 
     //-----------------
     // DEPTH ATTACHMENT
