@@ -52,7 +52,7 @@ namespace Renderer
 
         VulkanUtils::ImGuiInitializer& m_imguiInitializer;
     private:
-        void RecordCommandBuffer(int currentFrameIndex);
+        void RecordCommandBuffer(int currentFrameIndex,uint32_t swapChainImageIndex);
 
         std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_ableToPresentSemaphore;
     };

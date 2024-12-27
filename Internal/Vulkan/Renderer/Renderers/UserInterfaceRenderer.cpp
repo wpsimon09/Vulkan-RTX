@@ -42,7 +42,7 @@ void Renderer::UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, ui
     // RECORD CMD BUFFER
     //=============================
     m_commandBuffer[currentFrameIndex]->BeginRecording();
-    RecordCommandBuffer(currentFrameIndex);
+    RecordCommandBuffer(currentFrameIndex, swapChainImageIndex);
     m_commandBuffer[currentFrameIndex]->EndRecording();
     m_imguiInitializer.EndRender();
 
@@ -73,7 +73,6 @@ void Renderer::UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, ui
     //===========================
     // PRESENT TO SCREEN
     //===========================
-    //TODO: tmrw
     vk::PresentInfoKHR presentInfo;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = &m_ableToPresentSemaphore[currentFrameIndex]->GetSyncPrimitive();
@@ -85,7 +84,7 @@ void Renderer::UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, ui
     //assert(presentResult == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 }
 
-void Renderer::UserInterfaceRenderer::RecordCommandBuffer(int currentFrameIndex)
+void Renderer::UserInterfaceRenderer::RecordCommandBuffer(int currentFrameIndex, uint32_t swapChainImageIndex)
 {
 
     //==============================================
@@ -93,7 +92,7 @@ void Renderer::UserInterfaceRenderer::RecordCommandBuffer(int currentFrameIndex)
     //==============================================
     vk::RenderPassBeginInfo renderPassBeginInfo;
     renderPassBeginInfo.renderPass = m_renderTarget->m_renderPass->GetRenderPass();
-    renderPassBeginInfo.framebuffer = m_renderTarget->m_frameBuffers[currentFrameIndex]->GetFrameBuffer();
+    renderPassBeginInfo.framebuffer = m_renderTarget->m_frameBuffers[swapChainImageIndex]->GetFrameBuffer();
     renderPassBeginInfo.renderArea.offset.x = 0;
     renderPassBeginInfo.renderArea.offset.y = 0;
     renderPassBeginInfo.renderArea.extent.width = static_cast<uint32_t>(m_renderTarget->m_width),

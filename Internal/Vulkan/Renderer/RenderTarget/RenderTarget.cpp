@@ -130,7 +130,7 @@ namespace Renderer {
         //==========================
         // CREATE COLOUR ATTACHMENT
         //==========================
-        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        for (int i = 0; i < swapChainImages.size(); i++)
         {
             m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i],
                                                                      swapChainExtent.width, swapChainExtent.height
@@ -140,7 +140,7 @@ namespace Renderer {
 
         m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer ,true);
 
-        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        for (int i = 0; i < swapChainImages.size(); i++)
         {
             std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
             attachments.emplace_back(*m_colourBuffer[i]);

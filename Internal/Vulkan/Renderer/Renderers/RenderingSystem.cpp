@@ -83,6 +83,8 @@ namespace Renderer {
                 return;
         }
         case vk::Result::eSuboptimalKHR: {
+                m_currentImageIndex = imageIndex.second;
+                break;
                 //m_swapChain->RecreateSwapChain();
                 //return;
         };
