@@ -9,7 +9,7 @@
 #include <vector>
 #include <VMA/vk_mem_alloc.h>
 
-#include "Editor/Index.hpp"
+#include "Editor/Views/Index.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
 namespace VEditor

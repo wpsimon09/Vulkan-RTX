@@ -4,9 +4,9 @@
 
 #include "Editor.hpp"
 
-#include "Index.hpp"
+#include "Views/Index.hpp"
 #include "UIContext/UIContext.hpp"
-#include "ViewPort/ViewPort.hpp"
+#include "Views/ViewPort/ViewPort.hpp"
 
 namespace VEditor {
     Editor::Editor(UIContext& uiContext): m_uiContext(uiContext)

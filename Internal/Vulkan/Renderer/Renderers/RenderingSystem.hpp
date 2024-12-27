@@ -8,7 +8,7 @@
 #include <vector>
 #include <glm/fwd.hpp>
 
-#include "Editor/UserInterface/IUserInterfaceElement.hpp"
+#include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 

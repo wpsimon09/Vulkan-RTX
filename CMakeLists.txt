@@ -95,12 +95,12 @@ set(SOURCES
         Internal/Application/GLTFLoader/GltfLoader.hpp
         Internal/Editor/UIContext/UIContext.cpp
         Internal/Editor/UIContext/UIContext.hpp
-        Internal/Editor/Index.cpp
-        Internal/Editor/Index.hpp
-        Internal/Editor/UserInterface/IUserInterfaceElement.cpp
-        Internal/Editor/UserInterface/IUserInterfaceElement.hpp
-        Internal/Editor/ViewPort/ViewPort.cpp
-        Internal/Editor/ViewPort/ViewPort.hpp
+        Internal/Editor/Views/Index.cpp
+        Internal/Editor/Views/Index.hpp
+        Internal/Editor/Views/UserInterface/IUserInterfaceElement.cpp
+        Internal/Editor/Views/UserInterface/IUserInterfaceElement.hpp
+        Internal/Editor/Views/ViewPort/ViewPort.cpp
+        Internal/Editor/Views/ViewPort/ViewPort.hpp
         Internal/Vulkan/Renderer/Renderers/SceneRenderer.cpp
         Internal/Vulkan/Renderer/Renderers/SceneRenderer.hpp
         Internal/Vulkan/Renderer/Renderers/UserInterfaceRenderer.cpp

@@ -4,7 +4,7 @@
 
 #ifndef VIEWPORT_HPP
 #define VIEWPORT_HPP
-#include "Editor/UserInterface/IUserInterfaceElement.hpp"
+#include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
 struct ViewPortContext;
 
