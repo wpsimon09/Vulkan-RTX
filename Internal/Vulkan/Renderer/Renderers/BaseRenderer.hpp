@@ -10,7 +10,7 @@
 
 namespace VulkanUtils
 {
-    class ImGuiInitializer;
+    class UIContext;
 }
 
 namespace VulkanUtils
@@ -62,7 +62,7 @@ namespace Renderer
                             const VulkanUtils::VUniformBufferManager& uniformBufferManager ,
                             const VulkanStructs::RenderContext& renderContext,
                             const VulkanCore::VGraphicsPipeline& pipeline) {};
-        virtual void Render(int currentFrameIndex, const VulkanUtils::ImGuiInitializer& guiInitialzer) {}
+        virtual void Render(int currentFrameIndex, const VulkanUtils::UIContext& guiInitialzer) {}
 
     protected:
 

@@ -8,7 +8,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
-#include "Vulkan/Utils/VImGuiInitializer/ImGuiInitializer.hpp"
+#include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
@@ -205,5 +205,6 @@ namespace Renderer {
     void SceneRenderer::Destroy()
     {
         BaseRenderer::Destroy();
+        m_sceneCommandPool->Destroy();
     }
 } // Renderer

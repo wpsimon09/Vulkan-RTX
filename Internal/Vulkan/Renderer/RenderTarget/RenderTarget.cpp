@@ -89,9 +89,12 @@ namespace Renderer {
     void RenderTarget::Destroy()
     {
         Utils::Logger::LogInfoVerboseOnly("Destroying render target...");
-        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        for (int i = 0; i < m_colourBuffer.size(); i++)
         {
             m_colourBuffer[i]->Destroy();
+        }
+        for (int i = 0; i < m_frameBuffers.size(); i++)
+        {
             m_frameBuffers[i]->Destroy();
         }
         m_depthBuffer->Destroy();

@@ -2,7 +2,7 @@
 // Created by wpsimon09 on 20/12/24.
 //
 
-#include "ImGuiInitializer.hpp"
+#include "UIContext.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -17,9 +17,9 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
 
-namespace VulkanUtils
+namespace VEditor
 {
-    ImGuiInitializer::ImGuiInitializer(const VulkanCore::VDevice& device,
+    UIContext::UIContext(const VulkanCore::VDevice& device,
                                        const VulkanCore::VulkanInstance& instance,
                                        const WindowManager& windowManager
         ): m_device(device), m_instance(instance), m_windowManager(windowManager)
@@ -27,7 +27,7 @@ namespace VulkanUtils
         m_io = nullptr;
     }
 
-    void ImGuiInitializer::Initialize(const VulkanCore::VRenderPass& renderPass)
+    void UIContext::Initialize(const VulkanCore::VRenderPass& renderPass)
     {
         Utils::Logger::LogInfo("Startin to initialize ImGui...");
 
@@ -72,7 +72,7 @@ namespace VulkanUtils
         Utils::Logger::LogSuccess("ImGui successfully initialized");
     }
 
-    void ImGuiInitializer::BeginRender()
+    void UIContext::BeginRender()
     {
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplVulkan_NewFrame();
@@ -80,12 +80,12 @@ namespace VulkanUtils
         ImGui::ShowDemoWindow();
     }
 
-    void ImGuiInitializer::EndRender()
+    void UIContext::EndRender()
     {
 
     }
 
-    void ImGuiInitializer::Render(VulkanCore::VCommandBuffer& commandBuffer)
+    void UIContext::Render(VulkanCore::VCommandBuffer& commandBuffer)
     {
         ImGui::Render();
         ImDrawData* drawData = ImGui::GetDrawData();
@@ -95,7 +95,7 @@ namespace VulkanUtils
         ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer.GetCommandBuffer());
     }
 
-    void ImGuiInitializer::Destroy()
+    void UIContext::Destroy()
     {
         Utils::Logger::LogInfoVerboseOnly("Destroying ImGuiInitializer...");
         ImGui_ImplVulkan_Shutdown();
@@ -104,4 +104,5 @@ namespace VulkanUtils
         m_device.GetDevice().destroyDescriptorPool(m_imguiDescriptorPool);
         Utils::Logger::LogSuccess("ImGui successfully destroyed");
     }
+
 } // VulkanUtils

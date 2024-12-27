@@ -9,7 +9,13 @@
 #include <vector>
 #include <VMA/vk_mem_alloc.h>
 
+#include "Editor/Index.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
+
+namespace VEditor
+{
+    class UIContext;
+}
 
 namespace Renderer
 {
@@ -18,26 +24,8 @@ namespace Renderer
 
 namespace VulkanUtils
 {
-    class ImGuiInitializer;
-}
-
-namespace VulkanUtils
-{
-}
-
-namespace VulkanUtils
-{
     class VPushDescriptorManager;
     class VUniformBufferManager;
-}
-
-namespace VulkanUtils
-{
-}
-
-namespace Renderer
-{
-    class VRenderer;
 }
 
 class Client;
@@ -79,8 +67,7 @@ private:
     std::unique_ptr<class VulkanUtils::VUniformBufferManager> m_uniformBufferManager;
     std::unique_ptr<class VulkanCore::VulkanInstance> m_vulkanInstance;
     std::unique_ptr<class VulkanCore::VDevice> m_vulkanDevice;
-    std::unique_ptr<class Renderer::VRenderer> m_renderer;
-    std::unique_ptr<class VulkanUtils::ImGuiInitializer> m_imguiInitializer;
+    std::unique_ptr<class VEditor::UIContext> m_uiContext;
     std::unique_ptr<class Renderer::RenderingSystem> m_renderingSystem;
 };
 

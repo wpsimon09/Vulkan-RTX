@@ -60,8 +60,6 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandPool.cpp
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp
-        Internal/Vulkan/Renderer/Renderers/VRenderer.cpp
-        Internal/Vulkan/Renderer/Renderers/VRenderer.hpp
         Internal/Vulkan/VulkanCore/Synchronization/VSyncPrimitive.cpp
         Internal/Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp
         Internal/Vulkan/VulkanCore/Buffer/VBuffer.cpp
@@ -95,14 +93,14 @@ set(SOURCES
         Internal/Application/Rendering/Material/MaterialStructs.hpp
         Internal/Application/GLTFLoader/GltfLoader.cpp
         Internal/Application/GLTFLoader/GltfLoader.hpp
-        Internal/Vulkan/Utils/VImGuiInitializer/ImGuiInitializer.cpp
-        Internal/Vulkan/Utils/VImGuiInitializer/ImGuiInitializer.hpp
-        Internal/Edittor/Index.cpp
-        Internal/Edittor/Index.hpp
-        Internal/Edittor/UserInterface/IUserInterfaceElement.cpp
-        Internal/Edittor/UserInterface/IUserInterfaceElement.hpp
-        Internal/Edittor/ViewPort/ViewPort.cpp
-        Internal/Edittor/ViewPort/ViewPort.hpp
+        Internal/Editor/UIContext/UIContext.cpp
+        Internal/Editor/UIContext/UIContext.hpp
+        Internal/Editor/Index.cpp
+        Internal/Editor/Index.hpp
+        Internal/Editor/UserInterface/IUserInterfaceElement.cpp
+        Internal/Editor/UserInterface/IUserInterfaceElement.hpp
+        Internal/Editor/ViewPort/ViewPort.cpp
+        Internal/Editor/ViewPort/ViewPort.hpp
         Internal/Vulkan/Renderer/Renderers/SceneRenderer.cpp
         Internal/Vulkan/Renderer/Renderers/SceneRenderer.hpp
         Internal/Vulkan/Renderer/Renderers/UserInterfaceRenderer.cpp

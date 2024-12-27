@@ -10,10 +10,16 @@
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 
+namespace VEditor
+{
+    class UIContext;
+}
+
 namespace VulkanCore
 {
     class VCommandBuffer;
 }
+
 
 namespace VulkanCore
 {
@@ -26,7 +32,7 @@ namespace VulkanCore
 namespace VulkanUtils
 {
     class VUniformBufferManager;
-    class ImGuiInitializer;
+    class UIContext;
 }
 
 namespace Renderer
@@ -38,11 +44,13 @@ namespace Renderer
         explicit UserInterfaceRenderer(
             const VulkanCore::VDevice& device,
             const VulkanCore::VSwapChain& swapChain,
-            VulkanUtils::ImGuiInitializer& imGuiInitilaizer);
+            VEditor::UIContext& uiContext);
 
             void RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex, const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence, std::vector<vk::Semaphore>& waitSemaphores, std::vector<vk::PipelineStageFlags>& pipelineStages);
 
             RenderTarget& GetRenderTarget() const {return *m_renderTarget;};
+
+            void Destroy();
     private:
         const VulkanCore::VDevice& m_device;
         const VulkanCore::VSwapChain& m_swapChain;
@@ -50,11 +58,13 @@ namespace Renderer
         std::unique_ptr<VulkanCore::VCommandPool> m_commandPool;
         std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_commandBuffer;
 
-        VulkanUtils::ImGuiInitializer& m_imguiInitializer;
+        VEditor::UIContext& m_imguiInitializer;
     private:
         void RecordCommandBuffer(int currentFrameIndex,uint32_t swapChainImageIndex);
 
         std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_ableToPresentSemaphore;
+
+
     };
 }
 

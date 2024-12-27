@@ -8,8 +8,14 @@
 #include <vector>
 #include <glm/fwd.hpp>
 
+#include "Editor/UserInterface/IUserInterfaceElement.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
+
+namespace VEditor
+{
+    class UIContext;
+}
 
 struct GlobalUniform;
 
@@ -37,7 +43,7 @@ namespace VulkanCore
 
 namespace VulkanUtils
 {
-    class ImGuiInitializer;
+    class UIContext;
     class VUniformBufferManager;
     class VPushDescriptorManager;
 }
@@ -50,7 +56,7 @@ public:
                     const VulkanCore::VDevice& device,
                     const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                     VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
-                    VulkanUtils::ImGuiInitializer &imGuiInitiliazer);
+                    VEditor::UIContext &uiContext);
 
     VulkanStructs::RenderContext* GetRenderContext() const {return m_renderingContext;}
 public:
@@ -62,7 +68,7 @@ private:
 
     const VulkanCore::VDevice &m_device;
     const VulkanUtils::VUniformBufferManager &m_uniformBufferManager;
-    VulkanUtils::ImGuiInitializer &m_guiInitializer;
+    VEditor::UIContext &m_uiContext;
 
     VulkanUtils::VPushDescriptorManager &m_pushDescriptorSetManager;
     uint32_t m_currentImageIndex = 0;

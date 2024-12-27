@@ -38,9 +38,6 @@
 // Vulkan Utilities
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 
-// Vulkan Renderer
-#include "Vulkan/Renderer/Renderers/VRenderer.hpp"
-
 // Application Entry
 #include "VulkanRtx.hpp"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
@@ -49,7 +46,7 @@
 
 
 // Im gui entry
-#include "Vulkan/Utils/VImGuiInitializer/ImGuiInitializer.hpp"
+#include "Editor/UIContext/UIContext.hpp"
 
 
 Application::Application()
@@ -77,9 +74,9 @@ void Application::Init()
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 
     //m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
-    m_imguiInitializer = std::make_unique<VulkanUtils::ImGuiInitializer>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager);
+    m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager);
 
-    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager, *m_imguiInitializer);
+    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager, *m_uiContext);
 
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
@@ -148,7 +145,7 @@ Application::~Application() {
     m_uniformBufferManager->Destroy();
     VulkanCore::VSamplers::DestroyAllSamplers(*m_vulkanDevice);
     m_pushDescriptorSetManager->Destroy();
-    m_imguiInitializer->Destroy();
+    m_uiContext->Destroy();
 
     m_vulkanDevice->Destroy();
 }

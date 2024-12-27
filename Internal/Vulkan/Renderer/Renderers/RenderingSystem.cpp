@@ -4,6 +4,7 @@
 
 #include "RenderingSystem.hpp"
 
+#include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
@@ -24,7 +25,7 @@ namespace Renderer {
     RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance& instance,const VulkanCore::VDevice& device,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
          VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
-         VulkanUtils::ImGuiInitializer &imGuiInitiliazer): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext{}, m_guiInitializer(imGuiInitiliazer)
+         VEditor::UIContext &uiContext): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext{}, m_uiContext(uiContext)
     {
         m_renderingContext = &m_mainRenderContext;
 
@@ -49,7 +50,7 @@ namespace Renderer {
         // Renderers creation
         //----------------------------------------------------------------------------------------------------------------------------
         m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager, 800, 600);
-        m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, *m_swapChain, imGuiInitiliazer);
+        m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, *m_swapChain, uiContext);
 
         //------------------------------------------------------------------------------------------------------------------------
         // CREATE PIPELINE MANAGER
@@ -125,6 +126,8 @@ namespace Renderer {
             m_isFrameFinishFences[i]->Destroy();
         }
         m_sceneRenderer->Destroy();
+        m_uiRenderer->Destroy();
+        m_swapChain->Destroy();
         m_pipelineManager->DestroyPipelines();
     }
 } // Renderer

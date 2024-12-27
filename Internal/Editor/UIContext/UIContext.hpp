@@ -19,11 +19,11 @@ namespace VulkanCore
     class VDevice;
 }
 
-namespace VulkanUtils {
+namespace VEditor {
 
-class ImGuiInitializer {
+class UIContext {
 public:
-    explicit ImGuiInitializer(
+    explicit UIContext(
         const VulkanCore::VDevice& device,
         const VulkanCore::VulkanInstance& instance,
         const WindowManager& windowManager
@@ -45,6 +45,6 @@ private:
     ImGuiIO* m_io;
 };
 
-} // VulkanUtils
+} // VEditor
 
 #endif //IMGUIINITIALIZER_HPP
