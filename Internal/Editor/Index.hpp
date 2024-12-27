@@ -16,10 +16,9 @@ namespace VEditor
 {
     class Index: public IUserInterfaceElement {
     public:
-        Index(const ApplicationCore::Scene& scene);
+        Index(int width, int height);
         void Init() override;
-    private:
-       ApplicationCore::Scene& m_scene;
+        void Resize(int newWidth, int newHeight) override;
     };
 }
 

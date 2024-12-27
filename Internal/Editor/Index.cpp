@@ -3,3 +3,16 @@
 //
 
 #include "Index.hpp"
+
+VEditor::Index::Index(int width, int height)
+{
+}
+
+void VEditor::Index::Init()
+{
+    IUserInterfaceElement::Init();
+}
+
+void VEditor::Index::Resize(int newWidth, int newHeight)
+{
+}

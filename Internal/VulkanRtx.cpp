@@ -46,6 +46,7 @@
 
 
 // Im gui entry
+#include "Editor/Editor.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 
 
@@ -74,7 +75,7 @@ void Application::Init()
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 
     //m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
-    m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager);
+    m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, m_client->GetScene());
 
     m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager, *m_uiContext);
 
@@ -87,6 +88,9 @@ void Application::Init()
     //auto stormTrooper = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/storm-trooper.glb");
     auto stormTrooper = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/star_wars_at-st.glb");
     m_client->GetScene().AddNode(stormTrooper);
+
+    m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
+    m_editor->Init();
 }
 
 void Application::MainLoop()
@@ -113,6 +117,7 @@ void Application::Run()
     Utils::Logger::LogInfo("Application took: " + std::to_string(duration.count()) + " milliseconds to set-up");
     Utils::Logger::LogSuccess("APPLICATION CONFIGURED SUCCESSFULLY !");
 
+
     MainLoop();
 }
 
@@ -123,6 +128,8 @@ void Application::Update()
     m_client->UpdateCamera(m_windowManager->GetCameraMovement());
     m_client->UpdateClient(m_windowManager->GetLightMovement());
     }
+
+    m_editor->Update();
 }
 
 void Application::Render() {

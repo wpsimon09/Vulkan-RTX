@@ -14,6 +14,11 @@
 
 namespace VEditor
 {
+    class Editor;
+}
+
+namespace VEditor
+{
     class UIContext;
 }
 
@@ -68,6 +73,7 @@ private:
     std::unique_ptr<class VulkanCore::VulkanInstance> m_vulkanInstance;
     std::unique_ptr<class VulkanCore::VDevice> m_vulkanDevice;
     std::unique_ptr<class VEditor::UIContext> m_uiContext;
+    std::unique_ptr<class VEditor::Editor> m_editor;
     std::unique_ptr<class Renderer::RenderingSystem> m_renderingSystem;
 };
 

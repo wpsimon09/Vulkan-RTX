@@ -18,8 +18,10 @@ public:
 
     void InitWindow();
     bool GetIsDirty() const { return m_isDirty; }
+    bool GetHasResized() {auto temp = m_hasResized; m_hasResized = false; return temp;}
+    bool GetHasResizedStatus() const {return m_hasResized;}
     ClientUpdateInfo& GetLightMovement()   { m_isDirty = false;  return m_clientUpdate;    };
-    CameraUpdateInfo& GetCameraMovement() { m_isDirty = false ; return m_cameraMovement; };
+    CameraUpdateInfo& GetCameraMovement()  { m_isDirty = false ; return m_cameraMovement; };
 
     static int GetWindowWidth() ;
     static int GetWindowHeight();
@@ -42,6 +44,7 @@ private:
     int m_width, m_height;
     bool m_isMousePressed;
     bool m_isShiftPressed;
+    bool m_hasResized;
     float m_lastX = 0.0f, m_lastY = 0.0f;
     bool m_isDirty = false;
     glm::vec2 m_mousePos;

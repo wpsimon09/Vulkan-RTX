@@ -6,7 +6,17 @@
 
 #include <imgui.h>
 
-VEditor::ViewPort::ViewPort(vk::ImageView& rendererOutput): m_rendererOutput(rendererOutput)
+VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext): m_viewPortContext(viewPortContext), IUserInterfaceElement{}
 {
-
 }
+
+void VEditor::ViewPort::Init()
+{
+    IUserInterfaceElement::Init();
+}
+
+void VEditor::ViewPort::Resize(int newWidth, int newHeight)
+{
+}
+
+

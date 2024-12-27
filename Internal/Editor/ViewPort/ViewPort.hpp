@@ -4,19 +4,22 @@
 
 #ifndef VIEWPORT_HPP
 #define VIEWPORT_HPP
+#include "Editor/UserInterface/IUserInterfaceElement.hpp"
 
-namespace vk
-{
-    class ImageView;
-}
+struct ViewPortContext;
 
 namespace VEditor
 {
-    class ViewPort {
+    class ViewPort: public IUserInterfaceElement {
     public:
-        ViewPort(vk::ImageView& rendererOutput);
+        explicit ViewPort(ViewPortContext& viewPortContext);
+
+        virtual void Init() override;
+
+        void Resize(int newWidth, int newHeight) override;
+
     private:
-        vk::ImageView& m_rendererOutput;
+        ViewPortContext& m_viewPortContext;
     };
 }
 

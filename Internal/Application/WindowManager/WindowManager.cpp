@@ -15,6 +15,7 @@ WindowManager::WindowManager(int windowWidth, int windowHeight):    m_cameraMove
     m_isDirty = true;
     m_isMousePressed = false;
     m_isShiftPressed = false;
+    m_hasResized = false;
 }
 
 void WindowManager::InitWindow()
@@ -37,12 +38,14 @@ void WindowManager::InitWindow()
 int WindowManager::GetWindowWidth() {
     auto winm = reinterpret_cast<WindowManager*>(m_window);
     glfwGetFramebufferSize(m_window, &winm->m_width, &winm->m_height);
+    winm->m_hasResized = false;
     return winm->m_width;
 }
 
 int WindowManager::GetWindowHeight() {
     auto winm = reinterpret_cast<WindowManager*>(m_window);
     glfwGetFramebufferSize(m_window, &winm->m_width, &winm->m_height);
+    winm->m_hasResized = false;
     return winm->m_height;
 }
 
@@ -152,6 +155,7 @@ void WindowManager::FrameBufferResizeCallback(GLFWwindow *window, int width, int
     winm->m_height = height;
     winm->m_cameraMovement.NewHeight = static_cast<float>(height);
     winm->m_cameraMovement.NewWidth = static_cast<float>(width);
+    winm->m_hasResized = true;
 }
 
 void WindowManager::KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {

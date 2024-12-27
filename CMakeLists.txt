@@ -111,6 +111,9 @@ set(SOURCES
         Internal/Vulkan/Renderer/RenderTarget/RenderTarget.hpp
         Internal/Vulkan/Renderer/Renderers/BaseRenderer.cpp
         Internal/Vulkan/Renderer/Renderers/BaseRenderer.hpp
+        Internal/Editor/UIContext/ViewPortContext.hpp
+        Internal/Editor/Editor.cpp
+        Internal/Editor/Editor.hpp
 
 )
 
