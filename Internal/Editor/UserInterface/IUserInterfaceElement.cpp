@@ -4,10 +4,10 @@
 
 #include "IUserInterfaceElement.hpp"
 
-void VEditor::IUserInterfaceElement::Init()
+void VEditor::IUserInterfaceElement::Render()
 {
     for (auto &uiChild : m_uiChildren)
     {
-        uiChild->Init();
+        uiChild->Render();
     }
 }

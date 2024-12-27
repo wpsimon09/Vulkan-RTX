@@ -14,7 +14,7 @@ namespace VEditor
     public:
         explicit ViewPort(ViewPortContext& viewPortContext);
 
-        virtual void Init() override;
+        virtual void Render() override;
 
         void Resize(int newWidth, int newHeight) override;
 

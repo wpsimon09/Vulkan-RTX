@@ -11,28 +11,31 @@
 namespace VEditor {
     Editor::Editor(UIContext& uiContext): m_uiContext(uiContext)
     {
+        Utils::Logger::LogInfo("Initialization of visual editor");
+        auto start = std::chrono::high_resolution_clock::now();
+
         auto index = std::make_unique<VEditor::Index>(uiContext.m_windowManager.GetWindowWidth(), uiContext.m_windowManager.GetWindowHeight());
 
         auto viewPort = std::make_unique<ViewPort>(uiContext.m_viewports[ViewPortType::eMain]);
         index->m_uiChildren.emplace_back(std::move(viewPort));
 
         m_uiElements.emplace_back(std::move(index));
-    }
-
-    void Editor::Init()
-    {
-        Utils::Logger::LogInfo("Initialization of visual editor");
-        auto start = std::chrono::high_resolution_clock::now();
-
-        for (auto& uiElement : m_uiElements)
-        {
-            uiElement->Init();
-        }
 
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
         Utils::Logger::LogInfo("Visual editor initialized in: " + std::to_string(duration.count()) + "ms !");
+    }
+
+    void Editor::Render()
+    {
+        m_uiContext.BeginRender();
+        for (auto& uiElement : m_uiElements)
+        {
+            uiElement->Render();
+        }
+        m_uiContext.EndRender();
+
     }
 
     void Editor::Update()

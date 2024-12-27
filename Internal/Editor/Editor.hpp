@@ -17,7 +17,7 @@ class Editor {
 public:
     Editor(UIContext& uiContext);
 
-    void Init();
+    void Render();
     void Update();
     void Resize(int newWidth, int newHeight);
 private:

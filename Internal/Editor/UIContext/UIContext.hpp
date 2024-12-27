@@ -52,6 +52,8 @@ private:
     vk::PipelineCache m_imguiPipelineCache;
     vk::DescriptorPool m_imguiDescriptorPool;
 
+    ImDrawData* m_imguiDrawData;
+
     std::unordered_map<ViewPortType, ViewPortContext> m_viewports;
 
     ImGuiIO* m_io;

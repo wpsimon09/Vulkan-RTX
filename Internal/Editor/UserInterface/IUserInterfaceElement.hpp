@@ -10,12 +10,14 @@
 namespace VEditor
 {
     struct IUserInterfaceElement {
-        virtual void Init();
+        virtual void Render();
 
         std::vector<std::unique_ptr<IUserInterfaceElement>> m_uiChildren;
         virtual ~IUserInterfaceElement() = default;
 
         virtual void Resize(int newWidth, int newHeight) = 0;
+
+        virtual void Update(){};
     };
 }
 

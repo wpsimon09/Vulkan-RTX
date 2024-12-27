@@ -90,7 +90,7 @@ void Application::Init()
     m_client->GetScene().AddNode(stormTrooper);
 
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
-    m_editor->Init();
+    m_editor->Render();
 }
 
 void Application::MainLoop()
@@ -137,12 +137,11 @@ void Application::Render() {
     m_client->GetAssetsManager().Sync();
     m_client->Render(m_renderingSystem->GetRenderContext()); // here
 
+    m_editor->Render();
 
     m_renderingSystem->Render(m_client->GetGlobalDataUpdateInformation());
     m_renderingSystem->GetRenderContext()->DrawCalls.clear();
-    // render using vulkan
-    //m_renderer->SetRtxStatus(m_client->GetIsRTXOn());
-    //m_renderer->Render(m_client->GetGlobalDataUpdateInformation(), *m_imguiInitializer);
+
 }
 
 Application::~Application() {

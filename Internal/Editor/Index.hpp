@@ -17,8 +17,12 @@ namespace VEditor
     class Index: public IUserInterfaceElement {
     public:
         Index(int width, int height);
-        void Init() override;
+        void Render() override;
         void Resize(int newWidth, int newHeight) override;
+    private:
+        int m_width;
+        int m_height;
+
     };
 }
 

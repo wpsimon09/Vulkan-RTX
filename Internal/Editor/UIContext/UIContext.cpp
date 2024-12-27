@@ -79,22 +79,19 @@ namespace VEditor
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplVulkan_NewFrame();
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
+        //ImGui::ShowDemoWindow();
     }
 
     void UIContext::EndRender()
     {
-
+        ImGui::Render();
+        m_imguiDrawData = ImGui::GetDrawData();
     }
 
     void UIContext::Render(VulkanCore::VCommandBuffer& commandBuffer)
     {
-        ImGui::Render();
-        ImDrawData* drawData = ImGui::GetDrawData();
-
-
         assert(commandBuffer.GetIsRecording() && "Command buffer that the UI tried to render to is not accepting new commands ");
-        ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer.GetCommandBuffer());
+        ImGui_ImplVulkan_RenderDrawData(m_imguiDrawData, commandBuffer.GetCommandBuffer());
     }
 
     void UIContext::Destroy()

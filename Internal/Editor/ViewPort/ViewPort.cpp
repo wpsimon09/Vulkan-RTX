@@ -10,13 +10,14 @@ VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext): m_viewPortContext
 {
 }
 
-void VEditor::ViewPort::Init()
+void VEditor::ViewPort::Render()
 {
-    IUserInterfaceElement::Init();
+    IUserInterfaceElement::Render();
 }
 
 void VEditor::ViewPort::Resize(int newWidth, int newHeight)
 {
+
 }
 
 

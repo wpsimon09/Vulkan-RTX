@@ -4,13 +4,20 @@
 
 #include "Index.hpp"
 
-VEditor::Index::Index(int width, int height)
+#include <imgui.h>
+
+VEditor::Index::Index(int width, int height): m_width(width), m_height(height)
 {
 }
 
-void VEditor::Index::Init()
+void VEditor::Index::Render()
 {
-    IUserInterfaceElement::Init();
+    ImGui::SetNextWindowSize(ImVec2(m_width, m_height));
+    ImGui::Begin("Vulkan-RTX Editor");
+        ImGui::Text("Hello, from vulkan ty kokot hlupy");
+
+    ImGui::End();
+    IUserInterfaceElement::Render();
 }
 
 void VEditor::Index::Resize(int newWidth, int newHeight)

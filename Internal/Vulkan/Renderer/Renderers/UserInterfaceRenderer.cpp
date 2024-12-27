@@ -118,7 +118,6 @@ namespace Renderer
         assert(m_commandBuffer[currentFrameIndex]->GetIsRecording());
         auto& cmdBuffer = m_commandBuffer[currentFrameIndex]->GetCommandBuffer();
 
-        m_imguiInitializer.BeginRender();
         cmdBuffer.beginRenderPass(
             &renderPassBeginInfo, vk::SubpassContents::eInline);
 
