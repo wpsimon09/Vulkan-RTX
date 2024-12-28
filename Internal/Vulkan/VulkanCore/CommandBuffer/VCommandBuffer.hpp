@@ -25,6 +25,7 @@ public:
     void BeginRecording();
     void EndRecording();
     void EndAndFlush(const vk::Queue& queue);
+    void EndAndFlush(const vk::Queue& queue, std::vector<vk::Semaphore>& waitSemaphores,std::vector<vk::PipelineStageFlags>& waitStages, std::vector<vk::Semaphore>& signalSemaphores);
 
     ~VCommandBuffer() = default;
 private:

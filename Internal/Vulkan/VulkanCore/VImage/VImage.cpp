@@ -163,6 +163,91 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
 
 }
 
+void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk::ImageLayout targetLayout,
+    std::vector<vk::Semaphore> &waitSemaphores, std::vector<vk::PipelineStageFlags>& waitStages,
+    std::vector<vk::Semaphore> &signalSemaphores)
+{
+        bool flushAfterTransition = false;
+
+    m_imageLayout = targetLayout;
+
+    vk::PipelineStageFlags srcStageFlags;
+    vk::PipelineStageFlags dstStageFlags;
+
+    vk::ImageMemoryBarrier barrier{};
+    barrier.oldLayout = currentLayout;
+    barrier.newLayout = targetLayout;
+    barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
+    barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
+    barrier.image = m_imageVK;
+    barrier.subresourceRange.aspectMask = m_isDepthBuffer ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+
+    if (currentLayout == vk::ImageLayout::eUndefined && targetLayout == vk::ImageLayout::eTransferDstOptimal) {
+        barrier.srcAccessMask = {};
+        barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+        dstStageFlags = vk::PipelineStageFlagBits::eTransfer;
+    }
+    else if (currentLayout == vk::ImageLayout::eTransferDstOptimal && targetLayout ==
+        vk::ImageLayout::eShaderReadOnlyOptimal) {
+        barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eTransfer;
+        dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
+    }
+    else if (currentLayout == vk::ImageLayout::eUndefined && targetLayout ==
+        vk::ImageLayout::eColorAttachmentOptimal) {
+        barrier.srcAccessMask = {};
+        barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentRead;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+        dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+    }
+    else if (currentLayout == vk::ImageLayout::eUndefined && targetLayout ==
+        vk::ImageLayout::eDepthStencilAttachmentOptimal) {
+        barrier.srcAccessMask = {};
+        barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+        dstStageFlags = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    }
+    else if (currentLayout == vk::ImageLayout::eColorAttachmentOptimal && targetLayout ==
+        vk::ImageLayout::eShaderReadOnlyOptimal) {
+        barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
+    }
+    else {
+        throw std::runtime_error("Unsupported layout transition");
+    }
+
+    if(! m_transferCommandBuffer->GetIsRecording())
+    {
+        flushAfterTransition = true;
+        m_transferCommandBuffer->BeginRecording();
+    }
+        m_transferCommandBuffer->GetCommandBuffer().pipelineBarrier(
+            srcStageFlags, dstStageFlags,
+            {},
+            0, nullptr,
+            0, nullptr,
+            1, &barrier
+            );
+    if (flushAfterTransition)
+    {
+        m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue(), waitSemaphores, waitStages, signalSemaphores);
+    }
+
+}
+
 void VulkanCore::VImage::FillWithImageData(const VulkanStructs::ImageData& imageData, bool transitionToShaderReadOnly, bool destroyCurrentImage) {
 
     if(destroyCurrentImage)

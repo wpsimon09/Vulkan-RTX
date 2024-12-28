@@ -49,7 +49,7 @@ namespace Renderer {
         //----------------------------------------------------------------------------------------------------------------------------
         // Renderers creation
         //----------------------------------------------------------------------------------------------------------------------------
-        m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager, 800, 600);
+        m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager, 1980 , 1090);
         m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, *m_swapChain, uiContext);
 
         //------------------------------------------------------------------------------------------------------------------------
@@ -113,13 +113,23 @@ namespace Renderer {
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex,*m_isFrameFinishFences[m_currentFrameIndex],globalUniformUpdateInfo, m_uniformBufferManager, *m_renderingContext, m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED)  );
 
+        std::vector<vk::Semaphore> waitSemaphoresForTransfering = {m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};
+        std::vector<vk::PipelineStageFlags> waitStagesForTransfering = {vk::PipelineStageFlagBits::eColorAttachmentOutput}; // what should be here  ?
+        std::vector<vk::Semaphore> signalSemaphoresForTransfering = {m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
+
+
+        // transition scene layout
+        m_sceneRenderer->GetRenderedImage(m_currentFrameIndex).TransitionImageLayout(vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
+            waitSemaphoresForTransfering,
+            waitStagesForTransfering,
+            signalSemaphoresForTransfering);
 
         // gather all semaphores presentation should wait on
-        std::vector<vk::Semaphore> waitSemaphores = {m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};
-        std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,vk::PipelineStageFlagBits::eFragmentShader};
+        std::vector<vk::Semaphore> waitSemaphoresForPresenting = {m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(),  m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
+        std::vector<vk::PipelineStageFlags> waitStagesForPresenting = {vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader};
 
         // render UI and present to swap chain
-        m_uiRenderer->RenderAndPresent(m_currentFrameIndex,m_currentImageIndex, *m_isFrameFinishFences[m_currentFrameIndex], waitSemaphores, waitStages );
+        m_uiRenderer->RenderAndPresent(m_currentFrameIndex,m_currentImageIndex, *m_isFrameFinishFences[m_currentFrameIndex], waitSemaphoresForPresenting, waitStagesForPresenting );
 
         m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }

@@ -49,7 +49,7 @@ namespace Renderer
         virtual ~BaseRenderer() = default;
 
         const VulkanCore::VRenderPass& GetRenderPass(int currentFrame ) const {return *m_renderTargets->m_renderPass;};
-        const VulkanCore::VImage& GetRenderedImage(int currentFrame ) {return *m_renderTargets->m_colourBuffer[currentFrame];}; // i have to place fence to access the image
+        VulkanCore::VImage& GetRenderedImage(int currentFrame ) {return *m_renderTargets->m_colourBuffer[currentFrame];}; // i have to place fence to access the image
         const VulkanCore::VFrameBuffer& GetFrameBuffer(int currentFrame ) const {return *m_renderTargets->m_frameBuffers[currentFrame];};
         const vk::Semaphore& GetRendererFinishedSempahore(int currentFrame) const {return m_rendererFinishedSemaphore[currentFrame]->GetSyncPrimitive();}
         const int& GetTargeWidth() const  {return m_width;}
