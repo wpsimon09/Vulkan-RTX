@@ -69,7 +69,8 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance):m_insta
     FetchMaxSampleCount();
     m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(*this, QUEUE_FAMILY_INDEX_TRANSFER);
     DispatchLoader = vk::DispatchLoaderDynamic(m_instance.GetInstance(), vkGetInstanceProcAddr);
-    m_depthFormat = vk::Format::eD16Unorm;
+    m_depthFormat = vk::Format::eD24UnormS8Uint;
+    ;
 }
 
 

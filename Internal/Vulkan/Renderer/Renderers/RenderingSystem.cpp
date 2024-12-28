@@ -49,7 +49,7 @@ namespace Renderer {
         //----------------------------------------------------------------------------------------------------------------------------
         // Renderers creation
         //----------------------------------------------------------------------------------------------------------------------------
-        m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager, 1980 , 1090);
+        m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager, 1920 , 1080);
         m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, *m_swapChain, uiContext);
 
         //------------------------------------------------------------------------------------------------------------------------
@@ -113,12 +113,12 @@ namespace Renderer {
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex,*m_isFrameFinishFences[m_currentFrameIndex],globalUniformUpdateInfo, m_uniformBufferManager, *m_renderingContext, m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED)  );
 
+                                                                    // semaphore signaled in the scene render pass
         std::vector<vk::Semaphore> waitSemaphoresForTransfering = {m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};
         std::vector<vk::PipelineStageFlags> waitStagesForTransfering = {vk::PipelineStageFlagBits::eColorAttachmentOutput}; // what should be here  ?
         std::vector<vk::Semaphore> signalSemaphoresForTransfering = {m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
 
-
-        // transition scene layout
+        // transition scene image layout
         m_sceneRenderer->GetRenderedImage(m_currentFrameIndex).TransitionImageLayout(vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
             waitSemaphoresForTransfering,
             waitStagesForTransfering,

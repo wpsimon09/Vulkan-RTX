@@ -69,9 +69,7 @@ namespace Renderer
 
         submitInfo.signalSemaphoreCount = signalSemaphores.size();
         submitInfo.pSignalSemaphores = signalSemaphores.data();
-
         auto result = m_device.GetGraphicsQueue().submit(1, &submitInfo, renderingFinishedFence.GetSyncPrimitive());
-
         assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 
         //===========================
