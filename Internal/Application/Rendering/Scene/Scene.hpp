@@ -29,6 +29,8 @@ public:
     void AddNode(std::shared_ptr<SceneNode> sceneNode);
 
     void PrintSceneGraph();
+public:
+    std::shared_ptr<SceneNode>& GetRootNode() const {return m_root;}
 private:
     void BuildDefaultScene();
     void PrintSceneDatat(int depth, SceneNode& sceneNodes);

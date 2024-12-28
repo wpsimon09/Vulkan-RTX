@@ -114,6 +114,8 @@ set(SOURCES
         Internal/Editor/UIContext/ViewPortContext.hpp
         Internal/Editor/Editor.cpp
         Internal/Editor/Editor.hpp
+        Internal/Editor/Views/SceneView/SceneView.cpp
+        Internal/Editor/Views/SceneView/SceneView.hpp
 
 )
 

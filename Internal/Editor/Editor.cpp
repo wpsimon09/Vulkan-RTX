@@ -6,6 +6,7 @@
 
 #include "Views/Index.hpp"
 #include "UIContext/UIContext.hpp"
+#include "Views/SceneView/SceneView.hpp"
 #include "Views/ViewPort/ViewPort.hpp"
 
 namespace VEditor {
@@ -18,6 +19,9 @@ namespace VEditor {
 
         auto viewPort = std::make_unique<ViewPort>(uiContext.m_viewports[ViewPortType::eMain]);
         index->m_uiChildren.emplace_back(std::move(viewPort));
+
+        auto sceneView = std::make_unique<SceneView>(uiContext.m_scene);
+        index->m_uiChildren.emplace_back(std::move(sceneView));
 
         m_uiElements.emplace_back(std::move(index));
 
