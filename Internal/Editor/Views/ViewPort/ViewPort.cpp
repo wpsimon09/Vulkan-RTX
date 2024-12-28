@@ -7,6 +7,8 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include "Editor/UIContext/ViewPortContext.hpp"
+
 VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext): m_viewPortContext(viewPortContext), IUserInterfaceElement{}
 {
 }
@@ -14,10 +16,11 @@ VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext): m_viewPortContext
 void VEditor::ViewPort::Render()
 {
 
-
     // Render the "Scene view port" window
     ImGui::Begin("Scene view port");
-        ImGui::Text("Jooj zdochni geňo");
+        ImVec2 viewportPanelSize = ImGui::GetWindowSize();
+
+        ImGui::Image((ImTextureID)m_viewPortContext.GetImageDs(), ImVec2{viewportPanelSize.x, viewportPanelSize.y});
     ImGui::End();
 
     IUserInterfaceElement::Render();

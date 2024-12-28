@@ -58,8 +58,18 @@ namespace Renderer {
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(m_device, *m_swapChain, m_sceneRenderer->GetRenderPass(0), m_pushDescriptorSetManager) ;
         m_pipelineManager->InstantiatePipelines();
 
+        m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
+
         m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED));
 
+    }
+
+    void RenderingSystem::Init()
+    {
+        for (int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
+            m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetRenderedImage(m_currentFrameIndex), i);
+        }
     }
 
     void RenderingSystem::Render(GlobalUniform& globalUniformUpdateInfo)
@@ -103,7 +113,6 @@ namespace Renderer {
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex,*m_isFrameFinishFences[m_currentFrameIndex],globalUniformUpdateInfo, m_uniformBufferManager, *m_renderingContext, m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED)  );
 
-        m_uiContext.GetViewPortContext(ViewPortType::eMain).viewPortImage = m_sceneRenderer->GetRenderedImage(m_currentFrameIndex).GetImage();
 
         // gather all semaphores presentation should wait on
         std::vector<vk::Semaphore> waitSemaphores = {m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};

@@ -90,7 +90,6 @@ void Application::Init()
     m_client->GetScene().AddNode(stormTrooper);
 
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
-    m_editor->Render();
 }
 
 void Application::MainLoop()
@@ -111,6 +110,8 @@ void Application::Run()
 
     Init();
 
+    m_renderingSystem->Init();
+
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
@@ -125,8 +126,8 @@ void Application::Update()
 {
     m_client->Update();
     if(m_windowManager->GetIsDirty()) {
-    m_client->UpdateCamera(m_windowManager->GetCameraMovement());
-    m_client->UpdateClient(m_windowManager->GetLightMovement());
+        m_client->UpdateCamera(m_windowManager->GetCameraMovement());
+        m_client->UpdateClient(m_windowManager->GetLightMovement());
     }
 
     m_editor->Update();

@@ -7,6 +7,8 @@
 
 #include <imgui.h>
 
+#include "imgui_impl_vulkan.h"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
 enum class ViewPortType
@@ -19,7 +21,18 @@ struct ViewPortContext
 {
     int width = 800;
     int height = 600;
-    vk::Image viewPortImage;
+    std::array<vk::DescriptorSet,2> ds;
+    int currentFrameInFlight = 0;
+
+    VkDescriptorSet GetImageDs()
+    {
+        return ds[currentFrameInFlight];
+    }
+
+    void SetImage(const VulkanCore::VImage& renderedScene, int frameIndex)
+    {
+        ds[frameIndex] = ImGui_ImplVulkan_AddTexture(VulkanCore::VSamplers::Sampler2D, renderedScene.GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    }
 };
 
 

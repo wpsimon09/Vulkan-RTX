@@ -60,6 +60,7 @@ public:
 
     VulkanStructs::RenderContext* GetRenderContext() const {return m_renderingContext;}
 public:
+    void Init();
     void Render(GlobalUniform& globalUniformUpdateInfo);
     void Update();
     void Destroy();

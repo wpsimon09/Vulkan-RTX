@@ -16,7 +16,6 @@
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
-
 namespace VEditor
 {
     UIContext::UIContext(const VulkanCore::VDevice& device,
@@ -35,12 +34,14 @@ namespace VEditor
 
         // if i want to have more images like view port material view, i should put it here
         vk::DescriptorPoolSize poolSizes[] ={
-          {vk::DescriptorType::eCombinedImageSampler, 1}
+          {vk::DescriptorType::eCombinedImageSampler, 1},
+          {vk::DescriptorType::eCombinedImageSampler, 1},
+          {vk::DescriptorType::eCombinedImageSampler, 1},
         };
 
         vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo {};
         descriptorPoolCreateInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-        descriptorPoolCreateInfo.maxSets = 1;
+        descriptorPoolCreateInfo.maxSets = 3;
         descriptorPoolCreateInfo.poolSizeCount = static_cast<uint32_t>(IM_ARRAYSIZE(poolSizes));
         descriptorPoolCreateInfo.pPoolSizes = poolSizes;
         m_imguiDescriptorPool = m_device.GetDevice().createDescriptorPool(descriptorPoolCreateInfo);
