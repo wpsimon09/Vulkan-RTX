@@ -5,6 +5,7 @@
 #include "ViewPort.hpp"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext): m_viewPortContext(viewPortContext), IUserInterfaceElement{}
 {
@@ -12,10 +13,11 @@ VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext): m_viewPortContext
 
 void VEditor::ViewPort::Render()
 {
-    ImGui::SetNextWindowSize(ImVec2(300, 300));
-    ImGui::Begin("Scene view port");
-    ImGui::Text("Jooj zdochni geňo");
 
+
+    // Render the "Scene view port" window
+    ImGui::Begin("Scene view port");
+        ImGui::Text("Jooj zdochni geňo");
     ImGui::End();
 
     IUserInterfaceElement::Render();

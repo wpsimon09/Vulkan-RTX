@@ -23,8 +23,8 @@ void VEditor::Index::Render()
     // Set the parent window's styles to match that of the main viewport:
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f); // No corner rounding on the window
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f); // No border around the window
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-    ImGui::PopStyleVar(2);
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
     window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
@@ -32,18 +32,18 @@ void VEditor::Index::Render()
 
     bool open = true;
 
-    ImGui::Begin("DockSpace Demo",&open , window_flags);
+    ImGui::Begin("Index",&open , window_flags);
 
-    ImGui::MenuItem("File");
-    ImGui::MenuItem("Edit");
-    ImGui::Separator();
-
-    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+    ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
+    ImGui::PopStyleVar(3);
 
     ImGui::End();
+
+    IUserInterfaceElement::Render();
 }
 
 void VEditor::Index::Resize(int newWidth, int newHeight)
 {
+
 }

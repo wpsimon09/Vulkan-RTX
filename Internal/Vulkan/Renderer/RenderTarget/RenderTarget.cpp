@@ -70,6 +70,8 @@ namespace Renderer {
 
     void RenderTarget::HandleResize(int newWidth, int newHeight)
     {
+        m_width = newWidth;
+        m_height = newHeight;
         m_device.GetDevice().waitIdle();
         DestroyForResize();
         for (auto &colourBuffer : m_colourBuffer)
@@ -83,6 +85,8 @@ namespace Renderer {
     {
         Destroy();
         CreateRenderTargetForSwapChain(swapChain);
+        m_width = swapChain.GetExtent().width;
+        m_height = swapChain.GetExtent().height;
         Utils::Logger::LogSuccess("Render target for swap chain recreated");
     }
 

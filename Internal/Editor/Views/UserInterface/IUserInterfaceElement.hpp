@@ -18,6 +18,8 @@ namespace VEditor
         virtual void Resize(int newWidth, int newHeight) = 0;
 
         virtual void Update(){};
+
+
     };
 }
 
