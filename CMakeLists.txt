@@ -116,6 +116,8 @@ set(SOURCES
         Internal/Editor/Editor.hpp
         Internal/Editor/Views/SceneView/SceneView.cpp
         Internal/Editor/Views/SceneView/SceneView.hpp
+        Internal/Editor/Views/DetailsPanel/DetailsPanel.cpp
+        Internal/Editor/Views/DetailsPanel/DetailsPanel.hpp
 
 )
 

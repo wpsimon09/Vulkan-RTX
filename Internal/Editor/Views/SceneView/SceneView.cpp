@@ -10,10 +10,15 @@
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
+#include "Editor/Views/DetailsPanel/DetailsPanel.hpp"
 
 namespace VEditor {
     SceneView::SceneView(const ApplicationCore::Scene& scene): m_scene(scene)
     {
+        auto detailsPnel = std::make_unique<VEditor::DetailsPanel>();
+        m_uiChildren.emplace_back(std::move(detailsPnel));
+
+        m_detailsPanale = static_cast<DetailsPanel*>(m_uiChildren.back().get());
 
     }
 
@@ -65,7 +70,8 @@ namespace VEditor {
 
             if (ImGui::IsItemClicked())
             {
-                m_selectedSceneNode = sceneNode; // Set the currently selected node
+                m_selectedSceneNode = sceneNode;
+                m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
             }
 
             if (nodeOpen)
