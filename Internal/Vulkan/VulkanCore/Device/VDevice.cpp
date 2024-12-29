@@ -203,6 +203,12 @@ const std::string VulkanCore::VDevice::GetQueueFamilyString(QUEUE_FAMILY_INDEX_T
     }
 }
 
+void VulkanCore::VDevice::UpdateMemoryStatistics()
+{
+    vmaCalculateStatistics(m_vmaAllocator, &m_vmaStatistics);
+}
+
+
 void VulkanCore::VDevice::Destroy() {
     vmaDestroyAllocator(m_vmaAllocator);
     m_transferCommandPool->Destroy();

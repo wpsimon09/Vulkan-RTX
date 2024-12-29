@@ -56,10 +56,13 @@ namespace VulkanCore
         const vk::Queue & GetPresentQueue() const { return m_presentQueue; }
         const vk::Format & GetDepthFormat() const { return m_depthFormat; }
         const vk::SampleCountFlagBits GetSampleCount() const { return m_sampleCount; }
+        VmaTotalStatistics& GetDeviceStatistics() { return m_vmaStatistics  ;}
         //----------------------------------------------------------------------------------------
 
         const uint32_t& GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
         const std::string GetQueueFamilyString(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
+
+        void UpdateMemoryStatistics();
 
         mutable std::mutex DeviceMutex;
 
@@ -84,6 +87,8 @@ namespace VulkanCore
         const VulkanCore::VulkanInstance& m_instance;
 
         VmaAllocator m_vmaAllocator;
+        VmaTotalStatistics m_vmaStatistics;
+        VmaStatistics __mode;
     private:
         vk::PhysicalDevice PickPhysicalDevice();
         void CreateLogicalDevice();

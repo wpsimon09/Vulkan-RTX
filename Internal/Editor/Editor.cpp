@@ -58,7 +58,7 @@ namespace VEditor
 
     void Editor::RenderPrefomanceOverlay()
     {
-        static int location = 0;
+        static int location = 2;
         ImGuiIO& io = ImGui::GetIO();
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
@@ -83,11 +83,12 @@ namespace VEditor
             window_flags |= ImGuiWindowFlags_NoMove;
         }
         ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
-        bool isOpne = true;
-        if (ImGui::Begin("Stat",&isOpne , window_flags))
+        bool isOpen = true;
+        if (ImGui::Begin("Stat",&isOpen , window_flags))
         {
-            ImGui::Text("(right-click to change position)");
-            ImGui::Separator();
+
+
+
             ImGui::Text("Prefomance MS/FPS: (%.1f,%.1f)", 1000.0f / io.Framerate, io.Framerate);
             if (ImGui::BeginPopupContextWindow())
             {
@@ -97,7 +98,7 @@ namespace VEditor
                 if (ImGui::MenuItem("Top-right", NULL, location == 1)) location = 1;
                 if (ImGui::MenuItem("Bottom-left", NULL, location == 2)) location = 2;
                 if (ImGui::MenuItem("Bottom-right", NULL, location == 3)) location = 3;
-                if (isOpne&& ImGui::MenuItem("Close")) isOpne = false;
+                if (isOpen&& ImGui::MenuItem("Close")) isOpen = false;
                 ImGui::EndPopup();
             }
         }

@@ -48,6 +48,7 @@
 // Im gui entry
 #include "Editor/Editor.hpp"
 #include "Editor/UIContext/UIContext.hpp"
+#include "Vulkan/Global/GlobalState.hpp"
 
 
 Application::Application()
@@ -135,7 +136,12 @@ void Application::Update()
         m_client->UpdateCamera(m_windowManager->GetCameraMovement());
         m_client->UpdateClient(m_windowManager->GetLightMovement());
     }
+    if (GlobalState::ValidationLayersEnabled)
+    {
+        m_vulkanDevice->UpdateMemoryStatistics();
+    }
 
+    m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
     m_editor->Update();
 }
 
