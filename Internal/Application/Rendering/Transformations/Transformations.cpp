@@ -52,7 +52,7 @@ void ApplicationCore::Transformations::ComputeModelMatrix(glm::mat4 &parentGloba
     m_isDirty = false;
 }
 
-const glm::vec3 & ApplicationCore::Transformations::GetPosition() const {
+glm::vec3 & ApplicationCore::Transformations::GetPosition() {
     return m_position;
 }
 
@@ -66,7 +66,7 @@ void ApplicationCore::Transformations::SetPosition(float x, float y, float z) {
     m_isDirty = true;
 }
 
-const glm::vec3 & ApplicationCore::Transformations::getRotations() const {
+glm::vec3 & ApplicationCore::Transformations::GetRotations() {
     return m_rotation;
 }
 
@@ -80,7 +80,7 @@ void ApplicationCore::Transformations::SetRotations(float x, float y, float z) {
     m_isDirty = true;
 }
 
-const glm::vec3 & ApplicationCore::Transformations::GetScale() const {
+glm::vec3 & ApplicationCore::Transformations::GetScale() {
     return m_scale;
 }
 

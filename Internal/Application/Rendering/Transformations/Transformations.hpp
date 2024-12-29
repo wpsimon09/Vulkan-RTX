@@ -30,15 +30,15 @@ public:
     void ComputeModelMatrix(glm::mat4 &parentGlobalMatrix);
 
 
-    const glm::vec3 &GetPosition() const;
+    glm::vec3 &GetPosition() ;
     void SetPosition(const glm::vec3 &position);
     void SetPosition(float x, float y, float z);
 
-    const glm::vec3 &getRotations() const;
+    glm::vec3 &GetRotations();
     void SetRotations(const glm::vec3 &rotations);
     void SetRotations(float x, float y, float z);
 
-    const glm::vec3 &GetScale() const;
+    glm::vec3 &GetScale();
     void SetScale(const glm::vec3 &scale);
     void SetScale(float x, float y, float z);
 

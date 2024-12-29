@@ -7,6 +7,8 @@
 
 #include <imgui.h>
 
+#include "Application/Rendering/Scene/SceneNode.hpp"
+
 namespace VEditor {
     DetailsPanel::DetailsPanel()
     {
@@ -19,6 +21,40 @@ namespace VEditor {
             if (!m_selectedSceneNode)
             {
                 ImGui::TextColored(ImVec4(0.9, 0.2,0.2,1.0), "No scene node selected");
+            }else
+            {
+                ImGui::SeparatorText("Transformations");
+                // position
+                {
+                    if (ImGui::Button(ICON_FA_REPEAT"##ResetPos"))
+                    {
+                        m_selectedSceneNode->m_transformation->SetPosition(glm::vec3(0.0f));
+                    }
+                    ImGui::SameLine();
+                    ImGui::DragFloat3(ICON_FA_ARROWS_TO_DOT " Position", &m_selectedSceneNode->m_transformation->GetPosition().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+                }
+                // Scale
+                {
+
+                    if (ImGui::Button(ICON_FA_REPEAT"##ResetScale"))
+                    {
+                        m_selectedSceneNode->m_transformation->SetScale(glm::vec3(1.0f));
+                    }
+                    ImGui::SameLine();
+                    ImGui::DragFloat3(ICON_FA_VECTOR_SQUARE " Scale", &m_selectedSceneNode->m_transformation->GetScale().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+                }
+                // rotate
+                {
+
+                    if (ImGui::Button(ICON_FA_REPEAT"##ResetRotation"))
+                    {
+                        m_selectedSceneNode->m_transformation->SetRotations(glm::vec3(0.0f));
+                    }
+                    ImGui::SameLine();
+                    ImGui::DragFloat3(ICON_FA_ARROWS_ROTATE  " Rotation", &m_selectedSceneNode->m_transformation->GetRotations().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+
+                }
+
             }
 
         ImGui::End();
