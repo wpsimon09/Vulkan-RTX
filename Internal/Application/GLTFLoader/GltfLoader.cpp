@@ -25,7 +25,7 @@ namespace ApplicationCore
         Utils::Logger::LogSuccess("Crated GLTFLoader !");
     }
 
-    std::shared_ptr<SceneNode> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath)
+    std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath)
     {
         // temp data
         std::shared_ptr<SceneNode> m_rootNode;
@@ -53,7 +53,7 @@ namespace ApplicationCore
         {
             Utils::Logger::LogErrorClient("Failed to load GLTF file: " + gltfPath.string());
             Utils::Logger::LogErrorClient("fastgltf says: " + std::string(fastgltf::getErrorMessage(gltfFile.error())));
-            return nullptr;
+            return std::vector<std::shared_ptr<SceneNode>>();
         }
 
         fastgltf::Asset gltf;
@@ -231,7 +231,7 @@ namespace ApplicationCore
 
                 // create shared ptr to mesh
                 auto createdMehs = std::make_shared<Mesh>(m_assetsManager.GetVertexData().back(), mat);
-                createdMehs->SetName(std::string(m.name));
+                createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(4));
 
                 // store the shared ptr to mesh
                 m_assetsManager.AddMesh(std::string(m.name), createdMehs);
@@ -255,7 +255,7 @@ namespace ApplicationCore
                 {
                     newNode = std::make_shared<ApplicationCore::SceneNode>();
                 }
-                newNode->SetName(std::string(node.name));
+                newNode->SetName(std::string(std::string(node.name) + "##" +VulkanUtils::random_string(4)));
                 if (auto newTransform = std::get_if<fastgltf::math::fmat4x4>(&node.transform))
                 {
                     //newNode->m_transformation->SetModelMatrix(VulkanUtils::FastGLTFToGLMMat4(*newTransform));
@@ -285,12 +285,12 @@ namespace ApplicationCore
 
         for (const auto& topNode : m_topNodes)
         {
-            m_rootNode->AddChild(topNode);
+            //m_rootNode->AddChild(topNode);
         }
 
         GlobalState::EnableLogging();
         Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");
-        return std::move(m_rootNode);
+        return std::move(m_topNodes);
     }
 
     void GLTFLoader::LoadImage(fastgltf::Asset& asset, std::string parentPath, fastgltf::Image& image,

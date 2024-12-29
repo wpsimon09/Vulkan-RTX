@@ -82,12 +82,18 @@ void Application::Init()
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene.glb");
-    m_client->GetScene().AddNode(sponsa);
+    for (auto& sceneNode: sponsa)
+    {
+        m_client->GetScene().AddNode(sceneNode);
+    }
 
     //auto car = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/dodge_challenger_-_muscle_car_-_low-poly/scene.gltf");
     //auto stormTrooper = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/storm-trooper.glb");
     auto stormTrooper = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/star_wars_at-st.glb");
-    m_client->GetScene().AddNode(stormTrooper);
+    for (auto &scene_node : stormTrooper)
+    {
+        m_client->GetScene().AddNode(scene_node);
+    }
 
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
 }

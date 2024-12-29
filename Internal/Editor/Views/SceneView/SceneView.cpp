@@ -6,12 +6,14 @@
 
 #include <imgui.h>
 
+#include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 
 namespace VEditor {
     SceneView::SceneView(const ApplicationCore::Scene& scene): m_scene(scene)
     {
+
     }
 
     void SceneView::Resize(int newWidth, int newHeight)
@@ -20,9 +22,13 @@ namespace VEditor {
 
     void SceneView::Render()
     {
-        ImGui::Begin("Scene graph");
+        ImGui::Begin("Scene graph",&m_isOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
+
             ImGui::SeparatorText("Scene");
-            CreateTreeView(m_scene.GetRootNode());
+
+                ImGui::BeginChild("Scrolling");
+                CreateTreeView(m_scene.GetRootNode());
+            ImGui::EndChild();
         ImGui::End();
         IUserInterfaceElement::Render();
     }
@@ -32,22 +38,16 @@ namespace VEditor {
         if (!sceneNode)
             return;
 
-        // Get the name of the node or use a default name
-        std::string nodeName = sceneNode->GetName().empty() ? "Unnamed Node" : std::string(sceneNode->GetName());
-
-        // Create a tree node for the current scene node
-        if (ImGui::TreeNode(nodeName.c_str()))
+        if (ImGui::TreeNode(sceneNode->GetName().data()))
         {
-            // Display information about the current node
-            ImGui::Text("Has Mesh: %s", sceneNode->HasMesh() ? "Yes" : "No");
-
-            // Recursively create tree nodes for the children
-            for (auto& child : sceneNode->GetChildren())
+            for (auto& child : sceneNode->GetChildren2())
             {
                 CreateTreeView(child);
             }
-
-            // End the current tree node
+            if (sceneNode->HasMesh())
+            {
+                ImGui::Selectable(sceneNode->GetMesh()->GetName().data());
+            }
             ImGui::TreePop();
         }
     }

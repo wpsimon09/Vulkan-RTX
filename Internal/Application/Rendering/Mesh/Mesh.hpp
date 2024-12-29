@@ -32,6 +32,10 @@ namespace ApplicationCore
         const size_t GetMeshIndexArraySize() const;
         const uint32_t GetMeshIndexCount() const;
         const uint32_t GetMeshVertexCount() const;
+
+        std::string_view GetName(){return m_name;} const
+        void SetName(std::string &newName){m_name = newName;}
+
         VulkanStructs::RenderingMetaData& GetRenderingMetaData()  {return m_renderingMetaData;}
         ApplicationCore::Transformations* GetTransformations() const { return m_transformations.get(); };
         const std::shared_ptr<VertexArray>& GetVertexArray() const {return m_vertexArray;}

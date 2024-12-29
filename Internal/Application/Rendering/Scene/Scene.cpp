@@ -24,6 +24,7 @@ namespace ApplicationCore {
     void Scene::Init()
     {
         m_root = std::make_shared<SceneNode>();
+        m_root->SetName("Root-Node");
         Utils::Logger::LogInfoVerboseOnly("Creating camera...");
         m_camera = std::make_unique<Camera>();
         Utils::Logger::LogSuccessClient("Camera creatd");
@@ -68,7 +69,7 @@ namespace ApplicationCore {
         rayTracerPlane->GetRenderingMetaData().bRasterPass = false;
         rayTracerPlane->GetRenderingMetaData().bRTXPass = true;
 
-        m_root->AddChild(rayTracerPlane);
+        //m_root->AddChild(rayTracerPlane);
 
         Utils::Logger::LogSuccessClient("Default scene build");
     }

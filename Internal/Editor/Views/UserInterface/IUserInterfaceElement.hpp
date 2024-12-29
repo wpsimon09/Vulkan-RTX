@@ -26,6 +26,8 @@ namespace VEditor
 
         virtual ~IUserInterfaceElement() = default;
 
+        bool m_isOpen = true;
+
     };
 }
 

@@ -58,6 +58,10 @@ private:
 
     ImGuiIO* m_io;
 
+    ImFont* m_defaultFont;
+    ImFont* m_editorFont;
+
+
     friend class VEditor::Editor;
 };
 

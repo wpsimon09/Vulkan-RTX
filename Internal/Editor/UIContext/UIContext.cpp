@@ -53,6 +53,11 @@ namespace VEditor
         m_io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
         m_io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
+        m_editorFont = m_io->Fonts->AddFontFromFileTTF("Resources/Fonts/roboto/Roboto-Medium.ttf",18);
+
+        m_defaultFont = m_io->Fonts->AddFontDefault();
+
+
         ImGui::StyleColorsDark();
 
         ImGui_ImplGlfw_InitForVulkan(m_windowManager.GetWindow(), true);
@@ -80,6 +85,8 @@ namespace VEditor
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplVulkan_NewFrame();
         ImGui::NewFrame();
+        ImGui::PushFont(m_editorFont);
+        ImGui::PopFont();
         //ImGui::ShowDemoWindow();
     }
 

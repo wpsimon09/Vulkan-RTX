@@ -31,7 +31,7 @@ class GLTFLoader {
 public:
     GLTFLoader(ApplicationCore::AssetsManager& assetsManager);
 
-    std::shared_ptr<SceneNode> LoadGLTFScene(std::filesystem::path gltfPath);
+    std::vector<std::shared_ptr<SceneNode>> LoadGLTFScene(std::filesystem::path gltfPath);
 
     ~GLTFLoader() = default;
 

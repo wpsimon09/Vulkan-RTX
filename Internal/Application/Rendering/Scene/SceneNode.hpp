@@ -31,12 +31,15 @@ namespace ApplicationCore
         void AddChild(std::shared_ptr<Mesh> child);
 
         std::string_view GetName() {return m_name;} const
+        std::shared_ptr<Mesh>& GetMesh() {return m_mesh;}
+
         void SetName(const std::string& name) {m_name = name;}
 
         std::vector<std::reference_wrapper<SceneNode>> GetChildren();
-
+        std::vector<std::shared_ptr<SceneNode>> GetChildren2() {return m_children;};
         void Update() const;
         void Render(VulkanStructs::RenderContext* renderingContext) const;
+
 
         bool IsParent() const { return m_parent == nullptr; }
 
