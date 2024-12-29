@@ -14,6 +14,7 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
+#include "IconFontCppHeaders/IconsFontAwesome6.h"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
 namespace VEditor
@@ -53,10 +54,16 @@ namespace VEditor
         m_io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
         m_io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        m_editorFont = m_io->Fonts->AddFontFromFileTTF("Resources/Fonts/roboto/Roboto-Medium.ttf",18);
 
-        m_defaultFont = m_io->Fonts->AddFontDefault();
+        ImFontConfig fontConfig;
+        fontConfig.MergeMode = true;
+        fontConfig.GlyphMinAdvanceX = 13.0f;
 
+        static const  ImWchar icon_ranges[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
+
+        m_defaultFont = m_io->Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto-Medium.ttf", 16.0f);
+
+        m_editorFont = m_io->Fonts->AddFontFromFileTTF("Resources/Fonts/fontawesome/fa-solid-900.ttf", 16.0f, &fontConfig, icon_ranges);
 
         ImGui::StyleColorsDark();
 
@@ -87,6 +94,8 @@ namespace VEditor
         ImGui::NewFrame();
         ImGui::PushFont(m_editorFont);
         ImGui::PopFont();
+
+        ImGui::ShowDemoWindow();
         //ImGui::ShowDemoWindow();
     }
 

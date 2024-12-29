@@ -156,6 +156,7 @@ target_include_directories(${TARGET} PRIVATE ${GLM_INCLUDE_DIRS})
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
         ${CMAKE_SOURCE_DIR}/Internal/
         ${CMAKE_SOURCE_DIR}/External/
+        ${CMAKE_SOURCE_DIR}/External/IconFontCppHeaders
 )
 
 # Set compile options based on build type

@@ -5,6 +5,7 @@
 #include "SceneView.hpp"
 
 #include <imgui.h>
+#include <IconFontCppHeaders/IconsFontAwesome5.h>
 
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
@@ -46,7 +47,7 @@ namespace VEditor {
             }
             if (sceneNode->HasMesh())
             {
-                ImGui::Selectable(sceneNode->GetMesh()->GetName().data());
+                ImGui::Selectable(ICON_FA_SEARCH );
             }
             ImGui::TreePop();
         }
