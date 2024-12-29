@@ -22,8 +22,9 @@ public:
     void Resize(int newWidth, int newHeight);
 private:
     UIContext& m_uiContext;
-
     std::vector<std::unique_ptr<VEditor::IUserInterfaceElement>> m_uiElements;
+private:
+    void RenderPrefomanceOverlay();
 
 };
 

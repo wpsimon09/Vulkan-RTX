@@ -39,9 +39,21 @@ namespace VEditor {
                     if (ImGui::Button(ICON_FA_REPEAT"##ResetScale"))
                     {
                         m_selectedSceneNode->m_transformation->SetScale(glm::vec3(1.0f));
+                        m_uniformScaleScalar = 1.0f;
+                    }
+
+                    if (m_isUniformScaleOn)
+                    {
+                        ImGui::SameLine();
+                        ImGui::DragFloat(ICON_FA_VECTOR_SQUARE " Scale", &m_uniformScaleScalar, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+                        m_selectedSceneNode->m_transformation->SetScale(m_uniformScaleScalar);
+                    }else
+                    {
+                        ImGui::SameLine();
+                        ImGui::DragFloat3(ICON_FA_VECTOR_SQUARE " Scale", &m_selectedSceneNode->m_transformation->GetScale().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
                     }
                     ImGui::SameLine();
-                    ImGui::DragFloat3(ICON_FA_VECTOR_SQUARE " Scale", &m_selectedSceneNode->m_transformation->GetScale().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+                    ImGui::Checkbox(ICON_FA_LOCK,&m_isUniformScaleOn);
                 }
                 // rotate
                 {

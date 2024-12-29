@@ -89,6 +89,13 @@ void ApplicationCore::Transformations::SetScale(const glm::vec3 &scale) {
     m_isDirty = true;
 }
 
+void ApplicationCore::Transformations::SetScale(float scalar)
+{
+    m_scale.x = scalar;
+    m_scale.y = scalar;
+    m_scale.z = scalar;
+}
+
 void ApplicationCore::Transformations::SetScale(float x, float y, float z) {
     m_scale = glm::vec3(x, y, z);
     m_isDirty = true;

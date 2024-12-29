@@ -40,6 +40,7 @@ public:
 
     glm::vec3 &GetScale();
     void SetScale(const glm::vec3 &scale);
+    void SetScale(float scalar);
     void SetScale(float x, float y, float z);
 
     bool HasChanged() {return m_isDirty;}
