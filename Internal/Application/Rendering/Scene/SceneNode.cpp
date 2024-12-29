@@ -22,6 +22,7 @@ namespace ApplicationCore {
             m_parent = nullptr;
             m_mesh = mesh;
             m_hasMesh = true;
+            m_ID = ++SceneNodeIDCounter;
         }else
         {
             Utils::Logger::LogErrorClient("Mesh is nullptr, creating scene node with no mesh assigned to it....");
@@ -32,6 +33,7 @@ namespace ApplicationCore {
     {
         m_parent = nullptr;
         m_mesh = nullptr;
+        m_ID = ++SceneNodeIDCounter;
     }
 
     void SceneNode::AddChild(const std::shared_ptr<SceneNode>& child)

@@ -6,6 +6,7 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <IconFontCppHeaders/IconsFontAwesome6.h>
 
 #include "Editor/UIContext/ViewPortContext.hpp"
 
@@ -17,7 +18,7 @@ void VEditor::ViewPort::Render()
 {
 
     // Render the "Scene view port" window
-    ImGui::Begin("Scene view port");
+    ImGui::Begin(ICON_FA_CAMERA" Scene view port");
         ImVec2 viewportPanelSize = ImGui::GetWindowSize();
 
         ImGui::Image((ImTextureID)m_viewPortContext.GetImageDs(), ImVec2{viewportPanelSize.x, viewportPanelSize.y});

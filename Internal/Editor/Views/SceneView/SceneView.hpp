@@ -24,7 +24,7 @@ public:
 
 private:
     void CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode>& sceneNode);
-
+    std::shared_ptr<ApplicationCore::SceneNode> m_selectedSceneNode;
     const ApplicationCore::Scene& m_scene;
 };
 

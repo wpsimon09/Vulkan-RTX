@@ -95,7 +95,6 @@ namespace VEditor
         ImGui::PushFont(m_editorFont);
         ImGui::PopFont();
 
-        ImGui::ShowDemoWindow();
         //ImGui::ShowDemoWindow();
     }
 

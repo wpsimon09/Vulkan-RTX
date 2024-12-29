@@ -5,7 +5,7 @@
 #include "SceneView.hpp"
 
 #include <imgui.h>
-#include <IconFontCppHeaders/IconsFontAwesome5.h>
+#include <IconFontCppHeaders/IconsFontAwesome6.h>
 
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
@@ -23,10 +23,9 @@ namespace VEditor {
 
     void SceneView::Render()
     {
-        ImGui::Begin("Scene graph",&m_isOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
+        ImGui::Begin(ICON_FA_ATOM" Scene graph",&m_isOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
             ImGui::SeparatorText("Scene");
-
                 ImGui::BeginChild("Scrolling");
                 CreateTreeView(m_scene.GetRootNode());
             ImGui::EndChild();
@@ -39,17 +38,44 @@ namespace VEditor {
         if (!sceneNode)
             return;
 
-        if (ImGui::TreeNode(sceneNode->GetName().data()))
+        std::string nodeLabel;
+        if (!sceneNode->HasMesh())
         {
-            for (auto& child : sceneNode->GetChildren2())
+            nodeLabel = std::string(ICON_FA_SQUARE_SHARE_NODES) + "  " + std::string(sceneNode->GetName());
+        }else
+        {
+            nodeLabel = std::string(ICON_FA_BOX) + "  " + std::string(sceneNode->GetName());
+        }
+
+        bool isSelected;
+        if (m_selectedSceneNode)
+            isSelected = (m_selectedSceneNode == sceneNode);
+        else
+            isSelected = false;
+
+        bool isLeaf =  sceneNode->GetChildren2().size() <= 0;
+        // Use ImGui::Selectable for making nodes selectable
+        ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
+                                      | ImGuiTreeNodeFlags_OpenOnDoubleClick
+                                      | (isLeaf ? ImGuiTreeNodeFlags_Leaf : 0)
+                                      | (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
+
+        bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
+        {
+
+            if (ImGui::IsItemClicked())
             {
-                CreateTreeView(child);
+                m_selectedSceneNode = sceneNode; // Set the currently selected node
             }
-            if (sceneNode->HasMesh())
+
+            if (nodeOpen)
             {
-                ImGui::Selectable(ICON_FA_SEARCH );
+                for (auto& child : sceneNode->GetChildren2())
+                {
+                    CreateTreeView(child);
+                }
+                ImGui::TreePop();
             }
-            ImGui::TreePop();
         }
     }
 } // VEditor
