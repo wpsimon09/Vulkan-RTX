@@ -9,8 +9,10 @@
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Views/Index.hpp"
 #include "UIContext/UIContext.hpp"
+#include "Views/RenderingOptions/RenderingOptions.hpp"
 #include "Views/SceneView/SceneView.hpp"
 #include "Views/ViewPort/ViewPort.hpp"
+#include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
 
 namespace VEditor
 {
@@ -27,6 +29,9 @@ namespace VEditor
 
         auto sceneView = std::make_unique<SceneView>(uiContext.m_scene);
         index->m_uiChildren.emplace_back(std::move(sceneView));
+
+        auto renderingSystem = std::make_unique<RenderingOptions>(uiContext.m_renderingSystem);
+        index->m_uiChildren.emplace_back(std::move(renderingSystem));
 
         m_uiElements.emplace_back(std::move(index));
 

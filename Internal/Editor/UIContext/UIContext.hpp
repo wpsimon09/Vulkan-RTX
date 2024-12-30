@@ -11,6 +11,11 @@
 #include "Application/WindowManager/WindowManager.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 
+namespace Renderer
+{
+    class RenderingSystem;
+}
+
 namespace ApplicationCore
 {
     class Scene;
@@ -41,6 +46,7 @@ public:
     void Initialize(const VulkanCore::VRenderPass& renderPass);
     void BeginRender();
     void Render(VulkanCore::VCommandBuffer& commandBuffer);
+    void SetRenderingSystem(Renderer::RenderingSystem* rendderingSystem) {m_renderingSystem = rendderingSystem;}
     void EndRender();
     void Destroy();
 private:
@@ -48,6 +54,8 @@ private:
     const VulkanCore::VDevice& m_device;
     const VulkanCore::VulkanInstance& m_instance;
     const WindowManager& m_windowManager;
+
+    const Renderer::RenderingSystem* m_renderingSystem;
 
     vk::PipelineCache m_imguiPipelineCache;
     vk::DescriptorPool m_imguiDescriptorPool;

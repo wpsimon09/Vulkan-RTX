@@ -35,7 +35,7 @@ namespace Renderer {
             std::vector<vk::Buffer> vertexBuffers = {renderContext.DrawCalls[i].AABBVertexBuffer};
             std::vector<vk::DeviceSize> offsets = {0};
 
-            commandBuffer.bindIndexBuffer(drawCall.AABBIndexBuffer, 0, vk::IndexType::eUint16);
+            commandBuffer.bindIndexBuffer(drawCall.AABBIndexBuffer, 0, vk::IndexType::eUint32);
             commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 
             commandBuffer.pushDescriptorSetWithTemplateKHR(

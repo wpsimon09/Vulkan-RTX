@@ -118,6 +118,8 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->Init();
     pipeline->SetPipelineType(PIPELINE_TYPE_DEBUG_LINES);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eLineStrip);
+    pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
+
     m_pipelines[PIPELINE_TYPE_DEBUG_LINES] = std::move(pipeline);
 }
 

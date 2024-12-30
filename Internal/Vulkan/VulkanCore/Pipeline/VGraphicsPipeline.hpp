@@ -163,6 +163,11 @@ namespace VulkanCore
         {
             m_inputAssembly.topology = topology;
         }
+
+        void SetCullMode(vk::CullModeFlags cullMode)
+        {
+            m_rasterizer.cullMode = cullMode;
+        }
     };
 }
 

@@ -49,11 +49,19 @@ ApplicationCore::VertexArray::VertexArray(const VulkanCore::VDevice &device, PRI
     };
     // used for topology line
     m_AABBIndices = {
-        0, 1, 1, 2, 2, 3, 3, 0,
-        4, 5, 5, 6, 6, 7, 7, 4,
-        0, 4, 1, 5, 2, 6, 3, 7
+        // Bottom face
+        0, 1, 2, 0, 2, 3,
+        // Top face
+        4, 5, 6, 4, 6, 7,
+        // Front face
+        0, 1, 5, 0, 5, 4,
+        // Back face
+        3, 2, 6, 3, 6, 7,
+        // Left face
+        0, 4, 7, 0, 7, 3,
+        // Right face
+        1, 5, 6, 1, 6, 2
     };
-
     m_AABBVertexBuffer->MakeVertexBuffer(m_AABBVertices);
     m_AABBIndexBuffer->MakeIndexBuffer(m_AABBIndices);
 }

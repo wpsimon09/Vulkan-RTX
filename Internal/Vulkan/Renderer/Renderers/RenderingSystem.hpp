@@ -14,6 +14,11 @@
 
 namespace VEditor
 {
+    class RenderingOptions;
+}
+
+namespace VEditor
+{
     class UIContext;
 }
 
@@ -88,6 +93,9 @@ private:
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
     std::unique_ptr<VulkanCore::VPipelineManager> m_pipelineManager;
+
+    friend
+    class VEditor::RenderingOptions;
 
 };
 

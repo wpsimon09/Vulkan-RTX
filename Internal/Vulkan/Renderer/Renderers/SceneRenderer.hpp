@@ -10,6 +10,11 @@
 #include "BaseRenderer.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
+namespace VEditor
+{
+    class RenderingOptions;
+}
+
 namespace VulkanCore
 {
     class VPipelineManager;
@@ -47,6 +52,8 @@ private:
     std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
     const VulkanCore::VPipelineManager* m_pipelineManager;
     const VulkanStructs::RenderContext* m_renderContextPtr;
+
+    friend class VEditor::RenderingOptions;
 };
 
 } // Renderer
