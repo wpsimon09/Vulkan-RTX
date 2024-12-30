@@ -89,10 +89,13 @@ private:
     VulkanStructs::RenderContext* m_renderingContext;
 
     VulkanStructs::RenderContext m_mainRenderContext;
+    VulkanStructs::RenderContext m_reyTracingRenderingContext;
 
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
     std::unique_ptr<VulkanCore::VPipelineManager> m_pipelineManager;
+
+    bool m_isRayTracing = false;
 
     friend
     class VEditor::RenderingOptions;

@@ -55,6 +55,7 @@ namespace VEditor {
         if (!sceneNode)
             return;
 
+
         std::string nodeLabel;
         if (!sceneNode->HasMesh())
         {

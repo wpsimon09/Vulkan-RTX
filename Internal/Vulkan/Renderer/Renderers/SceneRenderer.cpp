@@ -78,8 +78,19 @@ namespace Renderer
         //=====================================================ň
         m_commandBuffers[currentFrameIndex]->BeginRecording();
 
-        RecordCommandBuffer(currentFrameIndex, uniformBufferManager,
-                            m_WireFrame ? m_pipelineManager->GetPipeline(PIPELINE_TYPE_DEBUG_LINES) :m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED));
+        PIPELINE_TYPE pipelineType;
+        if (m_WireFrame)
+        {
+            pipelineType = PIPELINE_TYPE_DEBUG_LINES;
+        }else if (m_renderContextPtr->metaData.bRasterPass)
+        {
+            pipelineType = PIPELINE_TYPE_RASTER_PBR_TEXTURED;
+        }else if (m_renderContextPtr->metaData.bRTXPass)
+        {
+            pipelineType = PIPELINE_TYPE_RTX;
+        }
+
+        RecordCommandBuffer(currentFrameIndex, uniformBufferManager,m_pipelineManager->GetPipeline(pipelineType));
 
         m_commandBuffers[currentFrameIndex]->EndRecording();
 

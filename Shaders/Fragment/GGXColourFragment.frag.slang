@@ -189,7 +189,7 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
     _materialDstSet.Features = _features;
     _materialDstSet.Values = _materialNoTextureValues;
 
-    float3 lightColor = float3(4.0);
+    float3 lightColor = float3(2.0);
     
     CookTorrence_GGX brdf;
     brdf.FillWithData(_materialDstSet, fsIn.uv);

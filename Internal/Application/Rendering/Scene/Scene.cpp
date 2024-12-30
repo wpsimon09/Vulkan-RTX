@@ -95,7 +95,7 @@ namespace ApplicationCore {
         rayTracerPlane->GetRenderingMetaData().bRasterPass = false;
         rayTracerPlane->GetRenderingMetaData().bRTXPass = true;
 
-        //m_root->AddChild(rayTracerPlane);
+        AddNode(std::make_shared<SceneNode>(rayTracerPlane));
 
         Utils::Logger::LogSuccessClient("Default scene build");
     }

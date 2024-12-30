@@ -33,6 +33,10 @@ namespace ApplicationCore
         void AddChild(std::shared_ptr<Mesh> child);
         void Setvisibility(bool isVisible);
 
+        void SetHiddenInEditor() {m_showInEditor = false;}
+        void SetVisibleInEditor() {m_showInEditor = true;}
+        bool IsVisibleInEditor() const {return m_showInEditor;}
+
         std::string& GetName() {return m_name;} const
         std::shared_ptr<Mesh>& GetMesh() {return m_mesh;}
 
@@ -62,6 +66,7 @@ namespace ApplicationCore
         bool m_isParentNode = false;
         bool m_hasMesh = false;
         bool m_isVisible = true;
+        bool m_showInEditor = true;
         int m_ID = 0;
 
     //===========================================================================

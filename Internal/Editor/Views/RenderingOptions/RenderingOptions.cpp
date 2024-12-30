@@ -11,7 +11,7 @@
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
 
 namespace VEditor {
-    RenderingOptions::RenderingOptions(const Renderer::RenderingSystem* renderingSystem)
+    RenderingOptions::RenderingOptions(Renderer::RenderingSystem* renderingSystem)
     {
         m_renderingSystem = renderingSystem;
     }
@@ -20,9 +20,11 @@ namespace VEditor {
     void RenderingOptions::Render()
     {
         ImGui::Begin(ICON_FA_BOOK_JOURNAL_WHILLS " Rendering options", &m_isOpen);
+
+            ImGui::Checkbox("Fake ray-tracer", &m_renderingSystem->m_isRayTracing);
+
             if (ImGui::TreeNode(ICON_FA_DRAW_POLYGON " SceneRenderer"))
             {
-
                 ImGui::Checkbox("Draw debug lines", &m_renderingSystem->m_sceneRenderer->m_WireFrame);
 
                 ImGui::TreePop();

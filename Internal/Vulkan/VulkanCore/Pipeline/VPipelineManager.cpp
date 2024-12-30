@@ -104,6 +104,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->Init();
     pipeline->SetPipelineType(PIPELINE_TYPE_RTX);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
+    pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
     m_pipelines[PIPELINE_TYPE_RTX] = std::move(pipeline);
 
     //==================================

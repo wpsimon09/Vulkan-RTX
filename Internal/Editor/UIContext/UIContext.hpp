@@ -55,7 +55,7 @@ private:
     const VulkanCore::VulkanInstance& m_instance;
     const WindowManager& m_windowManager;
 
-    const Renderer::RenderingSystem* m_renderingSystem;
+    Renderer::RenderingSystem* m_renderingSystem;
 
     vk::PipelineCache m_imguiPipelineCache;
     vk::DescriptorPool m_imguiDescriptorPool;

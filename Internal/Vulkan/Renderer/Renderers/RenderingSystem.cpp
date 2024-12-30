@@ -25,9 +25,11 @@ namespace Renderer {
     RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance& instance,const VulkanCore::VDevice& device,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
          VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
-         VEditor::UIContext &uiContext): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext{}, m_uiContext(uiContext)
+         VEditor::UIContext &uiContext): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext{},m_reyTracingRenderingContext(), m_uiContext(uiContext)
     {
         m_renderingContext = &m_mainRenderContext;
+        m_reyTracingRenderingContext.metaData.bRasterPass = false;
+        m_reyTracingRenderingContext.metaData.bRTXPass = true;
 
         //---------------------------------------------------------------------------------------------------------------------------
         // Swap chain creation
@@ -138,7 +140,13 @@ namespace Renderer {
 
     void RenderingSystem::Update()
     {
-
+        if (m_isRayTracing)
+        {
+            m_renderingContext = &m_reyTracingRenderingContext;
+        }else
+        {
+            m_renderingContext = &m_mainRenderContext;
+        }
     }
 
     void RenderingSystem::Destroy()

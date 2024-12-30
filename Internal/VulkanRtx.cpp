@@ -139,6 +139,7 @@ void Application::Run()
 
 void Application::Update()
 {
+    m_renderingSystem->Update();
     m_client->Update();
     if(m_windowManager->GetIsDirty()) {
         m_client->UpdateCamera(m_windowManager->GetCameraMovement());
