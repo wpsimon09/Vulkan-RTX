@@ -86,11 +86,9 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)
 {
-    m_sunLightPosition.x += lightUpdateInfo.moveLightX;
-    m_sunLightPosition.y += lightUpdateInfo.moveLightY;
+    m_globalRenderingData.lightPosition.x += lightUpdateInfo.moveLightX;
+    m_globalRenderingData.lightPosition.y += lightUpdateInfo.moveLightY;
     m_isRTXOn =             lightUpdateInfo.isRTXon;
-
-    m_globalRenderingData.lightPosition = glm::vec4(m_sunLightPosition, 1.0f);
 
     lightUpdateInfo.Reset();
 }

@@ -55,8 +55,6 @@ public:
 
     ApplicationCore::AssetsManager& GetAssetsManager() const {return *m_assetsManager;}
 
-    glm::vec4 GetLightPosition() const {return glm::vec4(m_sunLightPosition,1.0);}
-
     GlobalUniform& GetGlobalDataUpdateInformation(){return m_globalRenderingData;}
     ApplicationCore::Scene& GetScene() {return *m_scene;};;
     ApplicationCore::GLTFLoader& GetGLTFLoader() const {return *m_gltfLoader;};
@@ -74,7 +72,6 @@ private:
     std::unique_ptr<ApplicationCore::Camera> m_camera;
     std::unique_ptr<ApplicationCore::Scene> m_scene;
     std::unique_ptr<ApplicationCore::GLTFLoader> m_gltfLoader;
-    glm::vec3 m_sunLightPosition = glm::vec3(20.0f, 50.0f, -2.0f);
 
     GlobalUniform m_globalRenderingData;
     bool m_isRTXOn = false;

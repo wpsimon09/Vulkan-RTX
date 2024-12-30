@@ -34,7 +34,7 @@ void VEditor::ViewPort::Render()
         }
 
     ImVec2 viewportPanelSize = ImGui::GetWindowSize();
-        ImGui::Image((ImTextureID)m_viewPortContext.GetImageDs(), ImVec2{viewportPanelSize.x, viewportPanelSize.y});
+        ImGui::Image((ImTextureID)m_viewPortContext.GetImageDs(), ImVec2{viewportPanelSize.x, viewportPanelSize.y-20});
 
 
         ImGui::End();

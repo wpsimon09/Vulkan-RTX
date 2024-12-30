@@ -79,7 +79,7 @@ namespace Renderer
         m_commandBuffers[currentFrameIndex]->BeginRecording();
 
         RecordCommandBuffer(currentFrameIndex, uniformBufferManager,
-                            m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED));
+                            m_WireFrame ? m_pipelineManager->GetPipeline(PIPELINE_TYPE_DEBUG_LINES) :m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED));
 
         m_commandBuffers[currentFrameIndex]->EndRecording();
 

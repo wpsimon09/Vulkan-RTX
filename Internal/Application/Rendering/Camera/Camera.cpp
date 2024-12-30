@@ -17,7 +17,7 @@
 
         m_aspect = width / height;
         m_nearPlane = 0.1f;
-        m_farPlane = 2700.0f;;
+        m_farPlane = 3700.0f;;
         m_projection = glm::perspective(glm::radians(65.0f), width / height, m_nearPlane, m_farPlane);
         m_projection[1][1] *= -1;
 

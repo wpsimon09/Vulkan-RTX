@@ -168,6 +168,11 @@ namespace VulkanCore
         {
             m_rasterizer.cullMode = cullMode;
         }
+
+        void SetPolygonMode(vk::PolygonMode polygonMode)
+        {
+            m_rasterizer.polygonMode = polygonMode;
+        }
     };
 }
 

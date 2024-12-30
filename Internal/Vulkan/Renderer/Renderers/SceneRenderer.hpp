@@ -54,6 +54,7 @@ private:
     const VulkanStructs::RenderContext* m_renderContextPtr;
 
     bool m_AllowDebugDraw = false;
+    bool m_WireFrame = false;
 
 
     friend class VEditor::RenderingOptions;

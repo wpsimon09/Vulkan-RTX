@@ -100,6 +100,12 @@ void Application::Init()
         m_client->GetScene().AddNode(scene_node);
     }
 
+    /*auto tieInterceptor = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/tie-inerceptor.glb");
+    for (auto &scene_node : tieInterceptor)
+    {
+        m_client->GetScene().AddNode(scene_node);
+    }*/
+
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
 }
 
