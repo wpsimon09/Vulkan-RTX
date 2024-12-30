@@ -60,7 +60,7 @@ namespace Renderer {
 
         m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
 
-        m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED));
+        m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(PIPELINE_TYPE_DEBUG_LINES));
 
     }
 
@@ -111,7 +111,7 @@ namespace Renderer {
         m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderingContext->DrawCalls);
 
         // render scene
-        m_sceneRenderer->Render(m_currentFrameIndex,*m_isFrameFinishFences[m_currentFrameIndex],globalUniformUpdateInfo, m_uniformBufferManager, *m_renderingContext, m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_RASTER_PBR_TEXTURED)  );
+        m_sceneRenderer->Render(m_currentFrameIndex,*m_isFrameFinishFences[m_currentFrameIndex],globalUniformUpdateInfo, m_uniformBufferManager, *m_renderingContext, m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_DEBUG_LINES)  );
 
                                                                     // semaphore signaled in the scene render pass
         std::vector<vk::Semaphore> waitSemaphoresForTransfering = {m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};

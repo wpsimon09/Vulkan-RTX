@@ -57,6 +57,7 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
 
     m_baseShader->DestroyExistingShaderModules();
     m_rtxShader->DestroyExistingShaderModules();
+    m_debugLinesShader->DestroyExistingShaderModules();
 }
 
 const VulkanCore::VGraphicsPipeline &VulkanCore::VPipelineManager::GetPipeline(PIPELINE_TYPE pipeline) const {
@@ -78,15 +79,23 @@ VulkanCore::VPipelineManager::GetAllPipelines() const {
 
 void VulkanCore::VPipelineManager::GeneratePipelines()  {
 
+    //==================================
+    // MAIN SCENE PIPELINE
+    //==================================
     auto basicPipelineShaderVertexSource = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
     auto basicPipelineFragmentShaderSource = "Shaders/Compiled/GGXColourFragment.frag.slang.spv";
-    m_baseShader = std::make_unique<VShader>(m_device, basicPipelineShaderVertexSource, basicPipelineFragmentShaderSource);
+    m_baseShader = std::make_unique<VShader>(m_device, basicPipelineShaderVertexSource,
+        basicPipelineFragmentShaderSource);
+
     auto pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_baseShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
     pipeline->SetPipelineType(PIPELINE_TYPE_RASTER_PBR_TEXTURED);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     m_pipelines[PIPELINE_TYPE_RASTER_PBR_TEXTURED] = std::move(pipeline);
 
+    //==================================
+    // RAY TRACING, ARTIFICIAL PIPELINE
+    //==================================
     auto rtxVertexShaderPath = "Shaders/Compiled/RayTracer.vert.slang.spv";
     auto rtxFragmentShaderPath = "Shaders/Compiled/RayTracer.frag.slang.spv";
     m_rtxShader = std::make_unique<VShader>(m_device,rtxVertexShaderPath,
@@ -96,6 +105,20 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->SetPipelineType(PIPELINE_TYPE_RTX);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     m_pipelines[PIPELINE_TYPE_RTX] = std::move(pipeline);
+
+    //==================================
+    // DEBUG LINE FRAGMENT
+    //==================================
+    auto debugLineVertex = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
+    auto debugLineFragment = "Shaders/Compiled/DebugLines.frag.slang.spv";
+    m_debugLinesShader = std::make_unique<VShader>(m_device,debugLineVertex,
+                                             debugLineFragment);
+
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_debugLinesShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
+    pipeline->Init();
+    pipeline->SetPipelineType(PIPELINE_TYPE_DEBUG_LINES);
+    pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eLineList);
+    m_pipelines[PIPELINE_TYPE_DEBUG_LINES] = std::move(pipeline);
 }
 
 

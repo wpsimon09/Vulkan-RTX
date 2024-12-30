@@ -14,7 +14,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
-#define MAX_UBO_COUNT 400
+#define MAX_UBO_COUNT 1000
 
 VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDevice &device):m_device(device) {
     Utils::Logger::LogInfoVerboseOnly("Creating uniform buffer manager...");
