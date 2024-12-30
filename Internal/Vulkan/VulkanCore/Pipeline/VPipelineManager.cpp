@@ -117,7 +117,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_debugLinesShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
     pipeline->SetPipelineType(PIPELINE_TYPE_DEBUG_LINES);
-    pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eLineList);
+    pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eLineStrip);
     m_pipelines[PIPELINE_TYPE_DEBUG_LINES] = std::move(pipeline);
 }
 

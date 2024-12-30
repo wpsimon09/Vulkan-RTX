@@ -31,6 +31,7 @@ namespace ApplicationCore
 
         void AddChild(const std::shared_ptr<SceneNode>& child);
         void AddChild(std::shared_ptr<Mesh> child);
+        void Setvisibility(bool isVisible);
 
         std::string& GetName() {return m_name;} const
         std::shared_ptr<Mesh>& GetMesh() {return m_mesh;}
@@ -40,7 +41,8 @@ namespace ApplicationCore
         void SetName(const std::string& name) {m_name = name;}
 
         std::vector<std::reference_wrapper<SceneNode>> GetChildren();
-        std::shared_ptr<SceneNode>& GetChild(int index) {return m_children[index];};
+        std::shared_ptr<SceneNode>& GetChild(int index) {return m_children[index];}
+        bool GetIsVisible(){return m_isVisible;};
         std::vector<std::shared_ptr<SceneNode>>& GetChildren2() {return m_children;};
         void Update() const;
         void Render(VulkanStructs::RenderContext* renderingContext) const;
@@ -59,6 +61,7 @@ namespace ApplicationCore
         std::vector<std::shared_ptr<SceneNode>> m_children;
         bool m_isParentNode = false;
         bool m_hasMesh = false;
+        bool m_isVisible = true;
         int m_ID = 0;
 
     //===========================================================================

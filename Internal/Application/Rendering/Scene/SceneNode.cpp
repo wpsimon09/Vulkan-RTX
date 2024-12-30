@@ -65,6 +65,15 @@ namespace ApplicationCore {
         }
     }
 
+    void SceneNode::Setvisibility(bool isVisible)
+    {
+        m_isVisible = isVisible;
+        for (auto child : m_children)
+        {
+            child->Setvisibility(isVisible);
+        }
+    }
+
     SceneNode* SceneNode::GetParent()
     {
        return m_parent;
@@ -100,7 +109,7 @@ namespace ApplicationCore {
 
     void SceneNode::Render(VulkanStructs::RenderContext* renderingContext) const
     {
-        if(m_mesh)
+        if(m_mesh && m_isVisible)
         {
             // check if the mesh can be rendered in the given context
             if (m_mesh->GetRenderingMetaData() == renderingContext->metaData)

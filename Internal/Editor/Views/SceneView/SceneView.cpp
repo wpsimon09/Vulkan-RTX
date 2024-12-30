@@ -77,6 +77,26 @@ namespace VEditor {
                                       | (isLeaf ? ImGuiTreeNodeFlags_Leaf : 0)
                                       | (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
 
+        std::string visibilityButtonLabel;
+
+            if (sceneNode->GetIsVisible()) visibilityButtonLabel = std::string(ICON_FA_EYE) + "##" + std::string(sceneNode->GetName());
+            else                           visibilityButtonLabel = std::string(ICON_FA_EYE_SLASH) + "##" + std::string(sceneNode->GetName());
+
+        auto oldFontSize = ImGui::GetFont()->Scale;
+        ImGui::GetFont()->Scale*= 0.4f;
+        if (ImGui::Button(visibilityButtonLabel.c_str()))
+        {
+            if (sceneNode->GetIsVisible())
+            {
+                sceneNode->Setvisibility(false);
+            }
+            else
+            {
+                sceneNode->Setvisibility(true);
+            }
+        }
+        ImGui::GetFont()->Scale = oldFontSize;
+        ImGui::SameLine();
         bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
         {
 
