@@ -68,7 +68,6 @@ namespace Renderer {
 
     void RenderingSystem::Init()
     {
-        m_uiContext.SetRenderingSystem(this);
         for (int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
             m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetRenderedImage(m_currentFrameIndex), i);

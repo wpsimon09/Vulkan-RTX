@@ -77,7 +77,7 @@ namespace ApplicationCore {
     }
 
 
-    void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode)
+    void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode) const
     {
         m_root->AddChild(sceneNode);
     }
@@ -122,5 +122,35 @@ namespace ApplicationCore {
         std::cout << "|\n";
 
         PrintSceneDatat(depth, *m_root);
+    }
+
+    void Scene::AddCubeToScene() const
+    {
+        std::shared_ptr<VertexArray> objVAO = m_assetsManager.GetVertexArrayForGeometryType(MESH_GEOMETRY_CUBE);
+        auto obj = std::make_shared<ApplicationCore::Mesh>(objVAO, m_assetsManager.GetDummyMaterial(),MESH_GEOMETRY_CUBE);
+
+        auto node = std::make_shared<SceneNode>(obj);
+        node->SetName("Cube  ##" + VulkanUtils::random_string(5));
+        AddNode(node);
+    }
+
+    void Scene::AddSphereToScene() const
+    {
+        std::shared_ptr<VertexArray> objVAO = m_assetsManager.GetVertexArrayForGeometryType(MESH_GEOMETRY_SPHERE);
+        auto obj = std::make_shared<ApplicationCore::Mesh>(objVAO, m_assetsManager.GetDummyMaterial(),MESH_GEOMETRY_SPHERE);
+
+        auto node = std::make_shared<SceneNode>(obj);
+        node->SetName("Sphere  ##" + VulkanUtils::random_string(5));
+        AddNode(node);
+    }
+
+    void Scene::AddPlaneToScene() const
+    {
+        std::shared_ptr<VertexArray> objVAO = m_assetsManager.GetVertexArrayForGeometryType(MESH_GEOMETRY_PLANE);
+        auto obj = std::make_shared<ApplicationCore::Mesh>(objVAO, m_assetsManager.GetDummyMaterial(),MESH_GEOMETRY_PLANE);
+
+        auto node = std::make_shared<SceneNode>(obj);
+        node->SetName("Plane ##" + VulkanUtils::random_string(5));
+        AddNode(node);
     }
 } // ApplicationCore

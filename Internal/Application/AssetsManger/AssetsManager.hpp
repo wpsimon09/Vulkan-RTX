@@ -75,6 +75,7 @@ public:
 
     void AddMesh(std::string meshName, std::shared_ptr<Mesh> mesh);
     void GetDummyTexture(std::shared_ptr<VulkanCore::VImage> &texture) const {texture = m_dummyTexture;}
+    std::shared_ptr<Material> GetDummyMaterial() { return m_dummyMaterial; };
 
     std::shared_ptr<ApplicationCore::Material> GetMaterial(MaterialPaths& path);
     std::vector<std::shared_ptr<VertexArray>>& GetVertexData()  {return m_vertexArrays;};
@@ -102,6 +103,7 @@ private:
     std::mutex m_mutex;
 
     std::shared_ptr<VulkanCore::VImage> m_dummyTexture;
+    std::shared_ptr<ApplicationCore::Material> m_dummyMaterial;
 
     friend class ApplicationCore::GLTFLoader;
 };

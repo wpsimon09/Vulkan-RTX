@@ -24,7 +24,7 @@ namespace VEditor
         auto index = std::make_unique<VEditor::Index>(uiContext.m_windowManager.GetWindowWidth(),
                                                       uiContext.m_windowManager.GetWindowHeight());
 
-        auto viewPort = std::make_unique<ViewPort>(uiContext.m_viewports[ViewPortType::eMain]);
+        auto viewPort = std::make_unique<ViewPort>(uiContext.m_viewports[ViewPortType::eMain], m_uiContext.m_scene);
         index->m_uiChildren.emplace_back(std::move(viewPort));
 
         auto sceneView = std::make_unique<SceneView>(uiContext.m_scene);

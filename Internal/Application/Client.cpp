@@ -52,7 +52,7 @@ const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> Client::GetMesh
 
 const void Client::Render(VulkanStructs::RenderContext* ctx)
 {
-    m_scene->Render(ctx);
+    m_scene->Render(ctx, m_scene->GetRootNode());
 }
 
 const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager) {

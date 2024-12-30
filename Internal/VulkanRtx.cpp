@@ -80,6 +80,10 @@ void Application::Init()
 
     m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager, *m_uiContext);
 
+    m_renderingSystem->Init();
+    m_uiContext->SetRenderingSystem(m_renderingSystem.get());
+
+
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene.glb");
@@ -116,8 +120,6 @@ void Application::Run()
     auto start = std::chrono::high_resolution_clock::now();
 
     Init();
-
-    m_renderingSystem->Init();
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

@@ -209,9 +209,12 @@ namespace Renderer
             cmdBuffer.drawIndexed(drawCall.indexCount, 1, 0, 0, 0);
         }
 
-        RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                               m_pushDescriptorManager, *m_renderContextPtr,
-                                               m_pipelineManager->GetPipeline(PIPELINE_TYPE_DEBUG_LINES));
+        if (m_AllowDebugDraw)
+        {
+            RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
+                                                   m_pushDescriptorManager, *m_renderContextPtr,
+                                                   m_pipelineManager->GetPipeline(PIPELINE_TYPE_DEBUG_LINES));
+        }
 
         cmdBuffer.endRenderPass();
     }

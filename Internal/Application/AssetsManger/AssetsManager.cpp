@@ -27,6 +27,9 @@ namespace ApplicationCore
         m_device(device), m_materials()
     {
         m_dummyTexture = std::make_shared<VulkanCore::VImage>(device);
+
+        MaterialPaths paths{};
+        m_dummyMaterial = std::make_shared<ApplicationCore::Material>(paths, *this);
     }
 
     void AssetsManager::DeleteAll() {

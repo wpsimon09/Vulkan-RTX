@@ -53,6 +53,9 @@ private:
     const VulkanCore::VPipelineManager* m_pipelineManager;
     const VulkanStructs::RenderContext* m_renderContextPtr;
 
+    bool m_AllowDebugDraw = false;
+
+
     friend class VEditor::RenderingOptions;
 };
 
