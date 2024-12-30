@@ -6,6 +6,7 @@
 
 #include <IconsFontAwesome6.h>
 
+#include "Application/Rendering/Scene/Scene.hpp"
 #include "Views/Index.hpp"
 #include "UIContext/UIContext.hpp"
 #include "Views/SceneView/SceneView.hpp"
@@ -38,7 +39,7 @@ namespace VEditor
     void Editor::Render()
     {
         m_uiContext.BeginRender();
-        RenderPrefomanceOverlay();
+        RenderPreformanceOverlay();
         for (auto& uiElement : m_uiElements)
         {
             uiElement->Render();
@@ -58,7 +59,7 @@ namespace VEditor
         }
     }
 
-    void Editor::RenderPrefomanceOverlay()
+    void Editor::RenderPreformanceOverlay() const
     {
         static int location = 2;
         ImGuiIO& io = ImGui::GetIO();
@@ -112,6 +113,14 @@ namespace VEditor
                 available *= (1024.0f * 1024.0f * 1024.0f);
                 ImGui::Text("VRAM");
                 ImGui::ProgressBar(used/available);
+
+                ImGui::SeparatorText("Draw stat");
+                {
+                    auto sceneStats =  m_uiContext.m_scene.GetSceneStatistics();
+                    ImGui::Text("Draw calls %i",sceneStats.drawCalls);
+                    ImGui::Text("Mesh count %i",sceneStats.numberOfMeshes);
+                }
+
                 ImGui::EndTooltip();
             }
 

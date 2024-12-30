@@ -18,7 +18,7 @@
 
 namespace ApplicationCore {
 
-    Scene::Scene(AssetsManager& assetsManager): m_assetsManager(assetsManager)
+    Scene::Scene(AssetsManager& assetsManager): m_assetsManager(assetsManager), m_sceneStatistics()
     {
     }
 
@@ -28,7 +28,7 @@ namespace ApplicationCore {
         m_root->SetName("Root-Node");
         Utils::Logger::LogInfoVerboseOnly("Creating camera...");
         m_camera = std::make_unique<Camera>();
-        Utils::Logger::LogSuccessClient("Camera creatd");
+        Utils::Logger::LogSuccessClient("Camera created");
 
         BuildDefaultScene();
     }
@@ -43,12 +43,19 @@ namespace ApplicationCore {
         if (sceneNode.HasMesh())
         {
             sceneNode.Render(ctx);
+            m_sceneStatistics.drawCalls++;
+            m_sceneStatistics.numberOfMeshes++;
         }
 
         for (auto &child : sceneNode.GetChildren())
         {
             Render(ctx, child);
         }
+    }
+
+    void Scene::Reset()
+    {
+        m_sceneStatistics.Reset();
     }
 
     void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const

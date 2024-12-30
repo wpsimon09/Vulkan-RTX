@@ -71,4 +71,15 @@ struct TextureBufferInfo
     size_t size;
 };
 
+struct SceneStatistics
+{
+    int drawCalls = 0;
+    int numberOfMeshes = 0;
+    void Reset()
+    {
+        drawCalls = 0;
+        numberOfMeshes = 0;
+    }
+};
+
 #endif //APPLICATIONSTRUCTS_HPP

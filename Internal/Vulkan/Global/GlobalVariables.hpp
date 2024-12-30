@@ -7,6 +7,9 @@
 
 #include <vector>
 
+#include "Application/Structs/ApplicationStructs.hpp"
+
+
 
 namespace GlobalVariables {
     inline const std::vector<const char *> validationLayers = {
@@ -33,7 +36,6 @@ namespace GlobalVariables {
     inline constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
     inline int ID_COUNTER = 0;
-
 }
 
 #endif //GLOBALVARIABLES_HPP

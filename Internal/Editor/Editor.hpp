@@ -30,7 +30,7 @@ private:
     VmaTotalStatistics* m_vmaStats;
 
 private:
-    void RenderPrefomanceOverlay();
+    void RenderPreformanceOverlay() const;
 
 };
 

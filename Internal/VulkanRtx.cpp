@@ -155,6 +155,7 @@ void Application::Render() {
     m_renderingSystem->Render(m_client->GetGlobalDataUpdateInformation());
     m_renderingSystem->GetRenderContext()->DrawCalls.clear();
 
+    m_client->GetScene().Reset();
 }
 
 Application::~Application() {
