@@ -33,7 +33,19 @@ namespace VEditor {
             ImGui::SeparatorText("Scene");
                 ImGui::BeginChild("Scrolling");
                 CreateTreeView(m_scene.GetRootNode());
-            ImGui::EndChild();
+                if (ImGui::BeginPopupContextWindow())
+                {
+                    if (ImGui::MenuItem(ICON_FA_TRASH_CAN " Delete", "DEL"))
+                    {
+                        if (m_selectedSceneNode)
+                        {
+                            m_scene.RemoveNode(m_selectedSceneNode->GetParent(), m_selectedSceneNode);
+                        }
+                    }
+
+                    ImGui::EndPopup();
+                }
+                ImGui::EndChild();
         ImGui::End();
         IUserInterfaceElement::Render();
     }

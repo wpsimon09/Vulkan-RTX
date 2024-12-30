@@ -4,6 +4,7 @@
 
 #include "Scene.hpp"
 
+#include <random>
 #include <GLFW/glfw3.h>
 
 #include "SceneNode.hpp"
@@ -49,6 +50,25 @@ namespace ApplicationCore {
             Render(ctx, child);
         }
     }
+
+    void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const
+    {
+        auto& children = parent->GetChildren2();
+
+        for (auto it = children.begin(); it != children.end();) {
+            if (*it == nodeToRemove) {
+                // in future when multiple nodes can be selected, this will account for shifting the list to the right
+                it = children.erase(it);
+                Utils::Logger::LogSuccessClient("Removed node from the scene graph");
+                return;
+            }else
+            {
+                ++it;
+            }
+        }
+        Utils::Logger::LogErrorClient("Node not found");
+    }
+
 
     void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode)
     {

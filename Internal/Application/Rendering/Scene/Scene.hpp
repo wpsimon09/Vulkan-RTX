@@ -25,12 +25,14 @@ public:
     void Init();
     void Update();
     void Render(VulkanStructs::RenderContext* ctx,SceneNode& sceneNode = *m_root);
+    void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const ;
 
     void AddNode(std::shared_ptr<SceneNode> sceneNode);
 
     void PrintSceneGraph();
 public:
     std::shared_ptr<SceneNode>& GetRootNode() const {return m_root;}
+
 private:
     void BuildDefaultScene();
     void PrintSceneDatat(int depth, SceneNode& sceneNodes);

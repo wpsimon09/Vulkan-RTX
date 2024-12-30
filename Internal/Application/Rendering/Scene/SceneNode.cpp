@@ -65,6 +65,11 @@ namespace ApplicationCore {
         }
     }
 
+    SceneNode* SceneNode::GetParent()
+    {
+       return m_parent;
+    }
+
     std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildren()
     {
         std::vector<std::reference_wrapper<SceneNode>> result;
