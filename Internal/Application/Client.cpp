@@ -50,7 +50,7 @@ const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> Client::GetMesh
     return result;
 }
 
-const void Client::Render(VulkanStructs::RenderContext* ctx)
+void Client::Render(VulkanStructs::RenderContext* ctx)
 {
     m_scene->Render(ctx, m_scene->GetRootNode());
 }

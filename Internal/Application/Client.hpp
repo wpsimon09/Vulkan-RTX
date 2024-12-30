@@ -49,7 +49,7 @@ public:
     Client();
     void Init();
     const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> GetMeshes() const;
-    const void Render(VulkanStructs::RenderContext* ctx);
+    void Render(VulkanStructs::RenderContext* ctx);
     const void MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager);
     const void Destroy();
 

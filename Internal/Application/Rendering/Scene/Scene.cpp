@@ -18,9 +18,8 @@
 
 namespace ApplicationCore {
 
-    Scene::Scene(AssetsManager& assetsManager): m_assetsManager(assetsManager), m_sceneStatistics()
-    {
-    }
+    Scene::Scene(AssetsManager& assetsManager): m_assetsManager(assetsManager), m_sceneStatistics()    {
+       }
 
     void Scene::Init()
     {
@@ -38,16 +37,16 @@ namespace ApplicationCore {
         m_root->Update();
     }
 
-    void Scene::Render(VulkanStructs::RenderContext* ctx,SceneNode& sceneNode )
+    void Scene::Render(VulkanStructs::RenderContext* ctx,std::shared_ptr<SceneNode> sceneNode )
     {
-        if (sceneNode.HasMesh())
+        if (sceneNode->HasMesh())
         {
-            sceneNode.Render(ctx);
+            sceneNode->Render(ctx);
             m_sceneStatistics.drawCalls++;
             m_sceneStatistics.numberOfMeshes++;
         }
 
-        for (auto &child : sceneNode.GetChildren())
+        for (auto &child : sceneNode->GetChildren2())
         {
             Render(ctx, child);
         }

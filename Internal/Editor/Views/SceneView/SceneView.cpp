@@ -50,7 +50,7 @@ namespace VEditor {
         IUserInterfaceElement::Render();
     }
 
-    void SceneView::CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode>& sceneNode)
+    void SceneView::CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode> sceneNode)
     {
         if (!sceneNode)
             return;
@@ -101,6 +101,11 @@ namespace VEditor {
         {
 
             if (ImGui::IsItemClicked())
+            {
+                m_selectedSceneNode = sceneNode;
+                m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
+            }
+            if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
             {
                 m_selectedSceneNode = sceneNode;
                 m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
