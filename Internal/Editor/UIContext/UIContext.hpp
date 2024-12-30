@@ -61,6 +61,8 @@ private:
     ImFont* m_defaultFont;
     ImFont* m_editorFont;
 
+    private:
+        void ThemeConfig();
 
     friend class VEditor::Editor;
 };

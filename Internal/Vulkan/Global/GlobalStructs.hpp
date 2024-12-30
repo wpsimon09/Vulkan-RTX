@@ -57,6 +57,7 @@ namespace GlobalVariables::GlobalStructs
     };
 
     inline vk::PhysicalDeviceProperties GpuProperties = {};
+    inline vk::PhysicalDeviceMemoryProperties GpuMemoryProperties = {};
 }
 
 #endif //GLOBALSTRUCTS_HPP

@@ -4,6 +4,8 @@
 
 #include "Editor.hpp"
 
+#include <IconsFontAwesome6.h>
+
 #include "Views/Index.hpp"
 #include "UIContext/UIContext.hpp"
 #include "Views/SceneView/SceneView.hpp"
@@ -60,7 +62,7 @@ namespace VEditor
     {
         static int location = 2;
         ImGuiIO& io = ImGui::GetIO();
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
         if (location >= 0)
         {
@@ -82,14 +84,37 @@ namespace VEditor
             ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
             window_flags |= ImGuiWindowFlags_NoMove;
         }
-        ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+        ImGui::SetNextWindowBgAlpha(0.75f); // Transparent background
         bool isOpen = true;
         if (ImGui::Begin("Stat",&isOpen , window_flags))
         {
 
-
-
             ImGui::Text("Prefomance MS/FPS: (%.1f,%.1f)", 1000.0f / io.Framerate, io.Framerate);
+            ImGui::SeparatorText("GPU");
+            ImGui::Text("GPU:");
+            ImGui::SameLine();
+            ImGui::Text(GlobalVariables::GlobalStructs::GpuProperties.deviceName);
+            ImGui::Button(ICON_FA_INFO);
+            if (ImGui::BeginItemTooltip())
+            {
+                ImGui::Text("Memory usage of the GPU ");
+                float available;
+                float used;
+
+
+                for (uint32_t i = 0; i < GlobalVariables::GlobalStructs::GpuMemoryProperties.memoryHeapCount; ++i) {
+                    if (GlobalVariables::GlobalStructs::GpuMemoryProperties.memoryHeaps[i].flags && VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
+                        available += GlobalVariables::GlobalStructs::GpuMemoryProperties.memoryHeaps[i].size;
+                        used += m_vmaStats->memoryHeap[i].statistics.allocationBytes;
+                    }
+                }
+                used *= (1024.0f * 1024.0f * 1024.0f);
+                available *= (1024.0f * 1024.0f * 1024.0f);
+                ImGui::Text("VRAM");
+                ImGui::ProgressBar(used/available);
+                ImGui::EndTooltip();
+            }
+
             if (ImGui::BeginPopupContextWindow())
             {
                 if (ImGui::MenuItem("Custom", NULL, location == -1)) location = -1;

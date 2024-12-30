@@ -59,7 +59,7 @@ namespace VEditor {
             isSelected = false;
 
         bool isLeaf =  sceneNode->GetChildren2().size() <= 0;
-        // Use ImGui::Selectable for making nodes selectable
+
         ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
                                       | ImGuiTreeNodeFlags_OpenOnDoubleClick
                                       | (isLeaf ? ImGuiTreeNodeFlags_Leaf : 0)
