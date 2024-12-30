@@ -31,7 +31,6 @@ namespace ApplicationCore
 
         void AddChild(const std::shared_ptr<SceneNode>& child);
         void AddChild(std::shared_ptr<Mesh> child);
-        void RemoveSelfFromHierarchy();
 
         std::string& GetName() {return m_name;} const
         std::shared_ptr<Mesh>& GetMesh() {return m_mesh;}

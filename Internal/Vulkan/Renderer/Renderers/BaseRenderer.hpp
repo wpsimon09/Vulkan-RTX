@@ -56,14 +56,6 @@ namespace Renderer
         const int& GetTargeHeight() const {return m_height;}
     public:
         virtual void Destroy();
-        virtual void Render(int currentFrameIndex,
-                            const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence,
-                            GlobalUniform& globalUniformUpdateInfo,
-                            const VulkanUtils::VUniformBufferManager& uniformBufferManager ,
-                            const VulkanStructs::RenderContext& renderContext,
-                            const VulkanCore::VGraphicsPipeline& pipeline) {};
-        virtual void Render(int currentFrameIndex, const VulkanUtils::UIContext& guiInitialzer) {}
-
     protected:
 
         virtual void CreateRenderTargets(VulkanCore::VSwapChain* swapChain = nullptr) = 0;

@@ -105,6 +105,9 @@ namespace ApplicationCore {
             // check if the mesh can be rendered in the given context
             if (m_mesh->GetRenderingMetaData() == renderingContext->metaData)
             {
+                //=====================================================
+                // NORMAL SCENE DATA
+                //=====================================================
                 VulkanStructs::DrawCallData data(
                     m_mesh->m_vertexArray->GetVertexBuffer().GetBuffer(),
                     m_mesh->m_vertexArray->GetIndexBuffer().GetBuffer(),
@@ -112,6 +115,15 @@ namespace ApplicationCore {
                 data.firstIndex = 1;
                 data.indexCount = m_mesh->GetMeshIndexCount();
                 data.material = m_mesh->m_material;
+
+                //=====================================================
+                // BOUNDING VOLUME STUFF
+                //=====================================================
+                data.bounds = m_mesh->GetVertexArray()->GetBounds();
+                data.AABBVertexBuffer = m_mesh->GetVertexArray()->GetAABBVertexBuffer().GetBuffer();
+                data.AABBIndexBuffer = m_mesh->GetVertexArray()->GetIndexBuffer().GetBuffer();
+                data.AABBIndexCount = m_mesh->GetVertexArray()->GetAABBIndexCount();
+
                 renderingContext->DrawCalls.emplace_back(data);
             }
         }

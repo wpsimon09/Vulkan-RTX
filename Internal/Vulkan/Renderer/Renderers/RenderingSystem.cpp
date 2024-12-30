@@ -58,6 +58,8 @@ namespace Renderer {
         m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(m_device, *m_swapChain, m_sceneRenderer->GetRenderPass(0), m_pushDescriptorSetManager) ;
         m_pipelineManager->InstantiatePipelines();
 
+        m_sceneRenderer->Init(m_pipelineManager.get());
+
         m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
 
         m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(PIPELINE_TYPE_DEBUG_LINES));
@@ -111,7 +113,7 @@ namespace Renderer {
         m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderingContext->DrawCalls);
 
         // render scene
-        m_sceneRenderer->Render(m_currentFrameIndex,*m_isFrameFinishFences[m_currentFrameIndex],globalUniformUpdateInfo, m_uniformBufferManager, *m_renderingContext, m_pipelineManager->GetPipeline(PIPELINE_TYPE::PIPELINE_TYPE_DEBUG_LINES)  );
+        m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, *m_renderingContext);
 
                                                                     // semaphore signaled in the scene render pass
         std::vector<vk::Semaphore> waitSemaphoresForTransfering = {m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};

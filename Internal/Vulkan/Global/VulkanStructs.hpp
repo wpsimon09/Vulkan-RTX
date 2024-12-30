@@ -27,14 +27,28 @@ namespace VulkanStructs
         }
     };
 
+    struct Bounds
+    {
+        glm::vec3 origin;
+        glm::vec3 extents;
+        float radius;
+    };
+
     struct DrawCallData
     {
         uint32_t indexCount = 0;
         uint32_t firstIndex =0;
+
         VkBuffer vertexBuffer;
         VkBuffer indexBuffer;
+
+        VkBuffer AABBVertexBuffer;
+        VkBuffer AABBIndexBuffer;
+        uint32_t AABBIndexCount = 0;
+
         glm::mat4& modelMatrix;
         uint32_t instanceCount = 1;
+        Bounds *bounds;
         // material descriptor
         std::shared_ptr<ApplicationCore::Material> material;
 

@@ -127,6 +127,7 @@ namespace ApplicationCore
             {
                 indices.clear();
                 vertices.clear();
+                VulkanStructs::Bounds bounds = {};
 
                 MaterialPaths paths;
 

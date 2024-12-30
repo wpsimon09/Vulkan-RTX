@@ -4,6 +4,7 @@
 
 #include "SceneRenderer.hpp"
 
+#include "DebugRenderer.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
@@ -13,18 +14,18 @@
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 
 
-namespace Renderer {
-
-
+namespace Renderer
+{
     SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device,
-        VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width, int height): BaseRenderer(device),
-        m_pushDescriptorManager(pushDescriptorManager),
-        m_device(device)
+                                 VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width,
+                                 int height): BaseRenderer(device),
+                                              m_pushDescriptorManager(pushDescriptorManager),
+                                              m_device(device)
     {
-
         Utils::Logger::LogInfo("Creating scene renderer");
 
         m_width = width;
@@ -32,9 +33,9 @@ namespace Renderer {
         SceneRenderer::CreateRenderTargets(nullptr);
 
         m_sceneCommandPool = std::make_unique<VulkanCore::VCommandPool>(device, QUEUE_FAMILY_INDEX_GRAPHICS);
-        for (int i = 0; i <GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
-            m_commandBuffers[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device,*m_sceneCommandPool);
+            m_commandBuffers[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_sceneCommandPool);
         }
 
         //---------------------------------------------------------------------------------------------------------------------------
@@ -54,17 +55,22 @@ namespace Renderer {
 
 
         Utils::Logger::LogSuccess("Scene renderer created !");
-
     }
 
-    void SceneRenderer::Render(int currentFrameIndex, const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence,GlobalUniform& globalUniformUpdateInfo,
-        const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-        const VulkanStructs::RenderContext& renderContext, const VulkanCore::VGraphicsPipeline& pipeline
-        )
+    void SceneRenderer::Init(const VulkanCore::VPipelineManager* pipelineManager)
+    {
+        m_pipelineManager = pipelineManager;
+    }
+
+
+    void SceneRenderer::Render(int currentFrameIndex,
+                               const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                               const VulkanStructs::RenderContext& renderContext
+    )
     {
         m_renderContextPtr = &renderContext;
 
-        auto &renderTarget = m_renderTargets;
+        auto& renderTarget = m_renderTargets;
         m_commandBuffers[currentFrameIndex]->Reset();
 
         //=====================================================
@@ -72,7 +78,8 @@ namespace Renderer {
         //=====================================================ň
         m_commandBuffers[currentFrameIndex]->BeginRecording();
 
-        RecordCommandBuffer(currentFrameIndex, uniformBufferManager, pipeline );
+        RecordCommandBuffer(currentFrameIndex, uniformBufferManager,
+                            m_pipelineManager->GetPipeline(PIPELINE_TYPE_RASTER_PBR_TEXTURED));
 
         m_commandBuffers[currentFrameIndex]->EndRecording();
 
@@ -83,26 +90,25 @@ namespace Renderer {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
 
-        std::vector<vk::Semaphore> signalSemahores = {m_rendererFinishedSemaphore[currentFrameIndex]->GetSyncPrimitive()};
+        std::vector<vk::Semaphore> signalSemahores = {
+            m_rendererFinishedSemaphore[currentFrameIndex]->GetSyncPrimitive()
+        };
         submitInfo.signalSemaphoreCount = signalSemahores.size();
         submitInfo.pSignalSemaphores = signalSemahores.data();
 
 
         assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess &&
             "Failed to submit command buffer !");
-
-
     }
 
     void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
     {
-
-        m_renderTargets = std::make_unique<Renderer::RenderTarget>(m_device,m_width, m_height);
-
+        m_renderTargets = std::make_unique<Renderer::RenderTarget>(m_device, m_width, m_height);
     }
 
     void SceneRenderer::RecordCommandBuffer(int currentFrameIndex,
-        const VulkanUtils::VUniformBufferManager& uniformBufferManager, const VulkanCore::VGraphicsPipeline& pipeline)
+                                            const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                                            const VulkanCore::VGraphicsPipeline& pipeline)
     {
         //==============================================
         // CREATE RENDER PASS INFO
@@ -113,13 +119,13 @@ namespace Renderer {
         renderPassBeginInfo.renderArea.offset.x = 0;
         renderPassBeginInfo.renderArea.offset.y = 0;
         renderPassBeginInfo.renderArea.extent.width = static_cast<uint32_t>(GetTargeWidth()),
-        renderPassBeginInfo.renderArea.extent.height = static_cast<uint32_t>(GetTargeHeight());
+            renderPassBeginInfo.renderArea.extent.height = static_cast<uint32_t>(GetTargeHeight());
 
         //==============================================
         // CONFIGURE CLEAR
         //==============================================
-        std::array<vk::ClearValue,2> clearColors = {};
-        clearColors[0].color =  {0.2f, 0.2f, 0.2f, 1.0f};
+        std::array<vk::ClearValue, 2> clearColors = {};
+        clearColors[0].color = {0.2f, 0.2f, 0.2f, 1.0f};
         clearColors[1].depthStencil.depth = 1.0f;
         clearColors[1].depthStencil.stencil = 0.0f;
         renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearColors.size());
@@ -160,11 +166,13 @@ namespace Renderer {
         //=================================================
         // UPDATE DESCRIPTOR SETS
         //=================================================
-        auto &dstSetDataStruct = m_pushDescriptorManager.GetDescriptorSetDataStruct();
+        auto& dstSetDataStruct = m_pushDescriptorManager.GetDescriptorSetDataStruct();
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
 
-        for (int i = 0; i<m_renderContextPtr->DrawCalls.size(); i++){
-            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[currentFrameIndex];
+        for (int i = 0; i < m_renderContextPtr->DrawCalls.size(); i++)
+        {
+            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
+                currentFrameIndex];
 
             auto& drawCall = m_renderContextPtr->DrawCalls[i];
             auto& material = drawCall.material;
@@ -181,9 +189,11 @@ namespace Renderer {
             dstSetDataStruct.emissiveTextureImage =
                 material->GetTexture(PBR_EMISSIVE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-            dstSetDataStruct.pbrMaterialFeatures = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(i)[currentFrameIndex];
+            dstSetDataStruct.pbrMaterialFeatures = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(i)[
+                currentFrameIndex];
 
-            dstSetDataStruct.pbrMaterialNoTexture = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(i)[currentFrameIndex];
+            dstSetDataStruct.pbrMaterialNoTexture = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(i)[
+                currentFrameIndex];
 
             std::vector<vk::Buffer> vertexBuffers = {m_renderContextPtr->DrawCalls[i].vertexBuffer};
             std::vector<vk::DeviceSize> offsets = {0};
@@ -198,6 +208,10 @@ namespace Renderer {
 
             cmdBuffer.drawIndexed(drawCall.indexCount, 1, 0, 0, 0);
         }
+
+        RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
+                                               m_pushDescriptorManager, *m_renderContextPtr,
+                                               m_pipelineManager->GetPipeline(PIPELINE_TYPE_DEBUG_LINES));
 
         cmdBuffer.endRenderPass();
     }

@@ -8,16 +8,16 @@
 #include "Application/Rendering/Material/Material.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
-ApplicationCore::Mesh::Mesh(std::shared_ptr<VertexArray> geometryData, std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType)
+ApplicationCore::Mesh::Mesh(std::shared_ptr<VertexArray> geometryData,std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType)
 {
     m_geometryType = geometryType;
     m_vertexArray = geometryData;
     m_transformations = std::make_unique<Transformations>();
 
     m_material = material;
-
 }
 
 const size_t ApplicationCore::Mesh::GetMeshVertexArraySize() const {

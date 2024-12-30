@@ -8,10 +8,12 @@
 #include <memory>
 #include "Application/Enums/ClientEnums.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
 namespace ApplicationCore
 {
+    struct Vertex;
     class Material;
     class SceneNode;
     class Transformations;
@@ -20,7 +22,7 @@ namespace ApplicationCore
 
     class Mesh{
     public:
-        explicit Mesh(std::shared_ptr<VertexArray> geometryData, std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType = MESH_GEOMETRY_CUSTOM);
+        explicit Mesh(std::shared_ptr<VertexArray> geometryData,std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType = MESH_GEOMETRY_CUSTOM);
 
         void Update();
 
@@ -41,7 +43,6 @@ namespace ApplicationCore
         const std::shared_ptr<VertexArray>& GetVertexArray() const {return m_vertexArray;}
 
     private:
-        const void AssignMeshGeometryData(ApplicationCore::AssetsManager& assetsManger);
         std::string MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType);
         std::string_view m_name;
         std::unique_ptr<ApplicationCore::Transformations> m_transformations;
@@ -50,6 +51,7 @@ namespace ApplicationCore
         MESH_GEOMETRY_TYPE m_geometryType;
 
         std::shared_ptr<VertexArray> m_vertexArray;
+        std::unique_ptr<VertexArray> m_aabbVertexArray;
         std::shared_ptr<Material> m_material;
 
         VulkanStructs::RenderingMetaData m_renderingMetaData;
