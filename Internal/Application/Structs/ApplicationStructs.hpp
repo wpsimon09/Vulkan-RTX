@@ -73,11 +73,10 @@ struct TextureBufferInfo
 
 struct SceneStatistics
 {
-    int drawCalls = 0;
+    int sceneNumberOfTriangles = 0;
     int numberOfMeshes = 0;
     void Reset()
     {
-        drawCalls = 0;
         numberOfMeshes = 0;
     }
 };

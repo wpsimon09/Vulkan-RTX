@@ -122,7 +122,7 @@ namespace VEditor
                 ImGui::SeparatorText("Draw stat");
                 {
                     auto sceneStats =  m_uiContext.m_scene.GetSceneStatistics();
-                    ImGui::Text("Draw calls %i",sceneStats.drawCalls);
+                    //ImGui::Text("Draw calls %i",sceneStats.drawCalls);
                     ImGui::Text("Mesh count %i",sceneStats.numberOfMeshes);
                 }
 

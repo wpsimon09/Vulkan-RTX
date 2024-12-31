@@ -76,6 +76,11 @@ namespace VulkanStructs
         // Pipeline
         std::vector<DrawCallData> DrawCalls;
     };
+
+    struct RenderingStatistics
+    {
+        int DrawCallCunt = 0;
+    };
 }
 
 #endif //VULKANSTRUCTS_HPP

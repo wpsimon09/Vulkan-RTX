@@ -47,6 +47,7 @@ namespace VulkanCore {
         // - STAGING
         // - GPU ONLY
         //----------------------
+
         m_bufferType = vk::BufferUsageFlagBits::eVertexBuffer;
         Utils::Logger::LogInfoVerboseOnly("Allocating Vertex buffer and staging buffer for the mesh...");
         CreateBuffer(vertices.size() * sizeof(ApplicationCore::Vertex), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
@@ -170,6 +171,8 @@ namespace VulkanCore {
         allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
         allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
         assert(vmaCreateBuffer(m_device.GetAllocator(),&bufferCreateInfo,&allocationCreateInfo, &m_bufferVMA,&m_allocation,nullptr) == VK_SUCCESS);
+
+        m_bufferSize = size;
 
         vmaSetAllocationName(m_device.GetAllocator(), m_allocation, m_allocationName.c_str());
         Utils::Logger::LogSuccess("Buffer allocated successfully || SIZE: "+ std::to_string(size) + " bytes || ");

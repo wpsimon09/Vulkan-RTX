@@ -20,6 +20,8 @@ namespace ApplicationCore
     class AssetsManager;
     class VertexArray;
 
+
+
     class Mesh{
     public:
         explicit Mesh(std::shared_ptr<VertexArray> geometryData,std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType = MESH_GEOMETRY_CUSTOM);
@@ -29,6 +31,21 @@ namespace ApplicationCore
         void Destroy();
 
         void SetName(std::string name);
+    private:
+        std::string MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType);
+        std::string_view m_name;
+        std::unique_ptr<ApplicationCore::Transformations> m_transformations;
+
+        struct MeshInfo
+        {
+            int numberOfTriangles = 0;
+            int vertexCount = 0;
+            int indexCount = 0;
+            int vertexSize = 0;
+            int indexSize = 0;
+
+        }m_meshInfo{};
+
     public:
         const size_t GetMeshVertexArraySize() const;
         const size_t GetMeshIndexArraySize() const;
@@ -39,13 +56,10 @@ namespace ApplicationCore
         void SetName(std::string &newName){m_name = newName;}
 
         VulkanStructs::RenderingMetaData& GetRenderingMetaData()  {return m_renderingMetaData;}
-        ApplicationCore::Transformations* GetTransformations() const { return m_transformations.get(); };
+        ApplicationCore::Transformations* GetTransformations() const { return m_transformations.get(); }
         const std::shared_ptr<VertexArray>& GetVertexArray() const {return m_vertexArray;}
 
-    private:
-        std::string MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType);
-        std::string_view m_name;
-        std::unique_ptr<ApplicationCore::Transformations> m_transformations;
+        MeshInfo& GeteMeshInfo() {return m_meshInfo;}
 
     private:
         MESH_GEOMETRY_TYPE m_geometryType;

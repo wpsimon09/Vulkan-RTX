@@ -232,6 +232,7 @@ namespace ApplicationCore
 
                 // create shared ptr to mesh
                 auto createdMehs = std::make_shared<Mesh>(m_assetsManager.GetVertexData().back(), mat);
+                createdMehs->GeteMeshInfo().numberOfTriangles = m.primitives.size();
                 createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(4));
 
                 // store the shared ptr to mesh

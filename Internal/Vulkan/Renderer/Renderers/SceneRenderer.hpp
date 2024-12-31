@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "BaseRenderer.hpp"
+#include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
@@ -44,16 +45,21 @@ public:
                                const VulkanStructs::RenderContext& renderContext);
 
     void Destroy() override;
+
 protected:
     void CreateRenderTargets(VulkanCore::VSwapChain* swapChain) override;
     void RecordCommandBuffer(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager, const VulkanCore::VGraphicsPipeline& pipeline) override;
+
 private:
-    VulkanUtils::VPushDescriptorManager& m_pushDescriptorManager;
     const VulkanCore::VDevice& m_device;
-    std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
+    VulkanUtils::VPushDescriptorManager& m_pushDescriptorManager;
+
     const VulkanCore::VPipelineManager* m_pipelineManager;
     const VulkanStructs::RenderContext* m_renderContextPtr;
+
+    std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
     VulkanStructs::RenderContext m_selectedGeometry;
+
     bool m_AllowDebugDraw = false;
     bool m_WireFrame = false;
 

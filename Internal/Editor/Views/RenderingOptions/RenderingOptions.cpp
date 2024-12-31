@@ -25,13 +25,13 @@ namespace VEditor {
 
             if (ImGui::TreeNode(ICON_FA_DRAW_POLYGON " SceneRenderer"))
             {
-                ImGui::Checkbox("Draw debug lines", &m_renderingSystem->m_sceneRenderer->m_WireFrame);
+                ImGui::Checkbox("Wire frame mode", &m_renderingSystem->m_sceneRenderer->m_WireFrame);
 
                 ImGui::TreePop();
             }
             if (ImGui::TreeNode(ICON_FA_BUG " Debug renderer"))
             {
-                ImGui::Checkbox("Draw debug lines", &m_renderingSystem->m_sceneRenderer->m_AllowDebugDraw);
+                ImGui::Checkbox("Draw AABBs ", &m_renderingSystem->m_sceneRenderer->m_AllowDebugDraw);
 
                 ImGui::TreePop();
             }

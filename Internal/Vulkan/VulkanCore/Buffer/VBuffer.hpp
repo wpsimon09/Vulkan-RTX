@@ -29,6 +29,7 @@ namespace VulkanCore
 
         const vk::Buffer &GetBuffer() const { return m_bufferVK; }
         const vk::Buffer &GetStagingBuffer() const { return m_stagingBufferVK; }
+        vk::DeviceSize GetBuffeSizeInBytes() const {return m_bufferSize;};
 
         void *GetMapPointer() const {
             assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer);
@@ -75,6 +76,8 @@ namespace VulkanCore
         vk::BufferUsageFlags m_bufferType;
         std::vector<uint32_t> m_sharedQueueFamilyIndices;
         vk::DescriptorBufferInfo m_descriptorBufferInfo;
+
+        vk::DeviceSize m_bufferSize;
         const std::string m_allocationName;
 
         bool m_isInitialized = false;
@@ -117,7 +120,6 @@ namespace VulkanCore
         m_descriptorBufferInfo.buffer = m_bufferVK;
         m_descriptorBufferInfo.range = size;
         m_descriptorBufferInfo.offset = 0;
-
     }
 
 

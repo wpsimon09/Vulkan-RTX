@@ -42,8 +42,7 @@ namespace ApplicationCore {
         if (sceneNode->HasMesh())
         {
             sceneNode->Render(ctx);
-            m_sceneStatistics.drawCalls++;
-            m_sceneStatistics.numberOfMeshes++;
+
         }
 
         for (auto &child : sceneNode->GetChildren2())
@@ -78,6 +77,7 @@ namespace ApplicationCore {
 
     void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode) const
     {
+
         m_root->AddChild(sceneNode);
     }
 
