@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "BaseRenderer.hpp"
+#include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 namespace VEditor
@@ -52,7 +53,7 @@ private:
     std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
     const VulkanCore::VPipelineManager* m_pipelineManager;
     const VulkanStructs::RenderContext* m_renderContextPtr;
-
+    VulkanStructs::RenderContext m_selectedGeometry;
     bool m_AllowDebugDraw = false;
     bool m_WireFrame = false;
 

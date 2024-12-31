@@ -21,6 +21,15 @@ namespace Renderer
                                                 const VulkanStructs::RenderContext& renderContext,
                                                 const VulkanCore::VGraphicsPipeline& pipeline
                                                 );
+
+    void DrawSelectedMeshes( const VulkanCore::VDevice& device,
+                                int currentFrameIndex,
+                                vk::CommandBuffer commandBuffer,
+                                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                                VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
+                                const VulkanStructs::RenderContext& renderContext,
+                                const VulkanCore::VGraphicsPipeline& pipeline);
+
 } // Renderer
 
 #endif //DEBUGRENDERER_HPP

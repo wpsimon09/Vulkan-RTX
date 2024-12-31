@@ -58,6 +58,7 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
     m_baseShader->DestroyExistingShaderModules();
     m_rtxShader->DestroyExistingShaderModules();
     m_debugLinesShader->DestroyExistingShaderModules();
+    m_outlineShader->DestroyExistingShaderModules();
 }
 
 const VulkanCore::VGraphicsPipeline &VulkanCore::VPipelineManager::GetPipeline(PIPELINE_TYPE pipeline) const {
@@ -123,6 +124,23 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->SetPolygonMode(vk::PolygonMode::eLine);
 
     m_pipelines[PIPELINE_TYPE_DEBUG_LINES] = std::move(pipeline);
+
+    //==================================
+    // OUTLINE PIPELINE
+    //==================================
+    auto outlineVertex = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
+    auto outlineFragment = "Shaders/Compiled/Outliines.frag.slang.spv";
+    m_outlineShader = std::make_unique<VShader>(m_device,outlineVertex,
+                                             outlineFragment);
+
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_outlineShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
+    pipeline->Init();
+    pipeline->SetPipelineType(PIPELINE_TYPE_OUTLINE);
+    pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
+    pipeline->SetCullMode(vk::CullModeFlagBits::eFront);
+    pipeline->SetPolygonMode(vk::PolygonMode::eLine);
+    pipeline->DisableDepthTest();
+    m_pipelines[PIPELINE_TYPE_OUTLINE] = std::move(pipeline);
 }
 
 

@@ -173,6 +173,11 @@ namespace VulkanCore
         {
             m_rasterizer.polygonMode = polygonMode;
         }
+
+        void DisableDepthTest()
+        {
+            m_depthStencil.depthTestEnable = false;
+        }
     };
 }
 

@@ -53,6 +53,7 @@ namespace VulkanCore
         std::unique_ptr<VShader> m_baseShader;
         std::unique_ptr<VShader> m_rtxShader ;
         std::unique_ptr<VShader> m_debugLinesShader;
+        std::unique_ptr<VShader> m_outlineShader;
 
         std::map<PIPELINE_TYPE, std::unique_ptr<VGraphicsPipeline>> m_pipelines;
     };

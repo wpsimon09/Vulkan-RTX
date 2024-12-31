@@ -68,9 +68,27 @@ namespace ApplicationCore {
     void SceneNode::Setvisibility(bool isVisible)
     {
         m_isVisible = isVisible;
-        for (auto child : m_children)
+        for (auto &child : m_children)
         {
             child->Setvisibility(isVisible);
+        }
+    }
+
+    void SceneNode::Select()
+    {
+        m_isSelected = true;
+        for (auto &child : m_children)
+        {
+            child->Select();
+        }
+    }
+
+    void SceneNode::Deselect()
+    {
+        m_isSelected = false;
+        for (auto &child : m_children)
+        {
+            child->Deselect();
         }
     }
 
@@ -130,8 +148,10 @@ namespace ApplicationCore {
                 //=====================================================
                 data.bounds = m_mesh->GetVertexArray()->GetBounds();
                 data.AABBVertexBuffer = m_mesh->GetVertexArray()->GetAABBVertexBuffer().GetBuffer();
-                data.AABBIndexBuffer = m_mesh->GetVertexArray()->GetIndexBuffer().GetBuffer();
+                data.AABBIndexBuffer = m_mesh->GetVertexArray()->GetAABBIndexBuffer().GetBuffer();
                 data.AABBIndexCount = m_mesh->GetVertexArray()->GetAABBIndexCount();
+
+                data.renderOutline = m_isSelected;
 
                 renderingContext->DrawCalls.emplace_back(data);
             }

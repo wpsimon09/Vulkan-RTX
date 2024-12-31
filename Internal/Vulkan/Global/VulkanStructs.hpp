@@ -49,6 +49,7 @@ namespace VulkanStructs
         glm::mat4& modelMatrix;
         uint32_t instanceCount = 1;
         Bounds *bounds;
+        bool renderOutline = false;
         // material descriptor
         std::shared_ptr<ApplicationCore::Material> material;
 

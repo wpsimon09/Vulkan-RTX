@@ -24,7 +24,8 @@ namespace Renderer
                                  VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width,
                                  int height): BaseRenderer(device),
                                               m_pushDescriptorManager(pushDescriptorManager),
-                                              m_device(device)
+                                              m_device(device), m_selectedGeometry{}
+
     {
         Utils::Logger::LogInfo("Creating scene renderer");
 
@@ -110,6 +111,8 @@ namespace Renderer
 
         assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess &&
             "Failed to submit command buffer !");
+
+        m_selectedGeometry.DrawCalls.clear();
     }
 
     void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
@@ -218,6 +221,12 @@ namespace Renderer
                 dstSetDataStruct, m_device.DispatchLoader);
 
             cmdBuffer.drawIndexed(drawCall.indexCount, 1, 0, 0, 0);
+
+            if (drawCall.renderOutline)
+            {
+                m_selectedGeometry.DrawCalls.push_back(drawCall);
+            }
+
         }
 
         if (m_AllowDebugDraw)
@@ -226,6 +235,12 @@ namespace Renderer
                                                    m_pushDescriptorManager, *m_renderContextPtr,
                                                    m_pipelineManager->GetPipeline(PIPELINE_TYPE_DEBUG_LINES));
         }
+
+        // renders the outline
+        DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
+                                                   m_pushDescriptorManager, m_selectedGeometry,
+                                                    m_pipelineManager->GetPipeline(PIPELINE_TYPE_OUTLINE));
+
 
         cmdBuffer.endRenderPass();
     }

@@ -80,8 +80,8 @@ namespace VEditor {
 
         std::string visibilityButtonLabel;
 
-            if (sceneNode->GetIsVisible()) visibilityButtonLabel = std::string(ICON_FA_EYE) + "##" + std::string(sceneNode->GetName());
-            else                           visibilityButtonLabel = std::string(ICON_FA_EYE_SLASH) + "##" + std::string(sceneNode->GetName());
+        if (sceneNode->GetIsVisible()) visibilityButtonLabel = std::string(ICON_FA_EYE) + "##" + std::string(sceneNode->GetName());
+        else                           visibilityButtonLabel = std::string(ICON_FA_EYE_SLASH) + "##" + std::string(sceneNode->GetName());
 
         auto oldFontSize = ImGui::GetFont()->Scale;
         ImGui::GetFont()->Scale*= 0.4f;
@@ -98,16 +98,33 @@ namespace VEditor {
         }
         ImGui::GetFont()->Scale = oldFontSize;
         ImGui::SameLine();
+
+
         bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
         {
-
             if (ImGui::IsItemClicked())
             {
+                if (sceneNode->GetisSelected())
+                {
+                    sceneNode->Deselect();
+                }
+                else
+                {
+                    sceneNode->Select();
+                }
                 m_selectedSceneNode = sceneNode;
                 m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
             }
-            if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+            else if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
             {
+                if (sceneNode->GetisSelected())
+                {
+                    sceneNode->Deselect();
+                }
+                else
+                {
+                    sceneNode->Select();
+                }
                 m_selectedSceneNode = sceneNode;
                 m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
             }

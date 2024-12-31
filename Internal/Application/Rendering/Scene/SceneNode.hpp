@@ -37,6 +37,10 @@ namespace ApplicationCore
         void SetVisibleInEditor() {m_showInEditor = true;}
         bool IsVisibleInEditor() const {return m_showInEditor;}
 
+        void Select();
+        void Deselect();
+        bool IsSelected() const {return m_isSelected;}
+
         std::string& GetName() {return m_name;} const
         std::shared_ptr<Mesh>& GetMesh() {return m_mesh;}
 
@@ -46,7 +50,8 @@ namespace ApplicationCore
 
         std::vector<std::reference_wrapper<SceneNode>> GetChildren();
         std::shared_ptr<SceneNode>& GetChild(int index) {return m_children[index];}
-        bool GetIsVisible(){return m_isVisible;};
+        bool GetIsVisible(){return m_isVisible;}
+        bool GetisSelected() {return m_isSelected;};
         std::vector<std::shared_ptr<SceneNode>>& GetChildren2() {return m_children;};
         void Update() const;
         void Render(VulkanStructs::RenderContext* renderingContext) const;
@@ -67,6 +72,7 @@ namespace ApplicationCore
         bool m_hasMesh = false;
         bool m_isVisible = true;
         bool m_showInEditor = true;
+        bool m_isSelected = false;
         int m_ID = 0;
 
     //===========================================================================
