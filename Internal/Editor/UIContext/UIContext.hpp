@@ -70,7 +70,7 @@ private:
     ImFont* m_editorFont;
 
     private:
-        void ThemeConfig();
+        void SetColourThemePablo();
 
     friend class VEditor::Editor;
 };
