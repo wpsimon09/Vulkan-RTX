@@ -100,34 +100,27 @@ namespace VEditor {
         ImGui::SameLine();
 
 
+        if (isSelected)
+        {
+            sceneNode->Select();
+        }else
+        {
+            sceneNode->Deselect();
+        }
+
         bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
         {
             if (ImGui::IsItemClicked())
             {
-                if (sceneNode->GetisSelected())
-                {
-                    sceneNode->Deselect();
-                }
-                else
-                {
-                    sceneNode->Select();
-                }
                 m_selectedSceneNode = sceneNode;
                 m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
             }
             else if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
             {
-                if (sceneNode->GetisSelected())
-                {
-                    sceneNode->Deselect();
-                }
-                else
-                {
-                    sceneNode->Select();
-                }
                 m_selectedSceneNode = sceneNode;
                 m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
             }
+
 
             if (nodeOpen)
             {

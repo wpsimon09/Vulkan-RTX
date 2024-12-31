@@ -177,6 +177,8 @@ namespace VulkanCore
         void DisableDepthTest()
         {
             m_depthStencil.depthTestEnable = false;
+            m_depthStencil.depthWriteEnable = false;
+
         }
     };
 }
