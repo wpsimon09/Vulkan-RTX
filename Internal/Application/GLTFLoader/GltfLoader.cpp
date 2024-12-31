@@ -260,7 +260,7 @@ namespace ApplicationCore
                 newNode->SetName(std::string(std::string(node.name) + "##" +VulkanUtils::random_string(4)));
                 if (auto newTransform = std::get_if<fastgltf::math::fmat4x4>(&node.transform))
                 {
-                    //newNode->m_transformation->SetModelMatrix(VulkanUtils::FastGLTFToGLMMat4(*newTransform));
+                    newNode->m_transformation->SetModelMatrix(VulkanUtils::FastGLTFToGLMMat4(*newTransform));
                 }
                 m_nodes.push_back(newNode);
             }

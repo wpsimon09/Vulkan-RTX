@@ -11,7 +11,7 @@
 
 namespace Renderer
 {
-    void RecordCommandBufferToDrawDebugGeometry(
+    int RecordCommandBufferToDrawDebugGeometry(
         const VulkanCore::VDevice& device,
         int currentFrameIndex,
         vk::CommandBuffer commandBuffer,
@@ -20,6 +20,7 @@ namespace Renderer
         const VulkanStructs::RenderContext& renderContext,
         const VulkanCore::VGraphicsPipeline& pipeline)
     {
+        int drawCallCount = 0;
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance());
         auto& dstSetDataStruct = pushDescriptorManager.GetDescriptorSetDataStruct();
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
@@ -43,10 +44,12 @@ namespace Renderer
                 dstSetDataStruct, device.DispatchLoader);
 
             commandBuffer.drawIndexed(drawCall.AABBIndexCount, 1, 0, 0, 0);
+            drawCallCount++;
         }
+        return drawCallCount;
      }
 
-    void DrawSelectedMeshes(const VulkanCore::VDevice& device, int currentFrameIndex,
+    int DrawSelectedMeshes(const VulkanCore::VDevice& device, int currentFrameIndex,
         vk::CommandBuffer commandBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager,
         VulkanUtils::VPushDescriptorManager& pushDescriptorManager, const VulkanStructs::RenderContext& renderContext,
         const VulkanCore::VGraphicsPipeline& pipeline)
@@ -55,6 +58,7 @@ namespace Renderer
         auto& dstSetDataStruct = pushDescriptorManager.GetDescriptorSetDataStruct();
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
 
+        int drawCallCount = 0;
         for (int i = 0; i < renderContext.DrawCalls.size(); i++)
         {
             dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
@@ -74,6 +78,8 @@ namespace Renderer
                 dstSetDataStruct, device.DispatchLoader);
 
             commandBuffer.drawIndexed(drawCall.indexCount, 1, 0, 0, 0);
+            drawCallCount++;
         }
+        return drawCallCount;
     }
 } // Renderer

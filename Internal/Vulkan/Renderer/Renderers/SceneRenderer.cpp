@@ -94,6 +94,7 @@ namespace Renderer
         RecordCommandBuffer(currentFrameIndex, uniformBufferManager,m_pipelineManager->GetPipeline(pipelineType));
 
         m_commandBuffers[currentFrameIndex]->EndRecording();
+        m_selectedGeometry.DrawCalls.clear();
 
         //=====================================================
         // SUBMIT RECORDED COMMAND BUFFER
@@ -112,7 +113,6 @@ namespace Renderer
         assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess &&
             "Failed to submit command buffer !");
 
-        m_selectedGeometry.DrawCalls.clear();
     }
 
     void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
@@ -124,6 +124,8 @@ namespace Renderer
                                             const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                                             const VulkanCore::VGraphicsPipeline& pipeline)
     {
+
+        int  drawCallCount = 0;
         //==============================================
         // CREATE RENDER PASS INFO
         //==============================================
@@ -221,6 +223,7 @@ namespace Renderer
                 dstSetDataStruct, m_device.DispatchLoader);
 
             cmdBuffer.drawIndexed(drawCall.indexCount, 1, 0, 0, 0);
+            drawCallCount++;
 
             if (drawCall.renderOutline)
             {
@@ -231,18 +234,19 @@ namespace Renderer
 
         if (m_AllowDebugDraw)
         {
-            RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
+            drawCallCount += RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                                                    m_pushDescriptorManager, *m_renderContextPtr,
                                                    m_pipelineManager->GetPipeline(PIPELINE_TYPE_DEBUG_LINES));
         }
 
         // renders the outline
-        DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
+        drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                                                    m_pushDescriptorManager, m_selectedGeometry,
                                                     m_pipelineManager->GetPipeline(PIPELINE_TYPE_OUTLINE));
 
-
         cmdBuffer.endRenderPass();
+
+        m_renderingStatistics.DrawCallCunt = drawCallCount;
     }
 
     void SceneRenderer::Destroy()

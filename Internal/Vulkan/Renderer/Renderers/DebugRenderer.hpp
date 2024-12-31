@@ -13,7 +13,7 @@ namespace VulkanUtils
 
 namespace Renderer
 {
-    void RecordCommandBufferToDrawDebugGeometry(const VulkanCore::VDevice& device,
+    int RecordCommandBufferToDrawDebugGeometry(const VulkanCore::VDevice& device,
                                                 int currentFrameIndex,
                                                 vk::CommandBuffer commandBuffer,
                                                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
@@ -22,7 +22,7 @@ namespace Renderer
                                                 const VulkanCore::VGraphicsPipeline& pipeline
                                                 );
 
-    void DrawSelectedMeshes( const VulkanCore::VDevice& device,
+    int DrawSelectedMeshes( const VulkanCore::VDevice& device,
                                 int currentFrameIndex,
                                 vk::CommandBuffer commandBuffer,
                                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,

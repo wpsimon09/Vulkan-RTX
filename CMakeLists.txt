@@ -122,7 +122,11 @@ set(SOURCES
         Internal/Vulkan/Renderer/Renderers/DebugRenderer.hpp
         Internal/Editor/Views/RenderingOptions/RenderingOptions.cpp
         Internal/Editor/Views/RenderingOptions/RenderingOptions.hpp
-
+        Internal/Editor/Views/FileExplorer/FileExplorer.cpp
+        Internal/Editor/Views/FileExplorer/FileExplorer.hpp
+        External/ImGuiFileDialog/ImGuiFileDialog.cpp
+        Internal/Editor/Views/MenuBar.cpp
+        Internal/Editor/Views/MenuBar.hpp
 )
 
 

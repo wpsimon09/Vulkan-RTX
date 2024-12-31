@@ -13,6 +13,7 @@
 
 VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext, const ApplicationCore::Scene& scene): m_viewPortContext(viewPortContext),m_scene(scene), IUserInterfaceElement{}
 {
+
 }
 
 void VEditor::ViewPort::Render()

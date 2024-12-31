@@ -59,6 +59,7 @@ private:
 
     std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
     VulkanStructs::RenderContext m_selectedGeometry;
+    VulkanStructs::RenderingStatistics m_renderingStatistics;
 
     bool m_AllowDebugDraw = false;
     bool m_WireFrame = false;

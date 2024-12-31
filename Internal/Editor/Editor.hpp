@@ -6,6 +6,7 @@
 #define EDITOR_HPP
 #include <memory>
 #include <vector>
+#include <filesystem>
 #include <sys/stat.h>
 #include <VMA/vk_mem_alloc.h>
 
@@ -28,6 +29,8 @@ private:
     UIContext& m_uiContext;
     std::vector<std::unique_ptr<VEditor::IUserInterfaceElement>> m_uiElements;
     VmaTotalStatistics* m_vmaStats;
+    std::filesystem::path *m_filePath = nullptr;
+
 
 private:
     void RenderPreformanceOverlay() const;

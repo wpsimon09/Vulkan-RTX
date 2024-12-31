@@ -96,9 +96,7 @@ namespace VEditor {
             auto meshData = m_selectedSceneNode->GetMesh()->GeteMeshInfo();
             ImGui::Text("Triangle count %i",            meshData.numberOfTriangles);
             ImGui::Text("Index count %i",               meshData.indexCount);
-            ImGui::Text("Index buffer size %b MB",      meshData.indexSize * 1024);
             ImGui::Text("Vertex count %i",              meshData.vertexCount);
-            ImGui::Text("Vertex buffer size %i MB",     meshData.vertexSize * 1024);
             ImGui::TreePop();
         }
     }

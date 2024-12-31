@@ -76,6 +76,8 @@ namespace ApplicationCore {
 
     void SceneNode::Select()
     {
+        if (m_name == "Root-Node")
+            return;
         m_isSelected = true;
         for (auto &child : m_children)
         {
@@ -85,6 +87,8 @@ namespace ApplicationCore {
 
     void SceneNode::Deselect()
     {
+        if (m_name == "Root-Node")
+            return;
         m_isSelected = false;
         for (auto &child : m_children)
         {

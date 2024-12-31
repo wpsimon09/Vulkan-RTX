@@ -9,6 +9,8 @@
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Views/Index.hpp"
 #include "UIContext/UIContext.hpp"
+#include "Views/MenuBar.hpp"
+#include "Views/FileExplorer/FileExplorer.hpp"
 #include "Views/RenderingOptions/RenderingOptions.hpp"
 #include "Views/SceneView/SceneView.hpp"
 #include "Views/ViewPort/ViewPort.hpp"
@@ -24,8 +26,13 @@ namespace VEditor
         auto index = std::make_unique<VEditor::Index>(uiContext.m_windowManager.GetWindowWidth(),
                                                       uiContext.m_windowManager.GetWindowHeight());
 
+        auto fileExplorer = std::make_unique<FileExplorer>();
+        index->m_uiChildren.emplace_back(std::move(fileExplorer));
+        fileExplorer->OpenAndGetPath();
+
         auto viewPort = std::make_unique<ViewPort>(uiContext.m_viewports[ViewPortType::eMain], m_uiContext.m_scene);
         index->m_uiChildren.emplace_back(std::move(viewPort));
+
 
         auto sceneView = std::make_unique<SceneView>(uiContext.m_scene);
         index->m_uiChildren.emplace_back(std::move(sceneView));
@@ -33,10 +40,15 @@ namespace VEditor
         auto renderingSystem = std::make_unique<RenderingOptions>(uiContext.m_renderingSystem);
         index->m_uiChildren.emplace_back(std::move(renderingSystem));
 
+
+        auto menuBar = std::make_unique<MenuBar>(this);
+
         m_uiElements.emplace_back(std::move(index));
+        m_uiElements.emplace_back(std::move(menuBar));
 
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
 
         Utils::Logger::LogInfo("Visual editor initialized in: " + std::to_string(duration.count()) + "ms !");
     }
@@ -94,6 +106,7 @@ namespace VEditor
         bool isOpen = true;
         if (ImGui::Begin("Stat",&isOpen , window_flags))
         {
+            ImGui::Text("Selected path %s", m_filePath ? m_filePath->string() : "");
 
             ImGui::Text("Prefomance MS/FPS: (%.1f,%.1f)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::SeparatorText("GPU");
