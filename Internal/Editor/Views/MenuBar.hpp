@@ -7,6 +7,7 @@
 #include "UserInterface/IUserInterfaceElement.hpp"
 
 namespace VEditor {
+    class FileExplorer;
     class Editor;
 
     class MenuBar: public IUserInterfaceElement {
@@ -16,7 +17,12 @@ public:
     void Render() override;
     void Update() override;
     private:
+        FileExplorer* m_fileExplorer;
         Editor* m_editor;
+
+        bool m_isFileDialoOpen = false;
+
+        void OnImportSelect() ;
     };
 
 } // VEditor

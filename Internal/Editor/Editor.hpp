@@ -10,6 +10,11 @@
 #include <sys/stat.h>
 #include <VMA/vk_mem_alloc.h>
 
+namespace VEditor
+{
+    class MenuBar;
+}
+
 namespace VEditor {
 
 class Index;
@@ -35,6 +40,7 @@ private:
 private:
     void RenderPreformanceOverlay() const;
 
+    friend class VEditor::MenuBar;
 };
 
 } // VEditor

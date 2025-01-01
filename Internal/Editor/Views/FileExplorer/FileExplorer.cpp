@@ -20,22 +20,20 @@ namespace VEditor {
         ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", config);
         ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey");
 
-        if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
-            if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
-                m_filePath = ImGuiFileDialog::Instance()->GetFilePathName();
-            }
-            return &m_filePath;
-
-            // close
-            ImGuiFileDialog::Instance()->Close();
-        }
         return nullptr;
-
     }
 
     void FileExplorer::Render()
     {
+        if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+            if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+                m_filePath = ImGuiFileDialog::Instance()->GetFilePathName();
+            }
 
+            // close
+            ImGuiFileDialog::Instance()->Close();
+
+        }
 
         IUserInterfaceElement::Render();
     }

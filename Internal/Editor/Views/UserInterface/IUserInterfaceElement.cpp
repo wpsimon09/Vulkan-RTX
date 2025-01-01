@@ -11,3 +11,11 @@ void VEditor::IUserInterfaceElement::Render()
         uiChild->Render();
     }
 }
+
+void VEditor::IUserInterfaceElement::Update()
+{
+    for (auto &uiChild : m_uiChildren)
+    {
+        uiChild->Update();
+    }
+}

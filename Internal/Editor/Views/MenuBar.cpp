@@ -6,9 +6,16 @@
 
 #include <imgui.h>
 
+#include "Application/Logger/Logger.hpp"
+#include "Editor/Editor.hpp"
+#include "FileExplorer/FileExplorer.hpp"
+
 namespace VEditor {
     MenuBar::MenuBar(Editor* editor): m_editor(editor)
     {
+        auto fileExplorer = std::make_unique<FileExplorer>();
+        m_uiChildren.emplace_back(std::move(fileExplorer));
+        m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
     }
 
     void MenuBar::Resize(int newWidth, int newHeight)
@@ -22,7 +29,7 @@ namespace VEditor {
             {
                 if (ImGui::MenuItem("Import"))
                 {
-
+                    OnImportSelect();
                 }
                 if (ImGui::MenuItem("Save"))
                 {
@@ -37,6 +44,18 @@ namespace VEditor {
 
     void MenuBar::Update()
     {
+        if (!m_fileExplorer->GetPath()->empty())
+        {
+            m_editor->m_filePath = m_fileExplorer->GetPath();
+        }
         IUserInterfaceElement::Update();
+    }
+
+    void MenuBar::OnImportSelect()
+    {
+        Utils::Logger::LogInfo("Importing file...");
+        m_isFileDialoOpen = true;
+        m_editor->m_filePath = m_fileExplorer->OpenAndGetPath();
+
     }
 } // VEditor

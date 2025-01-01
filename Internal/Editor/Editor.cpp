@@ -26,10 +26,6 @@ namespace VEditor
         auto index = std::make_unique<VEditor::Index>(uiContext.m_windowManager.GetWindowWidth(),
                                                       uiContext.m_windowManager.GetWindowHeight());
 
-        auto fileExplorer = std::make_unique<FileExplorer>();
-        index->m_uiChildren.emplace_back(std::move(fileExplorer));
-        fileExplorer->OpenAndGetPath();
-
         auto viewPort = std::make_unique<ViewPort>(uiContext.m_viewports[ViewPortType::eMain], m_uiContext.m_scene);
         index->m_uiChildren.emplace_back(std::move(viewPort));
 
@@ -72,6 +68,7 @@ namespace VEditor
             {
                 uiElement->Resize(m_uiContext.m_windowManager.GetWindowWidth(),
                                   m_uiContext.m_windowManager.GetWindowWidth());
+                uiElement->Update();
             }
         }
     }
