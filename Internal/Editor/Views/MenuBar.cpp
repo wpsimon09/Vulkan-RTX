@@ -8,12 +8,13 @@
 
 #include "Application/Logger/Logger.hpp"
 #include "Editor/Editor.hpp"
+#include "Editor/UIContext/UIContext.hpp"
 #include "FileExplorer/FileExplorer.hpp"
 
 namespace VEditor {
     MenuBar::MenuBar(Editor* editor): m_editor(editor)
     {
-        auto fileExplorer = std::make_unique<FileExplorer>();
+        auto fileExplorer = std::make_unique<FileExplorer>(editor->m_uiContext.GetScene());
         m_uiChildren.emplace_back(std::move(fileExplorer));
         m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
     }
@@ -45,13 +46,6 @@ namespace VEditor {
     void MenuBar::Update()
     {
 
-        if (!m_fileExplorer->GetPath()->empty() && m_isFileDialoOpen)
-        {
-            m_editor->m_filePath = m_fileExplorer->GetPathCpy();
-            // cler the selected path so that new path can be selected
-            m_fileExplorer->GetPath()->clear();
-            m_isFileDialoOpen = false;
-        }
         IUserInterfaceElement::Update();
     }
 
@@ -59,7 +53,7 @@ namespace VEditor {
     {
         Utils::Logger::LogInfo("Importing file...");
         m_isFileDialoOpen = true;
-        m_fileExplorer->Open();
+        m_fileExplorer->OpenForSceneImport();
 
     }
 } // VEditor

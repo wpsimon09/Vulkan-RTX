@@ -11,6 +11,8 @@
 #include "Application/WindowManager/WindowManager.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 
+class Client;
+
 namespace Renderer
 {
     class RenderingSystem;
@@ -38,7 +40,8 @@ public:
         const VulkanCore::VDevice& device,
         const VulkanCore::VulkanInstance& instance,
         const WindowManager& windowManager,
-        const ApplicationCore::Scene& scene
+        const ApplicationCore::Scene& scene,
+        const Client& client
     );
 
     ViewPortContext& GetViewPortContext(ViewPortType viewPortType) {return m_viewports[viewPortType];};
@@ -49,11 +52,15 @@ public:
     void SetRenderingSystem(Renderer::RenderingSystem* rendderingSystem) {m_renderingSystem = rendderingSystem;}
     void EndRender();
     void Destroy();
+public:
+    const ApplicationCore::Scene& GetScene() const {return m_scene;}
+
 private:
     const ApplicationCore::Scene& m_scene;
     const VulkanCore::VDevice& m_device;
     const VulkanCore::VulkanInstance& m_instance;
     const WindowManager& m_windowManager;
+    const Client& m_client;
 
     Renderer::RenderingSystem* m_renderingSystem;
 

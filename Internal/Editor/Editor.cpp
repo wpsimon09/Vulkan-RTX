@@ -6,6 +6,7 @@
 
 #include <IconsFontAwesome6.h>
 
+#include "Application/Client.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Views/Index.hpp"
 #include "UIContext/UIContext.hpp"
@@ -26,7 +27,7 @@ namespace VEditor
         auto index = std::make_unique<VEditor::Index>(uiContext.m_windowManager.GetWindowWidth(),
                                                       uiContext.m_windowManager.GetWindowHeight());
 
-        auto viewPort = std::make_unique<ViewPort>(uiContext.m_viewports[ViewPortType::eMain], m_uiContext.m_scene);
+        auto viewPort = std::make_unique<ViewPort>(uiContext.m_viewports[ViewPortType::eMain], m_uiContext.m_client.GetScene());
         index->m_uiChildren.emplace_back(std::move(viewPort));
 
 
@@ -35,7 +36,6 @@ namespace VEditor
 
         auto renderingSystem = std::make_unique<RenderingOptions>(uiContext.m_renderingSystem);
         index->m_uiChildren.emplace_back(std::move(renderingSystem));
-
 
         auto menuBar = std::make_unique<MenuBar>(this);
 

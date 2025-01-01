@@ -56,7 +56,7 @@ public:
     ApplicationCore::AssetsManager& GetAssetsManager() const {return *m_assetsManager;}
 
     GlobalUniform& GetGlobalDataUpdateInformation(){return m_globalRenderingData;}
-    ApplicationCore::Scene& GetScene() {return *m_scene;};;
+    const ApplicationCore::Scene& GetScene() const {return *m_scene;};;
     ApplicationCore::GLTFLoader& GetGLTFLoader() const {return *m_gltfLoader;};
 
     void Update();

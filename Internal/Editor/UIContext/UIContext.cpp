@@ -22,8 +22,9 @@ namespace VEditor
     UIContext::UIContext(const VulkanCore::VDevice& device,
                          const VulkanCore::VulkanInstance& instance,
                          const WindowManager& windowManager,
-                         const ApplicationCore::Scene& scene
-    ): m_device(device), m_instance(instance), m_windowManager(windowManager), m_scene(scene)
+                         const ApplicationCore::Scene& scene,
+                         const Client& client
+    ): m_device(device), m_instance(instance), m_windowManager(windowManager), m_scene(scene), m_client(client)
     {
         m_io = nullptr;
         m_viewports[ViewPortType::eMain] = {};

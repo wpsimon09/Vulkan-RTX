@@ -8,13 +8,20 @@
 
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
+namespace ApplicationCore
+{
+    class Scene;
+}
+
 namespace VEditor {
 
 class FileExplorer: public IUserInterfaceElement {
 public:
-    FileExplorer();
+    explicit FileExplorer(const ApplicationCore::Scene& scene);
 
-    std::filesystem::path* Open();
+    std::filesystem::path* OpenForSceneImport();
+    std::filesystem::path* OpenForMaterialImport();
+
     std::filesystem::path* GetPath() {return &m_filePath;};
     std::filesystem::path  GetPathCpy() {return m_filePath;};
 
@@ -22,6 +29,7 @@ public:
     void Resize(int newWidth, int newHeight) override;
     void Update() override;
 private:
+    const ApplicationCore::Scene& m_scene;
     std::filesystem::path m_filePath;
 };
 

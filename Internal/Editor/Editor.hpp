@@ -30,6 +30,8 @@ public:
     void SetVmaStatis(VmaTotalStatistics& stats) {m_vmaStats = &stats;};
     void Resize(int newWidth, int newHeight);
 
+
+
 private:
     UIContext& m_uiContext;
     std::vector<std::unique_ptr<VEditor::IUserInterfaceElement>> m_uiElements;
