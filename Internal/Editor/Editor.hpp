@@ -34,7 +34,7 @@ private:
     UIContext& m_uiContext;
     std::vector<std::unique_ptr<VEditor::IUserInterfaceElement>> m_uiElements;
     VmaTotalStatistics* m_vmaStats;
-    std::filesystem::path *m_filePath = nullptr;
+    std::filesystem::path m_filePath = "";
 
 
 private:

@@ -14,8 +14,9 @@ class FileExplorer: public IUserInterfaceElement {
 public:
     FileExplorer();
 
-    std::filesystem::path* OpenAndGetPath();
+    std::filesystem::path* Open();
     std::filesystem::path* GetPath() {return &m_filePath;};
+    std::filesystem::path  GetPathCpy() {return m_filePath;};
 
     void Render() override;
     void Resize(int newWidth, int newHeight) override;

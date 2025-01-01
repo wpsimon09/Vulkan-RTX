@@ -44,9 +44,13 @@ namespace VEditor {
 
     void MenuBar::Update()
     {
-        if (!m_fileExplorer->GetPath()->empty())
+
+        if (!m_fileExplorer->GetPath()->empty() && m_isFileDialoOpen)
         {
-            m_editor->m_filePath = m_fileExplorer->GetPath();
+            m_editor->m_filePath = m_fileExplorer->GetPathCpy();
+            // cler the selected path so that new path can be selected
+            m_fileExplorer->GetPath()->clear();
+            m_isFileDialoOpen = false;
         }
         IUserInterfaceElement::Update();
     }
@@ -55,7 +59,7 @@ namespace VEditor {
     {
         Utils::Logger::LogInfo("Importing file...");
         m_isFileDialoOpen = true;
-        m_editor->m_filePath = m_fileExplorer->OpenAndGetPath();
+        m_fileExplorer->Open();
 
     }
 } // VEditor

@@ -103,7 +103,7 @@ namespace VEditor
         bool isOpen = true;
         if (ImGui::Begin("Stat",&isOpen , window_flags))
         {
-            ImGui::Text("Selected path %s", m_filePath ? m_filePath->string() : "");
+            ImGui::Text("Selected path %s", m_filePath.string().empty() ? "<empty>" : m_filePath.string().c_str());
 
             ImGui::Text("Prefomance MS/FPS: (%.1f,%.1f)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::SeparatorText("GPU");

@@ -12,7 +12,7 @@ namespace VEditor {
 
     }
 
-    std::filesystem::path* FileExplorer::OpenAndGetPath()
+    std::filesystem::path* FileExplorer::Open()
     {
 
         IGFD::FileDialogConfig config;
