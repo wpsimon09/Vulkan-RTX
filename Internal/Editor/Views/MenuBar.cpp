@@ -25,6 +25,7 @@ namespace VEditor {
 
     void MenuBar::Render()
     {
+//TODO: disable window border
         ImGui::BeginMainMenuBar();
             if (ImGui::BeginMenu("File"))
             {
