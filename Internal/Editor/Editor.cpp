@@ -31,7 +31,7 @@ namespace VEditor
         index->m_uiChildren.emplace_back(std::move(viewPort));
 
 
-        auto sceneView = std::make_unique<SceneView>(uiContext.m_scene);
+        auto sceneView = std::make_unique<SceneView>(uiContext.GetScene());
         index->m_uiChildren.emplace_back(std::move(sceneView));
 
         auto renderingSystem = std::make_unique<RenderingOptions>(uiContext.m_renderingSystem);
@@ -131,7 +131,7 @@ namespace VEditor
 
                 ImGui::SeparatorText("Draw stat");
                 {
-                    auto sceneStats =  m_uiContext.m_scene.GetSceneStatistics();
+                    auto &sceneStats =  m_uiContext.GetScene().GetSceneStatistics();
                     //ImGui::Text("Draw calls %i",sceneStats.drawCalls);
                     ImGui::Text("Mesh count %i",sceneStats.numberOfMeshes);
                 }

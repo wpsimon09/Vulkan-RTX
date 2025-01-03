@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include "ViewPortContext.hpp"
+#include "Application/Client.hpp"
 #include "Application/WindowManager/WindowManager.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 
@@ -40,7 +41,6 @@ public:
         const VulkanCore::VDevice& device,
         const VulkanCore::VulkanInstance& instance,
         const WindowManager& windowManager,
-        const ApplicationCore::Scene& scene,
         const Client& client
     );
 
@@ -53,10 +53,9 @@ public:
     void EndRender();
     void Destroy();
 public:
-    const ApplicationCore::Scene& GetScene() const {return m_scene;}
+    const ApplicationCore::Scene& GetScene() const {return m_client.GetScene();}
 
 private:
-    const ApplicationCore::Scene& m_scene;
     const VulkanCore::VDevice& m_device;
     const VulkanCore::VulkanInstance& m_instance;
     const WindowManager& m_windowManager;

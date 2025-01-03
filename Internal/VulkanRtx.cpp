@@ -76,7 +76,7 @@ void Application::Init()
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 
     //m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
-    m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, m_client->GetScene(), *m_client);
+    m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
     m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager, *m_uiContext);
 
@@ -164,7 +164,7 @@ void Application::Render() {
     m_renderingSystem->Render(m_client->GetGlobalDataUpdateInformation());
     m_renderingSystem->GetRenderContext()->DrawCalls.clear();
 
-    m_client->GetScene().Reset();
+    //m_client->GetScene().Reset();
 }
 
 Application::~Application() {
