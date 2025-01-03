@@ -122,6 +122,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
     pipeline->SetPolygonMode(vk::PolygonMode::eLine);
+    pipeline->SetLineWidth(1.5f);
 
     m_pipelines[PIPELINE_TYPE_DEBUG_LINES] = std::move(pipeline);
 
@@ -138,8 +139,9 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->SetPipelineType(PIPELINE_TYPE_OUTLINE);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     pipeline->SetCullMode(vk::CullModeFlagBits::eFront);
+    pipeline->SetLineWidth(7.0f);
     pipeline->SetPolygonMode(vk::PolygonMode::eLine);
-    pipeline->DisableDepthTest();
+    //pipeline->DisableDepthTest();
     m_pipelines[PIPELINE_TYPE_OUTLINE] = std::move(pipeline);
 }
 

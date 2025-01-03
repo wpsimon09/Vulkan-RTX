@@ -178,7 +178,11 @@ namespace VulkanCore
         {
             m_depthStencil.depthTestEnable = false;
             m_depthStencil.depthWriteEnable = false;
+        }
 
+        void SetLineWidth(uint32_t lineWidth)
+        {
+            m_rasterizer.lineWidth = lineWidth;
         }
     };
 }
