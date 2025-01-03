@@ -25,7 +25,7 @@ namespace ApplicationCore
         Utils::Logger::LogSuccess("Crated GLTFLoader !");
     }
 
-    std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath)
+    std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath) const
     {
         // temp data
         std::shared_ptr<SceneNode> m_rootNode;
@@ -45,7 +45,7 @@ namespace ApplicationCore
         fastgltf::Parser parser{};
 
 
-        constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble |
+        constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble | fastgltf::Options::GenerateMeshIndices |
             fastgltf::Options::LoadExternalBuffers;
 
         auto gltfFile = fastgltf::MappedGltfFile::FromPath(gltfPath);
@@ -260,7 +260,7 @@ namespace ApplicationCore
                 newNode->SetName(std::string(std::string(node.name) + "##" +VulkanUtils::random_string(4)));
                 if (auto newTransform = std::get_if<fastgltf::math::fmat4x4>(&node.transform))
                 {
-                    newNode->m_transformation->SetModelMatrix(VulkanUtils::FastGLTFToGLMMat4(*newTransform));
+                    //newNode->m_transformation->SetModelMatrix(VulkanUtils::FastGLTFToGLMMat4(*newTransform));
                 }
                 m_nodes.push_back(newNode);
             }
@@ -296,7 +296,7 @@ namespace ApplicationCore
     }
 
     void GLTFLoader::LoadImage(fastgltf::Asset& asset, std::string parentPath, fastgltf::Image& image,
-                               std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage)
+                               std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage) const
     {
         std::visit(
             fastgltf::visitor{

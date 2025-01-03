@@ -31,7 +31,7 @@ namespace VEditor
 
     void UIContext::Initialize(const VulkanCore::VRenderPass& renderPass)
     {
-        Utils::Logger::LogInfo("Startin to initialize ImGui...");
+        Utils::Logger::LogInfo("Starting to initialize ImGui...");
 
         // if i want to have more images like view port material view, i should put it here
         vk::DescriptorPoolSize poolSizes[] = {

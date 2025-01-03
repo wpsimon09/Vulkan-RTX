@@ -4,6 +4,7 @@
 
 #include "MenuBar.hpp"
 
+#include <IconsFontAwesome6.h>
 #include <imgui.h>
 
 #include "Application/Logger/Logger.hpp"
@@ -14,7 +15,7 @@
 namespace VEditor {
     MenuBar::MenuBar(Editor* editor): m_editor(editor)
     {
-        auto fileExplorer = std::make_unique<FileExplorer>(editor->m_uiContext.GetScene());
+        auto fileExplorer = std::make_unique<FileExplorer>(editor->m_uiContext.GetClient().GetGLTFLoader(),editor->m_uiContext.GetScene());
         m_uiChildren.emplace_back(std::move(fileExplorer));
         m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
     }
@@ -25,21 +26,20 @@ namespace VEditor {
 
     void MenuBar::Render()
     {
-//TODO: disable window border
+        //TODO: disable window border
         ImGui::BeginMainMenuBar();
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("Import"))
+                if (ImGui::MenuItem(ICON_FA_DOWNLOAD" Import"))
                 {
                     OnImportSelect();
                 }
-                if (ImGui::MenuItem("Save"))
+                if (ImGui::MenuItem(ICON_FA_FILE" Save"))
                 {
 
                 }
                 ImGui::EndMenu();
             }
-
         ImGui::EndMainMenuBar();
         IUserInterfaceElement::Render();
     }

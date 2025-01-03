@@ -10,6 +10,11 @@
 
 namespace ApplicationCore
 {
+    class GLTFLoader;
+}
+
+namespace ApplicationCore
+{
     class Scene;
 }
 
@@ -17,7 +22,7 @@ namespace VEditor {
 
 class FileExplorer: public IUserInterfaceElement {
 public:
-    explicit FileExplorer(const ApplicationCore::Scene& scene);
+    explicit FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader,const ApplicationCore::Scene& scene);
 
     std::filesystem::path* OpenForSceneImport();
     std::filesystem::path* OpenForMaterialImport();
@@ -30,6 +35,7 @@ public:
     void Update() override;
 private:
     const ApplicationCore::Scene& m_scene;
+    const ApplicationCore::GLTFLoader& m_gltfLoader;
     std::filesystem::path m_filePath;
 };
 

@@ -30,9 +30,8 @@ namespace VEditor
         auto viewPort = std::make_unique<ViewPort>(uiContext.m_viewports[ViewPortType::eMain], m_uiContext.m_client.GetScene());
         index->m_uiChildren.emplace_back(std::move(viewPort));
 
-
-        auto sceneView = std::make_unique<SceneView>(uiContext.GetScene());
-        index->m_uiChildren.emplace_back(std::move(sceneView));
+        auto sceneGraph = std::make_unique<SceneView>(uiContext.GetScene());
+        index->m_uiChildren.emplace_back(std::move(sceneGraph));
 
         auto renderingSystem = std::make_unique<RenderingOptions>(uiContext.m_renderingSystem);
         index->m_uiChildren.emplace_back(std::move(renderingSystem));

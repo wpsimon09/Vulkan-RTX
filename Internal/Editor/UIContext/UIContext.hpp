@@ -54,7 +54,7 @@ public:
     void Destroy();
 public:
     const ApplicationCore::Scene& GetScene() const {return m_client.GetScene();}
-
+    const Client& GetClient() const {return m_client;}
 private:
     const VulkanCore::VDevice& m_device;
     const VulkanCore::VulkanInstance& m_instance;

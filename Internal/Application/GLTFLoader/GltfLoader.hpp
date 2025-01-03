@@ -31,7 +31,7 @@ class GLTFLoader {
 public:
     GLTFLoader(ApplicationCore::AssetsManager& assetsManager);
 
-    std::vector<std::shared_ptr<SceneNode>> LoadGLTFScene(std::filesystem::path gltfPath);
+    std::vector<std::shared_ptr<SceneNode>> LoadGLTFScene(std::filesystem::path gltfPath) const;
 
     ~GLTFLoader() = default;
 
@@ -40,7 +40,7 @@ private:
     ApplicationCore::AssetsManager& m_assetsManager;
 private:
     void PostLoadClear();
-    void LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image, std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage);
+    void LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image, std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage) const ;
 };
 
 } // ApplicationCore
