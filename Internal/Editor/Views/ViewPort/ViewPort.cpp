@@ -9,11 +9,13 @@
 #include <IconFontCppHeaders/IconsFontAwesome6.h>
 
 #include "Application/Rendering/Scene/Scene.hpp"
+#include "Application/WindowManager/WindowManager.hpp"
 #include "Editor/UIContext/ViewPortContext.hpp"
 
-VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext, const ApplicationCore::Scene& scene): m_viewPortContext(viewPortContext),m_scene(scene), IUserInterfaceElement{}
-{
 
+VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext, const ApplicationCore::Scene& scene,
+    const WindowManager& windoeManager): m_viewPortContext(viewPortContext), m_scene(scene), m_windowManager(windoeManager)
+{
 }
 
 void VEditor::ViewPort::Render()
@@ -22,6 +24,15 @@ void VEditor::ViewPort::Render()
     // Render the "Scene view port" window
     ImGui::Begin(ICON_FA_CAMERA" Scene view port", &m_isOpen, ImGuiWindowFlags_NoScrollbar);
 
+        if (ImGui::GetIO().WantCaptureMouse)
+        {
+            // disable gltf input
+            //m_windowManager->EnableMovementCapture();
+        }else
+        {
+            //enable gltf input
+            //m_windowManager.DisableMou
+        }
         if (ImGui::Button(ICON_FA_SHAPES" Add"))
         {
             ImGui::OpenPopup("Meshes");
@@ -34,11 +45,11 @@ void VEditor::ViewPort::Render()
             ImGui::EndPopup();
         }
 
-    ImVec2 viewportPanelSize = ImGui::GetWindowSize();
+        ImVec2 viewportPanelSize = ImGui::GetWindowSize();
         ImGui::Image((ImTextureID)m_viewPortContext.GetImageDs(), ImVec2{viewportPanelSize.x, viewportPanelSize.y-20});
 
 
-        ImGui::End();
+    ImGui::End();
 
 
     IUserInterfaceElement::Render();

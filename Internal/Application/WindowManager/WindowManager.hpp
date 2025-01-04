@@ -18,8 +18,11 @@ public:
 
     void InitWindow();
     bool GetIsDirty() const { return m_isDirty; }
+
     bool GetHasResized() {auto temp = m_hasResized; m_hasResized = false; return temp;}
     bool GetHasResizedStatus() const {return m_hasResized;}
+    void EnableMovementCapture()  { m_captureMovement = true;}
+    void DisableMovementCapture() { m_captureMovement = false;}
     ClientUpdateInfo& GetLightMovement()   { m_isDirty = false;  return m_clientUpdate;    };
     CameraUpdateInfo& GetCameraMovement()  { m_isDirty = false ; return m_cameraMovement; };
 
@@ -44,6 +47,7 @@ private:
     int m_width, m_height;
     bool m_isMousePressed;
     bool m_isShiftPressed;
+    bool m_captureMovement;
     bool m_hasResized;
     float m_lastX = 0.0f, m_lastY = 0.0f;
     bool m_isDirty = false;
