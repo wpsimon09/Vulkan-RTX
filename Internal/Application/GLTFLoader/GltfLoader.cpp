@@ -92,24 +92,43 @@ namespace ApplicationCore
 
                 material->GetMaterialDescription().values.metalness = m.pbrData.metallicFactor;
                 material->GetMaterialDescription().values.roughness = m.pbrData.roughnessFactor;
-                //material->GetMaterialDescription().values.ao = m.pbrData.
+
 
                 if (m.pbrData.metallicRoughnessTexture.has_value())
                 {
-                    material->GetTexture(MATERIAL_TYPE::PBR_ARM) = m_textures[m.pbrData.metallicRoughnessTexture.value()
-                                                                               .textureIndex];
-                    material->GetMaterialDescription().features.hasArmTexture = true;
+                    auto &textureIndex = m.pbrData.metallicRoughnessTexture.value().textureIndex;
+                    if (textureIndex <= m_textures.size())
+                    {
+                        material->GetTexture(MATERIAL_TYPE::PBR_ARM) = m_textures[textureIndex];
+                        material->GetMaterialDescription().features.hasArmTexture = true;
+                    }else
+                    {
+                        material->GetMaterialDescription().features.hasArmTexture = false;
+                    }
                 }
                 if (m.pbrData.baseColorTexture.has_value())
                 {
-                    material->GetTexture(MATERIAL_TYPE::PBR_DIFFUSE_MAP) = m_textures[m.pbrData.baseColorTexture.value()
-                        .textureIndex];
-                    material->GetMaterialDescription().features.hasDiffuseTexture = true;
+                    auto& textureIndex = m.pbrData.baseColorTexture.value().textureIndex;
+                    if (textureIndex <= m_textures.size())
+                    {
+                        material->GetTexture(MATERIAL_TYPE::PBR_DIFFUSE_MAP) = m_textures[textureIndex];
+                        material->GetMaterialDescription().features.hasDiffuseTexture = true;
+                    }else
+                    {
+                        material->GetMaterialDescription().features.hasDiffuseTexture = false;
+                    }
                 }
                 if (m.normalTexture.has_value())
                 {
-                    material->GetTexture(PBR_NORMAL_MAP) = m_textures[m.normalTexture.value().textureIndex];
-                    material->GetMaterialDescription().features.hasNormalTexture = true;
+                    auto& textureIndex = m.normalTexture.value().textureIndex;
+                    if (textureIndex <= m_textures.size())
+                    {
+                        material->GetTexture(PBR_NORMAL_MAP) = m_textures[m.normalTexture.value().textureIndex];
+                        material->GetMaterialDescription().features.hasNormalTexture = true;
+                    }else
+                    {
+                        material->GetMaterialDescription().features.hasNormalTexture = false;
+                    }
                 }
 
                 materials.emplace_back(material);
@@ -149,10 +168,22 @@ namespace ApplicationCore
                     {
                         fastgltf::Accessor& indexAccessor = gltf.accessors[p.indicesAccessor.value()];
                         indices.reserve(indices.size() + indexAccessor.count);
-                        fastgltf::iterateAccessor<std::uint32_t>(gltf, indexAccessor, [&](std::uint32_t index)
+                        if (indexAccessor.componentType == fastgltf::ComponentType::UnsignedByte || indexAccessor.componentType == fastgltf::ComponentType::UnsignedShort)
                         {
-                            indices.push_back(index);
-                        });
+                            fastgltf::iterateAccessor<std::uint16_t>(gltf, indexAccessor, [&](std::uint16_t index)
+                            {
+                                indices.push_back(static_cast<uint32_t>(index));
+                            });
+                        }else
+                        {
+                            fastgltf::iterateAccessor<std::uint32_t>(gltf, indexAccessor, [&](std::uint32_t index)
+                            {
+                                indices.push_back(index);
+                            });
+                        }
+
+                        Utils::Logger::LogInfoVerboseOnly("Loaded indieces");
+
                     }
 
                     //=========================================
