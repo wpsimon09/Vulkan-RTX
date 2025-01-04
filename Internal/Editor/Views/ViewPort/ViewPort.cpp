@@ -14,24 +14,25 @@
 
 
 VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext, const ApplicationCore::Scene& scene,
-    const WindowManager& windoeManager): m_viewPortContext(viewPortContext), m_scene(scene), m_windowManager(windoeManager)
+    WindowManager& windowManager): m_viewPortContext(viewPortContext), m_scene(scene), m_windowManager(windowManager)
 {
 }
 
 void VEditor::ViewPort::Render()
 {
 
-    // Render the "Scene view port" window
+    // Render the "Scene view port" windowe
     ImGui::Begin(ICON_FA_CAMERA" Scene view port", &m_isOpen, ImGuiWindowFlags_NoScrollbar);
 
-        if (ImGui::GetIO().WantCaptureMouse)
+        if (ImGui::IsWindowHovered())
         {
             // disable gltf input
-            //m_windowManager->EnableMovementCapture();
+            m_windowManager.EnableMovementCapture();
+
         }else
         {
             //enable gltf input
-            //m_windowManager.DisableMou
+            m_windowManager.DisableMovementCapture();
         }
         if (ImGui::Button(ICON_FA_SHAPES" Add"))
         {

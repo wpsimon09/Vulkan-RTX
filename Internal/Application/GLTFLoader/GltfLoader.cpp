@@ -45,8 +45,9 @@ namespace ApplicationCore
         fastgltf::Parser parser{};
 
 
-        constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble | fastgltf::Options::GenerateMeshIndices |
+        constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::GenerateMeshIndices |
             fastgltf::Options::LoadExternalBuffers;
+        //fastgltf::Options::AllowDouble | fastgltf::Options::GenerateMeshIndices |
 
         auto gltfFile = fastgltf::MappedGltfFile::FromPath(gltfPath);
         if (!bool(gltfFile))
@@ -69,7 +70,7 @@ namespace ApplicationCore
             gltf = std::move(asset.get());
             Utils::Logger::LogSuccessClient("GLTF File parsed successfully !");
 
-            GlobalState::DisableLogging();
+            //GlobalState::DisableLogging();
             //==============================================================
             // TEXTURE LOADING
             //==============================================================
@@ -167,16 +168,18 @@ namespace ApplicationCore
                     //=========================================
                     {
                         fastgltf::Accessor& indexAccessor = gltf.accessors[p.indicesAccessor.value()];
-                        indices.reserve(indices.size() + indexAccessor.count);
-                        if (indexAccessor.componentType == fastgltf::ComponentType::UnsignedByte || indexAccessor.componentType == fastgltf::ComponentType::UnsignedShort)
+                        indices.reserve(indices.size() + static_cast<uint32_t>(indexAccessor.count));
+                        if (indexAccessor.componentType == fastgltf::ComponentType::UnsignedByte
+                            || indexAccessor.componentType == fastgltf::ComponentType::UnsignedShort)
                         {
-                            fastgltf::iterateAccessor<std::uint16_t>(gltf, indexAccessor, [&](std::uint16_t index)
+                            fastgltf::iterateAccessor<uint16_t>(gltf, indexAccessor, [&](uint16_t index)
                             {
-                                indices.push_back(static_cast<uint32_t>(index));
+                                indices.push_back(index);
                             });
-                        }else
+                        }
+                        else
                         {
-                            fastgltf::iterateAccessor<std::uint32_t>(gltf, indexAccessor, [&](std::uint32_t index)
+                            fastgltf::iterateAccessor<uint32_t>(gltf, indexAccessor, [&](uint32_t index)
                             {
                                 indices.push_back(index);
                             });
@@ -258,20 +261,21 @@ namespace ApplicationCore
                 }
 
                 // store vertex array to assets manager
-                m_assetsManager.GetVertexData().push_back(
-                    std::make_shared<VertexArray>(m_assetsManager.m_device, TOPOLOGY_TRIANGLE_LIST, vertices, indices));
+                auto vao = std::make_shared<VertexArray>(m_assetsManager.m_device, TOPOLOGY_TRIANGLE_LIST, vertices, indices);
 
                 // create shared ptr to mesh
-                auto createdMehs = std::make_shared<Mesh>(m_assetsManager.GetVertexData().back(), mat);
+                auto createdMehs = std::make_shared<Mesh>(vao, mat);
                 createdMehs->GeteMeshInfo().numberOfTriangles = m.primitives.size();
                 createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(15));
 
+                m_assetsManager.GetVertexData().emplace_back(vao);
                 // store the shared ptr to mesh
                 m_assetsManager.AddMesh(std::string(m.name), createdMehs);
                 m_meshes.push_back(createdMehs);
 
 
                 //m_rootNode->AddChild(createdMehs);
+
             }
 
             //=====================================
@@ -323,6 +327,9 @@ namespace ApplicationCore
 
         GlobalState::EnableLogging();
         Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");
+
+        m_meshes.clear();
+
         return std::move(m_topNodes);
     }
 

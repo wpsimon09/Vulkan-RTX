@@ -19,7 +19,7 @@ namespace VEditor
 {
     class ViewPort: public IUserInterfaceElement {
     public:
-        explicit ViewPort(ViewPortContext& viewPortContext, const ApplicationCore::Scene& scene, const WindowManager& windoeManager);
+        explicit ViewPort(ViewPortContext& viewPortContext, const ApplicationCore::Scene& scene, WindowManager& windowManager);
 
         virtual void Render() override;
 
@@ -27,7 +27,7 @@ namespace VEditor
 
     private:
         const ApplicationCore::Scene& m_scene;
-        const WindowManager& m_windowManager;
+        WindowManager& m_windowManager;
         ViewPortContext& m_viewPortContext;
     };
 }

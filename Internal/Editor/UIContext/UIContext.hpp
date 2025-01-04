@@ -40,7 +40,7 @@ public:
     explicit UIContext(
         const VulkanCore::VDevice& device,
         const VulkanCore::VulkanInstance& instance,
-        const WindowManager& windowManager,
+        WindowManager& windowManager,
         const Client& client
     );
 
@@ -58,7 +58,7 @@ public:
 private:
     const VulkanCore::VDevice& m_device;
     const VulkanCore::VulkanInstance& m_instance;
-    const WindowManager& m_windowManager;
+    WindowManager& m_windowManager;
     const Client& m_client;
 
     Renderer::RenderingSystem* m_renderingSystem;

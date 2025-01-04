@@ -67,77 +67,83 @@ WindowManager::~WindowManager()
 
 void WindowManager::MousePositionCallback(GLFWwindow *window, double xpos, double ypos) {
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(m_window));
-    winm->m_mousePos.x = static_cast<float>(xpos);
-    winm->m_mousePos.y = static_cast<float>(ypos);
-
-    auto pointerX = (float)xpos;
-    auto pointerY = (float)ypos;
-    if (winm->m_isFirstMouse)
+    if (winm->m_captureMovement)
     {
+        winm->m_mousePos.x = static_cast<float>(xpos);
+        winm->m_mousePos.y = static_cast<float>(ypos);
+
+        auto pointerX = (float)xpos;
+        auto pointerY = (float)ypos;
+        if (winm->m_isFirstMouse)
+        {
+            winm->m_lastX = xpos;
+            winm->m_lastY = ypos;
+            winm->m_isFirstMouse = false;;
+        }
+
+        float xOffset = xpos - winm->m_lastX;
+        float yOffset = winm->m_lastY - ypos; // Invert the sign here
+
         winm->m_lastX = xpos;
         winm->m_lastY = ypos;
-        winm->m_isFirstMouse = false;;
-    }
 
-    float xOffset = xpos - winm->m_lastX;
-    float yOffset = winm->m_lastY - ypos; // Invert the sign here
+        xOffset *= 0.01;
+        yOffset *= 0.01;
 
-    winm->m_lastX = xpos;
-    winm->m_lastY = ypos;
-
-    xOffset *= 0.01;
-    yOffset *= 0.01;
-
-    winm->m_cameraMovement.RotateAzimuthValue = 0.0f;
-    winm->m_cameraMovement.RotatePolarValue = 0.0f;
-    winm->m_cameraMovement.MoveX = 0.0f;
-    winm->m_cameraMovement.MoveY = 0.0f;
+        winm->m_cameraMovement.RotateAzimuthValue = 0.0f;
+        winm->m_cameraMovement.RotatePolarValue = 0.0f;
+        winm->m_cameraMovement.MoveX = 0.0f;
+        winm->m_cameraMovement.MoveY = 0.0f;
 
 
-    // only rotate Azimuth
-    if (xOffset != 0.0 && winm->m_isMousePressed && !winm->m_isShiftPressed)
-    {
-        winm->m_cameraMovement.RotateAzimuthValue =  xOffset;
-        winm->m_isDirty = true;
-    }
+        // only rotate Azimuth
+        if (xOffset != 0.0 && winm->m_isMousePressed && !winm->m_isShiftPressed)
+        {
+            winm->m_cameraMovement.RotateAzimuthValue =  xOffset;
+            winm->m_isDirty = true;
+        }
 
-    // only rotate Polar
-    if (yOffset != 0.0 && winm->m_isMousePressed && !winm->m_isShiftPressed)
-    {
-        winm->m_cameraMovement.RotatePolarValue = -yOffset;
-        winm->m_isDirty = true;
-    }
+        // only rotate Polar
+        if (yOffset != 0.0 && winm->m_isMousePressed && !winm->m_isShiftPressed)
+        {
+            winm->m_cameraMovement.RotatePolarValue = -yOffset;
+            winm->m_isDirty = true;
+        }
 
-    // only move X
-    if (xOffset != 0.0 && winm->m_isShiftPressed && winm->m_isMousePressed)
-    {
-        winm->m_cameraMovement.MoveX =  4.3f *  xOffset;
-        winm->m_isDirty = true;
-    }
+        // only move X
+        if (xOffset != 0.0 && winm->m_isShiftPressed && winm->m_isMousePressed)
+        {
+            winm->m_cameraMovement.MoveX =  4.3f *  xOffset;
+            winm->m_isDirty = true;
+        }
 
-    // only move Y
-    if (yOffset != 0.0 && winm->m_isShiftPressed && winm->m_isMousePressed)
-    {
-        winm->m_cameraMovement.MoveY = 4.3f *   yOffset;
-        winm->m_isDirty = true;
+        // only move Y
+        if (yOffset != 0.0 && winm->m_isShiftPressed && winm->m_isMousePressed)
+        {
+            winm->m_cameraMovement.MoveY = 4.3f *   yOffset;
+            winm->m_isDirty = true;
+        }
     }
 }
 
 void WindowManager::MouseClickCallback(GLFWwindow *window, int button, int action, int mods) {
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
-    GLFWcursor* hand = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
-    GLFWcursor* cursor = glfwCreateStandardCursor(GLFW_CURSOR_NORMAL);
-    if (button == GLFW_MOUSE_BUTTON_RIGHT)
+    if (winm->m_captureMovement)
     {
-        if (action == GLFW_PRESS)
+        GLFWcursor* hand = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+        GLFWcursor* cursor = glfwCreateStandardCursor(GLFW_CURSOR_NORMAL);
+        if (button == GLFW_MOUSE_BUTTON_LEFT)
         {
-            winm->m_isMousePressed = true;
-            glfwSetCursor(winm->m_window, hand);
-        }
-        else if (action == GLFW_RELEASE)
-        {
-            winm->m_isMousePressed = false;
-            glfwSetCursor(winm->m_window, cursor);
+            if (action == GLFW_PRESS)
+            {
+                winm->m_isMousePressed = true;
+                glfwSetCursor(winm->m_window, hand);
+            }
+            else if (action == GLFW_RELEASE)
+            {
+                winm->m_isMousePressed = false;
+                glfwSetCursor(winm->m_window, cursor);
+            }
         }
     }
 
@@ -145,8 +151,11 @@ void WindowManager::MouseClickCallback(GLFWwindow *window, int button, int actio
 
 void WindowManager::MouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer((window)));
-    winm->m_cameraMovement.ZoomValue = 4.0f * (float)yoffset;
-    winm->m_isDirty = true;
+    if (winm->m_captureMovement)
+    {
+        winm->m_cameraMovement.ZoomValue = 4.0f * (float)yoffset;
+        winm->m_isDirty = true;
+    }
 }
 
 void WindowManager::FrameBufferResizeCallback(GLFWwindow *window, int width, int height) {
@@ -160,42 +169,45 @@ void WindowManager::FrameBufferResizeCallback(GLFWwindow *window, int width, int
 
 void WindowManager::KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     auto winm = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
-    winm->m_isDirty = true;
-
-    const float movementSpeed = 2.5;
-
-    if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_PRESS)
-        winm->m_isShiftPressed = true;
-    if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_RELEASE)
-        winm->m_isShiftPressed = false;
-    if (key == GLFW_KEY_W && action == GLFW_PRESS)
-        winm->m_cameraMovement.ZoomValue = movementSpeed;
-
-    if (key == GLFW_KEY_A && action == GLFW_PRESS)
-        winm->m_cameraMovement.MoveX = -movementSpeed;;
-
-    if (key == GLFW_KEY_S && action == GLFW_PRESS)
-        winm->m_cameraMovement.ZoomValue = -movementSpeed;;
-
-    if (key == GLFW_KEY_D && action == GLFW_PRESS)
-        winm->m_cameraMovement.MoveX = movementSpeed;
-
-    if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-        winm->m_clientUpdate.moveLightY += 0.5;
-    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-        winm->m_clientUpdate.moveLightY -= 0.5;
-    if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
-        winm->m_clientUpdate.moveLightX -= 0.5;
-    if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-        winm->m_clientUpdate.moveLightX += 0.5;
-    if (key == GLFW_KEY_R && action == GLFW_PRESS)
+    if (winm->m_captureMovement)
     {
-        if (winm->m_clientUpdate.isRTXon)
+        winm->m_isDirty = true;
+
+        const float movementSpeed = 2.5;
+
+        if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_PRESS)
+            winm->m_isShiftPressed = true;
+        if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_RELEASE)
+            winm->m_isShiftPressed = false;
+        if (key == GLFW_KEY_W && action == GLFW_PRESS)
+            winm->m_cameraMovement.ZoomValue = movementSpeed;
+
+        if (key == GLFW_KEY_A && action == GLFW_PRESS)
+            winm->m_cameraMovement.MoveX = -movementSpeed;;
+
+        if (key == GLFW_KEY_S && action == GLFW_PRESS)
+            winm->m_cameraMovement.ZoomValue = -movementSpeed;;
+
+        if (key == GLFW_KEY_D && action == GLFW_PRESS)
+            winm->m_cameraMovement.MoveX = movementSpeed;
+
+        if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+            winm->m_clientUpdate.moveLightY += 0.5;
+        if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+            winm->m_clientUpdate.moveLightY -= 0.5;
+        if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
+            winm->m_clientUpdate.moveLightX -= 0.5;
+        if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
+            winm->m_clientUpdate.moveLightX += 0.5;
+        if (key == GLFW_KEY_R && action == GLFW_PRESS)
         {
-            winm->m_clientUpdate.isRTXon = false;
-        }else
-        {
-            winm->m_clientUpdate.isRTXon = true;
+            if (winm->m_clientUpdate.isRTXon)
+            {
+                winm->m_clientUpdate.isRTXon = false;
+            }else
+            {
+                winm->m_clientUpdate.isRTXon = true;
+            }
         }
     }
 

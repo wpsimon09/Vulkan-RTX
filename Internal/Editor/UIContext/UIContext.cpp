@@ -21,7 +21,7 @@ namespace VEditor
 {
     UIContext::UIContext(const VulkanCore::VDevice& device,
                          const VulkanCore::VulkanInstance& instance,
-                         const WindowManager& windowManager,
+                         WindowManager& windowManager,
                          const Client& client
     ): m_device(device), m_instance(instance), m_windowManager(windowManager),  m_client(client)
     {
