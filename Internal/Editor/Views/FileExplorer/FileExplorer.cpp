@@ -43,7 +43,7 @@ namespace VEditor {
             if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
                 m_filePath = ImGuiFileDialog::Instance()->GetFilePathName();
                 const auto loadedNodes = m_gltfLoader.LoadGLTFScene(m_filePath);
-                for (auto &scene_node : loadedNodes)
+                for (const auto& scene_node : loadedNodes)
                 {
                     m_scene.AddNode(scene_node);
                 }

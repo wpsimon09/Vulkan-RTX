@@ -45,9 +45,8 @@ namespace ApplicationCore
         fastgltf::Parser parser{};
 
 
-        constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::GenerateMeshIndices |
+        constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble | fastgltf::Options::GenerateMeshIndices |
             fastgltf::Options::LoadExternalBuffers;
-        //fastgltf::Options::AllowDouble | fastgltf::Options::GenerateMeshIndices |
 
         auto gltfFile = fastgltf::MappedGltfFile::FromPath(gltfPath);
         if (!bool(gltfFile))
@@ -70,7 +69,7 @@ namespace ApplicationCore
             gltf = std::move(asset.get());
             Utils::Logger::LogSuccessClient("GLTF File parsed successfully !");
 
-            //GlobalState::DisableLogging();
+            GlobalState::DisableLogging();
             //==============================================================
             // TEXTURE LOADING
             //==============================================================
@@ -102,11 +101,7 @@ namespace ApplicationCore
                     {
                         material->GetTexture(MATERIAL_TYPE::PBR_ARM) = m_textures[textureIndex];
                         material->GetMaterialDescription().features.hasArmTexture = true;
-                    }
-                    else
-                    {
-
-                    }
+                    }else
                     {
                         material->GetMaterialDescription().features.hasArmTexture = false;
                     }
@@ -150,7 +145,10 @@ namespace ApplicationCore
             for (fastgltf::Mesh& m : gltf.meshes)
             {
                 indices.clear();
+                indices.shrink_to_fit();
+
                 vertices.clear();
+                vertices.shrink_to_fit();
                 VulkanStructs::Bounds bounds = {};
 
                 MaterialPaths paths;
@@ -170,19 +168,11 @@ namespace ApplicationCore
                     //=========================================
                     // INDICES LOADING
                     //=========================================
-                    {
-                        fastgltf::Accessor& indexAccessor = gltf.accessors[p.indicesAccessor.value()];
-                        indices.reserve(indexAccessor.count * sizeof(uint32_t));
-
-                        fastgltf::iterateAccessor<uint32_t>(gltf, indexAccessor, [&](uint32_t index)
-                        {
-                            indices.emplace_back(index );
-                            Utils::Logger::LogSuccessClient("index: index: UINT_32: " + std::to_string(index + initialIndex));
-                        });
-
-                        Utils::Logger::LogInfoVerboseOnly("Loaded indieces");
-
-                    }
+                    fastgltf::Accessor& indexAccessor = gltf.accessors[p.indicesAccessor.value()];
+                    assert(indexAccessor.bufferViewIndex.has_value() && "GLTF does not have a buffer for index data ! ");
+                    indices.resize(indexAccessor.count);
+                    fastgltf::copyFromAccessor<uint32_t>(gltf, indexAccessor, indices.data());
+                    Utils::Logger::LogInfoVerboseOnly("Loaded indieces");
 
                     //=========================================
                     // VERTEX POSITIONS
@@ -264,13 +254,13 @@ namespace ApplicationCore
                 createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(15));
 
                 m_assetsManager.GetVertexData().emplace_back(vao);
+
                 // store the shared ptr to mesh
                 m_assetsManager.AddMesh(std::string(m.name), createdMehs);
                 m_meshes.push_back(createdMehs);
 
 
                 //m_rootNode->AddChild(createdMehs);
-
             }
 
             //=====================================
@@ -322,9 +312,6 @@ namespace ApplicationCore
 
         GlobalState::EnableLogging();
         Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");
-
-        m_meshes.clear();
-
         return std::move(m_topNodes);
     }
 

@@ -139,10 +139,10 @@ namespace ApplicationCore {
                 //=====================================================
                 // NORMAL SCENE DATA
                 //=====================================================
-                VulkanStructs::DrawCallData data(
-                    m_mesh->m_vertexArray->GetVertexBuffer().GetBuffer(),
-                    m_mesh->m_vertexArray->GetIndexBuffer().GetBuffer(),
-                    m_transformation->GetModelMatrix());
+                VulkanStructs::DrawCallData data{.modelMatrix = m_transformation->GetModelMatrix()};
+
+                data.vertexBuffer = m_mesh->m_vertexArray->GetVertexBuffer().GetBuffer();
+                data.indexBuffer = m_mesh->m_vertexArray->GetIndexBuffer().GetBuffer();
                 data.firstIndex = 1;
                 data.indexCount = m_mesh->GetMeshIndexCount();
                 data.material = m_mesh->m_material;

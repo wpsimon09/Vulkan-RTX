@@ -53,10 +53,8 @@ namespace VulkanStructs
         // material descriptor
         std::shared_ptr<ApplicationCore::Material> material;
 
-        DrawCallData(const VkBuffer& vertex, const VkBuffer& index, glm::mat4& model): vertexBuffer(vertex), indexBuffer(index), modelMatrix(model)
-        {
 
-        }
+
     };
 
     struct RenderingMetaData
