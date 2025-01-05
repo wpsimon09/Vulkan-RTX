@@ -102,7 +102,11 @@ namespace ApplicationCore
                     {
                         material->GetTexture(MATERIAL_TYPE::PBR_ARM) = m_textures[textureIndex];
                         material->GetMaterialDescription().features.hasArmTexture = true;
-                    }else
+                    }
+                    else
+                    {
+
+                    }
                     {
                         material->GetMaterialDescription().features.hasArmTexture = false;
                     }
@@ -168,22 +172,13 @@ namespace ApplicationCore
                     //=========================================
                     {
                         fastgltf::Accessor& indexAccessor = gltf.accessors[p.indicesAccessor.value()];
-                        indices.reserve(indices.size() + static_cast<uint32_t>(indexAccessor.count));
-                        if (indexAccessor.componentType == fastgltf::ComponentType::UnsignedByte
-                            || indexAccessor.componentType == fastgltf::ComponentType::UnsignedShort)
+                        indices.reserve(indexAccessor.count * sizeof(uint32_t));
+
+                        fastgltf::iterateAccessor<uint32_t>(gltf, indexAccessor, [&](uint32_t index)
                         {
-                            fastgltf::iterateAccessor<uint16_t>(gltf, indexAccessor, [&](uint16_t index)
-                            {
-                                indices.push_back(index);
-                            });
-                        }
-                        else
-                        {
-                            fastgltf::iterateAccessor<uint32_t>(gltf, indexAccessor, [&](uint32_t index)
-                            {
-                                indices.push_back(index);
-                            });
-                        }
+                            indices.emplace_back(index );
+                            Utils::Logger::LogSuccessClient("index: index: UINT_32: " + std::to_string(index + initialIndex));
+                        });
 
                         Utils::Logger::LogInfoVerboseOnly("Loaded indieces");
 
