@@ -24,10 +24,10 @@ VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::Physical
     //------------------------
     // NORMAL QUEUE FAMILIES
     //------------------------
-    indices.graphicsFamily = std::make_pair(QUEUE_FAMILY_INDEX_GRAPHICS,
+    indices.graphicsFamily = std::make_pair(Graphics,
                                             VulkanUtils::FindQueueFamily(
                                                 queueFamilyProperties, vk::QueueFlagBits::eGraphics));
-    indices.transferFamily = std::make_pair(QUEUE_FAMILY_INDEX_TRANSFER,
+    indices.transferFamily = std::make_pair(Transfer,
                                             VulkanUtils::FindQueueFamily(
                                                 queueFamilyProperties, vk::QueueFlagBits::eTransfer));
 
@@ -46,7 +46,7 @@ VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::Physical
         break;
     }
 
-    indices.presentFamily = std::make_pair(QUEUE_FAMILY_INDEX_PRESENT, presentFamilyIndex);
+    indices.presentFamily = std::make_pair(EQueueFamilyIndexType::PresentKHR, presentFamilyIndex);
     assert(presentSupport == true);
     Utils::Logger::LogInfoVerboseOnly(
         "Found transfer queue family at index: " + std::to_string(indices.presentFamily.value().second));
@@ -89,7 +89,7 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance): m_inst
     CreateLogicalDevice();
     CreateVmaAllocator(instance);
     FetchMaxSampleCount();
-    m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(*this, QUEUE_FAMILY_INDEX_TRANSFER);
+    m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(*this, Transfer);
     DispatchLoader = vk::DispatchLoaderDynamic(m_instance.GetInstance(), vkGetInstanceProcAddr);
     m_depthFormat = vk::Format::eD24UnormS8Uint;;
 }
@@ -211,32 +211,32 @@ void VulkanCore::VDevice::FetchMaxSampleCount()
     m_sampleCount = vk::SampleCountFlagBits::e1;
 }
 
-const uint32_t& VulkanCore::VDevice::GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const
+const uint32_t& VulkanCore::VDevice::GetConcreteQueueFamilyIndex(EQueueFamilyIndexType queueFamilyType) const
 {
     assert(m_queueFamilyIndices.isComplete());
     switch (queueFamilyType)
     {
-    case QUEUE_FAMILY_INDEX_GRAPHICS:
+    case EQueueFamilyIndexType::Graphics:
         return m_queueFamilyIndices.graphicsFamily.value().second;
-    case QUEUE_FAMILY_INDEX_PRESENT:
+    case EQueueFamilyIndexType::PresentKHR:
         return m_queueFamilyIndices.presentFamily.value().second;
-    case QUEUE_FAMILY_INDEX_TRANSFER:
+    case EQueueFamilyIndexType::Transfer:
         return m_queueFamilyIndices.transferFamily.value().second;
     default:
         throw std::runtime_error("Invalid queue family index");
     }
 }
 
-const std::string VulkanCore::VDevice::GetQueueFamilyString(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const
+const std::string VulkanCore::VDevice::GetQueueFamilyString(EQueueFamilyIndexType queueFamilyType) const
 {
     assert(m_queueFamilyIndices.isComplete());
     switch (queueFamilyType)
     {
-    case QUEUE_FAMILY_INDEX_GRAPHICS:
+    case EQueueFamilyIndexType::Graphics:
         return "GRAPHICS";
-    case QUEUE_FAMILY_INDEX_PRESENT:
+    case EQueueFamilyIndexType::PresentKHR:
         return "PRESENT";
-    case QUEUE_FAMILY_INDEX_TRANSFER:
+    case EQueueFamilyIndexType::Transfer:
         return "TRANSFER";
     default:
         throw std::runtime_error("Invalid queue family index");

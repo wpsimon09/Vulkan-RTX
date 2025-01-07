@@ -84,14 +84,14 @@ void Application::Init()
     m_uiContext->SetRenderingSystem(m_renderingSystem.get());
 
 
-    /*
+
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene.glb");
     for (auto& sceneNode: sponsa)
     {
         m_client->GetScene().AddNode(sceneNode);
     }
-    */
+
 
     //auto car = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/dodge_challenger_-_muscle_car_-_low-poly/scene.gltf");
     //auto stormTrooper = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/storm-trooper.glb");

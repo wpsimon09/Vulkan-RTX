@@ -74,7 +74,7 @@ namespace VEditor
         imGuiVkInitInfo.Instance = m_instance.GetInstance();
         imGuiVkInitInfo.PhysicalDevice = m_device.GetPhysicalDevice();
         imGuiVkInitInfo.Device = m_device.GetDevice();
-        imGuiVkInitInfo.QueueFamily = m_device.GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_GRAPHICS);
+        imGuiVkInitInfo.QueueFamily = m_device.GetConcreteQueueFamilyIndex(Graphics);
         imGuiVkInitInfo.Queue = m_device.GetGraphicsQueue();
         imGuiVkInitInfo.PipelineCache = m_imguiPipelineCache;
         imGuiVkInitInfo.DescriptorPool = m_imguiDescriptorPool;

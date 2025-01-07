@@ -8,7 +8,7 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {
-    VCommandPool::VCommandPool(const VulkanCore::VDevice &device, QUEUE_FAMILY_INDEX_TYPE queueFamilyType):m_device(device), VObject() {
+    VCommandPool::VCommandPool(const VulkanCore::VDevice &device, EQueueFamilyIndexType queueFamilyType):m_device(device), VObject() {
         m_queueFamilyIndex = std::make_pair(queueFamilyType, m_device.GetConcreteQueueFamilyIndex(queueFamilyType));
         CreateCommandPool();
     }

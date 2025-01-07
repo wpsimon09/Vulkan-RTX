@@ -36,7 +36,7 @@ namespace VulkanCore
         void DestroyPipelines();
         void InstantiatePipelines();
 
-        const VGraphicsPipeline &GetPipeline(PIPELINE_TYPE pipeline) const;
+        const VGraphicsPipeline &GetPipeline(EPipelineType pipeline) const;
         const std::vector<std::reference_wrapper<const VGraphicsPipeline>> GetAllPipelines() const;
 
         ~VPipelineManager() = default;
@@ -55,7 +55,7 @@ namespace VulkanCore
         std::unique_ptr<VShader> m_debugLinesShader;
         std::unique_ptr<VShader> m_outlineShader;
 
-        std::map<PIPELINE_TYPE, std::unique_ptr<VGraphicsPipeline>> m_pipelines;
+        std::map<EPipelineType, std::unique_ptr<VGraphicsPipeline>> m_pipelines;
     };
 }
 

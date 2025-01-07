@@ -22,10 +22,10 @@ namespace VulkanCore
 {
     struct VQueueFamilyIndices
     {
-        std::optional<std::pair<QUEUE_FAMILY_INDEX_TYPE, uint32_t>> graphicsFamily;
-        std::optional<std::pair<QUEUE_FAMILY_INDEX_TYPE, uint32_t>> presentFamily;
-        std::optional<std::pair<QUEUE_FAMILY_INDEX_TYPE, uint32_t>> computeFamily;
-        std::optional<std::pair<QUEUE_FAMILY_INDEX_TYPE, uint32_t>> transferFamily;
+        std::optional<std::pair<EQueueFamilyIndexType, uint32_t>> graphicsFamily;
+        std::optional<std::pair<EQueueFamilyIndexType, uint32_t>> presentFamily;
+        std::optional<std::pair<EQueueFamilyIndexType, uint32_t>> computeFamily;
+        std::optional<std::pair<EQueueFamilyIndexType, uint32_t>> transferFamily;
 
         bool isComplete() const {
             return ( graphicsFamily.has_value() && presentFamily.has_value() && transferFamily.has_value() ) ||computeFamily.has_value();
@@ -59,8 +59,8 @@ namespace VulkanCore
         VmaTotalStatistics& GetDeviceStatistics() { return m_vmaStatistics  ;}
         //----------------------------------------------------------------------------------------
 
-        const uint32_t& GetConcreteQueueFamilyIndex(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
-        const std::string GetQueueFamilyString(QUEUE_FAMILY_INDEX_TYPE queueFamilyType) const;
+        const uint32_t& GetConcreteQueueFamilyIndex(EQueueFamilyIndexType queueFamilyType) const;
+        const std::string GetQueueFamilyString(EQueueFamilyIndexType queueFamilyType) const;
 
         void UpdateMemoryStatistics();
 

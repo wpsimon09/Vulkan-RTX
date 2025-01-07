@@ -45,7 +45,7 @@ namespace VulkanCore
         const vk::GraphicsPipelineCreateInfo GetGraphicsPipelineCreateInfoStruct() const;
         const vk::Pipeline &GetPipelineInstance() const { return m_pipeline; }
         const vk::PipelineLayout &GetPipelineLayout() const;;
-        const PIPELINE_TYPE GetPipelineType() const { return m_pipelineType; };
+        const EPipelineType GetPipelineType() const { return m_pipelineType; };
 
         ~VGraphicsPipeline() = default;
 
@@ -76,7 +76,7 @@ namespace VulkanCore
         std::vector<Command> m_pipelineCommands;
 
         // pipeline type
-        PIPELINE_TYPE m_pipelineType;
+        EPipelineType m_pipelineType;
 
         //------------------------------
         //PIPELINE CREATE INFO VARIABLES
@@ -155,7 +155,7 @@ namespace VulkanCore
             m_pipelineLayout = m_pipeline_layout;
         }
 
-        void SetPipelineType(PIPELINE_TYPE type) {
+        void SetPipelineType(EPipelineType type) {
             m_pipelineType = type;
         }
 

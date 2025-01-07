@@ -79,6 +79,13 @@ namespace VulkanStructs
     {
         int DrawCallCunt = 0;
     };
+
+    struct BufferInfo
+    {
+        vk::DeviceSize size;
+        vk::DeviceSize offset;
+        vk::Buffer buffer;
+    };
 }
 
 #endif //VULKANSTRUCTS_HPP

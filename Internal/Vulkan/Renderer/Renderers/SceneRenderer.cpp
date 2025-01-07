@@ -33,7 +33,7 @@ namespace Renderer
         m_height = height;
         SceneRenderer::CreateRenderTargets(nullptr);
 
-        m_sceneCommandPool = std::make_unique<VulkanCore::VCommandPool>(device, QUEUE_FAMILY_INDEX_GRAPHICS);
+        m_sceneCommandPool = std::make_unique<VulkanCore::VCommandPool>(device, Graphics);
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
             m_commandBuffers[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_sceneCommandPool);
@@ -79,16 +79,16 @@ namespace Renderer
         //=====================================================ň
         m_commandBuffers[currentFrameIndex]->BeginRecording();
 
-        PIPELINE_TYPE pipelineType;
+        EPipelineType pipelineType;
         if (m_WireFrame)
         {
-            pipelineType = PIPELINE_TYPE_DEBUG_LINES;
+            pipelineType = EPipelineType::DebugLines;
         }else if (m_renderContextPtr->metaData.bRasterPass)
         {
-            pipelineType = PIPELINE_TYPE_RASTER_PBR_TEXTURED;
+            pipelineType = EPipelineType::RasterPBRTextured;
         }else if (m_renderContextPtr->metaData.bRTXPass)
         {
-            pipelineType = PIPELINE_TYPE_RTX;
+            pipelineType = EPipelineType::RTX;
         }
 
         RecordCommandBuffer(currentFrameIndex, uniformBufferManager,m_pipelineManager->GetPipeline(pipelineType));
@@ -236,13 +236,13 @@ namespace Renderer
         {
             drawCallCount += RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                                                    m_pushDescriptorManager, *m_renderContextPtr,
-                                                   m_pipelineManager->GetPipeline(PIPELINE_TYPE_DEBUG_LINES));
+                                                   m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
         }
 
         // renders the outline
         drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                                                    m_pushDescriptorManager, m_selectedGeometry,
-                                                    m_pipelineManager->GetPipeline(PIPELINE_TYPE_OUTLINE));
+                                                    m_pipelineManager->GetPipeline(EPipelineType::Outline));
 
         cmdBuffer.endRenderPass();
 

@@ -23,7 +23,7 @@ namespace Renderer
         const VulkanCore::VSwapChain& swapChain, VEditor::UIContext& uiContext): m_device(device),
         m_imguiInitializer(uiContext), m_swapChain(swapChain)
     {
-        m_commandPool = std::make_unique<VulkanCore::VCommandPool>(device, QUEUE_FAMILY_INDEX_GRAPHICS);
+        m_commandPool = std::make_unique<VulkanCore::VCommandPool>(device, Graphics);
         m_commandBuffer.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         m_ableToPresentSemaphore.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         for (int i =0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)

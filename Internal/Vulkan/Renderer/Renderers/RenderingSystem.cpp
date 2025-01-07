@@ -64,7 +64,7 @@ namespace Renderer {
 
         m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
 
-        m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(PIPELINE_TYPE_DEBUG_LINES));
+        m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
 
     }
 

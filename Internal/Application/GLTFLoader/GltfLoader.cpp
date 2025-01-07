@@ -27,6 +27,7 @@ namespace ApplicationCore
 
     std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath) const
     {
+        m_assetsManager.m_device.GetDevice().waitIdle();
         // temp data
         std::shared_ptr<SceneNode> m_rootNode;
         std::vector<std::shared_ptr<SceneNode>> m_topNodes;

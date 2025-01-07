@@ -61,7 +61,7 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
     m_outlineShader->DestroyExistingShaderModules();
 }
 
-const VulkanCore::VGraphicsPipeline &VulkanCore::VPipelineManager::GetPipeline(PIPELINE_TYPE pipeline) const {
+const VulkanCore::VGraphicsPipeline &VulkanCore::VPipelineManager::GetPipeline(EPipelineType pipeline) const {
     auto foundPipeline = m_pipelines.find(pipeline);
     assert(foundPipeline != m_pipelines.end());
     return *foundPipeline->second;
@@ -90,9 +90,9 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
 
     auto pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_baseShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
-    pipeline->SetPipelineType(PIPELINE_TYPE_RASTER_PBR_TEXTURED);
+    pipeline->SetPipelineType(EPipelineType::RasterPBRTextured);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
-    m_pipelines[PIPELINE_TYPE_RASTER_PBR_TEXTURED] = std::move(pipeline);
+    m_pipelines[EPipelineType::RasterPBRTextured] = std::move(pipeline);
 
     //==================================
     // RAY TRACING, ARTIFICIAL PIPELINE
@@ -103,10 +103,10 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
                                              rtxFragmentShaderPath);
     pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_rtxShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
-    pipeline->SetPipelineType(PIPELINE_TYPE_RTX);
+    pipeline->SetPipelineType(EPipelineType::RTX);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
-    m_pipelines[PIPELINE_TYPE_RTX] = std::move(pipeline);
+    m_pipelines[EPipelineType::RTX] = std::move(pipeline);
 
     //==================================
     // DEBUG LINE FRAGMENT
@@ -118,13 +118,13 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
 
     pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_debugLinesShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
-    pipeline->SetPipelineType(PIPELINE_TYPE_DEBUG_LINES);
+    pipeline->SetPipelineType(EPipelineType::DebugLines);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
     pipeline->SetPolygonMode(vk::PolygonMode::eLine);
     pipeline->SetLineWidth(1.5f);
 
-    m_pipelines[PIPELINE_TYPE_DEBUG_LINES] = std::move(pipeline);
+    m_pipelines[EPipelineType::DebugLines] = std::move(pipeline);
 
     //==================================
     // OUTLINE PIPELINE
@@ -136,13 +136,13 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
 
     pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_outlineShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
-    pipeline->SetPipelineType(PIPELINE_TYPE_OUTLINE);
+    pipeline->SetPipelineType(EPipelineType::Outline);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     pipeline->SetCullMode(vk::CullModeFlagBits::eFront);
     pipeline->SetLineWidth(7.0f);
     pipeline->SetPolygonMode(vk::PolygonMode::eLine);
     //pipeline->DisableDepthTest();
-    m_pipelines[PIPELINE_TYPE_OUTLINE] = std::move(pipeline);
+    m_pipelines[EPipelineType::Outline] = std::move(pipeline);
 }
 
 

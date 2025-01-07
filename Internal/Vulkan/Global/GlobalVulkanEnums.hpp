@@ -5,31 +5,31 @@
 #ifndef GLOBALVULKANENUMS_HPP
 #define GLOBALVULKANENUMS_HPP
 
-enum PIPELINE_TYPE
+enum class EPipelineType
 {
-    PIPELINE_TYPE_RASTER_PBR_TEXTURED,
-    PIPELINE_TYPE_RTX,
-    PIPELINE_TYPE_DEBUG_LINES,
-    PIPELINE_TYPE_OUTLINE
+    RasterPBRTextured = 0,
+    RTX,
+    DebugLines,
+    Outline
 };
 
-enum QUEUE_FAMILY_INDEX_TYPE
+enum EQueueFamilyIndexType
 {
-    QUEUE_FAMILY_INDEX_GRAPHICS,
-    QUEUE_FAMILY_INDEX_TRANSFER,
-    QUEUE_FAMILY_INDEX_PRESENT,
-    QUEUE_FAMILY_INDEX_COMPUTE
+    Graphics = 0,
+    Transfer,
+    PresentKHR,
+    Compute
 };
 
-enum BUFFER_TYPE
+enum EBufferType
 {
-    BUFFER_TYPE_VERTEX,
-    BUFFER_TYPE_VERTEX_STAGING,
-    BUFFER_TYPE_IMAGE,
-    BUFFER_TYPE_IMAGE_STAGING,
-    BUFFER_TYPE_INDEX,
-    BUFFER_TYPE_INDEX_STAGING,
-    BUFFER_TYPE_UNDEFINED
+    Vertex = 0,
+    VertexStaging,
+    Image,
+    ImageStaging,
+    Index,
+    IndexStaging,
+    Undefined
 };
 
 

@@ -13,19 +13,19 @@ class VDevice;
 
 class VCommandPool:public VObject {
 public:
-    explicit VCommandPool(const VulkanCore::VDevice& device, QUEUE_FAMILY_INDEX_TYPE queueFamilyType);
+    explicit VCommandPool(const VulkanCore::VDevice& device, EQueueFamilyIndexType queueFamilyType);
 
     void Destroy() override;
 
     const vk::CommandPool& GetCommandBufferPool() const { return m_commandPool; };
-    const std::pair<QUEUE_FAMILY_INDEX_TYPE, uint32_t>& GetQueueFamily() const{return m_queueFamilyIndex;}
+    const std::pair<EQueueFamilyIndexType, uint32_t>& GetQueueFamily() const{return m_queueFamilyIndex;}
 
     ~VCommandPool() = default;
 private:
     void CreateCommandPool();
 
 private:
-    std::pair<QUEUE_FAMILY_INDEX_TYPE, uint32_t> m_queueFamilyIndex;
+    std::pair<EQueueFamilyIndexType, uint32_t> m_queueFamilyIndex;
     const VulkanCore::VDevice& m_device;
     vk::CommandPool m_commandPool;
 };
