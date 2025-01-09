@@ -49,6 +49,8 @@ namespace ApplicationCore
          ~VertexArray() = default;
 
     private:
+        // TODO : instead of having this VBuffer unique it can be made a const reference tho the vkBuffer allocated at once
+
         std::unique_ptr<VulkanCore::VBuffer> m_vertexBuffer;
         std::unique_ptr<VulkanCore::VBuffer> m_indexBuffer;
         std::unique_ptr<VulkanCore::VBuffer> m_AABBVertexBuffer;

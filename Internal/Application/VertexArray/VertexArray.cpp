@@ -17,6 +17,7 @@ ApplicationCore::VertexArray::VertexArray(const VulkanCore::VDevice &device, PRI
     m_indexBuffer->MakeIndexBuffer(m_indices);
     m_vertexBuffer->MakeVertexBuffer(m_vertices);
 
+
     m_AABBVertexBuffer = std::make_unique<VulkanCore::VBuffer>(device, "<== AABB - VERTEX BUFFER ==>");
     m_AABBIndexBuffer = std::make_unique<VulkanCore::VBuffer>(device, "<== AABB - INDEX BUFFER ==>");
 

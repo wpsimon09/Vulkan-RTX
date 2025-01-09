@@ -8,6 +8,11 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
 
+namespace ApplicationCore
+{
+    struct Vertex;
+}
+
 namespace VulkanCore
 {
     class VDevice;
@@ -17,14 +22,14 @@ namespace VulkanCore
     public:
         VBufferAllocator(const VulkanCore::VDevice& device);
 
-        VulkanStructs::BufferInfo& AddBuffer();
-    private:
-        vk::Buffer m_vertexBuffer;
-        vk::Buffer m_indexBuffer;
-        vk::Buffer m_AABBvertexBuffer;
-        vk::Buffer m_AABBindexBuffer;
 
-        std::vector<VulkanStructs::BufferInfo> m_availabelBuffers;
+        VulkanStructs::BufferInfo& AddVertexBuffer(std::vector<ApplicationCore::Vertex>& vertices);
+        VulkanStructs::BufferInfo& AddIndexBuffer(std::vector<ApplicationCore::Vertex>& vertices);
+    private:
+        std::vector<vk::Buffer> m_vertexBuffers;
+        std::vector<vk::Buffer> m_indexBuffers;
+        std::vector<vk::Buffer> m_AABBvertexBuffers;
+        std::vector<vk::Buffer> m_AABBindexBuffers;
     };
 } // VulkanCore
 

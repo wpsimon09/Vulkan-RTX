@@ -76,7 +76,7 @@ namespace Renderer
 
         //=====================================================
         // RECORD COMMAND BUFFER
-        //=====================================================ň
+        //=====================================================
         m_commandBuffers[currentFrameIndex]->BeginRecording();
 
         EPipelineType pipelineType;
