@@ -158,6 +158,62 @@ VulkanStructs::ImageData VulkanUtils::LoadImage(const TextureBufferInfo& data, c
     return imageData;
 }
 
+std::string VulkanUtils::BufferUsageFlagToString(vk::BufferUsageFlagBits usage)
+{
+    switch (usage)
+    {
+        case vk::BufferUsageFlagBits::eTransferSrc: {
+                return "Transfer Source";
+        }
+        case vk::BufferUsageFlagBits::eTransferDst: {
+                return "Transfer Destination";
+        }
+        case vk::BufferUsageFlagBits::eUniformTexelBuffer: {
+                return "Uniform Texel Buffer";
+        }
+        case vk::BufferUsageFlagBits::eStorageTexelBuffer: {
+                return "Storage Texel Buffer";
+        }
+        case vk::BufferUsageFlagBits::eUniformBuffer: {
+                return "Uniform Buffer";
+        }
+        case vk::BufferUsageFlagBits::eStorageBuffer: {
+                return "Storage Buffer";
+        }
+        case vk::BufferUsageFlagBits::eIndexBuffer: {
+                return "Index Buffer";
+        }
+        case vk::BufferUsageFlagBits::eVertexBuffer: {
+                return "Vertex Buffer";
+        }
+        case vk::BufferUsageFlagBits::eIndirectBuffer: {
+                return "Indirect Buffer";
+        }
+        case vk::BufferUsageFlagBits::eShaderDeviceAddress: {
+                return "Shader Device Address";
+        }
+        case vk::BufferUsageFlagBits::eVideoDecodeSrcKHR: {
+                return "Video Decode Source KHR";
+        }
+        case vk::BufferUsageFlagBits::eVideoDecodeDstKHR: {
+                return "Video Decode Destination KHR";
+        }
+        case vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT: {
+                return "Transform Feedback Buffer EXT";
+        }
+        case vk::BufferUsageFlagBits::eTransformFeedbackCounterBufferEXT: {
+                return "Transform Feedback Counter Buffer EXT";
+        }
+        case vk::BufferUsageFlagBits::eConditionalRenderingEXT: {
+                return "Conditional Rendering EXT";
+        }
+        default: {
+                return "Unknown Buffer Usage";
+        }
+    }
+
+}
+
 glm::mat4 VulkanUtils::FastGLTFToGLMMat4(fastgltf::math::fmat4x4& matrix)
 {
     glm::mat4 newMatrix;

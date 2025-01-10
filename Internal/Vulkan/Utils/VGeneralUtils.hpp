@@ -43,6 +43,8 @@ namespace VulkanUtils
     VulkanStructs::ImageData LoadImage(const std::string &path);
     VulkanStructs::ImageData LoadImage(const TextureBufferInfo& data, const std::string& textureID);
 
+    std::string BufferUsageFlagToString(vk::BufferUsageFlagBits usage);
+
     glm::mat4 FastGLTFToGLMMat4(fastgltf::math::fmat4x4& matrix);
 
     std::pair<vk::Result, uint32_t> SwapChainNextImageKHRWrapper(const VulkanCore::VDevice& device,const VulkanCore::VSwapChain& swapChain, uint64_t timeOut, const VulkanCore::VSyncPrimitive<vk::Semaphore>& semaphore, VulkanCore::VSyncPrimitive<vk::Fence>* fence);
