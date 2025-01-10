@@ -34,8 +34,8 @@ namespace VulkanCore
     private:
         struct BufferAllocationInfo
         {
-            vk::DeviceSize size;
-            vk::DeviceSize currentOffset;
+            vk::DeviceSize size = BUFFER_SIZE;
+            vk::DeviceSize currentOffset = 0;
             vk::Buffer bufferVK;
             vk::BufferUsageFlags usageFlags;
             VkBuffer bufferVMA;

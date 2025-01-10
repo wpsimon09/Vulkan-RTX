@@ -5,6 +5,7 @@
 #include "VBufferAllocator.hpp"
 
 #include "Application/Logger/Logger.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {
@@ -15,6 +16,10 @@ namespace VulkanCore {
         // BB vertex
         //==============================
         Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
+        BufferAllocationInfo allocInfo{};
+        allocInfo.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+        CreateBuffer(allocInfo);
+        m_vertexBuffers.emplace_back();
 
 
         //==============================
@@ -28,7 +33,7 @@ namespace VulkanCore {
     {
         VkBufferCreateInfo bufferCreateInfo = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
         bufferCreateInfo.size = allocationInfo.size;
-        bufferCreateInfo.usage = allocationInfo.usageFlags;
+        bufferCreateInfo.usage = static_cast<VkBufferUsageFlags>(allocationInfo.usageFlags);
         bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         std::vector<uint32_t> sharedQueueFamilyIndices = {
@@ -45,7 +50,7 @@ namespace VulkanCore {
         allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
         assert(vmaCreateBuffer(m_device.GetAllocator(),&bufferCreateInfo,&allocationCreateInfo, &allocationInfo.bufferVMA, &allocationInfo.allocationVMA,nullptr) == VK_SUCCESS);
 
-        vmaSetAllocationName(m_device.GetAllocator(), allocationInfo.allocationVMA, "");
-        Utils::Logger::LogSuccess("Buffer allocated successfully || SIZE: "+ std::to_string(size) + " bytes || ");
+        vmaSetAllocationName(m_device.GetAllocator(), allocationInfo.allocationVMA, VulkanUtils::BufferUsageFlagToString(allocationInfo.usageFlags).c_str());
+        Utils::Logger::LogSuccess("Buffer allocated successfully || SIZE: "+ std::to_string(allocationInfo.size) + " bytes || ");
     }
 } // VulkanCore

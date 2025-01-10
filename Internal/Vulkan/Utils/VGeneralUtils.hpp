@@ -43,7 +43,7 @@ namespace VulkanUtils
     VulkanStructs::ImageData LoadImage(const std::string &path);
     VulkanStructs::ImageData LoadImage(const TextureBufferInfo& data, const std::string& textureID);
 
-    std::string BufferUsageFlagToString(vk::BufferUsageFlagBits usage);
+    std::string BufferUsageFlagToString(vk::BufferUsageFlags usage);
 
     glm::mat4 FastGLTFToGLMMat4(fastgltf::math::fmat4x4& matrix);
 
