@@ -107,6 +107,17 @@ namespace VulkanStructs
         vk::DeviceSize GetAvailableSize() {return size - currentOffset;};
     };
 
+    struct StagingBufferAllocationInfo
+    {
+        void *mappedPointer;
+        vk::DeviceSize size;
+        VmaAllocation m_stagingAllocation;
+        VkBuffer m_stagingBufferVMA;
+        vk::Buffer m_stagingBufferVK;
+
+        VkBuffer copyDstBuffer;
+    };
+
 }
 
 #endif //VULKANSTRUCTS_HPP

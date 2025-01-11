@@ -5,59 +5,35 @@
 #include "VBufferAllocator.hpp"
 
 #include "Application/Logger/Logger.hpp"
+#include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {
     VBufferAllocator::VBufferAllocator(const VulkanCore::VDevice& device):m_device(device)
     {
-        //==============================
-        // CREATE INITIAL VERTEX BUFFER
-        // BB vertex
-        //==============================
-        Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
-        VulkanStructs::BufferAllocationInfo newVertexBuffer{};
-        newVertexBuffer.ID = 0;
-        newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-        CreateBuffer(newVertexBuffer);
-        m_vertexBuffers.emplace_back(newVertexBuffer);
-
-        VulkanStructs::BufferAllocationInfo newBBVertexBuffer{};
-        newBBVertexBuffer.ID = 0;
-        newBBVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-        CreateBuffer(newBBVertexBuffer);
-        m_BBvertexBuffers.emplace_back(newBBVertexBuffer);
-
-
-
-        //==============================
-        // CREATE INITIAL INDEX BUFFER
-        // BB index
-        //==============================
-        Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
-        VulkanStructs::BufferAllocationInfo newIndexBuffer{};
-        newIndexBuffer.ID = 0;
-        newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-        CreateBuffer(newIndexBuffer);
-        m_indexBuffers.emplace_back(newIndexBuffer);
-
-        Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
-        VulkanStructs::BufferAllocationInfo newBBIndexBuffer{};
-        newBBIndexBuffer.ID = 0;
-        newBBIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-        CreateBuffer(newBBIndexBuffer);
-        m_indexBuffers.emplace_back(newBBIndexBuffer);
 
     }
 
     VulkanStructs::BufferInfo VBufferAllocator::AddVertexBuffer(std::vector<ApplicationCore::Vertex>& vertices)
     {
+
+        //create new staging buffer
+
+        CreateStagingBuffer(vertices.size() * sizeof(ApplicationCore::Vertex));
+
+        //record command
     }
 
-    VulkanStructs::BufferInfo VBufferAllocator::AddIndexBuffer(std::vector<ApplicationCore::Vertex>& vertices)
+    VulkanStructs::BufferInfo VBufferAllocator::AddIndexBuffer(std::vector<uint32_t>& indices)
+    {
+    }
+
+    void VBufferAllocator::UpdateGPU(vk::Semaphore semaphore)
     {
 
     }
+
 
     void VBufferAllocator::Destroy()
     {
@@ -102,9 +78,12 @@ namespace VulkanCore {
         allocationInfo.bufferVK = allocationInfo.bufferVMA;
     }
 
-    void VBufferAllocator::CreateStagingBuffer(VkDeviceSize size) {
+    VulkanStructs::StagingBufferAllocationInfo VBufferAllocator::CreateStagingBuffer(VkDeviceSize size) {
 
         std::string allocationNme = "Allocation of staging buffer for vertex, index or image ";
+
+        VulkanStructs::StagingBufferAllocationInfo allocationInfo = {};
+        allocationInfo.size = size;
 
         VkBufferCreateInfo stagingBufferCreateInfo = {};
         stagingBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -126,11 +105,64 @@ namespace VulkanCore {
         stagingAllocationCreateInfo.priority = 1.0f;
 
         Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
-        assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo, &stagingAllocationCreateInfo, &m_stagingBufferVMA, &m_stagingAllocation,nullptr) == VK_SUCCESS);
-        m_stagingBufferVK = m_stagingBufferVMA;
+        assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo, &stagingAllocationCreateInfo, &allocationInfo.m_stagingBufferVMA, &allocationInfo.m_stagingAllocation,nullptr) == VK_SUCCESS);
+        allocationInfo.m_stagingBufferVK = allocationInfo.m_stagingBufferVMA;
 
-        vmaSetAllocationName(m_device.GetAllocator(), m_stagingAllocation, allocationNme.c_str());
+        vmaSetAllocationName(m_device.GetAllocator(), allocationInfo.m_stagingAllocation, allocationNme.c_str());
 
         Utils::Logger::LogSuccess("Staging buffer created || SIZE: " + std::to_string(size) + "bytes ||");
+
+        vmaMapMemory(m_device.GetAllocator(), allocationInfo.m_stagingAllocation, &allocationInfo.mappedPointer);
+
+        return allocationInfo;
     }
+
+
+    void VBufferAllocator::CreateNewVertexBuffers()
+    {
+        //==============================
+        // CREATE INITIAL VERTEX BUFFER
+        // BB vertex
+        //==============================
+        Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
+        VulkanStructs::BufferAllocationInfo newVertexBuffer{};
+        newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+        CreateBuffer(newVertexBuffer);
+        m_vertexBuffers.emplace_back(newVertexBuffer);
+        m_currentVertexBuffer = &m_vertexBuffers.back();
+        newVertexBuffer.ID = 0;
+
+        VulkanStructs::BufferAllocationInfo newBBVertexBuffer{};
+        newBBVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+        CreateBuffer(newBBVertexBuffer);
+        m_BBvertexBuffers.emplace_back(newBBVertexBuffer);
+        m_currentBBvertexBuffer = &m_BBvertexBuffers.back();
+        newBBVertexBuffer.ID = 0;
+    }
+
+    void VBufferAllocator::CreateNewIndexBuffers()
+    {
+        //==============================
+        // CREATE INITIAL INDEX BUFFER
+        // BB index
+        //==============================
+        Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
+        VulkanStructs::BufferAllocationInfo newIndexBuffer{};
+        newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+        CreateBuffer(newIndexBuffer);
+        m_indexBuffers.emplace_back(newIndexBuffer);
+        m_currentIndexBuffer = &m_indexBuffers.back();
+        m_indexBuffers.back().ID = m_indexBuffers.size();
+
+        Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
+        VulkanStructs::BufferAllocationInfo newBBIndexBuffer{};
+        newBBIndexBuffer.ID = 0;
+        newBBIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+        CreateBuffer(newBBIndexBuffer);
+        m_BBindexBuffers.emplace_back(newBBIndexBuffer);
+        m_currentIndexBuffer = &m_BBindexBuffers.back();
+        m_BBindexBuffers.back().ID = m_BBindexBuffers.size();
+    }
+
+
 } // VulkanCore
