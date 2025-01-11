@@ -50,18 +50,29 @@ namespace VulkanCore {
 
     }
 
-    VulkanStructs::BufferInfo& VBufferAllocator::AddVertexBuffer(std::vector<ApplicationCore::Vertex>& vertices)
+    VulkanStructs::BufferInfo VBufferAllocator::AddVertexBuffer(std::vector<ApplicationCore::Vertex>& vertices)
     {
     }
 
-    VulkanStructs::BufferInfo& VBufferAllocator::AddIndexBuffer(std::vector<ApplicationCore::Vertex>& vertices)
+    VulkanStructs::BufferInfo VBufferAllocator::AddIndexBuffer(std::vector<ApplicationCore::Vertex>& vertices)
     {
 
     }
 
     void VBufferAllocator::Destroy()
     {
-        for (int i)
+        for (int i = 0; i<m_vertexBuffers.size(); i++)
+        {
+            vmaDestroyBuffer(m_device.GetAllocator(), m_vertexBuffers[i].bufferVMA, m_vertexBuffers[i].allocationVMA);
+        }for (int i = 0; i<m_indexBuffers.size(); i++)
+        {
+            vmaDestroyBuffer(m_device.GetAllocator(), m_indexBuffers[i].bufferVMA, m_indexBuffers[i].allocationVMA);
+        }for (int i = 0; i<m_BBvertexBuffers.size(); i++)
+        {
+            vmaDestroyBuffer(m_device.GetAllocator(), m_BBvertexBuffers[i].bufferVMA, m_BBvertexBuffers[i].allocationVMA);
+        }for (int i = 0; i<m_BBindexBuffers.size(); i++){
+            vmaDestroyBuffer(m_device.GetAllocator(), m_BBindexBuffers[i].bufferVMA, m_BBindexBuffers[i].allocationVMA);
+        }
     }
 
     void VBufferAllocator::CreateBuffer(VulkanStructs::BufferAllocationInfo& allocationInfo)

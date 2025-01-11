@@ -178,6 +178,7 @@ Application::~Application() {
     VulkanCore::VSamplers::DestroyAllSamplers(*m_vulkanDevice);
     m_pushDescriptorSetManager->Destroy();
     m_uiContext->Destroy();
+    m_bufferAllocator->Destroy();
 
     m_vulkanDevice->Destroy();
 }

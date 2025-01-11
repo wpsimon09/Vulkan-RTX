@@ -24,8 +24,8 @@ namespace VulkanCore
     public:
         explicit VBufferAllocator(const VulkanCore::VDevice& device);
 
-        VulkanStructs::BufferInfo& AddVertexBuffer(std::vector<ApplicationCore::Vertex>& vertices);
-        VulkanStructs::BufferInfo& AddIndexBuffer(std::vector<ApplicationCore::Vertex>& vertices);
+        VulkanStructs::BufferInfo AddVertexBuffer(std::vector<ApplicationCore::Vertex>& vertices);
+        VulkanStructs::BufferInfo AddIndexBuffer(std::vector<ApplicationCore::Vertex>& vertices);
 
         void Destroy() override;
 
