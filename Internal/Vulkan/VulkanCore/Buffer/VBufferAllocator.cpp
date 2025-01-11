@@ -8,11 +8,17 @@
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
 namespace VulkanCore {
     VBufferAllocator::VBufferAllocator(const VulkanCore::VDevice& device):m_device(device)
     {
+        m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Transfer);
+        m_transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_transferCommandPool);
 
+        CreateNewVertexBuffers();
+        CreateNewIndexBuffers();
     }
 
     VulkanStructs::BufferInfo VBufferAllocator::AddVertexBuffer(std::vector<ApplicationCore::Vertex>& vertices)
@@ -20,9 +26,14 @@ namespace VulkanCore {
 
         //create new staging buffer
 
-        CreateStagingBuffer(vertices.size() * sizeof(ApplicationCore::Vertex));
+        m_stagingVertexBuffers.emplace_back(CreateStagingBuffer(vertices.size() * sizeof(ApplicationCore::Vertex)));
+        auto& stagingBuffer = m_stagingVertexBuffers.back();
 
-        //record command
+        //copy data to staging buffer and add it to the array
+        memcpy(stagingBuffer.mappedPointer, vertices.data(), vertices.size() * sizeof(ApplicationCore::Vertex));
+
+        vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
+
     }
 
     VulkanStructs::BufferInfo VBufferAllocator::AddIndexBuffer(std::vector<uint32_t>& indices)
@@ -130,14 +141,14 @@ namespace VulkanCore {
         CreateBuffer(newVertexBuffer);
         m_vertexBuffers.emplace_back(newVertexBuffer);
         m_currentVertexBuffer = &m_vertexBuffers.back();
-        newVertexBuffer.ID = 0;
+        m_currentVertexBuffer->ID = m_vertexBuffers.size();
 
         VulkanStructs::BufferAllocationInfo newBBVertexBuffer{};
         newBBVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
         CreateBuffer(newBBVertexBuffer);
         m_BBvertexBuffers.emplace_back(newBBVertexBuffer);
         m_currentBBvertexBuffer = &m_BBvertexBuffers.back();
-        newBBVertexBuffer.ID = 0;
+        m_currentBBvertexBuffer->ID = m_BBvertexBuffers.size();
     }
 
     void VBufferAllocator::CreateNewIndexBuffers()
@@ -152,7 +163,7 @@ namespace VulkanCore {
         CreateBuffer(newIndexBuffer);
         m_indexBuffers.emplace_back(newIndexBuffer);
         m_currentIndexBuffer = &m_indexBuffers.back();
-        m_indexBuffers.back().ID = m_indexBuffers.size();
+        m_currentIndexBuffer->ID = m_indexBuffers.size();
 
         Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
         VulkanStructs::BufferAllocationInfo newBBIndexBuffer{};
@@ -160,8 +171,8 @@ namespace VulkanCore {
         newBBIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
         CreateBuffer(newBBIndexBuffer);
         m_BBindexBuffers.emplace_back(newBBIndexBuffer);
-        m_currentIndexBuffer = &m_BBindexBuffers.back();
-        m_BBindexBuffers.back().ID = m_BBindexBuffers.size();
+        m_currentBBindexBuffer = &m_BBindexBuffers.back();
+        m_currentBBindexBuffer->ID = m_BBindexBuffers.size();
     }
 
 
