@@ -2,17 +2,13 @@
 // Created by wpsimon09 on 07/01/25.
 //
 
-#ifndef VVERTEXBUFFER_HPP
-#define VVERTEXBUFFER_HPP
-#include <VMA/vk_mem_alloc.h>
+#ifndef VBUFFERALLOCATOR_HPP
+#define VBUFFERALLOCATOR_HPP
 
 #include "vulkan/vulkan.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
 
-#ifndef BUFFER_SIZE
-    #define BUFFER_SIZE 16777216 // 16MB
-#endif
 
 namespace ApplicationCore
 {
@@ -26,28 +22,20 @@ namespace VulkanCore
     class VBufferAllocator : public VObject
     {
     public:
-        VBufferAllocator(const VulkanCore::VDevice& device);
-
+        explicit VBufferAllocator(const VulkanCore::VDevice& device);
 
         VulkanStructs::BufferInfo& AddVertexBuffer(std::vector<ApplicationCore::Vertex>& vertices);
         VulkanStructs::BufferInfo& AddIndexBuffer(std::vector<ApplicationCore::Vertex>& vertices);
+
+        void Destroy() override;
+
+        ~VBufferAllocator() = default;
     private:
-        struct BufferAllocationInfo
-        {
-            vk::DeviceSize size = BUFFER_SIZE;
-            vk::DeviceSize currentOffset = 0;
-            vk::Buffer bufferVK;
-            vk::BufferUsageFlags usageFlags;
-            VkBuffer bufferVMA;
-            VmaAllocation allocationVMA;
 
-            vk::DeviceSize GetAvailableSize() {return size - currentOffset;};
-        };
-
-        std::vector<BufferAllocationInfo> m_vertexBuffers;
-        std::vector<BufferAllocationInfo> m_indexBuffers;
-        std::vector<BufferAllocationInfo> m_BBvertexBuffers; // to visualize bounding box
-        std::vector<BufferAllocationInfo> m_BBindexBuffers; // to visualize bounding box
+        std::vector<VulkanStructs::BufferAllocationInfo> m_vertexBuffers;
+        std::vector<VulkanStructs::BufferAllocationInfo> m_indexBuffers;
+        std::vector<VulkanStructs::BufferAllocationInfo> m_BBvertexBuffers; // to visualize bounding box
+        std::vector<VulkanStructs::BufferAllocationInfo> m_BBindexBuffers;  // to visualize bounding box
 
         VmaAllocation m_stagingAllocation;
         VkBuffer m_stagingBufferVMA;
@@ -55,8 +43,9 @@ namespace VulkanCore
 
         const VulkanCore::VDevice& m_device;
 
-        void CreateBuffer(BufferAllocationInfo& allocationInfo);
+        void CreateBuffer(VulkanStructs::BufferAllocationInfo& allocationInfo);
+        void CreateStagingBuffer(VkDeviceSize size);
     };
 } // VulkanCore
 
-#endif //VVERTEXBUFFER_HPP
+#endif //VBUFFERALLOCATOR_HPP

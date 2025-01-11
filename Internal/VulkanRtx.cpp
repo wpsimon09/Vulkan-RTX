@@ -34,7 +34,6 @@
 #include "Application/GLTFLoader/GltfLoader.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
-
 // Vulkan Utilities
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 
@@ -49,7 +48,7 @@
 #include "Editor/Editor.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
-
+#include "Vulkan/VulkanCore/Buffer/VBufferAllocator.hpp"
 
 Application::Application()
 {
@@ -59,7 +58,7 @@ void Application::Init()
 {
     m_client = std::make_unique<Client>();
 
-    m_windowManager = std::make_unique<WindowManager>(800,600);
+    m_windowManager = std::make_unique<WindowManager>(1000,800);
     m_windowManager->InitWindow();
 
     m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
@@ -83,7 +82,7 @@ void Application::Init()
     m_renderingSystem->Init();
     m_uiContext->SetRenderingSystem(m_renderingSystem.get());
 
-
+    m_bufferAllocator = std::make_unique<VulkanCore::VBufferAllocator>(*m_vulkanDevice);
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene.glb");
