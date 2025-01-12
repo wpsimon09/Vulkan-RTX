@@ -66,7 +66,9 @@ void Application::Init()
 
     VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
 
-    auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice);
+    m_bufferAllocator = std::make_unique<VulkanCore::VBufferAllocator>(*m_vulkanDevice);
+
+    auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_bufferAllocator);
     m_client->MountAssetsManger(std::move(assetManger));
     m_client->Init();
 
@@ -82,7 +84,6 @@ void Application::Init()
     m_renderingSystem->Init();
     m_uiContext->SetRenderingSystem(m_renderingSystem.get());
 
-    m_bufferAllocator = std::make_unique<VulkanCore::VBufferAllocator>(*m_vulkanDevice);
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene.glb");

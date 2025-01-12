@@ -34,27 +34,44 @@ namespace VulkanCore
     public:
         explicit VBufferAllocator(const VulkanCore::VDevice& device);
 
-        VulkanStructs::BufferInfo AddVertexBuffer(std::vector<ApplicationCore::Vertex>& vertices);
-        VulkanStructs::BufferInfo AddIndexBuffer(std::vector<uint32_t>& indices);
+        VulkanStructs::BufferInfo AddVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices);
+        VulkanStructs::BufferInfo AddIndexBuffer(const std::vector<uint32_t>& indices);
 
+        /**
+         * Sends every staging buffer to the GPU in a batch
+         * @param semaphore semaphore to secure that transfering the vertex buffer is done
+         * TODO:this might be wrong since graphis and transfer queue have the same queue family and i should put the memory barrier since it might be moved to be single queue
+         */
         void UpdateGPU(vk::Semaphore semaphore);
 
         void Destroy() override;
 
         ~VBufferAllocator() = default;
     private:
+        //==================================
+        // VERTEX BUFFER
+        //==================================
         VulkanStructs::BufferAllocationInfo* m_currentVertexBuffer;
         std::vector<VulkanStructs::BufferAllocationInfo> m_vertexBuffers;
         std::vector<VulkanStructs::StagingBufferAllocationInfo> m_stagingVertexBuffers;
 
+        //==================================
+        // INDEX BUFFER
+        //==================================
         VulkanStructs::BufferAllocationInfo* m_currentIndexBuffer;
         std::vector<VulkanStructs::BufferAllocationInfo> m_indexBuffers;
         std::vector<VulkanStructs::StagingBufferAllocationInfo> m_stagingIndexBuffers;
 
+        //==================================
+        // BOUNDING BOX VERTEX BUFFER
+        //==================================
         VulkanStructs::BufferAllocationInfo* m_currentBBvertexBuffer;
         std::vector<VulkanStructs::BufferAllocationInfo> m_BBvertexBuffers; // to visualize bounding box
         std::vector<VulkanStructs::StagingBufferAllocationInfo> m_BBstagingVertexBuffers;
 
+        //==================================
+        // BOUNDING BOX INDEX
+        //==================================
         VulkanStructs::BufferAllocationInfo* m_currentBBindexBuffer;
         std::vector<VulkanStructs::BufferAllocationInfo> m_BBindexBuffers;  // to visualize bounding box
         std::vector<VulkanStructs::StagingBufferAllocationInfo> m_BBstagingIndexBuffers;

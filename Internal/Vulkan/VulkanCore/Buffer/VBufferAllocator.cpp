@@ -21,11 +21,10 @@ namespace VulkanCore {
         CreateNewIndexBuffers();
     }
 
-    VulkanStructs::BufferInfo VBufferAllocator::AddVertexBuffer(std::vector<ApplicationCore::Vertex>& vertices)
+    VulkanStructs::BufferInfo VBufferAllocator::AddVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices)
     {
 
         //create new staging buffer
-
         m_stagingVertexBuffers.emplace_back(CreateStagingBuffer(vertices.size() * sizeof(ApplicationCore::Vertex)));
         auto& stagingBuffer = m_stagingVertexBuffers.back();
 
@@ -34,15 +33,47 @@ namespace VulkanCore {
 
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
 
+        stagingBuffer.copyDstBuffer = m_currentVertexBuffer->bufferVK;
+
+        VulkanStructs::BufferInfo bufferInfo = {
+            .size = vertices.size() * sizeof(ApplicationCore::Vertex),
+            .offset = m_currentVertexBuffer->currentOffset,
+            .buffer = m_currentVertexBuffer->bufferVK
+        };
+
+        m_currentVertexBuffer->currentOffset += vertices.size() * sizeof(ApplicationCore::Vertex);
+
+        return bufferInfo;
     }
 
-    VulkanStructs::BufferInfo VBufferAllocator::AddIndexBuffer(std::vector<uint32_t>& indices)
+    VulkanStructs::BufferInfo VBufferAllocator::AddIndexBuffer(const std::vector<uint32_t>& indices)
     {
+
     }
 
     void VBufferAllocator::UpdateGPU(vk::Semaphore semaphore)
     {
+        Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
+        m_transferCommandBuffer->BeginRecording();
+        for (auto& stagingVertexBuffer : m_stagingVertexBuffers)
+        {
 
+            vk::BufferCopy bufferCopy{};
+            bufferCopy.srcOffset = 0;
+            bufferCopy.dstOffset = stagingVertexBuffer.;
+            bufferCopy.size = stagingVertexBuffer.size;
+
+            cmdBuffer.GetCommandBuffer().copyBuffer(srcBuffer, dstBuffer, bufferCopy);
+
+            cmdBuffer.EndRecording();
+
+            vk::SubmitInfo submitInfo{};
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &cmdBuffer.GetCommandBuffer();
+
+            assert(device.GetTransferQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess);
+            Utils::Logger::LogSuccess("Buffer copy completed !");
+        }
     }
 
 

@@ -111,6 +111,7 @@ namespace VulkanStructs
     {
         void *mappedPointer;
         vk::DeviceSize size;
+        vk::DeviceSize dstOffset;
         VmaAllocation m_stagingAllocation;
         VkBuffer m_stagingBufferVMA;
         vk::Buffer m_stagingBufferVK;
