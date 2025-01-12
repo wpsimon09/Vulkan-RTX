@@ -34,6 +34,7 @@ namespace VulkanCore {
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
 
         stagingBuffer.copyDstBuffer = m_currentVertexBuffer->bufferVK;
+        stagingBuffer.dstOffset = m_currentVertexBuffer->currentOffset;
 
         VulkanStructs::BufferInfo bufferInfo = {
             .size = vertices.size() * sizeof(ApplicationCore::Vertex),
@@ -54,26 +55,22 @@ namespace VulkanCore {
     void VBufferAllocator::UpdateGPU(vk::Semaphore semaphore)
     {
         Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
+        m_device.GetDevice().waitIdle();
         m_transferCommandBuffer->BeginRecording();
         for (auto& stagingVertexBuffer : m_stagingVertexBuffers)
         {
 
             vk::BufferCopy bufferCopy{};
             bufferCopy.srcOffset = 0;
-            bufferCopy.dstOffset = stagingVertexBuffer.;
+            bufferCopy.dstOffset = stagingVertexBuffer.dstOffset;
             bufferCopy.size = stagingVertexBuffer.size;
 
-            cmdBuffer.GetCommandBuffer().copyBuffer(srcBuffer, dstBuffer, bufferCopy);
-
-            cmdBuffer.EndRecording();
-
-            vk::SubmitInfo submitInfo{};
-            submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &cmdBuffer.GetCommandBuffer();
-
-            assert(device.GetTransferQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess);
-            Utils::Logger::LogSuccess("Buffer copy completed !");
+            m_transferCommandBuffer->GetCommandBuffer().copyBuffer(stagingVertexBuffer.m_stagingBufferVK, stagingVertexBuffer.copyDstBuffer, bufferCopy);
         }
+
+        m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+        ClearVertexStagingBuffers();
+        Utils::Logger::LogSuccess("Buffer copy completed !");
     }
 
 
@@ -91,6 +88,8 @@ namespace VulkanCore {
         }for (int i = 0; i<m_BBindexBuffers.size(); i++){
             vmaDestroyBuffer(m_device.GetAllocator(), m_BBindexBuffers[i].bufferVMA, m_BBindexBuffers[i].allocationVMA);
         }
+
+        m_transferCommandPool->Destroy();
     }
 
     void VBufferAllocator::CreateBuffer(VulkanStructs::BufferAllocationInfo& allocationInfo)
@@ -205,6 +204,16 @@ namespace VulkanCore {
         m_currentBBindexBuffer = &m_BBindexBuffers.back();
         m_currentBBindexBuffer->ID = m_BBindexBuffers.size();
     }
+
+    void VBufferAllocator::ClearVertexStagingBuffers()
+    {
+        for (auto& stagingBuffer : m_stagingVertexBuffers)
+        {
+            vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA,stagingBuffer.m_stagingAllocation);
+        }
+        m_stagingVertexBuffers.clear();
+    }
+
 
 
 } // VulkanCore

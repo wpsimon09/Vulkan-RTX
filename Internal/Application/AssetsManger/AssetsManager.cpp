@@ -70,6 +70,7 @@ namespace ApplicationCore
             m_preloadedMeshData[geometryType] =  std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_STRIP, vertices,
                                                 indices);
             m_bufferAllocator.AddVertexBuffer(vertices);
+
             break;
         }
         case MESH_GEOMETRY_CUBE:
@@ -100,6 +101,8 @@ namespace ApplicationCore
         default: ;
             throw std::runtime_error("This geometry type is not supported !");
         }
+        m_bufferAllocator.UpdateGPU(nullptr);
+
         return m_preloadedMeshData[geometryType];
     }
 
