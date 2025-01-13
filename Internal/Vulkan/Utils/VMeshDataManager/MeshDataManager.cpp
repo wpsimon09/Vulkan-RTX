@@ -163,7 +163,7 @@ namespace VulkanCore {
         }
 
         m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
-        ClearVertexStagingBuffers();
+        DeleteAllStagingBuffers();
         Utils::Logger::LogSuccess("Buffer copy completed !");
     }
 
@@ -213,11 +213,11 @@ namespace VulkanCore {
         allocationInfo.bufferVK = allocationInfo.bufferVMA;
     }
 
-    VulkanStructs::StagingBufferAllocationInfo MeshDatatManager::CreateStagingBuffer(VkDeviceSize size) {
+    VulkanStructs::StagingBufferInfo MeshDatatManager::CreateStagingBuffer(VkDeviceSize size) {
 
         std::string allocationNme = "Allocation of staging buffer for vertex, index or image ";
 
-        VulkanStructs::StagingBufferAllocationInfo allocationInfo = {};
+        VulkanStructs::StagingBufferInfo allocationInfo = {};
         allocationInfo.size = size;
 
         VkBufferCreateInfo stagingBufferCreateInfo = {};
@@ -290,7 +290,7 @@ namespace VulkanCore {
         m_currentIndexBuffer->ID = m_indexBuffers.size();
     }
 
-    void MeshDatatManager::ClearVertexStagingBuffers()
+    void MeshDatatManager::DeleteAllStagingBuffers()
     {
         for (auto& stagingBuffer : m_stagingVertexBuffers)
         {

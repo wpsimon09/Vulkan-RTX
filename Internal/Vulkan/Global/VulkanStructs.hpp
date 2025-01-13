@@ -87,7 +87,7 @@ namespace VulkanStructs
         vk::DeviceSize GetAvailableSize() {return size - currentOffset;};
     };
 
-    struct StagingBufferAllocationInfo
+    struct StagingBufferInfo
     {
         void *mappedPointer;
         vk::DeviceSize size;
@@ -104,11 +104,8 @@ namespace VulkanStructs
         uint32_t indexCount = 0;
         uint32_t firstIndex =0;
 
-        VkBuffer vertexBuffer;
-        VkBuffer indexBuffer;
+        MeshData* meshData;
 
-        VkBuffer AABBVertexBuffer;
-        VkBuffer AABBIndexBuffer;
         uint32_t AABBIndexCount = 0;
 
         glm::mat4& modelMatrix;

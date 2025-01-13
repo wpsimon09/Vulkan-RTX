@@ -140,21 +140,16 @@ namespace ApplicationCore {
                 // NORMAL SCENE DATA
                 //=====================================================
                 VulkanStructs::DrawCallData data{.modelMatrix = m_transformation->GetModelMatrix()};
-
-                data.vertexBuffer = m_mesh->m_vertexArray->GetVertexBuffer().GetBuffer();
-                data.indexBuffer = m_mesh->m_vertexArray->GetIndexBuffer().GetBuffer();
                 data.firstIndex = 1;
                 data.indexCount = m_mesh->GetMeshIndexCount();
                 data.material = m_mesh->m_material;
+                data.meshData = m_mesh->GetMeshData();
 
                 //=====================================================
                 // BOUNDING VOLUME STUFF
                 //=====================================================
                 data.bounds = m_mesh->GetVertexArray()->GetBounds();
-                data.AABBVertexBuffer = m_mesh->GetVertexArray()->GetAABBVertexBuffer().GetBuffer();
-                data.AABBIndexBuffer = m_mesh->GetVertexArray()->GetAABBIndexBuffer().GetBuffer();
                 data.AABBIndexCount = m_mesh->GetVertexArray()->GetAABBIndexCount();
-
                 data.renderOutline = m_isSelected;
 
                 renderingContext->DrawCalls.emplace_back(data);

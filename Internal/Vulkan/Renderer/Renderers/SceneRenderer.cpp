@@ -211,10 +211,11 @@ namespace Renderer
             dstSetDataStruct.pbrMaterialNoTexture = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(i)[
                 currentFrameIndex];
 
-            std::vector<vk::Buffer> vertexBuffers = {m_renderContextPtr->DrawCalls[i].vertexBuffer};
-            std::vector<vk::DeviceSize> offsets = {0};
 
-            cmdBuffer.bindIndexBuffer(drawCall.indexBuffer, 0, vk::IndexType::eUint32);
+            std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
+            std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};
+
+            cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
             cmdBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 
             cmdBuffer.pushDescriptorSetWithTemplateKHR(

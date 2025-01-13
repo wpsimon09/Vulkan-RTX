@@ -37,7 +37,8 @@ namespace ApplicationCore
         const std::vector<Vertex>& GetVertices() const { return m_vertices; }
         const std::vector<uint32_t>& GetIndices() const { return m_indices; }
         VulkanStructs::Bounds* GetBounds() {return &m_bounds;}
-        uint32_t GetAABBIndexCount() const { return m_AABBIndices.size(); }
+        VulkanStructs::MeshData* GetMeshData() { return &m_meshData; }
+        uint32_t GetAABBIndexCount() const { return 36; }
 
         const VulkanCore::VBuffer& GetVertexBuffer() const {return *m_vertexBuffer; }
         const VulkanCore::VBuffer& GetIndexBuffer() const {return *m_indexBuffer; }

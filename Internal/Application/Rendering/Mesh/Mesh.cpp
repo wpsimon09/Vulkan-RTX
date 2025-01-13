@@ -36,11 +36,16 @@ const size_t ApplicationCore::Mesh::GetMeshIndexArraySize() const {
 }
 
 const uint32_t ApplicationCore::Mesh::GetMeshIndexCount() const {
-    return static_cast<uint32_t>(m_vertexArray->GetIndices().size());
+    return static_cast<uint32_t>(m_vertexArray->GetMeshData()->indexData.size / sizeof(uint32_t));
 }
 
 const uint32_t ApplicationCore::Mesh::GetMeshVertexCount() const {
     return static_cast<uint32_t>(m_vertexArray->GetVertices().size());
+}
+
+VulkanStructs::MeshData* ApplicationCore::Mesh::GetMeshData()
+{
+    return m_vertexArray->GetMeshData();
 }
 
 

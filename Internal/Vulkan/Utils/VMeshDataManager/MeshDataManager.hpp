@@ -52,21 +52,21 @@ namespace VulkanCore
         //==================================
         VulkanStructs::BufferAllocationInfo* m_currentVertexBuffer;
         std::vector<VulkanStructs::BufferAllocationInfo> m_vertexBuffers;
-        std::vector<VulkanStructs::StagingBufferAllocationInfo> m_stagingVertexBuffers;
+        std::vector<VulkanStructs::StagingBufferInfo> m_stagingVertexBuffers;
 
         //==================================
         // INDEX BUFFER
         //==================================
         VulkanStructs::BufferAllocationInfo* m_currentIndexBuffer;
         std::vector<VulkanStructs::BufferAllocationInfo> m_indexBuffers;
-        std::vector<VulkanStructs::StagingBufferAllocationInfo> m_stagingIndexBuffers;
+        std::vector<VulkanStructs::StagingBufferInfo> m_stagingIndexBuffers;
 
         //==================================
         // BOUNDING BOX VERTEX BUFFER
         //==================================
         VulkanStructs::BufferAllocationInfo* m_currentVertexBuffer_BB;
         std::vector<VulkanStructs::BufferAllocationInfo> m_vertexBuffers_BB; // to visualize bounding box
-        std::vector<VulkanStructs::StagingBufferAllocationInfo> m_stagingVertexBuffers_BB;
+        std::vector<VulkanStructs::StagingBufferInfo> m_stagingVertexBuffers_BB;
 
         //=========================================
         // BOUNDING BOX INDEX - is allways the same
@@ -79,18 +79,29 @@ namespace VulkanCore
         const VulkanCore::VDevice& m_device;
 
     private:
+
+        //=========================================================================================
+        // FUNCTIONS THAT GENERATES STRUCTS THAT DEFINE OFFSET AND SIZE OF THE VERTEX SUB - BUFFER
+        //=========================================================================================
         VulkanStructs::BufferInfo GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices);
         VulkanStructs::BufferInfo GenerateVertexBuffer_BB(VulkanStructs::Bounds& bounds);
         VulkanStructs::BufferInfo GenerateIndexBuffer(const std::vector<uint32_t>& indices);
 
+        //==============================================
+        // FUNCTIONS THAT WILL ALLOCATE 16mb BIG BUFFER
+        //==============================================
         void CreateNewVertexBuffers();
         void CreateNewIndexBuffers();
+        // this is special case of the functions below that just specify how to allocated staging buffer
+        VulkanStructs::StagingBufferInfo CreateStagingBuffer(VkDeviceSize size);
 
+        // HELPER FUNCTION THAT IS CALLED FROM CreateNewIndexBuffer
         void CreateBuffer(VulkanStructs::BufferAllocationInfo& allocationInfo);
-        void ClearVertexStagingBuffers();
+
+        // HELPER FUNCTION THAT DELETES STAGING BUFFER
+        void DeleteAllStagingBuffers();
 
         VulkanStructs::Bounds CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices);
-        VulkanStructs::StagingBufferAllocationInfo CreateStagingBuffer(VkDeviceSize size);
     };
 
 } // VulkanCore

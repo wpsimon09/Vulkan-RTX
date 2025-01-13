@@ -74,9 +74,5 @@ ApplicationCore::VertexArray::VertexArray(VulkanStructs::MeshData& meshData): m_
 
 
 void ApplicationCore::VertexArray::Destroy() const {
-    m_vertexBuffer->Destroy();
-    m_indexBuffer->Destroy();
 
-    m_AABBVertexBuffer->Destroy();
-    m_AABBIndexBuffer->Destroy();
 }

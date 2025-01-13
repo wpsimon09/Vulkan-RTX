@@ -51,6 +51,7 @@ namespace ApplicationCore
         const size_t GetMeshIndexArraySize() const;
         const uint32_t GetMeshIndexCount() const;
         const uint32_t GetMeshVertexCount() const;
+        VulkanStructs::MeshData* GetMeshData();
 
         std::string_view GetName(){return m_name;} const
         void SetName(std::string &newName){m_name = newName;}
