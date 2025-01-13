@@ -127,8 +127,8 @@ set(SOURCES
         External/ImGuiFileDialog/ImGuiFileDialog.cpp
         Internal/Editor/Views/MenuBar.cpp
         Internal/Editor/Views/MenuBar.hpp
-        Internal/Vulkan/VulkanCore/Buffer/VBufferAllocator.cpp
-        Internal/Vulkan/VulkanCore/Buffer/VBufferAllocator.hpp
+        Internal/Vulkan/Utils/VMeshDataManager/MeshDataManager.cpp
+        Internal/Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp
         Internal/Vulkan/Utils/VFactories.hpp
         Internal/Vulkan/Utils/VFactories.cpp
 )

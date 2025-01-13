@@ -13,15 +13,13 @@ namespace ApplicationCore
 
 namespace VulkanCore
 {
-    class VBufferAllocator;
+    class MeshDatatManager;
 }
 namespace VulkanUtils
 {
-    VulkanStructs::BufferInfo CreateVertexBuffer(VulkanCore::VBufferAllocator& bufferAllocator,
-                                                 const std::vector<ApplicationCore::Vertex>& vertices);
+    VulkanStructs::MeshData AddNewMeshData(VulkanCore::MeshDatatManager& meshDataManager,
+                                                 const std::vector<ApplicationCore::Vertex>& vertices, const std::vector<uint32_t>& indices);
 
-    VulkanStructs::BufferInfo CreateIndexBuffer(VulkanCore::VBufferAllocator& bufferAllocator,
-                                                std::vector<uint32_t>& indices);
 }
 
 

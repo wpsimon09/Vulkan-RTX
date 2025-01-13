@@ -38,12 +38,6 @@ namespace VulkanStructs
         glm::vec3 origin;
         glm::vec3 extents;
         float radius;
-
-        vk::DeviceSize BB_BufferSize;
-        vk::DeviceSize BB_Offset;
-
-        vk::Buffer BB_BufferVertex;
-        vk::Buffer BB_BufferIndex;
     };
 
     struct RenderingMetaData
@@ -68,7 +62,14 @@ namespace VulkanStructs
         vk::DeviceSize offset;
 
         vk::Buffer buffer;
+    };
 
+    struct MeshData
+    {
+        BufferInfo vertexData;
+        BufferInfo indexData;
+        BufferInfo vertexData_BB;
+        BufferInfo indexData_BB;
         Bounds bounds;
     };
 
@@ -116,9 +117,6 @@ namespace VulkanStructs
         bool renderOutline = false;
         // material descriptor
         std::shared_ptr<ApplicationCore::Material> material;
-
-        BufferInfo* vertexBuffer2;
-        BufferInfo* indexBuffer2;
 
     };
 

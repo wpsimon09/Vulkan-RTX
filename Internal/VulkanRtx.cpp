@@ -48,7 +48,7 @@
 #include "Editor/Editor.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
-#include "Vulkan/VulkanCore/Buffer/VBufferAllocator.hpp"
+#include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
 Application::Application()
 {
@@ -66,7 +66,7 @@ void Application::Init()
 
     VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
 
-    m_bufferAllocator = std::make_unique<VulkanCore::VBufferAllocator>(*m_vulkanDevice);
+    m_bufferAllocator = std::make_unique<VulkanCore::MeshDatatManager>(*m_vulkanDevice);
 
     auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_bufferAllocator);
     m_client->MountAssetsManger(std::move(assetManger));

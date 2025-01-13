@@ -2,7 +2,7 @@
 // Created by wpsimon09 on 07/01/25.
 //
 
-#include "VBufferAllocator.hpp"
+#include "MeshDataManager.hpp"
 
 #include "Application/Logger/Logger.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
@@ -12,16 +12,60 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
 namespace VulkanCore {
-    VBufferAllocator::VBufferAllocator(const VulkanCore::VDevice& device):m_device(device)
+    MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device):m_device(device)
     {
         m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Transfer);
         m_transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_transferCommandPool);
 
+
         CreateNewVertexBuffers();
         CreateNewIndexBuffers();
+
+        // used for topology line
+        std::vector<uint32_t> Indices_BB = {
+            // Bottom face
+            0, 1, 2, 0, 2, 3,
+            // Top face
+            4, 5, 6, 4, 6, 7,
+            // Front face
+            0, 1, 5, 0, 5, 4,
+            // Back face
+            3, 2, 6, 3, 6, 7,
+            // Left face
+            0, 4, 7, 0, 7, 3,
+            // Right face
+            1, 5, 6, 1, 6, 2
+        };
+
+        Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
+
+        m_indexBuffer_BB.ID = 0;
+        m_indexBuffer_BB.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+        m_indexBuffer_BB.size = sizeof(uint32_t) * Indices_BB.size();
+        CreateBuffer(m_indexBuffer_BB);
+
+        auto stagingBuffer = CreateStagingBuffer(Indices_BB.size() *sizeof(uint32_t));
+
+        memcpy(stagingBuffer.mappedPointer, Indices_BB.data(), Indices_BB.size() * sizeof(uint32_t));
+        vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
+        VulkanUtils::CopyBuffers(m_device, stagingBuffer.m_stagingBufferVK, m_indexBuffer_BB.bufferVK, Indices_BB.size() * sizeof(uint32_t));
+        vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
+
     }
 
-    VulkanStructs::BufferInfo VBufferAllocator::AddVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices)
+    VulkanStructs::MeshData MeshDatatManager::AddMeshData(const std::vector<ApplicationCore::Vertex>& vertices,
+        const std::vector<uint32_t>& indices)
+    {
+        VulkanStructs::MeshData meshData ={
+            .vertexData = GenerateVertexBuffer(vertices),
+            .indexData = GenerateIndexBuffer(indices),
+            .bounds = CalculateBounds(vertices),
+        };
+
+        return meshData;
+    }
+
+    VulkanStructs::BufferInfo MeshDatatManager::GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices)
     {
         //create new staging buffer
         m_stagingVertexBuffers.emplace_back(CreateStagingBuffer(vertices.size() * sizeof(ApplicationCore::Vertex)));
@@ -39,14 +83,18 @@ namespace VulkanCore {
             .size = vertices.size() * sizeof(ApplicationCore::Vertex),
             .offset = m_currentVertexBuffer->currentOffset,
             .buffer = m_currentVertexBuffer->bufferVK,
-            .bounds = CalculateBounds(vertices),
         };
         m_currentVertexBuffer->currentOffset += vertices.size() * sizeof(ApplicationCore::Vertex);
 
         return bufferInfo;
     }
 
-    VulkanStructs::BufferInfo VBufferAllocator::AddIndexBuffer(const std::vector<uint32_t>& indices)
+    VulkanStructs::BufferInfo MeshDatatManager::GenerateVertexBuffer_BB(
+        const std::vector<ApplicationCore::Vertex>& vertices)
+    {
+    }
+
+    VulkanStructs::BufferInfo MeshDatatManager::GenerateIndexBuffer(const std::vector<uint32_t>& indices)
     {
         m_stagingIndexBuffers.emplace_back(CreateStagingBuffer(indices.size() * sizeof(uint32_t)));
         auto& stagingBuffer = m_stagingIndexBuffers.back();
@@ -60,14 +108,13 @@ namespace VulkanCore {
             .size = indices.size() * sizeof(uint32_t),
             .offset = m_currentIndexBuffer->currentOffset,
             .buffer = m_currentIndexBuffer->bufferVK,
-            .bounds = {}
         };
 
         m_currentIndexBuffer->currentOffset += indices.size() * sizeof(uint32_t);
         return bufferInfo;
     }
 
-    void VBufferAllocator::UpdateGPU(vk::Semaphore semaphore)
+    void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
     {
         Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
         m_device.GetDevice().waitIdle();
@@ -89,7 +136,7 @@ namespace VulkanCore {
     }
 
 
-    void VBufferAllocator::Destroy()
+    void MeshDatatManager::Destroy()
     {
         for (int i = 0; i<m_vertexBuffers.size(); i++)
         {
@@ -97,17 +144,18 @@ namespace VulkanCore {
         }for (int i = 0; i<m_indexBuffers.size(); i++)
         {
             vmaDestroyBuffer(m_device.GetAllocator(), m_indexBuffers[i].bufferVMA, m_indexBuffers[i].allocationVMA);
-        }for (int i = 0; i<m_BBvertexBuffers.size(); i++)
+        }for (int i = 0; i<m_vertexBuffers_BB.size(); i++)
         {
-            vmaDestroyBuffer(m_device.GetAllocator(), m_BBvertexBuffers[i].bufferVMA, m_BBvertexBuffers[i].allocationVMA);
-        }for (int i = 0; i<m_BBindexBuffers.size(); i++){
-            vmaDestroyBuffer(m_device.GetAllocator(), m_BBindexBuffers[i].bufferVMA, m_BBindexBuffers[i].allocationVMA);
+            vmaDestroyBuffer(m_device.GetAllocator(), m_vertexBuffers_BB[i].bufferVMA, m_vertexBuffers_BB[i].allocationVMA);
         }
+
+        vmaDestroyBuffer(m_device.GetAllocator(), m_indexBuffer_BB.bufferVMA, m_indexBuffer_BB.allocationVMA);
+
 
         m_transferCommandPool->Destroy();
     }
 
-    void VBufferAllocator::CreateBuffer(VulkanStructs::BufferAllocationInfo& allocationInfo)
+    void MeshDatatManager::CreateBuffer(VulkanStructs::BufferAllocationInfo& allocationInfo)
     {
         VkBufferCreateInfo bufferCreateInfo = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
         bufferCreateInfo.size = allocationInfo.size;
@@ -133,7 +181,7 @@ namespace VulkanCore {
         allocationInfo.bufferVK = allocationInfo.bufferVMA;
     }
 
-    VulkanStructs::StagingBufferAllocationInfo VBufferAllocator::CreateStagingBuffer(VkDeviceSize size) {
+    VulkanStructs::StagingBufferAllocationInfo MeshDatatManager::CreateStagingBuffer(VkDeviceSize size) {
 
         std::string allocationNme = "Allocation of staging buffer for vertex, index or image ";
 
@@ -173,7 +221,7 @@ namespace VulkanCore {
     }
 
 
-    void VBufferAllocator::CreateNewVertexBuffers()
+    void MeshDatatManager::CreateNewVertexBuffers()
     {
         //==============================
         // CREATE INITIAL VERTEX BUFFER
@@ -190,36 +238,27 @@ namespace VulkanCore {
         VulkanStructs::BufferAllocationInfo newBBVertexBuffer{};
         newBBVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
         CreateBuffer(newBBVertexBuffer);
-        m_BBvertexBuffers.emplace_back(newBBVertexBuffer);
-        m_currentBBvertexBuffer = &m_BBvertexBuffers.back();
-        m_currentBBvertexBuffer->ID = m_BBvertexBuffers.size();
+        m_vertexBuffers_BB.emplace_back(newBBVertexBuffer);
+        m_currentVertexBuffer_BB = &m_vertexBuffers_BB.back();
+        m_currentVertexBuffer_BB->ID = m_vertexBuffers_BB.size();
     }
 
-    void VBufferAllocator::CreateNewIndexBuffers()
+    void MeshDatatManager::CreateNewIndexBuffers()
     {
         //==============================
         // CREATE INITIAL INDEX BUFFER
         // BB index
         //==============================
-        Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
+        Utils::Logger::LogInfo("Allocating NEW 16MB IndexBuffer");
         VulkanStructs::BufferAllocationInfo newIndexBuffer{};
         newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
         CreateBuffer(newIndexBuffer);
         m_indexBuffers.emplace_back(newIndexBuffer);
         m_currentIndexBuffer = &m_indexBuffers.back();
         m_currentIndexBuffer->ID = m_indexBuffers.size();
-
-        Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
-        VulkanStructs::BufferAllocationInfo newBBIndexBuffer{};
-        newBBIndexBuffer.ID = 0;
-        newBBIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-        CreateBuffer(newBBIndexBuffer);
-        m_BBindexBuffers.emplace_back(newBBIndexBuffer);
-        m_currentBBindexBuffer = &m_BBindexBuffers.back();
-        m_currentBBindexBuffer->ID = m_BBindexBuffers.size();
     }
 
-    void VBufferAllocator::ClearVertexStagingBuffers()
+    void MeshDatatManager::ClearVertexStagingBuffers()
     {
         for (auto& stagingBuffer : m_stagingVertexBuffers)
         {
@@ -228,13 +267,13 @@ namespace VulkanCore {
         m_stagingVertexBuffers.clear();
     }
 
-    VulkanStructs::Bounds VBufferAllocator::CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices)
+    VulkanStructs::Bounds MeshDatatManager::CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices)
     {
         //========================
         // CALCULATE BOUNDING BOX
         //========================
         glm::vec3 maxPos = vertices[0].position;
-        glm::vec3 minPos = vertices[0].position;;
+        glm::vec3 minPos = vertices[0].position;
 
         for (const auto & i : vertices)
         {
@@ -257,22 +296,6 @@ namespace VulkanCore {
             {bounds.origin + glm::vec3(-bounds.extents.x, +bounds.extents.y, +bounds.extents.z), {0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // V7
         };
 
-        // used for topology line
-        std::vector<uint32_t> Indices_BB = {
-            // Bottom face
-            0, 1, 2, 0, 2, 3,
-            // Top face
-            4, 5, 6, 4, 6, 7,
-            // Front face
-            0, 1, 5, 0, 5, 4,
-            // Back face
-            3, 2, 6, 3, 6, 7,
-            // Left face
-            0, 4, 7, 0, 7, 3,
-            // Right face
-            1, 5, 6, 1, 6, 2
-        };
-
         //=======================================================
         // CREATE STAGING BUFFERS FOR BOUNDING BOX VISUALISATIONS
         //=======================================================
@@ -286,12 +309,12 @@ namespace VulkanCore {
 
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
 
-        stagingBuffer.copyDstBuffer = m_currentBBvertexBuffer->bufferVK;
-        stagingBuffer.dstOffset = m_currentBBvertexBuffer->currentOffset;
+        stagingBuffer.copyDstBuffer = m_currentVertexBuffer_BB->bufferVK;
+        stagingBuffer.dstOffset = m_currentVertexBuffer_BB->currentOffset;
 
-        m_currentBBvertexBuffer->currentOffset += sizeof(ApplicationCore::Vertex) * Vertices_BB.size();
+        m_currentVertexBuffer_BB->currentOffset += sizeof(ApplicationCore::Vertex) * Vertices_BB.size();
 
-        //BB-indices
+        /*//BB-indices
         m_stagingIndexBuffers.emplace_back(CreateStagingBuffer(Indices_BB.size() * sizeof(uint32_t)));
         stagingBuffer = m_stagingIndexBuffers.back();
 
@@ -300,13 +323,13 @@ namespace VulkanCore {
 
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
 
-        stagingBuffer.copyDstBuffer = m_currentBBindexBuffer->bufferVK;
-        stagingBuffer.dstOffset =  m_currentBBindexBuffer->currentOffset;
+        stagingBuffer.copyDstBuffer = m_currentIndexBuffer_BB->bufferVK;
+        stagingBuffer.dstOffset =  m_currentIndexBuffer_BB->currentOffset;
 
-        m_currentBBindexBuffer->currentOffset += sizeof(uint32_t) * Indices_BB.size();
+        bounds.BB_BufferVertex = m_currentVertexBuffer_BB->bufferVK;
+        bounds.BB_BufferIndex = m_currentIndexBuffer_BB->bufferVK;
 
-        bounds.BB_BufferVertex = m_currentBBvertexBuffer->bufferVK;
-        bounds.BB_BufferIndex = m_currentBBindexBuffer->bufferVK;
+        m_currentIndexBuffer_BB->currentOffset += sizeof(uint32_t) * Indices_BB.size();*/
 
         return bounds;
     }

@@ -42,7 +42,7 @@ namespace ApplicationCore
 
 namespace VulkanCore
 {
-    class VBufferAllocator;
+    class MeshDatatManager;
     class VBuffer;
     class VDevice;
 }
@@ -67,7 +67,7 @@ namespace ApplicationCore {
 
 class AssetsManager {
 public:
-    explicit AssetsManager(const VulkanCore::VDevice& device, VulkanCore::VBufferAllocator& bufferAllocator);
+    explicit AssetsManager(const VulkanCore::VDevice& device, VulkanCore::MeshDatatManager& meshDataManager);
     void DeleteAll();
     std::shared_ptr<VertexArray> GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType);
 
@@ -81,7 +81,7 @@ public:
     std::shared_ptr<ApplicationCore::Material> GetMaterial(MaterialPaths& path);
     std::vector<std::shared_ptr<VertexArray>>& GetVertexData()  {return m_vertexArrays;};
 
-    VulkanCore::VBufferAllocator& GetBufferAllocator() {return m_bufferAllocator;}
+    VulkanCore::MeshDatatManager& GetBufferAllocator() {return m_meshDataManager;}
 
     bool Sync();
 
@@ -92,7 +92,7 @@ private:
     void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texture,  const std::string& textureID, TextureBufferInfo& data);
 
     const VulkanCore::VDevice& m_device;
-    VulkanCore::VBufferAllocator& m_bufferAllocator;
+    VulkanCore::MeshDatatManager& m_meshDataManager;
 
     std::vector<std::shared_ptr<VertexArray>> m_vertexArrays;
 

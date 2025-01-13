@@ -22,7 +22,7 @@ namespace ApplicationCore
 
 namespace VulkanCore
 {
-    class VBufferAllocator;
+    class MeshDatatManager;
 }
 
 struct TextureBufferInfo;

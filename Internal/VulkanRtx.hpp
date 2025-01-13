@@ -37,7 +37,7 @@ class Client;
 
 namespace VulkanCore
 {
-    class VBufferAllocator;
+    class MeshDatatManager;
     class VCommandPool;
     class VFrameBuffer;
     class VRenderPass;
@@ -73,7 +73,7 @@ private:
     std::unique_ptr<class VulkanUtils::VUniformBufferManager> m_uniformBufferManager;
     std::unique_ptr<class VulkanCore::VulkanInstance> m_vulkanInstance;
     std::unique_ptr<class VulkanCore::VDevice> m_vulkanDevice;
-    std::unique_ptr<VulkanCore::VBufferAllocator> m_bufferAllocator;
+    std::unique_ptr<VulkanCore::MeshDatatManager> m_bufferAllocator;
     std::unique_ptr<class VEditor::UIContext> m_uiContext;
     std::unique_ptr<class VEditor::Editor> m_editor;
     std::unique_ptr<class Renderer::RenderingSystem> m_renderingSystem;

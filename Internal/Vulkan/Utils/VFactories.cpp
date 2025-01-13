@@ -3,19 +3,13 @@
 //
 #include "VFactories.hpp"
 
-#include "Vulkan/VulkanCore/Buffer/VBufferAllocator.hpp"
+#include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
 namespace VulkanUtils
 {
-    VulkanStructs::BufferInfo CreateVertexBuffer(VulkanCore::VBufferAllocator& bufferAllocator,
-        const std::vector<ApplicationCore::Vertex>& vertices)
+    VulkanStructs::MeshData AddNewMeshData(VulkanCore::MeshDatatManager& meshDataManager,
+        const std::vector<ApplicationCore::Vertex>& vertices, const std::vector<uint32_t>& indices)
     {
-        return bufferAllocator.AddVertexBuffer(vertices);
-    }
-
-    VulkanStructs::BufferInfo CreateIndexBuffer(VulkanCore::VBufferAllocator& bufferAllocator,
-        std::vector<uint32_t>& indices)
-    {
-        return bufferAllocator.AddIndexBuffer(indices);
+        return meshDataManager.AddMeshData(vertices, indices);
     }
 }

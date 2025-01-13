@@ -19,13 +19,13 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
-#include "Vulkan/VulkanCore/Buffer/VBufferAllocator.hpp"
+#include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
 
 namespace ApplicationCore
 {
-    AssetsManager::AssetsManager(const VulkanCore::VDevice &device, VulkanCore::VBufferAllocator& bufferAllocator):
-        m_device(device),m_bufferAllocator(bufferAllocator), m_materials()
+    AssetsManager::AssetsManager(const VulkanCore::VDevice &device, VulkanCore::MeshDatatManager& meshDataManager):
+        m_device(device),m_meshDataManager(meshDataManager), m_materials()
     {
         m_dummyTexture = std::make_shared<VulkanCore::VImage>(device);
 
@@ -69,39 +69,39 @@ namespace ApplicationCore
             MeshData::GenerateSphere(vertices, indices);
             m_preloadedMeshData[geometryType] =  std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_STRIP, vertices,
                                                 indices);
-            m_bufferAllocator.AddVertexBuffer(vertices);
+            m_meshDataManager.AddMeshData(vertices, indices);
 
             break;
         }
         case MESH_GEOMETRY_CUBE:
             m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::cubeVertices,
                                                    MeshData::cubeIndices);
-            m_bufferAllocator.AddVertexBuffer(MeshData::cubeVertices);
 
+            m_meshDataManager.AddMeshData(MeshData::cubeVertices,MeshData::cubeIndices);
             break;
         case MESH_GEOMETRY_TRIANGLE: {
             m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::triangleVertices,
                                                 MeshData::triangleIndices);
-            m_bufferAllocator.AddVertexBuffer(MeshData::cubeVertices);
+            m_meshDataManager.AddMeshData(MeshData::triangleVertices, MeshData::triangleIndices);
             break;
         }
         case MESH_GEOMETRY_CROSS: {
             m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::crossVertices,
                                                 MeshData::crossIndices);
 
-            m_bufferAllocator.AddVertexBuffer(MeshData::crossVertices);
+            m_meshDataManager.AddMeshData(MeshData::crossVertices, MeshData::crossIndices);
             break;
         }
         case MESH_GEOMETRY_POST_PROCESS: {
             m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(m_device, TOPOLOGY_TRIANGLE_LIST, MeshData::fullscreenQuadVertices,
                                                 MeshData::fullscreenQuadIndices);
-            m_bufferAllocator.AddVertexBuffer(MeshData::fullscreenQuadVertices);
+            m_meshDataManager.AddMeshData(MeshData::fullscreenQuadVertices, MeshData::fullscreenQuadIndices);
             break;
         }
         default: ;
             throw std::runtime_error("This geometry type is not supported !");
         }
-        m_bufferAllocator.UpdateGPU(nullptr);
+        m_meshDataManager.UpdateGPU(nullptr);
 
         return m_preloadedMeshData[geometryType];
     }
