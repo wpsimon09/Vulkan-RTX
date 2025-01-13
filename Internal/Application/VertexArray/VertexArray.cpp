@@ -66,6 +66,12 @@ ApplicationCore::VertexArray::VertexArray(const VulkanCore::VDevice &device, PRI
     m_AABBIndexBuffer->MakeIndexBuffer(m_AABBIndices);
 }
 
+ApplicationCore::VertexArray::VertexArray(const VulkanCore::VDevice& device, VulkanStructs::BufferInfo& vertexBuffer,
+    VulkanStructs::BufferInfo& indexBuffer, VulkanStructs::BufferInfo& vertexBufferBB,
+    VulkanStructs::BufferInfo& indexBufferBB)
+{
+}
+
 void ApplicationCore::VertexArray::Destroy() const {
     m_vertexBuffer->Destroy();
     m_indexBuffer->Destroy();

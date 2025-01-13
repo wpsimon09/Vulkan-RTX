@@ -15,6 +15,7 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBufferAllocator.hpp"
 
 uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyProperties> &queueFamilyProperties,
                                       vk::QueueFlagBits queueType) {

@@ -15,6 +15,16 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
+namespace ApplicationCore
+{
+    struct Vertex;
+}
+
+namespace VulkanCore
+{
+    class VBufferAllocator;
+}
+
 struct TextureBufferInfo;
 
 namespace VulkanCore

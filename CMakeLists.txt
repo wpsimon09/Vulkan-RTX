@@ -129,6 +129,8 @@ set(SOURCES
         Internal/Editor/Views/MenuBar.hpp
         Internal/Vulkan/VulkanCore/Buffer/VBufferAllocator.cpp
         Internal/Vulkan/VulkanCore/Buffer/VBufferAllocator.hpp
+        Internal/Vulkan/Utils/VFactories.hpp
+        Internal/Vulkan/Utils/VFactories.cpp
 )
 
 
