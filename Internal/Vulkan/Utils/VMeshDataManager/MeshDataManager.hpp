@@ -72,7 +72,6 @@ namespace VulkanCore
         // BOUNDING BOX INDEX - is allways the same
         //========================================
         VulkanStructs::BufferAllocationInfo m_indexBuffer_BB;  // to visualize bounding box
-        VulkanStructs::StagingBufferAllocationInfo m_stagingIndexBuffer_BB;
 
         std::unique_ptr<VulkanCore::VCommandPool> m_transferCommandPool;
         std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCommandBuffer;
@@ -81,17 +80,19 @@ namespace VulkanCore
 
     private:
         VulkanStructs::BufferInfo GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices);
-        VulkanStructs::BufferInfo GenerateVertexBuffer_BB(const std::vector<ApplicationCore::Vertex>& vertices);
+        VulkanStructs::BufferInfo GenerateVertexBuffer_BB(VulkanStructs::Bounds& bounds);
         VulkanStructs::BufferInfo GenerateIndexBuffer(const std::vector<uint32_t>& indices);
 
         void CreateNewVertexBuffers();
         void CreateNewIndexBuffers();
+
         void CreateBuffer(VulkanStructs::BufferAllocationInfo& allocationInfo);
         void ClearVertexStagingBuffers();
 
         VulkanStructs::Bounds CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices);
         VulkanStructs::StagingBufferAllocationInfo CreateStagingBuffer(VkDeviceSize size);
     };
+
 } // VulkanCore
 
 #endif //VBUFFERALLOCATOR_HPP

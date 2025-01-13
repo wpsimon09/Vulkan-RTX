@@ -18,11 +18,13 @@ ApplicationCore::Mesh::Mesh(std::shared_ptr<VertexArray> geometryData,std::share
     m_transformations = std::make_unique<Transformations>();
 
     m_material = material;
-
+/**
     m_meshInfo.vertexCount = m_vertexArray->GetVertices().size();
     m_meshInfo.vertexSize = m_vertexArray->GetVertexBuffer().GetBuffeSizeInBytes();
     m_meshInfo.indexCount = m_vertexArray->GetIndices().size();
     m_meshInfo.indexSize = m_vertexArray->GetIndexBuffer().GetBuffeSizeInBytes();
+**/
+
 }
 
 const size_t ApplicationCore::Mesh::GetMeshVertexArraySize() const {

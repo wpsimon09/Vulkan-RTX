@@ -12,7 +12,7 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
 namespace VulkanCore {
-    MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device):m_device(device)
+    MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device):m_device(device), m_indexBuffer_BB{}
     {
         m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Transfer);
         m_transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_transferCommandPool);
@@ -50,17 +50,21 @@ namespace VulkanCore {
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
         VulkanUtils::CopyBuffers(m_device, stagingBuffer.m_stagingBufferVK, m_indexBuffer_BB.bufferVK, Indices_BB.size() * sizeof(uint32_t));
         vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
-
     }
 
     VulkanStructs::MeshData MeshDatatManager::AddMeshData(const std::vector<ApplicationCore::Vertex>& vertices,
         const std::vector<uint32_t>& indices)
     {
-        VulkanStructs::MeshData meshData ={
-            .vertexData = GenerateVertexBuffer(vertices),
-            .indexData = GenerateIndexBuffer(indices),
-            .bounds = CalculateBounds(vertices),
-        };
+
+        auto bounds = CalculateBounds(vertices);
+        VulkanStructs::MeshData meshData ={};
+        meshData.vertexData = GenerateVertexBuffer(vertices);
+        meshData.indexData = GenerateIndexBuffer(indices);
+        meshData.vertexData_BB = GenerateVertexBuffer_BB(bounds);
+        meshData.indexData_BB.buffer = m_indexBuffer_BB.bufferVK;
+        meshData.indexData_BB.size = m_indexBuffer_BB.size;
+        meshData.indexData_BB.offset = 0;
+        meshData.bounds = bounds;
 
         return meshData;
     }
@@ -73,7 +77,6 @@ namespace VulkanCore {
 
         //copy data to staging buffer and add it to the array
         memcpy(stagingBuffer.mappedPointer, vertices.data(), vertices.size() * sizeof(ApplicationCore::Vertex));
-
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
 
         stagingBuffer.copyDstBuffer = m_currentVertexBuffer->bufferVK;
@@ -90,8 +93,37 @@ namespace VulkanCore {
     }
 
     VulkanStructs::BufferInfo MeshDatatManager::GenerateVertexBuffer_BB(
-        const std::vector<ApplicationCore::Vertex>& vertices)
+        VulkanStructs::Bounds& bounds)
     {
+        std::vector<ApplicationCore::Vertex> Vertices_BB = {
+            {bounds.origin + glm::vec3(-bounds.extents.x, -bounds.extents.y, -bounds.extents.z), {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // V0
+            {bounds.origin + glm::vec3(+bounds.extents.x, -bounds.extents.y, -bounds.extents.z), {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}, // V1
+            {bounds.origin + glm::vec3(+bounds.extents.x, +bounds.extents.y, -bounds.extents.z), {1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}}, // V2
+            {bounds.origin + glm::vec3(-bounds.extents.x, +bounds.extents.y, -bounds.extents.z), {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}, // V3
+            {bounds.origin + glm::vec3(-bounds.extents.x, -bounds.extents.y, +bounds.extents.z), {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // V4
+            {bounds.origin + glm::vec3(+bounds.extents.x, -bounds.extents.y, +bounds.extents.z), {1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}}, // V5
+            {bounds.origin + glm::vec3(+bounds.extents.x, +bounds.extents.y, +bounds.extents.z), {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // V6
+            {bounds.origin + glm::vec3(-bounds.extents.x, +bounds.extents.y, +bounds.extents.z), {0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // V7
+        };
+
+        m_stagingVertexBuffers.emplace_back(CreateStagingBuffer(Vertices_BB.size() * sizeof(ApplicationCore::Vertex)));
+        auto& stagingBuffer = m_stagingVertexBuffers.back();
+
+        //copy data to staging buffer and add it to the array
+        memcpy(stagingBuffer.mappedPointer, Vertices_BB.data(), Vertices_BB.size() * sizeof(ApplicationCore::Vertex));
+        vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
+
+        stagingBuffer.copyDstBuffer = m_currentVertexBuffer_BB->bufferVK;
+        stagingBuffer.dstOffset = m_currentVertexBuffer_BB->currentOffset;
+
+        VulkanStructs::BufferInfo bufferInfo = {
+            .size = Vertices_BB.size() * sizeof(ApplicationCore::Vertex),
+            .offset = m_currentVertexBuffer_BB->currentOffset,
+            .buffer = m_currentVertexBuffer_BB->bufferVK,
+        };
+        m_currentVertexBuffer_BB->currentOffset += Vertices_BB.size() * sizeof(ApplicationCore::Vertex);
+
+        return bufferInfo;
     }
 
     VulkanStructs::BufferInfo MeshDatatManager::GenerateIndexBuffer(const std::vector<uint32_t>& indices)
@@ -284,52 +316,6 @@ namespace VulkanCore {
         bounds.origin = (maxPos + minPos) /2.f;
         bounds.extents = (maxPos - minPos) /2.f;
         bounds.radius = glm::length(bounds.extents);
-
-        std::vector<ApplicationCore::Vertex> Vertices_BB = {
-            {bounds.origin + glm::vec3(-bounds.extents.x, -bounds.extents.y, -bounds.extents.z), {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // V0
-            {bounds.origin + glm::vec3(+bounds.extents.x, -bounds.extents.y, -bounds.extents.z), {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}, // V1
-            {bounds.origin + glm::vec3(+bounds.extents.x, +bounds.extents.y, -bounds.extents.z), {1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}}, // V2
-            {bounds.origin + glm::vec3(-bounds.extents.x, +bounds.extents.y, -bounds.extents.z), {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}, // V3
-            {bounds.origin + glm::vec3(-bounds.extents.x, -bounds.extents.y, +bounds.extents.z), {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // V4
-            {bounds.origin + glm::vec3(+bounds.extents.x, -bounds.extents.y, +bounds.extents.z), {1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}}, // V5
-            {bounds.origin + glm::vec3(+bounds.extents.x, +bounds.extents.y, +bounds.extents.z), {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // V6
-            {bounds.origin + glm::vec3(-bounds.extents.x, +bounds.extents.y, +bounds.extents.z), {0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // V7
-        };
-
-        //=======================================================
-        // CREATE STAGING BUFFERS FOR BOUNDING BOX VISUALISATIONS
-        //=======================================================
-
-        //BB-Vertices
-        m_stagingVertexBuffers.emplace_back(CreateStagingBuffer(Vertices_BB.size() * sizeof(ApplicationCore::Vertex)));
-        auto& stagingBuffer = m_stagingVertexBuffers.back();
-
-        //copy data to staging buffer and add it to the array
-        memcpy(stagingBuffer.mappedPointer, Vertices_BB.data(), Vertices_BB.size() * sizeof(ApplicationCore::Vertex));
-
-        vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
-
-        stagingBuffer.copyDstBuffer = m_currentVertexBuffer_BB->bufferVK;
-        stagingBuffer.dstOffset = m_currentVertexBuffer_BB->currentOffset;
-
-        m_currentVertexBuffer_BB->currentOffset += sizeof(ApplicationCore::Vertex) * Vertices_BB.size();
-
-        /*//BB-indices
-        m_stagingIndexBuffers.emplace_back(CreateStagingBuffer(Indices_BB.size() * sizeof(uint32_t)));
-        stagingBuffer = m_stagingIndexBuffers.back();
-
-        //copy data to staging buffer and add it to the array
-        memcpy(stagingBuffer.mappedPointer, Indices_BB.data(), Indices_BB.size() * sizeof(uint32_t));
-
-        vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
-
-        stagingBuffer.copyDstBuffer = m_currentIndexBuffer_BB->bufferVK;
-        stagingBuffer.dstOffset =  m_currentIndexBuffer_BB->currentOffset;
-
-        bounds.BB_BufferVertex = m_currentVertexBuffer_BB->bufferVK;
-        bounds.BB_BufferIndex = m_currentIndexBuffer_BB->bufferVK;
-
-        m_currentIndexBuffer_BB->currentOffset += sizeof(uint32_t) * Indices_BB.size();*/
 
         return bounds;
     }

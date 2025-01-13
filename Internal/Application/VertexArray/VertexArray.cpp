@@ -66,12 +66,11 @@ ApplicationCore::VertexArray::VertexArray(const VulkanCore::VDevice &device, PRI
     m_AABBIndexBuffer->MakeIndexBuffer(m_AABBIndices);
 }
 
-ApplicationCore::VertexArray::VertexArray(VulkanStructs::Bounds &bounds, VulkanStructs::BufferInfo& vertexBuffer,
-    VulkanStructs::BufferInfo& indexBuffer, VulkanStructs::BufferInfo& vertexBufferBB,
-    VulkanStructs::BufferInfo& indexBufferBB):m_bounds(bounds), m_vertexBuffer2(vertexBuffer), m_indexBuffer2(indexBuffer), m_vertexBufferBB(vertexBufferBB), m_indexBufferBB(indexBufferBB)
+ApplicationCore::VertexArray::VertexArray(VulkanStructs::MeshData& meshData): m_meshData(meshData)
 {
 
 }
+
 
 
 void ApplicationCore::VertexArray::Destroy() const {

@@ -253,7 +253,7 @@ namespace ApplicationCore
 
                 auto meshData = m_assetsManager.GetBufferAllocator().AddMeshData(vertices, indices);
 
-                auto vao = std::make_shared<VertexArray>(m_assetsManager.m_device, TOPOLOGY_TRIANGLE_LIST, vertices, indices);
+                auto vao = std::make_shared<VertexArray>(meshData);
 
                 // create shared ptr to mesh
                 auto createdMehs = std::make_shared<Mesh>(vao, mat);
@@ -269,6 +269,8 @@ namespace ApplicationCore
 
                 //m_rootNode->AddChild(createdMehs);
             }
+
+            m_assetsManager.GetBufferAllocator().UpdateGPU(VK_NULL_HANDLE);
 
             //=====================================
             // LOAD NODES
