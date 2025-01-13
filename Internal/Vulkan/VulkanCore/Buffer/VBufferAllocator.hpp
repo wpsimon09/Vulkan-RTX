@@ -85,6 +85,7 @@ namespace VulkanCore
         void CreateNewIndexBuffers();
         void CreateBuffer(VulkanStructs::BufferAllocationInfo& allocationInfo);
         void ClearVertexStagingBuffers();
+        VulkanStructs::Bounds CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices);
         VulkanStructs::StagingBufferAllocationInfo CreateStagingBuffer(VkDeviceSize size);
     };
 } // VulkanCore

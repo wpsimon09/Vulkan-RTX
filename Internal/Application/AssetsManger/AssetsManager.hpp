@@ -81,6 +81,8 @@ public:
     std::shared_ptr<ApplicationCore::Material> GetMaterial(MaterialPaths& path);
     std::vector<std::shared_ptr<VertexArray>>& GetVertexData()  {return m_vertexArrays;};
 
+    VulkanCore::VBufferAllocator& GetBufferAllocator() {return m_bufferAllocator;}
+
     bool Sync();
 
     ~AssetsManager() = default;

@@ -23,7 +23,6 @@ namespace VulkanCore {
 
     VulkanStructs::BufferInfo VBufferAllocator::AddVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices)
     {
-
         //create new staging buffer
         m_stagingVertexBuffers.emplace_back(CreateStagingBuffer(vertices.size() * sizeof(ApplicationCore::Vertex)));
         auto& stagingBuffer = m_stagingVertexBuffers.back();
@@ -39,9 +38,9 @@ namespace VulkanCore {
         VulkanStructs::BufferInfo bufferInfo = {
             .size = vertices.size() * sizeof(ApplicationCore::Vertex),
             .offset = m_currentVertexBuffer->currentOffset,
-            .buffer = m_currentVertexBuffer->bufferVK
+            .buffer = m_currentVertexBuffer->bufferVK,
+            .bounds = CalculateBounds(vertices),
         };
-
         m_currentVertexBuffer->currentOffset += vertices.size() * sizeof(ApplicationCore::Vertex);
 
         return bufferInfo;
@@ -49,7 +48,23 @@ namespace VulkanCore {
 
     VulkanStructs::BufferInfo VBufferAllocator::AddIndexBuffer(const std::vector<uint32_t>& indices)
     {
+        m_stagingIndexBuffers.emplace_back(CreateStagingBuffer(indices.size() * sizeof(uint32_t)));
+        auto& stagingBuffer = m_stagingIndexBuffers.back();
+        memcpy(stagingBuffer.mappedPointer, indices.data(), indices.size() * sizeof(uint32_t));
+        vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
 
+        stagingBuffer.copyDstBuffer = m_currentIndexBuffer->bufferVK;
+        stagingBuffer.dstOffset = m_currentIndexBuffer->currentOffset;
+
+        VulkanStructs::BufferInfo bufferInfo = {
+            .size = indices.size() * sizeof(uint32_t),
+            .offset = m_currentIndexBuffer->currentOffset,
+            .buffer = m_currentIndexBuffer->bufferVK,
+            .bounds = {}
+        };
+
+        m_currentIndexBuffer->currentOffset += indices.size() * sizeof(uint32_t);
+        return bufferInfo;
     }
 
     void VBufferAllocator::UpdateGPU(vk::Semaphore semaphore)
@@ -106,7 +121,6 @@ namespace VulkanCore {
 
         bufferCreateInfo.queueFamilyIndexCount = sharedQueueFamilyIndices.size();
         bufferCreateInfo.pQueueFamilyIndices   = sharedQueueFamilyIndices.data();
-
 
         VmaAllocationCreateInfo allocationCreateInfo = {};
         allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
@@ -214,6 +228,86 @@ namespace VulkanCore {
         m_stagingVertexBuffers.clear();
     }
 
+    VulkanStructs::Bounds VBufferAllocator::CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices)
+    {
+        //========================
+        // CALCULATE BOUNDING BOX
+        //========================
+        glm::vec3 maxPos = vertices[0].position;
+        glm::vec3 minPos = vertices[0].position;;
 
+        for (const auto & i : vertices)
+        {
+            minPos = glm::min(minPos, i.position);
+            maxPos = glm::max(maxPos, i.position);
+        }
+        VulkanStructs::Bounds bounds = {};
+        bounds.origin = (maxPos + minPos) /2.f;
+        bounds.extents = (maxPos - minPos) /2.f;
+        bounds.radius = glm::length(bounds.extents);
 
+        std::vector<ApplicationCore::Vertex> Vertices_BB = {
+            {bounds.origin + glm::vec3(-bounds.extents.x, -bounds.extents.y, -bounds.extents.z), {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // V0
+            {bounds.origin + glm::vec3(+bounds.extents.x, -bounds.extents.y, -bounds.extents.z), {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}, // V1
+            {bounds.origin + glm::vec3(+bounds.extents.x, +bounds.extents.y, -bounds.extents.z), {1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}}, // V2
+            {bounds.origin + glm::vec3(-bounds.extents.x, +bounds.extents.y, -bounds.extents.z), {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}, // V3
+            {bounds.origin + glm::vec3(-bounds.extents.x, -bounds.extents.y, +bounds.extents.z), {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // V4
+            {bounds.origin + glm::vec3(+bounds.extents.x, -bounds.extents.y, +bounds.extents.z), {1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}}, // V5
+            {bounds.origin + glm::vec3(+bounds.extents.x, +bounds.extents.y, +bounds.extents.z), {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // V6
+            {bounds.origin + glm::vec3(-bounds.extents.x, +bounds.extents.y, +bounds.extents.z), {0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // V7
+        };
+
+        // used for topology line
+        std::vector<uint32_t> Indices_BB = {
+            // Bottom face
+            0, 1, 2, 0, 2, 3,
+            // Top face
+            4, 5, 6, 4, 6, 7,
+            // Front face
+            0, 1, 5, 0, 5, 4,
+            // Back face
+            3, 2, 6, 3, 6, 7,
+            // Left face
+            0, 4, 7, 0, 7, 3,
+            // Right face
+            1, 5, 6, 1, 6, 2
+        };
+
+        //=======================================================
+        // CREATE STAGING BUFFERS FOR BOUNDING BOX VISUALISATIONS
+        //=======================================================
+
+        //BB-Vertices
+        m_stagingVertexBuffers.emplace_back(CreateStagingBuffer(Vertices_BB.size() * sizeof(ApplicationCore::Vertex)));
+        auto& stagingBuffer = m_stagingVertexBuffers.back();
+
+        //copy data to staging buffer and add it to the array
+        memcpy(stagingBuffer.mappedPointer, Vertices_BB.data(), Vertices_BB.size() * sizeof(ApplicationCore::Vertex));
+
+        vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
+
+        stagingBuffer.copyDstBuffer = m_currentBBvertexBuffer->bufferVK;
+        stagingBuffer.dstOffset = m_currentBBvertexBuffer->currentOffset;
+
+        m_currentBBvertexBuffer->currentOffset += sizeof(ApplicationCore::Vertex) * Vertices_BB.size();
+
+        //BB-indices
+        m_stagingIndexBuffers.emplace_back(CreateStagingBuffer(Indices_BB.size() * sizeof(uint32_t)));
+        stagingBuffer = m_stagingIndexBuffers.back();
+
+        //copy data to staging buffer and add it to the array
+        memcpy(stagingBuffer.mappedPointer, Indices_BB.data(), Indices_BB.size() * sizeof(uint32_t));
+
+        vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
+
+        stagingBuffer.copyDstBuffer = m_currentBBindexBuffer->bufferVK;
+        stagingBuffer.dstOffset =  m_currentBBindexBuffer->currentOffset;
+
+        m_currentBBindexBuffer->currentOffset += sizeof(uint32_t) * Indices_BB.size();
+
+        bounds.BB_BufferVertex = m_currentBBvertexBuffer->bufferVK;
+        bounds.BB_BufferIndex = m_currentBBindexBuffer->bufferVK;
+
+        return bounds;
+    }
 } // VulkanCore

@@ -32,7 +32,7 @@ namespace ApplicationCore
     class VertexArray {
     public:
         VertexArray(const VulkanCore::VDevice& device,PRIMITIVE_TOPOLOGY topology,const std::vector<Vertex>& vertices,const std::vector<uint32_t>& indices);
-        VertexArray(const VulkanCore::VDevice& device,VulkanStructs::BufferInfo& vertexBuffer,VulkanStructs::BufferInfo& indexBuffer, VulkanStructs::BufferInfo& vertexBufferBB, VulkanStructs::BufferInfo& indexBufferBB);
+        VertexArray(VulkanStructs::Bounds &bounds, VulkanStructs::BufferInfo& vertexBuffer,VulkanStructs::BufferInfo& indexBuffer, VulkanStructs::BufferInfo& vertexBufferBB, VulkanStructs::BufferInfo& indexBufferBB);
 
         const std::vector<Vertex>& GetVertices() const { return m_vertices; }
         const std::vector<uint32_t>& GetIndices() const { return m_indices; }

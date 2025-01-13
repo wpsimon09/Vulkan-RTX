@@ -14,6 +14,7 @@
 #include "Application/VertexArray/VertexArray.hpp"
 #include "fastgltf/tools.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
+#include "Vulkan/Utils/VFactories.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
@@ -247,6 +248,10 @@ namespace ApplicationCore
                 }
 
                 // store vertex array to assets manager
+                auto vertexBuffer = VulkanUtils::CreateVertexBuffer(m_assetsManager.GetBufferAllocator(), vertices);
+                auto indexBuffer = VulkanUtils::CreateIndexBuffer(m_assetsManager.GetBufferAllocator(), indices);
+
+
                 auto vao = std::make_shared<VertexArray>(m_assetsManager.m_device, TOPOLOGY_TRIANGLE_LIST, vertices, indices);
 
                 // create shared ptr to mesh

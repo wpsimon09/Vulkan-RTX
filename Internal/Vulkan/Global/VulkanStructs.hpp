@@ -38,29 +38,12 @@ namespace VulkanStructs
         glm::vec3 origin;
         glm::vec3 extents;
         float radius;
-    };
 
-    struct DrawCallData
-    {
-        uint32_t indexCount = 0;
-        uint32_t firstIndex =0;
+        vk::DeviceSize BB_BufferSize;
+        vk::DeviceSize BB_Offset;
 
-        VkBuffer vertexBuffer;
-        VkBuffer indexBuffer;
-
-        VkBuffer AABBVertexBuffer;
-        VkBuffer AABBIndexBuffer;
-        uint32_t AABBIndexCount = 0;
-
-        glm::mat4& modelMatrix;
-        uint32_t instanceCount = 1;
-        Bounds *bounds;
-        bool renderOutline = false;
-        // material descriptor
-        std::shared_ptr<ApplicationCore::Material> material;
-
-
-
+        vk::Buffer BB_BufferVertex;
+        vk::Buffer BB_BufferIndex;
     };
 
     struct RenderingMetaData
@@ -74,13 +57,6 @@ namespace VulkanStructs
         }
     };
 
-    struct RenderContext
-    {
-        RenderingMetaData metaData;
-        // Pipeline
-        std::vector<DrawCallData> DrawCalls;
-    };
-
     struct RenderingStatistics
     {
         int DrawCallCunt = 0;
@@ -90,7 +66,10 @@ namespace VulkanStructs
     {
         vk::DeviceSize size;
         vk::DeviceSize offset;
+
         vk::Buffer buffer;
+
+        Bounds bounds;
     };
 
     struct BufferAllocationInfo
@@ -119,6 +98,36 @@ namespace VulkanStructs
         VkBuffer copyDstBuffer;
     };
 
+    struct DrawCallData
+    {
+        uint32_t indexCount = 0;
+        uint32_t firstIndex =0;
+
+        VkBuffer vertexBuffer;
+        VkBuffer indexBuffer;
+
+        VkBuffer AABBVertexBuffer;
+        VkBuffer AABBIndexBuffer;
+        uint32_t AABBIndexCount = 0;
+
+        glm::mat4& modelMatrix;
+        uint32_t instanceCount = 1;
+        Bounds *bounds;
+        bool renderOutline = false;
+        // material descriptor
+        std::shared_ptr<ApplicationCore::Material> material;
+
+        BufferInfo* vertexBuffer2;
+        BufferInfo* indexBuffer2;
+
+    };
+
+    struct RenderContext
+    {
+        RenderingMetaData metaData;
+        // Pipeline
+        std::vector<DrawCallData> DrawCalls;
+    };
 }
 
 #endif //VULKANSTRUCTS_HPP
