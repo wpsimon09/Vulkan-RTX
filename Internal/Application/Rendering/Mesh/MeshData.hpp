@@ -10,7 +10,7 @@
 
 namespace ApplicationCore::MeshData
 {
-    const std::vector<ApplicationCore::Vertex> planeVertices = {
+    inline std::vector<ApplicationCore::Vertex> planeVertices = {
         {{-0.5f, 0.0f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}}, // Bottom-left
         {{0.5f, 0.0f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}, // Bottom-right
         {{0.5f, 0.0f, 0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}}, // Top-right
@@ -22,12 +22,12 @@ namespace ApplicationCore::MeshData
         {{-0.5f, 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}
     };
 
-    const std::vector<uint32_t> planeIndices = {
+    inline std::vector<uint32_t> planeIndices = {
         0, 1, 2, 2, 3, 0,
         4, 5, 6, 6, 7, 4
     };
 
-    const std::vector<Vertex> cubeVertices = {
+    inline std::vector<Vertex> cubeVertices = {
     // Front face
     {{-0.5f, -0.5f,  0.5f}, {0.0f,  0.0f,  1.0f}, {0.0f, 0.0f}},  // Vertex 0
     {{ 0.5f, -0.5f,  0.5f}, {0.0f,  0.0f,  1.0f}, {1.0f, 0.0f}},  // Vertex 1
@@ -65,7 +65,7 @@ namespace ApplicationCore::MeshData
     {{ 0.5f, -0.5f, -0.5f}, {0.0f, -1.0f,  0.0f}, {1.0f, 1.0f}}   // Vertex 23
 };
 
-    const std::vector<uint32_t> cubeIndices = {
+    inline std::vector<uint32_t> cubeIndices = {
         // Front face
         0, 1, 2, 2, 3, 0,
 
@@ -85,7 +85,7 @@ namespace ApplicationCore::MeshData
         21, 20, 23, 23, 22, 21
     };
 
-    const std::vector<Vertex> triangleVertices = {
+    inline std::vector<Vertex> triangleVertices = {
         // First triangle vertex
         {{ 0.0f,  0.5f, 0.0f}, {0.0f,  0.0f, 1.0f}, {0.5f, 1.0f}},  // Top vertex (position, normal, UV)
 
@@ -96,7 +96,7 @@ namespace ApplicationCore::MeshData
         {{ 0.5f, -0.5f, 0.0f}, {0.0f,  0.0f, 1.0f}, {1.0f, 0.0f}}   // Bottom-right vertex
     };
 
-    const std::vector<uint32_t> triangleIndices = {
+    inline std::vector<uint32_t> triangleIndices = {
         0, 1, 2  // Indices for the triangle
     };
 
@@ -148,7 +148,7 @@ namespace ApplicationCore::MeshData
 
     }
 
-    const std::vector<Vertex> crossVertices = {
+    inline std::vector<Vertex> crossVertices = {
         // Vertical bar (shifted down)
         {{-0.1f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},  // Bottom-left
         {{ 0.1f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // Bottom-right
@@ -162,7 +162,7 @@ namespace ApplicationCore::MeshData
         {{-0.4f,  0.2f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}   // Top-left corner
     };
 
-    const std::vector<uint32_t> crossIndices = {
+    inline std::vector<uint32_t> crossIndices = {
         // Vertical bar
         0, 1, 2, 2, 3, 0,
 
@@ -170,7 +170,7 @@ namespace ApplicationCore::MeshData
         4, 5, 6, 6, 7, 4
     };
 
-    const std::vector<Vertex> fullscreenQuadVertices = {
+    inline std::vector<Vertex> fullscreenQuadVertices = {
         // Fullscreen quad vertices
         {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // Bottom-left
         {{ 1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}}, // Bottom-right
@@ -178,7 +178,7 @@ namespace ApplicationCore::MeshData
         {{-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}  // Top-left
     };
 
-    const std::vector<uint32_t> fullscreenQuadIndices = {
+    inline std::vector<uint32_t> fullscreenQuadIndices = {
         // Fullscreen quad indices
         0, 1, 2, 2, 3, 0
     };

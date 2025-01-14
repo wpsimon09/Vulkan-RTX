@@ -34,7 +34,7 @@ namespace VulkanCore
     public:
         explicit MeshDatatManager(const VulkanCore::VDevice& device);
 
-        VulkanStructs::MeshData AddMeshData(const std::vector<ApplicationCore::Vertex>& vertices, const std::vector<uint32_t>& indices);
+        VulkanStructs::MeshData AddMeshData(std::vector<ApplicationCore::Vertex>& vertices, std::vector<uint32_t>& indices);
 
         /**
          * Sends every staging buffer to the GPU in a batch
@@ -46,30 +46,31 @@ namespace VulkanCore
 
         ~MeshDatatManager() = default;
     private:
-        std::vector<VulkanStructs::StagingBufferInfo> m_stagingBuffers;
+        std::vector<ApplicationCore::Vertex> m_stagingVertices;
+        std::vector<uint32_t> m_stagingIndices;
 
         //==================================
         // VERTEX BUFFER
         //==================================
-        VulkanStructs::BufferAllocationInfo* m_currentVertexBuffer;
-        std::vector<VulkanStructs::BufferAllocationInfo> m_vertexBuffers;
+        VulkanStructs::GPUBufferInfo* m_currentVertexBuffer;
+        std::vector<VulkanStructs::GPUBufferInfo> m_vertexBuffers;
 
         //==================================
         // INDEX BUFFER
         //==================================
-        VulkanStructs::BufferAllocationInfo* m_currentIndexBuffer;
-        std::vector<VulkanStructs::BufferAllocationInfo> m_indexBuffers;
+        VulkanStructs::GPUBufferInfo* m_currentIndexBuffer;
+        std::vector<VulkanStructs::GPUBufferInfo> m_indexBuffers;
 
         //==================================
         // BOUNDING BOX VERTEX BUFFER
         //==================================
-        VulkanStructs::BufferAllocationInfo* m_currentVertexBuffer_BB;
-        std::vector<VulkanStructs::BufferAllocationInfo> m_vertexBuffers_BB; // to visualize bounding box
+        VulkanStructs::GPUBufferInfo* m_currentVertexBuffer_BB;
+        std::vector<VulkanStructs::GPUBufferInfo> m_vertexBuffers_BB; // to visualize bounding box
 
         //=========================================
         // BOUNDING BOX INDEX - is allways the same
         //========================================
-        VulkanStructs::BufferAllocationInfo m_indexBuffer_BB;  // to visualize bounding box
+        VulkanStructs::GPUBufferInfo m_indexBuffer_BB;  // to visualize bounding box
 
         std::unique_ptr<VulkanCore::VCommandPool> m_transferCommandPool;
         std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCommandBuffer;
@@ -94,7 +95,7 @@ namespace VulkanCore
         VulkanStructs::StagingBufferInfo CreateStagingBuffer(VkDeviceSize size);
 
         // HELPER FUNCTION THAT IS CALLED FROM CreateNewIndexBuffer
-        void CreateBuffer(VulkanStructs::BufferAllocationInfo& allocationInfo);
+        void CreateBuffer(VulkanStructs::GPUBufferInfo& allocationInfo);
 
         // HELPER FUNCTION THAT DELETES STAGING BUFFER
         void DeleteAllStagingBuffers();
