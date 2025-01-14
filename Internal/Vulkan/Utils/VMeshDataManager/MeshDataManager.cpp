@@ -72,7 +72,6 @@ namespace VulkanCore {
         meshData.indexData_BB.offset = 0;
         meshData.bounds = bounds;
 
-
         return meshData;
     }
 
@@ -151,6 +150,7 @@ namespace VulkanCore {
         vmaUnmapMemory(m_device.GetAllocator(), indexStagingBuffer.m_stagingAllocation);
 
         m_transferCommandBuffer->BeginRecording();
+
         // COPY VERTEX DATA TO THE GPU BUFFER
         {
             Utils::Logger::LogInfoVerboseOnly("Copying VERTEX buffer...");
@@ -161,9 +161,6 @@ namespace VulkanCore {
             bufferCopy.size = vertexStaginBuffer.size;
 
             m_transferCommandBuffer->GetCommandBuffer().copyBuffer(vertexStaginBuffer.m_stagingBufferVK, m_currentVertexBuffer->bufferVK, bufferCopy);
-
-
-            m_currentVertexBuffer->copyOffSet += vertexStaginBuffer.size;
         }
 
         //COPY INDEX DATA TO THE GPU
@@ -182,7 +179,7 @@ namespace VulkanCore {
 
         m_device.GetDevice().waitIdle();
         m_currentVertexBuffer->copyOffSet += vertexStaginBuffer.size;
-        m_currentIndexBuffer->copyOffSet  += indexStagingBuffer.size;
+        m_currentIndexBuffer-> copyOffSet  += indexStagingBuffer.size;
 
         Utils::Logger::LogSuccess("Buffer copy of " +std::to_string(indexStagingBuffer.size + vertexStaginBuffer.size) + " bytes to vertex and index buffer  completed !");
         // CLEAN UP ONCE ALL DATA ARE IN GPU
@@ -216,7 +213,7 @@ namespace VulkanCore {
         m_transferCommandPool->Destroy();
     }
 
-    void MeshDatatManager::CreateBuffer(VulkanStructs::GPUBufferInfo& allocationInfo)
+    void MeshDatatManager::CreateBuffer(VulkanStructs::GPUBufferInfo& allocationInfo) const
     {
         VkBufferCreateInfo bufferCreateInfo = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
         bufferCreateInfo.size = allocationInfo.size;
@@ -242,7 +239,8 @@ namespace VulkanCore {
         allocationInfo.bufferVK = allocationInfo.bufferVMA;
     }
 
-    VulkanStructs::StagingBufferInfo MeshDatatManager::CreateStagingBuffer(VkDeviceSize size) {
+    VulkanStructs::StagingBufferInfo MeshDatatManager::CreateStagingBuffer(VkDeviceSize size) const
+    {
 
         std::string allocationNme = "Allocation of staging buffer for vertex, index or image ";
 
@@ -256,6 +254,7 @@ namespace VulkanCore {
         stagingBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         std::vector<uint32_t> sharedQueueFamilyIndices = {
+            //
             m_device.GetQueueFamilyIndices().graphicsFamily.value().second,
             m_device.GetQueueFamilyIndices().transferFamily.value().second
         };
@@ -317,11 +316,6 @@ namespace VulkanCore {
         m_indexBuffers.emplace_back(newIndexBuffer);
         m_currentIndexBuffer = &m_indexBuffers.back();
         m_currentIndexBuffer->ID = m_indexBuffers.size();
-    }
-
-    void MeshDatatManager::DeleteAllStagingBuffers()
-    {
-
     }
 
     VulkanStructs::Bounds MeshDatatManager::CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices)

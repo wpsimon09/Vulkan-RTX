@@ -215,9 +215,10 @@ namespace Renderer
 
             std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
             std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};
+            auto firstBinding = 0;
 
             cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, drawCall.meshData->indexData.offset, vk::IndexType::eUint32);
-            cmdBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
+            cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
 
             cmdBuffer.pushDescriptorSetWithTemplateKHR(
                 m_pushDescriptorManager.GetTemplate(),
@@ -228,13 +229,13 @@ namespace Renderer
                 drawCall.meshData->indexData.size/sizeof(uint32_t),
                 1,
                 0,
-                drawCall.meshData->vertexData.offset/sizeof(ApplicationCore::Vertex),
+                0,//drawCall.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                 0);
             drawCallCount++;
 
             if (drawCall.renderOutline)
             {
-                m_selectedGeometry.DrawCalls.emplace_back(drawCall);
+                //m_selectedGeometry.DrawCalls.emplace_back(drawCall);
             }
 
         }

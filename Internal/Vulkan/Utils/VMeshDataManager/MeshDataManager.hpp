@@ -92,10 +92,10 @@ namespace VulkanCore
         void CreateNewVertexBuffers();
         void CreateNewIndexBuffers();
         // this is special case of the functions below that just specify how to allocated staging buffer
-        VulkanStructs::StagingBufferInfo CreateStagingBuffer(VkDeviceSize size);
+        VulkanStructs::StagingBufferInfo CreateStagingBuffer(VkDeviceSize size) const;
 
         // HELPER FUNCTION THAT IS CALLED FROM CreateNewIndexBuffer
-        void CreateBuffer(VulkanStructs::GPUBufferInfo& allocationInfo);
+        void CreateBuffer(VulkanStructs::GPUBufferInfo& allocationInfo) const;
 
         // HELPER FUNCTION THAT DELETES STAGING BUFFER
         void DeleteAllStagingBuffers();
