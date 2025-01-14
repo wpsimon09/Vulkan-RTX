@@ -47,6 +47,7 @@ namespace VulkanCore
         ~MeshDatatManager() = default;
     private:
         std::vector<ApplicationCore::Vertex> m_stagingVertices;
+        std::vector<ApplicationCore::Vertex> m_stagingVertices_BB;
         std::vector<uint32_t> m_stagingIndices;
 
         //==================================
@@ -72,9 +73,12 @@ namespace VulkanCore
         //========================================
         VulkanStructs::GPUBufferInfo m_indexBuffer_BB;  // to visualize bounding box
 
+
+        //===========================================
+        // Transfer pool
+        //===========================================
         std::unique_ptr<VulkanCore::VCommandPool> m_transferCommandPool;
         std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCommandBuffer;
-
         const VulkanCore::VDevice& m_device;
 
     private:
@@ -91,16 +95,10 @@ namespace VulkanCore
         //==============================================
         void CreateNewVertexBuffers();
         void CreateNewIndexBuffers();
-        // this is special case of the functions below that just specify how to allocated staging buffer
-        VulkanStructs::StagingBufferInfo CreateStagingBuffer(VkDeviceSize size) const;
 
         // HELPER FUNCTION THAT IS CALLED FROM CreateNewIndexBuffer
         void CreateBuffer(VulkanStructs::GPUBufferInfo& allocationInfo) const;
 
-        // HELPER FUNCTION THAT DELETES STAGING BUFFER
-        void DeleteAllStagingBuffers();
-
-        VulkanStructs::Bounds CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices);
     };
 
 } // VulkanCore

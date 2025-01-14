@@ -42,10 +42,6 @@ namespace VulkanCore
 
         vk::DescriptorBufferInfo &GetBufferInfoForDescriptor();
 
-        void MakeVertexBuffer(const std::vector<ApplicationCore::Vertex> &vertices);
-
-        void MakeIndexBuffer(const std::vector<uint32_t> &indices);
-
         template <typename T>
         void MakeUniformBuffer(const T &uniformBuffer, vk::DeviceSize size);
 

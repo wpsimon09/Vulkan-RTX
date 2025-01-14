@@ -62,6 +62,11 @@ namespace VulkanUtils
     vk::Result PresentQueueWrapper(vk::Queue queue, const vk::PresentInfoKHR &presentInfo);
 
     std::string random_string( size_t length );
+
+    VulkanStructs::Bounds CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices);
+
+    VulkanStructs::StagingBufferInfo CreateStagingBuffer(const VulkanCore::VDevice& m_device, vk::DeviceSize size);
+
 }
 
 #endif //VGENERALUTILS_HPP

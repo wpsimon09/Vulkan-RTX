@@ -270,3 +270,68 @@ std::string VulkanUtils::random_string(size_t length)
         return str;
     }
 }
+
+VulkanStructs::Bounds VulkanUtils::CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices)
+{
+    //========================
+    // CALCULATE BOUNDING BOX
+    //========================
+    glm::vec3 maxPos = vertices[0].position;
+    glm::vec3 minPos = vertices[0].position;
+
+    for (const auto & i : vertices)
+    {
+        minPos = glm::min(minPos, i.position);
+        maxPos = glm::max(maxPos, i.position);
+    }
+    VulkanStructs::Bounds bounds = {};
+    bounds.origin = (maxPos + minPos) /2.f;
+    bounds.extents = (maxPos - minPos) /2.f;
+    bounds.radius = glm::length(bounds.extents);
+
+    return bounds;
+}
+
+VulkanStructs::StagingBufferInfo VulkanUtils::CreateStagingBuffer(const VulkanCore::VDevice& m_device,
+    vk::DeviceSize size)
+{
+
+    std::string allocationNme = "Allocation of staging buffer for vertex, index or image ";
+
+    VulkanStructs::StagingBufferInfo staginBufferInfo = {};
+    staginBufferInfo.size = size;
+
+    VkBufferCreateInfo stagingBufferCreateInfo = {};
+    stagingBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    stagingBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    stagingBufferCreateInfo.size = size;
+    stagingBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    std::vector<uint32_t> sharedQueueFamilyIndices = {
+        //
+        m_device.GetQueueFamilyIndices().graphicsFamily.value().second,
+        m_device.GetQueueFamilyIndices().transferFamily.value().second
+    };
+
+    stagingBufferCreateInfo.queueFamilyIndexCount = sharedQueueFamilyIndices.size();
+    stagingBufferCreateInfo.pQueueFamilyIndices = sharedQueueFamilyIndices.data();
+
+    VmaAllocationCreateInfo stagingAllocationCreateInfo = {};
+    stagingAllocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+    stagingAllocationCreateInfo.flags =  VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT ;
+    stagingAllocationCreateInfo.priority = 1.0f;
+
+    Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
+    assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo, &stagingAllocationCreateInfo, &staginBufferInfo.m_stagingBufferVMA, &staginBufferInfo.m_stagingAllocation,nullptr) == VK_SUCCESS);
+    staginBufferInfo.m_stagingBufferVK = staginBufferInfo.m_stagingBufferVMA;
+
+    vmaSetAllocationName(m_device.GetAllocator(), staginBufferInfo.m_stagingAllocation, allocationNme.c_str());
+
+    Utils::Logger::LogSuccess("Staging buffer created || SIZE: " + std::to_string(size) + "bytes ||");
+
+    vmaMapMemory(m_device.GetAllocator(), staginBufferInfo.m_stagingAllocation, &staginBufferInfo.mappedPointer);
+
+    return staginBufferInfo;
+
+}
+
