@@ -27,20 +27,9 @@ ApplicationCore::Mesh::Mesh(std::shared_ptr<VertexArray> geometryData,std::share
 
 }
 
-const size_t ApplicationCore::Mesh::GetMeshVertexArraySize() const {
-    return m_vertexArray->GetVertices().size() * sizeof(Vertex);
-}
-
-const size_t ApplicationCore::Mesh::GetMeshIndexArraySize() const {
-    return m_vertexArray->GetIndices().size() * sizeof(unsigned int);
-}
 
 const uint32_t ApplicationCore::Mesh::GetMeshIndexCount() const {
     return static_cast<uint32_t>(m_vertexArray->GetMeshData()->indexData.size / sizeof(uint32_t));
-}
-
-const uint32_t ApplicationCore::Mesh::GetMeshVertexCount() const {
-    return static_cast<uint32_t>(m_vertexArray->GetVertices().size());
 }
 
 VulkanStructs::MeshData* ApplicationCore::Mesh::GetMeshData()

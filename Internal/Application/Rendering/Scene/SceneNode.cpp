@@ -148,8 +148,7 @@ namespace ApplicationCore {
                 //=====================================================
                 // BOUNDING VOLUME STUFF
                 //=====================================================
-                data.bounds = m_mesh->GetVertexArray()->GetBounds();
-                data.AABBIndexCount = m_mesh->GetVertexArray()->GetAABBIndexCount();
+
                 data.renderOutline = m_isSelected;
 
                 renderingContext->DrawCalls.emplace_back(data);
