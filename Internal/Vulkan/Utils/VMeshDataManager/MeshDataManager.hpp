@@ -39,7 +39,6 @@ namespace VulkanCore
         /**
          * Sends every staging buffer to the GPU in a batch
          * @param semaphore semaphore to secure that transfering the vertex buffer is done
-         * TODO:this might be wrong since graphis and transfer queue have the same queue family and i should put the memory barrier since it might be moved to be single queue
          */
         void UpdateGPU(vk::Semaphore semaphore);
 
@@ -47,26 +46,25 @@ namespace VulkanCore
 
         ~MeshDatatManager() = default;
     private:
+        std::vector<VulkanStructs::StagingBufferInfo> m_stagingBuffers;
+
         //==================================
         // VERTEX BUFFER
         //==================================
         VulkanStructs::BufferAllocationInfo* m_currentVertexBuffer;
         std::vector<VulkanStructs::BufferAllocationInfo> m_vertexBuffers;
-        std::vector<VulkanStructs::StagingBufferInfo> m_stagingVertexBuffers;
 
         //==================================
         // INDEX BUFFER
         //==================================
         VulkanStructs::BufferAllocationInfo* m_currentIndexBuffer;
         std::vector<VulkanStructs::BufferAllocationInfo> m_indexBuffers;
-        std::vector<VulkanStructs::StagingBufferInfo> m_stagingIndexBuffers;
 
         //==================================
         // BOUNDING BOX VERTEX BUFFER
         //==================================
         VulkanStructs::BufferAllocationInfo* m_currentVertexBuffer_BB;
         std::vector<VulkanStructs::BufferAllocationInfo> m_vertexBuffers_BB; // to visualize bounding box
-        std::vector<VulkanStructs::StagingBufferInfo> m_stagingVertexBuffers_BB;
 
         //=========================================
         // BOUNDING BOX INDEX - is allways the same

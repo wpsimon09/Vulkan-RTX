@@ -72,8 +72,8 @@ namespace VulkanCore {
     VulkanStructs::BufferInfo MeshDatatManager::GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices)
     {
         //create new staging buffer
-        m_stagingVertexBuffers.emplace_back(CreateStagingBuffer(vertices.size() * sizeof(ApplicationCore::Vertex)));
-        auto& stagingBuffer = m_stagingVertexBuffers.back();
+        m_stagingBuffers.emplace_back(CreateStagingBuffer(vertices.size() * sizeof(ApplicationCore::Vertex)));
+        auto& stagingBuffer = m_stagingBuffers.back();
 
         //copy data to staging buffer and add it to the array
         memcpy(stagingBuffer.mappedPointer, vertices.data(), vertices.size() * sizeof(ApplicationCore::Vertex));
@@ -106,8 +106,8 @@ namespace VulkanCore {
             {bounds.origin + glm::vec3(-bounds.extents.x, +bounds.extents.y, +bounds.extents.z), {0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // V7
         };
 
-        m_stagingVertexBuffers.emplace_back(CreateStagingBuffer(Vertices_BB.size() * sizeof(ApplicationCore::Vertex)));
-        auto& stagingBuffer = m_stagingVertexBuffers.back();
+        m_stagingBuffers.emplace_back(CreateStagingBuffer(Vertices_BB.size() * sizeof(ApplicationCore::Vertex)));
+        auto& stagingBuffer = m_stagingBuffers.back();
 
         //copy data to staging buffer and add it to the array
         memcpy(stagingBuffer.mappedPointer, Vertices_BB.data(), Vertices_BB.size() * sizeof(ApplicationCore::Vertex));
@@ -128,8 +128,8 @@ namespace VulkanCore {
 
     VulkanStructs::BufferInfo MeshDatatManager::GenerateIndexBuffer(const std::vector<uint32_t>& indices)
     {
-        m_stagingIndexBuffers.emplace_back(CreateStagingBuffer(indices.size() * sizeof(uint32_t)));
-        auto& stagingBuffer = m_stagingIndexBuffers.back();
+        m_stagingBuffers.emplace_back(CreateStagingBuffer(indices.size() * sizeof(uint32_t)));
+        auto& stagingBuffer = m_stagingBuffers.back();
         memcpy(stagingBuffer.mappedPointer, indices.data(), indices.size() * sizeof(uint32_t));
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
 
@@ -151,7 +151,7 @@ namespace VulkanCore {
         Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
         m_device.GetDevice().waitIdle();
         m_transferCommandBuffer->BeginRecording();
-        for (auto& stagingVertexBuffer : m_stagingVertexBuffers)
+        for (auto& stagingVertexBuffer : m_stagingBuffers)
         {
 
             vk::BufferCopy bufferCopy{};
@@ -161,8 +161,9 @@ namespace VulkanCore {
 
             m_transferCommandBuffer->GetCommandBuffer().copyBuffer(stagingVertexBuffer.m_stagingBufferVK, stagingVertexBuffer.copyDstBuffer, bufferCopy);
         }
-
         m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+        m_device.GetDevice().waitIdle();
+
         DeleteAllStagingBuffers();
         Utils::Logger::LogSuccess("Buffer copy completed !");
     }
@@ -217,8 +218,8 @@ namespace VulkanCore {
 
         std::string allocationNme = "Allocation of staging buffer for vertex, index or image ";
 
-        VulkanStructs::StagingBufferInfo allocationInfo = {};
-        allocationInfo.size = size;
+        VulkanStructs::StagingBufferInfo staginBufferInfo = {};
+        staginBufferInfo.size = size;
 
         VkBufferCreateInfo stagingBufferCreateInfo = {};
         stagingBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -240,16 +241,16 @@ namespace VulkanCore {
         stagingAllocationCreateInfo.priority = 1.0f;
 
         Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
-        assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo, &stagingAllocationCreateInfo, &allocationInfo.m_stagingBufferVMA, &allocationInfo.m_stagingAllocation,nullptr) == VK_SUCCESS);
-        allocationInfo.m_stagingBufferVK = allocationInfo.m_stagingBufferVMA;
+        assert(vmaCreateBuffer(m_device.GetAllocator(),&stagingBufferCreateInfo, &stagingAllocationCreateInfo, &staginBufferInfo.m_stagingBufferVMA, &staginBufferInfo.m_stagingAllocation,nullptr) == VK_SUCCESS);
+        staginBufferInfo.m_stagingBufferVK = staginBufferInfo.m_stagingBufferVMA;
 
-        vmaSetAllocationName(m_device.GetAllocator(), allocationInfo.m_stagingAllocation, allocationNme.c_str());
+        vmaSetAllocationName(m_device.GetAllocator(), staginBufferInfo.m_stagingAllocation, allocationNme.c_str());
 
         Utils::Logger::LogSuccess("Staging buffer created || SIZE: " + std::to_string(size) + "bytes ||");
 
-        vmaMapMemory(m_device.GetAllocator(), allocationInfo.m_stagingAllocation, &allocationInfo.mappedPointer);
+        vmaMapMemory(m_device.GetAllocator(), staginBufferInfo.m_stagingAllocation, &staginBufferInfo.mappedPointer);
 
-        return allocationInfo;
+        return staginBufferInfo;
     }
 
 
@@ -292,11 +293,11 @@ namespace VulkanCore {
 
     void MeshDatatManager::DeleteAllStagingBuffers()
     {
-        for (auto& stagingBuffer : m_stagingVertexBuffers)
+        for (auto& stagingBuffer : m_stagingBuffers)
         {
             vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA,stagingBuffer.m_stagingAllocation);
         }
-        m_stagingVertexBuffers.clear();
+        m_stagingBuffers.clear();
     }
 
     VulkanStructs::Bounds MeshDatatManager::CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices)

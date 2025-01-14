@@ -5,6 +5,7 @@
 #include "SceneRenderer.hpp"
 
 #include "DebugRenderer.hpp"
+#include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
@@ -215,7 +216,7 @@ namespace Renderer
             std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
             std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};
 
-            cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
+            cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, drawCall.meshData->indexData.offset, vk::IndexType::eUint32);
             cmdBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 
             cmdBuffer.pushDescriptorSetWithTemplateKHR(
@@ -223,7 +224,12 @@ namespace Renderer
                 pipeline.GetPipelineLayout(), 0,
                 dstSetDataStruct, m_device.DispatchLoader);
 
-            cmdBuffer.drawIndexed(drawCall.indexCount, 1, 0, 0, 0);
+            cmdBuffer.drawIndexed(
+                drawCall.meshData->indexData.size/sizeof(uint32_t),
+                1,
+                0,
+                drawCall.meshData->vertexData.offset/sizeof(ApplicationCore::Vertex),
+                0);
             drawCallCount++;
 
             if (drawCall.renderOutline)
