@@ -235,7 +235,7 @@ namespace Renderer
 
             if (drawCall.renderOutline)
             {
-                //m_selectedGeometry.DrawCalls.emplace_back(drawCall);
+                m_selectedGeometry.DrawCalls.emplace_back(drawCall);
             }
 
         }

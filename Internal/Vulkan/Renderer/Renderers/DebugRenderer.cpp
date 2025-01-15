@@ -33,7 +33,7 @@ namespace Renderer
             auto& drawCall = renderContext.DrawCalls[i];
 
             std::vector<vk::Buffer> vertexBuffers = {renderContext.DrawCalls[i].meshData->vertexData_BB.buffer};
-            std::vector<vk::DeviceSize> offsets = {0};
+            std::vector<vk::DeviceSize> offsets = {renderContext.DrawCalls[i].meshData->vertexData_BB.offset};
 
             commandBuffer.bindIndexBuffer(drawCall.meshData->indexData_BB.buffer, 0, vk::IndexType::eUint32);
             commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
@@ -61,15 +61,16 @@ namespace Renderer
         int drawCallCount = 0;
         for (int i = 0; i < renderContext.DrawCalls.size(); i++)
         {
+
             dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
                 currentFrameIndex];
 
             auto& drawCall = renderContext.DrawCalls[i];
 
             std::vector<vk::Buffer> vertexBuffers = {renderContext.DrawCalls[i].meshData->vertexData.buffer};
-            std::vector<vk::DeviceSize> offsets = {0};
+            std::vector<vk::DeviceSize> offsets = {renderContext.DrawCalls[i].meshData->vertexData.offset};
 
-            commandBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
+            commandBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, drawCall.meshData->indexData.offset, vk::IndexType::eUint32);
             commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 
             commandBuffer.pushDescriptorSetWithTemplateKHR(
