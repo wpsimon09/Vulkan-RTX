@@ -116,20 +116,27 @@ namespace VulkanCore {
     void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
     {
         //=========================================================================================================================================
-        // VERTEX STAGIN BUFFER
+        // VERTEX STAGING BUFFER
         //==========================================================================================================================================
         auto vertexStaginBuffer = VulkanUtils::CreateStagingBuffer(m_device, m_stagingVertices.size() * sizeof(ApplicationCore::Vertex));
-        memcpy(vertexStaginBuffer.mappedPointer, m_stagingVertices.data(), m_stagingVertices.size() * sizeof(ApplicationCore::Vertex));
+        memcpy(vertexStaginBuffer.mappedPointer, m_stagingVertices.data(), vertexStaginBuffer.size);
         vmaUnmapMemory(m_device.GetAllocator(), vertexStaginBuffer.m_stagingAllocation);
 
+        //=========================================================================================================================================
+        // VERTEX_BB STAGING BUFFER
+        //==========================================================================================================================================
+        auto vertexStaginBuffer_BB = VulkanUtils::CreateStagingBuffer(m_device,  m_stagingVertices_BB.size() * sizeof(ApplicationCore::Vertex));
+        memcpy(vertexStaginBuffer_BB.mappedPointer, m_stagingVertices.data(), vertexStaginBuffer_BB.size);
+        vmaUnmapMemory(m_device.GetAllocator(), vertexStaginBuffer_BB.m_stagingAllocation);
 
 
         //=========================================================================================================================================
-        // INDEX STAGINg BUFFER
+        // INDEX STAGING BUFFER
         //==========================================================================================================================================
         auto indexStagingBuffer = VulkanUtils::CreateStagingBuffer(m_device, m_stagingIndices.size() * sizeof(uint32_t));
-        memcpy(indexStagingBuffer.mappedPointer, m_stagingIndices.data(), m_stagingIndices.size() * sizeof(uint32_t));
+        memcpy(indexStagingBuffer.mappedPointer, m_stagingIndices.data(), indexStagingBuffer.size);
         vmaUnmapMemory(m_device.GetAllocator(), indexStagingBuffer.m_stagingAllocation);
+
 
         m_transferCommandBuffer->BeginRecording();
 
@@ -145,6 +152,18 @@ namespace VulkanCore {
             m_transferCommandBuffer->GetCommandBuffer().copyBuffer(vertexStaginBuffer.m_stagingBufferVK, m_currentVertexBuffer->bufferVK, bufferCopy);
         }
 
+        // COPY VERTEX BB DATA TO THE GPU BUFFER
+        {
+            Utils::Logger::LogInfoVerboseOnly("Copying VERTEX-BB buffer...");
+
+            vk::BufferCopy bufferCopy{};
+            bufferCopy.srcOffset = 0;
+            bufferCopy.dstOffset = m_currentVertexBuffer_BB->copyOffSet;
+            bufferCopy.size = vertexStaginBuffer.size;
+
+            m_transferCommandBuffer->GetCommandBuffer().copyBuffer(vertexStaginBuffer_BB.m_stagingBufferVK, m_currentVertexBuffer_BB->bufferVK, bufferCopy);
+        }
+
         //COPY INDEX DATA TO THE GPU
         {
             Utils::Logger::LogInfoVerboseOnly("Copying INDEX buffer...");
@@ -157,19 +176,22 @@ namespace VulkanCore {
             m_transferCommandBuffer->GetCommandBuffer().copyBuffer(indexStagingBuffer.m_stagingBufferVK, m_currentIndexBuffer->bufferVK, bufferCopy);
 
         }
+
         m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
 
         m_device.GetDevice().waitIdle();
         m_currentVertexBuffer->copyOffSet += vertexStaginBuffer.size;
         m_currentIndexBuffer-> copyOffSet  += indexStagingBuffer.size;
-
+        m_currentVertexBuffer_BB->copyOffSet += vertexStaginBuffer_BB.size;
         Utils::Logger::LogSuccess("Buffer copy of " +std::to_string(indexStagingBuffer.size + vertexStaginBuffer.size) + " bytes to vertex and index buffer  completed !");
         // CLEAN UP ONCE ALL DATA ARE IN GPU
         {
             vmaDestroyBuffer(m_device.GetAllocator(), indexStagingBuffer.m_stagingBufferVMA, indexStagingBuffer.m_stagingAllocation);
             vmaDestroyBuffer(m_device.GetAllocator(), vertexStaginBuffer.m_stagingBufferVMA, vertexStaginBuffer.m_stagingAllocation);
+            vmaDestroyBuffer(m_device.GetAllocator(), vertexStaginBuffer_BB.m_stagingBufferVMA, vertexStaginBuffer_BB.m_stagingAllocation);
 
             m_stagingVertices.clear();
+            m_stagingVertices_BB.clear();
             m_stagingIndices.clear();
         }
 
