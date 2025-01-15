@@ -84,11 +84,12 @@ namespace VulkanCore
     private:
 
         //=========================================================================================
-        // FUNCTIONS THAT GENERATES STRUCTS THAT DEFINE OFFSET AND SIZE OF THE VERTEX SUB - BUFFER
+        // FUNCTIONS THAT GENERATES STRUCTS THAT DEFINE OFFSET AND SIZE OF THE SUB - BUFFER
         //=========================================================================================
-        VulkanStructs::BufferInfo GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices);
-        VulkanStructs::BufferInfo GenerateVertexBuffer_BB(VulkanStructs::Bounds& bounds);
-        VulkanStructs::BufferInfo GenerateIndexBuffer(const std::vector<uint32_t>& indices);
+        VulkanStructs::GPUSubBufferInfo GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices);
+        VulkanStructs::GPUSubBufferInfo GenerateVertexBuffer_BB(VulkanStructs::Bounds& bounds);
+
+        VulkanStructs::GPUSubBufferInfo GenerateIndexBuffer(const std::vector<uint32_t>& indices);
 
         //==============================================
         // FUNCTIONS THAT WILL ALLOCATE 16mb BIG BUFFER

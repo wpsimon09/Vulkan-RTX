@@ -56,7 +56,8 @@ namespace VulkanStructs
         int DrawCallCunt = 0;
     };
 
-    struct BufferInfo
+    // holds offset to the larger buffer that is in GPU to prevent fragmentation
+    struct GPUSubBufferInfo
     {
         vk::DeviceSize size;
         vk::DeviceSize offset;
@@ -66,10 +67,10 @@ namespace VulkanStructs
 
     struct MeshData
     {
-        BufferInfo vertexData;
-        BufferInfo indexData;
-        BufferInfo vertexData_BB;
-        BufferInfo indexData_BB;
+        GPUSubBufferInfo vertexData;
+        GPUSubBufferInfo indexData;
+        GPUSubBufferInfo vertexData_BB;
+        GPUSubBufferInfo indexData_BB;
         Bounds bounds;
     };
 
@@ -105,15 +106,16 @@ namespace VulkanStructs
     {
         uint32_t indexCount = 0;
         uint32_t firstIndex =0;
+        uint32_t AABBIndexCount = 0;
+        uint32_t instanceCount = 1;
 
+        Bounds *bounds;
         MeshData* meshData;
 
-        uint32_t AABBIndexCount = 0;
-
         glm::mat4& modelMatrix;
-        uint32_t instanceCount = 1;
-        Bounds *bounds;
+
         bool renderOutline = false;
+
         // material descriptor
         std::shared_ptr<ApplicationCore::Material> material;
 
@@ -125,6 +127,7 @@ namespace VulkanStructs
         // Pipeline
         std::vector<DrawCallData> DrawCalls;
     };
+
 }
 
 #endif //VULKANSTRUCTS_HPP

@@ -5,6 +5,7 @@
 #include "MeshDataManager.hpp"
 
 #include "Application/Logger/Logger.hpp"
+#include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
@@ -22,34 +23,19 @@ namespace VulkanCore {
         CreateNewVertexBuffers();
         CreateNewIndexBuffers();
 
-        // used for topology line
-        std::vector<uint32_t> Indices_BB = {
-            // Bottom face
-            0, 1, 2, 0, 2, 3,
-            // Top face
-            4, 5, 6, 4, 6, 7,
-            // Front face
-            0, 1, 5, 0, 5, 4,
-            // Back face
-            3, 2, 6, 3, 6, 7,
-            // Left face
-            0, 4, 7, 0, 7, 3,
-            // Right face
-            1, 5, 6, 1, 6, 2
-        };
 
         Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
 
         m_indexBuffer_BB.ID = 0;
         m_indexBuffer_BB.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-        m_indexBuffer_BB.size = sizeof(uint32_t) * Indices_BB.size();
+        m_indexBuffer_BB.size = sizeof(uint32_t) * ApplicationCore::MeshData::Indices_BB.size();
         CreateBuffer(m_indexBuffer_BB);
 
-        auto stagingBuffer = VulkanUtils::CreateStagingBuffer(m_device, Indices_BB.size() *sizeof(uint32_t));
+        auto stagingBuffer = VulkanUtils::CreateStagingBuffer(m_device, ApplicationCore::MeshData::Indices_BB.size() *sizeof(uint32_t));
 
-        memcpy(stagingBuffer.mappedPointer, Indices_BB.data(), Indices_BB.size() * sizeof(uint32_t));
+        memcpy(stagingBuffer.mappedPointer, ApplicationCore::MeshData::Indices_BB.data(), ApplicationCore::MeshData::Indices_BB.size() * sizeof(uint32_t));
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
-        VulkanUtils::CopyBuffers(m_device, stagingBuffer.m_stagingBufferVK, m_indexBuffer_BB.bufferVK, Indices_BB.size() * sizeof(uint32_t));
+        VulkanUtils::CopyBuffers(m_device, stagingBuffer.m_stagingBufferVK, m_indexBuffer_BB.bufferVK, ApplicationCore::MeshData::Indices_BB.size() * sizeof(uint32_t));
 
         m_device.GetDevice().waitIdle();
         vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
@@ -77,9 +63,9 @@ namespace VulkanCore {
         return meshData;
     }
 
-    VulkanStructs::BufferInfo MeshDatatManager::GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices)
+    VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices)
     {
-        VulkanStructs::BufferInfo bufferInfo = {
+        VulkanStructs::GPUSubBufferInfo bufferInfo = {
             .size = vertices.size() * sizeof(ApplicationCore::Vertex),
             .offset = m_currentVertexBuffer->currentOffset,
             .buffer = m_currentVertexBuffer->bufferVK,
@@ -89,7 +75,7 @@ namespace VulkanCore {
         return bufferInfo;
     }
 
-    VulkanStructs::BufferInfo MeshDatatManager::GenerateVertexBuffer_BB(
+    VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer_BB(
         VulkanStructs::Bounds& bounds)
     {
         std::vector<ApplicationCore::Vertex> Vertices_BB = {
@@ -105,7 +91,7 @@ namespace VulkanCore {
 
         m_stagingVertices_BB.insert(m_stagingVertices_BB.end(), std::make_move_iterator(Vertices_BB.begin()), std::make_move_iterator(Vertices_BB.end()));
 
-        VulkanStructs::BufferInfo bufferInfo = {
+        VulkanStructs::GPUSubBufferInfo bufferInfo = {
             .size = Vertices_BB.size() * sizeof(ApplicationCore::Vertex),
             .offset = m_currentVertexBuffer_BB->currentOffset,
             .buffer = m_currentVertexBuffer_BB->bufferVK,
@@ -115,9 +101,9 @@ namespace VulkanCore {
         return bufferInfo;
     }
 
-    VulkanStructs::BufferInfo MeshDatatManager::GenerateIndexBuffer(const std::vector<uint32_t>& indices)
+    VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateIndexBuffer(const std::vector<uint32_t>& indices)
     {
-        VulkanStructs::BufferInfo bufferInfo = {
+        VulkanStructs::GPUSubBufferInfo bufferInfo = {
             .size = indices.size() * sizeof(uint32_t),
             .offset = m_currentIndexBuffer->currentOffset,
             .buffer = m_currentIndexBuffer->bufferVK,

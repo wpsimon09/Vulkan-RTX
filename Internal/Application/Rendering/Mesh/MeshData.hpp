@@ -183,6 +183,22 @@ namespace ApplicationCore::MeshData
         0, 1, 2, 2, 3, 0
     };
 
+    // used for topology line
+    inline std::vector<uint32_t> Indices_BB = {
+        // Bottom face
+        0, 1, 2, 0, 2, 3,
+        // Top face
+        4, 5, 6, 4, 6, 7,
+        // Front face
+        0, 1, 5, 0, 5, 4,
+        // Back face
+        3, 2, 6, 3, 6, 7,
+        // Left face
+        0, 4, 7, 0, 7, 3,
+        // Right face
+        1, 5, 6, 1, 6, 2
+    };
+
 
 
 }
