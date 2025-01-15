@@ -235,6 +235,7 @@ namespace Renderer
 
             if (drawCall.renderOutline)
             {
+                drawCall.objectID = i;
                 m_selectedGeometry.DrawCalls.emplace_back(drawCall);
             }
 

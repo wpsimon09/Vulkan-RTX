@@ -145,12 +145,12 @@ namespace ApplicationCore {
                 data.AABBIndexCount = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
                 data.material = m_mesh->m_material;
                 data.meshData = m_mesh->GetMeshData();
+                data.renderOutline = m_isSelected;
 
                 //=====================================================
                 // BOUNDING VOLUME STUFF
                 //=====================================================
-
-                data.renderOutline = m_isSelected;
+                data.bounds = &m_mesh->GetMeshData()->bounds;
 
                 renderingContext->DrawCalls.emplace_back(data);
             }

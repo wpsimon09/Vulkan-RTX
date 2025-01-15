@@ -108,6 +108,7 @@ namespace VulkanStructs
         uint32_t firstIndex =0;
         uint32_t AABBIndexCount = 0;
         uint32_t instanceCount = 1;
+        mutable int objectID = 0; // optional if i need to access other stuff in the array of objects
 
         Bounds *bounds;
         MeshData* meshData;

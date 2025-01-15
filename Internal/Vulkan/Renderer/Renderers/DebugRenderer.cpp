@@ -22,6 +22,7 @@ namespace Renderer
     {
         int drawCallCount = 0;
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance());
+
         auto& dstSetDataStruct = pushDescriptorManager.GetDescriptorSetDataStruct();
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
 
@@ -43,7 +44,7 @@ namespace Renderer
                 pipeline.GetPipelineLayout(), 0,
                 dstSetDataStruct, device.DispatchLoader);
 
-            commandBuffer.drawIndexed(drawCall.AABBIndexCount, 1, 0, 0, 0);
+            commandBuffer.drawIndexed(32, 1, 0, 0, 0);
             drawCallCount++;
         }
         return drawCallCount;
@@ -62,8 +63,7 @@ namespace Renderer
         for (int i = 0; i < renderContext.DrawCalls.size(); i++)
         {
 
-            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
-                currentFrameIndex];
+            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(renderContext.DrawCalls[i].objectID)[currentFrameIndex];
 
             auto& drawCall = renderContext.DrawCalls[i];
 
