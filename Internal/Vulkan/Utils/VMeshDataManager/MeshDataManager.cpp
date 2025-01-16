@@ -22,7 +22,7 @@ namespace VulkanCore {
 
         CreateNewVertexBuffers(true);
         CreateNewIndexBuffers();
-
+        //m_stagingVertices_BB.resize(BUFFER_SIZE/sizeof(ApplicationCore::Vertex));
 
         Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
 
@@ -91,13 +91,14 @@ namespace VulkanCore {
             {bounds.origin + glm::vec3(-bounds.extents.x, +bounds.extents.y, +bounds.extents.z), {0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // V7
         };
 
-        m_stagingVertices_BB.insert(m_stagingVertices_BB.end(), std::make_move_iterator(Vertices_BB.begin()), std::make_move_iterator(Vertices_BB.end()));
+        m_stagingVertices_BB.insert(m_stagingVertices_BB.end(), Vertices_BB.begin(), Vertices_BB.end());
 
         VulkanStructs::GPUSubBufferInfo bufferInfo = {
             .size = Vertices_BB.size() * sizeof(ApplicationCore::Vertex),
             .offset = m_currentVertexBuffer_BB->currentOffset,
             .buffer = m_currentVertexBuffer_BB->bufferVK,
         };
+
         m_currentVertexBuffer_BB->currentOffset += Vertices_BB.size() * sizeof(ApplicationCore::Vertex);
 
         return bufferInfo;
@@ -141,7 +142,6 @@ namespace VulkanCore {
         memcpy(indexStagingBuffer.mappedPointer, m_stagingIndices.data(), indexStagingBuffer.size);
         vmaUnmapMemory(m_device.GetAllocator(), indexStagingBuffer.m_stagingAllocation);
 
-
         m_transferCommandBuffer->BeginRecording();
 
         // COPY VERTEX DATA TO THE GPU BUFFER
@@ -163,7 +163,7 @@ namespace VulkanCore {
             vk::BufferCopy bufferCopy{};
             bufferCopy.srcOffset = 0;
             bufferCopy.dstOffset = m_currentVertexBuffer_BB->copyOffSet;
-            bufferCopy.size = vertexStaginBuffer.size;
+            bufferCopy.size = vertexStaginBuffer_BB.size;
 
             m_transferCommandBuffer->GetCommandBuffer().copyBuffer(vertexStaginBuffer_BB.m_stagingBufferVK, m_currentVertexBuffer_BB->bufferVK, bufferCopy);
         }
