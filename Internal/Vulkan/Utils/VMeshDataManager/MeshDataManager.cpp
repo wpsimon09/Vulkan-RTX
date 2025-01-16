@@ -65,6 +65,8 @@ namespace VulkanCore {
 
     VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices)
     {
+        SelectMostSuitableBuffer(EBufferType::Vertex, vertices.size()*sizeof(ApplicationCore::Vertex));
+
         VulkanStructs::GPUSubBufferInfo bufferInfo = {
             .size = vertices.size() * sizeof(ApplicationCore::Vertex),
             .offset = m_currentVertexBuffer->currentOffset,
@@ -103,6 +105,8 @@ namespace VulkanCore {
 
     VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateIndexBuffer(const std::vector<uint32_t>& indices)
     {
+        SelectMostSuitableBuffer(EBufferType::Index, indices.size()*sizeof(uint32_t));
+
         VulkanStructs::GPUSubBufferInfo bufferInfo = {
             .size = indices.size() * sizeof(uint32_t),
             .offset = m_currentIndexBuffer->currentOffset,
@@ -246,7 +250,7 @@ namespace VulkanCore {
 
 
 
-    void MeshDatatManager::CreateNewVertexBuffers()
+    void MeshDatatManager::CreateNewVertexBuffers(bool createForBoundingBox)
     {
         //==============================
         // CREATE INITIAL VERTEX BUFFER
@@ -258,14 +262,17 @@ namespace VulkanCore {
         CreateBuffer(newVertexBuffer);
         m_vertexBuffers.emplace_back(newVertexBuffer);
         m_currentVertexBuffer = &m_vertexBuffers.back();
-        m_currentVertexBuffer->ID = m_vertexBuffers.size();
+        m_currentVertexBuffer->ID = static_cast<int>(m_vertexBuffers.size());
 
-        VulkanStructs::GPUBufferInfo newBBVertexBuffer{};
-        newBBVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-        CreateBuffer(newBBVertexBuffer);
-        m_vertexBuffers_BB.emplace_back(newBBVertexBuffer);
-        m_currentVertexBuffer_BB = &m_vertexBuffers_BB.back();
-        m_currentVertexBuffer_BB->ID = m_vertexBuffers_BB.size();
+        if (createForBoundingBox)
+        {
+            VulkanStructs::GPUBufferInfo newBBVertexBuffer{};
+            newBBVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+            CreateBuffer(newBBVertexBuffer);
+            m_vertexBuffers_BB.emplace_back(newBBVertexBuffer);
+            m_currentVertexBuffer_BB = &m_vertexBuffers_BB.back();
+            m_currentVertexBuffer_BB->ID = m_vertexBuffers_BB.size();
+        }
     }
 
     void MeshDatatManager::CreateNewIndexBuffers()
@@ -283,4 +290,25 @@ namespace VulkanCore {
         m_currentIndexBuffer->ID = m_indexBuffers.size();
     }
 
+    void MeshDatatManager::SelectMostSuitableBuffer(EBufferType bufferType, vk::DeviceSize subAllocationSize)
+    {
+        std::vector<VulkanStructs::GPUBufferInfo>& buffers = bufferType == EBufferType::Vertex ? m_vertexBuffers : m_indexBuffers;
+
+        for (auto &buffer : buffers)
+        {
+            if (buffer.WillNewBufferFit(subAllocationSize))
+            {
+                if (bufferType == EBufferType::Vertex) m_currentVertexBuffer = &buffer;
+                else if (bufferType == EBufferType::Index) m_currentIndexBuffer = &buffer;
+                return;
+            }else
+            {
+                Utils::Logger::LogInfo("Buffer that attempts to be allocated will not fit the current buffer ! Allocating new 16MB buffer chunk");
+                // function CreateNewVertexBuffer will assign right pointer to the m_CurretnBuffer
+                if (bufferType == EBufferType::Vertex) CreateNewVertexBuffers(false);
+                else if (bufferType == EBufferType::Index) CreateNewIndexBuffers();
+
+            }
+        }
+    }
 } // VulkanCore

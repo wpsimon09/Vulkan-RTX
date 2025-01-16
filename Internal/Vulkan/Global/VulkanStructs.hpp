@@ -87,7 +87,8 @@ namespace VulkanStructs
 
         int ID;
 
-        vk::DeviceSize GetAvailableSize() {return size - currentOffset;};
+        vk::DeviceSize GetAvailableSize() const { return (currentOffset >= size) ? 0 : (size - currentOffset); }
+        bool WillNewBufferFit(vk::DeviceSize size) const { return size <= GetAvailableSize(); }
     };
 
     struct StagingBufferInfo

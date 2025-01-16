@@ -6,6 +6,7 @@
 #define VBUFFERALLOCATOR_HPP
 
 #include "vulkan/vulkan.hpp"
+#include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
 
@@ -94,8 +95,9 @@ namespace VulkanCore
         //==============================================
         // FUNCTIONS THAT WILL ALLOCATE 16mb BIG BUFFER
         //==============================================
-        void CreateNewVertexBuffers();
+        void CreateNewVertexBuffers(bool createForBoundingBox = false);
         void CreateNewIndexBuffers();
+        void SelectMostSuitableBuffer(EBufferType bufferType, vk::DeviceSize subAllocationSize);
 
         // HELPER FUNCTION THAT IS CALLED FROM CreateNewIndexBuffer
         void CreateBuffer(VulkanStructs::GPUBufferInfo& allocationInfo) const;
