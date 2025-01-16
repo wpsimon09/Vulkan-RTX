@@ -20,7 +20,7 @@ namespace VulkanCore {
         m_transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_transferCommandPool);
 
 
-        CreateNewVertexBuffers();
+        CreateNewVertexBuffers(true);
         CreateNewIndexBuffers();
 
 
@@ -298,8 +298,9 @@ namespace VulkanCore {
         {
             if (buffer.WillNewBufferFit(subAllocationSize))
             {
+                Utils::Logger::LogInfoVerboseOnly("Buffer will fit the current chunk, skiping allocation...");
                 if (bufferType == EBufferType::Vertex) m_currentVertexBuffer = &buffer;
-                else if (bufferType == EBufferType::Index) m_currentIndexBuffer = &buffer;
+                else  if(bufferType == EBufferType::Index) m_currentIndexBuffer = &buffer;
                 return;
             }else
             {
