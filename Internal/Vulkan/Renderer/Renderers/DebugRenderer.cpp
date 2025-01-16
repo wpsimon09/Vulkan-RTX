@@ -4,6 +4,7 @@
 
 #include "DebugRenderer.hpp"
 
+#include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
@@ -44,7 +45,7 @@ namespace Renderer
                 pipeline.GetPipelineLayout(), 0,
                 dstSetDataStruct, device.DispatchLoader);
 
-            commandBuffer.drawIndexed(32, 1, 0, 0, 0);
+            commandBuffer.drawIndexed(32, 1, 0,drawCall.meshData->vertexData_BB.offset / sizeof(ApplicationCore::Vertex) , 0);
             drawCallCount++;
         }
         return drawCallCount;
