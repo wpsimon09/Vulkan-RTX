@@ -22,7 +22,6 @@ namespace VulkanCore {
 
         CreateNewVertexBuffers(true);
         CreateNewIndexBuffers();
-        //m_stagingVertices_BB.resize(BUFFER_SIZE/sizeof(ApplicationCore::Vertex));
 
         Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
 
@@ -252,6 +251,7 @@ namespace VulkanCore {
 
     void MeshDatatManager::CreateNewVertexBuffers(bool createForBoundingBox)
     {
+        m_vertexBuffers.reserve(BUFFER_SIZE);
         //==============================
         // CREATE INITIAL VERTEX BUFFER
         // BB vertex
@@ -281,6 +281,7 @@ namespace VulkanCore {
         // CREATE INITIAL INDEX BUFFER
         // BB index
         //==============================
+        m_indexBuffers.reserve(BUFFER_SIZE);
         Utils::Logger::LogInfo("Allocating NEW 16MB IndexBuffer");
         VulkanStructs::GPUBufferInfo newIndexBuffer{};
         newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;

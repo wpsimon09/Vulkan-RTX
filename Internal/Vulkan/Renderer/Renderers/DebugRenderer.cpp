@@ -45,7 +45,8 @@ namespace Renderer
                 pipeline.GetPipelineLayout(), 0,
                 dstSetDataStruct, device.DispatchLoader);
 
-            commandBuffer.drawIndexed(32, 1, 0,drawCall.meshData->vertexData_BB.offset / sizeof(ApplicationCore::Vertex) , 0);
+            auto vertexOffset =  drawCall.meshData->vertexData_BB.offset / sizeof(ApplicationCore::Vertex);
+            commandBuffer.drawIndexed(32, 1, 0,static_cast<uint32_t>(vertexOffset) , 0);
             drawCallCount++;
         }
         return drawCallCount;
