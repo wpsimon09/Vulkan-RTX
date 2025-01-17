@@ -27,6 +27,7 @@ namespace Renderer
         auto& dstSetDataStruct = pushDescriptorManager.GetDescriptorSetDataStruct();
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
 
+        commandBuffer.bindIndexBuffer(renderContext.DrawCalls[0].meshData->indexData_BB.buffer, 0, vk::IndexType::eUint32);
         for (int i = 0; i < renderContext.DrawCalls.size(); i++)
         {
             dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
@@ -37,7 +38,6 @@ namespace Renderer
             std::vector<vk::Buffer> vertexBuffers = {renderContext.DrawCalls[i].meshData->vertexData_BB.buffer};
             std::vector<vk::DeviceSize> offsets = {renderContext.DrawCalls[i].meshData->vertexData_BB.offset};
 
-            commandBuffer.bindIndexBuffer(drawCall.meshData->indexData_BB.buffer, 0, vk::IndexType::eUint32);
             commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 
             commandBuffer.pushDescriptorSetWithTemplateKHR(
