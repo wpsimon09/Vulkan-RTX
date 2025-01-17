@@ -130,7 +130,7 @@ namespace VulkanCore {
         // VERTEX_BB STAGING BUFFER
         //==========================================================================================================================================
         auto vertexStaginBuffer_BB = VulkanUtils::CreateStagingBuffer(m_device,  m_stagingVertices_BB.size() * sizeof(ApplicationCore::Vertex));
-        memcpy(vertexStaginBuffer_BB.mappedPointer, m_stagingVertices.data(), vertexStaginBuffer_BB.size);
+        memcpy(vertexStaginBuffer_BB.mappedPointer, m_stagingVertices_BB.data(), vertexStaginBuffer_BB.size);
         vmaUnmapMemory(m_device.GetAllocator(), vertexStaginBuffer_BB.m_stagingAllocation);
 
 

@@ -105,7 +105,7 @@ void VulkanCore::VulkanInstance::CreateInstance(std::string appName) {
     //-------------------------------
     vk::ApplicationInfo applicationInfo;
     applicationInfo.pApplicationName = appName.c_str();
-    applicationInfo.apiVersion = VK_API_VERSION_1_2;
+    applicationInfo.apiVersion = VK_API_VERSION_1_3;
     applicationInfo.applicationVersion = 1;
     applicationInfo.engineVersion = 1;
     applicationInfo.pEngineName = "Pablo";
@@ -141,7 +141,9 @@ void VulkanCore::VulkanInstance::CreateInstance(std::string appName) {
 
     try {
         m_instance = vk::createInstance(instanceInfo);
-        Utils::Logger::LogSuccess("Vulkan instance created");
+        uint32_t instanceVersion;
+        assert(vk::enumerateInstanceVersion(&instanceVersion) == vk::Result::eSuccess);
+        Utils::Logger::LogSuccess("Vulkan instance created with version:" + std::to_string(instanceVersion));
     }
     catch (vk::SystemError &err) {
         throw std::runtime_error(err.what());

@@ -51,7 +51,7 @@ namespace VulkanUtils {
         vk::DescriptorUpdateTemplateCreateInfo createInfo{};
         createInfo.descriptorUpdateEntryCount = static_cast<uint32_t>(m_descriptorTemplateEntries.size());
         createInfo.pDescriptorUpdateEntries = m_descriptorTemplateEntries.data();
-        createInfo.templateType =  vk::DescriptorUpdateTemplateType::ePushDescriptorsKHR;
+        createInfo.templateType =  vk::DescriptorUpdateTemplateType::ePushDescriptors;
         createInfo.descriptorSetLayout =nullptr;
         createInfo.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
         createInfo.pipelineLayout = pipeline.GetPipelineLayout();

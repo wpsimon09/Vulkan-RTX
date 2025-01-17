@@ -133,11 +133,14 @@ VulkanStructs::ImageData VulkanUtils::LoadImage(const TextureBufferInfo& data, c
 {
     VulkanStructs::ImageData imageData{};
 
-    imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load_from_memory(reinterpret_cast<stbi_uc const*>(data.data), static_cast<int>(data.size), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
-    imageData.channels = 4;
-    imageData.fileName = textureID;
+    if (
+        (imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load_from_memory(reinterpret_cast<stbi_uc const*>(data.data), static_cast<int>(data.size), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha))))
+    {
+        imageData.channels = 4;
+        imageData.fileName = textureID;
+    }
 
-    if (!imageData.pixels) {
+    else {
 
         Utils::Logger::LogError("Failed to generate texture that was loaded from memory, textureID was:" + textureID);
         Utils::Logger::LogInfo("Failing back to the default texture");
@@ -149,8 +152,6 @@ VulkanStructs::ImageData VulkanUtils::LoadImage(const TextureBufferInfo& data, c
         if (!imageData.pixels) {
             throw std::runtime_error("Fallback to default texture failed, this should never happen !");
         }
-    }else {
-        Utils::Logger::LogSuccess("Image from buffer with ID:\t" + textureID + "\n read successfully");
     }
 
     //-> to test the concurrency uncomment this line
