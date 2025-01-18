@@ -14,7 +14,9 @@ public:
 
     void Render() override;
     void Resize(int newWidth, int newHeight) override;
-
+private:
+    bool m_scrollToBottom = true;
+    unsigned int m_previousNumberOfLogs = 0;
 };
 
 } // VEditor

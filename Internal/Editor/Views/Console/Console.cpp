@@ -10,13 +10,14 @@
 #include "Application/Logger/Logger.hpp"
 
 namespace VEditor {
-    Console::Console()
-    {
-    }
+    Console::Console() = default;
 
     void Console::Render()
     {
-        ImGui::Begin(ICON_FA_BOOK_JOURNAL_WHILLS" Console");
+        ImGui::Begin(ICON_FA_BOOK_OPEN" Console");
+
+        if (Utils::Logger::m_logEntries.size() > m_previousNumberOfLogs )
+            m_scrollToBottom = true;
 
         for (auto &logEntry : Utils::Logger::m_logEntries)
         {
@@ -28,21 +29,31 @@ namespace VEditor {
                 if (logEntry.type == Utils::ELogType::Success)
                 {
                     icon = ICON_FA_CHECK;
-                    color = ImColor(0, 155, 0);
+                    color = ImColor(250, 255, 250);
                 }
                 else if (logEntry.type == Utils::ELogType::Error)
                 {
-                    icon = ICON_FA_CROSS;
+                    icon = ICON_FA_BUG;
                     color = ImColor(255, 0, 0);
                 }
+                else if (logEntry.type == Utils::ELogType::Info)
+                {
+                    icon = ICON_FA_INFO;
+                    color = ImColor(200, 200, 200);
+                }
 
-                if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-                    ImGui::SetScrollHereY(1.0f);
 
                 std::string logMessage = std::string(icon) + " " + logEntry.message;
                 ImGui::TextColored(color, "%s", logMessage.c_str());
 
+                if (m_scrollToBottom || ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+                {
+                    ImGui::SetScrollHereY(1.0f);
+                    m_scrollToBottom = false;
+                }
+
             }
+            m_previousNumberOfLogs = Utils::Logger::m_logEntries.size();
 
         }
         ImGui::End();

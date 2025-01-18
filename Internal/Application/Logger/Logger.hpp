@@ -20,7 +20,8 @@ namespace Utils
     {
         Success = 0,
         Error,
-        Warning
+        Warning,
+        Info
     };
 
     struct LogEntry
@@ -43,12 +44,15 @@ namespace Utils
 
         static void LogInfoVerboseOnly(const std::string &msg);
         static void LogInfoVerboseRendering(const std::string &msg);
+
+        ~Logger();
     private:
         static void AddLogEntry(const std::string& formattedMsg, ELogType type);
         static std::vector<LogEntry> m_logEntries;
         friend VEditor::Console;
 
     };
+
 }
 
 #endif //VLOGGER_HPP

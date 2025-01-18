@@ -78,7 +78,7 @@ namespace VEditor
 
     void Editor::RenderPreformanceOverlay() const
     {
-        static int location = 2;
+        static int location = 3;
         ImGuiIO& io = ImGui::GetIO();
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
@@ -106,8 +106,6 @@ namespace VEditor
         bool isOpen = true;
         if (ImGui::Begin("Stat",&isOpen , window_flags))
         {
-            ImGui::Text("Selected path %s", m_filePath.string().empty() ? "<empty>" : m_filePath.string().c_str());
-
             ImGui::Text("Prefomance MS/FPS: (%.1f,%.1f)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::SeparatorText("GPU");
             ImGui::Text("GPU:");

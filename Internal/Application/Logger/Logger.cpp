@@ -20,7 +20,7 @@ void Utils::Logger::LogSuccess(const std::string& msg)
     std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
     std::tm* localTime = std::localtime(&currentTime);
     std::ostringstream oss;
-    oss << "✔ LOG::SUCCESS::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+    oss << " LOG::SUCCESS::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
     AddLogEntry(oss.str(), ELogType::Success);
 }
 
@@ -67,7 +67,7 @@ void Utils::Logger::LogInfo(const std::string& msg)
     std::tm* localTime = std::localtime(&currentTime);
     std::ostringstream oss;
     oss << "LOG::INFO::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
-    AddLogEntry(oss.str(), ELogType::Warning);
+    AddLogEntry(oss.str(), ELogType::Info);
 }
 
 void Utils::Logger::LogSuccessClient(const std::string &msg) {
@@ -79,7 +79,7 @@ void Utils::Logger::LogSuccessClient(const std::string &msg) {
     std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
     std::tm* localTime = std::localtime(&currentTime);
     std::ostringstream oss;
-    oss << "✔ LOG::SUCCESS::CLIENT::[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+    oss << " LOG::SUCCESS::CLIENT::[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
     AddLogEntry(oss.str(), ELogType::Success);
 }
 
@@ -102,7 +102,7 @@ void Utils::Logger::LogInfoClient(const std::string &msg) {
     std::tm* localTime = std::localtime(&currentTime);
     std::ostringstream oss;
     oss << "LOG::INFO::CLIENT[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
-    AddLogEntry(oss.str(), ELogType::Warning);
+    AddLogEntry(oss.str(), ELogType::Info);
 }
 
 void Utils::Logger::LogInfoVerboseOnlyClient(const std::string &msg) {
@@ -112,7 +112,7 @@ void Utils::Logger::LogInfoVerboseOnlyClient(const std::string &msg) {
         std::tm* localTime = std::localtime(&currentTime);
         std::ostringstream oss;
         oss << "VERBOSE::LOG::INFO::CLIENT[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
-        AddLogEntry(oss.str(), ELogType::Warning);
+        AddLogEntry(oss.str(), ELogType::Info);
     }
 }
 
@@ -138,3 +138,13 @@ void Utils::Logger::LogInfoVerboseRendering(const std::string& msg)
     oss << "VERBOSE::LOG::INFO::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
     AddLogEntry(oss.str(), ELogType::Warning);
 }
+
+Utils::Logger::~Logger()
+{
+    for (auto &logEntry : m_logEntries)
+    {
+        delete logEntry.message;
+    }
+    m_logEntries.clear();
+}
+
