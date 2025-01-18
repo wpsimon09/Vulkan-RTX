@@ -25,7 +25,7 @@ The goal is to eventually transition from a purely shader-based ray tracing impl
 
 
 ### Video
-<video src='Resources/Readme/shocase.mp4' width=180/>
+![Image](Resources/Readme/shocase.mp4)
 
 ### RTX OFF
 ![image](https://github.com/user-attachments/assets/217f5722-8050-405f-aa7c-cb540129c5a7)
