@@ -131,6 +131,8 @@ set(SOURCES
         Internal/Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp
         Internal/Vulkan/Utils/VFactories.hpp
         Internal/Vulkan/Utils/VFactories.cpp
+        Internal/Editor/Views/Console/Console.cpp
+        Internal/Editor/Views/Console/Console.hpp
 )
 
 

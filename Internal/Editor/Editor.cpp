@@ -11,6 +11,7 @@
 #include "Views/Index.hpp"
 #include "UIContext/UIContext.hpp"
 #include "Views/MenuBar.hpp"
+#include "Views/Console/Console.hpp"
 #include "Views/FileExplorer/FileExplorer.hpp"
 #include "Views/RenderingOptions/RenderingOptions.hpp"
 #include "Views/SceneView/SceneView.hpp"
@@ -29,6 +30,9 @@ namespace VEditor
 
         auto viewPort = std::make_unique<ViewPort>(uiContext.m_viewports[ViewPortType::eMain], m_uiContext.m_client.GetScene(), m_uiContext.m_windowManager);
         index->m_uiChildren.emplace_back(std::move(viewPort));
+
+        auto console = std::make_unique<Console>();
+        index->m_uiChildren.emplace_back(std::move(console));
 
         auto sceneGraph = std::make_unique<SceneView>(uiContext.GetScene());
         index->m_uiChildren.emplace_back(std::move(sceneGraph));

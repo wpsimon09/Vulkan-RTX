@@ -7,9 +7,23 @@
 
 #include <iostream>
 #include <chrono>
+#include <imgui.h>
 
 namespace Utils
 {
+    enum class ELogType
+    {
+        Success = 0,
+        Error,
+        Warning
+    };
+
+    struct LogEntry
+    {
+        char *message;
+        ELogType type;
+    };
+
     class Logger
     {
     public:
@@ -24,6 +38,9 @@ namespace Utils
         static void LogInfoVerboseOnly(const std::string &msg);
         static void LogInfoVerboseRendering(const std::string &msg);
     private:
+        static void AddLogEntry(const std::string& formattedMsg, ELogType type);
+        static std::vector<LogEntry> m_logEntries;
+
 
     };
 }
