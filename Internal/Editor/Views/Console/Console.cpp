@@ -36,7 +36,10 @@ namespace VEditor {
                     color = ImColor(255, 0, 0);
                 }
 
-                    std::string logMessage = std::string(icon) + " " + logEntry.message;
+                if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+                    ImGui::SetScrollHereY(1.0f);
+
+                std::string logMessage = std::string(icon) + " " + logEntry.message;
                 ImGui::TextColored(color, "%s", logMessage.c_str());
 
             }
