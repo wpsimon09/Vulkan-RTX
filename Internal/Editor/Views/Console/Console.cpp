@@ -7,6 +7,8 @@
 #include <IconsFontAwesome6.h>
 #include <imgui.h>
 
+#include "Application/Logger/Logger.hpp"
+
 namespace VEditor {
     Console::Console()
     {
@@ -16,6 +18,30 @@ namespace VEditor {
     {
         ImGui::Begin(ICON_FA_BOOK_JOURNAL_WHILLS" Console");
 
+        for (auto &logEntry : Utils::Logger::m_logEntries)
+        {
+            if (logEntry.message[0] != '\0')
+            {
+
+                const char* icon;
+                ImVec4 color;
+                if (logEntry.type == Utils::ELogType::Success)
+                {
+                    icon = ICON_FA_CHECK;
+                    color = ImColor(0, 155, 0);
+                }
+                else if (logEntry.type == Utils::ELogType::Error)
+                {
+                    icon = ICON_FA_CROSS;
+                    color = ImColor(255, 0, 0);
+                }
+
+                    std::string logMessage = std::string(icon) + " " + logEntry.message;
+                ImGui::TextColored(color, "%s", logMessage.c_str());
+
+            }
+
+        }
         ImGui::End();
         IUserInterfaceElement::Render();
     }

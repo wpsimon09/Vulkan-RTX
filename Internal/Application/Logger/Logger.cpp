@@ -22,10 +22,6 @@ void Utils::Logger::LogSuccess(const std::string& msg)
     std::ostringstream oss;
     oss << "✔ LOG::SUCCESS::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
     AddLogEntry(oss.str(), ELogType::Success);
-
-    std::cout << "================================================================================================================" << std::endl;
-    std::cout << oss.str() << std::endl;
-    std::cout << "================================================================================================================" << std::endl;
 }
 
 void Utils::Logger::LogError(const std::string& msg)
@@ -40,6 +36,20 @@ void Utils::Logger::LogError(const std::string& msg)
     std::ostringstream oss;
     oss << "LOG::ERROR::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
     AddLogEntry(oss.str(), ELogType::Error);
+}
+
+void Utils::Logger::LogVKValidationLayerError(const std::string& msg)
+{
+    if (!GlobalState::LoggingEnabled) {
+        return;
+    }
+
+    auto time = std::chrono::system_clock::now();
+    std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
+    std::tm* localTime = std::localtime(&currentTime);
+    std::ostringstream oss;
+    oss << "LOG::ERROR::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+    AddLogEntry("Vulkan validation layer error see debug console for full validation layer error!", ELogType::Error);
 
     std::cerr << "=================================================================================================================================================================================" << std::endl;
     std::cerr << oss.str() << std::endl;
@@ -58,8 +68,6 @@ void Utils::Logger::LogInfo(const std::string& msg)
     std::ostringstream oss;
     oss << "LOG::INFO::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
     AddLogEntry(oss.str(), ELogType::Warning);
-
-    std::cout << oss.str() << std::endl;
 }
 
 void Utils::Logger::LogSuccessClient(const std::string &msg) {
@@ -73,8 +81,6 @@ void Utils::Logger::LogSuccessClient(const std::string &msg) {
     std::ostringstream oss;
     oss << "✔ LOG::SUCCESS::CLIENT::[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
     AddLogEntry(oss.str(), ELogType::Success);
-
-    std::cout << oss.str() << std::endl;
 }
 
 void Utils::Logger::LogErrorClient(const std::string &msg) {
@@ -88,8 +94,6 @@ void Utils::Logger::LogErrorClient(const std::string &msg) {
     std::ostringstream oss;
     oss << "LOG::ERROR::CLIENT[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
     AddLogEntry(oss.str(), ELogType::Error);
-
-    std::cerr << oss.str() << std::endl;
 }
 
 void Utils::Logger::LogInfoClient(const std::string &msg) {
@@ -99,8 +103,6 @@ void Utils::Logger::LogInfoClient(const std::string &msg) {
     std::ostringstream oss;
     oss << "LOG::INFO::CLIENT[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
     AddLogEntry(oss.str(), ELogType::Warning);
-
-    std::cout << oss.str() << std::endl;
 }
 
 void Utils::Logger::LogInfoVerboseOnlyClient(const std::string &msg) {
@@ -111,8 +113,6 @@ void Utils::Logger::LogInfoVerboseOnlyClient(const std::string &msg) {
         std::ostringstream oss;
         oss << "VERBOSE::LOG::INFO::CLIENT[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
         AddLogEntry(oss.str(), ELogType::Warning);
-
-        std::cout << oss.str() << std::endl;
     }
 }
 
@@ -124,8 +124,6 @@ void Utils::Logger::LogInfoVerboseOnly(const std::string &msg) {
         std::ostringstream oss;
         oss << "VERBOSE::LOG::INFO::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
         AddLogEntry(oss.str(), ELogType::Warning);
-
-        std::cout << oss.str() << std::endl;
     }
 }
 
@@ -139,6 +137,4 @@ void Utils::Logger::LogInfoVerboseRendering(const std::string& msg)
     std::ostringstream oss;
     oss << "VERBOSE::LOG::INFO::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
     AddLogEntry(oss.str(), ELogType::Warning);
-
-    std::cout << oss.str() << std::endl;
 }

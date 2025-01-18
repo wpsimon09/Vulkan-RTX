@@ -71,7 +71,7 @@ VkBool32 VulkanCore::VulkanInstance::debugMessageFunc(VkDebugUtilsMessageSeverit
         file += __LINE__;
         file += "\n";
 
-        Utils::Logger::LogError(file + message.str());
+        Utils::Logger::LogVKValidationLayerError(file + message.str());
 
         return false;
     }

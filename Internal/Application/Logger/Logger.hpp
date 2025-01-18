@@ -9,6 +9,11 @@
 #include <chrono>
 #include <imgui.h>
 
+namespace VEditor
+{
+    class Console;
+}
+
 namespace Utils
 {
     enum class ELogType
@@ -29,6 +34,7 @@ namespace Utils
     public:
         static void LogSuccess(const std::string &msg);
         static void LogError(const std::string &msg);
+        static void LogVKValidationLayerError(const std::string &msg);
         static void LogInfo(const std::string &msg);
         static void LogSuccessClient(const std::string &msg);
         static void LogErrorClient(const std::string &msg);
@@ -40,7 +46,7 @@ namespace Utils
     private:
         static void AddLogEntry(const std::string& formattedMsg, ELogType type);
         static std::vector<LogEntry> m_logEntries;
-
+        friend VEditor::Console;
 
     };
 }
