@@ -22,6 +22,10 @@ namespace Renderer
         const VulkanCore::VGraphicsPipeline& pipeline)
     {
         int drawCallCount = 0;
+
+        if (renderContext.DrawCalls.empty())
+            return 0;
+
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance());
 
         auto& dstSetDataStruct = pushDescriptorManager.GetDescriptorSetDataStruct();
@@ -30,7 +34,7 @@ namespace Renderer
         commandBuffer.bindIndexBuffer(renderContext.DrawCalls[0].meshData->indexData_BB.buffer, 0, vk::IndexType::eUint32);
         for (int i = 0; i < renderContext.DrawCalls.size(); i++)
         {
-            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(renderContext.DrawCalls[i].drawCallID)[
+            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
                 currentFrameIndex];
 
             auto& drawCall = renderContext.DrawCalls[i];
@@ -45,7 +49,7 @@ namespace Renderer
                 pipeline.GetPipelineLayout(), 0,
                 dstSetDataStruct, device.DispatchLoader);
 
-                auto vertexOffset = 0; //drawCall.meshData->vertexData_BB.offset / sizeof(ApplicationCore::Vertex);
+                auto vertexOffset = 0;
                 commandBuffer.drawIndexed(drawCall.indexCount_BB, 1, 0,static_cast<uint32_t>(vertexOffset) , 0);
                 drawCallCount++;
         }

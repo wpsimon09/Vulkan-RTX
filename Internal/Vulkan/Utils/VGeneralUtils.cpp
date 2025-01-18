@@ -7,6 +7,12 @@
 
 #include <thread>
 
+#include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
@@ -334,4 +340,47 @@ VulkanStructs::StagingBufferInfo VulkanUtils::CreateStagingBuffer(const VulkanCo
     return staginBufferInfo;
 
 }
+
+bool VulkanUtils::IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4& model, const glm::mat4& view,
+    const glm::mat4& projection)
+{
+    std::array<glm::vec3, 8> corners {
+        glm::vec3 { 1, 1, 1 },
+        glm::vec3 { 1, 1, -1 },
+        glm::vec3 { 1, -1, 1 },
+        glm::vec3 { 1, -1, -1 },
+        glm::vec3 { -1, 1, 1 },
+        glm::vec3 { -1, 1, -1 },
+        glm::vec3 { -1, -1, 1 },
+        glm::vec3 { -1, -1, -1 },
+    };
+
+    glm::mat4 mvpMatrix = projection * view * model;
+
+    glm::vec3 min = {1.5f, 1.5f, 1.5f};
+    glm::vec3 max = { -1.5, -1.5, -1.5 };
+
+    // iterate through corners
+    for (auto& corner : corners)
+    {
+        // project corner to clip space
+        glm::vec4 projectedCorner = mvpMatrix * glm::vec4(bounds->origin + (corner * bounds->extents), 1.0f);
+
+        // perspective devision
+        projectedCorner.x /= projectedCorner.w;
+        projectedCorner.y /= projectedCorner.w;
+        projectedCorner.z /= projectedCorner.w;
+
+        min = glm::min(glm::vec3(projectedCorner.x, projectedCorner.y, projectedCorner.z), min);
+        max = glm::max(glm::vec3(projectedCorner.x, projectedCorner.y, projectedCorner.z), max);
+    }
+
+    // check the clip space box is within the view
+    if (min.z > 1.f || max.z < 0.f || min.x > 1.f || max.x < -1.f || min.y > 1.f || max.y < -1.f) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 

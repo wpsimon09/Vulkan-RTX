@@ -11,19 +11,23 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
-namespace ApplicationCore {
-    SceneNode::SceneNode(std::shared_ptr<Mesh> mesh): m_transformation(mesh ? mesh->GetTransformations() : &m_localTransformation)
+namespace ApplicationCore
+{
+    SceneNode::SceneNode(std::shared_ptr<Mesh> mesh): m_transformation(
+        mesh ? mesh->GetTransformations() : &m_localTransformation)
     {
-        if(mesh)
+        if (mesh)
         {
             m_parent = nullptr;
             m_mesh = mesh;
             m_hasMesh = true;
             m_ID = ++SceneNodeIDCounter;
-        }else
+        }
+        else
         {
             Utils::Logger::LogErrorClient("Mesh is nullptr, creating scene node with no mesh assigned to it....");
         }
@@ -38,7 +42,7 @@ namespace ApplicationCore {
 
     void SceneNode::AddChild(const std::shared_ptr<SceneNode>& child)
     {
-        if(child)
+        if (child)
         {
             m_children.emplace_back(child);
             child->m_parent = this;
@@ -52,7 +56,7 @@ namespace ApplicationCore {
 
     void SceneNode::AddChild(std::shared_ptr<Mesh> child)
     {
-        if(child)
+        if (child)
         {
             auto newNode = std::make_shared<SceneNode>(child);
             newNode->m_parent = this;
@@ -68,7 +72,7 @@ namespace ApplicationCore {
     void SceneNode::Setvisibility(bool isVisible)
     {
         m_isVisible = isVisible;
-        for (auto &child : m_children)
+        for (auto& child : m_children)
         {
             child->Setvisibility(isVisible);
         }
@@ -79,7 +83,7 @@ namespace ApplicationCore {
         if (m_name == "Root-Node")
             return;
         m_isSelected = true;
-        for (auto &child : m_children)
+        for (auto& child : m_children)
         {
             child->Select();
         }
@@ -90,7 +94,7 @@ namespace ApplicationCore {
         if (m_name == "Root-Node")
             return;
         m_isSelected = false;
-        for (auto &child : m_children)
+        for (auto& child : m_children)
         {
             child->Deselect();
         }
@@ -98,13 +102,13 @@ namespace ApplicationCore {
 
     SceneNode* SceneNode::GetParent()
     {
-       return m_parent;
+        return m_parent;
     }
 
     std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildren()
     {
         std::vector<std::reference_wrapper<SceneNode>> result;
-        for (auto &child : m_children)
+        for (auto& child : m_children)
         {
             result.emplace_back(std::ref(*child));
         }
@@ -114,49 +118,53 @@ namespace ApplicationCore {
 
     void SceneNode::Update() const
     {
-        if(m_parent)
+        if (m_parent)
         {
             m_transformation->ComputeModelMatrix(m_parent->m_transformation->GetModelMatrix());
-        }else
+        }
+        else
         {
             m_transformation->ComputeModelMatrix();
         }
 
-        for(auto& child : m_children)
+        for (auto& child : m_children)
         {
             child->Update();
         }
-
     }
 
     void SceneNode::Render(VulkanStructs::RenderContext* renderingContext) const
     {
-        if(m_mesh && m_isVisible)
+        if (m_mesh && m_isVisible)
         {
             // check if the mesh can be rendered in the given context
             if (m_mesh->GetRenderingMetaData() == renderingContext->metaData)
             {
-                //=====================================================
-                // NORMAL SCENE DATA
-                //=====================================================
-                VulkanStructs::DrawCallData data{.modelMatrix = m_transformation->GetModelMatrix()};
-                data.firstIndex = 1;
-                data.indexCount = m_mesh->GetMeshIndexCount();
-                data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
-                data.material = m_mesh->m_material;
-                data.meshData = m_mesh->GetMeshData();
-                data.renderOutline = m_isSelected;
+                // frustrum culling
+                if (VulkanUtils::IsInViewFrustum(
+                    &m_mesh->GetMeshData()->bounds,
+                    m_transformation->GetModelMatrix(),
+                    renderingContext->metaData.view, renderingContext->metaData.projection))
+                {
+                    //=====================================================
+                    // NORMAL SCENE DATA
+                    //=====================================================
+                    VulkanStructs::DrawCallData data{.modelMatrix = m_transformation->GetModelMatrix()};
+                    data.firstIndex = 1;
+                    data.indexCount = m_mesh->GetMeshIndexCount();
+                    data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
+                    data.material = m_mesh->m_material;
+                    data.meshData = m_mesh->GetMeshData();
+                    data.renderOutline = m_isSelected;
 
-                //=====================================================
-                // BOUNDING VOLUME STUFF
-                //=====================================================
-                data.bounds = &m_mesh->GetMeshData()->bounds;
+                    //=====================================================
+                    // BOUNDING VOLUME STUFF
+                    //=====================================================
+                    data.bounds = &m_mesh->GetMeshData()->bounds;
 
-                renderingContext->DrawCalls.emplace_back(data);
+                    renderingContext->DrawCalls.emplace_back(data);
+                }
             }
         }
     }
-
-
-
 } // ApplicationCore

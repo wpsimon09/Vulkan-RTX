@@ -45,6 +45,9 @@ namespace VulkanStructs
         bool bRasterPass = true;
         bool bRTXPass = false;
 
+        glm::mat4 view;
+        glm::mat4 projection;
+
         bool operator==(const RenderingMetaData& other) const
         {
             return bRasterPass == other.bRasterPass && bRTXPass == other.bRTXPass;

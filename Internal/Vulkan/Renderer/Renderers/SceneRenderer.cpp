@@ -242,7 +242,7 @@ namespace Renderer
 
         }
 
-        if (m_AllowDebugDraw)
+        if (m_AllowDebugDraw && !m_renderContextPtr->DrawCalls.empty())
         {
             drawCallCount += RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                                                    m_pushDescriptorManager, *m_renderContextPtr,
