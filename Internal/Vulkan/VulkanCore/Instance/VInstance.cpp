@@ -105,7 +105,7 @@ void VulkanCore::VulkanInstance::CreateInstance(std::string appName) {
     //-------------------------------
     vk::ApplicationInfo applicationInfo;
     applicationInfo.pApplicationName = appName.c_str();
-    applicationInfo.apiVersion = VK_API_VERSION_1_3;
+    applicationInfo.apiVersion = VK_API_VERSION_1_4;
     applicationInfo.applicationVersion = 1;
     applicationInfo.engineVersion = 1;
     applicationInfo.pEngineName = "Pablo";

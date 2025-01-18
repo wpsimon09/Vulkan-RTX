@@ -232,10 +232,10 @@ namespace Renderer
                 0,//drawCall.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                 0);
             drawCallCount++;
+            drawCall.objectID = i;
 
             if (drawCall.renderOutline)
             {
-                drawCall.objectID = i;
                 m_selectedGeometry.DrawCalls.emplace_back(drawCall);
             }
 
