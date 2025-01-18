@@ -25,7 +25,8 @@ The goal is to eventually transition from a purely shader-based ray tracing impl
 
 
 ### Video
-<video src='https://youtu.be/Xj0MMvlYDbg' width=180/>
+
+![video](https://youtu.be/Xj0MMvlYDbg)
 
 ### RTX OFF
 ![image](https://github.com/user-attachments/assets/217f5722-8050-405f-aa7c-cb540129c5a7)
