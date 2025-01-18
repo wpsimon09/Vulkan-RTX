@@ -68,7 +68,7 @@ namespace VulkanCore
 
         virtual void Destroy() override;
 
-        vk::DispatchLoaderDynamic DispatchLoader;
+        vk::detail::DispatchLoaderDynamic DispatchLoader;
     private:
         vk::PhysicalDevice m_physicalDevice;
         vk::Device m_device; //logical device
