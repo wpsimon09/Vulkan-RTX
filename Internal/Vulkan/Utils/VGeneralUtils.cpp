@@ -3,9 +3,9 @@
 //
 
 #include "VGeneralUtils.hpp"
+#include "stb_image/stb_image.h"
 
 #include <thread>
-#include <bits/fs_fwd.h>
 
 #include "Application/Logger/Logger.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
@@ -15,7 +15,6 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
-#include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
 uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyProperties> &queueFamilyProperties,
                                       vk::QueueFlagBits queueType) {

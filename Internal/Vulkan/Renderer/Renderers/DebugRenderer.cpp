@@ -30,7 +30,7 @@ namespace Renderer
         commandBuffer.bindIndexBuffer(renderContext.DrawCalls[0].meshData->indexData_BB.buffer, 0, vk::IndexType::eUint32);
         for (int i = 0; i < renderContext.DrawCalls.size(); i++)
         {
-            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
+            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(renderContext.DrawCalls[i].drawCallID)[
                 currentFrameIndex];
 
             auto& drawCall = renderContext.DrawCalls[i];
@@ -45,8 +45,8 @@ namespace Renderer
                 pipeline.GetPipelineLayout(), 0,
                 dstSetDataStruct, device.DispatchLoader);
 
-                auto vertexOffset =  drawCall.meshData->vertexData_BB.offset / sizeof(ApplicationCore::Vertex);
-                commandBuffer.drawIndexed(36, 1, 0,static_cast<uint32_t>(vertexOffset) , 0);
+                auto vertexOffset = 0; //drawCall.meshData->vertexData_BB.offset / sizeof(ApplicationCore::Vertex);
+                commandBuffer.drawIndexed(drawCall.indexCount_BB, 1, 0,static_cast<uint32_t>(vertexOffset) , 0);
                 drawCallCount++;
         }
         return drawCallCount;
@@ -65,7 +65,7 @@ namespace Renderer
         for (int i = 0; i < renderContext.DrawCalls.size(); i++)
         {
 
-            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(renderContext.DrawCalls[i].objectID)[currentFrameIndex];
+            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(renderContext.DrawCalls[i].drawCallID)[currentFrameIndex];
 
             auto& drawCall = renderContext.DrawCalls[i];
 

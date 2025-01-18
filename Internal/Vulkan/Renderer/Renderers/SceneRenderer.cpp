@@ -231,9 +231,10 @@ namespace Renderer
                 0,
                 0,//drawCall.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                 0);
-            drawCallCount++;
-            drawCall.objectID = i;
 
+            drawCall.drawCallID = i;
+
+            drawCallCount++;
             if (drawCall.renderOutline)
             {
                 m_selectedGeometry.DrawCalls.emplace_back(drawCall);
@@ -255,7 +256,7 @@ namespace Renderer
 
         cmdBuffer.endRenderPass();
 
-        m_renderingStatistics.DrawCallCunt = drawCallCount;
+        m_renderingStatistics.DrawCallCount = drawCallCount;
     }
 
     void SceneRenderer::Destroy()

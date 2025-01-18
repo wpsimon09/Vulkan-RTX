@@ -53,7 +53,7 @@ namespace VulkanStructs
 
     struct RenderingStatistics
     {
-        int DrawCallCunt = 0;
+        int DrawCallCount = 0;
     };
 
     // holds offset to the larger buffer that is in GPU to prevent fragmentation
@@ -107,9 +107,9 @@ namespace VulkanStructs
     {
         uint32_t indexCount = 0;
         uint32_t firstIndex =0;
-        uint32_t AABBIndexCount = 0;
+        uint32_t indexCount_BB = 36;
         uint32_t instanceCount = 1;
-        mutable int objectID = 0; // optional if i need to access other stuff in the array of objects
+        mutable int drawCallID = 0; // optional if i need to access other stuff in the array of objects
 
         Bounds *bounds;
         MeshData* meshData;

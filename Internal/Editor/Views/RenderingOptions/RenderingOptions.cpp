@@ -28,7 +28,7 @@ namespace VEditor {
                 ImGui::Checkbox("Wire frame mode", &m_renderingSystem->m_sceneRenderer->m_WireFrame);
 
                 ImGui::SeparatorText("Draw calls");
-                ImGui::Text("Total draw call count: %i", m_renderingSystem->m_sceneRenderer->m_renderingStatistics.DrawCallCunt);
+                ImGui::Text("Total draw call count: %i", m_renderingSystem->m_sceneRenderer->m_renderingStatistics.DrawCallCount);
 
                 ImGui::TreePop();
             }

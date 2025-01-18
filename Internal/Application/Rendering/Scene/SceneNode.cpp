@@ -142,7 +142,7 @@ namespace ApplicationCore {
                 VulkanStructs::DrawCallData data{.modelMatrix = m_transformation->GetModelMatrix()};
                 data.firstIndex = 1;
                 data.indexCount = m_mesh->GetMeshIndexCount();
-                data.AABBIndexCount = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
+                data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
                 data.material = m_mesh->m_material;
                 data.meshData = m_mesh->GetMeshData();
                 data.renderOutline = m_isSelected;
