@@ -88,7 +88,7 @@ glm::vec2 VEditor::ViewPort::GetMousePositionInViewPort(ImVec2& ImageWidth)
 
     ;
     float scaleX = GlobalVariables::RenderTargetResolutionWidth / ImageWidth.x;
-    float scaleY = GlobalVariables::RenderTargetRpCesolutionHeight / ImageWidth.y;
+    float scaleY = GlobalVariables::RenderTargetResolutionHeight / ImageWidth.y;
 
 
     if (relativeCursorPos.x >= 0 && relativeCursorPos.x <= contentMax.x - contentMin.x &&
@@ -102,7 +102,7 @@ glm::vec2 VEditor::ViewPort::GetMousePositionInViewPort(ImVec2& ImageWidth)
     }
     else
     {
-        return {-1, -1};
+        return {-2, -2};
     }
 }
 

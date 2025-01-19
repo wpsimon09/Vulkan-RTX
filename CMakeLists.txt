@@ -133,6 +133,8 @@ set(SOURCES
         Internal/Vulkan/Utils/VFactories.cpp
         Internal/Editor/Views/Console/Console.cpp
         Internal/Editor/Views/Console/Console.hpp
+        Internal/Application/IntersectionTests/IntersectionTests.hpp
+        Internal/Application/IntersectionTests/IntersectionTests.cpp
 )
 
 

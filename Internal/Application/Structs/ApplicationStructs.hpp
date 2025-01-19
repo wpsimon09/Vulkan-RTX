@@ -87,7 +87,7 @@ struct Ray
 
     glm::vec3 origin;
     glm::vec3 direction;
-    glm::vec3 length;
+    float length;
 };
 
 #endif //APPLICATIONSTRUCTS_HPP

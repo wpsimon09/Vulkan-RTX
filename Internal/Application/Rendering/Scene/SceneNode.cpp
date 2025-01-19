@@ -6,6 +6,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include "Application/IntersectionTests/IntersectionTests.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
@@ -97,6 +98,25 @@ namespace ApplicationCore
         for (auto& child : m_children)
         {
             child->Deselect();
+        }
+    }
+
+    void SceneNode::PreformRayIntersectionTest(Ray& ray)
+    {
+        if (m_hasMesh)
+        {
+            // transfer bounds max and min to world space
+            VulkanStructs::Bounds* bounds = &m_mesh->GetMeshData()->bounds;
+            bounds->max = m_transformation->GetModelMatrix() * glm::vec4(bounds->max, 1.0f);
+            bounds->min = m_transformation->GetModelMatrix() * glm::vec4(bounds->min, 1.0f);
+            if (ApplicationCore::AABBRayIntersection(ray, bounds))
+            {
+                Select();
+                return;
+            }
+            for (auto& child : m_children) {
+                child->PreformRayIntersectionTest(ray);
+            }
         }
     }
 

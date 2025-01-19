@@ -13,6 +13,7 @@
 
 namespace ApplicationCore
 {
+    class Camera;
     class SceneNode;
     class AssetsManager;
 }
@@ -21,7 +22,7 @@ namespace ApplicationCore {
 
 class Scene {
 public:
-    Scene(AssetsManager& assetsManager);
+    Scene(AssetsManager& assetsManager, Camera& camera);
 
     void Init();
     void Update();
@@ -47,7 +48,7 @@ private:
     SceneStatistics m_sceneStatistics;
 
 private:
-    std::unique_ptr<class Camera> m_camera;
+    Camera& m_camera;
     std::shared_ptr<class SceneNode> m_root;
     AssetsManager& m_assetsManager;
 };

@@ -10,6 +10,8 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 
 
+struct Ray;
+
 namespace VulkanStructs
 {
     struct DrawCallData;
@@ -40,6 +42,7 @@ namespace ApplicationCore
         void Select();
         void Deselect();
         bool IsSelected() const {return m_isSelected;}
+        void PreformRayIntersectionTest(Ray& ray);
 
         std::string& GetName() {return m_name;} const
         std::shared_ptr<Mesh>& GetMesh() {return m_mesh;}

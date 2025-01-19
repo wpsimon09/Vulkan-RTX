@@ -37,8 +37,23 @@ namespace VulkanStructs
     {
         glm::vec3 origin;
         glm::vec3 extents;
+        glm::vec3 max;
+        glm::vec3 min;
+        std::array<glm::vec3, 8> corners;
+        std::pair<glm::vec3, glm::vec3> GetMinAndMax(glm::mat4 modelMatrix)
+        {
+            for (auto& corner : corners)
+            {
+                corner = modelMatrix * glm::vec4(corner, 1.0f);
+            }
+
+            // TODO this will return the min max pair i have to make corners hold correct values
+        }
+
         float radius;
     };
+
+
 
     struct RenderingMetaData
     {

@@ -31,7 +31,7 @@ void Client::Init() {
     m_camera = std::make_unique<ApplicationCore::Camera>();
     Utils::Logger::LogSuccessClient("Camera creatd");
 
-    m_scene = std::make_unique<ApplicationCore::Scene>(*m_assetsManager);
+    m_scene = std::make_unique<ApplicationCore::Scene>(*m_assetsManager, *m_camera);
     m_scene->Init();
 
 

@@ -18,16 +18,15 @@
 
 namespace ApplicationCore {
 
-    Scene::Scene(AssetsManager& assetsManager): m_assetsManager(assetsManager), m_sceneStatistics()    {
-       }
+    Scene::Scene(AssetsManager& assetsManager, Camera& camera): m_assetsManager(assetsManager), m_sceneStatistics(), m_camera(camera)
+    {
+    }
 
     void Scene::Init()
     {
         m_root = std::make_shared<SceneNode>();
         m_root->SetName("Root-Node");
-        Utils::Logger::LogInfoVerboseOnly("Creating camera...");
-        m_camera = std::make_unique<Camera>();
-        Utils::Logger::LogSuccessClient("Camera created");
+
 
         BuildDefaultScene();
     }
@@ -155,6 +154,23 @@ namespace ApplicationCore {
 
     void Scene::PreformRayCast(glm::vec2 mousePosition) const
     {
+        if (mousePosition.x >= -1 && mousePosition.x <= 1 && mousePosition.y >= -1 && mousePosition.y <= 1)
+        {
+            Ray ray{};
+            ray.origin = m_camera.GetPosition();
+            ray.direction = glm::normalize(m_camera.Deproject(mousePosition));
+            ray.length = 10000.0f;
+
+            for (auto node : m_root->GetChildren())
+            {
+                node.get().PreformRayIntersectionTest(ray);
+            }
+
+            Utils::Logger::LogSuccessClient("Ray constructed successfuly !");
+        }else
+        {
+            Utils::Logger::LogErrorClient("Mouse is outside NDC");
+        }
 
     }
 } // ApplicationCore

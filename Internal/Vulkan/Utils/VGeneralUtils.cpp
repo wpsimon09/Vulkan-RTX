@@ -293,7 +293,10 @@ VulkanStructs::Bounds VulkanUtils::CalculateBounds(const std::vector<Application
     VulkanStructs::Bounds bounds = {};
     bounds.origin = (maxPos + minPos) /2.f;
     bounds.extents = (maxPos - minPos) /2.f;
+    bounds.max = maxPos;
+    bounds.min = minPos;
     bounds.radius = glm::length(bounds.extents);
+    bounds.
 
     return bounds;
 }
