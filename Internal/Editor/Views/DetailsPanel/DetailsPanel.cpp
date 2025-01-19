@@ -24,60 +24,11 @@ namespace VEditor {
                 ImGui::TextColored(ImVec4(0.9, 0.2,0.2,1.0), "No scene node selected");
             }else
             {
-                if (ImGui::TreeNodeEx(ICON_FA_MAP " Transformations"))
-                {
-
-                        // position
-                        {
-                            if (ImGui::Button(ICON_FA_REPEAT"##ResetPos"))
-                            {
-                                m_selectedSceneNode->m_transformation->SetPosition(glm::vec3(0.0f));
-                            }
-                            ImGui::SameLine();
-                            ImGui::DragFloat3(ICON_FA_ARROWS_TO_DOT " Position", &m_selectedSceneNode->m_transformation->GetPosition().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
-                        }
-                        // Scale
-                        {
-
-                            if (ImGui::Button(ICON_FA_REPEAT"##ResetScale"))
-                            {
-                                m_selectedSceneNode->m_transformation->SetScale(glm::vec3(1.0f));
-                                m_uniformScaleScalar = 1.0f;
-                            }
-
-                            if (m_isUniformScaleOn)
-                            {
-                                ImGui::SameLine();
-                                ImGui::DragFloat(ICON_FA_VECTOR_SQUARE " Scale", &m_uniformScaleScalar, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
-                                m_selectedSceneNode->m_transformation->SetScale(m_uniformScaleScalar);
-                            }else
-                            {
-                                ImGui::SameLine();
-                                ImGui::DragFloat3(ICON_FA_VECTOR_SQUARE " Scale", &m_selectedSceneNode->m_transformation->GetScale().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
-                            }
-                            ImGui::SameLine();
-                            ImGui::Checkbox(ICON_FA_LOCK,&m_isUniformScaleOn);
-                        }
-                        // rotate
-                        {
-
-                            if (ImGui::Button(ICON_FA_REPEAT"##ResetRotation"))
-                            {
-                                m_selectedSceneNode->m_transformation->SetRotations(glm::vec3(0.0f));
-                            }
-                            ImGui::SameLine();
-                            ImGui::DragFloat3(ICON_FA_ARROWS_ROTATE  " Rotation", &m_selectedSceneNode->m_transformation->GetRotations().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
-
-                        }
-
-                        ImGui::TreePop();
-                    }
+                RenderTransformationsPanel();
                 if (m_selectedSceneNode->HasMesh())
                 {
-                    RenderMeshOnlyUI();
+                    RenderMaterialEditorPanel();
                 }
-
-
             }
 
         ImGui::End();
@@ -87,6 +38,117 @@ namespace VEditor {
     void DetailsPanel::Resize(int newWidth, int newHeight)
     {
 
+    }
+
+    void DetailsPanel::RenderTransformationsPanel()
+    {
+            ImGui::SetNextItemOpen(true);
+           if (ImGui::TreeNodeEx(ICON_FA_MAP " Transformations"))
+           {
+               // position
+               {
+                   if (ImGui::Button(ICON_FA_REPEAT"##ResetPos"))
+                   {
+                       m_selectedSceneNode->m_transformation->SetPosition(glm::vec3(0.0f));
+                   }
+                   ImGui::SameLine();
+                   ImGui::DragFloat3(ICON_FA_ARROWS_TO_DOT " Position", &m_selectedSceneNode->m_transformation->GetPosition().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+               }
+               // Scale
+               {
+
+                   if (ImGui::Button(ICON_FA_REPEAT"##ResetScale"))
+                   {
+                       m_selectedSceneNode->m_transformation->SetScale(glm::vec3(1.0f));
+                       m_uniformScaleScalar = 1.0f;
+                   }
+
+                   if (m_isUniformScaleOn)
+                   {
+                       ImGui::SameLine();
+                       ImGui::DragFloat(ICON_FA_VECTOR_SQUARE " Scale", &m_uniformScaleScalar, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+                       m_selectedSceneNode->m_transformation->SetScale(m_uniformScaleScalar);
+                   }else
+                   {
+                       ImGui::SameLine();
+                       ImGui::DragFloat3(ICON_FA_VECTOR_SQUARE " Scale", &m_selectedSceneNode->m_transformation->GetScale().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+                   }
+                   ImGui::SameLine();
+                   ImGui::Checkbox(ICON_FA_LOCK,&m_isUniformScaleOn);
+               }
+               // rotate
+               {
+
+                   if (ImGui::Button(ICON_FA_REPEAT"##ResetRotation"))
+                   {
+                       m_selectedSceneNode->m_transformation->SetRotations(glm::vec3(0.0f));
+                   }
+                   ImGui::SameLine();
+                   ImGui::DragFloat3(ICON_FA_ARROWS_ROTATE  " Rotation", &m_selectedSceneNode->m_transformation->GetRotations().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+
+               }
+
+               ImGui::TreePop();
+           }
+
+    }
+
+    void DetailsPanel::RenderMaterialEditorPanel()
+    {
+        ImGui::SetNextItemOpen(true);
+        if (ImGui::TreeNode(ICON_FA_PAINTBRUSH" Material"))
+        {
+            auto meshMaterial = m_selectedSceneNode->GetMesh()->GetMaterial();
+            float colourPickerWidth = 300.0f;
+            //==============
+            // ALBEDO
+            //===============
+            ImGui::SeparatorText("Albedo");
+            if (meshMaterial->GetMaterialDescription().features.hasDiffuseTexture)
+            {
+
+            }else
+            {
+                ImGui::SetNextItemWidth(colourPickerWidth);
+                ImGui::ColorEdit3("Albedo", &meshMaterial->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
+            }
+            //==============
+            // ROUGHNESS
+            //===============
+            ImGui::SeparatorText("Roughness");
+            if (meshMaterial->GetMaterialDescription().features.hasArmTexture)
+            {
+
+            }else
+            {
+                ImGui::SliderFloat("Roughness", &meshMaterial->GetMaterialDescription().values.roughness, 0.0f, 1.0f, "%.3f");
+            }
+            //==============
+            // METALNES
+            //===============
+            ImGui::SeparatorText("Metalness");
+            if (meshMaterial->GetMaterialDescription().features.hasDiffuseTexture)
+            {
+
+            }else
+            {
+                ImGui::SliderFloat("Metalness", &meshMaterial->GetMaterialDescription().values.metalness, 0.0f, 1.0f, "%.3f");
+            }
+            //==============
+            // EMISSIVE
+            //===============
+            ImGui::SeparatorText("Emissive");
+            if (meshMaterial->GetMaterialDescription().features.hasDiffuseTexture)
+            {
+
+            }else
+            {
+                ImGui::SetNextItemWidth(colourPickerWidth);
+                ImGui::ColorEdit3("Emission", &meshMaterial->GetMaterialDescription().values.emissive_strength.x, ImGuiColorEditFlags_NoInputs);
+            }
+
+            ImGui::TreePop();
+        }
     }
 
     void DetailsPanel::RenderMeshOnlyUI()

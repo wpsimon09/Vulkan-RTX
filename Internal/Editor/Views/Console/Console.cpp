@@ -19,6 +19,14 @@ namespace VEditor {
         if (Utils::Logger::m_logEntries.size() > m_previousNumberOfLogs )
             m_scrollToBottom = true;
 
+        if (ImGui::Button("Clear"))
+        {
+            for (auto &logEntry : Utils::Logger::m_logEntries){
+                delete logEntry.message;
+            }
+            Utils::Logger::m_logEntries.clear();
+        }
+        ImGui::BeginChild("Console");
         for (auto &logEntry : Utils::Logger::m_logEntries)
         {
             if (logEntry.message[0] != '\0')
@@ -42,7 +50,6 @@ namespace VEditor {
                     color = ImColor(200, 200, 200);
                 }
 
-
                 std::string logMessage = std::string(icon) + " " + logEntry.message;
                 ImGui::TextColored(color, "%s", logMessage.c_str());
 
@@ -56,6 +63,7 @@ namespace VEditor {
             m_previousNumberOfLogs = Utils::Logger::m_logEntries.size();
 
         }
+        ImGui::EndChild();
         ImGui::End();
         IUserInterfaceElement::Render();
     }

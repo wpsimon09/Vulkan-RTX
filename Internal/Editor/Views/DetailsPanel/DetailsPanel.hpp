@@ -32,6 +32,8 @@ private:
     float m_uniformScaleScalar = 1.0f;
     std::shared_ptr<ApplicationCore::SceneNode> m_selectedSceneNode = nullptr;
 
+    void RenderTransformationsPanel();
+    void RenderMaterialEditorPanel();
     void RenderMeshOnlyUI();
 };
 
