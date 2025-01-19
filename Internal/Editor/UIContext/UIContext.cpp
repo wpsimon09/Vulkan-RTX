@@ -38,11 +38,12 @@ namespace VEditor
             {vk::DescriptorType::eCombinedImageSampler, 1},
             {vk::DescriptorType::eCombinedImageSampler, 1},
             {vk::DescriptorType::eCombinedImageSampler, 1},
+            {vk::DescriptorType::eCombinedImageSampler, 4}, // for material texture images
         };
 
         vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo{};
         descriptorPoolCreateInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-        descriptorPoolCreateInfo.maxSets = 3;
+        descriptorPoolCreateInfo.maxSets = 7;
         descriptorPoolCreateInfo.poolSizeCount = static_cast<uint32_t>(IM_ARRAYSIZE(poolSizes));
         descriptorPoolCreateInfo.pPoolSizes = poolSizes;
         m_imguiDescriptorPool = m_device.GetDevice().createDescriptorPool(descriptorPoolCreateInfo);

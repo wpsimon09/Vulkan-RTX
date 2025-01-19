@@ -102,7 +102,7 @@ namespace ApplicationCore
                     auto &textureIndex = m.pbrData.metallicRoughnessTexture.value().textureIndex;
                     if (textureIndex <= m_textures.size())
                     {
-                        material->GetTexture(MATERIAL_TYPE::PBR_ARM) = m_textures[textureIndex];
+                        material->GetTexture(ETextureType::arm) = m_textures[textureIndex];
                         material->GetMaterialDescription().features.hasArmTexture = true;
                     }else
                     {
@@ -114,7 +114,7 @@ namespace ApplicationCore
                     auto& textureIndex = m.pbrData.baseColorTexture.value().textureIndex;
                     if (textureIndex <= m_textures.size())
                     {
-                        material->GetTexture(MATERIAL_TYPE::PBR_DIFFUSE_MAP) = m_textures[textureIndex];
+                        material->GetTexture(ETextureType::Diffues) = m_textures[textureIndex];
                         material->GetMaterialDescription().features.hasDiffuseTexture = true;
                     }else
                     {
@@ -126,7 +126,7 @@ namespace ApplicationCore
                     auto& textureIndex = m.normalTexture.value().textureIndex;
                     if (textureIndex <= m_textures.size())
                     {
-                        material->GetTexture(PBR_NORMAL_MAP) = m_textures[m.normalTexture.value().textureIndex];
+                        material->GetTexture(normal) = m_textures[m.normalTexture.value().textureIndex];
                         material->GetMaterialDescription().features.hasNormalTexture = true;
                     }else
                     {

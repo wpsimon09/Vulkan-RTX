@@ -104,40 +104,41 @@ namespace VEditor {
             // ALBEDO
             //===============
             ImGui::SeparatorText("Albedo");
+            ImGui::Checkbox("Use texture##a",reinterpret_cast<bool*>(&meshMaterial->GetMaterialDescription().features.hasDiffuseTexture));
             if (meshMaterial->GetMaterialDescription().features.hasDiffuseTexture)
             {
 
             }else
             {
+                ImGui::SameLine();
                 ImGui::SetNextItemWidth(colourPickerWidth);
                 ImGui::ColorEdit3("Albedo", &meshMaterial->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
             }
+
             //==============
-            // ROUGHNESS
+            // ARM
             //===============
-            ImGui::SeparatorText("Roughness");
+            ImGui::SeparatorText("ARM");
+            ImGui::Checkbox("Use texture##arm",reinterpret_cast<bool*>(&meshMaterial->GetMaterialDescription().features.hasArmTexture));
             if (meshMaterial->GetMaterialDescription().features.hasArmTexture)
             {
 
             }else
             {
+                ImGui::SeparatorText("Roughness");
                 ImGui::SliderFloat("Roughness", &meshMaterial->GetMaterialDescription().values.roughness, 0.0f, 1.0f, "%.3f");
-            }
-            //==============
-            // METALNES
-            //===============
-            ImGui::SeparatorText("Metalness");
-            if (meshMaterial->GetMaterialDescription().features.hasDiffuseTexture)
-            {
 
-            }else
-            {
+                //==============
+                // METALNES
+                //===============
+                ImGui::SeparatorText("Metalness");
                 ImGui::SliderFloat("Metalness", &meshMaterial->GetMaterialDescription().values.metalness, 0.0f, 1.0f, "%.3f");
             }
             //==============
             // EMISSIVE
             //===============
             ImGui::SeparatorText("Emissive");
+            ImGui::Checkbox("Use texture##e",reinterpret_cast<bool*>(&meshMaterial->GetMaterialDescription().features.hasEmissiveTexture));
             if (meshMaterial->GetMaterialDescription().features.hasDiffuseTexture)
             {
 

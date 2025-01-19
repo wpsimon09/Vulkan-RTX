@@ -195,16 +195,16 @@ namespace Renderer
             auto& material = drawCall.material;
 
             dstSetDataStruct.diffuseTextureImage =
-                material->GetTexture(PBR_DIFFUSE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                material->GetTexture(Diffues)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             dstSetDataStruct.armTextureImage =
-                material->GetTexture(PBR_ARM)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                material->GetTexture(arm)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             dstSetDataStruct.normalTextureImage =
-                material->GetTexture(PBR_NORMAL_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                material->GetTexture(normal)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             dstSetDataStruct.emissiveTextureImage =
-                material->GetTexture(PBR_EMISSIVE_MAP)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                material->GetTexture(emissive)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             dstSetDataStruct.pbrMaterialFeatures = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(i)[
                 currentFrameIndex];

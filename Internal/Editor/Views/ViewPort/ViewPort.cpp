@@ -22,35 +22,62 @@ void VEditor::ViewPort::Render()
 {
 
     // Render the "Scene view port" windowe
-    ImGui::Begin(ICON_FA_CAMERA" Scene view port", &m_isOpen, ImGuiWindowFlags_NoScrollbar);
+        ImGui::Begin(ICON_FA_CAMERA" Scene view port", &m_isOpen, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar);
 
-        if (ImGui::IsWindowHovered())
-        {
-            // disable gltf input
-            m_windowManager.EnableMovementCapture();
+            ImGui::SetNextItemAllowOverlap();
+            ImGui::BeginMenuBar();
 
-        }else
-        {
-            //enable gltf input
-            m_windowManager.DisableMovementCapture();
-        }
-        if (ImGui::Button(ICON_FA_SHAPES" Add"))
-        {
-            ImGui::OpenPopup("Meshes");
-        }
-        if (ImGui::BeginPopup("Meshes")){
-            if (ImGui::Selectable(ICON_FA_CIRCLE " Sphere")){m_scene.AddSphereToScene();}
-            if (ImGui::Selectable(ICON_FA_CUBE " Cube" )){m_scene.AddCubeToScene();}
-            if (ImGui::Selectable(ICON_FA_SQUARE " Plane")){m_scene.AddPlaneToScene();}
+                if (ImGui::MenuItem(ICON_FA_SHAPES" Add"))
+                {
+                    ImGui::OpenPopup("Meshes");
+                }
+                if (ImGui::BeginPopup("Meshes")){
+                    if (ImGui::Selectable(ICON_FA_CIRCLE " Sphere")){m_scene.AddSphereToScene();}
+                    if (ImGui::Selectable(ICON_FA_CUBE " Cube" )){m_scene.AddCubeToScene();}
+                    if (ImGui::Selectable(ICON_FA_SQUARE " Plane")){m_scene.AddPlaneToScene();}
 
-            ImGui::EndPopup();
-        }
+                    ImGui::EndPopup();
+                }
+            ImGui::EndMenuBar();
 
-        ImVec2 viewportPanelSize = ImGui::GetWindowSize();
-        ImGui::Image((ImTextureID)m_viewPortContext.GetImageDs(), ImVec2{viewportPanelSize.x, viewportPanelSize.y-20});
+            if (ImGui::IsWindowHovered())
+            {
+                // disable gltf input
+                m_windowManager.EnableMovementCapture();
 
 
-    ImGui::End();
+                ImVec2 cursorPosInWindow = ImGui::GetMousePos();
+                ImVec2 windowPos = ImGui::GetWindowPos();
+
+                ImVec2 contentMin = ImGui::GetWindowContentRegionMin();
+                ImVec2 contentMax = ImGui::GetWindowContentRegionMax();
+                ImVec2 imageStartPos = {windowPos.x + contentMin.x, windowPos.y + contentMin.y};
+
+                ImVec2 relativeCursorPos = {cursorPosInWindow.x - imageStartPos.x, cursorPosInWindow.y - imageStartPos.y};
+
+                if (relativeCursorPos.x >= 0 && relativeCursorPos.x <= contentMax.x - contentMin.x &&
+        relativeCursorPos.y >= 0 && relativeCursorPos.y <= contentMax.y - contentMin.y)
+                {
+                    auto s = "Mouse on image:" + std::to_string(relativeCursorPos.x) + "," + std::to_string(relativeCursorPos.y);
+                    ImGui::Text(s.c_str());
+                }
+                else
+                {
+                    ImGui::Text("Mouse outside image bounds");
+                }
+
+
+                }
+            else
+            {
+                //enable gltf input
+                m_windowManager.DisableMovementCapture();
+            }
+            ImVec2 viewportPanelSize = ImGui::GetWindowSize();
+            ImGui::Image((ImTextureID)m_viewPortContext.GetImageDs(), ImVec2{viewportPanelSize.x-20, viewportPanelSize.y-60});
+
+
+        ImGui::End();
 
 
     IUserInterfaceElement::Render();

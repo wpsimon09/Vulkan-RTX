@@ -34,12 +34,12 @@ enum MESH_GEOMETRY_TYPE
     MESH_GEOMETRY_CROSS
 };
 
-enum MATERIAL_TYPE
+enum ETextureType
 {
-    PBR_DIFFUSE_MAP = 0,
-    PBR_ARM ,
-    PBR_NORMAL_MAP,
-    PBR_EMISSIVE_MAP,
+    Diffues = 0,
+    arm ,
+    normal,
+    emissive,
 };
 
 

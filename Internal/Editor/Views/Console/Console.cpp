@@ -37,7 +37,7 @@ namespace VEditor {
                 if (logEntry.type == Utils::ELogType::Success)
                 {
                     icon = ICON_FA_CHECK;
-                    color = ImColor(250, 255, 250);
+                    color = ImColor(60, 205, 50);
                 }
                 else if (logEntry.type == Utils::ELogType::Error)
                 {

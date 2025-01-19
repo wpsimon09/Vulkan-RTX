@@ -31,7 +31,7 @@ public:
 
     PBRMaterialDescription& GetMaterialDescription(){ return m_materialDescription; };
 
-    std::shared_ptr<VulkanCore::VImage>& GetTexture(MATERIAL_TYPE type){ return m_textures[type];}
+    std::shared_ptr<VulkanCore::VImage>& GetTexture(ETextureType type){ return m_textures[type];}
 
 private:
     std::array<std::shared_ptr<VulkanCore::VImage>,MAX_TEXTURE_COUNT> m_textures;
