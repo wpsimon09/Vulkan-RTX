@@ -51,7 +51,7 @@ namespace Renderer {
         //----------------------------------------------------------------------------------------------------------------------------
         // Renderers creation
         //----------------------------------------------------------------------------------------------------------------------------
-        m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager, 1920 , 1080);
+        m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager, GlobalVariables::RenderTargetResolutionWidth , GlobalVariables::RenderTargetResolutionHeight);
         m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, *m_swapChain, uiContext);
 
         //------------------------------------------------------------------------------------------------------------------------

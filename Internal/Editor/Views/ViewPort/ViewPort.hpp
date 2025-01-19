@@ -4,8 +4,11 @@
 
 #ifndef VIEWPORT_HPP
 #define VIEWPORT_HPP
+#include <glm/vec2.hpp>
+
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
+struct ImVec2;
 class WindowManager;
 
 namespace ApplicationCore
@@ -29,7 +32,15 @@ namespace VEditor
         const ApplicationCore::Scene& m_scene;
         WindowManager& m_windowManager;
         ViewPortContext& m_viewPortContext;
+
+        /**
+         * Calculates position of mouse inside the view port window
+         * @param ImageWidth width of the viewport image
+         * @return NDC x and y position of the mouse inside the viewport
+         */
+        glm::vec2 GetMousePositionInViewPort(ImVec2& ImageWidth);
     };
+
 }
 
 

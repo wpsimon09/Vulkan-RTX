@@ -152,4 +152,9 @@ namespace ApplicationCore {
         node->SetName("Plane ##" + VulkanUtils::random_string(5));
         AddNode(node);
     }
+
+    void Scene::PreformRayCast(glm::vec2 mousePosition) const
+    {
+
+    }
 } // ApplicationCore

@@ -6,6 +6,7 @@
 #define APPLICATIONSTRUCTS_HPP
 #include <iostream>
 #include <ostream>
+#include "glm/glm.hpp"
 
 struct CameraUpdateInfo
 {
@@ -79,6 +80,14 @@ struct SceneStatistics
     {
         numberOfMeshes = 0;
     }
+};
+
+struct Ray
+{
+
+    glm::vec3 origin;
+    glm::vec3 direction;
+    glm::vec3 length;
 };
 
 #endif //APPLICATIONSTRUCTS_HPP

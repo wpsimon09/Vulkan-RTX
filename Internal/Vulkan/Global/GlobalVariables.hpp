@@ -36,6 +36,9 @@ namespace GlobalVariables {
     inline constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
     inline int ID_COUNTER = 0;
+
+    inline constexpr int RenderTargetResolutionWidth = 1920;
+    inline constexpr int RenderTargetResolutionHeight = 1080;
 }
 
 #endif //GLOBALVARIABLES_HPP

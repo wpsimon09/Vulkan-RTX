@@ -39,6 +39,7 @@ public:
     void AddCubeToScene() const;
     void AddSphereToScene() const;
     void AddPlaneToScene() const;
+    void PreformRayCast(glm::vec2 mousePosition) const;
 
 private:
     void BuildDefaultScene();
