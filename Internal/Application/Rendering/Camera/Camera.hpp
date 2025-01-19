@@ -39,6 +39,9 @@ public:
 
     glm::vec3 GetPosition() const {return this->m_position;};
 
+    // point should be in NDC (-1, 1)
+    glm::vec3 Deproject(glm::vec2 point);
+
     glm::vec2 GetCameraPlaneWidthAndHeight() const;
 
     float GetFarPlane() const {return this->m_farPlane;}

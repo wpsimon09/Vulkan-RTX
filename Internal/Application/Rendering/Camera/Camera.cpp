@@ -97,6 +97,14 @@
     }
 
 
+    glm::vec3 ApplicationCore::Camera::Deproject(glm::vec2 point)
+    {
+        glm::mat4 viewProjInverse = glm::inverse(m_projection * GetViewMatrix());
+        glm::vec4 worldPos = glm::vec4(point.x,point.y, 0.0f, 1.0f);
+
+        return viewProjInverse * worldPos;
+    }
+
     glm::vec2 ApplicationCore::Camera::GetCameraPlaneWidthAndHeight() const
     {
         // projection plane width and height
