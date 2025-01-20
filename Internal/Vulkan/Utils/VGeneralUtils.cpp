@@ -296,7 +296,7 @@ VulkanStructs::Bounds VulkanUtils::CalculateBounds(const std::vector<Application
     bounds.max = maxPos;
     bounds.min = minPos;
     bounds.radius = glm::length(bounds.extents);
-    bounds.
+
 
     return bounds;
 }
@@ -347,16 +347,6 @@ VulkanStructs::StagingBufferInfo VulkanUtils::CreateStagingBuffer(const VulkanCo
 bool VulkanUtils::IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4& model, const glm::mat4& view,
     const glm::mat4& projection)
 {
-    std::array<glm::vec3, 8> corners {
-        glm::vec3 { 1, 1, 1 },
-        glm::vec3 { 1, 1, -1 },
-        glm::vec3 { 1, -1, 1 },
-        glm::vec3 { 1, -1, -1 },
-        glm::vec3 { -1, 1, 1 },
-        glm::vec3 { -1, 1, -1 },
-        glm::vec3 { -1, -1, 1 },
-        glm::vec3 { -1, -1, -1 },
-    };
 
     glm::mat4 mvpMatrix = projection * view * model;
 
@@ -364,7 +354,7 @@ bool VulkanUtils::IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4
     glm::vec3 max = { -1.5, -1.5, -1.5 };
 
     // iterate through corners
-    for (auto& corner : corners)
+    for (auto& corner : bounds->corners)
     {
         // project corner to clip space
         glm::vec4 projectedCorner = mvpMatrix * glm::vec4(bounds->origin + (corner * bounds->extents), 1.0f);

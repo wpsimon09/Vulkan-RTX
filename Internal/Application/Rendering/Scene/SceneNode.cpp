@@ -107,8 +107,7 @@ namespace ApplicationCore
         {
             // transfer bounds max and min to world space
             VulkanStructs::Bounds* bounds = &m_mesh->GetMeshData()->bounds;
-            bounds->max = m_transformation->GetModelMatrix() * glm::vec4(bounds->max, 1.0f);
-            bounds->min = m_transformation->GetModelMatrix() * glm::vec4(bounds->min, 1.0f);
+            bounds->ProjectToWorld(m_transformation->GetModelMatrix());
             if (ApplicationCore::AABBRayIntersection(ray, bounds))
             {
                 Select();

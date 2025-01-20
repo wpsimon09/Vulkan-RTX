@@ -37,17 +37,28 @@ namespace VulkanStructs
     {
         glm::vec3 origin;
         glm::vec3 extents;
-        glm::vec3 max;
-        glm::vec3 min;
-        std::array<glm::vec3, 8> corners;
-        std::pair<glm::vec3, glm::vec3> GetMinAndMax(glm::mat4 modelMatrix)
-        {
-            for (auto& corner : corners)
-            {
-                corner = modelMatrix * glm::vec4(corner, 1.0f);
-            }
+        glm::vec3 max = {-1.5f, -1.5f, -1.5f}; // min point in world space
+        glm::vec3 min = {1.5f, 1.5f, 1.5f}; // max point in world space
+        std::array<glm::vec3, 8> corners = {
+            glm::vec3 { 1, 1, 1 },
+            glm::vec3 { 1, 1, -1 },
+            glm::vec3 { 1, -1, 1 },
+            glm::vec3 { 1, -1, -1 },
+            glm::vec3 { -1, 1, 1 },
+            glm::vec3 { -1, 1, -1 },
+            glm::vec3 { -1, -1, 1 },
+            glm::vec3 { -1, -1, -1 },
 
-            // TODO this will return the min max pair i have to make corners hold correct values
+        };
+        void ProjectToWorld(glm::mat4& modelMatrix)
+        {
+            for (auto & corner : corners)
+            {
+                corner = modelMatrix * glm::vec4(origin + (corner * extents), 1.0f);
+
+                min = glm::min(min, corner);
+                max = glm::max(max, corner);
+            }
         }
 
         float radius;
