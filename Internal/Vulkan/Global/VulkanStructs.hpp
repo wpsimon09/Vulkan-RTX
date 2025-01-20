@@ -50,9 +50,9 @@ namespace VulkanStructs
             glm::vec3 { -1, -1, -1 },
 
         };
-        void ProjectToWorld(glm::mat4& modelMatrix)
+        void ProjectToWorld(const glm::mat4& modelMatrix)
         {
-            for (auto & corner : corners)
+            for (auto corner : corners)
             {
                 corner = modelMatrix * glm::vec4(origin + (corner * extents), 1.0f);
 

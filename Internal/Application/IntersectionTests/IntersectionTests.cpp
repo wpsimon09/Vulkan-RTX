@@ -23,10 +23,8 @@ bool ApplicationCore::AABBRayIntersection(Ray& r, VulkanStructs::Bounds* b)
 
         if (tmax <= tmin)
         {
-            Utils::Logger::LogSuccess("Miss");
             return false;
         }
     }
-    Utils::Logger::LogSuccess("Intersection");
     return true;
 }

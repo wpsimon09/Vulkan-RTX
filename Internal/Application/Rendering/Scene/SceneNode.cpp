@@ -103,14 +103,22 @@ namespace ApplicationCore
 
     void SceneNode::PreformRayIntersectionTest(Ray& ray)
     {
-        if (m_hasMesh)
+        if (m_hasMesh && m_isVisible)
         {
             // transfer bounds max and min to world space
             VulkanStructs::Bounds* bounds = &m_mesh->GetMeshData()->bounds;
             bounds->ProjectToWorld(m_transformation->GetModelMatrix());
             if (ApplicationCore::AABBRayIntersection(ray, bounds))
             {
-                Select();
+
+                Utils::Logger::LogInfo("Mesh with name: " + std::string(m_mesh->GetName()) + " Intersected!");
+                if (m_isSelected)
+                {
+                    Deselect();
+                }else
+                {
+                    Select();
+                }
                 return;
             }
         }
