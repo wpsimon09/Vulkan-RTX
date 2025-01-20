@@ -113,9 +113,9 @@ namespace ApplicationCore
                 Select();
                 return;
             }
-            for (auto& child : m_children) {
-                child->PreformRayIntersectionTest(ray);
-            }
+        }
+        for (auto& child : m_children) {
+            child->PreformRayIntersectionTest(ray);
         }
     }
 
