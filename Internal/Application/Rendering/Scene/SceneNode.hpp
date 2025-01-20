@@ -42,7 +42,7 @@ namespace ApplicationCore
         void Select();
         void Deselect();
         bool IsSelected() const {return m_isSelected;}
-        void PreformRayIntersectionTest(Ray& ray);
+        bool PreformRayIntersectionTest(Ray& ray);
 
         std::string& GetName() {return m_name;} const
         std::shared_ptr<Mesh>& GetMesh() {return m_mesh;}

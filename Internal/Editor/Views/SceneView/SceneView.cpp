@@ -100,7 +100,7 @@ namespace VEditor {
         ImGui::SameLine();
 
 
-        if (isSelected)
+        if (isSelected )
         {
             sceneNode->Select();
         }else
@@ -116,6 +116,11 @@ namespace VEditor {
                 m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
             }
             else if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+            {
+                m_selectedSceneNode = sceneNode;
+                m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
+            }
+            else if (sceneNode->GetIsVisible())
             {
                 m_selectedSceneNode = sceneNode;
                 m_detailsPanale->SetSelectedNode(m_selectedSceneNode);

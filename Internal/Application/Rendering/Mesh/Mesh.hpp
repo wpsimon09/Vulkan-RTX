@@ -33,7 +33,7 @@ namespace ApplicationCore
         void SetName(std::string name);
     private:
         std::string MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType);
-        std::string_view m_name;
+        std::string m_name;
         std::unique_ptr<ApplicationCore::Transformations> m_transformations;
 
         struct MeshInfo
@@ -54,7 +54,7 @@ namespace ApplicationCore
         std::shared_ptr<Material> GetMaterial() const {return m_material;}  ;
         VulkanStructs::MeshData* GetMeshData();
 
-        std::string_view GetName(){return m_name;} const
+        const std::string& GetName(){return m_name;} const
         void SetName(std::string &newName){m_name = newName;}
 
         VulkanStructs::RenderingMetaData& GetRenderingMetaData()  {return m_renderingMetaData;}

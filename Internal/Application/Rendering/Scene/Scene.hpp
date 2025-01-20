@@ -51,6 +51,7 @@ private:
     Camera& m_camera;
     std::shared_ptr<class SceneNode> m_root;
     AssetsManager& m_assetsManager;
+    glm::vec3 m_mousePositionWorldSpace  = {0.0f, 0.0f, 0.0F};
 };
 
 } // ApplicationCore

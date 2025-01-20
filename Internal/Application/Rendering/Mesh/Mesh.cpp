@@ -37,7 +37,6 @@ VulkanStructs::MeshData* ApplicationCore::Mesh::GetMeshData()
     return m_vertexArray->GetMeshData();
 }
 
-
 void ApplicationCore::Mesh::Update() {
     m_transformations->ComputeModelMatrix();
 }

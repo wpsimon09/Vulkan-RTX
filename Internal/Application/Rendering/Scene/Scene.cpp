@@ -33,6 +33,7 @@ namespace ApplicationCore {
 
     void Scene::Update()
     {
+        m_root->GetChildren2()[2]->m_transformation->SetPosition(m_mousePositionWorldSpace);
         m_root->Update();
     }
 
@@ -154,18 +155,20 @@ namespace ApplicationCore {
 
     void Scene::PreformRayCast(glm::vec2 mousePosition) const
     {
+
         if (mousePosition.x >= -1 && mousePosition.x <= 1 && mousePosition.y >= -1 && mousePosition.y <= 1)
         {
             Ray ray{};
             ray.origin = m_camera.GetPosition();
-            ray.direction = glm::normalize(m_camera.GetPosition() - m_camera.Deproject(mousePosition) );
+            ray.direction = glm::normalize(m_camera.Deproject(mousePosition) );
             ray.length = 20000.0f;
 
             Utils::Logger::LogInfo("ray direction is: X: " + std::to_string(ray.direction.x) + ", Y: " + std::to_string(ray.direction.y) + ", Z: " + std::to_string(ray.direction.z));
 
-            for (auto &node : m_root->GetChildren())
+            for (auto &node : m_root->GetChildren2())
             {
-                node.get().PreformRayIntersectionTest(ray);
+                node->Deselect();
+                if (node->PreformRayIntersectionTest(ray)) break;
             }
 
             Utils::Logger::LogSuccessClient("Ray constructed successfuly !");

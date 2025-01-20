@@ -101,17 +101,16 @@ namespace ApplicationCore
         }
     }
 
-    void SceneNode::PreformRayIntersectionTest(Ray& ray)
+    bool SceneNode::PreformRayIntersectionTest(Ray& ray)
     {
         if (m_hasMesh && m_isVisible)
         {
             // transfer bounds max and min to world space
-            VulkanStructs::Bounds* bounds = &m_mesh->GetMeshData()->bounds;
-            bounds->ProjectToWorld(m_transformation->GetModelMatrix());
-            if (ApplicationCore::AABBRayIntersection(ray, bounds))
+            m_mesh->GetMeshData()->bounds.ProjectToWorld(m_transformation->GetModelMatrix());
+            if (ApplicationCore::AABBRayIntersection(ray, &m_mesh->GetMeshData()->bounds))
             {
 
-                Utils::Logger::LogInfo("Mesh with name: " + std::string(m_mesh->GetName()) + " Intersected!");
+                Utils::Logger::LogInfo("Mesh with name: " + m_name + " Intersected!");
                 if (m_isSelected)
                 {
                     Deselect();
@@ -119,12 +118,13 @@ namespace ApplicationCore
                 {
                     Select();
                 }
-                return;
+                return true;
             }
         }
         for (auto& child : m_children) {
             child->PreformRayIntersectionTest(ray);
         }
+        return false;
     }
 
     SceneNode* SceneNode::GetParent()
