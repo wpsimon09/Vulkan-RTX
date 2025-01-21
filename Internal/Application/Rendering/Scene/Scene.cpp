@@ -160,15 +160,14 @@ namespace ApplicationCore {
         {
             Ray ray{};
             ray.origin = m_camera.GetPosition();
-            ray.direction = glm::normalize(m_camera.Deproject(mousePosition));
+            ray.direction = m_camera.Deproject(mousePosition);
             ray.length = 20000.0f;
 
             Utils::Logger::LogInfo("ray direction is: X: " + std::to_string(ray.direction.x) + ", Y: " + std::to_string(ray.direction.y) + ", Z: " + std::to_string(ray.direction.z));
 
             for (auto &node : m_root->GetChildren2())
             {
-                node->Deselect();
-                if (node->PreformRayIntersectionTest(ray)) break;
+                node->PreformRayIntersectionTest(ray);
             }
 
             Utils::Logger::LogSuccessClient("Ray constructed successfuly !");

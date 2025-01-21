@@ -79,14 +79,16 @@ namespace ApplicationCore
         }
     }
 
-    void SceneNode::Select()
+
+    void SceneNode::Select(bool selectedFromWorld)
     {
         if (m_name == "Root-Node")
             return;
         m_isSelected = true;
+        m_isSelected = selectedFromWorld;
         for (auto& child : m_children)
         {
-            child->Select();
+            child->Select(selectedFromWorld);
         }
     }
 
@@ -94,6 +96,7 @@ namespace ApplicationCore
     {
         if (m_name == "Root-Node")
             return;
+        m_isSelected = false;
         m_isSelected = false;
         for (auto& child : m_children)
         {
@@ -109,14 +112,9 @@ namespace ApplicationCore
             m_mesh->GetMeshData()->bounds.ProjectToWorld(m_transformation->GetModelMatrix());
             if (ApplicationCore::AABBRayIntersection(ray, &m_mesh->GetMeshData()->bounds))
             {
-
-             //   Utils::Logger::LogInfo("Mesh with name: " + m_name + " Intersected!");
-                if (m_isSelected)
+                if (!m_isSelected)
                 {
-                    Deselect();
-                }else
-                {
-                    Select();
+                    Select(true);
                 }
                 return true;
             }else

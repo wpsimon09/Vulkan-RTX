@@ -87,12 +87,9 @@ namespace VEditor {
         ImGui::GetFont()->Scale*= 0.4f;
         if (ImGui::Button(visibilityButtonLabel.c_str()))
         {
-            if (sceneNode->GetIsVisible())
-            {
+            if (sceneNode->GetIsVisible()) {
                 sceneNode->Setvisibility(false);
-            }
-            else
-            {
+            } else {
                 sceneNode->Setvisibility(true);
             }
         }
@@ -108,33 +105,41 @@ namespace VEditor {
             sceneNode->Deselect();
         }
 
-        bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
+
+        if (sceneNode->GetisSelectedFromWorld())
         {
-            if (ImGui::IsItemClicked())
-            {
-                m_selectedSceneNode = sceneNode;
-                m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
-            }
-            else if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-            {
-                m_selectedSceneNode = sceneNode;
-                m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
-            }
-            else if (sceneNode->GetIsVisible())
-            {
-                m_selectedSceneNode = sceneNode;
-                m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
-            }
-
-
-            if (nodeOpen)
-            {
-                for (auto& child : sceneNode->GetChildren2())
-                {
-                    CreateTreeView(child);
-                }
-                ImGui::TreePop();
-            }
+            ImGui::SetNextItemOpen(true);
+            m_selectedSceneNode = sceneNode;
+            m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
         }
+        bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
+
+        if (ImGui::IsItemClicked())
+        {
+            m_selectedSceneNode = sceneNode;
+            m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
+        }
+        else if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+        {
+            m_selectedSceneNode = sceneNode;
+            m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
+        }
+        else if (sceneNode->GetisSelected())
+        {
+            m_selectedSceneNode = sceneNode;
+            m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
+        }
+
+
+
+        if (nodeOpen)
+        {
+            for (auto& child : sceneNode->GetChildren2())
+            {
+                CreateTreeView(child);
+            }
+            ImGui::TreePop();
+        }
+
     }
 } // VEditor

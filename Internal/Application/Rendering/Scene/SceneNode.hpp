@@ -39,7 +39,7 @@ namespace ApplicationCore
         void SetVisibleInEditor() {m_showInEditor = true;}
         bool IsVisibleInEditor() const {return m_showInEditor;}
 
-        void Select();
+        void Select(bool selectedFromWorld = false);
         void Deselect();
         bool IsSelected() const {return m_isSelected;}
         bool PreformRayIntersectionTest(Ray& ray);
@@ -55,6 +55,7 @@ namespace ApplicationCore
         std::shared_ptr<SceneNode>& GetChild(int index) {return m_children[index];}
         bool GetIsVisible(){return m_isVisible;}
         bool GetisSelected() {return m_isSelected;};
+        bool GetisSelectedFromWorld() {return m_isSelectedFromWorld;};
         std::vector<std::shared_ptr<SceneNode>>& GetChildren2() {return m_children;};
         void Update() const;
         void Render(VulkanStructs::RenderContext* renderingContext) const;
@@ -76,6 +77,7 @@ namespace ApplicationCore
         bool m_isVisible = true;
         bool m_showInEditor = true;
         bool m_isSelected = false;
+        bool m_isSelectedFromWorld = false;
         int m_ID = 0;
 
     //===========================================================================
