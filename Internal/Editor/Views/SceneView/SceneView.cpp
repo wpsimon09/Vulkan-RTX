@@ -5,6 +5,7 @@
 #include "SceneView.hpp"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <IconFontCppHeaders/IconsFontAwesome6.h>
 
 #include "Application/Rendering/Mesh/Mesh.hpp"
@@ -56,6 +57,9 @@ namespace VEditor {
             return;
 
 
+        //===================================
+        // SET NODE LABEL
+        //===================================
         std::string nodeLabel;
         if (!sceneNode->HasMesh())
         {
@@ -73,6 +77,8 @@ namespace VEditor {
 
         bool isLeaf =  sceneNode->GetChildren2().size() <= 0;
 
+        //Todo: ADD IS OPEN BOOLEAN TO THE SCENE NODE CLASS AND I WILL CHECK IF IT IS SELECTED FROM THERE, ROOT NODE WILL ALLWAYS BE SELECTED AND THERE FORE I HAVE ACCESS TO AT
+        // LEAST TOP NODES OF THE HIERARCHY
         ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
                                       | ImGuiTreeNodeFlags_OpenOnDoubleClick
                                       | (isLeaf ? ImGuiTreeNodeFlags_Leaf : 0)
@@ -96,16 +102,6 @@ namespace VEditor {
         ImGui::GetFont()->Scale = oldFontSize;
         ImGui::SameLine();
 
-
-        if (isSelected )
-        {
-            sceneNode->Select();
-        }else
-        {
-            sceneNode->Deselect();
-        }
-
-
         if (sceneNode->GetisSelectedFromWorld())
         {
             ImGui::SetNextItemOpen(true);
@@ -113,23 +109,9 @@ namespace VEditor {
             m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
         }
         bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
+        {
 
-        if (ImGui::IsItemClicked())
-        {
-            m_selectedSceneNode = sceneNode;
-            m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
         }
-        else if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-        {
-            m_selectedSceneNode = sceneNode;
-            m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
-        }
-        else if (sceneNode->GetisSelected())
-        {
-            m_selectedSceneNode = sceneNode;
-            m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
-        }
-
 
 
         if (nodeOpen)

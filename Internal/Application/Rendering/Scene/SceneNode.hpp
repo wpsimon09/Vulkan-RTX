@@ -53,9 +53,9 @@ namespace ApplicationCore
 
         std::vector<std::reference_wrapper<SceneNode>> GetChildren();
         std::shared_ptr<SceneNode>& GetChild(int index) {return m_children[index];}
-        bool GetIsVisible(){return m_isVisible;}
-        bool GetisSelected() {return m_isSelected;};
-        bool GetisSelectedFromWorld() {return m_isSelectedFromWorld;};
+        bool GetIsVisible() const{return m_isVisible;}
+        bool GetisSelected() const {return m_isSelected;};
+        bool GetisSelectedFromWorld() const {return m_isSelectedFromWorld;};
         std::vector<std::shared_ptr<SceneNode>>& GetChildren2() {return m_children;};
         void Update() const;
         void Render(VulkanStructs::RenderContext* renderingContext) const;
