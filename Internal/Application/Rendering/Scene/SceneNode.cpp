@@ -110,7 +110,7 @@ namespace ApplicationCore
             if (ApplicationCore::AABBRayIntersection(ray, &m_mesh->GetMeshData()->bounds))
             {
 
-                Utils::Logger::LogInfo("Mesh with name: " + m_name + " Intersected!");
+             //   Utils::Logger::LogInfo("Mesh with name: " + m_name + " Intersected!");
                 if (m_isSelected)
                 {
                     Deselect();
@@ -119,6 +119,9 @@ namespace ApplicationCore
                     Select();
                 }
                 return true;
+            }else
+            {
+                Deselect();
             }
         }
         for (auto& child : m_children) {

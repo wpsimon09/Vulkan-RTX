@@ -99,10 +99,23 @@
 
     glm::vec3 ApplicationCore::Camera::Deproject(glm::vec2 point)
     {
-        glm::mat4 viewProjInverse = glm::inverse(m_projection * GetViewMatrix());
-        glm::vec4 clipSpacePoint = glm::vec4(point.x,point.y, 1.0f, 1.0f);
+        float x = point.x;
+        float y = point.y;
+        float z = 1.0f;
+        glm::vec3 ray_nds = glm::vec3(x, y, z);
 
-        return normalize(viewProjInverse * clipSpacePoint);
+        glm::vec4 ray_clip = glm::vec4(ray_nds, 1.0f);
+        auto projection = m_projection;
+        projection[1][1] *= -1;
+
+        glm::vec4 ray_eye = glm::inverse(projection) * ray_clip;
+        ray_eye = glm::vec4(ray_eye.x, ray_eye.y, ray_eye.z, 0.0f);
+        glm::vec4 inv_ray_world = (glm::inverse(GetViewMatrix()) * ray_eye);
+        glm::vec3 ray_world = glm::vec3(inv_ray_world.x, inv_ray_world.y, inv_ray_world.z);
+        ray_world = glm::normalize(ray_world);
+
+        return ray_world;
+
     }
 
     glm::vec2 ApplicationCore::Camera::GetCameraPlaneWidthAndHeight() const
