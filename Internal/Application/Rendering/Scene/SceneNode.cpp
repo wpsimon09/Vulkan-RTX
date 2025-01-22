@@ -86,6 +86,8 @@ namespace ApplicationCore
             return;
         m_isSelected = true;
         m_isSelected = selectedFromWorld;
+        if (selectedFromWorld)
+            return; // dont go over hierarchy since from the world only leaf nodes can be selected
         for (auto& child : m_children)
         {
             child->Select(selectedFromWorld);
