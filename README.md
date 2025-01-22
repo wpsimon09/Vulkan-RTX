@@ -21,11 +21,7 @@ The goal is to eventually transition from a purely shader-based ray tracing impl
 - Ray Tracer **does not** yet use accumulated average to de-noise the rendered image
 - This is quite silly project for me to learn how ray tracing and Vulkan works
 
-## Little showcase 
-
-
-### Video
-![Video](Resources/Readme/shocase.mp4)
+## Little showcase
 
 ### RTX OFF
 ![image](https://github.com/user-attachments/assets/217f5722-8050-405f-aa7c-cb540129c5a7)
@@ -33,3 +29,7 @@ The goal is to eventually transition from a purely shader-based ray tracing impl
 
 ### RTX ON
 ![image](https://github.com/user-attachments/assets/82947f57-1f2e-4615-96e6-388133e085ae)
+
+### Editor
+
+![image](https://github.com/user-attachments/assets/c6334605-1807-4b18-9578-cb1d9b83a3db)
