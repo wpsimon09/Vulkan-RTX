@@ -75,7 +75,7 @@ namespace VEditor {
         else
             isSelected = false;
 
-        bool isLeaf =  sceneNode->GetChildren2().size() <= 0;
+        bool isLeaf =  sceneNode->GetChildrenByRef().size() <= 0;
 
         //Todo: ADD IS OPEN BOOLEAN TO THE SCENE NODE CLASS AND I WILL CHECK IF IT IS SELECTED FROM THERE, ROOT NODE WILL ALLWAYS BE SELECTED AND THERE FORE I HAVE ACCESS TO AT
         // LEAST TOP NODES OF THE HIERARCHY
@@ -102,21 +102,15 @@ namespace VEditor {
         ImGui::GetFont()->Scale = oldFontSize;
         ImGui::SameLine();
 
-        if (sceneNode->GetisSelectedFromWorld())
-        {
-            ImGui::SetNextItemOpen(true);
-            m_selectedSceneNode = sceneNode;
-            m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
-        }
-        bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
-        {
+        //ImGui::SetNextItemOpen(sceneNode->IsAnyChildSelected());
 
-        }
+        // itterate here over children store them in the list and than check if any of it is slected
 
 
-        if (nodeOpen)
+        if (ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags))
         {
-            for (auto& child : sceneNode->GetChildren2())
+
+            for (auto& child : sceneNode->GetChildrenByRef())
             {
                 CreateTreeView(child);
             }

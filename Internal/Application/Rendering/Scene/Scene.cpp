@@ -33,7 +33,7 @@ namespace ApplicationCore {
 
     void Scene::Update()
     {
-        m_root->GetChildren2()[2]->m_transformation->SetPosition(m_mousePositionWorldSpace);
+        m_root->GetChildrenByRef()[2]->m_transformation->SetPosition(m_mousePositionWorldSpace);
         m_root->Update();
     }
 
@@ -45,7 +45,7 @@ namespace ApplicationCore {
 
         }
 
-        for (auto &child : sceneNode->GetChildren2())
+        for (auto &child : sceneNode->GetChildrenByRef())
         {
             Render(ctx, child);
         }
@@ -58,7 +58,7 @@ namespace ApplicationCore {
 
     void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const
     {
-        auto& children = parent->GetChildren2();
+        auto& children = parent->GetChildrenByRef();
 
         for (auto it = children.begin(); it != children.end();) {
             if (*it == nodeToRemove) {
@@ -108,7 +108,7 @@ namespace ApplicationCore {
         }
         std::cout << sceneNodes.GetName() << "\n";
 
-        for (auto& child : sceneNodes.GetChildren())
+        for (auto& child : sceneNodes.GetChildrenByWrapper())
         {
             PrintSceneDatat(depth + 1, child);
         }
@@ -165,7 +165,7 @@ namespace ApplicationCore {
 
             Utils::Logger::LogInfo("ray direction is: X: " + std::to_string(ray.direction.x) + ", Y: " + std::to_string(ray.direction.y) + ", Z: " + std::to_string(ray.direction.z));
 
-            for (auto &node : m_root->GetChildren2())
+            for (auto &node : m_root->GetChildrenByRef())
             {
                 node->PreformRayIntersectionTest(ray);
             }

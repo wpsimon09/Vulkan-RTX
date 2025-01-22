@@ -66,8 +66,9 @@ namespace ApplicationCore
         void Select(bool selectedFromWorld = false);
         void Deselect();
         bool IsSelected() const { return m_isSelected; }
-        bool GetisSelected() const { return m_isSelected; }
-        bool GetisSelectedFromWorld() const { return m_isSelectedFromWorld; }
+        bool IsSelectedFromWorld() const { return m_isSelectedFromWorld; }
+        bool IsAnyChildSelected() const { return m_isAnyChildSelected; }
+        void UpdateParentsAboutChildStatus(bool status, SceneNode* parent);
 
         //=========================
         // Transformation
@@ -94,9 +95,9 @@ namespace ApplicationCore
 
         std::shared_ptr<Mesh>& GetMesh() { return m_mesh; }
 
-        std::vector<std::reference_wrapper<SceneNode>> GetChildren();
+        std::vector<std::reference_wrapper<SceneNode>> GetChildrenByWrapper();
         std::shared_ptr<SceneNode>& GetChild(int index) { return m_children[index]; }
-        std::vector<std::shared_ptr<SceneNode>>& GetChildren2() { return m_children; }
+        std::vector<std::shared_ptr<SceneNode>>& GetChildrenByRef() { return m_children; }
 
         //=========================
         // Operator Overloading

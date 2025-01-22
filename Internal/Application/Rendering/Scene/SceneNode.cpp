@@ -85,9 +85,9 @@ namespace ApplicationCore
         if (m_name == "Root-Node")
             return;
         m_isSelected = true;
-        m_isSelected = selectedFromWorld;
-        if (selectedFromWorld)
-            return; // dont go over hierarchy since from the world only leaf nodes can be selected
+        m_isSelectedFromWorld = selectedFromWorld;
+        UpdateParentsAboutChildStatus(true, m_parent);
+
         for (auto& child : m_children)
         {
             child->Select(selectedFromWorld);
@@ -99,7 +99,8 @@ namespace ApplicationCore
         if (m_name == "Root-Node")
             return;
         m_isSelected = false;
-        m_isSelected = false;
+        UpdateParentsAboutChildStatus(false, m_parent);
+
         for (auto& child : m_children)
         {
             child->Deselect();
@@ -135,7 +136,7 @@ namespace ApplicationCore
         return m_parent;
     }
 
-    std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildren()
+    std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildrenByWrapper()
     {
         std::vector<std::reference_wrapper<SceneNode>> result;
         for (auto& child : m_children)
@@ -144,6 +145,16 @@ namespace ApplicationCore
         }
 
         return result;
+    }
+
+    void SceneNode::UpdateParentsAboutChildStatus(bool status, SceneNode* parent)
+    {
+        parent->m_isAnyChildSelected = status;
+        if (parent->GetParent())
+        {
+            auto nextParent = parent->GetParent();
+            UpdateParentsAboutChildStatus(status, nextParent);
+        }
     }
 
     void SceneNode::Update() const
