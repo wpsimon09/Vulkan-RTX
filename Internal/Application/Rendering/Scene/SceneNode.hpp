@@ -72,6 +72,7 @@ namespace ApplicationCore
         bool IsAnyChildSelected() const { return m_sceneNodeMetaData.IsAnyChildSelected; }
         bool IsOpen() const {return m_sceneNodeMetaData.IsOpen;}
         void UpdateParentsAboutChildStatus(bool status, SceneNode* parent);
+        SceneNodeMetaData& GetSceneNodeMetaData() { return m_sceneNodeMetaData; }
 
         //=========================
         // Transformation

@@ -70,6 +70,10 @@ namespace VEditor {
         {
             nodeLabel = std::string(ICON_FA_BOX) + "  " + std::string(sceneNode->GetName());
         }
+        //=================================================
+        // CONSTRUCTING THE NODE
+        //=================================================
+        bool isLeaf =  sceneNode->GetChildrenByRef().size() <= 0;
 
         //===========================================================
         // CHECKING IF CURRENT NODE IS SELECTED TO SET PROPER STYLING
@@ -77,13 +81,21 @@ namespace VEditor {
         bool isSelected;
         if (m_selectedSceneNode)
             isSelected = (m_selectedSceneNode == sceneNode);
-        else
+        else if (sceneNode->GetSceneNodeMetaData().IsAnyChildSelected )
+        {
+            isSelected = true;
+            for (auto& child : sceneNode->GetChildrenByRef())
+            {
+                if (child->GetSceneNodeMetaData().IsSelected)
+                {
+                    m_selectedSceneNode = child;
+                }
+            }
+        }else
+        {
             isSelected = false;
+        }
 
-        //=================================================
-        // CONSTRUCTING THE NODE
-        //=================================================
-        bool isLeaf =  sceneNode->GetChildrenByRef().size() <= 0;
 
         ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
                                       | ImGuiTreeNodeFlags_OpenOnDoubleClick
@@ -118,19 +130,16 @@ namespace VEditor {
         //======================================================
         ImGui::SetNextItemOpen(sceneNode->IsOpen());
 
+
         bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
         {
-            if (!isSelected && sceneNode->GetName() != "Root-Node")
+            if (!isSelected)
             {
                 if (ImGui::IsItemClicked() ||
-                    ImGui::IsItemClicked(ImGuiMouseButton_Right ||
-                    sceneNode->IsSelected())){
+                    ImGui::IsItemClicked(ImGuiMouseButton_Right)){
                         m_selectedSceneNode = sceneNode;
                         m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
                 }
-            }else
-            {
-                sceneNode->Deselect();
             }
 
             if (nodeOpen)
