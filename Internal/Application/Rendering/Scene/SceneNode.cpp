@@ -19,14 +19,14 @@
 namespace ApplicationCore
 {
     SceneNode::SceneNode(std::shared_ptr<Mesh> mesh): m_transformation(
-        mesh ? mesh->GetTransformations() : &m_localTransformation)
+        mesh ? mesh->GetTransformations() : &m_localTransformation), m_sceneNodeMetaData{}
     {
         if (mesh)
         {
             m_parent = nullptr;
             m_mesh = mesh;
-            m_hasMesh = true;
-            m_ID = ++SceneNodeIDCounter;
+            m_sceneNodeMetaData.HasMesh = true;
+            m_sceneNodeMetaData.ID = ++SceneNodeIDCounter;
         }
         else
         {
@@ -34,11 +34,11 @@ namespace ApplicationCore
         }
     }
 
-    SceneNode::SceneNode(): m_transformation(&m_localTransformation)
+    SceneNode::SceneNode(): m_transformation(&m_localTransformation), m_sceneNodeMetaData{}
     {
         m_parent = nullptr;
         m_mesh = nullptr;
-        m_ID = ++SceneNodeIDCounter;
+        m_sceneNodeMetaData.ID = ++SceneNodeIDCounter;
     }
 
     void SceneNode::AddChild(const std::shared_ptr<SceneNode>& child)
@@ -47,7 +47,7 @@ namespace ApplicationCore
         {
             m_children.emplace_back(child);
             child->m_parent = this;
-            m_isParentNode = true;
+            m_sceneNodeMetaData.IsParentNode = true;
         }
         else
         {
@@ -62,7 +62,7 @@ namespace ApplicationCore
             auto newNode = std::make_shared<SceneNode>(child);
             newNode->m_parent = this;
             m_children.emplace_back(newNode);
-            m_isParentNode = true;
+            m_sceneNodeMetaData.IsParentNode = true;
         }
         else
         {
@@ -72,7 +72,7 @@ namespace ApplicationCore
 
     void SceneNode::Setvisibility(bool isVisible)
     {
-        m_isVisible = isVisible;
+        m_sceneNodeMetaData.IsVisible = isVisible;
         for (auto& child : m_children)
         {
             child->Setvisibility(isVisible);
@@ -83,8 +83,8 @@ namespace ApplicationCore
     void SceneNode::Select(bool selectedFromWorld)
     {
 
-        m_isSelected = true;
-        m_isSelectedFromWorld = selectedFromWorld;
+        m_sceneNodeMetaData.IsSelected = true;
+        m_sceneNodeMetaData.IsSelectedFromWorld = selectedFromWorld;
         UpdateParentsAboutChildStatus(true, m_parent);
 
         for (auto& child : m_children)
@@ -96,7 +96,7 @@ namespace ApplicationCore
     void SceneNode::Deselect()
     {
 
-        m_isSelected = false;
+        m_sceneNodeMetaData.IsSelected = false;
         UpdateParentsAboutChildStatus(false, m_parent);
 
         for (auto& child : m_children)
@@ -107,13 +107,13 @@ namespace ApplicationCore
 
     bool SceneNode::PreformRayIntersectionTest(Ray& ray)
     {
-        if (m_hasMesh && m_isVisible)
+        if (m_sceneNodeMetaData.HasMesh && m_sceneNodeMetaData.IsVisible)
         {
             // transfer bounds max and min to world space
             m_mesh->GetMeshData()->bounds.ProjectToWorld(m_transformation->GetModelMatrix());
             if (ApplicationCore::AABBRayIntersection(ray, &m_mesh->GetMeshData()->bounds))
             {
-                if (!m_isSelected)
+                if (!m_sceneNodeMetaData.IsSelected)
                 {
                     Select(true);
                 }
@@ -151,7 +151,7 @@ namespace ApplicationCore
             return;
         if (parent->GetParent())
         {
-            parent->m_isAnyChildSelected = status;
+            parent->m_sceneNodeMetaData.IsAnyChildSelected = status;
             auto nextParent = parent->GetParent();
             UpdateParentsAboutChildStatus(status, nextParent);
         }
@@ -176,7 +176,7 @@ namespace ApplicationCore
 
     void SceneNode::Render(VulkanStructs::RenderContext* renderingContext) const
     {
-        if (m_mesh && m_isVisible)
+        if (m_mesh && m_sceneNodeMetaData.IsVisible)
         {
             // check if the mesh can be rendered in the given context
             if (m_mesh->GetRenderingMetaData() == renderingContext->metaData)
@@ -196,7 +196,7 @@ namespace ApplicationCore
                     data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
                     data.material = m_mesh->m_material;
                     data.meshData = m_mesh->GetMeshData();
-                    data.renderOutline = m_isSelected;
+                    data.renderOutline = m_sceneNodeMetaData.IsSelected;
 
                     //=====================================================
                     // BOUNDING VOLUME STUFF

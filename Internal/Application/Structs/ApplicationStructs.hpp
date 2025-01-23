@@ -90,4 +90,17 @@ struct Ray
     float length;
 };
 
+struct SceneNodeMetaData
+{
+    bool IsParentNode = false;
+    bool HasMesh = false;
+    bool IsVisible = true;
+    bool ShowInEditor = true;
+    bool IsSelected = false;
+    bool IsSelectedFromWorld = false;
+    bool IsAnyChildSelected = false;
+    bool IsOpen = false;
+    int ID = 0;
+};
+
 #endif //APPLICATIONSTRUCTS_HPP

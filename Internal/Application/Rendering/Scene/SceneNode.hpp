@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "Application/Rendering/Transformations/Transformations.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
 
 //=========================
 // Forward Declarations
@@ -54,22 +55,22 @@ namespace ApplicationCore
         // Visibility Management
         //=========================
         void Setvisibility(bool isVisible);
-        bool GetIsVisible() const { return m_isVisible; }
+        bool GetIsVisible() const { return m_sceneNodeMetaData.IsVisible; }
 
-        void SetHiddenInEditor() { m_showInEditor = false; }
-        void SetVisibleInEditor() { m_showInEditor = true; }
-        bool IsVisibleInEditor() const { return m_showInEditor; }
+        void SetHiddenInEditor() { m_sceneNodeMetaData.ShowInEditor = false; }
+        void SetVisibleInEditor() { m_sceneNodeMetaData.ShowInEditor = true; }
+        bool IsVisibleInEditor() const { return m_sceneNodeMetaData.ShowInEditor; }
 
         //=========================
         // Selection Management
         //=========================
-        void SetExpansionState(bool expansionState) {m_isOpen = expansionState;}
+        void SetExpansionState(bool expansionState) {m_sceneNodeMetaData.IsOpen = expansionState;}
         void Select(bool selectedFromWorld = false);
         void Deselect();
-        bool IsSelected() const { return m_isSelected; }
-        bool IsSelectedFromWorld() const { return m_isSelectedFromWorld; }
-        bool IsAnyChildSelected() const { return m_isAnyChildSelected; }
-        bool IsOpen() const {return m_isOpen;}
+        bool IsSelected() const { return m_sceneNodeMetaData.IsSelected; }
+        bool IsSelectedFromWorld() const { return m_sceneNodeMetaData.IsSelectedFromWorld; }
+        bool IsAnyChildSelected() const { return m_sceneNodeMetaData.IsAnyChildSelected; }
+        bool IsOpen() const {return m_sceneNodeMetaData.IsOpen;}
         void UpdateParentsAboutChildStatus(bool status, SceneNode* parent);
 
         //=========================
@@ -87,7 +88,7 @@ namespace ApplicationCore
         //=========================
         bool PreformRayIntersectionTest(Ray& ray);
         bool IsParent() const { return m_parent == nullptr; }
-        bool HasMesh() const { return m_hasMesh; }
+        bool HasMesh() const { return m_sceneNodeMetaData.HasMesh; }
 
         //=========================
         // Accessors
@@ -105,7 +106,7 @@ namespace ApplicationCore
         // Operator Overloading
         //=========================
         friend bool operator==(const SceneNode& lhs, const SceneNode& rhs) {
-            return lhs.m_ID == rhs.m_ID;
+            return lhs.m_sceneNodeMetaData.ID == rhs.m_sceneNodeMetaData.ID;
         }
 
         friend bool operator!=(const SceneNode& lhs, const SceneNode& rhs) {
@@ -125,15 +126,8 @@ namespace ApplicationCore
         std::string m_name;
         std::vector<std::shared_ptr<SceneNode>> m_children;
 
-        bool m_isParentNode = false;
-        bool m_hasMesh = false;
-        bool m_isVisible = true;
-        bool m_showInEditor = true;
-        bool m_isSelected = false;
-        bool m_isSelectedFromWorld = false;
-        bool m_isAnyChildSelected = false;
-        bool m_isOpen = false;
-        int m_ID = 0;
+
+        SceneNodeMetaData m_sceneNodeMetaData;
     };
 
 } // namespace ApplicationCore

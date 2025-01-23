@@ -59,7 +59,9 @@ namespace VEditor {
         if (!sceneNode)
             return;
 
-
+        //==================================
+        // GETTING INITIAL DATA
+        //==================================
         std::string nodeLabel;
         if (!sceneNode->HasMesh())
         {
@@ -69,12 +71,18 @@ namespace VEditor {
             nodeLabel = std::string(ICON_FA_BOX) + "  " + std::string(sceneNode->GetName());
         }
 
+        //===========================================================
+        // CHECKING IF CURRENT NODE IS SELECTED TO SET PROPER STYLING
+        //===========================================================
         bool isSelected;
         if (m_selectedSceneNode)
             isSelected = (m_selectedSceneNode == sceneNode);
         else
             isSelected = false;
 
+        //=================================================
+        // CONSTRUCTING THE NODE
+        //=================================================
         bool isLeaf =  sceneNode->GetChildrenByRef().size() <= 0;
 
         ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
@@ -82,8 +90,10 @@ namespace VEditor {
                                       | (isLeaf ? ImGuiTreeNodeFlags_Leaf : 0)
                                       | (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
 
+        //===================================================
+        // VISIBILITY SETTINGS
+        //===================================================
         std::string visibilityButtonLabel;
-
         if (sceneNode->GetIsVisible()) visibilityButtonLabel = std::string(ICON_FA_EYE) + "##" + std::string(sceneNode->GetName());
         else                           visibilityButtonLabel = std::string(ICON_FA_EYE_SLASH) + "##" + std::string(sceneNode->GetName());
 
@@ -103,26 +113,20 @@ namespace VEditor {
         ImGui::GetFont()->Scale = oldFontSize;
         ImGui::SameLine();
 
-        ImGui::SetNextItemOpen(sceneNode->IsAnyChildSelected());
+        //======================================================
+        // SELECTION LOGIC
+        //======================================================
+        ImGui::SetNextItemOpen(sceneNode->IsOpen());
 
         bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
         {
             if (!isSelected && sceneNode->GetName() != "Root-Node")
             {
-                if (ImGui::IsItemClicked())
-                {
-                    m_selectedSceneNode = sceneNode;
-                       m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
-                }
-                else if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-                {
-                    m_selectedSceneNode = sceneNode;
-                    m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
-                }
-                else if (sceneNode->IsSelected())
-                {
-                    m_selectedSceneNode = sceneNode;
-                    m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
+                if (ImGui::IsItemClicked() ||
+                    ImGui::IsItemClicked(ImGuiMouseButton_Right ||
+                    sceneNode->IsSelected())){
+                        m_selectedSceneNode = sceneNode;
+                        m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
                 }
             }else
             {
@@ -131,11 +135,15 @@ namespace VEditor {
 
             if (nodeOpen)
             {
+                sceneNode->SetExpansionState(true);
                 for (auto& child : sceneNode->GetChildrenByRef())
                 {
                     CreateTreeView(child);
                 }
                 ImGui::TreePop();
+            }else
+            {
+                sceneNode->SetExpansionState(false);
             }
         }
     }
