@@ -82,8 +82,7 @@ namespace ApplicationCore
 
     void SceneNode::Select(bool selectedFromWorld)
     {
-        if (m_name == "Root-Node")
-            return;
+
         m_isSelected = true;
         m_isSelectedFromWorld = selectedFromWorld;
         UpdateParentsAboutChildStatus(true, m_parent);
@@ -96,8 +95,7 @@ namespace ApplicationCore
 
     void SceneNode::Deselect()
     {
-        if (m_name == "Root-Node")
-            return;
+
         m_isSelected = false;
         UpdateParentsAboutChildStatus(false, m_parent);
 
@@ -149,9 +147,11 @@ namespace ApplicationCore
 
     void SceneNode::UpdateParentsAboutChildStatus(bool status, SceneNode* parent)
     {
-        parent->m_isAnyChildSelected = status;
+        if (parent ==nullptr)
+            return;
         if (parent->GetParent())
         {
+            parent->m_isAnyChildSelected = status;
             auto nextParent = parent->GetParent();
             UpdateParentsAboutChildStatus(status, nextParent);
         }

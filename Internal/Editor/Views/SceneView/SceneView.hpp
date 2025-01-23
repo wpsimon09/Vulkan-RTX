@@ -4,6 +4,8 @@
 
 #ifndef SCENEVIEW_HPP
 #define SCENEVIEW_HPP
+#include <unordered_map>
+
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
 namespace VEditor
@@ -28,11 +30,12 @@ public:
     void Render() override;
 
 private:
-    void CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode> sceneNode)  ;
+
+     void CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode> sceneNode)  ;
      std::shared_ptr<ApplicationCore::SceneNode> m_selectedSceneNode;
      const ApplicationCore::Scene& m_scene;
 
-    DetailsPanel* m_detailsPanale;
+     DetailsPanel* m_detailsPanale;
 };
 
 } // VEditor

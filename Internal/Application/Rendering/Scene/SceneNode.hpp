@@ -63,11 +63,13 @@ namespace ApplicationCore
         //=========================
         // Selection Management
         //=========================
+        void SetExpansionState(bool expansionState) {m_isOpen = expansionState;}
         void Select(bool selectedFromWorld = false);
         void Deselect();
         bool IsSelected() const { return m_isSelected; }
         bool IsSelectedFromWorld() const { return m_isSelectedFromWorld; }
         bool IsAnyChildSelected() const { return m_isAnyChildSelected; }
+        bool IsOpen() const {return m_isOpen;}
         void UpdateParentsAboutChildStatus(bool status, SceneNode* parent);
 
         //=========================
@@ -130,6 +132,7 @@ namespace ApplicationCore
         bool m_isSelected = false;
         bool m_isSelectedFromWorld = false;
         bool m_isAnyChildSelected = false;
+        bool m_isOpen = false;
         int m_ID = 0;
     };
 

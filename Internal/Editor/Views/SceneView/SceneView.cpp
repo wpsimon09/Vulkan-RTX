@@ -5,7 +5,6 @@
 #include "SceneView.hpp"
 
 #include <imgui.h>
-#include <imgui_internal.h>
 #include <IconFontCppHeaders/IconsFontAwesome6.h>
 
 #include "Application/Rendering/Mesh/Mesh.hpp"
@@ -16,8 +15,8 @@
 namespace VEditor {
     SceneView::SceneView(const ApplicationCore::Scene& scene): m_scene(scene)
     {
-        auto detailsPanel = std::make_unique<VEditor::DetailsPanel>();
-        m_uiChildren.emplace_back(std::move(detailsPanel));
+        auto detailsPnel = std::make_unique<VEditor::DetailsPanel>();
+        m_uiChildren.emplace_back(std::move(detailsPnel));
 
         m_detailsPanale = static_cast<DetailsPanel*>(m_uiChildren.back().get());
 
@@ -33,7 +32,11 @@ namespace VEditor {
 
             ImGui::SeparatorText("Scene");
                 ImGui::BeginChild("Scrolling");
-                CreateTreeView(m_scene.GetRootNode());
+                for (auto& sceneNode : m_scene.GetRootNode()->GetChildrenByRef())
+                {
+                    CreateTreeView(sceneNode);
+                }
+
                 if (ImGui::BeginPopupContextWindow())
                 {
                     if (ImGui::MenuItem(ICON_FA_TRASH_CAN " Delete", "DEL"))
@@ -57,9 +60,6 @@ namespace VEditor {
             return;
 
 
-        //===================================
-        // SET NODE LABEL
-        //===================================
         std::string nodeLabel;
         if (!sceneNode->HasMesh())
         {
@@ -77,8 +77,6 @@ namespace VEditor {
 
         bool isLeaf =  sceneNode->GetChildrenByRef().size() <= 0;
 
-        //Todo: ADD IS OPEN BOOLEAN TO THE SCENE NODE CLASS AND I WILL CHECK IF IT IS SELECTED FROM THERE, ROOT NODE WILL ALLWAYS BE SELECTED AND THERE FORE I HAVE ACCESS TO AT
-        // LEAST TOP NODES OF THE HIERARCHY
         ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
                                       | ImGuiTreeNodeFlags_OpenOnDoubleClick
                                       | (isLeaf ? ImGuiTreeNodeFlags_Leaf : 0)
@@ -93,29 +91,52 @@ namespace VEditor {
         ImGui::GetFont()->Scale*= 0.4f;
         if (ImGui::Button(visibilityButtonLabel.c_str()))
         {
-            if (sceneNode->GetIsVisible()) {
+            if (sceneNode->GetIsVisible())
+            {
                 sceneNode->Setvisibility(false);
-            } else {
+            }
+            else
+            {
                 sceneNode->Setvisibility(true);
             }
         }
         ImGui::GetFont()->Scale = oldFontSize;
         ImGui::SameLine();
 
-        //ImGui::SetNextItemOpen(sceneNode->IsAnyChildSelected());
+        ImGui::SetNextItemOpen(sceneNode->IsAnyChildSelected());
 
-        // itterate here over children store them in the list and than check if any of it is slected
-
-
-        if (ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags))
+        bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
         {
-
-            for (auto& child : sceneNode->GetChildrenByRef())
+            if (!isSelected && sceneNode->GetName() != "Root-Node")
             {
-                CreateTreeView(child);
+                if (ImGui::IsItemClicked())
+                {
+                    m_selectedSceneNode = sceneNode;
+                       m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
+                }
+                else if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+                {
+                    m_selectedSceneNode = sceneNode;
+                    m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
+                }
+                else if (sceneNode->IsSelected())
+                {
+                    m_selectedSceneNode = sceneNode;
+                    m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
+                }
+            }else
+            {
+                sceneNode->Deselect();
             }
-            ImGui::TreePop();
-        }
 
+            if (nodeOpen)
+            {
+                for (auto& child : sceneNode->GetChildrenByRef())
+                {
+                    CreateTreeView(child);
+                }
+                ImGui::TreePop();
+            }
+        }
     }
 } // VEditor

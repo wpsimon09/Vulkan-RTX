@@ -33,7 +33,6 @@ namespace ApplicationCore {
 
     void Scene::Update()
     {
-        m_root->GetChildrenByRef()[2]->m_transformation->SetPosition(m_mousePositionWorldSpace);
         m_root->Update();
     }
 
@@ -42,7 +41,6 @@ namespace ApplicationCore {
         if (sceneNode->HasMesh())
         {
             sceneNode->Render(ctx);
-
         }
 
         for (auto &child : sceneNode->GetChildrenByRef())
