@@ -70,7 +70,7 @@ namespace VulkanStructs
     {
         bool bRasterPass = true;
         bool bRTXPass = false;
-        float maxZ = 0;
+        float minZ = 10000;
         glm::mat4 view;
         glm::mat4 projection;
 
@@ -145,6 +145,7 @@ namespace VulkanStructs
 
         glm::mat4& modelMatrix;
 
+        float Z;
         bool renderOutline = false;
 
         // material descriptor
@@ -157,6 +158,14 @@ namespace VulkanStructs
         RenderingMetaData metaData;
         // Pipeline
         std::vector<DrawCallData> DrawCalls;
+
+        void SortDrawDataBasedOnZ()
+        {
+            std::sort(DrawCalls.begin(), DrawCalls.end(), [](const DrawCallData& a, const DrawCallData& b)
+            {
+                return a.Z < b.Z;
+            });
+        }
     };
 
 }

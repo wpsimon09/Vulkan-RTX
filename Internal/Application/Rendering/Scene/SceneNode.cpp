@@ -197,13 +197,18 @@ namespace ApplicationCore
                     data.material = m_mesh->m_material;
                     data.meshData = m_mesh->GetMeshData();
                     data.renderOutline = m_sceneNodeMetaData.IsSelected;
+                    data.Z = m_transformation->GetPosition().z;
 
                     //=====================================================
                     // BOUNDING VOLUME STUFF
                     //=====================================================
                     data.bounds = &m_mesh->GetMeshData()->bounds;
 
-                    renderingContext->DrawCalls.emplace_back(data);
+                    //=====================================================
+                    // SORT BASED ON THE DEPTH
+                    //=====================================================
+                    renderingContext->DrawCalls.insert(renderingContext->DrawCalls.end(),data);
+
                 }
             }
         }

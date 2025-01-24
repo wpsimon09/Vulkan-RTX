@@ -136,7 +136,7 @@ namespace Renderer
         renderPassBeginInfo.renderArea.offset.x = 0;
         renderPassBeginInfo.renderArea.offset.y = 0;
         renderPassBeginInfo.renderArea.extent.width = static_cast<uint32_t>(GetTargeWidth()),
-            renderPassBeginInfo.renderArea.extent.height = static_cast<uint32_t>(GetTargeHeight());
+        renderPassBeginInfo.renderArea.extent.height = static_cast<uint32_t>(GetTargeHeight());
 
         //==============================================
         // CONFIGURE CLEAR

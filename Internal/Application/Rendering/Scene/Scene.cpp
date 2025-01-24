@@ -165,6 +165,8 @@ namespace ApplicationCore {
 
             Utils::Logger::LogInfo("ray direction is: X: " + std::to_string(ray.direction.x) + ", Y: " + std::to_string(ray.direction.y) + ", Z: " + std::to_string(ray.direction.z));
 
+            m_drawCallDataForIntersection->SortDrawDataBasedOnZ();
+
             for (auto& drawCall: m_drawCallDataForIntersection->DrawCalls)
             {
                 drawCall.bounds->ProjectToWorld(drawCall.modelMatrix);
