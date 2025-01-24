@@ -124,6 +124,7 @@ void Application::MainLoop()
         Update();
         Render();
 
+
         glfwPollEvents();
     }
 }
@@ -171,7 +172,11 @@ void Application::Render() {
     m_renderingSystem->Render(m_client->GetGlobalDataUpdateInformation());
     m_renderingSystem->GetRenderContext()->DrawCalls.clear();
 
-    //m_client->GetScene().Reset();
+}
+
+void Application::PostRender()
+{
+    m_client->GetScene().Reset();
 }
 
 Application::~Application() {

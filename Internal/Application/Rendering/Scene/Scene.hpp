@@ -13,6 +13,7 @@
 
 namespace ApplicationCore
 {
+    class Mesh;
     class Camera;
     class SceneNode;
     class AssetsManager;
@@ -52,7 +53,8 @@ private:
     std::shared_ptr<class SceneNode> m_root;
     AssetsManager& m_assetsManager;
     glm::vec3 m_mousePositionWorldSpace  = {0.0f, 0.0f, 0.0F};
-    std::shared_ptr<SceneNode> m_selectedSceneNode;
+    VulkanStructs::RenderContext* m_drawCallDataForIntersection;
+    std::vector<std::shared_ptr<ApplicationCore::Mesh>> m_selectedMeshes;
 };
 
 } // ApplicationCore

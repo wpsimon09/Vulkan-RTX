@@ -70,7 +70,7 @@ namespace VulkanStructs
     {
         bool bRasterPass = true;
         bool bRTXPass = false;
-
+        float maxZ = 0;
         glm::mat4 view;
         glm::mat4 projection;
 

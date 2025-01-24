@@ -10,6 +10,7 @@
 #include "SceneNode.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Enums/ClientEnums.hpp"
+#include "Application/IntersectionTests/IntersectionTests.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Material/Material.hpp"
@@ -47,6 +48,7 @@ namespace ApplicationCore {
         {
             Render(ctx, child);
         }
+        m_drawCallDataForIntersection = ctx;
     }
 
     void Scene::Reset()
@@ -163,14 +165,14 @@ namespace ApplicationCore {
 
             Utils::Logger::LogInfo("ray direction is: X: " + std::to_string(ray.direction.x) + ", Y: " + std::to_string(ray.direction.y) + ", Z: " + std::to_string(ray.direction.z));
 
-            for (auto &node : m_root->GetChildrenByRef())
+            for (auto& drawCall: m_drawCallDataForIntersection->DrawCalls)
             {
-                m_selectedSceneNode = node->PreformRayIntersectionTest(ray);
-               if (m_selectedSceneNode)
-               {
-                   Utils::Logger::LogInfo(" is selected");
-                   break;
-               }
+                drawCall.bounds->ProjectToWorld(drawCall.modelMatrix);
+                if (ApplicationCore::AABBRayIntersection(ray, drawCall.bounds))
+                {
+                    Utils::Logger::LogSuccessClient("Intersection");
+                    break;
+                }
             }
 
             Utils::Logger::LogSuccessClient("Ray constructed successfuly !");

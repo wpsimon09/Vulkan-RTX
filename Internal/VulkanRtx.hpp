@@ -61,6 +61,8 @@ public:
 
     void Render();
 
+    void PostRender();
+
     void MainLoop();
 
     ~Application();
