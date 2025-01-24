@@ -36,7 +36,8 @@ namespace ApplicationCore
     //=========================
     // SceneNode Class
     //=========================
-    class SceneNode {
+    class SceneNode:public std::enable_shared_from_this<SceneNode>
+    {
     public:
         //=========================
         // Constructors
@@ -87,7 +88,7 @@ namespace ApplicationCore
         //=========================
         // Utility Functions
         //=========================
-        bool PreformRayIntersectionTest(Ray& ray);
+        std::shared_ptr<SceneNode> PreformRayIntersectionTest(Ray& ray);
         bool IsParent() const { return m_parent == nullptr; }
         bool HasMesh() const { return m_sceneNodeMetaData.HasMesh; }
 

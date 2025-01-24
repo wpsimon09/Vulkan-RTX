@@ -151,7 +151,7 @@ namespace ApplicationCore {
         AddNode(node);
     }
 
-    void Scene::PreformRayCast(glm::vec2 mousePosition) const
+    void Scene::PreformRayCast(glm::vec2 mousePosition)
     {
 
         if (mousePosition.x >= -1 && mousePosition.x <= 1 && mousePosition.y >= -1 && mousePosition.y <= 1)
@@ -165,7 +165,12 @@ namespace ApplicationCore {
 
             for (auto &node : m_root->GetChildrenByRef())
             {
-                node->PreformRayIntersectionTest(ray);
+                m_selectedSceneNode = node->PreformRayIntersectionTest(ray);
+               if (m_selectedSceneNode)
+               {
+                   Utils::Logger::LogInfo(" is selected");
+                   break;
+               }
             }
 
             Utils::Logger::LogSuccessClient("Ray constructed successfuly !");

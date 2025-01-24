@@ -14,7 +14,7 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 
 
-VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext, const ApplicationCore::Scene& scene,
+VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext, ApplicationCore::Scene& scene,
                             WindowManager& windowManager): m_viewPortContext(viewPortContext), m_scene(scene), m_windowManager(windowManager)
 {
 }

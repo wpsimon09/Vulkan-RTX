@@ -105,19 +105,19 @@ namespace ApplicationCore
         }
     }
 
-    bool SceneNode::PreformRayIntersectionTest(Ray& ray)
+    std::shared_ptr<SceneNode> SceneNode::PreformRayIntersectionTest(Ray& ray)
     {
         if (m_sceneNodeMetaData.HasMesh && m_sceneNodeMetaData.IsVisible)
         {
-            // transfer bounds max and min to world space
+            // transfer bounds max a    nd min to world space
             m_mesh->GetMeshData()->bounds.ProjectToWorld(m_transformation->GetModelMatrix());
             if (ApplicationCore::AABBRayIntersection(ray, &m_mesh->GetMeshData()->bounds))
             {
                 if (!m_sceneNodeMetaData.IsSelected)
                 {
-                    Select(true);
+                    m_sceneNodeMetaData.IsSelected = true;
                 }
-                return true;
+                return shared_from_this();
             }else
             {
                 Deselect();
@@ -126,7 +126,7 @@ namespace ApplicationCore
         for (auto& child : m_children) {
             child->PreformRayIntersectionTest(ray);
         }
-        return false;
+        return nullptr;
     }
 
     SceneNode* SceneNode::GetParent()

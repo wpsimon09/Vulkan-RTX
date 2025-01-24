@@ -24,6 +24,7 @@ namespace VEditor {
 
     void SceneView::Resize(int newWidth, int newHeight)
     {
+
     }
 
     void SceneView::Render()
@@ -34,12 +35,13 @@ namespace VEditor {
                 ImGui::BeginChild("Scrolling");
                 for (auto& sceneNode : m_scene.GetRootNode()->GetChildrenByRef())
                 {
+                    //sceneNode->Deselect()   ;
                     CreateTreeView(sceneNode);
                 }
 
                 if (ImGui::BeginPopupContextWindow())
                 {
-                    if (ImGui::MenuItem(ICON_FA_TRASH_CAN " Delete", "DEL"))
+                    if (ImGui::MenuItem(ICON_FA_TRASH_CAN " Delete", "DEL") )
                     {
                         if (m_selectedSceneNode)
                         {
@@ -79,22 +81,33 @@ namespace VEditor {
         // CHECKING IF CURRENT NODE IS SELECTED TO SET PROPER STYLING
         //===========================================================
         bool isSelected;
+
+        //if (sceneNode->GetSceneNodeMetaData().IsAnyChildSelected )
+        //{
+        //    for (auto& child : sceneNode->GetChildrenByRef())
+        //    {
+        //        if (child->GetSceneNodeMetaData().IsSelected)
+        //        {
+        //            isSelected = true;
+        //            child->Select();
+        //            m_selectedSceneNode = child;
+        //            break;
+        //        }
+        //    }
+        //}
+
         if (m_selectedSceneNode)
-            isSelected = (m_selectedSceneNode == sceneNode);
-        else if (sceneNode->GetSceneNodeMetaData().IsAnyChildSelected )
         {
-            isSelected = true;
-            for (auto& child : sceneNode->GetChildrenByRef())
+            if (m_selectedSceneNode == sceneNode)
             {
-                if (child->GetSceneNodeMetaData().IsSelected)
-                {
-                    m_selectedSceneNode = child;
-                }
+                isSelected = true;
             }
-        }else
-        {
-            isSelected = false;
+            else{
+                isSelected = false;
+            }
+
         }
+
 
 
         ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
@@ -133,13 +146,13 @@ namespace VEditor {
 
         bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
         {
-            if (!isSelected)
-            {
-                if (ImGui::IsItemClicked() ||
-                    ImGui::IsItemClicked(ImGuiMouseButton_Right)){
-                        m_selectedSceneNode = sceneNode;
-                        m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
-                }
+
+            if (ImGui::IsItemClicked() ||
+                ImGui::IsItemClicked(ImGuiMouseButton_Right)
+                ){
+                    sceneNode->Select();
+                    m_selectedSceneNode = sceneNode;
+                    m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
             }
 
             if (nodeOpen)

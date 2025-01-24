@@ -22,14 +22,14 @@ namespace VEditor
 {
     class ViewPort: public IUserInterfaceElement {
     public:
-        explicit ViewPort(ViewPortContext& viewPortContext, const ApplicationCore::Scene& scene, WindowManager& windowManager);
+        explicit ViewPort(ViewPortContext& viewPortContext, ApplicationCore::Scene& scene, WindowManager& windowManager);
 
         virtual void Render() override;
 
         void Resize(int newWidth, int newHeight) override;
 
     private:
-        const ApplicationCore::Scene& m_scene;
+        ApplicationCore::Scene& m_scene;
         WindowManager& m_windowManager;
         ViewPortContext& m_viewPortContext;
 

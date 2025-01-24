@@ -40,7 +40,7 @@ public:
     void AddCubeToScene() const;
     void AddSphereToScene() const;
     void AddPlaneToScene() const;
-    void PreformRayCast(glm::vec2 mousePosition) const;
+    void PreformRayCast(glm::vec2 mousePosition);
 
 private:
     void BuildDefaultScene();
@@ -52,6 +52,7 @@ private:
     std::shared_ptr<class SceneNode> m_root;
     AssetsManager& m_assetsManager;
     glm::vec3 m_mousePositionWorldSpace  = {0.0f, 0.0f, 0.0F};
+    std::shared_ptr<SceneNode> m_selectedSceneNode;
 };
 
 } // ApplicationCore
