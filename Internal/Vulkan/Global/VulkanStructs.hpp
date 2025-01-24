@@ -132,26 +132,102 @@ namespace VulkanStructs
         VkBuffer copyDstBuffer;
     };
 
-    struct DrawCallData
+struct DrawCallData
+{
+    uint32_t indexCount = 0;
+    uint32_t firstIndex = 0;
+    uint32_t indexCount_BB = 36;
+    uint32_t instanceCount = 1;
+    mutable int drawCallID = 0;
+
+    Bounds* bounds = nullptr;
+    MeshData* meshData = nullptr;
+
+    glm::mat4 modelMatrix;
+
+    float Z = 0.0f;
+    bool renderOutline = false;
+
+    std::shared_ptr<ApplicationCore::Material> material;
+
+    // Default constructor
+    DrawCallData() = default;
+
+    // Copy constructor
+    DrawCallData(const DrawCallData& other)
+        : indexCount(other.indexCount),
+          firstIndex(other.firstIndex),
+          indexCount_BB(other.indexCount_BB),
+          instanceCount(other.instanceCount),
+          drawCallID(other.drawCallID),
+          bounds(other.bounds),
+          meshData(other.meshData),
+          modelMatrix(other.modelMatrix),
+          Z(other.Z),
+          renderOutline(other.renderOutline),
+          material(other.material) {}
+
+    // Copy assignment operator
+    DrawCallData& operator=(const DrawCallData& other)
     {
-        uint32_t indexCount = 0;
-        uint32_t firstIndex =0;
-        uint32_t indexCount_BB = 36;
-        uint32_t instanceCount = 1;
-        mutable int drawCallID = 0; // optional if i need to access other stuff in the array of objects
+        if (this != &other)
+        {
+            indexCount = other.indexCount;
+            firstIndex = other.firstIndex;
+            indexCount_BB = other.indexCount_BB;
+            instanceCount = other.instanceCount;
+            drawCallID = other.drawCallID;
+            bounds = other.bounds;
+            meshData = other.meshData;
+            modelMatrix = other.modelMatrix;
+            Z = other.Z;
+            renderOutline = other.renderOutline;
+            material = other.material;
+        }
+        return *this;
+    }
 
-        Bounds *bounds;
-        MeshData* meshData;
+    // Move constructor
+    DrawCallData(DrawCallData&& other) noexcept
+        : indexCount(other.indexCount),
+          firstIndex(other.firstIndex),
+          indexCount_BB(other.indexCount_BB),
+          instanceCount(other.instanceCount),
+          drawCallID(other.drawCallID),
+          bounds(other.bounds),
+          meshData(other.meshData),
+          modelMatrix(std::move(other.modelMatrix)),
+          Z(other.Z),
+          renderOutline(other.renderOutline),
+          material(std::move(other.material))
+    {
+        other.bounds = nullptr;
+        other.meshData = nullptr;
+    }
 
-        glm::mat4& modelMatrix;
+    // Move assignment operator
+    DrawCallData& operator=(DrawCallData&& other) noexcept
+    {
+        if (this != &other)
+        {
+            indexCount = other.indexCount;
+            firstIndex = other.firstIndex;
+            indexCount_BB = other.indexCount_BB;
+            instanceCount = other.instanceCount;
+            drawCallID = other.drawCallID;
+            bounds = other.bounds;
+            meshData = other.meshData;
+            modelMatrix = std::move(other.modelMatrix);
+            Z = other.Z;
+            renderOutline = other.renderOutline;
+            material = std::move(other.material);
 
-        float Z;
-        bool renderOutline = false;
-
-        // material descriptor
-        std::shared_ptr<ApplicationCore::Material> material;
-
-    };
+            other.bounds = nullptr;
+            other.meshData = nullptr;
+        }
+        return *this;
+    }
+};
 
     struct RenderContext
     {
@@ -159,13 +235,17 @@ namespace VulkanStructs
         // Pipeline
         std::vector<DrawCallData> DrawCalls;
 
-        void SortDrawDataBasedOnZ()
+        static bool CompareByZDesc(const DrawCallData& DrawCallA, const DrawCallData& DrawCallB)
         {
-            std::sort(DrawCalls.begin(), DrawCalls.end(), [](const DrawCallData& a, const DrawCallData& b)
-            {
-                return a.Z < b.Z;
-            });
+            return DrawCallA.Z > DrawCallB.Z;
         }
+
+        static bool CompareByZAsc(const DrawCallData& DrawCallA, const DrawCallData& DrawCallB)
+        {
+            return DrawCallA.Z< DrawCallB.Z;
+        }
+
+
     };
 
 }

@@ -15,6 +15,7 @@
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Material/Material.hpp"
 #include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/Utils/ApplicationUtils.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 
 namespace ApplicationCore {
@@ -48,7 +49,7 @@ namespace ApplicationCore {
         {
             Render(ctx, child);
         }
-        m_drawCallDataForIntersection = ctx;
+        m_ctxIntersection = ctx;
     }
 
     void Scene::Reset()
@@ -165,9 +166,10 @@ namespace ApplicationCore {
 
             Utils::Logger::LogInfo("ray direction is: X: " + std::to_string(ray.direction.x) + ", Y: " + std::to_string(ray.direction.y) + ", Z: " + std::to_string(ray.direction.z));
 
-            m_drawCallDataForIntersection->SortDrawDataBasedOnZ();
+            auto n = m_ctxIntersection->DrawCalls.size();
+            QuickSort(m_ctxIntersection->DrawCalls, 0, n-1, VulkanStructs::RenderContext::CompareByZDesc);
 
-            for (auto& drawCall: m_drawCallDataForIntersection->DrawCalls)
+            for (auto& drawCall: m_ctxIntersection->DrawCalls)
             {
                 drawCall.bounds->ProjectToWorld(drawCall.modelMatrix);
                 if (ApplicationCore::AABBRayIntersection(ray, drawCall.bounds))

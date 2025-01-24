@@ -190,7 +190,8 @@ namespace ApplicationCore
                     //=====================================================
                     // NORMAL SCENE DATA
                     //=====================================================
-                    VulkanStructs::DrawCallData data{.modelMatrix = m_transformation->GetModelMatrix()};
+                    VulkanStructs::DrawCallData data;
+                    data.modelMatrix = m_transformation->GetModelMatrix();
                     data.firstIndex = 1;
                     data.indexCount = m_mesh->GetMeshIndexCount();
                     data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
@@ -207,7 +208,7 @@ namespace ApplicationCore
                     //=====================================================
                     // SORT BASED ON THE DEPTH
                     //=====================================================
-                    renderingContext->DrawCalls.insert(renderingContext->DrawCalls.end(),data);
+                    renderingContext->DrawCalls.emplace_back(data);
 
                 }
             }

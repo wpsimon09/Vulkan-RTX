@@ -135,6 +135,7 @@ set(SOURCES
         Internal/Editor/Views/Console/Console.hpp
         Internal/Application/IntersectionTests/IntersectionTests.hpp
         Internal/Application/IntersectionTests/IntersectionTests.cpp
+        Internal/Application/Utils/ApplicationUtils.hpp
 )
 
 

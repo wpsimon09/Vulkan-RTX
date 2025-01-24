@@ -53,7 +53,7 @@ private:
     std::shared_ptr<class SceneNode> m_root;
     AssetsManager& m_assetsManager;
     glm::vec3 m_mousePositionWorldSpace  = {0.0f, 0.0f, 0.0F};
-    VulkanStructs::RenderContext* m_drawCallDataForIntersection;
+    VulkanStructs::RenderContext* m_ctxIntersection;
     std::vector<std::shared_ptr<ApplicationCore::Mesh>> m_selectedMeshes;
 };
 
