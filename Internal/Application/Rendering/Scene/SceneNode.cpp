@@ -198,7 +198,7 @@ namespace ApplicationCore
                     data.material = m_mesh->m_material;
                     data.meshData = m_mesh->GetMeshData();
                     data.renderOutline = m_sceneNodeMetaData.IsSelected;
-                    data.Z = m_transformation->GetPosition().z;
+                    data.position = m_transformation->GetPosition();
 
                     //=====================================================
                     // BOUNDING VOLUME STUFF

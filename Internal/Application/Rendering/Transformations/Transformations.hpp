@@ -16,8 +16,10 @@ private:
     glm::vec3 m_position;
     glm::vec3 m_rotation;
     glm::vec3 m_scale;
+    glm::vec3 m_worldPosition;
 
     glm::mat4 m_modelMatrix;
+
 
     bool m_isDirty = true;
 
@@ -44,6 +46,8 @@ public:
     void SetScale(float x, float y, float z);
 
     bool HasChanged() {return m_isDirty;}
+
+    glm::vec3 &GetWorldPosition() {return m_worldPosition;};
 
     glm::mat4 &GetModelMatrix() {return m_modelMatrix;}
 

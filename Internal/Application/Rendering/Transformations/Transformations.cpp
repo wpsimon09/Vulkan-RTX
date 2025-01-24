@@ -42,6 +42,7 @@ glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix() {
 void ApplicationCore::Transformations::ComputeModelMatrix() {
     if(m_isDirty) {
         m_modelMatrix = ComputeLocalModelMatrix();
+        m_worldPosition = m_modelMatrix * glm::vec4(m_position, 1.0f);
         m_isDirty = false;
     }
 }
@@ -49,6 +50,7 @@ void ApplicationCore::Transformations::ComputeModelMatrix() {
 
 void ApplicationCore::Transformations::ComputeModelMatrix(glm::mat4 &parentGlobalMatrix)  {
     m_modelMatrix = parentGlobalMatrix * ComputeLocalModelMatrix();
+    m_worldPosition = m_modelMatrix * glm::vec4(m_position, 1.0f);
     m_isDirty = false;
 }
 

@@ -167,7 +167,7 @@ namespace ApplicationCore {
             Utils::Logger::LogInfo("ray direction is: X: " + std::to_string(ray.direction.x) + ", Y: " + std::to_string(ray.direction.y) + ", Z: " + std::to_string(ray.direction.z));
 
             auto n = m_ctxIntersection->DrawCalls.size();
-            QuickSort(m_ctxIntersection->DrawCalls, 0, n-1, VulkanStructs::RenderContext::CompareByZDesc);
+            QuickSort(m_ctxIntersection->DrawCalls, 0, n-1, VulkanStructs::RenderContext::CompareByDeptDesc);
 
             for (auto& drawCall: m_ctxIntersection->DrawCalls)
             {

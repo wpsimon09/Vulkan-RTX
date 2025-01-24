@@ -144,8 +144,9 @@ struct DrawCallData
     MeshData* meshData = nullptr;
 
     glm::mat4 modelMatrix;
+    glm::vec3 position;
 
-    float Z = 0.0f;
+    float depth = -1.0f;
     bool renderOutline = false;
 
     std::shared_ptr<ApplicationCore::Material> material;
@@ -163,9 +164,10 @@ struct DrawCallData
           bounds(other.bounds),
           meshData(other.meshData),
           modelMatrix(other.modelMatrix),
-          Z(other.Z),
+          depth(other.depth),
           renderOutline(other.renderOutline),
-          material(other.material) {}
+          material(other.material),
+          position(other.position){}
 
     // Copy assignment operator
     DrawCallData& operator=(const DrawCallData& other)
@@ -180,9 +182,10 @@ struct DrawCallData
             bounds = other.bounds;
             meshData = other.meshData;
             modelMatrix = other.modelMatrix;
-            Z = other.Z;
+            depth = other.depth;
             renderOutline = other.renderOutline;
             material = other.material;
+            position = other.position;
         }
         return *this;
     }
@@ -197,7 +200,7 @@ struct DrawCallData
           bounds(other.bounds),
           meshData(other.meshData),
           modelMatrix(std::move(other.modelMatrix)),
-          Z(other.Z),
+          depth(other.depth),
           renderOutline(other.renderOutline),
           material(std::move(other.material))
     {
@@ -218,9 +221,10 @@ struct DrawCallData
             bounds = other.bounds;
             meshData = other.meshData;
             modelMatrix = std::move(other.modelMatrix);
-            Z = other.Z;
+            depth = other.depth;
             renderOutline = other.renderOutline;
             material = std::move(other.material);
+            position = other.position;
 
             other.bounds = nullptr;
             other.meshData = nullptr;
@@ -235,14 +239,20 @@ struct DrawCallData
         // Pipeline
         std::vector<DrawCallData> DrawCalls;
 
-        static bool CompareByZDesc(const DrawCallData& DrawCallA, const DrawCallData& DrawCallB)
+        void ExtractDepthValues(glm::vec3& cameraPosition)
         {
-            return DrawCallA.Z > DrawCallB.Z;
+            for (auto &drawCall: DrawCalls)
+                drawCall.depth = glm::length(cameraPosition - drawCall.position);
         }
 
-        static bool CompareByZAsc(const DrawCallData& DrawCallA, const DrawCallData& DrawCallB)
+        static bool CompareByDeptDesc(const DrawCallData& DrawCallA, const DrawCallData& DrawCallB)
         {
-            return DrawCallA.Z< DrawCallB.Z;
+            return DrawCallA.depth > DrawCallB.depth;
+        }
+
+        static bool CompareByDeptAsc(const DrawCallData& DrawCallA, const DrawCallData& DrawCallB)
+        {
+            return DrawCallA.depth< DrawCallB.depth;
         }
 
 
