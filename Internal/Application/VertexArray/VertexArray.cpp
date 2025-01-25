@@ -6,15 +6,3 @@
 
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
-
-
-ApplicationCore::VertexArray::VertexArray(VulkanStructs::MeshData& meshData): m_meshData(meshData)
-{
-
-}
-
-
-
-void ApplicationCore::VertexArray::Destroy() const {
-
-}

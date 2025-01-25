@@ -29,25 +29,6 @@ namespace ApplicationCore
         glm::vec2 uv = {0.0f, 0.0f};
     };
 
-    class VertexArray {
-    public:
-        explicit VertexArray(VulkanStructs::MeshData& meshData);
-
-        VulkanStructs::MeshData* GetMeshData() { return &m_meshData; }
-        uint32_t GetAABBIndexCount() const { return 36; }
-
-        void Destroy() const;;
-
-        int GetAttributeCount() {return 3;};
-
-         ~VertexArray() = default;
-
-    private:
-        // TODO : instead of having this VBuffer unique it can be made a const reference tho the vkBuffer allocated at once
-
-        VulkanStructs::MeshData m_meshData;
-        PRIMITIVE_TOPOLOGY m_topology;
-    };
 }
 
 
