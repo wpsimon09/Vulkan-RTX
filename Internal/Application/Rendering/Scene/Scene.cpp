@@ -156,6 +156,7 @@ namespace ApplicationCore {
     void Scene::PreformRayCast(glm::vec2 mousePosition)
     {
         m_root->Deselect();
+        m_selectedSceneNode = nullptr;
         if (mousePosition.x >= -1 && mousePosition.x <= 1 && mousePosition.y >= -1 && mousePosition.y <= 1)
         {
             Ray ray{};
@@ -163,7 +164,7 @@ namespace ApplicationCore {
             ray.direction = m_camera.Deproject(mousePosition);
             ray.length = 20000.0f;
 
-            Utils::Logger::LogInfo("ray direction is: X: " + std::to_string(ray.direction.x) + ", Y: " + std::to_string(ray.direction.y) + ", Z: " + std::to_string(ray.direction.z));
+            Utils::Logger::LogSuccessClient("Ray constructed successfuly !");
 
             std::vector<std::shared_ptr<SceneNode>> hitNodes;
             for (auto& topNode : m_root->GetChildrenByRef())
@@ -187,7 +188,6 @@ namespace ApplicationCore {
             m_selectedSceneNode->Select();
 
 
-            Utils::Logger::LogSuccessClient("Ray constructed successfuly !");
         }else
         {
             Utils::Logger::LogErrorClient("Mouse is outside NDC");

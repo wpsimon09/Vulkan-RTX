@@ -25,7 +25,10 @@ public:
     void SetSelectedNode(std::shared_ptr<ApplicationCore::SceneNode> selectedNode)
     {
         m_selectedSceneNode = selectedNode;
-        m_uniformScaleScalar = m_selectedSceneNode->m_transformation->GetScale().x;
+        if (m_selectedSceneNode)
+        {
+            m_uniformScaleScalar = m_selectedSceneNode->m_transformation->GetScale().x;
+        }
     };
 
     bool isSelectedSceneNodeSame(const std::shared_ptr<ApplicationCore::SceneNode>& selectedNode){ return m_selectedSceneNode == selectedNode; };
