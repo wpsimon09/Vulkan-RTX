@@ -32,10 +32,12 @@ public:
     void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const ;
     void AddNode(std::shared_ptr<SceneNode> sceneNode) const;
     void PrintSceneGraph();
+    bool& HasSelectionChanged() {return m_hasSelectionChanged;}
 
 
 public:
     std::shared_ptr<SceneNode> GetRootNode() const {return m_root;}
+    std::shared_ptr<SceneNode> GetSelectedSceneNode() const {return m_selectedSceneNode;}
     const SceneStatistics& GetSceneStatistics() const {return m_sceneStatistics;}
 
     void AddCubeToScene() const;
@@ -53,8 +55,9 @@ private:
     std::shared_ptr<class SceneNode> m_root;
     AssetsManager& m_assetsManager;
     glm::vec3 m_mousePositionWorldSpace  = {0.0f, 0.0f, 0.0F};
-    VulkanStructs::RenderContext* m_ctxIntersection;
+    std::shared_ptr<SceneNode> m_selectedSceneNode;
     std::vector<std::shared_ptr<SceneNode>> m_selectedSceneNodes;
+    bool m_hasSelectionChanged = false;
 };
 
 } // ApplicationCore

@@ -69,10 +69,7 @@ namespace ApplicationCore
         void Select(bool selectedFromWorld = false);
         void Deselect();
         bool IsSelected() const { return m_sceneNodeMetaData.IsSelected; }
-        bool IsSelectedFromWorld() const { return m_sceneNodeMetaData.IsSelectedFromWorld; }
-        bool IsAnyChildSelected() const { return m_sceneNodeMetaData.IsAnyChildSelected; }
         bool IsOpen() const {return m_sceneNodeMetaData.IsOpen;}
-        void UpdateParentsAboutChildStatus(bool status, SceneNode* parent);
         SceneNodeMetaData& GetSceneNodeMetaData() { return m_sceneNodeMetaData; }
 
         //=========================
@@ -91,6 +88,7 @@ namespace ApplicationCore
         void PreformRayIntersectionTest(Ray& ray, std::vector<std::shared_ptr<SceneNode>>& result);
         bool IsParent() const { return m_parent == nullptr; }
         bool HasMesh() const { return m_sceneNodeMetaData.HasMesh; }
+        float GetDistanceFromCamera(glm::vec3 cameraPosition);
 
         //=========================
         // Accessors

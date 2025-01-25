@@ -31,6 +31,8 @@ namespace VEditor {
     {
         ImGui::Begin(ICON_FA_ATOM" Scene graph",&m_isOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
+        if (m_scene->)
+
             ImGui::SeparatorText("Scene");
                 ImGui::BeginChild("Scrolling");
                 for (auto& sceneNode : m_scene.GetRootNode()->GetChildrenByRef())
@@ -82,32 +84,15 @@ namespace VEditor {
         //===========================================================
         bool isSelected;
 
-        //if (sceneNode->GetSceneNodeMetaData().IsAnyChildSelected )
-        //{
-        //    for (auto& child : sceneNode->GetChildrenByRef())
-        //    {
-        //        if (child->GetSceneNodeMetaData().IsSelected)
-        //        {
-        //            isSelected = true;
-        //            child->Select();
-        //            m_selectedSceneNode = child;
-        //            break;
-        //        }
-        //    }
-        //}
-
         if (m_selectedSceneNode)
         {
-            if (m_selectedSceneNode == sceneNode)
-            {
+            if (m_selectedSceneNode == sceneNode) {
                 isSelected = true;
             }
             else{
                 isSelected = false;
             }
-
         }
-
 
 
         ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
@@ -150,6 +135,7 @@ namespace VEditor {
             if (ImGui::IsItemClicked() ||
                 ImGui::IsItemClicked(ImGuiMouseButton_Right)
                 ){
+                    m_scene.GetRootNode()->Deselect();
                     sceneNode->Select();
                     m_selectedSceneNode = sceneNode;
                     m_detailsPanale->SetSelectedNode(m_selectedSceneNode);

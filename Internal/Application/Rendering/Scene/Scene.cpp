@@ -49,7 +49,6 @@ namespace ApplicationCore {
         {
             Render(ctx, child);
         }
-        m_ctxIntersection = ctx;
     }
 
     void Scene::Reset()
@@ -156,7 +155,7 @@ namespace ApplicationCore {
 
     void Scene::PreformRayCast(glm::vec2 mousePosition)
     {
-        m_selectedSceneNodes.clear();
+        m_root->Deselect();
         if (mousePosition.x >= -1 && mousePosition.x <= 1 && mousePosition.y >= -1 && mousePosition.y <= 1)
         {
             Ray ray{};
@@ -170,7 +169,21 @@ namespace ApplicationCore {
             for (auto& topNode : m_root->GetChildrenByRef())
             {
                 topNode->PreformRayIntersectionTest(ray, hitNodes);
+            };
+
+            auto closestNode = hitNodes[0];
+
+            for (int i = 0; i < hitNodes.size(); i++)
+            {
+                Utils::Logger::LogInfo("Depth of the node is " + std::to_string(hitNodes[i]->GetDistanceFromCamera(m_camera.GetPosition())) );
+                if (hitNodes[i]->GetDistanceFromCamera(m_camera.GetPosition()) < closestNode->GetDistanceFromCamera(m_camera.GetPosition()))
+                    closestNode = hitNodes[i];
             }
+
+            m_selectedSceneNode  = closestNode;
+            m_selectedSceneNode->Select();
+            m_hasSelectionChanged = true;
+
 
             Utils::Logger::LogSuccessClient("Ray constructed successfuly !");
         }else

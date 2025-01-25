@@ -85,7 +85,6 @@ namespace ApplicationCore
 
         m_sceneNodeMetaData.IsSelected = true;
         m_sceneNodeMetaData.IsSelectedFromWorld = selectedFromWorld;
-        UpdateParentsAboutChildStatus(true, m_parent);
 
         for (auto& child : m_children)
         {
@@ -95,9 +94,7 @@ namespace ApplicationCore
 
     void SceneNode::Deselect()
     {
-
         m_sceneNodeMetaData.IsSelected = false;
-        UpdateParentsAboutChildStatus(false, m_parent);
 
         for (auto& child : m_children)
         {
@@ -115,7 +112,7 @@ namespace ApplicationCore
             {
                 if (!m_sceneNodeMetaData.IsSelected)
                 {
-                    m_sceneNodeMetaData.IsSelected = true;
+                 //   m_sceneNodeMetaData.IsSelected = true;
                 }
                 result.emplace_back(shared_from_this());
             }else
@@ -125,6 +122,17 @@ namespace ApplicationCore
         }
         for (auto& child : m_children) {
             child->PreformRayIntersectionTest(ray, result);
+        }
+    }
+
+    float SceneNode::GetDistanceFromCamera(glm::vec3 cameraPosition)
+    {
+        if (m_mesh)
+        {
+            m_mesh->GetMeshData()->bounds.ProjectToWorld(m_transformation->GetModelMatrix());
+            glm::vec3 pos = m_mesh->GetMeshData()->bounds.origin;
+
+            return glm::length(pos - cameraPosition);
         }
     }
 
@@ -142,18 +150,6 @@ namespace ApplicationCore
         }
 
         return result;
-    }
-
-    void SceneNode::UpdateParentsAboutChildStatus(bool status, SceneNode* parent)
-    {
-        if (parent ==nullptr)
-            return;
-        if (parent->GetParent())
-        {
-            parent->m_sceneNodeMetaData.IsAnyChildSelected = status;
-            auto nextParent = parent->GetParent();
-            UpdateParentsAboutChildStatus(status, nextParent);
-        }
     }
 
     void SceneNode::Update() const
