@@ -171,6 +171,9 @@ namespace ApplicationCore {
                 topNode->PreformRayIntersectionTest(ray, hitNodes);
             };
 
+            if (hitNodes.empty())
+                return;
+
             auto closestNode = hitNodes[0];
 
             for (int i = 0; i < hitNodes.size(); i++)
@@ -182,7 +185,6 @@ namespace ApplicationCore {
 
             m_selectedSceneNode  = closestNode;
             m_selectedSceneNode->Select();
-            m_hasSelectionChanged = true;
 
 
             Utils::Logger::LogSuccessClient("Ray constructed successfuly !");

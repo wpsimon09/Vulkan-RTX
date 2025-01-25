@@ -13,7 +13,7 @@
 #include "Editor/Views/DetailsPanel/DetailsPanel.hpp"
 
 namespace VEditor {
-    SceneView::SceneView(const ApplicationCore::Scene& scene): m_scene(scene)
+    SceneView::SceneView(ApplicationCore::Scene& scene): m_scene(scene)
     {
         auto detailsPnel = std::make_unique<VEditor::DetailsPanel>();
         m_uiChildren.emplace_back(std::move(detailsPnel));
@@ -29,10 +29,10 @@ namespace VEditor {
 
     void SceneView::Render()
     {
+        if (!m_detailsPanale->isSelectedSceneNodeSame(m_scene.GetSelectedSceneNode()))
+            m_detailsPanale->SetSelectedNode(m_scene.GetSelectedSceneNode());
+
         ImGui::Begin(ICON_FA_ATOM" Scene graph",&m_isOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
-
-        if (m_scene->)
-
             ImGui::SeparatorText("Scene");
                 ImGui::BeginChild("Scrolling");
                 for (auto& sceneNode : m_scene.GetRootNode()->GetChildrenByRef())
@@ -45,9 +45,9 @@ namespace VEditor {
                 {
                     if (ImGui::MenuItem(ICON_FA_TRASH_CAN " Delete", "DEL") )
                     {
-                        if (m_selectedSceneNode)
+                        if (m_scene.GetSelectedSceneNode())
                         {
-                            m_scene.RemoveNode(m_selectedSceneNode->GetParent(), m_selectedSceneNode);
+                            m_scene.RemoveNode(m_scene.GetSelectedSceneNode()->GetParent(), m_scene.GetSelectedSceneNode());
                         }
                     }
 
@@ -84,9 +84,9 @@ namespace VEditor {
         //===========================================================
         bool isSelected;
 
-        if (m_selectedSceneNode)
+        if (m_scene.GetSelectedSceneNode())
         {
-            if (m_selectedSceneNode == sceneNode) {
+            if (m_scene.GetSelectedSceneNode() == sceneNode) {
                 isSelected = true;
             }
             else{
@@ -137,8 +137,8 @@ namespace VEditor {
                 ){
                     m_scene.GetRootNode()->Deselect();
                     sceneNode->Select();
-                    m_selectedSceneNode = sceneNode;
-                    m_detailsPanale->SetSelectedNode(m_selectedSceneNode);
+                    m_scene.SetSelectedSceneNode(sceneNode);
+                    m_detailsPanale->SetSelectedNode(m_scene.GetSelectedSceneNode());
             }
 
             if (nodeOpen)

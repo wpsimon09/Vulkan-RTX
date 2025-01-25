@@ -23,7 +23,7 @@ namespace VEditor {
 
 class SceneView: public IUserInterfaceElement {
 public:
-    explicit SceneView(const ApplicationCore::Scene& scene);
+    explicit SceneView( ApplicationCore::Scene& scene);
 
     void Resize(int newWidth, int newHeight) override;
 
@@ -32,8 +32,7 @@ public:
 private:
 
      void CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode> sceneNode)  ;
-     std::shared_ptr<ApplicationCore::SceneNode> m_selectedSceneNode;
-     const ApplicationCore::Scene& m_scene;
+     ApplicationCore::Scene& m_scene;
 
      DetailsPanel* m_detailsPanale;
 };

@@ -27,6 +27,8 @@ public:
         m_selectedSceneNode = selectedNode;
         m_uniformScaleScalar = m_selectedSceneNode->m_transformation->GetScale().x;
     };
+
+    bool isSelectedSceneNodeSame(const std::shared_ptr<ApplicationCore::SceneNode>& selectedNode){ return m_selectedSceneNode == selectedNode; };
 private:
     bool m_isUniformScaleOn = false;
     float m_uniformScaleScalar = 1.0f;

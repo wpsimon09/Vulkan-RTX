@@ -32,7 +32,6 @@ public:
     void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const ;
     void AddNode(std::shared_ptr<SceneNode> sceneNode) const;
     void PrintSceneGraph();
-    bool& HasSelectionChanged() {return m_hasSelectionChanged;}
 
 
 public:
@@ -44,6 +43,7 @@ public:
     void AddSphereToScene() const;
     void AddPlaneToScene() const;
     void PreformRayCast(glm::vec2 mousePosition);
+    void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; } ;
 
 private:
     void BuildDefaultScene();
@@ -57,7 +57,6 @@ private:
     glm::vec3 m_mousePositionWorldSpace  = {0.0f, 0.0f, 0.0F};
     std::shared_ptr<SceneNode> m_selectedSceneNode;
     std::vector<std::shared_ptr<SceneNode>> m_selectedSceneNodes;
-    bool m_hasSelectionChanged = false;
 };
 
 } // ApplicationCore
