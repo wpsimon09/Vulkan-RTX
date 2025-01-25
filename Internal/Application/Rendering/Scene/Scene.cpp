@@ -156,7 +156,7 @@ namespace ApplicationCore {
 
     void Scene::PreformRayCast(glm::vec2 mousePosition)
     {
-
+        m_selectedSceneNodes.clear();
         if (mousePosition.x >= -1 && mousePosition.x <= 1 && mousePosition.y >= -1 && mousePosition.y <= 1)
         {
             Ray ray{};
@@ -166,17 +166,10 @@ namespace ApplicationCore {
 
             Utils::Logger::LogInfo("ray direction is: X: " + std::to_string(ray.direction.x) + ", Y: " + std::to_string(ray.direction.y) + ", Z: " + std::to_string(ray.direction.z));
 
-            auto n = m_ctxIntersection->DrawCalls.size();
-            QuickSort(m_ctxIntersection->DrawCalls, 0, n-1, VulkanStructs::RenderContext::CompareByDeptDesc);
-
-            for (auto& drawCall: m_ctxIntersection->DrawCalls)
+            std::vector<std::shared_ptr<SceneNode>> hitNodes;
+            for (auto& topNode : m_root->GetChildrenByRef())
             {
-                drawCall.bounds->ProjectToWorld(drawCall.modelMatrix);
-                if (ApplicationCore::AABBRayIntersection(ray, drawCall.bounds))
-                {
-                    Utils::Logger::LogSuccessClient("Intersection");
-                    break;
-                }
+                topNode->PreformRayIntersectionTest(ray, hitNodes);
             }
 
             Utils::Logger::LogSuccessClient("Ray constructed successfuly !");

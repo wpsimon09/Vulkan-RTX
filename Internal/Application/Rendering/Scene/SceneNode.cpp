@@ -105,7 +105,7 @@ namespace ApplicationCore
         }
     }
 
-    std::shared_ptr<SceneNode> SceneNode::PreformRayIntersectionTest(Ray& ray)
+    void SceneNode::PreformRayIntersectionTest(Ray& ray,std::vector<std::shared_ptr<SceneNode>>& result)
     {
         if (m_sceneNodeMetaData.HasMesh && m_sceneNodeMetaData.IsVisible)
         {
@@ -117,16 +117,15 @@ namespace ApplicationCore
                 {
                     m_sceneNodeMetaData.IsSelected = true;
                 }
-                return shared_from_this();
+                result.emplace_back(shared_from_this());
             }else
             {
                 Deselect();
             }
         }
         for (auto& child : m_children) {
-            child->PreformRayIntersectionTest(ray);
+            child->PreformRayIntersectionTest(ray, result);
         }
-        return nullptr;
     }
 
     SceneNode* SceneNode::GetParent()

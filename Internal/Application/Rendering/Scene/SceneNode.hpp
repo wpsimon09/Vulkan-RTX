@@ -88,7 +88,7 @@ namespace ApplicationCore
         //=========================
         // Utility Functions
         //=========================
-        std::shared_ptr<SceneNode> PreformRayIntersectionTest(Ray& ray);
+        void PreformRayIntersectionTest(Ray& ray, std::vector<std::shared_ptr<SceneNode>>& result);
         bool IsParent() const { return m_parent == nullptr; }
         bool HasMesh() const { return m_sceneNodeMetaData.HasMesh; }
 
@@ -127,7 +127,6 @@ namespace ApplicationCore
         std::shared_ptr<Mesh> m_mesh;
         std::string m_name;
         std::vector<std::shared_ptr<SceneNode>> m_children;
-
 
         SceneNodeMetaData m_sceneNodeMetaData;
     };
