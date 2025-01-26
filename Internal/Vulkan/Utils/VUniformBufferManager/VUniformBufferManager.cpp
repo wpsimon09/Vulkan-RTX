@@ -6,7 +6,7 @@
 
 #include "Application/Client.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
-#include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"

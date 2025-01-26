@@ -13,7 +13,7 @@
 
 namespace ApplicationCore
 {
-    class Mesh;
+    class StaticMesh;
     class Camera;
     class SceneNode;
     class AssetsManager;

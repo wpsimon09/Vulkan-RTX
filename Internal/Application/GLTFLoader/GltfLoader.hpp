@@ -23,7 +23,7 @@ namespace ApplicationCore {
 
     class VertexArray;
 class AssetsManager;
-class Mesh;
+class StaticMesh;
 
 class SceneNode;
 

@@ -5,7 +5,7 @@
 #include "VBuffer.hpp"
 
 #include "Application/Logger/Logger.hpp"
-#include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"

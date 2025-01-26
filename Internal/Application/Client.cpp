@@ -5,7 +5,7 @@
 #include "Client.hpp"
 
 #include "Logger/Logger.hpp"
-#include "Rendering/Mesh/Mesh.hpp"
+#include "Rendering/Mesh/StaticMesh.hpp"
 #include "VertexArray/VertexArray.hpp"
 #include "Rendering/Transformations/Transformations.hpp"
 #include "Application/Rendering/Material/Material.hpp"
@@ -41,8 +41,8 @@ void Client::Init() {
     Utils::Logger::LogSuccessClient("Client side initialized in: " +  std::to_string(duration.count()) + "seconds");
 }
 
-const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> Client::GetMeshes() const {
-    std::vector<std::reference_wrapper<ApplicationCore::Mesh>> result;
+const std::vector<std::reference_wrapper<ApplicationCore::StaticMesh>> Client::GetMeshes() const {
+    std::vector<std::reference_wrapper<ApplicationCore::StaticMesh>> result;
     result.reserve(m_meshes.size());
     for (auto &mesh : m_meshes) {
         result.push_back(std::ref(*mesh));

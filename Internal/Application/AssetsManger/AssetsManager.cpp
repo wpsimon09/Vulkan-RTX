@@ -10,7 +10,7 @@
 #include <future>
 
 #include "Application/Rendering/Material/Material.hpp"
-#include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Application/Rendering/Mesh/MeshData.hpp"
@@ -35,14 +35,8 @@ namespace ApplicationCore
 
     void AssetsManager::DeleteAll()
     {
-        for (auto& meshData : m_preloadedMeshData)
-        {
-            meshData.second->Destroy();
-        }
-        for (auto& vao : m_vertexArrays)
-        {
-            vao->Destroy();
-        }
+
+        m_allMeshData.clear();
         for (auto& texture : m_textures)
         {
             texture.second->Destroy();
@@ -54,7 +48,7 @@ namespace ApplicationCore
         m_dummyTexture->Destroy();
     }
 
-    std::shared_ptr<VertexArray> AssetsManager::GetVertexArrayForGeometryType(MESH_GEOMETRY_TYPE geometryType)
+    std::shared_ptr<VulkanStructs::MeshData> AssetsManager::MeshDataForGeometryType(MESH_GEOMETRY_TYPE geometryType)
     {
         auto result = m_preloadedMeshData.find(geometryType);
         // if they are loaded return the loaded result
@@ -63,14 +57,13 @@ namespace ApplicationCore
             return result->second;
         }
         // load them otherwise
-        std::unique_ptr<VertexArray> vao;
 
         switch (geometryType)
         {
         case MESH_GEOMETRY_PLANE:
             {
                 auto data = m_meshDataManager.AddMeshData(MeshData::planeVertices, MeshData::planeIndices);
-                m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(data);
+                m_preloadedMeshData[geometryType] = std::make_shared<VulkanStructs::MeshData>(data);
                 break;
             }
         case MESH_GEOMETRY_SPHERE:
@@ -80,33 +73,33 @@ namespace ApplicationCore
                 MeshData::GenerateSphere(vertices, indices);
 
                 auto data = m_meshDataManager.AddMeshData(vertices, indices);
-                m_preloadedMeshData[geometryType] =std::make_shared<VertexArray>(data);
+                m_preloadedMeshData[geometryType] = std::make_shared<VulkanStructs::MeshData>(data);
 
                 break;
             }
         case MESH_GEOMETRY_CUBE:
             {
                 auto data = m_meshDataManager.AddMeshData(MeshData::cubeVertices, MeshData::cubeIndices);
-                m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(data);
+                m_preloadedMeshData[geometryType] = std::make_shared<VulkanStructs::MeshData>(data);
 
                 break;
             }
         case MESH_GEOMETRY_TRIANGLE:
             {
                 auto data = m_meshDataManager.AddMeshData(MeshData::triangleVertices, MeshData::triangleIndices);
-                m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(data);
+                m_preloadedMeshData[geometryType] = std::make_shared<VulkanStructs::MeshData>(data);
                 break;
             }
         case MESH_GEOMETRY_CROSS:
             {
                 auto data = m_meshDataManager.AddMeshData(MeshData::crossVertices, MeshData::crossIndices);
-                m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(data);
+                m_preloadedMeshData[geometryType] = std::make_shared<VulkanStructs::MeshData>(data);
                 break;
             }
         case MESH_GEOMETRY_POST_PROCESS:
             {
                 auto data = m_meshDataManager.AddMeshData(MeshData::fullscreenQuadVertices,MeshData::fullscreenQuadIndices);
-                m_preloadedMeshData[geometryType] = std::make_shared<VertexArray>(data);
+                m_preloadedMeshData[geometryType] = std::make_shared<VulkanStructs::MeshData>(data);
                 break;
             }
         default: ;
@@ -162,7 +155,7 @@ namespace ApplicationCore
         return m_materials[path];
     }
 
-    void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<Mesh> mesh)
+    void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<StaticMesh> mesh)
     {
         if (!m_meshes.contains(meshName))
         {

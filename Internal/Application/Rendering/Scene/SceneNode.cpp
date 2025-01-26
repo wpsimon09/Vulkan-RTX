@@ -8,7 +8,7 @@
 
 #include "Application/IntersectionTests/IntersectionTests.hpp"
 #include "Application/Logger/Logger.hpp"
-#include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
@@ -18,7 +18,7 @@
 
 namespace ApplicationCore
 {
-    SceneNode::SceneNode(std::shared_ptr<Mesh> mesh): m_transformation(
+    SceneNode::SceneNode(std::shared_ptr<StaticMesh> mesh): m_transformation(
         mesh ? mesh->GetTransformations() : &m_localTransformation), m_sceneNodeMetaData{}
     {
         if (mesh)
@@ -55,7 +55,7 @@ namespace ApplicationCore
         }
     }
 
-    void SceneNode::AddChild(std::shared_ptr<Mesh> child)
+    void SceneNode::AddChild(std::shared_ptr<StaticMesh> child)
     {
         if (child)
         {

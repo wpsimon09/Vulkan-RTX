@@ -8,7 +8,7 @@
 
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Rendering/Material/MaterialStructs.hpp"
-#include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
@@ -35,7 +35,7 @@ namespace ApplicationCore
         std::vector<std::shared_ptr<SceneNode>> m_topNodes;
         std::vector<std::shared_ptr<SceneNode>> m_nodes;
 
-        std::vector<std::shared_ptr<Mesh>> m_meshes;
+        std::vector<std::shared_ptr<StaticMesh>> m_meshes;
         std::vector<std::shared_ptr<VertexArray>> vertexArrays;
         std::vector<std::shared_ptr<VulkanCore::VImage>> m_textures;
         std::vector<std::shared_ptr<Material>> materials;
@@ -253,14 +253,14 @@ namespace ApplicationCore
 
                 auto meshData = m_assetsManager.GetBufferAllocator().AddMeshData(vertices, indices);
 
-                auto vao = std::make_shared<VertexArray>(meshData);
+                auto meshGeometryData = std::make_shared<VulkanStructs::MeshData>(meshData);
 
                 // create shared ptr to mesh
-                auto createdMehs = std::make_shared<Mesh>(vao, mat);
+                auto createdMehs = std::make_shared<StaticMesh>(meshGeometryData, mat);
                 createdMehs->GeteMeshInfo().numberOfTriangles = m.primitives.size();
                 createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(15));
 
-                m_assetsManager.GetVertexData().emplace_back(vao);
+                m_assetsManager.GetVertexData().emplace_back(&meshData);
 
                 // store the shared ptr to mesh
                 m_assetsManager.AddMesh(std::string(m.name), createdMehs);

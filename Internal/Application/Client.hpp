@@ -41,14 +41,14 @@ namespace ApplicationCore
 namespace ApplicationCore
 {
     class AssetsManager;
-    class Mesh;
+    class StaticMesh;
 }
 
 class Client {
 public:
     Client();
     void Init();
-    const std::vector<std::reference_wrapper<ApplicationCore::Mesh>> GetMeshes() const;
+    const std::vector<std::reference_wrapper<ApplicationCore::StaticMesh>> GetMeshes() const;
     void Render(VulkanStructs::RenderContext* ctx);
     const void MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager);
     const void Destroy();
@@ -68,7 +68,7 @@ public:
     bool GetIsRTXOn() const {return m_isRTXOn;};
 private:
     std::unique_ptr<ApplicationCore::AssetsManager> m_assetsManager;
-    std::vector<std::unique_ptr<class ApplicationCore::Mesh>> m_meshes;
+    std::vector<std::unique_ptr<class ApplicationCore::StaticMesh>> m_meshes;
     std::unique_ptr<ApplicationCore::Camera> m_camera;
     std::unique_ptr<ApplicationCore::Scene> m_scene;
     std::unique_ptr<ApplicationCore::GLTFLoader> m_gltfLoader;

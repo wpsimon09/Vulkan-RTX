@@ -7,7 +7,7 @@
 
 #include <imgui.h>
 
-#include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 
 namespace VEditor {

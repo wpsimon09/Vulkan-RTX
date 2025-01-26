@@ -7,7 +7,7 @@
 #include <imgui.h>
 #include <IconFontCppHeaders/IconsFontAwesome6.h>
 
-#include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 #include "Editor/Views/DetailsPanel/DetailsPanel.hpp"

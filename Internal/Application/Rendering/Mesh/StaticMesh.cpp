@@ -1,7 +1,7 @@
 //
 // Created by wpsimon09 on 05/10/24.
 
-#include "Mesh.hpp"
+#include "StaticMesh.hpp"
 #include "MeshData.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Logger/Logger.hpp"
@@ -11,10 +11,10 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
-ApplicationCore::Mesh::Mesh(std::shared_ptr<VertexArray> geometryData,std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType)
+ApplicationCore::StaticMesh::StaticMesh(std::shared_ptr<VulkanStructs::MeshData> geometryData,std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType)
 {
     m_geometryType = geometryType;
-    m_vertexArray = geometryData;
+    m_meshGeomtryData = geometryData;
     m_transformations = std::make_unique<Transformations>();
 
     m_material = material;
@@ -28,31 +28,31 @@ ApplicationCore::Mesh::Mesh(std::shared_ptr<VertexArray> geometryData,std::share
 }
 
 
-const uint32_t ApplicationCore::Mesh::GetMeshIndexCount() const {
-    return static_cast<uint32_t>(m_vertexArray->GetMeshData()->indexData.size / sizeof(uint32_t));
+const uint32_t ApplicationCore::StaticMesh::GetMeshIndexCount() const {
+    return static_cast<uint32_t>(m_meshGeomtryData->indexData.size / sizeof(uint32_t));
 }
 
-VulkanStructs::MeshData* ApplicationCore::Mesh::GetMeshData()
+VulkanStructs::MeshData* ApplicationCore::StaticMesh::GetMeshData()
 {
-    return m_vertexArray->GetMeshData();
+    return m_meshGeomtryData.get();
 }
 
-void ApplicationCore::Mesh::Update() {
+void ApplicationCore::StaticMesh::Update() {
     m_transformations->ComputeModelMatrix();
 }
 
-void ApplicationCore::Mesh::Destroy()
+void ApplicationCore::StaticMesh::Destroy()
 {
-
+    m_meshGeomtryData.reset();
 }
 
-void ApplicationCore::Mesh::SetName(std::string name)
+void ApplicationCore::StaticMesh::SetName(std::string name)
 {
     m_name = name;
 }
 
 
-std::string ApplicationCore::Mesh::MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType) {
+std::string ApplicationCore::StaticMesh::MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType) {
     switch (geometryType) {
         case MESH_GEOMETRY_PLANE:
             return "MESH_GEOMETRY_PLANE";

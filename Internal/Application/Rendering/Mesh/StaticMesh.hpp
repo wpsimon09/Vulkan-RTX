@@ -22,9 +22,9 @@ namespace ApplicationCore
 
 
 
-    class Mesh{
+    class StaticMesh{
     public:
-        explicit Mesh(std::shared_ptr<VertexArray> geometryData,std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType = MESH_GEOMETRY_CUSTOM);
+        explicit StaticMesh(std::shared_ptr<VulkanStructs::MeshData> geometryData,std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType = MESH_GEOMETRY_CUSTOM);
 
         void Update();
 
@@ -47,10 +47,7 @@ namespace ApplicationCore
         }m_meshInfo{};
 
     public:
-        const size_t GetMeshVertexArraySize() const;
-        const size_t GetMeshIndexArraySize() const;
         const uint32_t GetMeshIndexCount() const;
-        const uint32_t GetMeshVertexCount() const;
         std::shared_ptr<Material> GetMaterial() const {return m_material;}  ;
         VulkanStructs::MeshData* GetMeshData();
 
@@ -59,15 +56,14 @@ namespace ApplicationCore
 
         VulkanStructs::RenderingMetaData& GetRenderingMetaData()  {return m_renderingMetaData;}
         ApplicationCore::Transformations* GetTransformations() const { return m_transformations.get(); }
-        const std::shared_ptr<VertexArray>& GetVertexArray() const {return m_vertexArray;}
+        const std::shared_ptr<VulkanStructs::MeshData>& GetMeshData() const {return m_meshGeomtryData;}
 
         MeshInfo& GeteMeshInfo() {return m_meshInfo;}
 
     private:
         MESH_GEOMETRY_TYPE m_geometryType;
 
-        std::shared_ptr<VertexArray> m_vertexArray;
-        std::unique_ptr<VertexArray> m_aabbVertexArray;
+        std::shared_ptr<VulkanStructs::MeshData> m_meshGeomtryData;
         std::shared_ptr<Material> m_material;
 
         VulkanStructs::RenderingMetaData m_renderingMetaData;

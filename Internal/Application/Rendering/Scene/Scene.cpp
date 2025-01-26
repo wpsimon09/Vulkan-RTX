@@ -14,7 +14,7 @@
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Material/Material.hpp"
-#include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Utils/ApplicationUtils.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 
@@ -88,10 +88,10 @@ namespace ApplicationCore {
         // Create materials
         MaterialPaths blueMaterialPath;
 
-        std::shared_ptr<VertexArray> sphereVertexArray = m_assetsManager.GetVertexArrayForGeometryType(MESH_GEOMETRY_SPHERE);
-        std::shared_ptr<VertexArray> postProcessVertexArray = m_assetsManager.GetVertexArrayForGeometryType(MESH_GEOMETRY_POST_PROCESS);
+        auto sphereVertexArray = m_assetsManager.MeshDataForGeometryType(MESH_GEOMETRY_SPHERE);
+        auto postProcessVertexArray = m_assetsManager.MeshDataForGeometryType(MESH_GEOMETRY_POST_PROCESS);
 
-        auto rayTracerPlane = std::make_shared<ApplicationCore::Mesh>(postProcessVertexArray, m_assetsManager.GetMaterial(blueMaterialPath),MESH_GEOMETRY_POST_PROCESS);
+        auto rayTracerPlane = std::make_shared<ApplicationCore::StaticMesh>(postProcessVertexArray, m_assetsManager.GetMaterial(blueMaterialPath),MESH_GEOMETRY_POST_PROCESS);
         rayTracerPlane->GetRenderingMetaData().bRasterPass = false;
         rayTracerPlane->GetRenderingMetaData().bRTXPass = true;
 
@@ -125,8 +125,8 @@ namespace ApplicationCore {
 
     void Scene::AddCubeToScene() const
     {
-        std::shared_ptr<VertexArray> objVAO = m_assetsManager.GetVertexArrayForGeometryType(MESH_GEOMETRY_CUBE);
-        auto obj = std::make_shared<ApplicationCore::Mesh>(objVAO, m_assetsManager.GetDummyMaterial(),MESH_GEOMETRY_CUBE);
+        auto objMeshData = m_assetsManager.MeshDataForGeometryType(MESH_GEOMETRY_CUBE);
+        auto obj = std::make_shared<ApplicationCore::StaticMesh>(objMeshData, m_assetsManager.GetDummyMaterial(),MESH_GEOMETRY_CUBE);
 
         auto node = std::make_shared<SceneNode>(obj);
         node->SetName("Cube  ##" + VulkanUtils::random_string(5));
@@ -135,8 +135,8 @@ namespace ApplicationCore {
 
     void Scene::AddSphereToScene() const
     {
-        std::shared_ptr<VertexArray> objVAO = m_assetsManager.GetVertexArrayForGeometryType(MESH_GEOMETRY_SPHERE);
-        auto obj = std::make_shared<ApplicationCore::Mesh>(objVAO, m_assetsManager.GetDummyMaterial(),MESH_GEOMETRY_SPHERE);
+        auto objMeshData = m_assetsManager.MeshDataForGeometryType(MESH_GEOMETRY_SPHERE);
+        auto obj = std::make_shared<ApplicationCore::StaticMesh>(objMeshData, m_assetsManager.GetDummyMaterial(),MESH_GEOMETRY_SPHERE);
 
         auto node = std::make_shared<SceneNode>(obj);
         node->SetName("Sphere  ##" + VulkanUtils::random_string(5));
@@ -145,8 +145,8 @@ namespace ApplicationCore {
 
     void Scene::AddPlaneToScene() const
     {
-        std::shared_ptr<VertexArray> objVAO = m_assetsManager.GetVertexArrayForGeometryType(MESH_GEOMETRY_PLANE);
-        auto obj = std::make_shared<ApplicationCore::Mesh>(objVAO, m_assetsManager.GetDummyMaterial(),MESH_GEOMETRY_PLANE);
+        auto objMeshData = m_assetsManager.MeshDataForGeometryType(MESH_GEOMETRY_PLANE);
+        auto obj = std::make_shared<ApplicationCore::StaticMesh>(objMeshData, m_assetsManager.GetDummyMaterial(),MESH_GEOMETRY_PLANE);
 
         auto node = std::make_shared<SceneNode>(obj);
         node->SetName("Plane ##" + VulkanUtils::random_string(5));

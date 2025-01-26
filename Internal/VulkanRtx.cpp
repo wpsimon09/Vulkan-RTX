@@ -11,7 +11,7 @@
 #include "Application/WindowManager/WindowManager.hpp"
 #include "Application/Client.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
-#include "Application/Rendering/Mesh/Mesh.hpp"
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
