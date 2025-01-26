@@ -67,13 +67,15 @@ namespace VEditor {
         // GETTING INITIAL DATA
         //==================================
         std::string nodeLabel;
-        if (!sceneNode->HasMesh())
+        switch (sceneNode->GetSceneNodeMetaData().nodeType)
         {
-            nodeLabel = std::string(ICON_FA_SQUARE_SHARE_NODES) + "  " + std::string(sceneNode->GetName());
-        }else
-        {
-            nodeLabel = std::string(ICON_FA_BOX) + "  " + std::string(sceneNode->GetName());
+            case Node:{ nodeLabel = std::string(ICON_FA_SQUARE_SHARE_NODES) + "  " + std::string(sceneNode->GetName());     break;   }
+            case MeshNode:{ nodeLabel = std::string(ICON_FA_BOX) + "  " + std::string(sceneNode->GetName()); break;   }
+            case DirectionalLightNode:{ nodeLabel = std::string(ICON_FA_SUN) + "  " + std::string(sceneNode->GetName());    break;   }
+            case PointLightNode:{ nodeLabel = std::string(ICON_FA_LIGHTBULB) + "  " + std::string(sceneNode->GetName());    break;   }
+
         }
+
         //=================================================
         // CONSTRUCTING THE NODE
         //=================================================

@@ -6,6 +6,8 @@
 #define APPLICATIONSTRUCTS_HPP
 #include <iostream>
 #include <ostream>
+
+#include "Application/Enums/ClientEnums.hpp"
 #include "glm/glm.hpp"
 
 struct CameraUpdateInfo
@@ -100,6 +102,7 @@ struct SceneNodeMetaData
     bool IsSelectedFromWorld = false;
     bool IsAnyChildSelected = false;
     bool IsOpen = false;
+    ENodeType nodeType = ENodeType::Node;
     int ID = 0;
 };
 

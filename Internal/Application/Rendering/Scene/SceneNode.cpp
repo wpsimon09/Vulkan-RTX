@@ -27,6 +27,7 @@ namespace ApplicationCore
             m_mesh = mesh;
             m_sceneNodeMetaData.HasMesh = true;
             m_sceneNodeMetaData.ID = ++SceneNodeIDCounter;
+            m_sceneNodeMetaData.nodeType = ENodeType::MeshNode;
         }
         else
         {

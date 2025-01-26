@@ -7,6 +7,7 @@
 #include <random>
 #include <GLFW/glfw3.h>
 
+#include "LightNode.hpp"
 #include "SceneNode.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Enums/ClientEnums.hpp"
@@ -96,6 +97,10 @@ namespace ApplicationCore {
         rayTracerPlane->GetRenderingMetaData().bRTXPass = true;
 
         AddNode(std::make_shared<SceneNode>(rayTracerPlane));
+
+        auto light = std::make_shared<LightNode>(m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight));
+        light->SetName(light->GetMesh()->GetName());
+        AddNode(light);
 
         Utils::Logger::LogSuccessClient("Default scene build");
     }

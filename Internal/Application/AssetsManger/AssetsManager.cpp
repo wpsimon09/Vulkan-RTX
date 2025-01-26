@@ -160,6 +160,15 @@ namespace ApplicationCore
         m_materials.emplace_back(material);
     }
 
+    std::shared_ptr<StaticMesh> AssetsManager::GetEditorBilboardMesh(EEditorIcon icon)
+    {
+        auto mesh = GetDefaultMesh(EMeshGeometryType::Cube);
+        mesh->SetMaterial(m_editorIconsMaterials[icon]);
+        mesh->SetName( IconToString(icon)+"##" + VulkanUtils::random_string(4));
+
+        return mesh;
+    }
+
     void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<StaticMesh> mesh)
     {
         if (!m_meshes.contains(meshName))

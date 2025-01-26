@@ -50,6 +50,34 @@ enum EEditorIcon
     AreaLight
 };
 
+enum ENodeType
+{
+    Node = 0,
+    MeshNode,
+    DirectionalLightNode,
+    PointLightNode,
+    SpotLightNode,
+    AreaLightNode
+};
+
+inline std::string IconToString(EEditorIcon icon)
+{
+    switch (icon)
+    {
+    case PointLight:
+        return "Point Light";
+    case DirectionalLight:
+        return "Directional Light";
+    case SpotLigth:
+        return "Spot Light";
+    case AreaLight:
+        return "Area Light";
+    default:
+        return "Unknown";
+    }
+}
+
+
 
 
 

@@ -115,8 +115,7 @@ namespace ApplicationCore
 
     public:
         Transformations* m_transformation;
-
-    private:
+    protected:
         //=========================
         // Member Variables
         //=========================

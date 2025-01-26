@@ -80,6 +80,7 @@ public:
     std::shared_ptr<Material> GetDummyMaterial() { return m_dummyMaterial; }
     std::vector<std::shared_ptr<Material>> GetAllMaterials() const;
     void AddMaterial(MaterialPaths& paths, std::shared_ptr<Material> material);
+    std::shared_ptr<StaticMesh> GetEditorBilboardMesh(EEditorIcon icon);
 
     //=========================
     // Buffer Allocator
