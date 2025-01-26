@@ -60,7 +60,7 @@ public:
     // Public Methods
     //=========================
     void DeleteAll();
-    std::shared_ptr<VulkanStructs::MeshData> MeshDataForGeometryType(MESH_GEOMETRY_TYPE geometryType);
+    std::shared_ptr<StaticMesh> GetDefaultMesh(EMeshGeometryType geometryType);
 
     //=========================
     // Textures
@@ -78,12 +78,7 @@ public:
     // Materials
     //=========================
     std::shared_ptr<Material> GetDummyMaterial() { return m_dummyMaterial; }
-    std::shared_ptr<ApplicationCore::Material> GetMaterial(MaterialPaths& path);
-
-    //=========================
-    // Vertex Data
-    //=========================
-    std::vector<std::shared_ptr<VulkanStructs::MeshData>>& GetVertexData() { return m_allMeshData; }
+    std::shared_ptr<Material> GetMaterial(MaterialPaths& path);
 
     //=========================
     // Buffer Allocator
@@ -108,9 +103,7 @@ private:
     const VulkanCore::VDevice& m_device;
     VulkanCore::MeshDatatManager& m_meshDataManager;
 
-    std::vector<std::shared_ptr<VulkanStructs::MeshData>> m_allMeshData;
     std::unordered_map<MaterialPaths, std::shared_ptr<ApplicationCore::Material>> m_materials;
-    std::unordered_map<MESH_GEOMETRY_TYPE, std::shared_ptr<VulkanStructs::MeshData>> m_preloadedMeshData;
 
     //=========================
     // Texture Management
@@ -133,6 +126,8 @@ private:
     //=========================
     std::shared_ptr<VulkanCore::VImage> m_dummyTexture;
     std::shared_ptr<ApplicationCore::Material> m_dummyMaterial;
+    std::unordered_map<EMeshGeometryType, std::shared_ptr<StaticMesh>> m_preloadedMeshes;
+
 
     friend class ApplicationCore::GLTFLoader;
 };

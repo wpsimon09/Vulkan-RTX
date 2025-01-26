@@ -11,10 +11,9 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
-ApplicationCore::StaticMesh::StaticMesh(std::shared_ptr<VulkanStructs::MeshData> geometryData,std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType)
+ApplicationCore::StaticMesh::StaticMesh(VulkanStructs::MeshData& geometryData,std::shared_ptr<Material> material, EMeshGeometryType geometryType):m_meshGeomtryData(geometryData)
 {
     m_geometryType = geometryType;
-    m_meshGeomtryData = geometryData;
     m_transformations = std::make_unique<Transformations>();
 
     m_material = material;
@@ -29,12 +28,12 @@ ApplicationCore::StaticMesh::StaticMesh(std::shared_ptr<VulkanStructs::MeshData>
 
 
 const uint32_t ApplicationCore::StaticMesh::GetMeshIndexCount() const {
-    return static_cast<uint32_t>(m_meshGeomtryData->indexData.size / sizeof(uint32_t));
+    return static_cast<uint32_t>(m_meshGeomtryData.indexData.size / sizeof(uint32_t));
 }
 
 VulkanStructs::MeshData* ApplicationCore::StaticMesh::GetMeshData()
 {
-    return m_meshGeomtryData.get();
+    return &m_meshGeomtryData;
 }
 
 void ApplicationCore::StaticMesh::Update() {
@@ -43,7 +42,7 @@ void ApplicationCore::StaticMesh::Update() {
 
 void ApplicationCore::StaticMesh::Destroy()
 {
-    m_meshGeomtryData.reset();
+
 }
 
 void ApplicationCore::StaticMesh::SetName(std::string name)
@@ -52,18 +51,20 @@ void ApplicationCore::StaticMesh::SetName(std::string name)
 }
 
 
-std::string ApplicationCore::StaticMesh::MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType) {
+std::string ApplicationCore::StaticMesh::MeshGeometryTypeToString(EMeshGeometryType geometryType) {
     switch (geometryType) {
-        case MESH_GEOMETRY_PLANE:
+        case Plane:
             return "MESH_GEOMETRY_PLANE";
-        case MESH_GEOMETRY_CUBE:
+        case Cube:
             return "MESH_GEOMETRY_CUBE";
-        case MESH_GEOMETRY_SPHERE:
+        case Sphere:
             return "MESH_GEOMETRY_SPHERE";
-        case MESH_GEOMETRY_POST_PROCESS:
+        case PostProcessQuad:
             return "MESH_GEOMETRY_POST_PROCESS";
-        case MESH_GEOMETRY_CUSTOM:
+        case Custom:
             return "MESH_GEOMETRY_CUSTOM";
+        default:
+            return "UNKNOWN";
     }
     return "UNKNOWN";
 }

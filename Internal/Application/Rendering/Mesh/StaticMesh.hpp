@@ -24,7 +24,7 @@ namespace ApplicationCore
 
     class StaticMesh{
     public:
-        explicit StaticMesh(std::shared_ptr<VulkanStructs::MeshData> geometryData,std::shared_ptr<Material> material, MESH_GEOMETRY_TYPE geometryType = MESH_GEOMETRY_CUSTOM);
+        explicit StaticMesh(VulkanStructs::MeshData& geometryData,std::shared_ptr<Material> material, EMeshGeometryType geometryType = Custom);
 
         void Update();
 
@@ -32,7 +32,7 @@ namespace ApplicationCore
 
         void SetName(std::string name);
     private:
-        std::string MeshGeometryTypeToString(MESH_GEOMETRY_TYPE geometryType);
+        std::string MeshGeometryTypeToString(EMeshGeometryType geometryType);
         std::string m_name;
         std::unique_ptr<ApplicationCore::Transformations> m_transformations;
 
@@ -56,14 +56,13 @@ namespace ApplicationCore
 
         VulkanStructs::RenderingMetaData& GetRenderingMetaData()  {return m_renderingMetaData;}
         ApplicationCore::Transformations* GetTransformations() const { return m_transformations.get(); }
-        const std::shared_ptr<VulkanStructs::MeshData>& GetMeshData() const {return m_meshGeomtryData;}
 
         MeshInfo& GeteMeshInfo() {return m_meshInfo;}
 
     private:
-        MESH_GEOMETRY_TYPE m_geometryType;
+        EMeshGeometryType m_geometryType;
 
-        std::shared_ptr<VulkanStructs::MeshData> m_meshGeomtryData;
+        VulkanStructs::MeshData m_meshGeomtryData;
         std::shared_ptr<Material> m_material;
 
         VulkanStructs::RenderingMetaData m_renderingMetaData;

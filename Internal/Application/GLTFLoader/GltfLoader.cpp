@@ -260,8 +260,6 @@ namespace ApplicationCore
                 createdMehs->GeteMeshInfo().numberOfTriangles = m.primitives.size();
                 createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(15));
 
-                m_assetsManager.GetVertexData().emplace_back(&meshData);
-
                 // store the shared ptr to mesh
                 m_assetsManager.AddMesh(std::string(m.name), createdMehs);
                 m_meshes.push_back(createdMehs);

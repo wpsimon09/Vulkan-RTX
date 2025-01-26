@@ -36,7 +36,7 @@ namespace ApplicationCore
     void AssetsManager::DeleteAll()
     {
 
-        m_allMeshData.clear();
+
         for (auto& texture : m_textures)
         {
             texture.second->Destroy();
@@ -48,67 +48,64 @@ namespace ApplicationCore
         m_dummyTexture->Destroy();
     }
 
-    std::shared_ptr<VulkanStructs::MeshData> AssetsManager::MeshDataForGeometryType(MESH_GEOMETRY_TYPE geometryType)
+    std::shared_ptr<StaticMesh> AssetsManager::GetDefaultMesh(EMeshGeometryType geometryType)
     {
-        auto result = m_preloadedMeshData.find(geometryType);
+        auto result = m_preloadedMeshes.find(geometryType);
         // if they are loaded return the loaded result
-        if (result != m_preloadedMeshData.end())
+        if (result != m_preloadedMeshes.end())
         {
             return result->second;
         }
         // load them otherwise
 
+        VulkanStructs::MeshData data;
         switch (geometryType)
         {
-        case MESH_GEOMETRY_PLANE:
+        case Plane:
             {
-                auto data = m_meshDataManager.AddMeshData(MeshData::planeVertices, MeshData::planeIndices);
-                m_preloadedMeshData[geometryType] = std::make_shared<VulkanStructs::MeshData>(data);
+                data = m_meshDataManager.AddMeshData(MeshData::planeVertices, MeshData::planeIndices);
                 break;
             }
-        case MESH_GEOMETRY_SPHERE:
+        case Sphere:
             {
                 std::vector<Vertex> vertices;
                 std::vector<uint32_t> indices;
                 MeshData::GenerateSphere(vertices, indices);
 
-                auto data = m_meshDataManager.AddMeshData(vertices, indices);
-                m_preloadedMeshData[geometryType] = std::make_shared<VulkanStructs::MeshData>(data);
+                data = m_meshDataManager.AddMeshData(vertices, indices);
 
                 break;
             }
-        case MESH_GEOMETRY_CUBE:
+        case Cube:
             {
-                auto data = m_meshDataManager.AddMeshData(MeshData::cubeVertices, MeshData::cubeIndices);
-                m_preloadedMeshData[geometryType] = std::make_shared<VulkanStructs::MeshData>(data);
+                data = m_meshDataManager.AddMeshData(MeshData::cubeVertices, MeshData::cubeIndices);
 
                 break;
             }
-        case MESH_GEOMETRY_TRIANGLE:
+        case Triangle:
             {
-                auto data = m_meshDataManager.AddMeshData(MeshData::triangleVertices, MeshData::triangleIndices);
-                m_preloadedMeshData[geometryType] = std::make_shared<VulkanStructs::MeshData>(data);
+                data = m_meshDataManager.AddMeshData(MeshData::triangleVertices, MeshData::triangleIndices);
                 break;
             }
-        case MESH_GEOMETRY_CROSS:
+        case Cross:
             {
-                auto data = m_meshDataManager.AddMeshData(MeshData::crossVertices, MeshData::crossIndices);
-                m_preloadedMeshData[geometryType] = std::make_shared<VulkanStructs::MeshData>(data);
+                data = m_meshDataManager.AddMeshData(MeshData::crossVertices, MeshData::crossIndices);
                 break;
             }
-        case MESH_GEOMETRY_POST_PROCESS:
+        case PostProcessQuad:
             {
-                auto data = m_meshDataManager.AddMeshData(MeshData::fullscreenQuadVertices,MeshData::fullscreenQuadIndices);
-                m_preloadedMeshData[geometryType] = std::make_shared<VulkanStructs::MeshData>(data);
+                data = m_meshDataManager.AddMeshData(MeshData::fullscreenQuadVertices,MeshData::fullscreenQuadIndices);
                 break;
             }
         default: ;
             throw std::runtime_error("This geometry type is not supported !");
         }
 
+        m_preloadedMeshes[geometryType] = std::make_shared<StaticMesh>(data, m_dummyMaterial);
+
         m_meshDataManager.UpdateGPU(nullptr);
 
-        return m_preloadedMeshData[geometryType];
+        return m_preloadedMeshes[geometryType];
     }
 
     void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& path)

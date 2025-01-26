@@ -5,33 +5,33 @@
 #ifndef CLIENTENUMS_HPP
 #define CLIENTENUMS_HPP
 
-enum PRIMITIVE_TOPOLOGY
+enum EPrimitiveTopology
 {
     //points
-    TOPOLOGY_POINT_LIST,
+    PointList,
 
     //lines
-    TOPOLOGY_LINE_LIST,
-    TOPOLOGY_LINE_STRIP,
+    LineList,
+    LineStrip,
 
     //triangles
-    TOPOLOGY_TRIANGLE_LIST,
-    TOPOLOGY_TRIANGLE_STRIP,
-    TOPOLOGY_TRIANGLE_FAN,
+    TriangleList,
+    TriangleStrip,
+    TriangleFan,
 
     //patch (tesselation only)
-    TOPOLOGY_PATCH
+    Patch
 };
 
-enum MESH_GEOMETRY_TYPE
+enum EMeshGeometryType
 {
-    MESH_GEOMETRY_CUBE ,
-    MESH_GEOMETRY_SPHERE ,
-    MESH_GEOMETRY_PLANE ,
-    MESH_GEOMETRY_POST_PROCESS,
-    MESH_GEOMETRY_TRIANGLE,
-    MESH_GEOMETRY_CUSTOM,
-    MESH_GEOMETRY_CROSS
+    Cube ,
+    Sphere ,
+    Plane ,
+    PostProcessQuad,
+    Triangle,
+    Custom,
+    Cross
 };
 
 enum ETextureType
