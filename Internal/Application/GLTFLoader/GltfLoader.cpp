@@ -49,7 +49,7 @@ namespace ApplicationCore
 
 
         constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble | fastgltf::Options::GenerateMeshIndices |
-            fastgltf::Options::LoadExternalBuffers;
+            fastgltf::Options::LoadExternalBuffers ;
 
         auto gltfFile = fastgltf::MappedGltfFile::FromPath(gltfPath);
         if (!bool(gltfFile))
@@ -273,24 +273,31 @@ namespace ApplicationCore
             //=====================================
             // LOAD NODES
             //=====================================
-            for (auto& node : gltf.nodes)
-            {
-                std::shared_ptr<ApplicationCore::SceneNode> newNode;
-                if (node.meshIndex.has_value())
-                {
+            std::shared_ptr<ApplicationCore::SceneNode> newNode;
+            fastgltf::iterateSceneNodes(gltf, 0, fastgltf::math::fmat4x4(),
+                            [&](fastgltf::Node& node, fastgltf::math::fmat4x4 matrix) {
+                if (node.meshIndex.has_value()) {
                     newNode = std::make_shared<ApplicationCore::SceneNode>(m_meshes[node.meshIndex.value()]);
-                }
-                else
+                }else
                 {
                     newNode = std::make_shared<ApplicationCore::SceneNode>();
                 }
                 newNode->SetName(std::string(std::string(node.name) + "##" +VulkanUtils::random_string(4)));
-                if (auto newTransform = std::get_if<fastgltf::math::fmat4x4>(&node.transform))
-                {
-                    newNode->m_transformation->SetModelMatrix(VulkanUtils::FastGLTFToGLMMat4(*newTransform));
-                }
+
+                fastgltf::math::fvec3 pos;
+                fastgltf::math::fquat rot;
+                fastgltf::math::fvec3 scale;
+
+                fastgltf::math::decomposeTransformMatrix(matrix, scale, rot, pos);
+
+                newNode->m_transformation->SetPosition((float)pos.x(), (float)pos.y(), (float)pos.z());
+
+                //newNode->m_transformation->SetRotations((float)rot.x(), (float)rot.y(), (float)rot.z());
+                newNode->m_transformation->SetScale((float)scale.x(), (float)scale.y(), (float)scale.z());
+
                 m_nodes.push_back(newNode);
-            }
+            });
+
         }
 
         // construct the hierarchy

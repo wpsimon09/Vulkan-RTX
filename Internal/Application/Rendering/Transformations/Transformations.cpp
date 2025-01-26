@@ -18,25 +18,31 @@ ApplicationCore::Transformations::Transformations(glm::vec3 position, glm::vec3 
 }
 
 glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix() {
-    //set rotations on X axis
-    const glm::mat4 transformX = glm::rotate(glm::mat4(1.0f),
-                                             glm::radians(m_rotation.x),
-                                             glm::vec3(1.0f, 0.0f, 0.0f));
-    //set rotations on Y axis
-    const glm::mat4 transformY = glm::rotate(glm::mat4(1.0f),
-                                             glm::radians(m_rotation.y),
-                                             glm::vec3(0.0f, 1.0f, 0.0f));
-    //set rotations on Z axis
-    const glm::mat4 transformZ = glm::rotate(glm::mat4(1.0f),
-                                             glm::radians(m_rotation.z),
-                                             glm::vec3(0.0f, 0.0f, 1.0f));
-    //make rotation matrix
-    const glm::mat4 rotationMatrix = transformX * transformY * transformZ;
+    if (m_calculateLocalModelMatrix)
+    {
+        //set rotations on X axis
+        const glm::mat4 transformX = glm::rotate(glm::mat4(1.0f),
+                                                 glm::radians(m_rotation.x),
+                                                 glm::vec3(1.0f, 0.0f, 0.0f));
+        //set rotations on Y axis
+        const glm::mat4 transformY = glm::rotate(glm::mat4(1.0f),
+                                                 glm::radians(m_rotation.y),
+                                                 glm::vec3(0.0f, 1.0f, 0.0f));
+        //set rotations on Z axis
+        const glm::mat4 transformZ = glm::rotate(glm::mat4(1.0f),
+                                                 glm::radians(m_rotation.z),
+                                                 glm::vec3(0.0f, 0.0f, 1.0f));
+        //make rotation matrix
+        const glm::mat4 rotationMatrix = transformX * transformY * transformZ;
 
-    //compute model matrix from rotation, position and scle
-    return glm::translate(glm::mat4(1.0f),m_position) *
-           rotationMatrix *
-           glm::scale(glm::mat4(1.0f), m_scale);
+        //compute model matrix from rotation, position and scle
+        return glm::translate(glm::mat4(1.0f),m_position) *
+               rotationMatrix *
+               glm::scale(glm::mat4(1.0f), m_scale);
+    }else
+    {
+        return m_modelMatrix;
+    }
 }
 
 void ApplicationCore::Transformations::ComputeModelMatrix() {
