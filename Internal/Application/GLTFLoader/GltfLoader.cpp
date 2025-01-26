@@ -136,6 +136,7 @@ namespace ApplicationCore
                 }
                 material->SetMaterialname(std::string(m.name));
                 materials.emplace_back(material);
+                m_assetsManager.m_materials.emplace_back(material);
             }
 
             //==============================================================

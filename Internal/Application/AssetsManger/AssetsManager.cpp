@@ -136,27 +136,15 @@ namespace ApplicationCore
         texture = m_textures[textureID];
     }
 
-    std::shared_ptr<ApplicationCore::Material> AssetsManager::GetMaterial(MaterialPaths& path)
-    {
-        if (!m_materials.contains(path))
-        {
-            m_materials[path] = std::make_shared<Material>(path, *this);
-        }
-        else if (path.isTextureLess())
-        {
-            m_materials[path] = std::make_shared<Material>(path, *this);
-        }
-        return m_materials[path];
-    }
 
     std::vector<std::shared_ptr<Material>> AssetsManager::GetAllMaterials() const
     {
         std::vector<std::shared_ptr<Material>> materials;
-        materials.reserve(m_materials.size() +  m_editorIconsMaterials.size() );
+        //materials.reserve(m_materials.size() +  m_editorIconsMaterials.size() );
 
         for (auto &material : m_materials)
         {
-            materials.emplace_back(material.second);
+            materials.emplace_back(material);
         }
 
         for (auto &material : m_editorIconsMaterials)
@@ -165,6 +153,11 @@ namespace ApplicationCore
         }
 
         return materials;
+    }
+
+    void AssetsManager::AddMaterial(MaterialPaths& paths, std::shared_ptr<Material> material)
+    {
+        m_materials.emplace_back(material);
     }
 
     void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<StaticMesh> mesh)

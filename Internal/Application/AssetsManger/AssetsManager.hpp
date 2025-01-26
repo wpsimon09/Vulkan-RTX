@@ -78,8 +78,8 @@ public:
     // Materials
     //=========================
     std::shared_ptr<Material> GetDummyMaterial() { return m_dummyMaterial; }
-    std::shared_ptr<Material> GetMaterial(MaterialPaths& path);
     std::vector<std::shared_ptr<Material>> GetAllMaterials() const;
+    void AddMaterial(MaterialPaths& paths, std::shared_ptr<Material> material);
 
     //=========================
     // Buffer Allocator
@@ -105,7 +105,7 @@ private:
     const VulkanCore::VDevice& m_device;
     VulkanCore::MeshDatatManager& m_meshDataManager;
 
-    std::unordered_map<MaterialPaths, std::shared_ptr<ApplicationCore::Material>> m_materials;
+    std::vector<std::shared_ptr<ApplicationCore::Material>> m_materials;
 
     //=========================
     // Texture Management
