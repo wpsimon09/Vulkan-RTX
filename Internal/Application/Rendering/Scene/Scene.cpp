@@ -100,28 +100,6 @@ namespace ApplicationCore {
         Utils::Logger::LogSuccessClient("Default scene build");
     }
 
-    void Scene::PrintSceneDatat(int depth, SceneNode& sceneNodes)
-    {
-        for (int i = 0; i < depth; i++)
-        {
-            std::cout << "\t";
-        }
-        std::cout << sceneNodes.GetName() << "\n";
-
-        for (auto& child : sceneNodes.GetChildrenByWrapper())
-        {
-            PrintSceneDatat(depth + 1, child);
-        }
-    }
-
-    void Scene::PrintSceneGraph()
-    {
-        int depth = 0;
-        std::cout << "Root\n";
-        std::cout << "|\n";
-
-        PrintSceneDatat(depth, *m_root);
-    }
 
     void Scene::AddCubeToScene() const
     {

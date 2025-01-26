@@ -73,8 +73,7 @@ namespace ApplicationCore
     void SceneNode::Setvisibility(bool isVisible)
     {
         m_sceneNodeMetaData.IsVisible = isVisible;
-        for (auto& child : m_children)
-        {
+        for (auto& child : m_children) {
             child->Setvisibility(isVisible);
         }
     }
@@ -86,8 +85,7 @@ namespace ApplicationCore
         m_sceneNodeMetaData.IsSelected = true;
         m_sceneNodeMetaData.IsSelectedFromWorld = selectedFromWorld;
 
-        for (auto& child : m_children)
-        {
+        for (auto& child : m_children) {
             child->Select(selectedFromWorld);
         }
     }
@@ -95,9 +93,7 @@ namespace ApplicationCore
     void SceneNode::Deselect()
     {
         m_sceneNodeMetaData.IsSelected = false;
-
-        for (auto& child : m_children)
-        {
+        for (auto& child : m_children) {
             child->Deselect();
         }
     }
@@ -106,18 +102,10 @@ namespace ApplicationCore
     {
         if (m_sceneNodeMetaData.HasMesh && m_sceneNodeMetaData.IsVisible)
         {
-            // transfer bounds max a    nd min to world space
+            // transfer bounds max and min to world space
             m_mesh->GetMeshData()->bounds.ProjectToWorld(m_transformation->GetModelMatrix());
-            if (ApplicationCore::AABBRayIntersection(ray, &m_mesh->GetMeshData()->bounds))
-            {
-                if (!m_sceneNodeMetaData.IsSelected)
-                {
-                 //   m_sceneNodeMetaData.IsSelected = true;
-                }
+            if (ApplicationCore::AABBRayIntersection(ray, &m_mesh->GetMeshData()->bounds)) {
                 result.emplace_back(shared_from_this());
-            }else
-            {
-                Deselect();
             }
         }
         for (auto& child : m_children) {
@@ -127,8 +115,7 @@ namespace ApplicationCore
 
     float SceneNode::GetDistanceFromCamera(glm::vec3 cameraPosition)
     {
-        if (m_mesh)
-        {
+        if (m_mesh){
             m_mesh->GetMeshData()->bounds.ProjectToWorld(m_transformation->GetModelMatrix());
             glm::vec3 pos = m_mesh->GetMeshData()->bounds.origin;
 
@@ -144,8 +131,7 @@ namespace ApplicationCore
     std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildrenByWrapper()
     {
         std::vector<std::reference_wrapper<SceneNode>> result;
-        for (auto& child : m_children)
-        {
+        for (auto& child : m_children) {
             result.emplace_back(std::ref(*child));
         }
 
@@ -154,12 +140,10 @@ namespace ApplicationCore
 
     void SceneNode::Update() const
     {
-        if (m_parent)
-        {
+        if (m_parent) {
             m_transformation->ComputeModelMatrix(m_parent->m_transformation->GetModelMatrix());
         }
-        else
-        {
+        else {
             m_transformation->ComputeModelMatrix();
         }
 

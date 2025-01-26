@@ -31,8 +31,6 @@ public:
     void Reset();
     void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const ;
     void AddNode(std::shared_ptr<SceneNode> sceneNode) const;
-    void PrintSceneGraph();
-
 
 public:
     std::shared_ptr<SceneNode> GetRootNode() const {return m_root;}
