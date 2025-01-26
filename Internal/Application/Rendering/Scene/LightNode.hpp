@@ -10,7 +10,7 @@ namespace ApplicationCore {
 
 class LightNode: public SceneNode {
 public:
-    LightNode();
+    LightNode(std::shared_ptr<StaticMesh> mesh);
 private:
 };
 

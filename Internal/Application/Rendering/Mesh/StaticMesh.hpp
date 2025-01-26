@@ -26,11 +26,15 @@ namespace ApplicationCore
     public:
         explicit StaticMesh(VulkanStructs::MeshData& geometryData,std::shared_ptr<Material> material, EMeshGeometryType geometryType = Custom);
 
+        void ResetMaterial() {m_currentMaterial = m_originalMaterial;};
+
         void Update();
 
         void Destroy();
 
         void SetName(std::string name);
+
+        void SetMaterial(std::shared_ptr<Material> material) {m_currentMaterial = material;};
     private:
         std::string MeshGeometryTypeToString(EMeshGeometryType geometryType);
         std::string m_name;
@@ -48,7 +52,7 @@ namespace ApplicationCore
 
     public:
         const uint32_t GetMeshIndexCount() const;
-        std::shared_ptr<Material> GetMaterial() const {return m_material;}  ;
+        std::shared_ptr<Material> GetMaterial() const {return m_currentMaterial;}  ;
         VulkanStructs::MeshData* GetMeshData();
 
         const std::string& GetName(){return m_name;} const
@@ -63,7 +67,8 @@ namespace ApplicationCore
         EMeshGeometryType m_geometryType;
 
         VulkanStructs::MeshData m_meshGeomtryData;
-        std::shared_ptr<Material> m_material;
+        std::shared_ptr<Material> m_currentMaterial;
+        std::shared_ptr<Material> m_originalMaterial;
 
         VulkanStructs::RenderingMetaData m_renderingMetaData;
 

@@ -5,4 +5,7 @@
 #include "LightNode.hpp"
 
 namespace ApplicationCore {
+    LightNode::LightNode(std::shared_ptr<StaticMesh> mesh): SceneNode(mesh)
+    {
+    }
 } // ApplicationCore

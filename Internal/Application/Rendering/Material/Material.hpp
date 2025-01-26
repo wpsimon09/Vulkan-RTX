@@ -6,6 +6,7 @@
 #define MATERIAL_HPP
 #include <array>
 #include <memory>
+#include <utility>
 #include "Application/Enums/ClientEnums.hpp"
 
 
@@ -30,10 +31,12 @@ public:
     explicit Material(MaterialPaths& materialPaths, AssetsManager& assets_manager);
 
     PBRMaterialDescription& GetMaterialDescription(){ return m_materialDescription; };
-
+    std::string& GetMaterialName(){return m_materialName; };
+    void SetMaterialname(std::string newName) {m_materialName = std::move(newName); };
     std::shared_ptr<VulkanCore::VImage>& GetTexture(ETextureType type){ return m_textures[type];}
 
 private:
+    std::string m_materialName;
     std::array<std::shared_ptr<VulkanCore::VImage>,MAX_TEXTURE_COUNT> m_textures;
     PBRMaterialDescription m_materialDescription;
     MaterialPaths m_materialPaths;

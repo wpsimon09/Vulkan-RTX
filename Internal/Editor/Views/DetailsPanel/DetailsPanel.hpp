@@ -10,6 +10,11 @@
 
 namespace ApplicationCore
 {
+    class AssetsManager;
+}
+
+namespace ApplicationCore
+{
     class SceneNode;
 }
 
@@ -17,7 +22,7 @@ namespace VEditor {
 
 class DetailsPanel : public IUserInterfaceElement {
 public:
-    DetailsPanel();
+    DetailsPanel(const ApplicationCore::AssetsManager& assetsManager);
 
     void Render() override;
     void Resize(int newWidth, int newHeight) override;
@@ -36,6 +41,7 @@ private:
     bool m_isUniformScaleOn = false;
     float m_uniformScaleScalar = 1.0f;
     std::shared_ptr<ApplicationCore::SceneNode> m_selectedSceneNode = nullptr;
+    const ApplicationCore::AssetsManager& m_assetsManager;
 
     void RenderTransformationsPanel();
     void RenderMaterialEditorPanel();

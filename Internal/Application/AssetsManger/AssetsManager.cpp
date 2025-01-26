@@ -27,10 +27,7 @@ namespace ApplicationCore
     AssetsManager::AssetsManager(const VulkanCore::VDevice& device, VulkanCore::MeshDatatManager& meshDataManager):
         m_device(device), m_meshDataManager(meshDataManager), m_materials()
     {
-        m_dummyTexture = std::make_shared<VulkanCore::VImage>(device);
-
-        MaterialPaths paths{};
-        m_dummyMaterial = std::make_shared<ApplicationCore::Material>(paths, *this);
+       CreateDefaultAssets();
     }
 
     void AssetsManager::DeleteAll()
@@ -152,6 +149,24 @@ namespace ApplicationCore
         return m_materials[path];
     }
 
+    std::vector<std::shared_ptr<Material>> AssetsManager::GetAllMaterials() const
+    {
+        std::vector<std::shared_ptr<Material>> materials;
+        materials.reserve(m_materials.size() +  m_editorIconsMaterials.size() );
+
+        for (auto &material : m_materials)
+        {
+            materials.emplace_back(material.second);
+        }
+
+        for (auto &material : m_editorIconsMaterials)
+        {
+            materials.emplace_back(material.second);
+        }
+
+        return materials;
+    }
+
     void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<StaticMesh> mesh)
     {
         if (!m_meshes.contains(meshName))
@@ -205,6 +220,21 @@ namespace ApplicationCore
             return VulkanUtils::LoadImage(data, textureID);
         });
         m_texturesToLoad[textureID] = std::move(txt);
+    }
+
+    void AssetsManager::CreateDefaultAssets()
+    {
+        m_dummyTexture = std::make_shared<VulkanCore::VImage>(m_device);
+
+        MaterialPaths paths{};
+        m_dummyMaterial = std::make_shared<ApplicationCore::Material>(paths, *this);
+
+        MaterialPaths directionalLightBilboard{};
+        directionalLightBilboard.DiffuseMapPath = "Resources/EditorIcons/light-directional.png";
+        auto mat = std::make_shared<ApplicationCore::Material>(directionalLightBilboard, *this);
+        mat->SetMaterialname("Directional light editor bilboard");
+        m_editorIconsMaterials[EEditorIcon::DirectionalLight] = mat;
+
     }
 }
 

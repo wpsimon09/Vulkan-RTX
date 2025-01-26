@@ -7,11 +7,12 @@
 
 #include <imgui.h>
 
+#include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 
 namespace VEditor {
-    DetailsPanel::DetailsPanel()
+    DetailsPanel::DetailsPanel(const ApplicationCore::AssetsManager& assetsManager): m_assetsManager(assetsManager)
     {
 
     }
@@ -95,10 +96,29 @@ namespace VEditor {
 
     void DetailsPanel::RenderMaterialEditorPanel()
     {
-        ImGui::SetNextItemOpen(true);
+        auto meshMaterial = m_selectedSceneNode->GetMesh()->GetMaterial();
+
+
         if (ImGui::TreeNode(ICON_FA_PAINTBRUSH" Material"))
         {
-            auto meshMaterial = m_selectedSceneNode->GetMesh()->GetMaterial();
+            if (ImGui::BeginCombo("Change material", meshMaterial->GetMaterialName().c_str()))
+            {
+                for (auto& mat : m_assetsManager.GetAllMaterials())
+                {
+                    std::string lable = ICON_FA_BRUSH + mat->GetMaterialName();
+                    if (ImGui::Selectable(lable.c_str())){
+                        m_selectedSceneNode->GetMesh()->SetMaterial(mat);
+                    }
+                }
+                ImGui::EndCombo();
+
+            }
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_REPEAT"##ResetMaterial"))
+            {
+                m_selectedSceneNode->GetMesh()->ResetMaterial();
+            }
+
             float colourPickerWidth = 300.0f;
             //==============
             // ALBEDO
@@ -150,6 +170,7 @@ namespace VEditor {
 
             ImGui::TreePop();
         }
+
     }
 
     void DetailsPanel::RenderMeshOnlyUI()

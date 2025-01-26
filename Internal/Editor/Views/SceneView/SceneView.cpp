@@ -15,7 +15,7 @@
 namespace VEditor {
     SceneView::SceneView(ApplicationCore::Scene& scene): m_scene(scene)
     {
-        auto detailsPnel = std::make_unique<VEditor::DetailsPanel>();
+        auto detailsPnel = std::make_unique<VEditor::DetailsPanel>(scene.GetAssetsManager());
         m_uiChildren.emplace_back(std::move(detailsPnel));
 
         m_detailsPanale = static_cast<DetailsPanel*>(m_uiChildren.back().get());

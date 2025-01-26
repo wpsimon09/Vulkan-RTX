@@ -97,6 +97,7 @@ namespace ApplicationCore
                 material->GetMaterialDescription().values.roughness = m.pbrData.roughnessFactor;
 
 
+
                 if (m.pbrData.metallicRoughnessTexture.has_value())
                 {
                     auto &textureIndex = m.pbrData.metallicRoughnessTexture.value().textureIndex;
@@ -133,7 +134,7 @@ namespace ApplicationCore
                         material->GetMaterialDescription().features.hasNormalTexture = false;
                     }
                 }
-
+                material->SetMaterialname(std::string(m.name));
                 materials.emplace_back(material);
             }
 

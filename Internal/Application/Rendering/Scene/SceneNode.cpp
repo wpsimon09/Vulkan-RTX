@@ -174,7 +174,7 @@ namespace ApplicationCore
                     data.firstIndex = 1;
                     data.indexCount = m_mesh->GetMeshIndexCount();
                     data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
-                    data.material = m_mesh->m_material;
+                    data.material = m_mesh->m_currentMaterial;
                     data.meshData = m_mesh->GetMeshData();
                     data.renderOutline = m_sceneNodeMetaData.IsSelected;
                     data.position = m_transformation->GetPosition();

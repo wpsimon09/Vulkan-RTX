@@ -31,6 +31,7 @@ public:
     void Reset();
     void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const ;
     void AddNode(std::shared_ptr<SceneNode> sceneNode) const;
+    AssetsManager& GetAssetsManager() const {return m_assetsManager;};
 
 public:
     std::shared_ptr<SceneNode> GetRootNode() const {return m_root;}

@@ -42,6 +42,14 @@ enum ETextureType
     emissive,
 };
 
+enum EEditorIcon
+{
+    PointLight = 0,
+    DirectionalLight,
+    SpotLigth,
+    AreaLight
+};
+
 
 
 

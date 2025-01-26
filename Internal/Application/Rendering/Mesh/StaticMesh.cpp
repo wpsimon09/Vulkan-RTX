@@ -16,7 +16,8 @@ ApplicationCore::StaticMesh::StaticMesh(VulkanStructs::MeshData& geometryData,st
     m_geometryType = geometryType;
     m_transformations = std::make_unique<Transformations>();
 
-    m_material = material;
+    m_currentMaterial = material;
+    m_originalMaterial = material;
 /**
     m_meshInfo.vertexCount = m_vertexArray->GetVertices().size();
     m_meshInfo.vertexSize = m_vertexArray->GetVertexBuffer().GetBuffeSizeInBytes();

@@ -79,6 +79,7 @@ public:
     //=========================
     std::shared_ptr<Material> GetDummyMaterial() { return m_dummyMaterial; }
     std::shared_ptr<Material> GetMaterial(MaterialPaths& path);
+    std::vector<std::shared_ptr<Material>> GetAllMaterials() const;
 
     //=========================
     // Buffer Allocator
@@ -96,6 +97,7 @@ private:
     //=========================
     void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texturePtr, const std::string& path);
     void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID, TextureBufferInfo& data);
+    void CreateDefaultAssets();
 
     //=========================
     // Member Variables
@@ -126,8 +128,9 @@ private:
     //=========================
     std::shared_ptr<VulkanCore::VImage> m_dummyTexture;
     std::shared_ptr<ApplicationCore::Material> m_dummyMaterial;
+    std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_dummyTextures;
+    std::unordered_map<EEditorIcon, std::shared_ptr<Material>> m_editorIconsMaterials;
     std::unordered_map<EMeshGeometryType, std::shared_ptr<StaticMesh>> m_preloadedMeshes;
-
 
     friend class ApplicationCore::GLTFLoader;
 };
