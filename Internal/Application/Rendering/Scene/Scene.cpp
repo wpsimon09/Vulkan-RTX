@@ -91,7 +91,7 @@ namespace ApplicationCore {
         auto sphereVertexArray = m_assetsManager.GetDefaultMesh(Sphere);
         auto postProcessVertexArray = m_assetsManager.GetDefaultMesh(PostProcessQuad);
 
-        auto rayTracerPlane = m_assetsManager;
+        auto rayTracerPlane = m_assetsManager.GetDefaultMesh(EMeshGeometryType::PostProcessQuad);
         rayTracerPlane->GetRenderingMetaData().bRasterPass = false;
         rayTracerPlane->GetRenderingMetaData().bRTXPass = true;
 
@@ -125,8 +125,7 @@ namespace ApplicationCore {
 
     void Scene::AddCubeToScene() const
     {
-        auto objMeshData = m_assetsManager.GetDefaultMesh(Cube);
-        auto obj = std::make_shared<ApplicationCore::StaticMesh>(objMeshData, m_assetsManager.GetDummyMaterial(),Cube);
+        auto obj = m_assetsManager.GetDefaultMesh(Cube);
 
         auto node = std::make_shared<SceneNode>(obj);
         node->SetName("Cube  ##" + VulkanUtils::random_string(5));
@@ -135,8 +134,7 @@ namespace ApplicationCore {
 
     void Scene::AddSphereToScene() const
     {
-        auto objMeshData = m_assetsManager.GetDefaultMesh(Sphere);
-        auto obj = std::make_shared<ApplicationCore::StaticMesh>(objMeshData, m_assetsManager.GetDummyMaterial(),Sphere);
+        auto obj = m_assetsManager.GetDefaultMesh(Sphere);
 
         auto node = std::make_shared<SceneNode>(obj);
         node->SetName("Sphere  ##" + VulkanUtils::random_string(5));
@@ -145,8 +143,7 @@ namespace ApplicationCore {
 
     void Scene::AddPlaneToScene() const
     {
-        auto objMeshData = m_assetsManager.GetDefaultMesh(Plane);
-        auto obj = std::make_shared<ApplicationCore::StaticMesh>(objMeshData, m_assetsManager.GetDummyMaterial(),Plane);
+        auto obj = m_assetsManager.GetDefaultMesh(Plane);
 
         auto node = std::make_shared<SceneNode>(obj);
         node->SetName("Plane ##" + VulkanUtils::random_string(5));

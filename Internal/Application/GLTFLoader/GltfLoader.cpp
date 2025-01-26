@@ -253,10 +253,8 @@ namespace ApplicationCore
 
                 auto meshData = m_assetsManager.GetBufferAllocator().AddMeshData(vertices, indices);
 
-                auto meshGeometryData = std::make_shared<VulkanStructs::MeshData>(meshData);
-
                 // create shared ptr to mesh
-                auto createdMehs = std::make_shared<StaticMesh>(meshGeometryData, mat);
+                auto createdMehs = std::make_shared<StaticMesh>(meshData, mat);
                 createdMehs->GeteMeshInfo().numberOfTriangles = m.primitives.size();
                 createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(15));
 
