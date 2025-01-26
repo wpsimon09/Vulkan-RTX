@@ -13,6 +13,11 @@
 
 namespace ApplicationCore
 {
+    class LightNode;
+}
+
+namespace ApplicationCore
+{
     class StaticMesh;
     class Camera;
     class SceneNode;
@@ -40,13 +45,13 @@ public:
 
     void AddCubeToScene() const;
     void AddSphereToScene() const;
-    void AddPlaneToScene() const;
     void PreformRayCast(glm::vec2 mousePosition);
+    void AddPlaneToScene() const;
+    void AddDirectionalLight() const;
     void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; } ;
-
 private:
     void BuildDefaultScene();
-    void PrintSceneDatat(int depth, SceneNode& sceneNodes);
+    void UpdateSceneLights(std::shared_ptr<SceneNode>& sceneNode);
     SceneStatistics m_sceneStatistics;
 
 private:
@@ -55,6 +60,7 @@ private:
     AssetsManager& m_assetsManager;
     glm::vec3 m_mousePositionWorldSpace  = {0.0f, 0.0f, 0.0F};
     std::shared_ptr<SceneNode> m_selectedSceneNode;
+    std::vector<std::shared_ptr<LightNode>> m_lightNodes;
     std::vector<std::shared_ptr<SceneNode>> m_selectedSceneNodes;
 };
 

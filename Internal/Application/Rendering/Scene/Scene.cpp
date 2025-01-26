@@ -98,11 +98,24 @@ namespace ApplicationCore {
 
         AddNode(std::make_shared<SceneNode>(rayTracerPlane));
 
-        auto light = std::make_shared<LightNode>(m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight));
-        light->SetName(light->GetMesh()->GetName());
-        AddNode(light);
+        AddDirectionalLight();
 
         Utils::Logger::LogSuccessClient("Default scene build");
+    }
+
+    void Scene::UpdateSceneLights(std::shared_ptr<SceneNode>& sceneNode)
+    {
+        for (auto& childNode : m_root->GetChildrenByRef())
+        {
+            if (childNode->GetSceneNodeMetaData().nodeType == ENodeType::DirectionalLightNode
+                || childNode->GetSceneNodeMetaData().nodeType == ENodeType::PointLightNode
+                || childNode->GetSceneNodeMetaData().nodeType == ENodeType::SpotLightNode)
+            {
+                m_lightNodes.clear();
+               // m_lightNodes.emplace_back(childNode)
+            }
+
+        }
     }
 
 
@@ -131,6 +144,15 @@ namespace ApplicationCore {
         auto node = std::make_shared<SceneNode>(obj);
         node->SetName("Plane ##" + VulkanUtils::random_string(5));
         AddNode(node);
+    }
+
+    void Scene::AddDirectionalLight() const
+    {
+
+        auto light = std::make_shared<LightNode>(m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight));
+        light->m_transformation->SetScale(20.0f);
+        light->SetName(light->GetMesh()->GetName());
+        AddNode(light);
     }
 
     void Scene::PreformRayCast(glm::vec2 mousePosition)

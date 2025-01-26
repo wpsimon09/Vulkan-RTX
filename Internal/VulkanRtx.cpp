@@ -86,7 +86,7 @@ void Application::Init()
 
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
-    auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/sponza_scene.glb");
+    auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/gryffindor_common_room/scene.gltf");
     for (auto& sceneNode: sponsa)
     {
         m_client->GetScene().AddNode(sceneNode);
