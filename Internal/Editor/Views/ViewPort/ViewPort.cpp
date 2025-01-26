@@ -37,6 +37,7 @@ void VEditor::ViewPort::Render()
                     if (ImGui::Selectable(ICON_FA_CUBE " Cube" )){m_scene.AddCubeToScene();}
                     if (ImGui::Selectable(ICON_FA_SQUARE " Plane")){m_scene.AddPlaneToScene();}
 
+
                     ImGui::EndPopup();
                 }
             ImGui::EndMenuBar();

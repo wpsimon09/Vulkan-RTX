@@ -80,7 +80,7 @@ namespace ApplicationCore
         //=========================
         // Rendering
         //=========================
-        void Render(VulkanStructs::RenderContext* renderingContext) const;
+        virtual void Render(VulkanStructs::RenderContext* renderingContext) const;
 
         //=========================
         // Utility Functions

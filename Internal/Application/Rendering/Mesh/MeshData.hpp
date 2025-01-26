@@ -11,21 +11,18 @@
 namespace ApplicationCore::MeshData
 {
     inline std::vector<ApplicationCore::Vertex> planeVertices = {
-        {{-0.5f, 0.0f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}}, // Bottom-left
-        {{0.5f, 0.0f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}, // Bottom-right
-        {{0.5f, 0.0f, 0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}}, // Top-right
-        {{-0.5f, 0.0f, 0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}, // Top-left
-
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-        {{0.5f, 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-        {{-0.5f, 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}
+        // Positions               // Normals            // Texture Coordinates
+        {{-0.5f, 0.0f, 0.5f},    {0.0f, 1.0f, 0.0f},  {0.0f, 1.0f}},  // 0 Top-left
+        {{0.5f, 0.0f, 0.5f},     {0.0f, 1.0f, 0.0f},  {1.0f, 1.0f}},  // 1 Top-right
+        {{-0.5f, 0.0f, -0.5f},   {0.0f, 1.0f, 0.0f},  {0.0f, 0.0f}},  // 2 Bottom-left
+        {{0.5f, 0.0f, -0.5f},    {0.0f, 1.0f, 0.0f},  {1.0f, 0.0f}}   // 3 Bottom-right
     };
 
     inline std::vector<uint32_t> planeIndices = {
-        0, 1, 2, 2, 3, 0,
-        4, 5, 6, 6, 7, 4
+        0, 1, 2,  // First triangle (Top-left, Top-right, Bottom-left) - CCW
+        1, 3, 2   // Second triangle (Top-right, Bottom-right, Bottom-left) - CCW
     };
+
 
     inline std::vector<Vertex> cubeVertices = {
     // Front face
