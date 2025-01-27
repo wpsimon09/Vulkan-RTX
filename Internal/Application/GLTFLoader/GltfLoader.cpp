@@ -281,19 +281,19 @@ namespace ApplicationCore
                 }else
                 {
                     newNode = std::make_shared<ApplicationCore::SceneNode>();
+
+                    fastgltf::math::fvec3 pos;
+                    fastgltf::math::fquat rot;
+                    fastgltf::math::fvec3 scale;
+
+                    fastgltf::math::decomposeTransformMatrix(matrix, scale, rot, pos);
+
+                    newNode->m_transformation->SetPosition((float)pos.x(), (float)pos.y(), (float)pos.z());
+
+                    //newNode->m_transformation->SetRotations((float)rot.x(), (float)rot.y(), (float)rot.z());
+                    newNode->m_transformation->SetScale((float)scale.x(), (float)scale.y(), (float)scale.z());
                 }
                 newNode->SetName(std::string(std::string(node.name) + "##" +VulkanUtils::random_string(4)));
-
-                fastgltf::math::fvec3 pos;
-                fastgltf::math::fquat rot;
-                fastgltf::math::fvec3 scale;
-
-                fastgltf::math::decomposeTransformMatrix(matrix, scale, rot, pos);
-
-                newNode->m_transformation->SetPosition((float)pos.x(), (float)pos.y(), (float)pos.z());
-
-                //newNode->m_transformation->SetRotations((float)rot.x(), (float)rot.y(), (float)rot.z());
-                newNode->m_transformation->SetScale((float)scale.x(), (float)scale.y(), (float)scale.z());
 
                 m_nodes.push_back(newNode);
             });
