@@ -13,7 +13,7 @@ ApplicationCore::Transformations::Transformations() {
 }
 
 ApplicationCore::Transformations::Transformations(glm::vec3 position, glm::vec3 scale, glm::vec3 rotations):m_position(position), m_rotation(rotations), m_scale(scale) {
-    m_modelMatrix = glm::mat4(1.0f);
+    m_modelMatrix = ComputeLocalModelMatrix();
     m_isDirty = false;
 }
 
@@ -35,7 +35,7 @@ glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix() {
         const glm::mat4 rotationMatrix = transformX * transformY * transformZ;
 
         //compute model matrix from rotation, position and scle
-        return glm::translate(!m_calculateLocalModelMatrix ? m_modelMatrix: glm::mat4(1.f),m_position) *
+        return glm::translate(glm::mat4(1.f),m_position) *
                rotationMatrix *
                glm::scale(glm::mat4(1.0f), m_scale);
 }

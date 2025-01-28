@@ -86,6 +86,7 @@ namespace ApplicationCore
         // Utility Functions
         //=========================
         void PreformRayIntersectionTest(Ray& ray, std::vector<std::shared_ptr<SceneNode>>& result);
+        void SetLocalTransform(Transformations& transformations) { m_localTransformation = transformations;};
         bool IsParent() const { return m_parent == nullptr; }
         bool HasMesh() const { return m_sceneNodeMetaData.HasMesh; }
         float GetDistanceFromCamera(glm::vec3 cameraPosition);

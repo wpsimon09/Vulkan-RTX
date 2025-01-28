@@ -49,7 +49,7 @@ namespace ApplicationCore
 
 
         constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble | fastgltf::Options::GenerateMeshIndices |
-            fastgltf::Options::LoadExternalBuffers ;
+            fastgltf::Options::LoadExternalBuffers | fastgltf::Options::DecomposeNodeMatrices ;
 
         auto gltfFile = fastgltf::MappedGltfFile::FromPath(gltfPath);
         if (!bool(gltfFile))
@@ -282,23 +282,19 @@ namespace ApplicationCore
                 {
                     newNode = std::make_shared<ApplicationCore::SceneNode>();
 
-                    /*fastgltf::math::fvec3 pos;
-                    fastgltf::math::fquat rot;
-                    fastgltf::math::fvec3 scale;
+                    const auto* transform = std::get_if<fastgltf::TRS>(&node.transform);
 
-                    fastgltf::math::decomposeTransformMatrix(matrix, scale, rot, pos);
+                    Transformations transformations(glm::vec3(transform->translation.x(), transform->translation.y(), transform->translation.z()),glm::vec3(1 .0f), glm::vec3(0.f));
+                    newNode->SetLocalTransform(transformations);
 
-                    newNode->m_transformation->SetPosition((float)pos.x(), (float)pos.y(), (float)pos.z());
+                    //newNode->m_transformation->SetModelMatrix(VulkanUtils::FastGLTFToGLMMat4(&matrix));
+
 
                     //newNode->m_transformation->SetRotations((float)rot.x(), (float)rot.y(), (float)rot.z());
-                    newNode->m_transformation->SetScale((float)scale.x(), (float)scale.y(), (float)scale.z());*/
+                    //newNode->m_transformation->SetScale((float)scale.x(), (float)scale.y(), (float)scale.z());
                 }
 
-                if (auto modelMatrix = std::get_if<fastgltf::math::fmat4x4>(&node.transform))
-                {
-                    glm::mat4 glmMatrix  = VulkanUtils::FastGLTFToGLMMat4(modelMatrix);
-                    newNode->m_transformation->SetModelMatrix(glmMatrix);
-                }
+
                 newNode->SetName(std::string(std::string(node.name) + "##" +VulkanUtils::random_string(4)));
 
                 m_nodes.push_back(newNode);

@@ -40,6 +40,7 @@ namespace ApplicationCore
         m_parent = nullptr;
         m_mesh = nullptr;
         m_sceneNodeMetaData.ID = ++SceneNodeIDCounter;
+        // `scene node` node type is defautl
     }
 
     void SceneNode::AddChild(const std::shared_ptr<SceneNode>& child)
