@@ -230,12 +230,10 @@ std::string VulkanUtils::BufferUsageFlagToString(vk::BufferUsageFlags usage)
     return result;
 }
 
-glm::mat4 VulkanUtils::FastGLTFToGLMMat4(fastgltf::math::fmat4x4& matrix)
+glm::mat4 VulkanUtils::FastGLTFToGLMMat4(fastgltf::math::fmat4x4* matrix)
 {
     glm::mat4 newMatrix;
-    for (int row = 0; row < 4; ++row)
-        for (int col = 0; col < 4; ++col)
-            newMatrix[row][col] = matrix[row][col];
+    memcpy(&newMatrix, matrix->data(), sizeof(fastgltf::math::fmat4x4));
     return newMatrix;
 }
 

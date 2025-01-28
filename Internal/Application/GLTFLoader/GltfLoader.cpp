@@ -282,7 +282,7 @@ namespace ApplicationCore
                 {
                     newNode = std::make_shared<ApplicationCore::SceneNode>();
 
-                    fastgltf::math::fvec3 pos;
+                    /*fastgltf::math::fvec3 pos;
                     fastgltf::math::fquat rot;
                     fastgltf::math::fvec3 scale;
 
@@ -291,7 +291,13 @@ namespace ApplicationCore
                     newNode->m_transformation->SetPosition((float)pos.x(), (float)pos.y(), (float)pos.z());
 
                     //newNode->m_transformation->SetRotations((float)rot.x(), (float)rot.y(), (float)rot.z());
-                    newNode->m_transformation->SetScale((float)scale.x(), (float)scale.y(), (float)scale.z());
+                    newNode->m_transformation->SetScale((float)scale.x(), (float)scale.y(), (float)scale.z());*/
+                }
+
+                if (auto modelMatrix = std::get_if<fastgltf::math::fmat4x4>(&node.transform))
+                {
+                    glm::mat4 glmMatrix  = VulkanUtils::FastGLTFToGLMMat4(modelMatrix);
+                    newNode->m_transformation->SetModelMatrix(glmMatrix);
                 }
                 newNode->SetName(std::string(std::string(node.name) + "##" +VulkanUtils::random_string(4)));
 

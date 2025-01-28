@@ -18,8 +18,7 @@ ApplicationCore::Transformations::Transformations(glm::vec3 position, glm::vec3 
 }
 
 glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix() {
-    if (m_calculateLocalModelMatrix)
-    {
+
         //set rotations on X axis
         const glm::mat4 transformX = glm::rotate(glm::mat4(1.0f),
                                                  glm::radians(m_rotation.x),
@@ -36,13 +35,9 @@ glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix() {
         const glm::mat4 rotationMatrix = transformX * transformY * transformZ;
 
         //compute model matrix from rotation, position and scle
-        return glm::translate(glm::mat4(1.0f),m_position) *
+        return glm::translate(!m_calculateLocalModelMatrix ? m_modelMatrix: glm::mat4(1.f),m_position) *
                rotationMatrix *
                glm::scale(glm::mat4(1.0f), m_scale);
-    }else
-    {
-        return m_modelMatrix;
-    }
 }
 
 void ApplicationCore::Transformations::ComputeModelMatrix() {
