@@ -67,4 +67,5 @@ void QuickSort(std::vector<T>& arr,  int low, int high, Compare comp)
 }
 
 
+
 #endif //APPLICATIONUTILS_HPP

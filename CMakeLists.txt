@@ -138,6 +138,8 @@ set(SOURCES
         Internal/Application/Utils/ApplicationUtils.hpp
         Internal/Application/Rendering/Scene/LightNode.cpp
         Internal/Application/Rendering/Scene/LightNode.hpp
+        Internal/Application/Utils/MathUtils.hpp
+        Internal/Application/Utils/MathUtils.cpp
 )
 
 

@@ -11,6 +11,7 @@
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
+#include "Application/Utils/MathUtils.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "fastgltf/tools.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
@@ -284,14 +285,12 @@ namespace ApplicationCore
 
                     const auto* transform = std::get_if<fastgltf::TRS>(&node.transform);
 
-                    Transformations transformations(glm::vec3(transform->translation.x(), transform->translation.y(), transform->translation.z()),glm::vec3(1 .0f), glm::vec3(0.f));
+
+                    Transformations transformations(
+                        glm::vec3(transform->translation.x(), transform->translation.y(), transform->translation.z()),
+                        glm::vec3(1.0f),
+                        MathUtils::QuaternionToEuler(transform->rotation));
                     newNode->SetLocalTransform(transformations);
-
-                    //newNode->m_transformation->SetModelMatrix(VulkanUtils::FastGLTFToGLMMat4(&matrix));
-
-
-                    //newNode->m_transformation->SetRotations((float)rot.x(), (float)rot.y(), (float)rot.z());
-                    //newNode->m_transformation->SetScale((float)scale.x(), (float)scale.y(), (float)scale.z());
                 }
 
 
