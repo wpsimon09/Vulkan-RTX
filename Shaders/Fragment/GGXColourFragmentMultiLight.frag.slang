@@ -1,6 +1,7 @@
 #define PI 3.14159265359
 
-struct FragmentShaderIn {
+struct FragmentShaderIn
+{
     float3 normal : OUT_NORMAL;
     float3 cameraPos : OUT_CAM_POS;
     float3 fragPos : OUT_FRAG_POS;
@@ -8,14 +9,15 @@ struct FragmentShaderIn {
     float2 uv : OUT_UV;
 };
 
-struct SurfaceGeometry{
+struct SurfaceGeometry
+{
     float3 position;
     float3 normal;
     float2 uv;
 }
 
-
-struct MaterialConstantValues{
+struct MaterialConstantValues
+{
     float roughness;
     float metalness;
     float ao;
@@ -26,14 +28,16 @@ struct MaterialConstantValues{
     float4 emissive_strength;
 }
 
-struct MaterialFeatures{
+struct MaterialFeatures
+{
     bool hasDiffuseTexture;
     bool hasEmissiveTexture;
     bool hasNormalTexture;
     bool hasArmTexture;
 }
 
-struct Material{
+struct Material
+{
     MaterialConstantValues Values;
     MaterialFeatures Features;
 };
@@ -56,9 +60,8 @@ ConstantBuffer<Sampler2D> _armMap;
 [[vk::binding(7, 0)]]
 ConstantBuffer<Sampler2D> _emissiveMap;
 
-
-
-interface IBRDF {
+interface IBRDF
+{
 
     /**
      * wo -         incoming view direction
@@ -69,7 +72,8 @@ interface IBRDF {
     float3 Evaluate(float3 wo, float3 wi, float3 N);
 }
 
-struct CookTorrence_GGX: IBRDF {
+struct CookTorrence_GGX : IBRDF
+{
 
     float3 albedo;
 
@@ -80,32 +84,41 @@ struct CookTorrence_GGX: IBRDF {
     float ao;
 
     [mutating]
-    void FillWithData(Material mat, float2 uv) {
-        if (mat.Features.hasDiffuseTexture) {
+    void FillWithData(Material mat, float2 uv)
+    {
+        if (mat.Features.hasDiffuseTexture)
+        {
             this.albedo = _albedoMap.Sample(uv).rgb;
-        } else { 
+        }
+        else
+        {
             this.albedo = mat.Values.diffuse.rgb;
         }
 
-        if (mat.Features.hasArmTexture) {
+        if (mat.Features.hasArmTexture)
+        {
             float3 armValues = _armMap.Sample(uv).rgb;
-            this.ao =        armValues.r;
+            this.ao = armValues.r;
             this.roughness = armValues.g;
             this.metallnes = armValues.b;
-        } else {
+        }
+        else
+        {
             this.roughness = mat.Values.roughness;
             this.metallnes = mat.Values.metalness;
-            this.ao =        mat.Values.ao;
+            this.ao = mat.Values.ao;
         }
 
-        if (mat.Features.hasEmissiveTexture) {
-            //TODO: add suport for emmision
+        if (mat.Features.hasEmissiveTexture)
+        {
+            // TODO: add suport for emmision
         }
     }
 
-    float DistributionGGX(float3 N, float3 H)  {
+    float DistributionGGX(float3 N, float3 H)
+    {
         float a = roughness * roughness;
-        float apow = a* a;
+        float apow = a * a;
         float NdotH = max(dot(N, H), 0.0);
         float NdothH2 = NdotH * NdotH;
 
@@ -117,7 +130,8 @@ struct CookTorrence_GGX: IBRDF {
         return num / denom;
     }
 
-    float GeometryShlickGGX(float NdotVorL) {
+    float GeometryShlickGGX(float NdotVorL)
+    {
         float r = (roughness + 1.0);
         float k = (r * r) / 8;
         float num = NdotVorL;
@@ -126,7 +140,8 @@ struct CookTorrence_GGX: IBRDF {
         return num / deonm;
     }
 
-    float GeometrySmith(float3 N, float3 V, float3 L) {
+    float GeometrySmith(float3 N, float3 V, float3 L)
+    {
         float NdotV = max(dot(N, V), 0.0);
         float ggx2 = GeometryShlickGGX(NdotV);
 
@@ -136,11 +151,13 @@ struct CookTorrence_GGX: IBRDF {
         return ggx1 * ggx2;
     }
 
-    float3 FresnelShlick(float cosThete, float3 F0) {
+    float3 FresnelShlick(float cosThete, float3 F0)
+    {
         return F0 + (1.0 - F0) * pow(1.0 - cosThete, 5.0);
     }
 
-    float3 Evaluate(float3 V, float3 L, float3 N) {
+    float3 Evaluate(float3 V, float3 L, float3 N)
+    {
 
         float3 F0 = float3(0.04);
         F0 = lerp(F0, albedo, metallnes);
@@ -149,13 +166,12 @@ struct CookTorrence_GGX: IBRDF {
         float NDF = DistributionGGX(N, H);
         float G = GeometrySmith(N, V, L);
         float3 F = FresnelShlick(max(dot(H, V), 0.0), F0);
-        
 
         float3 numerator = NDF * G * F;
 
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.01);
 
-        float3 specular = numerator/(max(denominator, 0.001));
+        float3 specular = numerator / (max(denominator, 0.001));
 
         float3 ks = F;
         float3 kd = float3(1.0) - ks;
@@ -166,96 +182,133 @@ struct CookTorrence_GGX: IBRDF {
 
         return (kd * albedo / PI + specular) * NdotL;
     }
-
 }
 
-interface IMaterial {
+interface IMaterial
+{
     associatedtype BRDF : IBRDF;
-    
-    [mutating]
+
     BRDF Prepare(SurfaceGeometry geometry);
 }
 
-
-struct PBRMaterial : IMaterial{
+struct PBRMaterial : IMaterial
+{
 
     MaterialFeatures features;
     MaterialConstantValues values;
     Sampler2D albedo_map;
-    Sampler2D normal_map;
     Sampler2D arm_map;
 
     float3 albedo;
-    float3 normal;
     float metallness;
     float roughness;
     float ao;
 
     typedef CookTorrence_GGX BRDF;
 
-    [mutating]
-    CookTorrence_GGX Prepare(SurfaceGeometry geometry){
+    CookTorrence_GGX Prepare(SurfaceGeometry geometry)
+    {
         CookTorrence_GGX brdf;
-        if (features.hasDiffuseTexture) {
-            this.albedo = albedo_map.Sample(geometry.uv).rgb;
-        } else { 
-            this.albedo = values.diffuse.rgb;
+        if (features.hasDiffuseTexture)
+        {
+            brdf.albedo = albedo_map.Sample(geometry.uv).rgb;
+        }
+        else
+        {
+            brdf.albedo = values.diffuse.rgb;
         }
 
-        if (features.hasArmTexture) {
+        if (features.hasArmTexture)
+        {
             float3 armValues = _armMap.Sample(geometry.uv).rgb;
-            this.ao =        armValues.r;
-            this.roughness = armValues.g;
-            this.metallness= armValues.b;
-        } else {
-            this.roughness = values.roughness;
-            this.metallness = values.metalness;
-            this.ao = values.ao;
+            brdf.ao = armValues.r;
+            brdf.roughness = armValues.g;
+            brdf.metallnes = armValues.b;
+    
+        }
+        else
+        {
+            brdf.roughness = values.roughness;
+            brdf.metallnes = values.metalness;
+            brdf.ao = values.ao;
         }
 
-    
+        return brdf;
     }
-
 }
 
-
-float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N ,float3 P)
+float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P)
 {
     float3 tangentNormal = normalMap.Sample(UV).xyz * 2.0 - 1.0;
 
-    float3 Q1  = ddx(P);
-    float3 Q2  = ddy(P);
-    
-    float2 st1 = ddx(UV);            
+    float3 Q1 = ddx(P);
+    float3 Q2 = ddy(P);
+
+    float2 st1 = ddx(UV);
     float2 st2 = ddy(UV);
 
-    float3 N   = normalize(N);
-    float3 T  = normalize(Q1*st2.y - Q2*st1.y);
-    float3 B  = -normalize(cross(N, T));
+    float3 N = normalize(N);
+    float3 T = normalize(Q1 * st2.y - Q2 * st1.y);
+    float3 B = -normalize(cross(N, T));
     float3x3 TBN = float3x3(T, B, N);
 
     return normalize(mul(tangentNormal, TBN));
 }
 
+interface ILightEnv {
+    float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo);
+}
+
+struct DirectionalLight : ILightEnv {
+    float3 direction;
+    float3 intensity;
+    float3 colour;
+
+    float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
+        return (intensity * colour) * brdf.Evaluate(wo, direction, g.normal);
+    }
+}
+
+IMaterial gMaterial;
 
 [shader("pixel")]
-float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
+float4 fragmentMain(FragmentShaderIn fsIn)
+    : SV_Target
+{
 
+    SurfaceGeometry g;
+    g.position = fsIn.fragPos;
+    g.normal = fsIn.normal;
+    g.uv = fsIn.uv;
+
+    
+    PBRMaterial material;
+    material.features = _features;
+    material.values = _materialNoTextureValues;
+    let brdf_ = gMaterial.Prepare(g);
+
+    if (material.features.hasNormalTexture) {
+        g.normal = normalize(SampleNormalMap(_normalMap, fsIn.uv, fsIn.normal, fsIn.fragPos));
+    }
+    
     Material _materialDstSet;
     _materialDstSet.Features = _features;
     _materialDstSet.Values = _materialNoTextureValues;
-
-    float3 lightColor = float3(2.0);
     
+    float3 lightColor = float3(2.0);
+
     CookTorrence_GGX brdf;
     brdf.FillWithData(_materialDstSet, fsIn.uv);
-    
+
     float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
 
     float3 N;
-    if (_materialDstSet.Features.hasNormalTexture) {
+    if (_materialDstSet.Features.hasNormalTexture)
+    {
         N = normalize(SampleNormalMap(_normalMap, fsIn.uv, fsIn.normal, fsIn.fragPos));
-    } else {
+    }
+    else
+    {
         N = normalize(fsIn.normal);
     }
 
@@ -265,8 +318,8 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     float3 ambient = brdf.albedo * 0.8;
 
-    float3 finalColor = max(color,float(0.0)) + ambient;
+    float3 finalColor = max(color, float(0.0)) + ambient;
 
     return float4(finalColor, 1.0);
-}   
+}
 
