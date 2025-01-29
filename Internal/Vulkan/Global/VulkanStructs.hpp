@@ -240,6 +240,7 @@ struct DrawCallData
         // Pipeline
         std::vector<DrawCallData> DrawCalls;
 
+
         void ExtractDepthValues(glm::vec3& cameraPosition)
         {
             for (auto &drawCall: DrawCalls)

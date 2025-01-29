@@ -8,6 +8,12 @@ struct FragmentShaderIn {
     float2 uv : OUT_UV;
 };
 
+struct SurfaceGeometry{
+    float3 position;
+    float3 normal;
+    float2 uv;
+}
+
 
 struct MaterialConstantValues{
     float roughness;
@@ -163,6 +169,56 @@ struct CookTorrence_GGX: IBRDF {
 
 }
 
+interface IMaterial {
+    associatedtype BRDF : IBRDF;
+    
+    [mutating]
+    BRDF Prepare(SurfaceGeometry geometry);
+}
+
+
+struct PBRMaterial : IMaterial{
+
+    MaterialFeatures features;
+    MaterialConstantValues values;
+    Sampler2D albedo_map;
+    Sampler2D normal_map;
+    Sampler2D arm_map;
+
+    float3 albedo;
+    float3 normal;
+    float metallness;
+    float roughness;
+    float ao;
+
+    typedef CookTorrence_GGX BRDF;
+
+    [mutating]
+    CookTorrence_GGX Prepare(SurfaceGeometry geometry){
+        CookTorrence_GGX brdf;
+        if (features.hasDiffuseTexture) {
+            this.albedo = albedo_map.Sample(geometry.uv).rgb;
+        } else { 
+            this.albedo = values.diffuse.rgb;
+        }
+
+        if (features.hasArmTexture) {
+            float3 armValues = _armMap.Sample(geometry.uv).rgb;
+            this.ao =        armValues.r;
+            this.roughness = armValues.g;
+            this.metallness= armValues.b;
+        } else {
+            this.roughness = values.roughness;
+            this.metallness = values.metalness;
+            this.ao = values.ao;
+        }
+
+    
+    }
+
+}
+
+
 float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N ,float3 P)
 {
     float3 tangentNormal = normalMap.Sample(UV).xyz * 2.0 - 1.0;
@@ -213,3 +269,4 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 
     return float4(finalColor, 1.0);
 }   
+
