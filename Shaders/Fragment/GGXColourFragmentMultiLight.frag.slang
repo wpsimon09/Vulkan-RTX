@@ -1,7 +1,5 @@
 import Material;
-
-
-
+import Light;
 
 struct FragmentShaderIn
 {
@@ -46,34 +44,6 @@ float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P)
     float3x3 TBN = float3x3(T, B, N);
 
     return normalize(mul(tangentNormal, TBN));
-}
-
-interface ILightEnv {
-    float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo);
-}
-
-struct DirectionalLight : ILightEnv {
-    float3 direction;
-    float3 intensity;
-
-    float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
-        return intensity * brdf.Evaluate(wo, direction, g.normal);
-    }
-}
-
-struct PointLight : ILightEnv {
-    float3 intensity;
-    float3 position;
-
-    float3 illuminate<B:IBRDF>(SurfaceGeometry  g, B brdf, float3 wo){
-        float3 delta = position - g.position;
-        float distance = length(delta);
-        float3 direction = normalize(delta);
-        float3 illuminance = intensity / (distance*distance);
-
-        return illuminance * brdf.Evaluate(wo, direction, g.normal);
-
-    }
 }
 
 
