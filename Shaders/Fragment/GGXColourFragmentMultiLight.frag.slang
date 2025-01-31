@@ -58,8 +58,12 @@ float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P)
 float4 fragmentMain(FragmentShaderIn fsIn)
     : SV_Target
 {
+    DirectionalLight testDirLight;
+    testDirLight.direction = float3(45.f);
+    testDirLight.intensity = float3(2.f);
 
     LightPair<DirectionalLight, PointLight> lightingEnv;
+    lightingEnv.first = testDirLight;
 
     SurfaceGeometry g;
     g.position = fsIn.fragPos;
@@ -82,8 +86,6 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     _materialDstSet.Features = _features;
     _materialDstSet.Values = _materialNoTextureValues;
     
-    float3 lightColor = float3(2.0);
-
     //CookTorrence_GGX brdf;
 
     float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
@@ -100,13 +102,10 @@ float4 fragmentMain(FragmentShaderIn fsIn)
 
     float3 L = normalize(fsIn.lightPos - fsIn.fragPos);
 
-    float3 color = brdf_.Evaluate(V, L, N) * lightColor;
-
+   
     float3 ambient = brdf_.albedo * 0.8;
 
-    float3 finalColor = max(color, float(0.0)) + ambient;
-
-    finalColor = lightingEnv.illuminate(g, brdf_, V);
+    float3 finalColor = testDirLight.illuminate(g, brdf_, V) + ambient;
 
     return float4(finalColor, 1.0);
 }
