@@ -28,6 +28,10 @@ ConstantBuffer<Sampler2D> _armMap;
 [[vk::binding(7, 0)]]
 ConstantBuffer<Sampler2D> _emissiveMap;
 
+[[vk::binding(8, 0)]]
+ConstantBuffer<LightArray<DirectionalLight, 4>> _directionalLight;
+
+
 float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P)
 {
     float3 tangentNormal = normalMap.Sample(UV).xyz * 2.0 - 1.0;
