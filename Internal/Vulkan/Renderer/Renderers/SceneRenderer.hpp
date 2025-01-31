@@ -63,6 +63,7 @@ private:
 
     bool m_AllowDebugDraw = false;
     bool m_WireFrame = false;
+    bool m_multiLightShader = false;
 
 
     friend class VEditor::RenderingOptions;

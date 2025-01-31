@@ -59,6 +59,7 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
     m_rtxShader->DestroyExistingShaderModules();
     m_debugLinesShader->DestroyExistingShaderModules();
     m_outlineShader->DestroyExistingShaderModules();
+    m_multiLightShader->DestroyExistingShaderModules();
 }
 
 const VulkanCore::VGraphicsPipeline &VulkanCore::VPipelineManager::GetPipeline(EPipelineType pipeline) const {
@@ -93,6 +94,21 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->SetPipelineType(EPipelineType::RasterPBRTextured);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     m_pipelines[EPipelineType::RasterPBRTextured] = std::move(pipeline);
+
+
+    //==================================
+    // MULTI LIGHT PIPELINE
+    //==================================
+    auto multiLightPipelineVertexShaderSource = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
+    auto multiLightPipelineFragmnetShaderSource = "Shaders/Compiled/GGXColourFragmentMultiLight.frag.slang.spv";
+    m_baseShader = std::make_unique<VShader>(m_device, multiLightPipelineVertexShaderSource,
+        multiLightPipelineFragmnetShaderSource);
+
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_multiLightShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
+    pipeline->Init();
+    pipeline->SetPipelineType(EPipelineType::MultiLight);
+    pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
+    m_pipelines[EPipelineType::MultiLight] = std::move(pipeline);
 
     //==================================
     // RAY TRACING, ARTIFICIAL PIPELINE

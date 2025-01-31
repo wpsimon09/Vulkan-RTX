@@ -54,6 +54,7 @@ namespace Renderer
         m_pushDescriptorManager.AddUpdateEntry(5, offsetof(VulkanUtils::DescriptorSetData, normalTextureImage), 0);
         m_pushDescriptorManager.AddUpdateEntry(6, offsetof(VulkanUtils::DescriptorSetData, armTextureImage), 0);
         m_pushDescriptorManager.AddUpdateEntry(7, offsetof(VulkanUtils::DescriptorSetData, emissiveTextureImage), 0);
+        m_pushDescriptorManager.AddUpdateEntry(8, offsetof(VulkanUtils::DescriptorSetData, emissiveTextureImage), 0);
 
 
         Utils::Logger::LogSuccess("Scene renderer created !");
@@ -90,6 +91,10 @@ namespace Renderer
         }else if (m_renderContextPtr->metaData.bRTXPass)
         {
             pipelineType = EPipelineType::RTX;
+        }
+        else if (m_multiLightShader)
+        {
+            pipelineType = EPipelineType::MultiLight;
         }
 
         RecordCommandBuffer(currentFrameIndex, uniformBufferManager,m_pipelineManager->GetPipeline(pipelineType));
@@ -157,6 +162,7 @@ namespace Renderer
             &renderPassBeginInfo, vk::SubpassContents::eInline);
 
         cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance());
+
 
         //===============================================
         // CONFIGURE VIEW PORT

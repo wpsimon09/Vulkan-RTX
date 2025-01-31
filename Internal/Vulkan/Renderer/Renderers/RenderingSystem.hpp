@@ -98,6 +98,7 @@ private:
     bool m_isRayTracing = false;
 
     friend
+
     class VEditor::RenderingOptions;
 
 };

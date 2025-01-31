@@ -10,7 +10,8 @@ enum class EPipelineType
     RasterPBRTextured = 0,
     RTX,
     DebugLines,
-    Outline
+    Outline,
+    MultiLight
 };
 
 enum EQueueFamilyIndexType

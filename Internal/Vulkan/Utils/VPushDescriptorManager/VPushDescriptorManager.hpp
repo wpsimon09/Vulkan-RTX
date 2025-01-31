@@ -36,6 +36,7 @@ struct DescriptorSetData
     vk::DescriptorImageInfo normalTextureImage; // for normal
     vk::DescriptorImageInfo armTextureImage; // for arm
     vk::DescriptorImageInfo emissiveTextureImage; // for emisive texture
+    vk::DescriptorBufferInfo lightInformation; // all light information
 };
 
 class VPushDescriptorManager {
