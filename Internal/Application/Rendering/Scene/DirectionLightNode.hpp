@@ -8,9 +8,9 @@
 
 namespace ApplicationCore {
 
-class LightNode: public SceneNode {
+class DirectionLightNode: public SceneNode {
 public:
-    LightNode(std::shared_ptr<StaticMesh> mesh);
+    DirectionLightNode(std::shared_ptr<StaticMesh> mesh);
 private:
 };
 

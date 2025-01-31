@@ -29,7 +29,10 @@ ConstantBuffer<Sampler2D> _armMap;
 ConstantBuffer<Sampler2D> _emissiveMap;
 
 [[vk::binding(8, 0)]]
-ConstantBuffer<LightArray<DirectionalLight, 4>> _directionalLight;
+ConstantBuffer<LightArray<DirectionalLight,1>> _directionalLight;
+
+[[vk::binding(9, 0)]]
+ConstantBuffer<LightArray<PointLight,100>> pointLights;
 
 
 float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P)
@@ -56,6 +59,8 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     : SV_Target
 {
 
+    LightPair<DirectionalLight, PointLight> lightingEnv;
+
     SurfaceGeometry g;
     g.position = fsIn.fragPos;
     g.normal = fsIn.normal;
@@ -65,6 +70,8 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     PBRMaterial material;
     material.features = _features;
     material.values = _materialNoTextureValues;
+    material.albedo_map = _albedoMap;
+    material.arm_map = _armMap;
     let brdf_ = material.Prepare(g);
 
     if (material.features.hasNormalTexture) {
@@ -77,8 +84,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     
     float3 lightColor = float3(2.0);
 
-    CookTorrence_GGX brdf;
-    //brdf.FillWithData(_materialDstSet, fsIn.uv);
+    //CookTorrence_GGX brdf;
 
     float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
 
@@ -94,11 +100,13 @@ float4 fragmentMain(FragmentShaderIn fsIn)
 
     float3 L = normalize(fsIn.lightPos - fsIn.fragPos);
 
-    float3 color = brdf.Evaluate(V, L, N) * lightColor;
+    float3 color = brdf_.Evaluate(V, L, N) * lightColor;
 
-    float3 ambient = brdf.albedo * 0.8;
+    float3 ambient = brdf_.albedo * 0.8;
 
     float3 finalColor = max(color, float(0.0)) + ambient;
+
+    finalColor = lightingEnv.illuminate(g, brdf_, V);
 
     return float4(finalColor, 1.0);
 }
