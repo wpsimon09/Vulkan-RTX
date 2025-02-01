@@ -160,7 +160,7 @@ namespace ApplicationCore
         if (m_mesh && m_sceneNodeMetaData.IsVisible)
         {
             // check if the mesh can be rendered in the given context
-            if (m_mesh->GetRenderingMetaData() == renderingContext->metaData)
+            if (m_sceneNodeMetaData.RenderingMetaData == renderingContext->metaData)
             {
                 // frustrum culling
                 if (VulkanUtils::IsInViewFrustum(
@@ -186,7 +186,6 @@ namespace ApplicationCore
                     //=====================================================
                     data.bounds = &m_mesh->GetMeshData()->bounds;
                     data.isEditorBilboard = false;
-
 
                     //=====================================================
                     // SORT BASED ON THE DEPTH

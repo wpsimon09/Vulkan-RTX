@@ -25,7 +25,9 @@ namespace Renderer
                                  VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width,
                                  int height): BaseRenderer(device),
                                               m_pushDescriptorManager(pushDescriptorManager),
-                                              m_device(device), m_selectedGeometry{}, m_editorBillboards{}
+                                              m_device(device),
+                                              m_selectedGeometry{{true, false, false}},
+                                              m_editorBillboards{{true, false, true}}
 
     {
         Utils::Logger::LogInfo("Creating scene renderer");
@@ -85,7 +87,7 @@ namespace Renderer
         if (m_WireFrame)
         {
             pipelineType = EPipelineType::DebugLines;
-        }else if (m_renderContextPtr->metaData.bRasterPass)
+        }else if (m_renderContextPtr->metaData.bMainLightPass)
         {
             pipelineType = EPipelineType::RasterPBRTextured;
         }else if (m_renderContextPtr->metaData.bRTXPass)

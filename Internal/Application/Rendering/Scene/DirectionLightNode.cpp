@@ -7,9 +7,12 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 
 namespace ApplicationCore {
-    DirectionLightNode::DirectionLightNode(std::shared_ptr<StaticMesh> mesh): SceneNode(mesh)
+    DirectionLightNode::DirectionLightNode(std::shared_ptr<StaticMesh> mesh): SceneNode(mesh), m_parameters()
     {
         m_sceneNodeMetaData.nodeType = ENodeType::DirectionalLightNode;
+        m_sceneNodeMetaData.RenderingMetaData.bMainLightPass = false;
+
+
 
     }
 

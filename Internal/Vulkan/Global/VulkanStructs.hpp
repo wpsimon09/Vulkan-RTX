@@ -69,7 +69,7 @@ namespace VulkanStructs
 
     struct RenderingMetaData
     {
-        bool bRasterPass = true;
+        bool bMainLightPass = true;
         bool bRTXPass = false;
         bool bEditorBillboardPass = false;
 
@@ -79,7 +79,7 @@ namespace VulkanStructs
 
         bool operator==(const RenderingMetaData& other) const
         {
-            return bRasterPass == other.bRasterPass && bRTXPass == other.bRTXPass && bEditorBillboardPass == other.bEditorBillboardPass;
+            return bMainLightPass == other.bMainLightPass && bRTXPass == other.bRTXPass && bEditorBillboardPass == other.bEditorBillboardPass;
         }
     };
 

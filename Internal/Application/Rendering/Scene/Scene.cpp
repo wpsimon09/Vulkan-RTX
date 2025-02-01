@@ -93,10 +93,12 @@ namespace ApplicationCore {
         auto postProcessVertexArray = m_assetsManager.GetDefaultMesh(PostProcessQuad);
 
         auto rayTracerPlane = m_assetsManager.GetDefaultMesh(EMeshGeometryType::PostProcessQuad);
-        rayTracerPlane->GetRenderingMetaData().bRasterPass = false;
-        rayTracerPlane->GetRenderingMetaData().bRTXPass = true;
 
-        AddNode(std::make_shared<SceneNode>(rayTracerPlane));
+        auto s = std::make_shared<SceneNode>(rayTracerPlane);
+        s->GetSceneNodeMetaData().RenderingMetaData.bRTXPass = true;
+        s->GetSceneNodeMetaData().RenderingMetaData.bMainLightPass= false;
+        s->GetSceneNodeMetaData().RenderingMetaData.bEditorBillboardPass = true;
+        AddNode(std::move(s));
 
         AddDirectionalLight();
 

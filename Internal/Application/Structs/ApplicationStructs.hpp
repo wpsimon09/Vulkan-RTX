@@ -105,7 +105,7 @@ struct SceneNodeMetaData
     bool IsOpen = false;
     ENodeType nodeType = ENodeType::Node;
     int ID = 0;
-    VulkanStructs::RenderingMetaData RenderingMetaData{true, false};
+    VulkanStructs::RenderingMetaData RenderingMetaData{true, false, false};
 };
 
 #endif //APPLICATIONSTRUCTS_HPP

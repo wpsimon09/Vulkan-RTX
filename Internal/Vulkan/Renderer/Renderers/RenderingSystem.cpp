@@ -28,7 +28,7 @@ namespace Renderer {
          VEditor::UIContext &uiContext): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext{},m_reyTracingRenderingContext(), m_uiContext(uiContext)
     {
         m_renderingContext = &m_mainRenderContext;
-        m_reyTracingRenderingContext.metaData.bRasterPass = false;
+        m_reyTracingRenderingContext.metaData.bMainLightPass = false;
         m_reyTracingRenderingContext.metaData.bRTXPass = true;
 
         //---------------------------------------------------------------------------------------------------------------------------
