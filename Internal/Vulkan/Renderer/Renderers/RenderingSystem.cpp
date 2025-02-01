@@ -158,7 +158,8 @@ namespace Renderer {
         {
             m_renderingContexts.clear();
             m_renderingContexts.emplace_back(&m_mainRenderContext);
-            m_renderingContexts.emplace_back(&m_bilboardRenderingContext);
+            if (m_allowEditorBillboards)
+                m_renderingContexts.emplace_back(&m_bilboardRenderingContext);
 
         }
     }

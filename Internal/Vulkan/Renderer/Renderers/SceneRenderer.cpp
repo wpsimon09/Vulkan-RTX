@@ -109,6 +109,9 @@ namespace Renderer
             pipelineType = EPipelineType::MultiLight;
         }
 
+        if (!m_rayTracingPass->DrawCalls.empty())
+            pipelineType = EPipelineType::RTX;
+
         RecordCommandBuffer(currentFrameIndex, uniformBufferManager,m_pipelineManager->GetPipeline(pipelineType));
 
         m_commandBuffers[currentFrameIndex]->EndRecording();
@@ -268,15 +271,16 @@ namespace Renderer
         }
 
 
-
-        if (m_AllowDebugDraw && !m_renderContextPtr->DrawCalls.empty())
+        // draws aabs
+        if (m_AllowDebugDraw)
         {
             drawCallCount += RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                                   m_pushDescriptorManager, *m_renderContextPtr,
+                                                   m_pushDescriptorManager, *m_mainRenderingPass,
                                                    m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
         }
 
 
+        // draws selected meshes outline
         if (!m_selectedGeometryPass.DrawCalls.empty())
         {
             // renders the outline
@@ -285,6 +289,7 @@ namespace Renderer
                                                         m_pipelineManager->GetPipeline(EPipelineType::Outline));
         }
 
+        // draws editor bilboards
         drawCallCount += DrawEditorBillboards(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                                                    m_pushDescriptorManager, *m_editorBillboardsPass,
                                                     m_pipelineManager->GetPipeline(EPipelineType::EditorBillboard));

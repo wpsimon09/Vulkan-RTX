@@ -21,7 +21,8 @@ namespace VEditor {
     {
         ImGui::Begin(ICON_FA_BOOK_JOURNAL_WHILLS " Rendering options", &m_isOpen);
 
-            ImGui::Checkbox("Fake ray-tracer", &m_renderingSystem->m_isRayTracing);
+            ImGui::Checkbox("Fake ray-tracer ", &m_renderingSystem->m_isRayTracing);
+            ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_allowEditorBillboards);
 
             if (ImGui::TreeNode(ICON_FA_DRAW_POLYGON " SceneRenderer"))
             {
@@ -32,8 +33,8 @@ namespace VEditor {
                 ImGui::SeparatorText("Draw calls");
                 ImGui::Text("Total draw call count: %i", m_renderingSystem->m_sceneRenderer->m_renderingStatistics.DrawCallCount);
 
-                ImGui::SeparatorText("Active rendering ocntext");
-                ImGui::Text("Total draw call count: %i", m_renderingSystem->m_renderingContexts.size());
+                ImGui::SeparatorText("Active rendering contexts");
+                ImGui::Text("Active rendering contexts: %i", m_renderingSystem->m_renderingContexts.size());
 
                 ImGui::TreePop();
             }
