@@ -83,7 +83,7 @@ namespace Renderer
             {
                 m_editorBillboardsPass = context;
             }
-            else if (context->metaData.IsRenderingContextMainLightPassOnly())
+            else if (context->metaData.IsRenderingContextRTXOnly())
             {
                 m_rayTracingPass = context;
             }
@@ -102,6 +102,14 @@ namespace Renderer
         if (m_WireFrame)
         {
             pipelineType = EPipelineType::DebugLines;
+        }else if (m_rayTracingPass && !m_rayTracingPass->DrawCalls.empty())
+        {
+            pipelineType = EPipelineType::RTX;
+            // to render ray tracing plane one has to configure ray tracing context to be used for geometry rendering
+            m_mainRenderingPass = m_rayTracingPass;
+        }else
+        {
+            pipelineType = EPipelineType::RasterPBRTextured;
         }
 
         if (m_multiLightShader)
@@ -109,8 +117,6 @@ namespace Renderer
             pipelineType = EPipelineType::MultiLight;
         }
 
-        if (!m_rayTracingPass->DrawCalls.empty())
-            pipelineType = EPipelineType::RTX;
 
         RecordCommandBuffer(currentFrameIndex, uniformBufferManager,m_pipelineManager->GetPipeline(pipelineType));
 
