@@ -26,7 +26,8 @@ namespace VulkanUtils {
             .AddBinding(6, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // arm
             .AddBinding(7, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // emissive
 
-            .AddBinding(7, vk::DescriptorType::eUniformBuffer,vk::ShaderStageFlagBits::eFragment,1) // emissive
+            .AddBinding(8, vk::DescriptorType::eUniformBuffer,vk::ShaderStageFlagBits::eFragment,1) //directional light
+            .AddBinding(9, vk::DescriptorType::eUniformBuffer,vk::ShaderStageFlagBits::eFragment,100) //point lights
 
             .Build();
     }

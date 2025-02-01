@@ -89,6 +89,7 @@ void Application::Init()
     auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/free_isometric_cafe/scene.gltf");
     for (auto& sceneNode: sponsa)
     {
+        sceneNode->m_transformation->SetScale(300.f);
         m_client->GetScene().AddNode(sceneNode);
     }
 

@@ -7,7 +7,7 @@
 #include <random>
 #include <GLFW/glfw3.h>
 
-#include "LightNode.hpp"
+#include "DirectionLightNode.hpp"
 #include "SceneNode.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Enums/ClientEnums.hpp"
@@ -149,7 +149,7 @@ namespace ApplicationCore {
     void Scene::AddDirectionalLight() const
     {
 
-        auto light = std::make_shared<LightNode>(m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight));
+        auto light = std::make_shared<DirectionLightNode>(m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight));
         light->m_transformation->SetScale(20.0f);
         light->SetName(light->GetMesh()->GetName());
         AddNode(light);

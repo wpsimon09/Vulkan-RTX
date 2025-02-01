@@ -136,8 +136,8 @@ set(SOURCES
         Internal/Application/IntersectionTests/IntersectionTests.hpp
         Internal/Application/IntersectionTests/IntersectionTests.cpp
         Internal/Application/Utils/ApplicationUtils.hpp
-        Internal/Application/Rendering/Scene/LightNode.cpp
-        Internal/Application/Rendering/Scene/LightNode.hpp
+        Internal/Application/Rendering/Scene/DirectionLightNode.cpp
+        Internal/Application/Rendering/Scene/DirectionLightNode.hpp
         Internal/Application/Utils/MathUtils.hpp
         Internal/Application/Utils/MathUtils.cpp
 )

@@ -27,7 +27,7 @@ namespace VEditor {
             {
                 ImGui::Checkbox("Wire frame mode", &m_renderingSystem->m_sceneRenderer->m_WireFrame);
 
-                ImGui::Text("Multi light shader", &m_renderingSystem->m_sceneRenderer->m_multiLightShader);
+                ImGui::Checkbox("Multi light shader", &m_renderingSystem->m_sceneRenderer->m_multiLightShader);
 
                 ImGui::SeparatorText("Draw calls");
                 ImGui::Text("Total draw call count: %i", m_renderingSystem->m_sceneRenderer->m_renderingStatistics.DrawCallCount);

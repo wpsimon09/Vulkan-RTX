@@ -101,7 +101,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     //==================================
     auto multiLightPipelineVertexShaderSource = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
     auto multiLightPipelineFragmnetShaderSource = "Shaders/Compiled/GGXColourFragmentMultiLight.frag.slang.spv";
-    m_baseShader = std::make_unique<VShader>(m_device, multiLightPipelineVertexShaderSource,
+    m_multiLightShader = std::make_unique<VShader>(m_device, multiLightPipelineVertexShaderSource,
         multiLightPipelineFragmnetShaderSource);
 
     pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_multiLightShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());

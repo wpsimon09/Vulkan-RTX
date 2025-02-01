@@ -1,5 +1,8 @@
 #define PI 3.14159265359
 
+//=================================
+// STRUCTS 
+//=================================
 struct SurfaceGeometry
 {
     float3 position;
@@ -33,6 +36,11 @@ struct Material
     MaterialFeatures Features;
 };
 
+
+//===================================
+// MATERIAL INTERFACE DEFINITIONS
+//===================================
+
 interface IMaterial
 {
     associatedtype BRDF : IBRDF;
@@ -47,6 +55,7 @@ struct PBRMaterial : IMaterial
     MaterialConstantValues values;
     Sampler2D albedo_map;
     Sampler2D arm_map;
+    Sampler2D normal_map;
 
     float3 albedo;
     float metallness;
@@ -88,6 +97,10 @@ struct PBRMaterial : IMaterial
         return brdf;
     }
 }
+
+//=========================================
+// BRDF DEFINITIONS
+//=========================================
 
 interface IBRDF
 {
@@ -179,5 +192,27 @@ struct CookTorrence_GGX : IBRDF
 
         return (kd * albedo / PI + specular) * NdotL;
     }
+}
+
+//================================
+// UTILITIES
+//================================
+
+float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P)
+{
+    float3 tangentNormal = normalMap.Sample(UV).xyz * 2.0 - 1.0;
+
+    float3 Q1 = ddx(P);
+    float3 Q2 = ddy(P);
+
+    float2 st1 = ddx(UV);
+    float2 st2 = ddy(UV);
+
+    float3 N = normalize(N);
+    float3 T = normalize(Q1 * st2.y - Q2 * st1.y);
+    float3 B = -normalize(cross(N, T));
+    float3x3 TBN = float3x3(T, B, N);
+
+    return normalize(mul(tangentNormal, TBN));
 }
 
