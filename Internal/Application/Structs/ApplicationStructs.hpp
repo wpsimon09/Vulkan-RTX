@@ -9,6 +9,7 @@
 
 #include "Application/Enums/ClientEnums.hpp"
 #include "glm/glm.hpp"
+#include "Vulkan/Global/VulkanStructs.hpp"
 
 struct CameraUpdateInfo
 {
@@ -104,6 +105,7 @@ struct SceneNodeMetaData
     bool IsOpen = false;
     ENodeType nodeType = ENodeType::Node;
     int ID = 0;
+    VulkanStructs::RenderingMetaData RenderingMetaData{true, false};
 };
 
 #endif //APPLICATIONSTRUCTS_HPP

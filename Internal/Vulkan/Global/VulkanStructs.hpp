@@ -71,13 +71,15 @@ namespace VulkanStructs
     {
         bool bRasterPass = true;
         bool bRTXPass = false;
+        bool bEditorBillboardPass = false;
+
         float minZ = 10000;
         glm::mat4 view;
         glm::mat4 projection;
 
         bool operator==(const RenderingMetaData& other) const
         {
-            return bRasterPass == other.bRasterPass && bRTXPass == other.bRTXPass;
+            return bRasterPass == other.bRasterPass && bRTXPass == other.bRTXPass && bEditorBillboardPass == other.bEditorBillboardPass;
         }
     };
 

@@ -10,6 +10,7 @@ namespace ApplicationCore {
     DirectionLightNode::DirectionLightNode(std::shared_ptr<StaticMesh> mesh): SceneNode(mesh)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::DirectionalLightNode;
+
     }
 
     void DirectionLightNode::Render(VulkanStructs::RenderContext* renderingContext) const
