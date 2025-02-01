@@ -97,7 +97,7 @@ namespace ApplicationCore {
         auto s = std::make_shared<SceneNode>(rayTracerPlane);
         s->GetSceneNodeMetaData().RenderingMetaData.bRTXPass = true;
         s->GetSceneNodeMetaData().RenderingMetaData.bMainLightPass= false;
-        s->GetSceneNodeMetaData().RenderingMetaData.bEditorBillboardPass = true;
+        s->GetSceneNodeMetaData().RenderingMetaData.bEditorBillboardPass = false;
         AddNode(std::move(s));
 
         AddDirectionalLight();
