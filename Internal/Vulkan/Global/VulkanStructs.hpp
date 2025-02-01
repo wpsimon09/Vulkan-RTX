@@ -81,6 +81,10 @@ namespace VulkanStructs
         {
             return bMainLightPass == other.bMainLightPass && bRTXPass == other.bRTXPass && bEditorBillboardPass == other.bEditorBillboardPass;
         }
+
+        bool IsRenderingContextMainLightPassOnly() const {return bMainLightPass && !bRTXPass && !bEditorBillboardPass;}
+        bool IsRenderingContextRTXOnly() const {return !bMainLightPass && bRTXPass && !bEditorBillboardPass;}
+        bool IsRenderingContextBilboardOnly() const {return !bMainLightPass && !bRTXPass && bEditorBillboardPass;}
     };
 
     struct RenderingStatistics

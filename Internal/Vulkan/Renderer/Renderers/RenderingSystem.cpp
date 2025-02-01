@@ -27,9 +27,16 @@ namespace Renderer {
          VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
          VEditor::UIContext &uiContext): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext{},m_reyTracingRenderingContext(), m_uiContext(uiContext)
     {
-        m_renderingContext = &m_mainRenderContext;
         m_reyTracingRenderingContext.metaData.bMainLightPass = false;
         m_reyTracingRenderingContext.metaData.bRTXPass = true;
+
+        m_bilboardRenderingContext.metaData.bMainLightPass = false;
+        m_bilboardRenderingContext.metaData.bRTXPass = false;
+        m_bilboardRenderingContext.metaData.bEditorBillboardPass = true;
+
+        m_renderingContexts.emplace_back(&m_mainRenderContext);
+        m_renderingContexts.emplace_back(&m_bilboardRenderingContext);
+
 
         //---------------------------------------------------------------------------------------------------------------------------
         // Swap chain creation
@@ -112,10 +119,13 @@ namespace Renderer {
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
 
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
-        m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderingContext->DrawCalls);
+        for (auto &context : m_renderingContexts)
+        {
+            m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, context->DrawCalls);
+        }
 
         // render scene
-        m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, *m_renderingContext);
+        m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, m_renderingContexts);
 
                                                                     // semaphore signaled in the scene render pass
         std::vector<vk::Semaphore> waitSemaphoresForTransfering = {m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};
@@ -142,10 +152,14 @@ namespace Renderer {
     {
         if (m_isRayTracing)
         {
-            m_renderingContext = &m_reyTracingRenderingContext;
+            m_renderingContexts.clear();
+            m_renderingContexts.emplace_back(&m_reyTracingRenderingContext);
         }else
         {
-            m_renderingContext = &m_mainRenderContext;
+            m_renderingContexts.clear();
+            m_renderingContexts.emplace_back(&m_mainRenderContext);
+            m_renderingContexts.emplace_back(&m_bilboardRenderingContext);
+
         }
     }
 

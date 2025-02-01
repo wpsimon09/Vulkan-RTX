@@ -11,9 +11,7 @@ namespace ApplicationCore {
     {
         m_sceneNodeMetaData.nodeType = ENodeType::DirectionalLightNode;
         m_sceneNodeMetaData.RenderingMetaData.bMainLightPass = false;
-
-
-
+        m_sceneNodeMetaData.RenderingMetaData.bEditorBillboardPass = true;
     }
 
     void DirectionLightNode::Render(VulkanStructs::RenderContext* renderingContext) const

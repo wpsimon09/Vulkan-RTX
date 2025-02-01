@@ -135,7 +135,7 @@ namespace VEditor
                     auto &sceneStats =  m_uiContext.GetScene().GetSceneStatistics();
                     //ImGui::Text("Draw calls %i",sceneStats.drawCalls);
                     ImGui::Text("Mesh count %i",sceneStats.numberOfMeshes);
-                }
+                                    }
 
                 ImGui::EndTooltip();
             }

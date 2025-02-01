@@ -69,6 +69,7 @@ public:
     void Render(GlobalUniform& globalUniformUpdateInfo);
     void Update();
     void Destroy();
+    std::vector<VulkanStructs::RenderContext*> GetRenderingContexts() {return m_renderingContexts;};
 
 private:
 
@@ -90,6 +91,9 @@ private:
 
     VulkanStructs::RenderContext m_mainRenderContext;
     VulkanStructs::RenderContext m_reyTracingRenderingContext;
+    VulkanStructs::RenderContext m_bilboardRenderingContext;
+
+    std::vector<VulkanStructs::RenderContext*> m_renderingContexts;
 
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;

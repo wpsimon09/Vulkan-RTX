@@ -32,6 +32,9 @@ namespace VEditor {
                 ImGui::SeparatorText("Draw calls");
                 ImGui::Text("Total draw call count: %i", m_renderingSystem->m_sceneRenderer->m_renderingStatistics.DrawCallCount);
 
+                ImGui::SeparatorText("Active rendering ocntext");
+                ImGui::Text("Total draw call count: %i", m_renderingSystem->m_renderingContexts.size());
+
                 ImGui::TreePop();
             }
             if (ImGui::TreeNode(ICON_FA_BUG " Debug renderer"))

@@ -25,9 +25,7 @@ namespace Renderer
                                  VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width,
                                  int height): BaseRenderer(device),
                                               m_pushDescriptorManager(pushDescriptorManager),
-                                              m_device(device),
-                                              m_selectedGeometry{{true, false, false}},
-                                              m_editorBillboards{{true, false, true}}
+                                              m_device(device)
 
     {
         Utils::Logger::LogInfo("Creating scene renderer");
@@ -70,10 +68,27 @@ namespace Renderer
 
     void SceneRenderer::Render(int currentFrameIndex,
                                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                               const VulkanStructs::RenderContext& renderContext
+                               std::vector<VulkanStructs::RenderContext*>& renderContext
     )
     {
-        m_renderContextPtr = &renderContext;
+
+        // find rendering context for main light pass draw call data
+        for (auto &context: renderContext)
+        {
+            if (context->metaData.IsRenderingContextMainLightPassOnly())
+            {
+                m_mainRenderingPass = context;
+            }
+            else if (context->metaData.IsRenderingContextBilboardOnly())
+            {
+                m_editorBillboardsPass = context;
+            }
+            else if (context->metaData.IsRenderingContextMainLightPassOnly())
+            {
+                m_rayTracingPass = context;
+            }
+        }
+
 
         auto& renderTarget = m_renderTargets;
         m_commandBuffers[currentFrameIndex]->Reset();
@@ -87,12 +102,6 @@ namespace Renderer
         if (m_WireFrame)
         {
             pipelineType = EPipelineType::DebugLines;
-        }else if (m_renderContextPtr->metaData.bMainLightPass)
-        {
-            pipelineType = EPipelineType::RasterPBRTextured;
-        }else if (m_renderContextPtr->metaData.bRTXPass)
-        {
-            pipelineType = EPipelineType::RTX;
         }
 
         if (m_multiLightShader)
@@ -103,7 +112,7 @@ namespace Renderer
         RecordCommandBuffer(currentFrameIndex, uniformBufferManager,m_pipelineManager->GetPipeline(pipelineType));
 
         m_commandBuffers[currentFrameIndex]->EndRecording();
-        m_selectedGeometry.DrawCalls.clear();
+        m_selectedGeometryPass.DrawCalls.clear();
 
         //=====================================================
         // SUBMIT RECORDED COMMAND BUFFER
@@ -195,12 +204,13 @@ namespace Renderer
         auto& dstSetDataStruct = m_pushDescriptorManager.GetDescriptorSetDataStruct();
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
 
-        for (int i = 0; i < m_renderContextPtr->DrawCalls.size(); i++)
+
+        for (int i = 0; i < m_mainRenderingPass->DrawCalls.size(); i++)
         {
             dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
                 currentFrameIndex];
 
-            auto& drawCall = m_renderContextPtr->DrawCalls[i];
+            auto& drawCall = m_mainRenderingPass->DrawCalls[i];
             auto& material = drawCall.material;
 
             dstSetDataStruct.diffuseTextureImage =
@@ -251,15 +261,13 @@ namespace Renderer
 
             if (drawCall.renderOutline)
             {
-                m_selectedGeometry.DrawCalls.emplace_back(drawCall);
+                m_selectedGeometryPass.DrawCalls.emplace_back(drawCall);
             }
 
-            if (drawCall.isEditorBilboard)
-            {
-                m_editorBillboards.DrawCalls.emplace_back(drawCall);
-            }
 
         }
+
+
 
         if (m_AllowDebugDraw && !m_renderContextPtr->DrawCalls.empty())
         {
@@ -268,14 +276,19 @@ namespace Renderer
                                                    m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
         }
 
-        // renders the outline
-        drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                                   m_pushDescriptorManager, m_selectedGeometry,
-                                                    m_pipelineManager->GetPipeline(EPipelineType::Outline));
+
+        if (!m_selectedGeometryPass.DrawCalls.empty())
+        {
+            // renders the outline
+            drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
+                                                       m_pushDescriptorManager, m_selectedGeometryPass,
+                                                        m_pipelineManager->GetPipeline(EPipelineType::Outline));
+        }
 
         drawCallCount += DrawEditorBillboards(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                                   m_pushDescriptorManager, m_selectedGeometry,
+                                                   m_pushDescriptorManager, *m_editorBillboardsPass,
                                                     m_pipelineManager->GetPipeline(EPipelineType::EditorBillboard));
+
 
         cmdBuffer.endRenderPass();
 

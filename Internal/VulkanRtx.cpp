@@ -166,12 +166,20 @@ void Application::Update()
 void Application::Render() {
     // generate draw calls
     m_client->GetAssetsManager().Sync();
-    m_client->Render(m_renderingSystem->GetRenderContext()); // here
+    for (auto& context: m_renderingSystem->GetRenderingContexts())
+    {
+        m_client->Render(context);
+    }
+
 
     m_editor->Render();
 
     m_renderingSystem->Render(m_client->GetGlobalDataUpdateInformation());
-    m_renderingSystem->GetRenderContext()->DrawCalls.clear();
+
+    for (auto& context: m_renderingSystem->GetRenderingContexts())
+    {
+        context->DrawCalls.clear();
+    }
 
 }
 
