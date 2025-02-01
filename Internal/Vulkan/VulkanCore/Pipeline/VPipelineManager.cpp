@@ -112,7 +112,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     m_pipelines[EPipelineType::MultiLight] = std::move(pipeline);
 
     //==================================
-    // MULTI LIGHT PIPELINE
+    // EDITOR BILLBOARD PIPELINE
     //==================================
     auto editorBillboardVertexShaderSource = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
     auto editorBillboardFragmentShaderSource = "Shaders/Compiled/EditorBilboard.frag.slang.spv";
@@ -123,6 +123,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->Init();
     pipeline->SetPipelineType(EPipelineType::EditorBillboard);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
+    pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
     pipeline->DisableDepthTest();
     m_pipelines[EPipelineType::EditorBillboard] = std::move(pipeline);
 

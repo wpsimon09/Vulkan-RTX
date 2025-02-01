@@ -162,7 +162,7 @@ namespace ApplicationCore
 
     std::shared_ptr<StaticMesh> AssetsManager::GetEditorBilboardMesh(EEditorIcon icon)
     {
-        auto mesh = GetDefaultMesh(EMeshGeometryType::Cube);
+        auto mesh = GetDefaultMesh(EMeshGeometryType::PostProcessQuad);
         mesh->SetMaterial(m_editorIconsMaterials[icon]);
         mesh->SetName( IconToString(icon)+"##" + VulkanUtils::random_string(4));
 

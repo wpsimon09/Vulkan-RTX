@@ -105,22 +105,6 @@ namespace ApplicationCore {
         Utils::Logger::LogSuccessClient("Default scene build");
     }
 
-    void Scene::UpdateSceneLights(std::shared_ptr<SceneNode>& sceneNode)
-    {
-        for (auto& childNode : m_root->GetChildrenByRef())
-        {
-            if (childNode->GetSceneNodeMetaData().nodeType == ENodeType::DirectionalLightNode
-                || childNode->GetSceneNodeMetaData().nodeType == ENodeType::PointLightNode
-                || childNode->GetSceneNodeMetaData().nodeType == ENodeType::SpotLightNode)
-            {
-                m_directionalLightNodes.clear();
-               // m_lightNodes.emplace_back(childNode)
-            }
-
-        }
-    }
-
-
     void Scene::AddCubeToScene() const
     {
         auto obj = m_assetsManager.GetDefaultMesh(Cube);

@@ -51,7 +51,6 @@ public:
     void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; } ;
 private:
     void BuildDefaultScene();
-    void UpdateSceneLights(std::shared_ptr<SceneNode>& sceneNode);
     SceneStatistics m_sceneStatistics;
 
 private:
