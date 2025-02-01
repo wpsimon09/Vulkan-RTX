@@ -25,7 +25,6 @@ struct PointLight : ILightEnv {
         float3 illuminance = intensity / (distance*distance);
 
         return illuminance * brdf.Evaluate(wo, direction, g.normal);
-
     }
 }
 
@@ -52,6 +51,13 @@ struct EmptyLightEnv : ILightEnv {
     }
 }
 
+struct AmbientLight : ILightEnv {
+    float aoIntensity;
+    float3 albedo;
+    float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
+        return albedo * aoIntensity;
+    }
+}
 
 // light pari allows us to create any light enviroment 
 // we can create scene of lights for 3 light types like this 

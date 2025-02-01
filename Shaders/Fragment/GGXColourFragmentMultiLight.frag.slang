@@ -39,16 +39,6 @@ ConstantBuffer<LightArray<PointLight,100>> pointLights;
 float4 fragmentMain(FragmentShaderIn fsIn)
     : SV_Target
 {
-    DirectionalLight testDirLight;
-    testDirLight.direction = normalize(fsIn.lightPos - fsIn.fragPos);
-    testDirLight.intensity = float3(2.f);
-
-    LightPair<DirectionalLight, EmptyLightEnv> lightingEnv;
-    lightingEnv.first = testDirLight;
-
-    EmptyLightEnv nolight;
-    lightingEnv.second = nolight;
-
     SurfaceGeometry g;
     g.position = fsIn.fragPos;
     g.normal = normalize(fsIn.normal);
@@ -66,13 +56,23 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     if (material.features.hasNormalTexture) {
         g.normal = normalize(SampleNormalMap(_normalMap, fsIn.uv, fsIn.normal, fsIn.fragPos));
     }
-  
+
+    DirectionalLight testDirLight;
+    testDirLight.direction = normalize(fsIn.lightPos - fsIn.fragPos);
+    testDirLight.intensity = float3(2.f);
+    
+    AmbientLight ambientLight;
+    ambientLight.albedo = brdf_.albedo;
+    ambientLight.aoIntensity = brdf_.ao;
+
+    LightPair<DirectionalLight, AmbientLight> lightingEnv;
+    lightingEnv.first = testDirLight;
+    lightingEnv.second = ambientLight;
+
     //CookTorrence_GGX brdf;
     float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
    
-    float3 ambient = brdf_.albedo * 0.5;
-
-    float3 finalColor = testDirLight.illuminate(g, brdf_, V) + ambient ;
+    float3 finalColor = lightingEnv.illuminate(g, brdf_, V);
 
     return float4(finalColor, 1.0);
 }
