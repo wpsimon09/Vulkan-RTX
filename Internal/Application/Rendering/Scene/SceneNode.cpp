@@ -185,6 +185,8 @@ namespace ApplicationCore
                     // BOUNDING VOLUME STUFF
                     //=====================================================
                     data.bounds = &m_mesh->GetMeshData()->bounds;
+                    data.isEditorBilboard = false;
+
 
                     //=====================================================
                     // SORT BASED ON THE DEPTH

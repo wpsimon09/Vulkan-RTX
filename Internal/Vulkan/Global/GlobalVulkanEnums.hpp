@@ -11,7 +11,8 @@ enum class EPipelineType
     RTX,
     DebugLines,
     Outline,
-    MultiLight
+    MultiLight,
+    EditorBillboard
 };
 
 enum EQueueFamilyIndexType

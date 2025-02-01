@@ -11,12 +11,15 @@ namespace ApplicationCore {
 class DirectionLightNode: public SceneNode {
 public:
     DirectionLightNode(std::shared_ptr<StaticMesh> mesh);
+
+    void Render(VulkanStructs::RenderContext* renderingContext) const override;
+
 private:
     struct DiretionalLight
     {
         glm::vec3 direction;
         glm::vec3 intensity;
-    };
+    }m_parameters;
 };
 
 } // ApplicationCore

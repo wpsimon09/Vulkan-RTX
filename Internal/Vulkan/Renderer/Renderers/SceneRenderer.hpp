@@ -59,6 +59,8 @@ private:
 
     std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
     VulkanStructs::RenderContext m_selectedGeometry;
+    VulkanStructs::RenderContext m_editorBillboards;
+
     VulkanStructs::RenderingStatistics m_renderingStatistics;
 
     bool m_AllowDebugDraw = false;

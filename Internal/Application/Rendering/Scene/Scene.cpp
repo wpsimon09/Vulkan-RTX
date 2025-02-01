@@ -111,7 +111,7 @@ namespace ApplicationCore {
                 || childNode->GetSceneNodeMetaData().nodeType == ENodeType::PointLightNode
                 || childNode->GetSceneNodeMetaData().nodeType == ENodeType::SpotLightNode)
             {
-                m_lightNodes.clear();
+                m_directionalLightNodes.clear();
                // m_lightNodes.emplace_back(childNode)
             }
 

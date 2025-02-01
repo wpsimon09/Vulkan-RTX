@@ -4,9 +4,16 @@
 
 #include "DirectionLightNode.hpp"
 
+#include "Vulkan/Global/VulkanStructs.hpp"
+
 namespace ApplicationCore {
     DirectionLightNode::DirectionLightNode(std::shared_ptr<StaticMesh> mesh): SceneNode(mesh)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::DirectionalLightNode;
+    }
+
+    void DirectionLightNode::Render(VulkanStructs::RenderContext* renderingContext) const
+    {
+        SceneNode::Render(renderingContext);
     }
 } // ApplicationCore

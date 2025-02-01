@@ -60,6 +60,7 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
     m_debugLinesShader->DestroyExistingShaderModules();
     m_outlineShader->DestroyExistingShaderModules();
     m_multiLightShader->DestroyExistingShaderModules();
+    m_editorBilboardShader->DestroyExistingShaderModules();
 }
 
 const VulkanCore::VGraphicsPipeline &VulkanCore::VPipelineManager::GetPipeline(EPipelineType pipeline) const {
@@ -109,6 +110,21 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->SetPipelineType(EPipelineType::MultiLight);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     m_pipelines[EPipelineType::MultiLight] = std::move(pipeline);
+
+    //==================================
+    // MULTI LIGHT PIPELINE
+    //==================================
+    auto editorBillboardVertexShaderSource = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
+    auto editorBillboardFragmentShaderSource = "Shaders/Compiled/EditorBilboard.frag.slang.spv";
+    m_editorBilboardShader = std::make_unique<VShader>(m_device, editorBillboardVertexShaderSource,
+        editorBillboardFragmentShaderSource);
+
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_editorBilboardShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
+    pipeline->Init();
+    pipeline->SetPipelineType(EPipelineType::EditorBillboard);
+    pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
+    pipeline->DisableDepthTest();
+    m_pipelines[EPipelineType::EditorBillboard] = std::move(pipeline);
 
     //==================================
     // RAY TRACING, ARTIFICIAL PIPELINE

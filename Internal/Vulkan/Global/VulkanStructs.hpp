@@ -149,89 +149,9 @@ struct DrawCallData
 
     float depth = -1.0f;
     bool renderOutline = false;
+    bool isEditorBilboard = false;
 
     std::shared_ptr<ApplicationCore::Material> material;
-
-    // Default constructor
-    DrawCallData() = default;
-
-    // Copy constructor
-    DrawCallData(const DrawCallData& other)
-        : indexCount(other.indexCount),
-          firstIndex(other.firstIndex),
-          indexCount_BB(other.indexCount_BB),
-          instanceCount(other.instanceCount),
-          drawCallID(other.drawCallID),
-          bounds(other.bounds),
-          meshData(other.meshData),
-          modelMatrix(other.modelMatrix),
-          depth(other.depth),
-          renderOutline(other.renderOutline),
-          material(other.material),
-          position(other.position){}
-
-    // Copy assignment operator
-    DrawCallData& operator=(const DrawCallData& other)
-    {
-        if (this != &other)
-        {
-            indexCount = other.indexCount;
-            firstIndex = other.firstIndex;
-            indexCount_BB = other.indexCount_BB;
-            instanceCount = other.instanceCount;
-            drawCallID = other.drawCallID;
-            bounds = other.bounds;
-            meshData = other.meshData;
-            modelMatrix = other.modelMatrix;
-            depth = other.depth;
-            renderOutline = other.renderOutline;
-            material = other.material;
-            position = other.position;
-        }
-        return *this;
-    }
-
-    // Move constructor
-    DrawCallData(DrawCallData&& other) noexcept
-        : indexCount(other.indexCount),
-          firstIndex(other.firstIndex),
-          indexCount_BB(other.indexCount_BB),
-          instanceCount(other.instanceCount),
-          drawCallID(other.drawCallID),
-          bounds(other.bounds),
-          meshData(other.meshData),
-          modelMatrix(std::move(other.modelMatrix)),
-          depth(other.depth),
-          renderOutline(other.renderOutline),
-          material(std::move(other.material))
-    {
-        other.bounds = nullptr;
-        other.meshData = nullptr;
-    }
-
-    // Move assignment operator
-    DrawCallData& operator=(DrawCallData&& other) noexcept
-    {
-        if (this != &other)
-        {
-            indexCount = other.indexCount;
-            firstIndex = other.firstIndex;
-            indexCount_BB = other.indexCount_BB;
-            instanceCount = other.instanceCount;
-            drawCallID = other.drawCallID;
-            bounds = other.bounds;
-            meshData = other.meshData;
-            modelMatrix = std::move(other.modelMatrix);
-            depth = other.depth;
-            renderOutline = other.renderOutline;
-            material = std::move(other.material);
-            position = other.position;
-
-            other.bounds = nullptr;
-            other.meshData = nullptr;
-        }
-        return *this;
-    }
 };
 
     struct RenderContext
@@ -239,7 +159,6 @@ struct DrawCallData
         RenderingMetaData metaData;
         // Pipeline
         std::vector<DrawCallData> DrawCalls;
-
 
         void ExtractDepthValues(glm::vec3& cameraPosition)
         {

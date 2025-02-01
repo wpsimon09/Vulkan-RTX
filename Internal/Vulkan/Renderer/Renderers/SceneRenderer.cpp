@@ -25,7 +25,7 @@ namespace Renderer
                                  VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width,
                                  int height): BaseRenderer(device),
                                               m_pushDescriptorManager(pushDescriptorManager),
-                                              m_device(device), m_selectedGeometry{}
+                                              m_device(device), m_selectedGeometry{}, m_editorBillboards{}
 
     {
         Utils::Logger::LogInfo("Creating scene renderer");
@@ -242,9 +242,19 @@ namespace Renderer
             drawCall.drawCallID = i;
 
             drawCallCount++;
+
+            //========================================================
+            // SEPARATE DRAW CALLS TO BE FOR EDITOR, HIGHLIGHT AND MORE
+            //========================================================
+
             if (drawCall.renderOutline)
             {
                 m_selectedGeometry.DrawCalls.emplace_back(drawCall);
+            }
+
+            if (drawCall.isEditorBilboard)
+            {
+                m_editorBillboards.DrawCalls.emplace_back(drawCall);
             }
 
         }
@@ -260,6 +270,10 @@ namespace Renderer
         drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                                                    m_pushDescriptorManager, m_selectedGeometry,
                                                     m_pipelineManager->GetPipeline(EPipelineType::Outline));
+
+        drawCallCount += DrawEditorBillboards(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
+                                                   m_pushDescriptorManager, m_selectedGeometry,
+                                                    m_pipelineManager->GetPipeline(EPipelineType::EditorBillboard));
 
         cmdBuffer.endRenderPass();
 

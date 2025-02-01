@@ -60,8 +60,9 @@ private:
     AssetsManager& m_assetsManager;
     glm::vec3 m_mousePositionWorldSpace  = {0.0f, 0.0f, 0.0F};
     std::shared_ptr<SceneNode> m_selectedSceneNode;
-    std::vector<std::shared_ptr<DirectionLightNode>> m_lightNodes;
     std::vector<std::shared_ptr<SceneNode>> m_selectedSceneNodes;
+    std::vector<std::shared_ptr<DirectionLightNode>> m_directionalLightNodes;
+    std::vector<std::shared_ptr<DirectionLightNode>> m_pointLightNodes;
 };
 
 } // ApplicationCore
