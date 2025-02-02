@@ -63,14 +63,12 @@ public:
                     VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
                     VEditor::UIContext &uiContext);
 
-    VulkanStructs::RenderContext* GetRenderContext() const {return m_renderingContext;}
+    VulkanStructs::RenderContext* GetRenderContext() {return &m_mainRenderContext;}
 public:
     void Init();
     void Render(GlobalUniform& globalUniformUpdateInfo);
     void Update();
     void Destroy();
-    std::vector<VulkanStructs::RenderContext*> GetRenderingContexts() {return m_renderingContexts;};
-
 private:
 
     const VulkanCore::VDevice &m_device;
@@ -87,13 +85,7 @@ private:
 
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
 
-    VulkanStructs::RenderContext* m_renderingContext;
-
     VulkanStructs::RenderContext m_mainRenderContext;
-    VulkanStructs::RenderContext m_reyTracingRenderingContext;
-    VulkanStructs::RenderContext m_bilboardRenderingContext;
-
-    std::vector<VulkanStructs::RenderContext*> m_renderingContexts;
 
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;

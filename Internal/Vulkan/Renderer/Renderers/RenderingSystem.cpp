@@ -25,19 +25,8 @@ namespace Renderer {
     RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance& instance,const VulkanCore::VDevice& device,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
          VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
-         VEditor::UIContext &uiContext): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext{},m_reyTracingRenderingContext(), m_uiContext(uiContext)
+         VEditor::UIContext &uiContext): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext(), m_uiContext(uiContext)
     {
-
-        m_reyTracingRenderingContext.metaData.bMainLightPass = false;
-        m_reyTracingRenderingContext.metaData.bRTXPass = true;
-
-        m_bilboardRenderingContext.metaData.bMainLightPass = false;
-        m_bilboardRenderingContext.metaData.bRTXPass = false;
-        m_bilboardRenderingContext.metaData.bEditorBillboardPass = true;
-
-        m_renderingContexts.emplace_back(&m_mainRenderContext);
-        m_renderingContexts.emplace_back(&m_bilboardRenderingContext);
-
 
         //---------------------------------------------------------------------------------------------------------------------------
         // Swap chain creation
@@ -120,10 +109,10 @@ namespace Renderer {
         m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
 
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
-        for (auto &context : m_renderingContexts)
-        {
-            m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, context->DrawCalls);
-        }
+
+        std::vector<VulkanStructs::DrawCallData> drawCalls;
+        m_mainRenderContext.GetAllDrawCall(drawCalls);
+        m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, drawCalls);
 
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, m_renderingContexts);

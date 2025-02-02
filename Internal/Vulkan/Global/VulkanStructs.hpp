@@ -5,6 +5,7 @@
 #ifndef VULKANSTRUCTS_HPP
 #define VULKANSTRUCTS_HPP
 
+#include <unordered_map>
 #include <stb_image/stb_image.h>
 #include <vulkan/vulkan.hpp>
 
@@ -162,13 +163,15 @@ struct DrawCallData
 
     struct RenderContext
     {
-        RenderingMetaData metaData;
         // Pipeline
-        std::vector<DrawCallData> DrawCalls;
+        std::pair<RenderingMetaData, std::vector<DrawCallData>> MainLightPass;
+        std::pair<RenderingMetaData, std::vector<DrawCallData>> EditorBillboardPass;
+        std::pair<RenderingMetaData, std::vector<DrawCallData>> SelectedGeometryPass;
+        std::pair<RenderingMetaData, std::vector<DrawCallData>> RayTracingPlanePass;
 
         void ExtractDepthValues(glm::vec3& cameraPosition)
         {
-            for (auto &drawCall: DrawCalls)
+            for (auto &drawCall: MainLightPass.second)
                 drawCall.depth = glm::length(cameraPosition - drawCall.position);
         }
 
@@ -182,7 +185,36 @@ struct DrawCallData
             return DrawCallA.depth< DrawCallB.depth;
         }
 
+        RenderContext(): MainLightPass(), EditorBillboardPass(), SelectedGeometryPass(), RayTracingPlanePass()
+        {
+            MainLightPass.first.bEditorBillboardPass = false;
+            MainLightPass.first.bMainLightPass = true;
+            MainLightPass.first.bRTXPass= false;
 
+            EditorBillboardPass.first.bEditorBillboardPass = true;
+            EditorBillboardPass.first.bRTXPass = false;
+            EditorBillboardPass.first.bEditorBillboardPass = false;
+
+            RayTracingPlanePass.first.bEditorBillboardPass = false;
+            RayTracingPlanePass.first.bMainLightPass = false;
+            RayTracingPlanePass.first.bRTXPass = true;
+        }
+
+        void GetAllDrawCall(std::vector<DrawCallData>& outDrawCalls)
+        {
+            outDrawCalls.clear();
+            outDrawCalls.reserve(
+                MainLightPass.second.size() +
+                EditorBillboardPass.second.size() +
+                SelectedGeometryPass.second.size() +
+                RayTracingPlanePass.second.size()
+            );
+
+            outDrawCalls.insert(outDrawCalls.end(), MainLightPass.second.begin(), MainLightPass.second.end());
+            outDrawCalls.insert(outDrawCalls.end(), EditorBillboardPass.second.begin(), EditorBillboardPass.second.end());
+            outDrawCalls.insert(outDrawCalls.end(), SelectedGeometryPass.second.begin(), SelectedGeometryPass.second.end());
+            outDrawCalls.insert(outDrawCalls.end(), RayTracingPlanePass.second.begin(), RayTracingPlanePass.second.end());
+        }
     };
 
 }

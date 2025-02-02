@@ -68,27 +68,9 @@ namespace Renderer
 
     void SceneRenderer::Render(int currentFrameIndex,
                                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                               std::vector<VulkanStructs::RenderContext*>& renderContext
+                               VulkanStructs::RenderContext* renderContext
     )
     {
-
-        // find rendering context for main light pass draw call data
-        for (auto &context: renderContext)
-        {
-            if (context->metaData.IsRenderingContextMainLightPassOnly())
-            {
-                m_mainRenderingPass = context;
-            }
-            else if (context->metaData.IsRenderingContextBilboardOnly())
-            {
-                m_editorBillboardsPass = context;
-            }
-            else if (context->metaData.IsRenderingContextRTXOnly())
-            {
-                m_rayTracingPass = context;
-            }
-        }
-
 
         auto& renderTarget = m_renderTargets;
         m_commandBuffers[currentFrameIndex]->Reset();
@@ -102,11 +84,6 @@ namespace Renderer
         if (m_WireFrame)
         {
             pipelineType = EPipelineType::DebugLines;
-        }else if (m_rayTracingPass && !m_rayTracingPass->DrawCalls.empty())
-        {
-            pipelineType = EPipelineType::RTX;
-            // to render ray tracing plane one has to configure ray tracing context to be used for geometry rendering
-            m_mainRenderingPass = m_rayTracingPass;
         }else
         {
             pipelineType = EPipelineType::RasterPBRTextured;
@@ -121,7 +98,6 @@ namespace Renderer
         RecordCommandBuffer(currentFrameIndex, uniformBufferManager,m_pipelineManager->GetPipeline(pipelineType));
 
         m_commandBuffers[currentFrameIndex]->EndRecording();
-        m_selectedGeometryPass.DrawCalls.clear();
 
         //=====================================================
         // SUBMIT RECORDED COMMAND BUFFER
@@ -214,12 +190,12 @@ namespace Renderer
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
 
 
-        for (int i = 0; i < m_mainRenderingPass->DrawCalls.size(); i++)
+        for (int i = 0; i < m_renderContextPtr->MainLightPass.second.size(); i++)
         {
             dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
                 currentFrameIndex];
 
-            auto& drawCall = m_mainRenderingPass->DrawCalls[i];
+            auto& drawCall = m_renderContextPtr->MainLightPass.second[i];
             auto& material = drawCall.material;
 
             dstSetDataStruct.diffuseTextureImage =
@@ -263,25 +239,15 @@ namespace Renderer
             drawCall.drawCallID = i;
 
             drawCallCount++;
-
-            //========================================================
-            // SEPARATE DRAW CALLS TO BE FOR EDITOR, HIGHLIGHT AND MORE
-            //========================================================
-
-            if (drawCall.renderOutline)
-            {
-                m_selectedGeometryPass.DrawCalls.emplace_back(drawCall);
-            }
-
-
         }
 
 
         // draws aabs
         if (m_AllowDebugDraw)
         {
+            std::vector<
             drawCallCount += RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                                   m_pushDescriptorManager, *m_mainRenderingPass,
+                                                   m_pushDescriptorManager, *m_renderContextPtr.,
                                                    m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
         }
 

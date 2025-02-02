@@ -22,7 +22,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     g.uv = fsIn.uv;
 
     float4 bilboardTexture = _albedoMap.Sample(g.uv);
-    if (bilboardTexture.w < 0.9) {
+    if (bilboardTexture.w < 1.0) {
         discard;
     }
 

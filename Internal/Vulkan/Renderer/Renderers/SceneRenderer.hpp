@@ -42,7 +42,7 @@ public:
     void Init(const VulkanCore::VPipelineManager* pipelineManager);
     void Render(int currentFrameIndex,
                                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                               std::vector<VulkanStructs::RenderContext*>& renderContext);
+                               VulkanStructs::RenderContext* renderContext);
 
     void Destroy() override;
 
@@ -60,11 +60,7 @@ private:
     std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
 
     // not a pointer yet
-    VulkanStructs::RenderContext m_selectedGeometryPass;
-
-    VulkanStructs::RenderContext* m_editorBillboardsPass;
-    VulkanStructs::RenderContext* m_rayTracingPass;
-    VulkanStructs::RenderContext* m_mainRenderingPass;
+    VulkanStructs::RenderContext* m_selectedGeometryPass;
 
 
     VulkanStructs::RenderingStatistics m_renderingStatistics;
