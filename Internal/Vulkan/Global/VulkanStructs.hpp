@@ -195,11 +195,11 @@ struct DrawCallData
 
             EditorBillboardPass.first.bEditorBillboardPass = true;
             EditorBillboardPass.first.bRTXPass = false;
-            EditorBillboardPass.first.bEditorBillboardPass = false;
+            EditorBillboardPass.first.bMainLightPass = false;
 
+            RayTracingPlanePass.first.bRTXPass= true;
             RayTracingPlanePass.first.bEditorBillboardPass = false;
             RayTracingPlanePass.first.bMainLightPass = false;
-            RayTracingPlanePass.first.bRTXPass = true;
         }
 
         void GetAllDrawCall(std::vector<DrawCallData>& outDrawCalls)

@@ -122,7 +122,7 @@ namespace ApplicationCore
             glm::vec3 pos = m_mesh->GetMeshData()->bounds.origin;
 
             return glm::length(pos - cameraPosition);
-        }
+        }return 20000.f;
     }
 
     SceneNode* SceneNode::GetParent()
