@@ -206,16 +206,35 @@ struct DrawCallData
         {
             outDrawCalls.clear();
             outDrawCalls.reserve(
+             MainLightPass.second.size() +
+                EditorBillboardPass.second.size()
+            );
+
+            outDrawCalls.insert(outDrawCalls.end(), MainLightPass.second.begin(), MainLightPass.second.end());
+            outDrawCalls.insert(outDrawCalls.end(), EditorBillboardPass.second.begin(), EditorBillboardPass.second.end());
+        }
+
+        std::vector<DrawCallData*> GetAllDrawCall()
+        {
+            std::vector<DrawCallData*> allDrawCalls;
+            allDrawCalls.reserve(
                 MainLightPass.second.size() +
                 EditorBillboardPass.second.size() +
                 SelectedGeometryPass.second.size() +
                 RayTracingPlanePass.second.size()
             );
 
-            outDrawCalls.insert(outDrawCalls.end(), MainLightPass.second.begin(), MainLightPass.second.end());
-            outDrawCalls.insert(outDrawCalls.end(), EditorBillboardPass.second.begin(), EditorBillboardPass.second.end());
-            outDrawCalls.insert(outDrawCalls.end(), SelectedGeometryPass.second.begin(), SelectedGeometryPass.second.end());
-            outDrawCalls.insert(outDrawCalls.end(), RayTracingPlanePass.second.begin(), RayTracingPlanePass.second.end());
+            // Store pointers to original DrawCallData instances
+            for (auto& drawCall : MainLightPass.second)
+                allDrawCalls.push_back(&drawCall);
+            for (auto& drawCall : EditorBillboardPass.second)
+                allDrawCalls.push_back(&drawCall);
+            for (auto& drawCall : SelectedGeometryPass.second)
+                allDrawCalls.push_back(&drawCall);
+            for (auto& drawCall : RayTracingPlanePass.second)
+                allDrawCalls.push_back(&drawCall);
+
+            return allDrawCalls;
         }
 
         void AddDrawCall(const RenderingMetaData& drawCallMetaDat,DrawCallData& DrawCall)

@@ -61,6 +61,7 @@ private:
 
     // not a pointer yet
     VulkanStructs::RenderContext* m_selectedGeometryPass;
+    std::vector<VulkanStructs::DrawCallData> m_selectedGeometryDrawCalls;
 
     VulkanStructs::RenderingStatistics m_renderingStatistics;
 

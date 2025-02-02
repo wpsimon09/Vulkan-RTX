@@ -36,7 +36,7 @@ namespace Renderer
         commandBuffer.bindIndexBuffer(drawCalls[0].meshData->indexData_BB.buffer, 0, vk::IndexType::eUint32);
         for (int i = 0; i < drawCalls.size(); i++)
         {
-            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
+            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCalls[i].drawCallID)[
                 currentFrameIndex];
 
             auto& drawCall = drawCalls[i];

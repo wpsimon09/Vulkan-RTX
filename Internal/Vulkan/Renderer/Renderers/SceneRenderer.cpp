@@ -238,13 +238,16 @@ namespace Renderer
                 0,//drawCall.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                 0);
 
-            drawCall.drawCallID = i;
-
             drawCallCount++;
+
+            if (drawCall.renderOutline)
+            {
+                m_selectedGeometryDrawCalls.emplace_back(drawCall);
+            }
         }
 
 
-        // draws aabs
+        // draws aabs for every possible object
         if (m_AllowDebugDraw)
         {
             std::vector<VulkanStructs::DrawCallData> drawCalls;
@@ -264,6 +267,8 @@ namespace Renderer
                                                         m_pipelineManager->GetPipeline(EPipelineType::Outline));
         }
 
+
+        if (m_)
         // draws editor bilboards
         drawCallCount += DrawEditorBillboards(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                                                    m_pushDescriptorManager, m_renderContextPtr->EditorBillboardPass.second,
@@ -273,6 +278,7 @@ namespace Renderer
         cmdBuffer.endRenderPass();
 
         m_renderingStatistics.DrawCallCount = drawCallCount;
+        m_selectedGeometryDrawCalls.clear();
     }
 
     void SceneRenderer::Destroy()

@@ -110,8 +110,7 @@ namespace Renderer {
 
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
 
-        std::vector<VulkanStructs::DrawCallData> drawCalls;
-        m_renderContext.GetAllDrawCall(drawCalls);
+        auto drawCalls = m_renderContext.GetAllDrawCall();
         m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, drawCalls);
 
         // render scene

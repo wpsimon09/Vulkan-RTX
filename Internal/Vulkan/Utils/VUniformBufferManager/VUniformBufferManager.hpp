@@ -30,7 +30,7 @@ namespace VulkanUtils
 
         void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
 
-        void UpdatePerObjectUniformData(int frameIndex, std::vector<VulkanStructs::DrawCallData>& drawCalls) const;
+        void UpdatePerObjectUniformData(int frameIndex, std::vector<VulkanStructs::DrawCallData*>& drawCalls) const;
 
         void UpdatePerMaterialUniformData(int frameIndex, const std::shared_ptr<ApplicationCore::Material>& material) const;
 
