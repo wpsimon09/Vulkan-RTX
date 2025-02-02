@@ -68,6 +68,7 @@ private:
     bool m_AllowDebugDraw = false;
     bool m_WireFrame = false;
     bool m_multiLightShader = false;
+    bool m_allowEditorBillboards = true;
 
 
     friend class VEditor::RenderingOptions;

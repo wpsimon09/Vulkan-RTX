@@ -92,7 +92,6 @@ private:
     std::unique_ptr<VulkanCore::VPipelineManager> m_pipelineManager;
 
     bool m_isRayTracing = false;
-    bool m_allowEditorBillboards = true;
 
     friend
 

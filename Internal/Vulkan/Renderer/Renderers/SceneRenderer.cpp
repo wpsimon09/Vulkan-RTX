@@ -268,12 +268,12 @@ namespace Renderer
         }
 
 
-        if (m_)
-        // draws editor bilboards
-        drawCallCount += DrawEditorBillboards(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
+        if (m_allowEditorBillboards) {
+            // draws editor bilboards
+            drawCallCount += DrawEditorBillboards(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                                                    m_pushDescriptorManager, m_renderContextPtr->EditorBillboardPass.second,
                                                     m_pipelineManager->GetPipeline(EPipelineType::EditorBillboard));
-
+        }
 
         cmdBuffer.endRenderPass();
 

@@ -22,7 +22,7 @@ namespace VEditor {
         ImGui::Begin(ICON_FA_BOOK_JOURNAL_WHILLS " Rendering options", &m_isOpen);
 
             ImGui::Checkbox("Fake ray-tracer ", &m_renderingSystem->m_isRayTracing);
-            ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_allowEditorBillboards);
+            ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_sceneRenderer->m_allowEditorBillboards);
 
             if (ImGui::TreeNode(ICON_FA_DRAW_POLYGON " SceneRenderer"))
             {
