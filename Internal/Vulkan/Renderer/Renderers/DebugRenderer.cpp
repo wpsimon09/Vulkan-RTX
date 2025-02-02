@@ -20,12 +20,12 @@ namespace Renderer
         vk::CommandBuffer commandBuffer,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
         VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
-        const VulkanStructs::RenderContext& renderContext,
+        std::vector<VulkanStructs::DrawCallData>& drawCalls,
         const VulkanCore::VGraphicsPipeline& pipeline)
     {
         int drawCallCount = 0;
 
-        if (renderContext.DrawCalls.empty())
+        if (drawCalls.empty())
             return 0;
 
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance());
@@ -33,16 +33,16 @@ namespace Renderer
         auto& dstSetDataStruct = pushDescriptorManager.GetDescriptorSetDataStruct();
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
 
-        commandBuffer.bindIndexBuffer(renderContext.DrawCalls[0].meshData->indexData_BB.buffer, 0, vk::IndexType::eUint32);
-        for (int i = 0; i < renderContext.DrawCalls.size(); i++)
+        commandBuffer.bindIndexBuffer(drawCalls[0].meshData->indexData_BB.buffer, 0, vk::IndexType::eUint32);
+        for (int i = 0; i < drawCalls.size(); i++)
         {
             dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
                 currentFrameIndex];
 
-            auto& drawCall = renderContext.DrawCalls[i];
+            auto& drawCall = drawCalls[i];
 
-            std::vector<vk::Buffer> vertexBuffers = {renderContext.DrawCalls[i].meshData->vertexData_BB.buffer};
-            std::vector<vk::DeviceSize> offsets = {renderContext.DrawCalls[i].meshData->vertexData_BB.offset};
+            std::vector<vk::Buffer> vertexBuffers = {drawCalls[i].meshData->vertexData_BB.buffer};
+            std::vector<vk::DeviceSize> offsets = {drawCalls[i].meshData->vertexData_BB.offset};
 
             commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 
@@ -51,34 +51,37 @@ namespace Renderer
                 pipeline.GetPipelineLayout(), 0,
                 dstSetDataStruct, device.DispatchLoader);
 
-                auto vertexOffset = 0;
-                commandBuffer.drawIndexed(drawCall.indexCount_BB, 1, 0,static_cast<uint32_t>(vertexOffset) , 0);
-                drawCallCount++;
+            auto vertexOffset = 0;
+            commandBuffer.drawIndexed(drawCall.indexCount_BB, 1, 0, static_cast<uint32_t>(vertexOffset), 0);
+            drawCallCount++;
         }
         return drawCallCount;
-     }
+    }
 
     int DrawSelectedMeshes(const VulkanCore::VDevice& device, int currentFrameIndex,
-        vk::CommandBuffer commandBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-        VulkanUtils::VPushDescriptorManager& pushDescriptorManager, const VulkanStructs::RenderContext& renderContext,
-        const VulkanCore::VGraphicsPipeline& pipeline)
+                           vk::CommandBuffer commandBuffer,
+                           const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                           VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
+                           std::vector<VulkanStructs::DrawCallData>& drawCalls,
+                           const VulkanCore::VGraphicsPipeline& pipeline)
     {
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance());
         auto& dstSetDataStruct = pushDescriptorManager.GetDescriptorSetDataStruct();
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
 
         int drawCallCount = 0;
-        for (int i = 0; i < renderContext.DrawCalls.size(); i++)
+        for (int i = 0; i < drawCalls.size(); i++)
         {
+            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(
+                drawCalls[i].drawCallID)[currentFrameIndex];
 
-            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(renderContext.DrawCalls[i].drawCallID)[currentFrameIndex];
+            auto& drawCall = drawCalls[i];
 
-            auto& drawCall = renderContext.DrawCalls[i];
+            std::vector<vk::Buffer> vertexBuffers = {drawCalls[i].meshData->vertexData.buffer};
+            std::vector<vk::DeviceSize> offsets = {drawCalls[i].meshData->vertexData.offset};
 
-            std::vector<vk::Buffer> vertexBuffers = {renderContext.DrawCalls[i].meshData->vertexData.buffer};
-            std::vector<vk::DeviceSize> offsets = {renderContext.DrawCalls[i].meshData->vertexData.offset};
-
-            commandBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, drawCall.meshData->indexData.offset, vk::IndexType::eUint32);
+            commandBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, drawCall.meshData->indexData.offset,
+                                          vk::IndexType::eUint32);
             commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 
             commandBuffer.pushDescriptorSetWithTemplateKHR(
@@ -93,28 +96,31 @@ namespace Renderer
     }
 
     int DrawEditorBillboards(const VulkanCore::VDevice& device, int currentFrameIndex, vk::CommandBuffer commandBuffer,
-        const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-        VulkanUtils::VPushDescriptorManager& pushDescriptorManager, const VulkanStructs::RenderContext& renderContext,
-        const VulkanCore::VGraphicsPipeline& pipeline)
+                             const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                             VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
+                             std::vector<VulkanStructs::DrawCallData>& drawCalls,
+                             const VulkanCore::VGraphicsPipeline& pipeline)
     {
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance());
         auto& dstSetDataStruct = pushDescriptorManager.GetDescriptorSetDataStruct();
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
 
         int drawCallCount = 0;
-        for (int i = 0; i < renderContext.DrawCalls.size(); i++)
+        for (int i = 0; i < drawCalls.size(); i++)
         {
-
-            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(renderContext.DrawCalls[i].drawCallID)[currentFrameIndex];
-            auto& drawCall = renderContext.DrawCalls[i];
+            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(
+                drawCalls[i].drawCallID)[currentFrameIndex];
+            auto& drawCall = drawCalls[i];
 
             //sets albedo texture of the image
-            dstSetDataStruct.diffuseTextureImage = drawCall.material->GetTexture(ETextureType::Diffues)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            dstSetDataStruct.diffuseTextureImage = drawCall.material->GetTexture(ETextureType::Diffues)->
+                                                            GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-            std::vector<vk::Buffer> vertexBuffers = {renderContext.DrawCalls[i].meshData->vertexData.buffer};
-            std::vector<vk::DeviceSize> offsets = {renderContext.DrawCalls[i].meshData->vertexData.offset};
+            std::vector<vk::Buffer> vertexBuffers = {drawCalls[i].meshData->vertexData.buffer};
+            std::vector<vk::DeviceSize> offsets = {drawCalls[i].meshData->vertexData.offset};
 
-            commandBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, drawCall.meshData->indexData.offset, vk::IndexType::eUint32);
+            commandBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, drawCall.meshData->indexData.offset,
+                                          vk::IndexType::eUint32);
             commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 
             commandBuffer.pushDescriptorSetWithTemplateKHR(

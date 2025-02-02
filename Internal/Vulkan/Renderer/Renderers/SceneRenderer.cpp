@@ -72,6 +72,8 @@ namespace Renderer
     )
     {
 
+        m_renderContextPtr = renderContext;
+
         auto& renderTarget = m_renderTargets;
         m_commandBuffers[currentFrameIndex]->Reset();
 
@@ -245,25 +247,26 @@ namespace Renderer
         // draws aabs
         if (m_AllowDebugDraw)
         {
-            std::vector<
+            std::vector<VulkanStructs::DrawCallData> drawCalls;
+            m_renderContextPtr->GetAllDrawCall(drawCalls);
             drawCallCount += RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                                   m_pushDescriptorManager, *m_renderContextPtr.,
+                                                   m_pushDescriptorManager, drawCalls,
                                                    m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
         }
 
 
         // draws selected meshes outline
-        if (!m_selectedGeometryPass.DrawCalls.empty())
+        if (!m_renderContextPtr->SelectedGeometryPass.second.empty())
         {
             // renders the outline
             drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                                       m_pushDescriptorManager, m_selectedGeometryPass,
+                                                       m_pushDescriptorManager, m_renderContextPtr->SelectedGeometryPass.second,
                                                         m_pipelineManager->GetPipeline(EPipelineType::Outline));
         }
 
         // draws editor bilboards
         drawCallCount += DrawEditorBillboards(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                                   m_pushDescriptorManager, *m_editorBillboardsPass,
+                                                   m_pushDescriptorManager, m_renderContextPtr->EditorBillboardPass.second,
                                                     m_pipelineManager->GetPipeline(EPipelineType::EditorBillboard));
 
 

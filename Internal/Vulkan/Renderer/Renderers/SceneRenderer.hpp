@@ -55,13 +55,12 @@ private:
     VulkanUtils::VPushDescriptorManager& m_pushDescriptorManager;
 
     const VulkanCore::VPipelineManager* m_pipelineManager;
-    const VulkanStructs::RenderContext* m_renderContextPtr;
+    VulkanStructs::RenderContext* m_renderContextPtr;
 
     std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
 
     // not a pointer yet
     VulkanStructs::RenderContext* m_selectedGeometryPass;
-
 
     VulkanStructs::RenderingStatistics m_renderingStatistics;
 

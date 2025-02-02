@@ -6,6 +6,11 @@
 #define DEBUGRENDERER_HPP
 #include "BaseRenderer.hpp"
 
+namespace VulkanStructs
+{
+    struct DrawCallData;
+}
+
 namespace VulkanUtils
 {
     class VPushDescriptorManager;
@@ -18,7 +23,7 @@ namespace Renderer
                                                 vk::CommandBuffer commandBuffer,
                                                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                                                 VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
-                                                const VulkanStructs::RenderContext& renderContext,
+                                                std::vector<VulkanStructs::DrawCallData>& drawCalls,
                                                 const VulkanCore::VGraphicsPipeline& pipeline
                                                 );
 
@@ -27,7 +32,7 @@ namespace Renderer
                                 vk::CommandBuffer commandBuffer,
                                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                                 VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
-                                const VulkanStructs::RenderContext& renderContext,
+                                std::vector<VulkanStructs::DrawCallData>& drawCalls,
                                 const VulkanCore::VGraphicsPipeline& pipeline);
 
 
@@ -36,7 +41,7 @@ namespace Renderer
                                 vk::CommandBuffer commandBuffer,
                                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                                 VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
-                                const VulkanStructs::RenderContext& renderContext,
+                                std::vector<VulkanStructs::DrawCallData>& drawCalls,
                                 const VulkanCore::VGraphicsPipeline& pipeline);
 
 } // Renderer
