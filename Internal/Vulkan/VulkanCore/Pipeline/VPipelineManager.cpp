@@ -114,13 +114,14 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     //==================================
     // EDITOR BILLBOARD PIPELINE
     //==================================
-    auto editorBillboardVertexShaderSource = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
+    auto editorBillboardVertexShaderSource = "Shaders/Compiled/EditorBillboard.vert.slang.spv";
     auto editorBillboardFragmentShaderSource = "Shaders/Compiled/EditorBilboard.frag.slang.spv";
     m_editorBilboardShader = std::make_unique<VShader>(m_device, editorBillboardVertexShaderSource,
         editorBillboardFragmentShaderSource);
 
     pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_editorBilboardShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
+
     pipeline->SetPipelineType(EPipelineType::EditorBillboard);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     pipeline->SetCullMode(vk::CullModeFlagBits::eNone);

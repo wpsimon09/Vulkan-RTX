@@ -36,6 +36,10 @@ void Utils::Logger::LogError(const std::string& msg)
     std::ostringstream oss;
     oss << "LOG::ERROR::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
     AddLogEntry(oss.str(), ELogType::Error);
+
+    std::cerr << "=================================================================================================================================================================================" << std::endl;
+    std::cerr << oss.str() << std::endl;
+    std::cerr << "=================================================================================================================================================================================" << std::endl;
 }
 
 void Utils::Logger::LogVKValidationLayerError(const std::string& msg)
