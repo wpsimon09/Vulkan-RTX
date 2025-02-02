@@ -74,10 +74,6 @@ namespace VulkanStructs
         bool bRTXPass = false;
         bool bEditorBillboardPass = false;
 
-        float minZ = 10000;
-        glm::mat4 view;
-        glm::mat4 projection;
-
         bool operator==(const RenderingMetaData& other) const
         {
             return bMainLightPass == other.bMainLightPass && bRTXPass == other.bRTXPass && bEditorBillboardPass == other.bEditorBillboardPass;
@@ -163,7 +159,13 @@ struct DrawCallData
 
     struct RenderContext
     {
-        // Pipeline
+        // all draw calls that can be inside the egine
+        // TODO: maybe add unordered map instead of vector according ot this
+        // @link: https://realtimecollisiondetection.net/blog/?p=86
+
+        glm::mat4 view{};
+        glm::mat4 projection{};
+
         std::pair<RenderingMetaData, std::vector<DrawCallData>> MainLightPass;
         std::pair<RenderingMetaData, std::vector<DrawCallData>> EditorBillboardPass;
         std::pair<RenderingMetaData, std::vector<DrawCallData>> SelectedGeometryPass;
@@ -214,6 +216,21 @@ struct DrawCallData
             outDrawCalls.insert(outDrawCalls.end(), EditorBillboardPass.second.begin(), EditorBillboardPass.second.end());
             outDrawCalls.insert(outDrawCalls.end(), SelectedGeometryPass.second.begin(), SelectedGeometryPass.second.end());
             outDrawCalls.insert(outDrawCalls.end(), RayTracingPlanePass.second.begin(), RayTracingPlanePass.second.end());
+        }
+
+        void AddDrawCall(const RenderingMetaData& drawCallMetaDat,DrawCallData& DrawCall)
+        {
+            if (drawCallMetaDat == MainLightPass.first) MainLightPass.second.push_back(DrawCall);
+            if (drawCallMetaDat == RayTracingPlanePass.first) RayTracingPlanePass.second.push_back(DrawCall);
+            if (drawCallMetaDat == EditorBillboardPass.first) EditorBillboardPass.second.push_back(DrawCall);
+        }
+
+        void ResetAllDrawCalls()
+        {
+            MainLightPass.second.clear();
+            EditorBillboardPass.second.clear();
+            SelectedGeometryPass.second.clear();
+            RayTracingPlanePass.second.clear();
         }
     };
 

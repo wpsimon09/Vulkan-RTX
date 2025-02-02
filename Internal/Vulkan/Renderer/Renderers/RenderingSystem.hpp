@@ -63,7 +63,7 @@ public:
                     VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
                     VEditor::UIContext &uiContext);
 
-    VulkanStructs::RenderContext* GetRenderContext() {return &m_mainRenderContext;}
+    VulkanStructs::RenderContext* GetRenderContext() {return &m_renderContext;}
 public:
     void Init();
     void Render(GlobalUniform& globalUniformUpdateInfo);
@@ -85,7 +85,7 @@ private:
 
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
 
-    VulkanStructs::RenderContext m_mainRenderContext;
+    VulkanStructs::RenderContext m_renderContext;
 
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;

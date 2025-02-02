@@ -25,7 +25,7 @@ namespace Renderer {
     RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance& instance,const VulkanCore::VDevice& device,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
          VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
-         VEditor::UIContext &uiContext): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_mainRenderContext(), m_uiContext(uiContext)
+         VEditor::UIContext &uiContext): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_renderContext(), m_uiContext(uiContext)
     {
 
         //---------------------------------------------------------------------------------------------------------------------------
@@ -111,11 +111,11 @@ namespace Renderer {
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
 
         std::vector<VulkanStructs::DrawCallData> drawCalls;
-        m_mainRenderContext.GetAllDrawCall(drawCalls);
+        m_renderContext.GetAllDrawCall(drawCalls);
         m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, drawCalls);
 
         // render scene
-        m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, m_renderingContexts);
+        m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext);
 
                                                                     // semaphore signaled in the scene render pass
         std::vector<vk::Semaphore> waitSemaphoresForTransfering = {m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};
@@ -140,18 +140,7 @@ namespace Renderer {
 
     void RenderingSystem::Update()
     {
-        if (m_isRayTracing)
-        {
-            m_renderingContexts.clear();
-            m_renderingContexts.emplace_back(&m_reyTracingRenderingContext);
-        }else
-        {
-            m_renderingContexts.clear();
-            m_renderingContexts.emplace_back(&m_mainRenderContext);
-            if (m_allowEditorBillboards)
-                m_renderingContexts.emplace_back(&m_bilboardRenderingContext);
-
-        }
+        m_renderContext.ResetAllDrawCalls();
     }
 
     void RenderingSystem::Destroy()

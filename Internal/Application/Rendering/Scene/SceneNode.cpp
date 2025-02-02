@@ -159,41 +159,42 @@ namespace ApplicationCore
     {
         if (m_mesh && m_sceneNodeMetaData.IsVisible)
         {
-            // check if the mesh can be rendered in the given context
-            if (m_sceneNodeMetaData.RenderingMetaData == renderingContext->metaData)
+
+            // frustrum culling
+            if (VulkanUtils::IsInViewFrustum(
+                &m_mesh->GetMeshData()->bounds,
+                m_transformation->GetModelMatrix(),
+                renderingContext->view, renderingContext->projection))
             {
-                // frustrum culling
-                if (VulkanUtils::IsInViewFrustum(
-                    &m_mesh->GetMeshData()->bounds,
-                    m_transformation->GetModelMatrix(),
-                    renderingContext->metaData.view, renderingContext->metaData.projection))
-                {
-                    //=====================================================
-                    // NORMAL SCENE DATA
-                    //=====================================================
-                    VulkanStructs::DrawCallData data;
-                    data.modelMatrix = m_transformation->GetModelMatrix();
-                    data.firstIndex = 1;
-                    data.indexCount = m_mesh->GetMeshIndexCount();
-                    data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
-                    data.material = m_mesh->m_currentMaterial;
-                    data.meshData = m_mesh->GetMeshData();
-                    data.renderOutline = m_sceneNodeMetaData.IsSelected;
-                    data.position = m_transformation->GetPosition();
+                //=====================================================
+                // NORMAL SCENE DATA
+                //=====================================================
+                VulkanStructs::DrawCallData data;
+                data.modelMatrix = m_transformation->GetModelMatrix();
+                data.firstIndex = 1;
+                data.indexCount = m_mesh->GetMeshIndexCount();
+                data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
+                data.material = m_mesh->m_currentMaterial;
+                data.meshData = m_mesh->GetMeshData();
+                data.renderOutline = m_sceneNodeMetaData.IsSelected;
+                data.position = m_transformation->GetPosition();
 
-                    //=====================================================
-                    // BOUNDING VOLUME STUFF
-                    //=====================================================
-                    data.bounds = &m_mesh->GetMeshData()->bounds;
-                    data.isEditorBilboard = false;
+                //=====================================================
+                // BOUNDING VOLUME STUFF
+                //=====================================================
+                data.bounds = &m_mesh->GetMeshData()->bounds;
+                data.isEditorBilboard = false;
 
-                    //=====================================================
-                    // SORT BASED ON THE DEPTH
-                    //=====================================================
-                    renderingContext->DrawCalls.emplace_back(data);
+                //=====================================================
+                // SORT BASED ON THE DEPTH
+                //=====================================================
+                renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,data);
 
+                if (m_sceneNodeMetaData.IsSelected){
+                    renderingContext->SelectedGeometryPass.second.emplace_back(m_sceneNodeMetaData.IsSelected);
                 }
             }
+
         }
     }
 } // ApplicationCore

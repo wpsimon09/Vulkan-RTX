@@ -52,8 +52,8 @@ const std::vector<std::reference_wrapper<ApplicationCore::StaticMesh>> Client::G
 
 void Client::Render(VulkanStructs::RenderContext* ctx)
 {
-    ctx->metaData.projection = m_camera->GetProjectionMatrix();
-    ctx->metaData.view = m_camera->GetViewMatrix();
+    ctx->projection = m_camera->GetProjectionMatrix();
+    ctx->view = m_camera->GetViewMatrix();
     m_scene->Render(ctx, m_scene->GetRootNode());
 }
 

@@ -172,7 +172,7 @@ namespace ApplicationCore {
                     closestNode = hitNodes[i];
             }
 
-            m_selectedSceneNode  = closestNode;
+            m_selectedSceneNode = closestNode;
             m_selectedSceneNode->Select();
 
 

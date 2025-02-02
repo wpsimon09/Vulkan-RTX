@@ -77,8 +77,6 @@ void VulkanUtils::VUniformBufferManager::UpdatePerMaterialUniformData(int frameI
 }
 
 
-
-
 void VulkanUtils::VUniformBufferManager::Destroy() const {
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager and all its data...");
     m_perFrameUniform->Destory();
