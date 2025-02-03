@@ -12,10 +12,10 @@ namespace ApplicationCore::MeshData
 {
     inline std::vector<ApplicationCore::Vertex> planeVertices = {
         // Positions               // Normals            // Texture Coordinates
-        {{-0.5f, 0.0f, 0.5f},    {0.0f, 1.0f, 0.0f},  {0.0f, 1.0f}},  // 0 Top-left
-        {{0.5f, 0.0f, 0.5f},     {0.0f, 1.0f, 0.0f},  {1.0f, 1.0f}},  // 1 Top-right
-        {{-0.5f, 0.0f, -0.5f},   {0.0f, 1.0f, 0.0f},  {0.0f, 0.0f}},  // 2 Bottom-left
-        {{0.5f, 0.0f, -0.5f},    {0.0f, 1.0f, 0.0f},  {1.0f, 0.0f}}   // 3 Bottom-right
+        {{-0.5f, -0.5f, 0.5f},    {0.0f, 1.0f, 0.0f},  {0.0f, 1.0f}},  // 0 Top-left
+        {{0.5f, -0.5f, 0.0f},     {0.0f, 1.0f, 0.0f},  {1.0f, 1.0f}},  // 1 Top-right
+        {{-0.5f, 0.5f, 0.0f},   {0.0f, 1.0f, 0.0f},  {0.0f, 0.0f}},  // 2 Bottom-left
+        {{0.5f, 0.5f, 0.0f},    {0.0f, 1.0f, 0.0f},  {1.0f, 0.0f}}   // 3 Bottom-right
     };
 
     inline std::vector<uint32_t> planeIndices = {

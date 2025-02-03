@@ -5,10 +5,6 @@ struct VertexInput {
 };
 
 struct FragmentShaderIn {
-    float3 normal : OUT_NORMAL;
-    float3 cameraPos : OUT_CAM_POS;
-    float3 fragPos : OUT_FRAG_POS;
-    float3 lightPos : OUT_LIGHT_POS;
     float2 uv : OUT_UV;
 };
 
@@ -67,10 +63,6 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
     + (CameraUpWorld * vertexPos.y * BillboardScale);
 
     VertexOutput out;
-    out.vertexData.cameraPos = globalData.cameraPostiion.xyz;
-    out.vertexData.fragPos = vertexPosWorldSpace;
-    out.vertexData.lightPos = globalData.lightPosition.xyz;
-    out.vertexData.normal = NormalWorldPos;
     out.vertexData.uv = uv;
 
     float4x4 viewProj = mul(globalData.view, globalData.projection);
