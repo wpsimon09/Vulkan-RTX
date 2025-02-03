@@ -12,12 +12,8 @@ ConstantBuffer<Sampler2D> _albedoMap;
 float4 fragmentMain(FragmentShaderIn fsIn)
     : SV_Target
 {
-    SurfaceGeometry g;
-    g.position = fsIn.fragPos;
-    g.normal = normalize(fsIn.normal);
-    g.uv = fsIn.uv;
 
-    float4 bilboardTexture = _albedoMap.Sample(g.uv);
+    float4 bilboardTexture = _albedoMap.Sample(fsIn.uv);
     if (bilboardTexture.w < 1.0) {
         discard;
     }

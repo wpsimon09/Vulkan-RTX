@@ -14,8 +14,8 @@ struct VertexOutput {
 }
 
 struct GlobalData {
-     float4x4 projection;
-     float4x4 view;
+    float4x4 projection;
+    float4x4 view;
     float4x4 inverseView;
 
     float4 lightPosition;
@@ -44,27 +44,19 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
 {
     const float BillboardScale = 20.f;
 
-    // sotre for later
-    float3 vertexPos = VAO.inPosition;
-    float3 normal = VAO.inNormal;
-    float2 uv = VAO.inUV;
-
-    float3 FragmentWorldPos = mul(perModelData.modelMatrix, float4(vertexPos, 1.0)).xyz;
-
-    float3 NormalWorldPos = mul(perModelData.normalMatrix, float4(normal, 1.0)).xyz;
-    
+    // sotre for later    
     float3 CameraForwardWorld = normalize(globalData.cameraPostiion.xyz - perModelData.positionWorldSpace);
     float3 CameraUpWorld = { 0, 1, 0};
     float3 CameraRightWorld = normalize(cross(CameraUpWorld, CameraForwardWorld));
     float3 Up = cross(CameraForwardWorld, CameraRightWorld);
 
     float3 vertexPosWorldSpace = perModelData.positionWorldSpace 
-    + (CameraRightWorld * vertexPos.x * BillboardScale) 
-    + (CameraUpWorld * vertexPos.y * BillboardScale);
+    + (CameraRightWorld * VAO.inPosition.x * BillboardScale) 
+    + (CameraUpWorld * VAO.inPosition.y * BillboardScale);
 
     VertexOutput out;
-    out.vertexData.uv = uv;
-
+    out.vertexData.uv = VAO.inUV;
+    
     float4x4 viewProj = mul(globalData.view, globalData.projection);
     out.sv_position = mul(viewProj, float4(vertexPosWorldSpace, 1.0));
 

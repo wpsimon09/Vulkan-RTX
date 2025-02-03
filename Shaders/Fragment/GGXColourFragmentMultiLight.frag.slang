@@ -60,7 +60,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     DirectionalLight testDirLight;
     testDirLight.direction = normalize(fsIn.lightPos - fsIn.fragPos);
     testDirLight.intensity = float3(2.f);
-    
+
     AmbientLight ambientLight;
     ambientLight.albedo = brdf_.albedo;
     ambientLight.aoIntensity = brdf_.ao;

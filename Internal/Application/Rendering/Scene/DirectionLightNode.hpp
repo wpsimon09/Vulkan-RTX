@@ -5,6 +5,7 @@
 #ifndef LIGHTNODE_HPP
 #define LIGHTNODE_HPP
 #include "SceneNode.hpp"
+#include "Application/Structs/LightStructs.hpp"
 
 namespace ApplicationCore {
 
@@ -15,11 +16,7 @@ public:
     void Render(VulkanStructs::RenderContext* renderingContext) const override;
 
 private:
-    struct DiretionalLight
-    {
-        glm::vec3 direction;
-        glm::vec3 intensity;
-    }m_parameters;
+    LightStructs::DirectionalLight m_lightStruct;
 };
 
 } // ApplicationCore

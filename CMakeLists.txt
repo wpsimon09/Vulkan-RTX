@@ -140,6 +140,7 @@ set(SOURCES
         Internal/Application/Rendering/Scene/DirectionLightNode.hpp
         Internal/Application/Utils/MathUtils.hpp
         Internal/Application/Utils/MathUtils.cpp
+        Internal/Application/Structs/LightStructs.hpp
 )
 
 
