@@ -32,6 +32,7 @@ struct ObjectDataUniform
 {
     glm::mat4 model;
     glm::mat4 normalMatrix;
+    glm::vec3 position;
 };
 
 

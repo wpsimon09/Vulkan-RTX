@@ -62,6 +62,7 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
 
         m_perObjectUniform[i]->GetUBOStruct().model = drawCalls[i]->modelMatrix;
         m_perObjectUniform[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse( drawCalls[i]->modelMatrix));
+        m_perObjectUniform[i]->GetUBOStruct().position = drawCalls[i]->position;
         m_perObjectUniform[i]->UpdateGPUBuffer(frameIndex);
 
         m_materialFeaturesUniform[i]->GetUBOStruct() = drawCalls[i]->material->GetMaterialDescription().features;

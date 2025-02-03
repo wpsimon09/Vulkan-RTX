@@ -37,6 +37,7 @@ ConstantBuffer<GlobalData> globalData;
 struct PermodelData {
     column_major float4x4 modelMatrix;
     column_major float4x4 normalMatrix;
+    float3 positionWorldSpace;
 };
 
 [[vk::binding(1,0)]]
