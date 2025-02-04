@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include "DirectionLightNode.hpp"
+#include "PointLightNode.hpp"
 #include "SceneNode.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Enums/ClientEnums.hpp"
@@ -78,7 +79,6 @@ namespace ApplicationCore {
 
     void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode) const
     {
-
         m_root->AddChild(sceneNode);
     }
 
@@ -99,8 +99,6 @@ namespace ApplicationCore {
         s->GetSceneNodeMetaData().RenderingMetaData.bMainLightPass= false;
         s->GetSceneNodeMetaData().RenderingMetaData.bEditorBillboardPass = false;
         AddNode(std::move(s));
-
-        AddDirectionalLight();
 
         Utils::Logger::LogSuccessClient("Default scene build");
     }
@@ -136,6 +134,14 @@ namespace ApplicationCore {
     {
 
         auto light = std::make_shared<DirectionLightNode>(m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight));
+        light->m_transformation->SetScale(20.0f);
+        light->SetName(light->GetMesh()->GetName());
+        AddNode(light);
+    }
+
+    void Scene::AddPointLight() const
+    {
+        auto light = std::make_shared<PointLightNode>(m_assetsManager.GetEditorBilboardMesh(EEditorIcon::PointLight));
         light->m_transformation->SetScale(20.0f);
         light->SetName(light->GetMesh()->GetName());
         AddNode(light);

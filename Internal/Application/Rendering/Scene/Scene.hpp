@@ -48,6 +48,7 @@ public:
     void PreformRayCast(glm::vec2 mousePosition);
     void AddPlaneToScene() const;
     void AddDirectionalLight() const;
+    void AddPointLight() const;
     void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; } ;
 private:
     void BuildDefaultScene();

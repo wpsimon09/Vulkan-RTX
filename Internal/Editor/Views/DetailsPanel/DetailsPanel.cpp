@@ -26,6 +26,14 @@ namespace VEditor {
                 ImGui::TextColored(ImVec4(0.9, 0.2,0.2,1.0), "No scene node selected");
             }else
             {
+                ImGui::TextDisabled("(?)");
+                if (ImGui::BeginItemTooltip())
+                {
+                    ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+                    ImGui::TextUnformatted(std::to_string( m_selectedSceneNode->GetSceneNodeMetaData().ID).c_str());
+                    ImGui::PopTextWrapPos();
+                    ImGui::EndTooltip();
+                }
                 RenderTransformationsPanel();
                 if (m_selectedSceneNode->HasMesh())
                 {
@@ -110,7 +118,7 @@ namespace VEditor {
             {
                 for (auto& mat : m_assetsManager.GetAllMaterials())
                 {
-                    std::string lable = ICON_FA_BRUSH + mat->GetMaterialName();
+                    std::string lable = ICON_FA_BRUSH "  " + mat->GetMaterialName();
                     if (ImGui::Selectable(lable.c_str())){
                         m_selectedSceneNode->GetMesh()->SetMaterial(mat);
                     }

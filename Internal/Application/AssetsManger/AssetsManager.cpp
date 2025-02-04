@@ -231,11 +231,17 @@ namespace ApplicationCore
         MaterialPaths paths{};
         m_dummyMaterial = std::make_shared<ApplicationCore::Material>(paths, *this);
 
-        MaterialPaths directionalLightBilboard{};
-        directionalLightBilboard.DiffuseMapPath = "Resources/EditorIcons/light-directional.png";
-        auto mat = std::make_shared<ApplicationCore::Material>(directionalLightBilboard, *this);
-        mat->SetMaterialname("Directional light editor bilboard");
+        MaterialPaths directionalLightBillboard{};
+        directionalLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-directional.png";
+        auto mat = std::make_shared<ApplicationCore::Material>(directionalLightBillboard, *this);
+        mat->SetMaterialname("Directional light editor billboard");
         m_editorIconsMaterials[EEditorIcon::DirectionalLight] = mat;
+
+        MaterialPaths pointLightBillboard{};
+        pointLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-point.png";
+        mat = std::make_shared<ApplicationCore::Material>(pointLightBillboard, *this);
+        mat->SetMaterialname("Point light editor billboard");
+        m_editorIconsMaterials[EEditorIcon::PointLight] = mat;
 
     }
 }

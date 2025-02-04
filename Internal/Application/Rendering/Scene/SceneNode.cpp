@@ -19,7 +19,7 @@
 namespace ApplicationCore
 {
     SceneNode::SceneNode(std::shared_ptr<StaticMesh> mesh): m_transformation(
-        mesh ? mesh->GetTransformations() : &m_localTransformation), m_sceneNodeMetaData{}
+        &m_localTransformation), m_sceneNodeMetaData{}
     {
         if (mesh)
         {

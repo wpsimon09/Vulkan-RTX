@@ -28,15 +28,26 @@ void VEditor::ViewPort::Render()
             ImGui::SetNextItemAllowOverlap();
             ImGui::BeginMenuBar();
 
-                if (ImGui::MenuItem(ICON_FA_SHAPES" Add"))
+                if (ImGui::MenuItem(ICON_FA_PLUS" Add"))
                 {
-                    ImGui::OpenPopup("Meshes");
+                    ImGui::OpenPopup("AddPopUp");
                 }
-                if (ImGui::BeginPopup("Meshes")){
-                    if (ImGui::Selectable(ICON_FA_CIRCLE " Sphere")){m_scene.AddSphereToScene();}
-                    if (ImGui::Selectable(ICON_FA_CUBE " Cube" )){m_scene.AddCubeToScene();}
-                    if (ImGui::Selectable(ICON_FA_SQUARE " Plane")){m_scene.AddPlaneToScene();}
+                if (ImGui::BeginPopup("AddPopUp")){
+                    if (ImGui::BeginMenu(ICON_FA_SHAPES" Meshes"))
+                    {
+                        if (ImGui::Selectable(ICON_FA_CIRCLE " Sphere")){m_scene.AddSphereToScene();}
+                        if (ImGui::Selectable(ICON_FA_CUBE " Cube" )){m_scene.AddCubeToScene();}
+                        if (ImGui::Selectable(ICON_FA_SQUARE " Plane")){m_scene.AddPlaneToScene();}
 
+                        ImGui::EndMenu();
+                    }
+
+                    if (ImGui::BeginMenu(ICON_FA_MOUNTAIN_SUN" Lights"))
+                    {
+                        if (ImGui::Selectable(ICON_FA_SUN " Directional")){m_scene.AddDirectionalLight();}
+                        if (ImGui::Selectable(ICON_FA_LIGHTBULB " Point" )){m_scene.AddPointLight();}
+                        ImGui::EndMenu();
+                    }
 
                     ImGui::EndPopup();
                 }

@@ -15,6 +15,7 @@ namespace LightStructs
 
         glm::vec3 colour;
 
+        mutable
         glm::vec3 position;
 
     };

@@ -141,6 +141,8 @@ set(SOURCES
         Internal/Application/Utils/MathUtils.hpp
         Internal/Application/Utils/MathUtils.cpp
         Internal/Application/Structs/LightStructs.hpp
+        Internal/Application/Rendering/Scene/PointLightNode.cpp
+        Internal/Application/Rendering/Scene/PointLightNode.hpp
 )
 
 
