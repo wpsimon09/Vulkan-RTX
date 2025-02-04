@@ -30,6 +30,10 @@ namespace VEditor {
                 {
                     RenderMaterialEditorPanel();
                 }
+                if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType = ENodeType::DirectionalLightNode)
+                {
+                    RenderDirectionLIghtUI();
+                }
             }
 
         ImGui::End();
@@ -183,5 +187,10 @@ namespace VEditor {
             ImGui::Text("Vertex count %i",              meshData.vertexCount);
             ImGui::TreePop();
         }
+    }
+
+    void DetailsPanel::RenderDirectionLIghtUI()
+    {
+
     }
 } // VEditor

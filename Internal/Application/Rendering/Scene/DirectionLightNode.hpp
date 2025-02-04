@@ -18,6 +18,8 @@ public:
     void Update() const override;
 private:
     LightStructs::DirectionalLight m_lightStruct;
+    glm::vec3 m_colour;
+    float m_intensity;
 };
 
 } // ApplicationCore

@@ -46,6 +46,7 @@ private:
     void RenderTransformationsPanel();
     void RenderMaterialEditorPanel();
     void RenderMeshOnlyUI();
+    void RenderDirectionLIghtUI();
 };
 
 } // VEditor

@@ -17,6 +17,7 @@ namespace LightStructs
 
     struct DirectionalLight
     {
+        mutable
         glm::vec3 intensity; // rgb colour * light strength
         mutable
         glm::vec3 direction;
