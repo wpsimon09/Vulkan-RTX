@@ -19,6 +19,7 @@ private:
     glm::vec3 m_worldPosition;
 
     glm::mat4 m_modelMatrix;
+    glm::mat4 m_rotationMatrix;
 
 
     bool m_isDirty = true;
@@ -31,7 +32,6 @@ public:
 
     void ComputeModelMatrix();
     void ComputeModelMatrix(glm::mat4 &parentGlobalMatrix);
-
 
     glm::vec3 &GetPosition() ;
     void SetPosition(const glm::vec3 &position);
@@ -51,6 +51,8 @@ public:
     glm::vec3 &GetWorldPosition() {return m_worldPosition;};
 
     glm::mat4 &GetModelMatrix() {return m_modelMatrix;}
+
+    const glm::mat4 &GetRotationMatrix() {return m_rotationMatrix;}
 
     void SetModelMatrix(glm::mat4 modelMatrix) {m_calculateLocalModelMatrix = false; m_modelMatrix = modelMatrix;}
 

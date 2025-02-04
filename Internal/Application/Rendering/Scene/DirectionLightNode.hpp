@@ -15,6 +15,7 @@ public:
 
     void Render(VulkanStructs::RenderContext* renderingContext) const override;
 
+    void Update() const override;
 private:
     LightStructs::DirectionalLight m_lightStruct;
 };

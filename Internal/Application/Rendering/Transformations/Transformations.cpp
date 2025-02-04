@@ -32,11 +32,11 @@ glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix() {
                                                  glm::radians(m_rotation.z),
                                                  glm::vec3(0.0f, 0.0f, 1.0f));
         //make rotation matrix
-        const glm::mat4 rotationMatrix = transformX * transformY * transformZ;
+        m_rotationMatrix = transformX * transformY * transformZ;
 
         //compute model matrix from rotation, position and scle
         return glm::translate(glm::mat4(1.f),m_position) *
-               rotationMatrix *
+               m_rotationMatrix *
                glm::scale(glm::mat4(1.0f), m_scale);
 }
 

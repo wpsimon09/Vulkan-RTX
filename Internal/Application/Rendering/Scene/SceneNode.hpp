@@ -75,7 +75,7 @@ namespace ApplicationCore
         //=========================
         // Transformation
         //=========================
-        void Update() const;
+        virtual void Update() const;
 
         //=========================
         // Rendering
