@@ -24,7 +24,7 @@ namespace ApplicationCore {
     {
 
         m_lightStruct.direction = glm::vec3(m_transformation->GetRotationMatrix() * glm::vec4(glm::vec3(0.0f, 0.0f, -1.0f),0.0f));
-        m_lightStruct.intensity = m_colour * m_intensity;
+        ;
         SceneNode::Update();
 
     }

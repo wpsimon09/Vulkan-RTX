@@ -10,7 +10,11 @@ namespace LightStructs
 {
     struct PointLight
     {
-        glm::vec3 intensity; // rgb colour * light strength
+        mutable
+        float intensity; // rgb colour * light strength
+
+        glm::vec3 colour;
+
         glm::vec3 position;
 
     };
@@ -18,7 +22,11 @@ namespace LightStructs
     struct DirectionalLight
     {
         mutable
-        glm::vec3 intensity; // rgb colour * light strength
+        float intensity; // rgb colour * light strength
+
+        glm::vec3 colour;
+
+
         mutable
         glm::vec3 direction;
     };

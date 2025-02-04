@@ -16,10 +16,11 @@ public:
     void Render(VulkanStructs::RenderContext* renderingContext) const override;
 
     void Update() const override;
+
+
+    LightStructs::DirectionalLight& GetLightStructInfo(){return m_lightStruct;};
 private:
     LightStructs::DirectionalLight m_lightStruct;
-    glm::vec3 m_colour;
-    float m_intensity;
 };
 
 } // ApplicationCore

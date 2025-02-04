@@ -9,6 +9,7 @@
 
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
+#include "Application/Rendering/Scene/DirectionLightNode.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 
 namespace VEditor {
@@ -30,7 +31,7 @@ namespace VEditor {
                 {
                     RenderMaterialEditorPanel();
                 }
-                if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType = ENodeType::DirectionalLightNode)
+                if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::DirectionalLightNode)
                 {
                     RenderDirectionLIghtUI();
                 }
@@ -191,6 +192,13 @@ namespace VEditor {
 
     void DetailsPanel::RenderDirectionLIghtUI()
     {
+        auto DirLightNode = dynamic_cast<ApplicationCore::DirectionLightNode*>(m_selectedSceneNode.get());
+
+        ImGui::SeparatorText("General light settings");
+        ImGui::SetNextItemWidth(600.0f);
+        ImGui::ColorEdit3("LightColour", &DirLightNode->GetLightStructInfo().colour.x, ImGuiColorEditFlags_NoInputs);
+
+        ImGui::DragFloat("Intensity", &DirLightNode->GetLightStructInfo().intensity);
 
     }
 } // VEditor
