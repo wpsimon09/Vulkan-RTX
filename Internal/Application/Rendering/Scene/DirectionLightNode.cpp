@@ -22,11 +22,8 @@ namespace ApplicationCore {
 
     void DirectionLightNode::Update() const
     {
-        if (m_transformation->HasChanged())
-        {
-            m_lightStruct.direction = glm::vec3(m_transformation->GetRotationMatrix() * glm::vec4(glm::vec3(0.0f, 0.0f, -1.0f),0.0f));
-            Utils::Logger::LogInfoClient("Directional light is pointing at " + std::to_string(m_lightStruct.direction.x) + std::to_string(m_lightStruct.direction.y) + std::to_string(m_lightStruct.direction.z));
-        }
+
+        m_lightStruct.direction = glm::vec3(m_transformation->GetRotationMatrix() * glm::vec4(glm::vec3(0.0f, 0.0f, -1.0f),0.0f));
         SceneNode::Update();
 
     }

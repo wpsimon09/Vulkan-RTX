@@ -23,6 +23,7 @@ private:
 
 
     bool m_isDirty = true;
+    bool m_hasRotationChanged = false;
     bool m_calculateLocalModelMatrix = true;
 
     glm::mat4 ComputeLocalModelMatrix();
@@ -47,6 +48,7 @@ public:
     void SetScale(float x, float y, float z);
 
     bool HasChanged() {return m_isDirty;}
+    bool HasRotationChanged() {return m_hasRotationChanged;}
 
     glm::vec3 &GetWorldPosition() {return m_worldPosition;};
 

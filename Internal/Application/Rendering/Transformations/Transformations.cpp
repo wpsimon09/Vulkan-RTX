@@ -76,11 +76,13 @@ glm::vec3 & ApplicationCore::Transformations::GetRotations() {
 void ApplicationCore::Transformations::SetRotations(const glm::vec3 &rotations) {
     m_rotation = rotations;
     m_isDirty = true;
+    m_hasRotationChanged = true;
 }
 
 void ApplicationCore::Transformations::SetRotations(float x, float y, float z) {
     m_rotation = glm::vec3(x, y, z);
     m_isDirty = true;
+    m_hasRotationChanged = true;
 }
 
 glm::vec3 & ApplicationCore::Transformations::GetScale() {
