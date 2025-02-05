@@ -6,23 +6,23 @@ interface ILightEnv {
 }
 
 struct DirectionalLight : ILightEnv {
-    float3 direction;
-    float3 intensity;
+    float4 direction;
+    float4 intensity;
 
     float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
-        return intensity * brdf.Evaluate(wo, direction, g.normal);
+        return (intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g.normal);
     }
 }
 
 struct PointLight : ILightEnv {
-    float3 intensity;
-    float3 position;
+    float4 intensity;
+    float4 position;
 
     float3 illuminate<B:IBRDF>(SurfaceGeometry  g, B brdf, float3 wo){
-        float3 delta = position - g.position;
+        float3 delta = position.xyz - g.position;
         float distance = length(delta);
         float3 direction = normalize(delta);
-        float3 illuminance = intensity / (distance*distance);
+        float3 illuminance = (intensity.xyz * intensity.w).xyz / (distance*distance);
 
         return illuminance * brdf.Evaluate(wo, direction, g.normal);
     }

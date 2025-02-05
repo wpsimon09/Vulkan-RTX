@@ -10,6 +10,11 @@ struct FragmentShaderIn
     float2 uv : OUT_UV;
 };
 
+struct LightInfo {
+    DirectionalLight dirLight;
+    LightArray<PointLight, 10> pointLigths;
+}
+
 [[vk::binding(2, 0)]]
 ConstantBuffer<MaterialConstantValues> _materialNoTextureValues;
 
@@ -29,11 +34,7 @@ ConstantBuffer<Sampler2D> _armMap;
 ConstantBuffer<Sampler2D> _emissiveMap;
 
 [[vk::binding(8, 0)]]
-ConstantBuffer<LightArray<DirectionalLight,1>> _directionalLight;
-
-[[vk::binding(9, 0)]]
-ConstantBuffer<LightArray<PointLight,100>> pointLights;
-
+ConstantBuffer<LightInfo> _lightInfo;
 
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn)
@@ -57,16 +58,15 @@ float4 fragmentMain(FragmentShaderIn fsIn)
         g.normal = normalize(SampleNormalMap(_normalMap, fsIn.uv, fsIn.normal, fsIn.fragPos));
     }
 
-    DirectionalLight testDirLight;
-    testDirLight.direction = normalize(fsIn.lightPos - fsIn.fragPos);
-    testDirLight.intensity = float3(2.f);
+    LightPair<LightPair<DirectionalLight, LightArray<PointLight, 10>>, AmbientLight> lightingEnv;
+    LightPair<DirectionalLight, LightArray<PointLight, 10>> DirectLight;
+    DirectLight.first = _lightInfo.dirLight;
+    DirectLight.second = _lightInfo.pointLigths;
 
     AmbientLight ambientLight;
     ambientLight.albedo = brdf_.albedo;
-    ambientLight.aoIntensity = brdf_.ao;
-
-    LightPair<DirectionalLight, AmbientLight> lightingEnv;
-    lightingEnv.first = testDirLight;
+    ambientLight.aoIntensity = 0.6;
+    lightingEnv.first = DirectLight;
     lightingEnv.second = ambientLight;
 
     //CookTorrence_GGX brdf;
