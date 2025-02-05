@@ -191,6 +191,7 @@ namespace Renderer
         //=================================================
         auto& dstSetDataStruct = m_pushDescriptorManager.GetDescriptorSetDataStruct();
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+        dstSetDataStruct.lightInformation = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
 
 
         for (int i = 0; i < m_renderContextPtr->MainLightPass.second.size(); i++)

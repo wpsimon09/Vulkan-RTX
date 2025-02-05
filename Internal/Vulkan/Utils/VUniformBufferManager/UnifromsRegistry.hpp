@@ -37,8 +37,8 @@ struct ObjectDataUniform
 
 struct PointLightGPU
 {
-    glm::vec4 colour{};
-    glm::vec4 position; // w is intensity
+    glm::vec4 colour {0.2f, 0.2f, 0.4f, 10.0f}; // w is intensity
+    glm::vec4 position;
 };
 
 struct DirectionalLightGPU
@@ -50,7 +50,7 @@ struct DirectionalLightGPU
 struct LightUniforms
 {
     DirectionalLightGPU directionalLight;
-    std::array<PointLightGPU, 20> pointLight;
+    std::array<PointLightGPU, 10> pointLight;
 };
 
 

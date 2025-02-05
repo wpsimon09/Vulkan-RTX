@@ -16,7 +16,7 @@ namespace ApplicationCore {
 
     void PointLightNode::Render(VulkanStructs::RenderContext* renderingContext) const
     {
-        SceneNode::Render(renderingContext);    
+        SceneNode::Render(renderingContext);
     }
 
     void PointLightNode::Update() const

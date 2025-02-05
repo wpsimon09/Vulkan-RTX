@@ -10,6 +10,7 @@
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/DirectionLightNode.hpp"
+#include "Application/Rendering/Scene/PointLightNode.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 
 namespace VEditor {
@@ -41,7 +42,12 @@ namespace VEditor {
                 }
                 if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::DirectionalLightNode)
                 {
-                    RenderDirectionLIghtUI();
+                    RenderDirectionLightUI();
+                }
+
+                if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::PointLightNode)
+                {
+                    RenderPointLightUI();
                 }
             }
 
@@ -198,7 +204,7 @@ namespace VEditor {
         }
     }
 
-    void DetailsPanel::RenderDirectionLIghtUI()
+    void DetailsPanel::RenderDirectionLightUI()
     {
         auto DirLightNode = dynamic_cast<ApplicationCore::DirectionLightNode*>(m_selectedSceneNode.get());
 
@@ -207,6 +213,17 @@ namespace VEditor {
         ImGui::ColorEdit3("LightColour", &DirLightNode->GetLightStructInfo().colour.x, ImGuiColorEditFlags_NoInputs);
 
         ImGui::DragFloat("Intensity", &DirLightNode->GetLightStructInfo().colour.w);
+
+    }
+
+    void DetailsPanel::RenderPointLightUI()
+    {
+        auto pointLightNode = dynamic_cast<ApplicationCore::PointLightNode*>(m_selectedSceneNode.get());
+
+        ImGui::SeparatorText("General light settings");
+        ImGui::ColorEdit3("LightColour", &pointLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
+
+        ImGui::DragFloat("Intensity", &pointLightNode->GetLightStruct().colour.w);
 
     }
 } // VEditor
