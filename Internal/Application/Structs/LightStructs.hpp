@@ -10,10 +10,7 @@ namespace LightStructs
 {
     struct PointLight
     {
-        mutable
-        float intensity; // rgb colour * light strength
-
-        glm::vec3 colour;
+        glm::vec4 colour;
 
         mutable
         glm::vec3 position;
@@ -22,10 +19,7 @@ namespace LightStructs
 
     struct DirectionalLight
     {
-        mutable
-        float intensity; // rgb colour * light strength
-
-        glm::vec3 colour;
+        glm::vec4 colour;
 
         mutable
         glm::vec3 direction;
@@ -36,11 +30,10 @@ namespace LightStructs
         LightStructs::DirectionalLight* DirectionalLightInfo;
 
 
-
-        std::array<LightStructs::PointLight*, 100> PointLightInfos;
+        std::vector<LightStructs::PointLight*> PointLightInfos;
         int AddPointLight(PointLight* pointLight)
         {
-            PointLightInfos[CurrentPointLightIndex] = pointLight;
+            PointLightInfos.emplace_back(pointLight);
             CurrentPointLightIndex++;
             return CurrentPointLightIndex-1;
         };

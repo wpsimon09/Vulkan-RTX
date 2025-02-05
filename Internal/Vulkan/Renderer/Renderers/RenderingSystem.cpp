@@ -113,6 +113,8 @@ namespace Renderer {
         auto drawCalls = m_renderContext.GetAllDrawCall();
         m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, drawCalls);
 
+        m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex,m_renderContext.sceneLightInfo);
+
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext);
 

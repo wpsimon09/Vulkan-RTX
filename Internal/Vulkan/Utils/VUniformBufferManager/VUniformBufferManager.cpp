@@ -74,9 +74,34 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
 
 }
 
-void VulkanUtils::VUniformBufferManager::UpdatePerMaterialUniformData(int frameIndex,
-    const std::shared_ptr<ApplicationCore::Material>& material) const
+void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
+    LightStructs::SceneLightInfo& sceneLightInfo) const
 {
+    if (sceneLightInfo.DirectionalLightInfo)
+    {
+        m_lightUniform->GetUBOStruct().directionalLight.colour = sceneLightInfo.DirectionalLightInfo->colour;
+        m_lightUniform->GetUBOStruct().directionalLight.direction = glm::vec4(sceneLightInfo.DirectionalLightInfo->direction,1.0f);
+    }
+
+
+    int numIterations =  sceneLightInfo.PointLightInfos.size() <= 100 ?  sceneLightInfo.PointLightInfos.size() : 100;
+    for (int i =0; i<numIterations ; i++)
+    {
+        if (sceneLightInfo.PointLightInfos[i] != nullptr)
+        {
+            m_lightUniform->GetUBOStruct().pointLight[i].colour = sceneLightInfo.PointLightInfos[i]->colour;
+            m_lightUniform->GetUBOStruct().pointLight[i].position = glm::vec4(sceneLightInfo.PointLightInfos[i]->position,1.f);
+        }
+    }
+
+    m_lightUniform->UpdateGPUBuffer(frameIndex);
+}
+
+
+void VulkanUtils::VUniformBufferManager::UpdatePerMaterialUniformData(int frameIndex,
+                                                                      const std::shared_ptr<ApplicationCore::Material>& material) const
+{
+
 }
 
 
@@ -121,6 +146,8 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
         m_materialNoTextureUniform[i] = (std::make_unique<VUniform<PBRMaterialNoTexture>>(m_device));
     }
 
+
+
     //assert(m_objectDataUniforms.size() == MAX_UBO_COUNT && "Failed to allocate 20 buffers");
     GlobalState::EnableLogging();
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for each of the mesh");
@@ -128,4 +155,6 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
 
     // allocate per Frame uniform buffers
     m_perFrameUniform = std::make_unique<VUniform<GlobalUniform>>(m_device);
+
+    m_lightUniform = std::make_unique<VUniform<LightUniforms>>(m_device);
 }

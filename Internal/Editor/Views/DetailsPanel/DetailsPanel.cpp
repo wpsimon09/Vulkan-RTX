@@ -206,7 +206,7 @@ namespace VEditor {
         ImGui::SetNextItemWidth(600.0f);
         ImGui::ColorEdit3("LightColour", &DirLightNode->GetLightStructInfo().colour.x, ImGuiColorEditFlags_NoInputs);
 
-        ImGui::DragFloat("Intensity", &DirLightNode->GetLightStructInfo().intensity);
+        ImGui::DragFloat("Intensity", &DirLightNode->GetLightStructInfo().colour.w);
 
     }
 } // VEditor

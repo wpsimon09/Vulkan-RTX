@@ -35,5 +35,23 @@ struct ObjectDataUniform
     glm::vec3 position;
 };
 
+struct PointLightGPU
+{
+    glm::vec4 colour{};
+    glm::vec4 position; // w is intensity
+};
+
+struct DirectionalLightGPU
+{
+    glm::vec4 direction;
+    glm::vec4 colour; // w is intensity
+};
+
+struct LightUniforms
+{
+    DirectionalLightGPU directionalLight;
+    std::array<PointLightGPU, 100> pointLight;
+};
+
 
 #endif //UNIFROMDEFINITION_HPP

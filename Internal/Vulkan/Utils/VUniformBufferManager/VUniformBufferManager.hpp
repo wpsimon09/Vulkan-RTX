@@ -32,6 +32,8 @@ namespace VulkanUtils
 
         void UpdatePerObjectUniformData(int frameIndex, std::vector<VulkanStructs::DrawCallData*>& drawCalls) const;
 
+        void UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const;
+
         void UpdatePerMaterialUniformData(int frameIndex, const std::shared_ptr<ApplicationCore::Material>& material) const;
 
         void Destroy() const;
@@ -40,11 +42,12 @@ namespace VulkanUtils
     private:
         const VulkanCore::VDevice& m_device;
 
+        std::unique_ptr<VulkanUtils::VUniform<LightUniforms>> m_lightUniform;
         std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>> m_perFrameUniform;
         std::vector<std::unique_ptr<VulkanUtils::VUniform<ObjectDataUniform>>> m_perObjectUniform;
-
         std::vector<std::unique_ptr<VulkanUtils::VUniform<PBRMaterialFeaturees>>> m_materialFeaturesUniform;
         std::vector<std::unique_ptr<VulkanUtils::VUniform<PBRMaterialNoTexture>>> m_materialNoTextureUniform;
+
     };
 }
 
