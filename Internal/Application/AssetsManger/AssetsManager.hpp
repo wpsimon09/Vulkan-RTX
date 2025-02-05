@@ -14,6 +14,7 @@
 
 #include "Application/Enums/ClientEnums.hpp"
 #include "Application/Rendering/Material/MaterialStructs.hpp"
+#include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
 struct TextureBufferInfo;
@@ -131,7 +132,7 @@ private:
     std::shared_ptr<ApplicationCore::Material> m_dummyMaterial;
     std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_dummyTextures;
     std::unordered_map<EEditorIcon, std::shared_ptr<Material>> m_editorIconsMaterials;
-    std::unordered_map<EMeshGeometryType, std::shared_ptr<StaticMesh>> m_preloadedMeshes;
+    std::unordered_map<EMeshGeometryType, VulkanStructs::MeshData> m_preloadedMeshes;
 
     friend class ApplicationCore::GLTFLoader;
 };

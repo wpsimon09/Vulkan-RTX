@@ -51,7 +51,8 @@ namespace ApplicationCore
         // if they are loaded return the loaded result
         if (result != m_preloadedMeshes.end())
         {
-            return result->second;
+
+            return std::make_shared<StaticMesh>(result->second, m_dummyMaterial);
         }
         // load them otherwise
 
@@ -98,11 +99,11 @@ namespace ApplicationCore
             throw std::runtime_error("This geometry type is not supported !");
         }
 
-        m_preloadedMeshes[geometryType] = std::make_shared<StaticMesh>(data, m_dummyMaterial);
+        m_preloadedMeshes[geometryType] = data;
 
         m_meshDataManager.UpdateGPU(nullptr);
 
-        return m_preloadedMeshes[geometryType];
+        return std::make_shared<StaticMesh>(data, m_dummyMaterial);
     }
 
     void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& path)
