@@ -164,13 +164,9 @@ namespace ApplicationCore
     std::shared_ptr<StaticMesh> AssetsManager::GetEditorBilboardMesh(EEditorIcon icon)
     {
 
-        auto data = m_meshDataManager.AddMeshData(MeshData::planeVertices, MeshData::planeIndices);
-
-        auto mesh = std::make_shared<StaticMesh>(data, m_editorIconsMaterials[icon]);
+        auto mesh = std::make_shared<StaticMesh>(m_preloadedMeshes[EMeshGeometryType::Plane], m_editorIconsMaterials[icon]);
 
         mesh->SetName( IconToString(icon)+"##" + VulkanUtils::random_string(4));
-
-        m_meshDataManager.UpdateGPU(nullptr);
 
         return std::move(mesh);
     }

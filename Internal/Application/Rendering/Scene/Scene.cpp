@@ -130,22 +130,21 @@ namespace ApplicationCore {
         AddNode(node);
     }
 
-    void Scene::AddDirectionalLight() const
+    void Scene::AddDirectionalLight()
     {
 
-        auto light = std::make_shared<DirectionLightNode>(m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight));
+        auto light = std::make_shared<DirectionLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight));
         light->m_transformation->SetScale(20.0f);
         light->SetName(light->GetMesh()->GetName());
         AddNode(light);
     }
 
-    void Scene::AddPointLight() const
+    void Scene::AddPointLight()
     {
-        auto light = std::make_shared<PointLightNode>(m_assetsManager.GetEditorBilboardMesh(EEditorIcon::PointLight));
+        auto light = std::make_shared<PointLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::PointLight));
         light->m_transformation->SetScale(20.0f);
         light->SetName(light->GetMesh()->GetName());
         AddNode(light);
-        m_directionalLightNodes
     }
 
     void Scene::PreformRayCast(glm::vec2 mousePosition)
