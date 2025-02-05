@@ -162,11 +162,16 @@ namespace ApplicationCore
 
     std::shared_ptr<StaticMesh> AssetsManager::GetEditorBilboardMesh(EEditorIcon icon)
     {
-        auto mesh = GetDefaultMesh(EMeshGeometryType::PostProcessQuad);
-        mesh->SetMaterial(m_editorIconsMaterials[icon]);
+
+        auto data = m_meshDataManager.AddMeshData(MeshData::planeVertices, MeshData::planeIndices);
+
+        auto mesh = std::make_shared<StaticMesh>(data, m_editorIconsMaterials[icon]);
+
         mesh->SetName( IconToString(icon)+"##" + VulkanUtils::random_string(4));
 
-        return mesh;
+        m_meshDataManager.UpdateGPU(nullptr);
+
+        return std::move(mesh);
     }
 
     void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<StaticMesh> mesh)
