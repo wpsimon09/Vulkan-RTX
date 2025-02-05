@@ -176,7 +176,6 @@ struct DrawCallData
         std::pair<RenderingMetaData, std::vector<DrawCallData>> EditorBillboardPass;
         std::pair<RenderingMetaData, std::vector<DrawCallData>> SelectedGeometryPass;
         std::pair<RenderingMetaData, std::vector<DrawCallData>> RayTracingPlanePass;
-        LightStructs::SceneLightInfo sceneLightInfo;
 
         void ExtractDepthValues(glm::vec3& cameraPosition)
         {

@@ -66,7 +66,7 @@ public:
     VulkanStructs::RenderContext* GetRenderContext() {return &m_renderContext;}
 public:
     void Init();
-    void Render(GlobalUniform& globalUniformUpdateInfo);
+    void Render(LightStructs::SceneLightInfo& sceneLightInfo,GlobalUniform& globalUniformUpdateInfo);
     void Update();
     void Destroy();
 private:

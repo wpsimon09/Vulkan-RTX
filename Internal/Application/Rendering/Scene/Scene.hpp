@@ -52,6 +52,8 @@ public:
     void AddPointLight() ;
 
     void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; } ;
+
+    LightStructs::SceneLightInfo& GetSceneLightInfo() {return m_sceneLightInfo;}
 private:
     void BuildDefaultScene();
     SceneStatistics m_sceneStatistics;

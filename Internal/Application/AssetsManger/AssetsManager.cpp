@@ -164,7 +164,8 @@ namespace ApplicationCore
     std::shared_ptr<StaticMesh> AssetsManager::GetEditorBilboardMesh(EEditorIcon icon)
     {
 
-        auto mesh = std::make_shared<StaticMesh>(m_preloadedMeshes[EMeshGeometryType::Plane], m_editorIconsMaterials[icon]);
+        auto mesh = GetDefaultMesh(Plane);
+        mesh->SetMaterial(m_editorIconsMaterials[icon]);
 
         mesh->SetName( IconToString(icon)+"##" + VulkanUtils::random_string(4));
 
@@ -244,6 +245,12 @@ namespace ApplicationCore
         mat = std::make_shared<ApplicationCore::Material>(pointLightBillboard, *this);
         mat->SetMaterialname("Point light editor billboard");
         m_editorIconsMaterials[EEditorIcon::PointLight] = mat;
+
+        MaterialPaths suskoMaterial{};
+        suskoMaterial.DiffuseMapPath = "Resources/EditorIcons/susko.jpg";
+        mat = std::make_shared<ApplicationCore::Material>(suskoMaterial, *this);
+        mat->SetMaterialname("Šuško material");
+        m_materials.emplace_back(mat);
 
     }
 }

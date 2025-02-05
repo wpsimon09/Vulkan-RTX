@@ -26,6 +26,11 @@ const std::vector<vk::DescriptorBufferInfo> &VulkanUtils::VUniformBufferManager:
     return m_perFrameUniform->GetDescriptorBufferInfos();
 }
 
+const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::GetLightBufferDescriptorInfo() const
+{
+    return m_lightUniform->GetDescriptorBufferInfos();
+}
+
 const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::GetMaterialFeaturesDescriptorBufferInfo(
     int meshIndex) const
 {
@@ -108,6 +113,7 @@ void VulkanUtils::VUniformBufferManager::UpdatePerMaterialUniformData(int frameI
 void VulkanUtils::VUniformBufferManager::Destroy() const {
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager and all its data...");
     m_perFrameUniform->Destory();
+    m_lightUniform->Destory();
     for(auto &ubo: m_perObjectUniform) {
         ubo->Destory();
     }
