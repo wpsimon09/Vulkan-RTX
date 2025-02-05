@@ -47,8 +47,10 @@ public:
     void AddSphereToScene() const;
     void PreformRayCast(glm::vec2 mousePosition);
     void AddPlaneToScene() const;
+
     void AddDirectionalLight() const;
     void AddPointLight() const;
+
     void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; } ;
 private:
     void BuildDefaultScene();
@@ -61,8 +63,8 @@ private:
     glm::vec3 m_mousePositionWorldSpace  = {0.0f, 0.0f, 0.0F};
     std::shared_ptr<SceneNode> m_selectedSceneNode;
     std::vector<std::shared_ptr<SceneNode>> m_selectedSceneNodes;
-    std::vector<std::shared_ptr<DirectionLightNode>> m_directionalLightNodes;
-    std::vector<std::shared_ptr<DirectionLightNode>> m_pointLightNodes;
+
+    LightStructs::SceneLightInfo m_sceneLightInfo;
 };
 
 } // ApplicationCore

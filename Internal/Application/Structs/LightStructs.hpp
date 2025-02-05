@@ -27,15 +27,26 @@ namespace LightStructs
 
         glm::vec3 colour;
 
-
         mutable
         glm::vec3 direction;
     };
 
     struct SceneLightInfo
     {
-        DirectionalLight* directionalLight;
-        std::array<PointLight*, 100> PointLights;
+        LightStructs::DirectionalLight* DirectionalLightInfo;
+
+
+
+        std::array<LightStructs::PointLight*, 100> PointLightInfos;
+        int AddPointLight(PointLight* pointLight)
+        {
+            PointLightInfos[CurrentPointLightIndex] = pointLight;
+            CurrentPointLightIndex++;
+            return CurrentPointLightIndex-1;
+        };
+
+    private:
+        int CurrentPointLightIndex = 0;
     };
 
 }

@@ -10,6 +10,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "Application/Rendering/Material/Material.hpp"
+#include "Application/Structs/LightStructs.hpp"
 #include "glm/glm.hpp"
 #include "VMA/vk_mem_alloc.h"
 
@@ -17,6 +18,11 @@
     #define BUFFER_SIZE 16777216 // 16MB
 #endif
 
+
+namespace LightStructs
+{
+    struct SceneLightInfo;
+}
 
 namespace VulkanStructs
 {
@@ -170,6 +176,7 @@ struct DrawCallData
         std::pair<RenderingMetaData, std::vector<DrawCallData>> EditorBillboardPass;
         std::pair<RenderingMetaData, std::vector<DrawCallData>> SelectedGeometryPass;
         std::pair<RenderingMetaData, std::vector<DrawCallData>> RayTracingPlanePass;
+        LightStructs::SceneLightInfo sceneLightInfo;
 
         void ExtractDepthValues(glm::vec3& cameraPosition)
         {

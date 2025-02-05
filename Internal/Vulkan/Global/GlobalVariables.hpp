@@ -39,6 +39,8 @@ namespace GlobalVariables {
 
     inline constexpr int RenderTargetResolutionWidth = 1920;
     inline constexpr int RenderTargetResolutionHeight = 1080;
+
+    inline int PointLightCount = 0;
 }
 
 #endif //GLOBALVARIABLES_HPP

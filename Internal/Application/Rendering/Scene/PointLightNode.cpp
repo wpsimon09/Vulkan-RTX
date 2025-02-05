@@ -5,11 +5,13 @@
 #include "PointLightNode.hpp"
 
 namespace ApplicationCore {
-    PointLightNode::PointLightNode(std::shared_ptr<StaticMesh> mesh):SceneNode(mesh), m_lightStruct()
+    PointLightNode::PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh):SceneNode(mesh), m_lightStruct()
     {
         m_sceneNodeMetaData.nodeType = ENodeType::PointLightNode;
         m_sceneNodeMetaData.RenderingMetaData.bMainLightPass = false;
         m_sceneNodeMetaData.RenderingMetaData.bEditorBillboardPass = true;
+
+        m_index = sceneLightInfo.AddPointLight(&m_lightStruct);
     }
 
     void PointLightNode::Render(VulkanStructs::RenderContext* renderingContext) const

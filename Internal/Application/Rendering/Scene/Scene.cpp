@@ -145,6 +145,7 @@ namespace ApplicationCore {
         light->m_transformation->SetScale(20.0f);
         light->SetName(light->GetMesh()->GetName());
         AddNode(light);
+        m_directionalLightNodes
     }
 
     void Scene::PreformRayCast(glm::vec2 mousePosition)

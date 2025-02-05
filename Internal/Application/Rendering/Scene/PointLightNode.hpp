@@ -11,7 +11,7 @@ namespace ApplicationCore {
 
 class PointLightNode:public SceneNode {
 public:
-    explicit PointLightNode(std::shared_ptr<StaticMesh> mesh);
+    explicit PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo,std::shared_ptr<StaticMesh> mesh);
 
     void Render(VulkanStructs::RenderContext* renderingContext) const override;
     void Update() const override;
@@ -19,6 +19,7 @@ public:
     LightStructs::PointLight& GetLightStruct(){return m_lightStruct;};
 private:
     LightStructs::PointLight m_lightStruct;
+    int m_index;
 };
 
 } // ApplicationCore
