@@ -31,7 +31,7 @@ struct PointLight : ILightEnv {
 // N - number of lights 
 // L - light type
 struct LightArray<L : ILightEnv, let N : int> : ILightEnv {
-    int count = N;
+    int count;
     float padding [3];
     L lights[N];
     

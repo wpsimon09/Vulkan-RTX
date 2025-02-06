@@ -12,7 +12,7 @@ struct FragmentShaderIn
 
 struct LightInfo {
     DirectionalLight dirLight;
-    LightArray<PointLight, 10> pointLigths;
+    PointLight[10] pointLigths;
 }
 
 [[vk::binding(2, 0)]]
@@ -54,6 +54,13 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     material.normal_map = _normalMap;
     let brdf_ = material.Prepare(g);
 
+    LightArray<PointLight, 10> pointLights;
+    pointLights.count = 10;
+    for (int i = 0; i < 10; i++) {
+        pointLights.lights[i].intensity = _lightInfo.pointLigths[i].intensity;
+        pointLights.lights[i].position = _lightInfo.pointLigths[i].position;
+    }
+
     if (material.features.hasNormalTexture) {
         g.normal = normalize(SampleNormalMap(_normalMap, fsIn.uv, fsIn.normal, fsIn.fragPos));
     }
@@ -61,11 +68,12 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     LightPair<LightPair<DirectionalLight, LightArray<PointLight, 10>>, AmbientLight> lightingEnv;
     LightPair<DirectionalLight, LightArray<PointLight, 10>> DirectLight;
     DirectLight.first = _lightInfo.dirLight;
-    DirectLight.second = _lightInfo.pointLigths;
+    DirectLight.second = pointLights;
 
     AmbientLight ambientLight;
     ambientLight.albedo = brdf_.albedo;
-    ambientLight.aoIntensity = 0.6;
+    ambientLight.aoIntensity = 0.4;
+
     lightingEnv.first = DirectLight;
     lightingEnv.second = ambientLight;
 
