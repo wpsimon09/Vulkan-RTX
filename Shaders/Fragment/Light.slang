@@ -17,12 +17,21 @@ struct DirectionalLight : ILightEnv {
 struct PointLight : ILightEnv {
     float4 intensity;
     float4 position;
+    float4 CLQU_Parameters; //constant, linear ,quadratic, inuse
 
     float3 illuminate<B:IBRDF>(SurfaceGeometry  g, B brdf, float3 wo){
         float3 delta = position.xyz - g.position;
         float distance = length(delta);
         float3 direction = normalize(delta);
-        float3 illuminance = (intensity.xyz * intensity.w).xyz / (distance*distance);
+
+        float3 illuminance;
+        if (CLQU_Parameters.w == 1) {
+            1.0f / CLQU_Parameters.x + (CLQU_Parameters.y * distance) + (CLQU_Parameters.z * (distance * distance));
+        }
+        else {
+            illuminance = (intensity.xyz * intensity.w).xyz / (distance*distance);
+        }
+
 
         return illuminance * brdf.Evaluate(wo, direction, g.normal);
     }

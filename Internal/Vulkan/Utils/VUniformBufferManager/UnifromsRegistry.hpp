@@ -39,6 +39,7 @@ struct PointLightGPU
 {
     glm::vec4 colour; // w is intensity
     glm::vec4 position;
+    glm::vec4 CLQU_Parameters; // x- constant, y - linear, z-quadratic, w - in use
 };
 
 struct DirectionalLightGPU

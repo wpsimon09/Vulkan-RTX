@@ -16,6 +16,14 @@ namespace LightStructs
         mutable
         glm::vec3 position;
 
+        float constantFactor = 1.0f;
+
+        float linearFactor = 0.045f;
+
+        float quadraticFactor = 0.0075f;
+
+        bool inUse;
+
     };
 
     struct DirectionalLight

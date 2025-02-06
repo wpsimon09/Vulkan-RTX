@@ -94,8 +94,12 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
     {
         if (sceneLightInfo.PointLightInfos[i] != nullptr)
         {
-            m_lightUniform->GetUBOStruct().pointLight[i].colour = sceneLightInfo.PointLightInfos[i]->colour;
-            m_lightUniform->GetUBOStruct().pointLight[i].position = glm::vec4(sceneLightInfo.PointLightInfos[i]->position,1.f);
+            auto& pointLight = sceneLightInfo.PointLightInfos[i];
+            m_lightUniform->GetUBOStruct().pointLight[i].colour = pointLight->colour;
+            m_lightUniform->GetUBOStruct().pointLight[i].position = glm::vec4(pointLight->position,1.f);
+            m_lightUniform->GetUBOStruct().pointLight[i].CLQU_Parameters = glm::vec4(
+                1.0f, pointLight->linearFactor, pointLight->quadraticFactor, pointLight->inUse
+            );
         }
     }
 
