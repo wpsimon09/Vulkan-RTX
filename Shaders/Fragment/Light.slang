@@ -32,7 +32,6 @@ struct PointLight : ILightEnv {
 // L - light type
 struct LightArray<L : ILightEnv, let N : int> : ILightEnv {
     int count;
-    float padding [3];
     L lights[N];
     
 
@@ -41,7 +40,6 @@ struct LightArray<L : ILightEnv, let N : int> : ILightEnv {
         for (int ii = 0; ii < count; ++ii) {
             sum += lights[ii].illuminate(g, brdf, wo);
         }
-
         return sum;
     }
 }

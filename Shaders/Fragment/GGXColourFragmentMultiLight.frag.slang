@@ -57,8 +57,8 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     LightArray<PointLight, 10> pointLights;
     pointLights.count = 10;
     for (int i = 0; i < 10; i++) {
-        pointLights.lights[i].intensity = _lightInfo.pointLigths[i].intensity;
         pointLights.lights[i].position = _lightInfo.pointLigths[i].position;
+        pointLights.lights[i].intensity = _lightInfo.pointLigths[i].intensity;
     }
 
     if (material.features.hasNormalTexture) {

@@ -10,8 +10,7 @@ namespace LightStructs
 {
     struct PointLight
     {
-        glm::vec4 colour {0.2f, 0.2f, 0.4f, 10.0f};
-
+        glm::vec4 colour;
         mutable
         glm::vec3 position;
 
