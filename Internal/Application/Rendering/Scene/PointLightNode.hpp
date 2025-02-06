@@ -15,10 +15,11 @@ public:
 
     void Render(VulkanStructs::RenderContext* renderingContext) const override;
     void Update() const override;
-
+    void ProcessNodeRemove() override;
     LightStructs::PointLight& GetLightStruct(){return m_lightStruct;};
 private:
     LightStructs::PointLight m_lightStruct;
+    LightStructs::SceneLightInfo& m_sceneLightInfo;
     int m_index;
 };
 

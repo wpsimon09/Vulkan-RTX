@@ -5,7 +5,7 @@
 #include "PointLightNode.hpp"
 
 namespace ApplicationCore {
-    PointLightNode::PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh):SceneNode(mesh), m_lightStruct()
+    PointLightNode::PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh):SceneNode(mesh), m_lightStruct(), m_sceneLightInfo(sceneLightInfo)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::PointLightNode;
         m_sceneNodeMetaData.RenderingMetaData.bMainLightPass = false;
@@ -23,5 +23,12 @@ namespace ApplicationCore {
     {
         m_lightStruct.position = m_transformation->GetPosition();
         SceneNode::Update();
+    }
+
+    void PointLightNode::ProcessNodeRemove()
+    {
+        SceneNode::ProcessNodeRemove();
+        m_sceneLightInfo.PointLightInfos[m_index]->colour = {0.0f, 0.0f, 0.0f,0.f};
+        m_sceneLightInfo.PointLightInfos[m_index]->position = {0.0f, 0.0f, 0.0f};
     }
 } // ApplicationCore

@@ -64,6 +64,7 @@ namespace ApplicationCore {
 
         for (auto it = children.begin(); it != children.end();) {
             if (*it == nodeToRemove) {
+                it->get()->ProcessNodeRemove();
                 // in future when multiple nodes can be selected, this will account for shifting the list to the right
                 it = children.erase(it);
                 Utils::Logger::LogSuccessClient("Removed node from the scene graph");

@@ -17,6 +17,7 @@ public:
 
     void Update() const override;
 
+    void ProcessNodeRemove() override;
 
     LightStructs::DirectionalLight& GetLightStructInfo(){return m_lightStruct;};
 private:

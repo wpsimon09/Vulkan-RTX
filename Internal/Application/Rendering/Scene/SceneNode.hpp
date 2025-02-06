@@ -62,6 +62,7 @@ namespace ApplicationCore
         void SetVisibleInEditor() { m_sceneNodeMetaData.ShowInEditor = true; }
         bool IsVisibleInEditor() const { return m_sceneNodeMetaData.ShowInEditor; }
 
+
         //=========================
         // Selection Management
         //=========================
@@ -102,6 +103,11 @@ namespace ApplicationCore
         std::vector<std::reference_wrapper<SceneNode>> GetChildrenByWrapper();
         std::shared_ptr<SceneNode>& GetChild(int index) { return m_children[index]; }
         std::vector<std::shared_ptr<SceneNode>>& GetChildrenByRef() { return m_children; }
+
+        //=========================
+        // Callback functions
+        //=========================
+        virtual void ProcessNodeRemove(){};
 
         //=========================
         // Operator Overloading
