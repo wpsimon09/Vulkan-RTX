@@ -32,7 +32,9 @@ struct PointLight : ILightEnv {
 // L - light type
 struct LightArray<L : ILightEnv, let N : int> : ILightEnv {
     int count = N;
+    float padding [3];
     L lights[N];
+    
 
     float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         float3 sum = 0;

@@ -37,6 +37,8 @@ struct ObjectDataUniform
 
 struct PointLightGPU
 {
+    int count;
+    float padding[3];
     glm::vec4 colour {0.2f, 0.2f, 0.4f, 10.0f}; // w is intensity
     glm::vec4 position;
 };
