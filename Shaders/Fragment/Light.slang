@@ -31,13 +31,12 @@ struct PointLight : ILightEnv {
 // N - number of lights 
 // L - light type
 struct LightArray<L : ILightEnv, let N : int> : ILightEnv {
-    int count;
     L lights[N];
     
 
     float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         float3 sum = 0;
-        for (int ii = 0; ii < count; ++ii) {
+        for (int ii = 0; ii < N; ++ii) {
             sum += lights[ii].illuminate(g, brdf, wo);
         }
         return sum;

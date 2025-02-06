@@ -42,7 +42,7 @@ ConstantBuffer<PermodelData> perModelData ;
 [shader("vertex")]
 VertexOutput vertexMain(VertexInput VAO) // VAO input{
 {
-    const float BillboardScale = 20.f;
+    const float BillboardScale = 30.f;
 
     // sotre for later    
     float3 CameraForwardWorld = normalize(globalData.cameraPostiion.xyz - perModelData.positionWorldSpace);

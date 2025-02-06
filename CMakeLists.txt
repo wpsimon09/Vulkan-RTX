@@ -143,6 +143,8 @@ set(SOURCES
         Internal/Application/Structs/LightStructs.hpp
         Internal/Application/Rendering/Scene/PointLightNode.cpp
         Internal/Application/Rendering/Scene/PointLightNode.hpp
+        Internal/Application/Rendering/Scene/Base/LightNode.cpp
+        Internal/Application/Rendering/Scene/Base/LightNode.hpp
 )
 
 

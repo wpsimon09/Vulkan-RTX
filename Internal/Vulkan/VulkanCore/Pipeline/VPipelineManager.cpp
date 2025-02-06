@@ -86,7 +86,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     // MAIN SCENE PIPELINE
     //==================================
     auto basicPipelineShaderVertexSource = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
-    auto basicPipelineFragmentShaderSource = "Shaders/Compiled/GGXColourFragment.frag.slang.spv";
+    auto basicPipelineFragmentShaderSource = "Shaders/Compiled/GGXColourFragmentMultiLight.frag.slang.spv";
     m_baseShader = std::make_unique<VShader>(m_device, basicPipelineShaderVertexSource,
         basicPipelineFragmentShaderSource);
 

@@ -210,9 +210,9 @@ namespace VEditor {
 
         ImGui::SeparatorText("General light settings");
         ImGui::SetNextItemWidth(600.0f);
-        ImGui::ColorEdit3("LightColour", &DirLightNode->GetLightStructInfo().colour.x, ImGuiColorEditFlags_NoInputs);
+        ImGui::ColorEdit3("LightColour", &DirLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
 
-        ImGui::DragFloat("Intensity", &DirLightNode->GetLightStructInfo().colour.w);
+        ImGui::DragFloat("Intensity", &DirLightNode->GetLightStruct().colour.w);
 
     }
 

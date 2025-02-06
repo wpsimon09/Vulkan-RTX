@@ -5,7 +5,7 @@
 #include "PointLightNode.hpp"
 
 namespace ApplicationCore {
-    PointLightNode::PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh):SceneNode(mesh), m_lightStruct(), m_sceneLightInfo(sceneLightInfo)
+    PointLightNode::PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh):LightNode<LightStructs::PointLight>(mesh),  m_sceneLightInfo(sceneLightInfo)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::PointLightNode;
         m_sceneNodeMetaData.RenderingMetaData.bMainLightPass = false;
