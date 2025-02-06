@@ -26,14 +26,14 @@ struct PointLight : ILightEnv {
 
         float3 illuminance;
         if (CLQU_Parameters.w == 1) {
-            1.0f / CLQU_Parameters.x + (CLQU_Parameters.y * distance) + (CLQU_Parameters.z * (distance * distance));
+            illuminance = 1.0f / CLQU_Parameters.x + (CLQU_Parameters.y * distance) + (CLQU_Parameters.z * (distance * distance));
         }
         else {
             illuminance = (intensity.xyz * intensity.w).xyz / (distance*distance);
         }
 
 
-        return illuminance * brdf.Evaluate(wo, direction, g.normal);
+        return position.w == 1 ? illuminance * brdf.Evaluate(wo, direction, g.normal) : 0.f;
     }
 }
 

@@ -30,5 +30,6 @@ namespace ApplicationCore {
         SceneNode::ProcessNodeRemove();
         m_sceneLightInfo.PointLightInfos[m_index]->colour = {0.0f, 0.0f, 0.0f,0.f};
         m_sceneLightInfo.PointLightInfos[m_index]->position = {0.0f, 0.0f, 0.0f};
+        m_sceneLightInfo.PointLightInfos[m_index]->isPointLightInUse = false;
     }
 } // ApplicationCore

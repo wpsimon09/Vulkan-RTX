@@ -22,7 +22,8 @@ namespace LightStructs
 
         float quadraticFactor = 0.0075f;
 
-        bool inUse;
+        bool useAdvancedAttentuation;
+        bool isPointLightInUse = false;
 
     };
 
@@ -43,6 +44,7 @@ namespace LightStructs
         int AddPointLight(PointLight* pointLight)
         {
             PointLightInfos.emplace_back(pointLight);
+            pointLight->isPointLightInUse = true;
             CurrentPointLightIndex++;
             return CurrentPointLightIndex-1;
         };
