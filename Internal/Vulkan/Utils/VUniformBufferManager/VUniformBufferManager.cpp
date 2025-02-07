@@ -8,6 +8,7 @@
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
+#include "fastgltf/types.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
@@ -89,7 +90,8 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
     }
 
 
-    int numIterations =  sceneLightInfo.PointLightInfos.size() <= 10 ?  sceneLightInfo.PointLightInfos.size() : 10;
+    int numIterations =  sceneLightInfo.PointLightInfos.size(); //<= 10 ?  sceneLightInfo.PointLightInfos.size() : 10;
+    m_lightUniform->GetUBOStruct().pointLight.resize(sceneLightInfo.PointLightInfos.size());
     for (int i =0; i<numIterations ; i++)
     {
         if (sceneLightInfo.PointLightInfos[i] != nullptr)
@@ -102,6 +104,7 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
             );
         }
     }
+    m_lightUniform->GetUBOStruct().pointLightCount =  numIterations;
 
     m_lightUniform->UpdateGPUBuffer(frameIndex);
 }

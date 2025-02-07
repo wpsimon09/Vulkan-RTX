@@ -22,7 +22,7 @@ namespace LightStructs
 
         float quadraticFactor = 0.0075f;
 
-        bool useAdvancedAttentuation;
+        bool useAdvancedAttentuation = 0;
         bool isPointLightInUse = false;
 
     };

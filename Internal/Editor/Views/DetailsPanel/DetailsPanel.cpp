@@ -225,8 +225,8 @@ namespace VEditor {
 
         ImGui::DragFloat("Intensity", &pointLightNode->GetLightStruct().colour.w);
 
-        ImGui::SliderFloat("Linear", &pointLightNode->GetLightStruct().linearFactor, 0.00001f, 1.f);
-        ImGui::SliderFloat("QuadraticTerm", &pointLightNode->GetLightStruct().quadraticFactor, 0.00001f, 1.f);
+        ImGui::SliderFloat("Linear", &pointLightNode->GetLightStruct().linearFactor, 0.0014f, 0.7f);
+        ImGui::SliderFloat("QuadraticTerm", &pointLightNode->GetLightStruct().quadraticFactor, 0.00000001f, 0.2f);
         ImGui::Checkbox("Use linear/quadratic", &pointLightNode->GetLightStruct().useAdvancedAttentuation);
 
 

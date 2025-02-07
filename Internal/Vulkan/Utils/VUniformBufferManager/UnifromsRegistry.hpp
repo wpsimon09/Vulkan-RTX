@@ -50,8 +50,9 @@ struct DirectionalLightGPU
 
 struct LightUniforms
 {
+    int pointLightCount;
     DirectionalLightGPU directionalLight;
-    std::array<PointLightGPU, 10> pointLight;
+    std::vector<PointLightGPU> pointLight;
 };
 
 
