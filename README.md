@@ -24,6 +24,8 @@ The goal is to eventually transition from a purely shader-based ray tracing impl
 ## Little showcase
 
 ### Editor
+![image](https://github.com/user-attachments/assets/f1e7d17c-6f74-4f92-823b-fa550d9ef354)
+
 ![Screenshot From 2025-01-28 21-25-43](https://github.com/user-attachments/assets/5bec47f4-20db-43f5-b802-d2ebb7aceb6a)
 
 ### RTX OFF
