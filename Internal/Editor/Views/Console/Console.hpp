@@ -17,6 +17,7 @@ public:
 private:
     bool m_scrollToBottom = true;
     unsigned int m_previousNumberOfLogs = 0;
+    const int LogLimit = 700; // entries
 };
 
 } // VEditor

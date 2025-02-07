@@ -8,6 +8,7 @@
 #include <imgui.h>
 
 #include "Application/Logger/Logger.hpp"
+#include "Vulkan/Global/GlobalState.hpp"
 
 namespace VEditor {
     Console::Console() = default;
@@ -16,7 +17,7 @@ namespace VEditor {
     {
         ImGui::Begin(ICON_FA_BOOK_OPEN" Console");
 
-        if (Utils::Logger::m_logEntries.size() > 300)
+        if (Utils::Logger::m_logEntries.size() > GlobalState::LogLimit)
         {
             Utils::Logger::m_logEntries.clear();
         }
