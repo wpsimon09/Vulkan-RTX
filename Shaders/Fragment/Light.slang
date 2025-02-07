@@ -24,16 +24,12 @@ struct PointLight : ILightEnv {
         float distance = length(delta);
         float3 direction = normalize(delta);
 
-        float3 illuminance;
-        if (CLQU_Parameters.w == 1) {
-            illuminance = 1.0f / (CLQU_Parameters.x + (CLQU_Parameters.y * distance) + (CLQU_Parameters.z * (distance * distance)));
-        }
-        else {
-            illuminance = (intensity.xyz * intensity.w).xyz / (distance*distance);
-        }
+        
+        float  attentuation = 1.0f / (CLQU_Parameters.x + (CLQU_Parameters.y * distance) + (CLQU_Parameters.z * (distance * distance)));
+        float3 illuminance = (intensity.xyz * intensity.w).xyz;
+        return position.w == 1 ? illuminance * attentuation * brdf.Evaluate(wo, direction, g.normal) : 0.f;
 
 
-        return position.w == 1 ? illuminance * brdf.Evaluate(wo, direction, g.normal) : 0.f;
     }
 }
 

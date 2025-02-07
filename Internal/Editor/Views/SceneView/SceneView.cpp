@@ -32,12 +32,11 @@ namespace VEditor {
         if (!m_detailsPanale->isSelectedSceneNodeSame(m_scene.GetSelectedSceneNode()))
             m_detailsPanale->SetSelectedNode(m_scene.GetSelectedSceneNode());
 
-        ImGui::Begin(ICON_FA_ATOM" Scene graph",&m_isOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
+        ImGui::Begin(ICON_FA_MOUNTAIN" Scene graph",&m_isOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
             ImGui::SeparatorText("Scene");
                 ImGui::BeginChild("Scrolling");
                 for (auto& sceneNode : m_scene.GetRootNode()->GetChildrenByRef())
                 {
-                    //sceneNode->Deselect()   ;
                     CreateTreeView(sceneNode);
                 }
 
