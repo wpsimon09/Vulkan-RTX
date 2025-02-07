@@ -90,7 +90,7 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
     }
 
 
-    int numIterations =  sceneLightInfo.PointLightInfos.size() <= 10 ?  sceneLightInfo.PointLightInfos.size() : 10;
+    int numIterations =  sceneLightInfo.PointLightInfos.size() <= 20 ?  sceneLightInfo.PointLightInfos.size() : 20;
     for (int i =0; i<numIterations ; i++)
     {
         if (sceneLightInfo.PointLightInfos[i] != nullptr)

@@ -51,7 +51,7 @@ struct DirectionalLightGPU
 struct LightUniforms
 {
     DirectionalLightGPU directionalLight;
-    std::array<PointLightGPU,10> pointLight;
+    std::array<PointLightGPU,20> pointLight;
 };
 
 
