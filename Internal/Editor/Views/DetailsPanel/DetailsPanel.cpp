@@ -225,8 +225,8 @@ namespace VEditor {
 
         ImGui::DragFloat("Intensity", &pointLightNode->GetLightStruct().colour.w);
 
-        ImGui::SliderFloat("Linear", &pointLightNode->GetLightStruct().linearFactor, 0.000014f, 0.7f);
-        ImGui::SliderFloat("QuadraticTerm", &pointLightNode->GetLightStruct().quadraticFactor, 0.00000001f, 0.01f);
+        ImGui::SliderFloat("Linear", &pointLightNode->GetLightStruct().linearFactor, 0.0014f, 0.7f);
+        ImGui::SliderFloat("QuadraticTerm", &pointLightNode->GetLightStruct().quadraticFactor, 0.0001f, 0.01f, "%.3", ImGuiSliderFlags_Logarithmic);
 
 
     }
