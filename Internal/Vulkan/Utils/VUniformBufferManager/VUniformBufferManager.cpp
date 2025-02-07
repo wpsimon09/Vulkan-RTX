@@ -90,21 +90,19 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
     }
 
 
-    int numIterations =  sceneLightInfo.PointLightInfos.size(); //<= 10 ?  sceneLightInfo.PointLightInfos.size() : 10;
-    m_lightUniform->GetUBOStruct().pointLight.resize(sceneLightInfo.PointLightInfos.size());
+    int numIterations =  sceneLightInfo.PointLightInfos.size() <= 10 ?  sceneLightInfo.PointLightInfos.size() : 10;
     for (int i =0; i<numIterations ; i++)
     {
         if (sceneLightInfo.PointLightInfos[i] != nullptr)
         {
             auto& pointLight = sceneLightInfo.PointLightInfos[i];
             m_lightUniform->GetUBOStruct().pointLight[i].colour = pointLight->colour;
-            m_lightUniform->GetUBOStruct().pointLight[i].position = glm::vec4(pointLight->position,pointLight->isPointLightInUse);
+            m_lightUniform->GetUBOStruct().pointLight[i].position = glm::vec4(pointLight->position,1.F);
             m_lightUniform->GetUBOStruct().pointLight[i].CLQU_Parameters = glm::vec4(
                 1.0f, pointLight->linearFactor, pointLight->quadraticFactor, pointLight->useAdvancedAttentuation
             );
         }
     }
-    m_lightUniform->GetUBOStruct().pointLightCount =  numIterations;
 
     m_lightUniform->UpdateGPUBuffer(frameIndex);
 }

@@ -26,7 +26,7 @@ struct PointLight : ILightEnv {
 
         float3 illuminance;
         if (CLQU_Parameters.w == 1) {
-            illuminance = 1.0f / CLQU_Parameters.x + (CLQU_Parameters.y * distance) + (CLQU_Parameters.z * (distance * distance));
+            illuminance = 1.0f / (CLQU_Parameters.x + (CLQU_Parameters.y * distance) + (CLQU_Parameters.z * (distance * distance)));
         }
         else {
             illuminance = (intensity.xyz * intensity.w).xyz / (distance*distance);

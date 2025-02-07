@@ -11,10 +11,9 @@ struct FragmentShaderIn
 };
 
 struct LightInfo {
-    int pointLightCount;
     DirectionalLight dirLight;
     // PointLight[10] pointLigths;
-    LightArray<PointLight, pointLightCount> pointLights;
+    LightArray<PointLight, 10> pointLights;
 }
 
 [[vk::binding(2, 0)]]
