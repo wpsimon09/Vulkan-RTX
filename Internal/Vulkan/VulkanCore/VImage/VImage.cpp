@@ -16,9 +16,10 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
 VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, vk::Image image, int widht, int height,
-                           uint32_t mipLevels, vk::Format format, vk::ImageAspectFlags aspecFlags, std::optional<vk::ImageUsageFlags> usageFlags):
-    m_device(device), m_imageVK(image), m_imageVMA(image), m_mipLevels(mipLevels), m_format(format), m_aspectFlags(aspecFlags), m_width(widht), m_height(height)
+                           uint32_t mipLevels, vk::Format format, vk::ImageAspectFlags aspecFlags, std::optional<vk::ImageUsageFlags> usageFlags, vk::SampleCountFlagBits samples):
+    m_device(device), m_imageVK(image), m_imageVMA(image), m_mipLevels(mipLevels), m_format(format), m_aspectFlags(aspecFlags), m_width(widht), m_height(height), m_samples(samples)
 {
+    // creates from exisitng vulkan image
     if (usageFlags.has_value())
     {
         m_imageUsage = usageFlags.value();
@@ -34,10 +35,12 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, vk::Image image, i
 
 
 VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t mipLevels,
-                           vk::Format format, vk::ImageAspectFlags aspecFlags, std::optional<vk::ImageUsageFlags> imageUsage):
-    m_device(device), m_mipLevels(mipLevels), m_format(format), m_aspectFlags(aspecFlags),
+                           vk::Format format, vk::ImageAspectFlags aspecFlags, std::optional<vk::ImageUsageFlags> imageUsage,vk::SampleCountFlagBits samples):
+    m_device(device), m_mipLevels(mipLevels), m_format(format), m_aspectFlags(aspecFlags), m_samples(samples),
     m_imageUsage(imageUsage.value_or(vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled))
     {
+
+    // creates new vulkan image
 
     m_isSwapChainImage = false;
     m_transferCommandBuffer = std::make_unique<VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
@@ -360,7 +363,7 @@ void VulkanCore::VImage::AllocateImage(size_t imageSize) {
     imageInfo.initialLayout = static_cast<VkImageLayout>(vk::ImageLayout::eUndefined);
     imageInfo.usage = static_cast<VkImageUsageFlags>(m_imageUsage.value());
     imageInfo.sharingMode = static_cast<VkSharingMode>(vk::SharingMode::eExclusive);
-    imageInfo.samples = static_cast<VkSampleCountFlagBits>(vk::SampleCountFlagBits::e1);
+    imageInfo.samples = static_cast<VkSampleCountFlagBits>(m_samples);
 
     //m_imageVK = m_device.GetDevice().createImage(imageInfo);
 

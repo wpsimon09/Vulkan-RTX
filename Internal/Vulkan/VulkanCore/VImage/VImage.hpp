@@ -29,13 +29,15 @@ namespace VulkanCore
         explicit VImage(const VulkanCore::VDevice &device, vk::Image image, int widht, int height,
                         uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Srgb,
                         vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor,
-                        std::optional<vk::ImageUsageFlags> imageUsage = std::nullopt);
+                        std::optional<vk::ImageUsageFlags> imageUsage = std::nullopt,
+                        vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1);
 
         // allocates new image from the image on the machine based on the provided falg it can be frame buffer
         explicit VImage(const VulkanCore::VDevice &device, uint32_t mipLevels = 1,
                         vk::Format format = vk::Format::eR8G8B8A8Unorm,
                         vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor,
-                        std::optional<vk::ImageUsageFlags> imageUsage = std::nullopt);
+                        std::optional<vk::ImageUsageFlags> imageUsage = std::nullopt,
+                        vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1);
 
         void Resize(uint32_t newWidth, uint32_t newHeight) ;
 
@@ -77,6 +79,7 @@ namespace VulkanCore
         vk::DeviceSize m_imageSize;
         vk::ImageLayout m_imageLayout;
         VmaAllocation m_imageAllocation;
+        vk::SampleCountFlagBits m_samples;
 
 
         uint32_t m_mipLevels;

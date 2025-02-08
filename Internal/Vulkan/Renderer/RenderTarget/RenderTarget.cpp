@@ -4,6 +4,7 @@
 
 #include "RenderTarget.hpp"
 
+#include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
@@ -28,9 +29,8 @@ namespace Renderer {
         // CREATE DEPTH ATTACHMENT
         //==========================
         m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth,
-            vk::ImageUsageFlagBits::eDepthStencilAttachment);
+            vk::ImageUsageFlagBits::eDepthStencilAttachment, m_device.GetSampleCount());
         m_depthBuffer->Resize(width, height);
-        //m_depthBuffer->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
         //==========================
         // CREATE COLOUR ATTACHMENT
@@ -40,8 +40,8 @@ namespace Renderer {
             m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
                 vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eInputAttachment);
             m_colourBuffer[i]->Resize(width, height);
-            //m_colourBuffer[i]->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
         }
+
 
         //==========================
         // CREATE RENDER PASS
@@ -56,6 +56,7 @@ namespace Renderer {
             std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
             attachments.emplace_back(*m_colourBuffer[i]);
             attachments.emplace_back(*m_depthBuffer);
+
             m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, width, height);
         }
 

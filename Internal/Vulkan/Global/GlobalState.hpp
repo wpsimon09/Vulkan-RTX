@@ -12,6 +12,7 @@ namespace GlobalState
     inline bool Verbose = false;
     inline bool VerboseInRendering = false;
     inline bool AutoCommandBufferFlags = true;
+    inline bool MSAA = true;
 
     inline void EnableLogging()
     {
@@ -24,6 +25,7 @@ namespace GlobalState
     }
 
     inline constexpr int LogLimit = 700; // entires in console
+
 }
 
 #endif //GLOBALSTATE_HPP

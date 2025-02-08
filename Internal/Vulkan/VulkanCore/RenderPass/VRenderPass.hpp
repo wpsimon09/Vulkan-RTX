@@ -5,6 +5,7 @@
 #ifndef VRENDERPASS_HPP
 #define VRENDERPASS_HPP
 
+#include <memory>
 #include <vulkan/vulkan.hpp>
 
 #include "Vulkan/VulkanCore/VObject.hpp"
@@ -30,6 +31,8 @@ namespace VulkanCore
         const VulkanCore::VDevice& m_device;
         const VulkanCore::VImage& m_depthBuffer;
         const VulkanCore::VImage& m_colourBuffer;
+
+        std::unique_ptr<VImage> m_msaaImage;
 
         vk::AttachmentDescription m_colourAttachmentDescription;
         vk::AttachmentReference m_colourAttachmentRef;

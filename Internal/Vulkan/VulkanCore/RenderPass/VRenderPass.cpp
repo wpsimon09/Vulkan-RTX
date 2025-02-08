@@ -8,12 +8,17 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
 VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VImage& colourBuffer,
     const VulkanCore::VImage& depthBuffer, bool ForSwapChain): m_device(device), m_colourBuffer(colourBuffer), m_depthBuffer(depthBuffer)
 {
     Utils::Logger::LogInfoVerboseOnly("Creating render pass...");
+
+    m_msaaImage = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
+                vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled, m_device.GetSampleCount());
+
     if (ForSwapChain)
     {
         CreateRenderPassForSwapChain();

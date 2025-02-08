@@ -175,6 +175,12 @@ void VulkanCore::VDevice::FetchMaxSampleCount()
 
     vk::SampleCountFlags maxSampleCount = gpuProperteis.limits.framebufferColorSampleCounts & gpuProperteis.limits.
         framebufferDepthSampleCounts;
+    if (!GlobalState::MSAA)
+    {
+        m_sampleCount = vk::SampleCountFlagBits::e1;
+        return;
+    }
+
 
     if (maxSampleCount & vk::SampleCountFlagBits::e64)
     {
