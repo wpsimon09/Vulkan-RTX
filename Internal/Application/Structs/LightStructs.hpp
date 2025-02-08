@@ -8,6 +8,11 @@
 
 namespace LightStructs
 {
+    struct AreaLight
+    {
+
+    };
+
     struct PointLight
     {
         mutable

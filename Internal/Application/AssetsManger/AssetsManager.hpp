@@ -113,7 +113,7 @@ private:
     // Texture Management
     //=========================
     std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_textures; // Main thread access only
-    std::unordered_map<std::string, std::future<VulkanStructs::ImageData>> m_texturesToLoad; // Loading thread access only
+    std::unordered_map<std::string, std::future<VulkanStructs::ImageData<>>> m_texturesToLoad; // Loading thread access only
 
     //=========================
     // Mesh Management

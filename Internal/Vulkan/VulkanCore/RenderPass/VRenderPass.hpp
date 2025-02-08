@@ -18,11 +18,10 @@ namespace VulkanCore
 
     class VRenderPass:VObject {
     public:
-        VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VImage& colourBuffer, const VulkanCore::VImage& depthBuffer, bool ForSwapChain = true);
+        VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VImage& colourBuffer, const VulkanCore::VImage& depthBuffer,const VulkanCore::VImage& msaaBuffer, bool ForSwapChain = true);
         void Destroy() override;
 
         const vk::RenderPass& GetRenderPass() const {return m_renderPass;}
-        VImage& GetMSAAImage() const {return *m_msaaImage;}
 
     private:
         void CreateRenderPassForSwapChain();
@@ -32,8 +31,7 @@ namespace VulkanCore
         const VulkanCore::VDevice& m_device;
         const VulkanCore::VImage& m_depthBuffer;
         const VulkanCore::VImage& m_colourBuffer;
-
-        std::unique_ptr<VImage> m_msaaImage;
+        const VulkanCore::VImage& m_msaaBuffer;
 
         vk::AttachmentDescription m_colourAttachmentDescription;
         vk::AttachmentReference m_colourAttachmentRef;
@@ -49,6 +47,8 @@ namespace VulkanCore
         vk::SubpassDependency m_subPassDependency;
 
         vk::RenderPass m_renderPass;
+
+        bool m_forSwapChain;
     };
 }
 

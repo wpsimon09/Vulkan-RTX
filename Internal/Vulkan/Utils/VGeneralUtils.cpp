@@ -105,7 +105,7 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffe
     Utils::Logger::LogSuccess("Buffer copy completed !");
 }
 
-VulkanStructs::ImageData VulkanUtils::LoadImage(const std::string &path) {
+VulkanStructs::ImageData<> VulkanUtils::LoadImage(const std::string &path) {
 
     VulkanStructs::ImageData imageData{};
 
@@ -134,7 +134,7 @@ VulkanStructs::ImageData VulkanUtils::LoadImage(const std::string &path) {
 
 }
 
-VulkanStructs::ImageData VulkanUtils::LoadImage(const TextureBufferInfo& data, const std::string& textureID)
+VulkanStructs::ImageData<> VulkanUtils::LoadImage(const TextureBufferInfo& data, const std::string& textureID)
 {
     VulkanStructs::ImageData imageData{};
 

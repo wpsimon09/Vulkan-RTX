@@ -12,18 +12,16 @@
 
 
 VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice& device, const VulkanCore::VImage& colourBuffer,
-    const VulkanCore::VImage& depthBuffer, bool ForSwapChain): m_device(device), m_colourBuffer(colourBuffer), m_depthBuffer(depthBuffer)
+    const VulkanCore::VImage& depthBuffer,const VulkanCore::VImage& msaaBuffer, bool ForSwapChain): m_device(device), m_colourBuffer(colourBuffer), m_depthBuffer(depthBuffer), m_msaaBuffer(msaaBuffer)
 {
     Utils::Logger::LogInfoVerboseOnly("Creating render pass...");
-
+    m_forSwapChain = ForSwapChain;
 
     if (ForSwapChain)
     {
         CreateRenderPassForSwapChain();
     }else
     {
-        m_msaaImage = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
-                    vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled);
         CreateRenderPassForCustomImage();
     }
 
@@ -31,8 +29,6 @@ VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice& device, const Vu
 
 void VulkanCore::VRenderPass::Destroy() {
     Utils::Logger::LogInfoVerboseOnly("Render pass destoryed");
-    if (m_msaaImage)
-        m_msaaImage->Destroy();
     m_device.GetDevice().destroyRenderPass(m_renderPass);
 }
 
@@ -162,6 +158,7 @@ void VulkanCore::VRenderPass::CreateRenderPassForCustomImage()
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &m_subPassDependency;
 
+
     m_renderPass = m_device.GetDevice().createRenderPass(renderPassInfo);
     assert(m_renderPass);
     Utils::Logger::LogSuccess("Render pass created");
@@ -172,6 +169,10 @@ void VulkanCore::VRenderPass::CreateMainSubPass() {
     m_subPass.colorAttachmentCount = 1;
     m_subPass.pColorAttachments = &m_colourAttachmentRef;
     m_subPass.pDepthStencilAttachment = &m_depthStencilAttachmentRef;
+
+    if (!m_forSwapChain)
+        m_subPass.pResolveAttachments = &m_resolveColourAttachmentRef;
+
 
     m_subPassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     m_subPassDependency.dstSubpass = 0;

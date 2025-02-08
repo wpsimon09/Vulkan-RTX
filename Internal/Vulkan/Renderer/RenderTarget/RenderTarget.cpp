@@ -33,12 +33,19 @@ namespace Renderer {
         m_depthBuffer->Resize(width, height);
 
         //==========================
+        // CREATE MSAA ATTACHMENT
+        //==========================
+        m_msaaBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
+                vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransientAttachment, m_device.GetSampleCount() );
+        m_msaaBuffer->Resize(width, height);
+
+        //==========================
         // CREATE COLOUR ATTACHMENT
         //==========================
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
             m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
-                vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eInputAttachment,m_device.GetSampleCount());
+                vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eInputAttachment);
             m_colourBuffer[i]->Resize(width, height);
         }
 
@@ -46,7 +53,7 @@ namespace Renderer {
         //==========================
         // CREATE RENDER PASS
         //==========================
-        m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer ,false);
+        m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer ,*m_msaaBuffer, false);
 
         //==========================
         // CREATE FRAME BUFFERS
@@ -54,9 +61,9 @@ namespace Renderer {
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
             std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
-            attachments.emplace_back(*m_colourBuffer[i]);
+            attachments.emplace_back(*m_msaaBuffer);
             attachments.emplace_back(*m_depthBuffer);
-            attachments.emplace_back(m_renderPass->GetMSAAImage());
+            attachments.emplace_back(*m_colourBuffer[i]);
 
             m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, width, height);
         }
@@ -105,6 +112,8 @@ namespace Renderer {
         }
         m_depthBuffer->Destroy();
         m_renderPass->Destroy();
+        if (m_msaaBuffer)
+            m_msaaBuffer->Destroy();
 
         Utils::Logger::LogSuccess("Render target destroyed");
     }
@@ -147,7 +156,7 @@ namespace Renderer {
                                                                      swapChainFormat);
         }
 
-        m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer ,true);
+        m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer, *m_msaaBuffer ,true);
 
         for (int i = 0; i < swapChainImages.size(); i++)
         {

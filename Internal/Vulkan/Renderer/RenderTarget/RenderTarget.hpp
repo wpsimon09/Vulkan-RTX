@@ -45,6 +45,7 @@ private:
 
     std::vector<std::unique_ptr<VulkanCore::VImage>> m_colourBuffer; // for internal engine use
     std::unique_ptr<VulkanCore::VImage> m_depthBuffer; // for internal engine use
+    std::unique_ptr<VulkanCore::VImage> m_msaaBuffer; // for internal engine use
 
     std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_frameBuffers; // for passing to the Vulkan
     std::unique_ptr<VulkanCore::VRenderPass> m_renderPass; // putting it all together

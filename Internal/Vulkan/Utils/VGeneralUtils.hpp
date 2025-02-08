@@ -50,8 +50,8 @@ namespace VulkanUtils
 
     void CopyBuffers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size);
 
-    VulkanStructs::ImageData LoadImage(const std::string &path);
-    VulkanStructs::ImageData LoadImage(const TextureBufferInfo& data, const std::string& textureID);
+    VulkanStructs::ImageData<> LoadImage(const std::string &path);
+    VulkanStructs::ImageData<> LoadImage(const TextureBufferInfo& data, const std::string& textureID);
 
     std::string BufferUsageFlagToString(vk::BufferUsageFlags usage);
 

@@ -251,7 +251,7 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
 
 }
 
-void VulkanCore::VImage::FillWithImageData(const VulkanStructs::ImageData& imageData, bool transitionToShaderReadOnly, bool destroyCurrentImage) {
+void VulkanCore::VImage::FillWithImageData(const VulkanStructs::ImageData<>& imageData, bool transitionToShaderReadOnly, bool destroyCurrentImage) {
 
     if(destroyCurrentImage)
     {
