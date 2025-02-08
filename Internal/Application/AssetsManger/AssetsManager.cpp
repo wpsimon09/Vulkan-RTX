@@ -18,6 +18,8 @@
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
+#include "Application/Utils/LinearyTransformedCosinesValues.hpp"
+#include "Application/Utils/MathUtils.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
@@ -192,7 +194,7 @@ namespace ApplicationCore
                 {
                     Utils::Logger::LogSuccess("Texture image loaded, swapping default texture for the loaded texture");
                     GlobalState::DisableLogging();
-                    m_textures[it->first]->FillWithImageData(it->second.get(), true, true);
+                    m_textures[it->first]->FillWithImageData<uint32_t>(it->second.get(), true, true);
                     it = m_texturesToLoad.erase(it);
                     GlobalState::EnableLogging();
                 }
@@ -251,6 +253,14 @@ namespace ApplicationCore
         mat = std::make_shared<ApplicationCore::Material>(suskoMaterial, *this);
         mat->SetMaterialname("Šuško material");
         m_materials.emplace_back(mat);
+
+        //=======================================
+        // LTC TEXTURES
+        //=======================================
+        auto ltcTexture = std::make_shared<VulkanCore::VImage>(m_device);
+        ltcTexture->FillWithImageData<float>(MathUtils::LTC_ImageData);
+
+
 
     }
 }

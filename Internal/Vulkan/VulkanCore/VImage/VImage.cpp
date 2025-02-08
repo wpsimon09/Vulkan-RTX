@@ -251,45 +251,6 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
 
 }
 
-void VulkanCore::VImage::FillWithImageData(const VulkanStructs::ImageData<>& imageData, bool transitionToShaderReadOnly, bool destroyCurrentImage) {
-
-    if(destroyCurrentImage)
-    {
-        Resize(imageData.widht, imageData.height);
-    }
-    m_path = imageData.fileName;
-
-    m_transferCommandBuffer->BeginRecording();
-    // copy pixel data to the staging buffer
-    Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
-
-    m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE STAGING BUFFER ==>" + m_path);
-    m_stagingBufferWithPixelData->CreateStagingBuffer(imageData.GetSize());
-
-    memcpy(m_stagingBufferWithPixelData->MapStagingBuffer(), imageData.pixels, imageData.GetSize());
-    m_stagingBufferWithPixelData->UnMapStagingBuffer();
-
-    Utils::Logger::LogInfoVerboseOnly("Image data copied");
-
-    // transition image to the transfer dst optimal layout so that data can be copied to it
-    TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-    CopyFromBufferToImage();
-
-    if(!transitionToShaderReadOnly) {
-        Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is false, this image will remain in Dst copy layout !");
-        m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
-        return;
-    }
-    Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is true, executing transition...");
-    TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
-
-    // execute the recorded commands
-    m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
-
-    m_device.GetTransferQueue().waitIdle();
-    m_stagingBufferWithPixelData->DestroyStagingBuffer();
-}
-
 vk::DescriptorImageInfo VulkanCore::VImage::GetDescriptorImageInfo(vk::Sampler &sampler) {
     vk::DescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = m_imageLayout;

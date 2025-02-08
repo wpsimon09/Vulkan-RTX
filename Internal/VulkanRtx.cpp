@@ -45,6 +45,8 @@
 
 
 // Im gui entry
+#include "Application/Utils/LinearyTransformedCosinesValues.hpp"
+#include "Application/Utils/MathUtils.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
@@ -65,6 +67,7 @@ void Application::Init()
     m_vulkanDevice = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
 
     VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
+    MathUtils::InitLTC();
 
     m_bufferAllocator = std::make_unique<VulkanCore::MeshDatatManager>(*m_vulkanDevice);
 

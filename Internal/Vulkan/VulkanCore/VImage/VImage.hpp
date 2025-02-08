@@ -10,6 +10,8 @@
 #include "memory"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 
@@ -53,7 +55,8 @@ namespace VulkanCore
 
         void SetIsLoaded(bool status) {m_isLoaded = status;}
 
-        void FillWithImageData(const VulkanStructs::ImageData<>& imageData, bool transitionToShaderReadOnly = true, bool destroyCurrentImage = false);
+        template<typename T>
+        void FillWithImageData(const VulkanStructs::ImageData<T>& imageData, bool transitionToShaderReadOnly = true, bool destroyCurrentImage = false);
 
         std::string GetPath() {return m_path;}
         const vk::ImageLayout& GetCurrentLayout() const {return m_imageLayout;};
@@ -132,6 +135,48 @@ namespace VulkanCore
             return m_height;
         }
     };
+
+    template <typename T>
+    void VImage::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, bool transitionToShaderReadOnly,
+        bool destroyCurrentImage)
+    {
+        if(destroyCurrentImage)
+        {
+            Resize(imageData.widht, imageData.height);
+        }
+        m_path = imageData.fileName;
+
+        m_transferCommandBuffer->BeginRecording();
+        // copy pixel data to the staging buffer
+        Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
+
+        m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE STAGING BUFFER ==>" + m_path);
+        m_stagingBufferWithPixelData->CreateStagingBuffer(imageData.GetSize());
+
+        memcpy(m_stagingBufferWithPixelData->MapStagingBuffer(), imageData.pixels, imageData.GetSize());
+        m_stagingBufferWithPixelData->UnMapStagingBuffer();
+
+        Utils::Logger::LogInfoVerboseOnly("Image data copied");
+
+        // transition image to the transfer dst optimal layout so that data can be copied to it
+        TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+        CopyFromBufferToImage();
+
+        if(!transitionToShaderReadOnly) {
+            Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is false, this image will remain in Dst copy layout !");
+            m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+            return;
+        }
+        Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is true, executing transition...");
+        TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+
+        // execute the recorded commands
+        m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+
+        m_device.GetTransferQueue().waitIdle();
+        m_stagingBufferWithPixelData->DestroyStagingBuffer();
+
+    }
 }
 
 
