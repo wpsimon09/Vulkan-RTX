@@ -166,7 +166,7 @@ void VulkanCore::VGraphicsPipeline::CreateRasterizer() {
 
 void VulkanCore::VGraphicsPipeline::CreateMultisampling() {
     m_multisampling.sampleShadingEnable = vk::False;
-    m_multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+    m_multisampling.rasterizationSamples = m_device.GetSampleCount();
     m_multisampling.minSampleShading = 1.0f;
     m_multisampling.pSampleMask = nullptr;
     m_multisampling.alphaToCoverageEnable = VK_FALSE;

@@ -22,6 +22,7 @@ namespace VulkanCore
         void Destroy() override;
 
         const vk::RenderPass& GetRenderPass() const {return m_renderPass;}
+        VImage& GetMSAAImage() const {return *m_msaaImage;}
 
     private:
         void CreateRenderPassForSwapChain();

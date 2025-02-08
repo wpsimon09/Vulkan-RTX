@@ -16,14 +16,14 @@ VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice& device, const Vu
 {
     Utils::Logger::LogInfoVerboseOnly("Creating render pass...");
 
-    m_msaaImage = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
-                vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled, m_device.GetSampleCount());
 
     if (ForSwapChain)
     {
         CreateRenderPassForSwapChain();
     }else
     {
+        m_msaaImage = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
+                    vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled);
         CreateRenderPassForCustomImage();
     }
 
@@ -31,6 +31,8 @@ VulkanCore::VRenderPass::VRenderPass(const VulkanCore::VDevice& device, const Vu
 
 void VulkanCore::VRenderPass::Destroy() {
     Utils::Logger::LogInfoVerboseOnly("Render pass destoryed");
+    if (m_msaaImage)
+        m_msaaImage->Destroy();
     m_device.GetDevice().destroyRenderPass(m_renderPass);
 }
 
@@ -104,7 +106,7 @@ void VulkanCore::VRenderPass::CreateRenderPassForCustomImage()
     // BASIC COLOUR ATTACHMENT
     //------------------------
     m_colourAttachmentDescription.format = m_colourBuffer.GetFormat();
-    m_colourAttachmentDescription.samples = vk::SampleCountFlagBits::e1;
+    m_colourAttachmentDescription.samples = m_device.GetSampleCount();
     m_colourAttachmentDescription.loadOp = vk::AttachmentLoadOp::eClear;
     m_colourAttachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
     m_colourAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
@@ -120,7 +122,7 @@ void VulkanCore::VRenderPass::CreateRenderPassForCustomImage()
     // DEPTH ATTACHMENT
     //-----------------
     m_depthStencilAttachmentDescription.format = m_depthBuffer.GetFormat();
-    m_depthStencilAttachmentDescription.samples = vk::SampleCountFlagBits::e1;
+    m_depthStencilAttachmentDescription.samples = m_device.GetSampleCount();
     m_depthStencilAttachmentDescription.loadOp = vk::AttachmentLoadOp::eClear;
     m_depthStencilAttachmentDescription.storeOp = vk::AttachmentStoreOp::eDontCare;
     m_depthStencilAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
@@ -137,20 +139,21 @@ void VulkanCore::VRenderPass::CreateRenderPassForCustomImage()
     // RESOLVE ATTACHEMENT
     // it transition the image format from colour attachment to the format that is suitable to present the images on the screen
     //----------------------------------------------------------------------------------------------------------------------------
-    /*
-    m_resolveColourAttachmentDescription.format =   m_swapChain.GetSurfaceFormatKHR().format;
+
+    m_resolveColourAttachmentDescription.format =   m_colourBuffer.GetFormat();
     m_resolveColourAttachmentDescription.samples = vk::SampleCountFlagBits::e1;
     m_resolveColourAttachmentDescription.loadOp = vk::AttachmentLoadOp::eDontCare;
     m_resolveColourAttachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
     m_resolveColourAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     m_resolveColourAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     m_resolveColourAttachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
-    m_resolveColourAttachmentDescription.finalLayout = vk::ImageLayout::ePresentSrcKHR;
-    */
+    m_resolveColourAttachmentDescription.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
 
+    m_resolveColourAttachmentRef.attachment = 2;
+    m_resolveColourAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
     CreateMainSubPass();
 
-    std::array<vk::AttachmentDescription, 2> attachments = {m_colourAttachmentDescription, m_depthStencilAttachmentDescription};
+    std::array<vk::AttachmentDescription, 3> attachments = {m_colourAttachmentDescription, m_depthStencilAttachmentDescription, m_resolveColourAttachmentDescription};
     vk::RenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.attachmentCount = attachments.size();
     renderPassInfo.pAttachments = attachments.data();
