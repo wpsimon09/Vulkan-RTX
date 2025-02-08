@@ -194,7 +194,7 @@ namespace ApplicationCore
                 {
                     Utils::Logger::LogSuccess("Texture image loaded, swapping default texture for the loaded texture");
                     GlobalState::DisableLogging();
-                    m_textures[it->first]->FillWithImageData<uint32_t>(it->second.get(), true, true);
+                    m_textures[it->first]->FillWithImageData<>(it->second.get(), true, true);
                     it = m_texturesToLoad.erase(it);
                     GlobalState::EnableLogging();
                 }
@@ -252,14 +252,17 @@ namespace ApplicationCore
         suskoMaterial.DiffuseMapPath = "Resources/EditorIcons/susko.jpg";
         mat = std::make_shared<ApplicationCore::Material>(suskoMaterial, *this);
         mat->SetMaterialname("Šuško material");
-        m_materials.emplace_back(mat);
 
         //=======================================
         // LTC TEXTURES
         //=======================================
-        auto ltcTexture = std::make_shared<VulkanCore::VImage>(m_device);
+        auto ltcTexture = std::make_shared<VulkanCore::VImage>(m_device, 1, vk::Format::eR32G32B32A32Sfloat);
+        ltcTexture->Resize(MathUtils::LTC_ImageData.widht,MathUtils::LTC_ImageData.height);
         ltcTexture->FillWithImageData<float>(MathUtils::LTC_ImageData);
+        m_textures[MathUtils::LTC_ImageData.fileName] = std::move(ltcTexture);
 
+        mat->GetTexture(ETextureType::Diffues) = m_textures[MathUtils::LTC_ImageData.fileName];
+        m_materials.emplace_back(mat);
 
 
     }

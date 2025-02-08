@@ -61,7 +61,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t mipLevels
         uint32_t dummyPixels[] = { 0xFFFF69B4, 0xFFFFFFF };
         // dummy data for pink color if proper image is not loaded yet
         dummyImageData.pixels = dummyPixels;
-        FillWithImageData(dummyImageData, true);
+        FillWithImageData<uint32_t>(dummyImageData, true);
         GenerateImageView();
     }
     if ((m_aspectFlags & vk::ImageAspectFlagBits::eColor) && (m_imageUsage.value() & vk::ImageUsageFlagBits::eColorAttachment))
@@ -79,7 +79,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t mipLevels
 
 
 
-//--------------------------
+//--------------------------Copy
 // IMAGE LAYOUT TRANSITION
 //--------------------------
 void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk::ImageLayout targetLayout) {

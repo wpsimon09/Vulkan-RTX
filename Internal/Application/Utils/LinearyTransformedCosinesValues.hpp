@@ -8,14 +8,18 @@
 
 namespace MathUtils
 {
-
     // LTC1 is the inverse M
     // LTC2 is for (GGX norm, fresnel, 0(unused), sphere for horizon-clipping)
 
     inline constexpr std::string LTC_InverseString = "LTC_Inverse";
     inline constexpr std::string LTC_String = "LTC";
 
- inline float LTC_Inverse[] = {
+    inline VulkanStructs::ImageData<float> LTC_ImageData;
+    inline VulkanStructs::ImageData<float> LTCInverse_ImageData;
+
+    void InitLTC();
+
+    inline float LTC_Inverse[] = {
         1, 0, 0, 2e-05,
         1, 0, 0, 0.000503905,
         1, 0, 0, 0.00201562,
@@ -4115,7 +4119,7 @@ namespace MathUtils
     };
 
 
-  inline   float LTC[] = {
+    inline float LTC[] = {
         1, 0, 0, 0,
         1, 7.91421e-31, 0, 0,
         1, 1.04392e-24, 0, 0,
@@ -8213,12 +8217,6 @@ namespace MathUtils
         0.93222, 0.0484975, 0, 0.984127,
         0.932164, 0.0471899, 0, 1,
     };
-
-    inline VulkanStructs::ImageData<float> LTC_ImageData;
-    inline VulkanStructs::ImageData<float> LTCInverse_ImageData;
-
-    void InitLTC();
-
 }
 
 #endif //LINEARYTRANSFORMEDCOSINESVALUES_HPP
