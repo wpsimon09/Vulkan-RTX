@@ -248,6 +248,12 @@ namespace ApplicationCore
         mat->SetMaterialname("Point light editor billboard");
         m_editorIconsMaterials[EEditorIcon::PointLight] = mat;
 
+        MaterialPaths areaLightBillboard{};
+        areaLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-area.png";
+        mat = std::make_shared<ApplicationCore::Material>(areaLightBillboard, *this);
+        mat->SetMaterialname("Area light editor billboard");
+        m_editorIconsMaterials[EEditorIcon::AreaLight] = mat;
+
         MaterialPaths suskoMaterial{};
         suskoMaterial.DiffuseMapPath = "Resources/EditorIcons/susko.jpg";
         mat = std::make_shared<ApplicationCore::Material>(suskoMaterial, *this);
@@ -259,14 +265,18 @@ namespace ApplicationCore
         auto ltcTexture = std::make_shared<VulkanCore::VImage>(m_device, 1, vk::Format::eR32G32B32A32Sfloat);
         ltcTexture->Resize(MathUtils::LTC_ImageData.widht,MathUtils::LTC_ImageData.height);
         ltcTexture->FillWithImageData<float>(MathUtils::LTC_ImageData);
+        MathUtils::LUT.LTC = std::move(ltcTexture);
 
-        m_textures[MathUtils::LTC_ImageData.fileName] = std::move(ltcTexture);
+        //m_textures[MathUtils::LTC_ImageData.fileName] = std::move(ltcTexture);
 
         ltcTexture = std::make_shared<VulkanCore::VImage>(m_device, 1, vk::Format::eR32G32B32A32Sfloat);
         ltcTexture->Resize(MathUtils::LTCInverse_ImageData.widht,MathUtils::LTCInverse_ImageData.height);
         ltcTexture->FillWithImageData<float>(MathUtils::LTCInverse_ImageData);
+        MathUtils::LUT.LTCInverse = std::move(ltcTexture);
 
-        m_textures[MathUtils::LTCInverse_ImageData.fileName] = std::move(ltcTexture);
+
+        //m_textures[MathUtils::LTCInverse_ImageData.fileName] = std::move(ltcTexture);
+
 
         mat->GetTexture(ETextureType::Diffues) = m_textures[MathUtils::LTCInverse_ImageData.fileName];
 

@@ -46,6 +46,7 @@ void VEditor::ViewPort::Render()
                     {
                         if (ImGui::Selectable(ICON_FA_SUN " Directional")){m_scene.AddDirectionalLight();}
                         if (ImGui::Selectable(ICON_FA_LIGHTBULB " Point" )){m_scene.AddPointLight();}
+                        if (ImGui::Selectable(ICON_FA_PLANE " Area" )){m_scene.AddAreaLight();}
                         ImGui::EndMenu();
                     }
 

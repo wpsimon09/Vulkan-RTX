@@ -190,6 +190,7 @@ Application::~Application() {
     m_pushDescriptorSetManager->Destroy();
     m_uiContext->Destroy();
     m_bufferAllocator->Destroy();
+    MathUtils::LUT.ClearLoopUpTables();
 
     m_vulkanDevice->Destroy();
 }

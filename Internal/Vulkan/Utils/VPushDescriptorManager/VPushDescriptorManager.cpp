@@ -28,6 +28,10 @@ namespace VulkanUtils {
 
             .AddBinding(8, vk::DescriptorType::eUniformBuffer,vk::ShaderStageFlagBits::eFragment,1) //directional light
 
+            .AddBinding(9, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // ltc
+            .AddBinding(10, vk::DescriptorType::eCombinedImageSampler,vk::ShaderStageFlagBits::eFragment,1) // ltc_inverse
+
+
             .Build();
     }
 

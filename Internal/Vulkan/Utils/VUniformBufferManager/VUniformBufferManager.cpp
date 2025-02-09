@@ -104,6 +104,21 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
         }
     }
 
+    numIterations = sceneLightInfo.AreaLightInfos.size() <= 20 ?  sceneLightInfo.AreaLightInfos.size() : 20;
+    for (int i=0; i<numIterations ; i++)
+    {
+        if (sceneLightInfo.AreaLightInfos[i] != nullptr)
+        {
+            auto& areaLight = sceneLightInfo.AreaLightInfos[i];
+            m_lightUniform->GetUBOStruct().areaLights[i].edges = areaLight->edges;
+            m_lightUniform->GetUBOStruct().areaLights[i].intensity = glm::vec4(areaLight->colour, areaLight->intensity);
+            m_lightUniform->GetUBOStruct().areaLights[i].twoSided = areaLight->twoSided;
+            m_lightUniform->GetUBOStruct().areaLights[i].isInUse = areaLight->isAreaLightInUse;
+
+
+        }
+    }
+
     m_lightUniform->UpdateGPUBuffer(frameIndex);
 }
 

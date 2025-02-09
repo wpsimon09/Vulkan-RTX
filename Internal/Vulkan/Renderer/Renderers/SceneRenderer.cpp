@@ -5,6 +5,8 @@
 #include "SceneRenderer.hpp"
 
 #include "DebugRenderer.hpp"
+#include "Application/Utils/LinearyTransformedCosinesValues.hpp"
+#include "Application/Utils/MathUtils.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
@@ -55,6 +57,8 @@ namespace Renderer
         m_pushDescriptorManager.AddUpdateEntry(6, offsetof(VulkanUtils::DescriptorSetData, armTextureImage), 0);
         m_pushDescriptorManager.AddUpdateEntry(7, offsetof(VulkanUtils::DescriptorSetData, emissiveTextureImage), 0);
         m_pushDescriptorManager.AddUpdateEntry(8, offsetof(VulkanUtils::DescriptorSetData, lightInformation), 0);
+        m_pushDescriptorManager.AddUpdateEntry(9, offsetof(VulkanUtils::DescriptorSetData, LUT_LTC), 0);
+        m_pushDescriptorManager.AddUpdateEntry(10, offsetof(VulkanUtils::DescriptorSetData, LUT_LTC_Inverse), 0);
         //m_pushDescriptorManager.AddUpdateEntry(8, offsetof(VulkanUtils::DescriptorSetData, emissiveTextureImage), 0);
 
 
@@ -192,7 +196,8 @@ namespace Renderer
         auto& dstSetDataStruct = m_pushDescriptorManager.GetDescriptorSetDataStruct();
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
         dstSetDataStruct.lightInformation = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
-
+        dstSetDataStruct.LUT_LTC = MathUtils::LUT.LTC->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+        dstSetDataStruct.LUT_LTC_Inverse = MathUtils::LUT.LTCInverse->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
         for (int i = 0; i < m_renderContextPtr->MainLightPass.second.size(); i++)
         {

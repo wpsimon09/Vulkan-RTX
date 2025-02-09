@@ -5,6 +5,7 @@
 #ifndef LINEARYTRANSFORMEDCOSINESVALUES_HPP
 #define LINEARYTRANSFORMEDCOSINESVALUES_HPP
 #include "Vulkan/Global/VulkanStructs.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
 namespace MathUtils
 {
@@ -16,6 +17,21 @@ namespace MathUtils
 
     inline VulkanStructs::ImageData<float> LTC_ImageData;
     inline VulkanStructs::ImageData<float> LTCInverse_ImageData;
+
+    class LookUpTalbes
+    {
+    public:
+        std::shared_ptr<VulkanCore::VImage> LTC;
+        std::shared_ptr<VulkanCore::VImage> LTCInverse;
+
+        void  ClearLoopUpTables()
+        {
+            LTC->Destroy();
+            LTCInverse->Destroy();
+        }
+    };
+
+    inline LookUpTalbes LUT;
 
     void InitLTC();
 

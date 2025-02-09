@@ -24,7 +24,7 @@ namespace ApplicationCore {
         LightNode<LightStructs::AreaLight>::Update();
         for (auto& edge : m_lightStruct.edges)
         {
-            edge =  m_transformation->GetModelMatrix() * glm::vec4(edge,1.f);
+            edge =  m_transformation->GetModelMatrix() * edge;
         }
     }
 

@@ -7,6 +7,7 @@
 #include <random>
 #include <GLFW/glfw3.h>
 
+#include "AreaLightNode.hpp"
 #include "DirectionLightNode.hpp"
 #include "PointLightNode.hpp"
 #include "SceneNode.hpp"
@@ -143,6 +144,14 @@ namespace ApplicationCore {
     void Scene::AddPointLight()
     {
         auto light = std::make_shared<PointLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::PointLight));
+        light->m_transformation->SetScale(20.0f);
+        light->SetName(light->GetMesh()->GetName());
+        AddNode(light);
+    }
+
+    void Scene::AddAreaLight()
+    {
+        auto light = std::make_shared<AreaLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::AreaLight));
         light->m_transformation->SetScale(20.0f);
         light->SetName(light->GetMesh()->GetName());
         AddNode(light);

@@ -50,6 +50,7 @@ public:
 
     void AddDirectionalLight();
     void AddPointLight() ;
+    void AddAreaLight() ;
 
     void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; } ;
 

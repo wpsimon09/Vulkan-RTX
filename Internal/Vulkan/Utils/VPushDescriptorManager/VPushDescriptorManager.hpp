@@ -38,6 +38,9 @@ struct DescriptorSetData
     vk::DescriptorImageInfo emissiveTextureImage; // for emisive texture
 
     vk::DescriptorBufferInfo lightInformation; // all light information
+
+    vk::DescriptorImageInfo LUT_LTC; // for linearly transformed cosines
+    vk::DescriptorImageInfo LUT_LTC_Inverse; // for linearly transformed cosines
 };
 
 class VPushDescriptorManager {

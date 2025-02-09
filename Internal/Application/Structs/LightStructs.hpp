@@ -15,11 +15,11 @@ namespace LightStructs
         float intensity;
 
         bool twoSided;
-        std::array<glm::vec3, 4> edges = {
-            glm::vec3{-0.5f, -0.5f, 0.5f},
-            glm::vec3{0.5f, -0.5f, 0.0f},
-            glm::vec3{-0.5f, 0.5f, 0.0f},
-            glm::vec3{0.5f, 0.5f, 0.0f}
+        std::array<glm::vec4, 4> edges = {
+            glm::vec4{-0.5f, -0.5f, 0.5f,0.0f},
+            glm::vec4{0.5f, -0.5f, 0.0f, 0.0f},
+            glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},
+            glm::vec4{0.5f, 0.5f, 0.0f, 0.0f}
         };
 
         bool isAreaLightInUse = false;
@@ -31,10 +31,10 @@ namespace LightStructs
             twoSided = false;
             isAreaLightInUse = false;
             edges = {
-                glm::vec3{-0.5f, -0.5f, 0.5f},
-                glm::vec3{0.5f, -0.5f, 0.0f},
-                glm::vec3{-0.5f, 0.5f, 0.0f},
-                glm::vec3{0.5f, 0.5f, 0.0f}
+                glm::vec4{-0.5f, -0.5f, 0.5f,0.0f},
+               glm::vec4{0.5f, -0.5f, 0.0f, 0.0f},
+               glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},
+               glm::vec4{0.5f, 0.5f, 0.0f, 0.0f}
             };
         }
     };

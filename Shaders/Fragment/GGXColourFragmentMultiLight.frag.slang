@@ -14,6 +14,7 @@ struct LightInfo {
     DirectionalLight dirLight;
     // PointLight[10] pointLigths;
     LightArray<PointLight, 20> pointLights;
+    LightArray<AreaLight, 20> areaLights;
 }
 
 [[vk::binding(2, 0)]]
@@ -66,17 +67,21 @@ float4 fragmentMain(FragmentShaderIn fsIn)
         g.normal = normalize(SampleNormalMap(_normalMap, fsIn.uv, fsIn.normal, fsIn.fragPos));
     }
 
-    LightPair<LightPair<DirectionalLight, LightArray<PointLight, 20>>, AmbientLight> lightingEnv;
-    LightPair<DirectionalLight, LightArray<PointLight, 20>> DirectLight;
-    DirectLight.first = _lightInfo.dirLight;
-    DirectLight.second = _lightInfo.pointLights;
+    LightPair<LightPair<DirectionalLight, LightArray<PointLight, 20>>, LightPair<LightArray<AreaLight,20>,AmbientLight>> lightingEnv;
+    LightPair<DirectionalLight, LightArray<PointLight, 20>> DirAndPoint;
+    DirAndPoint.first = _lightInfo.dirLight;
+    DirAndPoint.second = _lightInfo.pointLights;
 
     AmbientLight ambientLight;
     ambientLight.albedo = brdf_.albedo;
     ambientLight.aoIntensity = 0.1;
 
-    lightingEnv.first = DirectLight;
-    lightingEnv.second = ambientLight;
+    LightPair<LightArray<AreaLight, 20>, AmbientLight> AreaAndAmbient;
+    AreaAndAmbient.first = _lightInfo.areaLights;
+    AreaAndAmbient.second = ambientLight;
+
+    lightingEnv.first = DirAndPoint;
+    lightingEnv.second = AreaAndAmbient;
 
     //CookTorrence_GGX brdf;
     float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
