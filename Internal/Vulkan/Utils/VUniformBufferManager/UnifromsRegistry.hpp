@@ -48,10 +48,19 @@ struct DirectionalLightGPU
     glm::vec4 colour; // w is intensity
 };
 
+struct AreaLightGPU
+{
+    glm::vec4 intensity;
+    int isInUse;
+    int twoSided;
+    std::array<glm::vec4, 4> edges;
+};
+
 struct LightUniforms
 {
     DirectionalLightGPU directionalLight;
     std::array<PointLightGPU,20> pointLight;
+    std::array<AreaLightGPU,20> areaLights;
 };
 
 

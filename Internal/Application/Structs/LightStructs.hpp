@@ -6,11 +6,37 @@
 #define LIGHTSTRUCTS_HPP
 #include <glm/vec3.hpp>
 
+
 namespace LightStructs
 {
     struct AreaLight
     {
+        glm::vec3 colour;
+        float intensity;
 
+        bool twoSided;
+        std::array<glm::vec3, 4> edges = {
+            glm::vec3{-0.5f, -0.5f, 0.5f},
+            glm::vec3{0.5f, -0.5f, 0.0f},
+            glm::vec3{-0.5f, 0.5f, 0.0f},
+            glm::vec3{0.5f, 0.5f, 0.0f}
+        };
+
+        bool isAreaLightInUse = false;
+
+        void Reset()
+        {
+            colour = glm::vec3(0.f);
+            intensity = 0.f;
+            twoSided = false;
+            isAreaLightInUse = false;
+            edges = {
+                glm::vec3{-0.5f, -0.5f, 0.5f},
+                glm::vec3{0.5f, -0.5f, 0.0f},
+                glm::vec3{-0.5f, 0.5f, 0.0f},
+                glm::vec3{0.5f, 0.5f, 0.0f}
+            };
+        }
     };
 
     struct PointLight
@@ -30,6 +56,16 @@ namespace LightStructs
         bool useAdvancedAttentuation = 0;
         bool isPointLightInUse = false;
 
+        void Reset()
+        {
+            colour = glm::vec4(0.f);
+            position = glm::vec3(0.f);
+            constantFactor = 1.0f;
+            linearFactor = 0.045f;
+            quadraticFactor = 0.0075f;
+            isPointLightInUse = false;
+        }
+
     };
 
     struct DirectionalLight
@@ -38,6 +74,12 @@ namespace LightStructs
 
         mutable
         glm::vec3 direction;
+
+        void Reset()
+        {
+            colour = glm::vec4(0.f);
+            direction = glm::vec3(0.f);
+        }
     };
 
     struct SceneLightInfo
@@ -45,6 +87,7 @@ namespace LightStructs
         LightStructs::DirectionalLight* DirectionalLightInfo = nullptr;
 
         std::vector<LightStructs::PointLight*> PointLightInfos;
+        std::vector<LightStructs::AreaLight*> AreaLightInfos;
 
         int AddPointLight(PointLight* pointLight)
         {
@@ -54,8 +97,17 @@ namespace LightStructs
             return CurrentPointLightIndex-1;
         };
 
+        int AddAreaLight(AreaLight* areaLight)
+        {
+            AreaLightInfos.emplace_back(areaLight);
+            areaLight->isAreaLightInUse = true;
+            CurrentAreaLightIndex++;
+            return CurrentPointLightIndex-1;
+        };
+
     private:
         int CurrentPointLightIndex = 0;
+        int CurrentAreaLightIndex = 0;
     };
 
 }

@@ -126,7 +126,7 @@ interface IBRDF
      * N  -         normalVector;
      * float3 -     result colour
      */
-    float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float3 points[4], bool twoSided);
+    float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided);
 }
 
 struct CookTorrence_GGX : IBRDF
@@ -208,7 +208,7 @@ struct CookTorrence_GGX : IBRDF
         return (kd * albedo / PI + specular) * NdotL;
     }
 
-    float3 EvaluateByLTC(float3 wo, float3 wi, float3 P, float3 N, float3 points[4], bool twoSided) {
+    float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided) {
 
         const float LUT_SIZE = 64.0; // ltc_texture size
         const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
@@ -225,8 +225,8 @@ struct CookTorrence_GGX : IBRDF
         MinV2[1] = float3(0, 1, 0);
         MinV2[3] = float3(t1.z, 0, t1.w);
 
-        float3 diffuse = CalculateAreaLightLo(wo, wi, P, N, float3x3(0.f), points, twoSided);
-        float3 specular = CalculateAreaLightLo(wo, wi, P, N, MinV2, points, twoSided);
+        float3 diffuse = CalculateAreaLightLo(wo, P, N, float3x3(0.f), points, twoSided);
+        float3 specular = CalculateAreaLightLo(wo,  P, N, MinV2, points, twoSided);
 
         specular *= albedo * t2.x + (1.0f - albedo) * t2.y;
 
@@ -271,7 +271,7 @@ float3 IntegrateEdgeVec(float3 v1, float3 v2) {
     return cross(v1, v2) * theta_sintheta;
 }
 
-float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float3 points[4], bool twoSided) {
+float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4 points[4], bool twoSided) {
     const float LUT_SIZE = 64.0; // ltc_texture size
     const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
     const float LUT_BIAS = 0.5 / LUT_SIZE;
@@ -283,14 +283,14 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float3
     MinV = MinV * transpose(float3x3(T1, T2, N));
 
     float3 L[4];
-    L[0] = mul(MinV, (points[0] - P));
-    L[1] = mul(MinV, (points[1] - P));
-    L[2] = mul(MinV, (points[2] - P));
-    L[3] = mul(MinV, (points[3] - P));
+    L[0] = mul(MinV, (points[0].xyz - P));
+    L[1] = mul(MinV, (points[1].xyz - P));
+    L[2] = mul(MinV, (points[2].xyz - P));
+    L[3] = mul(MinV, (points[3].xyz - P));
 
-    float3 dir = points[0] - P;
+    float3 dir = points[0].xyz - P;
 
-    float3 lightNomrmal = cross(points[1] - points[0], points[3] - points[0]);
+    float3 lightNomrmal = cross(points[1].xyz - points[0].xyz, points[3].xyz - points[0].xyz);
     bool behind = (dot(dir, lightNomrmal) < 0.0);
 
     // cos weighted space

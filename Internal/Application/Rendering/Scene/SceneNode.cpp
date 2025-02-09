@@ -140,7 +140,7 @@ namespace ApplicationCore
         return result;
     }
 
-    void SceneNode::Update() const
+    void SceneNode::Update()
     {
         if (m_parent) {
             m_transformation->ComputeModelMatrix(m_parent->m_transformation->GetModelMatrix());

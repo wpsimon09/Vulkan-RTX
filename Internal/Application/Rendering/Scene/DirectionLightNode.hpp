@@ -16,7 +16,7 @@ public:
     explicit DirectionLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh);
 
     void Render(VulkanStructs::RenderContext* renderingContext) const override;
-    void Update() const override;
+    void Update() override;
     void ProcessNodeRemove() override;
 };
 

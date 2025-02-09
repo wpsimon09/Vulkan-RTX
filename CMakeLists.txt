@@ -147,6 +147,8 @@ set(SOURCES
         Internal/Application/Rendering/Scene/Base/LightNode.hpp
         Internal/Application/Utils/LinearyTransformedCosinesValues.hpp
         Internal/Application/Utils/LinearyTransformedCosinesValues.cpp
+        Internal/Application/Rendering/Scene/AreaLightNode.cpp
+        Internal/Application/Rendering/Scene/AreaLightNode.hpp
 )
 
 

@@ -14,7 +14,7 @@ public:
     LightNode(std::shared_ptr<StaticMesh> mesh);
 
     void Render(VulkanStructs::RenderContext* renderingContext) const override = 0;
-    void Update() const override;
+    void Update()  override;
     void ProcessNodeRemove() override = 0;
 
     T& GetLightStruct() {return m_lightStruct;};
@@ -28,7 +28,7 @@ LightNode<T>::LightNode(std::shared_ptr<StaticMesh> mesh):SceneNode(mesh), m_lig
 }
 
 template <typename T>
-void LightNode<T>::Update() const
+void LightNode<T>::Update()
 {
     SceneNode::Update();
 }

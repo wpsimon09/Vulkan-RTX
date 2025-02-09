@@ -76,7 +76,7 @@ namespace ApplicationCore
         //=========================
         // Transformation
         //=========================
-        virtual void Update() const;
+        virtual void Update();
 
         //=========================
         // Rendering
@@ -107,7 +107,7 @@ namespace ApplicationCore
         //=========================
         // Callback functions
         //=========================
-        virtual void ProcessNodeRemove(){};
+        virtual void ProcessNodeRemove(){ };
 
         //=========================
         // Operator Overloading

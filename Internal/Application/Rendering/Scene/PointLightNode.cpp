@@ -19,7 +19,7 @@ namespace ApplicationCore {
         SceneNode::Render(renderingContext);
     }
 
-    void PointLightNode::Update() const
+    void PointLightNode::Update()
     {
         m_lightStruct.position = m_transformation->GetPosition();
         SceneNode::Update();
@@ -27,9 +27,7 @@ namespace ApplicationCore {
 
     void PointLightNode::ProcessNodeRemove()
     {
+        m_lightStruct.Reset();
         SceneNode::ProcessNodeRemove();
-        m_sceneLightInfo.PointLightInfos[m_index]->colour = {0.0f, 0.0f, 0.0f,0.f};
-        m_sceneLightInfo.PointLightInfos[m_index]->position = {0.0f, 0.0f, 0.0f};
-        m_sceneLightInfo.PointLightInfos[m_index]->isPointLightInUse = false;
     }
 } // ApplicationCore
