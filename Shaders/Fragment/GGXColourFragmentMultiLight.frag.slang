@@ -14,7 +14,7 @@ struct LightInfo {
     DirectionalLight dirLight;
     // PointLight[10] pointLigths;
     LightArray<PointLight, 20> pointLights;
-    LightArray<AreaLight, 20> areaLights;
+    LightArray<AreaLight, 4> areaLights;
 }
 
 [[vk::binding(2, 0)]]
@@ -67,7 +67,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
         g.normal = normalize(SampleNormalMap(_normalMap, fsIn.uv, fsIn.normal, fsIn.fragPos));
     }
 
-    LightPair<LightPair<DirectionalLight, LightArray<PointLight, 20>>, LightPair<LightArray<AreaLight,20>,AmbientLight>> lightingEnv;
+    LightPair<LightPair<DirectionalLight, LightArray<PointLight, 20>>, LightPair<LightArray<AreaLight,4>,AmbientLight>> lightingEnv;
     LightPair<DirectionalLight, LightArray<PointLight, 20>> DirAndPoint;
     DirAndPoint.first = _lightInfo.dirLight;
     DirAndPoint.second = _lightInfo.pointLights;
@@ -76,7 +76,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     ambientLight.albedo = brdf_.albedo;
     ambientLight.aoIntensity = 0.1;
 
-    LightPair<LightArray<AreaLight, 20>, AmbientLight> AreaAndAmbient;
+    LightPair<LightArray<AreaLight, 4>, AmbientLight> AreaAndAmbient;
     AreaAndAmbient.first = _lightInfo.areaLights;
     AreaAndAmbient.second = ambientLight;
 

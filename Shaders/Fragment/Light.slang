@@ -38,11 +38,8 @@ struct AreaLight : ILightEnv {
     float4 points[4];
 
     float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
-        if (isInuse) {
-            return (intensity.xyz * intensity.w).xyz * brdf.EvaluateByLTC(wo, g.position, g.normal, points, true);
-        } else {
-            return float3(0.f);
-        };
+        return (intensity.xyz * intensity.w).xyz * brdf.EvaluateByLTC(wo, g.position, g.normal, points, true);
+     
     }
 }
 // N - number of lights 

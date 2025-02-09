@@ -72,6 +72,8 @@ namespace VEditor {
             case MeshNode:{ nodeLabel = std::string(ICON_FA_BOX) + "  " + std::string(sceneNode->GetName()); break;   }
             case DirectionalLightNode:{ nodeLabel = std::string(ICON_FA_SUN) + "  " + std::string(sceneNode->GetName());    break;   }
             case PointLightNode:{ nodeLabel = std::string(ICON_FA_LIGHTBULB) + "  " + std::string(sceneNode->GetName());    break;   }
+            case AreaLightNode:{ nodeLabel = std::string(ICON_FA_SQUARE) + "  " + std::string(sceneNode->GetName());    break;   }
+            default:{ nodeLabel = std::string(ICON_FA_QUESTION  "Unknown scene node");    break;   }
 
         }
 

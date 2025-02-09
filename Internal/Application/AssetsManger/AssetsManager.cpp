@@ -258,6 +258,7 @@ namespace ApplicationCore
         suskoMaterial.DiffuseMapPath = "Resources/EditorIcons/susko.jpg";
         mat = std::make_shared<ApplicationCore::Material>(suskoMaterial, *this);
         mat->SetMaterialname("Susko material");
+        m_materials.emplace_back(mat);
 
         //=======================================
         // LTC TEXTURES
@@ -278,9 +279,8 @@ namespace ApplicationCore
         //m_textures[MathUtils::LTCInverse_ImageData.fileName] = std::move(ltcTexture);
 
 
-        mat->GetTexture(ETextureType::Diffues) = m_textures[MathUtils::LTCInverse_ImageData.fileName];
+        //mat->GetTexture(ETextureType::Diffues) = m_textures[MathUtils::LTCInverse_ImageData.fileName];
 
-        m_materials.emplace_back(mat);
 
 
     }

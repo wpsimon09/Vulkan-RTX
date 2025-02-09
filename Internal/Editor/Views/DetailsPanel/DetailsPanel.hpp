@@ -48,6 +48,7 @@ private:
     void RenderMeshOnlyUI();
     void RenderDirectionLightUI();
     void RenderPointLightUI();
+    void RenderAreaLightUI();
 };
 
 } // VEditor

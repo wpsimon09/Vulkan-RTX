@@ -9,6 +9,7 @@
 
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
+#include "Application/Rendering/Scene/AreaLightNode.hpp"
 #include "Application/Rendering/Scene/DirectionLightNode.hpp"
 #include "Application/Rendering/Scene/PointLightNode.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
@@ -48,6 +49,11 @@ namespace VEditor {
                 if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::PointLightNode)
                 {
                     RenderPointLightUI();
+                }
+
+                if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::AreaLightNode)
+                {
+                    RenderAreaLightUI();
                 }
             }
 
@@ -228,6 +234,16 @@ namespace VEditor {
         ImGui::SliderFloat("Linear", &pointLightNode->GetLightStruct().linearFactor, 0.0014f, 0.7f);
         ImGui::SliderFloat("QuadraticTerm", &pointLightNode->GetLightStruct().quadraticFactor, 0.0001f, 0.01f, "%.3", ImGuiSliderFlags_Logarithmic);
 
+
+    }
+
+    void DetailsPanel::RenderAreaLightUI()
+    {
+        auto areaLightNode = dynamic_cast<ApplicationCore::AreaLightNode*>(m_selectedSceneNode.get());
+
+        ImGui::SeparatorText("General light settings");
+        ImGui::ColorEdit3("LightColour", &areaLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
+        ImGui::DragFloat("Intensity", &areaLightNode->GetLightStruct().intensity);
 
     }
 } // VEditor
