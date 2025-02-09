@@ -251,7 +251,7 @@ namespace ApplicationCore
         MaterialPaths suskoMaterial{};
         suskoMaterial.DiffuseMapPath = "Resources/EditorIcons/susko.jpg";
         mat = std::make_shared<ApplicationCore::Material>(suskoMaterial, *this);
-        mat->SetMaterialname("Šuško material");
+        mat->SetMaterialname("Susko material");
 
         //=======================================
         // LTC TEXTURES
@@ -259,19 +259,17 @@ namespace ApplicationCore
         auto ltcTexture = std::make_shared<VulkanCore::VImage>(m_device, 1, vk::Format::eR32G32B32A32Sfloat);
         ltcTexture->Resize(MathUtils::LTC_ImageData.widht,MathUtils::LTC_ImageData.height);
         ltcTexture->FillWithImageData<float>(MathUtils::LTC_ImageData);
+
         m_textures[MathUtils::LTC_ImageData.fileName] = std::move(ltcTexture);
 
-
-        /* this crashes direcrtional light for some reason
-         *
         ltcTexture = std::make_shared<VulkanCore::VImage>(m_device, 1, vk::Format::eR32G32B32A32Sfloat);
         ltcTexture->Resize(MathUtils::LTCInverse_ImageData.widht,MathUtils::LTCInverse_ImageData.height);
         ltcTexture->FillWithImageData<float>(MathUtils::LTCInverse_ImageData);
-        m_textures[MathUtils::LTCInverse_ImageData.fileName] = std::move(ltcTexture);
-        */
 
+        m_textures[MathUtils::LTCInverse_ImageData.fileName] = std::move(ltcTexture);
 
         mat->GetTexture(ETextureType::Diffues) = m_textures[MathUtils::LTCInverse_ImageData.fileName];
+
         m_materials.emplace_back(mat);
 
 

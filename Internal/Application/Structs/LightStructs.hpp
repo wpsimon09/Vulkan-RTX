@@ -42,10 +42,10 @@ namespace LightStructs
 
     struct SceneLightInfo
     {
-        LightStructs::DirectionalLight* DirectionalLightInfo;
-
+        LightStructs::DirectionalLight* DirectionalLightInfo = nullptr;
 
         std::vector<LightStructs::PointLight*> PointLightInfos;
+
         int AddPointLight(PointLight* pointLight)
         {
             PointLightInfos.emplace_back(pointLight);
