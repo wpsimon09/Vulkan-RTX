@@ -28,11 +28,19 @@ struct PointLight : ILightEnv {
         float  attentuation = 1.0f / (CLQU_Parameters.x + (CLQU_Parameters.y * distance) + (CLQU_Parameters.z * (distance * distance)));
         float3 illuminance = (intensity.xyz * intensity.w).xyz;
         return position.w == 1 ? illuminance * attentuation * brdf.Evaluate(wo, direction, g.normal) : 0.f;
-
-
     }
 }
 
+struct AreaLight : ILightEnv {
+    float4 intensity;
+    float padding;
+    float3 points[4];
+    bool TwoSided;
+
+    float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
+        return (intensity.xyz * intensity.w).xyz * brdf.EvaluateByLTC(wo, g.position, g.normal, points, true);
+    }
+}
 // N - number of lights 
 // L - light type
 struct LightArray<L : ILightEnv, let N : int> : ILightEnv {
