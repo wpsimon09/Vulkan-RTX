@@ -244,6 +244,7 @@ namespace VEditor {
         ImGui::SeparatorText("General light settings");
         ImGui::ColorEdit3("LightColour", &areaLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
         ImGui::DragFloat("Intensity", &areaLightNode->GetLightStruct().intensity);
+        ImGui::Checkbox("Two sided", &areaLightNode->GetLightStruct().twoSided);
 
     }
 } // VEditor

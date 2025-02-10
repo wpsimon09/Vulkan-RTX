@@ -1,10 +1,13 @@
+import Utils;
 #define PI 3.14159265359
+
 
 [[vk::binding(9, 0)]]
 ConstantBuffer<Sampler2D> LTC;
 
-[[vk::binding(10, 0)]]
+[[vk::binding(  10, 0)]]
 ConstantBuffer<Sampler2D> LTC_Inverse;
+
 
 //=================================
 // STRUCTS 
@@ -215,16 +218,16 @@ struct CookTorrence_GGX : IBRDF
         const float LUT_BIAS = 0.5 / LUT_SIZE;
 
         float NdotV = clamp(dot(N, wo), 0.0, 1.0);
-        float2 uv = float2(roughness,1.0 - sqrt(1.f - NdotV));
+        float2 uv = float2(roughness, sqrt(1.0f - NdotV));
         uv = uv * LUT_SCALE + LUT_BIAS;
 
-        float4 t1 = LTC_Inverse.Sample(uv);
-        float4 t2 = LTC.Sample(uv);
+        float4 t1 = LTC_Inverse.Sample(float2(uv.x, 1.0 - uv.y));
+        float4 t2 = LTC.Sample(float2(uv.x, 1.0 - uv.y));
 
         float3x3 MinV2;
-        MinV2[0] = float3(t1.x, 0, t1.y);
-        MinV2[1] = float3(0, 1, 0);
-        MinV2[2] = float3(t1.z, 0, t1.w);
+        MinV2[0] = float3(t1.x, 0.0, t1.y);
+        MinV2[1] = float3(0.0, 1.0, 0.0);
+        MinV2[2] = float3(t1.z, 0.0, t1.w);
 
         float3 diffuse = CalculateAreaLightLo(wo, P, N, float3x3(1.f), points, twoSided);
         float3 specular = CalculateAreaLightLo(wo,  P, N, MinV2, points, twoSided);
@@ -267,7 +270,7 @@ float3 IntegrateEdgeVec(float3 v1, float3 v2) {
     float b = 3.4175940 + (4.1616724 + y) * y;
     float v = a / b;
 
-    float theta_sintheta = (x > 0.0) ? v : 0.5 * (1/sqrt((max(1.0 - x * x, 1e-7))) - v); // this should be inverse sqrt root and it might cause issues 
+    float theta_sintheta = (x > 0.0) ? v : 0.5 * inverseSqrt(max(1.0 - x * x, 1e-7)) - v;
 
     return cross(v1, v2) * theta_sintheta;
 }
@@ -284,15 +287,15 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
     MinV = MinV * transpose(float3x3(T1, T2, N));
 
     float3 L[4];
-    L[0] = mul(MinV, (points[0].xyz - P));
-    L[1] = mul(MinV, (points[1].xyz - P));
-    L[2] = mul(MinV, (points[2].xyz - P));
-    L[3] = mul(MinV, (points[3].xyz - P));
+    L[0] = mul(MinV, (points[0].xyz - P).xyz);
+    L[1] = mul(MinV, (points[1].xyz - P).xyz);
+    L[2] = mul(MinV, (points[2].xyz - P).xyz);
+    L[3] = mul(MinV, (points[3].xyz - P).xyz);
 
     float3 dir = points[0].xyz - P;
 
-    float3 lightNomrmal = cross(points[1].xyz - points[0].xyz, points[3].xyz - points[0].xyz);
-    bool behind = (dot(dir, lightNomrmal) < 0.0);
+    float3 lightNormal = cross(points[1].xyz - points[0].xyz, points[3].xyz - points[0].xyz);
+    bool behind = (dot(dir, lightNormal) < 0.0);
 
     // cos weighted space
     L[0] = normalize(L[0]);
@@ -301,7 +304,7 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
     L[3] = normalize(L[3]);
 
     // integrate
-    float3 vsum = float3(0.f);
+    float3 vsum = float3(0.0f);
     vsum += IntegrateEdgeVec(L[0], L[1]);
     vsum += IntegrateEdgeVec(L[1], L[2]);
     vsum += IntegrateEdgeVec(L[2], L[3]);
@@ -315,15 +318,14 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
     }
 
     float2 uv = float2(z * 0.5f + 0.5f, len);
-    uv.y = 1 - uv.y;
     uv = uv * LUT_SCALE + LUT_BIAS;
 
-    float scale = LTC.Sample(uv).w;
+    float scale = LTC.Sample(float2(uv.x, 1.0 - uv.y)).w;
 
     float sum = len * scale;
 
-    if (!behind) {
-        sum = 0.f;
+    if (!behind && !twoSided) {
+        sum = 0.0f;
     }
 
     return float3(sum, sum, sum);
