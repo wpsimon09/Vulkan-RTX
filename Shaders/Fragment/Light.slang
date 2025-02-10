@@ -35,10 +35,15 @@ struct AreaLight : ILightEnv {
     float4 intensity;
     bool isInuse;
     bool TwoSided;
+    float2 padding;
     float4 points[4];
 
     float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
-        return (intensity.xyz * intensity.w).xyz * brdf.EvaluateByLTC(wo, g.position, g.normal, points, true);
+        if (isInuse) {
+            return (intensity.xyz * intensity.w).xyz * brdf.EvaluateByLTC(wo, g.position, g.normal, points, true);
+        } else {
+            return 0.f;
+        }
      
     }
 }

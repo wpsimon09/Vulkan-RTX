@@ -53,6 +53,7 @@ struct AreaLightGPU
     glm::vec4 intensity;
     int isInUse;
     int twoSided;
+    glm::vec2 padding;
     std::array<glm::vec4, 4> edges;
 };
 
@@ -60,7 +61,7 @@ struct LightUniforms
 {
     DirectionalLightGPU directionalLight;
     std::array<PointLightGPU,20> pointLight;
-    std::array<AreaLightGPU,20> areaLights;
+    std::array<AreaLightGPU,4> areaLights;
 };
 
 

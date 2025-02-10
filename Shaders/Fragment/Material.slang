@@ -214,7 +214,8 @@ struct CookTorrence_GGX : IBRDF
         const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
         const float LUT_BIAS = 0.5 / LUT_SIZE;
 
-        float2 uv = float2(roughness, sqrt(1.f - clamp(dot(N, wo), 0.0, 1.0)));
+        float NdotV = clamp(dot(N, wo), 0.0, 1.0);
+        float2 uv = float2(roughness,1.0 - sqrt(1.f - NdotV));
         uv = uv * LUT_SCALE + LUT_BIAS;
 
         float4 t1 = LTC_Inverse.Sample(uv);
@@ -223,7 +224,7 @@ struct CookTorrence_GGX : IBRDF
         float3x3 MinV2;
         MinV2[0] = float3(t1.x, 0, t1.y);
         MinV2[1] = float3(0, 1, 0);
-        MinV2[3] = float3(t1.z, 0, t1.w);
+        MinV2[2] = float3(t1.z, 0, t1.w);
 
         float3 diffuse = CalculateAreaLightLo(wo, P, N, float3x3(0.f), points, twoSided);
         float3 specular = CalculateAreaLightLo(wo,  P, N, MinV2, points, twoSided);
@@ -314,6 +315,7 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
     }
 
     float2 uv = float2(z * 0.5f + 0.5f, len);
+    uv.y = 1 - uv.y;
     uv = uv * LUT_SCALE + LUT_BIAS;
 
     float scale = LTC.Sample(uv).w;
