@@ -21,11 +21,14 @@ namespace ApplicationCore {
 
     void AreaLightNode::Update()
     {
-        LightNode<LightStructs::AreaLight>::Update();
-        for (auto& edge : m_lightStruct.edges)
+        int i = 0;
+        for (auto& edge : m_lightStruct.GetAreaLightEdges())
         {
-            edge =  m_transformation->GetModelMatrix() * edge;
+            auto newEdge =  m_transformation->GetModelMatrix() * edge;
+            m_lightStruct.edges[i] = newEdge;
+            i++;
         }
+        LightNode<LightStructs::AreaLight>::Update();
     }
 
     void AreaLightNode::ProcessNodeRemove()

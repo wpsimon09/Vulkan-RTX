@@ -226,7 +226,7 @@ struct CookTorrence_GGX : IBRDF
         MinV2[1] = float3(0, 1, 0);
         MinV2[2] = float3(t1.z, 0, t1.w);
 
-        float3 diffuse = CalculateAreaLightLo(wo, P, N, float3x3(0.f), points, twoSided);
+        float3 diffuse = CalculateAreaLightLo(wo, P, N, float3x3(1.f), points, twoSided);
         float3 specular = CalculateAreaLightLo(wo,  P, N, MinV2, points, twoSided);
 
         specular *= albedo * t2.x + (1.0f - albedo) * t2.y;

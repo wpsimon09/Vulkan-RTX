@@ -37,6 +37,17 @@ namespace LightStructs
                glm::vec4{0.5f, 0.5f, 0.0f, 0.0f}
             };
         }
+
+        std::array<glm::vec4, 4> GetAreaLightEdges()
+        {
+            return
+            {
+                glm::vec4{-0.5f, -0.5f, 0.5f,0.0f},
+              glm::vec4{0.5f, -0.5f, 0.0f, 0.0f},
+              glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},
+              glm::vec4{0.5f, 0.5f, 0.0f, 0.0f}
+            };
+        }
     };
 
     struct PointLight

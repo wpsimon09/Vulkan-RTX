@@ -107,7 +107,7 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
     numIterations = sceneLightInfo.AreaLightInfos.size() <= 20 ?  sceneLightInfo.AreaLightInfos.size() : 20;
     for (int i=0; i<numIterations ; i++)
     {
-        if (sceneLightInfo.AreaLightInfos[i] != nullptr)
+        if (sceneLightInfo.AreaLightInfos[i] != nullptr )
         {
             auto& areaLight = sceneLightInfo.AreaLightInfos[i];
             m_lightUniform->GetUBOStruct().areaLights[i].edges = areaLight->edges;
