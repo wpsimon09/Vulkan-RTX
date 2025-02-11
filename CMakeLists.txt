@@ -191,6 +191,9 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
         ${CMAKE_SOURCE_DIR}/External/IconFontCppHeaders
 )
 
+file(COPY ${CMAKE_SOURCE_DIR}/Resources DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/Shaders DESTINATION ${CMAKE_BINARY_DIR})
+
 # Set compile options based on build type
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_options(${TARGET} PRIVtATE ${CFLAGS_RELEASE})

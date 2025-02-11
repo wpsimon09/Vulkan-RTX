@@ -13,3 +13,4 @@ CMakeUserPresets.json
 /build
 .idea
 /Shaders/Compiled
+.cache
