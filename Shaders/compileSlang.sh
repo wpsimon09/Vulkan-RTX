@@ -40,21 +40,6 @@ for frag_shader in Fragment/*.frag.slang; do
     fi
 done
 
-for frag_shader in Fragment/*.slang; do
-    if [[ -f "$frag_shader" ]];  then
-        shader_name=$(basename "$frag_shader")
-        echo "Compiling fragment shader: $shader_name"
-        $SLANGC_PATH -allow-glsl -o "Compiled/${shader_name%.frag}.spv" "$frag_shader"
-        if [[ $? -eq 0 ]]; then
-            echo "Compiled $frag_shader to Compiled/${shader_name%.frag}.spv"
-        else
-            echo "Failed to compile $frag_shader"
-        fi
-    else
-        echo "No fragment shaders found in Fragment directory"
-    fi
-done
-
 for util_shader in Utils/*.slang; do
     if [[ -f "$util_shader" ]]; then
         shader_name=$(basename "$util_shader")

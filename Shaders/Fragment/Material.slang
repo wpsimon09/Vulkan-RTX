@@ -221,11 +221,11 @@ struct CookTorrence_GGX : IBRDF
         float2 uv = float2(roughness, sqrt(1.0f - NdotV));
         uv = uv * LUT_SCALE + LUT_BIAS;
 
-        float4 t1 = LTC_Inverse.Sample(float2(uv.x, 1.0f - uv.y));
-        float4 t2 = LTC.Sample(float2(uv.x, 1.0f - uv.y));
+        float4 t1 = LTC_Inverse.Sample(float2(uv.x, uv.y));
+        float4 t2 = LTC.Sample(float2(uv.x, uv.y));
 
         
-        column_major float3x3 MinV2;
+        float3x3 MinV2;
         MinV2[0] = float3(t1.x, 0.0, t1.y);
         MinV2[1] = float3(0.0,    1.0 ,   0.0);
         MinV2[2] = float3(t1.z, 0.0, t1.w);
@@ -235,7 +235,7 @@ struct CookTorrence_GGX : IBRDF
 
         specular *= albedo * t2.x + (1.0f - albedo) * t2.y;
 
-        return float3((specular) + (diffuse * albedo));
+        return specular;
     }
 }
 
@@ -287,13 +287,13 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
 
     column_major float3x3 TTN = float3x3(T1, T2, N);
 
-    MinV = MinV * transpose(TTN);
+    MinV =  MinV * transpose(TTN);
 
     float3 L[4];
-    L[0] = mul(MinV, (points[0].xyz - P).xyz);
-    L[1] = mul(MinV, (points[1].xyz - P).xyz);
-    L[2] = mul(MinV, (points[2].xyz - P).xyz);
-    L[3] = mul(MinV, (points[3].xyz - P).xyz);
+    L[0] = mul(MinV, (points[0].xyz - P));
+    L[1] = mul(MinV, (points[1].xyz - P));
+    L[2] = mul(MinV, (points[2].xyz - P));
+    L[3] = mul(MinV, (points[3].xyz - P));
 
     float3 dir = points[0].xyz - P;
 
@@ -323,7 +323,7 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
     float2 uv = float2(z * 0.5f + 0.5f, len);
     uv = uv * LUT_SCALE + LUT_BIAS;
 
-    float scale = LTC.Sample(float2(uv.x, 1.0f - uv.y)).w;
+    float scale = LTC.Sample(float2(uv.x, uv.y)).w;
 
     float sum = len * scale;
 
