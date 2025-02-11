@@ -221,12 +221,13 @@ struct CookTorrence_GGX : IBRDF
         float2 uv = float2(roughness, sqrt(1.0f - NdotV));
         uv = uv * LUT_SCALE + LUT_BIAS;
 
-        float4 t1 = LTC_Inverse.Sample(float2(uv.x, 1.0 - uv.y));
-        float4 t2 = LTC.Sample(float2(uv.x, 1.0 - uv.y));
+        float4 t1 = LTC_Inverse.Sample(float2(uv.x, 1.0f - uv.y));
+        float4 t2 = LTC.Sample(float2(uv.x, 1.0f - uv.y));
 
-        float3x3 MinV2;
+        
+        column_major float3x3 MinV2;
         MinV2[0] = float3(t1.x, 0.0, t1.y);
-        MinV2[1] = float3(0.0, 1.0, 0.0);
+        MinV2[1] = float3(0.0,    1.0 ,   0.0);
         MinV2[2] = float3(t1.z, 0.0, t1.w);
 
         float3 diffuse = CalculateAreaLightLo(wo, P, N, float3x3(1.f), points, twoSided);
@@ -284,7 +285,9 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
     T1 = normalize(wo - N * dot(wo, N));
     T2 = cross(N, T1);
 
-    MinV = MinV * transpose(float3x3(T1, T2, N));
+    column_major float3x3 TTN = float3x3(T1, T2, N);
+
+    MinV = MinV * transpose(TTN);
 
     float3 L[4];
     L[0] = mul(MinV, (points[0].xyz - P).xyz);
@@ -306,7 +309,7 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
     // integrate
     float3 vsum = float3(0.0f);
     vsum += IntegrateEdgeVec(L[0], L[1]);
-    vsum += IntegrateEdgeVec(L[1], L[2]);
+    vsum += IntegrateEdgeVec(L[1], L[2]); 
     vsum += IntegrateEdgeVec(L[2], L[3]);
     vsum += IntegrateEdgeVec(L[3], L[0]);
 
@@ -320,7 +323,7 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
     float2 uv = float2(z * 0.5f + 0.5f, len);
     uv = uv * LUT_SCALE + LUT_BIAS;
 
-    float scale = LTC.Sample(float2(uv.x, 1.0 - uv.y)).w;
+    float scale = LTC.Sample(float2(uv.x, 1.0f - uv.y)).w;
 
     float sum = len * scale;
 
