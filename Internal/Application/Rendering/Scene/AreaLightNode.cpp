@@ -21,6 +21,7 @@ namespace ApplicationCore {
 
     void AreaLightNode::Update()
     {
+        LightNode<LightStructs::AreaLight>::Update();
         int i = 0;
         for (auto& edge : m_lightStruct.GetAreaLightEdges())
         {
@@ -28,7 +29,6 @@ namespace ApplicationCore {
             m_lightStruct.edges[i] = newEdge;
             i++;
         }
-        LightNode<LightStructs::AreaLight>::Update();
     }
 
     void AreaLightNode::ProcessNodeRemove()

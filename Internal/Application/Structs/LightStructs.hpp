@@ -16,10 +16,10 @@ namespace LightStructs
 
         bool twoSided;
         std::array<glm::vec4, 4> edges = {
-            glm::vec4{-0.5f, -0.5f, 0.0f, 0.0f},  // First point (bottom-left corner)
-   glm::vec4{0.5f, -0.5f, 0.0f, 0.0f},   // Second point (bottom-right corner)
-   glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},   // Third point (top-left corner)
-   glm::vec4{0.5f, 0.5f, 0.0f, 0.0f}
+            glm::vec4{-0.5f, -0.5f, 0.0f, 1.0f},  // First point (bottom-left corner)
+   glm::vec4{0.5f, -0.5f, 0.0f, 1.0f},   // Second point (bottom-right corner)
+   glm::vec4{-0.5f, 0.5f, 0.0f, 1.0f},   // Third point (top-left corner)
+   glm::vec4{0.5f, 0.5f, 0.0f, 1.0f}
         };
 
         bool isAreaLightInUse = false;
@@ -31,10 +31,10 @@ namespace LightStructs
             twoSided = false;
             isAreaLightInUse = false;
             edges = {
-                glm::vec4{-0.5f, -0.5f, 0.0f, 0.0f},  // First point (bottom-left corner)
-   glm::vec4{0.5f, -0.5f, 0.0f, 0.0f},   // Second point (bottom-right corner)
-   glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},   // Third point (top-left corner)
-   glm::vec4{0.5f, 0.5f, 0.0f, 0.0f}
+                glm::vec4{-0.5f, -0.5f, 0.0f, 1.0f},  // First point (bottom-left corner)
+               glm::vec4{0.5f, -0.5f, 0.0f, 1.0f},   // Second point (bottom-right corner)
+               glm::vec4{-0.5f, 0.5f, 0.0f, 1.0f},   // Third point (top-left corner)
+               glm::vec4{0.5f, 0.5f, 0.0f, 1.0f}
             };
         }
 
@@ -42,10 +42,10 @@ namespace LightStructs
         {
             return
             {
-                glm::vec4{-0.5f, -0.5f, 0.0f, 0.0f},  // First point (bottom-left corner)
-   glm::vec4{0.5f, -0.5f, 0.0f, 0.0f},   // Second point (bottom-right corner)
-   glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},   // Third point (top-left corner)
-   glm::vec4{0.5f, 0.5f, 0.0f, 0.0f}
+                glm::vec4{-0.5f, -0.5f, 0.0f, 1.0f},  // First point (bottom-left corner)
+               glm::vec4{0.5f, -0.5f, 0.0f, 1.0f},   // Second point (bottom-right corner)
+               glm::vec4{-0.5f, 0.5f, 0.0f, 1.0f},   // Third point (top-left corner)
+               glm::vec4{0.5f, 0.5f, 0.0f, 1.0f}
             };
         }
     };
