@@ -217,8 +217,8 @@ struct CookTorrence_GGX : IBRDF
         const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
         const float LUT_BIAS = 0.5 / LUT_SIZE;
 
-        float NdotV = clamp(dot(N, wo), 0.0, 1.0);
-        float2 uv = float2(roughness, sqrt(1.0f - NdotV));
+        float NdotV = dot(N, wo);
+        float2 uv = float2(roughness, 1.0-sqrt(1.0f - NdotV));
         uv = uv * LUT_SCALE + LUT_BIAS;
 
         float4 t1 = LTC_Inverse.Sample(float2(uv.x, uv.y));
@@ -230,7 +230,13 @@ struct CookTorrence_GGX : IBRDF
         MinV[1] = float3(0.0,    1.0 ,   0.0);
         MinV[2] = float3(t1.z, 0.0, t1.w);
 
-        float3 diffuse = CalculateAreaLightLo(wo, P, N, float3x3(1.f), points, twoSided);
+
+        float3x3 identity;
+        identity[0] = float3(1.0, 0.0, 0.0);
+        identity[1] = float3(0.0, 1.0, 0.0);
+        identity[2] = float3(0.0, 0.0, 1.0);
+
+        float3 diffuse = CalculateAreaLightLo(wo, P, N,identity , points, twoSided);
         float3 specular = CalculateAreaLightLo(wo,  P, N, MinV, points, twoSided);
 
         specular *= albedo * t2.x + (1.0f - albedo) * t2.y;
@@ -287,7 +293,7 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
 
     column_major float3x3 TTN = float3x3(T1, T2, N);
 
-    float3x3 minv =  MinV * transpose(TTN);
+    column_major float3x3 minv =  MinV * transpose(TTN);
 
     float3 L[4];
     L[0] = mul(minv, (points[0].xyz - P));
@@ -297,7 +303,7 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
 
     float3 dir = points[0].xyz - P;
 
-    float3 lightNormal = cross(points[1].xyz - points[0].xyz, points[3].xyz - points[0].xyz);
+    float3 lightNormal = normalize(cross(points[1].xyz - points[0].xyz, points[3].xyz - points[0].xyz));
     bool behind = (dot(dir, lightNormal) < 0.0);
 
     // cos weighted space
