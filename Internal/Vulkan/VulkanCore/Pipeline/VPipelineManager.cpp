@@ -172,7 +172,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->Init();
     pipeline->SetPipelineType(EPipelineType::Outline);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
-    pipeline->SetCullMode(vk::CullModeFlagBits::eFront);
+    pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
     pipeline->SetLineWidth(7.0f);
     pipeline->SetPolygonMode(vk::PolygonMode::eLine);
     //pipeline->DisableDepthTest();

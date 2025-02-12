@@ -226,17 +226,17 @@ struct CookTorrence_GGX : IBRDF
 
         
         column_major float3x3 MinV;
-        MinV[0] = float3(t1.x, 0.0,      t1.y);
-        MinV[1] = float3(0.0,    1.0 ,   0.0);
-        MinV[2] = float3(t1.z, 0.0,      t1.w);
+        MinV[0] = float3(t1.x, 0.0,   t1.y);
+        MinV[1] = float3(0.0, t1.w ,   0.0);
+        MinV[2] = float3(t1.z, 0.0,    1.0 );
 
         column_major float3x3 identity;
         identity[0] = float3(1.0, 0.0, 0.0);
         identity[1] = float3(0.0, 1.0, 0.0);
         identity[2] = float3(0.0, 0.0, 1.0);
 
-        float3 specular = CalculateAreaLightLo(wo,  P, normalize(N), MinV, points, twoSided);
-        float3 diffuse = CalculateAreaLightLo(wo, P, normalize(N), identity, points, twoSided);
+        float3 specular = CalculateAreaLightLo(normalize(wo),  P, normalize(N), MinV, points, twoSided);
+        float3 diffuse = CalculateAreaLightLo(normalize(wo), P, normalize(N), identity, points, twoSided);
 
         specular *= albedo * t2.x + (1.0f - albedo) * t2.y;
 
@@ -295,10 +295,10 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
     column_major float3x3 minv =  MinV * transpose(TTN);
 
     float3 L[4];
-    L[0] = mul(minv, (points[0].xyz - P));
-    L[1] = mul(minv, (points[1].xyz - P));
-    L[2] = mul(minv, (points[2].xyz - P));
-    L[3] = mul(minv, (points[3].xyz - P));
+    L[0] = mul((points[0].xyz - P),minv);
+    L[1] = mul((points[1].xyz - P),minv);
+    L[2] = mul((points[2].xyz - P),minv);
+    L[3] = mul((points[3].xyz - P),minv);
 
     float3 dir = points[0].xyz - P;
 

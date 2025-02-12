@@ -41,6 +41,7 @@ struct AreaLight : ILightEnv {
     float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         if (isInuse) {
             return (intensity.xyz * intensity.w).xyz * brdf.EvaluateByLTC(normalize(wo), g.position, g.normal, points, TwoSided);
+            //return 0.f;
         } else {
             return 0.f;
         }
