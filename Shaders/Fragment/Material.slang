@@ -217,7 +217,7 @@ struct CookTorrence_GGX : IBRDF
         const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
         const float LUT_BIAS = 0.5 / LUT_SIZE;
 
-        float NdotV = dot(N, wo);
+        float NdotV = max(dot(N, wo),0.f);
         float2 uv = float2(roughness, 1.0-sqrt(1.0f - NdotV));
         uv = uv * LUT_SCALE + LUT_BIAS;
 
@@ -225,23 +225,22 @@ struct CookTorrence_GGX : IBRDF
         float4 t2 = LTC.Sample(float2(uv.x, uv.y));
 
         
-        float3x3 MinV;
-        MinV[0] = float3(t1.x, 0.0, t1.y);
+        column_major float3x3 MinV;
+        MinV[0] = float3(t1.x, 0.0,      t1.y);
         MinV[1] = float3(0.0,    1.0 ,   0.0);
-        MinV[2] = float3(t1.z, 0.0, t1.w);
+        MinV[2] = float3(t1.z, 0.0,      t1.w);
 
-
-        float3x3 identity;
+        column_major float3x3 identity;
         identity[0] = float3(1.0, 0.0, 0.0);
         identity[1] = float3(0.0, 1.0, 0.0);
         identity[2] = float3(0.0, 0.0, 1.0);
 
-        float3 diffuse = CalculateAreaLightLo(wo, P, N,identity , points, twoSided);
-        float3 specular = CalculateAreaLightLo(wo,  P, N, MinV, points, twoSided);
+        float3 specular = CalculateAreaLightLo(wo,  P, normalize(N), MinV, points, twoSided);
+        float3 diffuse = CalculateAreaLightLo(wo, P, normalize(N), identity, points, twoSided);
 
         specular *= albedo * t2.x + (1.0f - albedo) * t2.y;
 
-        return (specular + (diffuse * albedo));
+        return specular + (diffuse * albedo);
     }
 }
 
