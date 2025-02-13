@@ -224,11 +224,18 @@ struct CookTorrence_GGX : IBRDF
         float4 t1 = LTC_Inverse.Sample(float2(uv.x, 1.0 - uv.y));
         float4 t2 = LTC.Sample(float2(uv.x, 1.0 - uv.y));
 
+        float3 F0 = float3(0.04);
+        F0 = lerp(F0, albedo, metallnes);
+        float3 F = FresnelShlick(max(dot(N, wo), 0.0), F0);
+
+        float3 kS = F;
+        float3 kD = float3(1.0) - kS;
+        kS *= 1.0 - metallnes;
         
         float3x3 MinV;
         MinV[0] = float3(t1.x, 0.0,   t1.y);
         MinV[1] = float3(0.0, 1.0 ,   0.0);
-        MinV[2] = float3(t1.z, 0.0,  t1.w   );
+        MinV[2] = float3(t1.z,   0.0,  t1.w   );
 
         float3x3 identity;
         identity[0] = float3(1.0, 0.0, 0.0);
@@ -240,7 +247,7 @@ struct CookTorrence_GGX : IBRDF
 
         specular *= albedo * t2.x + (1.0f - albedo) * t2.y;
 
-        return (specular + (diffuse * albedo));
+        return (specular + (kD * diffuse * albedo));
     }
 }
 
@@ -291,7 +298,7 @@ float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4
     T2 = cross(N, T1);
 
     float3x3 TTN = float3x3(T1, T2, N);
-    float3x3 minv =  MinV * transpose(TTN);
+    float3x3 minv =  mul(transpose(TTN),MinV);
 
     float3 L[4];
     L[0] = mul((points[0].xyz - P),minv);
