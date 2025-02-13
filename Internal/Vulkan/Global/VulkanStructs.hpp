@@ -5,13 +5,10 @@
 #ifndef VULKANSTRUCTS_HPP
 #define VULKANSTRUCTS_HPP
 
-#include <unordered_map>
 #include <stb_image/stb_image.h>
 #include <vulkan/vulkan.hpp>
 
 #include "Application/Rendering/Material/Material.hpp"
-#include "Application/Structs/LightStructs.hpp"
-#include "glm/glm.hpp"
 #include "VMA/vk_mem_alloc.h"
 
 #ifndef BUFFER_SIZE
@@ -86,6 +83,7 @@ namespace VulkanStructs
         bool bMainLightPass = true;
         bool bRTXPass = false;
         bool bEditorBillboardPass = false;
+        bool bDebugGeometryPass = false;
 
         bool operator==(const RenderingMetaData& other) const
         {
@@ -183,6 +181,7 @@ struct DrawCallData
         std::pair<RenderingMetaData, std::vector<DrawCallData>> EditorBillboardPass;
         std::pair<RenderingMetaData, std::vector<DrawCallData>> SelectedGeometryPass;
         std::pair<RenderingMetaData, std::vector<DrawCallData>> RayTracingPlanePass;
+        std::pair<RenderingMetaData, std::vector<DrawCallData>> DebugGeometryPass;
 
         void ExtractDepthValues(glm::vec3& cameraPosition)
         {
@@ -213,6 +212,10 @@ struct DrawCallData
             RayTracingPlanePass.first.bRTXPass= true;
             RayTracingPlanePass.first.bEditorBillboardPass = false;
             RayTracingPlanePass.first.bMainLightPass = false;
+
+            DebugGeometryPass.first.bDebugGeometryPass = true;
+            DebugGeometryPass.first.bEditorBillboardPass = false;
+            DebugGeometryPass.first.bMainLightPass = false;
         }
 
         void GetAllDrawCall(std::vector<DrawCallData>& outDrawCalls)
@@ -220,11 +223,14 @@ struct DrawCallData
             outDrawCalls.clear();
             outDrawCalls.reserve(
              MainLightPass.second.size() +
-                EditorBillboardPass.second.size()
+                EditorBillboardPass.second.size() +
+                DebugGeometryPass.second.size()
             );
 
             outDrawCalls.insert(outDrawCalls.end(), MainLightPass.second.begin(), MainLightPass.second.end());
             outDrawCalls.insert(outDrawCalls.end(), EditorBillboardPass.second.begin(), EditorBillboardPass.second.end());
+            outDrawCalls.insert(outDrawCalls.end(), DebugGeometryPass.second.begin(), DebugGeometryPass.second.end());
+
         }
 
         std::vector<DrawCallData*> GetAllDrawCall()
@@ -234,7 +240,8 @@ struct DrawCallData
                 MainLightPass.second.size() +
                 EditorBillboardPass.second.size() +
                 SelectedGeometryPass.second.size() +
-                RayTracingPlanePass.second.size()
+                RayTracingPlanePass.second.size() + 
+                DebugGeometryPass.second.size()
             );
 
             // Store pointers to original DrawCallData instances
@@ -246,15 +253,18 @@ struct DrawCallData
                 allDrawCalls.push_back(&drawCall);
             for (auto& drawCall : RayTracingPlanePass.second)
                 allDrawCalls.push_back(&drawCall);
+            for (auto& drawCall : DebugGeometryPass.second)
+                allDrawCalls.push_back(&drawCall);
 
             return allDrawCalls;
         }
 
         void AddDrawCall(const RenderingMetaData& drawCallMetaDat,DrawCallData& DrawCall)
         {
-            if (drawCallMetaDat == MainLightPass.first) MainLightPass.second.push_back(DrawCall);
-            if (drawCallMetaDat == RayTracingPlanePass.first) RayTracingPlanePass.second.push_back(DrawCall);
-            if (drawCallMetaDat == EditorBillboardPass.first) EditorBillboardPass.second.push_back(DrawCall);
+            if (drawCallMetaDat == MainLightPass.first) MainLightPass.second.emplace_back(DrawCall);
+            if (drawCallMetaDat == RayTracingPlanePass.first) RayTracingPlanePass.second.emplace_back(DrawCall);
+            if (drawCallMetaDat == EditorBillboardPass.first) EditorBillboardPass.second.emplace_back(DrawCall);
+            if (drawCallMetaDat == SelectedGeometryPass.first) DebugGeometryPass.second.emplace_back(DrawCall);
         }
 
         void ResetAllDrawCalls()
@@ -263,6 +273,7 @@ struct DrawCallData
             EditorBillboardPass.second.clear();
             SelectedGeometryPass.second.clear();
             RayTracingPlanePass.second.clear();
+            DebugGeometryPass.second.clear();
         }
     };
 

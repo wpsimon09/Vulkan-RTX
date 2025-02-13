@@ -160,6 +160,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
 
     m_pipelines[EPipelineType::DebugLines] = std::move(pipeline);
 
+
     //==================================
     // OUTLINE PIPELINE
     //==================================
@@ -172,11 +173,28 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->Init();
     pipeline->SetPipelineType(EPipelineType::Outline);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
-    pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
+    pipeline->SetCullMode(vk::CullModeFlagBits::eFront);
     pipeline->SetLineWidth(7.0f);
     pipeline->SetPolygonMode(vk::PolygonMode::eLine);
     //pipeline->DisableDepthTest();
     m_pipelines[EPipelineType::Outline] = std::move(pipeline);
+
+    //==================================
+    // DEBUG SHAPES PIPELINE
+    // - same as outline but with depth test disabled
+    //==================================
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_outlineShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
+    pipeline->Init();
+    pipeline->SetPipelineType(EPipelineType::DebugShadpes);
+    pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
+    pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
+    pipeline->SetLineWidth(7.0f);
+    pipeline->SetPolygonMode(vk::PolygonMode::eLine);
+    pipeline->DisableDepthTest();
+    m_pipelines[EPipelineType::DebugShadpes] = std::move(pipeline);
+
 }
+
+
 
 

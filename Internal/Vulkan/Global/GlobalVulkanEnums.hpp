@@ -12,7 +12,8 @@ enum class EPipelineType
     DebugLines,
     Outline,
     MultiLight,
-    EditorBillboard
+    EditorBillboard,
+    DebugShadpes
 };
 
 enum EQueueFamilyIndexType

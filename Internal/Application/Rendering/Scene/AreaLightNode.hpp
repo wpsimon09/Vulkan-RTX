@@ -4,7 +4,12 @@
 
 #ifndef AREALIGHTNODE_HPP
 #define AREALIGHTNODE_HPP
+
 #include "Base/LightNode.hpp"
+
+namespace VulkanStructs{
+    struct RenderContext;
+}
 
 namespace ApplicationCore {
 
