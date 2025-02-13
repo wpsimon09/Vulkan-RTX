@@ -84,7 +84,7 @@ namespace VulkanStructs
         bool bRTXPass = false;
         bool bEditorBillboardPass = false;
         bool bDebugGeometryPass = false;
-
+    
         bool operator==(const RenderingMetaData& other) const
         {
             return bMainLightPass == other.bMainLightPass && bRTXPass == other.bRTXPass && bEditorBillboardPass == other.bEditorBillboardPass;
@@ -264,7 +264,8 @@ struct DrawCallData
             if (drawCallMetaDat == MainLightPass.first) MainLightPass.second.emplace_back(DrawCall);
             if (drawCallMetaDat == RayTracingPlanePass.first) RayTracingPlanePass.second.emplace_back(DrawCall);
             if (drawCallMetaDat == EditorBillboardPass.first) EditorBillboardPass.second.emplace_back(DrawCall);
-            if (drawCallMetaDat == SelectedGeometryPass.first) DebugGeometryPass.second.emplace_back(DrawCall);
+            //if (drawCallMetaDat == SelectedGeometryPass.first) SelectedGeometryPass.second.emplace_back(DrawCall);
+            if (drawCallMetaDat == DebugGeometryPass.first) DebugGeometryPass.second.emplace_back(DrawCall);
         }
 
         void ResetAllDrawCalls()
