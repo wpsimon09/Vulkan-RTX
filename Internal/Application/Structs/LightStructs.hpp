@@ -8,6 +8,7 @@
 #include <array>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <vector>
 
 namespace LightStructs {
 struct AreaLight {

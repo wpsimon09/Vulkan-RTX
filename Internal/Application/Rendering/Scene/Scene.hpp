@@ -7,9 +7,9 @@
 #include <memory>
 #include <vector>
 
-#include "Application/Structs/ApplicationStructs.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
-
+#include "Application/Structs/ApplicationStructs.hpp"
+#include "Application/Structs/LightStructs.hpp"
 
 namespace ApplicationCore
 {
@@ -24,9 +24,11 @@ namespace ApplicationCore
     class AssetsManager;
 }
 
+
 namespace ApplicationCore {
 
-class Scene {
+class Scene
+{
 public:
     Scene(AssetsManager& assetsManager, Camera& camera);
 
@@ -71,5 +73,4 @@ private:
 };
 
 } // ApplicationCore
-
 #endif //SCENE_HPP

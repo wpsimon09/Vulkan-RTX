@@ -6,10 +6,7 @@
 #define AREALIGHTNODE_HPP
 
 #include "Base/LightNode.hpp"
-
-namespace VulkanStructs{
-    struct RenderContext;
-}
+#include "Application/Structs/LightStructs.hpp"
 
 namespace ApplicationCore {
 

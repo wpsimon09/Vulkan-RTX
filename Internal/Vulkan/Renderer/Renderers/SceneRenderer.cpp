@@ -276,6 +276,12 @@ namespace Renderer
                                                         m_pipelineManager->GetPipeline(EPipelineType::Outline));
         }
 
+        if(!m_renderContextPtr->DebugGeometryPass.second.empty()){
+            drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
+                m_pushDescriptorManager, m_renderContextPtr->DebugGeometryPass.second,
+                 m_pipelineManager->GetPipeline(EPipelineType::DebugShadpes));
+        }
+
 
         if (m_allowEditorBillboards) {
             // draws editor bilboards

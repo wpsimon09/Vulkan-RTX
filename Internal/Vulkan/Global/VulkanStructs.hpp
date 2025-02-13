@@ -222,7 +222,7 @@ struct DrawCallData
         {
             outDrawCalls.clear();
             outDrawCalls.reserve(
-             MainLightPass.second.size() +
+              MainLightPass.second.size() +
                 EditorBillboardPass.second.size() +
                 DebugGeometryPass.second.size()
             );

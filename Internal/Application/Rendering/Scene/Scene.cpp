@@ -4,7 +4,6 @@
 
 #include "Scene.hpp"
 
-#include <random>
 #include <GLFW/glfw3.h>
 
 #include "AreaLightNode.hpp"
@@ -13,13 +12,10 @@
 #include "SceneNode.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Enums/ClientEnums.hpp"
-#include "Application/IntersectionTests/IntersectionTests.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Material/Material.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
-#include "Application/Utils/ApplicationUtils.hpp"
-#include "Application/VertexArray/VertexArray.hpp"
 
 namespace ApplicationCore {
 
