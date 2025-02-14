@@ -39,10 +39,10 @@ struct AreaLight {
 
   std::array<glm::vec4, 4> GetAreaLightEdges() {
     return {
-        glm::vec4{1.0f, -0.5f, 1.0f, 1.0f}, // First point (bottom-left corner)
-        glm::vec4{-1.0f, -0.5f, 1.0f, 1.0f}, // Second point (bottom-right corner)
-        glm::vec4{-1.0f, -0.5f, -1.0f, 1.0f}, // Third point (top-left corner)
-        glm::vec4{1.0f, -0.5f, -1.0f, 1.0f}};
+        glm::vec4{-0.5, -0.5f, 0.0f, 1.0f}, // First point (bottom-left corner)
+        glm::vec4{0.5, -0.5f, 0.0f, 1.0f}, // Second point (bottom-right corner)
+        glm::vec4{0.5, 0.5f, 0.0f, 1.0f}, // Third point (top-left corner)
+        glm::vec4{-0.5, 0.5f, 0.0f, 1.0f}};
   }
 };
 

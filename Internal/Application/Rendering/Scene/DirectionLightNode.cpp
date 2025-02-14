@@ -4,7 +4,6 @@
 
 #include "DirectionLightNode.hpp"
 
-#include "Application/Logger/Logger.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 
 namespace ApplicationCore {
@@ -13,6 +12,7 @@ namespace ApplicationCore {
         m_sceneNodeMetaData.nodeType = ENodeType::DirectionalLightNode;
         m_sceneNodeMetaData.RenderingMetaData.bMainLightPass = false;
         m_sceneNodeMetaData.RenderingMetaData.bEditorBillboardPass = true;
+        m_sceneNodeMetaData.RenderingMetaData.bDebugGeometryPass = false;
 
         sceneLightInfo.DirectionalLightInfo = &m_lightStruct;
     }

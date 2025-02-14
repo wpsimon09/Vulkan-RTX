@@ -195,7 +195,6 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
     pipeline->SetLineWidth(2.0f);
     pipeline->SetPolygonMode(vk::PolygonMode::eLine);
-    pipeline->DisableDepthTest();
     m_pipelines[EPipelineType::DebugShadpes] = std::move(pipeline);
 
 }
