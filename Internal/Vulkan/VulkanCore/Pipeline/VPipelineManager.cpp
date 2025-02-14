@@ -61,6 +61,7 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
     m_outlineShader->DestroyExistingShaderModules();
     m_multiLightShader->DestroyExistingShaderModules();
     m_editorBilboardShader->DestroyExistingShaderModules();
+    m_debugGeometryShader->DestroyExistingShaderModules();
 }
 
 const VulkanCore::VGraphicsPipeline &VulkanCore::VPipelineManager::GetPipeline(EPipelineType pipeline) const {
@@ -183,12 +184,16 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     // DEBUG SHAPES PIPELINE
     // - same as outline but with depth test disabled
     //==================================
-    pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_outlineShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
+    auto debugGeometryVertex = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
+    auto debugGeometryFragment = "Shaders/Compiled/DebugGeometry.frag.slang.spv";
+    m_debugGeometryShader = std::make_unique<VShader>(m_device,debugGeometryVertex, debugGeometryFragment);
+
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_debugGeometryShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
     pipeline->SetPipelineType(EPipelineType::DebugShadpes);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
-    pipeline->SetLineWidth(7.0f);
+    pipeline->SetLineWidth(2.0f);
     pipeline->SetPolygonMode(vk::PolygonMode::eLine);
     pipeline->DisableDepthTest();
     m_pipelines[EPipelineType::DebugShadpes] = std::move(pipeline);
