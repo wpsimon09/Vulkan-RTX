@@ -6,7 +6,6 @@
 
 #include "DebugRenderer.hpp"
 #include "Application/Utils/LinearyTransformedCosinesValues.hpp"
-#include "Application/Utils/MathUtils.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
@@ -276,13 +275,14 @@ namespace Renderer
                                                         m_pipelineManager->GetPipeline(EPipelineType::Outline));
         }
 
+        // draw debug geometry for lights and other types of visual aid 
         if(!m_renderContextPtr->DebugGeometryPass.second.empty()){
             drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                 m_pushDescriptorManager, m_renderContextPtr->DebugGeometryPass.second,
                  m_pipelineManager->GetPipeline(EPipelineType::DebugShadpes));
         }
 
-
+        // draw the buillboards 
         if (m_allowEditorBillboards) {
             // draws editor bilboards
             drawCallCount += DrawEditorBillboards(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
