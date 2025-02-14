@@ -230,7 +230,7 @@ struct CookTorrence_GGX : IBRDF
 
         float3 kS = F;
         float3 kD = float3(1.0) - kS;
-        kS *= 1.0 - metallnes;
+        kD *= 1.0 - metallnes;
         
         float3x3 MinV;
         MinV[0] = float3(t1.x, 0.0,   t1.y);
@@ -247,7 +247,7 @@ struct CookTorrence_GGX : IBRDF
 
         specular *= albedo * t2.x + (1.0f - albedo) * t2.y;
 
-        return (specular + (kD * diffuse * albedo));
+        return (specular + (diffuse * albedo));
     }
 }
 

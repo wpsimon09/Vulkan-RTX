@@ -11,6 +11,7 @@ namespace ApplicationCore {
     {
         m_sceneNodeMetaData.nodeType = ENodeType::AreaLightNode;
         m_sceneNodeMetaData.RenderingMetaData.bMainLightPass = false;
+        m_sceneNodeMetaData.RenderingMetaData.bRTXPass = false;
         m_sceneNodeMetaData.RenderingMetaData.bEditorBillboardPass = true;
         m_sceneNodeMetaData.RenderingMetaData.bDebugGeometryPass = true;
 

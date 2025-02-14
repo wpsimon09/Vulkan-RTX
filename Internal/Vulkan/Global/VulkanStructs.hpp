@@ -214,8 +214,9 @@ struct DrawCallData
             RayTracingPlanePass.first.bMainLightPass = false;
 
             DebugGeometryPass.first.bDebugGeometryPass = true;
-            DebugGeometryPass.first.bEditorBillboardPass = false;
+            DebugGeometryPass.first.bEditorBillboardPass = true;
             DebugGeometryPass.first.bMainLightPass = false;
+            DebugGeometryPass.first.bRTXPass = false;
         }
 
         void GetAllDrawCall(std::vector<DrawCallData>& outDrawCalls)
