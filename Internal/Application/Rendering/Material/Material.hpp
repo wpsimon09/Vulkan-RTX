@@ -36,7 +36,7 @@ namespace ApplicationCore
         std::string& GetMaterialName() { return m_materialName; };
         void SetMaterialname(std::string newName) { m_materialName = std::move(newName); };
         std::shared_ptr<VulkanCore::VImage>& GetTexture(ETextureType type) { return m_textures[type]; }
-        bool IsTransparent() const { return m_transparent; }
+        bool& IsTransparent() { return m_transparent; }
         void SetTransparent(bool value) { m_transparent = value; }
 
     private:

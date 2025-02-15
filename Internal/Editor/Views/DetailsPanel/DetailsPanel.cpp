@@ -157,7 +157,14 @@ namespace VEditor {
             {
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(colourPickerWidth);
-                ImGui::ColorEdit3("Albedo", &meshMaterial->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
+                ImGui::Checkbox("Is transparent", &meshMaterial->IsTransparent());
+
+                if (meshMaterial->IsTransparent()){
+                    ImGui::ColorEdit4("Albedo", &meshMaterial->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
+                }
+                else{
+                    ImGui::ColorEdit3("Albedo", &meshMaterial->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
+                }
             }
 
             //==============

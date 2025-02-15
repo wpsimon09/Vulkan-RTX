@@ -66,7 +66,7 @@ struct PBRMaterial : IMaterial
     Sampler2D arm_map;
     Sampler2D normal_map;
 
-    float3 albedo;
+    float4 albedo;
     float metallness;
     float roughness;
     float ao;
@@ -79,11 +79,11 @@ struct PBRMaterial : IMaterial
         CookTorrence_GGX brdf;
         if (features.hasDiffuseTexture)
         {
-            brdf.albedo = albedo_map.Sample(geometry.uv).rgb;
+            brdf.albedo = albedo_map.Sample(geometry.uv);
         }
         else
         {
-            brdf.albedo = values.diffuse.rgb;
+            brdf.albedo = values.diffuse;
         }
 
         if (features.hasArmTexture)
@@ -135,7 +135,7 @@ interface IBRDF
 struct CookTorrence_GGX : IBRDF
 {
 
-    float3 albedo;
+    float4 albedo;
 
     float roughness;
 
@@ -188,7 +188,7 @@ struct CookTorrence_GGX : IBRDF
     {
 
         float3 F0 = float3(0.04);
-        F0 = lerp(F0, albedo, metallnes);
+        F0 = lerp(F0, albedo.xyz, metallnes);
         float3 H = normalize(V + L);
 
         float NDF = DistributionGGX(N, H);
@@ -208,7 +208,7 @@ struct CookTorrence_GGX : IBRDF
 
         float NdotL = max(dot(N, L), 0);
 
-        return (kd * albedo / PI + specular) * NdotL;
+        return (kd * albedo.xyz / PI + specular) * NdotL;
     }
 
     float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided) {
@@ -225,7 +225,7 @@ struct CookTorrence_GGX : IBRDF
         float4 t2 = LTC.Sample(float2(uv.x, 1.0 - uv.y));
 
         float3 F0 = float3(0.04);
-        F0 = lerp(F0, albedo, metallnes);
+        F0 = lerp(F0, albedo.xyz, metallnes);
         float3 F = FresnelShlick(max(dot(N, wo), 0.0), F0);
 
         float3 kS = F;
@@ -245,10 +245,10 @@ struct CookTorrence_GGX : IBRDF
         float3 specular = CalculateAreaLightLo(normalize(wo),  P, normalize(N), MinV, points, twoSided);
         float3 diffuse = CalculateAreaLightLo(normalize(wo), P, normalize(N), identity, points, twoSided);
 
-        specular *= albedo * t2.x + (1.0f - albedo) * t2.y;
+        specular *= albedo.xyz * t2.x + (1.0f - albedo.xyz) * t2.y;
 
-        return (specular + (diffuse * albedo));
-    }
+        return (specular + (diffuse * albedo.xyz));
+    } 
 }
 
 

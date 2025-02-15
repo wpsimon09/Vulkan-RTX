@@ -112,6 +112,19 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     m_pipelines[EPipelineType::MultiLight] = std::move(pipeline);
 
+    
+
+    //==================================
+    // TRANSPARENT PASS PIPELINE
+    //==================================
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_multiLightShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
+    pipeline->Init();
+    pipeline->SetPipelineType(EPipelineType::Transparent);
+    pipeline->EnableBlendingAdditive();
+    pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
+    m_pipelines[EPipelineType::Transparent] = std::move(pipeline);
+
+
     //==================================
     // EDITOR BILLBOARD PIPELINE
     //==================================

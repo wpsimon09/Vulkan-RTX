@@ -88,6 +88,6 @@ float4 fragmentMain(FragmentShaderIn fsIn)
    
     float3 finalColor = lightingEnv.illuminate(g, brdf_, V);
 
-    return float4(finalColor, 1.0);
+    return float4(finalColor,1.0);
 }
 

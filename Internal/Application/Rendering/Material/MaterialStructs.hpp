@@ -5,6 +5,7 @@
 #ifndef MATERIALSTRUCTS_HPP
 #define MATERIALSTRUCTS_HPP
 
+#include <string>
 #include "glm/glm.hpp"
 
 struct PBRMaterialNoTexture

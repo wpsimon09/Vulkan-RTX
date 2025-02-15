@@ -8,6 +8,7 @@
 enum class EPipelineType
 {
     RasterPBRTextured = 0,
+    Transparent, 
     RTX,
     DebugLines,
     Outline,
