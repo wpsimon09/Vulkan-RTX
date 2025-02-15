@@ -185,6 +185,11 @@ namespace VulkanCore
             m_rasterizer.lineWidth = lineWidth;
         }
 
+        void DisableDepthWrite()
+        {
+            m_depthStencil.depthWriteEnable = false;
+        }
+
         
         void EnableBlendingAdditive();
         void EnableBlendingAlpha();

@@ -94,6 +94,7 @@ namespace ApplicationCore
                 material->GetMaterialDescription().values.diffuse.x = m.pbrData.baseColorFactor.x();
                 material->GetMaterialDescription().values.diffuse.y = m.pbrData.baseColorFactor.y();
                 material->GetMaterialDescription().values.diffuse.z = m.pbrData.baseColorFactor.z();
+                material->GetMaterialDescription().values.diffuse.a = m.pbrData.baseColorFactor.w();
 
                 material->GetMaterialDescription().values.metalness = m.pbrData.metallicFactor;
                 material->GetMaterialDescription().values.roughness = m.pbrData.roughnessFactor;

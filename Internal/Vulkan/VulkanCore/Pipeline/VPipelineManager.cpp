@@ -120,8 +120,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline = std::make_unique<VGraphicsPipeline>(m_device, m_swapChain, *m_multiLightShader, m_renderPass, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
     pipeline->SetPipelineType(EPipelineType::Transparent);
-    //pipeline->EnableBlendingAdditive();
-    pipeline->EnableBlendingAlpha();
+    pipeline->EnableBlendingAdditive();
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     m_pipelines[EPipelineType::Transparent] = std::move(pipeline);
 
@@ -191,6 +190,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->SetCullMode(vk::CullModeFlagBits::eFront);
     pipeline->SetLineWidth(7.0f);
     pipeline->SetPolygonMode(vk::PolygonMode::eLine);
+    pipeline->DisableDepthWrite();
     //pipeline->DisableDepthTest();
     m_pipelines[EPipelineType::Outline] = std::move(pipeline);
 
