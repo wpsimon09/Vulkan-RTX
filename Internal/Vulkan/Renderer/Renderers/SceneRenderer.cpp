@@ -8,6 +8,7 @@
 #include "Application/Utils/LinearyTransformedCosinesValues.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
@@ -61,6 +62,44 @@ namespace Renderer
 
         Utils::Logger::LogSuccess("Scene renderer created !");
     }
+
+    void SceneRenderer::SendGlobalDescriptorsToShader(int currentFrameIndex,const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+    {
+        auto& dstSetDataStruct = m_pushDescriptorManager.GetDescriptorSetDataStruct();
+        dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+        dstSetDataStruct.lightInformation = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
+        dstSetDataStruct.LUT_LTC = MathUtils::LUT.LTC->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+        dstSetDataStruct.LUT_LTC_Inverse = MathUtils::LUT.LTCInverse->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+    }
+
+    void SceneRenderer::SendPerObjectDescriptorsToShader(int currentFrameIndex,int objectIndex,VulkanStructs::DrawCallData& drawCall, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+    {
+        auto& dstSetDataStruct = m_pushDescriptorManager.GetDescriptorSetDataStruct();
+        auto& material = drawCall.material;
+
+        dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(objectIndex)[
+            currentFrameIndex];
+
+        dstSetDataStruct.diffuseTextureImage =
+            material->GetTexture(Diffues)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+        dstSetDataStruct.armTextureImage =
+            material->GetTexture(arm)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+        dstSetDataStruct.normalTextureImage =
+            material->GetTexture(normal)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+        dstSetDataStruct.emissiveTextureImage =
+            material->GetTexture(emissive)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+        dstSetDataStruct.pbrMaterialFeatures = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(objectIndex)[
+            currentFrameIndex];
+
+        dstSetDataStruct.pbrMaterialNoTexture = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(objectIndex)[
+            currentFrameIndex];
+
+    }
+
 
     void SceneRenderer::Init(const VulkanCore::VPipelineManager* pipelineManager)
     {
@@ -190,11 +229,7 @@ namespace Renderer
         //=================================================
         // UPDATE DESCRIPTOR SETS
         //=================================================
-        auto& dstSetDataStruct = m_pushDescriptorManager.GetDescriptorSetDataStruct();
-        dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-        dstSetDataStruct.lightInformation = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
-        dstSetDataStruct.LUT_LTC = MathUtils::LUT.LTC->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-        dstSetDataStruct.LUT_LTC_Inverse = MathUtils::LUT.LTCInverse->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+        SendGlobalDescriptorsToShader(currentFrameIndex, uniformBufferManager);
 
         auto initialVertexBuffer = m_renderContextPtr->MainLightPassOpaque.second[0].meshData->vertexData.buffer;  
         auto initialIndexBuffer = m_renderContextPtr->MainLightPassOpaque.second[0].meshData->indexData.buffer;  
@@ -202,31 +237,69 @@ namespace Renderer
         cmdBuffer.bindVertexBuffers(0, {initialVertexBuffer}, {0});
         cmdBuffer.bindIndexBuffer(initialIndexBuffer, 0, vk::IndexType::eUint32);
     
+        //=================================================
+        // RECORD OPAQUE DRAW CALLS
+        //=================================================    
+
         for (int i = 0; i < m_renderContextPtr->MainLightPassOpaque.second.size(); i++)
         {
-            dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
-                currentFrameIndex];
-
+            
             auto& drawCall = m_renderContextPtr->MainLightPassOpaque.second[i];
             auto& material = drawCall.material;
+            SendPerObjectDescriptorsToShader(currentFrameIndex, i, drawCall, uniformBufferManager);
+            
+            //================================================================================================
+            // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
+            //================================================================================================        
+            
+            if(initialVertexBuffer != drawCall.meshData->vertexData.buffer){
+                auto firstBinding = 0;
+                std::vector<vk::Buffer> vertexBuffers = {initialVertexBuffer};
+                std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};
+                vertexBuffers = {drawCall.meshData->vertexData.buffer};
+                cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+            }
 
-            dstSetDataStruct.diffuseTextureImage =
-                material->GetTexture(Diffues)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            if(initialIndexBuffer != drawCall.meshData->indexData.buffer){
+                cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
+            }
 
-            dstSetDataStruct.armTextureImage =
-                material->GetTexture(arm)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            cmdBuffer.pushDescriptorSetWithTemplateKHR(
+                m_pushDescriptorManager.GetTemplate(),
+                pipeline.GetPipelineLayout(), 0,
+                m_pushDescriptorManager.GetDescriptorSetDataStruct(), m_device.DispatchLoader);
 
-            dstSetDataStruct.normalTextureImage =
-                material->GetTexture(normal)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            cmdBuffer.drawIndexed(
+                drawCall.meshData->indexData.size/sizeof(uint32_t),
+                1,
+                drawCall.meshData->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                drawCall.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                0);
 
-            dstSetDataStruct.emissiveTextureImage =
-                material->GetTexture(emissive)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            drawCallCount++;
 
-            dstSetDataStruct.pbrMaterialFeatures = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(i)[
-                currentFrameIndex];
+            if (drawCall.renderOutline)
+            {
+                m_selectedGeometryDrawCalls.emplace_back(drawCall);
+            }
+        }
 
-            dstSetDataStruct.pbrMaterialNoTexture = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(i)[
-                currentFrameIndex];
+
+        
+        //=================================================
+        // RECORD TRANSPARENT DRAW CALLS
+        //================================================= 
+        // TODO: maybe send global stuff to shaders, maybe not 
+        
+        if(!m_renderContextPtr->MainLightPassTransparent.second.empty()){
+            cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(EPipelineType::Transparent).GetPipelineInstance());
+        }
+
+        for(int i = 0; i < m_renderContextPtr->MainLightPassTransparent.second.size(); i++)
+        {
+            auto& drawCall = m_renderContextPtr->MainLightPassTransparent.second[i];
+            auto& material = drawCall.material;
+            SendPerObjectDescriptorsToShader(currentFrameIndex, drawCall.drawCallID, drawCall, uniformBufferManager);
 
             //================================================================================================
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
@@ -247,7 +320,7 @@ namespace Renderer
             cmdBuffer.pushDescriptorSetWithTemplateKHR(
                 m_pushDescriptorManager.GetTemplate(),
                 pipeline.GetPipelineLayout(), 0,
-                dstSetDataStruct, m_device.DispatchLoader);
+                m_pushDescriptorManager.GetDescriptorSetDataStruct(), m_device.DispatchLoader);
 
             cmdBuffer.drawIndexed(
                 drawCall.meshData->indexData.size/sizeof(uint32_t),
@@ -265,7 +338,9 @@ namespace Renderer
         }
 
 
-        // draws aabs for every possible object
+        //=================================================
+        // RECORD AABB DRAW CALLS
+        //=================================================    
         if (m_AllowDebugDraw)
         {
             std::vector<VulkanStructs::DrawCallData> drawCalls;
@@ -276,7 +351,9 @@ namespace Renderer
         }
 
 
-        // draws selected meshes outline
+        //=================================================
+        // RECORD OPAQUE DRAW CALLS FOR SELECTED OBJECTS
+        //=================================================    
         if (!m_renderContextPtr->SelectedGeometryPass.second.empty())
         {
             // renders the outline
@@ -285,14 +362,18 @@ namespace Renderer
                                                         m_pipelineManager->GetPipeline(EPipelineType::Outline));
         }
 
-        // draw debug geometry for lights and other types of visual aid 
+        //=================================================
+        // RECORD DEBUG GEOMETRY DRAW CALLS
+        //=================================================    
         if(!m_renderContextPtr->DebugGeometryPass.second.empty()){
             drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                 m_pushDescriptorManager, m_renderContextPtr->DebugGeometryPass.second,
                  m_pipelineManager->GetPipeline(EPipelineType::DebugShadpes));
         }
 
-        // draw the buillboards 
+        //=================================================
+        // RECORD BILLBOARDS DRAW CALLS 
+        //=================================================    
         if (m_allowEditorBillboards) {
             // draws editor bilboards
             drawCallCount += DrawEditorBillboards(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,

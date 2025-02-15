@@ -150,6 +150,7 @@ namespace VEditor {
             //===============
             ImGui::SeparatorText("Albedo");
             ImGui::Checkbox("Use texture##a",reinterpret_cast<bool*>(&meshMaterial->GetMaterialDescription().features.hasDiffuseTexture));
+            ImGui::Checkbox("Is transparent", &meshMaterial->IsTransparent());
             if (meshMaterial->GetMaterialDescription().features.hasDiffuseTexture)
             {
 
@@ -157,12 +158,12 @@ namespace VEditor {
             {
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(colourPickerWidth);
-                ImGui::Checkbox("Is transparent", &meshMaterial->IsTransparent());
 
                 if (meshMaterial->IsTransparent()){
                     ImGui::ColorEdit4("Albedo", &meshMaterial->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
                 }
                 else{
+                    meshMaterial->GetMaterialDescription().values.diffuse.w = 1.0f;
                     ImGui::ColorEdit3("Albedo", &meshMaterial->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
                 }
             }

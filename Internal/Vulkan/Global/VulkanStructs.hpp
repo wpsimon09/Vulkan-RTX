@@ -224,6 +224,12 @@ struct RenderContext
         MainLightPassOpaque.first.bDebugGeometryPass = false;
         MainLightPassOpaque.first.bTransparentPass = false;
 
+        MainLightPassTransparent.first.bOpaquePass = false;
+        MainLightPassTransparent.first.bTransparentPass = true;
+        MainLightPassTransparent.first.bRTXPass = false;
+        MainLightPassTransparent.first.bEditorBillboardPass = false;    
+        MainLightPassTransparent.first.bDebugGeometryPass = false;
+
         EditorBillboardPass.first.bEditorBillboardPass = true;
         EditorBillboardPass.first.bRTXPass = false;
         EditorBillboardPass.first.bOpaquePass = false;
@@ -241,12 +247,6 @@ struct RenderContext
         DebugGeometryPass.first.bOpaquePass = false;
         DebugGeometryPass.first.bRTXPass = false;
         DebugGeometryPass.first.bTransparentPass = false;
-
-        MainLightPassTransparent.first.bOpaquePass = false;
-        MainLightPassTransparent.first.bTransparentPass = true;
-        MainLightPassTransparent.first.bRTXPass = false;
-        MainLightPassTransparent.first.bEditorBillboardPass = false;    
-        MainLightPassTransparent.first.bDebugGeometryPass = false;
     }
 
     void GetAllDrawCall(std::vector<DrawCallData>& outDrawCalls)
@@ -298,7 +298,7 @@ struct RenderContext
     void AddDrawCall(const RenderingMetaData& drawCallMetaDat,DrawCallData& DrawCall)
     {
         if (drawCallMetaDat == MainLightPassOpaque.first) MainLightPassOpaque.second.emplace_back(DrawCall);
-        if (drawCallMetaDat == MainLightPassTransparent.first) MainLightPassOpaque.second.emplace_back(DrawCall);
+        if (drawCallMetaDat == MainLightPassTransparent.first) MainLightPassTransparent.second.emplace_back(DrawCall);
 
         if (drawCallMetaDat == RayTracingPlanePass.first) RayTracingPlanePass.second.emplace_back(DrawCall);
         if (drawCallMetaDat == EditorBillboardPass.first) EditorBillboardPass.second.emplace_back(DrawCall);
@@ -310,6 +310,7 @@ struct RenderContext
     void ResetAllDrawCalls()
     {
         MainLightPassOpaque.second.clear();
+        MainLightPassTransparent.second.clear();
         EditorBillboardPass.second.clear();
         SelectedGeometryPass.second.clear();
         RayTracingPlanePass.second.clear();

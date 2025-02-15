@@ -54,7 +54,6 @@ const std::vector<vk::DescriptorBufferInfo> & VulkanUtils::VUniformBufferManager
 
 void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const
 {
-
     m_perFrameUniform->GetUBOStruct() = perFrameData;
     m_perFrameUniform->UpdateGPUBuffer(frameIndex);
 }

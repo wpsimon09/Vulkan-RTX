@@ -153,6 +153,16 @@ namespace ApplicationCore
             m_transformation->ComputeModelMatrix();
         }
 
+        if(m_mesh){
+            if(m_mesh->GetMaterial()->IsTransparent()){
+                m_sceneNodeMetaData.RenderingMetaData.bTransparentPass = true;
+                m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
+            }else{
+                m_sceneNodeMetaData.RenderingMetaData.bTransparentPass = false;
+                m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = true;
+            }
+        }
+
         for (auto& child : m_children)
         {
             child->Update();

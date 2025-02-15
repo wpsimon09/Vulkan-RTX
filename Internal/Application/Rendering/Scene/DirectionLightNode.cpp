@@ -13,6 +13,7 @@ namespace ApplicationCore {
         m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
         m_sceneNodeMetaData.RenderingMetaData.bEditorBillboardPass = true;
         m_sceneNodeMetaData.RenderingMetaData.bDebugGeometryPass = false;
+        m_sceneNodeMetaData.RenderingMetaData.bTransparentPass = false;
 
         sceneLightInfo.DirectionalLightInfo = &m_lightStruct;
     }

@@ -73,7 +73,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     DirAndPoint.second = _lightInfo.pointLights;
 
     AmbientLight ambientLight;
-    ambientLight.albedo = brdf_.albedo;
+    ambientLight.albedo = brdf_.albedo.xyz;
     ambientLight.aoIntensity = 0.1;
 
     LightPair<LightArray<AreaLight, 4>, AmbientLight> AreaAndAmbient;
@@ -88,6 +88,6 @@ float4 fragmentMain(FragmentShaderIn fsIn)
    
     float3 finalColor = lightingEnv.illuminate(g, brdf_, V);
 
-    return float4(finalColor,1.0);
+    return float4(finalColor, brdf_.albedo.w);
 }
 
