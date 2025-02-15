@@ -28,6 +28,10 @@ namespace ApplicationCore
             m_sceneNodeMetaData.HasMesh = true;
             m_sceneNodeMetaData.ID = ++SceneNodeIDCounter;
             m_sceneNodeMetaData.nodeType = ENodeType::MeshNode;
+            if(mesh->GetMaterial()->IsTransparent()){
+                m_sceneNodeMetaData.RenderingMetaData.bTransparentPass = true;
+                m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
+            }
         }
         else
         {

@@ -11,6 +11,7 @@
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
+#include <vulkan/vulkan.hpp>
 
 
 VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
@@ -225,6 +226,56 @@ void VulkanCore::VGraphicsPipeline::CreatePipelineLayout() {
     pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
     assert(m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout) == vk::Result::eSuccess);
     Utils::Logger::LogSuccess("Pipeline layout created !");
+}
+
+void VulkanCore::VGraphicsPipeline::EnableBlendingAlpha(){
+    m_colorBlendAttachmentState.blendEnable = vk::True;
+    m_colorBlendAttachmentState.colorWriteMask =
+        vk::ColorComponentFlagBits::eR |
+        vk::ColorComponentFlagBits::eG |
+        vk::ColorComponentFlagBits::eB |
+        vk::ColorComponentFlagBits::eA;
+    m_colorBlendAttachmentState.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    m_colorBlendAttachmentState.dstColorBlendFactor = vk::BlendFactor::eOne;
+    m_colorBlendAttachmentState.colorBlendOp = vk::BlendOp::eAdd;
+    m_colorBlendAttachmentState.srcAlphaBlendFactor = vk::BlendFactor::eOne;
+    m_colorBlendAttachmentState.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    m_colorBlendAttachmentState.colorBlendOp = vk::BlendOp::eAdd;
+
+    m_colorBlendState.logicOpEnable = vk::True;
+    m_colorBlendState.logicOp = vk::LogicOp::eCopy;
+    m_colorBlendState.logicOpEnable = vk::True;
+    m_colorBlendState.attachmentCount = 1;
+    m_colorBlendState.pAttachments = &m_colorBlendAttachmentState;
+    m_colorBlendState.blendConstants[0] = 0.0f;
+    m_colorBlendState.blendConstants[1] = 0.0f;
+    m_colorBlendState.blendConstants[2] = 0.0f;
+    m_colorBlendState.blendConstants[3] = 0.0f;
+}
+
+void VulkanCore::VGraphicsPipeline::EnableBlendingAdditive(){
+    m_colorBlendAttachmentState.blendEnable = vk::True;
+    m_colorBlendAttachmentState.colorWriteMask =
+        vk::ColorComponentFlagBits::eR |
+        vk::ColorComponentFlagBits::eG |
+        vk::ColorComponentFlagBits::eB |
+        vk::ColorComponentFlagBits::eA;
+    m_colorBlendAttachmentState.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    m_colorBlendAttachmentState.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    m_colorBlendAttachmentState.colorBlendOp = vk::BlendOp::eAdd;
+    m_colorBlendAttachmentState.srcAlphaBlendFactor = vk::BlendFactor::eOne;
+    m_colorBlendAttachmentState.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    m_colorBlendAttachmentState.colorBlendOp = vk::BlendOp::eAdd;
+
+    m_colorBlendState.logicOpEnable = vk::True;
+    m_colorBlendState.logicOp = vk::LogicOp::eCopy;
+    m_colorBlendState.logicOpEnable = vk::True;
+    m_colorBlendState.attachmentCount = 1;
+    m_colorBlendState.pAttachments = &m_colorBlendAttachmentState;
+    m_colorBlendState.blendConstants[0] = 0.0f;
+    m_colorBlendState.blendConstants[1] = 0.0f;
+    m_colorBlendState.blendConstants[2] = 0.0f;
+    m_colorBlendState.blendConstants[3] = 0.0f;
 }
 
 

@@ -11,6 +11,7 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
+#include <limits>
 
 
 namespace VulkanCore {
@@ -70,6 +71,7 @@ namespace VulkanCore {
             .size = vertices.size() * sizeof(ApplicationCore::Vertex),
             .offset = m_currentVertexBuffer->currentOffset,
             .buffer = m_currentVertexBuffer->bufferVK,
+            .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1)
         };
         m_currentVertexBuffer->currentOffset += vertices.size() * sizeof(ApplicationCore::Vertex);
 
@@ -96,6 +98,7 @@ namespace VulkanCore {
             .size = Vertices_BB.size() * sizeof(ApplicationCore::Vertex),
             .offset = m_currentVertexBuffer_BB->currentOffset,
             .buffer = m_currentVertexBuffer_BB->bufferVK,
+            .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1)
         };
 
         m_currentVertexBuffer_BB->currentOffset += Vertices_BB.size() * sizeof(ApplicationCore::Vertex);
@@ -111,6 +114,7 @@ namespace VulkanCore {
             .size = indices.size() * sizeof(uint32_t),
             .offset = m_currentIndexBuffer->currentOffset,
             .buffer = m_currentIndexBuffer->bufferVK,
+            .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1)
         };
 
         m_currentIndexBuffer->currentOffset += indices.size() * sizeof(uint32_t);

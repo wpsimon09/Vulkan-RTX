@@ -130,7 +130,7 @@ namespace VEditor {
             {
                 for (auto& mat : m_assetsManager.GetAllMaterials())
                 {
-                    std::string lable = ICON_FA_BRUSH "  " + mat->GetMaterialName();
+                    std::string lable = mat->IsTransparent() ? ICON_FA_GLASS_WATER : ICON_FA_BRUSH "  " + mat->GetMaterialName();
                     if (ImGui::Selectable(lable.c_str())){
                         m_selectedSceneNode->GetMesh()->SetMaterial(mat);
                     }

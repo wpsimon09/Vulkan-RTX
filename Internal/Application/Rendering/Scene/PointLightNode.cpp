@@ -8,7 +8,7 @@ namespace ApplicationCore {
     PointLightNode::PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh):LightNode<LightStructs::PointLight>(mesh),  m_sceneLightInfo(sceneLightInfo)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::PointLightNode;
-        m_sceneNodeMetaData.RenderingMetaData.bMainLightPass = false;
+        m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
         m_sceneNodeMetaData.RenderingMetaData.bEditorBillboardPass = true;
         m_sceneNodeMetaData.RenderingMetaData.bDebugGeometryPass = false;
 

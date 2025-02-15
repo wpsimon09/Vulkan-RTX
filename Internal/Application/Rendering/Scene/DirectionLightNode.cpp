@@ -10,7 +10,7 @@ namespace ApplicationCore {
     DirectionLightNode::DirectionLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh): LightNode<LightStructs::DirectionalLight>(mesh)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::DirectionalLightNode;
-        m_sceneNodeMetaData.RenderingMetaData.bMainLightPass = false;
+        m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
         m_sceneNodeMetaData.RenderingMetaData.bEditorBillboardPass = true;
         m_sceneNodeMetaData.RenderingMetaData.bDebugGeometryPass = false;
 

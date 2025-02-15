@@ -58,8 +58,6 @@ namespace Renderer
         m_pushDescriptorManager.AddUpdateEntry(8, offsetof(VulkanUtils::DescriptorSetData, lightInformation), 0);
         m_pushDescriptorManager.AddUpdateEntry(9, offsetof(VulkanUtils::DescriptorSetData, LUT_LTC), 0);
         m_pushDescriptorManager.AddUpdateEntry(10, offsetof(VulkanUtils::DescriptorSetData, LUT_LTC_Inverse), 0);
-        //m_pushDescriptorManager.AddUpdateEntry(8, offsetof(VulkanUtils::DescriptorSetData, emissiveTextureImage), 0);
-
 
         Utils::Logger::LogSuccess("Scene renderer created !");
     }
@@ -198,12 +196,18 @@ namespace Renderer
         dstSetDataStruct.LUT_LTC = MathUtils::LUT.LTC->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
         dstSetDataStruct.LUT_LTC_Inverse = MathUtils::LUT.LTCInverse->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-        for (int i = 0; i < m_renderContextPtr->MainLightPass.second.size(); i++)
+        auto initialVertexBuffer = m_renderContextPtr->MainLightPassOpaque.second[0].meshData->vertexData.buffer;  
+        auto initialIndexBuffer = m_renderContextPtr->MainLightPassOpaque.second[0].meshData->indexData.buffer;  
+    
+        cmdBuffer.bindVertexBuffers(0, {initialVertexBuffer}, {0});
+        cmdBuffer.bindIndexBuffer(initialIndexBuffer, 0, vk::IndexType::eUint32);
+    
+        for (int i = 0; i < m_renderContextPtr->MainLightPassOpaque.second.size(); i++)
         {
             dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(i)[
                 currentFrameIndex];
 
-            auto& drawCall = m_renderContextPtr->MainLightPass.second[i];
+            auto& drawCall = m_renderContextPtr->MainLightPassOpaque.second[i];
             auto& material = drawCall.material;
 
             dstSetDataStruct.diffuseTextureImage =
@@ -224,15 +228,21 @@ namespace Renderer
             dstSetDataStruct.pbrMaterialNoTexture = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(i)[
                 currentFrameIndex];
 
+            //================================================================================================
+            // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
+            //================================================================================================        
+            
+            if(initialVertexBuffer != drawCall.meshData->vertexData.buffer){
+                auto firstBinding = 0;
+                std::vector<vk::Buffer> vertexBuffers = {initialVertexBuffer};
+                std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};
+                vertexBuffers = {drawCall.meshData->vertexData.buffer};
+                cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+            }
 
-
-
-            std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
-            std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};
-            auto firstBinding = 0;
-
-            cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, drawCall.meshData->indexData.offset, vk::IndexType::eUint32);
-            cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+            if(initialIndexBuffer != drawCall.meshData->indexData.buffer){
+                cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
+            }
 
             cmdBuffer.pushDescriptorSetWithTemplateKHR(
                 m_pushDescriptorManager.GetTemplate(),
@@ -242,8 +252,8 @@ namespace Renderer
             cmdBuffer.drawIndexed(
                 drawCall.meshData->indexData.size/sizeof(uint32_t),
                 1,
-                0,
-                0,//drawCall.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                drawCall.meshData->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                drawCall.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                 0);
 
             drawCallCount++;

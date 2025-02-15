@@ -7,6 +7,7 @@
 #include <fastgltf/glm_element_traits.hpp>
 
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Material/MaterialStructs.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
@@ -136,6 +137,8 @@ namespace ApplicationCore
                     }
                 }
                 material->SetMaterialname(std::string(m.name));
+                
+                material->SetTransparent(m.alphaMode == fastgltf::AlphaMode::Blend);
                 materials.emplace_back(material);
                 m_assetsManager.m_materials.emplace_back(material);
             }

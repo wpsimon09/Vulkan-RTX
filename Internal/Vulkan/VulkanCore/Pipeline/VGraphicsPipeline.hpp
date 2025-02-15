@@ -184,6 +184,10 @@ namespace VulkanCore
         {
             m_rasterizer.lineWidth = lineWidth;
         }
+
+        
+        void EnableBlendingAdditive();
+        void EnableBlendingAlpha();
     };
 }
 

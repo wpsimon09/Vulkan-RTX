@@ -10,7 +10,7 @@ namespace ApplicationCore {
     AreaLightNode::AreaLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh): LightNode<LightStructs::AreaLight>(mesh), m_sceneLightInfo(sceneLightInfo)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::AreaLightNode;
-        m_sceneNodeMetaData.RenderingMetaData.bMainLightPass = false;
+        m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
         m_sceneNodeMetaData.RenderingMetaData.bRTXPass = false;
         m_sceneNodeMetaData.RenderingMetaData.bEditorBillboardPass = true;
         m_sceneNodeMetaData.RenderingMetaData.bDebugGeometryPass = true;

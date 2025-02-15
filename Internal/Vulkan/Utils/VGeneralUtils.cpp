@@ -275,6 +275,11 @@ std::string VulkanUtils::random_string(size_t length)
     }
 }
 
+int VulkanUtils::random_int(int min, int max){
+    return min + (rand() % static_cast<int>(max - min + 1));
+}
+
+
 VulkanStructs::Bounds VulkanUtils::CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices)
 {
     //========================
@@ -373,5 +378,7 @@ bool VulkanUtils::IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4
         return true;
     }
 }
+
+
 
 

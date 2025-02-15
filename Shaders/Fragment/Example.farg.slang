@@ -1,4 +1,4 @@
-// shaders.slang
+o// shaders.slang
 
 //
 // This example builds on the simplistic shaders presented in the
