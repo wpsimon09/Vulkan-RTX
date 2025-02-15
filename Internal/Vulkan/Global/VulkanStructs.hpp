@@ -218,35 +218,7 @@ struct RenderContext
 
     RenderContext(): MainLightPassOpaque(), EditorBillboardPass(), SelectedGeometryPass(), RayTracingPlanePass()
     {
-        MainLightPassOpaque.first.bEditorBillboardPass = false;
-        MainLightPassOpaque.first.bOpaquePass = true;
-        MainLightPassOpaque.first.bRTXPass= false;
-        MainLightPassOpaque.first.bDebugGeometryPass = false;
-        MainLightPassOpaque.first.bTransparentPass = false;
-
-        MainLightPassTransparent.first.bOpaquePass = false;
-        MainLightPassTransparent.first.bTransparentPass = true;
-        MainLightPassTransparent.first.bRTXPass = false;
-        MainLightPassTransparent.first.bEditorBillboardPass = false;    
-        MainLightPassTransparent.first.bDebugGeometryPass = false;
-
-        EditorBillboardPass.first.bEditorBillboardPass = true;
-        EditorBillboardPass.first.bRTXPass = false;
-        EditorBillboardPass.first.bOpaquePass = false;
-        EditorBillboardPass.first.bDebugGeometryPass = false;
-        EditorBillboardPass.first.bTransparentPass = false;
-
-        RayTracingPlanePass.first.bRTXPass= true;
-        RayTracingPlanePass.first.bEditorBillboardPass = false;
-        RayTracingPlanePass.first.bOpaquePass = false;
-        RayTracingPlanePass.first.bDebugGeometryPass = false;
-        RayTracingPlanePass.first.bTransparentPass = false;
-
-        DebugGeometryPass.first.bDebugGeometryPass = true;
-        DebugGeometryPass.first.bEditorBillboardPass = true;
-        DebugGeometryPass.first.bOpaquePass = false;
-        DebugGeometryPass.first.bRTXPass = false;
-        DebugGeometryPass.first.bTransparentPass = false;
+        
     }
 
     void GetAllDrawCall(std::vector<DrawCallData>& outDrawCalls)
@@ -297,13 +269,14 @@ struct RenderContext
 
     void AddDrawCall(const RenderingMetaData& drawCallMetaDat,DrawCallData& DrawCall)
     {
-        if (drawCallMetaDat == MainLightPassOpaque.first) MainLightPassOpaque.second.emplace_back(DrawCall);
-        if (drawCallMetaDat == MainLightPassTransparent.first) MainLightPassTransparent.second.emplace_back(DrawCall);
 
-        if (drawCallMetaDat == RayTracingPlanePass.first) RayTracingPlanePass.second.emplace_back(DrawCall);
-        if (drawCallMetaDat == EditorBillboardPass.first) EditorBillboardPass.second.emplace_back(DrawCall);
+        if (drawCallMetaDat.bOpaquePass) MainLightPassOpaque.second.emplace_back(DrawCall);
+        if (drawCallMetaDat.bTransparentPass) MainLightPassTransparent.second.emplace_back(DrawCall);
+
+        if (drawCallMetaDat.bRTXPass) RayTracingPlanePass.second.emplace_back(DrawCall);
+        if (drawCallMetaDat.bEditorBillboardPass) EditorBillboardPass.second.emplace_back(DrawCall);
         //if (drawCallMetaDat == SelectedGeometryPass.first) SelectedGeometryPass.second.emplace_back(DrawCall);
-        if (drawCallMetaDat == DebugGeometryPass.first) DebugGeometryPass.second.emplace_back(DrawCall);
+        if (drawCallMetaDat.bDebugGeometryPass) DebugGeometryPass.second.emplace_back(DrawCall);
 
     }
 
