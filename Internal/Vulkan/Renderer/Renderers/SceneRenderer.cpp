@@ -231,8 +231,8 @@ namespace Renderer
         //=================================================
         SendGlobalDescriptorsToShader(currentFrameIndex, uniformBufferManager);
 
-        auto initialVertexBuffer = m_renderContextPtr->MainLightPassOpaque.second[0].meshData->vertexData.buffer;  
-        auto initialIndexBuffer = m_renderContextPtr->MainLightPassOpaque.second[0].meshData->indexData.buffer;  
+        auto initialVertexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->vertexData.buffer;  
+        auto initialIndexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->indexData.buffer;  
     
         cmdBuffer.bindVertexBuffers(0, {initialVertexBuffer}, {0});
         cmdBuffer.bindIndexBuffer(initialIndexBuffer, 0, vk::IndexType::eUint32);
@@ -241,10 +241,10 @@ namespace Renderer
         // RECORD OPAQUE DRAW CALLS
         //=================================================    
 
-        for (int i = 0; i < m_renderContextPtr->MainLightPassOpaque.second.size(); i++)
+        for (int i = 0; i < m_renderContextPtr->MainLightPassOpaque.size(); i++)
         {
             
-            auto& drawCall = m_renderContextPtr->MainLightPassOpaque.second[i];
+            auto& drawCall = m_renderContextPtr->MainLightPassOpaque[i];
             auto& material = drawCall.material;
             SendPerObjectDescriptorsToShader(currentFrameIndex, i, drawCall, uniformBufferManager);
             
@@ -291,13 +291,13 @@ namespace Renderer
         //================================================= 
         // TODO: maybe send global stuff to shaders, maybe not 
         
-        if(!m_renderContextPtr->MainLightPassTransparent.second.empty()){
+        if(!m_renderContextPtr->MainLightPassTransparent.empty()){
             cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(EPipelineType::Transparent).GetPipelineInstance());
         }
 
-        for(int i = 0; i < m_renderContextPtr->MainLightPassTransparent.second.size(); i++)
+        for(int i = 0; i < m_renderContextPtr->MainLightPassTransparent.size(); i++)
         {
-            auto& drawCall = m_renderContextPtr->MainLightPassTransparent.second[i];
+            auto& drawCall = m_renderContextPtr->MainLightPassTransparent[i];
             auto& material = drawCall.material;
             SendPerObjectDescriptorsToShader(currentFrameIndex, drawCall.drawCallID, drawCall, uniformBufferManager);
 
@@ -345,6 +345,7 @@ namespace Renderer
         {
             std::vector<VulkanStructs::DrawCallData> drawCalls;
             m_renderContextPtr->GetAllDrawCall(drawCalls);
+    
             drawCallCount += RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                                                    m_pushDescriptorManager, drawCalls,
                                                    m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
@@ -354,20 +355,20 @@ namespace Renderer
         //=================================================
         // RECORD OPAQUE DRAW CALLS FOR SELECTED OBJECTS
         //=================================================    
-        if (!m_renderContextPtr->SelectedGeometryPass.second.empty())
+        if (!m_renderContextPtr->SelectedGeometryPass.empty())
         {
             // renders the outline
             drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                                       m_pushDescriptorManager, m_renderContextPtr->SelectedGeometryPass.second,
+                                                       m_pushDescriptorManager, m_renderContextPtr->SelectedGeometryPass,
                                                         m_pipelineManager->GetPipeline(EPipelineType::Outline));
         }
 
         //=================================================
         // RECORD DEBUG GEOMETRY DRAW CALLS
         //=================================================    
-        if(!m_renderContextPtr->DebugGeometryPass.second.empty()){
+        if(!m_renderContextPtr->DebugGeometryPass.empty()){
             drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                m_pushDescriptorManager, m_renderContextPtr->DebugGeometryPass.second,
+                m_pushDescriptorManager, m_renderContextPtr->DebugGeometryPass,
                  m_pipelineManager->GetPipeline(EPipelineType::DebugShadpes));
         }
 
@@ -377,7 +378,7 @@ namespace Renderer
         if (m_allowEditorBillboards) {
             // draws editor bilboards
             drawCallCount += DrawEditorBillboards(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                                   m_pushDescriptorManager, m_renderContextPtr->EditorBillboardPass.second,
+                                                   m_pushDescriptorManager, m_renderContextPtr->EditorBillboardPass,
                                                     m_pipelineManager->GetPipeline(EPipelineType::EditorBillboard));
         }
 

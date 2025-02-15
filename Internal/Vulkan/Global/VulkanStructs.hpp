@@ -191,18 +191,17 @@ struct RenderContext
     glm::mat4 view{};
     glm::mat4 projection{};
 
-    std::pair<RenderingMetaData, std::vector<DrawCallData>> MainLightPassOpaque;
-    std::pair<RenderingMetaData, std::vector<DrawCallData>> MainLightPassTransparent;
-
-    std::pair<RenderingMetaData, std::vector<DrawCallData>> EditorBillboardPass;
-    std::pair<RenderingMetaData, std::vector<DrawCallData>> SelectedGeometryPass;
-    std::pair<RenderingMetaData, std::vector<DrawCallData>> RayTracingPlanePass;
-    std::pair<RenderingMetaData, std::vector<DrawCallData>> DebugGeometryPass;
+    std::vector<DrawCallData> MainLightPassOpaque;
+    std::vector<DrawCallData> MainLightPassTransparent;
+    std::vector<DrawCallData> EditorBillboardPass;
+    std::vector<DrawCallData> SelectedGeometryPass;
+    std::vector<DrawCallData> RayTracingPlanePass;
+    std::vector<DrawCallData> DebugGeometryPass;
 
 
     void ExtractDepthValues(glm::vec3& cameraPosition)
     {
-        for (auto &drawCall: MainLightPassOpaque.second)
+        for (auto &drawCall: MainLightPassOpaque)
             drawCall.depth = glm::length(cameraPosition - drawCall.position);
     }
 
@@ -225,16 +224,16 @@ struct RenderContext
     {
         outDrawCalls.clear();
         outDrawCalls.reserve(
-            MainLightPassOpaque.second.size() +
-            EditorBillboardPass.second.size() +
-            DebugGeometryPass.second.size() + 
-            MainLightPassTransparent.second.size()
+            MainLightPassOpaque.size() +
+            EditorBillboardPass.size() +
+            DebugGeometryPass.size() + 
+            MainLightPassTransparent.size()
         );
 
-        outDrawCalls.insert(outDrawCalls.end(), MainLightPassOpaque.second.begin(), MainLightPassOpaque.second.end());
-        outDrawCalls.insert(outDrawCalls.end(), MainLightPassTransparent.second.begin(), MainLightPassTransparent.second.end());
-        outDrawCalls.insert(outDrawCalls.end(), EditorBillboardPass.second.begin(), EditorBillboardPass.second.end());
-        outDrawCalls.insert(outDrawCalls.end(), DebugGeometryPass.second.begin(), DebugGeometryPass.second.end());
+        outDrawCalls.insert(outDrawCalls.end(), MainLightPassOpaque.begin(), MainLightPassOpaque.end());
+        outDrawCalls.insert(outDrawCalls.end(), MainLightPassTransparent.begin(), MainLightPassTransparent.end());
+        outDrawCalls.insert(outDrawCalls.end(), EditorBillboardPass.begin(), EditorBillboardPass.end());
+        outDrawCalls.insert(outDrawCalls.end(), DebugGeometryPass.begin(), DebugGeometryPass.end());
 
     }
 
@@ -242,26 +241,26 @@ struct RenderContext
     {
         std::vector<DrawCallData*> allDrawCalls;
         allDrawCalls.reserve(
-            MainLightPassOpaque.second.size() +
-            EditorBillboardPass.second.size() +
-            SelectedGeometryPass.second.size() +
-            RayTracingPlanePass.second.size() + 
-            DebugGeometryPass.second.size() +
-            MainLightPassTransparent.second.size()
+            MainLightPassOpaque.size() +
+            EditorBillboardPass.size() +
+            SelectedGeometryPass.size() +
+            RayTracingPlanePass.size() + 
+            DebugGeometryPass.size() +
+            MainLightPassTransparent.size()
         );
 
         // Store pointers to original DrawCallData instances
-        for (auto& drawCall : MainLightPassOpaque.second)
+        for (auto& drawCall : MainLightPassOpaque)
             allDrawCalls.push_back(&drawCall);
-        for (auto& drawCall : EditorBillboardPass.second)
+        for (auto& drawCall : EditorBillboardPass)
             allDrawCalls.push_back(&drawCall);
-        for (auto& drawCall : SelectedGeometryPass.second)
+        for (auto& drawCall : SelectedGeometryPass)
             allDrawCalls.push_back(&drawCall);
-        for (auto& drawCall : RayTracingPlanePass.second)
+        for (auto& drawCall : RayTracingPlanePass)
             allDrawCalls.push_back(&drawCall);
-        for (auto& drawCall : DebugGeometryPass.second)
+        for (auto& drawCall : DebugGeometryPass)
             allDrawCalls.push_back(&drawCall);
-        for (auto& drawCall : MainLightPassTransparent.second)
+        for (auto& drawCall : MainLightPassTransparent)
             allDrawCalls.push_back(&drawCall);
 
         return allDrawCalls;
@@ -270,24 +269,24 @@ struct RenderContext
     void AddDrawCall(const RenderingMetaData& drawCallMetaDat,DrawCallData& DrawCall)
     {
 
-        if (drawCallMetaDat.bOpaquePass) MainLightPassOpaque.second.emplace_back(DrawCall);
-        if (drawCallMetaDat.bTransparentPass) MainLightPassTransparent.second.emplace_back(DrawCall);
+        if (drawCallMetaDat.bOpaquePass) MainLightPassOpaque.emplace_back(DrawCall);
+        if (drawCallMetaDat.bTransparentPass) MainLightPassTransparent.emplace_back(DrawCall);
 
-        if (drawCallMetaDat.bRTXPass) RayTracingPlanePass.second.emplace_back(DrawCall);
-        if (drawCallMetaDat.bEditorBillboardPass) EditorBillboardPass.second.emplace_back(DrawCall);
+        if (drawCallMetaDat.bRTXPass) RayTracingPlanePass.emplace_back(DrawCall);
+        if (drawCallMetaDat.bEditorBillboardPass) EditorBillboardPass.emplace_back(DrawCall);
         //if (drawCallMetaDat == SelectedGeometryPass.first) SelectedGeometryPass.second.emplace_back(DrawCall);
-        if (drawCallMetaDat.bDebugGeometryPass) DebugGeometryPass.second.emplace_back(DrawCall);
+        if (drawCallMetaDat.bDebugGeometryPass) DebugGeometryPass.emplace_back(DrawCall);
 
     }
 
     void ResetAllDrawCalls()
     {
-        MainLightPassOpaque.second.clear();
-        MainLightPassTransparent.second.clear();
-        EditorBillboardPass.second.clear();
-        SelectedGeometryPass.second.clear();
-        RayTracingPlanePass.second.clear();
-        DebugGeometryPass.second.clear();
+        MainLightPassOpaque.clear();
+        MainLightPassTransparent.clear();
+        EditorBillboardPass.clear();
+        SelectedGeometryPass.clear();
+        RayTracingPlanePass.clear();
+        DebugGeometryPass.clear();
     }
 };
 

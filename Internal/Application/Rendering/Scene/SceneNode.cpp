@@ -205,7 +205,7 @@ namespace ApplicationCore
                 renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,data);
 
                 if (m_sceneNodeMetaData.IsSelected){
-                    renderingContext->SelectedGeometryPass.second.emplace_back(data);
+                    renderingContext->SelectedGeometryPass.emplace_back(data);
                 }
             }
 
