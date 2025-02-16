@@ -38,7 +38,6 @@ namespace ApplicationCore
         std::vector<std::shared_ptr<SceneNode>> m_nodes;
 
         std::vector<std::shared_ptr<StaticMesh>> m_meshes;
-        std::vector<std::shared_ptr<VertexArray>> vertexArrays;
         std::vector<std::shared_ptr<VulkanCore::VImage>> m_textures;
         std::vector<std::shared_ptr<Material>> materials;
 

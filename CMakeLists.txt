@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.28)
 project(Vulkan-RTX)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 
@@ -148,12 +147,13 @@ set(SOURCES
         Internal/Application/Utils/LinearyTransformedCosinesValues.cpp
         Internal/Application/Rendering/Scene/AreaLightNode.cpp
         Internal/Application/Rendering/Scene/AreaLightNode.hpp
+        Internal/Application/GLTFExporter/GLTFExporter.hpp
+        Internal/Application/GLTFExporter/GLTFExporter.cpp
 )
 
 
 # Find Vulkan, GLFW, and GLM
 find_package(Vulkan REQUIRED)
-find_package(assimp REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 find_package(glm REQUIRED)
 
@@ -201,4 +201,4 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # Link libraries
-target_link_libraries(${TARGET} PRIVATE glfw Vulkan::Vulkan assimp)
+target_link_libraries(${TARGET} PRIVATE glfw Vulkan::Vulkan )

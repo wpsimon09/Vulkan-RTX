@@ -47,12 +47,13 @@ public:
 
     void AddCubeToScene() const;
     void AddSphereToScene() const;
-    void PreformRayCast(glm::vec2 mousePosition);
     void AddPlaneToScene() const;
 
     void AddDirectionalLight();
     void AddPointLight() ;
     void AddAreaLight() ;
+
+    void PreformRayCast(glm::vec2 mousePosition);
 
     void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; } ;
 
@@ -67,7 +68,6 @@ private:
     AssetsManager& m_assetsManager;
     glm::vec3 m_mousePositionWorldSpace  = {0.0f, 0.0f, 0.0F};
     std::shared_ptr<SceneNode> m_selectedSceneNode;
-    std::vector<std::shared_ptr<SceneNode>> m_selectedSceneNodes;
 
     LightStructs::SceneLightInfo m_sceneLightInfo;
 };
