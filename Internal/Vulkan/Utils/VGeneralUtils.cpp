@@ -82,20 +82,43 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
 }
 
 void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffer &srcBuffer,
-    const vk::Buffer &dstBuffer, vk::DeviceSize size) {
+                              const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::DeviceSize srcOffset, vk::DeviceSize dstOffset) {
     auto cmdBuffer = VulkanCore::VCommandBuffer(device, device.GetTransferCommandPool());
     Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
 
     cmdBuffer.BeginRecording();
 
     vk::BufferCopy bufferCopy{};
-    bufferCopy.srcOffset = 0;
-    bufferCopy.dstOffset = 0;
+    bufferCopy.srcOffset = srcOffset;
+    bufferCopy.dstOffset = dstOffset;
     bufferCopy.size = size;
 
     cmdBuffer.GetCommandBuffer().copyBuffer(srcBuffer, dstBuffer, bufferCopy);
 
     cmdBuffer.EndRecording();
+
+    vk::SubmitInfo submitInfo{};
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &cmdBuffer.GetCommandBuffer();
+
+    assert(device.GetTransferQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess);
+    Utils::Logger::LogSuccess("Buffer copy completed !");
+}
+
+void VulkanUtils::CopyBuffersWithBariers(const VulkanCore::VDevice& device, const vk::Buffer& srcBuffer,
+    const vk::Buffer& dstBuffer, vk::DeviceSize size, vk::DeviceSize srcOffset, vk::DeviceSize dstOffset)
+{
+    auto cmdBuffer = VulkanCore::VCommandBuffer(device, device.GetTransferCommandPool());
+    Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
+
+    cmdBuffer.BeginRecording();
+
+    vk::BufferCopy bufferCopy{};
+    bufferCopy.srcOffset = srcOffset;
+    bufferCopy.dstOffset = dstOffset;
+    bufferCopy.size = size;
+
+    cmdBuffer.GetCommandBuffer().copyBuffer(srcBuffer, dstBuffer, bufferCopy);
 
     vk::SubmitInfo submitInfo{};
     submitInfo.commandBufferCount = 1;
@@ -315,7 +338,7 @@ VulkanStructs::StagingBufferInfo VulkanUtils::CreateStagingBuffer(const VulkanCo
 
     VkBufferCreateInfo stagingBufferCreateInfo = {};
     stagingBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    stagingBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    stagingBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     stagingBufferCreateInfo.size = size;
     stagingBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 

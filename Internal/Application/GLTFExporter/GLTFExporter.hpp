@@ -13,8 +13,10 @@ namespace fastgltf
 template<typename T>
 struct GLTFResource
 {
-    T resource;
+    const T resource;
     int index;
+
+    GLTFResource(const T& resource, int index) : resource(resource), index(index){};
 };
 
 namespace ApplicationCore {
@@ -28,10 +30,10 @@ namespace ApplicationCore {
     public:
         GLTFExporter() = default;
     
-        void ExportScene(std::filesystem::path path, Scene& scene, const AssetsManager& assetsManager);
+        void ExportScene(std::filesystem::path path, Scene& scene,AssetsManager& assetsManager);
 
     private:
-        void ParseScene(std::shared_ptr<SceneNode> sceneNode, std::vector<Material>& materials);
+        void ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager);
 
         fastgltf::Node ParseNode(std::shared_ptr<SceneNode> sceneNode);
 

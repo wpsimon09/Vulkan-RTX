@@ -35,7 +35,7 @@ namespace VulkanCore {
 
         memcpy(stagingBuffer.mappedPointer, ApplicationCore::MeshData::Indices_BB.data(), ApplicationCore::MeshData::Indices_BB.size() * sizeof(uint32_t));
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
-        VulkanUtils::CopyBuffers(m_device, stagingBuffer.m_stagingBufferVK, m_indexBuffer_BB.bufferVK, ApplicationCore::MeshData::Indices_BB.size() * sizeof(uint32_t));
+        VulkanUtils::CopyBuffers(m_device, stagingBuffer.m_stagingBufferVK, m_indexBuffer_BB.bufferVK, ApplicationCore::MeshData::Indices_BB.size() * sizeof(uint32_t), 0, 0);
 
         m_device.GetDevice().waitIdle();
         vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
@@ -262,7 +262,7 @@ namespace VulkanCore {
         //==============================
         Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
         VulkanStructs::GPUBufferInfo newVertexBuffer{};
-        newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+        newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc;
         CreateBuffer(newVertexBuffer);
         m_vertexBuffers.emplace_back(newVertexBuffer);
         m_currentVertexBuffer = &m_vertexBuffers.back();
@@ -271,7 +271,7 @@ namespace VulkanCore {
         if (createForBoundingBox)
         {
             VulkanStructs::GPUBufferInfo newBBVertexBuffer{};
-            newBBVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+            newBBVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc;;
             CreateBuffer(newBBVertexBuffer);
             m_vertexBuffers_BB.emplace_back(newBBVertexBuffer);
             m_currentVertexBuffer_BB = &m_vertexBuffers_BB.back();
@@ -319,6 +319,23 @@ namespace VulkanCore {
     }
 
     std::vector<ApplicationCore::Vertex> MeshDatatManager::ReadBack(VulkanStructs::GPUSubBufferInfo& bufferInfo){
-        
+        std::vector<ApplicationCore::Vertex> vertices;
+        vertices.resize(bufferInfo.size / sizeof(ApplicationCore::Vertex));
+
+        // create staging buffer to copy readback memory from
+        auto stagingBuffer = VulkanUtils::CreateStagingBuffer(m_device, bufferInfo.size);
+        stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
+
+        VulkanUtils::CopyBuffers(m_device, bufferInfo.buffer, stagingBuffer.m_stagingBufferVK, bufferInfo.size, bufferInfo.offset, 0);
+        m_device.GetDevice().waitIdle();
+        memcpy(vertices.data(), stagingBuffer.mappedPointer, bufferInfo.size);
+
+
+
+        vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
+        vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
+
+        return vertices;
+
     }
 } // VulkanCore

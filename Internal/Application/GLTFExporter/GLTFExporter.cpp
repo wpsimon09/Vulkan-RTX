@@ -5,12 +5,16 @@
 #include <fastgltf/core.hpp>
 #include <Application/Rendering/Scene/Scene.hpp>
 #include <Application/Rendering/Scene/SceneNode.hpp>
+#include <Application/AssetsManger/AssetsManager.hpp>
+
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
+#include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
 void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scene& scene,
-    const AssetsManager& assetsManager)
+                                                AssetsManager& assetsManager)
 {
     std::vector<std::shared_ptr<ApplicationCore::SceneNode>> sceneNodes;
-    ParseScene(scene.GetRootNode());
+    ParseScene(scene.GetRootNode(), assetsManager);
     m_sceneNodeIndexCounter = 0;
     m_meshIndexCounter = 0;
     Utils::Logger::LogInfoClient("Parsed all scene nodes");
@@ -20,7 +24,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
 
 }
 
-void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneNode, std::vector<Material>& materials)
+void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager)
 {
     fastgltf::Node node{};
     fastgltf::Material material{};
@@ -30,21 +34,20 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     //===================================================
     if(sceneNode->HasMesh()){
         fastgltf::Mesh mesh;
-        fastgltf::Primitive primitive;
-        primitive.attributes;
+        auto values = assetsManager.GetBufferAllocator().ReadBack(sceneNode->GetMesh()->GetMeshData()->vertexData);
     }
     
     node.name = sceneNode->GetName();
     fastgltf::math::fmat4x4 modelMatrix;
     memcpy(&modelMatrix, &sceneNode->m_transformation->GetModelMatrix(), sizeof(modelMatrix));
     node.transform = modelMatrix;
-
     
-    m_sceneNodes.push_back({sceneNode, m_sceneNodeIndexCounter++});
+    
+    m_sceneNodes.push_back({node, m_sceneNodeIndexCounter++});
 
     for (auto& child : sceneNode->GetChildrenByRef())
     {
-        ParseScene(child);
+        ParseScene(child, assetsManager);
     }
 }
 

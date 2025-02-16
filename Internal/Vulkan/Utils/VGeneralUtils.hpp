@@ -48,7 +48,11 @@ namespace VulkanUtils
         std::vector<vk::VertexInputAttributeDescription> &attributeDescription
     );
 
-    void CopyBuffers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size);
+    void CopyBuffers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::
+                     DeviceSize srcOffset = 0, vk::DeviceSize dstOffset = 0);
+
+    void CopyBuffersWithBariers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::
+                     DeviceSize srcOffset = 0, vk::DeviceSize dstOffset = 0);
 
     VulkanStructs::ImageData<> LoadImage(const std::string &path);
     VulkanStructs::ImageData<> LoadImage(const TextureBufferInfo& data, const std::string& textureID);
