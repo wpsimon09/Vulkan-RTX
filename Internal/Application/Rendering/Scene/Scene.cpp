@@ -130,27 +130,39 @@ namespace ApplicationCore {
 
     void Scene::AddDirectionalLight()
     {
+        if(m_sceneLightInfo.DirectionalLightInfo == nullptr){
+            auto light = std::make_shared<DirectionLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight));
+            light->m_transformation->SetScale(20.0f);
+            light->SetName(light->GetMesh()->GetName());
+            AddNode(light);
+        }else{
 
-        auto light = std::make_shared<DirectionLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight));
-        light->m_transformation->SetScale(20.0f);
-        light->SetName(light->GetMesh()->GetName());
-        AddNode(light);
+            Utils::Logger::LogErrorClient("Directional light already exists !");
+        }
     }
-
+    
     void Scene::AddPointLight()
     {
-        auto light = std::make_shared<PointLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::PointLight));
-        light->m_transformation->SetScale(20.0f);
-        light->SetName(light->GetMesh()->GetName());
-        AddNode(light);
+        if(m_sceneLightInfo.PointLightInfos.size()<20){
+            auto light = std::make_shared<PointLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::PointLight));
+            light->m_transformation->SetScale(20.0f);
+            light->SetName(light->GetMesh()->GetName());
+            AddNode(light);
+        }else{
+            Utils::Logger::LogErrorClient("Maximun number of point lights, 20,  reached !");
+        }
     }
 
     void Scene::AddAreaLight()
     {
-        auto light = std::make_shared<AreaLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::AreaLight));
-        light->m_transformation->SetScale(20.0f);
-        light->SetName(light->GetMesh()->GetName());
-        AddNode(light);
+        if(m_sceneLightInfo.AreaLightInfos.size()<4){
+            auto light = std::make_shared<AreaLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::AreaLight));
+            light->m_transformation->SetScale(20.0f);
+            light->SetName(light->GetMesh()->GetName());
+            AddNode(light);
+        }else{
+            Utils::Logger::LogErrorClient("Maximun number of Area lights, 4,  reached !");
+        }
     }
 
     void Scene::PreformRayCast(glm::vec2 mousePosition)
