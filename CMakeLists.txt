@@ -149,6 +149,7 @@ set(SOURCES
         Internal/Application/Rendering/Scene/AreaLightNode.hpp
         Internal/Application/GLTFExporter/GLTFExporter.hpp
         Internal/Application/GLTFExporter/GLTFExporter.cpp
+        Internal/Application/GLTFExporter/ExportUtils.hpp
 )
 
 

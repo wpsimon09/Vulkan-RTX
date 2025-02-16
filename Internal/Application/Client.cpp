@@ -11,6 +11,7 @@
 #include "Application/Rendering/Material/Material.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/GLTFLoader/GltfLoader.hpp"
+#include "Application/GLTFExporter/GLTFExporter.hpp"
 #include "Rendering/Camera/Camera.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include <cassert>
@@ -35,8 +36,10 @@ void Client::Init() {
     m_scene->Init();
 
 
+
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
 
     Utils::Logger::LogSuccessClient("Client side initialized in: " +  std::to_string(duration.count()) + "seconds");
 }
@@ -61,6 +64,7 @@ const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsMana
     Utils::Logger::LogInfoClient("Mounting assets manger...");
     m_assetsManager = std::move(assetsManager);
     m_gltfLoader = std::make_unique<ApplicationCore::GLTFLoader>(*m_assetsManager);
+    m_gltfExporter= std::make_unique<ApplicationCore::GLTFExporter>();
     assert(m_assetsManager);
     Utils::Logger::LogInfoClient("Mounted assets manager successfuly to the client");
 }
@@ -93,6 +97,7 @@ void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)
     m_isRTXOn =             lightUpdateInfo.isRTXon;
 
     lightUpdateInfo.Reset();
+    
 }
 
 void Client::Update() {

@@ -42,6 +42,7 @@ namespace ApplicationCore
 {
     class AssetsManager;
     class StaticMesh;
+    class GLTFExporter;
 }
 
 class Client {
@@ -58,6 +59,7 @@ public:
     GlobalUniform& GetGlobalDataUpdateInformation(){return m_globalRenderingData;}
     ApplicationCore::Scene& GetScene() const {return *m_scene;};;
     ApplicationCore::GLTFLoader& GetGLTFLoader() const {return *m_gltfLoader;};
+    ApplicationCore::GLTFExporter& GetGLTFExporter() const {return *m_gltfExporter;};
 
     void Update();
     void UpdateCamera(CameraUpdateInfo& cameraUpdateInfo);
@@ -72,6 +74,7 @@ private:
     std::unique_ptr<ApplicationCore::Camera> m_camera;
     std::unique_ptr<ApplicationCore::Scene> m_scene;
     std::unique_ptr<ApplicationCore::GLTFLoader> m_gltfLoader;
+    std::unique_ptr<ApplicationCore::GLTFExporter> m_gltfExporter;
 
     GlobalUniform m_globalRenderingData;
     bool m_isRTXOn = false;

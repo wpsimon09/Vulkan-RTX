@@ -7,6 +7,7 @@
 #include <IconsFontAwesome6.h>
 #include <imgui.h>
 
+#include "Application/GLTFExporter/GLTFExporter.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/UIContext/UIContext.hpp"
@@ -36,7 +37,12 @@ namespace VEditor {
                 }
                 if (ImGui::MenuItem(ICON_FA_FILE" Save"))
                 {
-
+                    Utils::Logger::LogInfo("Saving scene...");
+                    m_editor->m_uiContext.GetClient().GetGLTFExporter().ExportScene(
+                    "Resources/Scenes/scene.gltf",
+                        m_editor->m_uiContext.GetScene(),
+                           m_editor->m_uiContext.GetClient().GetAssetsManager()
+                        );
                 }
                 ImGui::EndMenu();
             }

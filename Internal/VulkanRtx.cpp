@@ -32,6 +32,7 @@
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Application/GLTFLoader/GltfLoader.hpp"
+#include "Application/GLTFExporter/GLTFExporter.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
 // Vulkan Utilities
