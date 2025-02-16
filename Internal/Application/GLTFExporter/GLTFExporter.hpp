@@ -1,6 +1,7 @@
 #ifndef GLTFEXPORTER_HPP
 #define GLTFEXPORTER_HPP
 
+#include "fastgltf/types.hpp"
 #include <filesystem>
 #include <vector>
 
@@ -8,6 +9,13 @@ namespace fastgltf
 {
     struct Node;
 }
+
+template<typename T>
+struct GLTFResource
+{
+    T resource;
+    int index;
+};
 
 namespace ApplicationCore {
     class StaticMesh;
@@ -23,9 +31,8 @@ namespace ApplicationCore {
         void ExportScene(std::filesystem::path path, Scene& scene, const AssetsManager& assetsManager);
 
     private:
-        void GetAllSceneNodes(std::shared_ptr<SceneNode> sceneNode,std::vector<std::shared_ptr<ApplicationCore::SceneNode>>& sceneNodes);
-        std::vector<std::shared_ptr<ApplicationCore::StaticMesh>> GetMeshes();
-        std::vector<std::shared_ptr<ApplicationCore::Material>> GetMaterials();
+        void ParseScene(std::shared_ptr<SceneNode> sceneNode, std::vector<Material>& materials);
+
         fastgltf::Node ParseNode(std::shared_ptr<SceneNode> sceneNode);
 
     private:
@@ -33,6 +40,10 @@ namespace ApplicationCore {
         int m_meshIndexCounter = 0;
         int m_materialIndexCounter = 0;
         int m_imageIndexCounter = 0;
+
+        std::vector<GLTFResource<fastgltf::Node>> m_sceneNodes;
+        std::vector<GLTFResource<fastgltf::Mesh>> m_meshes;
+        std::vector<GLTFResource<fastgltf::Material>> m_materials;
     };
 }
 

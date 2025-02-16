@@ -1,5 +1,7 @@
 #include "GLTFExporter.hpp"
 #include "Application/Logger/Logger.hpp"
+#include "fastgltf/math.hpp"
+#include "fastgltf/types.hpp"
 #include <fastgltf/core.hpp>
 #include <Application/Rendering/Scene/Scene.hpp>
 #include <Application/Rendering/Scene/SceneNode.hpp>
@@ -8,39 +10,43 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     const AssetsManager& assetsManager)
 {
     std::vector<std::shared_ptr<ApplicationCore::SceneNode>> sceneNodes;
-    GetAllSceneNodes(scene.GetRootNode(), sceneNodes);
+    ParseScene(scene.GetRootNode());
     m_sceneNodeIndexCounter = 0;
+    m_meshIndexCounter = 0;
     Utils::Logger::LogInfoClient("Parsed all scene nodes");
+
     fastgltf::Exporter exporter;
     fastgltf::Asset asset;
 
 }
 
-void ApplicationCore::GLTFExporter::GetAllSceneNodes(std::shared_ptr<SceneNode> sceneNode, std::vector<std::shared_ptr<ApplicationCore::SceneNode>> &sceneNodes)
+void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneNode, std::vector<Material>& materials)
 {
+    fastgltf::Node node{};
+    fastgltf::Material material{};
+    
+    //===================================================
+    // PARSE MESH DATA
+    //===================================================
+    if(sceneNode->HasMesh()){
+        fastgltf::Mesh mesh;
+        fastgltf::Primitive primitive;
+        primitive.attributes;
+    }
+    
+    node.name = sceneNode->GetName();
+    fastgltf::math::fmat4x4 modelMatrix;
+    memcpy(&modelMatrix, &sceneNode->m_transformation->GetModelMatrix(), sizeof(modelMatrix));
+    node.transform = modelMatrix;
 
-    sceneNodes.push_back(sceneNode);
-    sceneNode->GetSceneNodeMetaData().exportID = ++m_sceneNodeIndexCounter;
+    
+    m_sceneNodes.push_back({sceneNode, m_sceneNodeIndexCounter++});
+
     for (auto& child : sceneNode->GetChildrenByRef())
     {
-        GetAllSceneNodes(child, sceneNodes);
+        ParseScene(child);
     }
 }
 
-std::vector<std::shared_ptr<ApplicationCore::StaticMesh>> ApplicationCore::GLTFExporter::GetMeshes()
-{
-    return std::vector<std::shared_ptr<ApplicationCore::StaticMesh>>();
-}
-
-std::vector<std::shared_ptr<ApplicationCore::Material>> ApplicationCore::GLTFExporter::GetMaterials()
-{
-    return std::vector<std::shared_ptr<ApplicationCore::Material>>();
-}
-
-fastgltf::Node ApplicationCore::GLTFExporter::ParseNode(std::shared_ptr<SceneNode> sceneNode)
-{
-    fastgltf::Node node;
-
-}
 
 

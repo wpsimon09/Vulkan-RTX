@@ -317,4 +317,8 @@ namespace VulkanCore {
             }
         }
     }
+
+    std::vector<ApplicationCore::Vertex> MeshDatatManager::ReadBack(VulkanStructs::GPUSubBufferInfo& bufferInfo){
+        
+    }
 } // VulkanCore

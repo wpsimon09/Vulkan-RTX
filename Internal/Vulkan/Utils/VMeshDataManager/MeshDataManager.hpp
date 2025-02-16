@@ -45,6 +45,8 @@ namespace VulkanCore
 
         void Destroy() override;
 
+        std::vector<ApplicationCore::Vertex> ReadBack(VulkanStructs::GPUSubBufferInfo& bufferInfo);
+
         ~MeshDatatManager() = default;
     private:
         std::vector<ApplicationCore::Vertex> m_stagingVertices;
