@@ -330,8 +330,6 @@ namespace VulkanCore {
         m_device.GetDevice().waitIdle();
         memcpy(vertices.data(), stagingBuffer.mappedPointer, bufferInfo.size);
 
-
-
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
         vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
 

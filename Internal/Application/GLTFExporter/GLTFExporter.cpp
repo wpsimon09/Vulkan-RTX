@@ -20,7 +20,9 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     Utils::Logger::LogInfoClient("Parsed all scene nodes");
 
     fastgltf::Exporter exporter;
-    fastgltf::Asset asset;
+    m_exportedScene = fastgltf::Asset();
+    m_vertexBuffer = fastgltf::Buffer();
+
 
 }
 
@@ -34,7 +36,28 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     //===================================================
     if(sceneNode->HasMesh()){
         fastgltf::Mesh mesh;
+        fastgltf::Buffer meshBuffer;
+        
         auto values = assetsManager.GetBufferAllocator().ReadBack(sceneNode->GetMesh()->GetMeshData()->vertexData);
+        for (auto& vertex : values)
+        {
+            fastgltf::Buffer positionBuffer{};
+
+
+
+            fastgltf::Accessor positionAccessor;
+            fastgltf::Accessor normalAccessor;
+            fastgltf::Accessor uvAccessor;
+
+            //m_exportedScene.accessors.push_back();
+            fastgltf::Accessor accessor;
+
+            fastgltf::Attribute position;
+            position.name = "POSITION";
+
+
+           Utils::Logger::LogInfoClient("Parsed mesh");
+        }
     }
     
     node.name = sceneNode->GetName();

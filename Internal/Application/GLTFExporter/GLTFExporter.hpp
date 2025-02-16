@@ -43,9 +43,13 @@ namespace ApplicationCore {
         int m_materialIndexCounter = 0;
         int m_imageIndexCounter = 0;
 
+        fastgltf::Asset m_exportedScene;
+        fastgltf::Buffer m_vertexBuffer;
+
         std::vector<GLTFResource<fastgltf::Node>> m_sceneNodes;
         std::vector<GLTFResource<fastgltf::Mesh>> m_meshes;
         std::vector<GLTFResource<fastgltf::Material>> m_materials;
+        std::vector<GLTFResource<fastgltf::Accessor>> accessors;
     };
 }
 
