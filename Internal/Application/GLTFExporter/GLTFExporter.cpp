@@ -14,19 +14,36 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     std::vector<std::shared_ptr<ApplicationCore::SceneNode>> sceneNodes;
 
     fastgltf::Asset asset;
+
     //========================================
-    // READ BACK ALL BUFFERS 
+    // CREATE BUFFERS 
     //========================================
     fastgltf::Buffer vertexBuffer;
     fastgltf::Buffer indexBuffer;
 
     std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
 
     for(auto& buffer : assetsManager.GetBufferAllocator().ReadBackVertexBuffer()){
         vertices.insert(vertices.end(), buffer.data.begin(), buffer.data.end());        
     }
-    memcpy(&vertexBuffer.data, vertices.data(), vertices.size() * sizeof(Vertex));
 
+    for(auto& buffer : assetsManager.GetBufferAllocator().ReadBackIndexBuffers()){
+        indices.insert(indices.end(), buffer.data.begin(), buffer.data.end());        
+    }
+    
+    vertexBuffer.byteLength = vertices.size() * sizeof(Vertex);
+    std::vector<std::byte> vertexBufferVector(reinterpret_cast<std::byte*>(vertices.data()), reinterpret_cast<std::byte*>(vertices.data()) + vertexBuffer.byteLength);
+    if (reinterpret_cast<uintptr_t>(vertices.data()) % alignof(float) != 0) {
+        Utils::Logger::LogErrorClient("Vertex buffer is not aligned to float");
+    }
+    
+    vertexBuffer.data  = fastgltf::sources::Vector{vertexBufferVector};
+    vertexBuffer.name = "Vertex buffers";
+
+    indexBuffer.byteLength = indices.size() * sizeof(uint32_t);
+    std::vector<std::byte> indexBufferVector(reinterpret_cast<std::byte*>(indices.data()), reinterpret_cast<std::byte*>(indices.data()) + indexBuffer.byteLength);
+    indexBuffer.data = fastgltf::sources::Vector{indexBufferVector};
 
     ParseScene(scene.GetRootNode(), assetsManager, asset);
     m_sceneNodeIndexCounter = 0;

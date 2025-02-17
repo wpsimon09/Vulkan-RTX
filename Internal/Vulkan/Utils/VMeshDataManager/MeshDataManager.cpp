@@ -288,7 +288,7 @@ namespace VulkanCore {
         m_indexBuffers.reserve(BUFFER_SIZE);
         Utils::Logger::LogInfo("Allocating NEW 16MB IndexBuffer");
         VulkanStructs::GPUBufferInfo newIndexBuffer{};
-        newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+        newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc;
         CreateBuffer(newIndexBuffer);
         m_indexBuffers.emplace_back(newIndexBuffer);
         m_currentIndexBuffer = &m_indexBuffers.back();
@@ -385,7 +385,7 @@ namespace VulkanCore {
     
             VulkanUtils::CopyBuffers(m_device, m_indexBuffers[i].bufferVK, stagingBuffer.m_stagingBufferVK, m_indexBuffers[i].currentOffset,0,0,bufferCopiedFence->GetSyncPrimitive());
             bufferCopiedFence->WaitForFence();
-            bufferCopiedFence->ResetFence();                                              by
+            bufferCopiedFence->ResetFence();                                              
             memcpy(indexReadBackBufferInfos[i].data.data(), stagingBuffer.mappedPointer, m_indexBuffers[i].currentOffset);
             
             vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
