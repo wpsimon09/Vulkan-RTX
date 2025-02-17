@@ -33,7 +33,7 @@ namespace ApplicationCore {
         void ExportScene(std::filesystem::path path, Scene& scene,AssetsManager& assetsManager);
 
     private:
-        void ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager);
+        void ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager, fastgltf::Asset& asset);
 
         fastgltf::Node ParseNode(std::shared_ptr<SceneNode> sceneNode);
 
@@ -43,13 +43,11 @@ namespace ApplicationCore {
         int m_materialIndexCounter = 0;
         int m_imageIndexCounter = 0;
 
-        fastgltf::Asset m_exportedScene;
-        fastgltf::Buffer m_vertexBuffer;
-
         std::vector<GLTFResource<fastgltf::Node>> m_sceneNodes;
         std::vector<GLTFResource<fastgltf::Mesh>> m_meshes;
         std::vector<GLTFResource<fastgltf::Material>> m_materials;
-        std::vector<GLTFResource<fastgltf::Accessor>> accessors;
+
+        const AssetsManager& m_assetsManager;
     };
 }
 

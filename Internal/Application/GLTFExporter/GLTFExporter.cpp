@@ -6,58 +6,50 @@
 #include <Application/Rendering/Scene/Scene.hpp>
 #include <Application/Rendering/Scene/SceneNode.hpp>
 #include <Application/AssetsManger/AssetsManager.hpp>
-
-#include "Application/Rendering/Mesh/StaticMesh.hpp"
-#include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
+#include <Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp>
 
 void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scene& scene,
-                                                AssetsManager& assetsManager)
+    AssetsManager& assetsManager)
 {
     std::vector<std::shared_ptr<ApplicationCore::SceneNode>> sceneNodes;
-    ParseScene(scene.GetRootNode(), assetsManager);
+
+    fastgltf::Asset asset;
+    //========================================
+    // READ BACK ALL BUFFERS 
+    //========================================
+    fastgltf::Buffer vertexBuffer;
+    fastgltf::Buffer indexBuffer;
+
+    std::vector<Vertex> vertices;
+
+    for(auto& buffer : assetsManager.GetBufferAllocator().ReadBackVertexBuffer()){
+        vertices.insert(vertices.end(), buffer.data.begin(), buffer.data.end());        
+    }
+    memcpy(&vertexBuffer.data, vertices.data(), vertices.size() * sizeof(Vertex));
+
+
+    ParseScene(scene.GetRootNode(), assetsManager, asset);
     m_sceneNodeIndexCounter = 0;
     m_meshIndexCounter = 0;
     Utils::Logger::LogInfoClient("Parsed all scene nodes");
 
     fastgltf::Exporter exporter;
-    m_exportedScene = fastgltf::Asset();
-    m_vertexBuffer = fastgltf::Buffer();
-
 
 }
 
-void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager)
+void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager,fastgltf::Asset& asset)
 {
+    
     fastgltf::Node node{};
     fastgltf::Material material{};
+    
     
     //===================================================
     // PARSE MESH DATA
     //===================================================
     if(sceneNode->HasMesh()){
         fastgltf::Mesh mesh;
-        fastgltf::Buffer meshBuffer;
-        
-        auto values = assetsManager.GetBufferAllocator().ReadBack(sceneNode->GetMesh()->GetMeshData()->vertexData);
-        for (auto& vertex : values)
-        {
-            fastgltf::Buffer positionBuffer{};
-
-
-
-            fastgltf::Accessor positionAccessor;
-            fastgltf::Accessor normalAccessor;
-            fastgltf::Accessor uvAccessor;
-
-            //m_exportedScene.accessors.push_back();
-            fastgltf::Accessor accessor;
-
-            fastgltf::Attribute position;
-            position.name = "POSITION";
-
-
-           Utils::Logger::LogInfoClient("Parsed mesh");
-        }
+        fastgltf::Primitive primitive;
     }
     
     node.name = sceneNode->GetName();
@@ -70,7 +62,7 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
 
     for (auto& child : sceneNode->GetChildrenByRef())
     {
-        ParseScene(child, assetsManager);
+        ParseScene(child, assetsManager, asset);
     }
 }
 
