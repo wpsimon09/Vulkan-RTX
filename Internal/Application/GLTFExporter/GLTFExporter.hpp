@@ -46,8 +46,6 @@ namespace ApplicationCore {
         std::vector<GLTFResource<fastgltf::Node>> m_sceneNodes;
         std::vector<GLTFResource<fastgltf::Mesh>> m_meshes;
         std::vector<GLTFResource<fastgltf::Material>> m_materials;
-
-        const AssetsManager& m_assetsManager;
     };
 }
 

@@ -385,7 +385,7 @@ namespace VulkanCore {
     
             VulkanUtils::CopyBuffers(m_device, m_indexBuffers[i].bufferVK, stagingBuffer.m_stagingBufferVK, m_indexBuffers[i].currentOffset,0,0,bufferCopiedFence->GetSyncPrimitive());
             bufferCopiedFence->WaitForFence();
-            bufferCopiedFence->ResetFence();
+            bufferCopiedFence->ResetFence();                                              by
             memcpy(indexReadBackBufferInfos[i].data.data(), stagingBuffer.mappedPointer, m_indexBuffers[i].currentOffset);
             
             vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);

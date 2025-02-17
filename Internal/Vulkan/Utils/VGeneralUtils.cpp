@@ -82,7 +82,7 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
 }
 
 void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffer &srcBuffer,
-                              const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::DeviceSize srcOffset, vk::DeviceSize dstOffset, vk::Fence fence = nullptr) {
+                              const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::DeviceSize srcOffset, vk::DeviceSize dstOffset, vk::Fence fence) {
     auto cmdBuffer = VulkanCore::VCommandBuffer(device, device.GetTransferCommandPool());
     Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
 
