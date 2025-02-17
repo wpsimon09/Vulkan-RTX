@@ -18,8 +18,8 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     //========================================
     // CREATE BUFFERS 
     //========================================
-    fastgltf::Buffer vertexBuffer;
-    fastgltf::Buffer indexBuffer;
+    fastgltf::Buffer m_vertexBuffer;
+    fastgltf::Buffer m_indexBuffer;
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
@@ -32,22 +32,53 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
         indices.insert(indices.end(), buffer.data.begin(), buffer.data.end());        
     }
     
-    vertexBuffer.byteLength = vertices.size() * sizeof(Vertex);
-    std::vector<std::byte> vertexBufferVector(reinterpret_cast<std::byte*>(vertices.data()), reinterpret_cast<std::byte*>(vertices.data()) + vertexBuffer.byteLength);
+    m_vertexBuffer.byteLength = vertices.size() * sizeof(Vertex);
+    std::vector<std::byte> vertexBufferVector(reinterpret_cast<std::byte*>(vertices.data()), reinterpret_cast<std::byte*>(vertices.data()) + m_vertexBuffer.byteLength);
     if (reinterpret_cast<uintptr_t>(vertices.data()) % alignof(float) != 0) {
         Utils::Logger::LogErrorClient("Vertex buffer is not aligned to float");
     }
-    
-    vertexBuffer.data  = fastgltf::sources::Vector{vertexBufferVector};
-    vertexBuffer.name = "Vertex buffers";
+    m_vertexBuffer.data  = fastgltf::sources::Vector{vertexBufferVector};
+    m_vertexBuffer.name = "Vertex buffers";
 
-    indexBuffer.byteLength = indices.size() * sizeof(uint32_t);
-    std::vector<std::byte> indexBufferVector(reinterpret_cast<std::byte*>(indices.data()), reinterpret_cast<std::byte*>(indices.data()) + indexBuffer.byteLength);
-    indexBuffer.data = fastgltf::sources::Vector{indexBufferVector};
+    m_indexBuffer.byteLength = indices.size() * sizeof(uint32_t);
+    std::vector<std::byte> indexBufferVector(reinterpret_cast<std::byte*>(indices.data()), reinterpret_cast<std::byte*>(indices.data()) + m_indexBuffer.byteLength);
+    m_indexBuffer.name = "Index buffers";
+    m_indexBuffer.data = fastgltf::sources::Vector{indexBufferVector};
+
+    //============================================
+    // STORE VERTEX BUFFERS TO THE ASSET
+    //============================================
+    asset.buffers.resize(2);
+    asset.buffers[0] = std::move(m_vertexBuffer);
+    asset.buffers[1] = std::move(m_indexBuffer);
+
+    //============================================
+    // CREATE BUFFER VIEWS FOR VERTEX AND INDEX  
+    //============================================
+    
+    fastgltf::BufferView vertexBufferView;
+    vertexBufferView.bufferIndex = 0;
+    vertexBufferView.byteLength = m_vertexBuffer.byteLength;
+    vertexBufferView.byteOffset = 0;
+    vertexBufferView.byteStride = sizeof(Vertex);
+    vertexBufferView.name = "Vertex buffer view";
+    vertexBufferView.target = fastgltf::BufferTarget::ArrayBuffer;
+    asset.bufferViews.push_back(std::move(vertexBufferView));
+
+    //============================================
+    // CREATE BUFFER VIEWS FOR VERTEX AND INDEX  
+    //============================================
+    fastgltf::BufferView indexBufferView;
+    indexBufferView.bufferIndex = 1;
+    indexBufferView.byteLength = m_indexBuffer.byteLength;
+    indexBufferView.byteOffset = 0;
+    indexBufferView.byteStride = sizeof(uint32_t);
+    indexBufferView.name = "Index buffer view";
+    indexBufferView.target = fastgltf::BufferTarget::ElementArrayBuffer;
+    asset.bufferViews.push_back(std::move(indexBufferView));
 
     ParseScene(scene.GetRootNode(), assetsManager, asset);
-    m_sceneNodeIndexCounter = 0;
-    m_meshIndexCounter = 0;
+
     Utils::Logger::LogInfoClient("Parsed all scene nodes");
 
     fastgltf::Exporter exporter;
@@ -75,7 +106,7 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     node.transform = modelMatrix;
     
     
-    m_sceneNodes.push_back({node, m_sceneNodeIndexCounter++});
+    //m_sceneNodes.push_back({node});
 
     for (auto& child : sceneNode->GetChildrenByRef())
     {

@@ -10,15 +10,6 @@ namespace fastgltf
     struct Node;
 }
 
-template<typename T>
-struct GLTFResource
-{
-    const T resource;
-    int index;
-
-    GLTFResource(const T& resource, int index) : resource(resource), index(index){};
-};
-
 namespace ApplicationCore {
     class StaticMesh;
     class SceneNode;
@@ -35,17 +26,6 @@ namespace ApplicationCore {
     private:
         void ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager, fastgltf::Asset& asset);
 
-        fastgltf::Node ParseNode(std::shared_ptr<SceneNode> sceneNode);
-
-    private:
-        int m_sceneNodeIndexCounter = 0;
-        int m_meshIndexCounter = 0;
-        int m_materialIndexCounter = 0;
-        int m_imageIndexCounter = 0;
-
-        std::vector<GLTFResource<fastgltf::Node>> m_sceneNodes;
-        std::vector<GLTFResource<fastgltf::Mesh>> m_meshes;
-        std::vector<GLTFResource<fastgltf::Material>> m_materials;
     };
 }
 
