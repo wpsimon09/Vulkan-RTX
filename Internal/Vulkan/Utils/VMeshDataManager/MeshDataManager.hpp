@@ -46,6 +46,9 @@ namespace VulkanCore
         void Destroy() override;
 
         std::vector<ApplicationCore::Vertex> ReadBack(VulkanStructs::GPUSubBufferInfo& bufferInfo);
+        std::vector<VulkanStructs::ReadBackBufferInfo<ApplicationCore::Vertex>> ReadBackVertexBuffer();
+        std::vector<VulkanStructs::ReadBackBufferInfo<uint32_t>> ReadBackIndexBuffers();
+        std::vector<VulkanStructs::ReadBackBufferInfo<ApplicationCore::Vertex>> ReadBackVertexBuffer();
 
         ~MeshDatatManager() = default;
     private:

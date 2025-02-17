@@ -49,7 +49,7 @@ namespace VulkanUtils
     );
 
     void CopyBuffers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::
-                     DeviceSize srcOffset = 0, vk::DeviceSize dstOffset = 0);
+                     DeviceSize srcOffset = 0, vk::DeviceSize dstOffset = 0, vk::Fence fence = nullptr);
 
     void CopyBuffersWithBariers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::
                      DeviceSize srcOffset = 0, vk::DeviceSize dstOffset = 0);

@@ -149,6 +149,13 @@ namespace VulkanStructs
         bool WillNewBufferFit(vk::DeviceSize size) const { return size <= GetAvailableSize(); }
     };
 
+    template<typename T>
+    struct ReadBackBufferInfo{
+        std::vector<T> data;
+        int bufferID;
+        size_t size;        
+    };
+
     struct StagingBufferInfo
     {
         void *mappedPointer;

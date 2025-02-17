@@ -82,7 +82,7 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
 }
 
 void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffer &srcBuffer,
-                              const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::DeviceSize srcOffset, vk::DeviceSize dstOffset) {
+                              const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::DeviceSize srcOffset, vk::DeviceSize dstOffset, vk::Fence fence = nullptr) {
     auto cmdBuffer = VulkanCore::VCommandBuffer(device, device.GetTransferCommandPool());
     Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
 
@@ -101,7 +101,7 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffe
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &cmdBuffer.GetCommandBuffer();
 
-    assert(device.GetTransferQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess);
+    assert(device.GetTransferQueue().submit(1, &submitInfo, fence) == vk::Result::eSuccess);
     Utils::Logger::LogSuccess("Buffer copy completed !");
 }
 

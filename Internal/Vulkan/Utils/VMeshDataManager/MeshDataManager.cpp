@@ -336,4 +336,62 @@ namespace VulkanCore {
         return vertices;
 
     }
+
+    std::vector<VulkanStructs::ReadBackBufferInfo<ApplicationCore::Vertex>> MeshDatatManager::ReadBackVertexBuffer(){
+
+        auto bufferCopiedFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
+
+        std::vector<VulkanStructs::ReadBackBufferInfo<ApplicationCore::Vertex>> vertexReadBackBufferInfos;
+        vertexReadBackBufferInfos.resize(m_vertexBuffers.size());
+
+        // create staging buffer to copy readback memory from
+        for(int i =0; i<m_vertexBuffers.size(); i++){
+
+            vertexReadBackBufferInfos[i].bufferID = m_vertexBuffers[i].ID;
+            vertexReadBackBufferInfos[i].size = m_vertexBuffers[i].size;
+            vertexReadBackBufferInfos[i].data.resize(m_vertexBuffers[i].currentOffset / sizeof(ApplicationCore::Vertex));
+
+            auto stagingBuffer = VulkanUtils::CreateStagingBuffer(m_device, m_vertexBuffers[i].size);
+            stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
+    
+            VulkanUtils::CopyBuffers(m_device, m_vertexBuffers[i].bufferVK, stagingBuffer.m_stagingBufferVK, m_vertexBuffers[i].currentOffset,0,0,bufferCopiedFence->GetSyncPrimitive());
+            bufferCopiedFence->WaitForFence();
+            bufferCopiedFence->ResetFence();
+            memcpy(vertexReadBackBufferInfos[i].data.data(), stagingBuffer.mappedPointer, m_vertexBuffers[i].currentOffset);
+            
+            vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
+            vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
+        }
+        bufferCopiedFence->Destroy();
+        return vertexReadBackBufferInfos;
+    }
+
+    std::vector<VulkanStructs::ReadBackBufferInfo<uint32_t>> MeshDatatManager::ReadBackIndexBuffers(){
+
+        auto bufferCopiedFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
+
+        std::vector<VulkanStructs::ReadBackBufferInfo<uint32_t>> indexReadBackBufferInfos;
+        indexReadBackBufferInfos.resize(m_indexBuffers.size());
+
+        // create staging buffer to copy readback memory from
+        for(int i =0; i<m_indexBuffers.size(); i++){
+
+            indexReadBackBufferInfos[i].bufferID = m_indexBuffers[i].ID;
+            indexReadBackBufferInfos[i].size = m_indexBuffers[i].size;
+            indexReadBackBufferInfos[i].data.resize(m_indexBuffers[i].currentOffset / sizeof(uint32_t));
+
+            auto stagingBuffer = VulkanUtils::CreateStagingBuffer(m_device, m_indexBuffers[i].size);
+            stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
+    
+            VulkanUtils::CopyBuffers(m_device, m_indexBuffers[i].bufferVK, stagingBuffer.m_stagingBufferVK, m_indexBuffers[i].currentOffset,0,0,bufferCopiedFence->GetSyncPrimitive());
+            bufferCopiedFence->WaitForFence();
+            bufferCopiedFence->ResetFence();
+            memcpy(indexReadBackBufferInfos[i].data.data(), stagingBuffer.mappedPointer, m_indexBuffers[i].currentOffset);
+            
+            vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
+            vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
+        }
+        bufferCopiedFence->Destroy();
+        return indexReadBackBufferInfos;
+    }
 } // VulkanCore
