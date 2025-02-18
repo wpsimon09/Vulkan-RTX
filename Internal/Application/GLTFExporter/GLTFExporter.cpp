@@ -53,7 +53,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     asset.buffers[1] = std::move(m_indexBuffer);
 
     //============================================
-    // CREATE BUFFER VIEWS FOR VERTEX AND INDEX  
+    // CREATE BUFFER VIEWS FOR VERTEX   
     //============================================
     
     fastgltf::BufferView vertexBufferView;
@@ -66,7 +66,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     asset.bufferViews.push_back(std::move(vertexBufferView));
 
     //============================================
-    // CREATE BUFFER VIEWS FOR VERTEX AND INDEX  
+    // CREATE BUFFER VIEWS FOR INDEX  
     //============================================
     fastgltf::BufferView indexBufferView;
     indexBufferView.bufferIndex = 1;
@@ -76,6 +76,34 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     indexBufferView.name = "Index buffer view";
     indexBufferView.target = fastgltf::BufferTarget::ElementArrayBuffer;
     asset.bufferViews.push_back(std::move(indexBufferView));
+
+    //============================================
+    // CREATE POSITION ACCESSOR
+    //============================================
+    fastgltf::Accessor positionAccessor;
+    positionAccessor.bufferViewIndex = 0;
+    positionAccessor.byteOffset = offsetof(Vertex, position);
+    positionAccessor.componentType = fastgltf::ComponentType::Float;
+    positionAccessor.count = vertices.size();
+    positionAccessor.type = fastgltf::AccessorType::Vec3;
+    positionAccessor.name = "Position accessor";
+    asset.accessors.push_back(std::move(positionAccessor));
+
+    //============================================
+    // CREATE POSITION ACCESSOR
+    //============================================
+    fastgltf::Accessor normalAccessor;
+    normalAccessor.bufferViewIndex = 0;
+    normalAccessor.byteOffset = offsetof(Vertex, normal);
+    normalAccessor.componentType = fastgltf::ComponentType::Float;
+    normalAccessor.count = vertices.size();
+    normalAccessor.normalized = true;
+    normalAccessor.name = "Normal accessor";
+    normalAccessor.type = fastgltf::AccessorType::Vec3;
+    asset.accessors.push_back(std::move(normalAccessor));
+
+
+
 
     ParseScene(scene.GetRootNode(), assetsManager, asset);
 
