@@ -146,6 +146,8 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     // PARSE MESH DATA
     //===================================================
     if(sceneNode->HasMesh()){
+        // todo: put accessors and buffer views here instead 
+
         fastgltf::Mesh mesh;
         fastgltf::Primitive primitive;
         primitive.attributes = {
