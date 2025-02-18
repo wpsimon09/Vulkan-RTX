@@ -8,8 +8,10 @@
 #include <Application/AssetsManger/AssetsManager.hpp>
 #include <Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp>
 
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
+
 void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scene& scene,
-    AssetsManager& assetsManager)
+                                                AssetsManager& assetsManager)
 {
     std::vector<std::shared_ptr<ApplicationCore::SceneNode>> sceneNodes;
 
@@ -52,81 +54,6 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     asset.buffers[0] = std::move(m_vertexBuffer);
     asset.buffers[1] = std::move(m_indexBuffer);
 
-    //============================================
-    // CREATE BUFFER VIEWS FOR VERTEX   
-    //============================================
-    fastgltf::BufferView vertexBufferView;
-    vertexBufferView.bufferIndex = 0;
-    vertexBufferView.byteLength = m_vertexBuffer.byteLength;
-    vertexBufferView.byteOffset = 0;
-    vertexBufferView.byteStride = sizeof(Vertex);
-    vertexBufferView.name = "Vertex buffer view";
-    vertexBufferView.target = fastgltf::BufferTarget::ArrayBuffer;
-    asset.bufferViews.push_back(std::move(vertexBufferView));
-
-    //============================================
-    // CREATE BUFFER VIEWS FOR INDEX  
-    //============================================
-    fastgltf::BufferView indexBufferView;
-    indexBufferView.bufferIndex = 1;
-    indexBufferView.byteLength = m_indexBuffer.byteLength;
-    indexBufferView.byteOffset = 0;
-    indexBufferView.byteStride = sizeof(uint32_t);
-    indexBufferView.name = "Index buffer view";
-    indexBufferView.target = fastgltf::BufferTarget::ElementArrayBuffer;
-    asset.bufferViews.push_back(std::move(indexBufferView));
-
-    //============================================
-    // CREATE POSITION ACCESSOR
-    //============================================
-    fastgltf::Accessor positionAccessor;
-    positionAccessor.bufferViewIndex = 0;
-    positionAccessor.byteOffset = offsetof(Vertex, position);
-    positionAccessor.componentType = fastgltf::ComponentType::Float;
-    positionAccessor.count = vertices.size();
-    positionAccessor.type = fastgltf::AccessorType::Vec3;
-    positionAccessor.name = "Position accessor";
-    asset.accessors.push_back(std::move(positionAccessor));
-
-    //============================================
-    // CREATE POSITION ACCESSOR
-    //============================================
-    fastgltf::Accessor normalAccessor;
-    normalAccessor.bufferViewIndex = 0;
-    normalAccessor.byteOffset = offsetof(Vertex, normal);
-    normalAccessor.componentType = fastgltf::ComponentType::Float;
-    normalAccessor.count = vertices.size();
-    normalAccessor.normalized = true;
-    normalAccessor.name = "Normal accessor";
-    normalAccessor.type = fastgltf::AccessorType::Vec3;
-    asset.accessors.push_back(std::move(normalAccessor));
-
-
-    //============================================
-    // UV ACCESSOR
-    //============================================
-    fastgltf::Accessor uvAccessor;
-    uvAccessor.bufferViewIndex = 0;
-    uvAccessor.byteOffset = offsetof(Vertex, uv);
-    uvAccessor.componentType = fastgltf::ComponentType::Float;
-    uvAccessor.count = vertices.size();
-    uvAccessor.normalized = true;
-    uvAccessor.name = "UV accessor";
-    uvAccessor.type = fastgltf::AccessorType::Vec2;
-    asset.accessors.push_back(std::move(uvAccessor));
-
-    //============================================
-    // IDICES ACCESSOR
-    //============================================
-    fastgltf::Accessor indicesAccessor;
-    indicesAccessor.bufferViewIndex = 1;
-    indicesAccessor.byteOffset = 0;
-    indicesAccessor.componentType = fastgltf::ComponentType::UnsignedInt;
-    indicesAccessor.count = indices.size();
-    indicesAccessor.name = "Indices accessor";
-    indicesAccessor.type = fastgltf::AccessorType::Scalar;
-    asset.accessors.push_back(std::move(indicesAccessor));
-
     ParseScene(scene.GetRootNode(), assetsManager, asset);
 
     Utils::Logger::LogInfoClient("Parsed all scene nodes");
@@ -147,6 +74,83 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     //===================================================
     if(sceneNode->HasMesh()){
         // todo: put accessors and buffer views here instead 
+        auto&mesh = sceneNode->GetMesh();
+    
+        //============================================
+        // CREATE BUFFER VIEWS FOR VERTEX   
+        //============================================
+        fastgltf::BufferView vertexBufferView;
+        vertexBufferView.bufferIndex = 0;
+        vertexBufferView.byteLength = mesh->GetMeshData()->vertexData.size;
+        vertexBufferView.byteOffset = mesh->GetMeshData()->vertexData.offset;
+        vertexBufferView.byteStride = sizeof(Vertex);
+        vertexBufferView.name = "Vertex buffer view";
+        vertexBufferView.target = fastgltf::BufferTarget::ArrayBuffer;
+        asset.bufferViews.push_back(std::move(vertexBufferView));
+
+        //============================================
+        // CREATE BUFFER VIEWS FOR INDEX  
+        //============================================
+        fastgltf::BufferView indexBufferView;
+        indexBufferView.bufferIndex = 1;
+        indexBufferView.byteLength = mesh->GetMeshData()->indexData.size;
+        indexBufferView.byteOffset =  mesh->GetMeshData()->indexData.offset;
+        indexBufferView.byteStride = sizeof(uint32_t);
+        indexBufferView.name = "Index buffer view";
+        indexBufferView.target = fastgltf::BufferTarget::ElementArrayBuffer;
+        asset.bufferViews.push_back(std::move(indexBufferView));
+
+        //============================================
+        // CREATE POSITION ACCESSOR
+        //============================================
+        fastgltf::Accessor positionAccessor;
+        positionAccessor.bufferViewIndex = asset.bufferViews.size()-1;
+        positionAccessor.byteOffset = offsetof(Vertex, position);
+        positionAccessor.componentType = fastgltf::ComponentType::Float;
+        positionAccessor.count = mesh->GetMeshData()->vertexData.size /sizeof(Vertex);
+        positionAccessor.type = fastgltf::AccessorType::Vec3;
+        positionAccessor.name = "Position accessor";
+        asset.accessors.push_back(std::move(positionAccessor));
+
+        //============================================
+        // CREATE POSITION ACCESSOR
+        //============================================
+        fastgltf::Accessor normalAccessor;
+        normalAccessor.bufferViewIndex = asset.bufferViews.size();
+        normalAccessor.byteOffset = offsetof(Vertex, normal);
+        normalAccessor.componentType = fastgltf::ComponentType::Float;
+        normalAccessor.count = vertices.size();
+        normalAccessor.normalized = true;
+        normalAccessor.name = "Normal accessor";
+        normalAccessor.type = fastgltf::AccessorType::Vec3;
+        asset.accessors.push_back(std::move(normalAccessor));
+
+
+        //============================================
+        // UV ACCESSOR
+        //============================================
+        fastgltf::Accessor uvAccessor;
+        uvAccessor.bufferViewIndex = 0;
+        uvAccessor.byteOffset = offsetof(Vertex, uv);
+        uvAccessor.componentType = fastgltf::ComponentType::Float;
+        uvAccessor.count = vertices.size();
+        uvAccessor.normalized = true;
+        uvAccessor.name = "UV accessor";
+        uvAccessor.type = fastgltf::AccessorType::Vec2;
+        asset.accessors.push_back(std::move(uvAccessor));
+
+        //============================================
+        // IDICES ACCESSOR
+        //============================================
+        fastgltf::Accessor indicesAccessor;
+        indicesAccessor.bufferViewIndex = 1;
+        indicesAccessor.byteOffset = 0;
+        indicesAccessor.componentType = fastgltf::ComponentType::UnsignedInt;
+        indicesAccessor.count = indices.size();
+        indicesAccessor.name = "Indices accessor";
+        indicesAccessor.type = fastgltf::AccessorType::Scalar;
+        asset.accessors.push_back(std::move(indicesAccessor));
+
 
         fastgltf::Mesh mesh;
         fastgltf::Primitive primitive;
