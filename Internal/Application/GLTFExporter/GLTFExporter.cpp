@@ -55,7 +55,6 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     //============================================
     // CREATE BUFFER VIEWS FOR VERTEX   
     //============================================
-    
     fastgltf::BufferView vertexBufferView;
     vertexBufferView.bufferIndex = 0;
     vertexBufferView.byteLength = m_vertexBuffer.byteLength;
@@ -103,7 +102,30 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     asset.accessors.push_back(std::move(normalAccessor));
 
 
+    //============================================
+    // UV ACCESSOR
+    //============================================
+    fastgltf::Accessor uvAccessor;
+    uvAccessor.bufferViewIndex = 0;
+    uvAccessor.byteOffset = offsetof(Vertex, uv);
+    uvAccessor.componentType = fastgltf::ComponentType::Float;
+    uvAccessor.count = vertices.size();
+    uvAccessor.normalized = true;
+    uvAccessor.name = "UV accessor";
+    uvAccessor.type = fastgltf::AccessorType::Vec2;
+    asset.accessors.push_back(std::move(uvAccessor));
 
+    //============================================
+    // IDICES ACCESSOR
+    //============================================
+    fastgltf::Accessor indicesAccessor;
+    indicesAccessor.bufferViewIndex = 1;
+    indicesAccessor.byteOffset = 0;
+    indicesAccessor.componentType = fastgltf::ComponentType::UnsignedInt;
+    indicesAccessor.count = indices.size();
+    indicesAccessor.name = "Indices accessor";
+    indicesAccessor.type = fastgltf::AccessorType::Scalar;
+    asset.accessors.push_back(std::move(indicesAccessor));
 
     ParseScene(scene.GetRootNode(), assetsManager, asset);
 
@@ -126,6 +148,15 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     if(sceneNode->HasMesh()){
         fastgltf::Mesh mesh;
         fastgltf::Primitive primitive;
+        primitive.attributes = {
+            {"POSITION", 0},
+            {"NORMAL", 1},
+            {"TEXCOORD_0", 2}
+        };
+        primitive.indicesAccessor = 3;
+        
+        mesh.primitives.push_back(std::move(primitive));
+        asset.meshes.push_back(std::move(mesh));
     }
     
     node.name = sceneNode->GetName();
