@@ -39,7 +39,7 @@ namespace VEditor {
                 {
                     Utils::Logger::LogInfo("Saving scene...");
                     m_editor->m_uiContext.GetClient().GetGLTFExporter().ExportScene(
-                    "cache/scene.gltf",
+                    "cache",
                         m_editor->m_uiContext.GetScene(),
                            m_editor->m_uiContext.GetClient().GetAssetsManager()
                         );

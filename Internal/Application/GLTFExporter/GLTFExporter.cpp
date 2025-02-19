@@ -16,7 +16,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     std::vector<std::shared_ptr<ApplicationCore::SceneNode>> sceneNodes;
 
     fastgltf::Asset asset;
-
+    
     Utils::Logger::LogInfoClient("Parsing the scene");
 
 
@@ -24,6 +24,9 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     // todo: parse materials
     ParseScene(scene.GetRootNode(), assetsManager, asset);
     OrganiseScene(asset);
+    CreateScene(asset);
+
+    m_nodeCounter = 0;
 
     //=============================================
     // WRITE TO FILE
@@ -31,19 +34,15 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     Utils::Logger::LogSuccessClient("Scene parsed successfuly");
 
     std::filesystem::path p = path;
-    std::filesystem::path bufferPath = path / "data";
 
-    
-    
     fastgltf::FileExporter exporter;
-    exporter.setBufferPath(bufferPath);
-    auto result = exporter.writeGltfJson(asset,path);
+    auto result = exporter.writeGltfBinary(asset,path / "scene.glb");
     
     if(result != fastgltf::Error::None){
-        Utils::Logger::LogErrorClient("Scene saved to " + path.string());
+        Utils::Logger::LogSuccess("Scene saved to " + path.string());
         return;
     }else{
-        Utils::Logger::LogError("Failed to save the scene:" + std::string(fastgltf::getErrorMessage(result)));
+        Utils::Logger::LogErrorClient("Failed to save the scene:" + std::string(fastgltf::getErrorMessage(result)));
     }
 
     Utils::Logger::LogSuccessClient("Scene saved to " + path.string());
@@ -108,8 +107,10 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     fastgltf::math::fmat4x4 modelMatrix;
     memcpy(&modelMatrix,    &sceneNode->m_transformation->GetModelMatrix(), sizeof(modelMatrix));
     node.transform = modelMatrix;
-    asset.nodes.push_back(std::move(node));
-    m_sceneNodeToIndex[sceneNode] = asset.nodes.size() - 1; 
+    //asset.nodes.push_back(std::move(node));
+
+
+    m_childNodes[sceneNode] = m_nodeCounter++; 
     
 
     for (auto& child : sceneNode->GetChildrenByRef())
@@ -141,7 +142,6 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::share
         indexBufferView.bufferIndex = 1;
         indexBufferView.byteLength =  mesh->GetMeshData()->indexData.size;
         indexBufferView.byteOffset =  mesh->GetMeshData()->indexData.offset;
-        indexBufferView.byteStride =  sizeof(uint32_t);
         indexBufferView.name = "Index buffer view";
         indexBufferView.target = fastgltf::BufferTarget::ElementArrayBuffer;
         asset.bufferViews.push_back(std::move(indexBufferView));
@@ -150,19 +150,26 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::share
         // CREATE POSITION ACCESSOR
         //============================================
         fastgltf::Accessor positionAccessor;
-        positionAccessor.bufferViewIndex = asset.bufferViews.size()-1;
+        positionAccessor.bufferViewIndex = asset.bufferViews.size()-2;
         positionAccessor.byteOffset = offsetof(Vertex, position);
         positionAccessor.componentType = fastgltf::ComponentType::Float;
         positionAccessor.count = mesh->GetMeshData()->vertexData.size /sizeof(Vertex);
         positionAccessor.type = fastgltf::AccessorType::Vec3;
         positionAccessor.name = "Position accessor";
+
+        std::pmr::vector<double>min{(double)mesh->GetMeshData()->bounds.min.x, (double)mesh->GetMeshData()->bounds.min.y, (double)mesh->GetMeshData()->bounds.min.z};
+        std::pmr::vector<double>max{(double)mesh->GetMeshData()->bounds.max.x, (double)mesh->GetMeshData()->bounds.max.y, (double)mesh->GetMeshData()->bounds.max.z};
+
+        positionAccessor.min = std::move(min);
+        positionAccessor.max = std::move(max);
         asset.accessors.push_back(std::move(positionAccessor));
+    
 
         //============================================
         // CREATE NORMAL ACCESSOR
         //============================================
         fastgltf::Accessor normalAccessor;
-        normalAccessor.bufferViewIndex = asset.bufferViews.size() -1;
+        normalAccessor.bufferViewIndex = asset.bufferViews.size() -2;
         normalAccessor.byteOffset = offsetof(Vertex, normal);
         normalAccessor.componentType = fastgltf::ComponentType::Float;
         normalAccessor.count = mesh->GetMeshData()->vertexData.size / sizeof(Vertex);
@@ -175,7 +182,7 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::share
         // UV ACCESSOR
         //============================================
         fastgltf::Accessor uvAccessor;
-        uvAccessor.bufferViewIndex = asset.bufferViews.size() -1; // indices are the latest - 1  buffer pushed to this vector
+        uvAccessor.bufferViewIndex = asset.bufferViews.size() -2; // indices are the latest - 1  buffer pushed to this vector
         uvAccessor.byteOffset = offsetof(Vertex, uv);
         uvAccessor.componentType = fastgltf::ComponentType::Float;
         uvAccessor.count = mesh->GetMeshData()->vertexData.size / sizeof(Vertex);
@@ -187,7 +194,7 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::share
         // IDICES ACCESSOR
         //============================================
         fastgltf::Accessor indicesAccessor;
-        indicesAccessor.bufferViewIndex = asset.bufferViews.size(); // indices is the latest buffer pushed to this vector
+        indicesAccessor.bufferViewIndex = asset.bufferViews.size()- 1; // indices is the latest buffer pushed to this vector
         indicesAccessor.byteOffset = 0;
         indicesAccessor.componentType = fastgltf::ComponentType::UnsignedInt;
         indicesAccessor.count = mesh->GetMeshData()->indexData.size / sizeof(uint32_t);
@@ -213,13 +220,31 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::share
 
 void ApplicationCore::GLTFExporter::OrganiseScene(fastgltf::Asset &asset)
 {
-    for (auto it = m_sceneNodeToIndex.begin(); it != m_sceneNodeToIndex.end(); ++it)
+    for (auto it = m_childNodes.begin(); it != m_childNodes.end(); ++it)
     {
-        if(!it->first->GetChildrenByRef().empty()){
-            for(auto& node: it->first->GetChildrenByRef()){
-                asset.nodes[it->second].children.push_back(m_sceneNodeToIndex[node]);
+        if(it->first->IsParent()){
+            asset.nodes.emplace_back(it->second);
+
+            
+            if(!it->first->GetChildrenByRef().empty()){
+                for(auto& node: it->first->GetChildrenByRef()){
+                    asset.nodes[it->second].children.push_back(m_childNodes[node]);
+                }
             }
         }
     }
     
+}
+
+void ApplicationCore::GLTFExporter::CreateScene(fastgltf::Asset &asset)
+{
+    asset.scenes.resize(1);
+    asset.scenes[0].name = "Vulkan-RTX-saved-scene";
+    asset.scenes[0].nodeIndices.resize(m_childNodes.size());
+    for (auto it = m_childNodes.begin(); it != m_childNodes.end(); ++it)
+    {
+        if(it->first->GetParent() == nullptr){
+            asset.scenes[0].nodeIndices.push_back(it->second);
+        }
+    }
 }

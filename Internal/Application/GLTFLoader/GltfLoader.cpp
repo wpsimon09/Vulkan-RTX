@@ -48,7 +48,7 @@ namespace ApplicationCore
 
         fastgltf::Parser parser{};
 
-
+        
         constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble | fastgltf::Options::GenerateMeshIndices |
             fastgltf::Options::LoadExternalBuffers | fastgltf::Options::DecomposeNodeMatrices ;
 
