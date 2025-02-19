@@ -76,8 +76,10 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     fastgltf::Node node{};
     node.name = sceneNode->GetName();
     fastgltf::math::fmat4x4 modelMatrix;
-    memcpy(&modelMatrix, &sceneNode->m_transformation->GetModelMatrix(), sizeof(modelMatrix));
+    memcpy(&modelMatrix,    &sceneNode->m_transformation->GetModelMatrix(), sizeof(modelMatrix));
     node.transform = modelMatrix;
+    asset.nodes.push_back(std::move(node));
+    
     
     for (auto& child : sceneNode->GetChildrenByRef())
     {
@@ -87,7 +89,7 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
 
 void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::shared_ptr<StaticMesh> mesh)
 {
-        auto& mesh = mesh;
+        //auto& mesh = mesh;
     
         //============================================
         // CREATE BUFFER VIEWS FOR VERTEX   
@@ -176,4 +178,27 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::share
         m.name = mesh->GetName();
         m.primitives.push_back(std::move(primitive));
         asset.meshes.push_back(std::move(m));
+
+        //============================================
+        // STORE MESH INDEX FOR INTERNAL PURPOSES
+        //============================================
+        GLTFResource<fastgltf::Mesh> meshResource; 
+        meshResource.resource = &asset.meshes.back();
+        meshResource.index = asset.meshes.size() - 1;
+        m_meshes.push_back(meshResource);
+}
+
+int ApplicationCore::GLTFExporter::FindNode(fastgltf::Asset &asset, std::shared_ptr<SceneNode> node)
+{
+    return 0;
+}
+
+int ApplicationCore::GLTFExporter::FindMesh(fastgltf::Asset &asset, std::shared_ptr<SceneNode> node)
+{
+    return 0;
+}
+
+int ApplicationCore::GLTFExporter::FindFindParent(fastgltf::Asset &asset, std::shared_ptr<SceneNode> node)
+{
+    return 0;
 }

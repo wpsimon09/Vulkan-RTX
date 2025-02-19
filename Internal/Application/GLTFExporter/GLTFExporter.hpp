@@ -28,10 +28,19 @@ namespace ApplicationCore {
         GLTFExporter() = default;
     
         void ExportScene(std::filesystem::path path, Scene& scene,AssetsManager& assetsManager);
-   
+        
     private:
         void ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager, fastgltf::Asset& asset);
         void ParseMesh(fastgltf::Asset& asset, std::shared_ptr<StaticMesh> mesh);
+
+        int FindNode(fastgltf::Asset& asset, std::shared_ptr<SceneNode> node);
+        int FindMesh(fastgltf::Asset& asset, std::shared_ptr<SceneNode> node);
+        int FindFindParent(fastgltf::Asset& asset, std::shared_ptr<SceneNode> node);
+        std::vector<int> FindChildren(fastgltf::Asset& asset, std::shared_ptr<SceneNode> node);
+    private:
+        std::vector<GLTFResource<fastgltf::Mesh>> m_meshes;
+        std::vector<GLTFResource<fastgltf::Material>> m_materials;
+        std::vector<GLTFResource<fastgltf::Node>> m_nodes;
 
     };
 }
