@@ -10,6 +10,12 @@ namespace fastgltf
     struct Node;
 }
 
+template<typename T>
+struct GLTFResource{
+    T* resource;
+    int index;
+};
+
 namespace ApplicationCore {
     class StaticMesh;
     class SceneNode;
@@ -22,9 +28,10 @@ namespace ApplicationCore {
         GLTFExporter() = default;
     
         void ExportScene(std::filesystem::path path, Scene& scene,AssetsManager& assetsManager);
-
+   
     private:
         void ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager, fastgltf::Asset& asset);
+        void ParseMesh(fastgltf::Asset& asset, std::shared_ptr<StaticMesh> mesh);
 
     };
 }

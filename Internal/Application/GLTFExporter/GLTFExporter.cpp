@@ -64,17 +64,30 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
 
 void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager,fastgltf::Asset& asset)
 {
-    
-    fastgltf::Node node{};
     fastgltf::Material material{};
-    
     
     //===================================================
     // PARSE MESH DATA
     //===================================================
     if(sceneNode->HasMesh()){
-        // todo: put accessors and buffer views here instead 
-        auto&mesh = sceneNode->GetMesh();
+        ParseMesh(asset, sceneNode->GetMesh());
+    }
+    
+    fastgltf::Node node{};
+    node.name = sceneNode->GetName();
+    fastgltf::math::fmat4x4 modelMatrix;
+    memcpy(&modelMatrix, &sceneNode->m_transformation->GetModelMatrix(), sizeof(modelMatrix));
+    node.transform = modelMatrix;
+    
+    for (auto& child : sceneNode->GetChildrenByRef())
+    {
+        ParseScene(child, assetsManager, asset);
+    }
+}
+
+void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::shared_ptr<StaticMesh> mesh)
+{
+        auto& mesh = mesh;
     
         //============================================
         // CREATE BUFFER VIEWS FOR VERTEX   
@@ -155,29 +168,12 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
         fastgltf::Mesh m;
         fastgltf::Primitive primitive;
         primitive.attributes = {
-            {"POSITION", asset.accessors.size()-3},
-            {"NORMAL", asset.accessors.size()-2},
-            {"TEXCOORD_0", asset.accessors.size()-1}
+            {"POSITION", asset.accessors.size()-4},
+            {"NORMAL", asset.accessors.size()-3},
+            {"TEXCOORD_0", asset.accessors.size()-2}
         };
-        primitive.indicesAccessor = asset.accessors.size();
-        
+        primitive.indicesAccessor = asset.accessors.size() - 1;
+        m.name = mesh->GetName();
         m.primitives.push_back(std::move(primitive));
         asset.meshes.push_back(std::move(m));
-    }
-    
-    node.name = sceneNode->GetName();
-    fastgltf::math::fmat4x4 modelMatrix;
-    memcpy(&modelMatrix, &sceneNode->m_transformation->GetModelMatrix(), sizeof(modelMatrix));
-    node.transform = modelMatrix;
-    
-    
-    //m_sceneNodes.push_back({node});
-
-    for (auto& child : sceneNode->GetChildrenByRef())
-    {
-        ParseScene(child, assetsManager, asset);
-    }
 }
-
-
-
