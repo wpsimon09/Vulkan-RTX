@@ -55,6 +55,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     asset.buffers[1] = std::move(m_indexBuffer);
 
     ParseScene(scene.GetRootNode(), assetsManager, asset);
+    OrganiseScene(asset);
 
     Utils::Logger::LogInfoClient("Parsed all scene nodes");
 
@@ -69,18 +70,22 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     //===================================================
     // PARSE MESH DATA
     //===================================================
+    fastgltf::Node node{};
     if(sceneNode->HasMesh()){
         ParseMesh(asset, sceneNode->GetMesh());
+        node.meshIndex = m_meshToIndex[sceneNode->GetMesh()];
+    }else{
+        node.meshIndex = std::nullopt;
     }
-    
-    fastgltf::Node node{};
+
     node.name = sceneNode->GetName();
     fastgltf::math::fmat4x4 modelMatrix;
     memcpy(&modelMatrix,    &sceneNode->m_transformation->GetModelMatrix(), sizeof(modelMatrix));
     node.transform = modelMatrix;
     asset.nodes.push_back(std::move(node));
+    m_sceneNodeToIndex[sceneNode] = asset.nodes.size() - 1; 
     
-    
+
     for (auto& child : sceneNode->GetChildrenByRef())
     {
         ParseScene(child, assetsManager, asset);
@@ -179,26 +184,18 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::share
         m.primitives.push_back(std::move(primitive));
         asset.meshes.push_back(std::move(m));
 
-        //============================================
-        // STORE MESH INDEX FOR INTERNAL PURPOSES
-        //============================================
-        GLTFResource<fastgltf::Mesh> meshResource; 
-        meshResource.resource = &asset.meshes.back();
-        meshResource.index = asset.meshes.size() - 1;
-        m_meshes.push_back(meshResource);
+        m_meshToIndex[mesh] =asset.meshes.size() - 1;
 }
 
-int ApplicationCore::GLTFExporter::FindNode(fastgltf::Asset &asset, std::shared_ptr<SceneNode> node)
+void ApplicationCore::GLTFExporter::OrganiseScene(fastgltf::Asset &asset)
 {
-    return 0;
-}
-
-int ApplicationCore::GLTFExporter::FindMesh(fastgltf::Asset &asset, std::shared_ptr<SceneNode> node)
-{
-    return 0;
-}
-
-int ApplicationCore::GLTFExporter::FindFindParent(fastgltf::Asset &asset, std::shared_ptr<SceneNode> node)
-{
-    return 0;
+    for (auto it = m_sceneNodeToIndex.begin(); it != m_sceneNodeToIndex.end(); ++it)
+    {
+        if(!it->first->GetChildrenByRef().empty()){
+            for(auto& node: it->first->GetChildrenByRef()){
+                asset.nodes[it->second].children.push_back(m_sceneNodeToIndex[node]);
+            }
+        }
+    }
+    
 }

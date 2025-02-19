@@ -32,16 +32,11 @@ namespace ApplicationCore {
     private:
         void ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager, fastgltf::Asset& asset);
         void ParseMesh(fastgltf::Asset& asset, std::shared_ptr<StaticMesh> mesh);
+        void OrganiseScene(fastgltf::Asset& asset);
 
-        int FindNode(fastgltf::Asset& asset, std::shared_ptr<SceneNode> node);
-        int FindMesh(fastgltf::Asset& asset, std::shared_ptr<SceneNode> node);
-        int FindFindParent(fastgltf::Asset& asset, std::shared_ptr<SceneNode> node);
-        std::vector<int> FindChildren(fastgltf::Asset& asset, std::shared_ptr<SceneNode> node);
     private:
-        std::vector<GLTFResource<fastgltf::Mesh>> m_meshes;
-        std::vector<GLTFResource<fastgltf::Material>> m_materials;
-        std::vector<GLTFResource<fastgltf::Node>> m_nodes;
-
+        std::unordered_map<std::shared_ptr<StaticMesh>, int> m_meshToIndex;
+        std::unordered_map<std::shared_ptr<SceneNode>, int> m_sceneNodeToIndex;
     };
 }
 
