@@ -30,6 +30,7 @@ namespace ApplicationCore {
         void ExportScene(std::filesystem::path path, Scene& scene,AssetsManager& assetsManager);
         
     private:
+        void ParseBuffers(fastgltf::Asset& asset, AssetsManager& assetsManager);
         void ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager, fastgltf::Asset& asset);
         void ParseMesh(fastgltf::Asset& asset, std::shared_ptr<StaticMesh> mesh);
         void OrganiseScene(fastgltf::Asset& asset);

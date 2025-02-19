@@ -17,7 +17,41 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
 
     fastgltf::Asset asset;
 
-    //========================================
+    Utils::Logger::LogInfoClient("Parsing the scene");
+
+
+    ParseBuffers(asset, assetsManager);
+    // todo: parse materials
+    ParseScene(scene.GetRootNode(), assetsManager, asset);
+    OrganiseScene(asset);
+
+    //=============================================
+    // WRITE TO FILE
+    //=============================================
+    Utils::Logger::LogSuccessClient("Scene parsed successfuly");
+
+    std::filesystem::path p = path;
+    std::filesystem::path bufferPath = path / "data";
+
+    
+    
+    fastgltf::FileExporter exporter;
+    exporter.setBufferPath(bufferPath);
+    auto result = exporter.writeGltfJson(asset,path);
+    
+    if(result != fastgltf::Error::None){
+        Utils::Logger::LogErrorClient("Scene saved to " + path.string());
+        return;
+    }else{
+        Utils::Logger::LogError("Failed to save the scene:" + std::string(fastgltf::getErrorMessage(result)));
+    }
+
+    Utils::Logger::LogSuccessClient("Scene saved to " + path.string());
+}
+
+void ApplicationCore::GLTFExporter::ParseBuffers(fastgltf::Asset &asset, AssetsManager& assetsManager)
+{
+     //========================================
     // CREATE BUFFERS 
     //========================================
     fastgltf::Buffer m_vertexBuffer;
@@ -53,17 +87,9 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     asset.buffers.resize(2);
     asset.buffers[0] = std::move(m_vertexBuffer);
     asset.buffers[1] = std::move(m_indexBuffer);
-
-    ParseScene(scene.GetRootNode(), assetsManager, asset);
-    OrganiseScene(asset);
-
-    Utils::Logger::LogInfoClient("Parsed all scene nodes");
-
-    fastgltf::Exporter exporter;
-
 }
 
-void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager,fastgltf::Asset& asset)
+void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager &assetsManager, fastgltf::Asset &asset)
 {
     fastgltf::Material material{};
     
@@ -140,7 +166,6 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::share
         normalAccessor.byteOffset = offsetof(Vertex, normal);
         normalAccessor.componentType = fastgltf::ComponentType::Float;
         normalAccessor.count = mesh->GetMeshData()->vertexData.size / sizeof(Vertex);
-        normalAccessor.normalized = true;
         normalAccessor.name = "Normal accessor";
         normalAccessor.type = fastgltf::AccessorType::Vec3;
         asset.accessors.push_back(std::move(normalAccessor));
@@ -154,7 +179,6 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::share
         uvAccessor.byteOffset = offsetof(Vertex, uv);
         uvAccessor.componentType = fastgltf::ComponentType::Float;
         uvAccessor.count = mesh->GetMeshData()->vertexData.size / sizeof(Vertex);
-        uvAccessor.normalized = true;
         uvAccessor.name = "UV accessor";
         uvAccessor.type = fastgltf::AccessorType::Vec2;
         asset.accessors.push_back(std::move(uvAccessor));
