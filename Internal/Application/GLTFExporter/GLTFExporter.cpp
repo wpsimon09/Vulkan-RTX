@@ -93,9 +93,9 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
         //============================================
         fastgltf::BufferView indexBufferView;
         indexBufferView.bufferIndex = 1;
-        indexBufferView.byteLength = mesh->GetMeshData()->indexData.size;
+        indexBufferView.byteLength =  mesh->GetMeshData()->indexData.size;
         indexBufferView.byteOffset =  mesh->GetMeshData()->indexData.offset;
-        indexBufferView.byteStride = sizeof(uint32_t);
+        indexBufferView.byteStride =  sizeof(uint32_t);
         indexBufferView.name = "Index buffer view";
         indexBufferView.target = fastgltf::BufferTarget::ElementArrayBuffer;
         asset.bufferViews.push_back(std::move(indexBufferView));
@@ -113,13 +113,13 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
         asset.accessors.push_back(std::move(positionAccessor));
 
         //============================================
-        // CREATE POSITION ACCESSOR
+        // CREATE NORMAL ACCESSOR
         //============================================
         fastgltf::Accessor normalAccessor;
-        normalAccessor.bufferViewIndex = asset.bufferViews.size();
+        normalAccessor.bufferViewIndex = asset.bufferViews.size() -1;
         normalAccessor.byteOffset = offsetof(Vertex, normal);
         normalAccessor.componentType = fastgltf::ComponentType::Float;
-        normalAccessor.count = vertices.size();
+        normalAccessor.count = mesh->GetMeshData()->vertexData.size / sizeof(Vertex);
         normalAccessor.normalized = true;
         normalAccessor.name = "Normal accessor";
         normalAccessor.type = fastgltf::AccessorType::Vec3;
@@ -130,10 +130,10 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
         // UV ACCESSOR
         //============================================
         fastgltf::Accessor uvAccessor;
-        uvAccessor.bufferViewIndex = 0;
+        uvAccessor.bufferViewIndex = asset.bufferViews.size() -1; // indices are the latest - 1  buffer pushed to this vector
         uvAccessor.byteOffset = offsetof(Vertex, uv);
         uvAccessor.componentType = fastgltf::ComponentType::Float;
-        uvAccessor.count = vertices.size();
+        uvAccessor.count = mesh->GetMeshData()->vertexData.size / sizeof(Vertex);
         uvAccessor.normalized = true;
         uvAccessor.name = "UV accessor";
         uvAccessor.type = fastgltf::AccessorType::Vec2;
@@ -143,26 +143,26 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
         // IDICES ACCESSOR
         //============================================
         fastgltf::Accessor indicesAccessor;
-        indicesAccessor.bufferViewIndex = 1;
+        indicesAccessor.bufferViewIndex = asset.bufferViews.size(); // indices is the latest buffer pushed to this vector
         indicesAccessor.byteOffset = 0;
         indicesAccessor.componentType = fastgltf::ComponentType::UnsignedInt;
-        indicesAccessor.count = indices.size();
+        indicesAccessor.count = mesh->GetMeshData()->indexData.size / sizeof(uint32_t);
         indicesAccessor.name = "Indices accessor";
         indicesAccessor.type = fastgltf::AccessorType::Scalar;
         asset.accessors.push_back(std::move(indicesAccessor));
 
 
-        fastgltf::Mesh mesh;
+        fastgltf::Mesh m;
         fastgltf::Primitive primitive;
         primitive.attributes = {
-            {"POSITION", 0},
-            {"NORMAL", 1},
-            {"TEXCOORD_0", 2}
+            {"POSITION", asset.accessors.size()-3},
+            {"NORMAL", asset.accessors.size()-2},
+            {"TEXCOORD_0", asset.accessors.size()-1}
         };
-        primitive.indicesAccessor = 3;
+        primitive.indicesAccessor = asset.accessors.size();
         
-        mesh.primitives.push_back(std::move(primitive));
-        asset.meshes.push_back(std::move(mesh));
+        m.primitives.push_back(std::move(primitive));
+        asset.meshes.push_back(std::move(m));
     }
     
     node.name = sceneNode->GetName();
