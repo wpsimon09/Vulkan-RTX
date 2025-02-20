@@ -32,12 +32,15 @@ namespace ApplicationCore {
     private:
         void ParseBuffers(fastgltf::Asset& asset, AssetsManager& assetsManager);
         void ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager& assetsManager, fastgltf::Asset& asset);
+        void ParseMaterial(fastgltf::Asset& asset, AssetsManager& assetsManager);
         void ParseMesh(fastgltf::Asset& asset, std::shared_ptr<StaticMesh> mesh);
         void OrganiseScene(fastgltf::Asset& asset);
         void CreateScene(fastgltf::Asset& asset);
 
+
     private:
         int m_nodeCounter = 0;
+        std::unordered_map<std::shared_ptr<Material>, int> m_materialToIndex;
         std::unordered_map<std::shared_ptr<StaticMesh>, int> m_meshToIndex;
         std::unordered_map<std::shared_ptr<SceneNode>, int> m_nodes;
         std::unordered_map<std::shared_ptr<SceneNode>, int> m_childNodes;

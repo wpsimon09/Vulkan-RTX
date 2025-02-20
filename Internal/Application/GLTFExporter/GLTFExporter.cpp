@@ -21,7 +21,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
 
 
     ParseBuffers(asset, assetsManager);
-    // todo: parse materials
+    ParseMaterial(asset, assetsManager);
     ParseScene(scene.GetRootNode(), assetsManager, asset);
     OrganiseScene(asset);
     CreateScene(asset);
@@ -107,6 +107,7 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     }
 
     node.name = sceneNode->GetName();
+    
     fastgltf::math::fmat4x4 modelMatrix;
     memcpy(&modelMatrix,    &sceneNode->m_transformation->GetModelMatrix(), sizeof(modelMatrix));
     node.transform = modelMatrix;
@@ -120,6 +121,24 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
         ParseScene(child, assetsManager, asset);
     }
 }
+
+void ApplicationCore::GLTFExporter::ParseMaterial(fastgltf::Asset &asset, AssetsManager &assetsManager)
+{
+    for (auto & mat : assetsManager.GetAllMaterials())
+    {
+        fastgltf::Material material;
+        auto& matValues = mat->GetMaterialDescription().values;
+        material.name = mat->GetMaterialName();
+        material.alphaMode = mat->IsTransparent() ? fastgltf::AlphaMode::Blend : fastgltf::AlphaMode::Opaque;  
+        material.pbrData.baseColorFactor = fastgltf::math::vec<float, 4>(matValues.diffuse.x, matValues.diffuse.y, matValues.diffuse.z, matValues.diffuse.w);
+        material.pbrData.metallicFactor = matValues.metalness;
+        material.pbrData.roughnessFactor = matValues.roughness;
+        asset.materials.push_back(std::move(material));
+        m_materialToIndex[mat] = asset.materials.size() - 1;
+    }
+    
+}
+
 
 void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::shared_ptr<StaticMesh> mesh)
 {
@@ -207,15 +226,18 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::share
 
         fastgltf::Mesh m;
         fastgltf::Primitive primitive;
+        primitive.materialIndex = m_materialToIndex[mesh->GetMaterial()];
         primitive.attributes = {
             {"POSITION", asset.accessors.size()-4},
             {"NORMAL", asset.accessors.size()-3},
             {"TEXCOORD_0", asset.accessors.size()-2}
         };
         primitive.indicesAccessor = asset.accessors.size() - 1;
+        
         m.name = mesh->GetName();
         m.primitives.push_back(std::move(primitive));
         asset.meshes.push_back(std::move(m));
+
 
         m_meshToIndex[mesh] =asset.meshes.size() - 1;
 }
