@@ -47,6 +47,8 @@ namespace VulkanCore
 
         void TransitionImageLayout(vk::ImageLayout currentLayout, vk::ImageLayout targetLayout);
 
+        void TransitionImageLayout(vk::ImageLayout currentLayout, vk::ImageLayout targetLayout, VulkanCore::VCommandBuffer& commandBuffer);
+
         void TransitionImageLayout(vk::ImageLayout currentLayout, vk::ImageLayout targetLayout, std::vector<vk::Semaphore>& waitSemaphores,std::vector<vk::PipelineStageFlags>& waitStages, std::vector<vk::Semaphore>& signalSemaphores);
 
         bool IsValid() const {return m_isValid;}
