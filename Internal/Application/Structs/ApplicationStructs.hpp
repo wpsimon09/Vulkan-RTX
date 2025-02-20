@@ -93,6 +93,7 @@ struct Ray
     float length;
 };
 
+
 struct SceneNodeMetaData
 {
     bool IsParentNode = false;
@@ -108,5 +109,6 @@ struct SceneNodeMetaData
     int exportID = 0;
     VulkanStructs::RenderingMetaData RenderingMetaData{true, false, false, false, false};
 };
+
 
 #endif //APPLICATIONSTRUCTS_HPP

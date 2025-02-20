@@ -69,6 +69,7 @@ public:
     void GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& path);
     void GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID, TextureBufferInfo& data);
     void GetDummyTexture(std::shared_ptr<VulkanCore::VImage>& texture) const { texture = m_dummyTexture; }
+    std::pair<std::vector<std::byte>, std::vector<TextureBufferView>> ReadBackAllTextures();
 
     //=========================
     // Meshes
@@ -114,7 +115,6 @@ private:
     //=========================
     std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_textures; // Main thread access only
     std::unordered_map<std::string, std::future<VulkanStructs::ImageData<>>> m_texturesToLoad; // Loading thread access only
-    std::vector<VulkanStructs::ImageData<>> ReadBackAllTextures();
 
     //=========================
     // Mesh Management

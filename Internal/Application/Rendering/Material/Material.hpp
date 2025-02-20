@@ -10,6 +10,7 @@
 #include "Application/Enums/ClientEnums.hpp"
 
 
+
 #ifndef MAX_TEXTURE_COUNT
 // diffuse, normal, arm ,emissive
 #define MAX_TEXTURE_COUNT 4
@@ -21,10 +22,17 @@ namespace VulkanCore
     class VImage;
 }
 
+
+
 inline int MaterialIndexCounter = 0;
 
 namespace ApplicationCore
 {
+    struct TextureBufferView{
+        size_t offset;
+        size_t size;
+    }; 
+
     class AssetsManager;
 
     class Material
@@ -38,6 +46,7 @@ namespace ApplicationCore
         std::shared_ptr<VulkanCore::VImage>& GetTexture(ETextureType type) { return m_textures[type]; }
         bool& IsTransparent() { return m_transparent; }
         void SetTransparent(bool value) { m_transparent = value; }
+        TextureBufferView* GetTextureView() { return &m_textureView; }
 
     private:
         std::string m_materialName;
@@ -45,6 +54,7 @@ namespace ApplicationCore
         PBRMaterialDescription m_materialDescription;
         MaterialPaths m_materialPaths;
         AssetsManager& m_assetManager;
+        TextureBufferView m_textureView; // used only for exporting 
         bool m_transparent = false;
         int ID;
 

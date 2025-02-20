@@ -8,7 +8,7 @@
 
 #include "Application/AssetsManger/AssetsManager.hpp"
 namespace ApplicationCore {
-    Material::Material(MaterialPaths& materialPaths,AssetsManager& assets_manager): m_assetManager(assets_manager), m_materialPaths(materialPaths), m_materialDescription()
+    Material::Material(MaterialPaths& materialPaths,AssetsManager& assets_manager): m_assetManager(assets_manager), m_materialPaths(materialPaths), m_materialDescription(), m_textureView{}
     {
         ID = ++MaterialIndexCounter;
 

@@ -284,20 +284,32 @@ namespace ApplicationCore
 
 
     }
-    std::vector<VulkanStructs::ImageData<>> AssetsManager::ReadBackAllTextures()
+    
+    std::pair<std::vector<std::byte>, std::vector<TextureBufferView>> AssetsManager::ReadBackAllTextures()
     {
+        //prepare the data 
+        std::vector<std::byte> data;
+        std::vector<TextureBufferView> views(m_textures.size());
+        size_t totalDataSize = 0;
+        vk::DeviceSize currentOffset = 0;
+        for(auto& texture: m_textures){
+            totalDataSize += texture.second->GetSize();
+        }
+        data.reserve(totalDataSize);
+        auto dstBuffer = VulkanUtils::CreateStagingBuffer(m_device, totalDataSize);
+
         auto transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
 
         transferCommandBuffer->BeginRecording();
+
         for(auto& texture: m_textures){
-            auto dstBuffer = VulkanUtils::CreateStagingBuffer(m_device, texture.second->GetSize());
             
             auto imageTransferedSemaphore = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
             texture.second->TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eTransferSrcOptimal);
         
             vk::BufferImageCopy cpyInfo;
             cpyInfo.imageOffset = 0;
-            cpyInfo.bufferOffset = 0;
+            cpyInfo.bufferOffset = currentOffset;
             cpyInfo.imageExtent.width = texture.second->GetWidth();
             cpyInfo.imageExtent.height = texture.second->GetHeight();
             cpyInfo.imageExtent.depth = 1; 
@@ -307,9 +319,14 @@ namespace ApplicationCore
             cpyInfo.imageSubresource.baseArrayLayer = 0;
             cpyInfo.imageSubresource.layerCount = 1;
             cpyInfo.bufferOffset = 0;
+
+            transferCommandBuffer->GetCommandBuffer().copyImageToBuffer(texture.second->GetImage(), vk::ImageLayout::eTransferSrcOptimal, dstBuffer.m_stagingBufferVK, cpyInfo);
+
+            currentOffset += texture.second->GetSize(); 
+            
         }
 
-        return std::vector<VulkanStructs::ImageData<>>();
+        throw std::runtime_error("Not implemented yet");
     }
 }
 

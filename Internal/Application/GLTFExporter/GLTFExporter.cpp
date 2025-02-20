@@ -128,6 +128,9 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
 
 void ApplicationCore::GLTFExporter::ParseMaterial(fastgltf::Asset &asset, AssetsManager &assetsManager)
 {
+    // get textures
+    auto readBackValues = assetsManager.ReadBackAllTextures();
+
     for (auto & mat : assetsManager.GetAllMaterials())
     {
         fastgltf::Material material;

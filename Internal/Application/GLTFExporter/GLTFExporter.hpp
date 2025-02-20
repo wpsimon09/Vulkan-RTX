@@ -22,6 +22,7 @@ namespace ApplicationCore {
     class Scene;
     class AssetsManager;
     class Material;
+    struct TextureBufferView;
 
     class GLTFExporter {
     public:
@@ -41,11 +42,12 @@ namespace ApplicationCore {
 
     private:
         int m_nodeCounter = 0;
+
+        std::unordered_map<TextureBufferView*, int> m_textureToIndex;
         std::unordered_map<std::shared_ptr<Material>, int> m_materialToIndex;
         std::unordered_map<std::shared_ptr<StaticMesh>, int> m_meshToIndex;
         std::unordered_map<std::shared_ptr<SceneNode>, int> m_nodes;
         std::unordered_map<std::shared_ptr<SceneNode>, int> m_childNodes;
-
     };
 }
 
