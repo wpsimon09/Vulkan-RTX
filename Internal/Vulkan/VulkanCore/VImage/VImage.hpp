@@ -53,6 +53,8 @@ namespace VulkanCore
 
         bool IsLoaded() const {return m_isLoaded;}
 
+        vk::DeviceSize GetSize() const {return m_width * m_height * VulkanUtils::GetVulkanFormatSize(m_format);}
+
         void SetIsLoaded(bool status) {m_isLoaded = status;}
 
         template<typename T>

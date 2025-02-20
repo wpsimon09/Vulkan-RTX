@@ -284,6 +284,33 @@ namespace ApplicationCore
 
 
     }
+    std::vector<VulkanStructs::ImageData<>> AssetsManager::ReadBackAllTextures()
+    {
+        auto transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
+
+        transferCommandBuffer->BeginRecording();
+        for(auto& texture: m_textures){
+            auto dstBuffer = VulkanUtils::CreateStagingBuffer(m_device, texture.second->GetSize());
+            
+            auto imageTransferedSemaphore = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+            texture.second->TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eTransferSrcOptimal);
+        
+            vk::BufferImageCopy cpyInfo;
+            cpyInfo.imageOffset = 0;
+            cpyInfo.bufferOffset = 0;
+            cpyInfo.imageExtent.width = texture.second->GetWidth();
+            cpyInfo.imageExtent.height = texture.second->GetHeight();
+            cpyInfo.imageExtent.depth = 1; 
+        
+            cpyInfo.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+            cpyInfo.imageSubresource.mipLevel = 0;
+            cpyInfo.imageSubresource.baseArrayLayer = 0;
+            cpyInfo.imageSubresource.layerCount = 1;
+            cpyInfo.bufferOffset = 0;
+        }
+
+        return std::vector<VulkanStructs::ImageData<>>();
+    }
 }
 
 // ApplicationCore

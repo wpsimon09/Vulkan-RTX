@@ -69,6 +69,8 @@ namespace VulkanUtils
 
     int random_int(int min = 0, int max = 1);
 
+    vk::DeviceSize GetVulkanFormatSize(vk::Format format);
+
     VulkanStructs::Bounds CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices);
 
     VulkanStructs::StagingBufferInfo CreateStagingBuffer(const VulkanCore::VDevice& m_device, vk::DeviceSize size);

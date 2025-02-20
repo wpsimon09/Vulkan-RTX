@@ -302,6 +302,89 @@ int VulkanUtils::random_int(int min, int max){
     return min + (rand() % static_cast<int>(max - min + 1));
 }
 
+vk::DeviceSize VulkanUtils::GetVulkanFormatSize(vk::Format format)
+{
+    switch(format){
+        case vk::Format::eR8Unorm:
+        case vk::Format::eR8Snorm:
+        case vk::Format::eR8Uint:
+        case vk::Format::eR8Sint:
+        case vk::Format::eR8Srgb:
+            return 1;
+        case vk::Format::eR16Unorm:
+        case vk::Format::eR16Snorm:
+        case vk::Format::eR16Uint:
+        case vk::Format::eR16Sint:
+        case vk::Format::eR16Sfloat:
+            return 2;
+        case vk::Format::eR32Uint:
+        case vk::Format::eR32Sint:
+        case vk::Format::eR32Sfloat:
+            return 4;
+        case vk::Format::eR8G8Unorm:
+        case vk::Format::eR8G8Snorm:
+        case vk::Format::eR8G8Uint:
+        case vk::Format::eR8G8Sint:
+        case vk::Format::eR8G8Srgb:
+            return 2;
+        case vk::Format::eR16G16Unorm:
+        case vk::Format::eR16G16Snorm:
+        case vk::Format::eR16G16Uint:
+        case vk::Format::eR16G16Sint:
+        case vk::Format::eR16G16Sfloat:
+            return 4;
+        case vk::Format::eR32G32Uint:
+        case vk::Format::eR32G32Sint:
+        case vk::Format::eR32G32Sfloat:
+            return 8;
+        case vk::Format::eR8G8B8Unorm:
+        case vk::Format::eR8G8B8Snorm:
+        case vk::Format::eR8G8B8Uint:
+        case vk::Format::eR8G8B8Sint:
+        case vk::Format::eR8G8B8Srgb:
+            return 3;
+        case vk::Format::eB8G8R8Unorm:
+        case vk::Format::eB8G8R8Snorm:
+        case vk::Format::eB8G8R8Uint:
+        case vk::Format::eB8G8R8Sint:
+        case vk::Format::eB8G8R8Srgb:
+            return 3;
+        case vk::Format::eR16G16B16Unorm:
+        case vk::Format::eR16G16B16Snorm:
+        case vk::Format::eR16G16B16Uint:
+        case vk::Format::eR16G16B16Sint:
+        case vk::Format::eR16G16B16Sfloat:
+            return 6;
+        case vk::Format::eR32G32B32Uint:
+        case vk::Format::eR32G32B32Sint:
+        case vk::Format::eR32G32B32Sfloat:
+            return 12;
+        case vk::Format::eR8G8B8A8Unorm:
+        case vk::Format::eR8G8B8A8Snorm:
+        case vk::Format::eR8G8B8A8Uint:
+        case vk::Format::eR8G8B8A8Sint:
+        case vk::Format::eR8G8B8A8Srgb:
+            return 4;
+        case vk::Format::eB8G8R8A8Unorm:
+        case vk::Format::eB8G8R8A8Snorm:
+        case vk::Format::eB8G8R8A8Uint:
+        case vk::Format::eB8G8R8A8Sint:
+        case vk::Format::eB8G8R8A8Srgb:
+            return 4;
+        case vk::Format::eR16G16B16A16Unorm:
+        case vk::Format::eR16G16B16A16Snorm:
+        case vk::Format::eR16G16B16A16Uint:
+        case vk::Format::eR16G16B16A16Sint:
+        case vk::Format::eR16G16B16A16Sfloat:
+            return 8;
+        case vk::Format::eR32G32B32A32Uint:
+        case vk::Format::eR32G32B32A32Sint:
+        case vk::Format::eR32G32B32A32Sfloat:
+            return 16;
+        default:
+            throw std::runtime_error("Unsupported format size calculation");
+    }
+}
 
 VulkanStructs::Bounds VulkanUtils::CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices)
 {
@@ -322,7 +405,6 @@ VulkanStructs::Bounds VulkanUtils::CalculateBounds(const std::vector<Application
     bounds.max = maxPos;
     bounds.min = minPos;
     bounds.radius = glm::length(bounds.extents);
-
 
     return bounds;
 }

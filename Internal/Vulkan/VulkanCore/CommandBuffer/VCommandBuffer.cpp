@@ -65,6 +65,16 @@ namespace VulkanCore {
         assert(queue.submit(1,&submitInfo, VK_NULL_HANDLE) == vk::Result::eSuccess);
     }
 
+    void VCommandBuffer::EndAndFlush(const vk::Queue &queue, const vk::Fence &fence)
+    {
+        std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
+        EndRecording();
+        vk::SubmitInfo submitInfo;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &m_commandBuffer;
+        assert(queue.submit(1,&submitInfo, fence) == vk::Result::eSuccess);
+    }
+
     void VCommandBuffer::EndAndFlush(const vk::Queue& queue, std::vector<vk::Semaphore>& waitSemaphores,
         std::vector<vk::PipelineStageFlags>& waitStages, std::vector<vk::Semaphore>& signalSemaphores)
     {
@@ -80,6 +90,5 @@ namespace VulkanCore {
         submitInfo.signalSemaphoreCount = signalSemaphores.size();
         submitInfo.pSignalSemaphores = signalSemaphores.data();
         assert(queue.submit(1,&submitInfo, VK_NULL_HANDLE) == vk::Result::eSuccess);
-
     }
 } // VulkanCore
