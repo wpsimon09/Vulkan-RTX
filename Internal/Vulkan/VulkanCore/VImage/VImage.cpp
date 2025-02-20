@@ -38,7 +38,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, vk::Image image, i
 VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t mipLevels,
                            vk::Format format, vk::ImageAspectFlags aspecFlags, std::optional<vk::ImageUsageFlags> imageUsage,vk::SampleCountFlagBits samples):
     m_device(device), m_mipLevels(mipLevels), m_format(format), m_aspectFlags(aspecFlags), m_samples(samples),
-    m_imageUsage(imageUsage.value_or(vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled))
+    m_imageUsage(imageUsage.value_or(vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferSrc))
     {
 
     // creates new vulkan image

@@ -275,14 +275,6 @@ namespace ApplicationCore
         ltcTexture->FillWithImageData<float>(MathUtils::LTCInverse_ImageData);
         MathUtils::LUT.LTCInverse = std::move(ltcTexture);
 
-
-        //m_textures[MathUtils::LTCInverse_ImageData.fileName] = std::move(ltcTexture);
-
-
-        //mat->GetTexture(ETextureType::Diffues) = m_textures[MathUtils::LTCInverse_ImageData.fileName];
-
-
-
     }
     
     std::pair<std::vector<std::byte>, std::vector<TextureBufferView>> AssetsManager::ReadBackAllTextures()
@@ -297,7 +289,7 @@ namespace ApplicationCore
         for(auto& texture: m_textures){
             totalDataSize += texture.second->GetSize();
         }
-        data.reserve(totalDataSize);
+        data.resize(totalDataSize);
         auto dstBuffer = VulkanUtils::CreateStagingBuffer(m_device, totalDataSize);
 
         auto transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
@@ -306,7 +298,7 @@ namespace ApplicationCore
 
         for(auto& texture: m_textures){
 
-            texture.second->TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eTransferSrcOptimal);
+            texture.second->TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eTransferSrcOptimal,*transferCommandBuffer);
             
             vk::BufferImageCopy cpyInfo;
             cpyInfo.imageOffset = 0;
@@ -324,13 +316,19 @@ namespace ApplicationCore
             currentOffset += texture.second->GetSize();
 
             TextureBufferView textureView;
+            textureView.offset = currentOffset; 
+            textureView.size = texture.second->GetSize();
+            views.emplace_back(textureView);
+
             transferCommandBuffer->GetCommandBuffer().copyImageToBuffer(texture.second->GetImage(), vk::ImageLayout::eTransferSrcOptimal, dstBuffer.m_stagingBufferVK, cpyInfo);
 
-                
-
-            texture.second->TransitionImageLayout(vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+            texture.second->TransitionImageLayout(vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,*transferCommandBuffer);
         }
-        
+
+        transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+        m_device.GetTransferQueue().waitIdle(); 
+
+        memcpy(data.data(), dstBuffer.mappedPointer, totalDataSize);
 
 
         throw std::runtime_error("Not implemented yet");
