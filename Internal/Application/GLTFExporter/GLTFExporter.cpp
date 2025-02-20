@@ -26,6 +26,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     OrganiseScene(asset);
     CreateScene(asset);
 
+
     m_nodeCounter = 0;
 
     //=============================================
@@ -34,8 +35,9 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     Utils::Logger::LogSuccessClient("Scene parsed successfuly");
 
     std::filesystem::path p = path;
-
+    std::filesystem::path datapath = path / "data"; 
     fastgltf::FileExporter exporter;
+    exporter.setBufferPath(datapath);
     auto result = exporter.writeGltfBinary(asset,path / "scene.glb");
     
     if(result != fastgltf::Error::None){
@@ -109,8 +111,7 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     node.transform = modelMatrix;
     //asset.nodes.push_back(std::move(node));
 
-
-    m_childNodes[sceneNode] = m_nodeCounter++; 
+    m_nodes[sceneNode] = m_nodeCounter++; 
     
 
     for (auto& child : sceneNode->GetChildrenByRef())
@@ -220,16 +221,25 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::share
 
 void ApplicationCore::GLTFExporter::OrganiseScene(fastgltf::Asset &asset)
 {
-    for (auto it = m_childNodes.begin(); it != m_childNodes.end(); ++it)
-    {
+    // loop through all the nodes 
+    std::unordered_map<std::shared_ptr<SceneNode>, int> m_childNodes;
+    for (auto it = m_nodes.begin(); it != m_nodes.end(); ++it)
+    {   
         if(it->first->IsParent()){
             asset.nodes.emplace_back(it->second);
+        }else{
+            m_childNodes[it->first] = (it->second);
+        }
+        
+    }
 
-            
-            if(!it->first->GetChildrenByRef().empty()){
-                for(auto& node: it->first->GetChildrenByRef()){
-                    asset.nodes[it->second].children.push_back(m_childNodes[node]);
-                }
+    for(auto it = m_childNodes.begin(); it != m_childNodes.end(); ++it){
+        for (auto& child : it->first->GetChildrenByRef())
+        {
+            auto childIt = m_nodes.find(child);
+            if (childIt != m_nodes.end())  // Ensure the child exists
+            {
+                asset.nodes[it->second].children.push_back(childIt->second);
             }
         }
     }
@@ -240,8 +250,8 @@ void ApplicationCore::GLTFExporter::CreateScene(fastgltf::Asset &asset)
 {
     asset.scenes.resize(1);
     asset.scenes[0].name = "Vulkan-RTX-saved-scene";
-    asset.scenes[0].nodeIndices.resize(m_childNodes.size());
-    for (auto it = m_childNodes.begin(); it != m_childNodes.end(); ++it)
+    asset.scenes[0].nodeIndices.resize(m_nodes.size());
+    for (auto it = m_nodes.begin(); it != m_nodes.end(); ++it)
     {
         if(it->first->GetParent() == nullptr){
             asset.scenes[0].nodeIndices.push_back(it->second);

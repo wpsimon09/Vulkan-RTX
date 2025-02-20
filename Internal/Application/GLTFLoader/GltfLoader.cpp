@@ -48,7 +48,7 @@ namespace ApplicationCore
 
         fastgltf::Parser parser{};
 
-        
+
         constexpr auto gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble | fastgltf::Options::GenerateMeshIndices |
             fastgltf::Options::LoadExternalBuffers | fastgltf::Options::DecomposeNodeMatrices ;
 
@@ -322,12 +322,7 @@ namespace ApplicationCore
                 m_topNodes.push_back(m_node);
             }
         }
-
-        for (const auto& topNode : m_topNodes)
-        {
-            //m_rootNode->AddChild(topNode);
-        }
-
+        
         GlobalState::EnableLogging();
         Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");
         return std::move(m_topNodes);

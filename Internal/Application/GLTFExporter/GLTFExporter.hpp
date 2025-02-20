@@ -39,8 +39,8 @@ namespace ApplicationCore {
     private:
         int m_nodeCounter = 0;
         std::unordered_map<std::shared_ptr<StaticMesh>, int> m_meshToIndex;
+        std::unordered_map<std::shared_ptr<SceneNode>, int> m_nodes;
         std::unordered_map<std::shared_ptr<SceneNode>, int> m_childNodes;
-        std::unordered_map<std::shared_ptr<SceneNode>, int> m_topNodes;
 
     };
 }
