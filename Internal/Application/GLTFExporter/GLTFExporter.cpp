@@ -7,6 +7,7 @@
 #include <Application/Rendering/Scene/SceneNode.hpp>
 #include <Application/AssetsManger/AssetsManager.hpp>
 #include <Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp>
+#include <Application/Utils/MathUtils.hpp>
 
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 
@@ -27,7 +28,6 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     CreateScene(asset);
 
 
-    m_nodeCounter = 0;
 
     //=============================================
     // WRITE TO FILE
@@ -47,6 +47,8 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     }else{
         Utils::Logger::LogErrorClient("Failed to save the scene:" + std::string(fastgltf::getErrorMessage(result)));
     }
+
+    Clear();
 
     Utils::Logger::LogSuccessClient("Scene saved to " + path.string());
 }
@@ -107,10 +109,12 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     }
 
     node.name = sceneNode->GetName();
-    
-    fastgltf::math::fmat4x4 modelMatrix;
-    memcpy(&modelMatrix,    &sceneNode->m_transformation->GetModelMatrix(), sizeof(modelMatrix));
-    node.transform = modelMatrix;
+
+    fastgltf::TRS trs;
+    trs.translation = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetPosition().x, sceneNode->m_transformation->GetPosition().y, sceneNode->m_transformation->GetPosition().z);    
+    trs.rotation = MathUtils::EulerToQuaternion(sceneNode->m_transformation->GetRotations());
+    trs.scale = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetScale().x, sceneNode->m_transformation->GetScale().y, sceneNode->m_transformation->GetScale().z);
+    node.transform = trs;
     asset.nodes.push_back(std::move(node));
 
     m_nodes[sceneNode] = asset.nodes.size() - 1; 
@@ -138,7 +142,6 @@ void ApplicationCore::GLTFExporter::ParseMaterial(fastgltf::Asset &asset, Assets
     }
     
 }
-
 
 void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset &asset, std::shared_ptr<StaticMesh> mesh)
 {
@@ -260,4 +263,13 @@ void ApplicationCore::GLTFExporter::CreateScene(fastgltf::Asset &asset)
     asset.scenes[0].name = "Vulkan-RTX-saved-scene";
     // node at index 0 is allways the root
     asset.scenes[0].nodeIndices.push_back(0);
+}
+
+void ApplicationCore::GLTFExporter::Clear()
+{
+    m_materialToIndex.clear();
+    m_meshToIndex.clear();
+    m_nodes.clear();
+    m_childNodes.clear();
+    m_nodeCounter = 0;  
 }

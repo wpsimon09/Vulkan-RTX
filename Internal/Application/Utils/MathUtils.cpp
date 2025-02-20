@@ -12,3 +12,8 @@ glm::vec3 MathUtils::QuaternionToEuler(fastgltf::math::fquat quat)
     return {glm::degrees(euler.x), glm::degrees(euler.y), glm::degrees(euler.z)};
 }
 
+fastgltf::math::fquat MathUtils::EulerToQuaternion(glm::vec3 &euler)
+{
+    glm::quat q = glm::quat(glm::radians(euler));
+    return fastgltf::math::fquat(q.w, q.x, q.y, q.z);
+}
