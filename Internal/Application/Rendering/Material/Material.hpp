@@ -31,6 +31,7 @@ namespace ApplicationCore
     struct TextureBufferView{
         size_t offset;
         size_t size;
+        std::string path;
     }; 
 
     class AssetsManager;

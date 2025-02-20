@@ -69,7 +69,7 @@ public:
     void GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& path);
     void GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID, TextureBufferInfo& data);
     void GetDummyTexture(std::shared_ptr<VulkanCore::VImage>& texture) const { texture = m_dummyTexture; }
-    std::pair<std::vector<std::byte>, std::vector<TextureBufferView>> ReadBackAllTextures();
+    std::vector<TextureBufferView> ReadBackAllTextures(std::vector<std::byte>& data);
 
     //=========================
     // Meshes

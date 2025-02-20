@@ -43,6 +43,7 @@ namespace ApplicationCore {
     private:
         int m_nodeCounter = 0;
 
+        std::vector<TextureBufferView> m_fetchedTextureViews;
         std::unordered_map<TextureBufferView*, int> m_textureToIndex;
         std::unordered_map<std::shared_ptr<Material>, int> m_materialToIndex;
         std::unordered_map<std::shared_ptr<StaticMesh>, int> m_meshToIndex;

@@ -22,6 +22,7 @@
 #include "Application/Utils/MathUtils.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 
 
 namespace ApplicationCore
@@ -277,13 +278,14 @@ namespace ApplicationCore
 
     }
     
-    std::pair<std::vector<std::byte>, std::vector<TextureBufferView>> AssetsManager::ReadBackAllTextures()
+    std::vector<TextureBufferView> AssetsManager::ReadBackAllTextures(std::vector<std::byte>& data)
     {
+        //this function will be called from separate therad so i will create new command pool 
+        auto commandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Transfer);
         //prepare the data 
-        std::vector<std::byte> data;
         std::vector<TextureBufferView> views;
         views.reserve(m_textures.size());
-
+        
         size_t totalDataSize = 0;
         vk::DeviceSize currentOffset = 0;
         for(auto& texture: m_textures){
@@ -292,7 +294,7 @@ namespace ApplicationCore
         data.resize(totalDataSize);
         auto dstBuffer = VulkanUtils::CreateStagingBuffer(m_device, totalDataSize);
 
-        auto transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
+        auto transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *commandPool);
 
         transferCommandBuffer->BeginRecording();
 
@@ -312,11 +314,12 @@ namespace ApplicationCore
             cpyInfo.imageSubresource.baseArrayLayer = 0;
             cpyInfo.imageSubresource.layerCount = 1;
             cpyInfo.bufferOffset = 0;
-            
+
             currentOffset += texture.second->GetSize();
 
             TextureBufferView textureView;
             textureView.offset = currentOffset; 
+            textureView.path = texture.first;
             textureView.size = texture.second->GetSize();
             views.emplace_back(textureView);
 
@@ -330,8 +333,10 @@ namespace ApplicationCore
 
         memcpy(data.data(), dstBuffer.mappedPointer, totalDataSize);
 
+        vmaUnmapMemory(m_device.GetAllocator(), dstBuffer.m_stagingAllocation);
+        vmaDestroyBuffer(m_device.GetAllocator(), dstBuffer.m_stagingBufferVK, dstBuffer.m_stagingAllocation);
 
-        throw std::runtime_error("Not implemented yet");
+        return  std::move(views);
     }
 }
 
