@@ -37,7 +37,8 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     std::filesystem::path p = path;
     std::filesystem::path datapath = path / "data"; 
     fastgltf::FileExporter exporter;
-    exporter.setBufferPath(datapath);
+    //exporter.setBufferPath(datapath);
+    fastgltf::ExportOptions options = fastgltf::ExportOptions::None;
     auto result = exporter.writeGltfBinary(asset,path / "scene.glb");
     
     if(result != fastgltf::Error::None){
