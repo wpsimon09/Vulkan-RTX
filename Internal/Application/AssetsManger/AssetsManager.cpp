@@ -314,10 +314,8 @@ namespace ApplicationCore
             cpyInfo.imageSubresource.mipLevel = 0;
             cpyInfo.imageSubresource.baseArrayLayer = 0;
             cpyInfo.imageSubresource.layerCount = 1;
-            cpyInfo.bufferOffset = 0;
 
-            currentOffset += texture.second->GetSize();
-
+            
             TextureBufferView textureView;
             textureView.offset = currentOffset; 
             textureView.widht = texture.second->GetWidth();
@@ -325,6 +323,8 @@ namespace ApplicationCore
             textureView.path = texture.first;
             textureView.size = texture.second->GetSize();
             views.emplace_back(textureView);
+            
+            currentOffset += texture.second->GetSize();
 
             transferCommandBuffer->GetCommandBuffer().copyImageToBuffer(texture.second->GetImage(), vk::ImageLayout::eTransferSrcOptimal, dstBuffer.m_stagingBufferVK, cpyInfo);
 

@@ -41,6 +41,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     std::filesystem::path p = path;
     std::filesystem::path datapath = path / "data"; 
     fastgltf::FileExporter exporter;
+    exporter.setImagePath(m_textureDirectory);
     //exporter.setBufferPath(datapath);
     fastgltf::ExportOptions options = fastgltf::ExportOptions::None;
 
@@ -120,7 +121,7 @@ void ApplicationCore::GLTFExporter::ParseTexture(fastgltf::Asset &asset, AssetsM
         fastgltf::Image image;
 
         std::vector<std::byte> textureData(texture.size / sizeof(std::byte));
-        if(!texture.offset + texture.size > imageData.size()){
+        if((texture.offset + texture.size) > imageData.size()){
             Utils::Logger::LogErrorClient("Texture data out of bounds");
             continue;
         }

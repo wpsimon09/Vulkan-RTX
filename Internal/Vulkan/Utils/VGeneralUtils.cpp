@@ -205,10 +205,11 @@ VulkanStructs::ImageData< > VulkanUtils::LoadImage(const TextureBufferInfo& data
 void VulkanUtils::SaveImageAsPNG(int width, int height, int channels, const std::string &path, const std::vector<std::byte> &data)
 {
     const unsigned char* imageData = reinterpret_cast<const unsigned char*>(data.data() );
-    if(stbi_write_jpg(path.c_str(), width, height, channels, imageData, 100) == 0){
+    int err = stbi_write_jpg(path.c_str(), width, height, channels, imageData, 100);
+    if (err == 0) {
         Utils::Logger::LogSuccess("Image saved to " + path);
     }else{
-        Utils::Logger::LogErrorClient("Failed to save image to : " + path);
+        Utils::Logger::LogErrorClient("Failed to save image to : " + path + "with error code :" + std::to_string(err));
     }
 }
 
