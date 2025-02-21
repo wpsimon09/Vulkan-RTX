@@ -11,6 +11,7 @@
 
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
+#include "Vulkan/Global/GlobalVariables.hpp"
 
 namespace VulkanCore
 {
@@ -46,7 +47,7 @@ namespace VulkanCore
         //   GETTERS
         //----------------------------------------------------------------------------------------
         const vk::PhysicalDevice& GetPhysicalDevice() const { return m_physicalDevice; }
-        const VulkanCore::VCommandPool& GetTransferCommandPool() const {return *m_transferCommandPool;};
+        VulkanCore::VCommandPool& GetTransferCommandPool() const;
         const vk::Device& GetDevice() const {return m_device;};
         const VQueueFamilyIndices& GetQueueFamilyIndices() const {return m_queueFamilyIndices;};
         const VmaAllocator& GetAllocator() const { return m_vmaAllocator; };
@@ -81,7 +82,7 @@ namespace VulkanCore
         vk::Format m_depthFormat;
         vk::SampleCountFlagBits m_sampleCount;
 
-        std::unique_ptr<VulkanCore::VCommandPool> m_transferCommandPool;
+        std::array<std::unique_ptr<VulkanCore::VCommandPool>, GlobalVariables::MAX_THREADS> m_transferCommandPool;
         VQueueFamilyIndices m_queueFamilyIndices;
 
         const VulkanCore::VulkanInstance& m_instance;

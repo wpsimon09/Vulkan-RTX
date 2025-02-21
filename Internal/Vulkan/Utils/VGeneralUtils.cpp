@@ -81,11 +81,14 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
     attributeDescription[2].offset = offsetof(ApplicationCore::Vertex, uv);
 }
 
-void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffer &srcBuffer,
-                              const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::DeviceSize srcOffset, vk::DeviceSize dstOffset, vk::Fence fence) {
-    auto cmdBuffer = VulkanCore::VCommandBuffer(device, device.GetTransferCommandPool());
-    Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
+void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const VulkanCore::VSyncPrimitive<vk::Fence>& fence, const vk::Buffer &srcBuffer,
+                              const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::DeviceSize srcOffset, vk::DeviceSize dstOffset) {
+    
 
+    auto &comandPool = device.GetTransferCommandPool();
+    auto cmdBuffer = VulkanCore::VCommandBuffer(device, comandPool);
+    Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
+    
     cmdBuffer.BeginRecording();
 
     vk::BufferCopy bufferCopy{};
@@ -101,14 +104,21 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const vk::Buffe
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &cmdBuffer.GetCommandBuffer();
 
-    assert(device.GetTransferQueue().submit(1, &submitInfo, fence) == vk::Result::eSuccess);
+    assert(device.GetTransferQueue().submit(1, &submitInfo, fence.GetSyncPrimitive())== vk::Result::eSuccess && "Failed to submit command buffer ");
+
+    fence.WaitForFence();
+    comandPool.SetInUse(false);
+
     Utils::Logger::LogSuccess("Buffer copy completed !");
 }
 
 void VulkanUtils::CopyBuffersWithBariers(const VulkanCore::VDevice& device, const vk::Buffer& srcBuffer,
     const vk::Buffer& dstBuffer, vk::DeviceSize size, vk::DeviceSize srcOffset, vk::DeviceSize dstOffset)
 {
-    auto cmdBuffer = VulkanCore::VCommandBuffer(device, device.GetTransferCommandPool());
+    auto &commadnPool = device.GetTransferCommandPool();
+    auto cmdBuffer = VulkanCore::VCommandBuffer(device, commadnPool);
+    auto fence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(device);
+
     Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
 
     cmdBuffer.BeginRecording();
@@ -124,8 +134,11 @@ void VulkanUtils::CopyBuffersWithBariers(const VulkanCore::VDevice& device, cons
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &cmdBuffer.GetCommandBuffer();
 
-    assert(device.GetTransferQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess);
+    assert(device.GetTransferQueue().submit(1, &submitInfo, fence->GetSyncPrimitive()) == vk::Result::eSuccess);
     Utils::Logger::LogSuccess("Buffer copy completed !");
+    fence->WaitForFence();
+    commadnPool.SetInUse(false);
+    fence->Destroy();
 }
 
 VulkanStructs::ImageData<> VulkanUtils::LoadImage(const std::string &path) {

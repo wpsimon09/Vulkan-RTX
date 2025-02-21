@@ -16,9 +16,12 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
 {
     std::vector<std::shared_ptr<ApplicationCore::SceneNode>> sceneNodes;
 
+    Utils::Logger::LogInfoClient("Saving the scene !");
+    auto start = std::chrono::high_resolution_clock::now();
+
     fastgltf::Asset asset;
     
-    Utils::Logger::LogInfoClient("Parsing the scene");
+    Utils::Logger::LogInfoClient("Parsing the scene...");
 
 
     ParseBuffers(asset, assetsManager);
@@ -26,7 +29,6 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     ParseScene(scene.GetRootNode(), assetsManager, asset);
     OrganiseScene(asset);
     CreateScene(asset);
-
 
 
     //=============================================
@@ -42,6 +44,10 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     auto result = exporter.writeGltfBinary(asset,path / "scene.glb");
     
     if(result != fastgltf::Error::None){
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        Utils::Logger::LogInfoClient("Scene saved in " + std::to_string(duration.count()) + "ms");
         Utils::Logger::LogSuccess("Scene saved to " + path.string());
         return;
     }else{

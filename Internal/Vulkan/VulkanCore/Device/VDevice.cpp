@@ -89,11 +89,27 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance): m_inst
     CreateLogicalDevice();
     CreateVmaAllocator(instance);
     FetchMaxSampleCount();
-    m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(*this, Transfer);
+    
+    for(int i = 0; i < m_transferCommandPool.size(); i++)
+    {
+        m_transferCommandPool[i] = std::make_unique<VulkanCore::VCommandPool>(*this, Transfer);
+    }
     DispatchLoader = vk::detail::DispatchLoaderDynamic(m_instance.GetInstance(), vkGetInstanceProcAddr);
     m_depthFormat = vk::Format::eD24UnormS8Uint;;
 }
 
+VulkanCore::VCommandPool &VulkanCore::VDevice::GetTransferCommandPool() const
+{
+    // loop through every command pool and return the first one that is not in use
+    for(int i = 0; i < m_transferCommandPool.size(); i++)
+    {
+        if(!m_transferCommandPool[i]->IsInUse())
+        {
+            m_transferCommandPool[i]->SetInUse(true);
+            return *m_transferCommandPool[i];
+        }
+    }
+}
 
 void VulkanCore::VDevice::CreateLogicalDevice()
 {
@@ -258,7 +274,10 @@ void VulkanCore::VDevice::UpdateMemoryStatistics()
 void VulkanCore::VDevice::Destroy()
 {
     vmaDestroyAllocator(m_vmaAllocator);
-    m_transferCommandPool->Destroy();
+    for(int i = 0; i < m_transferCommandPool.size(); i++)
+    {
+        m_transferCommandPool[i]->Destroy();
+    }
     m_device.destroy();
     Utils::Logger::LogInfoVerboseOnly("Logical device destroyed");
 }

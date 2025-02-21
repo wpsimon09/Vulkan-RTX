@@ -40,6 +40,8 @@ namespace GlobalVariables {
     inline constexpr int RenderTargetResolutionWidth = 1920;
     inline constexpr int RenderTargetResolutionHeight = 1080;
 
+    inline constexpr int MAX_THREADS = 14;
+
     inline int PointLightCount = 0;
 }
 

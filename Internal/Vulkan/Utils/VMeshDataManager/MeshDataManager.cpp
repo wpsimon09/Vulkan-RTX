@@ -26,6 +26,8 @@ namespace VulkanCore {
 
         Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
 
+        auto bufferCopiedFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
+
         m_indexBuffer_BB.ID = 0;
         m_indexBuffer_BB.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
         m_indexBuffer_BB.size = sizeof(uint32_t) * ApplicationCore::MeshData::Indices_BB.size();
@@ -35,9 +37,9 @@ namespace VulkanCore {
 
         memcpy(stagingBuffer.mappedPointer, ApplicationCore::MeshData::Indices_BB.data(), ApplicationCore::MeshData::Indices_BB.size() * sizeof(uint32_t));
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
-        VulkanUtils::CopyBuffers(m_device, stagingBuffer.m_stagingBufferVK, m_indexBuffer_BB.bufferVK, ApplicationCore::MeshData::Indices_BB.size() * sizeof(uint32_t), 0, 0);
-
-        m_device.GetDevice().waitIdle();
+        VulkanUtils::CopyBuffers(m_device,*bufferCopiedFence, stagingBuffer.m_stagingBufferVK, m_indexBuffer_BB.bufferVK, ApplicationCore::MeshData::Indices_BB.size() * sizeof(uint32_t), 0, 0);
+        bufferCopiedFence->WaitForFence();
+        bufferCopiedFence.reset();
         vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
     }
 
@@ -319,6 +321,7 @@ namespace VulkanCore {
     }
 
     std::vector<ApplicationCore::Vertex> MeshDatatManager::ReadBack(VulkanStructs::GPUSubBufferInfo& bufferInfo){
+        auto bufferCopiedFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
         std::vector<ApplicationCore::Vertex> vertices;
         vertices.resize(bufferInfo.size / sizeof(ApplicationCore::Vertex));
 
@@ -326,12 +329,14 @@ namespace VulkanCore {
         auto stagingBuffer = VulkanUtils::CreateStagingBuffer(m_device, bufferInfo.size);
         stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
 
-        VulkanUtils::CopyBuffers(m_device, bufferInfo.buffer, stagingBuffer.m_stagingBufferVK, bufferInfo.size, bufferInfo.offset, 0);
-        m_device.GetDevice().waitIdle();
+        VulkanUtils::CopyBuffers(m_device,*bufferCopiedFence, bufferInfo.buffer, stagingBuffer.m_stagingBufferVK, bufferInfo.size, bufferInfo.offset, 0);
+        
+        bufferCopiedFence->WaitForFence();
         memcpy(vertices.data(), stagingBuffer.mappedPointer, bufferInfo.size);
 
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
         vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
+        bufferCopiedFence->Destroy();
 
         return vertices;
 
@@ -354,7 +359,7 @@ namespace VulkanCore {
             auto stagingBuffer = VulkanUtils::CreateStagingBuffer(m_device, m_vertexBuffers[i].size);
             stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
     
-            VulkanUtils::CopyBuffers(m_device, m_vertexBuffers[i].bufferVK, stagingBuffer.m_stagingBufferVK, m_vertexBuffers[i].currentOffset,0,0,bufferCopiedFence->GetSyncPrimitive());
+            VulkanUtils::CopyBuffers(m_device,*bufferCopiedFence, m_vertexBuffers[i].bufferVK, stagingBuffer.m_stagingBufferVK, m_vertexBuffers[i].currentOffset,0,0);
             bufferCopiedFence->WaitForFence();
             bufferCopiedFence->ResetFence();
             memcpy(vertexReadBackBufferInfos[i].data.data(), stagingBuffer.mappedPointer, m_vertexBuffers[i].currentOffset);
@@ -383,7 +388,7 @@ namespace VulkanCore {
             auto stagingBuffer = VulkanUtils::CreateStagingBuffer(m_device, m_indexBuffers[i].size);
             stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
     
-            VulkanUtils::CopyBuffers(m_device, m_indexBuffers[i].bufferVK, stagingBuffer.m_stagingBufferVK, m_indexBuffers[i].currentOffset,0,0,bufferCopiedFence->GetSyncPrimitive());
+            VulkanUtils::CopyBuffers(m_device, *bufferCopiedFence, m_indexBuffers[i].bufferVK, stagingBuffer.m_stagingBufferVK, m_indexBuffers[i].currentOffset,0,0 );
             bufferCopiedFence->WaitForFence();
             bufferCopiedFence->ResetFence();                                              
             memcpy(indexReadBackBufferInfos[i].data.data(), stagingBuffer.mappedPointer, m_indexBuffers[i].currentOffset);
