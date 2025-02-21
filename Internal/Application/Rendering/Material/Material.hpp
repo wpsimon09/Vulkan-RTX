@@ -49,6 +49,7 @@ namespace ApplicationCore
         bool& IsTransparent() { return m_transparent; }
         void SetTransparent(bool value) { m_transparent = value; }
         TextureBufferView* GetTextureView() { return &m_textureView; }
+        MaterialPaths& GetMaterialPaths() { return m_materialPaths; }
 
     private:
         std::string m_materialName;

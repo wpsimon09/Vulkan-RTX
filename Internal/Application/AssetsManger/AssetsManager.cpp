@@ -135,6 +135,7 @@ namespace ApplicationCore
             {
                 StartLoadingTexture(texture, textureID, data);
                 m_textures[textureID] = std::make_shared<VulkanCore::VImage>(m_device);
+                m_textures[textureID]->SetPath(textureID);
             }
         }
         texture = m_textures[textureID];

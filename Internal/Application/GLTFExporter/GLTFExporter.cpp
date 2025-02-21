@@ -121,7 +121,7 @@ void ApplicationCore::GLTFExporter::ParseTexture(fastgltf::Asset &asset, AssetsM
         textureBufferView.name = "texture buffer view";
         asset.bufferViews.push_back(std::move(textureBufferView));
 
-        image.data = fastgltf::sources::BufferView{.bufferViewIndex = asset.bufferViews.size() - 1, .mimeType = fastgltf::MimeType::PNG};
+        image.data = fastgltf::sources::BufferView{.bufferViewIndex = asset.bufferViews.size() - 1, .mimeType = fastgltf::MimeType::JPEG};
         image.name = texture.path;
         asset.images.push_back(std::move(image));
 
@@ -181,13 +181,28 @@ void ApplicationCore::GLTFExporter::ParseMaterial(fastgltf::Asset &asset, Assets
         material.pbrData.baseColorFactor = fastgltf::math::vec<float, 4>(matValues.diffuse.x, matValues.diffuse.y, matValues.diffuse.z, matValues.diffuse.w);
         material.pbrData.metallicFactor = matValues.metalness;
         material.pbrData.roughnessFactor = matValues.roughness;
+        
+        auto &materialPaths = mat->GetMaterialPaths();
+        if(!materialPaths.NormalMapPath.empty()){
+            fastgltf::NormalTextureInfo normalTextureInfo;
+            normalTextureInfo.textureIndex = m_textureToIndex[mat->GetMaterialPaths().NormalMapPath];
+            material.normalTexture = std::move(normalTextureInfo); 
+        }
+        
+        if(!materialPaths.DiffuseMapPath.empty()){
+            fastgltf::TextureInfo diffuseTextureInfo;
+            diffuseTextureInfo.textureIndex = m_textureToIndex[mat->GetMaterialPaths().DiffuseMapPath];
+            material.pbrData.baseColorTexture = std::move(diffuseTextureInfo);
+        }
+        
+        if(!materialPaths.ArmMapPath.empty()){
+            fastgltf::TextureInfo armTextureInfo;
+            armTextureInfo.textureIndex = m_textureToIndex[mat->GetMaterialPaths().ArmMapPath];
+            material.pbrData.metallicRoughnessTexture = std::move(armTextureInfo);
+        }
+    
+        
         asset.materials.push_back(std::move(material));
-
-        fastgltf::NormalTextureInfo normalTextureInfo;
-        normalTextureInfo.textureIndex = m_textureToIndex[mat->GetTexture(ETextureType::normal)->GetPath()];
-
-        material.normalTexture = std::move(normalTextureInfo); 
-
         m_materialToIndex[mat] = asset.materials.size() - 1;
     }
     
@@ -321,5 +336,7 @@ void ApplicationCore::GLTFExporter::Clear()
     m_meshToIndex.clear();
     m_nodes.clear();
     m_childNodes.clear();
+    m_textureToIndex.clear();
+    
     m_nodeCounter = 0;  
 }
