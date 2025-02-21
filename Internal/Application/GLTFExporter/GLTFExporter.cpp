@@ -25,6 +25,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
 
 
     ParseBuffers(asset, assetsManager);
+    ParseTexture(asset, assetsManager);
     ParseMaterial(asset, assetsManager);
     ParseScene(scene.GetRootNode(), assetsManager, asset);
     OrganiseScene(asset);
@@ -43,7 +44,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     fastgltf::ExportOptions options = fastgltf::ExportOptions::None;
     auto result = exporter.writeGltfBinary(asset,path / "scene.glb");
     
-    if(result != fastgltf::Error::None){
+    if(result == fastgltf::Error::None){
 
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -61,7 +62,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
 
 void ApplicationCore::GLTFExporter::ParseBuffers(fastgltf::Asset &asset, AssetsManager& assetsManager)
 {
-     //========================================
+    //========================================
     // CREATE BUFFERS 
     //========================================
     fastgltf::Buffer m_vertexBuffer;
@@ -108,9 +109,34 @@ void ApplicationCore::GLTFExporter::ParseBuffers(fastgltf::Asset &asset, AssetsM
     asset.buffers[2] = std::move(m_textureBuffer);
 }
 
+void ApplicationCore::GLTFExporter::ParseTexture(fastgltf::Asset &asset, AssetsManager &assetsManager)
+{
+    for(auto& texture : m_fetchedTextureViews){
+        fastgltf::Image image;
+        
+        fastgltf::BufferView textureBufferView;
+        textureBufferView.bufferIndex = 2; // texture buffer is allways at index 2
+        textureBufferView.byteLength = texture.size;
+        textureBufferView.byteOffset = texture.offset;
+        textureBufferView.name = "texture buffer view";
+        asset.bufferViews.push_back(std::move(textureBufferView));
+
+        image.data = fastgltf::sources::BufferView{.bufferViewIndex = asset.bufferViews.size() - 1, .mimeType = fastgltf::MimeType::PNG};
+        image.name = texture.path;
+        asset.images.push_back(std::move(image));
+
+        fastgltf::Texture t;
+        t.imageIndex = asset.images.size() - 1;   
+        asset.textures.push_back(std::move(t));
+
+        m_textureToIndex[texture.path] = asset.textures.size() - 1;
+    }
+
+    Utils::Logger::LogSuccessClient("Textures parsed successfuly");
+}
+
 void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneNode, AssetsManager &assetsManager, fastgltf::Asset &asset)
 {
-    fastgltf::Material material{};
     
     //===================================================
     // PARSE MESH DATA
@@ -149,12 +175,19 @@ void ApplicationCore::GLTFExporter::ParseMaterial(fastgltf::Asset &asset, Assets
     {
         fastgltf::Material material;
         auto& matValues = mat->GetMaterialDescription().values;
+    
         material.name = mat->GetMaterialName();
         material.alphaMode = mat->IsTransparent() ? fastgltf::AlphaMode::Blend : fastgltf::AlphaMode::Opaque;  
         material.pbrData.baseColorFactor = fastgltf::math::vec<float, 4>(matValues.diffuse.x, matValues.diffuse.y, matValues.diffuse.z, matValues.diffuse.w);
         material.pbrData.metallicFactor = matValues.metalness;
         material.pbrData.roughnessFactor = matValues.roughness;
         asset.materials.push_back(std::move(material));
+
+        fastgltf::NormalTextureInfo normalTextureInfo;
+        normalTextureInfo.textureIndex = m_textureToIndex[mat->GetTexture(ETextureType::normal)->GetPath()];
+
+        material.normalTexture = std::move(normalTextureInfo); 
+
         m_materialToIndex[mat] = asset.materials.size() - 1;
     }
     

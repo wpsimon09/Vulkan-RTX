@@ -279,6 +279,7 @@ void VulkanCore::VDevice::Destroy()
     {
         m_transferCommandPool[i]->Destroy();
     }
+    m_transferCommandPoolForSingleThread->Destroy();
     m_device.destroy();
     Utils::Logger::LogInfoVerboseOnly("Logical device destroyed");
 }
