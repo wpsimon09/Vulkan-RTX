@@ -150,6 +150,8 @@ namespace VulkanCore
             Resize(imageData.widht, imageData.height);
         }
         m_path = imageData.fileName;
+        m_width = imageData.widht;
+        m_height = imageData.height;
 
         m_transferCommandBuffer->BeginRecording();
         // copy pixel data to the staging buffer

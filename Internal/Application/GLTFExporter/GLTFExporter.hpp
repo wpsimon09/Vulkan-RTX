@@ -3,6 +3,7 @@
 
 #include "fastgltf/types.hpp"
 #include <filesystem>
+
 #include <vector>
 
 namespace fastgltf
@@ -43,6 +44,7 @@ namespace ApplicationCore {
 
     private:
         int m_nodeCounter = 0;
+        std::filesystem::path m_textureDirectory;
 
         std::vector<TextureBufferView> m_fetchedTextureViews;
         std::unordered_map<std::string, int> m_textureToIndex;

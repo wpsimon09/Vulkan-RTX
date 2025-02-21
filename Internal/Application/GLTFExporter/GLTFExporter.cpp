@@ -24,6 +24,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     Utils::Logger::LogInfoClient("Parsing the scene...");
 
 
+    m_textureDirectory = path / "textures";
     ParseBuffers(asset, assetsManager);
     ParseTexture(asset, assetsManager);
     ParseMaterial(asset, assetsManager);
@@ -42,7 +43,8 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     fastgltf::FileExporter exporter;
     //exporter.setBufferPath(datapath);
     fastgltf::ExportOptions options = fastgltf::ExportOptions::None;
-    auto result = exporter.writeGltfBinary(asset,path / "scene.glb");
+
+    auto result = exporter.writeGltfJson(asset,path / "scene.gltf");
     
     if(result == fastgltf::Error::None){
 
@@ -67,11 +69,11 @@ void ApplicationCore::GLTFExporter::ParseBuffers(fastgltf::Asset &asset, AssetsM
     //========================================
     fastgltf::Buffer m_vertexBuffer;
     fastgltf::Buffer m_indexBuffer;
-    fastgltf::Buffer m_textureBuffer;
+    //fastgltf::Buffer m_textureBuffer;
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
-    std::vector<std::byte> imageData;
+    //std::vector<std::byte> imageData;
 
     for(auto& buffer : assetsManager.GetBufferAllocator().ReadBackVertexBuffer()){
         vertices.insert(vertices.end(), buffer.data.begin(), buffer.data.end());        
@@ -82,10 +84,10 @@ void ApplicationCore::GLTFExporter::ParseBuffers(fastgltf::Asset &asset, AssetsM
     }
 
     
-    m_fetchedTextureViews = std::move(assetsManager.ReadBackAllTextures(imageData));
-    m_textureBuffer.byteLength = imageData.size() * sizeof(std::byte);
-    m_textureBuffer.data = fastgltf::sources::Vector{imageData};
-    m_textureBuffer.name = "Texture buffers";
+    // m_fetchedTextureViews = std::move(assetsManager.ReadBackAllTextures(imageData));
+    // m_textureBuffer.byteLength = imageData.size() * sizeof(std::byte);
+    // m_textureBuffer.data = fastgltf::sources::Vector{imageData};
+    // m_textureBuffer.name = "Texture buffers";
 
     m_vertexBuffer.byteLength = vertices.size() * sizeof(Vertex);
     std::vector<std::byte> vertexBufferVector(reinterpret_cast<std::byte*>(vertices.data()), reinterpret_cast<std::byte*>(vertices.data()) + m_vertexBuffer.byteLength);
@@ -103,31 +105,49 @@ void ApplicationCore::GLTFExporter::ParseBuffers(fastgltf::Asset &asset, AssetsM
     //============================================
     // STORE VERTEX BUFFERS TO THE ASSET
     //============================================
-    asset.buffers.resize(3);
+    asset.buffers.resize(2);
     asset.buffers[0] = std::move(m_vertexBuffer);
     asset.buffers[1] = std::move(m_indexBuffer);
-    asset.buffers[2] = std::move(m_textureBuffer);
+    //asset.buffers[2] = std::move(m_textureBuffer);
 }
 
 void ApplicationCore::GLTFExporter::ParseTexture(fastgltf::Asset &asset, AssetsManager &assetsManager)
 {
+    std::vector<std::byte> imageData;
+    m_fetchedTextureViews = std::move(assetsManager.ReadBackAllTextures(imageData));
+
     for(auto& texture : m_fetchedTextureViews){
         fastgltf::Image image;
+
+        std::vector<std::byte> textureData(texture.size / sizeof(std::byte));
+        if(!texture.offset + texture.size > imageData.size()){
+            Utils::Logger::LogErrorClient("Texture data out of bounds");
+            continue;
+        }
+        std::memcpy(textureData.data(), imageData.data() + texture.offset, texture.size);
+
+        std::string fileName = texture.path.substr(texture.path.rfind("/") + 1);
+        auto path = m_textureDirectory / fileName;
         
-        fastgltf::BufferView textureBufferView;
+        VulkanUtils::SaveImageAsPNG(texture.widht, texture.height, 4, path.string(), textureData);
+
+        /**
+         *fastgltf::BufferView textureBufferView;
         textureBufferView.bufferIndex = 2; // texture buffer is allways at index 2
         textureBufferView.byteLength = texture.size;
         textureBufferView.byteOffset = texture.offset;
         textureBufferView.name = "texture buffer view";
-        asset.bufferViews.push_back(std::move(textureBufferView));
-
-        image.data = fastgltf::sources::BufferView{.bufferViewIndex = asset.bufferViews.size() - 1, .mimeType = fastgltf::MimeType::JPEG};
+        asset.bufferViews.push_back(std::move(textureBufferView)); 
+         */
+        
+        fastgltf::URI imagepath(path);
+        image.data = fastgltf::sources::URI{.uri = imagepath};
         image.name = texture.path;
         asset.images.push_back(std::move(image));
 
         fastgltf::Texture t;
         t.imageIndex = asset.images.size() - 1;   
-        asset.textures.push_back(std::move(t));
+        asset.textures.push_back(std::move(t)); 
 
         m_textureToIndex[texture.path] = asset.textures.size() - 1;
     }

@@ -320,6 +320,8 @@ namespace ApplicationCore
 
             TextureBufferView textureView;
             textureView.offset = currentOffset; 
+            textureView.widht = texture.second->GetWidth();
+            textureView.height = texture.second->GetHeight();
             textureView.path = texture.first;
             textureView.size = texture.second->GetSize();
             views.emplace_back(textureView);

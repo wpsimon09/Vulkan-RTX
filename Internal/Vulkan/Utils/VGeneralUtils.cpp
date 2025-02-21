@@ -4,6 +4,7 @@
 
 #include "VGeneralUtils.hpp"
 #include "stb_image/stb_image.h"
+#include "stb_image/stb_image_write.h"
 
 #include <thread>
 
@@ -199,6 +200,16 @@ VulkanStructs::ImageData< > VulkanUtils::LoadImage(const TextureBufferInfo& data
     //std::this_thread::sleep_for(std::chrono::seconds(7));
 
     return imageData;
+}
+
+void VulkanUtils::SaveImageAsPNG(int width, int height, int channels, const std::string &path, const std::vector<std::byte> &data)
+{
+    const unsigned char* imageData = reinterpret_cast<const unsigned char*>(data.data() );
+    if(stbi_write_jpg(path.c_str(), width, height, channels, imageData, 100) == 0){
+        Utils::Logger::LogSuccess("Image saved to " + path);
+    }else{
+        Utils::Logger::LogErrorClient("Failed to save image to : " + path);
+    }
 }
 
 std::string VulkanUtils::BufferUsageFlagToString(vk::BufferUsageFlags usage)
