@@ -48,6 +48,7 @@ namespace VulkanCore
         //----------------------------------------------------------------------------------------
         const vk::PhysicalDevice& GetPhysicalDevice() const { return m_physicalDevice; }
         VulkanCore::VCommandPool& GetTransferCommandPool() const;
+        VulkanCore::VCommandPool& GetSingleThreadCommandPool() const { return *m_transferCommandPoolForSingleThread; }
         const vk::Device& GetDevice() const {return m_device;};
         const VQueueFamilyIndices& GetQueueFamilyIndices() const {return m_queueFamilyIndices;};
         const VmaAllocator& GetAllocator() const { return m_vmaAllocator; };
@@ -83,6 +84,7 @@ namespace VulkanCore
         vk::SampleCountFlagBits m_sampleCount;
 
         std::array<std::unique_ptr<VulkanCore::VCommandPool>, GlobalVariables::MAX_THREADS> m_transferCommandPool;
+        std::unique_ptr<VulkanCore::VCommandPool> m_transferCommandPoolForSingleThread;
         VQueueFamilyIndices m_queueFamilyIndices;
 
         const VulkanCore::VulkanInstance& m_instance;

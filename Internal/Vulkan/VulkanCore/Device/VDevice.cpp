@@ -94,6 +94,7 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance): m_inst
     {
         m_transferCommandPool[i] = std::make_unique<VulkanCore::VCommandPool>(*this, Transfer);
     }
+    m_transferCommandPoolForSingleThread = std::make_unique<VulkanCore::VCommandPool>(*this, Transfer);
     DispatchLoader = vk::detail::DispatchLoaderDynamic(m_instance.GetInstance(), vkGetInstanceProcAddr);
     m_depthFormat = vk::Format::eD24UnormS8Uint;;
 }
