@@ -25,6 +25,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
 
 
     m_textureDirectory = path / "textures";
+    std::filesystem::create_directory(m_textureDirectory);
     ParseBuffers(asset, assetsManager);
     ParseTexture(asset, assetsManager);
     ParseMaterial(asset, assetsManager);
@@ -39,10 +40,10 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     Utils::Logger::LogSuccessClient("Scene parsed successfuly");
 
     std::filesystem::path p = path;
-    std::filesystem::path datapath = path / "data"; 
+    std::filesystem::path datapath = "data"; 
     fastgltf::FileExporter exporter;
-    exporter.setImagePath(m_textureDirectory);
-    //exporter.setBufferPath(datapath);
+    exporter.setImagePath("textures");
+    exporter.setBufferPath("datapath");
     fastgltf::ExportOptions options = fastgltf::ExportOptions::None;
 
     auto result = exporter.writeGltfJson(asset,path / "scene.gltf");
@@ -141,8 +142,9 @@ void ApplicationCore::GLTFExporter::ParseTexture(fastgltf::Asset &asset, AssetsM
         asset.bufferViews.push_back(std::move(textureBufferView)); 
          */
         
-        fastgltf::URI imagepath(path);
-        image.data = fastgltf::sources::URI{.uri = imagepath};
+        std::filesystem::path imgPath = "textures/" + fileName;
+        fastgltf::URI imagepath(imgPath);
+        image.data = fastgltf::sources::URI{.uri =imagepath};
         image.name = texture.path;
         asset.images.push_back(std::move(image));
 
