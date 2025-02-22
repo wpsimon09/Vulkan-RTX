@@ -20,6 +20,7 @@
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Utils/LinearyTransformedCosinesValues.hpp"
 #include "Application/Utils/MathUtils.hpp"
+#include "Application/Utils/ModelExportImportUtils/ModelManagmentUtils.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
@@ -216,7 +217,7 @@ namespace ApplicationCore
     {
         auto texture = std::async([this, path]()
         {
-            return VulkanUtils::LoadImage(path);
+            return LoadImage(path);
         });
         m_texturesToLoad[path] = std::move(texture);
     }
@@ -226,7 +227,7 @@ namespace ApplicationCore
     {
         auto txt = std::async([this, textureID, data]()
         {
-            return VulkanUtils::LoadImage(data, textureID);
+            return LoadImage(data, textureID);
         });
         m_texturesToLoad[textureID] = std::move(txt);
     }

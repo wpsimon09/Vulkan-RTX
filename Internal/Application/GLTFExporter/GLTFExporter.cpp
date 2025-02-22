@@ -31,7 +31,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     ParseMaterial(asset, assetsManager);
     ParseScene(scene.GetRootNode(), assetsManager, asset);
     OrganiseScene(asset);
-    CreateScene(asset);
+    CreateScene(asset, scene);
 
 
     //=============================================
@@ -345,19 +345,15 @@ void ApplicationCore::GLTFExporter::OrganiseScene(fastgltf::Asset &asset)
     }    
 }
 
-void ApplicationCore::GLTFExporter::CreateScene(fastgltf::Asset &asset)
+void ApplicationCore::GLTFExporter::CreateScene(fastgltf::Asset &asset,Scene& scene)
 {
     asset.scenes.resize(1);
     asset.scenes[0].name = "Vulkan-RTX-saved-scene";
     // node at index 0 is allways the root
-    for (auto it = m_nodes.begin(); it != m_nodes.end(); ++it)
+    for (auto& rootNode : scene.GetRootNode()->GetChildrenByRef())
     {
-        if(it->first->GetParent()!= nullptr){
-            if(it->first->GetParent()->GetName() == "Root-Node"){               
-                asset.scenes[0].nodeIndices.push_back(it->second);
-            }
-        }
     }
+    asset.scenes[0].nodeIndices.push_back(0);
     
 }
 

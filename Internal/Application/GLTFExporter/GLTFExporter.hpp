@@ -38,7 +38,7 @@ namespace ApplicationCore {
         void ParseMaterial(fastgltf::Asset& asset, AssetsManager& assetsManager);
         void ParseMesh(fastgltf::Asset& asset, std::shared_ptr<StaticMesh> mesh);
         void OrganiseScene(fastgltf::Asset& asset);
-        void CreateScene(fastgltf::Asset& asset);
+        void CreateScene(fastgltf::Asset& asset,Scene& scene);
         void Clear();
 
 

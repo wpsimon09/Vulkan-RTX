@@ -54,14 +54,7 @@ namespace VulkanUtils
     void CopyBuffersWithBariers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::
                      DeviceSize srcOffset = 0, vk::DeviceSize dstOffset = 0);
 
-    VulkanStructs::ImageData<> LoadImage(const std::string &path);
-    VulkanStructs::ImageData<> LoadImage(const TextureBufferInfo& data, const std::string& textureID);
-
-    void SaveImageAsPNG(int width, int height, int channels, const std::string& path, const std::vector<std::byte>& data);
-
     std::string BufferUsageFlagToString(vk::BufferUsageFlags usage);
-
-    glm::mat4 FastGLTFToGLMMat4(fastgltf::math::fmat4x4* matrix);
 
     std::pair<vk::Result, uint32_t> SwapChainNextImageKHRWrapper(const VulkanCore::VDevice& device,const VulkanCore::VSwapChain& swapChain, uint64_t timeOut, const VulkanCore::VSyncPrimitive<vk::Semaphore>& semaphore, VulkanCore::VSyncPrimitive<vk::Fence>* fence);
 
@@ -77,7 +70,6 @@ namespace VulkanUtils
 
     VulkanStructs::StagingBufferInfo CreateStagingBuffer(const VulkanCore::VDevice& m_device, vk::DeviceSize size);
 
-    bool CheckIfImageExistsInFolader(const std::filesystem::path& folder,const std::filesystem::path& image); 
 
     bool IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
 }
