@@ -79,7 +79,7 @@ namespace ApplicationCore
             //==============================================================
             for (auto& image : gltf.images)
             {
-                LoadImage(gltf, gltfPath.parent_path(), image, m_textures);
+                LoadImage(gltf, gltfPath.parent_path(), image, m_textures, true);
             }
 
             //==============================================================
@@ -87,7 +87,7 @@ namespace ApplicationCore
             //==============================================================
             for (fastgltf::Material& m : gltf.materials)
             {
-                MaterialPaths paths = {};
+                MaterialPaths paths = {.saveToDisk = true};
                 std::shared_ptr<Material> material = std::make_shared<
                     ApplicationCore::Material>(paths, m_assetsManager);
                 material->GetMaterialDescription().values.diffuse.x = m.pbrData.baseColorFactor.x();
@@ -332,7 +332,7 @@ namespace ApplicationCore
     }
 
     void GLTFLoader::LoadImage(fastgltf::Asset& asset, std::string parentPath, fastgltf::Image& image,
-                               std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage) const
+                               std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage, bool saveToDisk) const
     {
         std::visit(
             fastgltf::visitor{
@@ -344,7 +344,7 @@ namespace ApplicationCore
                 {
                     std::shared_ptr<VulkanCore::VImage> loadedTexture;
                     const std::string path(filePath.uri.path().begin(), filePath.uri.path().end());
-                    m_assetsManager.GetTexture(loadedTexture, parentPath + "/" + path);
+                    m_assetsManager.GetTexture(loadedTexture, parentPath + "/" + path, saveToDisk);
                     imageStorage.emplace_back(loadedTexture);
                 },
 
@@ -356,7 +356,7 @@ namespace ApplicationCore
                     bufferInfo.data = vector.bytes.data();
                     bufferInfo.size = vector.bytes.size();
 
-                    m_assetsManager.GetTexture(loadedTexture, textureID, bufferInfo);
+                    m_assetsManager.GetTexture(loadedTexture, textureID, bufferInfo, saveToDisk);
                     imageStorage.emplace_back(loadedTexture);
                 },
 
@@ -380,7 +380,12 @@ namespace ApplicationCore
                                        textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
                                        textureBufferInfo.size = vector.bytes.size();
 
-                                       m_assetsManager.GetTexture(loadedTexture, textureID + ".png", textureBufferInfo);
+                                       if(image.name.empty()){
+                                        image.name = textureID;
+                                        }
+                                        auto name = std::string(image.name.c_str()) + ".png";
+
+                                       m_assetsManager.GetTexture(loadedTexture, name, textureBufferInfo, saveToDisk);
                                        imageStorage.emplace_back(loadedTexture);
                                    },
                                     [&](fastgltf::sources::Array& vector)
@@ -391,7 +396,13 @@ namespace ApplicationCore
                                        textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
                                        textureBufferInfo.size = vector.bytes.size();
 
-                                       m_assetsManager.GetTexture(loadedTexture, textureID + ".png", textureBufferInfo);
+                                       if(image.name.empty()){
+                                            image.name = textureID;
+                                        }
+                                        auto name = std::string(image.name.c_str()) + ".png";
+
+
+                                       m_assetsManager.GetTexture(loadedTexture, name , textureBufferInfo, saveToDisk);
                                        imageStorage.emplace_back(loadedTexture);
                                    }
                                },

@@ -14,21 +14,21 @@ namespace ApplicationCore {
 
         if (!materialPaths.DiffuseMapPath.empty())
         {
-            m_assetManager.GetTexture(m_textures[ETextureType::Diffues], m_materialPaths.DiffuseMapPath);
+            m_assetManager.GetTexture(m_textures[ETextureType::Diffues], m_materialPaths.DiffuseMapPath, m_materialPaths.saveToDisk);
             m_materialDescription.features.hasDiffuseTexture = true;
         }else
             m_assetManager.GetDummyTexture(m_textures[ETextureType::Diffues]);
 
         if (!materialPaths.NormalMapPath.empty())
         {
-            m_assetManager.GetTexture(m_textures[ETextureType::normal], m_materialPaths.NormalMapPath);
+            m_assetManager.GetTexture(m_textures[ETextureType::normal], m_materialPaths.NormalMapPath, m_materialPaths.saveToDisk);
             m_materialDescription.features.hasNormalTexture = true;
         }else
             m_assetManager.GetDummyTexture(m_textures[ETextureType::normal]);
 
         if (!materialPaths.ArmMapPath.empty())
         {
-            m_assetManager.GetTexture(m_textures[ETextureType::arm], m_materialPaths.ArmMapPath);
+            m_assetManager.GetTexture(m_textures[ETextureType::arm], m_materialPaths.ArmMapPath, m_materialPaths.saveToDisk);
             m_materialDescription.features.hasArmTexture = true;
         }
         else

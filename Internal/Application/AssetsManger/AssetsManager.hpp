@@ -66,8 +66,8 @@ public:
     //=========================
     // Textures
     //=========================
-    void GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& path);
-    void GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID, TextureBufferInfo& data);
+    void GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& path, bool saveToDisk = false);
+    void GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID, TextureBufferInfo& data, bool saveToDisk = false);
     void GetDummyTexture(std::shared_ptr<VulkanCore::VImage>& texture) const { texture = m_dummyTexture; }
     std::vector<TextureBufferView> ReadBackAllTextures(std::vector<std::byte>& data);
 
@@ -98,8 +98,8 @@ private:
     //=========================
     // Private Methods
     //=========================
-    void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texturePtr, const std::string& path);
-    void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID, TextureBufferInfo& data);
+    void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texturePtr, const std::string& path,bool saveToDisk = false);
+    void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID, TextureBufferInfo& data, bool saveToDisk = false);
     void CreateDefaultAssets();
 
     //=========================

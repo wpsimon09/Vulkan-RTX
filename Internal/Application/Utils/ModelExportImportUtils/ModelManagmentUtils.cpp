@@ -11,7 +11,7 @@
 
 namespace ApplicationCore
 {
-    VulkanStructs::ImageData<> LoadImage(const std::string& path)
+    VulkanStructs::ImageData<> LoadImage(const std::string& path, bool saveToDisk)
     {
         VulkanStructs::ImageData imageData{};
 
@@ -22,11 +22,13 @@ namespace ApplicationCore
         imageData.sourceType = EImageSource::File;
         auto folder = GlobalVariables::textureFolder.string();
         
-        if(CheckIfImageExistsInFolader(GlobalVariables::textureFolder, imageData.fileName)){
-            Utils::Logger::LogInfo("Image already exists in the folder, skipping saving");
-        }else{
-            SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte>&>(imageData.pixels));
-        }        
+        if(saveToDisk){
+            if(CheckIfImageExistsInFolader(GlobalVariables::textureFolder, imageData.fileName)){
+                Utils::Logger::LogInfo("Image already exists in the folder, skipping saving");
+            }else{
+                SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte>&>(imageData.pixels));
+            }        
+        }
 
         if (!imageData.pixels) {
             Utils::Logger::LogError("Failed to generate texture at path: \t" + path);
@@ -50,7 +52,7 @@ namespace ApplicationCore
 
     }
 
-    VulkanStructs::ImageData<> LoadImage(const TextureBufferInfo& data, const std::string& textureID)
+    VulkanStructs::ImageData<> LoadImage(const TextureBufferInfo& data, const std::string& textureID, bool saveToDisk)
     {
         VulkanStructs::ImageData imageData{};
 
@@ -60,10 +62,12 @@ namespace ApplicationCore
             imageData.channels = 4;
             imageData.fileName = GlobalVariables::textureFolder.string() + "/" + textureID + ".png";
 
-            if(CheckIfImageExistsInFolader(GlobalVariables::textureFolder, imageData.fileName)){
-                Utils::Logger::LogInfo("Image already exists in the folder, skipping saving");
-            }else{
-                SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte>&>(imageData.pixels));
+            if(saveToDisk){
+                if(CheckIfImageExistsInFolader(GlobalVariables::textureFolder, imageData.fileName)){
+                    Utils::Logger::LogInfo("Image already exists in the folder, skipping saving");
+                }else{
+                    SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte>&>(imageData.pixels));
+                }
             }
 
         }

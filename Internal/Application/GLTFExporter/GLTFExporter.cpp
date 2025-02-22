@@ -164,25 +164,28 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     //===================================================
     // PARSE MESH DATA
     //===================================================
-    fastgltf::Node node{};
-    if(sceneNode->HasMesh()){
-        ParseMesh(asset, sceneNode->GetMesh());
-        node.meshIndex = m_meshToIndex[sceneNode->GetMesh()];
-    }else{
-        node.meshIndex = std::nullopt;
-    }
-
-    node.name = sceneNode->GetName();
-
-    fastgltf::TRS trs;
-    trs.translation = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetPosition().x, sceneNode->m_transformation->GetPosition().y, sceneNode->m_transformation->GetPosition().z);    
-    trs.rotation = MathUtils::EulerToQuaternion(sceneNode->m_transformation->GetRotations());
-    trs.scale = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetScale().x, sceneNode->m_transformation->GetScale().y, sceneNode->m_transformation->GetScale().z);
-    node.transform = trs;
-    asset.nodes.push_back(std::move(node));
-
-    m_nodes[sceneNode] = asset.nodes.size() - 1; 
+    if(sceneNode->GetName() != "Root-Node")
+    {
+        fastgltf::Node node{};
+        if(sceneNode->HasMesh()){
+            ParseMesh(asset, sceneNode->GetMesh());
+            node.meshIndex = m_meshToIndex[sceneNode->GetMesh()];
+        }else{
+            node.meshIndex = std::nullopt;
+        }
+        
+        node.name = sceneNode->GetName();
     
+        fastgltf::TRS trs;
+        trs.translation = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetPosition().x, sceneNode->m_transformation->GetPosition().y, sceneNode->m_transformation->GetPosition().z);    
+        trs.rotation = MathUtils::EulerToQuaternion(sceneNode->m_transformation->GetRotations());
+        trs.scale = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetScale().x, sceneNode->m_transformation->GetScale().y, sceneNode->m_transformation->GetScale().z);
+        node.transform = trs;
+        asset.nodes.push_back(std::move(node));
+        
+        m_nodes[sceneNode] = asset.nodes.size() - 1; 
+        
+    }
 
     for (auto& child : sceneNode->GetChildrenByRef())
     {
@@ -352,8 +355,8 @@ void ApplicationCore::GLTFExporter::CreateScene(fastgltf::Asset &asset,Scene& sc
     // node at index 0 is allways the root
     for (auto& rootNode : scene.GetRootNode()->GetChildrenByRef())
     {
+        asset.scenes[0].nodeIndices.push_back(m_nodes[rootNode]);
     }
-    asset.scenes[0].nodeIndices.push_back(0);
     
 }
 

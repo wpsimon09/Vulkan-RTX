@@ -33,6 +33,7 @@ struct MaterialPaths
     std::string DiffuseMapPath;
     std::string ArmMapPath;
     std::string NormalMapPath;
+    bool saveToDisk = false;
 
     bool operator==(const MaterialPaths& other) const
     {
