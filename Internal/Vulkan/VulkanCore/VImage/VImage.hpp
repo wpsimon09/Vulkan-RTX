@@ -72,6 +72,9 @@ namespace VulkanCore
         EImageSource GetImageSourceType() const {return m_imageSource;}
         bool IsImageOfSourceType(EImageSource source) const {return m_imageSource == source;}   
 
+        bool SetSavable(bool status) {m_saveable = status;}
+        bool GetSavable() const {return m_saveable;}
+
         ~VImage() = default;
 
     private:
@@ -103,6 +106,7 @@ namespace VulkanCore
         bool m_isSwapChainImage = false;
         bool m_isValid = false;
         bool m_isLoaded = false;
+        bool m_saveable = false;
 
         // path for the future reference
         std::string m_path;

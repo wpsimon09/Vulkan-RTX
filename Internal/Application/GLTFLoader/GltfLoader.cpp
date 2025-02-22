@@ -380,7 +380,7 @@ namespace ApplicationCore
                                        textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
                                        textureBufferInfo.size = vector.bytes.size();
 
-                                       m_assetsManager.GetTexture(loadedTexture, textureID, textureBufferInfo);
+                                       m_assetsManager.GetTexture(loadedTexture, textureID + ".png", textureBufferInfo);
                                        imageStorage.emplace_back(loadedTexture);
                                    },
                                     [&](fastgltf::sources::Array& vector)
@@ -391,7 +391,7 @@ namespace ApplicationCore
                                        textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
                                        textureBufferInfo.size = vector.bytes.size();
 
-                                       m_assetsManager.GetTexture(loadedTexture, textureID, textureBufferInfo);
+                                       m_assetsManager.GetTexture(loadedTexture, textureID + ".png", textureBufferInfo);
                                        imageStorage.emplace_back(loadedTexture);
                                    }
                                },

@@ -288,57 +288,57 @@ namespace ApplicationCore
         std::vector<TextureBufferView> views;
         views.reserve(m_textures.size());
         
-        size_t totalDataSize = 0;
-        vk::DeviceSize currentOffset = 0;
+        // size_t totalDataSize = 0;
+        // vk::DeviceSize currentOffset = 0;
+        // for(auto& texture: m_textures){
+        //     totalDataSize += texture.second->GetSize();
+        // }
+        // data.resize(totalDataSize);
+        // auto dstBuffer = VulkanUtils::CreateStagingBuffer(m_device, totalDataSize);
+
+        // auto transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *commandPool);
+
+        // transferCommandBuffer->BeginRecording();
+
         for(auto& texture: m_textures){
-            totalDataSize += texture.second->GetSize();
-        }
-        data.resize(totalDataSize);
-        auto dstBuffer = VulkanUtils::CreateStagingBuffer(m_device, totalDataSize);
 
-        auto transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *commandPool);
-
-        transferCommandBuffer->BeginRecording();
-
-        for(auto& texture: m_textures){
-
-            texture.second->TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eTransferSrcOptimal,*transferCommandBuffer);
+            // texture.second->TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eTransferSrcOptimal,*transferCommandBuffer);
             
-            vk::BufferImageCopy cpyInfo;
-            cpyInfo.imageOffset = 0;
-            cpyInfo.bufferOffset = currentOffset;
-            cpyInfo.imageExtent.width = texture.second->GetWidth();
-            cpyInfo.imageExtent.height = texture.second->GetHeight();
-            cpyInfo.imageExtent.depth = 1; 
+            // vk::BufferImageCopy cpyInfo;
+            // cpyInfo.imageOffset = 0;
+            // cpyInfo.bufferOffset = currentOffset;
+            // cpyInfo.imageExtent.width = texture.second->GetWidth();
+            // cpyInfo.imageExtent.height = texture.second->GetHeight();
+            // cpyInfo.imageExtent.depth = 1; 
             
-            cpyInfo.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-            cpyInfo.imageSubresource.mipLevel = 0;
-            cpyInfo.imageSubresource.baseArrayLayer = 0;
-            cpyInfo.imageSubresource.layerCount = 1;
+            // cpyInfo.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+            // cpyInfo.imageSubresource.mipLevel = 0;
+            // cpyInfo.imageSubresource.baseArrayLayer = 0;
+            // cpyInfo.imageSubresource.layerCount = 1;
 
             
             TextureBufferView textureView;
-            textureView.offset = currentOffset; 
+            //textureView.offset = currentOffset; 
             textureView.widht = texture.second->GetWidth();
             textureView.height = texture.second->GetHeight();
             textureView.path = texture.first;
             textureView.size = texture.second->GetSize();
             views.emplace_back(textureView);
             
-            currentOffset += texture.second->GetSize();
+            //currentOffset += texture.second->GetSize();
 
-            transferCommandBuffer->GetCommandBuffer().copyImageToBuffer(texture.second->GetImage(), vk::ImageLayout::eTransferSrcOptimal, dstBuffer.m_stagingBufferVK, cpyInfo);
+            //transferCommandBuffer->GetCommandBuffer().copyImageToBuffer(texture.second->GetImage(), vk::ImageLayout::eTransferSrcOptimal, dstBuffer.m_stagingBufferVK, cpyInfo);
 
-            texture.second->TransitionImageLayout(vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,*transferCommandBuffer);
+            //texture.second->TransitionImageLayout(vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,*transferCommandBuffer);
         }
 
-        transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
-        m_device.GetTransferQueue().waitIdle(); 
+        //transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+        //m_device.GetTransferQueue().waitIdle(); 
 
-        memcpy(data.data(), dstBuffer.mappedPointer, totalDataSize);
+        //memcpy(data.data(), dstBuffer.mappedPointer, totalDataSize);
 
-        vmaUnmapMemory(m_device.GetAllocator(), dstBuffer.m_stagingAllocation);
-        vmaDestroyBuffer(m_device.GetAllocator(), dstBuffer.m_stagingBufferVK, dstBuffer.m_stagingAllocation);
+        //vmaUnmapMemory(m_device.GetAllocator(), dstBuffer.m_stagingAllocation);
+        //vmaDestroyBuffer(m_device.GetAllocator(), dstBuffer.m_stagingBufferVK, dstBuffer.m_stagingAllocation);
 
         return  std::move(views);
     }
