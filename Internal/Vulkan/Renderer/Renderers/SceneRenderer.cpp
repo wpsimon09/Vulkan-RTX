@@ -226,6 +226,12 @@ namespace Renderer
 
         cmdBuffer.setScissor(0, 1, &scissors);
 
+        if(m_renderContextPtr->MainLightPassOpaque.empty()){
+            cmdBuffer.endRenderPass();
+            m_renderingStatistics.DrawCallCount = drawCallCount;
+            m_selectedGeometryDrawCalls.clear();
+            return;
+        }
         //=================================================
         // UPDATE DESCRIPTOR SETS
         //=================================================

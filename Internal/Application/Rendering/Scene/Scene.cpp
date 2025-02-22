@@ -85,18 +85,7 @@ namespace ApplicationCore {
     {
 
         // Create materials
-        MaterialPaths blueMaterialPath;
-
-        auto sphereVertexArray = m_assetsManager.GetDefaultMesh(Sphere);
-        auto postProcessVertexArray = m_assetsManager.GetDefaultMesh(PostProcessQuad);
-
-        auto rayTracerPlane = m_assetsManager.GetDefaultMesh(EMeshGeometryType::PostProcessQuad);
-
-        auto s = std::make_shared<SceneNode>(rayTracerPlane);
-        s->GetSceneNodeMetaData().RenderingMetaData.bRTXPass = true;
-        s->GetSceneNodeMetaData().RenderingMetaData.bOpaquePass= false;
-        s->GetSceneNodeMetaData().RenderingMetaData.bEditorBillboardPass = false;
-        AddNode(std::move(s));
+  
 
         Utils::Logger::LogSuccessClient("Default scene build");
     }

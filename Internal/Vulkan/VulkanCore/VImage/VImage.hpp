@@ -73,7 +73,7 @@ namespace VulkanCore
         bool IsImageOfSourceType(EImageSource source) const {return m_imageSource == source;}   
 
         void SetSavable(bool status) {m_saveable = status;}
-        bool GetSavable() const {return m_saveable;}
+        bool IsSavable() const {return m_saveable;}
 
         ~VImage() = default;
 

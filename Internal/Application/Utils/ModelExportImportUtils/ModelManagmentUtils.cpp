@@ -60,7 +60,8 @@ namespace ApplicationCore
             (imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load_from_memory(reinterpret_cast<stbi_uc const*>(data.data), static_cast<int>(data.size), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha))))
         {
             imageData.channels = 4;
-            imageData.fileName = GlobalVariables::textureFolder.string() + "/" + textureID + ".png";
+            imageData.sourceType = EImageSource::Buffer;
+            imageData.fileName = GlobalVariables::textureFolder.string() + "/" + textureID;
 
             if(saveToDisk){
                 if(CheckIfImageExistsInFolader(GlobalVariables::textureFolder, imageData.fileName)){

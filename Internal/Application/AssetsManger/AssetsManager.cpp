@@ -119,6 +119,7 @@ namespace ApplicationCore
             {
                 StartLoadingTexture(texture, path, saveToDisk);
                 m_textures[path] = std::make_shared<VulkanCore::VImage>(m_device);
+                m_textures[path]->SetSavable(saveToDisk);
             }
         }
         texture = m_textures[path];
@@ -137,6 +138,8 @@ namespace ApplicationCore
                 StartLoadingTexture(texture, textureID, data, saveToDisk);
                 m_textures[textureID] = std::make_shared<VulkanCore::VImage>(m_device);
                 m_textures[textureID]->SetPath(textureID);
+                m_textures[textureID]->SetSavable(saveToDisk);
+
             }
         }
         texture = m_textures[textureID];
@@ -317,14 +320,15 @@ namespace ApplicationCore
             // cpyInfo.imageSubresource.layerCount = 1;
 
             
-            TextureBufferView textureView;
-            //textureView.offset = currentOffset; 
-            textureView.widht = texture.second->GetWidth();
-            textureView.height = texture.second->GetHeight();
-            textureView.path = texture.first;
-            textureView.size = texture.second->GetSize();
-            views.emplace_back(textureView);
-            
+            if(texture.second->IsSavable()){
+                TextureBufferView textureView;
+                textureView.widht = texture.second->GetWidth();
+                textureView.height = texture.second->GetHeight();
+                textureView.path = texture.first;
+                textureView.size = texture.second->GetSize();
+                views.emplace_back(textureView);
+                
+            }
             //currentOffset += texture.second->GetSize();
 
             //transferCommandBuffer->GetCommandBuffer().copyImageToBuffer(texture.second->GetImage(), vk::ImageLayout::eTransferSrcOptimal, dstBuffer.m_stagingBufferVK, cpyInfo);
