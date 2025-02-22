@@ -91,8 +91,8 @@ void Application::Init()
 
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
-    auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/free_isometric_cafe/scene.gltf");
-    for (auto& sceneNode: sponsa)
+    auto scene = m_client->GetGLTFLoader().LoadGLTFScene("cache/scene.gltf");
+    for (auto& sceneNode: scene)
     {
         m_client->GetScene().AddNode(sceneNode);
     }

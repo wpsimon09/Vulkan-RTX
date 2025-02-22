@@ -21,11 +21,12 @@ namespace ApplicationCore
         imageData.fileName = GlobalVariables::textureFolder / imageName;
         imageData.sourceType = EImageSource::File;
         auto folder = GlobalVariables::textureFolder.string();
-        if (CheckIfImageExistsInFolader(GlobalVariables::textureFolder, imageName)){
-            SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte>&>(imageData.pixels));
+        
+        if(CheckIfImageExistsInFolader(GlobalVariables::textureFolder, imageData.fileName)){
+            Utils::Logger::LogInfo("Image already exists in the folder, skipping saving");
         }else{
-            Utils::Logger::LogInfoClient("Image already exists in the folder, skipping the save operation");
-        }
+            SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte>&>(imageData.pixels));
+        }        
 
         if (!imageData.pixels) {
             Utils::Logger::LogError("Failed to generate texture at path: \t" + path);
@@ -60,7 +61,11 @@ namespace ApplicationCore
             imageData.fileName = GlobalVariables::textureFolder / textureID;
             imageData.fileName += ".png";
 
-            SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte>&>(imageData.pixels));
+            if(CheckIfImageExistsInFolader(GlobalVariables::textureFolder, imageData.fileName)){
+                Utils::Logger::LogInfo("Image already exists in the folder, skipping saving");
+            }else{
+                SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte>&>(imageData.pixels));
+            }
 
         }
 
@@ -102,7 +107,7 @@ namespace ApplicationCore
     {
         for (const auto & entry : std::filesystem::directory_iterator(folder))
         {
-            if (entry.path().filename() == image) {
+            if (entry.path().filename() == image.filename()) {
                 return true;
             }
         }

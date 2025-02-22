@@ -139,7 +139,7 @@ namespace ApplicationCore
                         material->GetMaterialDescription().features.hasNormalTexture = false;
                     }
                 }
-                material->SetMaterialname(std::string(m.name));
+                material->SetMaterialname(std::string(m.name) + "##" +VulkanUtils::random_string(4));
                 
                 material->SetTransparent(m.alphaMode == fastgltf::AlphaMode::Blend);
                 materials.emplace_back(material);

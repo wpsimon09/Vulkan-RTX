@@ -5,6 +5,15 @@
 #ifndef APPLICATIONUTILS_HPP
 #define APPLICATIONUTILS_HPP
 #include <vector>
+namespace VulkanStructs{
+    struct Bounds;
+}
+namespace ApplicationCore{
+    struct Vertex;
+    
+    
+    VulkanStructs::Bounds CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices);
+}
 
 template<typename T, typename Compare, typename Swap>
 int Partition(std::vector<T>& arr, int low, int high, Compare comp,Swap swap)
@@ -65,6 +74,8 @@ void QuickSort(std::vector<T>& arr,  int low, int high, Compare comp)
         QuickSort(arr, pi + 1, high, comp);
     }
 }
+
+
 
 
 

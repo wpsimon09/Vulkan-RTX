@@ -11,6 +11,7 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
+#include "Application/Utils/ApplicationUtils.hpp"
 #include <limits>
 
 
@@ -50,7 +51,7 @@ namespace VulkanCore {
         m_stagingVertices.insert(m_stagingVertices.end(), std::make_move_iterator(vertices.begin()), std::make_move_iterator(vertices.end()));
         m_stagingIndices.insert(m_stagingIndices.end(), indices.begin(), indices.end());
 
-        auto bounds = VulkanUtils::CalculateBounds(vertices);
+        auto bounds = ApplicationCore::CalculateBounds(vertices);
         VulkanStructs::MeshData meshData ={};
 
         meshData.vertexData = GenerateVertexBuffer(vertices);
