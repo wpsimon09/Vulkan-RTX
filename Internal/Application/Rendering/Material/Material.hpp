@@ -51,6 +51,8 @@ namespace ApplicationCore
         void SetTransparent(bool value) { m_transparent = value; }
         TextureBufferView* GetTextureView() { return &m_textureView; }
         MaterialPaths& GetMaterialPaths() { return m_materialPaths; }
+        bool IsSavable() const {return m_savable;}
+        void SetSavable(bool savable) {m_savable = savable;}
 
     private:
         std::string m_materialName;
@@ -60,6 +62,7 @@ namespace ApplicationCore
         AssetsManager& m_assetManager;
         TextureBufferView m_textureView; // used only for exporting 
         bool m_transparent = false;
+        bool m_savable = false;
         int ID;
 
         friend bool operator==(const Material& lhs, const Material& rhs)

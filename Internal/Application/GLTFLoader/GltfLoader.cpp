@@ -90,6 +90,7 @@ namespace ApplicationCore
                 MaterialPaths paths = {.saveToDisk = true};
                 std::shared_ptr<Material> material = std::make_shared<
                     ApplicationCore::Material>(paths, m_assetsManager);
+                material->SetSavable(true);
                 material->GetMaterialDescription().values.diffuse.x = m.pbrData.baseColorFactor.x();
                 material->GetMaterialDescription().values.diffuse.y = m.pbrData.baseColorFactor.y();
                 material->GetMaterialDescription().values.diffuse.z = m.pbrData.baseColorFactor.z();

@@ -151,14 +151,19 @@ namespace ApplicationCore
         std::vector<std::shared_ptr<Material>> materials;
         //materials.reserve(m_materials.size() +  m_editorIconsMaterials.size() );
 
+
         for (auto &material : m_materials)
         {
-            materials.emplace_back(material);
+            if(material->IsSavable()){
+                materials.emplace_back(material);
+            }
         }
 
         for (auto &material : m_editorIconsMaterials)
         {
-            materials.emplace_back(material.second);
+            if(material.second->IsSavable()){
+                materials.emplace_back(material.second);
+            }
         }
 
         return materials;
