@@ -148,9 +148,15 @@ VulkanStructs::ImageData< > VulkanUtils::LoadImage(const std::string &path) {
 
     imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load(path.c_str(), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
     imageData.channels = 4;
-    imageData.fileName = GlobalVariables::textureFolder / path.substr(path.rfind("/") + 1);
+    auto imageName = path.substr(path.rfind("/") + 1);
+    imageData.fileName = GlobalVariables::textureFolder / imageName;
     imageData.sourceType = EImageSource::File;
-    SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte>&>(imageData.pixels));
+    auto folder = GlobalVariables::textureFolder.string();
+    if (CheckIfImageExistsInFolader(GlobalVariables::textureFolder, imageName)){
+        SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte>&>(imageData.pixels));
+    }else{
+        Utils::Logger::LogInfoClient("Image already exists in the folder, skipping the save operation");
+    }
 
     if (!imageData.pixels) {
         Utils::Logger::LogError("Failed to generate texture at path: \t" + path);
@@ -182,7 +188,11 @@ VulkanStructs::ImageData< > VulkanUtils::LoadImage(const TextureBufferInfo& data
         (imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load_from_memory(reinterpret_cast<stbi_uc const*>(data.data), static_cast<int>(data.size), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha))))
     {
         imageData.channels = 4;
-        imageData.fileName = textureID;
+        imageData.fileName = GlobalVariables::textureFolder / textureID;
+        imageData.fileName += ".png";
+
+        SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte>&>(imageData.pixels));
+        
     }
 
     else {
@@ -193,6 +203,8 @@ VulkanStructs::ImageData< > VulkanUtils::LoadImage(const TextureBufferInfo& data
         imageData.pixels = reinterpret_cast<uint32_t*>(stbi_load("Resources/DefaultTexture.jpg", &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
         imageData.channels = 4;
         imageData.fileName = "Resources/DefaultTexture.jpg";
+
+        
 
         if (!imageData.pixels) {
             throw std::runtime_error("Fallback to default texture failed, this should never happen !");
@@ -478,6 +490,17 @@ VulkanStructs::StagingBufferInfo VulkanUtils::CreateStagingBuffer(const VulkanCo
 
     return staginBufferInfo;
 
+}
+
+bool VulkanUtils::CheckIfImageExistsInFolader(const std::filesystem::path &folder,const std::filesystem::path &image)
+{
+    for (const auto & entry : std::filesystem::directory_iterator(folder))
+    {
+        if (entry.path().filename() == image) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool VulkanUtils::IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4& model, const glm::mat4& view,

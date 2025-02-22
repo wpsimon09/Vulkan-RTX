@@ -77,6 +77,8 @@ namespace VulkanUtils
 
     VulkanStructs::StagingBufferInfo CreateStagingBuffer(const VulkanCore::VDevice& m_device, vk::DeviceSize size);
 
+    bool CheckIfImageExistsInFolader(const std::filesystem::path& folder,const std::filesystem::path& image); 
+
     bool IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
 }
 
