@@ -170,7 +170,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines()  {
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
     pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
     pipeline->SetPolygonMode(vk::PolygonMode::eLine);
-    pipeline->SetLineWidth(1.5f);
+    pipeline->SetLineWidth(2);
 
     m_pipelines[EPipelineType::DebugLines] = std::move(pipeline);
 

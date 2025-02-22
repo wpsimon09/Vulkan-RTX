@@ -350,7 +350,15 @@ void ApplicationCore::GLTFExporter::CreateScene(fastgltf::Asset &asset)
     asset.scenes.resize(1);
     asset.scenes[0].name = "Vulkan-RTX-saved-scene";
     // node at index 0 is allways the root
-    asset.scenes[0].nodeIndices.push_back(0);
+    for (auto it = m_nodes.begin(); it != m_nodes.end(); ++it)
+    {
+        if(it->first->GetParent()!= nullptr){
+            if(it->first->GetParent()->GetName() == "Root-Node"){               
+                asset.scenes[0].nodeIndices.push_back(it->second);
+            }
+        }
+    }
+    
 }
 
 void ApplicationCore::GLTFExporter::Clear()

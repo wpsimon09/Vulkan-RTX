@@ -36,5 +36,11 @@ enum EBufferType
     Undefined
 };
 
+enum EImageSource{
+    File = 0,
+    Buffer,
+    Generated
+};
+
 
 #endif //GLOBALVULKANENUMS_HPP

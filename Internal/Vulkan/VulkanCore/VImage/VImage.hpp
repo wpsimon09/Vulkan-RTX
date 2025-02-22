@@ -68,6 +68,10 @@ namespace VulkanCore
 
         vk::DescriptorImageInfo GetDescriptorImageInfo(vk::Sampler &sampler);
 
+        void SetImageSourceType(EImageSource source) {m_imageSource = source;}
+        EImageSource GetImageSourceType() const {return m_imageSource;}
+        bool IsImageOfSourceType(EImageSource source) const {return m_imageSource == source;}   
+
         ~VImage() = default;
 
     private:
@@ -88,6 +92,7 @@ namespace VulkanCore
         vk::ImageLayout m_imageLayout;
         VmaAllocation m_imageAllocation;
         vk::SampleCountFlagBits m_samples;
+        EImageSource m_imageSource; // specifies from where the image came from
 
 
         uint32_t m_mipLevels;
@@ -152,6 +157,7 @@ namespace VulkanCore
         m_path = imageData.fileName;
         m_width = imageData.widht;
         m_height = imageData.height;
+        m_imageSource = imageData.sourceType;
 
         m_transferCommandBuffer->BeginRecording();
         // copy pixel data to the staging buffer

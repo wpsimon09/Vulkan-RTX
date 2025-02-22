@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "Application/Structs/ApplicationStructs.hpp"
-
+#include "filesystem"
 
 
 namespace GlobalVariables {
@@ -43,6 +43,8 @@ namespace GlobalVariables {
     inline constexpr int MAX_THREADS = 14;
 
     inline int PointLightCount = 0;
+
+    inline const std::filesystem::path textureFolder("cache/textures/");
 }
 
 #endif //GLOBALVARIABLES_HPP
