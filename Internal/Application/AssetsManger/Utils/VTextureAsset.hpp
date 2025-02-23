@@ -8,24 +8,34 @@
 
 struct TextureBufferInfo;
 
+enum ETextureAssetType{
+    Texture = 0,
+    EditorBillboard,
+};
+
 namespace ApplicationCore {
     class VTextureAsset : public VAsset<VulkanCore::VImage> {
     public:
-        explicit VTextureAsset(const VulkanCore::VDevice& device, std::filesystem::path texturePath);
-        explicit VTextureAsset(const VulkanCore::VDevice& device, TextureBufferInfo& bufferInfo);
+        explicit VTextureAsset(const VulkanCore::VDevice& device, ETextureAssetType type, std::filesystem::path texturePath);
+        explicit VTextureAsset(const VulkanCore::VDevice& device, ETextureAssetType type, TextureBufferInfo& bufferInfo);
 
 
         void Sync() override;
         void Destroy() override;
     protected:
+        void Load() override;
         void LoadInternal() override;
         void LoadInternalFromBuffer();
     private:
+
         EImageSource m_textureSource;
+        ETextureAssetType m_textureAssetType;
         int m_width;
         int m_height;
         int m_mipLevels;
-        
+                
+        std::optional<std::filesystem::path> m_originalPathToTexture;
+        std::optional<TextureBufferInfo> m_textureBufferInfo;
     };
 
 }

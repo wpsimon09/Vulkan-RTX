@@ -32,8 +32,8 @@ namespace ApplicationCore{
         //===================================
         // PUBLIC VIRTUAL METHODS
         //===================================
-        void Load() {LoadInternal();};
-        
+        virtual void Load() = {LoadInternal();};
+
         virtual void Sync() = 0;
         virtual void Destroy() = 0;
 
@@ -41,11 +41,11 @@ namespace ApplicationCore{
     protected:
         virtual void LoadInternal() = 0;
 
-    protected:
         std::optional<std::filesystem::path> m_assetPath;
         std::string m_name;
         bool m_isLoaded;
         bool m_savable = false;
+        bool m_isInSync = true;
 
         std::future<std::shared_ptr<T>> m_futureDeviceHandle;
         std::shared_ptr<T> m_deviceHandle;

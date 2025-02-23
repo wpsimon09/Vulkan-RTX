@@ -73,6 +73,7 @@ struct TextureBufferInfo
 {
     std::byte* data;
     size_t size;
+    std::string textureID;
 };
 
 struct SceneStatistics
