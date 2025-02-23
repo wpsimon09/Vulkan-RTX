@@ -13,6 +13,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 
 
 namespace VulkanCore
@@ -154,6 +155,7 @@ namespace VulkanCore
     void VImage::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, bool transitionToShaderReadOnly,
         bool destroyCurrentImage)
     {
+        
         if(destroyCurrentImage)
         {
             Resize(imageData.widht, imageData.height);
@@ -163,6 +165,8 @@ namespace VulkanCore
         m_height = imageData.height;
         m_imageSource = imageData.sourceType;
 
+        auto& cmdPool = m_device.GetTransferCommandPool();
+        auto cmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device,cmdPool); 
         m_transferCommandBuffer->BeginRecording();
         // copy pixel data to the staging buffer
         Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
@@ -191,8 +195,9 @@ namespace VulkanCore
         m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
 
         m_device.GetTransferQueue().waitIdle();
+        
         m_stagingBufferWithPixelData->DestroyStagingBuffer();
-
+        cmdPool.SetInUse(false);
     }
 }
 

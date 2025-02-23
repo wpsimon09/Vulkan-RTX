@@ -141,19 +141,25 @@ namespace ApplicationCore
     {
         // texture ID is a randomly generated string that is used to look up textures of which only data are available and no paths
         // this will most likely be used only within the editor that I plan to build in future
-        std::lock_guard<std::mutex> lock(m_mutex);
-        if (!m_textures.contains(textureID))
-        {
-            if (!m_texturesToLoad.contains(textureID))
-            {
-                StartLoadingTexture(texture, textureID, data, saveToDisk);
-                m_textures[textureID] = std::make_shared<VulkanCore::VImage>(m_device);
-                m_textures[textureID]->SetPath(textureID);
-                m_textures[textureID]->SetSavable(saveToDisk);
+        // std::lock_guard<std::mutex> lock(m_mutex);
+        // if (!m_textures.contains(textureID))
+        // {
+        //     if (!m_texturesToLoad.contains(textureID))
+        //     {
+        //         StartLoadingTexture(texture, textureID, data, saveToDisk);
+        //         m_textures[textureID] = std::make_shared<VulkanCore::VImage>(m_device);
+        //         m_textures[textureID]->SetPath(textureID);
+        //         m_textures[textureID]->SetSavable(saveToDisk);
 
-            }
+        //     }
+        // }
+        // texture = m_textures[textureID];
+
+        if (!m_textures2.contains(data.textureID)){
+            m_textures2[data.textureID] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, ETextureAssetType::Texture, data);
         }
-        texture = m_textures[textureID];
+
+        texture = m_textures2[data.textureID]->GetHandle();
     }
 
 

@@ -4,7 +4,7 @@
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Application/Utils/ModelExportImportUtils/ModelManagmentUtils.hpp"
 
-ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device, ETextureAssetType type,  std::filesystem::path texturePath) : VAsset<VulkanCore::VImage>(device), m_textureAssetType(type), m_originalPathToTexture(texturePath)
+ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device, ETextureAssetType type,  std::filesystem::path texturePath) : VAsset<VulkanCore::VImage>(device), m_textureAssetType(type)
 {
     m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device);
     m_width = 1;
@@ -13,11 +13,12 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
     m_mipLevels = 1;
     m_savable = m_textureAssetType == ETextureAssetType::EditorBillboard ? false : true;
     m_textureSource = EImageSource::File;
+    m_originalPathToTexture.value() = texturePath;
 
     Load();
 }
 
-ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device, ETextureAssetType type, TextureBufferInfo &bufferInfo): VAsset<VulkanCore::VImage>(device), m_textureAssetType(type), m_textureBufferInfo(bufferInfo)
+ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device, ETextureAssetType type, TextureBufferInfo &bufferInfo): VAsset<VulkanCore::VImage>(device), m_textureAssetType(type)
 {
     m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device);
     m_width = 1;
@@ -26,6 +27,7 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
     m_mipLevels = 1;
     m_savable = m_textureAssetType == ETextureAssetType::EditorBillboard ? false : true;
     m_textureSource = EImageSource::Buffer;
+    m_textureBufferInfo.value() = bufferInfo;
 
     Load();
     
@@ -33,11 +35,12 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
 
 void ApplicationCore::VTextureAsset::Sync()
 {
-    if(m_isInSync)
+    if(m_isInSync || !m_loadedImageData.has_value())
         return;
 
+    m_device.DeviceMutex.lock();
     if(m_futureDeviceHandle.wait_for(std::chrono::seconds(0)) == std::future_status::ready){
-        m_deviceHandle = std::move(m_futureDeviceHandle.get());
+        m_deviceHandle->FillWithImageData(m_loadedImageData.value());
         m_isInSync = true;
     }
 }
@@ -52,9 +55,9 @@ void ApplicationCore::VTextureAsset::Destroy()
 void ApplicationCore::VTextureAsset::Load()
 {
     m_isInSync = false;
-    if(m_textureSource == EImageSource::Buffer){
+    if(m_textureSource == EImageSource::File){
         LoadInternal();
-    }else if (m_textureSource == EImageSource::File){
+    }else{
         LoadInternalFromBuffer();
     }
 }
@@ -62,23 +65,26 @@ void ApplicationCore::VTextureAsset::Load()
 void ApplicationCore::VTextureAsset::LoadInternal()
 {
     m_futureDeviceHandle = std::async([this](){
-        if(m_textureBufferInfo.has_value()){
+        if(m_originalPathToTexture.has_value()){
             auto retrievedData = ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
             auto loadedImage = std::make_shared<VulkanCore::VImage>(m_device);
             loadedImage->FillWithImageData<>(retrievedData, true, true);
             return std::move(loadedImage);
         }
+        throw std::logic_error("Expected struct with information about buffer ");
+
     });
 }
 
 void ApplicationCore::VTextureAsset::LoadInternalFromBuffer()
 {
     m_futureDeviceHandle = std::async([this](){
-        if(m_originalPathToTexture.has_value()){
+        if(m_textureBufferInfo.has_value()){
             auto retrievedData = ApplicationCore::LoadImage(this->m_textureBufferInfo.value(), m_textureBufferInfo.value().textureID, m_savable);
             auto loadedImage = std::make_shared<VulkanCore::VImage>(m_device);
             loadedImage->FillWithImageData<>(retrievedData, true, true);
             return std::move(loadedImage);
         }
+        throw std::logic_error("Expected struct with information about buffer ");
     });
 }
