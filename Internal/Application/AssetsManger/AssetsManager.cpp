@@ -8,7 +8,7 @@
 #include <shared_mutex>
 #include <thread>
 #include <future>
-
+#include <unordered_map>
 #include "Application/Rendering/Material/Material.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
@@ -24,7 +24,7 @@
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
-
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 
 namespace ApplicationCore
 {
@@ -45,6 +45,9 @@ namespace ApplicationCore
         for (auto& mesh : m_meshes)
         {
             mesh.second->Destroy();
+        }
+        for (auto& textureAsset : m_textures2){
+            textureAsset.second->Destroy();
         }
         m_dummyTexture->Destroy();
     }
@@ -112,17 +115,25 @@ namespace ApplicationCore
 
     void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& path, bool saveToDisk)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        if (!m_textures.contains(path))
-        {
-            if (!m_texturesToLoad.contains(path))
-            {
-                StartLoadingTexture(texture, path, saveToDisk);
-                m_textures[path] = std::make_shared<VulkanCore::VImage>(m_device);
-                m_textures[path]->SetSavable(saveToDisk);
-            }
+        // std::lock_guard<std::mutex> lock(m_mutex);
+        // if (!m_textures.contains(path))
+        // {
+        //     if (!m_texturesToLoad.contains(path))
+        //     {
+        //         // StartLoadingTexture(texture, path, saveToDisk);
+        //         // m_textures[path] = std::make_shared<VulkanCore::VImage>(m_device);
+        //         // m_textures[path]->SetSavable(saveToDisk);
+        //         if
+        //     }
+        // }
+        
+        // texture = m_textures[path];
+
+        if (!m_textures2.contains(path)){
+            m_textures2[path] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, ETextureAssetType::Texture, path);
         }
-        texture = m_textures[path];
+
+        texture = m_textures2[path]->GetHandle();
     }
 
     void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID,
@@ -215,6 +226,10 @@ namespace ApplicationCore
                 }
             }
             return true;
+        }
+
+        for(auto& tex : m_textures2){
+            tex.second->Sync();
         }
         Utils::Logger::LogInfoVerboseRendering("Nothing to sync...");
         return false;

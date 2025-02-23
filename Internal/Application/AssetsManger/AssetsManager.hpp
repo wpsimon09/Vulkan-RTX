@@ -27,6 +27,7 @@ namespace ApplicationCore {
     class StaticMesh;
     class Material;
     class Scene;
+    class VTextureAsset;
 }
 
 namespace VulkanCore {
@@ -134,6 +135,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_dummyTextures;
     std::unordered_map<EEditorIcon, std::shared_ptr<Material>> m_editorIconsMaterials;
     std::unordered_map<EMeshGeometryType, VulkanStructs::MeshData> m_preloadedMeshes;
+    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures2;
 
     friend class ApplicationCore::GLTFLoader;
 };

@@ -37,14 +37,16 @@ void ApplicationCore::VTextureAsset::Sync()
         return;
 
     if(m_futureDeviceHandle.wait_for(std::chrono::seconds(0)) == std::future_status::ready){
-        m_deviceHandle->Destroy();
         m_deviceHandle = std::move(m_futureDeviceHandle.get());
+        m_isInSync = true;
     }
 }
 
 void ApplicationCore::VTextureAsset::Destroy()
 {
-    m_deviceHandle->Destroy();
+    if(m_deviceHandle){
+        m_deviceHandle->Destroy();
+    }
 }
 
 void ApplicationCore::VTextureAsset::Load()
@@ -60,19 +62,23 @@ void ApplicationCore::VTextureAsset::Load()
 void ApplicationCore::VTextureAsset::LoadInternal()
 {
     m_futureDeviceHandle = std::async([this](){
-        auto retrievedData = ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
-        auto loadedImage = std::make_shared<VulkanCore::VImage>(m_device);
-        loadedImage->FillWithImageData<>(retrievedData, true, true);
-        return std::move(loadedImage);
+        if(m_textureBufferInfo.has_value()){
+            auto retrievedData = ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
+            auto loadedImage = std::make_shared<VulkanCore::VImage>(m_device);
+            loadedImage->FillWithImageData<>(retrievedData, true, true);
+            return std::move(loadedImage);
+        }
     });
 }
 
 void ApplicationCore::VTextureAsset::LoadInternalFromBuffer()
 {
     m_futureDeviceHandle = std::async([this](){
-        auto retrievedData = ApplicationCore::LoadImage(this->m_textureBufferInfo.value(), m_textureBufferInfo.value().textureID, m_savable);
-        auto loadedImage = std::make_shared<VulkanCore::VImage>(m_device);
-        loadedImage->FillWithImageData<>(retrievedData, true, true);
-        return std::move(loadedImage);
+        if(m_originalPathToTexture.has_value()){
+            auto retrievedData = ApplicationCore::LoadImage(this->m_textureBufferInfo.value(), m_textureBufferInfo.value().textureID, m_savable);
+            auto loadedImage = std::make_shared<VulkanCore::VImage>(m_device);
+            loadedImage->FillWithImageData<>(retrievedData, true, true);
+            return std::move(loadedImage);
+        }
     });
 }
