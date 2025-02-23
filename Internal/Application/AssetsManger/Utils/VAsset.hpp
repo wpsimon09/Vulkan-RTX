@@ -5,41 +5,66 @@
 #include <memory>
 #include <future>
 #include <optional>
+#include <filesystem>
 
 namespace VulkanCore{
     class VDevice;
 }
 
 namespace ApplicationCore{
+
     template<typename T>
     class VAsset {
     public:
-        explicit VAsset(const VDevice& device);
+        explicit VAsset(const VulkanCore::VDevice& device);
     
         //===================================
         // GETTERS 
         //===================================
-        T& GetHandle() {return *m_deviceHandle;}
-        std::reference_wrapper<T> GetHandle() {return std::ref<T>(m_handle)}
+        std::shared_ptr<T>GetHandle() {return m_deviceHandle;}
+        T& GetHandleByRef() {return *m_deviceHandle;}
         std::string& GetName() {return m_name;}
         std::string& GetAssetPath() {return m_name;}
+        bool IsSavable() {return m_savable;}
+        void AllowSave() {m_savable = true;}
+        void DisallowSave() {m_savable = false;}
 
         //===================================
-        // VIRTUAL PUBLIC  
+        // PUBLIC VIRTUAL METHODS
         //===================================
-        virtual void Load() = 0;
+        void Load() {LoadInternal();};
         
+        virtual void Sync() = 0;
+        virtual void Destroy() = 0;
+
         static const int ID;
     protected:
-        virtual std::future<std::unique_ptr<T>> LoadInternal() = 0
-    
-    private:
+        virtual void LoadInternal() = 0;
+
+    protected:
         std::optional<std::filesystem::path> m_assetPath;
         std::string m_name;
-        std::unique_ptr<T> m_deviceHandle;
+        bool m_isLoaded;
+        bool m_savable = false;
+
+        std::future<std::shared_ptr<T>> m_futureDeviceHandle;
+        std::shared_ptr<T> m_deviceHandle;
+        const VulkanCore::VDevice& m_device;
         
     };
+    //================================================================================================
+    // END OF HEADER
+    //================================================================================================
+    //================================================================================================
+
+    //=================================
+    // DEFINITIONS
+    //=================================
+    template <typename T>
+    inline VAsset<T>::VAsset(const VulkanCore::VDevice &device): m_device(device)
+    {
+        
+    }
 }
 
 #endif // ASSET_HPP
-

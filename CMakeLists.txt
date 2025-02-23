@@ -154,8 +154,9 @@ set(SOURCES
         Internal/Application/Utils/ModelExportImportUtils/ModelManagmentUtils.hpp
         Internal/Application/Utils/ModelExportImportUtils/ModelManagmentUtils.cpp
         Internal/Application/AssetsManger/Utils/VAsset.hpp
-        Internal/Application/AssetsManger/Utils/VAsset.cpp
-)
+        Internal/Application/AssetsManger/Utils/VTextureAsset.hpp
+        Internal/Application/AssetsManger/Utils/VTextureAsset.cpp
+        )
 
 
 # Find Vulkan, GLFW, and GLM
