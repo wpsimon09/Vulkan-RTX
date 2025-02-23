@@ -153,6 +153,8 @@ set(SOURCES
         Internal/Application/GLTFExporter/GLTFExporter.cpp
         Internal/Application/Utils/ModelExportImportUtils/ModelManagmentUtils.hpp
         Internal/Application/Utils/ModelExportImportUtils/ModelManagmentUtils.cpp
+        Internal/Application/AssetsManger/Utils/VAsset.hpp
+        Internal/Application/AssetsManger/Utils/VAsset.cpp
 )
 
 
