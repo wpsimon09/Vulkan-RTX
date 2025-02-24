@@ -4,7 +4,7 @@
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Application/Utils/ModelExportImportUtils/ModelManagmentUtils.hpp"
 
-ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device, ETextureAssetType type,  std::filesystem::path texturePath) : VAsset<VulkanCore::VImage>(device), m_textureAssetType(type)
+ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device, ETextureAssetType type,  std::filesystem::path texturePath) : VAsset<VulkanCore::VImage>(device), m_textureAssetType(type), m_originalPathToTexture(texturePath)
 {
     m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device);
     m_width = 1;
@@ -13,12 +13,11 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
     m_mipLevels = 1;
     m_savable = m_textureAssetType == ETextureAssetType::EditorBillboard ? false : true;
     m_textureSource = EImageSource::File;
-    m_originalPathToTexture.value() = texturePath;
 
     Load();
 }
 
-ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device, ETextureAssetType type, TextureBufferInfo &bufferInfo): VAsset<VulkanCore::VImage>(device), m_textureAssetType(type)
+ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device, ETextureAssetType type, TextureBufferInfo &bufferInfo): VAsset<VulkanCore::VImage>(device), m_textureAssetType(type), m_textureBufferInfo(bufferInfo)
 {
     m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device);
     m_width = 1;
@@ -27,7 +26,6 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
     m_mipLevels = 1;
     m_savable = m_textureAssetType == ETextureAssetType::EditorBillboard ? false : true;
     m_textureSource = EImageSource::Buffer;
-    m_textureBufferInfo.value() = bufferInfo;
 
     Load();
     
@@ -40,6 +38,10 @@ void ApplicationCore::VTextureAsset::Sync()
 
     m_device.DeviceMutex.lock();
     if(m_futureDeviceHandle.wait_for(std::chrono::seconds(0)) == std::future_status::ready){
+        m_width = m_loadedImageData.value().widht;
+        m_height = m_loadedImageData.value().height;
+        m_assetPath = m_loadedImageData.value().fileName;
+        
         m_deviceHandle->FillWithImageData(m_loadedImageData.value());
         m_isInSync = true;
     }
