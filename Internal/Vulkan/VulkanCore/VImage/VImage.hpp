@@ -205,6 +205,7 @@ namespace VulkanCore
 
         m_stagingBufferWithPixelData->DestroyStagingBuffer();
         transferFinishFence->Destroy();
+        imageData.Clear();
     }
 }
 
