@@ -33,17 +33,16 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
 
 void ApplicationCore::VTextureAsset::Sync()
 {
-    if(m_isInSync || !m_loadedImageData.has_value())
+    if(m_isInSync)
         return;
-
-    m_device.DeviceMutex.lock();
-    if(m_futureDeviceHandle.wait_for(std::chrono::seconds(0)) == std::future_status::ready){
-        m_width = m_loadedImageData.value().widht;
-        m_height = m_loadedImageData.value().height;
-        m_assetPath = m_loadedImageData.value().fileName;
         
-        m_deviceHandle->FillWithImageData(m_loadedImageData.value());
+    if(m_loadedImageData.wait_for(std::chrono::seconds(0)) == std::future_status::ready){    
         m_isInSync = true;
+        auto data = m_loadedImageData.get();
+        m_width = data.widht;
+        m_height = data.height;
+        m_assetPath = data.fileName;
+        m_deviceHandle->FillWithImageData<>(data, true, true);   
     }
 }
 
@@ -66,12 +65,9 @@ void ApplicationCore::VTextureAsset::Load()
 
 void ApplicationCore::VTextureAsset::LoadInternal()
 {
-    m_futureDeviceHandle = std::async([this](){
+        m_loadedImageData = std::async([this](){
         if(m_originalPathToTexture.has_value()){
-            auto retrievedData = ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
-            auto loadedImage = std::make_shared<VulkanCore::VImage>(m_device);
-            loadedImage->FillWithImageData<>(retrievedData, true, true);
-            return std::move(loadedImage);
+            return ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
         }
         throw std::logic_error("Expected struct with information about buffer ");
 
@@ -80,12 +76,9 @@ void ApplicationCore::VTextureAsset::LoadInternal()
 
 void ApplicationCore::VTextureAsset::LoadInternalFromBuffer()
 {
-    m_futureDeviceHandle = std::async([this](){
+        m_loadedImageData = std::async([this](){
         if(m_textureBufferInfo.has_value()){
-            auto retrievedData = ApplicationCore::LoadImage(this->m_textureBufferInfo.value(), m_textureBufferInfo.value().textureID, m_savable);
-            auto loadedImage = std::make_shared<VulkanCore::VImage>(m_device);
-            loadedImage->FillWithImageData<>(retrievedData, true, true);
-            return std::move(loadedImage);
+            return ApplicationCore::LoadImage(this->m_textureBufferInfo.value(), m_textureBufferInfo.value().textureID, m_savable);
         }
         throw std::logic_error("Expected struct with information about buffer ");
     });

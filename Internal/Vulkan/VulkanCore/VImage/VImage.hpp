@@ -165,7 +165,8 @@ namespace VulkanCore
         m_height = imageData.height;
         m_imageSource = imageData.sourceType;
 
-        auto& cmdPool = m_device.GetTransferCommandPool();
+        //m_device.DeviceMutex.lock();
+        auto& cmdPool = m_device.GetSingleThreadCommandPool();
         auto cmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device,cmdPool); 
         m_transferCommandBuffer->BeginRecording();
         // copy pixel data to the staging buffer
