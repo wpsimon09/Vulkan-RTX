@@ -401,6 +401,7 @@ namespace ApplicationCore
                                             image.name = textureID;
                                         }
                                         auto name = std::string(image.name.c_str()) + ".png";
+                                        textureBufferInfo.textureID = name;
 
 
                                        m_assetsManager.GetTexture(loadedTexture, name , textureBufferInfo, saveToDisk);

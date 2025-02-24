@@ -69,7 +69,7 @@ namespace ApplicationCore
             {
                 imageData.channels = 4;
                 imageData.sourceType = EImageSource::Buffer;
-                imageData.fileName = GlobalVariables::textureFolder.string() + "/" + textureID;
+                imageData.fileName = GlobalVariables::textureFolder.string() + textureID;
 
                 if (saveToDisk)
                 {
