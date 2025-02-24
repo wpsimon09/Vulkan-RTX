@@ -36,8 +36,7 @@ namespace ApplicationCore
 
     void AssetsManager::DeleteAll()
     {
-
-
+        
         for (auto& texture : m_textures)
         {
             texture.second->Destroy();
