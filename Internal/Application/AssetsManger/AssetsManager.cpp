@@ -114,20 +114,7 @@ namespace ApplicationCore
 
     void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& path, bool saveToDisk)
     {
-        // std::lock_guard<std::mutex> lock(m_mutex);
-        // if (!m_textures.contains(path))
-        // {
-        //     if (!m_texturesToLoad.contains(path))
-        //     {
-        //         // StartLoadingTexture(texture, path, saveToDisk);
-        //         // m_textures[path] = std::make_shared<VulkanCore::VImage>(m_device);
-        //         // m_textures[path]->SetSavable(saveToDisk);
-        //         if
-        //     }
-        // }
         
-        // texture = m_textures[path];
-
         if (!m_textures2.contains(path)){
             m_textures2[path] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, ETextureAssetType::Texture, path);
         }
@@ -211,27 +198,6 @@ namespace ApplicationCore
 
     bool AssetsManager::Sync()
     {
-        if (!m_texturesToLoad.empty())
-        {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            //for each texture that is being processed by separate thread
-            for (auto it = m_texturesToLoad.begin(); it != m_texturesToLoad.end();)
-            {
-                if (it->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-                {
-                    Utils::Logger::LogSuccess("Texture image loaded, swapping default texture for the loaded texture");
-                    m_textures[it->first]->FillWithImageData<>(it->second.get(), true, true);
-                    it = m_texturesToLoad.erase(it);
-                    GlobalState::EnableLogging();
-                }
-                else
-                {
-                    ++it;
-                }
-            }
-            return true;
-        }
-
         for(auto& tex : m_textures2){
             tex.second->Sync();
         }

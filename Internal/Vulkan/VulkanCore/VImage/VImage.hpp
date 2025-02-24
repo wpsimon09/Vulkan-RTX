@@ -7,6 +7,7 @@
 #include <VMA/vk_mem_alloc.h>
 #include <stb_image/stb_image.h>
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_handles.hpp>
 #include "Application/Logger/Logger.hpp"
 #include "memory"
 #include "Vulkan/Global/GlobalStructs.hpp"
@@ -172,8 +173,7 @@ namespace VulkanCore
         m_imageSource = imageData.sourceType;
 
         //m_device.DeviceMutex.lock();
-        auto& cmdPool = m_device.GetSingleThreadCommandPool();
-        auto cmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device,cmdPool); 
+        auto transferFinishFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
         m_transferCommandBuffer->BeginRecording();
         // copy pixel data to the staging buffer
         Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
@@ -199,12 +199,12 @@ namespace VulkanCore
         TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
 
         // execute the recorded commands
-        m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+        m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue(), transferFinishFence->GetSyncPrimitive());
 
-        m_device.GetTransferQueue().waitIdle();
-        
+        transferFinishFence->WaitForFence();
+
         m_stagingBufferWithPixelData->DestroyStagingBuffer();
-        cmdPool.SetInUse(false);
+        transferFinishFence->Destroy();
     }
 }
 

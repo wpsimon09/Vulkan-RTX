@@ -169,13 +169,14 @@ void Application::Update()
 
 void Application::Render() {
     // generate draw calls
-    m_client->GetAssetsManager().Sync();
-
+    
     m_client->Render(m_renderingSystem->GetRenderContext());
-
+    
     m_editor->Render();
-
+    
     m_renderingSystem->Render(m_client->GetScene().GetSceneLightInfo(),m_client->GetGlobalDataUpdateInformation());
+
+    m_client->GetAssetsManager().Sync();
 }
 
 void Application::PostRender()
