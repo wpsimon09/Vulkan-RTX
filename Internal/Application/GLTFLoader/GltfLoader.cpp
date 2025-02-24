@@ -117,7 +117,7 @@ namespace ApplicationCore
                 if (m.pbrData.baseColorTexture.has_value())
                 {
                     auto& textureIndex = m.pbrData.baseColorTexture.value().textureIndex;
-                    if (textureIndex <= m_textures.size())
+                    if (textureIndex < m_textures.size())
                     {
                         material->GetTexture(ETextureType::Diffues) = m_textures[textureIndex];
                         material->GetMaterialPaths().DiffuseMapPath = m_textures[textureIndex]->GetPath();

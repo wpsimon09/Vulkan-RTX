@@ -220,7 +220,6 @@ namespace ApplicationCore
                 if (it->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     Utils::Logger::LogSuccess("Texture image loaded, swapping default texture for the loaded texture");
-                    GlobalState::DisableLogging();
                     m_textures[it->first]->FillWithImageData<>(it->second.get(), true, true);
                     it = m_texturesToLoad.erase(it);
                     GlobalState::EnableLogging();
@@ -316,58 +315,19 @@ namespace ApplicationCore
         std::vector<TextureBufferView> views;
         views.reserve(m_textures.size());
         
-        // size_t totalDataSize = 0;
-        // vk::DeviceSize currentOffset = 0;
-        // for(auto& texture: m_textures){
-        //     totalDataSize += texture.second->GetSize();
-        // }
-        // data.resize(totalDataSize);
-        // auto dstBuffer = VulkanUtils::CreateStagingBuffer(m_device, totalDataSize);
-
-        // auto transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *commandPool);
-
-        // transferCommandBuffer->BeginRecording();
-
-        for(auto& texture: m_textures){
-
-            // texture.second->TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eTransferSrcOptimal,*transferCommandBuffer);
-            
-            // vk::BufferImageCopy cpyInfo;
-            // cpyInfo.imageOffset = 0;
-            // cpyInfo.bufferOffset = currentOffset;
-            // cpyInfo.imageExtent.width = texture.second->GetWidth();
-            // cpyInfo.imageExtent.height = texture.second->GetHeight();
-            // cpyInfo.imageExtent.depth = 1; 
-            
-            // cpyInfo.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-            // cpyInfo.imageSubresource.mipLevel = 0;
-            // cpyInfo.imageSubresource.baseArrayLayer = 0;
-            // cpyInfo.imageSubresource.layerCount = 1;
-
+        for(auto& texture: m_textures2){
             
             if(texture.second->IsSavable()){
                 TextureBufferView textureView;
-                textureView.widht = texture.second->GetWidth();
-                textureView.height = texture.second->GetHeight();
+                textureView.widht = texture.second->GetHandle()->GetWidth();
+                textureView.height = texture.second->GetHandle()->GetHeight();
                 textureView.path = texture.first;
-                textureView.size = texture.second->GetSize();
+                textureView.size = texture.second->GetHandle()->GetSize();
                 views.emplace_back(textureView);
                 
             }
-            //currentOffset += texture.second->GetSize();
-
-            //transferCommandBuffer->GetCommandBuffer().copyImageToBuffer(texture.second->GetImage(), vk::ImageLayout::eTransferSrcOptimal, dstBuffer.m_stagingBufferVK, cpyInfo);
-
-            //texture.second->TransitionImageLayout(vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,*transferCommandBuffer);
         }
 
-        //transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
-        //m_device.GetTransferQueue().waitIdle(); 
-
-        //memcpy(data.data(), dstBuffer.mappedPointer, totalDataSize);
-
-        //vmaUnmapMemory(m_device.GetAllocator(), dstBuffer.m_stagingAllocation);
-        //vmaDestroyBuffer(m_device.GetAllocator(), dstBuffer.m_stagingBufferVK, dstBuffer.m_stagingAllocation);
 
         return  std::move(views);
     }

@@ -7,6 +7,7 @@
 #include <VMA/vk_mem_alloc.h>
 #include <stb_image/stb_image.h>
 #include <vulkan/vulkan.hpp>
+#include "Application/Logger/Logger.hpp"
 #include "memory"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
@@ -155,6 +156,11 @@ namespace VulkanCore
     void VImage::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, bool transitionToShaderReadOnly,
         bool destroyCurrentImage)
     {
+
+        if(!imageData.pixels){
+            Utils::Logger::LogError("Image pixel data are corrupted ! ");
+            return;
+        }
         
         if(destroyCurrentImage)
         {

@@ -150,9 +150,10 @@ void ApplicationCore::GLTFExporter::ParseTexture(fastgltf::Asset &asset, AssetsM
 
         fastgltf::Texture t;
         t.imageIndex = asset.images.size() - 1;   
+        
+        m_textureToIndex[texture.path] = asset.textures.size() - 1;
         asset.textures.push_back(std::move(t)); 
 
-        m_textureToIndex[texture.path] = asset.textures.size() - 1;
     }
 
     Utils::Logger::LogSuccessClient("Textures parsed successfuly");
