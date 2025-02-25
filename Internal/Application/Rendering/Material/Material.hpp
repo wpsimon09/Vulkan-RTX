@@ -8,7 +8,6 @@
 #include <memory>
 #include <utility>
 #include "Application/Enums/ClientEnums.hpp"
-#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 
 
 
@@ -49,6 +48,8 @@ namespace ApplicationCore
         std::string& GetMaterialName() { return m_materialName; };
         void SetMaterialname(std::string newName) { m_materialName = std::move(newName); };
         std::shared_ptr<ApplicationCore::VTextureAsset>& GetTexture(ETextureType type) { return m_textures[type]; }
+        ApplicationCore::VTextureAsset* GetTextureRawPtr(ETextureType type) const { return m_textures[type].get(); }
+
         bool& IsTransparent() { return m_transparent; }
         void SetTransparent(bool value) { m_transparent = value; }
         TextureBufferView* GetTextureView() { return &m_textureView; }

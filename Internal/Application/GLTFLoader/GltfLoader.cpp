@@ -109,7 +109,7 @@ namespace ApplicationCore
                     if (textureIndex <= m_textures.size())
                     {
                         material->GetTexture(ETextureType::arm) = m_textures[textureIndex];
-                        material->GetMaterialPaths().ArmMapPath = m_textures[textureIndex]->GetPath();
+                        material->GetMaterialPaths().ArmMapPath = m_textures[textureIndex]->GetAssetPath();
                         material->GetMaterialDescription().features.hasArmTexture = true;
                     }else
                     {
@@ -122,7 +122,7 @@ namespace ApplicationCore
                     if (textureIndex < m_textures.size())
                     {
                         material->GetTexture(ETextureType::Diffues) = m_textures[textureIndex];
-                        material->GetMaterialPaths().DiffuseMapPath = m_textures[textureIndex]->GetPath();
+                        material->GetMaterialPaths().DiffuseMapPath = m_textures[textureIndex]->GetAssetPath();
                         material->GetMaterialDescription().features.hasDiffuseTexture = true;
                     }else
                     {
@@ -135,7 +135,7 @@ namespace ApplicationCore
                     if (textureIndex <= m_textures.size())
                     {
                         material->GetTexture(normal) = m_textures[m.normalTexture.value().textureIndex];
-                        material->GetMaterialPaths().NormalMapPath = m_textures[m.normalTexture.value().textureIndex]->GetPath();
+                        material->GetMaterialPaths().NormalMapPath = m_textures[m.normalTexture.value().textureIndex]->GetAssetPath();
                         material->GetMaterialDescription().features.hasNormalTexture = true;
                     }else
                     {

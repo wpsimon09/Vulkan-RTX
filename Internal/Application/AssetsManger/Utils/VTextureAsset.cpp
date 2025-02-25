@@ -14,7 +14,7 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
     m_savable = m_textureAssetType == ETextureAssetType::EditorBillboard ? false : true;
     m_textureSource = EImageSource::File;
 
-    Load();
+    VTextureAsset::Load();
 }
 
 ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device, ETextureAssetType type, TextureBufferInfo &bufferInfo): VAsset<VulkanCore::VImage>(device), m_textureAssetType(type), m_textureBufferInfo(bufferInfo)
@@ -27,7 +27,7 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
     m_savable = m_textureAssetType == ETextureAssetType::EditorBillboard ? false : true;
     m_textureSource = EImageSource::Buffer;
 
-    Load();
+    VTextureAsset::Load();
     
 }
 
@@ -39,7 +39,8 @@ void ApplicationCore::VTextureAsset::Sync()
     if(m_loadedImageData.wait_for(std::chrono::seconds(0)) == std::future_status::ready){    
         m_isInSync = true;
         m_deviceHandle->Destroy();
-        m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device, m_loadedImageData.get());
+        auto imageData = m_loadedImageData.get();
+        m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device,imageData);
     }
 }
 

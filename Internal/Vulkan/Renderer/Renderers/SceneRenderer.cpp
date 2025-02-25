@@ -5,6 +5,7 @@
 #include "SceneRenderer.hpp"
 
 #include "DebugRenderer.hpp"
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Utils/LinearyTransformedCosinesValues.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
@@ -81,16 +82,16 @@ namespace Renderer
             currentFrameIndex];
 
         dstSetDataStruct.diffuseTextureImage =
-            material->GetTexture(Diffues)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            material->GetTexture(Diffues)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
         dstSetDataStruct.armTextureImage =
-            material->GetTexture(arm)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            material->GetTexture(arm)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
         dstSetDataStruct.normalTextureImage =
-            material->GetTexture(normal)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            material->GetTexture(normal)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
         dstSetDataStruct.emissiveTextureImage =
-            material->GetTexture(emissive)->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            material->GetTexture(emissive)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
         dstSetDataStruct.pbrMaterialFeatures = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(objectIndex)[
             currentFrameIndex];

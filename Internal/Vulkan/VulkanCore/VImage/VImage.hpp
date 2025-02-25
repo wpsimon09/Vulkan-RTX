@@ -44,7 +44,7 @@ namespace VulkanCore
                         std::optional<vk::ImageUsageFlags> imageUsage = std::nullopt,
                         vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1);
                         
-        explicit VImage(const VulkanCore::VDevice& device, VulkanStructs::ImageData<>& imageData);
+        explicit VImage(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData);
 
         void Resize(uint32_t newWidth, uint32_t newHeight) ;
 

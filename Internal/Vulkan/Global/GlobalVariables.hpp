@@ -44,7 +44,8 @@ namespace GlobalVariables {
 
     inline int PointLightCount = 0;
 
-    inline const std::filesystem::path textureFolder("cache/textures/");
+    inline const std::filesystem::path textureFolder("cache/textures");
+    inline const std::filesystem::path defaultTextureFile("Resources/DefaultTexture.jpg");
 }
 
 #endif //GLOBALVARIABLES_HPP

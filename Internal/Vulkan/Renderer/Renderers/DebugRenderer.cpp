@@ -4,6 +4,7 @@
 
 #include "DebugRenderer.hpp"
 
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
@@ -113,9 +114,7 @@ namespace Renderer
             auto& drawCall = drawCalls[i];
 
             //sets albedo texture of the image
-            dstSetDataStruct.diffuseTextureImage = drawCall.material->GetTexture(ETextureType::Diffues)->
-                                                            GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-
+            dstSetDataStruct.diffuseTextureImage = drawCall.material->GetTexture(ETextureType::Diffues)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
             std::vector<vk::Buffer> vertexBuffers = {drawCalls[i].meshData->vertexData.buffer};
             std::vector<vk::DeviceSize> offsets = {drawCalls[i].meshData->vertexData.offset};
 

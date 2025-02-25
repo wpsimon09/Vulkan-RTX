@@ -79,7 +79,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t mipLevels
 
 }
 
- VulkanCore::VImage::VImage(const VulkanCore::VDevice& device, VulkanStructs::ImageData<>& imageData): m_device(device), m_mipLevels(1), m_format(vk::Format::eR16G16B16A16Unorm), m_aspectFlags(vk::ImageAspectFlagBits::eColor), m_samples(vk::SampleCountFlagBits::e1),
+ VulkanCore::VImage::VImage(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData): m_device(device), m_mipLevels(1), m_format(vk::Format::eR16G16B16A16Unorm), m_aspectFlags(vk::ImageAspectFlagBits::eColor), m_samples(vk::SampleCountFlagBits::e1),
  m_imageUsage(vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferSrc)
  {
     m_isSwapChainImage = false;
