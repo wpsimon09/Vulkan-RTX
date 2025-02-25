@@ -26,9 +26,6 @@ void Utils::Logger::LogSuccess(const std::string& msg)
 
 void Utils::Logger::LogError(const std::string& msg)
 {
-    if (!GlobalState::LoggingEnabled) {
-        return;
-    }
 
     auto time = std::chrono::system_clock::now();
     std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
@@ -44,9 +41,6 @@ void Utils::Logger::LogError(const std::string& msg)
 
 void Utils::Logger::LogVKValidationLayerError(const std::string& msg)
 {
-    if (!GlobalState::LoggingEnabled) {
-        return;
-    }
 
     auto time = std::chrono::system_clock::now();
     std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
@@ -88,9 +82,6 @@ void Utils::Logger::LogSuccessClient(const std::string &msg) {
 }
 
 void Utils::Logger::LogErrorClient(const std::string &msg) {
-    if (!GlobalState::LoggingEnabled) {
-        return;
-    }
 
     auto time = std::chrono::system_clock::now();
     std::time_t currentTime = std::chrono::system_clock::to_time_t(time);

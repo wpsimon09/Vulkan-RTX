@@ -122,26 +122,6 @@ void ApplicationCore::GLTFExporter::ParseTexture(fastgltf::Asset &asset, AssetsM
     for(auto& texture : m_fetchedTextureViews){
         fastgltf::Image image;
 
-        // std::vector<std::byte> textureData(texture.size / sizeof(std::byte));
-        // if((texture.offset + texture.size) > imageData.size()){
-        //     Utils::Logger::LogErrorClient("Texture data out of bounds");
-        //     continue;
-        // }
-        // std::memcpy(textureData.data(), imageData.data() + texture.offset, texture.size);
-
-        // std::string fileName = texture.path.substr(texture.path.rfind("/") + 1);
-        // auto path = m_textureDirectory / fileName;
-        
-        // VulkanUtils::SaveImageAsPNG(texture.widht, texture.height, 4, path.string(), textureData);
-
-        /**
-         *fastgltf::BufferView textureBufferView;
-        textureBufferView.bufferIndex = 2; // texture buffer is allways at index 2
-        textureBufferView.byteLength = texture.size;
-        textureBufferView.byteOffset = texture.offset;
-        textureBufferView.name = "texture buffer view";
-        asset.bufferViews.push_back(std::move(textureBufferView)); 
-         */
         
         std::filesystem::path imgPath = "textures/" + texture.path.substr(texture.path.rfind("/") + 1);
         fastgltf::URI imagepath(imgPath);
@@ -151,9 +131,9 @@ void ApplicationCore::GLTFExporter::ParseTexture(fastgltf::Asset &asset, AssetsM
 
         fastgltf::Texture t;
         t.imageIndex = asset.images.size() - 1;   
-        
-        m_textureToIndex[texture.textureAsset->GetHandle()] = asset.textures.size() - 1;
         asset.textures.push_back(std::move(t)); 
+
+        m_textureToIndex[texture.textureAsset->GetHandle()] = asset.textures.size() - 1;
 
     }
 

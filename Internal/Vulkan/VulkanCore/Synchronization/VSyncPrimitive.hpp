@@ -6,7 +6,9 @@
 #define VSYNCPRIMITIVE_HPP
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
+#include <stdexcept>
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_enums.hpp>
 
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
@@ -49,10 +51,13 @@ namespace VulkanCore {
                 }
             };
 
-        void WaitForFence() const {
+        vk::Result WaitForFence(int timeOut = -1) const {
+            if(timeOut < -1 || timeOut == 0){
+                throw std::invalid_argument("time out was smaller than -1 or equal to one, -1 tim out is specifing to wait for the fence until it is done ");
+            }
             static_assert(std::is_same_v<T, vk::Fence>);
             Utils::Logger::LogInfoVerboseRendering("Waiting for fence !");
-            assert( m_device.GetDevice().waitForFences(1, &m_syncPrimitive, VK_TRUE , UINT64_MAX) == vk::Result::eSuccess);
+            return m_device.GetDevice().waitForFences(1, &m_syncPrimitive, VK_TRUE , timeOut == -1.0f ? UINT64_MAX : timeOut);  
         };
 
         void ResetFences() const {

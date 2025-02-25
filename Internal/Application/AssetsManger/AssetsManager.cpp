@@ -289,8 +289,8 @@ namespace ApplicationCore
                 textureView.height = texture.second->GetHandle()->GetHeight();
                 textureView.path = texture.first;
                 textureView.size = texture.second->GetHandle()->GetSize();
-                views.emplace_back(textureView);
                 textureView.textureAsset = texture.second.get();
+                views.emplace_back(textureView);
                 
             }
         }
