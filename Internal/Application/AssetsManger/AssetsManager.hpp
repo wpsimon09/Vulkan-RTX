@@ -67,9 +67,9 @@ public:
     //=========================
     // Textures
     //=========================
-    void GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& path, bool saveToDisk = false);
-    void GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID, TextureBufferInfo& data, bool saveToDisk = false);
-    void GetDummyTexture(std::shared_ptr<VulkanCore::VImage>& texture) const { texture = m_dummyTexture; }
+    void GetTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture, const std::string& path, bool saveToDisk = false);
+    void GetTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture, const std::string& textureID, TextureBufferInfo& data, bool saveToDisk = false);
+    void GetDummyTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture) const { texture = m_dummyTexture; }
     std::vector<TextureBufferView> ReadBackAllTextures(std::vector<std::byte>& data);
 
     //=========================
@@ -99,8 +99,6 @@ private:
     //=========================
     // Private Methods
     //=========================
-    void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texturePtr, const std::string& path,bool saveToDisk = false);
-    void StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID, TextureBufferInfo& data, bool saveToDisk = false);
     void CreateDefaultAssets();
 
     //=========================
@@ -130,7 +128,7 @@ private:
     //=========================
     // Default Assets
     //=========================
-    std::shared_ptr<VulkanCore::VImage> m_dummyTexture;
+    std::shared_ptr<ApplicationCore::VTextureAsset> m_dummyTexture;
     std::shared_ptr<ApplicationCore::Material> m_dummyMaterial;
     std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_dummyTextures;
     std::unordered_map<EEditorIcon, std::shared_ptr<Material>> m_editorIconsMaterials;

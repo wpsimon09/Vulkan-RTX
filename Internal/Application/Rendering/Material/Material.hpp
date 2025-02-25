@@ -47,7 +47,9 @@ namespace ApplicationCore
         PBRMaterialDescription& GetMaterialDescription() { return m_materialDescription; };
         std::string& GetMaterialName() { return m_materialName; };
         void SetMaterialname(std::string newName) { m_materialName = std::move(newName); };
-        std::shared_ptr<VulkanCore::VImage>& GetTexture(ETextureType type) { return m_textures[type]; }
+        std::shared_ptr<ApplicationCore::VTextureAsset>& GetTexture(ETextureType type) { return m_textures[type]; }
+        ApplicationCore::VTextureAsset* GetTextureRawPtr(ETextureType type) const { return m_textures[type].get(); }
+
         bool& IsTransparent() { return m_transparent; }
         void SetTransparent(bool value) { m_transparent = value; }
         TextureBufferView* GetTextureView() { return &m_textureView; }
@@ -57,7 +59,7 @@ namespace ApplicationCore
 
     private:
         std::string m_materialName;
-        std::array<std::shared_ptr<VulkanCore::VImage>,MAX_TEXTURE_COUNT> m_textures;
+        std::array<std::shared_ptr<ApplicationCore::VTextureAsset>,MAX_TEXTURE_COUNT> m_textures;
         PBRMaterialDescription m_materialDescription;
         MaterialPaths m_materialPaths;
         AssetsManager& m_assetManager;

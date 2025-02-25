@@ -7,6 +7,7 @@
 #include <fastgltf/glm_element_traits.hpp>
 
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Material/MaterialStructs.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
@@ -20,6 +21,7 @@
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 
 namespace ApplicationCore
 {
@@ -38,7 +40,7 @@ namespace ApplicationCore
         std::vector<std::shared_ptr<SceneNode>> m_nodes;
 
         std::vector<std::shared_ptr<StaticMesh>> m_meshes;
-        std::vector<std::shared_ptr<VulkanCore::VImage>> m_textures;
+        std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures;
         std::vector<std::shared_ptr<Material>> materials;
 
         Utils::Logger::LogInfoClient("Loading model from path: " + gltfPath.string());
@@ -107,7 +109,7 @@ namespace ApplicationCore
                     if (textureIndex <= m_textures.size())
                     {
                         material->GetTexture(ETextureType::arm) = m_textures[textureIndex];
-                        material->GetMaterialPaths().ArmMapPath = m_textures[textureIndex]->GetPath();
+                        material->GetMaterialPaths().ArmMapPath = m_textures[textureIndex]->GetAssetPath();
                         material->GetMaterialDescription().features.hasArmTexture = true;
                     }else
                     {
@@ -120,7 +122,7 @@ namespace ApplicationCore
                     if (textureIndex < m_textures.size())
                     {
                         material->GetTexture(ETextureType::Diffues) = m_textures[textureIndex];
-                        material->GetMaterialPaths().DiffuseMapPath = m_textures[textureIndex]->GetPath();
+                        material->GetMaterialPaths().DiffuseMapPath = m_textures[textureIndex]->GetAssetPath();
                         material->GetMaterialDescription().features.hasDiffuseTexture = true;
                     }else
                     {
@@ -133,7 +135,7 @@ namespace ApplicationCore
                     if (textureIndex <= m_textures.size())
                     {
                         material->GetTexture(normal) = m_textures[m.normalTexture.value().textureIndex];
-                        material->GetMaterialPaths().NormalMapPath = m_textures[m.normalTexture.value().textureIndex]->GetPath();
+                        material->GetMaterialPaths().NormalMapPath = m_textures[m.normalTexture.value().textureIndex]->GetAssetPath();
                         material->GetMaterialDescription().features.hasNormalTexture = true;
                     }else
                     {
@@ -333,7 +335,7 @@ namespace ApplicationCore
     }
 
     void GLTFLoader::LoadImage(fastgltf::Asset& asset, std::string parentPath, fastgltf::Image& image,
-                               std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage, bool saveToDisk) const
+                               std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>& imageStorage, bool saveToDisk) const
     {
         std::visit(
             fastgltf::visitor{
@@ -343,7 +345,7 @@ namespace ApplicationCore
 
                 [&](fastgltf::sources::URI& filePath)
                 {
-                    std::shared_ptr<VulkanCore::VImage> loadedTexture;
+                    std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
                     const std::string path(filePath.uri.path().begin(), filePath.uri.path().end());
                     m_assetsManager.GetTexture(loadedTexture, parentPath + "/" + path, saveToDisk);
                     imageStorage.emplace_back(loadedTexture);
@@ -351,7 +353,7 @@ namespace ApplicationCore
 
                 [&](fastgltf::sources::Vector& vector)
                 {
-                    std::shared_ptr<VulkanCore::VImage> loadedTexture;
+                    std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
                     const std::string textureID = VulkanUtils::random_string(4);
                     TextureBufferInfo bufferInfo{};
                     bufferInfo.data = vector.bytes.data();
@@ -375,7 +377,7 @@ namespace ApplicationCore
                                    },
                                    [&](fastgltf::sources::Vector& vector)
                                    {
-                                       std::shared_ptr<VulkanCore::VImage> loadedTexture;
+                                        std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
                                        const std::string textureID = VulkanUtils::random_string(10);
                                        TextureBufferInfo textureBufferInfo{};
                                        textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
@@ -391,7 +393,7 @@ namespace ApplicationCore
                                    },
                                     [&](fastgltf::sources::Array& vector)
                                    {
-                                       std::shared_ptr<VulkanCore::VImage> loadedTexture;
+                                    std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
                                        const std::string textureID = VulkanUtils::random_string(10);
                                        TextureBufferInfo textureBufferInfo{};
                                        textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;

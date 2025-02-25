@@ -133,7 +133,7 @@ void ApplicationCore::GLTFExporter::ParseTexture(fastgltf::Asset &asset, AssetsM
         t.imageIndex = asset.images.size() - 1;   
         asset.textures.push_back(std::move(t)); 
 
-        m_textureToIndex[texture.textureAsset->GetHandle()] = asset.textures.size() - 1;
+        m_textureToIndex[texture.textureAsset] = asset.textures.size() - 1;
 
     }
 
@@ -193,19 +193,19 @@ void ApplicationCore::GLTFExporter::ParseMaterial(fastgltf::Asset &asset, Assets
         auto &materialPaths = mat->GetMaterialPaths();
         if(!materialPaths.NormalMapPath.empty()){
             fastgltf::NormalTextureInfo normalTextureInfo;
-            normalTextureInfo.textureIndex = m_textureToIndex[mat->GetTexture(ETextureType::normal)];
+            normalTextureInfo.textureIndex = m_textureToIndex[mat->GetTextureRawPtr(ETextureType::normal)];
             material.normalTexture = std::move(normalTextureInfo); 
         }
         
         if(!materialPaths.DiffuseMapPath.empty()){
             fastgltf::TextureInfo diffuseTextureInfo;
-            diffuseTextureInfo.textureIndex = m_textureToIndex[mat->GetTexture(ETextureType::Diffues)];
+            diffuseTextureInfo.textureIndex = m_textureToIndex[mat->GetTextureRawPtr(ETextureType::Diffues)];
             material.pbrData.baseColorTexture = std::move(diffuseTextureInfo);
         }
         
         if(!materialPaths.ArmMapPath.empty()){
             fastgltf::TextureInfo armTextureInfo;
-            armTextureInfo.textureIndex = m_textureToIndex[mat->GetTexture(ETextureType::arm)];
+            armTextureInfo.textureIndex = m_textureToIndex[mat->GetTextureRawPtr(ETextureType::arm)];
             material.pbrData.metallicRoughnessTexture = std::move(armTextureInfo);
         }
     

@@ -50,7 +50,7 @@ namespace ApplicationCore {
 
         std::vector<TextureBufferView> m_fetchedTextureViews;
         //TODO: change all VImage to VTexture2DAsset
-        std::unordered_map<std::shared_ptr<VulkanCore::VImage>, int> m_textureToIndex;
+        std::unordered_map<ApplicationCore::VTextureAsset*, int> m_textureToIndex;
         std::unordered_map<std::shared_ptr<Material>, int> m_materialToIndex;
         std::unordered_map<std::shared_ptr<StaticMesh>, int> m_meshToIndex;
         std::unordered_map<std::shared_ptr<SceneNode>, int> m_nodes;

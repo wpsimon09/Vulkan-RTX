@@ -7,6 +7,8 @@
 #include <optional>
 #include <filesystem>
 
+#include "Vulkan/Global/GlobalStructs.hpp"
+
 namespace VulkanCore{
     class VDevice;
 }
@@ -24,7 +26,7 @@ namespace ApplicationCore{
         std::shared_ptr<T>GetHandle() {return m_deviceHandle;}
         T& GetHandleByRef() {return *m_deviceHandle;}
         std::string& GetName() {return m_name;}
-        std::string& GetAssetPath() {return m_name;}
+        std::filesystem::path& GetAssetPath();
         bool IsSavable() {return m_savable;}
         void AllowSave() {m_savable = true;}
         void DisallowSave() {m_savable = false;}
@@ -64,6 +66,16 @@ namespace ApplicationCore{
     inline VAsset<T>::VAsset(const VulkanCore::VDevice &device): m_device(device)
     {
         
+    }
+
+    template <typename T>
+    std::filesystem::path& VAsset<T>::GetAssetPath()
+    {
+        if (m_assetPath.has_value())
+            return m_assetPath.value();
+        else
+            throw std::runtime_error("AssetPath is empty, make sure you are assigning the path in sync function");
+
     }
 }
 

@@ -156,7 +156,9 @@ set(SOURCES
         Internal/Application/AssetsManger/Utils/VAsset.hpp
         Internal/Application/AssetsManger/Utils/VTextureAsset.hpp
         Internal/Application/AssetsManger/Utils/VTextureAsset.cpp
-        )
+        Internal/Vulkan/Utils/VTextureDataManager/VTextureDataManager.cpp
+        Internal/Vulkan/Utils/VTextureDataManager/VTextureDataManager.hpp
+)
 
 
 # Find Vulkan, GLFW, and GLM
@@ -202,7 +204,7 @@ file(COPY ${CMAKE_SOURCE_DIR}/Shaders DESTINATION ${CMAKE_BINARY_DIR})
 
 # Set compile options based on build type
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_options(${TARGET} PRIVtATE ${CFLAGS_RELEASE})
+    target_compile_options(${TARGET} PRIVATE ${CFLAGS_RELEASE})
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(${TARGET} PRIVATE ${CFLAGS_DEBUG})
 endif()

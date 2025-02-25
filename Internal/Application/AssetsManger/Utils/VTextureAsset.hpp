@@ -23,6 +23,7 @@ namespace ApplicationCore {
         void Sync() override;
         void Destroy() override;
         void Load() override;
+
     protected:
         void LoadInternal() override;
         void LoadInternalFromBuffer();
