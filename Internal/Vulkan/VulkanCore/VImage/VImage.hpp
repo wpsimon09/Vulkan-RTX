@@ -203,10 +203,10 @@ namespace VulkanCore
         // execute the recorded commands
         m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue(), transferFinishFence->GetSyncPrimitive());
 
-        if(transferFinishFence->WaitForFence(2'000'000'000) != vk::Result::eSuccess){
-            Utils::Logger::LogError("FATAL ERROR: Fence`s condition was not fullfiled, reseting it now");
-            transferFinishFence->ResetFence();
-        } // 1 sec 
+        if(transferFinishFence->WaitForFence(-1) != vk::Result::eSuccess){
+            throw std::runtime_error("FATAL ERROR: Fence`s condition was not fulfilled...");
+        } // 1 sec
+
 
         m_stagingBufferWithPixelData->DestroyStagingBuffer();
         transferFinishFence->Destroy();

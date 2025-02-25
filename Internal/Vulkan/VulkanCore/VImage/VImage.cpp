@@ -79,16 +79,18 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t mipLevels
 
 }
 
- VulkanCore::VImage::VImage(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData): m_device(device), m_mipLevels(1), m_format(vk::Format::eR16G16B16A16Unorm), m_aspectFlags(vk::ImageAspectFlagBits::eColor), m_samples(vk::SampleCountFlagBits::e1),
+ VulkanCore::VImage::VImage(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData): m_device(device), m_mipLevels(1), m_format(vk::Format::eR8G8B8A8Unorm), m_aspectFlags(vk::ImageAspectFlagBits::eColor), m_samples(vk::SampleCountFlagBits::e1),
  m_imageUsage(vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferSrc)
  {
     m_isSwapChainImage = false;
+    m_isDepthBuffer = false;
     m_transferCommandBuffer = std::make_unique<VCommandBuffer>(m_device,m_device.GetSingleThreadCommandPool());
 
     // resize is called later so this is correct, i just didn`t want to bloat the constructor arguments
     m_width = imageData.widht;
     m_height = imageData.height;
-    
+
+    AllocateImage(0);
     FillWithImageData<uint32_t>(imageData, true);
     GenerateImageView();
  }

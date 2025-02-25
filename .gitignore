@@ -15,4 +15,6 @@ CMakeUserPresets.json
 /Shaders/Compiled
 .cache
 /cache
-.vscode 
+.vscode
+/build-min-size
+/release

@@ -13,6 +13,7 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
     m_mipLevels = 1;
     m_savable = m_textureAssetType == ETextureAssetType::EditorBillboard ? false : true;
     m_textureSource = EImageSource::File;
+    m_assetPath = texturePath;
 
     VTextureAsset::Load();
 }
@@ -26,6 +27,7 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
     m_mipLevels = 1;
     m_savable = m_textureAssetType == ETextureAssetType::EditorBillboard ? false : true;
     m_textureSource = EImageSource::Buffer;
+    m_assetPath = bufferInfo.textureID;
 
     VTextureAsset::Load();
     
@@ -40,7 +42,9 @@ void ApplicationCore::VTextureAsset::Sync()
         m_isInSync = true;
         m_deviceHandle->Destroy();
         auto imageData = m_loadedImageData.get();
+        m_assetPath = imageData.fileName;
         m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device,imageData);
+        m_device.GetDevice().waitIdle();
     }
 }
 
