@@ -192,7 +192,7 @@ namespace ApplicationCore
 
     void AssetsManager::CreateDefaultAssets()
     {
-        m_dummyTexture = std::make_shared<VulkanCore::VImage>(m_device);
+        m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device, ETextureAssetType::Texture, "Resources/DefaultTexture.jpg" );
 
         MaterialPaths paths{};
         m_dummyMaterial = std::make_shared<ApplicationCore::Material>(paths, *this);
