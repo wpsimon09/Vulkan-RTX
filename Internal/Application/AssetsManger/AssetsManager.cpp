@@ -290,6 +290,7 @@ namespace ApplicationCore
                 textureView.path = texture.first;
                 textureView.size = texture.second->GetHandle()->GetSize();
                 views.emplace_back(textureView);
+                textureView.textureAsset = texture.second.get();
                 
             }
         }

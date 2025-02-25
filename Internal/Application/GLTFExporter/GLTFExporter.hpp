@@ -2,6 +2,7 @@
 #define GLTFEXPORTER_HPP
 
 #include "fastgltf/types.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include <filesystem>
 
 #include <vector>
@@ -10,6 +11,7 @@ namespace fastgltf
 {
     struct Node;
 }
+
 
 template<typename T>
 struct GLTFResource{
@@ -47,7 +49,8 @@ namespace ApplicationCore {
         std::filesystem::path m_textureDirectory;
 
         std::vector<TextureBufferView> m_fetchedTextureViews;
-        std::unordered_map<std::string, int> m_textureToIndex;
+        //TODO: change all VImage to VTexture2DAsset
+        std::unordered_map<std::shared_ptr<VulkanCore::VImage>, int> m_textureToIndex;
         std::unordered_map<std::shared_ptr<Material>, int> m_materialToIndex;
         std::unordered_map<std::shared_ptr<StaticMesh>, int> m_meshToIndex;
         std::unordered_map<std::shared_ptr<SceneNode>, int> m_nodes;

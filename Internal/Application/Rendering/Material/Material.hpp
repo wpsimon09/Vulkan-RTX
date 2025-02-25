@@ -23,17 +23,18 @@ namespace VulkanCore
 }
 
 
-
 inline int MaterialIndexCounter = 0;
 
 namespace ApplicationCore
 {
+    struct VTextureAsset;
     struct TextureBufferView{
         size_t offset;
         size_t size;
         int widht, height;
         int materialIndex = -1;
         std::string path;
+        ApplicationCore::VTextureAsset* textureAsset;
     }; 
 
     class AssetsManager;

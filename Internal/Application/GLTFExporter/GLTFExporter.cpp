@@ -8,7 +8,8 @@
 #include <Application/AssetsManger/AssetsManager.hpp>
 #include <Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp>
 #include <Application/Utils/MathUtils.hpp>
-
+#include <Application/AssetsManger/Utils/VTextureAsset.hpp>
+#include <Vulkan/VulkanCore/VImage/VImage.hpp>
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 
 void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scene& scene,
@@ -151,7 +152,7 @@ void ApplicationCore::GLTFExporter::ParseTexture(fastgltf::Asset &asset, AssetsM
         fastgltf::Texture t;
         t.imageIndex = asset.images.size() - 1;   
         
-        m_textureToIndex[texture.path] = asset.textures.size() - 1;
+        m_textureToIndex[texture.textureAsset->GetHandle()] = asset.textures.size() - 1;
         asset.textures.push_back(std::move(t)); 
 
     }
@@ -212,19 +213,19 @@ void ApplicationCore::GLTFExporter::ParseMaterial(fastgltf::Asset &asset, Assets
         auto &materialPaths = mat->GetMaterialPaths();
         if(!materialPaths.NormalMapPath.empty()){
             fastgltf::NormalTextureInfo normalTextureInfo;
-            normalTextureInfo.textureIndex = m_textureToIndex[mat->GetMaterialPaths().NormalMapPath];
+            normalTextureInfo.textureIndex = m_textureToIndex[mat->GetTexture(ETextureType::normal)];
             material.normalTexture = std::move(normalTextureInfo); 
         }
         
         if(!materialPaths.DiffuseMapPath.empty()){
             fastgltf::TextureInfo diffuseTextureInfo;
-            diffuseTextureInfo.textureIndex = m_textureToIndex[mat->GetMaterialPaths().DiffuseMapPath];
+            diffuseTextureInfo.textureIndex = m_textureToIndex[mat->GetTexture(ETextureType::Diffues)];
             material.pbrData.baseColorTexture = std::move(diffuseTextureInfo);
         }
         
         if(!materialPaths.ArmMapPath.empty()){
             fastgltf::TextureInfo armTextureInfo;
-            armTextureInfo.textureIndex = m_textureToIndex[mat->GetMaterialPaths().ArmMapPath];
+            armTextureInfo.textureIndex = m_textureToIndex[mat->GetTexture(ETextureType::arm)];
             material.pbrData.metallicRoughnessTexture = std::move(armTextureInfo);
         }
     

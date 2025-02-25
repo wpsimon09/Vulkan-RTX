@@ -12,7 +12,6 @@
 
 namespace VulkanCore {
     class VDevice;
-
     template<class  T>
     class VSyncPrimitive:public VObject {
     public:
