@@ -44,7 +44,9 @@ namespace VulkanStructs
                 throw std::invalid_argument("Wrong image format supplied, supported formats are float and uint32_t");
         }
         void Clear() const {
-            stbi_image_free(pixels);
+            if(pixels && EImageSource::File){
+                stbi_image_free(pixels);
+            }
         }
     };
 

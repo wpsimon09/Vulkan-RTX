@@ -59,7 +59,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice &device, uint32_t mipLevels
         dummyImageData.height = 1;
         dummyImageData.widht = 1;
 
-        uint32_t dummyPixels[] = { 0xFFFF69B4, 0xFFFFFFF };
+        uint32_t* dummyPixels =new uint32_t[]{ 0xFFFF69B4, 0xFFFFFFF };
         // dummy data for pink color if proper image is not loaded yet
         dummyImageData.pixels = dummyPixels;
         FillWithImageData<uint32_t>(dummyImageData, true);

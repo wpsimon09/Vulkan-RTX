@@ -3,6 +3,7 @@
 //
 #include "ModelManagmentUtils.hpp"
 
+#include <cstdint>
 #include <stb_image/stb_image_write.h>
 #include <stb_image/stb_image.h>
 
@@ -65,7 +66,7 @@ namespace ApplicationCore
         {
 
             if (
-                (imageData.pixels = reinterpret_cast<uint32_t *>(stbi_load_from_memory(reinterpret_cast<stbi_uc const *>(data.data), static_cast<int>(data.size), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha))))
+                (imageData.pixels = reinterpret_cast<uint32_t *>(stbi_load_from_memory(reinterpret_cast<stbi_uc *>(data.data), static_cast<int>(data.size), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha))))
             {
                 imageData.channels = 4;
                 imageData.sourceType = EImageSource::Buffer;
