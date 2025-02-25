@@ -43,6 +43,8 @@ namespace VulkanCore
                         vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor,
                         std::optional<vk::ImageUsageFlags> imageUsage = std::nullopt,
                         vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1);
+                        
+        explicit VImage(const VulkanCore::VDevice& device, VulkanStructs::ImageData<>& imageData);
 
         void Resize(uint32_t newWidth, uint32_t newHeight) ;
 

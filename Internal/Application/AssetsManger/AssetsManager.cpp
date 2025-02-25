@@ -112,40 +112,25 @@ namespace ApplicationCore
         return std::make_shared<StaticMesh>(data, m_dummyMaterial);
     }
 
-    void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& path, bool saveToDisk)
+    void AssetsManager::GetTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture, const std::string& path, bool saveToDisk)
     {
         
         if (!m_textures2.contains(path)){
             m_textures2[path] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, ETextureAssetType::Texture, path);
         }
 
-        texture = m_textures2[path]->GetHandle();
+        texture = m_textures2[path];
     }
 
-    void AssetsManager::GetTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID,
+    void AssetsManager::GetTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture, const std::string& textureID,
                                    TextureBufferInfo& data, bool saveToDisk)
     {
-        // texture ID is a randomly generated string that is used to look up textures of which only data are available and no paths
-        // this will most likely be used only within the editor that I plan to build in future
-        // std::lock_guard<std::mutex> lock(m_mutex);
-        // if (!m_textures.contains(textureID))
-        // {
-        //     if (!m_texturesToLoad.contains(textureID))
-        //     {
-        //         StartLoadingTexture(texture, textureID, data, saveToDisk);
-        //         m_textures[textureID] = std::make_shared<VulkanCore::VImage>(m_device);
-        //         m_textures[textureID]->SetPath(textureID);
-        //         m_textures[textureID]->SetSavable(saveToDisk);
-
-        //     }
-        // }
-        // texture = m_textures[textureID];
 
         if (!m_textures2.contains(data.textureID)){
             m_textures2[data.textureID] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, ETextureAssetType::Texture, data);
         }
 
-        texture = m_textures2[data.textureID]->GetHandle();
+        texture = m_textures2[data.textureID];
     }
 
 
@@ -203,26 +188,6 @@ namespace ApplicationCore
         }
         Utils::Logger::LogInfoVerboseRendering("Nothing to sync...");
         return false;
-    }
-
-
-    void AssetsManager::StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texturePtr, const std::string& path, bool saveToDisk)
-    {
-        auto texture = std::async([this, path, saveToDisk]()
-        {
-            return LoadImage(path, saveToDisk);
-        });
-        m_texturesToLoad[path] = std::move(texture);
-    }
-
-    void AssetsManager::StartLoadingTexture(std::shared_ptr<VulkanCore::VImage>& texture, const std::string& textureID,
-                                            TextureBufferInfo& data, bool saveToDisk)
-    {
-        auto txt = std::async([this, textureID, data, saveToDisk]()
-        {
-            return LoadImage(data, textureID, saveToDisk);
-        });
-        m_texturesToLoad[textureID] = std::move(txt);
     }
 
     void AssetsManager::CreateDefaultAssets()

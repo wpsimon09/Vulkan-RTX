@@ -38,11 +38,8 @@ void ApplicationCore::VTextureAsset::Sync()
         
     if(m_loadedImageData.wait_for(std::chrono::seconds(0)) == std::future_status::ready){    
         m_isInSync = true;
-        auto data = m_loadedImageData.get();
-        m_width = data.widht;
-        m_height = data.height;
-        m_assetPath = data.fileName;
-        m_deviceHandle->FillWithImageData<>(data, true, true);   
+        m_deviceHandle->Destroy();
+        m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device, m_loadedImageData.get());
     }
 }
 

@@ -40,7 +40,7 @@ private:
     ApplicationCore::AssetsManager& m_assetsManager;
 private:
     void PostLoadClear();
-    void LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image, std::vector<std::shared_ptr<VulkanCore::VImage>>& imageStorage, bool saveToDisk = true) const ;
+    void LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image, std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>& imageStorage, bool saveToDisk = true) const ;
 };
 
 } // ApplicationCore
