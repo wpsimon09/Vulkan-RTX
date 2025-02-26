@@ -86,12 +86,6 @@ void ApplicationCore::GLTFExporter::ParseBuffers(fastgltf::Asset &asset, AssetsM
         indices.insert(indices.end(), buffer.data.begin(), buffer.data.end());        
     }
 
-    
-    // m_fetchedTextureViews = std::move(assetsManager.ReadBackAllTextures(imageData));
-    // m_textureBuffer.byteLength = imageData.size() * sizeof(std::byte);
-    // m_textureBuffer.data = fastgltf::sources::Vector{imageData};
-    // m_textureBuffer.name = "Texture buffers";
-
     m_vertexBuffer.byteLength = vertices.size() * sizeof(Vertex);
     std::vector<std::byte> vertexBufferVector(reinterpret_cast<std::byte*>(vertices.data()), reinterpret_cast<std::byte*>(vertices.data()) + m_vertexBuffer.byteLength);
     if (reinterpret_cast<uintptr_t>(vertices.data()) % alignof(float) != 0) {

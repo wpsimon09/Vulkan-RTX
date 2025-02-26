@@ -12,7 +12,7 @@
 
 namespace VEditor {
 
-    ModelImportOptions::ModelImportOptions(std::filesystem::path* path, const ApplicationCore::GLTFLoader& gltfLoader, const ApplicationCore::Scene& scene): m_gltfLoader(gltfLoader), m_scene(scene), m_path(path)
+    ModelImportOptions::ModelImportOptions(std::filesystem::path* path, const ApplicationCore::GLTFLoader& gltfLoader, const ApplicationCore::Scene& scene): m_gltfLoader(gltfLoader), m_scene(scene), m_path(path), m_options{}
     {
     }
 
@@ -20,24 +20,47 @@ namespace VEditor {
     {
         if (ImGui::BeginPopupModal(ICON_FA_TOOLBOX" Import options"))
         {
-            auto path = "Mode: "+m_path->string().rfind('/', m_path->string().size()-1);
-            ImGui::Text(path);
+            auto path = "Model name: "+m_path->string().substr(m_path->string().rfind('/', m_path->string().size()-1));
+            ImGui::Text(path.c_str());
 
-            ImGui::SameLine();
+            ImGui::Checkbox("Import materials", &m_options.importMaterials);
+            ImGui::Checkbox("Import only materials", &m_options.importOnlyMaterials);
+            ImGui::DragFloat("Uniform scale", &m_options.uniformScale, 1.0f, 1.0f);
+
 
             if (ImGui::Button("Import")){
-                const auto loadedNodes = m_gltfLoader.LoadGLTFScene(*m_path);
-                for (const auto& scene_node : loadedNodes)
+                ImGui::OpenPopup("Importing");
+
+                if (ImGui::BeginPopupModal("Importing"))
                 {
-                    m_scene.AddNode(scene_node);
+                    ImGui::Text("Importing, please wait");
+
+                    ImGui::EndPopup();
+
+                    const auto loadedNodes = m_gltfLoader.LoadGLTFScene(*m_path, m_options);
+                    for (const auto& scene_node : loadedNodes)
+                    {
+                        m_scene.AddNode(scene_node);
+                    }
+
+                    ImGui::CloseCurrentPopup();
                 }
                 ImGui::CloseCurrentPopup();
             };
+
+            ImGui::SameLine();
+
+
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
 
             if (ImGui::Button("Cancel"))
             {
                 ImGui::CloseCurrentPopup();
             }
+
+            ImGui::PopStyleColor(3);
 
             ImGui::EndPopup();
         }

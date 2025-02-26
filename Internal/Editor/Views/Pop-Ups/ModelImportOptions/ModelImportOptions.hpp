@@ -5,6 +5,8 @@
 #ifndef MODELIMPORTOPTIONS_HPP
 #define MODELIMPORTOPTIONS_HPP
 #include <filesystem>
+
+#include "Application/GLTFLoader/GltfLoader.hpp"
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
 namespace ApplicationCore
@@ -26,6 +28,7 @@ private:
     const ApplicationCore::GLTFLoader& m_gltfLoader;
     const ApplicationCore::Scene& m_scene;
     std::filesystem::path* m_path;
+    ApplicationCore::ImportOptions m_options;
 };
 
 } // VEditor

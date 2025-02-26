@@ -31,9 +31,8 @@ namespace ApplicationCore
         Utils::Logger::LogSuccess("Crated GLTFLoader !");
     }
 
-    std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath) const
+    std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath,  const ImportOptions& importOptions) const
     {
-        m_assetsManager.m_device.GetDevice().waitIdle();
         // temp data
         std::shared_ptr<SceneNode> m_rootNode;
         std::vector<std::shared_ptr<SceneNode>> m_topNodes;
@@ -79,82 +78,99 @@ namespace ApplicationCore
             //==============================================================
             // TEXTURE LOADING
             //==============================================================
-            for (auto& image : gltf.images)
+            if (importOptions.importMaterials)
             {
-                LoadImage(gltf, gltfPath.parent_path(), image, m_textures, true);
-            }
+                for (auto& image : gltf.images)
+                {
+                    LoadImage(gltf, gltfPath.parent_path(), image, m_textures, true);
+                }
 
-            m_assetsManager.Sync();
+                m_assetsManager.Sync();
 
-            //==============================================================
-            // MATERIAL
-            //==============================================================
-            for (fastgltf::Material& m : gltf.materials)
+                //==============================================================
+                // MATERIAL
+                //==============================================================
+
+                for (fastgltf::Material& m : gltf.materials)
+                {
+                    MaterialPaths paths = {.saveToDisk = true};
+                    std::shared_ptr<Material> material = std::make_shared<
+                        ApplicationCore::Material>(paths, m_assetsManager);
+                    material->SetSavable(true);
+                    material->GetMaterialDescription().values.diffuse.x = m.pbrData.baseColorFactor.x();
+                    material->GetMaterialDescription().values.diffuse.y = m.pbrData.baseColorFactor.y();
+                    material->GetMaterialDescription().values.diffuse.z = m.pbrData.baseColorFactor.z();
+                    material->GetMaterialDescription().values.diffuse.a = m.pbrData.baseColorFactor.w();
+
+                    material->GetMaterialDescription().values.metalness = m.pbrData.metallicFactor;
+                    material->GetMaterialDescription().values.roughness = m.pbrData.roughnessFactor;
+
+
+
+                    if (m.pbrData.metallicRoughnessTexture.has_value())
+                    {
+                        auto &textureIndex = m.pbrData.metallicRoughnessTexture.value().textureIndex;
+                        if (textureIndex <= m_textures.size())
+                        {
+                            material->GetTexture(ETextureType::arm) = m_textures[textureIndex];
+                            material->GetMaterialPaths().ArmMapPath = m_textures[textureIndex]->GetAssetPath();
+                            material->GetMaterialDescription().features.hasArmTexture = true;
+                        }else
+                        {
+                            material->GetMaterialDescription().features.hasArmTexture = false;
+                        }
+                    }
+                    if (m.pbrData.baseColorTexture.has_value())
+                    {
+                        auto& textureIndex = m.pbrData.baseColorTexture.value().textureIndex;
+                        if (textureIndex < m_textures.size())
+                        {
+                            material->GetTexture(ETextureType::Diffues) = m_textures[textureIndex];
+                            material->GetMaterialPaths().DiffuseMapPath = m_textures[textureIndex]->GetAssetPath();
+                            material->GetMaterialDescription().features.hasDiffuseTexture = true;
+                        }else
+                        {
+                            material->GetMaterialDescription().features.hasDiffuseTexture = false;
+                        }
+                    }
+                    if (m.normalTexture.has_value())
+                    {
+                        auto& textureIndex = m.normalTexture.value().textureIndex;
+                        if (textureIndex <= m_textures.size())
+                        {
+                            material->GetTexture(normal) = m_textures[m.normalTexture.value().textureIndex];
+                            material->GetMaterialPaths().NormalMapPath = m_textures[m.normalTexture.value().textureIndex]->GetAssetPath();
+                            material->GetMaterialDescription().features.hasNormalTexture = true;
+                        }else
+                        {
+                            material->GetMaterialDescription().features.hasNormalTexture = false;
+                        }
+                    }
+                    material->SetMaterialname(std::string(m.name) + "##" +VulkanUtils::random_string(4));
+
+                    material->SetTransparent(m.alphaMode == fastgltf::AlphaMode::Blend);
+                    materials.emplace_back(material);
+                    m_assetsManager.m_materials.emplace_back(material);
+                }
+
+            }else
             {
+
                 MaterialPaths paths = {.saveToDisk = true};
                 std::shared_ptr<Material> material = std::make_shared<
                     ApplicationCore::Material>(paths, m_assetsManager);
-                material->SetSavable(true);
-                material->GetMaterialDescription().values.diffuse.x = m.pbrData.baseColorFactor.x();
-                material->GetMaterialDescription().values.diffuse.y = m.pbrData.baseColorFactor.y();
-                material->GetMaterialDescription().values.diffuse.z = m.pbrData.baseColorFactor.z();
-                material->GetMaterialDescription().values.diffuse.a = m.pbrData.baseColorFactor.w();
-
-                material->GetMaterialDescription().values.metalness = m.pbrData.metallicFactor;
-                material->GetMaterialDescription().values.roughness = m.pbrData.roughnessFactor;
-
-
-
-                if (m.pbrData.metallicRoughnessTexture.has_value())
-                {
-                    auto &textureIndex = m.pbrData.metallicRoughnessTexture.value().textureIndex;
-                    if (textureIndex <= m_textures.size())
-                    {
-                        material->GetTexture(ETextureType::arm) = m_textures[textureIndex];
-                        material->GetMaterialPaths().ArmMapPath = m_textures[textureIndex]->GetAssetPath();
-                        material->GetMaterialDescription().features.hasArmTexture = true;
-                    }else
-                    {
-                        material->GetMaterialDescription().features.hasArmTexture = false;
-                    }
-                }
-                if (m.pbrData.baseColorTexture.has_value())
-                {
-                    auto& textureIndex = m.pbrData.baseColorTexture.value().textureIndex;
-                    if (textureIndex < m_textures.size())
-                    {
-                        material->GetTexture(ETextureType::Diffues) = m_textures[textureIndex];
-                        material->GetMaterialPaths().DiffuseMapPath = m_textures[textureIndex]->GetAssetPath();
-                        material->GetMaterialDescription().features.hasDiffuseTexture = true;
-                    }else
-                    {
-                        material->GetMaterialDescription().features.hasDiffuseTexture = false;
-                    }
-                }
-                if (m.normalTexture.has_value())
-                {
-                    auto& textureIndex = m.normalTexture.value().textureIndex;
-                    if (textureIndex <= m_textures.size())
-                    {
-                        material->GetTexture(normal) = m_textures[m.normalTexture.value().textureIndex];
-                        material->GetMaterialPaths().NormalMapPath = m_textures[m.normalTexture.value().textureIndex]->GetAssetPath();
-                        material->GetMaterialDescription().features.hasNormalTexture = true;
-                    }else
-                    {
-                        material->GetMaterialDescription().features.hasNormalTexture = false;
-                    }
-                }
-                material->SetMaterialname(std::string(m.name) + "##" +VulkanUtils::random_string(4));
-                
-                material->SetTransparent(m.alphaMode == fastgltf::AlphaMode::Blend);
                 materials.emplace_back(material);
                 m_assetsManager.m_materials.emplace_back(material);
+
             }
 
             //==============================================================
             // MESHES LOADING
             //==============================================================
-
+            if (importOptions.importOnlyMaterials)
+            {
+                return {};
+            }
             // temporal data that will hold everything
             std::vector<uint32_t> indices;
             std::vector<Vertex> vertices;
@@ -175,6 +191,10 @@ namespace ApplicationCore
 
                 for (auto& p : m.primitives)
                 {
+                    if (!importOptions.importMaterials)
+                    {
+                        p.materialIndex = 0; // first element in materials array
+                    }
                     if (p.materialIndex.has_value())
                     {
                         mat = materials[p.materialIndex.value()];
@@ -299,7 +319,7 @@ namespace ApplicationCore
 
                     Transformations transformations(
                         glm::vec3(transform->translation.x(), transform->translation.y(), transform->translation.z()),
-                        glm::vec3(1.0f),
+                        glm::vec3(1.0f * importOptions.uniformScale),
                         MathUtils::QuaternionToEuler(transform->rotation));
                     newNode->SetLocalTransform(transformations);
                 }

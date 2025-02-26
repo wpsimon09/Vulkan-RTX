@@ -27,11 +27,19 @@ class StaticMesh;
 
 class SceneNode;
 
+struct ImportOptions
+{
+    bool importMaterials = true;
+    bool importOnlyMaterials = false;
+
+    float uniformScale = 1.0f;
+};
+
 class GLTFLoader {
 public:
     explicit GLTFLoader(ApplicationCore::AssetsManager& assetsManager);
 
-    std::vector<std::shared_ptr<SceneNode>> LoadGLTFScene(std::filesystem::path gltfPath) const;
+    std::vector<std::shared_ptr<SceneNode>> LoadGLTFScene(std::filesystem::path gltfPath, const ImportOptions& importOptions ) const;
 
     ~GLTFLoader() = default;
 
