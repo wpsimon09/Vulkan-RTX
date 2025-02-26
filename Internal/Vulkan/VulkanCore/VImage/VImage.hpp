@@ -156,61 +156,61 @@ namespace VulkanCore
     };
 
     template <typename T>
-    void VImage::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, bool transitionToShaderReadOnly,
-        bool destroyCurrentImage)
-    {
-
-        if(!imageData.pixels){
-            Utils::Logger::LogError("Image pixel data are corrupted ! ");
-            return;
-        }
-        
-        if(destroyCurrentImage)
+        void VImage::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, bool transitionToShaderReadOnly,
+            bool destroyCurrentImage)
         {
-            Resize(imageData.widht, imageData.height);
-        }
-        m_path = imageData.fileName;
-        m_width = imageData.widht;
-        m_height = imageData.height;
-        m_imageSource = imageData.sourceType;
 
-        //m_device.DeviceMutex.lock();
-        auto transferFinishFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
-        m_transferCommandBuffer->BeginRecording();
-        // copy pixel data to the staging buffer
-        Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
+            if(!imageData.pixels){
+                Utils::Logger::LogError("Image pixel data are corrupted ! ");
+                return;
+            }
 
-        m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE STAGING BUFFER ==>" + m_path);
-        m_stagingBufferWithPixelData->CreateStagingBuffer(imageData.GetSize());
+            if(destroyCurrentImage)
+            {
+                Resize(imageData.widht, imageData.height);
+            }
+            m_path = imageData.fileName;
+            m_width = imageData.widht;
+            m_height = imageData.height;
+            m_imageSource = imageData.sourceType;
 
-        memcpy(m_stagingBufferWithPixelData->MapStagingBuffer(), imageData.pixels, imageData.GetSize());
-        m_stagingBufferWithPixelData->UnMapStagingBuffer();
+            //m_device.DeviceMutex.lock();
+            auto transferFinishFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
+            m_transferCommandBuffer->BeginRecording();
+            // copy pixel data to the staging buffer
+            Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
 
-        Utils::Logger::LogInfoVerboseOnly("Image data copied");
+            m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE STAGING BUFFER ==>" + m_path);
+            m_stagingBufferWithPixelData->CreateStagingBuffer(imageData.GetSize());
 
-        // transition image to the transfer dst optimal layout so that data can be copied to it
-        TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-        CopyFromBufferToImage();
+            memcpy(m_stagingBufferWithPixelData->MapStagingBuffer(), imageData.pixels, imageData.GetSize());
+            m_stagingBufferWithPixelData->UnMapStagingBuffer();
 
-        if(!transitionToShaderReadOnly) {
-            Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is false, this image will remain in Dst copy layout !");
-            m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
-            return;
-        }
-        Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is true, executing transition...");
-        TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+            Utils::Logger::LogInfoVerboseOnly("Image data copied");
 
-        // execute the recorded commands
-        m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue(), transferFinishFence->GetSyncPrimitive());
+            // transition image to the transfer dst optimal layout so that data can be copied to it
+            TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+            CopyFromBufferToImage();
 
-        if(transferFinishFence->WaitForFence(-1) != vk::Result::eSuccess){
-            throw std::runtime_error("FATAL ERROR: Fence`s condition was not fulfilled...");
-        } // 1 sec
+            if(!transitionToShaderReadOnly) {
+                Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is false, this image will remain in Dst copy layout !");
+                m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+                return;
+            }
+            Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is true, executing transition...");
+            TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+
+            // execute the recorded commands
+            m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue(), transferFinishFence->GetSyncPrimitive());
+
+            if(transferFinishFence->WaitForFence(-1) != vk::Result::eSuccess){
+                throw std::runtime_error("FATAL ERROR: Fence`s condition was not fulfilled...");
+            } // 1 sec
 
 
-        m_stagingBufferWithPixelData->DestroyStagingBuffer();
-        transferFinishFence->Destroy();
-        imageData.Clear();
+            m_stagingBufferWithPixelData->DestroyStagingBuffer();
+            transferFinishFence->Destroy();
+            imageData.Clear();
     }
 }
 

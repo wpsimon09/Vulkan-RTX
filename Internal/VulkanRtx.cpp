@@ -168,9 +168,6 @@ void Application::Update()
 }
 
 void Application::Render() {
-    // generate draw calls
-    m_client->GetAssetsManager().Sync();
-    m_vulkanDevice->GetDevice().waitIdle();
 
     m_client->Render(m_renderingSystem->GetRenderContext());
 
