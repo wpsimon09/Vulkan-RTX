@@ -11,6 +11,7 @@
 #include "Application/Logger/Logger.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/UIContext/UIContext.hpp"
+#include "Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.hpp"
 #include "FileExplorer/FileExplorer.hpp"
 
 namespace VEditor {

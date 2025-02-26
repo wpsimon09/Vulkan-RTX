@@ -4,8 +4,11 @@
 
 #include "FileExplorer.hpp"
 
+#include <IconsFontAwesome6.h>
+
 #include "Application/GLTFLoader/GltfLoader.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
+#include "Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.hpp"
 #include "ImGuiFileDialog/ImGuiFileDialog.h"
 #include "imgui/imgui.h"
 
@@ -13,6 +16,8 @@ namespace VEditor {
 
     FileExplorer::FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader, const ApplicationCore::Scene& scene): m_scene(scene), m_gltfLoader(gltfLoader)
     {
+        auto importSettingsPopup = std::make_unique<VEditor::ModelImportOptions>(&m_filePath, gltfLoader, scene) ;
+        m_uiChildren.emplace_back(std::move(importSettingsPopup));
     }
 
     std::filesystem::path* FileExplorer::OpenForSceneImport()
@@ -42,16 +47,16 @@ namespace VEditor {
         if (ImGuiFileDialog::Instance()->Display("SelectModelKey")) {
             if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
                 m_filePath = ImGuiFileDialog::Instance()->GetFilePathName();
-                const auto loadedNodes = m_gltfLoader.LoadGLTFScene(m_filePath);
+                /*const auto loadedNodes = m_gltfLoader.LoadGLTFScene(m_filePath);
                 for (const auto& scene_node : loadedNodes)
                 {
                     m_scene.AddNode(scene_node);
-                }
+                }*/
+                ImGui::OpenPopup(ICON_FA_TOOLBOX" Import options");
             }
 
             // close
             ImGuiFileDialog::Instance()->Close();
-
         }
 
         if (ImGuiFileDialog::Instance()->Display("SelectMaterialKey")) {

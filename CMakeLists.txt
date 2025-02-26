@@ -158,6 +158,8 @@ set(SOURCES
         Internal/Application/AssetsManger/Utils/VTextureAsset.cpp
         Internal/Vulkan/Utils/VTextureDataManager/VTextureDataManager.cpp
         Internal/Vulkan/Utils/VTextureDataManager/VTextureDataManager.hpp
+        Internal/Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.cpp
+        Internal/Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.hpp
 )
 
 

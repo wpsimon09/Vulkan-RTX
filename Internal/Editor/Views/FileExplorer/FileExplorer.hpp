@@ -8,6 +8,11 @@
 
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
+namespace VEditor
+{
+    class ModelImportOptions;
+}
+
 namespace ApplicationCore
 {
     class GLTFLoader;
@@ -37,6 +42,7 @@ private:
     const ApplicationCore::Scene& m_scene;
     const ApplicationCore::GLTFLoader& m_gltfLoader;
     std::filesystem::path m_filePath;
+    std::unique_ptr<VEditor::ModelImportOptions> m_importOptions;
 };
 
 } // VEditor

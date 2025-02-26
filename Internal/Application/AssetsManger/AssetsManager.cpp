@@ -236,6 +236,7 @@ namespace ApplicationCore
         ltcTexture->FillWithImageData<float>(MathUtils::LTCInverse_ImageData);
         MathUtils::LUT.LTCInverse = std::move(ltcTexture);
 
+        Sync();
     }
     
     std::vector<TextureBufferView> AssetsManager::ReadBackAllTextures(std::vector<std::byte>& data)

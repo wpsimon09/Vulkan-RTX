@@ -12,7 +12,7 @@ namespace VEditor {
 
     class MenuBar: public IUserInterfaceElement {
 public:
-    MenuBar(Editor* editor);
+    explicit MenuBar(Editor* editor);
     void Resize(int newWidth, int newHeight) override;
     void Render() override;
     void Update() override;
