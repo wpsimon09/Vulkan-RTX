@@ -1,0 +1,33 @@
+//
+// Created by wpsimon09 on 26/02/25.
+//
+
+#ifndef SETTINGS_HPP
+#define SETTINGS_HPP
+#include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
+
+class Client;
+
+namespace VEditor {
+    class Editor;
+
+    class Settings:public IUserInterfaceElement {
+public:
+    Settings(Client& client, Editor* editor);
+
+    void Render() override;
+    void Resize(int newWidth, int newHeight) override;
+    void Update() override;
+
+private:
+    void RenderEngineSettings();
+    void RenderApplicationSettings();
+    void RenderEditorSettings();
+
+    Client& m_client;
+    Editor* m_editor;
+};
+
+} // VEditor
+
+#endif //SETTINGS_HPP

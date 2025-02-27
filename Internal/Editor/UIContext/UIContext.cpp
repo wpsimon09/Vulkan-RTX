@@ -22,7 +22,7 @@ namespace VEditor
     UIContext::UIContext(const VulkanCore::VDevice& device,
                          const VulkanCore::VulkanInstance& instance,
                          WindowManager& windowManager,
-                         const Client& client
+                         Client& client
     ): m_device(device), m_instance(instance), m_windowManager(windowManager),  m_client(client)
     {
         m_io = nullptr;

@@ -44,9 +44,9 @@ public:
 
     glm::vec2 GetCameraPlaneWidthAndHeight() const;
 
-    float GetFarPlane() const {return this->m_farPlane;}
+    float& GetFarPlane()  {return this->m_farPlane;}
 
-    float GetNearPlane() const {return this->m_nearPlane;}
+    float& GetNearPlane()  {return this->m_nearPlane;}
 
     void Update(CameraUpdateInfo& cameraUpdateInfo);
 

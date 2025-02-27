@@ -30,10 +30,6 @@ struct DesiredDeviceFeatures
             Utils::Logger::LogInfoVerboseOnly("Device does not supports presentation");
             return false;
         }
-        if(!VulkanUtils::DoesDeviceSupportPresentation(surface, physicalDevice)) {
-            Utils::Logger::LogInfoVerboseOnly("Device does not supports presentation");
-            return false;
-        }
 
         Utils::Logger::LogInfoVerboseOnly("Device has passed all the checks");
         return true;
@@ -54,6 +50,8 @@ namespace GlobalVariables::GlobalStructs
     inline DesiredDeviceFeatures secondaryDeviceFeatures = {
         .deviceType = vk::PhysicalDeviceType::eIntegratedGpu,
         .deviceFeatures = vk::PhysicalDeviceFeatures{}
+                        .setSamplerAnisotropy(VK_TRUE),
+
     };
 
     inline vk::PhysicalDeviceProperties GpuProperties = {};

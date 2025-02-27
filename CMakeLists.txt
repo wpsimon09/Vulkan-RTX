@@ -160,6 +160,8 @@ set(SOURCES
         Internal/Vulkan/Utils/VTextureDataManager/VTextureDataManager.hpp
         Internal/Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.cpp
         Internal/Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.hpp
+        Internal/Editor/Views/Settings/Settings.cpp
+        Internal/Editor/Views/Settings/Settings.hpp
 )
 
 

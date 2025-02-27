@@ -47,11 +47,7 @@ namespace VEditor {
         if (ImGuiFileDialog::Instance()->Display("SelectModelKey")) {
             if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
                 m_filePath = ImGuiFileDialog::Instance()->GetFilePathName();
-                /*const auto loadedNodes = m_gltfLoader.LoadGLTFScene(m_filePath);
-                for (const auto& scene_node : loadedNodes)
-                {
-                    m_scene.AddNode(scene_node);
-                }*/
+
                 ImGui::OpenPopup(ICON_FA_TOOLBOX" Import options");
             }
 

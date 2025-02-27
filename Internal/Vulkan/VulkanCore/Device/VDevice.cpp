@@ -80,7 +80,19 @@ vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice()
             }
         }
     }
-    throw std::runtime_error("Could not find a valid physical device try to disable some features");
+    // for the wors case allways return CPU
+    for (auto& device : availablePhysicalDevices)
+    {
+        if (device.getProperties().deviceType == vk::PhysicalDeviceType::eIntegratedGpu)
+        {
+            Utils::Logger::LogError("Forcing the use of CPU !");
+            Utils::Logger::LogSuccess("Going to use: " + std::string(device.getProperties().deviceName));
+            GlobalVariables::GlobalStructs::GpuProperties = device.getProperties();
+            GlobalVariables::GlobalStructs::GpuMemoryProperties = device.getMemoryProperties();
+            return device;
+        }
+    }
+    throw std::runtime_error("No suitable GPU found!");
 }
 
 VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance): m_instance(instance)
@@ -96,7 +108,7 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance): m_inst
     }
     m_transferCommandPoolForSingleThread = std::make_unique<VulkanCore::VCommandPool>(*this, Transfer);
     DispatchLoader = vk::detail::DispatchLoaderDynamic(m_instance.GetInstance(), vkGetInstanceProcAddr);
-    m_depthFormat = vk::Format::eD24UnormS8Uint;;
+    RetreiveDepthFormat();
 }
 
 VulkanCore::VCommandPool &VulkanCore::VDevice::GetTransferCommandPool() const
@@ -184,6 +196,28 @@ void VulkanCore::VDevice::CreateVmaAllocator(const VulkanCore::VulkanInstance& i
     allocatorInfo.instance = instance.GetInstance();
     assert(vmaCreateAllocator(&allocatorInfo, &m_vmaAllocator) == VK_SUCCESS);
     Utils::Logger::LogSuccess("Successfully created Vulkan Memory Allocator instance");
+}
+
+void VulkanCore::VDevice::RetreiveDepthFormat()
+{
+    std::vector<vk::Format> formats = {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint,vk::Format::eD24UnormS8Uint};
+    auto tilling = vk::ImageTiling::eOptimal;
+    auto feature = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
+
+    for (auto& format : formats) {
+        vk::FormatProperties props;
+        m_physicalDevice.getFormatProperties(format, &props);
+
+        if (tilling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & feature) == feature) {
+            m_depthFormat = format;
+            return;;
+        } else if (tilling == vk::ImageTiling::eOptimal && (props.optimalTilingFeatures & feature) == feature) {
+            m_depthFormat = format;
+            return;
+        }
+    }
+
+    throw std::runtime_error("Depth format does is not supported on this device ");
 }
 
 void VulkanCore::VDevice::FetchMaxSampleCount()

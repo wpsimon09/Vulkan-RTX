@@ -65,7 +65,6 @@ namespace VEditor {
             ImGui::EndPopup();
         }
         IUserInterfaceElement::Render();
-
     }
 
     void ModelImportOptions::Resize(int newWidth, int newHeight)

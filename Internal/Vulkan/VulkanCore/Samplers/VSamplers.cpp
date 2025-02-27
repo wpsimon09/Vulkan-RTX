@@ -25,7 +25,7 @@ namespace VulkanCore::VSamplers
         samplerInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
         samplerInfo.anisotropyEnable = true;
         auto maxAntistropy = GlobalVariables::GlobalStructs::GpuProperties.limits.maxSamplerAnisotropy ;
-        assert(maxAntistropy > 0);
+        assert(maxAntistropy > 0 || GlobalVariables::GlobalStructs::GpuProperties.deviceType == vk::PhysicalDeviceType::eIntegratedGpu);
         samplerInfo.maxAnisotropy = maxAntistropy;
         samplerInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
         samplerInfo.unnormalizedCoordinates = false;

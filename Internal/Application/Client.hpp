@@ -65,7 +65,7 @@ public:
     void UpdateCamera(CameraUpdateInfo& cameraUpdateInfo);
     void UpdateClient(ClientUpdateInfo& lightUpdateInfo);
     ~Client() = default;
-    const ApplicationCore::Camera& GetCamera() const {return *m_camera;};
+    ApplicationCore::Camera& GetCamera()  {return *m_camera;};
 public:
     bool GetIsRTXOn() const {return m_isRTXOn;};
 private:
