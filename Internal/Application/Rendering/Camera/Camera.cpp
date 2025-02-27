@@ -151,8 +151,6 @@ void ApplicationCore::Camera::MoveVertical(float distance) {
 
         m_nearPlane += cameraUpdateInfo.MoveNear;
 
-        //m_projection = glm::perspective(glm::radians(65.0f), (float)m_screenSize.x / (float)m_screenSize.y, m_nearPlane, 470.0f);
-
         cameraUpdateInfo.Reset();
     }
 

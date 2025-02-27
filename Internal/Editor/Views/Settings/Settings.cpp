@@ -25,7 +25,6 @@ namespace VEditor {
 
             if (ImGui::BeginPopupModal(ICON_FA_GEARS" Settings"))
             {
-                Utils::Logger::LogInfoClient("Opening settings window...");
                 if (ImGui::BeginTabBar("Settings"))
                 {
 
@@ -49,9 +48,11 @@ namespace VEditor {
 
                     ImGui::EndTabBar();
                 }
+
+                ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 50);
+                ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 30);
                 if (ImGui::Button("Close"))
                 {
-                    Utils::Logger::LogInfoClient("Closing settings window...");
                     m_isOpen = false;
                 }
 
@@ -79,10 +80,10 @@ namespace VEditor {
 
     void Settings::RenderEngineSettings()
     {
-        if (ImGui::TreeNodeEx(ICON_FA_CAMERA "Camera"))
+        if (ImGui::TreeNodeEx(ICON_FA_CAMERA "Camera", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            ImGui::DragFloat("Camera speed:", &m_client.GetCamera().GetSpeed(), 1.f, 0.1, 20.0F);
-            ImGui::DragFloat("Far plane:", &m_client.GetCamera().GetFarPlane(), 1.f, 40.0f, std::numeric_limits<float>::max());
+                ImGui::DragFloat("Camera speed:", &m_client.GetCamera().GetSpeed(), 1.f, 0.1, 20.0F);
+                ImGui::DragFloat("Far plane:", &m_client.GetCamera().GetFarPlane(), 1.f, 40.0f, std::numeric_limits<float>::max());
 
             ImGui::TreePop();
         }
