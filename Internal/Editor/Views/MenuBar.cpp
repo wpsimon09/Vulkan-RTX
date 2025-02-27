@@ -20,8 +20,9 @@ namespace VEditor {
     {
         auto fileExplorer = std::make_unique<FileExplorer>(editor->m_uiContext.GetClient().GetGLTFLoader(),editor->m_uiContext.GetScene());
         m_uiChildren.emplace_back(std::move(fileExplorer));
-        m_uiChildren.emplace_back(std::make_unique<VEditor::Settings>(m_editor->m_uiContext.GetClient(), editor));
         m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
+        m_uiChildren.emplace_back(std::make_unique<VEditor::Settings>(m_editor->m_uiContext.GetClient(), editor));
+        m_settings = dynamic_cast<Settings*>(m_uiChildren.back().get());
     }
 
     void MenuBar::Resize(int newWidth, int newHeight)
@@ -54,11 +55,12 @@ namespace VEditor {
             {
                 if (ImGui::MenuItem(ICON_FA_SLIDERS" Options"))
                 {
-                    ImGui::OpenPopup(ICON_FA_GEARS" Settings");
+                    m_settings->Open();
                 }
                 ImGui::EndMenu();
             }
         ImGui::EndMainMenuBar();
+
         IUserInterfaceElement::Render();
     }
 

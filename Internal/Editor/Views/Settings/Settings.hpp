@@ -19,6 +19,8 @@ public:
     void Resize(int newWidth, int newHeight) override;
     void Update() override;
 
+    void Open();
+
 private:
     void RenderEngineSettings();
     void RenderApplicationSettings();

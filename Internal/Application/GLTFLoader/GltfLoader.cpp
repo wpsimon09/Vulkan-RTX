@@ -319,7 +319,7 @@ namespace ApplicationCore
 
                     Transformations transformations(
                         glm::vec3(transform->translation.x(), transform->translation.y(), transform->translation.z()),
-                        glm::vec3(1.0f * importOptions.uniformScale),
+                        glm::vec3(1.0f),
                         MathUtils::QuaternionToEuler(transform->rotation));
                     newNode->SetLocalTransform(transformations);
                 }
@@ -349,6 +349,11 @@ namespace ApplicationCore
             {
                 m_topNodes.push_back(m_node);
             }
+        }
+
+        for (auto &topNode : m_topNodes)
+        {
+            topNode->m_transformation->SetScale(1.0f * importOptions.uniformScale);
         }
         
         GlobalState::EnableLogging();

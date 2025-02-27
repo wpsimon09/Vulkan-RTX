@@ -7,6 +7,7 @@
 #include "UserInterface/IUserInterfaceElement.hpp"
 
 namespace VEditor {
+    class Settings;
     class FileExplorer;
     class Editor;
 
@@ -18,6 +19,7 @@ public:
     void Update() override;
     private:
         FileExplorer* m_fileExplorer;
+        Settings* m_settings;
         Editor* m_editor;
 
         bool m_isFileDialoOpen = false;

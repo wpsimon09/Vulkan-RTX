@@ -16,8 +16,7 @@ namespace VEditor {
 
     FileExplorer::FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader, const ApplicationCore::Scene& scene): m_scene(scene), m_gltfLoader(gltfLoader)
     {
-        auto importSettingsPopup = std::make_unique<VEditor::ModelImportOptions>(&m_filePath, gltfLoader, scene) ;
-        m_uiChildren.emplace_back(std::move(importSettingsPopup));
+        m_uiChildren.emplace_back(std::make_unique<VEditor::ModelImportOptions>(&m_filePath, gltfLoader, scene));
     }
 
     std::filesystem::path* FileExplorer::OpenForSceneImport()
