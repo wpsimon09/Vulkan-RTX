@@ -29,9 +29,6 @@ struct CameraUpdateInfo
         ZoomValue = 0;
         NewWidth = 0;
         NewHeight = 0;
-        MoveX = 0;
-        MoveY = 0;
-        MoveZ = 0;
         MoveNear = 0;
     }
 

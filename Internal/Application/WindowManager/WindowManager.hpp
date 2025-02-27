@@ -50,7 +50,7 @@ private:
     bool m_captureMovement;
     bool m_hasResized;
     float m_lastX = 0.0f, m_lastY = 0.0f;
-    bool m_isDirty = false;
+    bool m_isDirty = true;
     glm::vec2 m_mousePos;
 };
 

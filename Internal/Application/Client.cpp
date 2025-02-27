@@ -97,7 +97,7 @@ void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)
     m_isRTXOn =             lightUpdateInfo.isRTXon;
 
     lightUpdateInfo.Reset();
-    
+
 }
 
 void Client::Update() {

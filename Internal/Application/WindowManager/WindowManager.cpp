@@ -183,14 +183,22 @@ void WindowManager::KeyCallback(GLFWwindow *window, int key, int scancode, int a
 
         if (winm->m_isMousePressed)
         {
-            if (key == GLFW_KEY_W && action == GLFW_PRESS)
-                winm->m_cameraMovement.MoveZ = movementSpeed;
-            if (key == GLFW_KEY_A && action == GLFW_PRESS)
-                winm->m_cameraMovement.MoveX = -movementSpeed;;
-            if (key == GLFW_KEY_S && action == GLFW_PRESS)
-                winm->m_cameraMovement.MoveZ = -movementSpeed;;
-            if (key == GLFW_KEY_D && action == GLFW_PRESS)
-                winm->m_cameraMovement.MoveX = movementSpeed;
+            if (key == GLFW_KEY_W) {
+                if (action == GLFW_PRESS) winm->m_cameraMovement.MoveZ = -movementSpeed;
+                if (action == GLFW_RELEASE) winm->m_cameraMovement.MoveZ = 0.0f;
+            }
+            if (key == GLFW_KEY_A) {
+                if (action == GLFW_PRESS) winm->m_cameraMovement.MoveX = +movementSpeed;
+                if (action == GLFW_RELEASE) winm->m_cameraMovement.MoveX = 0.0f;
+            }
+            if (key == GLFW_KEY_S) {
+                if (action == GLFW_PRESS) winm->m_cameraMovement.MoveZ = movementSpeed;
+                if (action == GLFW_RELEASE) winm->m_cameraMovement.MoveZ = 0.0f;
+            }
+            if (key == GLFW_KEY_D) {
+                if (action == GLFW_PRESS) winm->m_cameraMovement.MoveX = -movementSpeed;
+                if (action == GLFW_RELEASE) winm->m_cameraMovement.MoveX = 0.0f;
+            }
             if (key == GLFW_KEY_UP && action == GLFW_PRESS)
                 winm->m_clientUpdate.moveLightY += 0.5;
             if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)

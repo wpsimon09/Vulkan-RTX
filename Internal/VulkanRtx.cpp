@@ -155,8 +155,8 @@ void Application::Update()
 {
     m_renderingSystem->Update();
     m_client->Update();
+    m_client->UpdateCamera(m_windowManager->GetCameraMovement());
     if(m_windowManager->GetIsDirty()) {
-        m_client->UpdateCamera(m_windowManager->GetCameraMovement());
         m_client->UpdateClient(m_windowManager->GetLightMovement());
     }
     if (GlobalState::ValidationLayersEnabled)
