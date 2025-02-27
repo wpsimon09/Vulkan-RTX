@@ -25,6 +25,8 @@ public:
 
     void MoveHorizontal(float distance);
 
+    void MoveForward(float distance);
+
     void MoveVertical(float distance);
 
     void ProcessResize(int newWidht, int newHeight);
@@ -48,6 +50,8 @@ public:
 
     float& GetNearPlane()  {return this->m_nearPlane;}
 
+    float& GetSpeed() {return this->m_speed;}
+
     void Update(CameraUpdateInfo& cameraUpdateInfo);
 
     ~Camera() = default;
@@ -61,6 +65,7 @@ private:
     float m_polarAngle;
     float m_FOV;
     float m_aspect;
+    float m_speed = 3.3f;
 
     glm::vec3 m_position;
     glm::vec3 m_center;

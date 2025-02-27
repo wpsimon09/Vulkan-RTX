@@ -180,27 +180,26 @@ void WindowManager::KeyCallback(GLFWwindow *window, int key, int scancode, int a
             winm->m_isShiftPressed = true;
         if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_RELEASE)
             winm->m_isShiftPressed = false;
-        if (key == GLFW_KEY_W && action == GLFW_PRESS)
-            winm->m_cameraMovement.ZoomValue = movementSpeed;
 
-        if (key == GLFW_KEY_A && action == GLFW_PRESS)
-            winm->m_cameraMovement.MoveX = -movementSpeed;;
-
-        if (key == GLFW_KEY_S && action == GLFW_PRESS)
-            winm->m_cameraMovement.ZoomValue = -movementSpeed;;
-
-        if (key == GLFW_KEY_D && action == GLFW_PRESS)
-            winm->m_cameraMovement.MoveX = movementSpeed;
-
-        if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-            winm->m_clientUpdate.moveLightY += 0.5;
-        if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-            winm->m_clientUpdate.moveLightY -= 0.5;
-        if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
-            winm->m_clientUpdate.moveLightX -= 0.5;
-        if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-            winm->m_clientUpdate.moveLightX += 0.5;
-        if (key == GLFW_KEY_R && action == GLFW_PRESS)
+        if (winm->m_isMousePressed)
+        {
+            if (key == GLFW_KEY_W && action == GLFW_PRESS)
+                winm->m_cameraMovement.MoveZ = movementSpeed;
+            if (key == GLFW_KEY_A && action == GLFW_PRESS)
+                winm->m_cameraMovement.MoveX = -movementSpeed;;
+            if (key == GLFW_KEY_S && action == GLFW_PRESS)
+                winm->m_cameraMovement.MoveZ = -movementSpeed;;
+            if (key == GLFW_KEY_D && action == GLFW_PRESS)
+                winm->m_cameraMovement.MoveX = movementSpeed;
+            if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+                winm->m_clientUpdate.moveLightY += 0.5;
+            if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+                winm->m_clientUpdate.moveLightY -= 0.5;
+            if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
+                winm->m_clientUpdate.moveLightX -= 0.5;
+            if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
+                winm->m_clientUpdate.moveLightX += 0.5;
+        }
         {
             if (winm->m_clientUpdate.isRTXon)
             {

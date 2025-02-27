@@ -20,6 +20,7 @@ struct CameraUpdateInfo
     float NewHeight = 0.0f;
     float MoveX = 0.0f;
     float MoveY = 0.0f;
+    float MoveZ = 0.0f;
     float MoveNear = 0.0f;
 
     void Reset() {
@@ -30,6 +31,7 @@ struct CameraUpdateInfo
         NewHeight = 0;
         MoveX = 0;
         MoveY = 0;
+        MoveZ = 0;
         MoveNear = 0;
     }
 

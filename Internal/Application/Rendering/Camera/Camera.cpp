@@ -69,19 +69,26 @@
 
     void ApplicationCore::Camera::MoveHorizontal(float distance) {
         if(distance != 0.f) {
-            float speed = 3.5;
             const auto pos = getEye();
             const glm::vec3 viewVector = glm::normalize(pos - m_center);
                 const glm::vec3 strafeVector = glm::normalize(glm::cross(viewVector, m_worldUp));
-            m_center += strafeVector * (speed * distance);
+            m_center += strafeVector * (m_speed * distance);
             m_position = getEye();
         }
     }
 
-    void ApplicationCore::Camera::MoveVertical(float distance) {
+void ApplicationCore::Camera::MoveForward(float distance){
+        if (distance != 0.0f){
+            const auto pos = getEye();
+            const glm::vec3 viewVector = glm::normalize(pos - m_center);
+            m_center += viewVector * (m_speed * distance);
+            m_position = getEye();
+        }
+}
+
+void ApplicationCore::Camera::MoveVertical(float distance) {
         if(distance !=0.0f) {
-            float speed = 3.5;
-            m_center += m_worldUp * (speed * distance);
+            m_center += m_worldUp * (m_speed * distance);
             m_position = getEye();
         }
     }
@@ -138,6 +145,7 @@
         if(cameraUpdateInfo.NewHeight > 0.0f || cameraUpdateInfo.NewWidth > 0.0f) {
             ProcessResize(cameraUpdateInfo.NewWidth, cameraUpdateInfo.NewHeight);
         }
+        MoveForward(cameraUpdateInfo.MoveZ);
         MoveHorizontal(cameraUpdateInfo.MoveX);
         MoveVertical(cameraUpdateInfo.MoveY);
 
@@ -146,8 +154,6 @@
         //m_projection = glm::perspective(glm::radians(65.0f), (float)m_screenSize.x / (float)m_screenSize.y, m_nearPlane, 470.0f);
 
         cameraUpdateInfo.Reset();
-
-
     }
 
     glm::vec3 ApplicationCore::Camera::getEye() {

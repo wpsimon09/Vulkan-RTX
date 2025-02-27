@@ -81,7 +81,7 @@ VulkanCore::VPipelineManager::GetAllPipelines() const {
 
 }
 
-void VulkanCore::VPipelineManager::GeneratePipelines()  {
+void VulkanCore::VPipelineManager::GeneratePipelines() {
 
     //==================================
     // MAIN SCENE PIPELINE
