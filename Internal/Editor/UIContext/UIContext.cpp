@@ -7,8 +7,12 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
+#include "ImGuizmo/ImGuizmo.h"
 
 #include "Application/Logger/Logger.hpp"
+#include "Application/Rendering/Camera/Camera.hpp"
+#include "Application/Rendering/Scene/Scene.hpp"
+#include "Application/Rendering/Scene/SceneNode.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
@@ -26,7 +30,7 @@ namespace VEditor
     ): m_device(device), m_instance(instance), m_windowManager(windowManager),  m_client(client)
     {
         m_io = nullptr;
-        m_viewports[ViewPortType::eMain] = {};
+        m_viewports[ViewPortType::eMain] = {.camera = &m_client.GetCamera()};
     }
 
     void UIContext::Initialize(const VulkanCore::VRenderPass& renderPass)
@@ -94,9 +98,23 @@ namespace VEditor
     {
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplVulkan_NewFrame();
+        //ImGuizmo::Manipulate(m_client.GetCamera().GetViewMatrix(), m_client.GetCamera().GetViewMatrix(), ImGuizmo::TRANSLATE  )
+
         ImGui::NewFrame();
         ImGui::PushFont(m_editorFont);
         ImGui::PopFont();
+
+        ImGuizmo::BeginFrame();
+        ImGuizmo::SetOrthographic(false);
+        ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList());
+
+        if (m_client.GetScene().GetSelectedSceneNode()) {
+            ImGuizmo::Enable(true);
+            ImGuizmo::Manipulate(&m_client.GetCamera().GetViewMatrix()[0][0], &m_client.GetCamera().GetProjectionMatrix()[0][0], ImGuizmo::OPERATION::TRANSLATE,ImGuizmo::MODE::WORLD, &m_client.GetScene().GetSelectedSceneNode()->m_transformation->GetModelMatrix()[0][0]);
+        }else
+        {
+            ImGuizmo::Enable(false);
+        }
 
         //ImGui::ShowDemoWindow();
     }

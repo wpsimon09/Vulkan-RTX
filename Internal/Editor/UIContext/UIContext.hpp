@@ -6,11 +6,17 @@
 #define IMGUIINITIALIZER_HPP
 
 #include <GLFW/glfw3.h>
+#include <ImGuizmo/ImGuizmo.h>
 
 #include "ViewPortContext.hpp"
 #include "Application/Client.hpp"
 #include "Application/WindowManager/WindowManager.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
+
+namespace ApplicationCore
+{
+    class SceneNode;
+}
 
 class Client;
 
@@ -52,6 +58,8 @@ public:
     void SetRenderingSystem(Renderer::RenderingSystem* rendderingSystem) {m_renderingSystem = rendderingSystem;}
     void EndRender();
     void Destroy();
+    void SetCurrentOperation(ImGuizmo::OPERATION operation) {m_operation = operation;};
+    void SetSelectedSceneNode(std::shared_ptr<ApplicationCore::SceneNode> sceneNode) {m_selectedSceneNode = sceneNode;};
 public:
     ApplicationCore::Scene& GetScene() const {return m_client.GetScene();}
     Client& GetClient() {return m_client;}
@@ -59,7 +67,7 @@ private:
     const VulkanCore::VDevice& m_device;
     const VulkanCore::VulkanInstance& m_instance;
     WindowManager& m_windowManager;
-     Client& m_client;
+    Client& m_client;
 
     Renderer::RenderingSystem* m_renderingSystem;
 
@@ -75,6 +83,9 @@ private:
     ImFont* m_defaultFont;
     ImFont* m_editorFont;
 
+    std::shared_ptr<ApplicationCore::SceneNode> m_selectedSceneNode = nullptr;
+
+    ImGuizmo::OPERATION m_operation;
     private:
         void SetColourThemePablo();
 

@@ -7,7 +7,9 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <IconFontCppHeaders/IconsFontAwesome6.h>
+#include <ImGuizmo/ImGuizmo.h>
 
+#include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/WindowManager/WindowManager.hpp"
 #include "Editor/UIContext/ViewPortContext.hpp"
@@ -17,6 +19,8 @@
 VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext, ApplicationCore::Scene& scene,
                             WindowManager& windowManager): m_viewPortContext(viewPortContext), m_scene(scene), m_windowManager(windowManager)
 {
+    m_previousHeight = viewPortContext.height;
+    m_previousWidth = viewPortContext.width;
 }
 
 void VEditor::ViewPort::Render()
@@ -24,6 +28,8 @@ void VEditor::ViewPort::Render()
 
     // Render the "Scene view port" windowe
         ImGui::Begin(ICON_FA_CAMERA" Scene view port", &m_isOpen, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar);
+
+
 
             ImGui::SetNextItemAllowOverlap();
             ImGui::BeginMenuBar();
@@ -54,15 +60,23 @@ void VEditor::ViewPort::Render()
                 }
             ImGui::EndMenuBar();
 
+            if (ImGui::Button(ICON_FA_ARROW_UP_RIGHT_FROM_SQUARE))
+            {
+
+            }
+
             ImVec2 viewportPanelSize = ImGui::GetWindowSize();
-            auto imageWidht = ImVec2{viewportPanelSize.x-20, viewportPanelSize.y-60};
-            ImGui::Image((ImTextureID)m_viewPortContext.GetImageDs(), imageWidht);
+            auto imageSize = ImVec2{viewportPanelSize.x-20, viewportPanelSize.y-60};
+            m_gizmoRectOriginX = imageSize.x;
+            m_gizmoRectOriginY = imageSize.y;
+            ImGui::Image((ImTextureID)m_viewPortContext.GetImageDs(), imageSize);
+            ImGuizmo::SetRect(0.0f, 0.0f, viewportPanelSize.x, viewportPanelSize.y);
             if (ImGui::IsWindowHovered())
             {
                 // disable gltf input
                 if (ImGui::GetIO().MouseClicked[0])
                 {
-                    auto mousePos = GetMousePositionInViewPort(imageWidht);
+                    auto mousePos = GetMousePositionInViewPort(imageSize);
                     Utils::Logger::LogInfo("Mouse on frame buffer are X: " + std::to_string(mousePos.x) + ", " + std::to_string(mousePos.y));
                     m_scene.PreformRayCast(mousePos);
 
@@ -78,12 +92,22 @@ void VEditor::ViewPort::Render()
 
         ImGui::End();
 
+    if (m_previousHeight != imageSize.y || m_previousWidth != imageSize.x)
+    {
+        Resize(imageSize.x, imageSize.y);
+    }
 
     IUserInterfaceElement::Render();
 }
 
 void VEditor::ViewPort::Resize(int newWidth, int newHeight)
 {
+    m_previousHeight = newHeight;
+    m_previousWidth = newWidth;
+
+    m_viewPortContext.camera->ProcessResize(newWidth, newHeight);
+
+    ImGuizmo::SetRect(m_gizmoRectOriginX, m_gizmoRectOriginY, newWidth, newHeight);
     IUserInterfaceElement::Render();
 }
 
@@ -99,7 +123,6 @@ glm::vec2 VEditor::ViewPort::GetMousePositionInViewPort(ImVec2& ImageWidth)
 
     ImVec2 relativeCursorPos = {cursorPosInWindow.x - imageStartPos.x, cursorPosInWindow.y - imageStartPos.y};
 
-    ;
     float scaleX = GlobalVariables::RenderTargetResolutionWidth / ImageWidth.x;
     float scaleY = GlobalVariables::RenderTargetResolutionHeight / ImageWidth.y;
 

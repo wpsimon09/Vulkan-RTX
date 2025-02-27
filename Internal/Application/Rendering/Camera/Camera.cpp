@@ -151,6 +151,8 @@ void ApplicationCore::Camera::MoveVertical(float distance) {
 
         m_nearPlane += cameraUpdateInfo.MoveNear;
 
+        m_view = glm::lookAt(this->m_position,m_center, this->m_worldUp);
+
         cameraUpdateInfo.Reset();
     }
 

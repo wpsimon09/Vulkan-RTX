@@ -31,9 +31,9 @@ public:
 
     void ProcessResize(int newWidht, int newHeight);
 
-    glm::mat4 GetProjectionMatrix() const { return this->m_projection;}
+    glm::mat4& GetProjectionMatrix()  { return this->m_projection;}
 
-    glm::mat4 GetViewMatrix() const {return glm::lookAt(this->m_position,m_center, this->m_worldUp);}
+    glm::mat4& GetViewMatrix() {return m_view;}
 
     glm::mat4 GetInverseViewMatrix() const {return glm::inverse(glm::lookAt(this->m_position,m_center, this->m_worldUp)); }
 
@@ -74,6 +74,7 @@ private:
 
 
     glm::mat4 m_projection = glm::mat4(1.0f);
+    glm::mat4 m_view = glm::mat4(1.0f);
 
     float m_farPlane;
     float m_nearPlane;

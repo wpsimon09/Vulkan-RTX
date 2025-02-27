@@ -162,6 +162,8 @@ set(SOURCES
         Internal/Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.hpp
         Internal/Editor/Views/Settings/Settings.cpp
         Internal/Editor/Views/Settings/Settings.hpp
+        External/ImGuizmo/ImGuizmo.h
+        External/ImGuizmo/ImGuizmo.cpp
 )
 
 

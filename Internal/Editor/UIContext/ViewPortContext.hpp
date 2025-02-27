@@ -10,6 +10,7 @@
 #include "imgui_impl_vulkan.h"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
+#include "Application/Rendering/Camera/Camera.hpp"
 
 enum class ViewPortType
 {
@@ -23,6 +24,7 @@ struct ViewPortContext
     int height = 600;
     std::array<vk::DescriptorSet,2> ds;
     int currentFrameInFlight = 0;
+    ApplicationCore::Camera* camera;;
 
     VkDescriptorSet GetImageDs()
     {
