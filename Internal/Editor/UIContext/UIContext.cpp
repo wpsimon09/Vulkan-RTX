@@ -8,6 +8,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 #include "ImGuizmo/ImGuizmo.h"
+#include "glm/gtc/type_ptr.hpp"
 
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
@@ -108,19 +109,21 @@ namespace VEditor
         ImGuizmo::SetOrthographic(false);
         ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList());
 
-        if (m_client.GetScene().GetSelectedSceneNode()) {
-            ImGuizmo::Enable(true);
-            ImGuizmo::Manipulate(&m_client.GetCamera().GetViewMatrix()[0][0], &m_client.GetCamera().GetProjectionMatrix()[0][0], ImGuizmo::OPERATION::TRANSLATE,ImGuizmo::MODE::WORLD, &m_client.GetScene().GetSelectedSceneNode()->m_transformation->GetModelMatrix()[0][0]);
-        }else
-        {
-            ImGuizmo::Enable(false);
-        }
-
         //ImGui::ShowDemoWindow();
     }
 
     void UIContext::EndRender()
     {
+        if (m_client.GetScene().GetSelectedSceneNode()) {
+            ImGuizmo::Enable(true);
+            glm::mat4 projection = m_client.GetCamera().GetProjectionMatrix();
+            projection[1][1] *= -1;
+
+            ImGuizmo::Manipulate(glm::value_ptr(m_client.GetCamera().GetViewMatrix()), glm::value_ptr(projection), ImGuizmo::currentOperation,ImGuizmo::MODE::LOCAL, glm::value_ptr(m_client.GetScene().GetSelectedSceneNode()->m_transformation->GetModelMatrix()));
+        }else
+        {
+            ImGuizmo::Enable(false);
+        }
         ImGui::Render();
         m_imguiDrawData = ImGui::GetDrawData();
     }

@@ -121,6 +121,8 @@ struct ImGuiWindow;
 
 namespace IMGUIZMO_NAMESPACE
 {
+
+
    // call inside your own window and before Manipulate() in order to draw gizmo to that window.
    // Or pass a specific ImDrawList to draw to (e.g. ImGui::GetForegroundDrawList()).
    IMGUI_API void SetDrawlist(ImDrawList* drawlist = nullptr);
@@ -202,6 +204,8 @@ namespace IMGUIZMO_NAMESPACE
       SCALEU = SCALE_XU | SCALE_YU | SCALE_ZU, // universal
       UNIVERSAL = TRANSLATE | ROTATE | SCALEU
    };
+
+   inline IMGUI_API OPERATION currentOperation;
 
    inline OPERATION operator|(OPERATION lhs, OPERATION rhs)
    {

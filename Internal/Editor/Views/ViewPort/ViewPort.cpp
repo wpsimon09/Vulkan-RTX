@@ -58,28 +58,54 @@ void VEditor::ViewPort::Render()
 
                     ImGui::EndPopup();
                 }
+
             ImGui::EndMenuBar();
-
-            if (ImGui::Button(ICON_FA_ARROW_UP_RIGHT_FROM_SQUARE))
-            {
-
-            }
 
             ImVec2 viewportPanelSize = ImGui::GetWindowSize();
             auto imageSize = ImVec2{viewportPanelSize.x-20, viewportPanelSize.y-60};
-            m_gizmoRectOriginX = imageSize.x;
-            m_gizmoRectOriginY = imageSize.y;
+            auto imageOrigin = ImGui::GetCursorScreenPos();
+            m_gizmoRectOriginX = imageOrigin.x;
+            m_gizmoRectOriginY = imageOrigin.y;
             ImGui::Image((ImTextureID)m_viewPortContext.GetImageDs(), imageSize);
-            ImGuizmo::SetRect(0.0f, 0.0f, viewportPanelSize.x, viewportPanelSize.y);
+            ImGuizmo::SetRect(m_gizmoRectOriginX, m_gizmoRectOriginY, imageSize.x, imageSize.y);
+
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.2f, 0.5f)); // Dark gray with 50% transparency
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 0.8f)); // Slightly brighter when hovered
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 1.0f)); // Fully visible when clicked
+
+            ImGui::SetCursorScreenPos({imageOrigin.x + 10, imageOrigin.y + 10});
+            if (ImGui::Button(ICON_FA_UP_DOWN_LEFT_RIGHT))
+            {
+                ImGuizmo::currentOperation = ImGuizmo::TRANSLATE;
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_ROTATE))
+            {
+                ImGuizmo::currentOperation = ImGuizmo::ROTATE;
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_EXPAND))
+            {
+                ImGuizmo::currentOperation = ImGuizmo::SCALE;
+            }
+
+            ImGui::PopStyleColor(3);
+
+
             if (ImGui::IsWindowHovered())
             {
-                // disable gltf input
-                if (ImGui::GetIO().MouseClicked[0])
+                if (!ImGuizmo::IsOver())
                 {
-                    auto mousePos = GetMousePositionInViewPort(imageSize);
-                    Utils::Logger::LogInfo("Mouse on frame buffer are X: " + std::to_string(mousePos.x) + ", " + std::to_string(mousePos.y));
-                    m_scene.PreformRayCast(mousePos);
+                    // disable gltf input
+                    if (ImGui::GetIO().MouseClicked[0])
+                    {
+                        auto mousePos = GetMousePositionInViewPort(imageSize);
+                            Utils::Logger::LogInfo("Mouse on frame buffer are X: " + std::to_string(mousePos.x) + ", " + std::to_string(mousePos.y));
+                        m_scene.PreformRayCast(mousePos);
 
+                    }
                 }
                 m_windowManager.EnableMovementCapture();
             }

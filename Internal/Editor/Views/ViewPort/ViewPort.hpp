@@ -33,10 +33,10 @@ namespace VEditor
         WindowManager& m_windowManager;
         ViewPortContext& m_viewPortContext;
 
-        int m_previousWidth;
-        int m_previousHeight;
-        int m_gizmoRectOriginX;
-        int m_gizmoRectOriginY;
+        float m_previousWidth;
+        float m_previousHeight;
+        float m_gizmoRectOriginX;
+        float m_gizmoRectOriginY;
         /**
          * Calculates position of mouse inside the view port window
          * @param ImageWidth width of the viewport image
