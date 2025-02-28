@@ -31,6 +31,7 @@ void VEditor::ViewPort::Render()
         ImGui::Begin(ICON_FA_CAMERA" Scene view port", &m_isOpen, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar);
 
 
+            ImGuizmo::SetDrawlist(ImGui::GetCurrentWindow()->DrawList);
 
             ImGui::SetNextItemAllowOverlap();
             ImGui::BeginMenuBar();
@@ -91,7 +92,6 @@ void VEditor::ViewPort::Render()
             {
                 ImGuizmo::currentOperation = ImGuizmo::SCALE;
             }
-
             ImGui::PopStyleColor(3);
 
 

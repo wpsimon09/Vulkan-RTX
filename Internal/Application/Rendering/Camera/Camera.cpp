@@ -18,7 +18,8 @@
         m_aspect = width / height;
         m_nearPlane = 0.1f;
         m_farPlane = 3700.0f;;
-        m_projection = glm::perspective(glm::radians(65.0f), width / height, m_nearPlane, m_farPlane);
+        m_FOV = 65.0f;
+        m_projection = glm::perspectiveFov(glm::radians(m_FOV), width, height, m_nearPlane, m_farPlane);
         m_projection[1][1] *= -1;
 
         m_radius = radius;
@@ -30,7 +31,6 @@
         m_screenSize = {width, height};
 
 
-        m_FOV = 65.0f;
     }
 
     void ApplicationCore::Camera::RotateAzimutn(float radians) {
@@ -95,7 +95,7 @@ void ApplicationCore::Camera::MoveVertical(float distance) {
 
     void ApplicationCore::Camera::ProcessResize(int newWidht, int newHeight) {
         m_aspect = (float)newWidht / (float)newHeight;
-        m_projection = glm::perspective(glm::radians(65.0f), (float)newWidht / (float)newHeight, m_nearPlane, m_farPlane);
+        m_projection = glm::perspectiveFov(glm::radians(m_FOV), (float)newWidht , (float)newHeight, m_nearPlane, m_farPlane);
         m_projection[1][1] *= -1;
         m_farPlane = GetFarPlane();
         m_position = getEye();

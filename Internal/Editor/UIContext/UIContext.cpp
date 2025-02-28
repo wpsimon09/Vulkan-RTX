@@ -107,8 +107,6 @@ namespace VEditor
 
         ImGuizmo::BeginFrame();
         ImGuizmo::SetOrthographic(false);
-        ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList());
-
         //ImGui::ShowDemoWindow();
     }
 
@@ -119,7 +117,21 @@ namespace VEditor
             glm::mat4 projection = m_client.GetCamera().GetProjectionMatrix();
             projection[1][1] *= -1;
 
-            ImGuizmo::Manipulate(glm::value_ptr(m_client.GetCamera().GetViewMatrix()), glm::value_ptr(projection), ImGuizmo::currentOperation,ImGuizmo::MODE::LOCAL, glm::value_ptr(m_client.GetScene().GetSelectedSceneNode()->m_transformation->GetModelMatrix()));
+            glm::mat4 view = m_client.GetCamera().GetViewMatrix();
+
+            glm::mat4 model = m_client.GetScene().GetSelectedSceneNode()->m_transformation->GetModelMatrix();
+
+            ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), ImGuizmo::currentOperation,ImGuizmo::MODE::LOCAL, glm::value_ptr(model));
+
+            if (model != m_client.GetScene().GetSelectedSceneNode()->m_transformation->GetModelMatrix())
+            {
+                float t[3], r[3], s[3];
+                ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), t, s, r);
+                m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetPosition(t[0], t[1], t[2]);
+                m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetRotations(r[0], r[1], r[2]);
+                m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetScale(s[0], s[1], s[2]);
+            }
+
         }else
         {
             ImGuizmo::Enable(false);

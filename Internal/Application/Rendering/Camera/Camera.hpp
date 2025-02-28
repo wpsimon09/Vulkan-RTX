@@ -52,6 +52,8 @@ public:
 
     float& GetSpeed() {return this->m_speed;}
 
+    float& GetFOV() {return this->m_FOV;}
+
     void Update(CameraUpdateInfo& cameraUpdateInfo);
 
     ~Camera() = default;
@@ -63,7 +65,7 @@ private:
     float m_minRadius;
     float m_azimuthAngle;
     float m_polarAngle;
-    float m_FOV;
+    float m_FOV = 65.0f;
     float m_aspect;
     float m_speed = 3.3f;
 
