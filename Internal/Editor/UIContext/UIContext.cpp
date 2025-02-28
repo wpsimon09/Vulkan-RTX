@@ -113,10 +113,11 @@ namespace VEditor
     void UIContext::EndRender()
     {
         m_selectedSceneNode = m_client.GetScene().GetSelectedSceneNode();
+        glm::mat4 projection = m_client.GetCamera().GetProjectionMatrix();
+        projection[1][1] *= -1;
+
         if (m_selectedSceneNode) {
             ImGuizmo::Enable(true);
-            glm::mat4 projection = m_client.GetCamera().GetProjectionMatrix();
-            projection[1][1] *= -1;
 
             glm::mat4 view = m_client.GetCamera().GetViewMatrix();
 
@@ -131,15 +132,15 @@ namespace VEditor
                 ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(t), glm::value_ptr(r), glm::value_ptr(s));
 
 
-                if (t != m_selectedSceneNode->m_transformation->GetPosition())
+                if (ImGuizmo::currentOperation == ImGuizmo::OPERATION::TRANSLATE)
                 {
                     m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetPosition(t[0], t[1], t[2]);
                 }
-                else if(r != m_selectedSceneNode->m_transformation->GetRotations())
+                if(ImGuizmo::currentOperation == ImGuizmo::OPERATION::ROTATE)
                 {
                     m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetRotations(r[0], r[1], r[2]);
                 }
-                else if (s != m_selectedSceneNode->m_transformation->GetScale())
+                if (ImGuizmo::currentOperation == ImGuizmo::OPERATION::SCALE)
                 {
                     m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetScale(s[0], s[1], s[2]);
                 }

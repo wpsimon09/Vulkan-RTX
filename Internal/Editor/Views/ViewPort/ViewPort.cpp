@@ -71,33 +71,11 @@ void VEditor::ViewPort::Render()
             ImGui::Image((ImTextureID)m_viewPortContext.GetImageDs(), imageSize);
             ImGuizmo::SetRect(m_gizmoRectOriginX, m_gizmoRectOriginY, imageSize.x, imageSize.y);
 
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.2f, 0.5f)); // Dark gray with 50% transparency
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 0.8f)); // Slightly brighter when hovered
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 1.0f)); // Fully visible when clicked
-
-            ImGui::SetCursorScreenPos({imageOrigin.x + 10, imageOrigin.y + 10});
-            if (ImGui::Button(ICON_FA_UP_DOWN_LEFT_RIGHT))
-            {
-                ImGuizmo::currentOperation = ImGuizmo::TRANSLATE;
-            }
-
-            ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_ROTATE))
-            {
-                ImGuizmo::currentOperation = ImGuizmo::ROTATE;
-            }
-
-            ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_EXPAND))
-            {
-                ImGuizmo::currentOperation = ImGuizmo::SCALE;
-            }
-            ImGui::PopStyleColor(3);
-
+            RenderGizmoActions(imageOrigin, imageSize);
 
             if (ImGui::IsWindowHovered())
             {
-                if (!ImGuizmo::IsOver())
+                if (!ImGuizmo::IsOver() && !ImGuizmo::IsViewManipulateHovered())
                 {
                     // disable gltf input
                     if (ImGui::GetIO().MouseClicked[0])
@@ -119,7 +97,6 @@ void VEditor::ViewPort::Render()
 
         ImGui::End();
 
-    ImGuizmo::ViewManipulate(glm::value_ptr(m_scene.GetCamera().GetViewMatrix()), 10, ImVec2(imageSize.x - 100, imageSize.y), ImVec2(100.f, 100.f), 32);
 
     if (m_previousHeight != imageSize.y || m_previousWidth != imageSize.x)
     {
@@ -139,6 +116,32 @@ void VEditor::ViewPort::Resize(int newWidth, int newHeight)
 
     ImGuizmo::SetRect(m_gizmoRectOriginX, m_gizmoRectOriginY, newWidth, newHeight);
     IUserInterfaceElement::Render();
+}
+
+void VEditor::ViewPort::RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSize)
+{
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.2f, 0.5f)); // Dark gray with 50% transparency
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 0.8f)); // Slightly brighter when hovered
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 1.0f)); // Fully visible when clicked
+
+    ImGui::SetCursorScreenPos({imageOrigin.x, imageOrigin.y});
+    if (ImGui::Button(ICON_FA_UP_DOWN_LEFT_RIGHT))
+    {
+        ImGuizmo::currentOperation = ImGuizmo::TRANSLATE;
+    }
+
+    if (ImGui::Button(ICON_FA_ROTATE))
+    {
+        ImGuizmo::currentOperation = ImGuizmo::ROTATE;
+    }
+
+    if (ImGui::Button(ICON_FA_EXPAND))
+    {
+        ImGuizmo::currentOperation = ImGuizmo::SCALE;
+    }
+    ImGui::PopStyleColor(3);
+
+    ImGuizmo::ViewManipulate(glm::value_ptr(m_scene.GetCamera().GetViewMatrix()), 10, ImVec2(imageSize.x - 100, imageSize.y), ImVec2(100.f, 100.f), 32);
 }
 
 glm::vec2 VEditor::ViewPort::GetMousePositionInViewPort(ImVec2& ImageWidth)

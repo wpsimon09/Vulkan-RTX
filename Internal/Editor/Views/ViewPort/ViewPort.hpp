@@ -29,6 +29,8 @@ namespace VEditor
         void Resize(int newWidth, int newHeight) override;
 
     private:
+        void RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSize);
+
         ApplicationCore::Scene& m_scene;
         WindowManager& m_windowManager;
         ViewPortContext& m_viewPortContext;

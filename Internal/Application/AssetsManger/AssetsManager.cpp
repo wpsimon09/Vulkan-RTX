@@ -241,9 +241,7 @@ namespace ApplicationCore
     
     std::vector<TextureBufferView> AssetsManager::ReadBackAllTextures(std::vector<std::byte>& data)
     {
-        //this function will be called from separate therad so i will create new command pool 
-        auto commandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Transfer);
-        //prepare the data 
+    //prepare the data
         std::vector<TextureBufferView> views;
         views.reserve(m_textures.size());
         
