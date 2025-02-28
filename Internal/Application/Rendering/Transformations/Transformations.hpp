@@ -20,11 +20,11 @@ private:
 
     glm::mat4 m_modelMatrix;
     glm::mat4 m_rotationMatrix;
-
+    glm::mat4 m_alteredModelMatrix = glm::mat4(1.0f);
 
     bool m_isDirty = true;
     bool m_hasRotationChanged = false;
-    bool m_calculateLocalModelMatrix = true;
+    bool m_calculateLocalModelMatrix = false;
 
     glm::mat4 ComputeLocalModelMatrix();
 public:
@@ -56,7 +56,7 @@ public:
 
     const glm::mat4 &GetRotationMatrix() {return m_rotationMatrix;}
 
-    void SetModelMatrix(glm::mat4 modelMatrix) {m_calculateLocalModelMatrix = false; m_modelMatrix = modelMatrix;}
+    void SetModelMatrix(glm::mat4 modelMatrix) {m_alteredModelMatrix = modelMatrix;}
 
     virtual ~Transformations()=default;
 };

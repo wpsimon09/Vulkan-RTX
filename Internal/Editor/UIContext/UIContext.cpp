@@ -112,24 +112,39 @@ namespace VEditor
 
     void UIContext::EndRender()
     {
-        if (m_client.GetScene().GetSelectedSceneNode()) {
+        m_selectedSceneNode = m_client.GetScene().GetSelectedSceneNode();
+        if (m_selectedSceneNode) {
             ImGuizmo::Enable(true);
             glm::mat4 projection = m_client.GetCamera().GetProjectionMatrix();
             projection[1][1] *= -1;
 
             glm::mat4 view = m_client.GetCamera().GetViewMatrix();
 
-            glm::mat4 model = m_client.GetScene().GetSelectedSceneNode()->m_transformation->GetModelMatrix();
+            glm::mat4 model = m_selectedSceneNode->m_transformation->GetModelMatrix();
 
             ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), ImGuizmo::currentOperation,ImGuizmo::MODE::LOCAL, glm::value_ptr(model));
 
-            if (model != m_client.GetScene().GetSelectedSceneNode()->m_transformation->GetModelMatrix())
+
+            if (model != m_selectedSceneNode->m_transformation->GetModelMatrix())
             {
-                float t[3], r[3], s[3];
-                ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), t, s, r);
-                m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetPosition(t[0], t[1], t[2]);
-                m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetRotations(r[0], r[1], r[2]);
-                m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetScale(s[0], s[1], s[2]);
+                glm::vec3 t, r, s;
+                ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(t), glm::value_ptr(r), glm::value_ptr(s));
+
+
+                if (t != m_selectedSceneNode->m_transformation->GetPosition())
+                {
+                    m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetPosition(t[0], t[1], t[2]);
+                }
+                else if(r != m_selectedSceneNode->m_transformation->GetRotations())
+                {
+                    m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetRotations(r[0], r[1], r[2]);
+                }
+                else if (s != m_selectedSceneNode->m_transformation->GetScale())
+                {
+                    m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetScale(s[0], s[1], s[2]);
+                }
+
+
             }
 
         }else
