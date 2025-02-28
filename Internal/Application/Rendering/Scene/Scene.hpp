@@ -53,6 +53,8 @@ public:
     void AddPointLight() ;
     void AddAreaLight() ;
 
+    Camera& GetCamera(){return m_camera;}
+
     void PreformRayCast(glm::vec2 mousePosition);
 
     void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; } ;

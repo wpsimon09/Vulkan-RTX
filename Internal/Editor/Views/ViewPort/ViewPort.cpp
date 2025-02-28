@@ -6,6 +6,7 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <IconFontCppHeaders/IconsFontAwesome6.h>
 #include <ImGuizmo/ImGuizmo.h>
 
@@ -118,10 +119,13 @@ void VEditor::ViewPort::Render()
 
         ImGui::End();
 
+    ImGuizmo::ViewManipulate(glm::value_ptr(m_scene.GetCamera().GetViewMatrix()), 10, ImVec2(imageSize.x - 100, imageSize.y), ImVec2(100.f, 100.f), 32);
+
     if (m_previousHeight != imageSize.y || m_previousWidth != imageSize.x)
     {
         Resize(imageSize.x, imageSize.y);
     }
+
 
     IUserInterfaceElement::Render();
 }
