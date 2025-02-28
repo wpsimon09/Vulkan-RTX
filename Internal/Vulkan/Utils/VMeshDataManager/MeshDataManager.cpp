@@ -126,6 +126,8 @@ namespace VulkanCore {
 
     void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
     {
+        auto dataInGPUFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
+
         //=========================================================================================================================================
         // VERTEX STAGING BUFFER
         //==========================================================================================================================================
@@ -187,9 +189,12 @@ namespace VulkanCore {
 
         }
 
-        m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
+        m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue(), dataInGPUFence->GetSyncPrimitive());
 
-        m_device.GetDevice().waitIdle();
+        if (dataInGPUFence->WaitForFence() != vk::Result::eSuccess)
+        {
+            throw std::runtime_error("[FATAL]: fence was not signaled");
+        }
         m_currentVertexBuffer->copyOffSet += vertexStaginBuffer.size;
         m_currentIndexBuffer-> copyOffSet  += indexStagingBuffer.size;
         m_currentVertexBuffer_BB->copyOffSet += vertexStaginBuffer_BB.size;
@@ -204,6 +209,8 @@ namespace VulkanCore {
             m_stagingVertices_BB.clear();
             m_stagingIndices.clear();
         }
+
+        dataInGPUFence->Destroy();
 
     }
 

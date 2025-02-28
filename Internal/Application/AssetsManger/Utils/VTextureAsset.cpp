@@ -6,7 +6,7 @@
 
 ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device, ETextureAssetType type,  std::filesystem::path texturePath) : VAsset<VulkanCore::VImage>(device), m_textureAssetType(type), m_originalPathToTexture(texturePath)
 {
-   // m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device);
+    m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device);
     m_width = 1;
     m_height = 1;
     m_isLoaded = false;
@@ -20,7 +20,7 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
 
 ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device, ETextureAssetType type, TextureBufferInfo &bufferInfo): VAsset<VulkanCore::VImage>(device), m_textureAssetType(type), m_textureBufferInfo(bufferInfo)
 {
-    //m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device);
+    m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device);
     m_width = 1;
     m_height = 1;
     m_isLoaded = false;
@@ -37,7 +37,8 @@ void ApplicationCore::VTextureAsset::Sync()
 {
     if(m_isInSync)
         return;
-        
+
+    Destroy();
     m_isInSync = true;
     auto imageData = m_loadedImageData.get();
     m_assetPath = imageData.fileName;
