@@ -99,7 +99,6 @@ void Application::Init()
     }
 
 
-
     //auto car = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/dodge_challenger_-_muscle_car_-_low-poly/scene.gltf");
     //auto stormTrooper = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/storm-trooper.glb");
 

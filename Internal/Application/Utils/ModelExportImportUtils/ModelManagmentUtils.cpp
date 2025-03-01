@@ -103,7 +103,7 @@ namespace ApplicationCore
         }
         else{
 
-            return {.pixels = nullptr, 1, 1, };
+            return {};
         }
         //-> to test the concurrency uncomment this line
         // std::this_thread::sleep_for(std::chrono::seconds(7));
