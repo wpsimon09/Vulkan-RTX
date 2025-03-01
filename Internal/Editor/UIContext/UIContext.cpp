@@ -124,7 +124,7 @@ namespace VEditor
 
                 glm::mat4 model = m_selectedSceneNode->m_transformation->GetModelMatrix();
 
-                ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), ImGuizmo::currentOperation,ImGuizmo::MODE::LOCAL, glm::value_ptr(model));
+                ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), ImGuizmo::currentOperation,ImGuizmo::MODE::WORLD, glm::value_ptr(model));
 
                 if (model != m_selectedSceneNode->m_transformation->GetModelMatrix())
                 {
@@ -137,11 +137,9 @@ namespace VEditor
                     }
                     if(ImGuizmo::currentOperation == ImGuizmo::OPERATION::ROTATE)
                     {
+
                         Utils::Logger::LogInfo("Roataion is X:" + std::to_string(r[0]) + "Y: " + std::to_string(r[1]) + "Z: "  + std::to_string(r[2]) );
-                        auto currentRotation = m_selectedSceneNode->m_transformation->GetRotations();
-                        currentRotation.z = r[0] ;
-                        currentRotation.y = r[1] ;
-                        currentRotation.x = r[2] ;
+                        glm::vec3 currentRotation(r[0], r[1], r[2]);
                         m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetRotations(currentRotation);
                     }
                     if (ImGuizmo::currentOperation == ImGuizmo::OPERATION::SCALE)
