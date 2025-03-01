@@ -166,6 +166,8 @@ set(SOURCES
         External/ImGuizmo/ImGuizmo.cpp
         Internal/Application/Utils/GizmoUtils.hpp
         Internal/Application/Utils/GizmoUtils.cpp
+        External/tINI/ini.h
+        Internal/Vulkan/Global/GlobalVariables.cpp
 )
 
 
@@ -199,13 +201,6 @@ target_link_libraries(${TARGET} PUBLIC ImGui)
 add_subdirectory(${CMAKE_SOURCE_DIR}/External/fastgltf)
 target_link_libraries(${TARGET} PRIVATE fastgltf)
 target_include_directories(${TARGET} PRIVATE ${GLM_INCLUDE_DIRS})
-
-
-set(JSON_BuildTests OFF CACHE INTERNAL "")
-add_subdirectory(${CMAKE_SOURCE_DIR}/External/json)
-target_link_libraries(${TARGET} PUBLIC nlohmann_json)
-
-
 
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
         ${CMAKE_SOURCE_DIR}/Internal/

@@ -183,6 +183,8 @@ void Application::PostRender()
 }
 
 Application::~Application() {
+    GlobalVariables::SaveConfig(*m_client, *m_uiContext);
+
     if (!GlobalVariables::hasSessionBeenSaved)
     {
         for (const auto& entry : std::filesystem::directory_iterator(GlobalVariables::textureFolder))

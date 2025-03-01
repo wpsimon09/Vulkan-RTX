@@ -11,6 +11,13 @@
 #include "filesystem"
 
 
+namespace VEditor
+{
+    class UIContext;
+}
+
+class Client;
+
 namespace GlobalVariables {
     inline const std::vector<const char *> validationLayers = {
       "VK_LAYER_KHRONOS_validation"
@@ -44,13 +51,14 @@ namespace GlobalVariables {
 
     inline int PointLightCount = 0;
 
+    inline const std::filesystem::path configFolder("cache/");
     inline const std::filesystem::path textureFolder("cache/textures/");
     inline const std::filesystem::path defaultTextureFile("Resources/DefaultTexture.jpg");
 
     inline bool hasSessionBeenSaved = false;
 
-    void SaveParse();
-    void LoadGlobalVariables();
+    void SaveConfig(Client& client, VEditor::UIContext& uiContext);
+    void LoadConfig();
 
 }
 
