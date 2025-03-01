@@ -5,6 +5,8 @@
 #ifndef TRANSFROMATIONS_HPP
 #define TRANSFROMATIONS_HPP
 
+#include <glm/detail/type_quat.hpp>
+
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -22,6 +24,8 @@ private:
     glm::mat4 m_rotationMatrix;
     glm::mat4 m_alteredModelMatrix = glm::mat4(1.0f);
 
+    glm::quat m_rotationQuat;
+
     bool m_isDirty = true;
     bool m_hasRotationChanged = false;
     bool m_calculateLocalModelMatrix = false;
@@ -30,6 +34,8 @@ private:
 public:
     Transformations();
     Transformations(glm::vec3 position, glm::vec3 scale, glm::vec3 rotations);
+    Transformations(glm::vec3 position, glm::vec3 scale, glm::quat rotations);
+
 
     void ComputeModelMatrix();
     void ComputeModelMatrix(glm::mat4 &parentGlobalMatrix);
@@ -39,8 +45,10 @@ public:
     void SetPosition(float x, float y, float z);
 
     glm::vec3 &GetRotations();
+    glm::quat &GetRotationsQuat();
     void SetRotations(const glm::vec3 &rotations);
     void SetRotations(float x, float y, float z);
+    void SetRotation(const glm::quat &rotation);
 
     glm::vec3 &GetScale();
     void SetScale(const glm::vec3 &scale);
