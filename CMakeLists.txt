@@ -164,6 +164,8 @@ set(SOURCES
         Internal/Editor/Views/Settings/Settings.hpp
         External/ImGuizmo/ImGuizmo.h
         External/ImGuizmo/ImGuizmo.cpp
+        Internal/Application/Utils/GizmoUtils.hpp
+        Internal/Application/Utils/GizmoUtils.cpp
 )
 
 

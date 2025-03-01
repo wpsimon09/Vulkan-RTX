@@ -14,6 +14,7 @@
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
+#include "Application/Utils/GizmoUtils.hpp"
 #include "Application/Utils/MathUtils.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
@@ -22,6 +23,7 @@
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "IconFontCppHeaders/IconsFontAwesome6.h"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
+#include "Application/Utils/GizmoUtils.hpp"
 
 namespace VEditor
 {
@@ -115,45 +117,8 @@ namespace VEditor
     {
         m_selectedSceneNode = m_client.GetScene().GetSelectedSceneNode();
 
-            if (m_selectedSceneNode) {
-                ImGuizmo::Enable(true);
+        ApplicationCore::RenderAndUseGizmo(m_selectedSceneNode, m_client.GetCamera().GetViewMatrix(), m_client.GetCamera().GetProjectionMatrix());
 
-                glm::mat4 projection = m_client.GetCamera().GetProjectionMatrix();
-                projection[1][1] *= -1;
-                glm::mat4 view = m_client.GetCamera().GetViewMatrix();
-
-                glm::mat4 model = m_selectedSceneNode->m_transformation->GetModelMatrix();
-
-                ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), ImGuizmo::currentOperation,ImGuizmo::MODE::WORLD, glm::value_ptr(model));
-
-                if (model != m_selectedSceneNode->m_transformation->GetModelMatrix())
-                {
-                    glm::vec3 t, r, s;
-                    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(t), glm::value_ptr(r), glm::value_ptr(s));
-
-                    if (ImGuizmo::currentOperation == ImGuizmo::OPERATION::TRANSLATE)
-                    {
-                        m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetPosition(t[0], t[1], t[2]);
-                    }
-                    if(ImGuizmo::currentOperation == ImGuizmo::OPERATION::ROTATE)
-                    {
-
-                        Utils::Logger::LogInfo("Roataion is X:" + std::to_string(r[0]) + "Y: " + std::to_string(r[1]) + "Z: "  + std::to_string(r[2]) );
-                        glm::vec3 currentRotation(r[0], r[1], r[2]);
-                        m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetRotations(currentRotation);
-                    }
-                    if (ImGuizmo::currentOperation == ImGuizmo::OPERATION::SCALE)
-                    {
-                        m_client.GetScene().GetSelectedSceneNode()->m_transformation->SetScale(s[0], s[1], s[2]);
-                    }
-
-
-                }
-
-        }else
-        {
-            ImGuizmo::Enable(false);
-        }
         ImGui::Render();
         m_imguiDrawData = ImGui::GetDrawData();
     }
