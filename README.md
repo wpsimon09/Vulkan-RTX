@@ -17,7 +17,7 @@ The goal is to eventually transition from a purely shader-based ray tracing impl
 ## Notes
 
 - Current code needs quite a lot of refactoring and simplification.
-- Ray Tracer **does not** represent the scene that is rendered with raster pipeline
+- Ray Tracer **does not** yet represent the scene that is rendered with raster pipeline
 - Ray Tracer **does not** yet use accumulated average to de-noise the rendered image
 - This is quite silly project for me to learn how ray tracing and Vulkan works
 
@@ -29,9 +29,9 @@ The goal is to eventually transition from a purely shader-based ray tracing impl
 git clone https://github.com/wpsimon09/Vulkan-RTX.git --recursive  ## recursive has to be there 
 ```
 
-### 2. Downoald GLFW
+### 2. Download GLFW
 
-- this lybrary is used for window creating and giving context to the Vulkan
+- this library is used for window creation and provides context for Vulkan
 
 **On windows**
 - [downald link](https://www.glfw.org/)
@@ -65,17 +65,23 @@ cmake --build .
 
 ### 5. Compile shaders
 
-**For windows**
-- run the powershell script in `Shaders` directory
+**Download slang for your OS from [here](https://github.com/shader-slang/slang/releases)**
 
+**For windows**
+
+- modify the `$SLANGC_PATH` in `compileSlang.ps1` to point to the `slangc.exe` that you have just downloaded 
+- run the powershell script `compileSlang.ps1`
+- 
 ```powershell
 cd ./Shaders
 Set-ExecutionPolicy Unrestricted -Scope Process
 .\compileSlang.ps1
 ```
 
-**Linux**
-- run the powershell script in `Shaders` directory
+**For Linux**
+
+- run the shell script in `Shaders` directory
+- modify the `$SLANGC_PATH` in `compileSlang.sh` to point to the `slangc` that you have just downloaded
 
 ```sh
 cd ./Shaders
