@@ -317,10 +317,16 @@ namespace ApplicationCore
                     const auto* transform = std::get_if<fastgltf::TRS>(&node.transform);
 
 
+                    glm::quat rotation = glm::quat();
+                    rotation.x = transform->rotation.x();
+                    rotation.y = transform->rotation.y();
+                    rotation.z = transform->rotation.z();
+                    rotation.w = transform->rotation.w();
+
                     Transformations transformations(
                         glm::vec3(transform->translation.x(), transform->translation.y(), transform->translation.z()),
                         glm::vec3(1.0f),
-                        MathUtils::QuaternionToEuler(transform->rotation));
+                        rotation);
                     newNode->SetLocalTransform(transformations);
                 }
 

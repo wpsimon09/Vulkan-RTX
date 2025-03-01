@@ -20,6 +20,12 @@ ApplicationCore::Transformations::Transformations(glm::vec3 position, glm::vec3 
     m_isDirty = false;
 }
 
+ApplicationCore::Transformations::Transformations(glm::vec3 position, glm::vec3 scale, glm::quat rotations):m_position(position), m_rotationQuat(rotations), m_scale(scale)
+{
+    m_rotation = glm::eulerAngles(m_rotationQuat);
+    m_modelMatrix = ComputeLocalModelMatrix();
+}
+
 glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix() {
         //make rotation matrix
         m_rotationQuat = glm::quat(glm::radians(m_rotation));

@@ -34,6 +34,8 @@ private:
 public:
     Transformations();
     Transformations(glm::vec3 position, glm::vec3 scale, glm::vec3 rotations);
+    Transformations(glm::vec3 position, glm::vec3 scale, glm::quat rotations);
+
 
     void ComputeModelMatrix();
     void ComputeModelMatrix(glm::mat4 &parentGlobalMatrix);

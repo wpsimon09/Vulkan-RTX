@@ -153,8 +153,9 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
         node.name = sceneNode->GetName();
     
         fastgltf::TRS trs;
+        auto& quat =  sceneNode->m_transformation->GetRotationsQuat();
         trs.translation = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetPosition().x, sceneNode->m_transformation->GetPosition().y, sceneNode->m_transformation->GetPosition().z);    
-        trs.rotation = MathUtils::EulerToQuaternion(sceneNode->m_transformation->GetRotations());
+        trs.rotation = fastgltf::math::quat<float>(quat.x, quat.y, quat.z, quat.w);
         trs.scale = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetScale().x, sceneNode->m_transformation->GetScale().y, sceneNode->m_transformation->GetScale().z);
         node.transform = trs;
         asset.nodes.push_back(std::move(node));
