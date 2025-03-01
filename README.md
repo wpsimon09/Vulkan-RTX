@@ -21,6 +21,42 @@ The goal is to eventually transition from a purely shader-based ray tracing impl
 - Ray Tracer **does not** yet use accumulated average to de-noise the rendered image
 - This is quite silly project for me to learn how ray tracing and Vulkan works
 
+## Build
+
+1. Clone this repo
+
+```sh
+git clone https://github.com/wpsimon09/Vulkan-RTX.git --recursive  ## recursive has to be there 
+```
+2. Build the project
+
+```sh
+cd Vulkan-RTX ## navigate to repo
+mkdir build ## create build directory
+cd build ## go to the build directory
+cmake -DCMAKE_BUILD_TYPE=Release -S ../ -B . ## write build files
+cmake --build .
+```
+
+3. Compile shaders
+
+**For windows**
+- run the powershell script in `Shaders` directory
+
+```powershell
+cd ./Shaders
+Set-ExecutionPolicy Unrestricted -Scope Process
+.\compileSlang.ps1
+```
+
+**Linux**
+```sh
+cd ./Shaders
+chmod +x compileSlang.sh
+./compileSlang.sh
+```
+
+
 ## Little showcase
 
 ### Editor
