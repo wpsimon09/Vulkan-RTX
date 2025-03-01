@@ -125,19 +125,38 @@ void VEditor::ViewPort::RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSiz
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 1.0f)); // Fully visible when clicked
 
     ImGui::SetCursorScreenPos({imageOrigin.x, imageOrigin.y});
+
     if (ImGui::Button(ICON_FA_UP_DOWN_LEFT_RIGHT))
     {
         ImGuizmo::currentOperation = ImGuizmo::TRANSLATE;
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_FA_ARROW_DOWN"##down1"))
+        {
+            ImGui::SliderInt("Snapping##1", &ImGuizmo::SNAP_TRANSLATE, 0, 20);
+        }
     }
+
 
     if (ImGui::Button(ICON_FA_ROTATE))
     {
         ImGuizmo::currentOperation = ImGuizmo::ROTATE;
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_FA_ARROW_DOWN"##down2"))
+        {
+            ImGui::SliderInt("Snapping##2", &ImGuizmo::SNAP_ROTATE, 0, 20);
+        }
     }
+
+
 
     if (ImGui::Button(ICON_FA_EXPAND))
     {
         ImGuizmo::currentOperation = ImGuizmo::SCALE;
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_FA_ARROW_DOWN"##down3"))
+        {
+            ImGui::SliderInt("Snapping##3", &ImGuizmo::SNAP_SNAP_SCALE, 0, 20);
+        }
     }
     ImGui::PopStyleColor(3);
 

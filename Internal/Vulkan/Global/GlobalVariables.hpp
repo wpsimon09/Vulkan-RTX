@@ -46,6 +46,12 @@ namespace GlobalVariables {
 
     inline const std::filesystem::path textureFolder("cache/textures/");
     inline const std::filesystem::path defaultTextureFile("Resources/DefaultTexture.jpg");
+
+    inline bool hasSessionBeenSaved = false;
+
+    void SaveParse();
+    void LoadGlobalVariables();
+
 }
 
 #endif //GLOBALVARIABLES_HPP

@@ -20,7 +20,15 @@ void ApplicationCore::RenderAndUseGizmo(std::shared_ptr<ApplicationCore::SceneNo
 
    glm::mat4 model = m_selectedSceneNode->m_transformation->GetModelMatrix();
 
-   ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(proj), ImGuizmo::currentOperation,ImGuizmo::MODE::WORLD, glm::value_ptr(model));
+   float snap;
+   switch (ImGuizmo::currentOperation)
+   {
+       case ImGuizmo::ROTATE: snap = ImGuizmo::SNAP_ROTATE; break;
+       case ImGuizmo::TRANSLATE: snap = ImGuizmo::SNAP_TRANSLATE; break;
+       case ImGuizmo::SCALE: snap = ImGuizmo::SNAP_SNAP_SCALE; break;
+   }
+
+   ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(proj), ImGuizmo::currentOperation,ImGuizmo::WORLD, glm::value_ptr(model), 0, &snap);
 
    if (model != m_selectedSceneNode->m_transformation->GetModelMatrix())
    {

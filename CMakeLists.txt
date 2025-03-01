@@ -201,11 +201,18 @@ target_link_libraries(${TARGET} PRIVATE fastgltf)
 target_include_directories(${TARGET} PRIVATE ${GLM_INCLUDE_DIRS})
 
 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(${CMAKE_SOURCE_DIR}/External/json)
+target_link_libraries(${TARGET} PUBLIC nlohmann_json)
+
+
+
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
         ${CMAKE_SOURCE_DIR}/Internal/
         ${CMAKE_SOURCE_DIR}/External/
         ${CMAKE_SOURCE_DIR}/External/IconFontCppHeaders
 )
+
 
 file(COPY ${CMAKE_SOURCE_DIR}/Resources DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${CMAKE_SOURCE_DIR}/Shaders DESTINATION ${CMAKE_BINARY_DIR})

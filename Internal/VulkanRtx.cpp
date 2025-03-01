@@ -183,6 +183,13 @@ void Application::PostRender()
 }
 
 Application::~Application() {
+    if (!GlobalVariables::hasSessionBeenSaved)
+    {
+        for (const auto& entry : std::filesystem::directory_iterator(GlobalVariables::textureFolder))
+        {
+            std::filesystem::remove_all(entry.path());
+        }
+    }
     m_vulkanDevice->GetDevice().waitIdle();
     m_renderingSystem->Destroy();
     m_client->Destroy();

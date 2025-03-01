@@ -43,6 +43,7 @@ namespace VEditor {
                 if (ImGui::MenuItem(ICON_FA_FILE" Save"))
                 {
                     Utils::Logger::LogInfo("Saving scene...");
+                    GlobalVariables::hasSessionBeenSaved = true;
                     m_editor->m_uiContext.GetClient().GetGLTFExporter().ExportScene(
                     "cache",
                         m_editor->m_uiContext.GetScene(),
