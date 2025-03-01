@@ -209,6 +209,10 @@ namespace IMGUIZMO_NAMESPACE
    };
 
    inline IMGUI_API OPERATION currentOperation;
+   inline IMGUI_API int SNAP_ROTATE;
+   inline IMGUI_API int SNAP_TRANSLATE;
+   inline IMGUI_API int SNAP_SNAP_SCALE;
+
 
    inline OPERATION operator|(OPERATION lhs, OPERATION rhs)
    {
