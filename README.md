@@ -53,7 +53,7 @@ sudo zypper install glfw-devel
 
 ```
 
-### 4. Build the project
+### 3. Build the project
 
 ```sh
 cd Vulkan-RTX ## navigate to repo
@@ -63,7 +63,7 @@ cmake -DCMAKE_BUILD_TYPE=Release -S ../ -B . ## write build files
 cmake --build .
 ```
 
-### 5. Compile shaders
+### 4. Compile shaders
 
 **Download slang for your OS from [here](https://github.com/shader-slang/slang/releases)**
 
