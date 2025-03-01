@@ -22,6 +22,7 @@ ApplicationCore::Transformations::Transformations(glm::vec3 position, glm::vec3 
 
 glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix() {
         //make rotation matrix
+        m_rotationQuat = glm::quat(glm::radians(m_rotation));
         m_rotationMatrix = glm::mat4_cast(m_rotationQuat);
 
         //compute model matrix from rotation, position and scle
