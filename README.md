@@ -24,7 +24,7 @@ The goal is to eventually transition from a purely shader-based ray tracing impl
 ## Little showcase
 
 ### Editor
-![image](https://github.com/user-attachments/assets/f1e7d17c-6f74-4f92-823b-fa550d9ef354)
+![Screenshot From 2025-03-01 15-36-51](https://github.com/user-attachments/assets/3b28c2e6-ecd4-457e-818f-900dd92dffb3)
 
 ![image](https://github.com/user-attachments/assets/d3b2c80b-2ad4-4eef-96e0-6b3747bfcaf9)
 
