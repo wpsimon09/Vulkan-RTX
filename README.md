@@ -23,12 +23,37 @@ The goal is to eventually transition from a purely shader-based ray tracing impl
 
 ## Build
 
-1. Clone this repo
+### 1. Clone this repo
 
 ```sh
 git clone https://github.com/wpsimon09/Vulkan-RTX.git --recursive  ## recursive has to be there 
 ```
-2. Build the project
+
+### 2. Downoald GLFW
+
+- this lybrary is used for window creating and giving context to the Vulkan
+
+**On windows**
+- [downald link](https://www.glfw.org/)
+
+**On Linux**
+     
+```sh
+# On Ubuntu/Debian:
+sudo apt update && sudo apt install -y libglfw3 libglfw3-dev
+
+# On Arch Linux:
+sudo pacman -S glfw --noconfirm
+
+# On Fedora (Red Hat-based distros):
+sudo dnf install -y glfw glfw-devel
+
+# On openSUSE:
+sudo zypper install glfw-devel
+
+```
+
+### 4. Build the project
 
 ```sh
 cd Vulkan-RTX ## navigate to repo
@@ -38,7 +63,7 @@ cmake -DCMAKE_BUILD_TYPE=Release -S ../ -B . ## write build files
 cmake --build .
 ```
 
-3. Compile shaders
+### 5. Compile shaders
 
 **For windows**
 - run the powershell script in `Shaders` directory
@@ -50,12 +75,14 @@ Set-ExecutionPolicy Unrestricted -Scope Process
 ```
 
 **Linux**
+- run the powershell script in `Shaders` directory
+
 ```sh
 cd ./Shaders
 chmod +x compileSlang.sh
 ./compileSlang.sh
 ```
-
+---
 
 ## Little showcase
 
