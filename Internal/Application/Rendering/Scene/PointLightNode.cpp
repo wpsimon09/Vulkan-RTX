@@ -27,6 +27,7 @@ namespace ApplicationCore {
 
 
         m_index = sceneLightInfo.AddPointLight(&m_lightStruct);
+        m_transformation->SetPosition(m_lightStruct.position);
     }
 
     void PointLightNode::Render(VulkanStructs::RenderContext* renderingContext) const

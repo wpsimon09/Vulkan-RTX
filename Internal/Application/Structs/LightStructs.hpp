@@ -8,12 +8,17 @@
 #include <array>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 #include <vector>
 
 namespace LightStructs {
 struct AreaLight {
   glm::vec3 colour;
   float intensity;
+  glm::vec3 position;
+  glm::vec2 scale;
+  glm::quat orientation;
 
   bool twoSided;
   std::array<glm::vec4, 4> edges = {

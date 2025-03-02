@@ -351,8 +351,11 @@ void ApplicationCore::GLTFExporter::ParseLights(Scene& scene)
     mINI::INIFile iniFile(m_lightInfoPath);
     mINI::INIStructure ini;
 
+
+    //=======================================
+    // POINT LIGHTS
+    //========================================
     ini["point"]["count"] = std::to_string(lightInfo.PointLightInfos.size());
-    // save point lights
     for (int i = 0; i<lightInfo.PointLightInfos.size(); i++)
     {
         auto pointLightKey = "point-light-" + std::to_string(i);
@@ -378,9 +381,57 @@ void ApplicationCore::GLTFExporter::ParseLights(Scene& scene)
         }
     }
 
-    // save area lights
+    //=======================================
+    // AREA LIGHTS
+    //========================================
+    ini["area"]["count"] = std::to_string(lightInfo.AreaLightInfos.size());
+    for (int i = 0; i<lightInfo.AreaLightInfos.size(); i++)
+    {
+        auto areaLightKey = "area-light-" + std::to_string(i);
+        auto& areaLight = lightInfo.AreaLightInfos[i];
+        if (areaLight != nullptr)
+        {
+            ini[areaLightKey].set({
+                {"colR" , std::to_string(areaLight->colour.x)},
+                {"colG" , std::to_string(areaLight->colour.y)},
+                {"colB" , std::to_string(areaLight->colour.z)},
+                {"colA" , std::to_string(areaLight->intensity)},
+
+                {"posX", std::to_string(areaLight->position.x)},
+                {"posY", std::to_string(areaLight->position.y)},
+                {"posZ", std::to_string(areaLight->position.z)},
+
+                {"scaleX", std::to_string(areaLight->scale.x)},
+                {"scaleY", std::to_string(areaLight->scale.y)},
+
+                {"quatX", std::to_string(areaLight->orientation.x)},
+                {"quatY", std::to_string(areaLight->orientation.y)},
+                {"quatZ", std::to_string(areaLight->orientation.z)},
+                {"quatW", std::to_string(areaLight->orientation.w)},
+
+
+                {"twoSided", std::to_string(areaLight->twoSided)},
+                {"isInUse", std::to_string(areaLight->isAreaLightInUse)}
+
+            });
+        }
+    }
 
     // save directional light
+
+    if (lightInfo.DirectionalLightInfo != nullptr)
+    {
+        auto& dirLight = lightInfo.DirectionalLightInfo;
+        ini["directional"]["directionX"] = std::to_string(dirLight->direction.x);
+        ini["directional"]["directionY"] = std::to_string(dirLight->direction.y);
+        ini["directional"]["directionZ"] = std::to_string(dirLight->direction.z);
+
+        ini["directional"]["colR"] = std::to_string(dirLight->colour.x);
+        ini["directional"]["colG"] = std::to_string(dirLight->colour.y);
+        ini["directional"]["colB"] = std::to_string(dirLight->colour.z);
+        ini["directional"]["colA"] = std::to_string(dirLight->colour.w); // intensity
+    }
+
 
 
     assert(iniFile.generate(ini, true) == true && "Failed to save light info)");
