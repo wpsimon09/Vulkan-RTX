@@ -167,7 +167,8 @@ set(SOURCES
         Internal/Application/Utils/GizmoUtils.hpp
         Internal/Application/Utils/GizmoUtils.cpp
         External/tINI/ini.h
-        Internal/Vulkan/Global/GlobalVariables.cpp
+        Internal/Application/Utils/Parsers/EngineDataParser.hpp
+        Internal/Application/Utils/Parsers/EngineDataParser.cpp
 )
 
 

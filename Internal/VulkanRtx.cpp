@@ -49,6 +49,7 @@
 // Im gui entry
 #include "Application/Utils/LinearyTransformedCosinesValues.hpp"
 #include "Application/Utils/MathUtils.hpp"
+#include "Application/Utils/Parsers/EngineDataParser.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
@@ -119,6 +120,9 @@ void Application::Init()
     }*/
 
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
+
+
+    ApplicationCore::LoadConfig(*m_client, *m_uiContext);
 }
 
 void Application::MainLoop()
@@ -183,7 +187,7 @@ void Application::PostRender()
 }
 
 Application::~Application() {
-    GlobalVariables::SaveConfig(*m_client, *m_uiContext);
+    ApplicationCore::SaveConfig(*m_client, *m_uiContext);
 
     if (!GlobalVariables::hasSessionBeenSaved)
     {

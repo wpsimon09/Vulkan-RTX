@@ -57,8 +57,6 @@ namespace GlobalVariables {
 
     inline bool hasSessionBeenSaved = false;
 
-    void SaveConfig(Client& client, VEditor::UIContext& uiContext);
-    void LoadConfig();
 
 }
 
