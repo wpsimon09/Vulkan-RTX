@@ -7,7 +7,7 @@
 #include "Application/Structs/LightStructs.hpp"
 
 namespace ApplicationCore {
-    AreaLightNode::AreaLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh): LightNode<LightStructs::AreaLight>(mesh), m_sceneLightInfo(sceneLightInfo)
+    AreaLightNode::AreaLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh, LightStructs::AreaLight* areaLightData): LightNode<LightStructs::AreaLight>(mesh, areaLightData), m_sceneLightInfo(sceneLightInfo)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::AreaLightNode;
         m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
@@ -16,6 +16,7 @@ namespace ApplicationCore {
         m_sceneNodeMetaData.RenderingMetaData.bDebugGeometryPass = true;
 
         m_index = sceneLightInfo.AddAreaLight(&m_lightStruct);
+
     }
 
     void AreaLightNode::Render(VulkanStructs::RenderContext* renderingContext) const

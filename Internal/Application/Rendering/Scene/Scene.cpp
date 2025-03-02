@@ -120,8 +120,7 @@ namespace ApplicationCore {
     void Scene::AddDirectionalLight(LightStructs::DirectionalLight* directionalLightInfo)
     {
         if(m_sceneLightInfo.DirectionalLightInfo == nullptr){
-            auto light = std::make_shared<DirectionLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight));
-            light->m_transformation->SetScale(20.0f);
+            auto light = std::make_shared<DirectionLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight), directionalLightInfo);
             light->SetName(light->GetMesh()->GetName());
             AddNode(light);
         }else{
@@ -134,8 +133,7 @@ namespace ApplicationCore {
     {
         if(m_sceneLightInfo.PointLightInfos.size() < 20){
 
-            auto light = std::make_shared<PointLightNode>(m_sceneLightInfo,pointLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::PointLight));
-            light->m_transformation->SetScale(20.0f);
+            auto light = std::make_shared<PointLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::PointLight), pointLightInfo);
             light->SetName(light->GetMesh()->GetName());
             AddNode(light);
         }else{
@@ -146,7 +144,7 @@ namespace ApplicationCore {
     void Scene::AddAreaLight(LightStructs::AreaLight* areaLightInfo)
     {
         if(m_sceneLightInfo.AreaLightInfos.size()<4){
-            auto light = std::make_shared<AreaLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::AreaLight));
+            auto light = std::make_shared<AreaLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::AreaLight), areaLightInfo);
             light->m_transformation->SetScale(20.0f);
             light->SetName(light->GetMesh()->GetName());
             AddNode(light);

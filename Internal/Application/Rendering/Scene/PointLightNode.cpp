@@ -17,13 +17,14 @@ namespace ApplicationCore {
     }
 
     PointLightNode::PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo,
-        LightStructs::PointLight* pointLightData, std::shared_ptr<StaticMesh> mesh):LightNode::LightNode<LightStructs::PointLight>(mesh, pointLightData), m_sceneLightInfo(sceneLightInfo)
+        std::shared_ptr<StaticMesh> mesh, LightStructs::PointLight* pointLightData):LightNode::LightNode<LightStructs::PointLight>(mesh, pointLightData), m_sceneLightInfo(sceneLightInfo)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::PointLightNode;
         m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
         m_sceneNodeMetaData.RenderingMetaData.bEditorBillboardPass = true;
         m_sceneNodeMetaData.RenderingMetaData.bDebugGeometryPass = false;
         m_sceneNodeMetaData.RenderingMetaData.bTransparentPass = false;
+
 
         m_index = sceneLightInfo.AddPointLight(&m_lightStruct);
     }

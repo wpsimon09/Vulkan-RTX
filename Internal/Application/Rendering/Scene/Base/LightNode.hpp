@@ -26,6 +26,7 @@ template <typename T>
 LightNode<T>::LightNode(std::shared_ptr<StaticMesh> mesh,T* lightData):SceneNode(mesh), m_lightStruct()
 {
     m_lightStruct = lightData !=nullptr ? *lightData : m_lightStruct;
+
 }
 
 template <typename T>

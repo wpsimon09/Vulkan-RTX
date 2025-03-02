@@ -7,7 +7,7 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 
 namespace ApplicationCore {
-    DirectionLightNode::DirectionLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh): LightNode<LightStructs::DirectionalLight>(mesh), m_sceneLightInfo(sceneLightInfo)
+    DirectionLightNode::DirectionLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh,LightStructs::DirectionalLight* directionalLightData): LightNode<LightStructs::DirectionalLight>(mesh, directionalLightData), m_sceneLightInfo(sceneLightInfo)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::DirectionalLightNode;
         m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
@@ -16,7 +16,9 @@ namespace ApplicationCore {
         m_sceneNodeMetaData.RenderingMetaData.bTransparentPass = false;
 
         sceneLightInfo.DirectionalLightInfo = &m_lightStruct;
+        m_transformation->SetPosition(m_lightStruct.direction);
     }
+
 
     void DirectionLightNode::Render(VulkanStructs::RenderContext* renderingContext) const
     {
