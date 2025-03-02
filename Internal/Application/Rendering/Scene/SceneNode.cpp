@@ -49,7 +49,7 @@ namespace ApplicationCore
 
     void SceneNode::AddChild(const std::shared_ptr<SceneNode>& child)
     {
-        if (child)
+        if (child != nullptr)
         {
             m_children.emplace_back(child);
             child->m_parent = this;

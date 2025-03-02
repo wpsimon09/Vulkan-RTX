@@ -45,6 +45,7 @@ namespace ApplicationCore {
         void CreateScene(fastgltf::Asset& asset,Scene& scene);
         void ParseLights(Scene& scene);
         void Clear();
+        static bool IsNodeValid(const std::shared_ptr<SceneNode>& sceneNode);
 
 
     private:

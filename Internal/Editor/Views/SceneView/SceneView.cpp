@@ -131,7 +131,6 @@ namespace VEditor {
         //======================================================
         ImGui::SetNextItemOpen(sceneNode->IsOpen());
 
-
         bool nodeOpen = ImGui::TreeNodeEx(nodeLabel.c_str(), nodeFlags);
         {
 

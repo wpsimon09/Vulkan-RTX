@@ -197,8 +197,10 @@ namespace ApplicationCore
                     }
                     if (p.materialIndex.has_value())
                     {
-                        mat = materials[p.materialIndex.value()];
+                        if (p.materialIndex >0)
+                            mat = materials[p.materialIndex.value()];
                     }
+
 
                     size_t initialIndex = vertices.size();
 

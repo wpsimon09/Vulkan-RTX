@@ -147,7 +147,7 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     //===================================================
     // PARSE MESH DATA
     //===================================================
-    if(sceneNode->GetName() != "Root-Node")
+    if(IsNodeValid(sceneNode))
     {
         fastgltf::Node node{};
         if(sceneNode->HasMesh()){
@@ -159,11 +159,13 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
         
         node.name = sceneNode->GetName();
     
-        fastgltf::TRS trs;
+        fastgltf::TRS  trs;
+
         auto& quat =  sceneNode->m_transformation->GetRotationsQuat();
-        trs.translation = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetPosition().x, sceneNode->m_transformation->GetPosition().y, sceneNode->m_transformation->GetPosition().z);    
+        trs.translation = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetPosition().x, sceneNode->m_transformation->GetPosition().y, sceneNode->m_transformation->GetPosition().z);
         trs.rotation = fastgltf::math::quat<float>(quat.x, quat.y, quat.z, quat.w);
         trs.scale = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetScale().x, sceneNode->m_transformation->GetScale().y, sceneNode->m_transformation->GetScale().z);
+
         node.transform = trs;
         asset.nodes.push_back(std::move(node));
         
@@ -324,7 +326,7 @@ void ApplicationCore::GLTFExporter::OrganiseScene(fastgltf::Asset &asset)
 {
     for (auto it = m_nodes.begin(); it != m_nodes.end(); ++it)
     {   
-       if(!it->first->GetChildrenByRef().empty()){
+       if(!it->first->GetChildrenByRef().empty() && IsNodeValid(it->first)){
             for(auto& child : it->first->GetChildrenByRef()){
                 asset.nodes[it->second].children.push_back(m_nodes[child]);
             }
@@ -350,7 +352,6 @@ void ApplicationCore::GLTFExporter::ParseLights(Scene& scene)
 
     mINI::INIFile iniFile(m_lightInfoPath);
     mINI::INIStructure ini;
-
 
     //=======================================
     // POINT LIGHTS
@@ -447,4 +448,12 @@ void ApplicationCore::GLTFExporter::Clear()
     m_textureToIndex.clear();
     
     m_nodeCounter = 0;  
+}
+
+bool ApplicationCore::GLTFExporter::IsNodeValid(const std::shared_ptr<SceneNode>& sceneNode)
+{
+    return (sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::AreaLightNode &&
+          sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::DirectionalLightNode &&
+          sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::PointLightNode );
+
 }
