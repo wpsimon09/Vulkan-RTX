@@ -4,6 +4,7 @@
 
 #include "ModelImportOptions.hpp"
 
+#include <future>
 #include <IconsFontAwesome6.h>
 #include <imgui.h>
 
@@ -29,6 +30,8 @@ namespace VEditor {
 
 
             if (ImGui::Button("Import")){
+                auto loadedNodes = std::async([this](){return m_gltfLoader.LoadGLTFScene(*m_path, m_options);});
+
                 ImGui::OpenPopup("Importing");
 
                 if (ImGui::BeginPopupModal("Importing"))
@@ -37,13 +40,16 @@ namespace VEditor {
 
                     ImGui::EndPopup();
 
-                    const auto loadedNodes = m_gltfLoader.LoadGLTFScene(*m_path, m_options);
-                    for (const auto& scene_node : loadedNodes)
+
+                    if (loadedNodes.valid())
                     {
-                        m_scene.AddNode(scene_node);
+                        for (auto& scene_node : loadedNodes.get())
+                        {
+                            m_scene.AddNode(scene_node);
+                        }
+                        ImGui::CloseCurrentPopup();
                     }
 
-                    ImGui::CloseCurrentPopup();
                 }
                 ImGui::CloseCurrentPopup();
             };

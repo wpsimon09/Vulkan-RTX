@@ -12,6 +12,7 @@
 
 namespace VEditor
 {
+    class Settings;
     class MenuBar;
 }
 
@@ -43,6 +44,7 @@ private:
     void RenderPreformanceOverlay() const;
 
     friend class VEditor::MenuBar;
+    friend class VEditor::Settings;
 };
 
 } // VEditor

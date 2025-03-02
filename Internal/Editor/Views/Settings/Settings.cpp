@@ -4,12 +4,16 @@
 
 #include "Settings.hpp"
 
+#include <future>
 #include <IconsFontAwesome6.h>
 #include <imgui.h>
 
+#include "VulkanRtx.hpp"
 #include "Application/Client.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
+#include "Application/Utils/Parsers/EngineDataParser.hpp"
+#include "Editor/Editor.hpp"
 
 namespace VEditor {
     Settings::Settings(Client& client, Editor* editor): m_client(client), m_editor(editor)
@@ -51,8 +55,11 @@ namespace VEditor {
 
                 ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 50);
                 ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 30);
-                if (ImGui::Button("Close"))
+                if (ImGui::Button("Close and save "))
                 {
+                    std::async([this](){
+                        ApplicationCore::SaveConfig(m_client, m_editor->m_uiContext);
+                    });
                     m_isOpen = false;
                 }
 

@@ -15,25 +15,23 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
 
     mINI::INIFile engineConfigFile(engineConfigPath);
 
-    //===================================
-    // engine related
-    //===================================
-    mINI::INIStructure engineConfig;
+
+    //=======================================
+    // CAMERA CONFIG
+    //=======================================
     auto &cam = client.GetCamera();
-    engineConfig["Camera"]["FOV"] =   std::to_string(cam.GetFOV());
-    engineConfig["Camera"]["Far"] =   std::to_string(cam.GetFarPlane());
-    engineConfig["Camera"]["Near"] =  std::to_string(cam.GetNearPlane());
-    engineConfig["Camera"]["Speed"] = std::to_string(cam.GetSpeed());
+    EngineConfig["Camera"].set({
+        {"FOV", std::to_string(cam.GetFOV())},
+        {"Near", std::to_string(cam.GetNearPlane()) },
+        {"Far", std::to_string(cam.GetFarPlane())},
+        {"Speed", std::to_string(cam.GetSpeed())},
+    });
 
-    if (engineConfigFile.write(engineConfig, true)) Utils::Logger::LogSuccessClient("Engine config saved");
+    //=======================================
+    // UPDATE THE CONFIG
+    //=======================================
+    if (engineConfigFile.write(EngineConfig, true)) Utils::Logger::LogSuccessClient("Engine config saved");
     else Utils::Logger::LogErrorClient("Failed to save engine config! ");
-
-
-    //=====================================
-    // LIGHT DATA GOES TO ANOTHER INI FILE
-    //=====================================
-    const std::string lightInfoPath = GlobalVariables::configFolder / "LightInfo.ini";
-    mINI::INIFile lightInfoFile(lightInfoPath);
 
 }
 
@@ -48,4 +46,13 @@ void ApplicationCore::LoadConfig(Client& client, VEditor::UIContext& uiContext)
 
         assert(engineConfigFile.generate(EngineConfig, true) == true);
     }
+
+    //=======================================
+    // CAMERA CONFIG
+    //=======================================
+    auto &cam = client.GetCamera();
+    cam.GetFOV() = std::stof(EngineConfig["Camera"]["FOV"]);
+    cam.GetNearPlane() = std::stof(EngineConfig["Camera"]["Near"]);
+    cam.GetFarPlane() = std::stof(EngineConfig["Camera"]["Far"]);
+    cam.GetSpeed() = std::stof(EngineConfig["Camera"]["Speed"]);
 }
