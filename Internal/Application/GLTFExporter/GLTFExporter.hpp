@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#include "tINI/ini.h"
+
 namespace fastgltf
 {
     struct Node;
@@ -29,7 +31,7 @@ namespace ApplicationCore {
 
     class GLTFExporter {
     public:
-        GLTFExporter() = default;
+        GLTFExporter();
     
         void ExportScene(std::filesystem::path path, Scene& scene,AssetsManager& assetsManager);
         
@@ -41,6 +43,7 @@ namespace ApplicationCore {
         void ParseMesh(fastgltf::Asset& asset, std::shared_ptr<StaticMesh> mesh);
         void OrganiseScene(fastgltf::Asset& asset);
         void CreateScene(fastgltf::Asset& asset,Scene& scene);
+        void ParseLights(Scene& scene);
         void Clear();
 
 
@@ -49,12 +52,14 @@ namespace ApplicationCore {
         std::filesystem::path m_textureDirectory;
 
         std::vector<TextureBufferView> m_fetchedTextureViews;
-        //TODO: change all VImage to VTexture2DAsset
         std::unordered_map<ApplicationCore::VTextureAsset*, int> m_textureToIndex;
         std::unordered_map<std::shared_ptr<Material>, int> m_materialToIndex;
         std::unordered_map<std::shared_ptr<StaticMesh>, int> m_meshToIndex;
         std::unordered_map<std::shared_ptr<SceneNode>, int> m_nodes;
         std::unordered_map<std::shared_ptr<SceneNode>, int> m_childNodes;
+
+        std::filesystem::path m_lightInfoPath;
+        mINI::INIFile m_lightInfo;
     };
 }
 

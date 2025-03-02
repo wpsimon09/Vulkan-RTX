@@ -27,6 +27,13 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
         {"Speed", std::to_string(cam.GetSpeed())},
     });
 
+    //========================================
+    // OTHERS
+    //========================================
+    EngineConfig["Other"].set({
+        {"HasBeenSaved", std::to_string(GlobalVariables::hasSessionBeenSaved)}
+    });
+
     //=======================================
     // UPDATE THE CONFIG
     //=======================================
@@ -51,8 +58,16 @@ void ApplicationCore::LoadConfig(Client& client, VEditor::UIContext& uiContext)
     // CAMERA CONFIG
     //=======================================
     auto &cam = client.GetCamera();
-    cam.GetFOV() = std::stof(EngineConfig["Camera"]["FOV"]);
-    cam.GetNearPlane() = std::stof(EngineConfig["Camera"]["Near"]);
-    cam.GetFarPlane() = std::stof(EngineConfig["Camera"]["Far"]);
-    cam.GetSpeed() = std::stof(EngineConfig["Camera"]["Speed"]);
+    if (EngineConfig.has("Camera"))
+    {
+        cam.GetFOV() = std::stof(EngineConfig["Camera"]["FOV"]);
+        cam.GetNearPlane() = std::stof(EngineConfig["Camera"]["Near"]);
+        cam.GetFarPlane() = std::stof(EngineConfig["Camera"]["Far"]);
+        cam.GetSpeed() = std::stof(EngineConfig["Camera"]["Speed"]);
+    }
+
+    if (EngineConfig.has("Other"))
+    {
+        GlobalVariables::hasSessionBeenSaved = std::stoi(EngineConfig["Other"]["HasBeenSaved"]);
+    }
 }

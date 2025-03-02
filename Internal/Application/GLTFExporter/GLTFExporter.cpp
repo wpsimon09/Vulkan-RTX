@@ -12,10 +12,16 @@
 #include <Vulkan/VulkanCore/VImage/VImage.hpp>
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 
+
+ApplicationCore::GLTFExporter::GLTFExporter(): m_lightInfo(GlobalVariables::configFolder / "Light.ini"), m_lightInfoPath(GlobalVariables::configFolder / "Light.ini")
+{
+}
+
 void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scene& scene,
                                                 AssetsManager& assetsManager)
 {
     std::vector<std::shared_ptr<ApplicationCore::SceneNode>> sceneNodes;
+
 
     Utils::Logger::LogInfoClient("Saving the scene !");
     auto start = std::chrono::high_resolution_clock::now();
@@ -33,6 +39,7 @@ void ApplicationCore::GLTFExporter::ExportScene(std::filesystem::path path, Scen
     ParseScene(scene.GetRootNode(), assetsManager, asset);
     OrganiseScene(asset);
     CreateScene(asset, scene);
+    ParseLights(scene);
 
 
     //=============================================
@@ -335,6 +342,49 @@ void ApplicationCore::GLTFExporter::CreateScene(fastgltf::Asset &asset,Scene& sc
         asset.scenes[0].nodeIndices.push_back(m_nodes[rootNode]);
     }
     
+}
+
+void ApplicationCore::GLTFExporter::ParseLights(Scene& scene)
+{
+    auto& lightInfo  = scene.GetSceneLightInfo();
+
+    mINI::INIFile iniFile(m_lightInfoPath);
+    mINI::INIStructure ini;
+
+    ini["point"]["count"] = std::to_string(lightInfo.PointLightInfos.size());
+    // save point lights
+    for (int i = 0; i<lightInfo.PointLightInfos.size(); i++)
+    {
+        auto pointLightKey = "point-light-" + std::to_string(i);
+        auto& pointLight = lightInfo.PointLightInfos[i];
+        if (pointLight != nullptr)
+        {
+            ini[pointLightKey].set({
+                {"colR" , std::to_string(pointLight->colour.x)},
+                {"colG" , std::to_string(pointLight->colour.y)},
+                {"colB" , std::to_string(pointLight->colour.z)},
+                {"colA" , std::to_string(pointLight->colour.w)},
+
+                {"posX", std::to_string(pointLight->position.x)},
+                {"posY", std::to_string(pointLight->position.y)},
+                {"posZ", std::to_string(pointLight->position.z)},
+
+                {"constantFactor", std::to_string(pointLight->constantFactor)},
+                {"linearFactor", std::to_string(pointLight->linearFactor)},
+                {"quadraticFactor", std::to_string(pointLight->quadraticFactor)},
+
+                {"isInUse", std::to_string(pointLight->isPointLightInUse)}
+            });
+        }
+    }
+
+    // save area lights
+
+    // save directional light
+
+
+    assert(iniFile.generate(ini, true) == true && "Failed to save light info)");
+
 }
 
 void ApplicationCore::GLTFExporter::Clear()
