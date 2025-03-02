@@ -13,7 +13,7 @@
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 
 
-ApplicationCore::GLTFExporter::GLTFExporter(): m_lightInfo(GlobalVariables::configFolder / "Light.ini"), m_lightInfoPath(GlobalVariables::configFolder / "Light.ini")
+ApplicationCore::GLTFExporter::GLTFExporter(): m_lightInfo(GlobalVariables::lightInfoPath), m_lightInfoPath(GlobalVariables::configFolder / "Light.ini")
 {
 }
 

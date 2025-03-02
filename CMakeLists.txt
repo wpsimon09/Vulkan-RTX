@@ -169,6 +169,8 @@ set(SOURCES
         External/tINI/ini.h
         Internal/Application/Utils/Parsers/EngineDataParser.hpp
         Internal/Application/Utils/Parsers/EngineDataParser.cpp
+        Internal/Application/GLTFLoader/LoadSceneLights.hpp
+        Internal/Application/GLTFLoader/LoadSceneLights.cpp
 )
 
 

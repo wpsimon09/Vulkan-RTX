@@ -16,6 +16,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include <cassert>
 
+#include "GLTFLoader/LoadSceneLights.hpp"
 #include "Rendering/Scene/SceneNode.hpp"
 #include "Rendering/Scene/Scene.hpp"
 
@@ -35,6 +36,7 @@ void Client::Init() {
     m_scene = std::make_unique<ApplicationCore::Scene>(*m_assetsManager, *m_camera);
     m_scene->Init();
 
+    ApplicationCore::LoadSceneLights(*m_scene, GlobalVariables::lightInfoPath);
 
 
     auto end = std::chrono::high_resolution_clock::now();

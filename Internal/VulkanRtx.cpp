@@ -47,6 +47,7 @@
 
 
 // Im gui entry
+#include "Application/GLTFLoader/LoadSceneLights.hpp"
 #include "Application/Utils/LinearyTransformedCosinesValues.hpp"
 #include "Application/Utils/MathUtils.hpp"
 #include "Application/Utils/Parsers/EngineDataParser.hpp"
@@ -100,27 +101,8 @@ void Application::Init()
     }
 
 
-    //auto car = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/dodge_challenger_-_muscle_car_-_low-poly/scene.gltf");
-    //auto stormTrooper = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/storm-trooper.glb");
-
-    //auto stormTrooper = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Downloads/pinguino_rockhopper/scene.gltf");
-
-    //stormTrooper.front()->m_transformation->SetScale(50.0f);
-    //for (auto &scene_node : stormTrooper)
-    //{
-    //    m_client->GetScene().AddNode(scene_node);
-    //}
-
-
-
-    /*auto tieInterceptor = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/tie-inerceptor.glb");
-    for (auto &scene_node : tieInterceptor)
-    {
-        m_client->GetScene().AddNode(scene_node);
-    }*/
 
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
-
 
     ApplicationCore::LoadConfig(*m_client, *m_uiContext);
 }

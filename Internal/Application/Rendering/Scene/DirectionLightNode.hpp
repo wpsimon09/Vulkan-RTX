@@ -13,7 +13,7 @@ namespace ApplicationCore {
 
 class DirectionLightNode: public ApplicationCore::LightNode<LightStructs::DirectionalLight> {
 public:
-    explicit DirectionLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh);
+    explicit DirectionLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh,     );
 
     void Render(VulkanStructs::RenderContext* renderingContext) const override;
     void Update() override;

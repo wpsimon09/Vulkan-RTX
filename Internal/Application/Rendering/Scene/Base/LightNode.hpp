@@ -11,7 +11,7 @@ namespace ApplicationCore {
 template<typename  T>
 class LightNode: public SceneNode {
 public:
-    LightNode(std::shared_ptr<StaticMesh> mesh);
+    LightNode(std::shared_ptr<StaticMesh> mesh, T* lightData = nullptr);
 
     void Render(VulkanStructs::RenderContext* renderingContext) const override = 0;
     void Update()  override;
@@ -23,8 +23,9 @@ protected:
 };
 
 template <typename T>
-LightNode<T>::LightNode(std::shared_ptr<StaticMesh> mesh):SceneNode(mesh), m_lightStruct()
+LightNode<T>::LightNode(std::shared_ptr<StaticMesh> mesh,T* lightData):SceneNode(mesh), m_lightStruct()
 {
+    m_lightStruct = lightData !=nullptr ? *lightData : m_lightStruct;
 }
 
 template <typename T>

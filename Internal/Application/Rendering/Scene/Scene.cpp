@@ -117,7 +117,7 @@ namespace ApplicationCore {
         AddNode(node);
     }
 
-    void Scene::AddDirectionalLight()
+    void Scene::AddDirectionalLight(LightStructs::DirectionalLight* directionalLightInfo)
     {
         if(m_sceneLightInfo.DirectionalLightInfo == nullptr){
             auto light = std::make_shared<DirectionLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight));
@@ -129,11 +129,12 @@ namespace ApplicationCore {
             Utils::Logger::LogErrorClient("Directional light already exists !");
         }
     }
-    
-    void Scene::AddPointLight()
+
+    void Scene::AddPointLight(LightStructs::PointLight* pointLightInfo)
     {
-        if(m_sceneLightInfo.PointLightInfos.size()<20){
-            auto light = std::make_shared<PointLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::PointLight));
+        if(m_sceneLightInfo.PointLightInfos.size() < 20){
+
+            auto light = std::make_shared<PointLightNode>(m_sceneLightInfo,pointLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::PointLight));
             light->m_transformation->SetScale(20.0f);
             light->SetName(light->GetMesh()->GetName());
             AddNode(light);
@@ -142,7 +143,7 @@ namespace ApplicationCore {
         }
     }
 
-    void Scene::AddAreaLight()
+    void Scene::AddAreaLight(LightStructs::AreaLight* areaLightInfo)
     {
         if(m_sceneLightInfo.AreaLightInfos.size()<4){
             auto light = std::make_shared<AreaLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::AreaLight));
@@ -153,6 +154,7 @@ namespace ApplicationCore {
             Utils::Logger::LogErrorClient("Maximun number of Area lights, 4,  reached !");
         }
     }
+
 
     void Scene::PreformRayCast(glm::vec2 mousePosition)
     {

@@ -49,9 +49,9 @@ public:
     void AddSphereToScene() const;
     void AddPlaneToScene() const;
 
-    void AddDirectionalLight();
-    void AddPointLight() ;
-    void AddAreaLight() ;
+    void AddDirectionalLight(LightStructs::DirectionalLight* directionalLightInfo = nullptr) ;
+    void AddPointLight(LightStructs::PointLight* pointLightInfo = nullptr) ;
+    void AddAreaLight(LightStructs::AreaLight* areaLightInfo = nullptr) ;
 
     Camera& GetCamera(){return m_camera;}
 

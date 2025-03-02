@@ -54,6 +54,7 @@ namespace GlobalVariables {
     inline const std::filesystem::path configFolder("cache/");
     inline const std::filesystem::path textureFolder("cache/textures/");
     inline const std::filesystem::path defaultTextureFile("Resources/DefaultTexture.jpg");
+    inline std::filesystem::path lightInfoPath("cache/Light.ini");
 
     inline bool hasSessionBeenSaved = false;
 
