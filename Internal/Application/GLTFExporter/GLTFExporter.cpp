@@ -326,7 +326,7 @@ void ApplicationCore::GLTFExporter::OrganiseScene(fastgltf::Asset &asset)
 {
     for (auto it = m_nodes.begin(); it != m_nodes.end(); ++it)
     {   
-       if(!it->first->GetChildrenByRef().empty() && IsNodeValid(it->first)){
+       if(!it->first->GetChildrenByRef().empty()){
             for(auto& child : it->first->GetChildrenByRef()){
                 asset.nodes[it->second].children.push_back(m_nodes[child]);
             }
@@ -339,9 +339,15 @@ void ApplicationCore::GLTFExporter::CreateScene(fastgltf::Asset &asset,Scene& sc
     asset.scenes.resize(1);
     asset.scenes[0].name = "Vulkan-RTX-saved-scene";
     // node at index 0 is allways the root
-    for (auto& rootNode : scene.GetRootNode()->GetChildrenByRef())
+    for (auto& rootChild : scene.GetRootNode()->GetChildrenByRef())
     {
-        asset.scenes[0].nodeIndices.push_back(m_nodes[rootNode]);
+        if (IsNodeValid(rootChild))
+            asset.scenes[0].nodeIndices.push_back(m_nodes[rootChild]);
+    }
+    if (asset.scenes[0].nodeIndices.empty())
+    {
+        // in case there are no children use first node to pack the scene
+        asset.scenes[0].nodeIndices.push_back(0);
     }
     
 }
@@ -454,6 +460,7 @@ bool ApplicationCore::GLTFExporter::IsNodeValid(const std::shared_ptr<SceneNode>
 {
     return (sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::AreaLightNode &&
           sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::DirectionalLightNode &&
-          sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::PointLightNode );
+          sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::PointLightNode &&
+          sceneNode->GetName() != "Root-Node");
 
 }
