@@ -39,6 +39,15 @@ namespace ApplicationCore
         }
     }
 
+    SceneNode::SceneNode(std::shared_ptr<SceneNode>& other):m_transformation(&m_localTransformation)
+    {
+        m_parent = other->m_parent;
+        m_mesh = other->m_mesh;
+        m_sceneNodeMetaData = other->m_sceneNodeMetaData;
+        m_children =other->m_children;
+
+    }
+
     SceneNode::SceneNode(): m_transformation(&m_localTransformation), m_sceneNodeMetaData{}
     {
         m_parent = nullptr;

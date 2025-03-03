@@ -69,7 +69,7 @@ void ContentBrowser::RenderModels()
             {
                 for (auto &node: model.second)
                 {
-                    auto newNode = std::make_shared<ApplicationCore::SceneNode>(node->GetMesh());
+                    auto newNode = std::make_shared<ApplicationCore::SceneNode>(*node);
                     newNode->SetName(node->GetName()+VulkanUtils::random_string(2));
                     newNode->m_transformation->SetScale(node->m_transformation->GetScale());
                     newNode->m_transformation->SetPosition(node->m_transformation->GetPosition());
