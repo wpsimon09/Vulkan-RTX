@@ -367,11 +367,11 @@ namespace ApplicationCore
         {
             auto newScale = topNode->m_transformation->GetScale() * importOptions.uniformScale;
             topNode->m_transformation->SetScale( newScale);
+            m_assetsManager.AddModel(gltfPath.string() + "/" + topNode->GetName(), topNode->GetChildrenByRef());
         }
-        
+
         GlobalState::EnableLogging();
         Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");
-        m_assetsManager.AddModel(gltfPath, m_topNodes);
         return m_topNodes;
     }
 

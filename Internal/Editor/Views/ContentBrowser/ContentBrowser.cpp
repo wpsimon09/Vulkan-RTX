@@ -9,6 +9,7 @@
 
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
+#include "Application/Rendering/Scene/SceneNode.hpp"
 
 ContentBrowser::ContentBrowser(ApplicationCore::AssetsManager& assetManager, ApplicationCore::Scene& scene): IUserInterfaceElement(), m_assetManager(assetManager), m_scene(scene)
 {
@@ -23,21 +24,6 @@ void ContentBrowser::Render()
         if (ImGui::BeginTabItem("Models"))
         {
             RenderModels();
-            if (!m_selectedAsset.empty())
-            {
-                if (ImGui::BeginPopupContextWindow("Actions"))
-                {
-                  if (ImGui::MenuItem("Move to scene"))
-                  {
-                      for (auto &n:m_assetManager.GetModel(m_selectedAsset))
-                      {
-                          m_scene.AddNode(n);
-                      }
-                  }
-                    ImGui::EndPopup();
-                }
-
-            }
             ImGui::EndTabItem();
         }
 
@@ -71,7 +57,6 @@ void ContentBrowser::RenderModels()
     for (auto& model : m_assetManager.GetModels())
     {
         auto modelLabel = ICON_FA_CUBES " " + model.first.substr(model.first.rfind("/",-1 ));
-        if (i % 5 != 0) { ImGui::SameLine(); }
 
         if (ImGui::Selectable(modelLabel.c_str(), m_selectedAsset == model.first))
         {
@@ -82,11 +67,19 @@ void ContentBrowser::RenderModels()
         {
             if (ImGui::MenuItem("Add"))
             {
-                for (auto& node)
+                for (auto &node: model.second)
+                {
+                    auto newNode = std::make_shared<ApplicationCore::SceneNode>(node->GetMesh());
+                    newNode->SetName(node->GetName()+VulkanUtils::random_string(2));
+                    newNode->m_transformation->SetScale(node->m_transformation->GetScale());
+                    newNode->m_transformation->SetPosition(node->m_transformation->GetPosition());
+                    newNode->m_transformation->SetRotation(node->m_transformation->GetRotationsQuat());
+                    m_scene.AddNode(newNode);
+                }
             }
             if (ImGui::MenuItem("Remove"))
             {
-                // TODO: Implement remove functionality
+
             }
             ImGui::EndPopup();
         }
