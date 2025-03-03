@@ -91,6 +91,7 @@ namespace ApplicationCore
         bool IsParent() const { return m_parent == nullptr; }
         bool HasMesh() const { return m_sceneNodeMetaData.HasMesh; }
         float GetDistanceFromCamera(glm::vec3 cameraPosition);
+        bool IsLight() const;
 
         //=========================
         // Accessors

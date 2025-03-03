@@ -129,6 +129,14 @@ namespace ApplicationCore
         }return 20000.f;
     }
 
+    bool SceneNode::IsLight() const
+    {
+        return m_sceneNodeMetaData.nodeType == ENodeType::DirectionalLightNode
+        || m_sceneNodeMetaData.nodeType == ENodeType::PointLightNode
+        || m_sceneNodeMetaData.nodeType == ENodeType::SpotLightNode
+        || m_sceneNodeMetaData.nodeType == ENodeType::AreaLightNode;
+    }
+
     SceneNode* SceneNode::GetParent()
     {
         return m_parent;

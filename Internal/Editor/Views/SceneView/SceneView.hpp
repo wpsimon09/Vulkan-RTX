@@ -30,9 +30,12 @@ public:
     void Render() override;
 
 private:
-
+     void CreateSceneLightsList(std::vector<std::shared_ptr<ApplicationCore::SceneNode>>& sceneLights);
      void CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode> sceneNode)  ;
+    std::string GenerateNodeLabel(std::shared_ptr<ApplicationCore::SceneNode>& sceneNode);
      ApplicationCore::Scene& m_scene;
+
+    std::vector<std::shared_ptr<ApplicationCore::SceneNode>> m_lightNodes;
 
      DetailsPanel* m_detailsPanale;
 };

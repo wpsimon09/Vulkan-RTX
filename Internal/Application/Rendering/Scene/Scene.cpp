@@ -28,7 +28,6 @@ namespace ApplicationCore {
         m_root = std::make_shared<SceneNode>();
         m_root->SetName("Root-Node");
 
-
         BuildDefaultScene();
     }
 
@@ -85,8 +84,6 @@ namespace ApplicationCore {
     {
 
         // Create materials
-  
-
         Utils::Logger::LogSuccessClient("Default scene build");
     }
 

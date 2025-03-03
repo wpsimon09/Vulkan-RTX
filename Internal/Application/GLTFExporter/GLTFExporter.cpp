@@ -162,8 +162,14 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
         fastgltf::TRS  trs;
 
         auto& quat =  sceneNode->m_transformation->GetRotationsQuat();
+        fastgltf::math::quat<float> fastgltf_Quat;
+        fastgltf_Quat.x() = quat.x;
+        fastgltf_Quat.y() = quat.y;
+        fastgltf_Quat.z() = quat.z;
+        fastgltf_Quat.w() = quat.w;
+
         trs.translation = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetPosition().x, sceneNode->m_transformation->GetPosition().y, sceneNode->m_transformation->GetPosition().z);
-        trs.rotation = fastgltf::math::quat<float>(quat.x, quat.y, quat.z, quat.w);
+        trs.rotation = fastgltf_Quat;
         trs.scale = fastgltf::math::vec<float, 3>(sceneNode->m_transformation->GetScale().x, sceneNode->m_transformation->GetScale().y, sceneNode->m_transformation->GetScale().z);
 
         node.transform = trs;
@@ -367,24 +373,27 @@ void ApplicationCore::GLTFExporter::ParseLights(Scene& scene)
     {
         auto pointLightKey = "point-light-" + std::to_string(i);
         auto& pointLight = lightInfo.PointLightInfos[i];
-        if (pointLight != nullptr)
+        if (pointLight != nullptr )
         {
-            ini[pointLightKey].set({
-                {"colR" , std::to_string(pointLight->colour.x)},
-                {"colG" , std::to_string(pointLight->colour.y)},
-                {"colB" , std::to_string(pointLight->colour.z)},
-                {"colA" , std::to_string(pointLight->colour.w)},
+            if (pointLight->isPointLightInUse)
+            {
+                ini[pointLightKey].set({
+                    {"colR" , std::to_string(pointLight->colour.x)},
+                    {"colG" , std::to_string(pointLight->colour.y)},
+                    {"colB" , std::to_string(pointLight->colour.z)},
+                    {"colA" , std::to_string(pointLight->colour.w)},
 
-                {"posX", std::to_string(pointLight->position.x)},
-                {"posY", std::to_string(pointLight->position.y)},
-                {"posZ", std::to_string(pointLight->position.z)},
+                    {"posX", std::to_string(pointLight->position.x)},
+                    {"posY", std::to_string(pointLight->position.y)},
+                    {"posZ", std::to_string(pointLight->position.z)},
 
-                {"constantFactor", std::to_string(pointLight->constantFactor)},
-                {"linearFactor", std::to_string(pointLight->linearFactor)},
-                {"quadraticFactor", std::to_string(pointLight->quadraticFactor)},
+                    {"constantFactor", std::to_string(pointLight->constantFactor)},
+                    {"linearFactor", std::to_string(pointLight->linearFactor)},
+                    {"quadraticFactor", std::to_string(pointLight->quadraticFactor)},
 
-                {"isInUse", std::to_string(pointLight->isPointLightInUse)}
-            });
+                    {"isInUse", std::to_string(pointLight->isPointLightInUse)}
+                });
+            }
         }
     }
 
