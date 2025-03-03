@@ -22,8 +22,8 @@ ApplicationCore::Transformations::Transformations(glm::vec3 position, glm::vec3 
 
 ApplicationCore::Transformations::Transformations(glm::vec3 position, glm::vec3 scale, glm::quat rotations):m_position(position), m_rotationQuat(rotations), m_scale(scale)
 {
+    m_isDirty = false;
     m_rotation = glm::eulerAngles(m_rotationQuat);
-    m_modelMatrix = ComputeLocalModelMatrix();
 }
 
 glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix() {

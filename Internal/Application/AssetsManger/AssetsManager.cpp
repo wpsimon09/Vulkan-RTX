@@ -154,6 +154,8 @@ namespace ApplicationCore
             }
         }
 
+        materials.emplace_back(m_dummyMaterial);
+
         return materials;
     }
 

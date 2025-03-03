@@ -197,8 +197,7 @@ namespace ApplicationCore
                     }
                     if (p.materialIndex.has_value())
                     {
-                        if (p.materialIndex >0)
-                            mat = materials[p.materialIndex.value()];
+                        mat = materials[p.materialIndex.value()];
                     }
 
 
@@ -315,22 +314,23 @@ namespace ApplicationCore
                 }else
                 {
                     newNode = std::make_shared<ApplicationCore::SceneNode>();
-
-                    const auto* transform = std::get_if<fastgltf::TRS>(&node.transform);
-
-
-                    glm::quat rotation = glm::quat();
-                    rotation.x = transform->rotation.x();
-                    rotation.y = transform->rotation.y();
-                    rotation.z = transform->rotation.z();
-                    rotation.w = transform->rotation.w();
-
-                    Transformations transformations(
-                        glm::vec3(transform->translation.x(), transform->translation.y(), transform->translation.z()),
-                        glm::vec3(1.0f),
-                        rotation);
-                    newNode->SetLocalTransform(transformations);
                 }
+
+                const auto* transform = std::get_if<fastgltf::TRS>(&node.transform);
+
+
+                glm::quat rotation = glm::quat();
+                rotation.x = transform->rotation.x();
+                rotation.y = transform->rotation.y();
+                rotation.z = transform->rotation.z();
+                rotation.w = transform->rotation.w();
+
+                Transformations transformations(
+                    glm::vec3(transform->translation.x(), transform->translation.y(), transform->translation.z()),
+                    glm::vec3(transform->scale.x(), transform->scale.y(), transform->scale.z()),
+                    rotation);
+
+                newNode->SetLocalTransform(transformations);
 
 
                 newNode->SetName(std::string(std::string(node.name) + "##" +VulkanUtils::random_string(4)));
@@ -361,7 +361,8 @@ namespace ApplicationCore
 
         for (auto &topNode : m_topNodes)
         {
-            topNode->m_transformation->SetScale(1.0f * importOptions.uniformScale);
+            auto newScale = topNode->m_transformation->GetScale() * importOptions.uniformScale;
+            topNode->m_transformation->SetScale( newScale);
         }
         
         GlobalState::EnableLogging();

@@ -33,8 +33,8 @@ private:
     glm::mat4 ComputeLocalModelMatrix();
 public:
     Transformations();
-    Transformations(glm::vec3 position, glm::vec3 scale, glm::vec3 rotations);
-    Transformations(glm::vec3 position, glm::vec3 scale, glm::quat rotations);
+    explicit Transformations(glm::vec3 position, glm::vec3 scale, glm::vec3 rotations);
+    explicit Transformations(glm::vec3 position, glm::vec3 scale, glm::quat rotations);
 
 
     void ComputeModelMatrix();
