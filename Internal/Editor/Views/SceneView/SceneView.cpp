@@ -50,7 +50,7 @@ namespace VEditor {
                     }
                 }
 
-                ImGui::Dummy(ImVec2(0, 20));
+                ImGui::Dummy(ImVec2(0, 5.f));
                 ImGui::Separator();
                 CreateSceneLightsList(lightNodes);
 
@@ -147,8 +147,6 @@ namespace VEditor {
         if (sceneNode->GetIsVisible()) visibilityButtonLabel = std::string(ICON_FA_EYE) + "##" + std::string(sceneNode->GetName());
         else                           visibilityButtonLabel = std::string(ICON_FA_EYE_SLASH) + "##" + std::string(sceneNode->GetName());
 
-        auto oldFontSize = ImGui::GetFont()->Scale;
-        ImGui::GetFont()->Scale*= 0.4f;
         if (ImGui::Button(visibilityButtonLabel.c_str()))
         {
             if (sceneNode->GetIsVisible())
@@ -160,7 +158,6 @@ namespace VEditor {
                 sceneNode->Setvisibility(true);
             }
         }
-        ImGui::GetFont()->Scale = oldFontSize;
         ImGui::SameLine();
 
         //======================================================

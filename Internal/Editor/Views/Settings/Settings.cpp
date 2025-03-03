@@ -55,7 +55,7 @@ namespace VEditor {
 
                 ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 50);
                 ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 30);
-                if (ImGui::Button("Close and save "))
+                if (ImGui::Button("Close"))
                 {
                     std::async([this](){
                         ApplicationCore::SaveConfig(m_client, m_editor->m_uiContext);

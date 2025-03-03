@@ -175,6 +175,19 @@ namespace ApplicationCore
         return std::move(mesh);
     }
 
+    void AssetsManager::AddModel(std::string path, std::vector<std::shared_ptr<ApplicationCore::SceneNode>>& model)
+    {
+        m_models[path] = model;
+    }
+
+    std::vector<std::shared_ptr<ApplicationCore::SceneNode>> AssetsManager::GetModel(const std::string& path)
+    {
+        auto it = m_models.find(path);
+        if (it != m_models.end())
+            return it->second;
+        return {};
+    }
+
     void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<StaticMesh> mesh)
     {
         if (!m_meshes.contains(meshName))

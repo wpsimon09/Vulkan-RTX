@@ -33,6 +33,10 @@ namespace ApplicationCore
 
     std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath,  const ImportOptions& importOptions) const
     {
+        const auto& model = m_assetsManager.GetModel(gltfPath.string());
+        if (!model.empty())
+            return model;
+
         // temp data
         std::shared_ptr<SceneNode> m_rootNode;
         std::vector<std::shared_ptr<SceneNode>> m_topNodes;
@@ -367,7 +371,8 @@ namespace ApplicationCore
         
         GlobalState::EnableLogging();
         Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");
-        return std::move(m_topNodes);
+        m_assetsManager.AddModel(gltfPath, m_topNodes);
+        return m_topNodes;
     }
 
     void GLTFLoader::LoadImage(fastgltf::Asset& asset, std::string parentPath, fastgltf::Image& image,

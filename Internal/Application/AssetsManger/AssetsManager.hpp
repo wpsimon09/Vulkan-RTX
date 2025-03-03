@@ -23,6 +23,7 @@ struct TextureBufferInfo;
 // Forward Declarations
 //=========================
 namespace ApplicationCore {
+    class SceneNode;
     class GLTFLoader;
     class StaticMesh;
     class Material;
@@ -91,6 +92,12 @@ public:
     VulkanCore::MeshDatatManager& GetBufferAllocator() { return m_meshDataManager; }
 
     //=========================
+    // Buffer Allocator
+    //=========================
+    void AddModel(std::string path, std::vector<std::shared_ptr<ApplicationCore::SceneNode>>& model);
+    std::vector<std::shared_ptr<ApplicationCore::SceneNode>> GetModel(const std::string& path);
+    std::unordered_map<std::string, std::vector<std::shared_ptr<ApplicationCore::SceneNode>>>& GetModels() {return m_models;};
+    //=========================
     // Synchronization
     //=========================
     bool Sync();
@@ -124,6 +131,11 @@ private:
     // Synchronization Objects
     //=========================
     std::mutex m_mutex;
+
+    //========================
+    // MODELS
+    //========================
+    std::unordered_map<std::string, std::vector<std::shared_ptr<ApplicationCore::SceneNode>>> m_models;
 
     //=========================
     // Default Assets

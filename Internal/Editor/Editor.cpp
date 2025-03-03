@@ -12,6 +12,7 @@
 #include "UIContext/UIContext.hpp"
 #include "Views/MenuBar.hpp"
 #include "Views/Console/Console.hpp"
+#include "Views/ContentBrowser/ContentBrowser.hpp"
 #include "Views/FileExplorer/FileExplorer.hpp"
 #include "Views/RenderingOptions/RenderingOptions.hpp"
 #include "Views/SceneView/SceneView.hpp"
@@ -39,6 +40,9 @@ namespace VEditor
 
         auto renderingSystem = std::make_unique<RenderingOptions>(uiContext.m_renderingSystem);
         index->m_uiChildren.emplace_back(std::move(renderingSystem));
+
+        auto contentBrowser = std::make_unique<ContentBrowser>(uiContext.GetScene().GetAssetsManager(), uiContext.GetScene());
+        index->m_uiChildren.emplace_back(std::move(contentBrowser));
 
         auto menuBar = std::make_unique<MenuBar>(this);
 

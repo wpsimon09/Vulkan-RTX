@@ -171,6 +171,9 @@ set(SOURCES
         Internal/Application/Utils/Parsers/EngineDataParser.cpp
         Internal/Application/GLTFLoader/LoadSceneLights.hpp
         Internal/Application/GLTFLoader/LoadSceneLights.cpp
+        Internal/Editor/Views/ContentBrowser/ContentBrowser.cpp
+        Internal/Editor/Views/ContentBrowser/ContentBrowser.hpp
+
 )
 
 
