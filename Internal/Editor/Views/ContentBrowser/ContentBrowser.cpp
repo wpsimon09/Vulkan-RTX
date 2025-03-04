@@ -56,7 +56,7 @@ void ContentBrowser::RenderModels()
     int i = 0;
     for (auto& model : m_assetManager.GetModels())
     {
-        auto modelLabel = ICON_FA_CUBES " " + model.first.substr(model.first.rfind("/",-1 ));
+        auto modelLabel = ICON_FA_CUBES " " + model.first.substr(model.first.rfind("/"));
 
         if (ImGui::Selectable(modelLabel.c_str(), m_selectedAsset == model.first))
         {
@@ -68,12 +68,12 @@ void ContentBrowser::RenderModels()
             if (ImGui::MenuItem("Add"))
             {
                 auto newNode = std::make_shared<ApplicationCore::SceneNode>();
-                newNode->SetName(m_selectedAsset.substr(m_selectedAsset.rfind("/",-1 )) + "##" + VulkanUtils::random_string(4));
+                newNode->SetName(m_selectedAsset.substr(m_selectedAsset.rfind('/' )+1) + "##" + VulkanUtils::random_string(4));
                 for (auto &node: model.second)
                 {
                     newNode->AddChild(std::make_shared<ApplicationCore::SceneNode>(*node));
                 }
-                m_scene.AddNode(newNode);
+                m_scene.AddNode(std::move(newNode));
             }
             if (ImGui::MenuItem("Remove"))
             {

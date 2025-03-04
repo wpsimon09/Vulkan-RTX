@@ -32,6 +32,7 @@ namespace ApplicationCore
                 m_sceneNodeMetaData.RenderingMetaData.bTransparentPass = true;
                 m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
             }
+
         }
         else
         {
@@ -39,16 +40,20 @@ namespace ApplicationCore
         }
     }
 
-    SceneNode::SceneNode(std::shared_ptr<SceneNode>& other):m_transformation(&m_localTransformation)
+    SceneNode::SceneNode(SceneNode& other):m_transformation(&m_localTransformation)
     {
-        m_parent = std::make_shared<SceneNode>(*other->m_parent).get();
-        m_mesh = std::make_shared<ApplicationCore::StaticMesh>(other->m_mesh);
-        m_sceneNodeMetaData = other->m_sceneNodeMetaData;
-        m_localTransformation = other->m_localTransformation;
+        m_parent = nullptr;
 
-        for (auto& child : other->m_children)
+        if (other.m_mesh != nullptr){
+            m_mesh = std::make_shared<ApplicationCore::StaticMesh>(*other.GetMesh()->GetMeshData(), other.GetMesh()->GetMaterial());
+        }
+        m_sceneNodeMetaData = other.m_sceneNodeMetaData;
+        m_name = other.m_name + "##" + VulkanUtils::random_string(4);
+        m_sceneNodeMetaData.ID = ++SceneNodeIDCounter;
+
+        for (auto& child : other.m_children)
         {
-            m_children.push_back(std::make_shared<SceneNode>(child));
+            m_children.push_back(std::make_shared<SceneNode>(*child));
         }
     }
 

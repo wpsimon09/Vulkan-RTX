@@ -18,24 +18,17 @@ ApplicationCore::StaticMesh::StaticMesh(VulkanStructs::MeshData& geometryData,st
 
     m_currentMaterial = material;
     m_originalMaterial = material;
-/**
-    m_meshInfo.vertexCount = m_vertexArray->GetVertices().size();
-    m_meshInfo.vertexSize = m_vertexArray->GetVertexBuffer().GetBuffeSizeInBytes();
-    m_meshInfo.indexCount = m_vertexArray->GetIndices().size();
-    m_meshInfo.indexSize = m_vertexArray->GetIndexBuffer().GetBuffeSizeInBytes();
-**/
-
 }
 
-ApplicationCore::StaticMesh::StaticMesh(std::shared_ptr<ApplicationCore::StaticMesh>& other): m_meshGeomtryData(other->m_meshGeomtryData)
+ApplicationCore::StaticMesh::StaticMesh(const ApplicationCore::StaticMesh& other):m_meshGeomtryData(other.m_meshGeomtryData)
 {
-    m_geometryType = other->m_geometryType;
-    m_transformations = std::make_unique<Transformations>(other->m_transformations->GetPosition(),
-                                                          other->m_transformations->GetScale(),
-                                                          other->m_transformations->GetRotationsQuat());
+    m_geometryType = other.m_geometryType;
+    m_transformations = std::make_unique<Transformations>(other.m_transformations->GetPosition(),
+                                                          other.m_transformations->GetScale(),
+                                                          other.m_transformations->GetRotationsQuat());
 
-    m_currentMaterial = std::make_shared<Material>(*other->m_currentMaterial);
-    m_originalMaterial = std::make_shared<Material>(*other->m_originalMaterial);
+    m_currentMaterial = std::make_shared<Material>(*other.m_currentMaterial);
+    m_originalMaterial = std::make_shared<Material>(*other.m_originalMaterial);
 }
 
 

@@ -43,7 +43,7 @@ namespace ApplicationCore
         // Constructors
         //=========================
         explicit SceneNode(std::shared_ptr<StaticMesh> mesh);
-        explicit SceneNode(std::shared_ptr<SceneNode>& other);
+        explicit SceneNode(SceneNode& other);
         explicit SceneNode();
 
         //=========================
