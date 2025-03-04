@@ -23,8 +23,8 @@ namespace ApplicationCore{
         //===================================
         // GETTERS 
         //===================================
-        std::shared_ptr<T>GetHandle() {return m_deviceHandle;}
-        T& GetHandleByRef() {return *m_deviceHandle;}
+        virtual std::shared_ptr<T>GetHandle() {return m_deviceHandle;}
+        virtual T& GetHandleByRef() {return *m_deviceHandle;}
         std::string& GetName() {return m_name;}
         std::filesystem::path& GetAssetPath();
         bool IsSavable() {return m_savable;}

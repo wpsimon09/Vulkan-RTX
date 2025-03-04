@@ -89,7 +89,7 @@ namespace ApplicationCore
                     LoadImage(gltf, gltfPath.parent_path(), image, m_textures, true);
                 }
 
-                m_assetsManager.Sync();
+                //m_assetsManager.Sync();
 
                 //==============================================================
                 // MATERIAL

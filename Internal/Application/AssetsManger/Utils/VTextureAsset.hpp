@@ -24,6 +24,9 @@ namespace ApplicationCore {
         void Destroy() override;
         void Load() override;
 
+
+        std::shared_ptr<VulkanCore::VImage> GetHandle() override;
+        VulkanCore::VImage& GetHandleByRef() override;
     protected:
         void LoadInternal() override;
         void LoadInternalFromBuffer();

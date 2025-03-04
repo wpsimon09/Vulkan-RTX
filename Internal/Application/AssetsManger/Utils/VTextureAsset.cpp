@@ -11,7 +11,7 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
     m_height = 1;
     m_isLoaded = false;
     m_mipLevels = 1;
-    m_savable = m_textureAssetType == ETextureAssetType::EditorBillboard ? false : true;
+    m_savable = m_textureAssetType != ETextureAssetType::EditorBillboard;
     m_textureSource = EImageSource::File;
     m_assetPath = texturePath;
 
@@ -25,7 +25,7 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
     m_height = 1;
     m_isLoaded = false;
     m_mipLevels = 1;
-    m_savable = m_textureAssetType == ETextureAssetType::EditorBillboard ? false : true;
+    m_savable = m_textureAssetType != ETextureAssetType::EditorBillboard;
     m_textureSource = EImageSource::Buffer;
     m_assetPath = bufferInfo.textureID;
 
@@ -60,6 +60,36 @@ void ApplicationCore::VTextureAsset::Load()
     }else{
         LoadInternalFromBuffer();
     }
+}
+
+std::shared_ptr<VulkanCore::VImage> ApplicationCore::VTextureAsset::GetHandle()
+{
+    if(m_isInSync)
+        return VAsset<VulkanCore::VImage>::GetHandle();
+
+    if (m_loadedImageData.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    {
+        Destroy();
+        m_isInSync = true;
+        auto retrievedData = m_loadedImageData.get();
+        m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device, retrievedData);
+    }
+    return VAsset<VulkanCore::VImage>::GetHandle();
+}
+
+VulkanCore::VImage& ApplicationCore::VTextureAsset::GetHandleByRef()
+{
+    if(m_isInSync)
+        return VAsset<VulkanCore::VImage>::GetHandleByRef();
+
+    if (m_loadedImageData.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    {
+        m_isInSync = true;
+        Destroy();
+        auto retrievedData = m_loadedImageData.get();
+        m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device, retrievedData);
+    }
+    return VAsset<VulkanCore::VImage>::GetHandleByRef();
 }
 
 void ApplicationCore::VTextureAsset::LoadInternal()
