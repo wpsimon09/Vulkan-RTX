@@ -77,6 +77,7 @@ public:
     // Meshes
     //=========================
     void AddMesh(std::string meshName, std::shared_ptr<StaticMesh> mesh);
+    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::StaticMesh>>& GetMeshes() {return m_meshes;}
 
     //=========================
     // Materials

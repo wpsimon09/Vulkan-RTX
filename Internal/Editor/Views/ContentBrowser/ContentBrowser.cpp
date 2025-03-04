@@ -8,6 +8,7 @@
 #include <imgui.h>
 
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 
@@ -71,7 +72,8 @@ void ContentBrowser::RenderModels()
                 newNode->SetName(m_selectedAsset.substr(m_selectedAsset.rfind('/' )+1) + "##" + VulkanUtils::random_string(4));
                 for (auto &node: model.second)
                 {
-                    newNode->AddChild(std::make_shared<ApplicationCore::SceneNode>(*node));
+                    auto subNode = std::make_shared<ApplicationCore::SceneNode>(*node);
+                    newNode->AddChild(std::move(subNode));
                 }
                 m_scene.AddNode(std::move(newNode));
             }
@@ -89,4 +91,33 @@ void ContentBrowser::RenderModels()
 
 void ContentBrowser::RenderMeshes()
 {
+    int i = 0;
+    for (auto& mesh : m_assetManager.GetMeshes())
+    {
+        auto meshLabel = ICON_FA_CUBE " " + mesh.first;
+
+        if (ImGui::Selectable(meshLabel.c_str(), m_selectedAsset == mesh.first))
+        {
+            m_selectedAsset = mesh.first;
+        }
+
+        if (ImGui::BeginPopupContextItem(meshLabel.c_str()))
+        {
+            if (ImGui::MenuItem("Add"))
+            {
+                auto newMesh = std::make_shared<ApplicationCore::StaticMesh>(*m_assetManager.GetMeshes()[m_selectedAsset].get());
+                auto newNode = std::make_shared<ApplicationCore::SceneNode>(newMesh);
+                newNode->SetName(meshLabel + VulkanUtils::random_string(4));
+                m_scene.AddNode(std::move(newNode));
+            }
+            if (ImGui::MenuItem("Remove"))
+            {
+
+            }
+            ImGui::EndPopup();
+        }
+
+        i++;
+    }
+
 }

@@ -47,19 +47,21 @@ namespace ApplicationCore
         if (other.m_mesh != nullptr){
             m_mesh = std::make_shared<ApplicationCore::StaticMesh>(*other.GetMesh()->GetMeshData(), other.GetMesh()->GetMaterial());
         }
+        m_localTransformation = Transformations();
         m_sceneNodeMetaData = other.m_sceneNodeMetaData;
         m_name = other.m_name + "##" + VulkanUtils::random_string(4);
         m_sceneNodeMetaData.ID = ++SceneNodeIDCounter;
 
         for (auto& child : other.m_children)
         {
-            m_children.push_back(std::make_shared<SceneNode>(*child));
+            AddChild(std::make_shared<SceneNode>(*child));
         }
     }
 
 
-    SceneNode::SceneNode(): m_transformation(&m_localTransformation), m_sceneNodeMetaData{}
+    SceneNode::SceneNode(): m_transformation(&m_localTransformation)
     {
+        m_localTransformation = Transformations();
         m_parent = nullptr;
         m_mesh = nullptr;
         m_sceneNodeMetaData.ID = ++SceneNodeIDCounter;
