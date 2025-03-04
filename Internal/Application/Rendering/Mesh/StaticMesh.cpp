@@ -27,6 +27,17 @@ ApplicationCore::StaticMesh::StaticMesh(VulkanStructs::MeshData& geometryData,st
 
 }
 
+ApplicationCore::StaticMesh::StaticMesh(std::shared_ptr<ApplicationCore::StaticMesh>& other): m_meshGeomtryData(other->m_meshGeomtryData)
+{
+    m_geometryType = other->m_geometryType;
+    m_transformations = std::make_unique<Transformations>(other->m_transformations->GetPosition(),
+                                                          other->m_transformations->GetScale(),
+                                                          other->m_transformations->GetRotationsQuat());
+
+    m_currentMaterial = std::make_shared<Material>(*other->m_currentMaterial);
+    m_originalMaterial = std::make_shared<Material>(*other->m_originalMaterial);
+}
+
 
 const uint32_t ApplicationCore::StaticMesh::GetMeshIndexCount() const {
     return static_cast<uint32_t>(m_meshGeomtryData.indexData.size / sizeof(uint32_t));

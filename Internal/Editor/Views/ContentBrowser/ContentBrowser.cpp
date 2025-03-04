@@ -67,15 +67,13 @@ void ContentBrowser::RenderModels()
         {
             if (ImGui::MenuItem("Add"))
             {
+                auto newNode = std::make_shared<ApplicationCore::SceneNode>();
+                newNode->SetName(m_selectedAsset.substr(m_selectedAsset.rfind("/",-1 )) + "##" + VulkanUtils::random_string(4));
                 for (auto &node: model.second)
                 {
-                    auto newNode = std::make_shared<ApplicationCore::SceneNode>(*node);
-                    newNode->SetName(node->GetName()+VulkanUtils::random_string(2));
-                    newNode->m_transformation->SetScale(node->m_transformation->GetScale());
-                    newNode->m_transformation->SetPosition(node->m_transformation->GetPosition());
-                    newNode->m_transformation->SetRotation(node->m_transformation->GetRotationsQuat());
-                    m_scene.AddNode(newNode);
+                    newNode->AddChild(std::make_shared<ApplicationCore::SceneNode>(*node));
                 }
+                m_scene.AddNode(newNode);
             }
             if (ImGui::MenuItem("Remove"))
             {

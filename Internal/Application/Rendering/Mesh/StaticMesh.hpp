@@ -25,6 +25,7 @@ namespace ApplicationCore
     class StaticMesh{
     public:
         explicit StaticMesh(VulkanStructs::MeshData& geometryData,std::shared_ptr<Material> material, EMeshGeometryType geometryType = Custom);
+        explicit StaticMesh(std::shared_ptr<ApplicationCore::StaticMesh>& other);
 
         void ResetMaterial() {m_currentMaterial = m_originalMaterial;};
 

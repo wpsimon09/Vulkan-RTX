@@ -41,12 +41,17 @@ namespace ApplicationCore
 
     SceneNode::SceneNode(std::shared_ptr<SceneNode>& other):m_transformation(&m_localTransformation)
     {
-        m_parent = other->m_parent;
-        m_mesh = other->m_mesh;
+        m_parent = std::make_shared<SceneNode>(*other->m_parent).get();
+        m_mesh = std::make_shared<ApplicationCore::StaticMesh>(other->m_mesh);
         m_sceneNodeMetaData = other->m_sceneNodeMetaData;
-        m_children =other->m_children;
+        m_localTransformation = other->m_localTransformation;
 
+        for (auto& child : other->m_children)
+        {
+            m_children.push_back(std::make_shared<SceneNode>(child));
+        }
     }
+
 
     SceneNode::SceneNode(): m_transformation(&m_localTransformation), m_sceneNodeMetaData{}
     {
