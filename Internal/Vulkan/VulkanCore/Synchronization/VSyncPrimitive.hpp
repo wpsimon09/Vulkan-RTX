@@ -57,7 +57,7 @@ namespace VulkanCore {
             }
             static_assert(std::is_same_v<T, vk::Fence>);
             Utils::Logger::LogInfoVerboseRendering("Waiting for fence !");
-            return m_device.GetDevice().waitForFences(1, &m_syncPrimitive, VK_TRUE , timeOut == -1.0f ? UINT64_MAX : timeOut);  
+            return m_device.GetDevice().waitForFences(1, &m_syncPrimitive, VK_TRUE , timeOut == -1.0f ? UINT64_MAX : timeOut);
         };
 
         void ResetFences() const {
