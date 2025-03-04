@@ -104,6 +104,8 @@ struct SceneNodeMetaData
     bool IsSelectedFromWorld = false;
     bool IsAnyChildSelected = false;
     bool IsOpen = false;
+    bool VisibleInRayTracing = false;
+    bool CastsShadows = false;
     ENodeType nodeType = ENodeType::Node;
     int ID = 0;
     int exportID = 0;
