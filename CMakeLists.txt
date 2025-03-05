@@ -173,6 +173,8 @@ set(SOURCES
         Internal/Application/GLTFLoader/LoadSceneLights.cpp
         Internal/Editor/Views/ContentBrowser/ContentBrowser.cpp
         Internal/Editor/Views/ContentBrowser/ContentBrowser.hpp
+        Internal/Vulkan/Utils/VPipelineBarriers.hpp
+        Internal/Vulkan/Utils/VPipelineBarriers.cpp
 
 )
 

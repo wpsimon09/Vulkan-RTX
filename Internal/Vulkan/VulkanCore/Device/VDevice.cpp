@@ -144,8 +144,10 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     }
 
     vk::PhysicalDeviceFeatures deviceFeatures{};
-
+    deviceFeatures.fillModeNonSolid = true;
     deviceFeatures.samplerAnisotropy = true;
+    deviceFeatures.wideLines = true;
+
 
     //create the logical device
     vk::DeviceCreateInfo deviceCreateInfo{};

@@ -207,8 +207,7 @@ namespace VulkanCore
             //m_device.GetDevice().waitIdle();
             if(transferFinishFence->WaitForFence(-1) != vk::Result::eSuccess){
                 throw std::runtime_error("FATAL ERROR: Fence`s condition was not fulfilled...");
-            } // 1 sec
-
+            }
 
             m_stagingBufferWithPixelData->DestroyStagingBuffer();
             transferFinishFence->Destroy();

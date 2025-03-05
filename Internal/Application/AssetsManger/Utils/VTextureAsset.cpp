@@ -67,7 +67,7 @@ std::shared_ptr<VulkanCore::VImage> ApplicationCore::VTextureAsset::GetHandle()
     if(m_isInSync)
         return VAsset<VulkanCore::VImage>::GetHandle();
 
-    if (m_loadedImageData.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    if (m_loadedImageData.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
     {
         Destroy();
         m_isInSync = true;
