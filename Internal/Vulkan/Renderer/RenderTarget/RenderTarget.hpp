@@ -47,17 +47,10 @@ public:
     ~RenderTarget() = default;
 private:
 
-    std::vector<std::unique_ptr<VulkanCore::VImage>> m_colourBuffer; // for internal engine use
-    std::unique_ptr<VulkanCore::VImage> m_depthBuffer; // for internal engine use
-    std::unique_ptr<VulkanCore::VImage> m_msaaBuffer; // for internal engine use
+    std::vector<std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage>>> m_colourAttachments; // for internal engine use
+    std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage>> m_depthAttachment; // for internal engine use
+    std::vector<std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage>>> m_msaaAttachments; // for internal engine use
 
-
-    std::vector<std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage>>> m_colourAttachemnts; // for internal engine use
-    std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage>> m_depthAttachments; // for internal engine use
-    std::vector<std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage>>> m_msaaAttachment; // for internal engine use
-
-    std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_frameBuffers; // for passing to the Vulkan
-    std::unique_ptr<VulkanCore::VRenderPass> m_renderPass; // putting it all together
 private:
     const VulkanCore::VDevice& m_device;
     int m_width, m_height;

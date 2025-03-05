@@ -22,93 +22,84 @@ namespace Renderer {
 
         Utils::Logger::LogInfoVerboseOnly("Creating render target...");
 
-        m_colourBuffer.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-        m_frameBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        m_colourAttachments.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        m_msaaAttachments.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
 
         //==========================
         // CREATE DEPTH ATTACHMENT
         //==========================
-        m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth,
+        m_depthAttachment.second = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth,
             vk::ImageUsageFlagBits::eDepthStencilAttachment, m_device.GetSampleCount());
-
-        m_depthBuffer->Resize(width, height);
-
-        //==========================
-        // CREATE MSAA ATTACHMENT
-        //==========================
-        m_msaaBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
-                vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransientAttachment, m_device.GetSampleCount() );
-
-        m_depthAttachments.second = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth,
-            vk::ImageUsageFlagBits::eDepthStencilAttachment, m_device.GetSampleCount());
-        auto& depthAttachmentInfo = m_depthAttachments.first;
-        depthAttachmentInfo.imageView = m_depthAttachments.second->GetImageView();
+        auto& depthAttachmentInfo = m_depthAttachment.first;
+        depthAttachmentInfo.imageView = m_depthAttachment.second->GetImageView();
         depthAttachmentInfo.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
         depthAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
         depthAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
         depthAttachmentInfo.clearValue.depthStencil.depth = 1.0f;
         depthAttachmentInfo.clearValue.depthStencil.stencil = 0.0f;
 
-        //==========================
-        // CREATE COLOUR ATTACHMENT
-        //==========================
+        m_depthAttachment.second->Resize(width, height);
+
+
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
-            m_colourAttachemnts[i].second = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
+            //==========================
+            // CREATE COLOUR ATTACHMENT
+            //==========================
+            m_colourAttachments[i].second = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
                 vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eInputAttachment);
-            auto& colourAttachmentInfo  = m_colourAttachemnts[i].first;
-            colourAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
-            colourAttachmentInfo.imageView = m_colourAttachemnts[i].second->GetImageView();
+            auto& colourAttachmentInfo  = m_colourAttachments[i].first;
+            colourAttachmentInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+            colourAttachmentInfo.imageView = m_colourAttachments[i].second->GetImageView();
             colourAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
             colourAttachmentInfo.storeOp = vk::AttachmentStoreOp::eStore;
             colourAttachmentInfo.clearValue.color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 
-            m_colourAttachemnts[i].second->Resize(width, height);
+            m_colourAttachments[i].second->Resize(width, height);
 
 
-            m_msaaAttachment[i].second = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
+
+            //==========================
+            // CREATE MSAA ATTACHMENT
+            //==========================
+            m_msaaAttachments[i].second = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
         vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransientAttachment, m_device.GetSampleCount() );
-            auto& msaaAttachmentInfo  = m_msaaAttachment[i].first;
+            auto& msaaAttachmentInfo  = m_msaaAttachments[i].first;
             msaaAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
-            msaaAttachmentInfo.imageView = m_msaaAttachment[i].second->GetImageView();
-            msaaAttachmentInfo.resolveImageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+            msaaAttachmentInfo.imageView = m_msaaAttachments[i].second->GetImageView();
+            msaaAttachmentInfo.resolveImageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
             msaaAttachmentInfo.resolveImageView = colourAttachmentInfo.imageView;
             msaaAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eAverage;
             msaaAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
             msaaAttachmentInfo.clearValue.color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
             msaaAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
 
-            m_msaaAttachment[i].second->Resize(width, height);
+            m_msaaAttachments[i].second->Resize(width, height);
         }
 
-
-        //==========================
-        // CREATE RENDER PASS
-        //==========================
-        m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer ,*m_msaaBuffer, false);
-
-        //==========================
-        // CREATE FRAME BUFFERS
-        //==========================
-        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-        {
-            std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
-            attachments.emplace_back(*m_msaaBuffer);
-            attachments.emplace_back(*m_depthBuffer);
-            attachments.emplace_back(*m_colourBuffer[i]);
-
-            m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, width, height);
-        }
 
         auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device,m_device.GetTransferCommandPool());
+        auto transitionFinishedFence = VulkanCore::VSyncPrimitive<vk::Fence>(m_device);
+        transitionCommandBuffer.BeginRecording();
 
         // TRANSITION EVERYTHING FROM UNDEFINED LAYOUT TO COLOUR ATTACHMENT
-         m_colourBuffer[0]->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal, transitionCommandBuffer);
-         m_colourBuffer[1]->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal, transitionCommandBuffer);
+         m_colourAttachments[0].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal, transitionCommandBuffer);
+         m_colourAttachments[1].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal, transitionCommandBuffer);
 
-         m_depthBuffer->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, transitionCommandBuffer);
+        m_msaaAttachments[0].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
+        m_msaaAttachments[1].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
 
 
+         m_depthAttachment.second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, transitionCommandBuffer);
+
+        transitionCommandBuffer.EndAndFlush(m_device.GetTransferQueue(), transitionFinishedFence.GetSyncPrimitive());
+
+        if (transitionFinishedFence.WaitForFence(-1) != vk::Result::eSuccess)
+        {
+            throw std::runtime_error("FATAL::Fence condition to transition attachemnt layouts was never met...");
+        }
+
+        transitionFinishedFence.Destroy();
 
         Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
     }
@@ -125,11 +116,11 @@ namespace Renderer {
         m_height = newHeight;
         m_device.GetDevice().waitIdle();
         DestroyForResize();
-        for (auto &colourBuffer : m_colourBuffer)
+        for (auto &colourBuffer : m_colourAttachments)
         {
-            colourBuffer->Resize(newWidth, newHeight);
+            colourBuffer.second->Resize(newWidth, newHeight);
         }
-        m_depthBuffer->Resize(newWidth, newHeight);
+        m_depthAttachment.second->Resize(newWidth, newHeight);
     }
 
     void RenderTarget::HandleSwapChainResize(const VulkanCore::VSwapChain& swapChain)
@@ -144,68 +135,98 @@ namespace Renderer {
     void RenderTarget::Destroy()
     {
         Utils::Logger::LogInfoVerboseOnly("Destroying render target...");
-        for (int i = 0; i < m_colourBuffer.size(); i++)
+        for (int i = 0; i < m_colourAttachments.size(); i++)
         {
-            m_colourBuffer[i]->Destroy();
+            m_colourAttachments[i].second->Destroy();
+            if (m_msaaAttachments[i].second)
+                m_msaaAttachments[i].second->Destroy();
         }
-        for (int i = 0; i < m_frameBuffers.size(); i++)
-        {
-            m_frameBuffers[i]->Destroy();
-        }
-        m_depthBuffer->Destroy();
-        m_renderPass->Destroy();
-        if (m_msaaBuffer)
-            m_msaaBuffer->Destroy();
+        m_depthAttachment.second->Destroy();
+
+
 
         Utils::Logger::LogSuccess("Render target destroyed");
     }
 
     void RenderTarget::DestroyForResize()
     {
-        for (auto& frameBuffer : m_frameBuffers)
-        {
-            frameBuffer->Destroy();
-        }
-        m_renderPass->Destroy();
+
+    }
+
+    vk::ImageView RenderTarget::GetColourImageView(int currentFrame) const
+    {
+    }
+
+    vk::ImageView RenderTarget::GetDepthImageView() const
+    {
+    }
+
+    vk::ImageView RenderTarget::GetResolveImageView() const
+    {
     }
 
     void RenderTarget::CreateRenderTargetForSwapChain(const VulkanCore::VSwapChain& swapChain)
     {
-        auto swapChainImages = swapChain.GetSwapChainImages();
-        auto swapChainExtent = swapChain.GetExtent();
-        auto swapChainFormat = swapChain.GetSurfaceFormatKHR().format;
+        auto& swapChainImages = swapChain.GetSwapChainImages();
+        auto& swapChainExtent = swapChain.GetExtent();
+        auto& swapChainFormat = swapChain.GetSurfaceFormatKHR().format;
         // for swap chain
         Utils::Logger::LogInfoVerboseOnly("Creating render target for swap chain images...");
-        m_colourBuffer.resize(swapChainImages.size());
-        m_frameBuffers.resize(swapChainImages.size());
-
+        m_colourAttachments.resize(swapChainImages.size());
 
         //==========================
         // CREATE DEPTH ATTACHMENT
         //==========================
-        m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(),
+        m_depthAttachment.second = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(),
                                                              vk::ImageAspectFlagBits::eDepth, vk::ImageUsageFlagBits::eDepthStencilAttachment);
-        m_depthBuffer->Resize(swapChainExtent.width, swapChainExtent.height);
+
+        auto& depthSwapChainAttachment = m_depthAttachment.first;
+        depthSwapChainAttachment.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+        depthSwapChainAttachment.clearValue.depthStencil.depth = 1.0f;
+        depthSwapChainAttachment.clearValue.depthStencil.stencil = 0.0f;
+        depthSwapChainAttachment.imageView = m_depthAttachment.second->GetImageView();
+        depthSwapChainAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+        depthSwapChainAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
+
+        m_depthAttachment.second->Resize(swapChainExtent.width, swapChainExtent.height);
 
         //==========================
         // CREATE COLOUR ATTACHMENT
         //==========================
         for (int i = 0; i < swapChainImages.size(); i++)
         {
-            m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i],
+            m_colourAttachments[i].second = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i],
                                                                      swapChainExtent.width, swapChainExtent.height
                                                                      , 1,
                                                                      swapChainFormat);
+
+            auto& swapChainImageAttachment= m_colourAttachments[i].first;
+            swapChainImageAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+            swapChainImageAttachment.imageView = m_colourAttachments[i].second->GetImageView();
+            swapChainImageAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+            swapChainImageAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+
         }
 
-        m_renderPass = std::make_unique<VulkanCore::VRenderPass>(m_device,*m_colourBuffer[0],*m_depthBuffer, *m_msaaBuffer ,true);
+        auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device,m_device.GetTransferCommandPool());
+        auto transitionFinishedFence = VulkanCore::VSyncPrimitive<vk::Fence>(m_device);
+        transitionCommandBuffer.BeginRecording();
 
         for (int i = 0; i < swapChainImages.size(); i++)
         {
-            std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments;
-            attachments.emplace_back(*m_colourBuffer[i]);
-            attachments.emplace_back(*m_depthBuffer);
-            m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, swapChainExtent.width, swapChainExtent.height);
+            m_colourAttachments[i].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
         }
+
+        m_depthAttachment.second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, transitionCommandBuffer);
+
+        if (transitionFinishedFence.WaitForFence(-1) != vk::Result::eSuccess)
+        {
+            throw std::runtime_error("FATAL::Fence condition to transition attachemnt layouts was never met...");
+        }
+
+        transitionFinishedFence.Destroy();
+
+        Utils::Logger::LogSuccess("Render target for swap chain created, contains:" + std::to_string(swapChainImages.size()) + "Swap chain images and 1 depth buffer" );
+
     }
 } // Renderer
