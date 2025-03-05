@@ -39,7 +39,15 @@ namespace Renderer {
         m_msaaBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
                 vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransientAttachment, m_device.GetSampleCount() );
 
-
+        m_depthAttachments.second = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth,
+            vk::ImageUsageFlagBits::eDepthStencilAttachment, m_device.GetSampleCount());
+        auto& depthAttachmentInfo = m_depthAttachments.first;
+        depthAttachmentInfo.imageView = m_depthAttachments.second->GetImageView();
+        depthAttachmentInfo.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+        depthAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
+        depthAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
+        depthAttachmentInfo.clearValue.depthStencil.depth = 1.0f;
+        depthAttachmentInfo.clearValue.depthStencil.stencil = 0.0f;
 
         //==========================
         // CREATE COLOUR ATTACHMENT
@@ -71,7 +79,6 @@ namespace Renderer {
             msaaAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
 
             m_msaaAttachment[i].second->Resize(width, height);
-
         }
 
 
