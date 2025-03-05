@@ -30,6 +30,7 @@ namespace Renderer {
         //==========================
         m_depthBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth,
             vk::ImageUsageFlagBits::eDepthStencilAttachment, m_device.GetSampleCount());
+
         m_depthBuffer->Resize(width, height);
 
         //==========================
@@ -37,16 +38,40 @@ namespace Renderer {
         //==========================
         m_msaaBuffer = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
                 vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransientAttachment, m_device.GetSampleCount() );
-        m_msaaBuffer->Resize(width, height);
+
+
 
         //==========================
         // CREATE COLOUR ATTACHMENT
         //==========================
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
-            m_colourBuffer[i] = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
+            m_colourAttachemnts[i].second = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
                 vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eInputAttachment);
-            m_colourBuffer[i]->Resize(width, height);
+            auto& colourAttachmentInfo  = m_colourAttachemnts[i].first;
+            colourAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+            colourAttachmentInfo.imageView = m_colourAttachemnts[i].second->GetImageView();
+            colourAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
+            colourAttachmentInfo.storeOp = vk::AttachmentStoreOp::eStore;
+            colourAttachmentInfo.clearValue.color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+
+            m_colourAttachemnts[i].second->Resize(width, height);
+
+
+            m_msaaAttachment[i].second = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
+        vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransientAttachment, m_device.GetSampleCount() );
+            auto& msaaAttachmentInfo  = m_msaaAttachment[i].first;
+            msaaAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+            msaaAttachmentInfo.imageView = m_msaaAttachment[i].second->GetImageView();
+            msaaAttachmentInfo.resolveImageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+            msaaAttachmentInfo.resolveImageView = colourAttachmentInfo.imageView;
+            msaaAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eAverage;
+            msaaAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
+            msaaAttachmentInfo.clearValue.color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+            msaaAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
+
+            m_msaaAttachment[i].second->Resize(width, height);
+
         }
 
 
