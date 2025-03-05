@@ -28,10 +28,10 @@ inline void RecordImageTransitionLayoutComand(
         else if (currentLayout == vk::ImageLayout::eUndefined && targetLayout ==
             vk::ImageLayout::eColorAttachmentOptimal) {
             barrier.srcAccessMask = {};
-            barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentRead;
+            barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
     
             srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
-            dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+            dstStageFlags = vk::PipelineStageFlagBits::eTransfer;
         }
         else if (currentLayout == vk::ImageLayout::eUndefined && targetLayout ==
             vk::ImageLayout::eDepthStencilAttachmentOptimal) {

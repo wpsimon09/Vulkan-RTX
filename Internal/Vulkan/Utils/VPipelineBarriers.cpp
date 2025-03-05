@@ -27,7 +27,7 @@ void VulkanUtils::PlaceImageMemoryBarrier(const VulkanCore::VCommandBuffer& cmdB
 
     cmdBuffer.GetCommandBuffer().pipelineBarrier(
         srcPipelineStage, dstPipelineStage,
-        0,
+        {},
         0, nullptr,
         0, nullptr,
         1, &imageMemBarrier

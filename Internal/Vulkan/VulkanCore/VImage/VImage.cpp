@@ -103,6 +103,7 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
     Utils::Logger::LogInfoVerboseOnly("Transition image layout...");
 
     bool flushAfterTransition = false;
+    auto imageTransitionedFence = VulkanCore::VSyncPrimitive<vk::Fence>(m_device);
 
     m_imageLayout = targetLayout;
 
@@ -120,7 +121,7 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
     barrier.subresourceRange.layerCount = 1;
 
     
-    
+
     if(! m_transferCommandBuffer->GetIsRecording())
     {
         flushAfterTransition = true;

@@ -176,6 +176,10 @@ namespace Renderer
         //==============================================
         // CREATE RENDER PASS INFO
         //==============================================
+
+        //vk::RenderingInfo renderingInfo;
+        //renderingInfo.
+
         vk::RenderPassBeginInfo renderPassBeginInfo;
         renderPassBeginInfo.renderPass = GetRenderPass(currentFrameIndex).GetRenderPass();
         renderPassBeginInfo.framebuffer = GetFrameBuffer(currentFrameIndex).GetFrameBuffer();

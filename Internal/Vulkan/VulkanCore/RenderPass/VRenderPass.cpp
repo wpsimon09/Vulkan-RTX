@@ -119,7 +119,7 @@ void VulkanCore::VRenderPass::CreateRenderPassForCustomImage()
     //-----------------
     m_depthStencilAttachmentDescription.format = m_depthBuffer.GetFormat();
     m_depthStencilAttachmentDescription.samples = m_device.GetSampleCount();
-    m_depthStencilAttachmentDescription.loadOp = vk::AttachmentLoadOp::eClear;
+    m_depthStencilAttachmentDescription.loadOp = vk::AttachmentLoadOp::eDontCare;
     m_depthStencilAttachmentDescription.storeOp = vk::AttachmentStoreOp::eDontCare;
     m_depthStencilAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     m_depthStencilAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
@@ -138,7 +138,8 @@ void VulkanCore::VRenderPass::CreateRenderPassForCustomImage()
 
     m_resolveColourAttachmentDescription.format =   m_colourBuffer.GetFormat();
     m_resolveColourAttachmentDescription.samples = vk::SampleCountFlagBits::e1;
-    m_resolveColourAttachmentDescription.loadOp = vk::AttachmentLoadOp::eDontCare;
+    m_resolveColourAttachmentDescription.loadOp = vk::AttachmentLoadOp::eDontCare
+    ;
     m_resolveColourAttachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
     m_resolveColourAttachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     m_resolveColourAttachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;

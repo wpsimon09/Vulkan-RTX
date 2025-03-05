@@ -68,6 +68,16 @@ namespace Renderer {
             m_frameBuffers[i] = std::make_unique<VulkanCore::VFrameBuffer>(m_device, *m_renderPass,attachments, width, height);
         }
 
+        auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device,m_device.GetTransferCommandPool());
+
+        // TRANSITION EVERYTHING FROM UNDEFINED LAYOUT TO COLOUR ATTACHMENT
+         m_colourBuffer[0]->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal, transitionCommandBuffer);
+         m_colourBuffer[1]->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal, transitionCommandBuffer);
+
+         m_depthBuffer->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, transitionCommandBuffer);
+
+
+
         Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
     }
 
