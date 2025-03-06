@@ -260,7 +260,6 @@ namespace Renderer
             {
                 m_selectedGeometryDrawCalls.emplace_back(drawCall);
             }
-
         }
 
 

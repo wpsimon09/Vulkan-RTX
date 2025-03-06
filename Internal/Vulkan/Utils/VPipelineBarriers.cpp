@@ -21,7 +21,7 @@ void VulkanUtils::PlaceImageMemoryBarrier(const VulkanCore::VCommandBuffer& cmdB
             vk::ImageAspectFlagBits::eColor,
             0,
             1,
-        0,
+            0,
             1}
     };
 

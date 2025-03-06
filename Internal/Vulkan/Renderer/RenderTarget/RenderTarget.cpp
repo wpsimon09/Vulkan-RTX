@@ -178,6 +178,21 @@ namespace Renderer {
         return m_depthAttachment.first;
     }
 
+    const VulkanCore::VImage& RenderTarget::GetColourImage(int currentFrame) const
+    {
+        return *m_colourAttachments[currentFrame].second;
+    }
+
+    const VulkanCore::VImage& RenderTarget::GetDepthImage(int currentFrame) const
+    {
+        return *m_depthAttachment.second;
+    }
+
+    const VulkanCore::VImage& RenderTarget::GetMSAAResolvedImage(int currentFrame) const
+    {
+        return *m_msaaAttachments[currentFrame].second;
+    }
+
     void RenderTarget::CreateRenderTargetForSwapChain(const VulkanCore::VSwapChain& swapChain)
     {
         auto& swapChainImages = swapChain.GetSwapChainImages();

@@ -34,7 +34,6 @@ public:
     RenderTarget(const VulkanCore::VDevice& device,int width, int height, vk::Format colourFormat = vk::Format::eR8G8B8A8Unorm);
     RenderTarget(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain);
 
-
     void HandleResize(int newWidth, int newHeight);
     void HandleSwapChainResize(const VulkanCore::VSwapChain& swapChain);
     void Destroy();
@@ -53,6 +52,10 @@ public:
     vk::RenderingAttachmentInfo& GetMSAAResolveAttachment(int currentFrame) ;
 
     vk::RenderingAttachmentInfo& GetDepthAttachment() ;
+
+    const VulkanCore::VImage& GetColourImage(int currentFrame) const;
+    const VulkanCore::VImage& GetDepthImage(int currentFrame) const;
+    const VulkanCore::VImage& GetMSAAResolvedImage(int currentFrame) const;
 
     ~RenderTarget() = default;
 private:

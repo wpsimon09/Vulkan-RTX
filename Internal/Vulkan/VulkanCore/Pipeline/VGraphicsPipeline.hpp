@@ -16,6 +16,11 @@ namespace VulkanCore
     class VDescriptorSetLayout;
 }
 
+namespace Renderer
+{
+    class RenderTarget;
+}
+
 namespace VulkanCore
 {
     class VSwapChain;
@@ -31,7 +36,7 @@ namespace VulkanCore
 
     public:
         VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
-                          const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass,
+                          const VulkanCore::VShader &shaders, const Renderer::RenderTarget &renderTarget,
                           const VulkanCore::VDescriptorSetLayout &descriptorLayout);
 
         /**
@@ -60,13 +65,14 @@ namespace VulkanCore
         void CreateDepthStencil();
         void CreateColorBlend();
         void CreatePipelineLayout();
+        void CreateRenderingInfo();
 
     private:
         const VulkanCore::VShader &m_shaders;
         const VulkanCore::VDevice &m_device;
         const VulkanCore::VSwapChain &m_swapChain;
-        const VulkanCore::VRenderPass &m_renderPass;
         const VulkanCore::VDescriptorSetLayout& m_descriptorSetLayout;
+        const Renderer::RenderTarget &m_renderTarget;
 
         // pipeline handler
         vk::Pipeline m_pipeline;
@@ -98,10 +104,8 @@ namespace VulkanCore
         vk::PipelineColorBlendAttachmentState m_colorBlendAttachmentState;
         vk::PipelineColorBlendStateCreateInfo m_colorBlendState;
         vk::PipelineLayout m_pipelineLayout;
+        vk::PipelineRenderingCreateInfo m_renderingCreateInfo;
 
-        //-----------------
-        // SETTERS
-        //-----------------
     public:
         void SetCreatedPipeline(vk::Pipeline pipeline) {
             assert(pipeline);

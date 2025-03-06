@@ -13,10 +13,13 @@
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include <vulkan/vulkan.hpp>
 
+#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage.hpp"
+
 
 VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
-    const VulkanCore::VShader &shaders, const VulkanCore::VRenderPass &renderPass, const VulkanCore::VDescriptorSetLayout &descriptorLayout)
-        : VObject(), m_shaders(shaders), m_device(device),m_swapChain(swapChain), m_renderPass(renderPass), m_descriptorSetLayout(descriptorLayout)
+                                                 const VulkanCore::VShader &shaders, const Renderer::RenderTarget &renderTarget, const VulkanCore::VDescriptorSetLayout &descriptorLayout)
+        : VObject(), m_shaders(shaders), m_device(device),m_swapChain(swapChain), m_renderTarget(renderTarget), m_descriptorSetLayout(descriptorLayout)
 {}
 
 
@@ -33,6 +36,7 @@ void VulkanCore::VGraphicsPipeline::Init() {
     CreateDepthStencil();
     CreateColorBlend();
     CreatePipelineLayout();
+    CreateRenderingInfo();
 }
 
 void VulkanCore::VGraphicsPipeline::Destroy() {
@@ -72,7 +76,8 @@ const vk::GraphicsPipelineCreateInfo VulkanCore::VGraphicsPipeline::GetGraphicsP
     info.pColorBlendState = &m_colorBlendState;
     info.pDynamicState = &m_dynamicStateInfo;
     info.layout = m_pipelineLayout;
-    info.renderPass = m_renderPass.GetRenderPass();
+    info.renderPass = nullptr;
+    info.pNext = &m_renderingCreateInfo;
     //---------------------------------------
 
 
@@ -226,6 +231,13 @@ void VulkanCore::VGraphicsPipeline::CreatePipelineLayout() {
     pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
     assert(m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout) == vk::Result::eSuccess);
     Utils::Logger::LogSuccess("Pipeline layout created !");
+}
+
+void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
+{
+    m_renderingCreateInfo.colorAttachmentCount = 1;
+    m_renderingCreateInfo.pColorAttachmentFormats = m_renderTarget.GetColourImage(0).GetFormat();
+
 }
 
 void VulkanCore::VGraphicsPipeline::EnableBlendingAlpha(){
