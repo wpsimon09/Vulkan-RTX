@@ -46,29 +46,17 @@ namespace Renderer
         //===========================================================
         // CONVERT IMAGE LAYOUT FROM KHR_PRESENT TO COLOUR_ATTACHMENT
         //===========================================================
-        m_commandBuffer[currentFrameIndex]->Reset();
-        vk::ImageMemoryBarrier barrier{};
-        barrier.oldLayout = vk::ImageLayout::e;
-        barrier.newLayout = vk;
-        barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
-        barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
-        barrier.image = m_imageVK;
-        barrier.subresourceRange.aspectMask = m_isDepthBuffer ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-        barrier.subresourceRange.baseMipLevel = 0;
-        barrier.subresourceRange.levelCount = 1;
-        barrier.subresourceRange.baseArrayLayer = 0;
-        barrier.subresourceRange.layerCount = 1;
-
         auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device, m_device.GetTransferCommandPool());
         auto transitionFinishedSemaphore = VulkanCore::VSyncPrimitive<vk::Semaphore>(m_device);
 
-        RecordImageTransitionLayoutComand(vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eColorAttachmentOptimal, )
 
         //=============================
         // RECORD CMD BUFFER
         //=============================
         m_commandBuffer[currentFrameIndex]->BeginRecording();
+
         RecordCommandBuffer(currentFrameIndex, swapChainImageIndex);
+
         m_commandBuffer[currentFrameIndex]->EndRecording();
         m_imguiInitializer.EndRender();
 
@@ -114,6 +102,8 @@ namespace Renderer
         //==============================================
         // CREATE RENDER PASS INFO
         //==============================================
+        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::ePresentSrcKHR, *m_commandBuffer[currentFrameIndex]);
+
         //==============================================
         // CREATE RENDER PASS INFO
         //==============================================
@@ -142,6 +132,9 @@ namespace Renderer
 
         assert(m_commandBuffer[currentFrameIndex]->GetIsRecording());
         m_imguiInitializer.Render(*m_commandBuffer[currentFrameIndex]);
+
+        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex), vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eColorAttachmentOptimal, *m_commandBuffer[currentFrameIndex]);
+
 
         cmdBuffer.endRenderPass();
     }
