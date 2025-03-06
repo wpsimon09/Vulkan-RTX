@@ -177,24 +177,29 @@ namespace Renderer
         // CREATE RENDER PASS INFO
         //==============================================
         std::vector<vk::RenderingAttachmentInfo> colourAttachments = {
-            m_renderTargets->GetColourImageView(currentFrameIndex),
-              m_renderTargets->Get
-        }
+            m_renderTargets->GetColourAttachment(currentFrameIndex),
+              m_renderTargets->GetMSAAResolveAttachment(currentFrameIndex),
+        };
 
         vk::RenderingInfo renderingInfo;
         renderingInfo.renderArea.offset = vk::Offset2D(0, 0);
         renderingInfo.renderArea.extent = vk::Extent2D(m_width, m_height);
         renderingInfo.layerCount = 1;
-        renderingInfo.colorAttachmentCount = 1;
-        renderingInfo.pColorAttachments = ;
+        renderingInfo.colorAttachmentCount = colourAttachments.size();
+        renderingInfo.pColorAttachments = colourAttachments.data();
+        renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
 
         //==============================================
         // START RENDER PASS
         //==============================================
         auto& cmdBuffer = m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
 
+        cmdBuffer.beginRendering(&renderingInfo);
+
+
         // if there is nothing to render end the render process
         if(m_renderContextPtr->MainLightPassOpaque.empty()){
+            cmdBuffer.endRendering();
             m_renderingStatistics.DrawCallCount = drawCallCount;
             m_selectedGeometryDrawCalls.clear();
             return;
@@ -255,6 +260,7 @@ namespace Renderer
             {
                 m_selectedGeometryDrawCalls.emplace_back(drawCall);
             }
+
         }
 
 
@@ -355,6 +361,8 @@ namespace Renderer
                                                     m_pipelineManager->GetPipeline(EPipelineType::EditorBillboard));
         }
 
+
+        cmdBuffer.endRendering();
 
         m_renderingStatistics.DrawCallCount = drawCallCount;
         m_selectedGeometryDrawCalls.clear();
