@@ -4,6 +4,8 @@
 
 #include "UserInterfaceRenderer.hpp"
 
+#include <Vulkan/Utils/VIimageTransitionCommands.hpp>
+
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
@@ -41,7 +43,27 @@ namespace Renderer
                                                            std::vector<vk::Semaphore>& waitSemaphores, std::vector<vk::PipelineStageFlags>& pipelineStages)
     {
 
+        //===========================================================
+        // CONVERT IMAGE LAYOUT FROM KHR_PRESENT TO COLOUR_ATTACHMENT
+        //===========================================================
         m_commandBuffer[currentFrameIndex]->Reset();
+        vk::ImageMemoryBarrier barrier{};
+        barrier.oldLayout = vk::ImageLayout::e;
+        barrier.newLayout = vk;
+        barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
+        barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
+        barrier.image = m_imageVK;
+        barrier.subresourceRange.aspectMask = m_isDepthBuffer ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+        barrier.subresourceRange.baseMipLevel = 0;
+        barrier.subresourceRange.levelCount = 1;
+        barrier.subresourceRange.baseArrayLayer = 0;
+        barrier.subresourceRange.layerCount = 1;
+
+        auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device, m_device.GetTransferCommandPool());
+        auto transitionFinishedSemaphore = VulkanCore::VSyncPrimitive<vk::Semaphore>(m_device);
+
+        RecordImageTransitionLayoutComand(vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eColorAttachmentOptimal, )
+
         //=============================
         // RECORD CMD BUFFER
         //=============================
@@ -92,33 +114,33 @@ namespace Renderer
         //==============================================
         // CREATE RENDER PASS INFO
         //==============================================
-        vk::RenderPassBeginInfo renderPassBeginInfo;
-        renderPassBeginInfo.renderPass = m_renderTarget->m_renderPass->GetRenderPass();
-        renderPassBeginInfo.framebuffer = m_renderTarget->m_frameBuffers[swapChainImageIndex]->GetFrameBuffer();
-        renderPassBeginInfo.renderArea.offset.x = 0;
-        renderPassBeginInfo.renderArea.offset.y = 0;
-        renderPassBeginInfo.renderArea.extent.width = static_cast<uint32_t>(m_renderTarget->m_width),
-        renderPassBeginInfo.renderArea.extent.height = static_cast<uint32_t>(m_renderTarget->m_height);
+        //==============================================
+        // CREATE RENDER PASS INFO
+        //==============================================
+        std::vector<vk::RenderingAttachmentInfo> colourAttachments = {
+            m_renderTarget->GetColourAttachment(currentFrameIndex),
+        };
 
-        //==============================================
-        // CONFIGURE CLEAR
-        //==============================================
-        std::array<vk::ClearValue,2> clearColors = {};
-        clearColors[0].color =  {0.2f, 0.2f, 0.2f, 1.0f};
-        clearColors[1].depthStencil.depth = 1.0f;
-        clearColors[1].depthStencil.stencil = 0.0f;
-        renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearColors.size());
-        renderPassBeginInfo.pClearValues = clearColors.data();
+        vk::RenderingInfo renderingInfo;
+        renderingInfo.renderArea.offset = vk::Offset2D(0, 0);
+        renderingInfo.renderArea.extent = vk::Extent2D(m_swapChain.GetExtent().width, m_swapChain.GetExtent().height);
+        renderingInfo.layerCount = 1;
+        renderingInfo.colorAttachmentCount = colourAttachments.size();
+        renderingInfo.pColorAttachments = colourAttachments.data();
+        renderingInfo.pDepthAttachment = &m_renderTarget->GetDepthAttachment();
 
         //==============================================
         // START RENDER PASS
         //==============================================
-        assert(m_commandBuffer[currentFrameIndex]->GetIsRecording());
         auto& cmdBuffer = m_commandBuffer[currentFrameIndex]->GetCommandBuffer();
 
-        cmdBuffer.beginRenderPass(
-            &renderPassBeginInfo, vk::SubpassContents::eInline);
+        cmdBuffer.beginRendering(&renderingInfo);
 
+        //==============================================
+        // START RENDER PASS
+        //==============================================
+
+        assert(m_commandBuffer[currentFrameIndex]->GetIsRecording());
         m_imguiInitializer.Render(*m_commandBuffer[currentFrameIndex]);
 
         cmdBuffer.endRenderPass();

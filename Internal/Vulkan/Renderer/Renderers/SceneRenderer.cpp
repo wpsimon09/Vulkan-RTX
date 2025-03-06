@@ -178,7 +178,6 @@ namespace Renderer
         //==============================================
         std::vector<vk::RenderingAttachmentInfo> colourAttachments = {
             m_renderTargets->GetColourAttachment(currentFrameIndex),
-              m_renderTargets->GetMSAAResolveAttachment(currentFrameIndex),
         };
 
         vk::RenderingInfo renderingInfo;
