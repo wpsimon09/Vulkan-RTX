@@ -37,7 +37,7 @@ namespace VEditor
         m_viewports[ViewPortType::eMain] = {.camera = &m_client.GetCamera()};
     }
 
-    void UIContext::Initialize(const VulkanCore::VRenderPass& renderPass)
+    void UIContext::Initialize()
     {
         Utils::Logger::LogInfo("Starting to initialize ImGui...");
 
@@ -92,6 +92,7 @@ namespace VEditor
         imGuiVkInitInfo.MinImageCount = GlobalVariables::MAX_FRAMES_IN_FLIGHT;
         imGuiVkInitInfo.ImageCount = GlobalVariables::MAX_FRAMES_IN_FLIGHT;
         imGuiVkInitInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+        imGuiVkInitInfo.UseDynamicRendering = true;
 
         ImGui_ImplVulkan_Init(&imGuiVkInitInfo);
 

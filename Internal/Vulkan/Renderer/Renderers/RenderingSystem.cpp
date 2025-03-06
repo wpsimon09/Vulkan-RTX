@@ -54,7 +54,7 @@ namespace Renderer {
         //------------------------------------------------------------------------------------------------------------------------
         // CREATE PIPELINE MANAGER
         //------------------------------------------------------------------------------------------------------------------------
-        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(m_device, *m_swapChain, m_sceneRenderer->GetRenderPass(0), m_pushDescriptorSetManager) ;
+        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(m_device, *m_swapChain, m_sceneRenderer->GetRenderTarget(), m_pushDescriptorSetManager) ;
         m_pipelineManager->InstantiatePipelines();
 
         m_sceneRenderer->Init(m_pipelineManager.get());
@@ -112,7 +112,6 @@ namespace Renderer {
 
         auto drawCalls = m_renderContext.GetAllDrawCall();
         m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, drawCalls);
-
         m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
 
         // render scene

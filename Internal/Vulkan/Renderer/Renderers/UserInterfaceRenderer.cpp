@@ -33,7 +33,7 @@ namespace Renderer
         }
 
         m_renderTarget = std::make_unique<Renderer::RenderTarget>(m_device, swapChain);
-        uiContext.Initialize(*m_renderTarget->m_renderPass);
+        uiContext.Initialize();
     }
 
     void UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex,

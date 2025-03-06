@@ -236,7 +236,8 @@ void VulkanCore::VGraphicsPipeline::CreatePipelineLayout() {
 void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
 {
     m_renderingCreateInfo.colorAttachmentCount = 1;
-    m_renderingCreateInfo.pColorAttachmentFormats = m_renderTarget.GetColourImage(0).GetFormat();
+    const auto& format = m_renderTarget.GetColourImage(0).GetFormat();
+    m_renderingCreateInfo.pColorAttachmentFormats = &format;
 
 }
 

@@ -53,7 +53,7 @@ namespace Renderer {
             colourAttachmentInfo.imageView = m_colourAttachments[i].second->GetImageView();
             colourAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
             colourAttachmentInfo.storeOp = vk::AttachmentStoreOp::eStore;
-            colourAttachmentInfo.clearValue.color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+            colourAttachmentInfo.clearValue.color.setFloat32({0.f, 0.f, 0.f, 1.f});
 
             m_colourAttachments[i].second->Resize(width, height);
 
@@ -71,7 +71,7 @@ namespace Renderer {
             msaaAttachmentInfo.resolveImageView = colourAttachmentInfo.imageView;
             msaaAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eAverage;
             msaaAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
-            msaaAttachmentInfo.clearValue.color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+            msaaAttachmentInfo.clearValue.color.setFloat32({0.f, 0.f, 0.f, 1.f});
             msaaAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
 
             m_msaaAttachments[i].second->Resize(width, height);

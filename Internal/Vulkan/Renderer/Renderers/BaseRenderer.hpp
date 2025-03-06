@@ -52,6 +52,7 @@ namespace Renderer
         const vk::Semaphore& GetRendererFinishedSempahore(int currentFrame) const {return m_rendererFinishedSemaphore[currentFrame]->GetSyncPrimitive();}
         const int& GetTargeWidth() const  {return m_width;}
         const int& GetTargeHeight() const {return m_height;}
+        const Renderer::RenderTarget& GetRenderTarget() const {return *m_renderTargets;}
     public:
         virtual void Destroy();
     protected:

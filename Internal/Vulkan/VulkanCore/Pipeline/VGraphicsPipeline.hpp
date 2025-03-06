@@ -53,7 +53,6 @@ namespace VulkanCore
         const EPipelineType GetPipelineType() const { return m_pipelineType; };
 
         ~VGraphicsPipeline() = default;
-
     private:
         void CreateShaderStages();
         void CreateVertexInputBindingAndAttributes();

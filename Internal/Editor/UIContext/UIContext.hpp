@@ -52,7 +52,7 @@ public:
 
     ViewPortContext& GetViewPortContext(ViewPortType viewPortType) {return m_viewports[viewPortType];};
 
-    void Initialize(const VulkanCore::VRenderPass& renderPass);
+    void Initialize();
     void BeginRender();
     void Render(VulkanCore::VCommandBuffer& commandBuffer);
     void SetRenderingSystem(Renderer::RenderingSystem* rendderingSystem) {m_renderingSystem = rendderingSystem;}
