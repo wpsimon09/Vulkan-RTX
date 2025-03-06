@@ -102,7 +102,7 @@ namespace Renderer
         //==============================================
         // CREATE RENDER PASS INFO
         //==============================================
-        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::ePresentSrcKHR, *m_commandBuffer[currentFrameIndex]);
+        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eUndefined, *m_commandBuffer[currentFrameIndex]);
 
         //==============================================
         // CREATE RENDER PASS INFO

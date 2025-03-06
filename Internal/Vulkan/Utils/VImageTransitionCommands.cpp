@@ -31,10 +31,10 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(vk::ImageLayout currentLayo
         else if (currentLayout == vk::ImageLayout::eUndefined && targetLayout ==
             vk::ImageLayout::eColorAttachmentOptimal) {
             barrier.srcAccessMask = {};
-            barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+            barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
 
             srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
-            dstStageFlags = vk::PipelineStageFlagBits::eTransfer;
+            dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
         }
         else if (currentLayout == vk::ImageLayout::eUndefined && targetLayout ==
             vk::ImageLayout::eDepthStencilAttachmentOptimal) {
@@ -67,8 +67,20 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(vk::ImageLayout currentLayo
             srcStageFlags = vk::PipelineStageFlagBits::eTransfer;
             dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
         }
+
+        else if (currentLayout == vk::ImageLayout::eColorAttachmentOptimal && targetLayout == vk::ImageLayout::ePresentSrcKHR )
+        {
+            barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+            barrier.dstAccessMask = {};
+
+            srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+            dstStageFlags = vk::PipelineStageFlagBits::eBottomOfPipe;
+        }
         else {
-            throw std::runtime_error("Unsupported layout transition");
+            std::string currentLayoutStr = ImageLayoutToString(currentLayout);
+            std::string targetLayoutStr = ImageLayoutToString(targetLayout);
+            auto errormsg = "Target: "+ currentLayoutStr + " Current: " + targetLayoutStr + "Are not yet supported";
+            throw std::runtime_error(errormsg);
         }
 
         assert(commandBuffer.GetIsRecording() && "Command buffer is not recording the commands enable it by calling commandBuffer->StartRecording()");
@@ -101,6 +113,33 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(const VulkanCore::VImage& i
 
     VulkanUtils::RecordImageTransitionLayoutCommand(currentLayout, targetLayout, barrier, commandBuffer);
 
+}
+
+std::string VulkanUtils::ImageLayoutToString(vk::ImageLayout imageLayout)
+{
+    switch (imageLayout)
+    {
+        case vk::ImageLayout::eUndefined: return "Undefined";
+        case vk::ImageLayout::eGeneral: return "General";
+        case vk::ImageLayout::eColorAttachmentOptimal: return "ColorAttachmentOptimal";
+        case vk::ImageLayout::eDepthStencilAttachmentOptimal: return "DepthStencilAttachmentOptimal";
+        case vk::ImageLayout::eDepthStencilReadOnlyOptimal: return "DepthStencilReadOnlyOptimal";
+        case vk::ImageLayout::eShaderReadOnlyOptimal: return "ShaderReadOnlyOptimal";
+        case vk::ImageLayout::eTransferSrcOptimal: return "TransferSrcOptimal";
+        case vk::ImageLayout::eTransferDstOptimal: return "TransferDstOptimal";
+        case vk::ImageLayout::ePreinitialized: return "Preinitialized";
+        case vk::ImageLayout::eDepthReadOnlyStencilAttachmentOptimal: return "DepthReadOnlyStencilAttachmentOptimal";
+        case vk::ImageLayout::eDepthAttachmentStencilReadOnlyOptimal: return "DepthAttachmentStencilReadOnlyOptimal";
+        case vk::ImageLayout::eDepthAttachmentOptimal: return "DepthAttachmentOptimal";
+        case vk::ImageLayout::eDepthReadOnlyOptimal: return "DepthReadOnlyOptimal";
+        case vk::ImageLayout::eStencilAttachmentOptimal: return "StencilAttachmentOptimal";
+        case vk::ImageLayout::eStencilReadOnlyOptimal: return "StencilReadOnlyOptimal";
+        case vk::ImageLayout::ePresentSrcKHR: return "PresentSrcKHR";
+        case vk::ImageLayout::eSharedPresentKHR: return "SharedPresentKHR";
+        case vk::ImageLayout::eFragmentDensityMapOptimalEXT: return "FragmentDensityMapOptimalEXT";
+        case vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR: return "FragmentShadingRateAttachmentOptimalKHR";
+        default: return "Unknown ImageLayout";
+    }
 }
 
 

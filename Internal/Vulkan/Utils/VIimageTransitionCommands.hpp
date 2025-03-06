@@ -22,4 +22,6 @@ namespace VulkanUtils
         vk::ImageLayout currentLayout,
         VulkanCore::VCommandBuffer& commandBuffer
         );
+
+    std::string ImageLayoutToString(vk::ImageLayout imageLayout);
 }

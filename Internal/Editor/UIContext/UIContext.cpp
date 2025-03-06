@@ -87,7 +87,6 @@ namespace VEditor
         imGuiVkInitInfo.Queue = m_device.GetGraphicsQueue();
         imGuiVkInitInfo.PipelineCache = m_imguiPipelineCache;
         imGuiVkInitInfo.DescriptorPool = m_imguiDescriptorPool;
-        imGuiVkInitInfo.RenderPass = renderPass.GetRenderPass();
         imGuiVkInitInfo.Subpass = 0;
         imGuiVkInitInfo.MinImageCount = GlobalVariables::MAX_FRAMES_IN_FLIGHT;
         imGuiVkInitInfo.ImageCount = GlobalVariables::MAX_FRAMES_IN_FLIGHT;
