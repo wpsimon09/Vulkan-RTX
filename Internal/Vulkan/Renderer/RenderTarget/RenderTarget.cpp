@@ -143,8 +143,6 @@ namespace Renderer {
         }
         m_depthAttachment.second->Destroy();
 
-
-
         Utils::Logger::LogSuccess("Render target destroyed");
     }
 
@@ -163,6 +161,21 @@ namespace Renderer {
 
     vk::ImageView RenderTarget::GetResolveImageView() const
     {
+    }
+
+    vk::RenderingAttachmentInfo& RenderTarget::GetColourAttachment(int currentFrame)
+    {
+        return m_msaaAttachments[currentFrame].first;
+    }
+
+    vk::RenderingAttachmentInfo& RenderTarget::GetMSAAResolveAttachment(int currentFrame)
+    {
+        return m_colourAttachments[currentFrame].first;
+    }
+
+    vk::RenderingAttachmentInfo& RenderTarget::GetDepthAttachment()
+    {
+        return m_depthAttachment.first;
     }
 
     void RenderTarget::CreateRenderTargetForSwapChain(const VulkanCore::VSwapChain& swapChain)
@@ -228,5 +241,6 @@ namespace Renderer {
 
         Utils::Logger::LogSuccess("Render target for swap chain created, contains:" + std::to_string(swapChainImages.size()) + "Swap chain images and 1 depth buffer" );
 
+        // TODO: apply this to the rendering and to the pipeline creation process, optionally i can use shader objects instead of shader modules to specify descriptor layouts....
     }
 } // Renderer

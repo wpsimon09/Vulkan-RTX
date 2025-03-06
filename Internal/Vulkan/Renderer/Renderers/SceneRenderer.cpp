@@ -176,63 +176,25 @@ namespace Renderer
         //==============================================
         // CREATE RENDER PASS INFO
         //==============================================
+        std::vector<vk::RenderingAttachmentInfo> colourAttachments = {
+            m_renderTargets->GetColourImageView(currentFrameIndex),
+              m_renderTargets->Get
+        }
 
-        //vk::RenderingInfo renderingInfo;
-        //renderingInfo.
-
-        vk::RenderPassBeginInfo renderPassBeginInfo;
-        renderPassBeginInfo.renderPass = GetRenderPass(currentFrameIndex).GetRenderPass();
-        renderPassBeginInfo.framebuffer = GetFrameBuffer(currentFrameIndex).GetFrameBuffer();
-        renderPassBeginInfo.renderArea.offset.x = 0;
-        renderPassBeginInfo.renderArea.offset.y = 0;
-        renderPassBeginInfo.renderArea.extent.width = static_cast<uint32_t>(GetTargeWidth()),
-        renderPassBeginInfo.renderArea.extent.height = static_cast<uint32_t>(GetTargeHeight());
-
-        //==============================================
-        // CONFIGURE CLEAR
-        //==============================================
-        std::array<vk::ClearValue, 2> clearColors = {};
-        clearColors[0].color = {0.2f, 0.2f, 0.2f, 1.0f};
-        clearColors[1].depthStencil.depth = 1.0f;
-        clearColors[1].depthStencil.stencil = 0.0f;
-        renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearColors.size());
-        renderPassBeginInfo.pClearValues = clearColors.data();
+        vk::RenderingInfo renderingInfo;
+        renderingInfo.renderArea.offset = vk::Offset2D(0, 0);
+        renderingInfo.renderArea.extent = vk::Extent2D(m_width, m_height);
+        renderingInfo.layerCount = 1;
+        renderingInfo.colorAttachmentCount = 1;
+        renderingInfo.pColorAttachments = ;
 
         //==============================================
         // START RENDER PASS
         //==============================================
         auto& cmdBuffer = m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
 
-        cmdBuffer.beginRenderPass(
-            &renderPassBeginInfo, vk::SubpassContents::eInline);
-
-        cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance());
-
-
-        //===============================================
-        // CONFIGURE VIEW PORT
-        //===============================================
-        vk::Viewport viewport{};
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-
-        viewport.width = static_cast<float>(m_width);
-        viewport.height = static_cast<float>(m_height);
-
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
-        cmdBuffer.setViewport(0, 1, &viewport);
-
-        vk::Rect2D scissors{};
-        scissors.offset.x = 0;
-        scissors.offset.y = 0;
-        scissors.extent.width = m_width;
-        scissors.extent.height = m_height;
-
-        cmdBuffer.setScissor(0, 1, &scissors);
-
+        // if there is nothing to render end the render process
         if(m_renderContextPtr->MainLightPassOpaque.empty()){
-            cmdBuffer.endRenderPass();
             m_renderingStatistics.DrawCallCount = drawCallCount;
             m_selectedGeometryDrawCalls.clear();
             return;
@@ -393,7 +355,6 @@ namespace Renderer
                                                     m_pipelineManager->GetPipeline(EPipelineType::EditorBillboard));
         }
 
-        cmdBuffer.endRenderPass();
 
         m_renderingStatistics.DrawCallCount = drawCallCount;
         m_selectedGeometryDrawCalls.clear();

@@ -44,6 +44,16 @@ public:
     vk::ImageView GetDepthImageView() const;
     vk::ImageView GetResolveImageView() const;
 
+    vk::RenderingAttachmentInfo& GetColourAttachment(int currentFrame) ;
+    /**
+     * This is the attachment that will contain resovled sampled values os technicaly GetColourAttachments is retrieving multisampled images
+     * @param currentFrame current index of the frame 0 / 1
+     * @return attachment info
+     */
+    vk::RenderingAttachmentInfo& GetMSAAResolveAttachment(int currentFrame) ;
+
+    vk::RenderingAttachmentInfo& GetDepthAttachment() ;
+
     ~RenderTarget() = default;
 private:
 
