@@ -244,6 +244,8 @@ namespace Renderer {
 
         m_depthAttachment.second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, transitionCommandBuffer);
 
+        transitionCommandBuffer.EndAndFlush(m_device.GetTransferQueue(), transitionFinishedFence.GetSyncPrimitive());
+        
         transitionFinishedFence.WaitForFence(-1);
         transitionFinishedFence.Destroy();
 

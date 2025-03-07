@@ -35,7 +35,7 @@ namespace Renderer
         }
 
         m_renderTarget = std::make_unique<Renderer::RenderTarget>(m_device, swapChain);
-        uiContext.Initialize();
+        uiContext.Initialize(swapChain);
     }
 
     void UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex,
@@ -107,9 +107,10 @@ namespace Renderer
         //==============================================
         // CREATE RENDER PASS INFO
         //==============================================
-        std::vector<vk::RenderingAttachmentInfo> colourAttachments = {
-            m_renderTarget->GetColourAttachment(currentFrameIndex),
-        };
+        std::vector<vk::RenderingAttachmentInfo> colourAttachments(1);
+
+        colourAttachments.emplace_back(m_renderTarget->GetColourAttachment(swapChainImageIndex));
+
 
         vk::RenderingInfo renderingInfo;
         renderingInfo.renderArea.offset = vk::Offset2D(0, 0);

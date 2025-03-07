@@ -80,8 +80,6 @@ const vk::GraphicsPipelineCreateInfo VulkanCore::VGraphicsPipeline::GetGraphicsP
     info.pNext = &m_renderingCreateInfo;
     //---------------------------------------
 
-
-    info.pNext = nullptr;
     info.basePipelineIndex = -1;
 
     return info;
@@ -235,10 +233,11 @@ void VulkanCore::VGraphicsPipeline::CreatePipelineLayout() {
 
 void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
 {
+    m_renderingCreateInfo.sType = vk::StructureType::eRenderingInfoKHR;
     m_renderingCreateInfo.colorAttachmentCount = 1;
     const auto& format = m_renderTarget.GetColourImage(0).GetFormat();
     m_renderingCreateInfo.pColorAttachmentFormats = &format;
-
+    m_renderingCreateInfo.depthAttachmentFormat = m_device.GetDepthFormat();
 }
 
 void VulkanCore::VGraphicsPipeline::EnableBlendingAlpha(){
