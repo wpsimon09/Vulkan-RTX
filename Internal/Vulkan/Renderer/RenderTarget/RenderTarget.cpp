@@ -94,10 +94,7 @@ namespace Renderer {
 
         transitionCommandBuffer.EndAndFlush(m_device.GetTransferQueue(), transitionFinishedFence.GetSyncPrimitive());
 
-        if (transitionFinishedFence.WaitForFence(-1) != vk::Result::eSuccess)
-        {
-            throw std::runtime_error("FATAL::Fence condition to transition attachemnt layouts was never met...");
-        }
+        transitionFinishedFence.WaitForFence(-1);
 
         transitionFinishedFence.Destroy();
 
@@ -247,11 +244,7 @@ namespace Renderer {
 
         m_depthAttachment.second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, transitionCommandBuffer);
 
-        if (transitionFinishedFence.WaitForFence(-1) != vk::Result::eSuccess)
-        {
-            throw std::runtime_error("FATAL::Fence condition to transition attachemnt layouts was never met...");
-        }
-
+        transitionFinishedFence.WaitForFence(-1);
         transitionFinishedFence.Destroy();
 
         Utils::Logger::LogSuccess("Render target for swap chain created, contains:" + std::to_string(swapChainImages.size()) + "Swap chain images and 1 depth buffer" );

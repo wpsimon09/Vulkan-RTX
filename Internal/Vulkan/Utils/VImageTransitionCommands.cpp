@@ -76,6 +76,15 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(vk::ImageLayout currentLayo
             srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
             dstStageFlags = vk::PipelineStageFlagBits::eBottomOfPipe;
         }
+
+        else if (currentLayout == vk::ImageLayout::eUndefined    && targetLayout == vk::ImageLayout::eShaderReadOnlyOptimal )
+        {
+            barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+            barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+            srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+            dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
+        }
         else {
             std::string currentLayoutStr = ImageLayoutToString(currentLayout);
             std::string targetLayoutStr = ImageLayoutToString(targetLayout);

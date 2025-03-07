@@ -75,7 +75,7 @@ namespace Renderer {
 
     void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,GlobalUniform& globalUniformUpdateInfo)
     {
-        m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
+       m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
 
         //=================================================
         // GET SWAP IMAGE INDEX
@@ -123,10 +123,10 @@ namespace Renderer {
         std::vector<vk::Semaphore> signalSemaphoreLayoutStages = {m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
 
         // transition scene image layout
-        m_sceneRenderer->GetRenderedImage(m_currentFrameIndex).TransitionImageLayout(vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
-            waitSemaphoreLayoutTransfer,
-            waitStagesForLayoutTransform,
-            signalSemaphoreLayoutStages);
+        //m_sceneRenderer->GetRenderedImage(m_currentFrameIndex).TransitionImageLayout(vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
+        //    waitSemaphoreLayoutTransfer,
+        //    waitStagesForLayoutTransform,
+        //    signalSemaphoreLayoutStages);
 
         // gather all semaphores presentation should wait on
         std::vector<vk::Semaphore> waitSemaphoresForPresenting = {m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(),  m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};

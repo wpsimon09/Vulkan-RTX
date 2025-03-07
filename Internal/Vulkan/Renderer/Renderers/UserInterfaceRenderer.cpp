@@ -136,7 +136,7 @@ namespace Renderer
         VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex), vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eColorAttachmentOptimal, *m_commandBuffer[currentFrameIndex]);
 
 
-        cmdBuffer.endRenderPass();
+        cmdBuffer.endRendering();
     }
 
     void UserInterfaceRenderer::Destroy()
