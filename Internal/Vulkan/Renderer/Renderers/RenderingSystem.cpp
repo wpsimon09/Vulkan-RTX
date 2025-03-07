@@ -54,7 +54,7 @@ namespace Renderer {
         //------------------------------------------------------------------------------------------------------------------------
         // CREATE PIPELINE MANAGER
         //------------------------------------------------------------------------------------------------------------------------
-        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(m_device, *m_swapChain, m_sceneRenderer->GetRenderPass(0), m_pushDescriptorSetManager) ;
+        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(m_device, *m_swapChain, m_sceneRenderer->GetRenderTarget(), m_pushDescriptorSetManager) ;
         m_pipelineManager->InstantiatePipelines();
 
         m_sceneRenderer->Init(m_pipelineManager.get());
@@ -75,7 +75,7 @@ namespace Renderer {
 
     void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,GlobalUniform& globalUniformUpdateInfo)
     {
-        m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
+       m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
 
         //=================================================
         // GET SWAP IMAGE INDEX
@@ -112,22 +112,21 @@ namespace Renderer {
 
         auto drawCalls = m_renderContext.GetAllDrawCall();
         m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, drawCalls);
-
         m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
 
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext);
 
                                                                     // semaphore signaled in the scene render pass
-        std::vector<vk::Semaphore> waitSemaphoresForTransfering = {m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};
-        std::vector<vk::PipelineStageFlags> waitStagesForTransfering = {vk::PipelineStageFlagBits::eColorAttachmentOutput}; // what should be here  ?
-        std::vector<vk::Semaphore> signalSemaphoresForTransfering = {m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
+        std::vector<vk::Semaphore> waitSemaphoreLayoutTransfer = {m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};
+        std::vector<vk::PipelineStageFlags> waitStagesForLayoutTransform = {vk::PipelineStageFlagBits::eColorAttachmentOutput}; // what should be here  ?
+        std::vector<vk::Semaphore> signalSemaphoreLayoutStages = {m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
 
         // transition scene image layout
-        m_sceneRenderer->GetRenderedImage(m_currentFrameIndex).TransitionImageLayout(vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
-            waitSemaphoresForTransfering,
-            waitStagesForTransfering,
-            signalSemaphoresForTransfering);
+        //m_sceneRenderer->GetRenderedImage(m_currentFrameIndex).TransitionImageLayout(vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
+        //    waitSemaphoreLayoutTransfer,
+        //    waitStagesForLayoutTransform,
+        //    signalSemaphoreLayoutStages);
 
         // gather all semaphores presentation should wait on
         std::vector<vk::Semaphore> waitSemaphoresForPresenting = {m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(),  m_renderFinishedSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};

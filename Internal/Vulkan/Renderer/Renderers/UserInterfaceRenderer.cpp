@@ -4,6 +4,8 @@
 
 #include "UserInterfaceRenderer.hpp"
 
+#include <Vulkan/Utils/VIimageTransitionCommands.hpp>
+
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
@@ -33,7 +35,7 @@ namespace Renderer
         }
 
         m_renderTarget = std::make_unique<Renderer::RenderTarget>(m_device, swapChain);
-        uiContext.Initialize(*m_renderTarget->m_renderPass);
+        uiContext.Initialize(swapChain);
     }
 
     void UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex,
@@ -41,12 +43,20 @@ namespace Renderer
                                                            std::vector<vk::Semaphore>& waitSemaphores, std::vector<vk::PipelineStageFlags>& pipelineStages)
     {
 
-        m_commandBuffer[currentFrameIndex]->Reset();
+        //===========================================================
+        // CONVERT IMAGE LAYOUT FROM KHR_PRESENT TO COLOUR_ATTACHMENT
+        //===========================================================
+        auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device, m_device.GetTransferCommandPool());
+        auto transitionFinishedSemaphore = VulkanCore::VSyncPrimitive<vk::Semaphore>(m_device);
+
+
         //=============================
         // RECORD CMD BUFFER
         //=============================
         m_commandBuffer[currentFrameIndex]->BeginRecording();
+
         RecordCommandBuffer(currentFrameIndex, swapChainImageIndex);
+
         m_commandBuffer[currentFrameIndex]->EndRecording();
         m_imguiInitializer.EndRender();
 
@@ -92,36 +102,42 @@ namespace Renderer
         //==============================================
         // CREATE RENDER PASS INFO
         //==============================================
-        vk::RenderPassBeginInfo renderPassBeginInfo;
-        renderPassBeginInfo.renderPass = m_renderTarget->m_renderPass->GetRenderPass();
-        renderPassBeginInfo.framebuffer = m_renderTarget->m_frameBuffers[swapChainImageIndex]->GetFrameBuffer();
-        renderPassBeginInfo.renderArea.offset.x = 0;
-        renderPassBeginInfo.renderArea.offset.y = 0;
-        renderPassBeginInfo.renderArea.extent.width = static_cast<uint32_t>(m_renderTarget->m_width),
-        renderPassBeginInfo.renderArea.extent.height = static_cast<uint32_t>(m_renderTarget->m_height);
+        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eUndefined, *m_commandBuffer[currentFrameIndex]);
 
         //==============================================
-        // CONFIGURE CLEAR
+        // CREATE RENDER PASS INFO
         //==============================================
-        std::array<vk::ClearValue,2> clearColors = {};
-        clearColors[0].color =  {0.2f, 0.2f, 0.2f, 1.0f};
-        clearColors[1].depthStencil.depth = 1.0f;
-        clearColors[1].depthStencil.stencil = 0.0f;
-        renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearColors.size());
-        renderPassBeginInfo.pClearValues = clearColors.data();
+        std::vector<vk::RenderingAttachmentInfo> colourAttachments(1);
+
+        colourAttachments.emplace_back(m_renderTarget->GetColourAttachment(swapChainImageIndex));
+
+
+        vk::RenderingInfo renderingInfo;
+        renderingInfo.renderArea.offset = vk::Offset2D(0, 0);
+        renderingInfo.renderArea.extent = vk::Extent2D(m_swapChain.GetExtent().width, m_swapChain.GetExtent().height);
+        renderingInfo.layerCount = 1;
+        renderingInfo.colorAttachmentCount = colourAttachments.size();
+        renderingInfo.pColorAttachments = colourAttachments.data();
+        renderingInfo.pDepthAttachment = &m_renderTarget->GetDepthAttachment();
 
         //==============================================
         // START RENDER PASS
         //==============================================
-        assert(m_commandBuffer[currentFrameIndex]->GetIsRecording());
         auto& cmdBuffer = m_commandBuffer[currentFrameIndex]->GetCommandBuffer();
 
-        cmdBuffer.beginRenderPass(
-            &renderPassBeginInfo, vk::SubpassContents::eInline);
+        cmdBuffer.beginRendering(&renderingInfo);
 
+        //==============================================
+        // START RENDER PASS
+        //==============================================
+
+        assert(m_commandBuffer[currentFrameIndex]->GetIsRecording());
         m_imguiInitializer.Render(*m_commandBuffer[currentFrameIndex]);
 
-        cmdBuffer.endRenderPass();
+        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex), vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eColorAttachmentOptimal, *m_commandBuffer[currentFrameIndex]);
+
+
+        cmdBuffer.endRendering();
     }
 
     void UserInterfaceRenderer::Destroy()

@@ -34,7 +34,6 @@ public:
     RenderTarget(const VulkanCore::VDevice& device,int width, int height, vk::Format colourFormat = vk::Format::eR8G8B8A8Unorm);
     RenderTarget(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain);
 
-
     void HandleResize(int newWidth, int newHeight);
     void HandleSwapChainResize(const VulkanCore::VSwapChain& swapChain);
     void Destroy();
@@ -44,17 +43,27 @@ public:
     vk::ImageView GetDepthImageView() const;
     vk::ImageView GetResolveImageView() const;
 
+    vk::RenderingAttachmentInfo& GetColourAttachment(int currentFrame) ;
+    /**
+     * This is the attachment that will contain resovled sampled values os technicaly GetColourAttachments is retrieving multisampled images
+     * @param currentFrame current index of the frame 0 / 1
+     * @return attachment info
+     */
+    vk::RenderingAttachmentInfo& GetMSAAResolveAttachment(int currentFrame) ;
+
+    vk::RenderingAttachmentInfo& GetDepthAttachment() ;
+
+    const VulkanCore::VImage& GetColourImage(int currentFrame) const;
+    const VulkanCore::VImage& GetDepthImage(int currentFrame) const;
+    const VulkanCore::VImage& GetMSAAResolvedImage(int currentFrame) const;
+
     ~RenderTarget() = default;
 private:
 
-    std::vector<std::unique_ptr<VulkanCore::VImage>> m_colourBuffer; // for internal engine use
-    std::unique_ptr<VulkanCore::VImage> m_depthBuffer; // for internal engine use
-    std::unique_ptr<VulkanCore::VImage> m_msaaBuffer; // for internal engine use
+    std::vector<std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage>>> m_colourAttachments; // for internal engine use
+    std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage>> m_depthAttachment; // for internal engine use
+    std::vector<std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage>>> m_msaaAttachments; // for internal engine use
 
-
-
-    std::vector<std::unique_ptr<VulkanCore::VFrameBuffer>> m_frameBuffers; // for passing to the Vulkan
-    std::unique_ptr<VulkanCore::VRenderPass> m_renderPass; // putting it all together
 private:
     const VulkanCore::VDevice& m_device;
     int m_width, m_height;

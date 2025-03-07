@@ -148,7 +148,6 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     deviceFeatures.samplerAnisotropy = true;
     deviceFeatures.wideLines = true;
 
-
     //create the logical device
     vk::DeviceCreateInfo deviceCreateInfo{};
     deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());

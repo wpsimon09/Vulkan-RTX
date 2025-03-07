@@ -175,6 +175,7 @@ set(SOURCES
         Internal/Editor/Views/ContentBrowser/ContentBrowser.hpp
         Internal/Vulkan/Utils/VPipelineBarriers.hpp
         Internal/Vulkan/Utils/VPipelineBarriers.cpp
+        Internal/Vulkan/Utils/VImageTransitionCommands.cpp
 
 )
 

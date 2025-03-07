@@ -24,6 +24,10 @@
 #include "IconFontCppHeaders/IconsFontAwesome6.h"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Application/Utils/GizmoUtils.hpp"
+#include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
+#include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
+#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
+#include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 namespace VEditor
 {
@@ -37,7 +41,7 @@ namespace VEditor
         m_viewports[ViewPortType::eMain] = {.camera = &m_client.GetCamera()};
     }
 
-    void UIContext::Initialize(const VulkanCore::VRenderPass& renderPass)
+    void UIContext::Initialize(const VulkanCore::VSwapChain& swapChain)
     {
         Utils::Logger::LogInfo("Starting to initialize ImGui...");
 
@@ -78,6 +82,17 @@ namespace VEditor
         ImGui::StyleColorsDark();
         SetColourThemePablo();
 
+        std::vector<VkFormat> colourFormats {
+            (VkFormat)(swapChain.GetSwapChainFormat())
+        };
+
+        VkPipelineRenderingCreateInfo renderingCreateInfo{};
+        renderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
+        renderingCreateInfo.colorAttachmentCount = 1;
+        renderingCreateInfo.depthAttachmentFormat = static_cast<VkFormat>(m_device.GetDepthFormat());
+        renderingCreateInfo.pColorAttachmentFormats = colourFormats.data();
+
+
         ImGui_ImplGlfw_InitForVulkan(m_windowManager.GetWindow(), true);
         ImGui_ImplVulkan_InitInfo imGuiVkInitInfo = {};
         imGuiVkInitInfo.Instance = m_instance.GetInstance();
@@ -87,11 +102,13 @@ namespace VEditor
         imGuiVkInitInfo.Queue = m_device.GetGraphicsQueue();
         imGuiVkInitInfo.PipelineCache = m_imguiPipelineCache;
         imGuiVkInitInfo.DescriptorPool = m_imguiDescriptorPool;
-        imGuiVkInitInfo.RenderPass = renderPass.GetRenderPass();
         imGuiVkInitInfo.Subpass = 0;
         imGuiVkInitInfo.MinImageCount = GlobalVariables::MAX_FRAMES_IN_FLIGHT;
         imGuiVkInitInfo.ImageCount = GlobalVariables::MAX_FRAMES_IN_FLIGHT;
         imGuiVkInitInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+        imGuiVkInitInfo.UseDynamicRendering = true;
+        imGuiVkInitInfo.PipelineRenderingCreateInfo = renderingCreateInfo;
+
 
         ImGui_ImplVulkan_Init(&imGuiVkInitInfo);
 

@@ -34,6 +34,7 @@ namespace VulkanCore
 
         const vk::SwapchainKHR &GetSwapChain() const { return m_swapChain; }
         const vk::SurfaceFormatKHR &GetSurfaceFormatKHR() const { return m_format; };
+        const vk::Format &GetSwapChainFormat() const {return m_format.format;};
         const vk::Extent2D &GetExtent() const { return m_extent; };
         const vk::PresentModeKHR &GetPresentMode() const { return m_presentMode; };
         const std::vector<vk::Image>& GetSwapChainImages() const { return m_swapChainImages; };

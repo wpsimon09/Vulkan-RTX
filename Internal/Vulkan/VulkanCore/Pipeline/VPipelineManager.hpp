@@ -12,6 +12,11 @@
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
 
+namespace Renderer
+{
+    class RenderTarget;
+}
+
 namespace VulkanUtils
 {
     class VDescriptorSetManager;
@@ -30,7 +35,7 @@ namespace VulkanCore
     public:
         VPipelineManager(
             const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
-            const VulkanCore::VRenderPass &renderPass, const VulkanUtils::VPushDescriptorManager &pushDescriptorSetManager
+            const Renderer::RenderTarget &renderTarget, const VulkanUtils::VPushDescriptorManager &pushDescriptorSetManager
             );
 
         void DestroyPipelines();
@@ -47,7 +52,7 @@ namespace VulkanCore
     private:
         const VDevice &m_device;
         const VSwapChain &m_swapChain;
-        const VRenderPass &m_renderPass;
+        const Renderer::RenderTarget &m_renderTarget;
         const VulkanUtils::VPushDescriptorManager &m_pushDescriptorSetManager;
 
         std::unique_ptr<VShader> m_baseShader;

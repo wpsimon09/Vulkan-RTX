@@ -69,6 +69,7 @@ public:
     void Render(LightStructs::SceneLightInfo& sceneLightInfo,GlobalUniform& globalUniformUpdateInfo);
     void Update();
     void Destroy();
+
 private:
 
     const VulkanCore::VDevice &m_device;
@@ -93,10 +94,8 @@ private:
 
     bool m_isRayTracing = false;
 
-    friend
-
-    class VEditor::RenderingOptions;
-
+    friend class VEditor::RenderingOptions;
+    friend class VEditor::UIContext;
 };
 
 } // Renderer

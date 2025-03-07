@@ -127,7 +127,7 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
         flushAfterTransition = true;
         m_transferCommandBuffer->BeginRecording();
     }
-    RecordImageTransitionLayoutComand(currentLayout, targetLayout, barrier, *m_transferCommandBuffer);
+    VulkanUtils::RecordImageTransitionLayoutCommand(currentLayout, targetLayout, barrier, *m_transferCommandBuffer);
     if (flushAfterTransition)
     {
         m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue());
@@ -154,7 +154,7 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
 
-    RecordImageTransitionLayoutComand(currentLayout, targetLayout, barrier, commandBuffer);
+    VulkanUtils::RecordImageTransitionLayoutCommand(currentLayout, targetLayout, barrier, commandBuffer);
 }
 
 
@@ -183,7 +183,7 @@ void VulkanCore::VImage::TransitionImageLayout(vk::ImageLayout currentLayout, vk
         flushAfterTransition = true;
         m_transferCommandBuffer->BeginRecording();
     }
-    RecordImageTransitionLayoutComand(currentLayout, targetLayout, barrier, *m_transferCommandBuffer);
+    VulkanUtils::RecordImageTransitionLayoutCommand(currentLayout, targetLayout, barrier, *m_transferCommandBuffer);
 
     if (flushAfterTransition)
     {

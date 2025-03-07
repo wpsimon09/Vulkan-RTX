@@ -191,10 +191,7 @@ namespace VulkanCore {
 
         m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue(), dataInGPUFence->GetSyncPrimitive());
 
-        if (dataInGPUFence->WaitForFence() != vk::Result::eSuccess)
-        {
-            throw std::runtime_error("[FATAL]: fence was not signaled");
-        }
+        dataInGPUFence->WaitForFence();
         m_currentVertexBuffer->copyOffSet += vertexStaginBuffer.size;
         m_currentIndexBuffer-> copyOffSet  += indexStagingBuffer.size;
         m_currentVertexBuffer_BB->copyOffSet += vertexStaginBuffer_BB.size;
