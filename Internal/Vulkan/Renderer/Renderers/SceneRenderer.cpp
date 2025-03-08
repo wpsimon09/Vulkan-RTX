@@ -210,9 +210,32 @@ namespace Renderer
 
         auto initialVertexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->vertexData.buffer;  
         auto initialIndexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->indexData.buffer;  
-    
+
+        cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(EPipelineType::MultiLight).GetPipelineInstance());
         cmdBuffer.bindVertexBuffers(0, {initialVertexBuffer}, {0});
         cmdBuffer.bindIndexBuffer(initialIndexBuffer, 0, vk::IndexType::eUint32);
+
+        //===============================================
+        // CONFIGURE VIEW PORT
+        //===============================================
+        vk::Viewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+
+        viewport.width = static_cast<float>(m_width);
+        viewport.height = static_cast<float>(m_height);
+
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        cmdBuffer.setViewport(0, 1, &viewport);
+
+        vk::Rect2D scissors{};
+        scissors.offset.x = 0;
+        scissors.offset.y = 0;
+        scissors.extent.width = m_width;
+        scissors.extent.height = m_height;
+
+        cmdBuffer.setScissor(0, 1, &scissors);
     
         //=================================================
         // RECORD OPAQUE DRAW CALLS
