@@ -43,13 +43,6 @@ namespace Renderer
                                                            std::vector<vk::Semaphore>& waitSemaphores, std::vector<vk::PipelineStageFlags>& pipelineStages)
     {
 
-        //===========================================================
-        // CONVERT IMAGE LAYOUT FROM KHR_PRESENT TO COLOUR_ATTACHMENT
-        //===========================================================
-        auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device, m_device.GetSingleThreadCommandPool());
-        auto transitionFinishedSemaphore = VulkanCore::VSyncPrimitive<vk::Semaphore>(m_device);
-
-
         //=============================
         // RECORD CMD BUFFER
         //=============================
@@ -133,6 +126,7 @@ namespace Renderer
 
         assert(m_commandBuffer[currentFrameIndex]->GetIsRecording());
         m_imguiInitializer.Render(*m_commandBuffer[currentFrameIndex]);
+
 
         cmdBuffer.endRendering();
 

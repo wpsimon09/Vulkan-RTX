@@ -94,13 +94,13 @@ void ApplicationCore::Camera::MoveVertical(float distance) {
     }
 
     void ApplicationCore::Camera::ProcessResize(int newWidht, int newHeight) {
-        m_aspect = (float)newWidht / (float)newHeight;
-        m_projection = glm::perspectiveFov(glm::radians(m_FOV), (float)newWidht , (float)newHeight, m_nearPlane, m_farPlane);
+        m_screenSize = {glm::max(newWidht, 1), glm::max(newHeight, 1)};
+        m_aspect = (float)m_screenSize.x / (float)m_screenSize.y;
+        m_projection = glm::perspectiveFov(glm::radians(m_FOV), (float)m_screenSize.x , (float)m_screenSize.y, m_nearPlane, m_farPlane);
         m_projection[1][1] *= -1;
         m_farPlane = GetFarPlane();
         m_position = getEye();
 
-        m_screenSize = {newWidht, newHeight};
     }
 
 

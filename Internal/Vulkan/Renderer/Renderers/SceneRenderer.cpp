@@ -4,6 +4,8 @@
 
 #include "SceneRenderer.hpp"
 
+#include <Vulkan/Utils/VIimageTransitionCommands.hpp>
+
 #include "DebugRenderer.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Utils/LinearyTransformedCosinesValues.hpp"
@@ -180,6 +182,8 @@ namespace Renderer
             m_renderTargets->GetColourAttachmentMultiSampled(currentFrameIndex),
         };
 
+
+
         vk::RenderingInfo renderingInfo;
         renderingInfo.renderArea.offset = vk::Offset2D(0, 0);
         renderingInfo.renderArea.extent = vk::Extent2D(m_width, m_height);
@@ -192,6 +196,7 @@ namespace Renderer
         // START RENDER PASS
         //==============================================
         auto& cmdBuffer = m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
+        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, *m_commandBuffers[currentFrameIndex]);
 
         cmdBuffer.beginRendering(&renderingInfo);
 
@@ -215,7 +220,8 @@ namespace Renderer
         cmdBuffer.bindVertexBuffers(0, {initialVertexBuffer}, {0});
         cmdBuffer.bindIndexBuffer(initialIndexBuffer, 0, vk::IndexType::eUint32);
 
-        //===============================================
+        //============================================
+        //===
         // CONFIGURE VIEW PORT
         //===============================================
         vk::Viewport viewport{};
@@ -384,6 +390,9 @@ namespace Renderer
 
 
         cmdBuffer.endRendering();
+
+        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal, *m_commandBuffers[currentFrameIndex]);
+
 
         m_renderingStatistics.DrawCallCount = drawCallCount;
         m_selectedGeometryDrawCalls.clear();
