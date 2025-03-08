@@ -68,7 +68,7 @@ namespace Renderer {
             msaaAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
             msaaAttachmentInfo.imageView = m_msaaAttachments[i].second->GetImageView();
             msaaAttachmentInfo.resolveImageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-            msaaAttachmentInfo.resolveImageView = colourAttachmentInfo.imageView;
+            msaaAttachmentInfo.resolveImageView = m_colourAttachments[i].second->GetImageView();
             msaaAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eAverage;
             msaaAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
             msaaAttachmentInfo.clearValue.color.setFloat32({0.f, 0.f, 0.f, 1.f});
@@ -76,7 +76,6 @@ namespace Renderer {
 
             m_msaaAttachments[i].second->Resize(width, height);
         }
-
 
         auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device,m_device.GetTransferCommandPool());
         auto transitionFinishedFence = VulkanCore::VSyncPrimitive<vk::Fence>(m_device);
@@ -150,24 +149,27 @@ namespace Renderer {
 
     vk::ImageView RenderTarget::GetColourImageView(int currentFrame) const
     {
+        return m_colourAttachments[currentFrame].second->GetImageView();
     }
 
     vk::ImageView RenderTarget::GetDepthImageView() const
     {
+        return m_depthAttachment.second->GetImageView();
     }
 
-    vk::ImageView RenderTarget::GetResolveImageView() const
+    vk::ImageView RenderTarget::GetResolveImageView(int currentFrame) const
     {
+        return m_colourAttachments [currentFrame].second->GetImageView();
     }
 
-    vk::RenderingAttachmentInfo& RenderTarget::GetColourAttachment(int currentFrame)
-    {
-        return m_msaaAttachments[currentFrame].first;
-    }
-
-    vk::RenderingAttachmentInfo& RenderTarget::GetMSAAResolveAttachment(int currentFrame)
+    vk::RenderingAttachmentInfo& RenderTarget::GetColourAttachmentOneSample(int currentFrame)
     {
         return m_colourAttachments[currentFrame].first;
+    }
+
+    vk::RenderingAttachmentInfo& RenderTarget::GetColourAttachmentMultiSampled(int currentFrame)
+    {
+        return m_msaaAttachments[currentFrame].first;
     }
 
     vk::RenderingAttachmentInfo& RenderTarget::GetDepthAttachment()
@@ -185,7 +187,7 @@ namespace Renderer {
         return *m_depthAttachment.second;
     }
 
-    const VulkanCore::VImage& RenderTarget::GetMSAAResolvedImage(int currentFrame) const
+    const VulkanCore::VImage& RenderTarget::GetColourAttachmentMultiSampled(int currentFrame) const
     {
         return *m_msaaAttachments[currentFrame].second;
     }

@@ -177,7 +177,7 @@ namespace Renderer
         // CREATE RENDER PASS INFO
         //==============================================
         std::vector<vk::RenderingAttachmentInfo> colourAttachments = {
-            m_renderTargets->GetColourAttachment(currentFrameIndex),
+            m_renderTargets->GetColourAttachmentMultiSampled(currentFrameIndex),
         };
 
         vk::RenderingInfo renderingInfo;
