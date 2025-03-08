@@ -48,7 +48,7 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
 
         assert(createdVkPipelines.result == vk::Result::eSuccess);
         if (createdVkPipelines.result == vk::Result::ePipelineCompileRequired) {
-            throw std::runtime_error("Pipeline at index " + std::to_string(i) + " needs to be compiled");
+            throw std::runtime_error("Pipelinpe at index " + std::to_string(i) + " needs to be compiled");
         }
 
         pipeline.second->SetCreatedPipeline(createdVkPipelines.value[i]);

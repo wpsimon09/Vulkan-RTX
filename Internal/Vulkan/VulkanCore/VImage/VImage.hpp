@@ -142,6 +142,10 @@ namespace VulkanCore
             return m_format;
         }
 
+        [[nodiscard]] const vk::Format& GetFormatConstRef() const {
+            return m_format;
+        }
+
         [[nodiscard]] const vk::ImageAspectFlags &GetAspectFlag() const {
             return m_aspectFlags;
         }
