@@ -38,7 +38,8 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
 
     auto createdVkPipelines = m_device.GetDevice().createGraphicsPipelines(nullptr, graphicsPipelineCreateInfos);
 
-    assert(createdVkPipelines.value.size() == m_pipelines.size());
+    assert(createdVkPipelines.value.size() == m_pipelines.size() && createdVkPipelines.result == vk::Result::eSuccess && "Failed to create pipelines !");
+
     Utils::Logger::LogSuccess("Successfully created " + std::to_string(m_pipelines.size()) + " graphics pipelines");
 
     Utils::Logger::LogInfoVerboseOnly("Binding pipelines...");

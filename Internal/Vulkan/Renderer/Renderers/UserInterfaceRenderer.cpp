@@ -109,7 +109,7 @@ namespace Renderer
         //==============================================
         std::vector<vk::RenderingAttachmentInfo> colourAttachments(1);
 
-        colourAttachments.emplace_back(m_renderTarget->GetColourAttachment(swapChainImageIndex));
+        colourAttachments[0] = m_renderTarget->GetColourAttachment(swapChainImageIndex);
 
 
         vk::RenderingInfo renderingInfo;

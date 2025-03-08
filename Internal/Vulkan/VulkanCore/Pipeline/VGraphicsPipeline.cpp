@@ -76,8 +76,8 @@ const vk::GraphicsPipelineCreateInfo VulkanCore::VGraphicsPipeline::GetGraphicsP
     info.pColorBlendState = &m_colorBlendState;
     info.pDynamicState = &m_dynamicStateInfo;
     info.layout = m_pipelineLayout;
-    info.renderPass = nullptr;
     info.pNext = &m_renderingCreateInfo;
+    info.renderPass = nullptr;
     //---------------------------------------
 
     info.basePipelineIndex = -1;
@@ -233,7 +233,6 @@ void VulkanCore::VGraphicsPipeline::CreatePipelineLayout() {
 
 void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
 {
-    m_renderingCreateInfo.sType = vk::StructureType::eRenderingInfoKHR;
     m_renderingCreateInfo.colorAttachmentCount = 1;
     const auto& format = m_renderTarget.GetColourImage(0).GetFormat();
     m_renderingCreateInfo.pColorAttachmentFormats = &format;
