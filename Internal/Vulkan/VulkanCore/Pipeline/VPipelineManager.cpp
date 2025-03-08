@@ -38,7 +38,8 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
 
     auto createdVkPipelines = m_device.GetDevice().createGraphicsPipelines(nullptr, graphicsPipelineCreateInfos);
 
-    assert(createdVkPipelines.value.size() == m_pipelines.size());
+    assert(createdVkPipelines.value.size() == m_pipelines.size() && createdVkPipelines.result == vk::Result::eSuccess && "Failed to create pipelines !");
+
     Utils::Logger::LogSuccess("Successfully created " + std::to_string(m_pipelines.size()) + " graphics pipelines");
 
     Utils::Logger::LogInfoVerboseOnly("Binding pipelines...");
@@ -47,7 +48,7 @@ void VulkanCore::VPipelineManager::InstantiatePipelines() {
 
         assert(createdVkPipelines.result == vk::Result::eSuccess);
         if (createdVkPipelines.result == vk::Result::ePipelineCompileRequired) {
-            throw std::runtime_error("Pipeline at index " + std::to_string(i) + " needs to be compiled");
+            throw std::runtime_error("Pipelinpe at index " + std::to_string(i) + " needs to be compiled");
         }
 
         pipeline.second->SetCreatedPipeline(createdVkPipelines.value[i]);

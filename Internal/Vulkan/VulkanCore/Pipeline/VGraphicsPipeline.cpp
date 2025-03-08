@@ -76,7 +76,6 @@ const vk::GraphicsPipelineCreateInfo VulkanCore::VGraphicsPipeline::GetGraphicsP
     info.pColorBlendState = &m_colorBlendState;
     info.pDynamicState = &m_dynamicStateInfo;
     info.layout = m_pipelineLayout;
-    info.renderPass = nullptr;
     info.pNext = &m_renderingCreateInfo;
     //---------------------------------------
 
@@ -233,10 +232,9 @@ void VulkanCore::VGraphicsPipeline::CreatePipelineLayout() {
 
 void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
 {
-    m_renderingCreateInfo.sType = vk::StructureType::eRenderingInfoKHR;
-    m_renderingCreateInfo.colorAttachmentCount = 1;
-    const auto& format = m_renderTarget.GetColourImage(0).GetFormat();
-    m_renderingCreateInfo.pColorAttachmentFormats = &format;
+
+    m_renderingCreateInfo.colorAttachmentCount = 1;;
+    m_renderingCreateInfo.pColorAttachmentFormats = &m_renderTarget.GetColourImage(0).GetFormatConstRef();
     m_renderingCreateInfo.depthAttachmentFormat = m_device.GetDepthFormat();
 }
 

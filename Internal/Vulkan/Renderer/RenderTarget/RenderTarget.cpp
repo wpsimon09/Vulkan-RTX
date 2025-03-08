@@ -30,15 +30,16 @@ namespace Renderer {
         //==========================
         m_depthAttachment.second = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth,
             vk::ImageUsageFlagBits::eDepthStencilAttachment, m_device.GetSampleCount());
+        m_depthAttachment.second->Resize(width, height);
         auto& depthAttachmentInfo = m_depthAttachment.first;
         depthAttachmentInfo.imageView = m_depthAttachment.second->GetImageView();
         depthAttachmentInfo.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
         depthAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
         depthAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
+        depthAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eNone;
         depthAttachmentInfo.clearValue.depthStencil.depth = 1.0f;
         depthAttachmentInfo.clearValue.depthStencil.stencil = 0.0f;
 
-        m_depthAttachment.second->Resize(width, height);
 
 
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
@@ -48,14 +49,17 @@ namespace Renderer {
             //==========================
             m_colourAttachments[i].second = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
                 vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eInputAttachment);
+            m_colourAttachments[i].second->Resize(width, height);
+
+
             auto& colourAttachmentInfo  = m_colourAttachments[i].first;
-            colourAttachmentInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+            colourAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
             colourAttachmentInfo.imageView = m_colourAttachments[i].second->GetImageView();
             colourAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
+            depthAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eNone;
             colourAttachmentInfo.storeOp = vk::AttachmentStoreOp::eStore;
             colourAttachmentInfo.clearValue.color.setFloat32({0.f, 0.f, 0.f, 1.f});
 
-            m_colourAttachments[i].second->Resize(width, height);
 
 
 
@@ -64,27 +68,28 @@ namespace Renderer {
             //==========================
             m_msaaAttachments[i].second = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
         vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransientAttachment, m_device.GetSampleCount() );
+            m_msaaAttachments[i].second->Resize(width, height);
+
+
             auto& msaaAttachmentInfo  = m_msaaAttachments[i].first;
-            msaaAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+                msaaAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
             msaaAttachmentInfo.imageView = m_msaaAttachments[i].second->GetImageView();
-            msaaAttachmentInfo.resolveImageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-            msaaAttachmentInfo.resolveImageView = colourAttachmentInfo.imageView;
+            msaaAttachmentInfo.resolveImageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+            msaaAttachmentInfo.resolveImageView = m_colourAttachments[i].second->GetImageView();
             msaaAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eAverage;
             msaaAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
             msaaAttachmentInfo.clearValue.color.setFloat32({0.f, 0.f, 0.f, 1.f});
             msaaAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
 
-            m_msaaAttachments[i].second->Resize(width, height);
         }
 
-
-        auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device,m_device.GetTransferCommandPool());
+                auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device,m_device.GetTransferCommandPool());
         auto transitionFinishedFence = VulkanCore::VSyncPrimitive<vk::Fence>(m_device);
         transitionCommandBuffer.BeginRecording();
 
         // TRANSITION EVERYTHING FROM UNDEFINED LAYOUT TO COLOUR ATTACHMENT
-         m_colourAttachments[0].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal, transitionCommandBuffer);
-         m_colourAttachments[1].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal, transitionCommandBuffer);
+         m_colourAttachments[0].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
+         m_colourAttachments[1].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
 
         m_msaaAttachments[0].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
         m_msaaAttachments[1].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
@@ -97,6 +102,8 @@ namespace Renderer {
         transitionFinishedFence.WaitForFence(-1);
 
         transitionFinishedFence.Destroy();
+
+
 
         Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
     }
@@ -150,24 +157,27 @@ namespace Renderer {
 
     vk::ImageView RenderTarget::GetColourImageView(int currentFrame) const
     {
+        return m_colourAttachments[currentFrame].second->GetImageView();
     }
 
     vk::ImageView RenderTarget::GetDepthImageView() const
     {
+        return m_depthAttachment.second->GetImageView();
     }
 
-    vk::ImageView RenderTarget::GetResolveImageView() const
+    vk::ImageView RenderTarget::GetResolveImageView(int currentFrame) const
     {
+        return m_colourAttachments [currentFrame].second->GetImageView();
     }
 
-    vk::RenderingAttachmentInfo& RenderTarget::GetColourAttachment(int currentFrame)
-    {
-        return m_msaaAttachments[currentFrame].first;
-    }
-
-    vk::RenderingAttachmentInfo& RenderTarget::GetMSAAResolveAttachment(int currentFrame)
+    vk::RenderingAttachmentInfo& RenderTarget::GetColourAttachmentOneSample(int currentFrame)
     {
         return m_colourAttachments[currentFrame].first;
+    }
+
+    vk::RenderingAttachmentInfo& RenderTarget::GetColourAttachmentMultiSampled(int currentFrame)
+    {
+        return m_msaaAttachments[currentFrame].first;
     }
 
     vk::RenderingAttachmentInfo& RenderTarget::GetDepthAttachment()
@@ -185,7 +195,7 @@ namespace Renderer {
         return *m_depthAttachment.second;
     }
 
-    const VulkanCore::VImage& RenderTarget::GetMSAAResolvedImage(int currentFrame) const
+    const VulkanCore::VImage& RenderTarget::GetColourAttachmentMultiSampled(int currentFrame) const
     {
         return *m_msaaAttachments[currentFrame].second;
     }

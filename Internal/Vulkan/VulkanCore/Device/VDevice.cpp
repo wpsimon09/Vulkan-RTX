@@ -143,10 +143,15 @@ void VulkanCore::VDevice::CreateLogicalDevice()
         queueCreateInfos.push_back(queueCreateInfo);
     }
 
+    vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
+    dynamicRenderingFeatures.dynamicRendering = true;
+
+
     vk::PhysicalDeviceFeatures deviceFeatures{};
     deviceFeatures.fillModeNonSolid = true;
     deviceFeatures.samplerAnisotropy = true;
     deviceFeatures.wideLines = true;
+
 
     //create the logical device
     vk::DeviceCreateInfo deviceCreateInfo{};
@@ -170,6 +175,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     {
         deviceCreateInfo.enabledLayerCount = 0;
     }
+    deviceCreateInfo.pNext = &dynamicRenderingFeatures;
 
     m_device = m_physicalDevice.createDevice(deviceCreateInfo);
     assert(m_device);

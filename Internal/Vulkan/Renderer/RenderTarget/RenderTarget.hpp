@@ -41,21 +41,21 @@ public:
 
     vk::ImageView GetColourImageView(int currentFrame) const;
     vk::ImageView GetDepthImageView() const;
-    vk::ImageView GetResolveImageView() const;
+    vk::ImageView GetResolveImageView(int currentFrame) const;
 
-    vk::RenderingAttachmentInfo& GetColourAttachment(int currentFrame) ;
+    vk::RenderingAttachmentInfo& GetColourAttachmentOneSample(int currentFrame) ;
     /**
-     * This is the attachment that will contain resovled sampled values os technicaly GetColourAttachments is retrieving multisampled images
+     * This is the attachment that will be used to render into, use to to specify the render target for the render pass !!!
      * @param currentFrame current index of the frame 0 / 1
      * @return attachment info
      */
-    vk::RenderingAttachmentInfo& GetMSAAResolveAttachment(int currentFrame) ;
+    vk::RenderingAttachmentInfo& GetColourAttachmentMultiSampled(int currentFrame) ;
 
     vk::RenderingAttachmentInfo& GetDepthAttachment() ;
 
     const VulkanCore::VImage& GetColourImage(int currentFrame) const;
     const VulkanCore::VImage& GetDepthImage(int currentFrame) const;
-    const VulkanCore::VImage& GetMSAAResolvedImage(int currentFrame) const;
+    const VulkanCore::VImage& GetColourAttachmentMultiSampled(int currentFrame) const;
 
     ~RenderTarget() = default;
 private:
