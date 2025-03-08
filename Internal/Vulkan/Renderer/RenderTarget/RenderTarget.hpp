@@ -67,6 +67,7 @@ private:
 private:
     const VulkanCore::VDevice& m_device;
     int m_width, m_height;
+    bool m_forSwapChain = false;
 
     friend Renderer::BaseRenderer;
     friend Renderer::UserInterfaceRenderer;

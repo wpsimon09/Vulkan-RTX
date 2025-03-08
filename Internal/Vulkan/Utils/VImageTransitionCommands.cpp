@@ -73,7 +73,7 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(vk::ImageLayout currentLayo
             barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
             barrier.dstAccessMask = {};
 
-            srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+                srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
             dstStageFlags = vk::PipelineStageFlagBits::eBottomOfPipe;
         }
 
