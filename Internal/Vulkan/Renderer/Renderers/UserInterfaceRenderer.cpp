@@ -46,7 +46,7 @@ namespace Renderer
         //===========================================================
         // CONVERT IMAGE LAYOUT FROM KHR_PRESENT TO COLOUR_ATTACHMENT
         //===========================================================
-        auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device, m_device.GetTransferCommandPool());
+        auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device, m_device.GetSingleThreadCommandPool());
         auto transitionFinishedSemaphore = VulkanCore::VSyncPrimitive<vk::Semaphore>(m_device);
 
 
@@ -134,10 +134,9 @@ namespace Renderer
         assert(m_commandBuffer[currentFrameIndex]->GetIsRecording());
         m_imguiInitializer.Render(*m_commandBuffer[currentFrameIndex]);
 
-        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex), vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eColorAttachmentOptimal, *m_commandBuffer[currentFrameIndex]);
-
-
         cmdBuffer.endRendering();
+
+        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex), vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eColorAttachmentOptimal, *m_commandBuffer[currentFrameIndex]);
     }
 
     void UserInterfaceRenderer::Destroy()

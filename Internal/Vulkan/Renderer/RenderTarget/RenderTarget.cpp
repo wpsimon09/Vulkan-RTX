@@ -67,7 +67,7 @@ namespace Renderer {
             // CREATE MSAA ATTACHMENT
             //==========================
             m_msaaAttachments[i].second = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
-        vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransientAttachment, m_device.GetSampleCount() );
+            vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransientAttachment, m_device.GetSampleCount() );
             m_msaaAttachments[i].second->Resize(width, height);
 
 
@@ -83,7 +83,7 @@ namespace Renderer {
 
         }
 
-                auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device,m_device.GetTransferCommandPool());
+                auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device,m_device.GetSingleThreadCommandPool());
         auto transitionFinishedFence = VulkanCore::VSyncPrimitive<vk::Fence>(m_device);
         transitionCommandBuffer.BeginRecording();
 
@@ -142,7 +142,7 @@ namespace Renderer {
         for (int i = 0; i < m_colourAttachments.size(); i++)
         {
             m_colourAttachments[i].second->Destroy();
-            if (m_msaaAttachments[i].second)
+            if (!m_forSwapChain)
                 m_msaaAttachments[i].second->Destroy();
         }
         m_depthAttachment.second->Destroy();
@@ -205,6 +205,7 @@ namespace Renderer {
         auto& swapChainImages = swapChain.GetSwapChainImages();
         auto& swapChainExtent = swapChain.GetExtent();
         auto& swapChainFormat = swapChain.GetSurfaceFormatKHR().format;
+        m_forSwapChain = true;
         // for swap chain
         Utils::Logger::LogInfoVerboseOnly("Creating render target for swap chain images...");
         m_colourAttachments.resize(swapChainImages.size());
@@ -215,6 +216,8 @@ namespace Renderer {
         m_depthAttachment.second = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(),
                                                              vk::ImageAspectFlagBits::eDepth, vk::ImageUsageFlagBits::eDepthStencilAttachment);
 
+        m_depthAttachment.second->Resize(swapChainExtent.width, swapChainExtent.height);
+
         auto& depthSwapChainAttachment = m_depthAttachment.first;
         depthSwapChainAttachment.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
         depthSwapChainAttachment.clearValue.depthStencil.depth = 1.0f;
@@ -223,7 +226,6 @@ namespace Renderer {
         depthSwapChainAttachment.loadOp = vk::AttachmentLoadOp::eClear;
         depthSwapChainAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
 
-        m_depthAttachment.second->Resize(swapChainExtent.width, swapChainExtent.height);
 
         //==========================
         // CREATE COLOUR ATTACHMENT
@@ -243,7 +245,7 @@ namespace Renderer {
 
         }
 
-        auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device,m_device.GetTransferCommandPool());
+        auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device,m_device.GetSingleThreadCommandPool());
         auto transitionFinishedFence = VulkanCore::VSyncPrimitive<vk::Fence>(m_device);
         transitionCommandBuffer.BeginRecording();
 
