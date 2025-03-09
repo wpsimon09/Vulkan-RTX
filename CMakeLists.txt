@@ -176,6 +176,8 @@ set(SOURCES
         Internal/Vulkan/Utils/VPipelineBarriers.hpp
         Internal/Vulkan/Utils/VPipelineBarriers.cpp
         Internal/Vulkan/Utils/VImageTransitionCommands.cpp
+        Internal/Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.cpp
+        Internal/Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp
 
 )
 

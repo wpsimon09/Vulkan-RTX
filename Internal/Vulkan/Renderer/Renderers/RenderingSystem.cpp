@@ -77,6 +77,8 @@ namespace Renderer {
     {
        m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
 
+        // TODO: CREATE ONE TIMELINE SEMAPHORE THAT WILL MANAGE ENTIRE RENDERING AND SHIT INSTEAD OF HAVING 2000 THOUSANDS OF THEM !
+
         //=================================================
         // GET SWAP IMAGE INDEX
         //=================================================
@@ -131,8 +133,13 @@ namespace Renderer {
             */
 
         // gather all semaphores presentation should wait on
-        std::vector<vk::Semaphore> waitSemaphoresForPresenting = {m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(),  m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};
-        std::vector<vk::PipelineStageFlags> waitStagesForPresenting = {vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader};
+        std::vector<vk::Semaphore> waitSemaphoresForPresenting = {
+            m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(),
+            m_sceneRenderer->GetRendererFinishedSempahore(m_currentFrameIndex)};
+
+        std::vector<vk::PipelineStageFlags> waitStagesForPresenting = {
+            vk::PipelineStageFlagBits::eColorAttachmentOutput,
+            vk::PipelineStageFlagBits::eColorAttachmentOutput,};
 
         // render UI and present to swap chain
         m_uiRenderer->RenderAndPresent(m_currentFrameIndex,m_currentImageIndex, *m_isFrameFinishFences[m_currentFrameIndex], waitSemaphoresForPresenting, waitStagesForPresenting );
