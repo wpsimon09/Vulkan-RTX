@@ -51,8 +51,7 @@ namespace Renderer
             const VulkanCore::VSwapChain& swapChain,
             VEditor::UIContext& uiContext);
 
-            void RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex, const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence, std::vector<vk::Semaphore>& waitSemaphores, std::vector<vk::PipelineStageFlags>& pipelineStages);
-            void RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex, VulkanCore::VTimelineSemaphore& renderingTimeLine);
+            void RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex,const vk::Semaphore& swapChainImageAvailable, VulkanCore::VTimelineSemaphore& renderingTimeLine);
 
             RenderTarget& GetRenderTarget() const {return *m_renderTarget;};
 

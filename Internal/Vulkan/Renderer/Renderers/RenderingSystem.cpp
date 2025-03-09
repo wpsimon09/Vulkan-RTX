@@ -37,14 +37,11 @@ namespace Renderer {
         //------------------------------------------------------------------------------------------------------------------------
         // CREATE SYNCHRONIZATION PRIMITIVES
         //------------------------------------------------------------------------------------------------------------------------
-        m_imageAvailableSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-        m_renderFinishedSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-        m_isFrameFinishFences.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        m_renderingTimeLine.resize(2);
+        m_imageAvailableSemaphores.resize(2);
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
-            m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device, false);
-            m_renderFinishedSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device, false);
-            m_isFrameFinishFences[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device, true);
-            m_renderingTimeLine[i] = std::make_unique<VulkanCore::VTimelineSemaphore>(m_device);
+            m_renderingTimeLine[i] = std::make_unique<VulkanCore::VTimelineSemaphore>(m_device, 8);
+            m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>> (m_device);
         }
 
         //----------------------------------------------------------------------------------------------------------------------------
@@ -77,7 +74,7 @@ namespace Renderer {
 
     void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,GlobalUniform& globalUniformUpdateInfo)
     {
-       m_isFrameFinishFences[m_currentFrameIndex]->WaitForFence();
+        m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
 
         // TODO: CREATE ONE TIMELINE SEMAPHORE THAT WILL MANAGE ENTIRE RENDERING AND SHIT INSTEAD OF HAVING 2000 THOUSANDS OF THEM !
 
@@ -110,8 +107,6 @@ namespace Renderer {
         }
 
 
-        m_isFrameFinishFences[m_currentFrameIndex]->ResetFence();
-
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
 
         auto drawCalls = m_renderContext.GetAllDrawCall();
@@ -122,7 +117,7 @@ namespace Renderer {
         m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext, *m_renderingTimeLine[m_currentFrameIndex]);
 
         // render UI and present to swap chain
-        m_uiRenderer->RenderAndPresent(m_currentFrameIndex,m_currentImageIndex, *m_isFrameFinishFences[m_currentFrameIndex], waitSemaphoresForPresenting, waitStagesForPresenting );
+        m_uiRenderer->RenderAndPresent(m_currentFrameIndex,m_currentImageIndex,m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), *m_renderingTimeLine[m_currentFrameIndex]);
 
         m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     }
@@ -137,8 +132,6 @@ namespace Renderer {
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
             m_imageAvailableSemaphores[i]->Destroy();
-            m_renderFinishedSemaphores[i]->Destroy();
-            m_isFrameFinishFences[i]->Destroy();
         }
         m_sceneRenderer->Destroy();
         m_uiRenderer->Destroy();

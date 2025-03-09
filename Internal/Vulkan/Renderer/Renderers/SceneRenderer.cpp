@@ -151,7 +151,8 @@ namespace Renderer
         // SUBMIT RECORDED COMMAND BUFFER
         //=====================================================
         vk::SubmitInfo submitInfo;
-        submitInfo.pNext = &renderingTimeLine.GetSemaphoreSubmitInfo(0, 2);
+        auto next = renderingTimeLine.GetSemaphoreSubmitInfo(0, 2);
+        submitInfo.pNext = &next;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
 

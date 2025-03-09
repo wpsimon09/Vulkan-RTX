@@ -17,6 +17,7 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 #include "Editor/UIContext/UIContext.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace Renderer
 {
@@ -38,11 +39,9 @@ namespace Renderer
         uiContext.Initialize(swapChain);
     }
 
-    void UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex,
-                                                           const VulkanCore::VSyncPrimitive<vk::Fence>& renderingFinishedFence,
-                                                           std::vector<vk::Semaphore>& waitSemaphores, std::vector<vk::PipelineStageFlags>& pipelineStages)
+    void UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex,const vk::Semaphore& swapChainImageAvailable,
+        VulkanCore::VTimelineSemaphore& renderingTimeLine)
     {
-
         //=============================
         // RECORD CMD BUFFER
         //=============================
@@ -58,40 +57,43 @@ namespace Renderer
         //===========================
         assert(!m_commandBuffer[currentFrameIndex]->GetIsRecording());
 
+        std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eColorAttachmentOutput };
+        std::vector<vk::Semaphore> waitSemaphores = {renderingTimeLine.GetSemaphore(), swapChainImageAvailable};
 
         vk::SubmitInfo submitInfo;
+        auto next = renderingTimeLine.GetSemaphoreSubmitInfo(4, 6);
+        submitInfo.pNext = &next;
         submitInfo.waitSemaphoreCount = waitSemaphores.size();
         submitInfo.pWaitSemaphores = waitSemaphores.data();
-        submitInfo.pWaitDstStageMask = pipelineStages.data();
+
+        submitInfo.pWaitDstStageMask = waitStages.data();
+
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = &renderingTimeLine.GetSemaphore();
+
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_commandBuffer[currentFrameIndex]->GetCommandBuffer();
 
-        std::vector<vk::Semaphore> signalSemaphores = {
-            m_ableToPresentSemaphore[currentFrameIndex]->GetSyncPrimitive()
-        };
-
-        submitInfo.signalSemaphoreCount = signalSemaphores.size();
-        submitInfo.pSignalSemaphores = signalSemaphores.data();
-        auto result = m_device.GetGraphicsQueue().submit(1, &submitInfo, renderingFinishedFence.GetSyncPrimitive());
+        auto result = m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr);
         assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 
         //===========================
         // PRESENT TO SCREEN
         //===========================
         vk::PresentInfoKHR presentInfo;
+        next = renderingTimeLine.GetSemaphoreSubmitInfo(6, 8);
+        presentInfo.pNext = &next;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &m_ableToPresentSemaphore[currentFrameIndex]->GetSyncPrimitive();
+        presentInfo.pWaitSemaphores = &renderingTimeLine.GetSemaphore();
+
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_swapChain.GetSwapChain();
         presentInfo.pImageIndices = &swapChainImageIndex;
+
         presentInfo.pResults = nullptr;
+
         vk::Result presentResult = VulkanUtils::PresentQueueWrapper(m_device.GetPresentQueue(), presentInfo);
         //assert(presentResult == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
-    }
-
-    void UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex,
-        VulkanCore::VTimelineSemaphore& renderingTimeLine)
-    {
     }
 
     void UserInterfaceRenderer::RecordCommandBuffer(int currentFrameIndex, uint32_t swapChainImageIndex)

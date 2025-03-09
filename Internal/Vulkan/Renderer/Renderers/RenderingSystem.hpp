@@ -11,23 +11,21 @@
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace VulkanCore
 {
     class VTimelineSemaphore;
+    class VPipelineManager;
+    class VSwapChain;
+    class VDevice;
 }
 
 namespace VEditor
 {
     class RenderingOptions;
-}
-
-namespace VEditor
-{
     class UIContext;
 }
-
-struct GlobalUniform;
 
 namespace Renderer
 {
@@ -35,20 +33,9 @@ namespace Renderer
     class SceneRenderer;
 }
 
-namespace Renderer
-{
-}
-
 namespace VulkanStructs
 {
     struct RenderContext;
-}
-
-namespace VulkanCore
-{
-    class VPipelineManager;
-    class VSwapChain;
-    class VDevice;
 }
 
 namespace VulkanUtils
@@ -57,6 +44,8 @@ namespace VulkanUtils
     class VUniformBufferManager;
     class VPushDescriptorManager;
 }
+
+struct GlobalUniform;
 
 namespace Renderer {
 
@@ -86,8 +75,6 @@ private:
     uint32_t m_currentFrameIndex = 0;
 
     std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
-    std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_renderFinishedSemaphores;
-    std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Fence>>> m_isFrameFinishFences;
 
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
 

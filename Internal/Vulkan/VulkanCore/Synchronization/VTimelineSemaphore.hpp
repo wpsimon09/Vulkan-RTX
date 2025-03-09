@@ -15,7 +15,7 @@ class VDevice;
 class VTimelineSemaphore : public VObject{
 public:
 
-    explicit VTimelineSemaphore(const VulkanCore::VDevice& device);
+    explicit VTimelineSemaphore(const VulkanCore::VDevice& device, uint64_t initialValue = 0);
 
     vk::TimelineSemaphoreSubmitInfo GetSemaphoreSubmitInfo(uint64_t waitValue, uint64_t signalValue);
     uint64_t GetSemaphoreValue();

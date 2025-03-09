@@ -7,17 +7,17 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {
-    VTimelineSemaphore::VTimelineSemaphore(const VulkanCore::VDevice& device):m_device(device)
+    VTimelineSemaphore::VTimelineSemaphore(const VulkanCore::VDevice& device, uint64_t initialValue):m_device(device)
     {
         vk::SemaphoreTypeCreateInfo timelineInfo;
         timelineInfo.pNext = nullptr;
         timelineInfo.semaphoreType = vk::SemaphoreType::eTimeline;
-        timelineInfo.initialValue = 0;
+        timelineInfo.initialValue = initialValue;
 
         vk::SemaphoreCreateInfo semaphoreInfo;
-        semaphoreInfo.pNext = nullptr;
         semaphoreInfo.pNext = &timelineInfo;
         semaphoreInfo.flags = {};
+
 
         m_semaphore = m_device.GetDevice().createSemaphore(semaphoreInfo);
     }
