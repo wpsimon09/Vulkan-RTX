@@ -36,13 +36,25 @@ namespace VulkanCore {
         return submitInfo;
     }
 
-    void VTimelineSemaphore::CpuWaitIdle(uint64_t signalValue)
+    void VTimelineSemaphore::CpuSignal(uint64_t signalValue)
     {
         vk::SemaphoreSignalInfo signalInfo;
         signalInfo.pNext = nullptr;
         signalInfo.semaphore = m_semaphore;
         signalInfo.value = signalValue;
         m_device.GetDevice().signalSemaphore(signalInfo);
+    }
+
+    void VTimelineSemaphore::CpuWaitIdle(uint64_t waitValue)
+    {
+        vk::SemaphoreWaitInfo waitInfo;
+        waitInfo.flags = {};
+        waitInfo.semaphoreCount = 1;
+        waitInfo.pSemaphores = &m_semaphore;
+        waitInfo.pValues = &waitValue;
+
+        assert(m_device.GetDevice().waitSemaphores(waitInfo, UINT64_MAX) == vk::Result::eSuccess);
+
     }
 
     void VTimelineSemaphore::Reset()
@@ -61,7 +73,7 @@ namespace VulkanCore {
     uint64_t VTimelineSemaphore::GetSemaphoreValue()
     {
         uint64_t waitValue = 0;
-        assert(m_device.GetDevice().getSemaphoreCounterValue(m_semaphore, &waitValue) == vk::Result::eSuccess && );
+        assert(m_device.GetDevice().getSemaphoreCounterValue(m_semaphore, &waitValue) == vk::Result::eSuccess && "Failed to get semaphore value !");
         return waitValue;
     }
 } // VulkanCore

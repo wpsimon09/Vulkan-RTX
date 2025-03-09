@@ -89,6 +89,11 @@ namespace Renderer
         //assert(presentResult == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
     }
 
+    void UserInterfaceRenderer::RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex,
+        VulkanCore::VTimelineSemaphore& renderingTimeLine)
+    {
+    }
+
     void UserInterfaceRenderer::RecordCommandBuffer(int currentFrameIndex, uint32_t swapChainImageIndex)
     {
 

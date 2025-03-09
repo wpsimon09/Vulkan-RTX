@@ -20,7 +20,8 @@ public:
     vk::TimelineSemaphoreSubmitInfo GetSemaphoreSubmitInfo(uint64_t waitValue, uint64_t signalValue);
     uint64_t GetSemaphoreValue();
 
-    void CpuWaitIdle(uint64_t signalValue);
+    void CpuSignal(uint64_t signalValue);
+    void CpuWaitIdle(uint64_t waitValue);
     void Reset();
 
     vk::Semaphore& GetSemaphore() {return m_semaphore;}

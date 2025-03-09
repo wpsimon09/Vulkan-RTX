@@ -12,6 +12,11 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
+namespace VulkanCore
+{
+    class VTimelineSemaphore;
+}
+
 namespace VEditor
 {
     class RenderingOptions;
@@ -91,6 +96,7 @@ private:
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
     std::unique_ptr<VulkanCore::VPipelineManager> m_pipelineManager;
+    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>> m_renderingTimeLine;
 
     bool m_isRayTracing = false;
 

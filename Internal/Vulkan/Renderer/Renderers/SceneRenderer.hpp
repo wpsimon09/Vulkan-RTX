@@ -19,6 +19,7 @@ namespace VEditor
 
 namespace VulkanCore
 {
+    class VTimelineSemaphore;
     class VPipelineManager;
 }
 
@@ -41,8 +42,9 @@ public:
     SceneRenderer(const VulkanCore::VDevice& device,VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width, int height);
     void Init(const VulkanCore::VPipelineManager* pipelineManager);
     void Render(int currentFrameIndex,
-                               const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                               VulkanStructs::RenderContext* renderContext);
+                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                VulkanStructs::RenderContext* renderContext,
+                VulkanCore::VTimelineSemaphore& renderingTimeLine);
 
     void Destroy() override;
 
@@ -69,6 +71,7 @@ private:
     bool m_WireFrame = false;
     bool m_multiLightShader = false;
     bool m_allowEditorBillboards = true;
+
 private:
     void SendGlobalDescriptorsToShader(int currentFrameIndex,const VulkanUtils::VUniformBufferManager& uniformBufferManager);
     void SendPerObjectDescriptorsToShader(int currentFrameIndex,int objectIndex,VulkanStructs::DrawCallData& drawCall,  const VulkanUtils::VUniformBufferManager& uniformBufferManager);

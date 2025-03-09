@@ -26,6 +26,7 @@ public:
     void EndRecording();
     void EndAndFlush(const vk::Queue& queue);
     void EndAndFlush(const vk::Queue& queue, const vk::Fence& fence);
+    void EndAndFlush(const vk::Queue& queue,vk::Semaphore& timeline, VkTimelineSemaphoreSubmitInfo& timelineInfo );
 
     void EndAndFlush(const vk::Queue& queue, std::vector<vk::Semaphore>& waitSemaphores,std::vector<vk::PipelineStageFlags>& waitStages, std::vector<vk::Semaphore>& signalSemaphores);
 

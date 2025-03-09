@@ -75,8 +75,27 @@ namespace VulkanCore {
         assert(queue.submit(1,&submitInfo, fence) == vk::Result::eSuccess);
     }
 
+    void VCommandBuffer::EndAndFlush(const vk::Queue& queue, vk::Semaphore& timeline,
+        VkTimelineSemaphoreSubmitInfo& timelineInfo)
+    {
+        std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
+        EndRecording();
+        vk::SubmitInfo submit;
+        submit.pNext = &timelineInfo;
+
+        submit.waitSemaphoreCount = 1;
+        submit.pWaitSemaphores = &timeline;
+
+        submit.signalSemaphoreCount = 1;
+        submit.pSignalSemaphores = &timeline;
+
+        submit.commandBufferCount = 1;
+        submit.pCommandBuffers = &m_commandBuffer;
+        assert(queue.submit(1,&submit, nullptr) == vk::Result::eSuccess);
+    }
+
     void VCommandBuffer::EndAndFlush(const vk::Queue& queue, std::vector<vk::Semaphore>& waitSemaphores,
-        std::vector<vk::PipelineStageFlags>& waitStages, std::vector<vk::Semaphore>& signalSemaphores)
+                                     std::vector<vk::PipelineStageFlags>& waitStages, std::vector<vk::Semaphore>& signalSemaphores)
     {
         std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
         EndRecording();
