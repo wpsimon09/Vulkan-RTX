@@ -62,9 +62,13 @@ namespace Renderer
 
         vk::SubmitInfo submitInfo;
         auto next = renderingTimeLine.GetSemaphoreSubmitInfo(4, 6);
+        std::vector<uint64_t> waitValues = {renderingTimeLine.GetCurrentWaitValue(), 20};
+        next.pWaitSemaphoreValues = waitValues.data();
+        next.waitSemaphoreValueCount = waitValues.size();
+
         submitInfo.pNext = &next;
-        submitInfo.waitSemaphoreCount = waitSemaphores.size();
         submitInfo.pWaitSemaphores = waitSemaphores.data();
+        submitInfo.waitSemaphoreCount = waitSemaphores.size();
 
         submitInfo.pWaitDstStageMask = waitStages.data();
 

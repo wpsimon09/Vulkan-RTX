@@ -24,6 +24,9 @@ public:
     void CpuWaitIdle(uint64_t waitValue);
     void Reset();
 
+    const uint64_t& GetCurrentWaitValue()    {return m_currentWait;};
+    const uint64_t& GetCurrentSignalValue()  {return m_currentSignal;};
+
     vk::Semaphore& GetSemaphore() {return m_semaphore;}
 
     void Destroy() override;
@@ -32,6 +35,7 @@ private:
 
     std::vector<uint64_t> m_waitHistory;
     uint64_t m_currentWait = 0;
+    uint64_t m_currentSignal = 0;
     uint64_t m_maxWait = 0; // last operation index shoudl be smaller than new operation wait on
 
     vk::Semaphore m_semaphore;

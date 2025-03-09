@@ -163,7 +163,7 @@ namespace Renderer
 
         assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess &&
             "Failed to submit command buffer !");
-
+        renderingTimeLine.CpuWaitIdle(2);
         m_commandBuffers[currentFrameIndex]->Reset();
         m_commandBuffers[currentFrameIndex]->BeginRecording();
         VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal, *m_commandBuffers[currentFrameIndex]);
