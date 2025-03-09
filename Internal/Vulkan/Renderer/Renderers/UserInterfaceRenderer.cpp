@@ -58,13 +58,21 @@ namespace Renderer
         assert(!m_commandBuffer[currentFrameIndex]->GetIsRecording());
 
         std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eColorAttachmentOutput };
+
         std::vector<vk::Semaphore> waitSemaphores = {renderingTimeLine.GetSemaphore(), swapChainImageAvailable};
+        std::vector<vk::Semaphore> signalSemaphores = {renderingTimeLine.GetSemaphore(), m_ableToPresentSemaphore[currentFrameIndex]->GetSyncPrimitive()};
 
         vk::SubmitInfo submitInfo;
         auto next = renderingTimeLine.GetSemaphoreSubmitInfo(4, 6);
+
         std::vector<uint64_t> waitValues = {renderingTimeLine.GetCurrentWaitValue(), 20};
+        std::vector<uint64_t> signalValues = {renderingTimeLine.GetCurrentSignalValue(), 21};
+
         next.pWaitSemaphoreValues = waitValues.data();
         next.waitSemaphoreValueCount = waitValues.size();
+
+        next.signalSemaphoreValueCount = signalValues.size();
+        next.pSignalSemaphoreValues = signalValues.data();
 
         submitInfo.pNext = &next;
         submitInfo.pWaitSemaphores = waitSemaphores.data();
@@ -72,8 +80,8 @@ namespace Renderer
 
         submitInfo.pWaitDstStageMask = waitStages.data();
 
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &renderingTimeLine.GetSemaphore();
+        submitInfo.signalSemaphoreCount = signalValues.size();
+        submitInfo.pSignalSemaphores = signalSemaphores.data();
 
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_commandBuffer[currentFrameIndex]->GetCommandBuffer();
@@ -85,10 +93,10 @@ namespace Renderer
         // PRESENT TO SCREEN
         //===========================
         vk::PresentInfoKHR presentInfo;
-        next = renderingTimeLine.GetSemaphoreSubmitInfo(6, 8);
-        presentInfo.pNext = &next;
+        //next = renderingTimeLine.GetSemaphoreSubmitInfo(6, 8);
+        //presentInfo.pNext = &next;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &renderingTimeLine.GetSemaphore();
+        presentInfo.pWaitSemaphores = &m_ableToPresentSemaphore[currentFrameIndex]->GetSyncPrimitive();
 
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_swapChain.GetSwapChain();
@@ -97,6 +105,9 @@ namespace Renderer
         presentInfo.pResults = nullptr;
 
         vk::Result presentResult = VulkanUtils::PresentQueueWrapper(m_device.GetPresentQueue(), presentInfo);
+
+        renderingTimeLine.CpuWaitIdle(6);
+        renderingTimeLine.CpuSignal(8);
         //assert(presentResult == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
     }
 
@@ -111,17 +122,14 @@ namespace Renderer
         //==============================================
         // CREATE RENDER PASS INFO
         //==============================================
-        std::vector<vk::RenderingAttachmentInfo> colourAttachments(1);
-
-        colourAttachments[0] = m_renderTarget->GetColourAttachmentOneSample(swapChainImageIndex);
 
 
         vk::RenderingInfo renderingInfo;
         renderingInfo.renderArea.offset = vk::Offset2D(0, 0);
         renderingInfo.renderArea.extent = vk::Extent2D(m_swapChain.GetExtent().width, m_swapChain.GetExtent().height);
         renderingInfo.layerCount = 1;
-        renderingInfo.colorAttachmentCount = colourAttachments.size();
-        renderingInfo.pColorAttachments = colourAttachments.data();
+        renderingInfo.colorAttachmentCount = 1;
+        renderingInfo.pColorAttachments = &m_renderTarget->GetColourAttachmentOneSample(swapChainImageIndex);;
         renderingInfo.pDepthAttachment = &m_renderTarget->GetDepthAttachment();
 
         //==============================================

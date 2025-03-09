@@ -60,14 +60,15 @@ namespace Renderer
         const VulkanCore::VDevice& m_device;
         const VulkanCore::VSwapChain& m_swapChain;
         std::unique_ptr<Renderer::RenderTarget> m_renderTarget;
+
         std::unique_ptr<VulkanCore::VCommandPool> m_commandPool;
         std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_commandBuffer;
+        std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_ableToPresentSemaphore;
 
         VEditor::UIContext& m_imguiInitializer;
     private:
         void RecordCommandBuffer(int currentFrameIndex,uint32_t swapChainImageIndex);
 
-        std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_ableToPresentSemaphore;
 
 
     };
