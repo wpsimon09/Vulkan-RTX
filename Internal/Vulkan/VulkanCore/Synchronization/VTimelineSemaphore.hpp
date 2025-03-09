@@ -14,25 +14,28 @@ namespace VulkanCore {
 class VDevice;
 class VTimelineSemaphore : public VObject{
 public:
+
     explicit VTimelineSemaphore(const VulkanCore::VDevice& device);
 
-    vk::TimelineSemaphoreSubmitInfo GetSemaphoreSubmitInfo(int waitValue, int signalValue);
+    vk::TimelineSemaphoreSubmitInfo GetSemaphoreSubmitInfo(uint64_t waitValue, uint64_t signalValue);
     uint64_t GetSemaphoreValue();
 
-    void CpuWaitIdle(int waitValue, int signalValue);
+    void CpuWaitIdle(uint64_t signalValue);
     void Reset();
 
     vk::Semaphore& GetSemaphore() {return m_semaphore;}
+
+    void Destroy() override;
 private:
     const VulkanCore::VDevice& m_device;
 
-    std::vector<std::atomic_uint32_t> m_waitHistory;
-    std::atomic_uint32_t m_currentWait = 0;
-    std::atomic_uint32_t m_maxWait = 0; // last operation index shoudl be smaller than new operation wait on
+    std::vector<uint64_t> m_waitHistory;
+    uint64_t m_currentWait = 0;
+    uint64_t m_maxWait = 0; // last operation index shoudl be smaller than new operation wait on
 
     vk::Semaphore m_semaphore;
 
-    uint32_t increaseValue = 2;
+    uint64_t increaseValue = 2;
 };
 
 } // VulkanCore
