@@ -43,6 +43,10 @@ private:
     uint64_t increaseValue = 2;
     uint64_t m_baseSignal = 0;
     uint64_t m_baseWait = 0;
+    uint64_t m_currentValue = 0;
+
+    uint64_t m_offset = 0;
+
 };
 
 } // VulkanCore

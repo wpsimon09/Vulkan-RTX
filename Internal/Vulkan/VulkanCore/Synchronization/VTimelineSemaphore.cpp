@@ -18,6 +18,8 @@ namespace VulkanCore {
         semaphoreInfo.pNext = &timelineInfo;
         semaphoreInfo.flags = {};
 
+        m_offset = 0;
+
         m_semaphore = m_device.GetDevice().createSemaphore(semaphoreInfo);
     }
 
@@ -25,11 +27,9 @@ namespace VulkanCore {
     {
         assert(waitValue < signalValue && "Wait value must be smaller than signal value");
         m_waitHistory.emplace_back(m_baseWait + waitValue);
-        m_currentWait = m_baseWait + waitValue;
-        m_currentSignal = m_baseSignal + signalValue;
 
-        m_baseSignal += signalValue;
-        m_baseWait += waitValue;
+        m_currentWait = m_offset +  waitValue;
+        m_currentSignal = m_offset + signalValue;
 
         vk::TimelineSemaphoreSubmitInfo submitInfo;
         submitInfo.pNext = nullptr;
@@ -42,8 +42,8 @@ namespace VulkanCore {
 
     void VTimelineSemaphore::CpuSignal(uint64_t signalValue)
     {
-        m_currentSignal = m_baseSignal + signalValue;
-        m_baseSignal += signalValue;
+        m_currentSignal = m_offset + signalValue;
+
         vk::SemaphoreSignalInfo signalInfo;
         signalInfo.pNext = nullptr;
         signalInfo.semaphore = m_semaphore;
@@ -53,8 +53,9 @@ namespace VulkanCore {
 
     void VTimelineSemaphore::CpuWaitIdle(uint64_t waitValue)
     {
-        m_currentWait = m_baseWait + waitValue;
-        m_baseWait += waitValue;
+
+        m_currentWait = m_offset + waitValue;
+
         vk::SemaphoreWaitInfo waitInfo;
         waitInfo.flags = {};
         waitInfo.semaphoreCount = 1;
@@ -71,20 +72,7 @@ namespace VulkanCore {
         {
             m_waitHistory.clear();
         }
-        m_currentWait = 0;
-        m_maxWait = 0;
-        Destroy();
-        vk::SemaphoreTypeCreateInfo timelineInfo;
-        timelineInfo.pNext = nullptr;
-        timelineInfo.semaphoreType = vk::SemaphoreType::eTimeline;
-        timelineInfo.initialValue = 0;
-
-        vk::SemaphoreCreateInfo semaphoreInfo;
-        semaphoreInfo.pNext = &timelineInfo;
-        semaphoreInfo.flags = {};
-
-
-        m_semaphore = m_device.GetDevice().createSemaphore(semaphoreInfo);
+        m_offset += GetSemaphoreValue();
     }
 
     void VTimelineSemaphore::Destroy()
