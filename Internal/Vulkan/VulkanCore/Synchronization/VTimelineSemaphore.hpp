@@ -36,14 +36,10 @@ private:
     std::vector<uint64_t> m_waitHistory;
     uint64_t m_currentWait = 0;
     uint64_t m_currentSignal = 0;
-    uint64_t m_maxWait = 0; // last operation index shoudl be smaller than new operation wait on
 
     vk::Semaphore m_semaphore;
 
-    uint64_t increaseValue = 2;
-    uint64_t m_baseSignal = 0;
-    uint64_t m_baseWait = 0;
-    uint64_t m_currentValue = 0;
+    //uint64_t m_currentValue = 0;
 
     uint64_t m_offset = 0;
 

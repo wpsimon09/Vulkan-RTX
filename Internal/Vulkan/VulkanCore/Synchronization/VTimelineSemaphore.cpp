@@ -26,7 +26,7 @@ namespace VulkanCore {
     vk::TimelineSemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreSubmitInfo(uint64_t waitValue, uint64_t signalValue)
     {
         assert(waitValue < signalValue && "Wait value must be smaller than signal value");
-        m_waitHistory.emplace_back(m_baseWait + waitValue);
+        m_waitHistory.emplace_back(m_offset + waitValue);
 
         m_currentWait = m_offset +  waitValue;
         m_currentSignal = m_offset + signalValue;
@@ -47,7 +47,7 @@ namespace VulkanCore {
         vk::SemaphoreSignalInfo signalInfo;
         signalInfo.pNext = nullptr;
         signalInfo.semaphore = m_semaphore;
-        signalInfo.value = signalValue;
+        signalInfo.value = m_currentSignal;
         m_device.GetDevice().signalSemaphore(signalInfo);
     }
 
@@ -72,7 +72,7 @@ namespace VulkanCore {
         {
             m_waitHistory.clear();
         }
-        m_offset += GetSemaphoreValue();
+        m_offset = GetSemaphoreValue();
     }
 
     void VTimelineSemaphore::Destroy()
