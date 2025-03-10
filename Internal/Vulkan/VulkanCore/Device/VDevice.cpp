@@ -146,6 +146,9 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
     dynamicRenderingFeatures.dynamicRendering = true;
 
+    vk::PhysicalDeviceVulkan12Features features;
+    features.timelineSemaphore = true;
+    features.pNext = &dynamicRenderingFeatures;
 
     vk::PhysicalDeviceFeatures deviceFeatures{};
     deviceFeatures.fillModeNonSolid = true;
@@ -175,7 +178,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     {
         deviceCreateInfo.enabledLayerCount = 0;
     }
-    deviceCreateInfo.pNext = &dynamicRenderingFeatures;
+    deviceCreateInfo.pNext = &features;
 
     m_device = m_physicalDevice.createDevice(deviceCreateInfo);
     assert(m_device);

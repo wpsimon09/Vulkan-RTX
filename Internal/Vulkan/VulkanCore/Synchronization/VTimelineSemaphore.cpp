@@ -53,7 +53,6 @@ namespace VulkanCore {
 
     void VTimelineSemaphore::CpuWaitIdle(uint64_t waitValue)
     {
-
         m_currentWait = m_offset + waitValue;
 
         vk::SemaphoreWaitInfo waitInfo;
@@ -63,7 +62,6 @@ namespace VulkanCore {
         waitInfo.pValues = &m_currentWait;
 
         assert(m_device.GetDevice().waitSemaphores(waitInfo, UINT64_MAX) == vk::Result::eSuccess);
-
     }
 
     void VTimelineSemaphore::Reset()
