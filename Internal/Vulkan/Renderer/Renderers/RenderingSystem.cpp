@@ -106,7 +106,7 @@ namespace Renderer {
             break;
         }
 
-        m_renderingTimeLine[m_currentFrameIndex]->Reset();
+        //m_renderingTimeLine[m_currentFrameIndex]->Reset();
 
 
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);

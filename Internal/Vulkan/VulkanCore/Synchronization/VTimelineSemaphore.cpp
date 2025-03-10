@@ -18,16 +18,18 @@ namespace VulkanCore {
         semaphoreInfo.pNext = &timelineInfo;
         semaphoreInfo.flags = {};
 
-
         m_semaphore = m_device.GetDevice().createSemaphore(semaphoreInfo);
     }
 
     vk::TimelineSemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreSubmitInfo(uint64_t waitValue, uint64_t signalValue)
     {
-        //TODO: add validity checks for wait and signal values
-        m_waitHistory.emplace_back(waitValue);
-        m_currentWait = waitValue;
-        m_currentSignal = signalValue;
+        assert(waitValue < signalValue && "Wait value must be smaller than signal value");
+        m_waitHistory.emplace_back(m_baseWait + waitValue);
+        m_currentWait = m_baseWait + waitValue;
+        m_currentSignal = m_baseSignal + signalValue;
+
+        m_baseSignal += signalValue;
+        m_baseWait += waitValue;
 
         vk::TimelineSemaphoreSubmitInfo submitInfo;
         submitInfo.pNext = nullptr;
@@ -40,7 +42,8 @@ namespace VulkanCore {
 
     void VTimelineSemaphore::CpuSignal(uint64_t signalValue)
     {
-        m_currentSignal = signalValue;
+        m_currentSignal = m_baseSignal + signalValue;
+        m_baseSignal += signalValue;
         vk::SemaphoreSignalInfo signalInfo;
         signalInfo.pNext = nullptr;
         signalInfo.semaphore = m_semaphore;
@@ -50,7 +53,8 @@ namespace VulkanCore {
 
     void VTimelineSemaphore::CpuWaitIdle(uint64_t waitValue)
     {
-        m_currentWait = waitValue;
+        m_currentWait = m_baseWait + waitValue;
+        m_baseWait += waitValue;
         vk::SemaphoreWaitInfo waitInfo;
         waitInfo.flags = {};
         waitInfo.semaphoreCount = 1;

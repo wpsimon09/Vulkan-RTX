@@ -41,7 +41,8 @@ private:
     vk::Semaphore m_semaphore;
 
     uint64_t increaseValue = 2;
-    uint64_t base = 0;
+    uint64_t m_baseSignal = 0;
+    uint64_t m_baseWait = 0;
 };
 
 } // VulkanCore
