@@ -135,6 +135,11 @@ void ApplicationCore::Camera::MoveVertical(float distance) {
         return {planeWidth, planeHeight};
     }
 
+    void ApplicationCore::Camera::SetPosition(glm::vec3& newPosition)
+    {
+            m_position = newPosition;
+    }
+
     void ApplicationCore::Camera::Update(CameraUpdateInfo &cameraUpdateInfo)  {
         //Utils::Logger::LogInfo("Updating camera");
         //cameraUpdateInfo.Print();
@@ -150,6 +155,7 @@ void ApplicationCore::Camera::MoveVertical(float distance) {
         MoveVertical(cameraUpdateInfo.MoveY);
 
         m_nearPlane += cameraUpdateInfo.MoveNear;
+
 
         m_view = glm::lookAt(this->m_position,m_center, this->m_worldUp);
 

@@ -54,6 +54,8 @@ public:
 
     float& GetFOV() {return this->m_FOV;}
 
+    void SetPosition(glm::vec3& newPosition);
+
     void Update(CameraUpdateInfo& cameraUpdateInfo);
 
     ~Camera() = default;
@@ -81,6 +83,7 @@ private:
     float m_farPlane;
     float m_nearPlane;
 };
+
 
 } // ApplicationCore
 

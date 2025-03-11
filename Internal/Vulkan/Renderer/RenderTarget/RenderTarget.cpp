@@ -58,7 +58,7 @@ namespace Renderer {
             colourAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
             depthAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eNone;
             colourAttachmentInfo.storeOp = vk::AttachmentStoreOp::eStore;
-            colourAttachmentInfo.clearValue.color.setFloat32({0.f, 0.f, 0.f, 1.f});
+            colourAttachmentInfo.clearValue.color.setFloat32({0.2f, 0.2f, 0.2f, 1.f});
 
 
 
@@ -78,7 +78,7 @@ namespace Renderer {
             msaaAttachmentInfo.resolveImageView = m_colourAttachments[i].second->GetImageView();
             msaaAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eAverage;
             msaaAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
-            msaaAttachmentInfo.clearValue.color.setFloat32({0.f, 0.f, 0.f, 1.f});
+            msaaAttachmentInfo.clearValue.color.setFloat32({0.7f, 0.7f, 0.7f, 1.f});
             msaaAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
 
         }
@@ -88,8 +88,8 @@ namespace Renderer {
         transitionCommandBuffer.BeginRecording();
 
         // TRANSITION EVERYTHING FROM UNDEFINED LAYOUT TO COLOUR ATTACHMENT
-         m_colourAttachments[0].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
-         m_colourAttachments[1].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
+        m_colourAttachments[0].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
+        m_colourAttachments[1].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
 
         m_msaaAttachments[0].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
         m_msaaAttachments[1].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);

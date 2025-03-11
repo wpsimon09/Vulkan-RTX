@@ -160,7 +160,10 @@ void VEditor::ViewPort::RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSiz
     }
     ImGui::PopStyleColor(3);
 
-    ImGuizmo::ViewManipulate(glm::value_ptr(m_scene.GetCamera().GetViewMatrix()), 10, ImVec2(imageSize.x - 100, imageSize.y), ImVec2(100.f, 100.f), 32);
+    auto view  = m_scene.GetCamera().GetViewMatrix();
+    ImGuizmo::ViewManipulate(glm::value_ptr(view), 10, ImVec2(imageSize.x - 100, imageSize.y), ImVec2(100.f, 100.f), 32);
+    auto newCamPos = glm::vec3(glm::inverse(view)[3]);
+    m_scene.GetCamera().SetPosition(newCamPos);
 }
 
 glm::vec2 VEditor::ViewPort::GetMousePositionInViewPort(ImVec2& ImageWidth)
