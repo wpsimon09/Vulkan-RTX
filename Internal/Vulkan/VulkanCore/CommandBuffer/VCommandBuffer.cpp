@@ -57,7 +57,6 @@ namespace VulkanCore {
     }
 
     void VCommandBuffer::EndAndFlush(const vk::Queue &queue) {
-        std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
         EndRecording();
         vk::SubmitInfo submitInfo;
         submitInfo.commandBufferCount = 1;
@@ -67,7 +66,6 @@ namespace VulkanCore {
 
     void VCommandBuffer::EndAndFlush(const vk::Queue &queue, const vk::Fence &fence)
     {
-        std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
         EndRecording();
         vk::SubmitInfo submitInfo;
         submitInfo.commandBufferCount = 1;
@@ -76,9 +74,8 @@ namespace VulkanCore {
     }
 
     void VCommandBuffer::EndAndFlush(const vk::Queue& queue, vk::Semaphore& timeline,
-        VkTimelineSemaphoreSubmitInfo& timelineInfo)
+        VkTimelineSemaphoreSubmitInfo& timelineInfo, vk::PipelineStageFlags* pWaitStages)
     {
-        std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
         EndRecording();
         vk::SubmitInfo submit;
         submit.pNext = &timelineInfo;
@@ -91,8 +88,11 @@ namespace VulkanCore {
 
         submit.commandBufferCount = 1;
         submit.pCommandBuffers = &m_commandBuffer;
+
+        submit.pWaitDstStageMask = pWaitStages;
         assert(queue.submit(1,&submit, nullptr) == vk::Result::eSuccess);
     }
+
 
     void VCommandBuffer::EndAndFlush(const vk::Queue& queue, std::vector<vk::Semaphore>& waitSemaphores,
                                      std::vector<vk::PipelineStageFlags>& waitStages, std::vector<vk::Semaphore>& signalSemaphores)

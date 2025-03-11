@@ -185,7 +185,7 @@ namespace Renderer
         submitInfo.waitSemaphoreCount = semaphores.size();
         submitInfo.pWaitSemaphores =semaphores.data();
 
-       // submitInfo.pWaitDstStageMask = waitStages.data();
+        submitInfo.pWaitDstStageMask = waitStages.data();
 
         assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess &&
             "Failed to submit command buffer !");
@@ -194,7 +194,11 @@ namespace Renderer
         m_commandBuffers[currentFrameIndex]->Reset();
         m_commandBuffers[currentFrameIndex]->BeginRecording();
         VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal, *m_commandBuffers[currentFrameIndex]);
-        m_commandBuffers[currentFrameIndex]->EndAndFlush(m_device.GetTransferQueue(),renderingTimeLine.GetSemaphore(), renderingTimeLine.GetSemaphoreSubmitInfo(2, 4));
+
+        std::vector<vk::PipelineStageFlags> waitStagesTransfer = {
+            vk::PipelineStageFlagBits::eFragmentShader};
+
+        m_commandBuffers[currentFrameIndex]->EndAndFlush(m_device.GetTransferQueue(),renderingTimeLine.GetSemaphore(), renderingTimeLine.GetSemaphoreSubmitInfo(2, 4), waitStagesTransfer.data());
 
         transferSemapohre.Reset();
     }

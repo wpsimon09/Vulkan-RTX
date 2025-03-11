@@ -34,7 +34,10 @@ namespace VulkanUtils {
     {
         if (m_hasPandingWork)
         {
-            m_commandBuffer->EndAndFlush(m_device.GetTransferQueue(), m_transferTimeline->GetSemaphore(), m_transferTimeline->GetSemaphoreSubmitInfo(0,2));
+            std::vector<vk::PipelineStageFlags> waitStages = {
+                vk::PipelineStageFlagBits::eVertexInput // once textures are here as well it will include texture as wells
+            };
+            m_commandBuffer->EndAndFlush(m_device.GetTransferQueue(), m_transferTimeline->GetSemaphore(), m_transferTimeline->GetSemaphoreSubmitInfo(0,2),waitStages.data());
             m_transferTimeline->CpuWaitIdle(2);
             for (auto& buffer: m_clearValues)
             {
@@ -51,5 +54,10 @@ namespace VulkanUtils {
     void VTransferOperationsManager::DestroyBuffer(VkBuffer& buffer, VmaAllocation & vmaAllocation)
     {
         m_clearValues.emplace_back(std::make_pair<VkBuffer, VmaAllocation>(std::move(buffer), std::move(vmaAllocation)));
+    }
+
+    void VTransferOperationsManager::Destroy()
+    {
+        m_transferTimeline->Destroy();
     }
 } // VulkanUtils

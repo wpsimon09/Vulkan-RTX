@@ -113,7 +113,7 @@ void VulkanCore::VSwapChain::CreateSwapChain() {
                                                 m_device.GetConcreteQueueFamilyIndex(EQueueFamilyIndexType::PresentKHR)};
 
     //graphics vs transfer
-    if (queueFamilyIndices[0] == queueFamilyIndices[1]) {
+    if (queueFamilyIndices[0] != queueFamilyIndices[1]) {
         swapChainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;
         swapChainCreateInfo.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size());
         swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices.data();

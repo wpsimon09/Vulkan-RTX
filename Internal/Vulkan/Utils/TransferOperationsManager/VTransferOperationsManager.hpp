@@ -32,10 +32,11 @@ namespace VulkanUtils {
         VulkanCore::VCommandBuffer& GetCommandBuffer();
         void StartRecording();
         void UpdateGPU();
-
         void DestroyBuffer(VkBuffer &buffer, VmaAllocation &vmaAllocation);
 
         VulkanCore::VTimelineSemaphore& GetTransferSemaphore() const {return *m_transferTimeline;}
+
+        void Destroy();
     private:
         bool m_hasPandingWork = false;
         const VulkanCore::VDevice& m_device;
