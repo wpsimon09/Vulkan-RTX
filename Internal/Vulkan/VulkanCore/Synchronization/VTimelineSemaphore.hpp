@@ -22,10 +22,12 @@ public:
 
     void CpuSignal(uint64_t signalValue);
     void CpuWaitIdle(uint64_t waitValue);
+    void SetWaitAndSignal(uint64_t waitValue, uint64_t signalValue);
     void Reset();
 
-    const uint64_t& GetCurrentWaitValue()    {return m_currentWait;};
-    const uint64_t& GetCurrentSignalValue()  {return m_currentSignal;};
+    const uint64_t& GetCurrentWaitValue()   const  {return m_currentWait;};
+    const uint64_t& GetCurrentSignalValue() const  {return m_currentSignal;};
+    const uint64_t& GetOffset()             const  {return m_offset;};
 
     vk::Semaphore& GetSemaphore() {return m_semaphore;}
 

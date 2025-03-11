@@ -40,8 +40,11 @@ namespace VulkanUtils {
             {
                 vmaDestroyBuffer(m_device.GetAllocator(), buffer.first, buffer.second);
             }
+            m_hasPandingWork = false;
+        }else
+        {
+            m_transferTimeline->CpuSignal(2);
         }
-        m_hasPandingWork = false;
     }
 
     void VTransferOperationsManager::DestroyBuffer(VkBuffer& buffer, VmaAllocation & vmaAllocation)

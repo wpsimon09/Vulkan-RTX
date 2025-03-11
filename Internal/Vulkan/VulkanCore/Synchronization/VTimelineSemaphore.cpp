@@ -64,6 +64,16 @@ namespace VulkanCore {
         assert(m_device.GetDevice().waitSemaphores(waitInfo, UINT64_MAX) == vk::Result::eSuccess);
     }
 
+    void VTimelineSemaphore::SetWaitAndSignal(uint64_t waitValue, uint64_t signalValue)
+    {
+        assert(waitValue < signalValue && "Wait value must be smaller than signal value");
+        m_waitHistory.emplace_back(m_offset + waitValue);
+
+        m_currentWait = m_offset + waitValue;
+        m_currentSignal = m_offset + signalValue;
+    }
+
+
     void VTimelineSemaphore::Reset()
     {
         if (m_waitHistory.empty())

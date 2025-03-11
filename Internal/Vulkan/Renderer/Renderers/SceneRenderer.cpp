@@ -4,6 +4,7 @@
 
 #include "SceneRenderer.hpp"
 
+#include <sys/wait.h>
 #include <Vulkan/Utils/VIimageTransitionCommands.hpp>
 
 #include "DebugRenderer.hpp"
@@ -153,10 +154,29 @@ namespace Renderer
         // SUBMIT RECORDED COMMAND BUFFER
         //=====================================================
         vk::SubmitInfo submitInfo;
-        const std::vector<vk::TimelineSemaphoreSubmitInfo> next = {renderingTimeLine.GetSemaphoreSubmitInfo(0, 2), transferSemapohre.GetSemaphoreSubmitInfo(2, 4) };
+
         const std::vector<vk::Semaphore> semaphores = {renderingTimeLine.GetSemaphore(), transferSemapohre.GetSemaphore()};
-        submitInfo.pNext = &next;
-        submitInfo.commandBufferCount = semaphores.size();
+
+        std::vector<vk::PipelineStageFlags> waitStages = {
+            vk::PipelineStageFlagBits::eColorAttachmentOutput, // Render wait stage
+            vk::PipelineStageFlagBits::eTransfer // Transfer wait stage
+        };
+
+        renderingTimeLine.SetWaitAndSignal(0, 2); //
+        transferSemapohre.SetWaitAndSignal(2, 4);
+
+        const std::vector<uint64_t> waitValues = {renderingTimeLine.GetCurrentWaitValue(), transferSemapohre.GetCurrentWaitValue()};
+        const std::vector<uint64_t> signalVlaues = {renderingTimeLine.GetCurrentSignalValue(), transferSemapohre.GetCurrentSignalValue()};
+
+        vk::TimelineSemaphoreSubmitInfo timelineinfo;
+        timelineinfo.waitSemaphoreValueCount = waitValues.size();
+        timelineinfo.pWaitSemaphoreValues = waitValues.data();
+
+        timelineinfo.signalSemaphoreValueCount = signalVlaues.size();
+        timelineinfo.pSignalSemaphoreValues = signalVlaues.data();
+
+        submitInfo.pNext = &timelineinfo;
+        submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
 
         submitInfo.signalSemaphoreCount = semaphores.size();
@@ -165,6 +185,7 @@ namespace Renderer
         submitInfo.waitSemaphoreCount = semaphores.size();
         submitInfo.pWaitSemaphores =semaphores.data();
 
+       // submitInfo.pWaitDstStageMask = waitStages.data();
 
         assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess &&
             "Failed to submit command buffer !");
