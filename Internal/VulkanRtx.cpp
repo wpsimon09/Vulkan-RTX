@@ -89,7 +89,10 @@ void Application::Init()
     //m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
     m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
-    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager, *m_uiContext);
+    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice,
+                                                                    *m_uniformBufferManager,
+                                                                    *m_pushDescriptorSetManager, *m_uiContext,
+                                                                    m_transferOpsManager->GetTransferSemaphore());
 
     m_renderingSystem->Init();
     m_uiContext->SetRenderingSystem(m_renderingSystem.get());
@@ -155,6 +158,8 @@ void Application::Update()
 }
 
 void Application::Render() {
+
+    m_transferOpsManager->UpdateGPU();
 
     m_client->Render(m_renderingSystem->GetRenderContext());
 

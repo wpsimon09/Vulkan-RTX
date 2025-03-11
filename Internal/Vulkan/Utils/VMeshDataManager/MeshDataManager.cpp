@@ -15,10 +15,11 @@
 #include <limits>
 
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 
 namespace VulkanCore {
-    MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device,  VulkanUtils::VTransferOperationsManager& transferOpsManager):m_device(device),m_transferOpsManager(), m_indexBuffer_BB{}
+    MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device,  VulkanUtils::VTransferOperationsManager& transferOpsManager):m_device(device),m_transferOpsManager(transferOpsManager), m_indexBuffer_BB{}
     {
         m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Transfer);
         m_transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_transferCommandPool);
@@ -128,8 +129,7 @@ namespace VulkanCore {
 
     void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
     {
-        auto dataInGPUFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
-
+        m_transferOpsManager.StartRecording();
         //=========================================================================================================================================
         // VERTEX STAGING BUFFER
         //==========================================================================================================================================
@@ -152,7 +152,7 @@ namespace VulkanCore {
         memcpy(indexStagingBuffer.mappedPointer, m_stagingIndices.data(), indexStagingBuffer.size);
         vmaUnmapMemory(m_device.GetAllocator(), indexStagingBuffer.m_stagingAllocation);
 
-        m_transferCommandBuffer->BeginRecording();
+        auto &cmdBuffer = m_transferOpsManager.GetCommandBuffer().GetCommandBuffer();
 
         // COPY VERTEX DATA TO THE GPU BUFFER
         {
@@ -163,7 +163,7 @@ namespace VulkanCore {
             bufferCopy.dstOffset = m_currentVertexBuffer->copyOffSet;
             bufferCopy.size = vertexStaginBuffer.size;
 
-            m_transferCommandBuffer->GetCommandBuffer().copyBuffer(vertexStaginBuffer.m_stagingBufferVK, m_currentVertexBuffer->bufferVK, bufferCopy);
+            cmdBuffer.copyBuffer(vertexStaginBuffer.m_stagingBufferVK, m_currentVertexBuffer->bufferVK, bufferCopy);
         }
 
         // COPY VERTEX BB DATA TO THE GPU BUFFER
@@ -175,7 +175,7 @@ namespace VulkanCore {
             bufferCopy.dstOffset = m_currentVertexBuffer_BB->copyOffSet;
             bufferCopy.size = vertexStaginBuffer_BB.size;
 
-            m_transferCommandBuffer->GetCommandBuffer().copyBuffer(vertexStaginBuffer_BB.m_stagingBufferVK, m_currentVertexBuffer_BB->bufferVK, bufferCopy);
+            cmdBuffer.copyBuffer(vertexStaginBuffer_BB.m_stagingBufferVK, m_currentVertexBuffer_BB->bufferVK, bufferCopy);
         }
 
         //COPY INDEX DATA TO THE GPU
@@ -187,30 +187,25 @@ namespace VulkanCore {
             bufferCopy.dstOffset = m_currentIndexBuffer->copyOffSet;
             bufferCopy.size = indexStagingBuffer.size;
 
-            m_transferCommandBuffer->GetCommandBuffer().copyBuffer(indexStagingBuffer.m_stagingBufferVK, m_currentIndexBuffer->bufferVK, bufferCopy);
+            cmdBuffer.copyBuffer(indexStagingBuffer.m_stagingBufferVK, m_currentIndexBuffer->bufferVK, bufferCopy);
 
         }
 
-        m_transferCommandBuffer->EndAndFlush(m_device.GetTransferQueue(), dataInGPUFence->GetSyncPrimitive());
 
-        dataInGPUFence->WaitForFence();
         m_currentVertexBuffer->copyOffSet += vertexStaginBuffer.size;
         m_currentIndexBuffer-> copyOffSet  += indexStagingBuffer.size;
         m_currentVertexBuffer_BB->copyOffSet += vertexStaginBuffer_BB.size;
         Utils::Logger::LogSuccess("Buffer copy of " +std::to_string(indexStagingBuffer.size + vertexStaginBuffer.size) + " bytes to vertex and index buffer  completed !");
         // CLEAN UP ONCE ALL DATA ARE IN GPU
         {
-            vmaDestroyBuffer(m_device.GetAllocator(), indexStagingBuffer.m_stagingBufferVMA, indexStagingBuffer.m_stagingAllocation);
-            vmaDestroyBuffer(m_device.GetAllocator(), vertexStaginBuffer.m_stagingBufferVMA, vertexStaginBuffer.m_stagingAllocation);
-            vmaDestroyBuffer(m_device.GetAllocator(), vertexStaginBuffer_BB.m_stagingBufferVMA, vertexStaginBuffer_BB.m_stagingAllocation);
+            m_transferOpsManager.DestroyBuffer(indexStagingBuffer.m_stagingBufferVMA, indexStagingBuffer.m_stagingAllocation );
+            m_transferOpsManager.DestroyBuffer(vertexStaginBuffer.m_stagingBufferVMA, vertexStaginBuffer.m_stagingAllocation );
+            m_transferOpsManager.DestroyBuffer(vertexStaginBuffer_BB.m_stagingBufferVMA, vertexStaginBuffer_BB.m_stagingAllocation );
 
             m_stagingVertices.clear();
             m_stagingVertices_BB.clear();
             m_stagingIndices.clear();
         }
-
-        dataInGPUFence->Destroy();
-
     }
 
 

@@ -37,8 +37,8 @@ void VulkanUtils::PlaceImageMemoryBarrier(const VulkanCore::VCommandBuffer& cmdB
 void VulkanUtils::PlacePipelineBarrier(const VulkanCore::VCommandBuffer& cmdBuffer, vk::PipelineStageFlags src,
     vk::PipelineStageFlags dst)
 {
-    cmdBuffer.GetCommandBuffer().pipelineBarrier(
-        src, dst, {},
-        0, nullptr,
-        0, nullptr);
+    //cmdBuffer.GetCommandBuffer().pipelineBarrier(
+      //  src, dst, {},
+        //nullptr, nullptr,
+        //nullptr, nullptr);
 }

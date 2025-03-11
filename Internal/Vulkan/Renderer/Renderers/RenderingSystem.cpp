@@ -26,7 +26,9 @@ namespace Renderer {
     RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance& instance,const VulkanCore::VDevice& device,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
          VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
-         VEditor::UIContext &uiContext): m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_renderContext(), m_uiContext(uiContext)
+         VEditor::UIContext &uiContext,
+         VulkanCore::VTimelineSemaphore& transferSemaphore)
+    : m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_renderContext(), m_uiContext(uiContext), m_transferSemapohore(transferSemaphore)
     {
 
         //---------------------------------------------------------------------------------------------------------------------------
@@ -47,8 +49,16 @@ namespace Renderer {
         //----------------------------------------------------------------------------------------------------------------------------
         // Renderers creation
         //----------------------------------------------------------------------------------------------------------------------------
-        m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager, GlobalVariables::RenderTargetResolutionWidth , GlobalVariables::RenderTargetResolutionHeight);
-        m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, *m_swapChain, uiContext);
+        m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(
+            m_device,
+            m_pushDescriptorSetManager,
+            GlobalVariables::RenderTargetResolutionWidth ,
+            GlobalVariables::RenderTargetResolutionHeight);
+
+        m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(
+            m_device,
+            *m_swapChain,
+            uiContext);
 
         //------------------------------------------------------------------------------------------------------------------------
         // CREATE PIPELINE MANAGER
@@ -115,7 +125,7 @@ namespace Renderer {
         m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
 
         // render scene
-        m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext, *m_renderingTimeLine[m_currentFrameIndex]);
+        m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext, *m_renderingTimeLine[m_currentFrameIndex], m_transferSemapohore);
 
         // render UI and present to swap chain
         m_uiRenderer->RenderAndPresent(m_currentFrameIndex,m_currentImageIndex,m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), *m_renderingTimeLine[m_currentFrameIndex]);

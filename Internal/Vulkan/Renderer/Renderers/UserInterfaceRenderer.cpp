@@ -146,7 +146,6 @@ namespace Renderer
         assert(m_commandBuffer[currentFrameIndex]->GetIsRecording());
         m_imguiInitializer.Render(*m_commandBuffer[currentFrameIndex]);
 
-
         cmdBuffer.endRendering();
 
         VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex), vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eColorAttachmentOptimal, *m_commandBuffer[currentFrameIndex]);

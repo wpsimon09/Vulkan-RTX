@@ -4,6 +4,7 @@
 
 #ifndef VPIPELINEBARRIERS_HPP
 #define VPIPELINEBARRIERS_HPP
+
 #include <vulkan/vulkan.hpp>
 
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"

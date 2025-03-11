@@ -55,7 +55,8 @@ public:
                     const VulkanCore::VDevice& device,
                     const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                     VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
-                    VEditor::UIContext &uiContext);
+                    VEditor::UIContext &uiContext,
+                    VulkanCore::VTimelineSemaphore& transferSemaphore);
 
     VulkanStructs::RenderContext* GetRenderContext() {return &m_renderContext;}
 public:
@@ -84,6 +85,7 @@ private:
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
     std::unique_ptr<VulkanCore::VPipelineManager> m_pipelineManager;
     std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>> m_renderingTimeLine;
+    VulkanCore::VTimelineSemaphore &m_transferSemapohore;
 
     bool m_isRayTracing = false;
 

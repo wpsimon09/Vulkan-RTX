@@ -114,7 +114,9 @@ namespace Renderer
     void SceneRenderer::Render(int currentFrameIndex,
                                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                                VulkanStructs::RenderContext* renderContext,
-                               VulkanCore::VTimelineSemaphore& renderingTimeLine
+                               VulkanCore::VTimelineSemaphore& renderingTimeLine,
+                               VulkanCore::VTimelineSemaphore& transferSemapohre
+
     )
     {
 
@@ -151,25 +153,29 @@ namespace Renderer
         // SUBMIT RECORDED COMMAND BUFFER
         //=====================================================
         vk::SubmitInfo submitInfo;
-        auto next = renderingTimeLine.GetSemaphoreSubmitInfo(0, 2);
+        const std::vector<vk::TimelineSemaphoreSubmitInfo> next = {renderingTimeLine.GetSemaphoreSubmitInfo(0, 2), transferSemapohre.GetSemaphoreSubmitInfo(2, 4) };
+        const std::vector<vk::Semaphore> semaphores = {renderingTimeLine.GetSemaphore(), transferSemapohre.GetSemaphore()};
         submitInfo.pNext = &next;
-        submitInfo.commandBufferCount = 1;
+        submitInfo.commandBufferCount = semaphores.size();
         submitInfo.pCommandBuffers = &m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
 
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &renderingTimeLine.GetSemaphore();
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &renderingTimeLine.GetSemaphore();
+        submitInfo.signalSemaphoreCount = semaphores.size();
+        submitInfo.pSignalSemaphores = semaphores.data();
+
+        submitInfo.waitSemaphoreCount = semaphores.size();
+        submitInfo.pWaitSemaphores =semaphores.data();
+
 
         assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess &&
             "Failed to submit command buffer !");
         renderingTimeLine.CpuWaitIdle(2);
+
         m_commandBuffers[currentFrameIndex]->Reset();
         m_commandBuffers[currentFrameIndex]->BeginRecording();
         VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal, *m_commandBuffers[currentFrameIndex]);
         m_commandBuffers[currentFrameIndex]->EndAndFlush(m_device.GetTransferQueue(),renderingTimeLine.GetSemaphore(), renderingTimeLine.GetSemaphoreSubmitInfo(2, 4));
 
-
+        transferSemapohre.Reset();
     }
 
     void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
@@ -189,7 +195,6 @@ namespace Renderer
         std::vector<vk::RenderingAttachmentInfo> colourAttachments = {
             m_renderTargets->GetColourAttachmentMultiSampled(currentFrameIndex),
         };
-
 
 
         vk::RenderingInfo renderingInfo;

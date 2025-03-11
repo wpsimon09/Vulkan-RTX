@@ -44,7 +44,8 @@ public:
     void Render(int currentFrameIndex,
                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                 VulkanStructs::RenderContext* renderContext,
-                VulkanCore::VTimelineSemaphore& renderingTimeLine);
+                VulkanCore::VTimelineSemaphore& renderingTimeLine,
+                VulkanCore::VTimelineSemaphore& transferSemaphore);
 
     void Destroy() override;
 
