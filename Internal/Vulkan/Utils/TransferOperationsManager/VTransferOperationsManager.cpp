@@ -40,6 +40,7 @@ namespace VulkanUtils {
             {
                 vmaDestroyBuffer(m_device.GetAllocator(), buffer.first, buffer.second);
             }
+            m_clearValues.clear();
             m_hasPandingWork = false;
         }else
         {
