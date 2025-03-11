@@ -54,6 +54,7 @@
 #include "Editor/Editor.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
+#include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
 Application::Application()
@@ -73,9 +74,11 @@ void Application::Init()
     VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
     MathUtils::InitLTC();
 
-    m_bufferAllocator = std::make_unique<VulkanCore::MeshDatatManager>(*m_vulkanDevice);
+    m_transferOpsManager = std::make_unique<VulkanUtils::VTransferOperationsManager>(*m_vulkanDevice);
 
-    auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_bufferAllocator);
+    m_bufferAllocator = std::make_unique<VulkanCore::MeshDatatManager>(*m_vulkanDevice, *m_transferOpsManager);
+
+    auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice,*m_transferOpsManager ,*m_bufferAllocator);
     m_client->MountAssetsManger(std::move(assetManger));
     m_client->Init();
 
@@ -99,8 +102,6 @@ void Application::Init()
     {
         m_client->GetScene().AddNode(sceneNode);
     }
-
-
 
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
 

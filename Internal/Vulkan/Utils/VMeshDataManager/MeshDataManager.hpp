@@ -11,6 +11,11 @@
 #include "Vulkan/VulkanCore/VObject.hpp"
 
 
+namespace VulkanUtils
+{
+    class VTransferOperationsManager;
+}
+
 namespace VulkanCore
 {
     class VCommandBuffer;
@@ -33,7 +38,7 @@ namespace VulkanCore
     class MeshDatatManager : public VObject
     {
     public:
-        explicit MeshDatatManager(const VulkanCore::VDevice& device);
+        explicit MeshDatatManager(const VulkanCore::VDevice& device, VulkanUtils::VTransferOperationsManager& transferOpsManager);
 
         VulkanStructs::MeshData AddMeshData(std::vector<ApplicationCore::Vertex>& vertices, std::vector<uint32_t>& indices);
 
@@ -95,6 +100,7 @@ namespace VulkanCore
         VulkanStructs::GPUSubBufferInfo GenerateVertexBuffer_BB(VulkanStructs::Bounds& bounds);
 
         VulkanStructs::GPUSubBufferInfo GenerateIndexBuffer(const std::vector<uint32_t>& indices);
+        VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
 
         //==============================================
         // FUNCTIONS THAT WILL ALLOCATE 16mb BIG BUFFER

@@ -17,6 +17,8 @@ namespace VulkanCore
 namespace VulkanUtils
 {
     void PlaceImageMemoryBarrier(const VulkanCore::VCommandBuffer& cmdBuffer,const VulkanCore::VImage& image,vk::ImageLayout oldLayout, vk::ImageLayout newLayout,vk::PipelineStageFlags srcPipelineStage, vk::PipelineStageFlags dstPipelineStage,  vk::AccessFlags srcData, vk::AccessFlags dstData);
+
+    void PlacePipelineBarrier(const VulkanCore::VCommandBuffer& cmdBuffer, vk::PipelineStageFlags src,vk::PipelineStageFlags dst);
 }
 
 #endif //VPIPELINEBARRIERS_HPP

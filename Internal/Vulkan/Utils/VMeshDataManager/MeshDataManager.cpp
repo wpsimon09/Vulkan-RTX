@@ -14,9 +14,11 @@
 #include "Application/Utils/ApplicationUtils.hpp"
 #include <limits>
 
+#include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+
 
 namespace VulkanCore {
-    MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device):m_device(device), m_indexBuffer_BB{}
+    MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device,  VulkanUtils::VTransferOperationsManager& transferOpsManager):m_device(device),m_transferOpsManager(), m_indexBuffer_BB{}
     {
         m_transferCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Transfer);
         m_transferCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_transferCommandPool);

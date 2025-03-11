@@ -17,6 +17,11 @@
 #include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
+namespace VulkanUtils
+{
+    class VTransferOperationsManager;
+}
+
 struct TextureBufferInfo;
 
 //=========================
@@ -57,13 +62,18 @@ public:
     //=========================
     // Constructor & Destructor
     //=========================
-    explicit AssetsManager(const VulkanCore::VDevice& device, VulkanCore::MeshDatatManager& meshDataManager);
+    explicit AssetsManager(const VulkanCore::VDevice& device,VulkanUtils::VTransferOperationsManager& transferOpsManager, VulkanCore::MeshDatatManager& meshDataManager);
 
     //=========================
     // Public Methods
     //=========================
     void DeleteAll();
     std::shared_ptr<StaticMesh> GetDefaultMesh(EMeshGeometryType geometryType);
+
+    //=========================
+    // Transfer ops manager
+    //=========================
+    VulkanUtils::VTransferOperationsManager& GetTransferOperationsManager() const {return m_transferOpsManager;};
 
     //=========================
     // Textures
@@ -147,6 +157,8 @@ private:
     std::unordered_map<EEditorIcon, std::shared_ptr<Material>> m_editorIconsMaterials;
     std::unordered_map<EMeshGeometryType, VulkanStructs::MeshData> m_preloadedMeshes;
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures2;
+
+    VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
 
     friend class ApplicationCore::GLTFLoader;
 };

@@ -28,8 +28,8 @@
 
 namespace ApplicationCore
 {
-    AssetsManager::AssetsManager(const VulkanCore::VDevice& device, VulkanCore::MeshDatatManager& meshDataManager):
-        m_device(device), m_meshDataManager(meshDataManager), m_materials()
+    AssetsManager::AssetsManager(const VulkanCore::VDevice& device,VulkanUtils::VTransferOperationsManager& transferOpsManager, VulkanCore::MeshDatatManager& meshDataManager):
+        m_device(device), m_meshDataManager(meshDataManager),m_transferOpsManager(transferOpsManager), m_materials()
     {
        CreateDefaultAssets();
     }

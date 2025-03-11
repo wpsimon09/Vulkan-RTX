@@ -178,6 +178,8 @@ set(SOURCES
         Internal/Vulkan/Utils/VImageTransitionCommands.cpp
         Internal/Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.cpp
         Internal/Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp
+        Internal/Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.cpp
+        Internal/Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp
 
 )
 
