@@ -57,7 +57,7 @@ namespace Renderer
         //===========================
         assert(!m_commandBuffer[currentFrameIndex]->GetIsRecording());
 
-        std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eColorAttachmentOutput };
+        std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eTopOfPipe };
 
         std::vector<vk::Semaphore> waitSemaphores = {renderingTimeLine.GetSemaphore(), swapChainImageAvailable};
         std::vector<vk::Semaphore> signalSemaphores = {renderingTimeLine.GetSemaphore(), m_ableToPresentSemaphore[currentFrameIndex]->GetSyncPrimitive()};
