@@ -13,14 +13,12 @@ namespace VulkanCore {
     {
         AllocateImage();
         GenerateImageView();
-
-
     }
 
     VImage2::VImage2(const VulkanCore::VDevice& device,const  VImage2CreateInfo& info, vk::Image swapChainImage):
         m_device(device), m_imageInfo(info), m_imageVK(swapChainImage), m_imageFlags{}
     {
-        AllocateImage();
+        m_imageFlags.IsSwapChainImage = true;
         GenerateImageView();
     }
 
@@ -89,5 +87,46 @@ namespace VulkanCore {
         assert(m_imageView);
         Utils::Logger::LogInfoVerboseOnly("2D Image view created");
 
+    }
+
+    const VImage2CreateInfo& VImage2::GetImageInfo() const
+    {
+        return m_imageInfo;
+    }
+
+    const VImage2Flags& VImage2::GetImageFlags() const
+    {
+        return m_imageFlags;
+    }
+
+    vk::Image VImage2::GetImage() const
+    {
+        return m_imageVK;
+    }
+
+    vk::ImageView VImage2::GetImageView() const
+    {
+        return m_imageView;
+    }
+
+    vk::DescriptorImageInfo VImage2::GetDescriptorImageInfo(vk::Sampler& sampler)
+    {
+        vk::DescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = m_imageInfo.layout;
+        imageInfo.imageView = m_imageView;
+        imageInfo.sampler = sampler;
+        return imageInfo;
+    }
+
+    vk::DeviceSize VImage2::GetImageSizeBytes()
+    {
+    }
+
+    VmaAllocation& VImage2::GetAllocation()
+    {
+    }
+
+    VulkanCore::VBuffer* VImage2::GetImageBuffer()
+    {
     }
 } // VulkanCore

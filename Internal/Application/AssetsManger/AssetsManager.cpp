@@ -48,6 +48,7 @@ namespace ApplicationCore
         for (auto& textureAsset : m_textures2){
             textureAsset.second->Destroy();
         }
+        m_dummyImage->Destroy();
         m_dummyTexture->Destroy();
     }
 
@@ -116,7 +117,7 @@ namespace ApplicationCore
     {
         
         if (!m_textures2.contains(path)){
-            m_textures2[path] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, ETextureAssetType::Texture, path);
+            m_textures2[path] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, m_dummyImage, ETextureAssetType::Texture, path);
         }
 
         texture = m_textures2[path];
@@ -127,7 +128,7 @@ namespace ApplicationCore
     {
 
         if (!m_textures2.contains(data.textureID)){
-            m_textures2[data.textureID] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, ETextureAssetType::Texture, data);
+            m_textures2[data.textureID] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, m_dummyImage, ETextureAssetType::Texture, data);
         }
 
         texture = m_textures2[data.textureID];
@@ -207,7 +208,9 @@ namespace ApplicationCore
 
     void AssetsManager::CreateDefaultAssets()
     {
-        m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device, ETextureAssetType::Texture, "Resources/DefaultTexture.jpg" );
+        auto dummyTextureData = ApplicationCore::LoadImage("Resources/DefaultTexture.jpg", false);
+        m_dummyImage = std::make_shared<VulkanCore::VImage>(m_device, dummyTextureData);;
+        m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device,m_dummyImage, ETextureAssetType::Texture, "Resources/DefaultTexture.jpg" );
 
         MaterialPaths paths{};
         m_dummyMaterial = std::make_shared<ApplicationCore::Material>(paths, *this);

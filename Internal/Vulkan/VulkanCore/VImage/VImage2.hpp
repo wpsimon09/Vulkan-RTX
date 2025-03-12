@@ -48,6 +48,15 @@ class VImage2: public VulkanCore::VObject {
         void Resize(uint32_t newWidth, uint32_t newHeight, vk::CommandBuffer& cmdBuffer);
         void Destroy() override;
 
+        const VImage2CreateInfo& GetImageInfo() const;
+        const VImage2Flags& GetImageFlags() const;
+        vk::Image GetImage() const;
+        vk::ImageView GetImageView() const;
+        vk::DescriptorImageInfo GetDescriptorImageInfo(vk::Sampler &sampler);
+        vk::DeviceSize GetImageSizeBytes();
+        VmaAllocation& GetAllocation();
+        VulkanCore::VBuffer* GetImageBuffer()
+    ;
     private:
         VImage2CreateInfo m_imageInfo;
         VImage2Flags m_imageFlags;
