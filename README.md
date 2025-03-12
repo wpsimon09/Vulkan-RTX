@@ -93,7 +93,7 @@ chmod +x compileSlang.sh
 ## Little showcase
 
 ### Editor
-![Screenshot From 2025-03-12 09-56-49](https://github.com/user-attachments/assets/a6f152c6-9c62-4afc-bcd1-9f9c5faad623)
+![image](https://github.com/user-attachments/assets/ff37dbea-127f-4f9f-8afd-b887e46abaf5)
 
 
 ### RTX OFF
