@@ -130,8 +130,18 @@ namespace VulkanCore {
 	    return m_imageSizeBytes;
     }
 
-    VmaAllocation& VImage2::GetAllocation()
+    VmaAllocation& VImage2::GetImageAllocation()
     {
 	    return m_imageAllocation;
+    }
+
+    VmaAllocation& VImage2::GetImageStagingBufferMemAllocation()
+    {
+        return m_stagingBufferWithPixelData->GetStagingBufferAllocation();
+    }
+
+    vk::Buffer& VImage2::GetImageStagingBuffer()
+    {
+        return m_stagingBufferWithPixelData->GetStagingBuffer();
     }
 } // VulkanCore

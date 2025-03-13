@@ -59,9 +59,12 @@ class VImage2 : public VulkanCore::VObject {
         vk::Image                   GetImage() const;
         vk::ImageView               GetImageView() const;
         vk::DescriptorImageInfo     GetDescriptorImageInfo(vk::Sampler &sampler);
+
         vk::DeviceSize              GetImageSizeBytes();
-        VmaAllocation&              GetAllocation();
-        VulkanCore::VBuffer*        GetImageBuffer();
+        VmaAllocation&              GetImageAllocation();
+
+        VmaAllocation&              GetImageStagingBufferMemAllocation();
+        vk::Buffer&                 GetImageStagingBuffer();
 
 
     private:
@@ -77,8 +80,7 @@ class VImage2 : public VulkanCore::VObject {
 
         const VulkanCore::VDevice&  m_device;
 
-        std::unique_ptr<VulkanCore::VBuffer>
-                                    m_stagingBufferWithPixelData;
+        std::unique_ptr<VulkanCore::VBuffer>         m_stagingBufferWithPixelData;
 
     private:
         void AllocateImage();

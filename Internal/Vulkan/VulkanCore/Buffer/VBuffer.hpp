@@ -29,6 +29,7 @@ namespace VulkanCore
 
         const vk::Buffer &GetBuffer() const { return m_bufferVK; }
         const vk::Buffer &GetStagingBuffer() const { return m_stagingBufferVK; }
+        const VmaAllocation &GetStagingBufferAllocation() const { return m_stagingAllocation; }
         vk::DeviceSize GetBuffeSizeInBytes() const {return m_bufferSize;};
 
         void *GetMapPointer() const {

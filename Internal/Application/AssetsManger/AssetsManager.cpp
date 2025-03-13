@@ -201,6 +201,7 @@ namespace ApplicationCore
 
     bool AssetsManager::Sync()
     {
+        m_transferOpsManager.StartRecording();
         for(auto& tex : m_textures2){
             tex.second->Sync();
         }

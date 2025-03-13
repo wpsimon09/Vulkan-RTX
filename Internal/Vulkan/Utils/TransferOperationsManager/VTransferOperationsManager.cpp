@@ -24,6 +24,7 @@ namespace VulkanUtils {
 
     void VTransferOperationsManager::StartRecording()
     {
+        m_hasPandingWork = true;
         if (!m_commandBuffer->GetIsRecording())
         {
             m_commandBuffer->BeginRecording();
@@ -35,15 +36,19 @@ namespace VulkanUtils {
         if (m_hasPandingWork)
         {
             std::vector<vk::PipelineStageFlags> waitStages = {
-                vk::PipelineStageFlagBits::eVertexInput // once textures are here as well it will include texture as wells
+                vk::PipelineStageFlagBits::eVertexInput,
+                vk::PipelineStageFlagBits::eTransfer,
+                vk::PipelineStageFlagBits::eFragmentShader// once textures are here as well it will include texture as wells
             };
             m_commandBuffer->EndAndFlush(m_device.GetTransferQueue(), m_transferTimeline->GetSemaphore(), m_transferTimeline->GetSemaphoreSubmitInfo(0,2),waitStages.data());
+
             m_transferTimeline->CpuWaitIdle(2);
-            for (auto& buffer: m_clearValues)
+
+            for (auto& buffer: m_clearBuffersVKVMA)
             {
                 vmaDestroyBuffer(m_device.GetAllocator(), buffer.first, buffer.second);
             }
-            m_clearValues.clear();
+            m_clearBuffersVKVMA.clear();
             m_hasPandingWork = false;
         }else
         {
@@ -53,7 +58,12 @@ namespace VulkanUtils {
 
     void VTransferOperationsManager::DestroyBuffer(VkBuffer& buffer, VmaAllocation & vmaAllocation)
     {
-        m_clearValues.emplace_back(std::make_pair<VkBuffer, VmaAllocation>(std::move(buffer), std::move(vmaAllocation)));
+        m_clearBuffersVKVMA.emplace_back(std::make_pair<VkBuffer, VmaAllocation>(std::move(buffer), std::move(vmaAllocation)));
+    }
+
+    void VTransferOperationsManager::DestroyBuffer(std::unique_ptr<VulkanCore::VBuffer> vBuffer, bool isStaging)
+    {
+        m_clearVBuffers.emplace_back(std::make_pair<bool ,std::unique_ptr<VulkanCore::VBuffer>>(isStaging,std::move(vBuffer)));
     }
 
     void VTransferOperationsManager::Destroy()
