@@ -83,7 +83,7 @@ std::shared_ptr<VulkanCore::VImage> ApplicationCore::VTextureAsset::GetHandle()
 
     if (m_loadedImageData.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
     {
-        Destroy();
+        //Destroy();
         m_isInSync = true;
         auto retrievedData = m_loadedImageData.get();
         m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device, retrievedData);

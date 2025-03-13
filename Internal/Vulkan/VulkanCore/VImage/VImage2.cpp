@@ -29,7 +29,7 @@ namespace VulkanCore {
         GenerateImageView();
     }
 
-    void VImage2::Resize(uint32_t newWidth, uint32_t newHeight, vk::CommandBuffer& cmdBuffer)
+    void VImage2::Resize(uint32_t newWidth, uint32_t newHeight, const vk::CommandBuffer& cmdBuffer)
     {
         AllocateImage();
         GenerateImageView();
@@ -126,13 +126,11 @@ namespace VulkanCore {
 
     vk::DeviceSize VImage2::GetImageSizeBytes()
     {
+	    return m_imageSizeBytes;
     }
 
     VmaAllocation& VImage2::GetAllocation()
     {
-    }
-
-    VulkanCore::VBuffer* VImage2::GetImageBuffer()
-    {
+	    return m_imageAllocation;
     }
 } // VulkanCore
