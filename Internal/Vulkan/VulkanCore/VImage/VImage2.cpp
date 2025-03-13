@@ -37,7 +37,13 @@ namespace VulkanCore {
 
     void VImage2::Destroy()
     {
-        VObject::Destroy();
+        if (!m_imageFlags.IsSwapChainImage)
+        {
+            vmaDestroyImage(m_device.GetAllocator(), m_imageVMA, m_imageAllocation);
+        }
+        m_device.GetDevice().destroyImageView(m_imageView);
+        Utils::Logger::LogInfoVerboseOnly("Deleted image and its image view");
+
     }
 
     void VImage2::AllocateImage()

@@ -5,9 +5,10 @@
 #include "VIimageTransitionCommands.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 void VulkanUtils::RecordImageTransitionLayoutCommand(vk::ImageLayout currentLayout, vk::ImageLayout targetLayout,
-    vk::ImageMemoryBarrier& barrier, VulkanCore::VCommandBuffer& commandBuffer)
+                                                     vk::ImageMemoryBarrier& barrier, VulkanCore::VCommandBuffer& commandBuffer)
 {
     vk::PipelineStageFlags srcStageFlags;
     vk::PipelineStageFlags dstStageFlags;
@@ -112,6 +113,28 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(const VulkanCore::VImage& i
     barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
     barrier.image = image.GetImage();
     barrier.subresourceRange.aspectMask = image.GetIsDepthBuffer() ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+
+    VulkanUtils::RecordImageTransitionLayoutCommand(currentLayout, targetLayout, barrier, commandBuffer);
+
+}
+
+void VulkanUtils::RecordImageTransitionLayoutCommand(const VulkanCore::VImage2& image, vk::ImageLayout targetLayout,
+    vk::ImageLayout currentLayout, VulkanCore::VCommandBuffer& commandBuffer)
+{
+    vk::PipelineStageFlags srcStageFlags;
+    vk::PipelineStageFlags dstStageFlags;
+
+    vk::ImageMemoryBarrier barrier{};
+    barrier.oldLayout = currentLayout;
+    barrier.newLayout = targetLayout;
+    barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
+    barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
+    barrier.image = image.GetImage();;
+    barrier.subresourceRange.aspectMask = image.GetImageFlags().IsDepthBuffer ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
     barrier.subresourceRange.baseMipLevel = 0;
     barrier.subresourceRange.levelCount = 1;
     barrier.subresourceRange.baseArrayLayer = 0;

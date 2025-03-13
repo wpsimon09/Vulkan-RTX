@@ -49,7 +49,7 @@ namespace ApplicationCore
         for (auto& textureAsset : m_textures2){
             textureAsset.second->Destroy();
         }
-        //m_dummyTexture->Destroy();
+
     }
 
     std::shared_ptr<StaticMesh> AssetsManager::GetDefaultMesh(EMeshGeometryType geometryType)

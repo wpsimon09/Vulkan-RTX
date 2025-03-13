@@ -159,7 +159,7 @@ namespace VulkanCore
         }
     };
 
-    template <typename T>
+        template <typename T>
         void VImage::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, bool transitionToShaderReadOnly,
             bool destroyCurrentImage)
         {
