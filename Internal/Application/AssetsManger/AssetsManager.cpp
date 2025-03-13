@@ -36,7 +36,8 @@ namespace ApplicationCore
 
     void AssetsManager::DeleteAll()
     {
-        
+
+        m_dummyImage->Destroy();
         for (auto& texture : m_textures)
         {
             texture.second->Destroy();
@@ -49,7 +50,6 @@ namespace ApplicationCore
             textureAsset.second->Destroy();
         }
         //m_dummyTexture->Destroy();
-        m_dummyImage->Destroy();
     }
 
     std::shared_ptr<StaticMesh> AssetsManager::GetDefaultMesh(EMeshGeometryType geometryType)
