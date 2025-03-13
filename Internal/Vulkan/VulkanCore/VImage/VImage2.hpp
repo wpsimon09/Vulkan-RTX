@@ -22,6 +22,7 @@ namespace VulkanCore {
     int channels = 4;
     int depth = 1;
 
+    std::filesystem::path imagePath;
     EImageSource imageSource = EImageSource::Generated;
 
     uint32_t mipLevels = 1;
@@ -46,7 +47,7 @@ class VImage2 : public VulkanCore::VObject {
     public:
         explicit VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& info);
         explicit VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& createInfo, vk::Image swapChainImage);
-        explicit VImage2(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData );
+        explicit VImage2(const VulkanCore::VDevice& device,VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<uint32_t>& imageData );
 
         void Resize(uint32_t newWidth, uint32_t newHeight,const vk::CommandBuffer& cmdBuffer);
         template<typename T>
@@ -60,10 +61,9 @@ class VImage2 : public VulkanCore::VObject {
         vk::DescriptorImageInfo     GetDescriptorImageInfo(vk::Sampler &sampler);
         vk::DeviceSize              GetImageSizeBytes();
         VmaAllocation&              GetAllocation();
-        VulkanCore::VBuffer*        GetImageBuffer()
+        VulkanCore::VBuffer*        GetImageBuffer();
 
 
-    ;
     private:
         VImage2CreateInfo           m_imageInfo;
         VImage2Flags                m_imageFlags;

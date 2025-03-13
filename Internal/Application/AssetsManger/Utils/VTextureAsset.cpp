@@ -5,8 +5,16 @@
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Application/Utils/ModelExportImportUtils/ModelManagmentUtils.hpp"
+#include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
-ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device, std::shared_ptr<VulkanCore::VImage> defaultTexture, ETextureAssetType type,  std::filesystem::path texturePath) : VAsset<VulkanCore::VImage>(device), m_textureAssetType(type), m_originalPathToTexture(texturePath)
+ApplicationCore::VTextureAsset::VTextureAsset(
+    const VulkanCore::VDevice &device,
+    VulkanUtils::VTransferOperationsManager& transferOpsManager,
+    std::shared_ptr<VulkanCore::VImage2> defaultTexture,
+    ETextureAssetType type,
+    std::filesystem::path texturePath) : VAsset<VulkanCore::VImage2>(device), m_textureAssetType(type),
+                                         m_originalPathToTexture(texturePath), m_transferOpsManager(transferOpsManager)
 {
     m_deviceHandle = defaultTexture;
     m_width = 1;
@@ -20,7 +28,13 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
     VTextureAsset::Load();
 }
 
-ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,std::shared_ptr<VulkanCore::VImage> defaultTexture, ETextureAssetType type, TextureBufferInfo &bufferInfo): VAsset<VulkanCore::VImage>(device), m_textureAssetType(type), m_textureBufferInfo(bufferInfo)
+ApplicationCore::VTextureAsset::VTextureAsset(
+    const VulkanCore::VDevice                   &device,
+    VulkanUtils::VTransferOperationsManager&    transferOpsManager,
+    std::shared_ptr<VulkanCore::VImage2>         defaultTexture,
+    ETextureAssetType type, TextureBufferInfo&  bufferInfo): VAsset<VulkanCore::VImage2>(device),
+                                                            m_textureAssetType(type), m_textureBufferInfo(bufferInfo),
+                                                            m_transferOpsManager(transferOpsManager)
 {
     m_deviceHandle = defaultTexture;
     m_width = 1;
@@ -35,7 +49,11 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
     
 }
 
-ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage> texture): VAsset<VulkanCore::VImage>(device), m_textureAssetType(ETextureAssetType::Texture), m_textureBufferInfo(nullptr)
+ApplicationCore::VTextureAsset::VTextureAsset(
+    const VulkanCore::VDevice& device, VulkanUtils::VTransferOperationsManager& transferOpsManager,
+    std::shared_ptr<VulkanCore::VImage2> texture): VAsset<VulkanCore::VImage2>(device),
+                                                  m_textureAssetType(ETextureAssetType::Texture),
+                                                  m_textureBufferInfo(nullptr), m_transferOpsManager(transferOpsManager)
 {
     m_deviceHandle = texture;
     m_width = 1;
@@ -44,7 +62,7 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice& device,
     m_mipLevels = 1;
     m_savable = false;
     m_textureSource = EImageSource::Buffer;
-    m_assetPath = texture->GetPath();
+    m_assetPath = texture->GetImageInfo().imagePath;
 }
 
 void ApplicationCore::VTextureAsset::Sync()
@@ -52,11 +70,10 @@ void ApplicationCore::VTextureAsset::Sync()
     if(m_isInSync)
         return;
 
-    //Destroy();
     m_isInSync = true;
     auto imageData = m_loadedImageData.get();
     m_assetPath = imageData.fileName;
-    m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device,imageData);
+    m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,m_transferOpsManager.GetCommandBuffer(),imageData);
 }
 
 void ApplicationCore::VTextureAsset::Destroy()
@@ -76,34 +93,34 @@ void ApplicationCore::VTextureAsset::Load()
     }
 }
 
-std::shared_ptr<VulkanCore::VImage> ApplicationCore::VTextureAsset::GetHandle()
+std::shared_ptr<VulkanCore::VImage2> ApplicationCore::VTextureAsset::GetHandle()
 {
-    if(m_isInSync)
-        return VAsset<VulkanCore::VImage>::GetHandle();
+    //    if(m_isInSync)
+    //    return VAsset<VulkanCore::VImage2>::GetHandle();
 
-    if (m_loadedImageData.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
+    /*if (m_loadedImageData.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
     {
         //Destroy();
         m_isInSync = true;
         auto retrievedData = m_loadedImageData.get();
-        m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device, retrievedData);
-    }
-    return VAsset<VulkanCore::VImage>::GetHandle();
+        m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,m_transferOpsManager.GetCommandBuffer(), retrievedData);
+    }*/
+    return VAsset<VulkanCore::VImage2>::GetHandle();
 }
 
-VulkanCore::VImage& ApplicationCore::VTextureAsset::GetHandleByRef()
+VulkanCore::VImage2& ApplicationCore::VTextureAsset::GetHandleByRef()
 {
-    if(m_isInSync)
-        return VAsset<VulkanCore::VImage>::GetHandleByRef();
+    /*if(m_isInSync)
+        return VAsset<VulkanCore::VImage2>::GetHandleByRef();
 
     if (m_loadedImageData.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
         m_isInSync = true;
         //Destroy();
         auto retrievedData = m_loadedImageData.get();
-        m_deviceHandle = std::make_shared<VulkanCore::VImage>(m_device, retrievedData);
-    }
-    return VAsset<VulkanCore::VImage>::GetHandleByRef();
+        m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,m_transferOpsManager.GetCommandBuffer(), retrievedData);
+    }*/
+    return VAsset<VulkanCore::VImage2>::GetHandleByRef();
 }
 
 void ApplicationCore::VTextureAsset::LoadInternal()

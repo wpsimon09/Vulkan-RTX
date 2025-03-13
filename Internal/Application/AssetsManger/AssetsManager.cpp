@@ -25,6 +25,8 @@
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
+#include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore
 {
@@ -117,7 +119,7 @@ namespace ApplicationCore
     {
         
         if (!m_textures2.contains(path)){
-            m_textures2[path] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, m_dummyImage, ETextureAssetType::Texture, path);
+            m_textures2[path] = std::make_shared<ApplicationCore::VTextureAsset> (m_device,m_transferOpsManager, m_dummyImage, ETextureAssetType::Texture, path);
         }
 
         texture = m_textures2[path];
@@ -128,7 +130,7 @@ namespace ApplicationCore
     {
 
         if (!m_textures2.contains(data.textureID)){
-            m_textures2[data.textureID] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, m_dummyImage, ETextureAssetType::Texture, data);
+            m_textures2[data.textureID] = std::make_shared<ApplicationCore::VTextureAsset> (m_device,m_transferOpsManager, m_dummyImage, ETextureAssetType::Texture, data);
         }
 
         texture = m_textures2[data.textureID];
@@ -209,9 +211,9 @@ namespace ApplicationCore
     void AssetsManager::CreateDefaultAssets()
     {
         auto dummyTextureData = ApplicationCore::LoadImage("Resources/DefaultTexture.jpg", false);
-        m_dummyImage = std::make_shared<VulkanCore::VImage>(m_device, dummyTextureData);;
+        m_dummyImage = std::make_shared<VulkanCore::VImage2>(m_device,m_transferOpsManager.GetCommandBuffer(), dummyTextureData);;
 
-        m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device,m_dummyImage);
+        m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device, m_transferOpsManager, m_dummyImage);
 
         MaterialPaths paths{};
         m_dummyMaterial = std::make_shared<ApplicationCore::Material>(paths, *this);
@@ -268,13 +270,13 @@ namespace ApplicationCore
             
             if(texture.second->IsSavable()){
                 TextureBufferView textureView;
-                textureView.widht = texture.second->GetHandle()->GetWidth();
-                textureView.height = texture.second->GetHandle()->GetHeight();
+                auto& textureInfo = texture.second->GetHandle()->GetImageInfo();
+                textureView.widht = textureInfo.width;
+                textureView.height = textureInfo.height;
                 textureView.path = texture.first;
-                textureView.size = texture.second->GetHandle()->GetSize();
+                textureView.size = texture.second->GetHandle()->GetImageSizeBytes();
                 textureView.textureAsset = texture.second.get();
                 views.emplace_back(textureView);
-                
             }
         }
 

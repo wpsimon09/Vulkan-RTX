@@ -5,6 +5,7 @@
 #include "VImage2.hpp"
 
 #include "Application/Logger/Logger.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 namespace VulkanCore {
@@ -22,11 +23,12 @@ namespace VulkanCore {
         GenerateImageView();
     }
 
-    VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData):
+    VImage2::VImage2(const VulkanCore::VDevice& device,VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<uint32_t>& imageData):
         m_device(device),m_imageInfo{}, m_imageFlags{}
     {
         AllocateImage();
         GenerateImageView();
+        FillWithImageData(imageData, comandBuffer);
     }
 
     void VImage2::Resize(uint32_t newWidth, uint32_t newHeight, const vk::CommandBuffer& cmdBuffer)
@@ -62,8 +64,7 @@ namespace VulkanCore {
         imageInfo.usage = static_cast<VkImageUsageFlags>(m_imageInfo.imageUsage);
         imageInfo.sharingMode = static_cast<VkSharingMode>(vk::SharingMode::eExclusive);
         imageInfo.samples = static_cast<VkSampleCountFlagBits>(m_imageInfo.samples);
-
-        //m_imageVK = m_device.GetDevice().createImage(imageInfo);
+        m_imageSizeBytes = m_imageInfo.width * m_imageInfo.height * VulkanUtils::GetVulkanFormatSize(m_imageInfo.format);
 
         // create vma allocation
         VmaAllocationCreateInfo imageAllocationInfo = {};
