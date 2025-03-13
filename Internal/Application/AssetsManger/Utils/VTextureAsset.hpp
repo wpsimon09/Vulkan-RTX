@@ -18,7 +18,7 @@ namespace ApplicationCore {
     public:
         explicit VTextureAsset(const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage> defaultTexture, ETextureAssetType type, std::filesystem::path texturePath);
         explicit VTextureAsset(const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage> defaultTexture, ETextureAssetType type, TextureBufferInfo& bufferInfo);
-
+        explicit VTextureAsset(const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage> texture);
 
         void Sync() override;
         void Destroy() override;

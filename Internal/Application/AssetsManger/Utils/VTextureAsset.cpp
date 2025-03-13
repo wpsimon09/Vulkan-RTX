@@ -1,4 +1,6 @@
 #include "VTextureAsset.hpp"
+
+#include "simdjson.h"
 #include "VAsset.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
@@ -31,6 +33,18 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice &device,
 
     VTextureAsset::Load();
     
+}
+
+ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage> texture): VAsset<VulkanCore::VImage>(device), m_textureAssetType(ETextureAssetType::Texture), m_textureBufferInfo(nullptr)
+{
+    m_deviceHandle = texture;
+    m_width = 1;
+    m_height = 1;
+    m_isLoaded = false;
+    m_mipLevels = 1;
+    m_savable = false;
+    m_textureSource = EImageSource::Buffer;
+    m_assetPath = texture->GetPath();
 }
 
 void ApplicationCore::VTextureAsset::Sync()

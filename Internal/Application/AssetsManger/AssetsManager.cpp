@@ -48,8 +48,8 @@ namespace ApplicationCore
         for (auto& textureAsset : m_textures2){
             textureAsset.second->Destroy();
         }
+        //m_dummyTexture->Destroy();
         m_dummyImage->Destroy();
-        m_dummyTexture->Destroy();
     }
 
     std::shared_ptr<StaticMesh> AssetsManager::GetDefaultMesh(EMeshGeometryType geometryType)
@@ -210,7 +210,8 @@ namespace ApplicationCore
     {
         auto dummyTextureData = ApplicationCore::LoadImage("Resources/DefaultTexture.jpg", false);
         m_dummyImage = std::make_shared<VulkanCore::VImage>(m_device, dummyTextureData);;
-        m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device,m_dummyImage, ETextureAssetType::Texture, "Resources/DefaultTexture.jpg" );
+
+        m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device,m_dummyImage);
 
         MaterialPaths paths{};
         m_dummyMaterial = std::make_shared<ApplicationCore::Material>(paths, *this);
