@@ -26,13 +26,20 @@ namespace VulkanCore {
     VImage2::VImage2(const VulkanCore::VDevice& device,VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<uint32_t>& imageData):
         m_device(device),m_imageInfo{}, m_imageFlags{}
     {
+        m_imageInfo.width = imageData.widht;
+        m_imageInfo.height = imageData.height;
+        m_imageInfo.imageSource = imageData.sourceType;
+
         AllocateImage();
         GenerateImageView();
         FillWithImageData(imageData, comandBuffer);
     }
 
-    void VImage2::Resize(uint32_t newWidth, uint32_t newHeight, const vk::CommandBuffer& cmdBuffer)
+    void VImage2::Resize(uint32_t newWidth, uint32_t newHeight)
     {
+        m_imageInfo.width = newWidth;
+        m_imageInfo.height = newHeight;
+        Destroy();
         AllocateImage();
         GenerateImageView();
     }

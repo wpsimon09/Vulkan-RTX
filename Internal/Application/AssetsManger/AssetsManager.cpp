@@ -201,7 +201,6 @@ namespace ApplicationCore
 
     bool AssetsManager::Sync()
     {
-        m_transferOpsManager.StartRecording();
         for(auto& tex : m_textures2){
             tex.second->Sync();
         }
@@ -211,6 +210,7 @@ namespace ApplicationCore
 
     void AssetsManager::CreateDefaultAssets()
     {
+        m_transferOpsManager.StartRecording();
         auto dummyTextureData = ApplicationCore::LoadImage("Resources/DefaultTexture.jpg", false);
         m_dummyImage = std::make_shared<VulkanCore::VImage2>(m_device,m_transferOpsManager.GetCommandBuffer(), dummyTextureData);;
 
