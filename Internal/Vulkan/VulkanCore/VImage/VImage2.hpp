@@ -63,8 +63,9 @@ class VImage2 : public VulkanCore::VObject {
         vk::DeviceSize              GetImageSizeBytes();
         VmaAllocation&              GetImageAllocation();
 
-        VmaAllocation&              GetImageStagingBufferMemAllocation();
-        vk::Buffer&                 GetImageStagingBuffer();
+        VmaAllocation              GetImageStagingBufferMemAllocation();
+        vk::Buffer                 GetImageStagingBuffer();
+        VulkanCore::VBuffer&       GetImageStagingvBuffer();
 
 
     private:

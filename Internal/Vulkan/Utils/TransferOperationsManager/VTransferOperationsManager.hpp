@@ -34,7 +34,7 @@ namespace VulkanUtils {
         void StartRecording();
         void UpdateGPU();
         void DestroyBuffer(VkBuffer &buffer, VmaAllocation &vmaAllocation);
-        void DestroyBuffer(std::unique_ptr<VulkanCore::VBuffer> vBuffer, bool isStaging = false);
+        void DestroyBuffer(VulkanCore::VBuffer& vBuffer, bool isStaging = false);
 
         VulkanCore::VTimelineSemaphore& GetTransferSemaphore() const {return *m_transferTimeline;}
 
@@ -46,7 +46,7 @@ namespace VulkanUtils {
         std::unique_ptr<VulkanCore::VTimelineSemaphore> m_transferTimeline;
 
         std::vector<std::pair<VkBuffer, VmaAllocation>> m_clearBuffersVKVMA;
-        std::vector<std::pair<bool, std::unique_ptr<VulkanCore::VBuffer>>> m_clearVBuffers;
+        std::vector<std::pair<bool, VulkanCore::VBuffer*>> m_clearVBuffers;
 
     };
 

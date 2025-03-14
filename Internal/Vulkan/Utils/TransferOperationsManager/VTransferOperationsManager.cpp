@@ -61,9 +61,9 @@ namespace VulkanUtils {
         m_clearBuffersVKVMA.emplace_back(std::make_pair<VkBuffer, VmaAllocation>(std::move(buffer), std::move(vmaAllocation)));
     }
 
-    void VTransferOperationsManager::DestroyBuffer(std::unique_ptr<VulkanCore::VBuffer> vBuffer, bool isStaging)
+    void VTransferOperationsManager::DestroyBuffer(VulkanCore::VBuffer& vBuffer, bool isStaging)
     {
-        m_clearVBuffers.emplace_back(std::make_pair<bool ,std::unique_ptr<VulkanCore::VBuffer>>(isStaging,std::move(vBuffer)));
+        m_clearVBuffers.emplace_back(isStaging, &vBuffer);
     }
 
     void VTransferOperationsManager::Destroy()

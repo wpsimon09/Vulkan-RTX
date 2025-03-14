@@ -74,7 +74,7 @@ void ApplicationCore::VTextureAsset::Sync()
     auto imageData = m_loadedImageData.get();
     m_assetPath = imageData.fileName;
     m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,m_transferOpsManager.GetCommandBuffer(),imageData);
-    m_transferOpsManager.DestroyBuffer(m_deviceHandle->GetImageStagingBuffer(), m_deviceHandle->GetImageStagingBufferMemAllocation());
+    m_transferOpsManager.DestroyBuffer(m_deviceHandle->GetImageStagingvBuffer());
 }
 
 void ApplicationCore::VTextureAsset::Destroy()
