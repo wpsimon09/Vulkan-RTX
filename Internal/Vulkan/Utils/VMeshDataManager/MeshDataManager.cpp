@@ -129,7 +129,6 @@ namespace VulkanCore {
 
     void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
     {
-        m_transferOpsManager.StartRecording();
         //=========================================================================================================================================
         // VERTEX STAGING BUFFER
         //==========================================================================================================================================
@@ -152,6 +151,8 @@ namespace VulkanCore {
         memcpy(indexStagingBuffer.mappedPointer, m_stagingIndices.data(), indexStagingBuffer.size);
         vmaUnmapMemory(m_device.GetAllocator(), indexStagingBuffer.m_stagingAllocation);
 
+
+        assert(m_transferOpsManager.GetCommandBuffer().GetIsRecording() && "Command buffer is not recording any commands, before using it make sure it is in recording state  !");
         auto &cmdBuffer = m_transferOpsManager.GetCommandBuffer().GetCommandBuffer();
 
         // COPY VERTEX DATA TO THE GPU BUFFER

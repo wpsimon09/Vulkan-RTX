@@ -4,8 +4,8 @@
 
 #ifndef LINEARYTRANSFORMEDCOSINESVALUES_HPP
 #define LINEARYTRANSFORMEDCOSINESVALUES_HPP
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
-#include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace VulkanCore
@@ -27,8 +27,8 @@ namespace MathUtils
     class LookUpTalbes
     {
     public:
-        std::shared_ptr<VulkanCore::VImage2> LTC;
-        std::shared_ptr<VulkanCore::VImage2> LTCInverse;
+        std::shared_ptr<ApplicationCore::VTextureAsset> LTC;
+        std::shared_ptr<ApplicationCore::VTextureAsset> LTCInverse;
 
         void  ClearLoopUpTables()
         {

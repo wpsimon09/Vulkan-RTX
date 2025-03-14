@@ -74,8 +74,8 @@ namespace Renderer
         auto& dstSetDataStruct = m_pushDescriptorManager.GetDescriptorSetDataStruct();
         dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
         dstSetDataStruct.lightInformation = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
-        dstSetDataStruct.LUT_LTC = MathUtils::LUT.LTC->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-        dstSetDataStruct.LUT_LTC_Inverse = MathUtils::LUT.LTCInverse->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+        dstSetDataStruct.LUT_LTC = MathUtils::LUT.LTC->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+        dstSetDataStruct.LUT_LTC_Inverse = MathUtils::LUT.LTCInverse->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
     }
 
     void SceneRenderer::SendPerObjectDescriptorsToShader(int currentFrameIndex,int objectIndex,VulkanStructs::DrawCallData& drawCall, const VulkanUtils::VUniformBufferManager& uniformBufferManager)

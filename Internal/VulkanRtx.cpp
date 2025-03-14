@@ -157,11 +157,9 @@ void Application::Update()
 
     m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
     m_editor->Update();
-
-
+    m_editor->Render();
 
     m_client->GetAssetsManager().Sync();
-
     m_transferOpsManager->UpdateGPU();
 }
 
@@ -169,7 +167,6 @@ void Application::Render() {
 
     m_client->Render(m_renderingSystem->GetRenderContext());
 
-    m_editor->Render();
 
     m_renderingSystem->Render(m_client->GetScene().GetSceneLightInfo(),m_client->GetGlobalDataUpdateInformation());
 
@@ -177,8 +174,11 @@ void Application::Render() {
 
 void Application::PostRender()
 {
-   // m_client->GetScene().Reset();
+   // m_client->GetScene().Reset();ň
+
+    //all commands that were recorded over the frame are now gonna be submmitted
     m_transferOpsManager->ClearResources();
+
 }
 
 Application::~Application() {

@@ -62,7 +62,8 @@ class VImage2 : public VulkanCore::VObject {
     public:
         explicit VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& info);
         explicit VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& createInfo, vk::Image swapChainImage);
-        explicit VImage2(const VulkanCore::VDevice& device,VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<uint32_t>& imageData );
+        explicit VImage2(const VulkanCore::VDevice& device, VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<uint32_t>& imageData );
+        explicit VImage2(const VulkanCore::VDevice& device, VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<float>& imageData );
 
         void Resize(uint32_t newWidth, uint32_t newHeight);
         template<typename T>
@@ -107,6 +108,7 @@ template <typename T>
 void VImage2::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, VulkanCore::VCommandBuffer& cmdBuffer,
     bool transitionToShaderReadOnly, bool destroyCurrentImage)
 {
+
      if(!imageData.pixels){
         Utils::Logger::LogError("Image pixel data are corrupted ! ");
         return;}
@@ -117,6 +119,9 @@ void VImage2::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, Vu
         }
         //m_imageInfo.P = imageData.fileName;
         // copy pixel data to the staging buffer
+
+        assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording any commands, before using it make sure it is in recording state  !");
+
         Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
 
         m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE STAGING BUFFER ==>");

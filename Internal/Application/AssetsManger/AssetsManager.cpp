@@ -256,20 +256,15 @@ namespace ApplicationCore
 
         auto ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device,imageInfo);
         ltcTexture->FillWithImageData<float>(MathUtils::LTC_ImageData, m_transferOpsManager.GetCommandBuffer());
-
-        m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
-        MathUtils::LUT.LTC = std::move(ltcTexture);
+        MathUtils::LUT.LTC = std::make_shared<VTextureAsset>(m_device, m_transferOpsManager, std::move(ltcTexture));
 
         //m_textures[MathUtils::LTC_ImageData.fileName] = std::move(ltcTexture);
 
         imageInfo.width = MathUtils::LTCInverse_ImageData.widht;
         imageInfo.height = MathUtils::LTCInverse_ImageData.height;
 
-        ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, imageInfo);
-        ltcTexture->FillWithImageData<float>(MathUtils::LTCInverse_ImageData,  m_transferOpsManager.GetCommandBuffer());
-
-        m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
-        MathUtils::LUT.LTCInverse = std::move(ltcTexture);
+        ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, m_transferOpsManager.GetCommandBuffer(), MathUtils::LTC_ImageData);
+        MathUtils::LUT.LTCInverse =  std::make_shared<VTextureAsset>(m_device, m_transferOpsManager, std::move(ltcTexture));
 
 
         Sync();

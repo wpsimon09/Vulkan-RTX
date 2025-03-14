@@ -23,12 +23,27 @@ namespace VulkanCore {
         GenerateImageView();
     }
 
-    VImage2::VImage2(const VulkanCore::VDevice& device,VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<uint32_t>& imageData):
+    VImage2::VImage2(const VulkanCore::VDevice& device, VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<uint32_t>& imageData):
         m_device(device),m_imageInfo{}, m_imageFlags{}
     {
         m_imageInfo.width = imageData.widht;
         m_imageInfo.height = imageData.height;
         m_imageInfo.imageSource = imageData.sourceType;
+        m_imageInfo.format = imageData.format;
+
+        AllocateImage();
+        GenerateImageView();
+        FillWithImageData(imageData, comandBuffer);
+    }
+
+    VImage2::VImage2(const VulkanCore::VDevice& device, VulkanCore::VCommandBuffer& comandBuffer,
+        VulkanStructs::ImageData<float>& imageData):m_device(device),m_imageInfo{}, m_imageFlags{}
+
+    {
+        m_imageInfo.width = imageData.widht;
+        m_imageInfo.height = imageData.height;
+        m_imageInfo.imageSource = imageData.sourceType;
+        m_imageInfo.format = imageData.format;
 
         AllocateImage();
         GenerateImageView();
