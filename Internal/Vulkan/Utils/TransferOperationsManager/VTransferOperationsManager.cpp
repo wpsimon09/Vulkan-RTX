@@ -67,6 +67,7 @@ namespace VulkanUtils {
                 buffer.second->Destroy();
             }
         }
+
         for (auto& buffer: m_clearBuffersVKVMA)
         {
             vmaDestroyBuffer(m_device.GetAllocator(), buffer.first, buffer.second);
@@ -87,6 +88,7 @@ namespace VulkanUtils {
 
     void VTransferOperationsManager::Destroy()
     {
+        ClearResources();
         m_transferTimeline->Destroy();
     }
 } // VulkanUtils

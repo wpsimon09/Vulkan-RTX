@@ -80,7 +80,8 @@ namespace VulkanCore {
         assert(
             vmaCreateImage(m_device.GetAllocator(), &imageInfo, &imageAllocationInfo, &m_imageVMA, &m_imageAllocation,
                 nullptr) == VK_SUCCESS);
-        vmaSetAllocationName(m_device.GetAllocator(), m_imageAllocation, "<== IMAGE ==>");
+        auto allocname = "<== IMAGE ==>" + m_imageInfo.imagePath.string();
+        vmaSetAllocationName(m_device.GetAllocator(), m_imageAllocation,allocname.c_str() );
 
         m_imageVK = m_imageVMA;
     }

@@ -6,6 +6,12 @@
 #define LINEARYTRANSFORMEDCOSINESVALUES_HPP
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
+
+namespace VulkanCore
+{
+    class VImage2;
+}
 
 namespace MathUtils
 {
@@ -21,8 +27,8 @@ namespace MathUtils
     class LookUpTalbes
     {
     public:
-        std::shared_ptr<VulkanCore::VImage> LTC;
-        std::shared_ptr<VulkanCore::VImage> LTCInverse;
+        std::shared_ptr<VulkanCore::VImage2> LTC;
+        std::shared_ptr<VulkanCore::VImage2> LTCInverse;
 
         void  ClearLoopUpTables()
         {

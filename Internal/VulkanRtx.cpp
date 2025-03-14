@@ -161,6 +161,7 @@ void Application::Update()
 
 
     m_client->GetAssetsManager().Sync();
+
     m_transferOpsManager->UpdateGPU();
 }
 

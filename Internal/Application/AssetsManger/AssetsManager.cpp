@@ -211,8 +211,10 @@ namespace ApplicationCore
     void AssetsManager::CreateDefaultAssets()
     {
         m_transferOpsManager.StartRecording();
+
         auto dummyTextureData = ApplicationCore::LoadImage("Resources/DefaultTexture.jpg", false);
         m_dummyImage = std::make_shared<VulkanCore::VImage2>(m_device,m_transferOpsManager.GetCommandBuffer(), dummyTextureData);;
+        m_transferOpsManager.DestroyBuffer(m_dummyImage->GetImageStagingvBuffer(), true);
 
         m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device, m_transferOpsManager, m_dummyImage);
 
@@ -246,17 +248,29 @@ namespace ApplicationCore
         //=======================================
         // LTC TEXTURES
         //=======================================
-        auto ltcTexture = std::make_shared<VulkanCore::VImage>(m_device, 1, vk::Format::eR32G32B32A32Sfloat);
-        ltcTexture->Resize(MathUtils::LTC_ImageData.widht,MathUtils::LTC_ImageData.height);
-        ltcTexture->FillWithImageData<float>(MathUtils::LTC_ImageData);
+        VulkanCore::VImage2CreateInfo imageInfo{};
+        imageInfo.format = vk::Format::eR32G32B32A32Sfloat;
+        imageInfo.mipLevels = 1;
+        imageInfo.width = MathUtils::LTC_ImageData.widht;
+        imageInfo.height = MathUtils::LTC_ImageData.height;
+
+        auto ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device,imageInfo);
+        ltcTexture->FillWithImageData<float>(MathUtils::LTC_ImageData, m_transferOpsManager.GetCommandBuffer());
+
+        m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
         MathUtils::LUT.LTC = std::move(ltcTexture);
 
         //m_textures[MathUtils::LTC_ImageData.fileName] = std::move(ltcTexture);
 
-        ltcTexture = std::make_shared<VulkanCore::VImage>(m_device, 1, vk::Format::eR32G32B32A32Sfloat);
-        ltcTexture->Resize(MathUtils::LTCInverse_ImageData.widht,MathUtils::LTCInverse_ImageData.height);
-        ltcTexture->FillWithImageData<float>(MathUtils::LTCInverse_ImageData);
+        imageInfo.width = MathUtils::LTCInverse_ImageData.widht;
+        imageInfo.height = MathUtils::LTCInverse_ImageData.height;
+
+        ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, imageInfo);
+        ltcTexture->FillWithImageData<float>(MathUtils::LTCInverse_ImageData,  m_transferOpsManager.GetCommandBuffer());
+
+        m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
         MathUtils::LUT.LTCInverse = std::move(ltcTexture);
+
 
         Sync();
     }
