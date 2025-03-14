@@ -32,6 +32,21 @@ namespace VulkanCore {
     vk::ImageUsageFlags imageUsage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
     vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1;
     vk::ImageLayout layout = vk::ImageLayout::eUndefined;
+
+    void SetImageLayout(vk::ImageLayout newLayout)              {  layout = newLayout; }
+    void SetWidth(int newWidth)                                 { width = newWidth; }
+    void SetHeight(int newHeight)                               { height = newHeight; }
+    void SetChannels(int newChannels)                           { channels = newChannels; }
+    void SetDepth(int newDepth)                                 { depth = newDepth; }
+    void SetImagePath(const std::filesystem::path& newPath)     { imagePath = newPath; }
+    void SetImageSource(EImageSource newSource)                 { imageSource = newSource; }
+    void SetMipLevels(uint32_t newMipLevels)                    { mipLevels = newMipLevels; }
+    void SetFormat(vk::Format newFormat)                        { format = newFormat; }
+    void SetAspectFlags(vk::ImageAspectFlags newAspectFlags)    { aspecFlags = newAspectFlags; }
+    void SetImageUsage(vk::ImageUsageFlags newImageUsage)       { imageUsage = newImageUsage; }
+    void SetSamples(vk::SampleCountFlagBits newSamples)         { samples = newSamples; }
+    void SetLayout(vk::ImageLayout newLayout)                   { layout = newLayout; }
+
 };
 
 struct VImage2Flags
@@ -54,7 +69,7 @@ class VImage2 : public VulkanCore::VObject {
         void FillWithImageData(const VulkanStructs::ImageData<T>& imageData,VulkanCore::VCommandBuffer& cmdBuffer, bool transitionToShaderReadOnly = true, bool destroyCurrentImage = false);
         void Destroy() override;
 
-        const VImage2CreateInfo&    GetImageInfo() const;
+        VImage2CreateInfo&          GetImageInfo();
         const VImage2Flags&         GetImageFlags() const;
         vk::Image                   GetImage() const;
         vk::ImageView               GetImageView() const;

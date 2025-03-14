@@ -118,6 +118,7 @@ void Application::MainLoop()
     {
         Update();
         Render();
+        PostRender();
 
         glfwPollEvents();
     }
@@ -175,7 +176,8 @@ void Application::Render() {
 
 void Application::PostRender()
 {
-    m_client->GetScene().Reset();
+   // m_client->GetScene().Reset();
+    m_transferOpsManager->ClearResources();
 }
 
 Application::~Application() {

@@ -86,8 +86,6 @@ namespace Renderer {
     {
         m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
 
-        // TODO: CREATE ONE TIMELINE SEMAPHORE THAT WILL MANAGE ENTIRE RENDERING AND SHIT INSTEAD OF HAVING 2000 THOUSANDS OF THEM !
-
         //=================================================
         // GET SWAP IMAGE INDEX
         //=================================================

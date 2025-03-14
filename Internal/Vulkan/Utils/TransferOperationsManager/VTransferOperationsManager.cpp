@@ -6,6 +6,7 @@
 #include "vulkan/vulkan.h"
 #include "VTransferOperationsManager.hpp"
 
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
@@ -42,20 +43,36 @@ namespace VulkanUtils {
             };
             m_commandBuffer->EndAndFlush(m_device.GetTransferQueue(), m_transferTimeline->GetSemaphore(), m_transferTimeline->GetSemaphoreSubmitInfo(0,2),waitStages.data());
 
-            m_transferTimeline->CpuWaitIdle(2);
 
             // MOVE THIS TO SEPRATE FUNCTION THAT WILL RUN AT THE END OF EACH FRAME SO THAT RENDERER CAN RECORD COMMAND BUFFERS WITHOUT ANY ISSUES
             // THIS PREVENTS USAGE OF cpuWaitIdle AND INSTEAD GRAPHICS COMMANDS WILL GET EXECTUED
-            for (auto& buffer: m_clearBuffersVKVMA)
-            {
-                vmaDestroyBuffer(m_device.GetAllocator(), buffer.first, buffer.second);
-            }
-            m_clearBuffersVKVMA.clear();
+
             m_hasPandingWork = false;
         }else
         {
             m_transferTimeline->CpuSignal(2);
         }
+    }
+
+    void VTransferOperationsManager::ClearResources()
+    {
+        //m_transferTimeline->CpuWaitIdle(2);
+        for (auto& buffer: m_clearVBuffers)
+        {
+            if (buffer.first) // is staging
+            {
+                buffer.second->DestroyStagingBuffer();
+            }else
+            {
+                buffer.second->Destroy();
+            }
+        }
+        for (auto& buffer: m_clearBuffersVKVMA)
+        {
+            vmaDestroyBuffer(m_device.GetAllocator(), buffer.first, buffer.second);
+        }
+        m_clearBuffersVKVMA.clear();
+        m_clearVBuffers.clear();
     }
 
     void VTransferOperationsManager::DestroyBuffer(VkBuffer& buffer, VmaAllocation & vmaAllocation)

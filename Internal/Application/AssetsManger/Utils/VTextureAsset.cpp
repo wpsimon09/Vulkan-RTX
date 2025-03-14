@@ -77,7 +77,7 @@ void ApplicationCore::VTextureAsset::Sync()
     auto imageData = m_loadedImageData.get();
     m_assetPath = imageData.fileName;
     m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,m_transferOpsManager.GetCommandBuffer(),imageData);
-    m_transferOpsManager.DestroyBuffer(m_deviceHandle->GetImageStagingvBuffer());
+    m_transferOpsManager.DestroyBuffer(m_deviceHandle->GetImageStagingvBuffer(), true);
 }
 
 void ApplicationCore::VTextureAsset::Destroy()
@@ -99,31 +99,11 @@ void ApplicationCore::VTextureAsset::Load()
 
 std::shared_ptr<VulkanCore::VImage2> ApplicationCore::VTextureAsset::GetHandle()
 {
-    //    if(m_isInSync)
-    //    return VAsset<VulkanCore::VImage2>::GetHandle();
-
-    /*if (m_loadedImageData.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
-    {
-        //Destroy();
-        m_isInSync = true;
-        auto retrievedData = m_loadedImageData.get();
-        m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,m_transferOpsManager.GetCommandBuffer(), retrievedData);
-    }*/
     return VAsset<VulkanCore::VImage2>::GetHandle();
 }
 
 VulkanCore::VImage2& ApplicationCore::VTextureAsset::GetHandleByRef()
 {
-    /*if(m_isInSync)
-        return VAsset<VulkanCore::VImage2>::GetHandleByRef();
-
-    if (m_loadedImageData.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-    {
-        m_isInSync = true;
-        //Destroy();
-        auto retrievedData = m_loadedImageData.get();
-        m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,m_transferOpsManager.GetCommandBuffer(), retrievedData);
-    }*/
     return VAsset<VulkanCore::VImage2>::GetHandleByRef();
 }
 

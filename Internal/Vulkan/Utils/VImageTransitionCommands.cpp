@@ -122,7 +122,7 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(const VulkanCore::VImage& i
 
 }
 
-void VulkanUtils::RecordImageTransitionLayoutCommand(const VulkanCore::VImage2& image, vk::ImageLayout targetLayout,
+void VulkanUtils::RecordImageTransitionLayoutCommand(VulkanCore::VImage2& image, vk::ImageLayout targetLayout,
     vk::ImageLayout currentLayout, VulkanCore::VCommandBuffer& commandBuffer)
 {
     vk::PipelineStageFlags srcStageFlags;
@@ -139,6 +139,8 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(const VulkanCore::VImage2& 
     barrier.subresourceRange.levelCount = 1;
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
+
+    image.GetImageInfo().layout = targetLayout;
 
     VulkanUtils::RecordImageTransitionLayoutCommand(currentLayout, targetLayout, barrier, commandBuffer);
 

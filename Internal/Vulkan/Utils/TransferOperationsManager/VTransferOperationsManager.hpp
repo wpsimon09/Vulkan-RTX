@@ -33,6 +33,9 @@ namespace VulkanUtils {
         VulkanCore::VCommandBuffer& GetCommandBuffer();
         void StartRecording();
         void UpdateGPU();
+
+        void ClearResources();
+
         void DestroyBuffer(VkBuffer &buffer, VmaAllocation &vmaAllocation);
         void DestroyBuffer(VulkanCore::VBuffer& vBuffer, bool isStaging = false);
 

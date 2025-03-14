@@ -103,7 +103,7 @@ namespace VulkanCore {
 
     }
 
-    const VImage2CreateInfo& VImage2::GetImageInfo() const
+    VImage2CreateInfo& VImage2::GetImageInfo()
     {
         return m_imageInfo;
     }

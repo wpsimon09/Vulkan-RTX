@@ -25,7 +25,7 @@ namespace VulkanUtils
         );
 
     void RecordImageTransitionLayoutCommand(
-        const VulkanCore::VImage2& image ,
+        VulkanCore::VImage2& image ,
         vk::ImageLayout targetLayout,
         vk::ImageLayout currentLayout,
         VulkanCore::VCommandBuffer& commandBuffer
