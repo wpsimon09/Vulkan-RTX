@@ -157,13 +157,17 @@ void Application::Update()
 
     m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
     m_editor->Update();
-    m_editor->Render();
 
-    m_client->GetAssetsManager().Sync();
-    m_transferOpsManager->UpdateGPU();
 }
 
 void Application::Render() {
+
+
+    m_editor->Render();
+
+    // once editor is done rendering application is not allowed to create any new resources
+    m_client->GetAssetsManager().Sync();
+    m_transferOpsManager->UpdateGPU();
 
     m_client->Render(m_renderingSystem->GetRenderContext());
 
