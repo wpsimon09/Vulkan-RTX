@@ -119,7 +119,6 @@ void Application::MainLoop()
         Update();
         Render();
 
-
         glfwPollEvents();
     }
 }
@@ -142,6 +141,8 @@ void Application::Run()
 
 void Application::Update()
 {
+    m_transferOpsManager->StartRecording();
+
     m_renderingSystem->Update();
     m_client->Update();
     m_client->UpdateCamera(m_windowManager->GetCameraMovement());
@@ -155,11 +156,14 @@ void Application::Update()
 
     m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
     m_editor->Update();
+
+
+
+    m_client->GetAssetsManager().Sync();
+    m_transferOpsManager->UpdateGPU();
 }
 
 void Application::Render() {
-
-    m_transferOpsManager->UpdateGPU();
 
     m_client->Render(m_renderingSystem->GetRenderContext());
 

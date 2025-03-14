@@ -37,6 +37,7 @@ namespace ApplicationCore {
 }
 
 namespace VulkanCore {
+    class VImage2;
     class MeshDatatManager;
     class VBuffer;
     class VDevice;
@@ -153,7 +154,7 @@ private:
     //=========================
 
     std::shared_ptr<ApplicationCore::VTextureAsset> m_dummyTexture;
-    std::shared_ptr<VulkanCore::VImage> m_dummyImage;
+    std::shared_ptr<VulkanCore::VImage2> m_dummyImage;
     std::shared_ptr<ApplicationCore::Material> m_dummyMaterial;
     std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_dummyTextures;
     std::unordered_map<EEditorIcon, std::shared_ptr<Material>> m_editorIconsMaterials;

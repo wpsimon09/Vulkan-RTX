@@ -5,6 +5,7 @@
 #include "VImage2.hpp"
 
 #include "Application/Logger/Logger.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 namespace VulkanCore {
@@ -22,15 +23,23 @@ namespace VulkanCore {
         GenerateImageView();
     }
 
-    VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData):
+    VImage2::VImage2(const VulkanCore::VDevice& device,VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<uint32_t>& imageData):
         m_device(device),m_imageInfo{}, m_imageFlags{}
     {
+        m_imageInfo.width = imageData.widht;
+        m_imageInfo.height = imageData.height;
+        m_imageInfo.imageSource = imageData.sourceType;
+
         AllocateImage();
         GenerateImageView();
+        FillWithImageData(imageData, comandBuffer);
     }
 
-    void VImage2::Resize(uint32_t newWidth, uint32_t newHeight, const vk::CommandBuffer& cmdBuffer)
+    void VImage2::Resize(uint32_t newWidth, uint32_t newHeight)
     {
+        m_imageInfo.width = newWidth;
+        m_imageInfo.height = newHeight;
+        Destroy();
         AllocateImage();
         GenerateImageView();
     }
@@ -62,8 +71,7 @@ namespace VulkanCore {
         imageInfo.usage = static_cast<VkImageUsageFlags>(m_imageInfo.imageUsage);
         imageInfo.sharingMode = static_cast<VkSharingMode>(vk::SharingMode::eExclusive);
         imageInfo.samples = static_cast<VkSampleCountFlagBits>(m_imageInfo.samples);
-
-        //m_imageVK = m_device.GetDevice().createImage(imageInfo);
+        m_imageSizeBytes = m_imageInfo.width * m_imageInfo.height * VulkanUtils::GetVulkanFormatSize(m_imageInfo.format);
 
         // create vma allocation
         VmaAllocationCreateInfo imageAllocationInfo = {};
@@ -129,8 +137,23 @@ namespace VulkanCore {
 	    return m_imageSizeBytes;
     }
 
-    VmaAllocation& VImage2::GetAllocation()
+    VmaAllocation& VImage2::GetImageAllocation()
     {
 	    return m_imageAllocation;
+    }
+
+    VmaAllocation VImage2::GetImageStagingBufferMemAllocation()
+    {
+        return m_stagingBufferWithPixelData->GetStagingBufferAllocation();
+    }
+
+    vk::Buffer VImage2::GetImageStagingBuffer()
+    {
+        return m_stagingBufferWithPixelData->GetStagingBuffer();
+    }
+
+    VulkanCore::VBuffer& VImage2::GetImageStagingvBuffer()
+    {
+        return *m_stagingBufferWithPixelData;
     }
 } // VulkanCore

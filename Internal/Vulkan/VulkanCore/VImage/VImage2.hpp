@@ -22,13 +22,14 @@ namespace VulkanCore {
     int channels = 4;
     int depth = 1;
 
+    std::filesystem::path imagePath;
     EImageSource imageSource = EImageSource::Generated;
 
     uint32_t mipLevels = 1;
 
     vk::Format format = vk::Format::eR8G8B8A8Srgb;
     vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor;
-    vk::ImageUsageFlags imageUsage = vk::ImageUsageFlagBits::eSampled;
+    vk::ImageUsageFlags imageUsage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
     vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1;
     vk::ImageLayout layout = vk::ImageLayout::eUndefined;
 };
@@ -46,9 +47,9 @@ class VImage2 : public VulkanCore::VObject {
     public:
         explicit VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& info);
         explicit VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& createInfo, vk::Image swapChainImage);
-        explicit VImage2(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData );
+        explicit VImage2(const VulkanCore::VDevice& device,VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<uint32_t>& imageData );
 
-        void Resize(uint32_t newWidth, uint32_t newHeight,const vk::CommandBuffer& cmdBuffer);
+        void Resize(uint32_t newWidth, uint32_t newHeight);
         template<typename T>
         void FillWithImageData(const VulkanStructs::ImageData<T>& imageData,VulkanCore::VCommandBuffer& cmdBuffer, bool transitionToShaderReadOnly = true, bool destroyCurrentImage = false);
         void Destroy() override;
@@ -58,12 +59,15 @@ class VImage2 : public VulkanCore::VObject {
         vk::Image                   GetImage() const;
         vk::ImageView               GetImageView() const;
         vk::DescriptorImageInfo     GetDescriptorImageInfo(vk::Sampler &sampler);
+
         vk::DeviceSize              GetImageSizeBytes();
-        VmaAllocation&              GetAllocation();
-        VulkanCore::VBuffer*        GetImageBuffer()
+        VmaAllocation&              GetImageAllocation();
+
+        VmaAllocation              GetImageStagingBufferMemAllocation();
+        vk::Buffer                 GetImageStagingBuffer();
+        VulkanCore::VBuffer&       GetImageStagingvBuffer();
 
 
-    ;
     private:
         VImage2CreateInfo           m_imageInfo;
         VImage2Flags                m_imageFlags;
@@ -77,8 +81,7 @@ class VImage2 : public VulkanCore::VObject {
 
         const VulkanCore::VDevice&  m_device;
 
-        std::unique_ptr<VulkanCore::VBuffer>
-                                    m_stagingBufferWithPixelData;
+        std::unique_ptr<VulkanCore::VBuffer>         m_stagingBufferWithPixelData;
 
     private:
         void AllocateImage();
@@ -98,14 +101,10 @@ void VImage2::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, Vu
             Resize(imageData.widht, imageData.height);
         }
         //m_imageInfo.P = imageData.fileName;
-        m_imageInfo.width = imageData.widht;
-        m_imageInfo.height = imageData.height;
-        m_imageInfo.imageSource = imageData.sourceType;
-
         // copy pixel data to the staging buffer
         Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
 
-        m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE STAGING BUFFER ==>" + imageData.filename);
+        m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE STAGING BUFFER ==>");
         m_stagingBufferWithPixelData->CreateStagingBuffer(imageData.GetSize());
 
         memcpy(m_stagingBufferWithPixelData->MapStagingBuffer(), imageData.pixels, imageData.GetSize());
@@ -114,7 +113,7 @@ void VImage2::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, Vu
         Utils::Logger::LogInfoVerboseOnly("Image data copied");
 
         // transition image to the transfer dst optimal layout so that data can be copied to it
-        VulkanUtils::RecordImageTransitionLayoutCommand(*this, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, cmdBuffer);
+        VulkanUtils::RecordImageTransitionLayoutCommand(*this, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eUndefined, cmdBuffer);
         //TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 
         vk::BufferImageCopy region = {};
@@ -135,12 +134,13 @@ void VImage2::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, Vu
         region.imageExtent.height = m_imageInfo.height;
         region.imageExtent.depth = m_imageInfo.depth;
 
-        cmdBuffer.GetCommandBuffer().copyBufferToImage(m_stagingBufferWithPixelData->GetStagingBuffer(), m_imageVK, vk::ImageLayout::eTransferDstOptimal, imageData);
+        cmdBuffer.GetCommandBuffer().copyBufferToImage(m_stagingBufferWithPixelData->GetStagingBuffer(), m_imageVK, vk::ImageLayout::eTransferDstOptimal,1, &region);
 
         Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is true, executing transition...");
-        VulkanUtils::RecordImageTransitionLayoutCommand(*this, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, cmdBuffer);
+        VulkanUtils::RecordImageTransitionLayoutCommand(*this, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eTransferDstOptimal, cmdBuffer);
 
-        //imageData.Clear();
+        // this should be safe, since data are in staging
+        imageData.Clear();
     }
 
 } // VulkanCore
