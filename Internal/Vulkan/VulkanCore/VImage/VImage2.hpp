@@ -143,7 +143,8 @@ void VImage2::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, Vu
         Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is true, executing transition...");
         VulkanUtils::RecordImageTransitionLayoutCommand(*this, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, cmdBuffer);
 
-        //imageData.Clear();
+        // this should be save, since data are in staging
+        imageData.Clear();
     }
 
 } // VulkanCore

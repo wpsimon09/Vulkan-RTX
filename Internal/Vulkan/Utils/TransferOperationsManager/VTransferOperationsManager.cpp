@@ -44,6 +44,8 @@ namespace VulkanUtils {
 
             m_transferTimeline->CpuWaitIdle(2);
 
+            // MOVE THIS TO SEPRATE FUNCTION THAT WILL RUN AT THE END OF EACH FRAME SO THAT RENDERER CAN RECORD COMMAND BUFFERS WITHOUT ANY ISSUES
+            // THIS PREVENTS USAGE OF cpuWaitIdle AND INSTEAD GRAPHICS COMMANDS WILL GET EXECTUED
             for (auto& buffer: m_clearBuffersVKVMA)
             {
                 vmaDestroyBuffer(m_device.GetAllocator(), buffer.first, buffer.second);
