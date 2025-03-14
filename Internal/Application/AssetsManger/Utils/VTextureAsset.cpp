@@ -69,6 +69,9 @@ void ApplicationCore::VTextureAsset::Sync()
 {
     if(m_isInSync)
         return;
+    if (m_loadedImageData.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready ){
+        return;
+    }
 
     m_isInSync = true;
     auto imageData = m_loadedImageData.get();
