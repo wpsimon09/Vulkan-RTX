@@ -10,11 +10,10 @@
 
 ApplicationCore::VTextureAsset::VTextureAsset(
     const VulkanCore::VDevice &device,
-    VulkanUtils::VTransferOperationsManager& transferOpsManager,
     std::shared_ptr<VulkanCore::VImage2> defaultTexture,
     ETextureAssetType type,
     std::filesystem::path texturePath) : VAsset<VulkanCore::VImage2>(device), m_textureAssetType(type),
-                                         m_originalPathToTexture(texturePath), m_transferOpsManager(transferOpsManager)
+                                         m_originalPathToTexture(texturePath), m_transferOpsManager(device.GetTransferOpsManager())
 {
     m_deviceHandle = defaultTexture;
     m_width = 1;
@@ -30,11 +29,10 @@ ApplicationCore::VTextureAsset::VTextureAsset(
 
 ApplicationCore::VTextureAsset::VTextureAsset(
     const VulkanCore::VDevice                   &device,
-    VulkanUtils::VTransferOperationsManager&    transferOpsManager,
     std::shared_ptr<VulkanCore::VImage2>         defaultTexture,
     ETextureAssetType type, TextureBufferInfo&  bufferInfo): VAsset<VulkanCore::VImage2>(device),
                                                             m_textureAssetType(type), m_textureBufferInfo(bufferInfo),
-                                                            m_transferOpsManager(transferOpsManager)
+                                                            m_transferOpsManager(device.GetTransferOpsManager())
 {
     m_deviceHandle = defaultTexture;
     m_width = 1;
@@ -50,10 +48,9 @@ ApplicationCore::VTextureAsset::VTextureAsset(
 }
 
 ApplicationCore::VTextureAsset::VTextureAsset(
-    const VulkanCore::VDevice& device, VulkanUtils::VTransferOperationsManager& transferOpsManager,
-    std::shared_ptr<VulkanCore::VImage2> texture): VAsset<VulkanCore::VImage2>(device),
+    const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage2> texture): VAsset<VulkanCore::VImage2>(device),
                                                   m_textureAssetType(ETextureAssetType::Texture),
-                                                  m_textureBufferInfo(nullptr), m_transferOpsManager(transferOpsManager)
+                                                  m_textureBufferInfo(nullptr), m_transferOpsManager(device.GetTransferOpsManager())
 {
     m_deviceHandle = texture;
     m_width = 1;
@@ -76,7 +73,7 @@ void ApplicationCore::VTextureAsset::Sync()
     m_isInSync = true;
     auto imageData = m_loadedImageData.get();
     m_assetPath = imageData.fileName;
-    m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,m_transferOpsManager.GetCommandBuffer(),imageData);
+    m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,imageData);
     m_transferOpsManager.DestroyBuffer(m_deviceHandle->GetImageStagingvBuffer(), true);
 }
 

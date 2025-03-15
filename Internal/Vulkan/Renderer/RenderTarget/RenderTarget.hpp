@@ -54,9 +54,9 @@ public:
 
     vk::RenderingAttachmentInfo& GetDepthAttachment() ;
 
-    const VulkanCore::VImage& GetColourImage(int currentFrame) const;
-    const VulkanCore::VImage& GetDepthImage(int currentFrame) const;
-    const VulkanCore::VImage& GetColourAttachmentMultiSampled(int currentFrame) const;
+    const VulkanCore::VImage2& GetColourImage(int currentFrame) const;
+    const VulkanCore::VImage2& GetDepthImage(int currentFrame) const;
+    const VulkanCore::VImage2& GetColourAttachmentMultiSampled(int currentFrame) const;
 
     ~RenderTarget() = default;
 private:

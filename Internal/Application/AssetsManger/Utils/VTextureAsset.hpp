@@ -26,9 +26,9 @@ enum ETextureAssetType{
 namespace ApplicationCore {
     class VTextureAsset : public VAsset<VulkanCore::VImage2> {
     public:
-        explicit VTextureAsset(const VulkanCore::VDevice& device, VulkanUtils::VTransferOperationsManager& transferOpsManager, std::shared_ptr<VulkanCore::VImage2> defaultTexture, ETextureAssetType type, std::filesystem::path texturePath);
-        explicit VTextureAsset(const VulkanCore::VDevice& device, VulkanUtils::VTransferOperationsManager& transferOpsManager, std::shared_ptr<VulkanCore::VImage2> defaultTexture, ETextureAssetType type, TextureBufferInfo& bufferInfo);
-        explicit VTextureAsset(const VulkanCore::VDevice& device, VulkanUtils::VTransferOperationsManager& transferOpsManager,  std::shared_ptr<VulkanCore::VImage2> texture);
+        explicit VTextureAsset(const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage2> defaultTexture, ETextureAssetType type, std::filesystem::path texturePath);
+        explicit VTextureAsset(const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage2> defaultTexture, ETextureAssetType type, TextureBufferInfo& bufferInfo);
+        explicit VTextureAsset(const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage2> texture);
 
         void Sync() override;
         void Destroy() override;

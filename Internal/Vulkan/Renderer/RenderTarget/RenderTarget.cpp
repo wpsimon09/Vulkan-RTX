@@ -6,6 +6,7 @@
 
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
@@ -93,26 +94,24 @@ namespace Renderer {
 
         }
 
-                auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device,m_device.GetSingleThreadCommandPool());
-        auto transitionFinishedFence = VulkanCore::VSyncPrimitive<vk::Fence>(m_device);
-        transitionCommandBuffer.BeginRecording();
+        for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
+            VulkanUtils::RecordImageTransitionLayoutCommand(*m_colourAttachments[i].second,
+                                                            vk::ImageLayout::eColorAttachmentOptimal,
+                                                            vk::ImageLayout::eUndefined,
+                                                            m_device.GetTransferOpsManager().GetCommandBuffer());
 
+            VulkanUtils::RecordImageTransitionLayoutCommand(*m_msaaAttachments[i].second,
+                                                            vk::ImageLayout::eColorAttachmentOptimal,
+                                                            vk::ImageLayout::eUndefined,
+                                                            m_device.GetTransferOpsManager().GetCommandBuffer());
+        }
         // TRANSITION EVERYTHING FROM UNDEFINED LAYOUT TO COLOUR ATTACHMENT
-        m_colourAttachments[0].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
-        m_colourAttachments[1].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
 
-        m_msaaAttachments[0].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
-        m_msaaAttachments[1].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
-
-
-         m_depthAttachment.second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, transitionCommandBuffer);
-
-        transitionCommandBuffer.EndAndFlush(m_device.GetTransferQueue(), transitionFinishedFence.GetSyncPrimitive());
-
-        transitionFinishedFence.WaitForFence(-1);
-
-        transitionFinishedFence.Destroy();
-
+        VulkanUtils::RecordImageTransitionLayoutCommand(*m_depthAttachment.second,
+                                                            vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                            vk::ImageLayout::eUndefined,
+                                                            m_device.GetTransferOpsManager().GetCommandBuffer());
 
 
         Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
@@ -195,17 +194,17 @@ namespace Renderer {
         return m_depthAttachment.first;
     }
 
-    const VulkanCore::VImage& RenderTarget::GetColourImage(int currentFrame) const
+    const VulkanCore::VImage2& RenderTarget::GetColourImage(int currentFrame) const
     {
         return *m_colourAttachments[currentFrame].second;
     }
 
-    const VulkanCore::VImage& RenderTarget::GetDepthImage(int currentFrame) const
+    const VulkanCore::VImage2& RenderTarget::GetDepthImage(int currentFrame) const
     {
         return *m_depthAttachment.second;
     }
 
-    const VulkanCore::VImage& RenderTarget::GetColourAttachmentMultiSampled(int currentFrame) const
+    const VulkanCore::VImage2& RenderTarget::GetColourAttachmentMultiSampled(int currentFrame) const
     {
         return *m_msaaAttachments[currentFrame].second;
     }
