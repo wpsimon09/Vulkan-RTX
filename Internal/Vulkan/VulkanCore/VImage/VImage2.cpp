@@ -125,6 +125,11 @@ namespace VulkanCore {
         return m_imageInfo;
     }
 
+    const VImage2CreateInfo& VImage2::GetImageInfoConstRef() const
+    {
+        return m_imageInfo;
+    }
+
     const VImage2Flags& VImage2::GetImageFlags() const
     {
         return m_imageFlags;

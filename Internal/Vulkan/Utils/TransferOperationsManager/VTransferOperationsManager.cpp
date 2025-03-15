@@ -52,6 +52,13 @@ namespace VulkanUtils {
         {
             m_transferTimeline->CpuSignal(2);
         }
+        m_commandBuffer->Reset();
+    }
+
+    void VTransferOperationsManager::UpdateGPUWaitCPU()
+    {
+        UpdateGPU();
+        m_transferTimeline->CpuWaitIdle(2);
     }
 
     void VTransferOperationsManager::ClearResources()

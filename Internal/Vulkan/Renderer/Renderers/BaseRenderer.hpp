@@ -48,7 +48,7 @@ namespace Renderer
         explicit BaseRenderer(const VulkanCore::VDevice& device);
         virtual ~BaseRenderer() = default;
 
-        VulkanCore::VImage& GetRenderedImage(int currentFrame ) {return *m_renderTargets->m_colourAttachments[currentFrame].second;}; // i have to place fence to access the image
+        VulkanCore::VImage2& GetRenderedImage(int currentFrame ) {return *m_renderTargets->m_colourAttachments[currentFrame].second;}; // i have to place fence to access the image
         const vk::Semaphore& GetRendererFinishedSempahore(int currentFrame) const {return m_rendererFinishedSemaphore[currentFrame]->GetSyncPrimitive();}
         const int& GetTargeWidth() const  {return m_width;}
         const int& GetTargeHeight() const {return m_height;}

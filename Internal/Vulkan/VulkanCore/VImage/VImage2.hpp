@@ -71,6 +71,7 @@ class VImage2 : public VulkanCore::VObject {
         void Destroy() override;
 
         VImage2CreateInfo&          GetImageInfo();
+        const VImage2CreateInfo&    GetImageInfoConstRef() const;
         const VImage2Flags&         GetImageFlags() const;
         vk::Image                   GetImage() const;
         vk::ImageView               GetImageView() const;

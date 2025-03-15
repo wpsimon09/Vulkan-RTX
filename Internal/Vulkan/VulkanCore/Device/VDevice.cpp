@@ -12,6 +12,7 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 

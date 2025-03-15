@@ -194,17 +194,17 @@ namespace Renderer {
         return m_depthAttachment.first;
     }
 
-    const VulkanCore::VImage2& RenderTarget::GetColourImage(int currentFrame) const
+    VulkanCore::VImage2& RenderTarget::GetColourImage(int currentFrame) const
     {
         return *m_colourAttachments[currentFrame].second;
     }
 
-    const VulkanCore::VImage2& RenderTarget::GetDepthImage(int currentFrame) const
+    VulkanCore::VImage2& RenderTarget::GetDepthImage(int currentFrame) const
     {
         return *m_depthAttachment.second;
     }
 
-    const VulkanCore::VImage2& RenderTarget::GetColourAttachmentMultiSampled(int currentFrame) const
+    VulkanCore::VImage2& RenderTarget::GetColourAttachmentMultiSampled(int currentFrame) const
     {
         return *m_msaaAttachments[currentFrame].second;
     }
@@ -222,10 +222,15 @@ namespace Renderer {
         //==========================
         // CREATE DEPTH ATTACHMENT
         //==========================
-        m_depthAttachment.second = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(),
-                                                             vk::ImageAspectFlagBits::eDepth, vk::ImageUsageFlagBits::eDepthStencilAttachment);
+        VulkanCore::VImage2CreateInfo depthAttachmentCreateInfo;
+        depthAttachmentCreateInfo.format = m_device.GetDepthFormat();
+        depthAttachmentCreateInfo.height = m_height;
+        depthAttachmentCreateInfo.width = m_width;
+        depthAttachmentCreateInfo.mipLevels = 1;
+        depthAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eDepth;
+        depthAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
 
-        m_depthAttachment.second->Resize(swapChainExtent.width, swapChainExtent.height);
+        m_depthAttachment.second = std::make_unique<VulkanCore::VImage2>(m_device, depthAttachmentCreateInfo);
 
         auto& depthSwapChainAttachment = m_depthAttachment.first;
         depthSwapChainAttachment.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
@@ -239,12 +244,16 @@ namespace Renderer {
         //==========================
         // CREATE COLOUR ATTACHMENT
         //==========================
+        VulkanCore::VImage2CreateInfo colourAttachmentCreateInfo;
+        colourAttachmentCreateInfo.format = swapChainFormat;
+        colourAttachmentCreateInfo.height = swapChainExtent.height;
+        colourAttachmentCreateInfo.width = swapChainExtent.width;
+        colourAttachmentCreateInfo.mipLevels = 1;
+        colourAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eColor;
+
         for (int i = 0; i < swapChainImages.size(); i++)
         {
-            m_colourAttachments[i].second = std::make_unique<VulkanCore::VImage>(m_device, swapChainImages[i],
-                                                                     swapChainExtent.width, swapChainExtent.height
-                                                                     , 1,
-                                                                     swapChainFormat);
+            m_colourAttachments[i].second = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachmentCreateInfo, swapChainImages[i]);
 
             auto& swapChainImageAttachment= m_colourAttachments[i].first;
             swapChainImageAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
@@ -254,21 +263,13 @@ namespace Renderer {
 
         }
 
-        auto transitionCommandBuffer = VulkanCore::VCommandBuffer(m_device,m_device.GetSingleThreadCommandPool());
-        auto transitionFinishedFence = VulkanCore::VSyncPrimitive<vk::Fence>(m_device);
-        transitionCommandBuffer.BeginRecording();
 
         for (int i = 0; i < swapChainImages.size(); i++)
         {
-            m_colourAttachments[i].second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, transitionCommandBuffer);
+            VulkanUtils::RecordImageTransitionLayoutCommand(*m_colourAttachments[i].second, vk::ImageLayout::eColorAttachmentOptimal,vk::ImageLayout::eUndefined, m_device.GetTransferOpsManager().GetCommandBuffer());
         }
 
-        m_depthAttachment.second->TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, transitionCommandBuffer);
-
-        transitionCommandBuffer.EndAndFlush(m_device.GetTransferQueue(), transitionFinishedFence.GetSyncPrimitive());
-        
-        transitionFinishedFence.WaitForFence(-1);
-        transitionFinishedFence.Destroy();
+        VulkanUtils::RecordImageTransitionLayoutCommand(*m_depthAttachment.second, vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::ImageLayout::eUndefined ,m_device.GetTransferOpsManager().GetCommandBuffer());
 
         Utils::Logger::LogSuccess("Render target for swap chain created, contains:" + std::to_string(swapChainImages.size()) + "Swap chain images and 1 depth buffer" );
 

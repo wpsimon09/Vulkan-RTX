@@ -71,6 +71,8 @@ void Application::Init()
     m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
     m_vulkanDevice = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
 
+    m_vulkanDevice->GetTransferOpsManager().StartRecording();
+
     VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
     MathUtils::InitLTC();
 
@@ -106,6 +108,8 @@ void Application::Init()
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
 
     ApplicationCore::LoadConfig(*m_client, *m_uiContext);
+
+    //m_vulkanDevice->GetTransferOpsManager().UpdateGPU();
 }
 
 void Application::MainLoop()
@@ -163,6 +167,7 @@ void Application::Render() {
     m_editor->Render();
 
     // once editor is done rendering application is not allowed to create any new resources
+    // this is because during editor rendering new resources like models and materials can be created
     m_client->GetAssetsManager().Sync();
     m_vulkanDevice->GetTransferOpsManager().UpdateGPU();
 

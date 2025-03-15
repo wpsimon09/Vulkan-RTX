@@ -15,6 +15,7 @@
 
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 
 VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
@@ -234,7 +235,7 @@ void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
 {
 
     m_renderingCreateInfo.colorAttachmentCount = 1;;
-    m_renderingCreateInfo.pColorAttachmentFormats = &m_renderTarget.GetColourImage(0).GetFormatConstRef();
+    m_renderingCreateInfo.pColorAttachmentFormats = &m_renderTarget.GetColourImage(0).GetImageInfoConstRef().format;
     m_renderingCreateInfo.depthAttachmentFormat = m_device.GetDepthFormat();
 }
 

@@ -33,6 +33,7 @@ namespace VulkanUtils {
         VulkanCore::VCommandBuffer& GetCommandBuffer();
         void StartRecording();
         void UpdateGPU();
+        void UpdateGPUWaitCPU();
 
         void ClearResources();
 

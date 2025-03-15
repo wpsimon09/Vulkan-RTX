@@ -194,7 +194,7 @@ namespace Renderer
 
         m_commandBuffers[currentFrameIndex]->Reset();
         m_commandBuffers[currentFrameIndex]->BeginRecording();
-        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal, *m_commandBuffers[currentFrameIndex]);
+        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, *m_commandBuffers[currentFrameIndex]);
 
         std::vector<vk::PipelineStageFlags> waitStagesTransfer = {
             vk::PipelineStageFlagBits::eFragmentShader};
