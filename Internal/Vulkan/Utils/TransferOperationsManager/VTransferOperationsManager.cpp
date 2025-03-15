@@ -43,22 +43,24 @@ namespace VulkanUtils {
             };
             m_commandBuffer->EndAndFlush(m_device.GetTransferQueue(), m_transferTimeline->GetSemaphore(), m_transferTimeline->GetSemaphoreSubmitInfo(0,2),waitStages.data());
 
-
-            // MOVE THIS TO SEPRATE FUNCTION THAT WILL RUN AT THE END OF EACH FRAME SO THAT RENDERER CAN RECORD COMMAND BUFFERS WITHOUT ANY ISSUES
-            // THIS PREVENTS USAGE OF cpuWaitIdle AND INSTEAD GRAPHICS COMMANDS WILL GET EXECTUED
-
             m_hasPandingWork = false;
         }else
         {
             m_transferTimeline->CpuSignal(2);
         }
-        m_commandBuffer->Reset();
     }
 
-    void VTransferOperationsManager::UpdateGPUWaitCPU()
+    void VTransferOperationsManager::UpdateGPUWaitCPU(bool startRecording)
     {
         UpdateGPU();
         m_transferTimeline->CpuWaitIdle(2);
+        m_commandBuffer->Reset();
+        m_transferTimeline->Reset();
+
+        if (startRecording)
+        {
+            StartRecording();
+        }
     }
 
     void VTransferOperationsManager::ClearResources()

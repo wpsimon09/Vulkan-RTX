@@ -103,6 +103,7 @@ class VImage2 : public VulkanCore::VObject {
     private:
         void AllocateImage();
         void GenerateImageView();
+        bool IsDepth(vk::Format& format);
 };
 
 template <typename T>

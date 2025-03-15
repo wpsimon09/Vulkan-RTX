@@ -15,6 +15,7 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::PhysicalDevice& physicalDevice,
                                                               const VulkanCore::VulkanInstance& instance)

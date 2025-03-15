@@ -166,10 +166,8 @@ void Application::Render() {
 
     m_editor->Render();
 
-    // once editor is done rendering application is not allowed to create any new resources
-    // this is because during editor rendering new resources like models and materials can be created
     m_client->GetAssetsManager().Sync();
-    m_vulkanDevice->GetTransferOpsManager().UpdateGPU();
+
 
     m_client->Render(m_renderingSystem->GetRenderContext());
 

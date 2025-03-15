@@ -36,6 +36,7 @@ namespace Renderer {
         depthAttachmentCreateInfo.width = m_width;
         depthAttachmentCreateInfo.mipLevels = 1;
         depthAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eDepth;
+        depthAttachmentCreateInfo.samples = m_device.GetSampleCount();
         depthAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
 
         m_depthAttachment.second = std::make_unique<VulkanCore::VImage2>(m_device, depthAttachmentCreateInfo);
@@ -81,6 +82,7 @@ namespace Renderer {
             //==========================
             colourAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransientAttachment;
             colourAttachmentCreateInfo.samples = m_device.GetSampleCount();
+            m_msaaAttachments[i].second = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachmentCreateInfo);
 
             auto& msaaAttachmentInfo  = m_msaaAttachments[i].first;
                 msaaAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
@@ -138,11 +140,13 @@ namespace Renderer {
 
     void RenderTarget::HandleSwapChainResize(const VulkanCore::VSwapChain& swapChain)
     {
+        m_device.GetTransferOpsManager().StartRecording();
         Destroy();
         CreateRenderTargetForSwapChain(swapChain);
         m_width = swapChain.GetExtent().width;
         m_height = swapChain.GetExtent().height;
         Utils::Logger::LogSuccess("Render target for swap chain recreated");
+        m_device.GetTransferOpsManager().UpdateGPUWaitCPU();
     }
 
     void RenderTarget::Destroy()
@@ -211,6 +215,8 @@ namespace Renderer {
 
     void RenderTarget::CreateRenderTargetForSwapChain(const VulkanCore::VSwapChain& swapChain)
     {
+
+
         auto& swapChainImages = swapChain.GetSwapChainImages();
         auto& swapChainExtent = swapChain.GetExtent();
         auto& swapChainFormat = swapChain.GetSurfaceFormatKHR().format;
@@ -224,8 +230,8 @@ namespace Renderer {
         //==========================
         VulkanCore::VImage2CreateInfo depthAttachmentCreateInfo;
         depthAttachmentCreateInfo.format = m_device.GetDepthFormat();
-        depthAttachmentCreateInfo.height = m_height;
-        depthAttachmentCreateInfo.width = m_width;
+        depthAttachmentCreateInfo.height = swapChainExtent.height;
+        depthAttachmentCreateInfo.width = swapChainExtent.width;
         depthAttachmentCreateInfo.mipLevels = 1;
         depthAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eDepth;
         depthAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
@@ -262,6 +268,7 @@ namespace Renderer {
             swapChainImageAttachment.storeOp = vk::AttachmentStoreOp::eStore;
 
         }
+
 
 
         for (int i = 0; i < swapChainImages.size(); i++)

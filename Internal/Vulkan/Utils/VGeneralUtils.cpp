@@ -329,6 +329,18 @@ vk::DeviceSize VulkanUtils::GetVulkanFormatSize(vk::Format format)
         case vk::Format::eR32G32B32A32Sint:
         case vk::Format::eR32G32B32A32Sfloat:
             return 16;
+        // Depth formats
+        case vk::Format::eD16Unorm:
+            return 2;
+        case vk::Format::eX8D24UnormPack32:
+        case vk::Format::eD32Sfloat:
+            return 4;
+        case vk::Format::eD16UnormS8Uint:
+            return 3;
+        case vk::Format::eD24UnormS8Uint:
+            return 4;
+        case vk::Format::eD32SfloatS8Uint:
+            return 5;
         default:
             throw std::runtime_error("Unsupported format size calculation");
     }

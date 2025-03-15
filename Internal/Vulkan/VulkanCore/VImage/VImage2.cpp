@@ -13,8 +13,10 @@ namespace VulkanCore {
     VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& info):
         m_device(device), m_imageInfo(info)
     {
+
         AllocateImage();
         GenerateImageView();
+        m_imageFlags.IsDepthBuffer = IsDepth(m_imageInfo.format);
     }
 
     VImage2::VImage2(const VulkanCore::VDevice& device,const  VImage2CreateInfo& info, vk::Image swapChainImage):
@@ -32,6 +34,8 @@ namespace VulkanCore {
         m_imageInfo.imageSource = imageData.sourceType;
         m_imageInfo.format = imageData.format;
 
+        m_imageFlags.IsDepthBuffer = IsDepth(m_imageInfo.format);
+
         AllocateImage();
         GenerateImageView();
         FillWithImageData(imageData, m_device.GetTransferOpsManager().GetCommandBuffer());
@@ -45,6 +49,8 @@ namespace VulkanCore {
         m_imageInfo.height = imageData.height;
         m_imageInfo.imageSource = imageData.sourceType;
         m_imageInfo.format = imageData.format;
+
+        m_imageFlags.IsDepthBuffer = IsDepth(m_imageInfo.format);
 
         AllocateImage();
         GenerateImageView();
@@ -119,6 +125,17 @@ namespace VulkanCore {
         Utils::Logger::LogInfoVerboseOnly("2D Image view created");
 
     }
+
+    bool VImage2::IsDepth(vk::Format& format)
+    {
+        return format == vk::Format::eD16Unorm ||
+               format == vk::Format::eD32Sfloat ||
+               format == vk::Format::eD16UnormS8Uint ||
+               format == vk::Format::eD24UnormS8Uint ||
+               format == vk::Format::eD32SfloatS8Uint;
+
+    }
+
 
     VImage2CreateInfo& VImage2::GetImageInfo()
     {

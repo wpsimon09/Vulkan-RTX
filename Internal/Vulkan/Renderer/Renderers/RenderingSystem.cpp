@@ -92,6 +92,8 @@ namespace Renderer {
         auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain,UINT64_MAX,
                                                                  *m_imageAvailableSemaphores[m_currentFrameIndex],
                                                                  nullptr);
+
+
         switch (imageIndex.first) {
         case vk::Result::eSuccess: {
                 m_currentImageIndex = imageIndex.second;
@@ -113,6 +115,8 @@ namespace Renderer {
         default:
             break;
         }
+
+        m_device.GetTransferOpsManager().UpdateGPU();
 
         m_renderingTimeLine[m_currentFrameIndex]->Reset();
 
