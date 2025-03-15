@@ -160,7 +160,7 @@ namespace Renderer
 
         std::vector<vk::PipelineStageFlags> waitStages = {
             vk::PipelineStageFlagBits::eColorAttachmentOutput, // Render wait stage
-            vk::PipelineStageFlagBits::eTransfer // Transfer wait stage
+            vk::PipelineStageFlagBits::eTransfer               // Transfer wait stage
         };
 
         renderingTimeLine.SetWaitAndSignal(0, 2); //
@@ -197,7 +197,7 @@ namespace Renderer
         VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, *m_commandBuffers[currentFrameIndex]);
 
         std::vector<vk::PipelineStageFlags> waitStagesTransfer = {
-            vk::PipelineStageFlagBits::eFragmentShader};
+            vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader};
 
         m_commandBuffers[currentFrameIndex]->EndAndFlush(m_device.GetTransferQueue(),renderingTimeLine.GetSemaphore(), renderingTimeLine.GetSemaphoreSubmitInfo(2, 4), waitStagesTransfer.data());
 

@@ -39,7 +39,8 @@ namespace VulkanUtils {
             std::vector<vk::PipelineStageFlags> waitStages = {
                 vk::PipelineStageFlagBits::eVertexInput,
                 vk::PipelineStageFlagBits::eTransfer,
-                vk::PipelineStageFlagBits::eFragmentShader// once textures are here as well it will include texture as wells
+                vk::PipelineStageFlagBits::eFragmentShader,
+                    vk::PipelineStageFlagBits::eEarlyFragmentTests// once textures are here as well it will include texture as wells
             };
             m_commandBuffer->EndAndFlush(m_device.GetTransferQueue(), m_transferTimeline->GetSemaphore(), m_transferTimeline->GetSemaphoreSubmitInfo(0,2),waitStages.data());
 

@@ -91,7 +91,7 @@ namespace Renderer {
             msaaAttachmentInfo.resolveImageView = m_colourAttachments[i].second->GetImageView();
             msaaAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eAverage;
             msaaAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
-            msaaAttachmentInfo.clearValue.color.setFloat32({0.7f, 0.7f, 0.7f, 1.f});
+            msaaAttachmentInfo.clearValue.color.setFloat32({0.2f, 0.2f, 0.2f, 1.f});
             msaaAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
 
         }
