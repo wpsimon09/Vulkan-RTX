@@ -140,13 +140,11 @@ namespace Renderer {
 
     void RenderTarget::HandleSwapChainResize(const VulkanCore::VSwapChain& swapChain)
     {
-        m_device.GetTransferOpsManager().StartRecording();
         Destroy();
         CreateRenderTargetForSwapChain(swapChain);
         m_width = swapChain.GetExtent().width;
         m_height = swapChain.GetExtent().height;
         Utils::Logger::LogSuccess("Render target for swap chain recreated");
-        m_device.GetTransferOpsManager().UpdateGPUWaitCPU();
     }
 
     void RenderTarget::Destroy()

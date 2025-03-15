@@ -43,7 +43,7 @@ namespace VulkanCore {
         vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
         VulkanUtils::CopyBuffers(m_device,*bufferCopiedFence, stagingBuffer.m_stagingBufferVK, m_indexBuffer_BB.bufferVK, ApplicationCore::MeshData::Indices_BB.size() * sizeof(uint32_t), 0, 0);
         bufferCopiedFence->WaitForFence();
-        bufferCopiedFence.reset();
+        bufferCopiedFence->Destroy();
         vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
     }
 
@@ -260,11 +260,12 @@ namespace VulkanCore {
 
     void MeshDatatManager::CreateNewVertexBuffers(bool createForBoundingBox)
     {
+        //=========================================================
+        // THIS FUNCTION ALLOCATES FRESH VERTEX BUFFER CHUNK
+        // IT IS CALLED WHEN BUFFER WILL NOT FIT THE CURRENT CHUNK
+        // AND IN THE CONSTRUCTOR
+        //==========================================================
         m_vertexBuffers.reserve(BUFFER_SIZE);
-        //==============================
-        // CREATE INITIAL VERTEX BUFFER
-        // BB vertex
-        //==============================
         Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
         VulkanStructs::GPUBufferInfo newVertexBuffer{};
         newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc;
@@ -302,6 +303,12 @@ namespace VulkanCore {
 
     void MeshDatatManager::SelectMostSuitableBuffer(EBufferType bufferType, vk::DeviceSize subAllocationSize)
     {
+
+        //===================================================================================================
+        // BASED ON THE SIZE OF SUBALLOCATION, THIS FUNCTION WILL ASSIGN m_currenntVertex or m_currentIndex
+        // VALUE WITH BUFFER THAT IS GOING TO HOLD THE SUBALLOCATION DATA
+        //===================================================================================================
+
         std::vector<VulkanStructs::GPUBufferInfo>& buffers = bufferType == EBufferType::Vertex ? m_vertexBuffers : m_indexBuffers;
 
         for (auto &buffer : buffers)
@@ -309,15 +316,15 @@ namespace VulkanCore {
             if (buffer.WillNewBufferFit(subAllocationSize))
             {
                 Utils::Logger::LogInfoVerboseOnly("Buffer will fit the current chunk, skiping allocation...");
-                if (bufferType == EBufferType::Vertex) m_currentVertexBuffer = &buffer;
-                else  if(bufferType == EBufferType::Index) m_currentIndexBuffer = &buffer;
+                if (bufferType == EBufferType::Vertex)      m_currentVertexBuffer = &buffer;
+                else  if(bufferType == EBufferType::Index)  m_currentIndexBuffer = &buffer;
                 return;
             }else
             {
                 Utils::Logger::LogInfo("Buffer that attempts to be allocated will not fit the current buffer ! Allocating new 16MB buffer chunk");
                 // function CreateNewVertexBuffer will assign right pointer to the m_CurretnBuffer
-                if (bufferType == EBufferType::Vertex) CreateNewVertexBuffers(false);
-                else if (bufferType == EBufferType::Index) CreateNewIndexBuffers();
+                if (bufferType == EBufferType::Vertex)      CreateNewVertexBuffers(false);
+                else if (bufferType == EBufferType::Index)  CreateNewIndexBuffers();
 
             }
         }

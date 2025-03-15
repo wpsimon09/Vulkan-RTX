@@ -252,12 +252,12 @@ namespace Renderer
         //=================================================
         SendGlobalDescriptorsToShader(currentFrameIndex, uniformBufferManager);
 
-        auto initialVertexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->vertexData.buffer;  
-        auto initialIndexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->indexData.buffer;  
+        auto currentVertexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->vertexData.buffer;
+        auto currentIndexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->indexData.buffer;
 
         cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(EPipelineType::MultiLight).GetPipelineInstance());
-        cmdBuffer.bindVertexBuffers(0, {initialVertexBuffer}, {0});
-        cmdBuffer.bindIndexBuffer(initialIndexBuffer, 0, vk::IndexType::eUint32);
+        cmdBuffer.bindVertexBuffers(0, {currentVertexBuffer}, {0});
+        cmdBuffer.bindIndexBuffer(currentIndexBuffer, 0, vk::IndexType::eUint32);
 
         //============================================
         //===
@@ -281,32 +281,33 @@ namespace Renderer
         scissors.extent.height = m_height;
 
         cmdBuffer.setScissor(0, 1, &scissors);
-    
+
         //=================================================
         // RECORD OPAQUE DRAW CALLS
-        //=================================================    
+        //=================================================
 
         for (int i = 0; i < m_renderContextPtr->MainLightPassOpaque.size(); i++)
         {
-            
+
             auto& drawCall = m_renderContextPtr->MainLightPassOpaque[i];
             auto& material = drawCall.material;
             SendPerObjectDescriptorsToShader(currentFrameIndex, i, drawCall, uniformBufferManager);
-            
+
             //================================================================================================
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
-            //================================================================================================        
-            
-            if(initialVertexBuffer != drawCall.meshData->vertexData.buffer){
+            //================================================================================================
+            if(currentVertexBuffer != drawCall.meshData->vertexData.buffer){
                 auto firstBinding = 0;
-                std::vector<vk::Buffer> vertexBuffers = {initialVertexBuffer};
+                std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
                 std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};
                 vertexBuffers = {drawCall.meshData->vertexData.buffer};
                 cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+                currentVertexBuffer = drawCall.meshData->vertexData.buffer;
             }
 
-            if(initialIndexBuffer != drawCall.meshData->indexData.buffer){
+            if(currentIndexBuffer != drawCall.meshData->indexData.buffer){
                 cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
+                currentIndexBuffer = drawCall.meshData->indexData.buffer;
             }
 
             cmdBuffer.pushDescriptorSetWithTemplateKHR(
@@ -330,12 +331,12 @@ namespace Renderer
         }
 
 
-        
+
         //=================================================
         // RECORD TRANSPARENT DRAW CALLS
-        //================================================= 
-        // TODO: maybe send global stuff to shaders, maybe not 
-        
+        //=================================================
+        // TODO: maybe send global stuff to shaders, maybe not
+
         if(!m_renderContextPtr->MainLightPassTransparent.empty()){
             cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(EPipelineType::Transparent).GetPipelineInstance());
         }
@@ -348,17 +349,17 @@ namespace Renderer
 
             //================================================================================================
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
-            //================================================================================================        
-            
-            if(initialVertexBuffer != drawCall.meshData->vertexData.buffer){
+            //================================================================================================
+
+            if(currentVertexBuffer != drawCall.meshData->vertexData.buffer){
                 auto firstBinding = 0;
-                std::vector<vk::Buffer> vertexBuffers = {initialVertexBuffer};
+                std::vector<vk::Buffer> vertexBuffers = {currentVertexBuffer};
                 std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};
                 vertexBuffers = {drawCall.meshData->vertexData.buffer};
                 cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
             }
 
-            if(initialIndexBuffer != drawCall.meshData->indexData.buffer){
+            if(currentIndexBuffer != drawCall.meshData->indexData.buffer){
                 cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
             }
 
