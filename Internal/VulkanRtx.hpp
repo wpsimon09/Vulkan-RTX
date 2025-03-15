@@ -81,7 +81,6 @@ private:
     std::unique_ptr<class VulkanCore::VulkanInstance> m_vulkanInstance;
     std::unique_ptr<class VulkanCore::VDevice> m_vulkanDevice;
     std::unique_ptr<VulkanCore::MeshDatatManager> m_bufferAllocator;
-    std::unique_ptr<VulkanUtils::VTransferOperationsManager> m_transferOpsManager;
     std::unique_ptr<class VEditor::UIContext> m_uiContext;
     std::unique_ptr<class VEditor::Editor> m_editor;
     std::unique_ptr<class Renderer::RenderingSystem> m_renderingSystem;

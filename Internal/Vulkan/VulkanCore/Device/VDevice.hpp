@@ -13,6 +13,11 @@
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 
+    namespace VulkanUtils
+    {
+        class VTransferOperationsManager;
+    }
+
 namespace VulkanCore
 {
     class VulkanInstance;
@@ -59,6 +64,7 @@ namespace VulkanCore
         const vk::Format & GetDepthFormat() const { return m_depthFormat; }
         const vk::SampleCountFlagBits GetSampleCount() const { return m_sampleCount; }
         VmaTotalStatistics& GetDeviceStatistics() { return m_vmaStatistics  ;}
+        VulkanUtils::VTransferOperationsManager& GetTransferOpsManager() const {return *m_transferOpsManager;}
         //----------------------------------------------------------------------------------------
 
         const uint32_t& GetConcreteQueueFamilyIndex(EQueueFamilyIndexType queueFamilyType) const;
@@ -68,7 +74,7 @@ namespace VulkanCore
 
         mutable std::mutex DeviceMutex;
 
-        virtual void Destroy() override;
+        void Destroy() override;
 
         vk::detail::DispatchLoaderDynamic DispatchLoader;
     private:
@@ -85,6 +91,8 @@ namespace VulkanCore
 
         std::array<std::unique_ptr<VulkanCore::VCommandPool>, GlobalVariables::MAX_THREADS> m_transferCommandPool;
         std::unique_ptr<VulkanCore::VCommandPool> m_transferCommandPoolForSingleThread;
+        std::unique_ptr<VulkanUtils::VTransferOperationsManager> m_transferOpsManager;
+
         VQueueFamilyIndices m_queueFamilyIndices;
 
         const VulkanCore::VulkanInstance& m_instance;
@@ -92,6 +100,8 @@ namespace VulkanCore
         VmaAllocator m_vmaAllocator;
         VmaTotalStatistics m_vmaStatistics;
         VmaStatistics __mode;
+
+
     private:
         vk::PhysicalDevice PickPhysicalDevice();
         void CreateLogicalDevice();

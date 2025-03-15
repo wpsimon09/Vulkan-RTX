@@ -63,7 +63,7 @@ public:
     //=========================
     // Constructor & Destructor
     //=========================
-    explicit AssetsManager(const VulkanCore::VDevice& device,VulkanUtils::VTransferOperationsManager& transferOpsManager, VulkanCore::MeshDatatManager& meshDataManager);
+    explicit AssetsManager(const VulkanCore::VDevice& device, VulkanCore::MeshDatatManager& meshDataManager);
 
     //=========================
     // Public Methods

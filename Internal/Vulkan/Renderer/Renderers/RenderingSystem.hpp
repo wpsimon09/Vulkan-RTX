@@ -55,8 +55,7 @@ public:
                     const VulkanCore::VDevice& device,
                     const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                     VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
-                    VEditor::UIContext &uiContext,
-                    VulkanCore::VTimelineSemaphore& transferSemaphore);
+                    VEditor::UIContext &uiContext);
 
     VulkanStructs::RenderContext* GetRenderContext() {return &m_renderContext;}
 public:

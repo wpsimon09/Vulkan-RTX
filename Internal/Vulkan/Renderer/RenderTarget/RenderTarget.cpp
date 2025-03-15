@@ -12,6 +12,7 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 
 namespace Renderer {
@@ -28,9 +29,16 @@ namespace Renderer {
         //==========================
         // CREATE DEPTH ATTACHMENT
         //==========================
-        m_depthAttachment.second = std::make_unique<VulkanCore::VImage>(m_device, 1, m_device.GetDepthFormat(), vk::ImageAspectFlagBits::eDepth,
-            vk::ImageUsageFlagBits::eDepthStencilAttachment, m_device.GetSampleCount());
-        m_depthAttachment.second->Resize(width, height);
+        VulkanCore::VImage2CreateInfo depthAttachmentCreateInfo;
+        depthAttachmentCreateInfo.format = m_device.GetDepthFormat();
+        depthAttachmentCreateInfo.height = m_height;
+        depthAttachmentCreateInfo.width = m_width;
+        depthAttachmentCreateInfo.mipLevels = 1;
+        depthAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eDepth;
+        depthAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+
+        m_depthAttachment.second = std::make_unique<VulkanCore::VImage2>(m_device, depthAttachmentCreateInfo);
+
         auto& depthAttachmentInfo = m_depthAttachment.first;
         depthAttachmentInfo.imageView = m_depthAttachment.second->GetImageView();
         depthAttachmentInfo.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
@@ -44,13 +52,19 @@ namespace Renderer {
 
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
-            //==========================
-            // CREATE COLOUR ATTACHMENT
-            //==========================
-            m_colourAttachments[i].second = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
-                vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eInputAttachment);
-            m_colourAttachments[i].second->Resize(width, height);
 
+            //==========================
+            // CREATE COLOUR ATTACHMENTS
+            //==========================
+
+            VulkanCore::VImage2CreateInfo colourAttachmentCreateInfo;
+            colourAttachmentCreateInfo.format = colourFormat;
+            colourAttachmentCreateInfo.height = m_height;
+            colourAttachmentCreateInfo.width = m_width;
+            colourAttachmentCreateInfo.mipLevels = 1;
+            colourAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eColor;
+            colourAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eInputAttachment;
+            m_colourAttachments[i].second = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachmentCreateInfo);
 
             auto& colourAttachmentInfo  = m_colourAttachments[i].first;
             colourAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
@@ -61,15 +75,11 @@ namespace Renderer {
             colourAttachmentInfo.clearValue.color.setFloat32({0.2f, 0.2f, 0.2f, 1.f});
 
 
-
-
             //==========================
             // CREATE MSAA ATTACHMENT
             //==========================
-            m_msaaAttachments[i].second = std::make_unique<VulkanCore::VImage>(m_device, 1, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor,
-            vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransientAttachment, m_device.GetSampleCount() );
-            m_msaaAttachments[i].second->Resize(width, height);
-
+            colourAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransientAttachment;
+            colourAttachmentCreateInfo.samples = m_device.GetSampleCount();
 
             auto& msaaAttachmentInfo  = m_msaaAttachments[i].first;
                 msaaAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;

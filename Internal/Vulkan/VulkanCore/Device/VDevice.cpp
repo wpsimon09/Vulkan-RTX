@@ -11,6 +11,7 @@
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 
@@ -109,6 +110,8 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance): m_inst
     m_transferCommandPoolForSingleThread = std::make_unique<VulkanCore::VCommandPool>(*this, Transfer);
     DispatchLoader = vk::detail::DispatchLoaderDynamic(m_instance.GetInstance(), vkGetInstanceProcAddr);
     RetreiveDepthFormat();
+
+    m_transferOpsManager = std::make_unique<VulkanUtils::VTransferOperationsManager>(*this);
 }
 
 VulkanCore::VCommandPool &VulkanCore::VDevice::GetTransferCommandPool() const
@@ -318,6 +321,7 @@ void VulkanCore::VDevice::UpdateMemoryStatistics()
 
 void VulkanCore::VDevice::Destroy()
 {
+    m_transferOpsManager->Destroy();
     vmaDestroyAllocator(m_vmaAllocator);
     for(int i = 0; i < m_transferCommandPool.size(); i++)
     {

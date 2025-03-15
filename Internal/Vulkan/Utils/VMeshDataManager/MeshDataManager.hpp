@@ -38,7 +38,7 @@ namespace VulkanCore
     class MeshDatatManager : public VObject
     {
     public:
-        explicit MeshDatatManager(const VulkanCore::VDevice& device, VulkanUtils::VTransferOperationsManager& transferOpsManager);
+        explicit MeshDatatManager(const VulkanCore::VDevice& device);
 
         VulkanStructs::MeshData AddMeshData(std::vector<ApplicationCore::Vertex>& vertices, std::vector<uint32_t>& indices);
 

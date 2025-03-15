@@ -74,11 +74,9 @@ void Application::Init()
     VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
     MathUtils::InitLTC();
 
-    m_transferOpsManager = std::make_unique<VulkanUtils::VTransferOperationsManager>(*m_vulkanDevice);
+    m_bufferAllocator = std::make_unique<VulkanCore::MeshDatatManager>(*m_vulkanDevice);
 
-    m_bufferAllocator = std::make_unique<VulkanCore::MeshDatatManager>(*m_vulkanDevice, *m_transferOpsManager);
-
-    auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice,*m_transferOpsManager ,*m_bufferAllocator);
+    auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_bufferAllocator);
     m_client->MountAssetsManger(std::move(assetManger));
     m_client->Init();
 
@@ -91,8 +89,7 @@ void Application::Init()
 
     m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice,
                                                                     *m_uniformBufferManager,
-                                                                    *m_pushDescriptorSetManager, *m_uiContext,
-                                                                    m_transferOpsManager->GetTransferSemaphore());
+                                                                    *m_pushDescriptorSetManager, *m_uiContext);
 
     m_renderingSystem->Init();
     m_uiContext->SetRenderingSystem(m_renderingSystem.get());
@@ -142,7 +139,7 @@ void Application::Run()
 
 void Application::Update()
 {
-    m_transferOpsManager->StartRecording();
+    m_vulkanDevice->GetTransferOpsManager().StartRecording();
 
     m_renderingSystem->Update();
     m_client->Update();
@@ -167,7 +164,7 @@ void Application::Render() {
 
     // once editor is done rendering application is not allowed to create any new resources
     m_client->GetAssetsManager().Sync();
-    m_transferOpsManager->UpdateGPU();
+    m_vulkanDevice->GetTransferOpsManager().UpdateGPU();
 
     m_client->Render(m_renderingSystem->GetRenderContext());
 
@@ -181,7 +178,7 @@ void Application::PostRender()
    // m_client->GetScene().Reset();ň
 
     //all commands that were recorded over the frame are now gonna be submmitted
-    m_transferOpsManager->ClearResources();
+    m_vulkanDevice->GetTransferOpsManager().ClearResources();
 
 }
 
@@ -199,7 +196,6 @@ Application::~Application() {
     m_renderingSystem->Destroy();
     m_client->Destroy();
     m_uniformBufferManager->Destroy();
-    m_transferOpsManager->Destroy();
     VulkanCore::VSamplers::DestroyAllSamplers(*m_vulkanDevice);
     m_pushDescriptorSetManager->Destroy();
     m_uiContext->Destroy();

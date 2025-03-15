@@ -30,8 +30,8 @@
 
 namespace ApplicationCore
 {
-    AssetsManager::AssetsManager(const VulkanCore::VDevice& device,VulkanUtils::VTransferOperationsManager& transferOpsManager, VulkanCore::MeshDatatManager& meshDataManager):
-        m_device(device), m_meshDataManager(meshDataManager),m_transferOpsManager(transferOpsManager), m_materials()
+    AssetsManager::AssetsManager(const VulkanCore::VDevice& device, VulkanCore::MeshDatatManager& meshDataManager):
+        m_device(device), m_meshDataManager(meshDataManager),m_transferOpsManager(device.GetTransferOpsManager()), m_materials()
     {
        CreateDefaultAssets();
     }
@@ -213,7 +213,7 @@ namespace ApplicationCore
         m_transferOpsManager.StartRecording();
 
         auto dummyTextureData = ApplicationCore::LoadImage("Resources/DefaultTexture.jpg", false);
-        m_dummyImage = std::make_shared<VulkanCore::VImage2>(m_device,m_transferOpsManager.GetCommandBuffer(), dummyTextureData);;
+        m_dummyImage = std::make_shared<VulkanCore::VImage2>(m_device, dummyTextureData);;
         m_transferOpsManager.DestroyBuffer(m_dummyImage->GetImageStagingvBuffer(), true);
 
         m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device, m_transferOpsManager, m_dummyImage);
@@ -248,11 +248,11 @@ namespace ApplicationCore
         //=======================================
         // LTC TEXTURES
         //=======================================
-        auto ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, m_transferOpsManager.GetCommandBuffer(), MathUtils::LTC_ImageData);
+        auto ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device,  MathUtils::LTC_ImageData);
         m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
         MathUtils::LUT.LTC = std::make_shared<VTextureAsset>(m_device, m_transferOpsManager, std::move(ltcTexture));
 
-        ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, m_transferOpsManager.GetCommandBuffer(), MathUtils::LTCInverse_ImageData);
+        ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, MathUtils::LTCInverse_ImageData);
         m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
         MathUtils::LUT.LTCInverse =  std::make_shared<VTextureAsset>(m_device, m_transferOpsManager, std::move(ltcTexture));
 

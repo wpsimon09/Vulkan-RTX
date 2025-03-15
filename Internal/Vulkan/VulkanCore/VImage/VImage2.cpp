@@ -6,6 +6,7 @@
 
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 namespace VulkanCore {
@@ -23,7 +24,7 @@ namespace VulkanCore {
         GenerateImageView();
     }
 
-    VImage2::VImage2(const VulkanCore::VDevice& device, VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<uint32_t>& imageData):
+    VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData):
         m_device(device),m_imageInfo{}, m_imageFlags{}
     {
         m_imageInfo.width = imageData.widht;
@@ -33,10 +34,10 @@ namespace VulkanCore {
 
         AllocateImage();
         GenerateImageView();
-        FillWithImageData(imageData, comandBuffer);
+        FillWithImageData(imageData, m_device.GetTransferOpsManager().GetCommandBuffer());
     }
 
-    VImage2::VImage2(const VulkanCore::VDevice& device, VulkanCore::VCommandBuffer& comandBuffer,
+    VImage2::VImage2(const VulkanCore::VDevice& device,
         VulkanStructs::ImageData<float>& imageData):m_device(device),m_imageInfo{}, m_imageFlags{}
 
     {
@@ -47,7 +48,7 @@ namespace VulkanCore {
 
         AllocateImage();
         GenerateImageView();
-        FillWithImageData(imageData, comandBuffer);
+        FillWithImageData(imageData, device.GetTransferOpsManager().GetCommandBuffer());
     }
 
     void VImage2::Resize(uint32_t newWidth, uint32_t newHeight)

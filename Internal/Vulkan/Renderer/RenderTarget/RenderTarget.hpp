@@ -20,6 +20,7 @@ namespace Renderer
 
 namespace VulkanCore
 {
+    class VImage2;
     class VSwapChain;
     class VRenderPass;
     class VDevice;
@@ -60,9 +61,9 @@ public:
     ~RenderTarget() = default;
 private:
 
-    std::vector<std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage>>> m_colourAttachments; // for internal engine use
-    std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage>> m_depthAttachment; // for internal engine use
-    std::vector<std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage>>> m_msaaAttachments; // for internal engine use
+    std::vector<std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage2>>> m_colourAttachments; // for internal engine use
+    std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage2>> m_depthAttachment; // for internal engine use
+    std::vector<std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage2>>> m_msaaAttachments; // for internal engine use
 
 private:
     const VulkanCore::VDevice& m_device;

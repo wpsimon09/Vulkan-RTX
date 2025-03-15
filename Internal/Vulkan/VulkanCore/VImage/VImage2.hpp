@@ -62,8 +62,8 @@ class VImage2 : public VulkanCore::VObject {
     public:
         explicit VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& info);
         explicit VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& createInfo, vk::Image swapChainImage);
-        explicit VImage2(const VulkanCore::VDevice& device, VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<uint32_t>& imageData );
-        explicit VImage2(const VulkanCore::VDevice& device, VulkanCore::VCommandBuffer& comandBuffer, VulkanStructs::ImageData<float>& imageData );
+        explicit VImage2(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData );
+        explicit VImage2(const VulkanCore::VDevice& device, VulkanStructs::ImageData<float>& imageData );
 
         void Resize(uint32_t newWidth, uint32_t newHeight);
         template<typename T>
