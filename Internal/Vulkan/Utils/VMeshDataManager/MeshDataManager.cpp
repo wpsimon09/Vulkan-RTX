@@ -71,13 +71,19 @@ namespace VulkanCore {
 
     VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices)
     {
+        //=======================================================================================
+        // RETURNS A STRUCT THAT SPECIFIES WHERE THE VERTICES ARE STORED IN 16mb CHUNK OF MEMORY
+        // IF VERTICES WONT FIT IT WILL CREATE NEW BUFFER AND PUTS THE VERTICES THERE
+        //=======================================================================================
+
         SelectMostSuitableBuffer(EBufferType::Vertex, vertices.size()*sizeof(ApplicationCore::Vertex));
 
         VulkanStructs::GPUSubBufferInfo bufferInfo = {
             .size = vertices.size() * sizeof(ApplicationCore::Vertex),
             .offset = m_currentVertexBuffer->currentOffset,
             .buffer = m_currentVertexBuffer->bufferVK,
-            .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1)
+            .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1),
+            .BufferID = m_currentVertexBuffer->ID
         };
         m_currentVertexBuffer->currentOffset += vertices.size() * sizeof(ApplicationCore::Vertex);
 
@@ -104,7 +110,8 @@ namespace VulkanCore {
             .size = Vertices_BB.size() * sizeof(ApplicationCore::Vertex),
             .offset = m_currentVertexBuffer_BB->currentOffset,
             .buffer = m_currentVertexBuffer_BB->bufferVK,
-            .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1)
+            .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1),
+            .BufferID = m_currentVertexBuffer_BB->ID
         };
 
         m_currentVertexBuffer_BB->currentOffset += Vertices_BB.size() * sizeof(ApplicationCore::Vertex);
@@ -120,7 +127,8 @@ namespace VulkanCore {
             .size = indices.size() * sizeof(uint32_t),
             .offset = m_currentIndexBuffer->currentOffset,
             .buffer = m_currentIndexBuffer->bufferVK,
-            .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1)
+            .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1),
+            .BufferID = m_currentIndexBuffer->ID
         };
 
         m_currentIndexBuffer->currentOffset += indices.size() * sizeof(uint32_t);
@@ -311,23 +319,33 @@ namespace VulkanCore {
 
         std::vector<VulkanStructs::GPUBufferInfo>& buffers = bufferType == EBufferType::Vertex ? m_vertexBuffers : m_indexBuffers;
 
+        // loops through all the 16 MB chunks of buffers
         for (auto &buffer : buffers)
         {
             if (buffer.WillNewBufferFit(subAllocationSize))
             {
+                // find most sutable buffer and assigned it to m_currentIndex / m_currentVertexBuffer
                 Utils::Logger::LogInfoVerboseOnly("Buffer will fit the current chunk, skiping allocation...");
-                if (bufferType == EBufferType::Vertex)      m_currentVertexBuffer = &buffer;
-                else  if(bufferType == EBufferType::Index)  m_currentIndexBuffer = &buffer;
-                return;
-            }else
-            {
-                Utils::Logger::LogInfo("Buffer that attempts to be allocated will not fit the current buffer ! Allocating new 16MB buffer chunk");
-                // function CreateNewVertexBuffer will assign right pointer to the m_CurretnBuffer
-                if (bufferType == EBufferType::Vertex)      CreateNewVertexBuffers(false);
-                else if (bufferType == EBufferType::Index)  CreateNewIndexBuffers();
-
+                if (bufferType == EBufferType::Vertex)
+                {
+                    m_currentVertexBuffer = &buffer;
+                    return;
+                }
+                else  if(bufferType == EBufferType::Index)
+                {
+                    m_currentIndexBuffer = &buffer;
+                    return;
+                }
             }
         }
+
+        // if the above didnt find any suitable buffer, this will create new ones
+        Utils::Logger::LogInfo("Buffer that attempts to be allocated will not fit the current buffer ! Allocating new 16MB buffer chunk");
+        // function CreateNewVertexBuffer will assign right pointer to the m_CurretnBuffer
+        if (bufferType == EBufferType::Vertex)      CreateNewVertexBuffers(false);
+        else if (bufferType == EBufferType::Index)  CreateNewIndexBuffers();
+
+
     }
 
     std::vector<ApplicationCore::Vertex> MeshDatatManager::ReadBack(VulkanStructs::GPUSubBufferInfo& bufferInfo){

@@ -297,6 +297,7 @@ namespace Renderer
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
             //================================================================================================
             if(currentVertexBuffer != drawCall.meshData->vertexData.buffer){
+                // TODO: once the fresh buffer is loaded the index is all fucked up
                 auto firstBinding = 0;
                 std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
                 std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};

@@ -118,15 +118,16 @@ namespace VulkanStructs
 
         vk::Buffer buffer;
         int ID;
+        int BufferID;
 
         bool operator==(const GPUSubBufferInfo& other) const
         {
-            return ID == other.ID;
+            return BufferID == other.BufferID;
         }
 
         bool operator!=(const GPUSubBufferInfo& other) const
         {
-            return ID != other.ID;
+            return BufferID != other.BufferID;
         }
 
     };;
