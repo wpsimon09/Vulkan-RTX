@@ -283,6 +283,7 @@ namespace VulkanCore {
         m_currentVertexBuffer = &m_vertexBuffers.back();
         m_currentVertexBuffer->ID = static_cast<int>(m_vertexBuffers.size());
 
+
         if (createForBoundingBox)
         {
             VulkanStructs::GPUBufferInfo newBBVertexBuffer{};

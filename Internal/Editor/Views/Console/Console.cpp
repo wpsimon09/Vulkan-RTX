@@ -50,7 +50,7 @@ namespace VEditor {
                         color = ImColor(60, 205, 50);
                     }else
                     {
-                        color = ImColor(100, 255, 100);
+                        color = ImColor(1, 125, 1);
                     }
                 }
                 else if (logEntry.type == Utils::ELogType::Error)

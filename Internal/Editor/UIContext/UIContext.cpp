@@ -269,7 +269,7 @@ void UIContext::SetColourThemePabloLight()
     colors[ImGuiCol_ScrollbarGrab] =        ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
     colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.65f, 0.65f, 0.65f, 1.00f);
     colors[ImGuiCol_ScrollbarGrabActive] =  ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-    colors[ImGuiCol_CheckMark] =            ImVec4(0.80f, 0.80f, 0.80f, 1.00f);
+    colors[ImGuiCol_CheckMark] =            ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
     colors[ImGuiCol_SliderGrab] =           ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
     colors[ImGuiCol_SliderGrabActive] =     ImVec4(0.85f, 0.85f, 0.85f, 1.00f);
     colors[ImGuiCol_Button] =               ImVec4(0.80f, 0.80f, 0.80f, 1.00f);

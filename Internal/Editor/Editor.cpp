@@ -5,6 +5,7 @@
 #include "Editor.hpp"
 
 #include <IconsFontAwesome6.h>
+#include <imgui_internal.h>
 
 #include "Application/Client.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"

@@ -299,7 +299,7 @@ namespace Renderer
                 indexBufferOffset = (currentVertexBuffer.offset + currentVertexBuffer.size)/ static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex));
 
                 std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
-                std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};
+                std::vector<vk::DeviceSize> offsets = {0};
                 vertexBuffers = {drawCall.meshData->vertexData.buffer};
                 cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
                 currentVertexBuffer.buffer = drawCall.meshData->vertexData.buffer;
@@ -320,7 +320,7 @@ namespace Renderer
                 drawCall.meshData->indexData.size/sizeof(uint32_t),
                 1,
                 drawCall.meshData->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                (drawCall.meshData->vertexData.offset + indexBufferOffset)/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                    (drawCall.meshData->vertexData.offset + indexBufferOffset)/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                 0);
 
             drawCallCount++;
@@ -357,7 +357,7 @@ namespace Renderer
                 indexBufferOffset = (currentVertexBuffer.offset + currentVertexBuffer.size)/ static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex));
 
                 std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
-                std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};
+                std::vector<vk::DeviceSize> offsets = {0};
                 vertexBuffers = {drawCall.meshData->vertexData.buffer};
                 cmdBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
                 currentVertexBuffer.buffer = drawCall.meshData->vertexData.buffer;

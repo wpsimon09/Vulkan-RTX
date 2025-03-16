@@ -146,6 +146,7 @@ namespace VulkanStructs
         vk::DeviceSize size = BUFFER_SIZE;
         vk::DeviceSize currentOffset = 0;
         vk::DeviceSize copyOffSet = 0;
+        vk::DeviceSize baseOffset = 0;
 
         vk::Buffer bufferVK;
         vk::BufferUsageFlags usageFlags;
