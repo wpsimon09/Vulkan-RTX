@@ -77,6 +77,12 @@ inline std::string IconToString(EEditorIcon icon)
     }
 }
 
+enum ETheme
+{
+    Light = 0,
+    Dark
+};
+
 
 
 

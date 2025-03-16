@@ -165,6 +165,7 @@ void ApplicationCore::Camera::MoveVertical(float distance) {
     void ApplicationCore::Camera::Recalculate()
     {
         m_projection = glm::perspectiveFov(glm::radians(m_FOV), (float)m_screenSize.x , (float)m_screenSize.y, m_nearPlane, m_farPlane);
+        m_projection[1][1] *= -1;
     }
 
     glm::vec3 ApplicationCore::Camera::getEye() {

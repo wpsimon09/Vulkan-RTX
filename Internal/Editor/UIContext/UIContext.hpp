@@ -88,7 +88,8 @@ private:
 
     ImGuizmo::OPERATION m_operation;
     private:
-        void SetColourThemePablo();
+        void SetColourThemePabloDark();
+        void SetColourThemePabloLight();
 
     friend class VEditor::Editor;
 };

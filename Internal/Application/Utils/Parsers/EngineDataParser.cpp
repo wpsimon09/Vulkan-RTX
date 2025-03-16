@@ -9,6 +9,7 @@
 #include "Application/Logger/Logger.hpp"
 #include "Application/Client.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
+#include "Editor/EditorOptions.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/EngineOptions.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
@@ -38,6 +39,13 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
         {"Vertex buffer chunk size", std::to_string(GlobalVariables::EngineOptions::VertexBufferChunkSize)},
         {"Index buffer chunk size", std::to_string(GlobalVariables::EngineOptions::IndexBufferChunkSize)},
 
+    });
+
+    //=========================================
+    // EDITOR CONFIG
+    //=========================================
+    EngineConfig["Editor"].set({
+        {"Theme", std::to_string(GlobalVariables::EditorOptions::Theme)},
     });
 
     //=========================================
@@ -142,6 +150,10 @@ void ApplicationCore::LoadConfig()
         if (EngineConfig["Application"].has("Log limit"))  // Fixed key name
             GlobalState::LogLimit = std::stoi(EngineConfig["Application"]["Log limit"]);
     }
+
+    //=======================================
+    // EDITOR SETTINGS
+    //=======================================
 
     //=======================================
     // OTHER SETTINGS

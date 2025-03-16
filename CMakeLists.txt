@@ -184,6 +184,7 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/VImage/VImage2.hpp
         Internal/Vulkan/Global/RenderingOptions.hpp
         Internal/Vulkan/Global/EngineOptions.hpp
+        Internal/Editor/EditorOptions.hpp
 
 )
 
