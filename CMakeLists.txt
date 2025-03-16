@@ -182,6 +182,8 @@ set(SOURCES
         Internal/Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp
         Internal/Vulkan/VulkanCore/VImage/VImage2.cpp
         Internal/Vulkan/VulkanCore/VImage/VImage2.hpp
+        Internal/Vulkan/Global/RenderingOptions.hpp
+        Internal/Vulkan/Global/EngineOptions.hpp
 
 )
 

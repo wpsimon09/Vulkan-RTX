@@ -24,7 +24,7 @@ namespace GlobalState
         LoggingEnabled = false;
     }
 
-    inline constexpr int LogLimit = 700; // entires in console
+    inline int LogLimit = 700; // entires in console
 
 }
 

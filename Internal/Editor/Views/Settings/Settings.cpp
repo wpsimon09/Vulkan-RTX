@@ -90,8 +90,12 @@ namespace VEditor {
         if (ImGui::TreeNodeEx(ICON_FA_CAMERA "Camera", ImGuiTreeNodeFlags_DefaultOpen))
         {
                 ImGui::DragFloat("Camera speed:", &m_client.GetCamera().GetSpeed(), 1.f, 0.1, 20.0F);
+
                 ImGui::DragFloat("Far plane:", &m_client.GetCamera().GetFarPlane(), 1.f, 40.0f, std::numeric_limits<float>::max());
+                ImGui::DragFloat("Near plane:", &m_client.GetCamera().GetNearPlane(), 1.f, 40.0f, std::numeric_limits<float>::max());
+
                 ImGui::SliderFloat("FOV", &m_client.GetCamera().GetFOV(), 0, 360);
+
             ImGui::TreePop();
         }
     }

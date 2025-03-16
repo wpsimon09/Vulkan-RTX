@@ -11,6 +11,8 @@
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/Global/EngineOptions.hpp"
+#include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
@@ -204,39 +206,42 @@ namespace ApplicationCore
         {
 
             // frustrum culling
-            if (VulkanUtils::IsInViewFrustum(
-                &m_mesh->GetMeshData()->bounds,
-                m_transformation->GetModelMatrix(),
-                renderingContext->view, renderingContext->projection))
+            if (m_sceneNodeMetaData.FrustumCull && GlobalVariables::RenderingOptions::EnableFrustrumCulling)
             {
-                //=====================================================
-                // NORMAL SCENE DATA
-                //=====================================================
-                VulkanStructs::DrawCallData data;
-                data.modelMatrix = m_transformation->GetModelMatrix();
-                data.firstIndex = 1;
-                data.indexCount = m_mesh->GetMeshIndexCount();
-                data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
-                data.material = m_mesh->m_currentMaterial;
-                data.meshData = m_mesh->GetMeshData();
-                data.renderOutline = m_sceneNodeMetaData.IsSelected;
-                data.position = m_transformation->GetPosition();
-
-                //=====================================================
-                // BOUNDING VOLUME STUFF
-                //=====================================================
-                data.bounds = &m_mesh->GetMeshData()->bounds;
-                data.isEditorBilboard = false;
-
-                //=====================================================
-                // SORT BASED ON THE DEPTH
-                //=====================================================
-                renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,data);
-
-                if (m_sceneNodeMetaData.IsSelected){
-                    renderingContext->SelectedGeometryPass.emplace_back(data);
-                }
+                if (!VulkanUtils::IsInViewFrustum(
+                        &m_mesh->GetMeshData()->bounds,
+                        m_transformation->GetModelMatrix(),
+                        renderingContext->view, renderingContext->projection)){return;}
             }
+
+            //=====================================================
+            // NORMAL SCENE DATA
+            //=====================================================
+            VulkanStructs::DrawCallData data;
+            data.modelMatrix = m_transformation->GetModelMatrix();
+            data.firstIndex = 1;
+            data.indexCount = m_mesh->GetMeshIndexCount();
+            data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
+            data.material = m_mesh->m_currentMaterial;
+            data.meshData = m_mesh->GetMeshData();
+            data.renderOutline = m_sceneNodeMetaData.IsSelected;
+            data.position = m_transformation->GetPosition();
+
+            //=====================================================
+            // BOUNDING VOLUME STUFF
+            //=====================================================
+            data.bounds = &m_mesh->GetMeshData()->bounds;
+            data.isEditorBilboard = false;
+
+            //=====================================================
+            // SORT BASED ON THE DEPTH
+            //=====================================================
+            renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,data);
+
+            if (m_sceneNodeMetaData.IsSelected){
+                renderingContext->SelectedGeometryPass.emplace_back(data);
+            }
+
 
         }
     }

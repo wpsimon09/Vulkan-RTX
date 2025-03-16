@@ -14,6 +14,7 @@
 #include "Application/Utils/ApplicationUtils.hpp"
 #include <limits>
 
+#include "Vulkan/Global/EngineOptions.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
@@ -273,7 +274,7 @@ namespace VulkanCore {
         // IT IS CALLED WHEN BUFFER WILL NOT FIT THE CURRENT CHUNK
         // AND IN THE CONSTRUCTOR
         //==========================================================
-        m_vertexBuffers.reserve(BUFFER_SIZE);
+        m_vertexBuffers.reserve(GlobalVariables::EngineOptions::VertexBufferChunkSize);
         Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
         VulkanStructs::GPUBufferInfo newVertexBuffer{};
         newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc;
@@ -299,7 +300,7 @@ namespace VulkanCore {
         // CREATE INITIAL INDEX BUFFER
         // BB index
         //==============================
-        m_indexBuffers.reserve(BUFFER_SIZE);
+        m_indexBuffers.reserve(GlobalVariables::EngineOptions::IndexBufferChunkSize);
         Utils::Logger::LogInfo("Allocating NEW 16MB IndexBuffer");
         VulkanStructs::GPUBufferInfo newIndexBuffer{};
         newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc;

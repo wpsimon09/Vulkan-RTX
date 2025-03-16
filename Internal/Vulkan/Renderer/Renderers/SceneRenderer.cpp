@@ -138,11 +138,6 @@ namespace Renderer
             pipelineType = EPipelineType::DebugLines;
         }else
         {
-            pipelineType = EPipelineType::RasterPBRTextured;
-        }
-
-        if (m_multiLightShader)
-        {
             pipelineType = EPipelineType::MultiLight;
         }
 
@@ -252,12 +247,13 @@ namespace Renderer
         //=================================================
         SendGlobalDescriptorsToShader(currentFrameIndex, uniformBufferManager);
 
-        auto currentVertexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->vertexData.buffer;
-        auto currentIndexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->indexData.buffer;
+        auto currentVertexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->vertexData;
+        auto currentIndexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->indexData;
+        vk::DeviceSize indexBufferOffset = 0;
 
-        cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(EPipelineType::MultiLight).GetPipelineInstance());
-        cmdBuffer.bindVertexBuffers(0, {currentVertexBuffer}, {0});
-        cmdBuffer.bindIndexBuffer(currentIndexBuffer, 0, vk::IndexType::eUint32);
+        cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance());
+        cmdBuffer.bindVertexBuffers(0, {currentVertexBuffer.buffer}, {0});
+        cmdBuffer.bindIndexBuffer(currentIndexBuffer.buffer, 0, vk::IndexType::eUint32);
 
         //============================================
         //===
@@ -296,19 +292,23 @@ namespace Renderer
             //================================================================================================
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
             //================================================================================================
-            if(currentVertexBuffer != drawCall.meshData->vertexData.buffer){
+            if(currentVertexBuffer.buffer != drawCall.meshData->vertexData.buffer){
                 // TODO: once the fresh buffer is loaded the index is all fucked up
                 auto firstBinding = 0;
+
+                indexBufferOffset = (currentVertexBuffer.offset + currentVertexBuffer.size)/ static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex));
+
                 std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
                 std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};
                 vertexBuffers = {drawCall.meshData->vertexData.buffer};
                 cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
-                currentVertexBuffer = drawCall.meshData->vertexData.buffer;
+                currentVertexBuffer.buffer = drawCall.meshData->vertexData.buffer;
             }
 
-            if(currentIndexBuffer != drawCall.meshData->indexData.buffer){
+            if(currentIndexBuffer.buffer != drawCall.meshData->indexData.buffer){
+                indexBufferOffset = 0;
                 cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
-                currentIndexBuffer = drawCall.meshData->indexData.buffer;
+                currentIndexBuffer.buffer = drawCall.meshData->indexData.buffer;
             }
 
             cmdBuffer.pushDescriptorSetWithTemplateKHR(
@@ -320,7 +320,7 @@ namespace Renderer
                 drawCall.meshData->indexData.size/sizeof(uint32_t),
                 1,
                 drawCall.meshData->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                drawCall.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                (drawCall.meshData->vertexData.offset + indexBufferOffset)/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                 0);
 
             drawCallCount++;
@@ -352,16 +352,20 @@ namespace Renderer
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
             //================================================================================================
 
-            if(currentVertexBuffer != drawCall.meshData->vertexData.buffer){
-                auto firstBinding = 0;
-                std::vector<vk::Buffer> vertexBuffers = {currentVertexBuffer};
+            if(currentVertexBuffer.buffer != drawCall.meshData->vertexData.buffer){
+
+                indexBufferOffset = (currentVertexBuffer.offset + currentVertexBuffer.size)/ static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex));
+
+                std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
                 std::vector<vk::DeviceSize> offsets = {drawCall.meshData->vertexData.offset};
                 vertexBuffers = {drawCall.meshData->vertexData.buffer};
-                cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+                cmdBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
+                currentVertexBuffer.buffer = drawCall.meshData->vertexData.buffer;
             }
 
-            if(currentIndexBuffer != drawCall.meshData->indexData.buffer){
+            if(currentIndexBuffer.buffer != drawCall.meshData->indexData.buffer){
                 cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
+                currentIndexBuffer.buffer = drawCall.meshData->indexData.buffer;
             }
 
             cmdBuffer.pushDescriptorSetWithTemplateKHR(

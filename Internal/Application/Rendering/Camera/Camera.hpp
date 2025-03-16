@@ -58,6 +58,8 @@ public:
 
     void Update(CameraUpdateInfo& cameraUpdateInfo);
 
+    void Recalculate();
+
     ~Camera() = default;
 
 private:
@@ -83,7 +85,6 @@ private:
     float m_farPlane;
     float m_nearPlane;
 };
-
 
 } // ApplicationCore
 

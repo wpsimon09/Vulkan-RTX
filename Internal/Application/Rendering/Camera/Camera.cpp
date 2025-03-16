@@ -98,7 +98,7 @@ void ApplicationCore::Camera::MoveVertical(float distance) {
         m_aspect = (float)m_screenSize.x / (float)m_screenSize.y;
         m_projection = glm::perspectiveFov(glm::radians(m_FOV), (float)m_screenSize.x , (float)m_screenSize.y, m_nearPlane, m_farPlane);
         m_projection[1][1] *= -1;
-        m_farPlane = GetFarPlane();
+        //m_farPlane = GetFarPlane();
         m_position = getEye();
 
     }
@@ -160,6 +160,11 @@ void ApplicationCore::Camera::MoveVertical(float distance) {
         m_view = glm::lookAt(this->m_position,m_center, this->m_worldUp);
 
         cameraUpdateInfo.Reset();
+    }
+
+    void ApplicationCore::Camera::Recalculate()
+    {
+        m_projection = glm::perspectiveFov(glm::radians(m_FOV), (float)m_screenSize.x , (float)m_screenSize.y, m_nearPlane, m_farPlane);
     }
 
     glm::vec3 ApplicationCore::Camera::getEye() {

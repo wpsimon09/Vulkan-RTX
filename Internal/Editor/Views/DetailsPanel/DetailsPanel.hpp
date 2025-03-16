@@ -49,6 +49,8 @@ private:
     void RenderDirectionLightUI();
     void RenderPointLightUI();
     void RenderAreaLightUI();
+    void RenderSceneNodeMetaDataToggles();
+    void RenderNodeStats();
 };
 
 } // VEditor

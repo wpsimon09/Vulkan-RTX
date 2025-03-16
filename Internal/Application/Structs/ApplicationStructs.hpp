@@ -106,6 +106,7 @@ struct SceneNodeMetaData
     bool IsOpen = false;
     bool VisibleInRayTracing = false;
     bool CastsShadows = false;
+    bool FrustumCull = true;
     ENodeType nodeType = ENodeType::Node;
     int ID = 0;
     int exportID = 0;

@@ -28,18 +28,12 @@ namespace VEditor {
                 ImGui::TextColored(ImVec4(0.9, 0.2,0.2,1.0), "No scene node selected");
             }else
             {
-                ImGui::TextDisabled("(?)");
-                if (ImGui::BeginItemTooltip())
-                {
-                    ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-                    ImGui::TextUnformatted(std::to_string( m_selectedSceneNode->GetSceneNodeMetaData().ID).c_str());
-                    ImGui::PopTextWrapPos();
-                    ImGui::EndTooltip();
-                }
+                RenderNodeStats();
                 RenderTransformationsPanel();
                 if (m_selectedSceneNode->HasMesh())
                 {
                     RenderMaterialEditorPanel();
+                    RenderSceneNodeMetaDataToggles();
                 }
                 if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::DirectionalLightNode)
                 {
@@ -254,5 +248,50 @@ namespace VEditor {
         ImGui::DragFloat("Intensity", &areaLightNode->GetLightStruct().intensity);
         ImGui::Checkbox("Two sided", &areaLightNode->GetLightStruct().twoSided);
 
+    }
+
+    void DetailsPanel::RenderSceneNodeMetaDataToggles()
+    {
+
+        if (ImGui::TreeNode(ICON_FA_SLIDERS " Options"))
+        {
+            if (m_selectedSceneNode->HasMesh())
+            {
+                ImGui::Checkbox("Frustrum cull", &m_selectedSceneNode->GetSceneNodeMetaData().FrustumCull);
+                ImGui::Checkbox("Cast Shadows", &m_selectedSceneNode->GetSceneNodeMetaData().CastsShadows);
+            }
+            ImGui::TreePop();
+        }
+
+    }
+
+    void DetailsPanel::RenderNodeStats()
+    {
+        ImGui::TextDisabled("(?) Node data");
+        if (ImGui::BeginItemTooltip())
+        {
+            ImGui::SeparatorText("Node data");
+            ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+
+            ImGui::TextUnformatted("ID:");
+            ImGui::SameLine();
+            ImGui::TextUnformatted(std::to_string(m_selectedSceneNode->GetSceneNodeMetaData().ID).c_str());
+
+            ImGui::PopTextWrapPos();
+            if (m_selectedSceneNode->HasMesh())
+            {
+                ImGui::SeparatorText("Mesh data");
+                auto& mesh = m_selectedSceneNode->GetMesh();
+                ImGui::TextUnformatted("Vertex buffer ID");
+                ImGui::SameLine();
+                ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->vertexData.BufferID).c_str());
+
+                ImGui::TextUnformatted("Index buffer ID");
+                ImGui::SameLine();
+                ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->indexData.BufferID).c_str());
+
+            }
+            ImGui::EndTooltip();
+        }
     }
 } // VEditor
