@@ -154,6 +154,11 @@ void ApplicationCore::LoadConfig()
     //=======================================
     // EDITOR SETTINGS
     //=======================================
+    if (EngineConfig.has("Editor"))
+    {
+        if (EngineConfig["Editor"].has("Theme"))  // Fixed key name
+            GlobalVariables::EditorOptions::Theme = static_cast<ETheme>(std::stoi(EngineConfig["Editor"]["Theme"]));
+    }
 
     //=======================================
     // OTHER SETTINGS

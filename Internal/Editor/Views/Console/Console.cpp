@@ -8,7 +8,9 @@
 #include <imgui.h>
 
 #include "Application/Logger/Logger.hpp"
+#include "Editor/EditorOptions.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
+#include "Vulkan/Global/GlobalVariables.hpp"
 
 namespace VEditor {
     Console::Console() = default;
@@ -43,17 +45,35 @@ namespace VEditor {
                 if (logEntry.type == Utils::ELogType::Success)
                 {
                     icon = ICON_FA_CHECK;
-                    color = ImColor(60, 205, 50);
+                    if (GlobalVariables::EditorOptions::Theme == ETheme::Dark)
+                    {
+                        color = ImColor(60, 205, 50);
+                    }else
+                    {
+                        color = ImColor(100, 255, 100);
+                    }
                 }
                 else if (logEntry.type == Utils::ELogType::Error)
                 {
                     icon = ICON_FA_BUG;
-                    color = ImColor(255, 0, 0);
+                    if (GlobalVariables::EditorOptions::Theme == ETheme::Dark)
+                    {
+                        color = ImColor(255, 0, 0);
+                    }else
+                    {
+                        color = ImColor(255, 0, 0);
+                    }
                 }
                 else if (logEntry.type == Utils::ELogType::Info)
                 {
                     icon = ICON_FA_INFO;
-                    color = ImColor(200, 200, 200);
+                    if (GlobalVariables::EditorOptions::Theme == ETheme::Dark)
+                    {
+                        color = ImColor(200, 200, 200);
+                    }else
+                    {
+                        color = ImColor(20, 20, 20);
+                    }
                 }
 
                 std::string logMessage = std::string(icon) + " " + logEntry.message;

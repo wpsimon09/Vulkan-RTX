@@ -61,6 +61,9 @@ public:
     void Destroy();
     void SetCurrentOperation(ImGuizmo::OPERATION operation) {m_operation = operation;};
     void SetSelectedSceneNode(std::shared_ptr<ApplicationCore::SceneNode> sceneNode) {m_selectedSceneNode = sceneNode;};
+    void SetColourThemePabloDark();
+    void SetColourThemePabloLight();
+
 public:
     ApplicationCore::Scene& GetScene() const {return m_client.GetScene();}
     Client& GetClient() {return m_client;}
@@ -87,11 +90,10 @@ private:
     std::shared_ptr<ApplicationCore::SceneNode> m_selectedSceneNode = nullptr;
 
     ImGuizmo::OPERATION m_operation;
-    private:
-        void SetColourThemePabloDark();
-        void SetColourThemePabloLight();
 
-    friend class VEditor::Editor;
+
+    private:
+        friend class VEditor::Editor;
 };
 
 } // VEditor

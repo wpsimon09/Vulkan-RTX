@@ -28,3 +28,13 @@ namespace ApplicationCore
         return bounds;
     }
 }
+
+std::string ThemeToString(ETheme theme)
+{
+    switch (theme)
+    {
+        case ETheme::Light: return "Light";
+        case ETheme::Dark: return "Dark";
+        default: return "Dark";
+    }
+}

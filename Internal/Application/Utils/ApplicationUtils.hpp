@@ -4,7 +4,11 @@
 
 #ifndef APPLICATIONUTILS_HPP
 #define APPLICATIONUTILS_HPP
+#include <string>
 #include <vector>
+
+#include "Application/Enums/ClientEnums.hpp"
+
 namespace VulkanStructs{
     struct Bounds;
 }
@@ -74,6 +78,8 @@ void QuickSort(std::vector<T>& arr,  int low, int high, Compare comp)
         QuickSort(arr, pi + 1, high, comp);
     }
 }
+
+std::string ThemeToString(ETheme theme);
 
 
 

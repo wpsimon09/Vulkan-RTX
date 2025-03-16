@@ -12,8 +12,11 @@
 #include "Application/Client.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
+#include "Application/Utils/ApplicationUtils.hpp"
 #include "Application/Utils/Parsers/EngineDataParser.hpp"
 #include "Editor/Editor.hpp"
+#include "Editor/EditorOptions.hpp"
+#include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/EngineOptions.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
@@ -125,6 +128,27 @@ namespace VEditor {
 
     void Settings::RenderEditorSettings()
     {
+        if (ImGui::BeginCombo("Theme", ThemeToString(GlobalVariables::EditorOptions::Theme).c_str()))
+        {
+            for (int i = 0; i<2; i++)
+            {
+                bool isSelected = (static_cast<int>(GlobalVariables::EditorOptions::Theme) == i);
+                if (ImGui::Selectable(ThemeToString(static_cast<ETheme>(i)).c_str()))
+                {
+                    GlobalVariables::EditorOptions::Theme = static_cast<ETheme>(i);
+                }
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        if (GlobalVariables::EditorOptions::Theme == ETheme::Dark)
+        {
+            m_editor->m_uiContext.SetColourThemePabloDark();
+        }else
+        {
+            m_editor->m_uiContext.SetColourThemePabloLight();
+        }
     }
 
     void Settings::RenderRenderingSettings()
