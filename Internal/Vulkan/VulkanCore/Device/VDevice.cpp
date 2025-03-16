@@ -10,6 +10,7 @@
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
@@ -247,6 +248,13 @@ void VulkanCore::VDevice::FetchMaxSampleCount()
         return;
     }
 
+    vk::SampleCountFlagBits sampleCount = VulkanUtils::IntToVkSample(GlobalVariables::RenderingOptions::MSAASamples);
+
+    if ((maxSampleCount & sampleCount) == sampleCount)
+    {
+        m_sampleCount = sampleCount;
+        return;
+    }
 
     if (maxSampleCount & vk::SampleCountFlagBits::e64)
     {
@@ -333,3 +341,4 @@ void VulkanCore::VDevice::Destroy()
     m_device.destroy();
     Utils::Logger::LogInfoVerboseOnly("Logical device destroyed");
 }
+

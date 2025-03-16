@@ -67,6 +67,8 @@ namespace VulkanCore
         VulkanUtils::VTransferOperationsManager& GetTransferOpsManager() const {return *m_transferOpsManager;}
         //----------------------------------------------------------------------------------------
 
+        void UpdateSampleCount();
+
         const uint32_t& GetConcreteQueueFamilyIndex(EQueueFamilyIndexType queueFamilyType) const;
         const std::string GetQueueFamilyString(EQueueFamilyIndexType queueFamilyType) const;
 
@@ -109,6 +111,7 @@ namespace VulkanCore
         void RetreiveDepthFormat();
         void FetchMaxSampleCount();
     };
+
 }
 
 #endif

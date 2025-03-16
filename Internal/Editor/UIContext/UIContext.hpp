@@ -50,7 +50,8 @@ public:
         Client& client
     );
 
-    ViewPortContext& GetViewPortContext(ViewPortType viewPortType) {return m_viewports[viewPortType];};
+    ViewPortContext& GetViewPortContext(ViewPortType viewPortType) {return m_viewports[viewPortType];}
+    const VulkanCore::VDevice& GetDevice() {return m_device;}
 
     void Initialize(const VulkanCore::VSwapChain& swapChain);
     void BeginRender();

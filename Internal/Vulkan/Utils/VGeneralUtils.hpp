@@ -70,6 +70,10 @@ namespace VulkanUtils
     VulkanStructs::StagingBufferInfo CreateStagingBuffer(const VulkanCore::VDevice& m_device, vk::DeviceSize size);
 
     bool IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
+
+    int vkSampleToInt(vk::SampleCountFlagBits sample);
+
+    vk::SampleCountFlagBits IntToVkSample (int sampleCount);
 }
 
 #endif //VGENERALUTILS_HPP

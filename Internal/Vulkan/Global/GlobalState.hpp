@@ -5,8 +5,11 @@
 #ifndef GLOBALSTATE_HPP
 #define GLOBALSTATE_HPP
 
+#define MB  = 1024 * 1024
+
 namespace GlobalState
 {
+
     inline bool ValidationLayersEnabled = true;
     inline bool LoggingEnabled = true;
     inline bool Verbose = false;

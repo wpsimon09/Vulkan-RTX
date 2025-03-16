@@ -421,6 +421,38 @@ bool VulkanUtils::IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4
     }
 }
 
+int VulkanUtils::vkSampleToInt(vk::SampleCountFlagBits sample)
+{
+    switch (sample)
+    {
+    case vk::SampleCountFlagBits::e1:  return 1;
+    case vk::SampleCountFlagBits::e2:  return 2;
+    case vk::SampleCountFlagBits::e4:  return 4;
+    case vk::SampleCountFlagBits::e8:  return 8;
+    case vk::SampleCountFlagBits::e16: return 16;
+    case vk::SampleCountFlagBits::e32: return 32;
+    case vk::SampleCountFlagBits::e64: return 64;
+    default:
+        return 1; // Fallback to 1 sample (safe default)
+    }
+}
+
+vk::SampleCountFlagBits VulkanUtils::IntToVkSample(int sampleCount)
+{
+    switch (sampleCount)
+    {
+    case 1:  return vk::SampleCountFlagBits::e1;
+    case 2:  return vk::SampleCountFlagBits::e2;
+    case 4:  return vk::SampleCountFlagBits::e4;
+    case 8:  return vk::SampleCountFlagBits::e8;
+    case 16: return vk::SampleCountFlagBits::e16;
+    case 32: return vk::SampleCountFlagBits::e32;
+    case 64: return vk::SampleCountFlagBits::e64;
+    default:
+        return vk::SampleCountFlagBits::e1; // Fallback to 1 sample (safe default)
+    }
+}
+
 
 
 

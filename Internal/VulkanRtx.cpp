@@ -63,6 +63,8 @@ Application::Application()
 
 void Application::Init()
 {
+    ApplicationCore::LoadConfig();
+
     m_client = std::make_unique<Client>();
 
     m_windowManager = std::make_unique<WindowManager>(1000,800);
@@ -109,7 +111,6 @@ void Application::Init()
 
     ApplicationCore::LoadConfig(*m_client, *m_uiContext);
 
-    //m_vulkanDevice->GetTransferOpsManager().UpdateGPU();
 }
 
 void Application::MainLoop()

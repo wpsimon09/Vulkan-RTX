@@ -14,6 +14,10 @@
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Utils/Parsers/EngineDataParser.hpp"
 #include "Editor/Editor.hpp"
+#include "Vulkan/Global/EngineOptions.hpp"
+#include "Vulkan/Global/GlobalState.hpp"
+#include "Vulkan/Global/GlobalStructs.hpp"
+#include "Vulkan/Global/RenderingOptions.hpp"
 
 namespace VEditor {
     Settings::Settings(Client& client, Editor* editor): m_client(client), m_editor(editor)
@@ -35,6 +39,12 @@ namespace VEditor {
                     if (ImGui::BeginTabItem("Engine"))
                     {
                         RenderEngineSettings();
+                        ImGui::EndTabItem();
+                    }
+
+                    if (ImGui::BeginTabItem("Rendering"))
+                    {
+                        RenderRenderingSettings();
                         ImGui::EndTabItem();
                     }
 
@@ -87,24 +97,58 @@ namespace VEditor {
 
     void Settings::RenderEngineSettings()
     {
+        int v = GlobalVariables::EngineOptions::VertexBufferChunkSize;
+        ImGui::InputInt("Vertex buffer chunk size", &v, 8, 1024);
+        GlobalVariables::EngineOptions::VertexBufferChunkSize = v;
+
+        int i = GlobalVariables::EngineOptions::IndexBufferChunkSize;
+        ImGui::InputInt("Index buffer chunk size", &i, 8, 1024);
+        GlobalVariables::EngineOptions::IndexBufferChunkSize = i;
+    }
+
+    void Settings::RenderApplicationSettings()
+    {
         if (ImGui::TreeNodeEx(ICON_FA_CAMERA "Camera", ImGuiTreeNodeFlags_DefaultOpen))
         {
-                ImGui::DragFloat("Camera speed:", &m_client.GetCamera().GetSpeed(), 1.f, 0.1, 20.0F);
+            ImGui::DragFloat("Camera speed:", &m_client.GetCamera().GetSpeed(), 1.f, 0.1, 20.0F);
 
-                ImGui::DragFloat("Far plane:", &m_client.GetCamera().GetFarPlane(), 1.f, 40.0f, std::numeric_limits<float>::max());
-                ImGui::DragFloat("Near plane:", &m_client.GetCamera().GetNearPlane(), 1.f, 40.0f, std::numeric_limits<float>::max());
+            ImGui::DragFloat("Far plane:", &m_client.GetCamera().GetFarPlane(), 1.f, 40.0f, std::numeric_limits<float>::max());
+            ImGui::DragFloat("Near plane:", &m_client.GetCamera().GetNearPlane(), 1.f, 40.0f, std::numeric_limits<float>::max());
 
-                ImGui::SliderFloat("FOV", &m_client.GetCamera().GetFOV(), 0, 360);
+            ImGui::SliderFloat("FOV", &m_client.GetCamera().GetFOV(), 0, 360);
 
             ImGui::TreePop();
         }
     }
 
-    void Settings::RenderApplicationSettings()
+    void Settings::RenderEditorSettings()
     {
     }
 
-    void Settings::RenderEditorSettings()
+    void Settings::RenderRenderingSettings()
     {
+        ImGui::Checkbox("Frustrum culling", &GlobalVariables::RenderingOptions::EnableFrustrumCulling);
+        ImGui::Checkbox("MSAA Enabled", &GlobalState::MSAA);
+
+        if (GlobalState::MSAA)
+        {
+            if (ImGui::BeginCombo("Number of samples", std::to_string(GlobalVariables::RenderingOptions::MSAASamples).c_str()))
+            {
+                static const int sampleOptions[] = {1, 2, 4, 8, 16, 32, 64}; // Common MSAA sample values
+                for (int samples : sampleOptions)
+                {
+                    bool isSelected = (GlobalVariables::RenderingOptions::MSAASamples == samples);
+                    if (ImGui::Selectable(std::to_string(samples).c_str(), isSelected))
+                    {
+                        GlobalVariables::RenderingOptions::MSAASamples = samples;
+                    }
+
+                    if (isSelected)
+                        ImGui::SetItemDefaultFocus();
+                }
+
+                ImGui::EndCombo();
+            }
+        }
     }
 } // VEditor

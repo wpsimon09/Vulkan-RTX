@@ -25,6 +25,7 @@ private:
     void RenderEngineSettings();
     void RenderApplicationSettings();
     void RenderEditorSettings();
+    void RenderRenderingSettings();
 
     Client& m_client;
     Editor* m_editor;

@@ -9,6 +9,8 @@
 #include "Application/Logger/Logger.hpp"
 #include "Application/Client.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
+#include "Editor/UIContext/UIContext.hpp"
+#include "Vulkan/Global/EngineOptions.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
 
@@ -27,6 +29,15 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
         {"Near", std::to_string(cam.GetNearPlane()) },
         {"Far", std::to_string(cam.GetFarPlane())},
         {"Speed", std::to_string(cam.GetSpeed())},
+    });
+
+    //=========================================
+    // ENGINE CONFIG
+    //=========================================
+    EngineConfig["Engine"].set({
+        {"Vertex buffer chunk size", std::to_string(GlobalVariables::EngineOptions::VertexBufferChunkSize)},
+        {"Index buffer chunk size", std::to_string(GlobalVariables::EngineOptions::IndexBufferChunkSize)},
+
     });
 
     //=========================================
@@ -60,7 +71,6 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
     else Utils::Logger::LogErrorClient("Failed to save engine config! ");
 
 }
-
 void ApplicationCore::LoadConfig(Client& client, VEditor::UIContext& uiContext)
 {
     mINI::INIFile engineConfigFile(engineConfigPath);
@@ -78,12 +88,35 @@ void ApplicationCore::LoadConfig(Client& client, VEditor::UIContext& uiContext)
     auto &cam = client.GetCamera();
     if (EngineConfig.has("Camera"))
     {
-        if (EngineConfig["Camera"].has("FOV")) cam.GetFOV() = (std::stof(EngineConfig["Camera"]["FOV"]));
-        if (EngineConfig["Camera"].has("Near")) cam.GetNearPlane() = (std::stof(EngineConfig["Camera"]["Near"]));
-        if (EngineConfig["Camera"].has("Far")) cam.GetFarPlane() = (std::stof(EngineConfig["Camera"]["Far"]));
-        if (EngineConfig["Camera"].has("Speed")) cam.GetSpeed() = (std::stof(EngineConfig["Camera"]["Speed"]));
+        if (EngineConfig["Camera"].has("FOV")) cam.GetFOV()         = (std::stof(EngineConfig["Camera"]["FOV"]));
+        if (EngineConfig["Camera"].has("Near")) cam.GetNearPlane()  = (std::stof(EngineConfig["Camera"]["Near"]));
+        if (EngineConfig["Camera"].has("Far")) cam.GetFarPlane()    = (std::stof(EngineConfig["Camera"]["Far"]));
+        if (EngineConfig["Camera"].has("Speed")) cam.GetSpeed()     = (std::stof(EngineConfig["Camera"]["Speed"]));
 
         cam.Recalculate();
+    }
+}
+
+void ApplicationCore::LoadConfig()
+{
+     mINI::INIFile engineConfigFile(engineConfigPath);
+
+    if (engineConfigFile.read(EngineConfig)) {
+        Utils::Logger::LogSuccessClient("Engine config read successfully");
+    } else {
+        Utils::Logger::LogErrorClient("Engine config does not exist, creating new one...");
+        assert(engineConfigFile.generate(EngineConfig, true) == true);
+    }
+
+    //=======================================
+    // ENGINE CONFIG
+    //=======================================
+    if (EngineConfig.has("Engine"))
+    {
+        if (EngineConfig["Engine"].has("Vertex buffer chunk size"))
+            GlobalVariables::EngineOptions::VertexBufferChunkSize = std::stoi(EngineConfig["Engine"]["Vertex buffer chunk size"]);
+        if (EngineConfig["Engine"].has("Index buffer chunk size"))
+            GlobalVariables::EngineOptions::IndexBufferChunkSize = std::stoi(EngineConfig["Engine"]["Index buffer chunk size"]);
     }
 
     //=======================================
@@ -91,8 +124,8 @@ void ApplicationCore::LoadConfig(Client& client, VEditor::UIContext& uiContext)
     //=======================================
     if (EngineConfig.has("Rendering"))
     {
-        if (EngineConfig["Rendering"].has("FrustrumCulling"))
-            GlobalVariables::RenderingOptions::EnableFrustrumCulling = std::stoi(EngineConfig["Rendering"]["FrustrumCulling"]);
+        if (EngineConfig["Rendering"].has("Frustrum culling"))  // Fixed key name
+            GlobalVariables::RenderingOptions::EnableFrustrumCulling = std::stoi(EngineConfig["Rendering"]["Frustrum culling"]);
 
         if (EngineConfig["Rendering"].has("MSAAEnabled"))
             GlobalState::MSAA = std::stoi(EngineConfig["Rendering"]["MSAAEnabled"]);
@@ -106,8 +139,8 @@ void ApplicationCore::LoadConfig(Client& client, VEditor::UIContext& uiContext)
     //=======================================
     if (EngineConfig.has("Application"))
     {
-        if (EngineConfig["Application"].has("LogLimit"))
-            GlobalState::LogLimit = std::stoi(EngineConfig["Application"]["LogLimit"]);
+        if (EngineConfig["Application"].has("Log limit"))  // Fixed key name
+            GlobalState::LogLimit = std::stoi(EngineConfig["Application"]["Log limit"]);
     }
 
     //=======================================
