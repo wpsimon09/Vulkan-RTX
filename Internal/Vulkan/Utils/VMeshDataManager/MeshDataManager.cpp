@@ -77,7 +77,7 @@ namespace VulkanCore {
 
         SelectMostSuitableBuffer(EBufferType::Vertex, vertices.size()*sizeof(ApplicationCore::Vertex));
 
-        m_stagingVertices[m_currentVertexBuffer->ID - 1].insert(m_stagingVertices[m_currentVertexBuffer->ID].end(), vertices.begin(), vertices.end());
+        m_stagingVertices[m_currentVertexBuffer->ID - 1].insert(m_stagingVertices[m_currentVertexBuffer->ID  - 1].end(), vertices.begin(), vertices.end());
 
         VulkanStructs::GPUSubBufferInfo bufferInfo = {
             .size = vertices.size() * sizeof(ApplicationCore::Vertex),
@@ -124,7 +124,7 @@ namespace VulkanCore {
     {
         SelectMostSuitableBuffer(EBufferType::Index, indices.size()*sizeof(uint32_t));
 
-        m_stagingIndices[m_currentIndexBuffer->ID - 1].insert(m_stagingIndices[m_currentIndexBuffer->ID].end(), indices.begin(), indices.end());
+        m_stagingIndices[m_currentIndexBuffer->ID - 1].insert(m_stagingIndices[m_currentIndexBuffer->ID-1].end(), indices.begin(), indices.end());
 
         VulkanStructs::GPUSubBufferInfo bufferInfo = {
             .size = indices.size() * sizeof(uint32_t),
@@ -240,7 +240,14 @@ namespace VulkanCore {
 
             m_transferOpsManager.DestroyBuffer(vertexStaginBuffer_BB.m_stagingBufferVMA, vertexStaginBuffer_BB.m_stagingAllocation );
 
-            for (int it)
+            for (auto & stagingIndices : m_stagingIndices)
+            {
+                stagingIndices.second.clear();
+            }
+            for (auto& stagingVertics: m_stagingVertices )
+            {
+                stagingVertics.second.clear();
+            }
             m_stagingVertices_BB.clear();
         }
     }
