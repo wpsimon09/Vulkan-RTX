@@ -5,6 +5,8 @@
 #ifndef VBUFFERALLOCATOR_HPP
 #define VBUFFERALLOCATOR_HPP
 
+#include <map>
+
 #include "vulkan/vulkan.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
@@ -56,9 +58,12 @@ namespace VulkanCore
 
         ~MeshDatatManager() = default;
     private:
-        std::vector<ApplicationCore::Vertex> m_stagingVertices;
-        std::vector<ApplicationCore::Vertex> m_stagingVertices_BB;
-        std::vector<uint32_t> m_stagingIndices;
+
+        // i am coping this whole thing to the one buffer which is not good if new buffer was allocated
+        // use map to know which staging vertices go to which buffer
+        std::map<int ,std::vector<ApplicationCore::Vertex>> m_stagingVertices;
+        std::map<int, std::vector<ApplicationCore::Vertex>> m_stagingVertices_BB;
+        std::map<int, std::vector<uint32_t>> m_stagingIndices;
 
         //==================================
         // VERTEX BUFFER
