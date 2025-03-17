@@ -61,9 +61,10 @@ namespace VulkanCore
 
         // i am coping this whole thing to the one buffer which is not good if new buffer was allocated
         // use map to know which staging vertices go to which buffer
-        std::map<int ,std::vector<ApplicationCore::Vertex>> m_stagingVertices;
-        std::map<int, std::vector<ApplicationCore::Vertex>> m_stagingVertices_BB;
-        std::map<int, std::vector<uint32_t>> m_stagingIndices;
+        // TODO: might be even better to use vkBuffer as an index to the map
+        std::map<int , std::vector<ApplicationCore::Vertex>> m_stagingVertices;
+        std::map<int , std::vector<ApplicationCore::Vertex>> m_stagingVertices_BB;
+        std::map<int , std::vector<uint32_t>> m_stagingIndices;
 
         //==================================
         // VERTEX BUFFER

@@ -60,9 +60,6 @@ namespace VulkanCore {
         meshData.indexData = GenerateIndexBuffer(indices);
         meshData.vertexData_BB = GenerateVertexBuffer_BB(bounds);
 
-        m_stagingVertices[m_currentIndexBuffer->ID].insert(m_stagingVertices[m_currentVertexBuffer->ID].end(), std::make_move_iterator(vertices.begin()), std::make_move_iterator(vertices.end()));
-        m_stagingIndices[m_currentIndexBuffer->ID].insert(m_stagingIndices[m_currentVertexBuffer->ID].end(), indices.begin(), indices.end());
-
         meshData.indexData_BB.buffer = m_indexBuffer_BB.bufferVK;
         meshData.indexData_BB.size = m_indexBuffer_BB.size;
         meshData.indexData_BB.offset = 0;
@@ -79,6 +76,8 @@ namespace VulkanCore {
         //=======================================================================================
 
         SelectMostSuitableBuffer(EBufferType::Vertex, vertices.size()*sizeof(ApplicationCore::Vertex));
+
+        m_stagingVertices[m_currentVertexBuffer->ID - 1].insert(m_stagingVertices[m_currentVertexBuffer->ID].end(), vertices.begin(), vertices.end());
 
         VulkanStructs::GPUSubBufferInfo bufferInfo = {
             .size = vertices.size() * sizeof(ApplicationCore::Vertex),
@@ -123,6 +122,10 @@ namespace VulkanCore {
 
     VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateIndexBuffer(const std::vector<uint32_t>& indices)
     {
+        SelectMostSuitableBuffer(EBufferType::Index, indices.size()*sizeof(uint32_t));
+
+        m_stagingIndices[m_currentIndexBuffer->ID - 1].insert(m_stagingIndices[m_currentIndexBuffer->ID].end(), indices.begin(), indices.end());
+
         VulkanStructs::GPUSubBufferInfo bufferInfo = {
             .size = indices.size() * sizeof(uint32_t),
             .offset = m_currentIndexBuffer->currentOffset,
@@ -151,6 +154,7 @@ namespace VulkanCore {
         //=========================================================================================================================================
         // VERTEX_BB STAGING BUFFER
         //==========================================================================================================================================
+
         auto vertexStaginBuffer_BB = VulkanUtils::CreateStagingBuffer(m_device,  m_stagingVertices_BB.size() * sizeof(ApplicationCore::Vertex));
         memcpy(vertexStaginBuffer_BB.mappedPointer, m_stagingVertices_BB[0].data(), vertexStaginBuffer_BB.size);
         vmaUnmapMemory(m_device.GetAllocator(), vertexStaginBuffer_BB.m_stagingAllocation);
@@ -159,28 +163,32 @@ namespace VulkanCore {
         // INDEX STAGING BUFFER
         //==========================================================================================================================================
         std::vector<VulkanStructs::StagingBufferInfo> indexStagingBuffers(m_indexBuffers.size());
-        for (int i = 0; i<m_vertexBuffers.size(); i++)
-        auto indexStagingBuffer = VulkanUtils::CreateStagingBuffer(m_device, m_stagingIndices.size() * sizeof(uint32_t));
-        memcpy(indexStagingBuffer.mappedPointer, m_stagingIndices.data(), indexStagingBuffer.size);
-        vmaUnmapMemory(m_device.GetAllocator(), indexStagingBuffer.m_stagingAllocation);
+        for (int i = 0; i<m_indexBuffers.size(); i++)
+        {
+            indexStagingBuffers[i] = VulkanUtils::CreateStagingBuffer(m_device, m_stagingIndices.size() * sizeof(uint32_t));
+            memcpy(indexStagingBuffers[i].mappedPointer, m_stagingIndices[i].data(), indexStagingBuffers[i].size);
+                    vmaUnmapMemory(m_device.GetAllocator(), indexStagingBuffers[i].m_stagingAllocation);
+        }
 
 
         assert(m_transferOpsManager.GetCommandBuffer().GetIsRecording() && "Command buffer is not recording any commands, before using it make sure it is in recording state  !");
         auto &cmdBuffer = m_transferOpsManager.GetCommandBuffer().GetCommandBuffer();
 
         // COPY VERTEX DATA TO THE GPU BUFFER
+        for (int i = 0; i < m_vertexBuffers.size(); i++)
         {
             Utils::Logger::LogInfoVerboseOnly("Copying VERTEX buffer...");
 
             vk::BufferCopy bufferCopy{};
             bufferCopy.srcOffset = 0;
-            bufferCopy.dstOffset = m_currentVertexBuffer->copyOffSet;
-            bufferCopy.size = vertexStaginBuffer.size;
+            bufferCopy.dstOffset = m_vertexBuffers[i].copyOffSet;
+            bufferCopy.size = vertexStagingBuffers[i].size;
 
-            cmdBuffer.copyBuffer(vertexStaginBuffer.m_stagingBufferVK, m_currentVertexBuffer->bufferVK, bufferCopy);
+            cmdBuffer.copyBuffer(vertexStagingBuffers[i].m_stagingBufferVK, m_vertexBuffers[i].bufferVK, bufferCopy);
         }
 
         // COPY VERTEX BB DATA TO THE GPU BUFFER
+
         {
             Utils::Logger::LogInfoVerboseOnly("Copying VERTEX-BB buffer...");
 
@@ -193,49 +201,64 @@ namespace VulkanCore {
         }
 
         //COPY INDEX DATA TO THE GPU
+        for (int i = 0; i < m_indexBuffers.size(); i++)
         {
             Utils::Logger::LogInfoVerboseOnly("Copying INDEX buffer...");
 
             vk::BufferCopy bufferCopy{};
             bufferCopy.srcOffset = 0;
-            bufferCopy.dstOffset = m_currentIndexBuffer->copyOffSet;
-            bufferCopy.size = indexStagingBuffer.size;
+            bufferCopy.dstOffset = m_indexBuffers[i].copyOffSet;
+            bufferCopy.size = indexStagingBuffers[i].size;
 
-            cmdBuffer.copyBuffer(indexStagingBuffer.m_stagingBufferVK, m_currentIndexBuffer->bufferVK, bufferCopy);
+            cmdBuffer.copyBuffer(indexStagingBuffers[i].m_stagingBufferVK, m_indexBuffers[i].bufferVK, bufferCopy);
 
         }
 
+        for (int i = 0; i < m_vertexBuffers.size(); i++)
+        {
+            m_currentVertexBuffer->copyOffSet += vertexStagingBuffers[i].size;
+        }
 
-        m_currentVertexBuffer->copyOffSet += vertexStaginBuffer.size;
-        m_currentIndexBuffer->copyOffSet  += indexStagingBuffer.size;
+        for (int i = 0; i < m_indexBuffers.size(); i++)
+        {
+            m_currentIndexBuffer->copyOffSet  += indexStagingBuffers[i].size;
+        }
+
         m_currentVertexBuffer_BB->copyOffSet += vertexStaginBuffer_BB.size;
-        Utils::Logger::LogSuccess("Buffer copy of " +std::to_string(indexStagingBuffer.size + vertexStaginBuffer.size) + " bytes to vertex and index buffer  completed !");
+
+        Utils::Logger::LogSuccess("Buffer copy of vertex and index buffer completed !");
         // CLEAN UP ONCE ALL DATA ARE IN GPU
         {
-            m_transferOpsManager.DestroyBuffer(indexStagingBuffer.m_stagingBufferVMA, indexStagingBuffer.m_stagingAllocation );
-            m_transferOpsManager.DestroyBuffer(vertexStaginBuffer.m_stagingBufferVMA, vertexStaginBuffer.m_stagingAllocation );
+            for (auto & vertexStagingBuffer : vertexStagingBuffers)
+            {
+                m_transferOpsManager.DestroyBuffer(vertexStagingBuffer.m_stagingBufferVMA, vertexStagingBuffer.m_stagingAllocation );
+            }
+            for (auto & indexStagingBuffer : indexStagingBuffers)
+            {
+                m_transferOpsManager.DestroyBuffer(indexStagingBuffer.m_stagingBufferVMA, indexStagingBuffer.m_stagingAllocation );
+            }
+
             m_transferOpsManager.DestroyBuffer(vertexStaginBuffer_BB.m_stagingBufferVMA, vertexStaginBuffer_BB.m_stagingAllocation );
 
-            m_stagingVertices.clear();
+            for (int it)
             m_stagingVertices_BB.clear();
-            m_stagingIndices.clear();
         }
     }
 
 
     void MeshDatatManager::Destroy()
     {
-        for (int i = 0; i<m_vertexBuffers.size(); i++)
+        for (auto & m_vertexBuffer : m_vertexBuffers)
         {
-            vmaDestroyBuffer(m_device.GetAllocator(), m_vertexBuffers[i].bufferVMA, m_vertexBuffers[i].allocationVMA);
+            vmaDestroyBuffer(m_device.GetAllocator(), m_vertexBuffer.bufferVMA, m_vertexBuffer.allocationVMA);
         }
-        for (int i = 0; i<m_indexBuffers.size(); i++)
+        for (auto & m_indexBuffer : m_indexBuffers)
         {
-            vmaDestroyBuffer(m_device.GetAllocator(), m_indexBuffers[i].bufferVMA, m_indexBuffers[i].allocationVMA);
+            vmaDestroyBuffer(m_device.GetAllocator(), m_indexBuffer.bufferVMA, m_indexBuffer.allocationVMA);
         }
-        for (int i = 0; i<m_vertexBuffers_BB.size(); i++)
+        for (auto & i : m_vertexBuffers_BB)
         {
-            vmaDestroyBuffer(m_device.GetAllocator(), m_vertexBuffers_BB[i].bufferVMA, m_vertexBuffers_BB[i].allocationVMA);
+            vmaDestroyBuffer(m_device.GetAllocator(), i.bufferVMA, i.allocationVMA);
         }
 
         vmaDestroyBuffer(m_device.GetAllocator(), m_indexBuffer_BB.bufferVMA, m_indexBuffer_BB.allocationVMA);
