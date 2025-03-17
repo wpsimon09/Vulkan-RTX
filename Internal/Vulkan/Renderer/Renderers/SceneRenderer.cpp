@@ -281,7 +281,6 @@ namespace Renderer
         //=================================================
         // RECORD OPAQUE DRAW CALLS
         //=================================================
-
         for (int i = 0; i < m_renderContextPtr->MainLightPassOpaque.size(); i++)
         {
 
@@ -292,7 +291,7 @@ namespace Renderer
             //================================================================================================
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
             //================================================================================================
-            if(currentVertexBuffer.buffer != drawCall.meshData->vertexData.buffer){
+            if(currentVertexBuffer != drawCall.meshData->vertexData){
                 // TODO: once the fresh buffer is loaded the index is all fucked up
                 auto firstBinding = 0;
 
@@ -302,13 +301,13 @@ namespace Renderer
                 std::vector<vk::DeviceSize> offsets = {0};
                 vertexBuffers = {drawCall.meshData->vertexData.buffer};
                 cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
-                currentVertexBuffer.buffer = drawCall.meshData->vertexData.buffer;
+                currentVertexBuffer = drawCall.meshData->vertexData;
             }
 
-            if(currentIndexBuffer.buffer != drawCall.meshData->indexData.buffer){
+            if(currentIndexBuffer != drawCall.meshData->indexData){
                 indexBufferOffset = 0;
                 cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
-                currentIndexBuffer.buffer = drawCall.meshData->indexData.buffer;
+                currentIndexBuffer = drawCall.meshData->indexData;
             }
 
             cmdBuffer.pushDescriptorSetWithTemplateKHR(
@@ -320,7 +319,7 @@ namespace Renderer
                 drawCall.meshData->indexData.size/sizeof(uint32_t),
                 1,
                 drawCall.meshData->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                    (drawCall.meshData->vertexData.offset + indexBufferOffset)/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                    drawCall.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                 0);
 
             drawCallCount++;
@@ -336,8 +335,6 @@ namespace Renderer
         //=================================================
         // RECORD TRANSPARENT DRAW CALLS
         //=================================================
-        // TODO: maybe send global stuff to shaders, maybe not
-
         if(!m_renderContextPtr->MainLightPassTransparent.empty()){
             cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(EPipelineType::Transparent).GetPipelineInstance());
         }
@@ -352,15 +349,11 @@ namespace Renderer
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
             //================================================================================================
 
-            if(currentVertexBuffer.buffer != drawCall.meshData->vertexData.buffer){
-
-                indexBufferOffset = (currentVertexBuffer.offset + currentVertexBuffer.size)/ static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex));
-
+            if(currentVertexBuffer != drawCall.meshData->vertexData){
                 std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
                 std::vector<vk::DeviceSize> offsets = {0};
-                vertexBuffers = {drawCall.meshData->vertexData.buffer};
                 cmdBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
-                currentVertexBuffer.buffer = drawCall.meshData->vertexData.buffer;
+                currentVertexBuffer = drawCall.meshData->vertexData;
             }
 
             if(currentIndexBuffer.buffer != drawCall.meshData->indexData.buffer){
