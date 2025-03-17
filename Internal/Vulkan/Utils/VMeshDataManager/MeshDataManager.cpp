@@ -183,14 +183,17 @@ namespace VulkanCore {
         // COPY VERTEX DATA TO THE GPU BUFFER
         for (int i = 0; i < m_vertexBuffers.size(); i++)
         {
-            Utils::Logger::LogInfoVerboseOnly("Copying VERTEX buffer...");
+            if (vertexStagingBuffers[i].m_stagingBufferVK)
+            {
+                Utils::Logger::LogInfoVerboseOnly("Copying VERTEX buffer...");
 
-            vk::BufferCopy bufferCopy{};
-            bufferCopy.srcOffset = 0;
-            bufferCopy.dstOffset = m_vertexBuffers[i].copyOffSet;
-            bufferCopy.size = vertexStagingBuffers[i].size;
+                vk::BufferCopy bufferCopy{};
+                bufferCopy.srcOffset = 0;
+                bufferCopy.dstOffset = m_vertexBuffers[i].copyOffSet;
+                bufferCopy.size = vertexStagingBuffers[i].size;
 
-            cmdBuffer.copyBuffer(vertexStagingBuffers[i].m_stagingBufferVK, m_vertexBuffers[i].bufferVK, bufferCopy);
+                cmdBuffer.copyBuffer(vertexStagingBuffers[i].m_stagingBufferVK, m_vertexBuffers[i].bufferVK, bufferCopy);
+            }
         }
 
         // COPY VERTEX BB DATA TO THE GPU BUFFER
@@ -209,14 +212,17 @@ namespace VulkanCore {
         //COPY INDEX DATA TO THE GPU
         for (int i = 0; i < m_indexBuffers.size(); i++)
         {
-            Utils::Logger::LogInfoVerboseOnly("Copying INDEX buffer...");
+            if (indexStagingBuffers[i].m_stagingBufferVK)
+            {
+                Utils::Logger::LogInfoVerboseOnly("Copying INDEX buffer...");
 
-            vk::BufferCopy bufferCopy{};
-            bufferCopy.srcOffset = 0;
-            bufferCopy.dstOffset = m_indexBuffers[i].copyOffSet;
-            bufferCopy.size = indexStagingBuffers[i].size;
+                vk::BufferCopy bufferCopy{};
+                bufferCopy.srcOffset = 0;
+                bufferCopy.dstOffset = m_indexBuffers[i].copyOffSet;
+                bufferCopy.size = indexStagingBuffers[i].size;
 
-            cmdBuffer.copyBuffer(indexStagingBuffers[i].m_stagingBufferVK, m_indexBuffers[i].bufferVK, bufferCopy);
+                cmdBuffer.copyBuffer(indexStagingBuffers[i].m_stagingBufferVK, m_indexBuffers[i].bufferVK, bufferCopy);
+            }
         }
 
         for (int i = 0; i < m_vertexBuffers.size(); i++)

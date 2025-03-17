@@ -356,9 +356,9 @@ namespace Renderer
                 currentVertexBuffer = drawCall.meshData->vertexData;
             }
 
-            if(currentIndexBuffer.buffer != drawCall.meshData->indexData.buffer){
+            if(currentIndexBuffer != drawCall.meshData->indexData){
                 cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
-                currentIndexBuffer.buffer = drawCall.meshData->indexData.buffer;
+                currentIndexBuffer = drawCall.meshData->indexData;
             }
 
             cmdBuffer.pushDescriptorSetWithTemplateKHR(
