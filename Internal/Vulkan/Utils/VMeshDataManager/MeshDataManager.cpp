@@ -120,6 +120,7 @@ namespace VulkanCore {
         return bufferInfo;
     }
 
+
     VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateIndexBuffer(const std::vector<uint32_t>& indices)
     {
         SelectMostSuitableBuffer(EBufferType::Index, indices.size()*sizeof(uint32_t));
@@ -146,9 +147,12 @@ namespace VulkanCore {
         std::vector<VulkanStructs::StagingBufferInfo> vertexStagingBuffers(m_vertexBuffers.size());
         for (int i = 0; i<m_vertexBuffers.size(); i++)
         {
-            vertexStagingBuffers[i] = VulkanUtils::CreateStagingBuffer(m_device, m_stagingVertices[i].size() * sizeof(ApplicationCore::Vertex));
-            memcpy(vertexStagingBuffers[i].mappedPointer, m_stagingVertices[i].data(), vertexStagingBuffers[i].size);
-            vmaUnmapMemory(m_device.GetAllocator(), vertexStagingBuffers[i].m_stagingAllocation);
+            if (!m_stagingVertices[i].empty())
+            {
+                vertexStagingBuffers[i] = VulkanUtils::CreateStagingBuffer(m_device, m_stagingVertices[i].size() * sizeof(ApplicationCore::Vertex));
+                memcpy(vertexStagingBuffers[i].mappedPointer, m_stagingVertices[i].data(), vertexStagingBuffers[i].size);
+                vmaUnmapMemory(m_device.GetAllocator(), vertexStagingBuffers[i].m_stagingAllocation);
+            }
         }
 
         //=========================================================================================================================================
@@ -165,11 +169,13 @@ namespace VulkanCore {
         std::vector<VulkanStructs::StagingBufferInfo> indexStagingBuffers(m_indexBuffers.size());
         for (int i = 0; i<m_indexBuffers.size(); i++)
         {
-            indexStagingBuffers[i] = VulkanUtils::CreateStagingBuffer(m_device, m_stagingIndices.size() * sizeof(uint32_t));
-            memcpy(indexStagingBuffers[i].mappedPointer, m_stagingIndices[i].data(), indexStagingBuffers[i].size);
-                    vmaUnmapMemory(m_device.GetAllocator(), indexStagingBuffers[i].m_stagingAllocation);
+            if (!m_stagingIndices[i].empty())
+            {
+                indexStagingBuffers[i] = VulkanUtils::CreateStagingBuffer(m_device, m_stagingIndices[i].size() * sizeof(uint32_t));
+                memcpy(indexStagingBuffers[i].mappedPointer, m_stagingIndices[i].data(), indexStagingBuffers[i].size);
+                vmaUnmapMemory(m_device.GetAllocator(), indexStagingBuffers[i].m_stagingAllocation);
+            }
         }
-
 
         assert(m_transferOpsManager.GetCommandBuffer().GetIsRecording() && "Command buffer is not recording any commands, before using it make sure it is in recording state  !");
         auto &cmdBuffer = m_transferOpsManager.GetCommandBuffer().GetCommandBuffer();
@@ -211,7 +217,6 @@ namespace VulkanCore {
             bufferCopy.size = indexStagingBuffers[i].size;
 
             cmdBuffer.copyBuffer(indexStagingBuffers[i].m_stagingBufferVK, m_indexBuffers[i].bufferVK, bufferCopy);
-
         }
 
         for (int i = 0; i < m_vertexBuffers.size(); i++)
