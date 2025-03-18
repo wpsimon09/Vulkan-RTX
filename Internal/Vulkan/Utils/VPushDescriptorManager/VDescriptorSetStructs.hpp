@@ -1,0 +1,8 @@
+//
+// Created by wpsimon09 on 18/03/25.
+//
+
+#ifndef VDESCRIPTORSETSTRUCTS_HPP
+#define VDESCRIPTORSETSTRUCTS_HPP
+
+#endif //VDESCRIPTORSETSTRUCTS_HPP
