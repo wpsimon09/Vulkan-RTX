@@ -12,10 +12,6 @@
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "VMA/vk_mem_alloc.h"
 
-#ifndef BUFFER_SIZE
-    #define BUFFER_SIZE 16777216 // 16MB
-#endif
-
 
 namespace LightStructs
 {
@@ -143,7 +139,7 @@ namespace VulkanStructs
 
     struct GPUBufferInfo
     {
-        vk::DeviceSize size = BUFFER_SIZE;
+        vk::DeviceSize size = 0;
         vk::DeviceSize currentOffset = 0;
         vk::DeviceSize copyOffSet = 0;
         vk::DeviceSize baseOffset = 0;

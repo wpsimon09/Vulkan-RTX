@@ -255,9 +255,9 @@ namespace VulkanCore {
             {
                 stagingIndices.second.clear();
             }
-            for (auto& stagingVertics: m_stagingVertices )
+            for (auto& stagingVertex: m_stagingVertices )
             {
-                stagingVertics.second.clear();
+                stagingVertex.second.clear();
             }
             m_stagingVertices_BB.clear();
         }
@@ -322,6 +322,7 @@ namespace VulkanCore {
         m_vertexBuffers.reserve(GlobalVariables::EngineOptions::VertexBufferChunkSize);
         Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
         VulkanStructs::GPUBufferInfo newVertexBuffer{};
+        newVertexBuffer.size = GlobalVariables::EngineOptions::VertexBufferChunkSize;
         newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc;
         CreateBuffer(newVertexBuffer);
         m_vertexBuffers.emplace_back(newVertexBuffer);
@@ -349,6 +350,7 @@ namespace VulkanCore {
         m_indexBuffers.reserve(GlobalVariables::EngineOptions::IndexBufferChunkSize);
         Utils::Logger::LogInfo("Allocating NEW 16MB IndexBuffer");
         VulkanStructs::GPUBufferInfo newIndexBuffer{};
+        newIndexBuffer.size = GlobalVariables::EngineOptions::IndexBufferChunkSize;
         newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc;
         CreateBuffer(newIndexBuffer);
         m_indexBuffers.emplace_back(newIndexBuffer);
