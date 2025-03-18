@@ -193,6 +193,7 @@ namespace VulkanCore {
                 bufferCopy.size = vertexStagingBuffers[i].size;
 
                 cmdBuffer.copyBuffer(vertexStagingBuffers[i].m_stagingBufferVK, m_vertexBuffers[i].bufferVK, bufferCopy);
+                m_vertexBuffers[i].copyOffSet += vertexStagingBuffers[i].size;
             }
         }
 
@@ -222,18 +223,11 @@ namespace VulkanCore {
                 bufferCopy.size = indexStagingBuffers[i].size;
 
                 cmdBuffer.copyBuffer(indexStagingBuffers[i].m_stagingBufferVK, m_indexBuffers[i].bufferVK, bufferCopy);
+                m_indexBuffers[i].copyOffSet  += indexStagingBuffers[i].size;
             }
         }
 
-        for (int i = 0; i < m_vertexBuffers.size(); i++)
-        {
-            m_currentVertexBuffer->copyOffSet += vertexStagingBuffers[i].size;
-        }
 
-        for (int i = 0; i < m_indexBuffers.size(); i++)
-        {
-            m_currentIndexBuffer->copyOffSet  += indexStagingBuffers[i].size;
-        }
 
         m_currentVertexBuffer_BB->copyOffSet += vertexStaginBuffer_BB.size;
 
