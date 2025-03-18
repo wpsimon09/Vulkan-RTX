@@ -185,6 +185,9 @@ set(SOURCES
         Internal/Vulkan/Global/RenderingOptions.hpp
         Internal/Vulkan/Global/EngineOptions.hpp
         Internal/Editor/EditorOptions.hpp
+        Internal/Vulkan/Utils/VPushDescriptorManager/VDescriptorSetStructs.hpp
+        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptor.cpp
+        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptor.hpp
 
 )
 

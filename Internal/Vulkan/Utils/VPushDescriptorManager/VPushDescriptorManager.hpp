@@ -9,6 +9,7 @@
 
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include "vulkan/vulkan.hpp"
+#include "VDescriptorSetStructs.hpp"
 
 namespace VulkanCore
 {
@@ -23,25 +24,6 @@ namespace VulkanCore
 
 namespace VulkanUtils {
 
-struct DescriptorSetData
-{
-    vk::DescriptorBufferInfo cameraUBOBuffer; // for camera uniform buffer
-
-    vk::DescriptorBufferInfo pbrMaterialNoTexture; // for material uniform buffer
-    vk::DescriptorBufferInfo pbrMaterialFeatures; // for material uniform buffer
-
-    vk::DescriptorBufferInfo meshUBBOBuffer; // for mesh uniform buffer
-
-    vk::DescriptorImageInfo diffuseTextureImage; // for diffuse
-    vk::DescriptorImageInfo normalTextureImage; // for normal
-    vk::DescriptorImageInfo armTextureImage; // for arm
-    vk::DescriptorImageInfo emissiveTextureImage; // for emisive texture
-
-    vk::DescriptorBufferInfo lightInformation; // all light information
-
-    vk::DescriptorImageInfo LUT_LTC; // for linearly transformed cosines
-    vk::DescriptorImageInfo LUT_LTC_Inverse; // for linearly transformed cosines
-};
 
 class VPushDescriptorManager {
 public:
@@ -51,7 +33,7 @@ public:
     void CreateUpdateTemplate(const VulkanCore::VGraphicsPipeline& pipeline);
     const vk::DescriptorUpdateTemplate& GetTemplate() const {return m_descriptorUpdateTemplate;}
 
-    DescriptorSetData& GetDescriptorSetDataStruct() { return m_descriptorSetData; };
+    VulkanUtils::DescriptorSetData& GetDescriptorSetDataStruct() { return m_descriptorSetData; };
     const VulkanCore::VDescriptorSetLayout& GetLayout() const {return *m_descriptorSetLayout;}
 
     void Destroy();
@@ -62,7 +44,8 @@ private:
     std::unique_ptr<VulkanCore::VDescriptorSetLayout> m_descriptorSetLayout;
     std::vector<vk::DescriptorUpdateTemplateEntry> m_descriptorTemplateEntries;
 
-    DescriptorSetData m_descriptorSetData;
+
+    VulkanUtils::DescriptorSetData m_descriptorSetData;
 };
 
 } // VulkanUtils

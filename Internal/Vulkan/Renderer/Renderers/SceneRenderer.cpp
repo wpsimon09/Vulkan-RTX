@@ -25,6 +25,7 @@
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
+#include "Vulkan/Utils/VPushDescriptorManager/VDescriptorSetStructs.hpp"
 
 
 namespace Renderer
