@@ -333,6 +333,7 @@ namespace VulkanCore {
         if (createForBoundingBox)
         {
             VulkanStructs::GPUBufferInfo newBBVertexBuffer{};
+            newBBVertexBuffer.size = GlobalVariables::EngineOptions::VertexBufferChunkSize;
             newBBVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc;;
             CreateBuffer(newBBVertexBuffer);
             m_vertexBuffers_BB.emplace_back(newBBVertexBuffer);

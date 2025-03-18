@@ -8,8 +8,8 @@
 
 namespace GlobalVariables::EngineOptions
 {
-    inline size_t VertexBufferChunkSize = BUFFER_SIZE;
-    inline size_t IndexBufferChunkSize = BUFFER_SIZE;
+    inline size_t VertexBufferChunkSize = 0;
+    inline size_t IndexBufferChunkSize =  0;
 }
 
 #endif //ENGINEOPTIONS_HPP
