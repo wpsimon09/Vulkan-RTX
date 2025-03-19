@@ -55,6 +55,7 @@
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
 Application::Application()
@@ -85,6 +86,8 @@ void Application::Init()
     m_client->Init();
 
     m_pushDescriptorSetManager = std::make_unique<VulkanUtils::VPushDescriptorManager>(*m_vulkanDevice);
+
+
 
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 

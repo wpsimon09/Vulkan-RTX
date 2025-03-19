@@ -43,6 +43,8 @@ public:
     void CreateUpdateTemplate(const VulkanCore::VGraphicsPipeline& pipeline);
     const vk::DescriptorUpdateTemplate& GetTemplate() const {return m_descriptorUpdateTemplate;}
 
+    PushDescriptorVariant& GetPushDescriptor(EDescriptorLayoutStruct layoutType){return m_pushDescriptors[layoutType];}
+
     VulkanUtils::DescriptorSetData& GetDescriptorSetDataStruct() { return m_descriptorSetData; };
     const VulkanCore::VDescriptorSetLayout& GetLayout() const {return *m_descriptorSetLayout;}
 

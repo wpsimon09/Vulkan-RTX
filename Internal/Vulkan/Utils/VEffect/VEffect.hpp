@@ -19,7 +19,6 @@ class VEffect {
 public:
     VEffect(const VulkanCore::VDevice& device, const VulkanCore::VShader& shader,const Renderer::RenderTarget &effectOutput, VulkanUtils::PushDescriptorVariant& descriptorSet);
 
-
     //=======================================
     // Effect building
     //=======================================
@@ -29,7 +28,7 @@ public:
     void SetDisableDepthWrite();
     void SetTopology(vk::PrimitiveTopology topology);
     void SetPolygonLine();
-    void SetPolgonPoint();
+    void SetPolygonPoint();
     //=======================================
 
     void BuildEffect();
@@ -38,8 +37,7 @@ private:
     std::unique_ptr<VulkanCore::VGraphicsPipeline> m_pipeline;
     const VulkanCore::VDevice& m_device;
 
-    template<typename T>
-    T m_dstStruct;
+    DescriptorSetTemplateVariant m_dstStruct;
 };
 
 } // VulkanUtils

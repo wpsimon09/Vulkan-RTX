@@ -20,21 +20,22 @@ namespace VulkanUtils
             if constexpr (std::is_same_v<T, VulkanUtils::VPushDescriptorSet<VulkanUtils::BasicDescriptorSet>>)
             {
                 m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
-                    device, shader, effectOutput, dstSet.GetLayout());
-                m_dstStruct<VulkanUtils::BasicDescriptorSet> = dstSet.GetDescriptorSet();
+                    device, shader, effectOutput, dstSet->GetLayout());
+                m_dstStruct = dstSet->GetDstStruct();
             }
             else if constexpr (std::is_same_v<T, VulkanUtils::VPushDescriptorSet<VulkanUtils::UnlitSingleTexture>>)
             {
                 m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
-                    device, shader, effectOutput, dstSet.GetLayout());
-                m_dstStruct<VulkanUtils::UnlitSingleTexture> = dstSet.GetDescriptorSet();
+                    device, shader, effectOutput, dstSet->GetLayout());
+                m_dstStruct = dstSet->GetDstStruct();
 
             }
             else if constexpr (std::is_same_v<T, VulkanUtils::VPushDescriptorSet<VulkanUtils::ForwardShadingDstSet>>)
             {
+                //TODO: does not have update entries and thus gives segv....
                 m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
-                    device, shader, effectOutput, dstSet.GetLayout());
-                m_dstStruct<VulkanUtils::ForwardShadingDstSet> = dstSet.GetDescriptorSet();
+                    device, shader, effectOutput, dstSet->GetLayout());
+                m_dstStruct = dstSet->GetDstStruct();
             }
         }, descriptorSet);
     }
@@ -70,7 +71,7 @@ namespace VulkanUtils
             m_pipeline->m_rasterizer.polygonMode = vk::PolygonMode::eLine;
         }
 
-        void VEffect::SetPolgonPoint()
+        void VEffect::SetPolygonPoint()
         {
             m_pipeline->m_rasterizer.polygonMode = vk::PolygonMode::ePoint;
         }
@@ -78,9 +79,10 @@ namespace VulkanUtils
         void VEffect::BuildEffect()
         {
 
-            for (auto& p: m_device.GetDevice().createGraphicsPipelines(nullptr, m_pipeline->GetGraphicsPipelineCreateInfoStruct()))
+            auto pipelines =  m_device.GetDevice().createGraphicsPipelines(nullptr, m_pipeline->GetGraphicsPipelineCreateInfoStruct());
+            assert(pipelines.result == vk::Result::eSuccess);
+            for (auto &p : pipelines.value)
             {
-                assert(p.result == vk::Result::eSuccess);
                 m_pipeline->SetCreatedPipeline(p);
             }
         }

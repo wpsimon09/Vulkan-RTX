@@ -12,6 +12,7 @@
 #include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
@@ -71,6 +72,16 @@ namespace Renderer {
         m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
 
         m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
+
+
+
+        auto multiLightPipelineVertexShaderSource = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
+        auto multiLightPipelineFragmnetShaderSource = "Shaders/Compiled/GGXColourFragmentMultiLight.frag.slang.spv";
+        auto m_multiLightShader = std::make_unique<VulkanCore::VShader>(m_device, multiLightPipelineVertexShaderSource,
+                                                                        multiLightPipelineFragmnetShaderSource);
+
+        auto effect = std::make_unique<VulkanUtils::VEffect>(m_device, *m_multiLightShader, m_sceneRenderer->GetRenderTarget(), m_pushDescriptorSetManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
+        effect->BuildEffect();
 
     }
 

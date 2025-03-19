@@ -46,6 +46,11 @@ namespace VulkanUtils
         // ohter look up tables, irradiance, radiance maps etc...
     };
 
+    using DescriptorSetTemplateVariant = std::variant<
+        BasicDescriptorSet,
+        UnlitSingleTexture,
+        ForwardShadingDstSet> ;
+
     struct DescriptorSetData
     {
         vk::DescriptorBufferInfo cameraUBOBuffer; // for camera uniform buffer

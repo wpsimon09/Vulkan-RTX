@@ -64,6 +64,7 @@ public:
     void Update();
     void Destroy();
 
+
 private:
 
     const VulkanCore::VDevice &m_device;
