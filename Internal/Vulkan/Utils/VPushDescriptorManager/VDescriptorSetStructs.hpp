@@ -7,6 +7,13 @@
 #include <vulkan/vulkan.hpp>
 namespace VulkanUtils
 {
+    struct BasicDescriptorSet
+    {
+        vk::DescriptorBufferInfo cameraUBOBuffer; // for camera uniform buffer
+        vk::DescriptorBufferInfo meshUBBOBuffer; // for mesh uniform buffer
+        vk::DescriptorBufferInfo extraBuffer;
+    };
+
     struct DescriptorSetData
     {
         vk::DescriptorBufferInfo cameraUBOBuffer; // for camera uniform buffer
