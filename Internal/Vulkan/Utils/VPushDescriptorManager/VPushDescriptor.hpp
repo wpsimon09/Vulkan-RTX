@@ -20,16 +20,16 @@ template<typename T>
 class VPushDescriptorSet
 {
 public:
-    VPushDescriptorSet(const VulkanCore::VDevice &device,std::string& name, std::unique_ptr<VulkanCore::VDescriptorSetLayout> dstLayout,T& dstStruct)
-        :m_device(device), m_dstStruct(dstStruct), m_name(name), m_dstLayout(std::move(dstLayout))
+    VPushDescriptorSet(const VulkanCore::VDevice &device,const std::string& name, std::unique_ptr<VulkanCore::VDescriptorSetLayout> dstLayout)
+        :m_device(device), m_dstStruct{}, m_name(name), m_dstLayout(std::move(dstLayout))
     {};
 
-    T& GetDstStruct() {return m_dstStruct;};
-    VulkanCore::VDescriptorSetLayout& GetLayout(){return *m_dstLayout; }
-    std::string& GetName(){return m_name;};
+    T& GetDstStruct()                               {return m_dstStruct;}
+    VulkanCore::VDescriptorSetLayout& GetLayout()   {return *m_dstLayout; }
+    std::string& GetName()                          {return m_name;}
 
     void AddUpdateEntry(uint32_t binding,size_t offset, size_t stride );
-    void CreateUpdateEnetry(VulkanCore::VGraphicsPipeline& pipelineLayout);
+    void CreateUpdateEntry(VulkanCore::VGraphicsPipeline& pipelineLayout);
 
 private:
     const VulkanCore::VDevice &m_device;
@@ -63,7 +63,7 @@ void VPushDescriptorSet<T>::AddUpdateEntry(uint32_t binding, size_t offset, size
 }
 
 template <typename T>
-void VPushDescriptorSet<T>::CreateUpdateEnetry(VulkanCore::VGraphicsPipeline& pipelineLayout)
+void VPushDescriptorSet<T>::CreateUpdateEntry(VulkanCore::VGraphicsPipeline& pipelineLayout)
 {
     Utils::Logger::LogInfo("Creating update template object....");
     assert(!m_descriptorTemplateEntries.empty() && "No template entries found");

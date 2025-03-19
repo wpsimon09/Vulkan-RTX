@@ -7,11 +7,41 @@
 #include <vulkan/vulkan.hpp>
 namespace VulkanUtils
 {
+    enum class EDescriptorLayoutStruct: uint8_t
+    {
+        Basic = 0,
+        UnlitSingleTexture,
+        ForwardShading
+    };
+
     struct BasicDescriptorSet
     {
         vk::DescriptorBufferInfo cameraUBOBuffer; // for camera uniform buffer
         vk::DescriptorBufferInfo meshUBBOBuffer; // for mesh uniform buffer
         vk::DescriptorBufferInfo extraBuffer;
+    };
+
+    struct UnlitSingleTexture:BasicDescriptorSet
+    {
+        vk::DescriptorImageInfo texture;
+        // ohter look up tables, irradiance, radiance maps etc...
+    };
+
+    struct ForwardShadingDstSet:BasicDescriptorSet
+    {
+        vk::DescriptorBufferInfo pbrMaterialNoTexture; // for material uniform buffer
+        vk::DescriptorBufferInfo pbrMaterialFeatures; // for material uniform buffer
+        vk::DescriptorBufferInfo lightInformation; // all light information
+
+        vk::DescriptorImageInfo diffuseTextureImage; // for diffuse
+        vk::DescriptorImageInfo normalTextureImage; // for normal
+        vk::DescriptorImageInfo armTextureImage; // for arm
+        vk::DescriptorImageInfo emissiveTextureImage; // for emisive texture
+
+        vk::DescriptorImageInfo LUT_LTC; // for linearly transformed cosines
+        vk::DescriptorImageInfo LUT_LTC_Inverse; // for linearly transformed cosines
+
+        // ohter look up tables, irradiance, radiance maps etc...
     };
 
     struct DescriptorSetData

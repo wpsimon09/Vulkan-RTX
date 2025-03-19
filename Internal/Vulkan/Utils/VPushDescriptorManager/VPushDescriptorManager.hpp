@@ -4,6 +4,7 @@
 
 #ifndef VPUSHDESCRIPTORMANAGER_HPP
 #define VPUSHDESCRIPTORMANAGER_HPP
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -44,8 +45,9 @@ private:
     std::unique_ptr<VulkanCore::VDescriptorSetLayout> m_descriptorSetLayout;
     std::vector<vk::DescriptorUpdateTemplateEntry> m_descriptorTemplateEntries;
 
-
     VulkanUtils::DescriptorSetData m_descriptorSetData;
+
+    std::map<VulkanUtils::EDescriptorLayoutStruct, std::unique_ptr<VulkanCore::VDescriptorSet>> m_pushDescriptors;
 };
 
 } // VulkanUtils
