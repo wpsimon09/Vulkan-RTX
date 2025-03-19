@@ -11,10 +11,6 @@
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include "vector"
 
-namespace VulkanCore
-{
-    class VDescriptorSetLayout;
-}
 
 namespace Renderer
 {
@@ -23,6 +19,7 @@ namespace Renderer
 
 namespace VulkanCore
 {
+    class VDescriptorSetLayout;
     class VSwapChain;
     class VDevice;
     class VRenderPass;

@@ -10,6 +10,7 @@
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include <vulkan/vulkan.hpp>
 
+
 namespace VulkanUtils
 {
     class VPushDescriptorManager;
@@ -48,7 +49,7 @@ namespace VulkanCore
         explicit VDescriptorSetLayout(const VulkanCore::VDevice &device,
                                       std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> bindings);
         const vk::DescriptorSetLayout &GetLayout() const { return m_descriptorSetLayout; };
-
+        auto& GetBindings() {return m_descriptorSetLayoutBindings;}
         void Destroy() override;
 
     private:

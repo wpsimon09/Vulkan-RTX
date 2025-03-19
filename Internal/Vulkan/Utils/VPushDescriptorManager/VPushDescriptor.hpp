@@ -8,13 +8,10 @@
 #include <string>
 #include <vector>
 
+#include "Application/Logger/Logger.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
-
-namespace VulkanCore
-{
-    class VDescriptorSetLayout;
-    class VDevice;
-}
+#include "Vulkan/VulkanCore/Device/VDevice.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 
 namespace VulkanUtils {
 
@@ -23,7 +20,24 @@ class VPushDescriptorSet
 {
 public:
     VPushDescriptorSet(const VulkanCore::VDevice &device,std::string& name, std::unique_ptr<VulkanCore::VDescriptorSetLayout> dstLayout,T& dstStruct)
-        :m_device(device), m_name(name), m_dstLayout(std::move(dstLayout)), m_dstStruct(dstStruct)  {};
+        :m_device(device), m_dstStruct(dstStruct), m_name(name), m_dstLayout(std::move(dstLayout))
+    {
+
+        Utils::Logger::LogInfo("Creating update template object....");
+        assert(!m_descriptorTemplateEntries.empty() && "No template entries found");
+        vk::DescriptorUpdateTemplateCreateInfo createInfo{};
+        createInfo.descriptorUpdateEntryCount = static_cast<uint32_t>(m_descriptorTemplateEntries.size());
+        createInfo.pDescriptorUpdateEntries = m_descriptorTemplateEntries.data();
+        createInfo.templateType =  vk::DescriptorUpdateTemplateType::ePushDescriptors;
+        createInfo.descriptorSetLayout =nullptr;
+        createInfo.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+        createInfo.pipelineLayout = dstLayout->GetLayout();
+
+        m_descriptorUpdateTemplate = m_device.GetDevice().createDescriptorUpdateTemplate(createInfo);
+
+        assert(m_descriptorUpdateTemplate);
+        Utils::Logger::LogSuccess(  "Update template created !");
+    };
 
     T& GetDstStruct() {return m_dstStruct;};
     VulkanCore::VDescriptorSetLayout& GetLayout(){return *m_dstLayout; }
@@ -48,7 +62,16 @@ private:
 template <typename T>
 void VPushDescriptorSet<T>::AddUpdateEntry(uint32_t binding, size_t offset, size_t stride)
 {
+    assert(m_dstLayout->GetBindings().count(binding) == 1 && "Binding is not part of the descriptor layout !");
+    vk::DescriptorUpdateTemplateEntry entry{};
+    entry.descriptorCount = 1;
+    entry.offset = offset;
+    entry.stride = stride;
+    entry.dstBinding = binding;
+    entry.descriptorType = m_dstLayout->GetBindings()[binding].descriptorType;
+    entry.dstArrayElement = 0;
 
+    m_descriptorTemplateEntries.push_back(entry);
 }
 
 
