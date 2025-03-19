@@ -11,6 +11,7 @@
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include "vulkan/vulkan.hpp"
 #include "VDescriptorSetStructs.hpp"
+#include "VPushDescriptor.hpp"
 
 namespace VulkanCore
 {
@@ -22,6 +23,8 @@ namespace VulkanCore
     class VDescriptorSetLayout;
     class VDevice;
 }
+
+
 
 namespace VulkanUtils {
 
@@ -47,7 +50,13 @@ private:
 
     VulkanUtils::DescriptorSetData m_descriptorSetData;
 
-    std::map<VulkanUtils::EDescriptorLayoutStruct, std::unique_ptr<VulkanCore::VDescriptorSet>> m_pushDescriptors;
+    using PushDescriptorVariant =  std::variant<
+        std::unique_ptr<VulkanUtils::VPushDescriptorSet<VulkanUtils::BasicDescriptorSet>>,
+        std::unique_ptr<VulkanUtils::VPushDescriptorSet<VulkanUtils::ForwardShadingDstSet>>,
+        std::unique_ptr<VulkanUtils::VPushDescriptorSet<VulkanUtils::UnlitSingleTexture>>>;
+
+    std::map<EDescriptorLayoutStruct, PushDescriptorVariant> m_pushDescriptors;
+
 };
 
 } // VulkanUtils

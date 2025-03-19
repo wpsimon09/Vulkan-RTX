@@ -19,15 +19,17 @@ namespace VulkanUtils
         vk::DescriptorBufferInfo cameraUBOBuffer; // for camera uniform buffer
         vk::DescriptorBufferInfo meshUBBOBuffer; // for mesh uniform buffer
         vk::DescriptorBufferInfo extraBuffer;
+
+        virtual ~BasicDescriptorSet() = default;
     };
 
-    struct UnlitSingleTexture:BasicDescriptorSet
+    struct UnlitSingleTexture:public BasicDescriptorSet
     {
         vk::DescriptorImageInfo texture;
         // ohter look up tables, irradiance, radiance maps etc...
     };
 
-    struct ForwardShadingDstSet:BasicDescriptorSet
+    struct ForwardShadingDstSet:public BasicDescriptorSet
     {
         vk::DescriptorBufferInfo pbrMaterialNoTexture; // for material uniform buffer
         vk::DescriptorBufferInfo pbrMaterialFeatures; // for material uniform buffer

@@ -35,52 +35,56 @@ namespace VulkanUtils {
 
             .Build();
 
-        auto UnlitSingleTextureLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
-        // Global data (camera uniform buffer)
-        .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-        // Per object data (mesh uniform buffer)
-        .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-        // Texture (albedo)
-        .AddBinding(2, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-        .Build();
+            auto UnlitSingleTextureLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
+            // Global data (camera uniform buffer)
+            .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            // Per object data (mesh uniform buffer)
+            .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            // Texture (albedo)
+            .AddBinding(2, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+            .Build();
 
+            m_pushDescriptors[EDescriptorLayoutStruct::UnlitSingleTexture] =
+                std::make_unique<VPushDescriptorSet<VulkanUtils::UnlitSingleTexture>>(m_device, std::string("Unlit single texture"), std::move(UnlitSingleTextureLayout));
 
+            auto ForwardShadingDstSetLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
+            // Global data (camera uniform buffer)
+            .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            // Per object data (mesh uniform buffer)
+            .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            // Material data (PBR material features)
+            .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
+            // Material data (PBR material no texture)
+            .AddBinding(3, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
+            // Albedo texture
+            .AddBinding(4, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+            // Normal texture
+            .AddBinding(5, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+            // ARM texture (Ambient, Roughness, Metallic)
+            .AddBinding(6, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+            // Emissive texture
+            .AddBinding(7, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+            // Light information (uniform buffer)
+            .AddBinding(8, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
+            // LTC (Linearly Transformed Cosines) lookup table
+            .AddBinding(9, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+            // LTC inverse lookup table
+            .AddBinding(10, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
 
-        m_pushDescriptors[VulkanUtils::EDescriptorLayoutStruct::Basic] =
-            std::make_unique<VPushDescriptorSet<VulkanUtils::UnlitSingleTexture>>(m_device, std::string("Unlit single texture"), std::move(UnlitSingleTextureLayout));
+            .Build();
 
-        auto ForwardShadingDstSetLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
-        // Global data (camera uniform buffer)
-        .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-        // Per object data (mesh uniform buffer)
-        .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-        // Material data (PBR material features)
-        .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
-        // Material data (PBR material no texture)
-        .AddBinding(3, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
-        // Albedo texture
-        .AddBinding(4, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-        // Normal texture
-        .AddBinding(5, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-        // ARM texture (Ambient, Roughness, Metallic)
-        .AddBinding(6, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-        // Emissive texture
-        .AddBinding(7, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-        // Light information (uniform buffer)
-        .AddBinding(8, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
-        // LTC (Linearly Transformed Cosines) lookup table
-        .AddBinding(9, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-        // LTC inverse lookup table
-        .AddBinding(10, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+            m_pushDescriptors[EDescriptorLayoutStruct::ForwardShading] = std::make_unique<VPushDescriptorSet<VulkanUtils::ForwardShadingDstSet>>(
+                m_device, std::string("Forward shading dst set"), std::move(ForwardShadingDstSetLayout));
 
-        .Build();
+            auto BasicDescriptorSetLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
+            // Global data (camera uniform buffer)
+            .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            // Per object data (mesh uniform buffer)
+            .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            .Build();
 
-        auto BasicDescriptorSetLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
-        // Global data (camera uniform buffer)
-        .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-        // Per object data (mesh uniform buffer)
-        .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-        .Build();
+            m_pushDescriptors[EDescriptorLayoutStruct::Basic] =
+                std::make_unique<VPushDescriptorSet<VulkanUtils::BasicDescriptorSet>>(m_device, std::string("Basic descriptor set"), std::move(BasicDescriptorSetLayout));
 
 
     }
