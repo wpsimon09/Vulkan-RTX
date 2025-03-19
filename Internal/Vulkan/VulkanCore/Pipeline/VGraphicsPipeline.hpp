@@ -11,6 +11,10 @@
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include "vector"
 
+namespace VulkanUtils
+{
+    class VEffect;
+}
 
 namespace Renderer
 {
@@ -32,7 +36,7 @@ namespace VulkanCore
     {
 
     public:
-        VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
+        VGraphicsPipeline(const VulkanCore::VDevice &device,
                           const VulkanCore::VShader &shaders, const Renderer::RenderTarget &renderTarget,
                           const VulkanCore::VDescriptorSetLayout &descriptorLayout);
 
@@ -66,7 +70,6 @@ namespace VulkanCore
     private:
         const VulkanCore::VShader &m_shaders;
         const VulkanCore::VDevice &m_device;
-        const VulkanCore::VSwapChain &m_swapChain;
         const VulkanCore::VDescriptorSetLayout& m_descriptorSetLayout;
         const Renderer::RenderTarget &m_renderTarget;
 
@@ -193,6 +196,9 @@ namespace VulkanCore
         
         void EnableBlendingAdditive();
         void EnableBlendingAlpha();
+
+    private:
+        friend VulkanUtils::VEffect;
     };
 }
 

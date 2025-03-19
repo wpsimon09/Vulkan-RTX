@@ -18,9 +18,9 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 
-VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice &device, const VulkanCore::VSwapChain &swapChain,
+VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice &device,
                                                  const VulkanCore::VShader &shaders, const Renderer::RenderTarget &renderTarget, const VulkanCore::VDescriptorSetLayout &descriptorLayout)
-        : VObject(), m_shaders(shaders), m_device(device),m_swapChain(swapChain), m_renderTarget(renderTarget), m_descriptorSetLayout(descriptorLayout)
+        : VObject(), m_shaders(shaders), m_device(device), m_renderTarget(renderTarget), m_descriptorSetLayout(descriptorLayout)
 {}
 
 
@@ -125,15 +125,15 @@ void VulkanCore::VGraphicsPipeline::CreateDynamicViewPort() {
     //--------------------
     m_viewport.x = 0.0f;
     m_viewport.y = 0.0f;
-    m_viewport.width =(float) m_swapChain.GetExtent().width;
-    m_viewport.height =(float) m_swapChain.GetExtent().height;
+    m_viewport.width =0;
+    m_viewport.height =0;
     m_viewport.minDepth = 0.0f;
     m_viewport.maxDepth = 1.0f;
 
     //-------------------P
     // SCISSORS
     //-------------------
-    m_scissor.extent = m_swapChain.GetExtent();
+    m_scissor.extent = 0;
     m_scissor.offset =vk::Offset2D(0,0);
 
 

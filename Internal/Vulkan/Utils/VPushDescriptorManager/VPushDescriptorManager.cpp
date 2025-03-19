@@ -45,7 +45,7 @@ namespace VulkanUtils {
             .Build();
 
             m_pushDescriptors[EDescriptorLayoutStruct::UnlitSingleTexture] =
-                std::make_unique<VPushDescriptorSet<VulkanUtils::UnlitSingleTexture>>(m_device, std::string("Unlit single texture"), std::move(UnlitSingleTextureLayout));
+                std::make_shared<VPushDescriptorSet<VulkanUtils::UnlitSingleTexture>>(m_device, std::string("Unlit single texture"), std::move(UnlitSingleTextureLayout));
 
             auto ForwardShadingDstSetLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
             // Global data (camera uniform buffer)
@@ -73,7 +73,7 @@ namespace VulkanUtils {
 
             .Build();
 
-            m_pushDescriptors[EDescriptorLayoutStruct::ForwardShading] = std::make_unique<VPushDescriptorSet<VulkanUtils::ForwardShadingDstSet>>(
+            m_pushDescriptors[EDescriptorLayoutStruct::ForwardShading] = std::make_shared<VPushDescriptorSet<VulkanUtils::ForwardShadingDstSet>>(
                 m_device, std::string("Forward shading dst set"), std::move(ForwardShadingDstSetLayout));
 
             auto BasicDescriptorSetLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
@@ -84,7 +84,7 @@ namespace VulkanUtils {
             .Build();
 
             m_pushDescriptors[EDescriptorLayoutStruct::Basic] =
-                std::make_unique<VPushDescriptorSet<VulkanUtils::BasicDescriptorSet>>(m_device, std::string("Basic descriptor set"), std::move(BasicDescriptorSetLayout));
+                std::make_shared<VPushDescriptorSet<VulkanUtils::BasicDescriptorSet>>(m_device, std::string("Basic descriptor set"), std::move(BasicDescriptorSetLayout));
 
 
     }
