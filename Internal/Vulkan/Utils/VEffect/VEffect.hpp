@@ -38,6 +38,7 @@ private:
     const VulkanCore::VDevice& m_device;
 
     DescriptorSetTemplateVariant m_dstStruct;
+    PushDescriptorVariant m_pushDescriptor;
 };
 
 } // VulkanUtils

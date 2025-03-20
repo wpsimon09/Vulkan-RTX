@@ -30,14 +30,90 @@ namespace VulkanCore {
         Utils::Logger::LogSuccess("Descriptor set layout created");
     }
 
+    VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device,
+        const VulkanUtils::DescriptorSetTemplateVariant& dstSetTemplate):m_device(), m_descriptorSetTemplateStruct(dstSetTemplate)
+    {
+        std::visit([this, &device](auto &templateStruct)
+    {
+        using t = std::decay_t<decltype(templateStruct)>;
+
+        //if descriptors change this is where i have to update them
+
+        if constexpr (std::is_same_v<t, VulkanUtils::BasicDescriptorSet>)
+        {
+            auto BasicDescriptorSetLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
+            // Global data (camera uniform buffer)
+            .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            // Per object data (mesh uniform buffer)
+            .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            //extra data
+            .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            .Build();
+
+        }
+        else if constexpr (std::is_same_v<t, VulkanUtils::UnlitSingleTexture>)
+        {
+            auto UnlitSingleTextureLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
+            // Global data (camera uniform buffer)
+            .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            // Per object data (mesh uniform buffer)
+            .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            // Extra data
+            .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            // Texture (albedo)
+            .AddBinding(3, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+            .Build();
+
+        }
+        else if constexpr (std::is_same_v<t, VulkanUtils::ForwardShadingDstSet>)
+        {
+            auto ForwardShadingDstSetLayout = VulkanCore::VDescriptorSetLayout::Builder(device)
+          // Global data (camera uniform buffer)
+          .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+          // Per object data (mesh uniform buffer)
+          .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+          // extra data
+          .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+          // Material data (PBR material features)
+          .AddBinding(3, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
+          // Material data (PBR material no texture)
+          .AddBinding(4, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
+          // Albedo texture
+          .AddBinding(5, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+          // Normal texture
+          .AddBinding(6, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+          // ARM texture (Ambient, Roughness, Metallic)
+          .AddBinding(7, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+          // Emissive texture
+          .AddBinding(8, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+          // Light information (uniform buffer)
+          .AddBinding(9, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
+          // LTC (Linearly Transformed Cosines) lookup table
+          .AddBinding(10, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+          // LTC inverse lookup table
+          .AddBinding(11, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+
+          .Build();
+        }
+        else
+        {
+            // Handle unexpected type (optional)
+            static_assert("Unsupported descriptor set type");
+        }
+
+
+    }, dstSetTemplate);
+    }
+
     void VDescriptorSetLayout::Destroy() {
         m_device.GetDevice().destroyDescriptorSetLayout(m_descriptorSetLayout);
     }
 
     VDescriptorSetLayout::Builder::Builder(const VulkanCore::VDevice &device):m_device(device) { }
 
+
     VDescriptorSetLayout::Builder & VDescriptorSetLayout::Builder::AddBinding(uint32_t binding, vk::DescriptorType type,
-        vk::ShaderStageFlags stage, uint32_t descriptorCount) {
+                                                                              vk::ShaderStageFlags stage, uint32_t descriptorCount) {
 
         assert(m_descriptorBindings.count(binding) == 0 && "Binding already exists");
 

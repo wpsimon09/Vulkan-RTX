@@ -16,7 +16,6 @@
 
 namespace VulkanUtils {
 
-template<typename T>
 class VPushDescriptorSet
 {
 public:
@@ -24,15 +23,15 @@ public:
         :m_device(device), m_dstStruct{}, m_name(name), m_dstLayout(std::move(dstLayout))
     {};
 
-    T& GetDstStruct()                               {return m_dstStruct;}
-    VulkanCore::VDescriptorSetLayout& GetLayout()   {return *m_dstLayout; }
-    std::string& GetName()                          {return m_name;}
+    DescriptorSetTemplateVariant& GetDstStruct()                               {return m_dstStruct;}
+    VulkanCore::VDescriptorSetLayout& GetLayout()                              {return *m_dstLayout; }
+    std::string& GetName()                                                     {return m_name;}
     void CreateUpdateEntries(VulkanUtils::DescriptorSetTemplateVariant& teamplate);
 
-    void AddUpdateEntry(uint32_t binding,size_t offset, size_t stride );
     void CreateUpdateEntry(VulkanCore::VGraphicsPipeline& pipelineLayout);
 
 private:
+    void AddUpdateEntry(uint32_t binding,size_t offset, size_t stride );
     const VulkanCore::VDevice &m_device;
     T m_dstStruct;
     std::string m_name;
@@ -51,19 +50,19 @@ private:
 template <typename T>
 void VPushDescriptorSet<T>::CreateUpdateEntries(VulkanUtils::DescriptorSetTemplateVariant& teamplate)
 {
-    std::visit([this, &teamplate](auto &templateStruct)
+    std::visit([this](auto &templateStruct)
     {
-        using T = std::decay_t<decltype(templateStruct)>;
+        using t = std::decay_t<decltype(templateStruct)>;
 
         //if descriptors change this is where i have to update them
 
-        if constexpr (std::is_same_v<T, VulkanUtils::BasicDescriptorSet>)
+        if constexpr (std::is_same_v<t, VulkanUtils::BasicDescriptorSet>)
         {
             this->AddUpdateEntry(0, offsetof(VulkanUtils::BasicDescriptorSet, cameraUBOBuffer), 0);
             this->AddUpdateEntry(1, offsetof(VulkanUtils::BasicDescriptorSet, meshUBBOBuffer), 0);
             this->AddUpdateEntry(2, offsetof(VulkanUtils::BasicDescriptorSet, extraBuffer), 0);
         }
-        else if constexpr (std::is_same_v<T, VulkanUtils::UnlitSingleTexture>)
+        else if constexpr (std::is_same_v<t, VulkanUtils::UnlitSingleTexture>)
         {
             // Handle UnlitSingleTexture
             // Example: Update descriptor set entries for UnlitSingleTexture
@@ -73,7 +72,7 @@ void VPushDescriptorSet<T>::CreateUpdateEntries(VulkanUtils::DescriptorSetTempla
             this->AddUpdateEntry(3, offsetof(VulkanUtils::UnlitSingleTexture, texture), 0);
 
         }
-        else if constexpr (std::is_same_v<T, VulkanUtils::ForwardShadingDstSet>)
+        else if constexpr (std::is_same_v<t, VulkanUtils::ForwardShadingDstSet>)
         {
             this->AddUpdateEntry(0, offsetof(VulkanUtils::ForwardShadingDstSet, cameraUBOBuffer), 0);
             this->AddUpdateEntry(1, offsetof(VulkanUtils::ForwardShadingDstSet, meshUBBOBuffer), 0);
@@ -98,7 +97,6 @@ void VPushDescriptorSet<T>::CreateUpdateEntries(VulkanUtils::DescriptorSetTempla
 
 
     }, teamplate);
-
 }
 
 template <typename T>
