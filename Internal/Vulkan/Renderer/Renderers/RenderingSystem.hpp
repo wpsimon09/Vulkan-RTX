@@ -64,6 +64,7 @@ public:
     void Update();
     void Destroy();
 
+    SceneRenderer& GetSceneRenderer() {return *m_sceneRenderer;};
 
 private:
 

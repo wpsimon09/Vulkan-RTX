@@ -24,7 +24,11 @@ namespace VulkanUtils {
 class VEffect {
 public:
     VEffect(const VulkanCore::VDevice& device, const VulkanCore::VShader& shader,
-            const Renderer::RenderTarget& effectOutput, std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet);
+                const Renderer::RenderTarget& effectOutput, std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet);
+
+    VEffect(const VulkanCore::VDevice& device, const std::string& vertex, const std::string& fragment,
+            const Renderer::RenderTarget& effectOutput,
+            std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet);
 
     //=======================================
     // Effect building
@@ -42,7 +46,6 @@ public:
     void BuildEffect();
 
 private:
-    const VulkanCore::VShader& m_shader;
     const VulkanCore::VDevice& m_device;
     std::shared_ptr<VulkanUtils::VPushDescriptorSet> m_descriptorSet;
     std::unique_ptr<VulkanCore::VGraphicsPipeline> m_pipeline;
