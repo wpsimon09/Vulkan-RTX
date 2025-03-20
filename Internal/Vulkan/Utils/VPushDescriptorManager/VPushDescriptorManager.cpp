@@ -40,8 +40,10 @@ namespace VulkanUtils {
             .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
             // Per object data (mesh uniform buffer)
             .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            // Extra data
+            .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
             // Texture (albedo)
-            .AddBinding(2, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+            .AddBinding(3, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
             .Build();
 
             m_pushDescriptors[EDescriptorLayoutStruct::UnlitSingleTexture] =
@@ -52,24 +54,26 @@ namespace VulkanUtils {
             .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
             // Per object data (mesh uniform buffer)
             .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            // extra data
+            .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
             // Material data (PBR material features)
-            .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
-            // Material data (PBR material no texture)
             .AddBinding(3, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
+            // Material data (PBR material no texture)
+            .AddBinding(4, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
             // Albedo texture
-            .AddBinding(4, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-            // Normal texture
             .AddBinding(5, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-            // ARM texture (Ambient, Roughness, Metallic)
+            // Normal texture
             .AddBinding(6, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-            // Emissive texture
+            // ARM texture (Ambient, Roughness, Metallic)
             .AddBinding(7, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+            // Emissive texture
+            .AddBinding(8, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
             // Light information (uniform buffer)
-            .AddBinding(8, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
+            .AddBinding(9, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
             // LTC (Linearly Transformed Cosines) lookup table
-            .AddBinding(9, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-            // LTC inverse lookup table
             .AddBinding(10, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+            // LTC inverse lookup table
+            .AddBinding(11, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
 
             .Build();
 
@@ -81,6 +85,8 @@ namespace VulkanUtils {
             .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
             // Per object data (mesh uniform buffer)
             .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            //extra data
+            .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
             .Build();
 
             m_pushDescriptors[EDescriptorLayoutStruct::Basic] =

@@ -17,8 +17,10 @@ namespace VulkanUtils
         {
             using T = std::decay_t<decltype(dstSet)>;
 
+            dstSet->CreateUpdateEntries(dstSet->GetDstStruct());
             if constexpr (std::is_same_v<T, VulkanUtils::VPushDescriptorSet<VulkanUtils::BasicDescriptorSet>>)
             {
+
                 m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
                     device, shader, effectOutput, dstSet->GetLayout());
                 m_dstStruct = dstSet->GetDstStruct();

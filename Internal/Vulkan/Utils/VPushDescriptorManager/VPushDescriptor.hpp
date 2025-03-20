@@ -27,6 +27,7 @@ public:
     T& GetDstStruct()                               {return m_dstStruct;}
     VulkanCore::VDescriptorSetLayout& GetLayout()   {return *m_dstLayout; }
     std::string& GetName()                          {return m_name;}
+    void CreateUpdateEntries(VulkanUtils::DescriptorSetTemplateVariant& teamplate);
 
     void AddUpdateEntry(uint32_t binding,size_t offset, size_t stride );
     void CreateUpdateEntry(VulkanCore::VGraphicsPipeline& pipelineLayout);
@@ -46,6 +47,59 @@ private:
 // IMPLEMENTATION
 //======================================================================================================
 //======================================================================================================
+
+template <typename T>
+void VPushDescriptorSet<T>::CreateUpdateEntries(VulkanUtils::DescriptorSetTemplateVariant& teamplate)
+{
+    std::visit([this, &teamplate](auto &templateStruct)
+    {
+        using T = std::decay_t<decltype(templateStruct)>;
+
+        //if descriptors change this is where i have to update them
+
+        if constexpr (std::is_same_v<T, VulkanUtils::BasicDescriptorSet>)
+        {
+            this->AddUpdateEntry(0, offsetof(VulkanUtils::BasicDescriptorSet, cameraUBOBuffer), 0);
+            this->AddUpdateEntry(1, offsetof(VulkanUtils::BasicDescriptorSet, meshUBBOBuffer), 0);
+            this->AddUpdateEntry(2, offsetof(VulkanUtils::BasicDescriptorSet, extraBuffer), 0);
+        }
+        else if constexpr (std::is_same_v<T, VulkanUtils::UnlitSingleTexture>)
+        {
+            // Handle UnlitSingleTexture
+            // Example: Update descriptor set entries for UnlitSingleTexture
+            this->AddUpdateEntry(0, offsetof(VulkanUtils::UnlitSingleTexture, cameraUBOBuffer), 0);
+            this->AddUpdateEntry(1, offsetof(VulkanUtils::UnlitSingleTexture, meshUBBOBuffer), 0);
+            this->AddUpdateEntry(2, offsetof(VulkanUtils::UnlitSingleTexture, extraBuffer), 0);
+            this->AddUpdateEntry(3, offsetof(VulkanUtils::UnlitSingleTexture, texture), 0);
+
+        }
+        else if constexpr (std::is_same_v<T, VulkanUtils::ForwardShadingDstSet>)
+        {
+            this->AddUpdateEntry(0, offsetof(VulkanUtils::ForwardShadingDstSet, cameraUBOBuffer), 0);
+            this->AddUpdateEntry(1, offsetof(VulkanUtils::ForwardShadingDstSet, meshUBBOBuffer), 0);
+            this->AddUpdateEntry(2, offsetof(VulkanUtils::ForwardShadingDstSet, extraBuffer), 0);
+
+            this->AddUpdateEntry(3, offsetof(VulkanUtils::ForwardShadingDstSet, pbrMaterialNoTexture), 0);
+            this->AddUpdateEntry(4, offsetof(VulkanUtils::ForwardShadingDstSet, pbrMaterialFeatures), 0);
+            this->AddUpdateEntry(5, offsetof(VulkanUtils::ForwardShadingDstSet, lightInformation), 0);
+            this->AddUpdateEntry(6, offsetof(VulkanUtils::ForwardShadingDstSet, diffuseTextureImage), 0);
+
+            this->AddUpdateEntry(7, offsetof(VulkanUtils::ForwardShadingDstSet, normalTextureImage), 0);
+            this->AddUpdateEntry(8, offsetof(VulkanUtils::ForwardShadingDstSet, armTextureImage), 0);
+            this->AddUpdateEntry(9, offsetof(VulkanUtils::ForwardShadingDstSet, emissiveTextureImage), 0);
+            this->AddUpdateEntry(10, offsetof(VulkanUtils::ForwardShadingDstSet, LUT_LTC), 0);
+            this->AddUpdateEntry(11, offsetof(VulkanUtils::ForwardShadingDstSet, LUT_LTC_Inverse), 0);
+        }
+        else
+        {
+            // Handle unexpected type (optional)
+            static_assert("Unsupported descriptor set type");
+        }
+
+
+    }, teamplate);
+
+}
 
 template <typename T>
 void VPushDescriptorSet<T>::AddUpdateEntry(uint32_t binding, size_t offset, size_t stride)
