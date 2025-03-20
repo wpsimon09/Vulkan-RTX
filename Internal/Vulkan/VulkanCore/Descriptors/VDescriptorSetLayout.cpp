@@ -47,8 +47,11 @@ namespace VulkanCore {
             // Per object data (mesh uniform buffer)
             .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
             //extra data
-            .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-            .Build();
+            .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1);
+
+
+
+            m_descriptorSetLayoutBindings = std::move(BasicDescriptorSetLayout.m_descriptorBindings);
 
         }
         else if constexpr (std::is_same_v<t, VulkanUtils::UnlitSingleTexture>)
@@ -61,8 +64,10 @@ namespace VulkanCore {
             // Extra data
             .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
             // Texture (albedo)
-            .AddBinding(3, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-            .Build();
+            .AddBinding(3, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1);
+
+            m_descriptorSetLayoutBindings = std::move(UnlitSingleTextureLayout.m_descriptorBindings);
+
 
         }
         else if constexpr (std::is_same_v<t, VulkanUtils::ForwardShadingDstSet>)
@@ -91,9 +96,9 @@ namespace VulkanCore {
           // LTC (Linearly Transformed Cosines) lookup table
           .AddBinding(10, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
           // LTC inverse lookup table
-          .AddBinding(11, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+          .AddBinding(11, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1);
 
-          .Build();
+           m_descriptorSetLayoutBindings= std::move(ForwardShadingDstSetLayout.m_descriptorBindings);
         }
         else
         {
@@ -103,6 +108,22 @@ namespace VulkanCore {
 
 
     }, dstSetTemplate);
+        Utils::Logger::LogInfoVerboseOnly("Creating descriptor set layout");
+        std::vector<vk::DescriptorSetLayoutBinding> setBindings;
+        for (auto &binding : m_descriptorSetLayoutBindings) {
+            setBindings.push_back(binding.second);
+        }
+
+        vk::DescriptorSetLayoutCreateInfo info{};
+        info.bindingCount = static_cast<uint32_t>(setBindings.size());
+        info.pBindings = setBindings.data();
+        info.flags = vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR;
+
+        m_descriptorSetLayout = m_device.GetDevice().createDescriptorSetLayout(info);
+        assert(m_descriptorSetLayout && "Failed to create descriptor set layout");
+
+        Utils::Logger::LogSuccess("Descriptor set layout created");
+
     }
 
     void VDescriptorSetLayout::Destroy() {
@@ -130,4 +151,5 @@ namespace VulkanCore {
     std::unique_ptr<VulkanCore::VDescriptorSetLayout> VDescriptorSetLayout::Builder::Build() {
         return std::make_unique<VDescriptorSetLayout>(m_device, m_descriptorBindings);
     }
+
 } // VulkanCore

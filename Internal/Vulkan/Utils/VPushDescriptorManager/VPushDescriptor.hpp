@@ -27,7 +27,6 @@ public:
     explicit VPushDescriptorSet(const VulkanCore::VDevice &device,const std::string& name, std::unique_ptr<VulkanCore::VDescriptorSetLayout> dstLayout);
 
 
-
     DescriptorSetTemplateVariant& GetDstStruct()                               {return m_dstLayout->GetStructure();}
     VulkanCore::VDescriptorSetLayout& GetLayout()                              {return *m_dstLayout; }
     std::string& GetName()                                                     {return m_name;}

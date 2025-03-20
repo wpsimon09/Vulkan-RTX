@@ -84,8 +84,9 @@ namespace Renderer {
                                                              m_sceneRenderer->GetRenderTarget(),
                                                              m_pushDescriptorSetManager.GetPushDescriptor(
                                                                  VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
-
         effect->BuildEffect();
+
+        Utils::Logger::LogInfo("RenderingSystem initialized");
 
     }
 

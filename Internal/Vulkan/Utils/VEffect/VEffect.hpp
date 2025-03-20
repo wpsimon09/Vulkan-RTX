@@ -38,14 +38,14 @@ public:
     void SetPolygonPoint();
     //=======================================
 
+    DescriptorSetTemplateVariant& GetEffectUpdateStruct();
     void BuildEffect();
+
 private:
     const VulkanCore::VShader& m_shader;
-    std::unique_ptr<VulkanCore::VGraphicsPipeline> m_pipeline;
     const VulkanCore::VDevice& m_device;
-
-    DescriptorSetTemplateVariant m_dstStruct;
     std::shared_ptr<VulkanUtils::VPushDescriptorSet> m_descriptorSet;
+    std::unique_ptr<VulkanCore::VGraphicsPipeline> m_pipeline;
 };
 
 } // VulkanUtils

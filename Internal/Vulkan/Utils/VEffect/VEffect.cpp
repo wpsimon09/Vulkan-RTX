@@ -15,7 +15,10 @@ namespace VulkanUtils
         {
             m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
                 device, shader, effectOutput, m_descriptorSet->GetLayout());
+            m_pipeline->Init();
+
             m_descriptorSet->CreateDstUpdateInfo(*m_pipeline);
+            UpdateStruct = m_descriptorSet->GetDstStruct();
     }
 
         void VEffect::SetDisableDepthTest()
@@ -52,6 +55,11 @@ namespace VulkanUtils
         void VEffect::SetPolygonPoint()
         {
             m_pipeline->m_rasterizer.polygonMode = vk::PolygonMode::ePoint;
+        }
+
+        DescriptorSetTemplateVariant& VEffect::GetEffectUpdateStruct()
+        {
+            return m_descriptorSet->GetDstStruct();
         }
 
         void VEffect::BuildEffect()
