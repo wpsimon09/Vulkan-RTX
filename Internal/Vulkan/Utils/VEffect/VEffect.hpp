@@ -8,8 +8,14 @@
 
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
 
+namespace Renderer
+{
+    class RenderTarget;
+}
+
 namespace VulkanCore
 {
+    class VShader;
     class VDevice;
 }
 
@@ -17,7 +23,8 @@ namespace VulkanUtils {
 
 class VEffect {
 public:
-    VEffect(const VulkanCore::VDevice& device, const VulkanCore::VShader& shader,const Renderer::RenderTarget &effectOutput, VulkanUtils::PushDescriptorVariant& descriptorSet);
+    VEffect(const VulkanCore::VDevice& device, const VulkanCore::VShader& shader,
+            const Renderer::RenderTarget& effectOutput, std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet);
 
     //=======================================
     // Effect building
@@ -38,7 +45,7 @@ private:
     const VulkanCore::VDevice& m_device;
 
     DescriptorSetTemplateVariant m_dstStruct;
-    PushDescriptorVariant m_pushDescriptor;
+    std::shared_ptr<VulkanUtils::VPushDescriptorSet> m_descriptorSet;
 };
 
 } // VulkanUtils

@@ -31,7 +31,7 @@ namespace VulkanCore {
     }
 
     VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device,
-        const VulkanUtils::DescriptorSetTemplateVariant& dstSetTemplate):m_device(), m_descriptorSetTemplateStruct(dstSetTemplate)
+        const VulkanUtils::DescriptorSetTemplateVariant& dstSetTemplate):m_device(device), m_descriptorSetTemplateStruct(dstSetTemplate)
     {
         std::visit([this, &device](auto &templateStruct)
     {

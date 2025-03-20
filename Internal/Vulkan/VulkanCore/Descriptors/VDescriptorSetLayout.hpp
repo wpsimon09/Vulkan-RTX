@@ -55,8 +55,11 @@ namespace VulkanCore
         explicit VDescriptorSetLayout(const VulkanCore::VDevice& device,
                 const VulkanUtils::DescriptorSetTemplateVariant& dstSetTemplate);
 
-        const vk::DescriptorSetLayout &GetLayout() const { return m_descriptorSetLayout; };
+        const vk::DescriptorSetLayout &GetLayout() const { return m_descriptorSetLayout; }
+        std::optional<VulkanUtils::DescriptorSetTemplateVariant> GetStructCopy() {return m_descriptorSetTemplateStruct;};
+
         auto& GetBindings() {return m_descriptorSetLayoutBindings;}
+
         void Destroy() override;
 
     private:

@@ -29,11 +29,6 @@ namespace VulkanCore
 namespace VulkanUtils {
 
 
-using PushDescriptorVariant =  std::variant<
-    std::shared_ptr<VulkanUtils::VPushDescriptorSet<VulkanUtils::BasicDescriptorSet>>,
-    std::shared_ptr<VulkanUtils::VPushDescriptorSet<VulkanUtils::ForwardShadingDstSet>>,
-    std::shared_ptr<VulkanUtils::VPushDescriptorSet<VulkanUtils::UnlitSingleTexture>>>;
-
 
 class VPushDescriptorManager {
 public:
@@ -43,7 +38,7 @@ public:
     void CreateUpdateTemplate(const VulkanCore::VGraphicsPipeline& pipeline);
     const vk::DescriptorUpdateTemplate& GetTemplate() const {return m_descriptorUpdateTemplate;}
 
-    PushDescriptorVariant& GetPushDescriptor(EDescriptorLayoutStruct layoutType){return m_pushDescriptors[layoutType];}
+    VulkanUtils::VPushDescriptorSet& GetPushDescriptor(EDescriptorLayoutStruct layoutType){return *m_pushDescriptors[layoutType];}
 
     VulkanUtils::DescriptorSetData& GetDescriptorSetDataStruct() { return m_descriptorSetData; };
     const VulkanCore::VDescriptorSetLayout& GetLayout() const {return *m_descriptorSetLayout;}
@@ -58,7 +53,7 @@ private:
 
     VulkanUtils::DescriptorSetData m_descriptorSetData;
 
-    std::map<EDescriptorLayoutStruct, PushDescriptorVariant> m_pushDescriptors;
+    std::map<EDescriptorLayoutStruct, std::shared_ptr<VulkanUtils::VPushDescriptorSet>> m_pushDescriptors;
 
 };
 

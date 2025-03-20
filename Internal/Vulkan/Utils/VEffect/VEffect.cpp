@@ -5,46 +5,18 @@
 #include "VEffect.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 
 namespace VulkanUtils
 {
         VEffect::VEffect(const VulkanCore::VDevice& device, const VulkanCore::VShader& shader,
                          const Renderer::RenderTarget& effectOutput,
-                         VulkanUtils::PushDescriptorVariant& descriptorSet):m_shader(shader), m_device(device)
+                         std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet):m_shader(shader), m_device(device), m_descriptorSet(descriptorSet)
         {
-        // Get pipeline layout from the Descriptor set
-        std::visit([this, &device, &shader, &effectOutput](auto& dstSet)
-        {
-            using T = std::decay_t<decltype(dstSet)>;
-
-            dstSet->CreateUpdateEntries(dstSet->GetDstStruct());
-            m_pushDescriptor = dstSet;
-
-            if constexpr (std::is_same_v<T, VulkanUtils::VPushDescriptorSet<VulkanUtils::BasicDescriptorSet>>){
-
-                m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
-                    device, shader, effectOutput, dstSet->GetLayout());
-                m_dstStruct = dstSet->GetDstStruct();
-            }
-            else if constexpr (std::is_same_v<T, VulkanUtils::VPushDescriptorSet<VulkanUtils::UnlitSingleTexture>>)
-            {
-                m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
-                    device, shader, effectOutput, dstSet->GetLayout());
-                m_dstStruct = dstSet->GetDstStruct();
-
-            }
-            else if constexpr (std::is_same_v<T, VulkanUtils::VPushDescriptorSet<VulkanUtils::ForwardShadingDstSet>>)
-            {
-                //TODO: does not have update entries and thus gives segv....
-                m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
-                    device, shader, effectOutput, dstSet->GetLayout());
-                m_dstStruct = dstSet->GetDstStruct();
-            }
-            dstSet->CreateUpdateEntry(*m_pipeline);
-
-        }, descriptorSet);
-
-
+            m_descriptorSet->CreateUpdateEntries(m_descriptorSet->GetDstStruct());
+            m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
+                device, shader, effectOutput, m_descriptorSet->GetLayout());
+            m_descriptorSet->CreateUpdateEntries(*m_pipeline);
     }
 
         void VEffect::SetDisableDepthTest()
