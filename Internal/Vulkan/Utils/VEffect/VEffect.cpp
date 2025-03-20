@@ -13,10 +13,9 @@ namespace VulkanUtils
                          const Renderer::RenderTarget& effectOutput,
                          std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet):m_shader(shader), m_device(device), m_descriptorSet(descriptorSet)
         {
-            m_descriptorSet->CreateUpdateEntries(m_descriptorSet->GetDstStruct());
             m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
                 device, shader, effectOutput, m_descriptorSet->GetLayout());
-            m_descriptorSet->CreateUpdateEntries(*m_pipeline);
+            m_descriptorSet->CreateDstUpdateInfo(*m_pipeline);
     }
 
         void VEffect::SetDisableDepthTest()

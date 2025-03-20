@@ -56,7 +56,7 @@ namespace VulkanCore
                 const VulkanUtils::DescriptorSetTemplateVariant& dstSetTemplate);
 
         const vk::DescriptorSetLayout &GetLayout() const { return m_descriptorSetLayout; }
-        std::optional<VulkanUtils::DescriptorSetTemplateVariant> GetStructCopy() {return m_descriptorSetTemplateStruct;};
+        VulkanUtils::DescriptorSetTemplateVariant& GetStructure() {return m_descriptorSetTemplateStruct.value();};
 
         auto& GetBindings() {return m_descriptorSetLayoutBindings;}
 

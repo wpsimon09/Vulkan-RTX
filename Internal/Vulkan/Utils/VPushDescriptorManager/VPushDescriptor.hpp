@@ -24,16 +24,15 @@ namespace VulkanUtils {
 class VPushDescriptorSet
 {
 public:
-    VPushDescriptorSet(const VulkanCore::VDevice &device,const std::string& name, std::unique_ptr<VulkanCore::VDescriptorSetLayout> dstLayout)
-        :m_device(device), m_name(name), m_dstLayout(std::move(dstLayout))
-    {};
+    explicit VPushDescriptorSet(const VulkanCore::VDevice &device,const std::string& name, std::unique_ptr<VulkanCore::VDescriptorSetLayout> dstLayout);
 
-    DescriptorSetTemplateVariant GetDstStruct()                                {return m_dstLayout->GetStructCopy().value();}
+
+
+    DescriptorSetTemplateVariant& GetDstStruct()                               {return m_dstLayout->GetStructure();}
     VulkanCore::VDescriptorSetLayout& GetLayout()                              {return *m_dstLayout; }
     std::string& GetName()                                                     {return m_name;}
-    void CreateUpdateEntries(VulkanUtils::DescriptorSetTemplateVariant& teamplate);
 
-    void CreateUpdateEntry(VulkanCore::VGraphicsPipeline& pipelineLayout);
+    void CreateDstUpdateInfo(VulkanCore::VGraphicsPipeline& pipelineLayout);
 
 private:
     void AddUpdateEntry(uint32_t binding,size_t offset, size_t stride );
