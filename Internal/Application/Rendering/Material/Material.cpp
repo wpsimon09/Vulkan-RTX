@@ -55,7 +55,9 @@ namespace ApplicationCore {
         m_materialEffect = newEffect;
     }
 
-    void Material::Update()
+    void Material::Update(const VulkanUtils::VUniformBufferManager& uniformBufferManager)
     {
+        // update the draw call with all shenenigans it needs from unifrom buffer manager or from the material like textures and shit
     }
+
 } // ApplicationCore

@@ -45,10 +45,12 @@ public:
 
     //=======================================
 
-    std::string& GetName();
-    DescriptorSetTemplateVariant& GetEffectUpdateStruct();
-    void BuildEffect();
-    void Destroy();
+    std::string&                        GetName();
+    DescriptorSetTemplateVariant&       GetEffectUpdateStruct();
+    void                                BuildEffect();
+    vk::PipelineLayout                  GetPipelineLayout();
+    void                                BindPipeline(const vk::CommandBuffer& cmdBuffer);
+    void                                Destroy();
 private:
     const VulkanCore::VDevice& m_device;
     std::shared_ptr<VulkanUtils::VPushDescriptorSet> m_descriptorSet;

@@ -200,7 +200,7 @@ namespace ApplicationCore
         }
     }
 
-    void SceneNode::Render(VulkanStructs::RenderContext* renderingContext) const
+    void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanStructs::RenderContext* renderingContext) const
     {
         if (m_mesh && m_sceneNodeMetaData.IsVisible)
         {
@@ -239,6 +239,7 @@ namespace ApplicationCore
             renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,data);
 
             if (m_sceneNodeMetaData.IsSelected){
+
                 renderingContext->SelectedGeometryPass.emplace_back(data);
             }
 

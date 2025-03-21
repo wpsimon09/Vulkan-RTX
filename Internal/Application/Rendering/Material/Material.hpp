@@ -19,6 +19,11 @@
 
 namespace VulkanUtils
 {
+    class VUniformBufferManager;
+}
+
+namespace VulkanUtils
+{
     class VEffect;
 }
 
@@ -66,7 +71,7 @@ namespace ApplicationCore
 
         bool                                                    IsSavable() const {return m_savable;}
         void                                                    SetSavable(bool savable) {m_savable = savable;}
-        void                                                    Update();
+        void                                                    Update(const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
     private:
         std::string m_materialName;

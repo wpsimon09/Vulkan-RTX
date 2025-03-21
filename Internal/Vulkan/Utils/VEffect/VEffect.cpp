@@ -117,6 +117,17 @@ namespace VulkanUtils
             shader->DestroyExistingShaderModules();
         }
 
+        vk::PipelineLayout VEffect::GetPipelineLayout()
+        {
+            return m_pipeline->GetPipelineLayout();
+        }
+
+        void VEffect::BindPipeline(const vk::CommandBuffer& cmdBuffer)
+        {
+            cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline->GetPipelineInstance());
+        }
+
+
         void VEffect::Destroy()
         {
             m_pipeline->Destroy();

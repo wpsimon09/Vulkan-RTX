@@ -17,6 +17,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
+#include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
@@ -48,24 +49,6 @@ namespace Renderer
         {
             m_commandBuffers[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_sceneCommandPool);
         }
-
-        //---------------------------------------------------------------------------------------------------------------------------
-        // CREATING TEMPLATE ENTRIES
-        //---------------------------------------------------------------------------------------------------------------------------
-        // global
-        m_pushDescriptorManager.AddUpdateEntry(0, offsetof(VulkanUtils::DescriptorSetData, cameraUBOBuffer), 0);
-        // per object
-        m_pushDescriptorManager.AddUpdateEntry(1, offsetof(VulkanUtils::DescriptorSetData, meshUBBOBuffer), 0);
-        // per material
-        m_pushDescriptorManager.AddUpdateEntry(2, offsetof(VulkanUtils::DescriptorSetData, pbrMaterialNoTexture), 0);
-        m_pushDescriptorManager.AddUpdateEntry(3, offsetof(VulkanUtils::DescriptorSetData, pbrMaterialFeatures), 0);
-        m_pushDescriptorManager.AddUpdateEntry(4, offsetof(VulkanUtils::DescriptorSetData, diffuseTextureImage), 0);
-        m_pushDescriptorManager.AddUpdateEntry(5, offsetof(VulkanUtils::DescriptorSetData, normalTextureImage), 0);
-        m_pushDescriptorManager.AddUpdateEntry(6, offsetof(VulkanUtils::DescriptorSetData, armTextureImage), 0);
-        m_pushDescriptorManager.AddUpdateEntry(7, offsetof(VulkanUtils::DescriptorSetData, emissiveTextureImage), 0);
-        m_pushDescriptorManager.AddUpdateEntry(8, offsetof(VulkanUtils::DescriptorSetData, lightInformation), 0);
-        m_pushDescriptorManager.AddUpdateEntry(9, offsetof(VulkanUtils::DescriptorSetData, LUT_LTC), 0);
-        m_pushDescriptorManager.AddUpdateEntry(10, offsetof(VulkanUtils::DescriptorSetData, LUT_LTC_Inverse), 0);
 
         Utils::Logger::LogSuccess("Scene renderer created !");
     }
@@ -108,12 +91,6 @@ namespace Renderer
     }
 
 
-    void SceneRenderer::Init(const VulkanCore::VPipelineManager* pipelineManager)
-    {
-        m_pipelineManager = pipelineManager;
-    }
-
-
     void SceneRenderer::Render(int currentFrameIndex,
                                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                                VulkanStructs::RenderContext* renderContext,
@@ -143,7 +120,7 @@ namespace Renderer
         }
 
 
-        RecordCommandBuffer(currentFrameIndex, uniformBufferManager,m_pipelineManager->GetPipeline(pipelineType));
+        RecordCommandBuffer(currentFrameIndex, uniformBufferManager);
 
         m_commandBuffers[currentFrameIndex]->EndRecording();
 
@@ -206,8 +183,7 @@ namespace Renderer
     }
 
     void SceneRenderer::RecordCommandBuffer(int currentFrameIndex,
-                                            const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                                            const VulkanCore::VGraphicsPipeline& pipeline)
+                                            const VulkanUtils::VUniformBufferManager& uniformBufferManager)
     {
 
         int  drawCallCount = 0;
@@ -246,13 +222,12 @@ namespace Renderer
         //=================================================
         // UPDATE DESCRIPTOR SETS
         //=================================================
-        SendGlobalDescriptorsToShader(currentFrameIndex, uniformBufferManager);
+        //SendGlobalDescriptorsToShader(currentFrameIndex, uniformBufferManager);
 
         auto currentVertexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->vertexData;
         auto currentIndexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->indexData;
         vk::DeviceSize indexBufferOffset = 0;
 
-        cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineInstance());
         cmdBuffer.bindVertexBuffers(0, {currentVertexBuffer.buffer}, {0});
         cmdBuffer.bindIndexBuffer(currentIndexBuffer.buffer, 0, vk::IndexType::eUint32);
 
@@ -282,6 +257,53 @@ namespace Renderer
         //=================================================
         // RECORD OPAQUE DRAW CALLS
         //=================================================
+        for (auto& drawCall: m_renderContextPtr->drawCalls)
+        {
+            auto& material = drawCall.second.material;
+            //SendPerObjectDescriptorsToShader(currentFrameIndex, i, drawCall, uniformBufferManager);
+
+            drawCall.second.material->GetEffect()->BindPipeline(cmdBuffer);
+            drawCall.second.material->Update(uniformBufferManager);
+
+            //================================================================================================
+            // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
+            //================================================================================================
+            if(currentVertexBuffer != drawCall.second.meshData->vertexData){
+                auto firstBinding = 0;
+
+                indexBufferOffset = (currentVertexBuffer.offset + currentVertexBuffer.size)/ static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex));
+
+                std::vector<vk::Buffer> vertexBuffers = {drawCall.second.meshData->vertexData.buffer};
+                std::vector<vk::DeviceSize> offsets = {0};
+                vertexBuffers = {drawCall.second.meshData->vertexData.buffer};
+                cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+                currentVertexBuffer = drawCall.second.meshData->vertexData;
+            }
+
+            if(currentIndexBuffer != drawCall.second.meshData->indexData){
+                indexBufferOffset = 0;
+                cmdBuffer.bindIndexBuffer(drawCall.second.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
+                currentIndexBuffer = drawCall.second.meshData->indexData;
+            }
+
+            cmdBuffer.pushDescriptorSetWithTemplateKHR(
+                m_pushDescriptorManager.GetTemplate(),
+                drawCall.second.material->GetEffect()->GetPipelineLayout(), 0,
+                m_pushDescriptorManager.GetDescriptorSetDataStruct(), m_device.DispatchLoader);
+
+            cmdBuffer.drawIndexed(
+                drawCall.second.meshData->indexData.size/sizeof(uint32_t),
+                1,
+                drawCall.second.meshData->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                    drawCall.second.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                0);
+
+            drawCallCount++;
+
+        }
+
+
+        /**
         for (int i = 0; i < m_renderContextPtr->MainLightPassOpaque.size(); i++)
         {
 
@@ -293,7 +315,6 @@ namespace Renderer
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
             //================================================================================================
             if(currentVertexBuffer != drawCall.meshData->vertexData){
-                // TODO: once the fresh buffer is loaded the index is all fucked up
                 auto firstBinding = 0;
 
                 indexBufferOffset = (currentVertexBuffer.offset + currentVertexBuffer.size)/ static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex));
@@ -313,7 +334,7 @@ namespace Renderer
 
             cmdBuffer.pushDescriptorSetWithTemplateKHR(
                 m_pushDescriptorManager.GetTemplate(),
-                pipeline.GetPipelineLayout(), 0,
+                drawCall.material->GetEffect()->GetPipelineLayout(), 0,
                 m_pushDescriptorManager.GetDescriptorSetDataStruct(), m_device.DispatchLoader);
 
             cmdBuffer.drawIndexed(
@@ -330,12 +351,14 @@ namespace Renderer
                 m_selectedGeometryDrawCalls.emplace_back(drawCall);
             }
         }
+        **/
 
 
 
         //=================================================
         // RECORD TRANSPARENT DRAW CALLS
         //=================================================
+        /**
         if(!m_renderContextPtr->MainLightPassTransparent.empty()){
             cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(EPipelineType::Transparent).GetPipelineInstance());
         }
@@ -383,6 +406,7 @@ namespace Renderer
         }
 
 
+        /**
         //=================================================
         // RECORD AABB DRAW CALLS
         //=================================================    
@@ -427,7 +451,7 @@ namespace Renderer
                                                     m_pipelineManager->GetPipeline(EPipelineType::EditorBillboard));
         }
 
-
+        */
         cmdBuffer.endRendering();
 
 

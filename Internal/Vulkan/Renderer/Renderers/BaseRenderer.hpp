@@ -58,8 +58,8 @@ namespace Renderer
 
         virtual void CreateRenderTargets(VulkanCore::VSwapChain* swapChain = nullptr) = 0;
         virtual void RecordCommandBuffer(int currentFrameIndex,
-                                        const VulkanUtils::VUniformBufferManager& uniformBufferManager ,
-                                        const VulkanCore::VGraphicsPipeline& pipeline) = 0;
+                                        const VulkanUtils::VUniformBufferManager& uniformBufferManager
+                                        ) = 0;
 
     protected:
         std::unique_ptr<Renderer::RenderTarget> m_renderTargets;

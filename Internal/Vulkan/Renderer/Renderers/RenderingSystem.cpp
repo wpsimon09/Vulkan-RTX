@@ -61,17 +61,7 @@ namespace Renderer {
             *m_swapChain,
             uiContext);
 
-        //------------------------------------------------------------------------------------------------------------------------
-        // CREATE PIPELINE MANAGER
-        //------------------------------------------------------------------------------------------------------------------------
-        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(m_device, *m_swapChain, m_sceneRenderer->GetRenderTarget(), m_pushDescriptorSetManager) ;
-        m_pipelineManager->InstantiatePipelines();
-
-        m_sceneRenderer->Init(m_pipelineManager.get());
-
         m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
-
-        m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
 
         Utils::Logger::LogInfo("RenderingSystem initialized");
 
@@ -152,6 +142,5 @@ namespace Renderer {
         m_sceneRenderer->Destroy();
         m_uiRenderer->Destroy();
         m_swapChain->Destroy();
-        m_pipelineManager->DestroyPipelines();
     }
 } // Renderer

@@ -40,7 +40,7 @@ namespace ApplicationCore {
     {
         if (sceneNode->HasMesh())
         {
-            sceneNode->Render(ctx);
+            sceneNode->Render(m_assetsManager.GetEffectsLibrary(), ctx);
         }
 
         for (auto &child : sceneNode->GetChildrenByRef())

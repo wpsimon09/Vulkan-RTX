@@ -58,24 +58,25 @@ void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameInde
     m_perFrameUniform->UpdateGPUBuffer(frameIndex);
 }
 
-void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameIndex,
-    std::vector<VulkanStructs::DrawCallData*>& drawCalls) const
+void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameIndex, std::map<uint64_t, VulkanStructs::DrawCallData>& drawCalls) const
 {
     assert(drawCalls.size() < MAX_UBO_COUNT && "Draw calls are bigger than allocated uniform buffers on GPU");
-    for (int i = 0; i < drawCalls.size(); i++)
+    int i = 0;
+    for (auto& drawCall: drawCalls)
     {
-        drawCalls[i]->drawCallID = i;
+        drawCall.second.drawCallID = i;
 
-        m_perObjectUniform[i]->GetUBOStruct().model = drawCalls[i]->modelMatrix;
-        m_perObjectUniform[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse( drawCalls[i]->modelMatrix));
-        m_perObjectUniform[i]->GetUBOStruct().position = drawCalls[i]->position;
+        m_perObjectUniform[i]->GetUBOStruct().model = drawCall.second.modelMatrix;
+        m_perObjectUniform[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse( drawCall.second.modelMatrix));
+        m_perObjectUniform[i]->GetUBOStruct().position = drawCall.second.position;
         m_perObjectUniform[i]->UpdateGPUBuffer(frameIndex);
 
-        m_materialFeaturesUniform[i]->GetUBOStruct() = drawCalls[i]->material->GetMaterialDescription().features;
+        m_materialFeaturesUniform[i]->GetUBOStruct() = drawCall.second.material->GetMaterialDescription().features;
         m_materialFeaturesUniform[i]->UpdateGPUBuffer(frameIndex);
 
-        m_materialNoTextureUniform[i]->GetUBOStruct() = drawCalls[i]->material->GetMaterialDescription().values;
+        m_materialNoTextureUniform[i]->GetUBOStruct() = drawCall.second.material->GetMaterialDescription().values;
         m_materialNoTextureUniform[i]->UpdateGPUBuffer(frameIndex);
+        i++;
     }
 
 }
