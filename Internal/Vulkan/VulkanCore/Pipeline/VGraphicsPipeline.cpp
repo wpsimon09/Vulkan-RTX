@@ -19,9 +19,12 @@
 
 
 VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice &device,
-                                                 const VulkanCore::VShader &shaders, const Renderer::RenderTarget &renderTarget, const VulkanCore::VDescriptorSetLayout &descriptorLayout)
-        : VObject(), m_shaders(shaders), m_device(device), m_renderTarget(renderTarget), m_descriptorSetLayout(descriptorLayout)
-{}
+                                                 const VulkanCore::VShader &shaders, const VulkanCore::VDescriptorSetLayout &descriptorLayout)
+        : VObject(), m_shaders(shaders), m_device(device), m_descriptorSetLayout(descriptorLayout)
+{
+    m_outputFormats.resize(1);
+    m_outputFormats[0] = vk::Format::eR8G8B8A8Unorm;
+}
 
 
 
@@ -233,9 +236,9 @@ void VulkanCore::VGraphicsPipeline::CreatePipelineLayout() {
 
 void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
 {
-
-    m_renderingCreateInfo.colorAttachmentCount = 1;;
-    m_renderingCreateInfo.pColorAttachmentFormats = &m_renderTarget.GetColourImage(0).GetImageInfoConstRef().format;
+    assert(!m_outputFormats.empty() && "Formats are emepty ");
+    m_renderingCreateInfo.colorAttachmentCount = m_outputFormats.size();;
+    m_renderingCreateInfo.pColorAttachmentFormats = m_outputFormats.data();
     m_renderingCreateInfo.depthAttachmentFormat = m_device.GetDepthFormat();
 }
 

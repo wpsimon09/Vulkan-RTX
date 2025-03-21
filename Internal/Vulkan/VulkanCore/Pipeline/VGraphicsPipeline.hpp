@@ -37,7 +37,7 @@ namespace VulkanCore
 
     public:
         VGraphicsPipeline(const VulkanCore::VDevice &device,
-                          const VulkanCore::VShader &shaders, const Renderer::RenderTarget &renderTarget,
+                          const VulkanCore::VShader &shaders,
                           const VulkanCore::VDescriptorSetLayout &descriptorLayout);
 
         /**
@@ -71,7 +71,6 @@ namespace VulkanCore
         const VulkanCore::VShader &m_shaders;
         const VulkanCore::VDevice &m_device;
         const VulkanCore::VDescriptorSetLayout& m_descriptorSetLayout;
-        const Renderer::RenderTarget &m_renderTarget;
 
         // pipeline handler
         vk::Pipeline m_pipeline;
@@ -86,6 +85,7 @@ namespace VulkanCore
         //------------------------------
         //PIPELINE CREATE INFO VARIABLES
         //------------------------------
+        std::vector<vk::Format> m_outputFormats;
     private:
         std::array<vk::PipelineShaderStageCreateInfo, 2> m_shaderStages;
         vk::VertexInputBindingDescription m_vertexInputBindingDescription;

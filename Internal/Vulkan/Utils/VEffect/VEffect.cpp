@@ -10,11 +10,10 @@
 namespace VulkanUtils
 {
         VEffect::VEffect(const VulkanCore::VDevice& device, const VulkanCore::VShader& shader,
-                         const Renderer::RenderTarget& effectOutput,
                          std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet): m_device(device), m_descriptorSet(descriptorSet)
         {
             m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
-                device, shader, effectOutput, m_descriptorSet->GetLayout());
+                device, shader,m_descriptorSet->GetLayout());
             m_pipeline->Init();
 
             m_descriptorSet->CreateDstUpdateInfo(*m_pipeline);
@@ -23,11 +22,11 @@ namespace VulkanUtils
     }
 
         VEffect::VEffect(const VulkanCore::VDevice& device, const std::string& vertex, const std::string& fragment,
-            const Renderer::RenderTarget& effectOutput, std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet):m_device(device), m_descriptorSet(descriptorSet)
+            std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet):m_device(device), m_descriptorSet(descriptorSet)
         {
             auto shader = VulkanCore::VShader(device, vertex, fragment);
             m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
-               device, shader, effectOutput, m_descriptorSet->GetLayout());
+               device, shader, m_descriptorSet->GetLayout());
             m_pipeline->Init();
 
             m_descriptorSet->CreateDstUpdateInfo(*m_pipeline);
@@ -89,6 +88,13 @@ namespace VulkanUtils
         VEffect& VEffect::EnableAdditiveBlending()
         {
             m_pipeline->EnableBlendingAdditive();
+            return *this;
+        }
+
+        VEffect& VEffect::OutputHDR()
+        {
+            std::vector<vk::Format> formats = {vk::Format::eR16G16B16A16Sfloat};
+            m_pipeline->m_outputFormats = formats;
             return *this;
         }
 

@@ -23,11 +23,9 @@ namespace VulkanUtils {
 
 class VEffect {
 public:
-    VEffect(const VulkanCore::VDevice& device, const VulkanCore::VShader& shader,
-                const Renderer::RenderTarget& effectOutput, std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet);
+    VEffect(const VulkanCore::VDevice& device, const VulkanCore::VShader& shader, std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet);
 
     VEffect(const VulkanCore::VDevice& device, const std::string& vertex, const std::string& fragment,
-            const Renderer::RenderTarget& effectOutput,
             std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet);
 
     //=======================================
@@ -42,6 +40,7 @@ public:
     VEffect& SetPolygonLine();
     VEffect& SetPolygonPoint();
     VEffect& EnableAdditiveBlending();
+    VEffect& OutputHDR();
 
     //=======================================
 

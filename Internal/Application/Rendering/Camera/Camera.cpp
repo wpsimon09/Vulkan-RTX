@@ -9,7 +9,7 @@
 #include "GLFW/glfw3.h"
 
     ApplicationCore::Camera::Camera(glm::vec3 center, glm::vec3 up, float radius, float minRadius,
-                   float azimuthAngle, float polarAngle) {
+                   float azimuthAngle, float polarAngle): m_screenSize{}{
         m_center = center;
         m_worldUp = up;
 

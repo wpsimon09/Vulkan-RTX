@@ -8,18 +8,18 @@
 
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 
 namespace ApplicationCore {
-    EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device,  Renderer::RenderingSystem& renderingSystem,
+    EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device,
         VulkanUtils::VPushDescriptorManager& pushDescriptorManager)
     {
         auto frowardEffect = std::make_shared<VulkanUtils::VEffect>(
             device, "Shaders/Compiled/BasicTriangle.vert.slang.spv",
             "Shaders/Compiled/GGXColourFragmentMultiLight.frag.slang.spv",
-            renderingSystem.GetSceneRenderer().GetRenderTarget(),
             pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
 
         frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
@@ -30,7 +30,6 @@ namespace ApplicationCore {
         auto transparentEffect = std::make_shared<VulkanUtils::VEffect>(
             device, "Shaders/Compiled/BasicTriangle.vert.slang.spv",
             "Shaders/Compiled/GGXColourFragmentMultiLight.frag.slang.spv",
-            renderingSystem.GetSceneRenderer().GetRenderTarget(),
             pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
 
         transparentEffect
@@ -44,13 +43,57 @@ namespace ApplicationCore {
         auto editorBillboards = std::make_shared<VulkanUtils::VEffect>(
             device, "Shaders/Compiled/EditorBillboard.vert.slang.spv",
             "Shaders/Compiled/EditorBilboard.frag.slang.spv",
-            renderingSystem.GetSceneRenderer().GetRenderTarget(),
             pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
 
         editorBillboards
             ->SetTopology(vk::PrimitiveTopology::eTriangleList)
             .SetCullNone();
 
+        effects[EEffectType::EditorBilboard] = std::move(editorBillboards);
+
+        //==============================================================================
+
+        auto debugLine = std::make_shared<VulkanUtils::VEffect>(
+                   device, "Shaders/Compiled/BasicTriangle.vert.slang.spv",
+                   "Shaders/Compiled/DebugLines.frag.slang.spv",
+                   pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
+
+        debugLine
+            ->SetTopology(vk::PrimitiveTopology::eTriangleList)
+            .SetCullNone()
+            .SetPolygonLine()
+            .SetLineWidth(2);
+
+        effects[EEffectType::DebugLine] = std::move(debugLine);
+
+        //==============================================================================
+
+        auto outline = std::make_shared<VulkanUtils::VEffect>(
+                   device, "Shaders/Compiled/BasicTriangle.vert.slang.spv",
+                   "Shaders/Compiled/Outliines.frag.slang.spv",
+                   pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
+
+        outline
+            ->SetCullFrontFace()
+            .SetLineWidth(7)
+            .SetPolygonLine()
+            .SetDisableDepthWrite();
+
+        effects[EEffectType::Outline] = std::move(outline);
+
+        //===============================================================================
+
+
+        auto debugShapes = std::make_shared<VulkanUtils::VEffect>(
+            device, "Shaders/Compiled/BasicTriangle.vert.slang.spv",
+            "Shaders/Compiled/DebugGeometry.frag.slang.spv",
+                   pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
+
+        debugShapes->SetCullNone()
+        .SetLineWidth(2)
+        .SetPolygonLine();
+
+        effects[EEffectType::DebugLine] = std::move(debugShapes);
 
     }
 } // ApplicationCore

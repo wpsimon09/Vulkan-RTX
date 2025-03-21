@@ -73,19 +73,6 @@ namespace Renderer {
 
         m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
 
-
-
-        auto multiLightPipelineVertexShaderSource = "Shaders/Compiled/BasicTriangle.vert.slang.spv";
-        auto multiLightPipelineFragmnetShaderSource = "Shaders/Compiled/GGXColourFragmentMultiLight.frag.slang.spv";
-        auto m_multiLightShader = std::make_unique<VulkanCore::VShader>(m_device, multiLightPipelineVertexShaderSource,
-                                                                        multiLightPipelineFragmnetShaderSource);
-
-        auto effect = std::make_unique<VulkanUtils::VEffect>(m_device, *m_multiLightShader,
-                                                             m_sceneRenderer->GetRenderTarget(),
-                                                             m_pushDescriptorSetManager.GetPushDescriptor(
-                                                                 VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
-        effect->BuildEffect();
-
         Utils::Logger::LogInfo("RenderingSystem initialized");
 
     }

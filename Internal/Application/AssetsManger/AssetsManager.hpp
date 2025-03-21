@@ -17,6 +17,11 @@
 #include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
+namespace ApplicationCore
+{
+    class EffectsLibrary;
+}
+
 namespace VulkanUtils
 {
     class VTransferOperationsManager;
@@ -63,7 +68,10 @@ public:
     //=========================
     // Constructor & Destructor
     //=========================
-    explicit AssetsManager(const VulkanCore::VDevice& device, VulkanCore::MeshDatatManager& meshDataManager);
+    explicit AssetsManager(
+        const VulkanCore::VDevice& device,
+        VulkanCore::MeshDatatManager& meshDataManager,
+        ApplicationCore::EffectsLibrary& effectsLibrary);
 
     //=========================
     // Public Methods
@@ -162,6 +170,8 @@ private:
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures2;
 
     VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
+
+    ApplicationCore::EffectsLibrary& m_effectsLibrary;
 
     friend class ApplicationCore::GLTFLoader;
 };

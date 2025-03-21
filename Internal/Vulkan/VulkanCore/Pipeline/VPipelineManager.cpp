@@ -92,7 +92,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines() {
     m_baseShader = std::make_unique<VShader>(m_device, basicPipelineShaderVertexSource,
         basicPipelineFragmentShaderSource);
 
-    auto pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_baseShader, m_renderTarget, m_pushDescriptorSetManager.GetLayout());
+    auto pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_baseShader, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
     pipeline->SetPipelineType(EPipelineType::RasterPBRTextured);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
@@ -107,7 +107,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines() {
     m_multiLightShader = std::make_unique<VShader>(m_device, multiLightPipelineVertexShaderSource,
         multiLightPipelineFragmnetShaderSource);
 
-    pipeline = std::make_unique<VGraphicsPipeline>(m_device,  *m_multiLightShader, m_renderTarget, m_pushDescriptorSetManager.GetLayout());
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device,  *m_multiLightShader, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
     pipeline->SetPipelineType(EPipelineType::MultiLight);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
@@ -118,7 +118,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines() {
     //==================================
     // TRANSPARENT PASS PIPELINE
     //==================================
-    pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_multiLightShader, m_renderTarget, m_pushDescriptorSetManager.GetLayout());
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_multiLightShader, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
     pipeline->SetPipelineType(EPipelineType::Transparent);
     pipeline->EnableBlendingAdditive();
@@ -134,7 +134,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines() {
     m_editorBilboardShader = std::make_unique<VShader>(m_device, editorBillboardVertexShaderSource,
         editorBillboardFragmentShaderSource);
 
-    pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_editorBilboardShader, m_renderTarget, m_pushDescriptorSetManager.GetLayout());
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_editorBilboardShader, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
 
     pipeline->SetPipelineType(EPipelineType::EditorBillboard);
@@ -150,7 +150,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines() {
     auto rtxFragmentShaderPath = "Shaders/Compiled/RayTracer.frag.slang.spv";
     m_rtxShader = std::make_unique<VShader>(m_device,rtxVertexShaderPath,
                                              rtxFragmentShaderPath);
-    pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_rtxShader, m_renderTarget, m_pushDescriptorSetManager.GetLayout());
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_rtxShader, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
     pipeline->SetPipelineType(EPipelineType::RTX);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
@@ -165,7 +165,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines() {
     m_debugLinesShader = std::make_unique<VShader>(m_device,debugLineVertex,
                                              debugLineFragment);
 
-    pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_debugLinesShader, m_renderTarget, m_pushDescriptorSetManager.GetLayout());
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_debugLinesShader, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
     pipeline->SetPipelineType(EPipelineType::DebugLines);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
@@ -184,7 +184,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines() {
     m_outlineShader = std::make_unique<VShader>(m_device,outlineVertex,
                                              outlineFragment);
 
-    pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_outlineShader, m_renderTarget, m_pushDescriptorSetManager.GetLayout());
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_outlineShader, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
     pipeline->SetPipelineType(EPipelineType::Outline);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);
@@ -203,7 +203,7 @@ void VulkanCore::VPipelineManager::GeneratePipelines() {
     auto debugGeometryFragment = "Shaders/Compiled/DebugGeometry.frag.slang.spv";
     m_debugGeometryShader = std::make_unique<VShader>(m_device,debugGeometryVertex, debugGeometryFragment);
 
-    pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_debugGeometryShader, m_renderTarget, m_pushDescriptorSetManager.GetLayout());
+    pipeline = std::make_unique<VGraphicsPipeline>(m_device, *m_debugGeometryShader, m_pushDescriptorSetManager.GetLayout());
     pipeline->Init();
     pipeline->SetPipelineType(EPipelineType::DebugShadpes);
     pipeline->SetPrimitiveTopology(vk::PrimitiveTopology::eTriangleList);

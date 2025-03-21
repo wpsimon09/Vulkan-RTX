@@ -12,6 +12,11 @@
 #include "Editor/Views/Index.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
+namespace ApplicationCore
+{
+    class EffectsLibrary;
+}
+
 namespace VulkanUtils
 {
     class VTransferOperationsManager;
@@ -84,6 +89,8 @@ private:
     std::unique_ptr<class VEditor::UIContext> m_uiContext;
     std::unique_ptr<class VEditor::Editor> m_editor;
     std::unique_ptr<class Renderer::RenderingSystem> m_renderingSystem;
+    std::unique_ptr<class ApplicationCore::EffectsLibrary> m_effectsLibrary;
+
 };
 
 #endif //VULKANRTX_HPP

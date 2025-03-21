@@ -34,12 +34,13 @@ namespace ApplicationCore {
         SkyBox,
         DebugLine,
         AlphaMask,
-        AplhaBlend
+        AplhaBlend,
+        EditorBilboard
     };
 
 class EffectsLibrary {
 public:
-    EffectsLibrary(const VulkanCore::VDevice& device,Renderer::RenderingSystem& renderingSystem, VulkanUtils::VPushDescriptorManager& pushDescriptorManager );
+    EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VPushDescriptorManager& pushDescriptorManager );
     std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;
 };
 
