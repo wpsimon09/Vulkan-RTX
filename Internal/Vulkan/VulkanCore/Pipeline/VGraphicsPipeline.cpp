@@ -45,6 +45,7 @@ void VulkanCore::VGraphicsPipeline::Init() {
 
 void VulkanCore::VGraphicsPipeline::Destroy() {
     m_device.GetDevice().destroyPipelineLayout(m_pipelineLayout);
+    m_device.GetDevice().destroyPipeline(m_pipeline);
 }
 
 const void VulkanCore::VGraphicsPipeline::RecordPipelineCommands(VulkanCore::VCommandBuffer &commandBuffer) const {

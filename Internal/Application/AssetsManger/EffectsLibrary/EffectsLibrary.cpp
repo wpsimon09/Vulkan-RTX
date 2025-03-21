@@ -105,6 +105,12 @@ namespace ApplicationCore {
 
     }
 
+    std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type)
+    {
+        assert(effects.contains(type));
+        return effects[type];
+    }
+
     void EffectsLibrary::BuildAllEffects()
     {
         for (auto& effect : effects)

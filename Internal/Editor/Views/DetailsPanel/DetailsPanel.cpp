@@ -13,6 +13,7 @@
 #include "Application/Rendering/Scene/DirectionLightNode.hpp"
 #include "Application/Rendering/Scene/PointLightNode.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
+#include "Vulkan/Utils/VEffect/VEffect.hpp"
 
 namespace VEditor {
     DetailsPanel::DetailsPanel(const ApplicationCore::AssetsManager& assetsManager): m_assetsManager(assetsManager)
@@ -194,6 +195,13 @@ namespace VEditor {
                 ImGui::SetNextItemWidth(colourPickerWidth);
                 ImGui::ColorEdit3("Emission", &meshMaterial->GetMaterialDescription().values.emissive_strength.x, ImGuiColorEditFlags_NoInputs);
             }
+
+            ImGui::TreePop();
+        }
+
+        if (ImGui::TreeNode(ICON_FA_WAND_MAGIC_SPARKLES " Effect"))
+        {
+            ImGui::Text(meshMaterial->GetEffect()->GetName().c_str());
 
             ImGui::TreePop();
         }

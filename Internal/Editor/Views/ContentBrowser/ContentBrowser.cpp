@@ -134,7 +134,7 @@ void ContentBrowser::RenderEffects()
     for (auto& effect : m_assetManager.GetEffects())
     {
         auto& currentEffect = effect.second;
-        auto meshLabel = ICON_FA_HOURGLASS_START " " + currentEffect->GetName();
+        auto meshLabel = ICON_FA_WAND_MAGIC " " + currentEffect->GetName();
 
         if (ImGui::Selectable(meshLabel.c_str(), m_selectedAsset == currentEffect->GetName()))
         {

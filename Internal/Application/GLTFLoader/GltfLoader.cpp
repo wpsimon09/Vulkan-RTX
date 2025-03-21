@@ -7,6 +7,7 @@
 #include <fastgltf/glm_element_traits.hpp>
 
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Material/MaterialStructs.hpp"
@@ -99,7 +100,7 @@ namespace ApplicationCore
                 {
                     MaterialPaths paths = {.saveToDisk = true};
                     std::shared_ptr<Material> material = std::make_shared<
-                        ApplicationCore::Material>(paths, m_assetsManager);
+                        ApplicationCore::Material>(m_assetsManager.GetEffects()[EEffectType::ForwardShader],paths, m_assetsManager);
                     material->SetSavable(true);
                     material->GetMaterialDescription().values.diffuse.x = m.pbrData.baseColorFactor.x();
                     material->GetMaterialDescription().values.diffuse.y = m.pbrData.baseColorFactor.y();
@@ -152,6 +153,14 @@ namespace ApplicationCore
                     }
                     material->SetMaterialname(std::string(m.name) + "##" +VulkanUtils::random_string(4));
 
+                    if (m.alphaMode == fastgltf::AlphaMode::Blend)
+                    {
+                        material->ChangeEffect(m_assetsManager.GetEffects()[EEffectType::AplhaBlend]);
+                    }else if (m.alphaMode == fastgltf::AlphaMode::Mask)
+                    {
+                        material->ChangeEffect(m_assetsManager.GetEffects()[EEffectType::AplhaBlend]);
+
+                    }
                     material->SetTransparent(m.alphaMode == fastgltf::AlphaMode::Blend);
                     materials.emplace_back(material);
                     m_assetsManager.m_materials.emplace_back(material);
@@ -162,7 +171,7 @@ namespace ApplicationCore
 
                 MaterialPaths paths = {.saveToDisk = true};
                 std::shared_ptr<Material> material = std::make_shared<
-                    ApplicationCore::Material>(paths, m_assetsManager);
+                    ApplicationCore::Material>(m_assetsManager.GetEffects()[EEffectType::ForwardShader],paths, m_assetsManager);
                 materials.emplace_back(material);
                 m_assetsManager.m_materials.emplace_back(material);
 
@@ -190,7 +199,7 @@ namespace ApplicationCore
 
                 MaterialPaths paths;
 
-                std::shared_ptr<Material> mat = std::make_shared<ApplicationCore::Material>(paths, m_assetsManager);
+                std::shared_ptr<Material> mat = std::make_shared<ApplicationCore::Material>(m_assetsManager.GetEffects()[EEffectType::ForwardShader],paths, m_assetsManager);
 
 
                 for (auto& p : m.primitives)
