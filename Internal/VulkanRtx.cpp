@@ -83,6 +83,9 @@ void Application::Init()
     m_bufferAllocator = std::make_unique<VulkanCore::MeshDatatManager>(*m_vulkanDevice);
     m_pushDescriptorSetManager = std::make_unique<VulkanUtils::VPushDescriptorManager>(*m_vulkanDevice);
     m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice, *m_pushDescriptorSetManager);
+    auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_bufferAllocator, *m_effectsLibrary);
+    m_client->MountAssetsManger(std::move(assetManger));
+    m_client->Init();
 
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 
@@ -94,9 +97,6 @@ void Application::Init()
 
                                                                     *m_pushDescriptorSetManager, *m_uiContext);
 
-    auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_bufferAllocator, *m_effectsLibrary);
-    m_client->MountAssetsManger(std::move(assetManger));
-    m_client->Init();
 
     m_renderingSystem->Init();
     m_uiContext->SetRenderingSystem(m_renderingSystem.get());
