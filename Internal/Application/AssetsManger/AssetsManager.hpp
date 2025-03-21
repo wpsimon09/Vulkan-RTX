@@ -19,11 +19,17 @@
 
 namespace ApplicationCore
 {
+    enum class EEffectType : std::uint8_t;
+}
+
+namespace ApplicationCore
+{
     class EffectsLibrary;
 }
 
 namespace VulkanUtils
 {
+    class VEffect;
     class VTransferOperationsManager;
 }
 
@@ -82,7 +88,7 @@ public:
     //=========================
     // Transfer ops manager
     //=========================
-    VulkanUtils::VTransferOperationsManager& GetTransferOperationsManager() const {return m_transferOpsManager;};
+    VulkanUtils::VTransferOperationsManager& GetTransferOperationsManager() const {return m_transferOpsManager;}
 
     //=========================
     // Textures
@@ -110,6 +116,11 @@ public:
     // Buffer Allocator
     //=========================
     VulkanCore::MeshDatatManager& GetBufferAllocator() { return m_meshDataManager; }
+
+    //=========================
+    // Effects
+    //=========================
+    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> GetEffects();
 
     //=========================
     // Buffer Allocator

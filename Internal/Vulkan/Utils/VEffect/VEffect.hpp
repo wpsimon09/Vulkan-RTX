@@ -7,6 +7,7 @@
 #include <variant>
 
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
+#include "Vulkan/VulkanCore/Shader/VShader.hpp"
 
 namespace Renderer
 {
@@ -23,9 +24,9 @@ namespace VulkanUtils {
 
 class VEffect {
 public:
-    VEffect(const VulkanCore::VDevice& device, const VulkanCore::VShader& shader, std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet);
+    VEffect(const VulkanCore::VDevice& device,const std::string& name,  const VulkanCore::VShader& shader, std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet);
 
-    VEffect(const VulkanCore::VDevice& device, const std::string& vertex, const std::string& fragment,
+    VEffect(const VulkanCore::VDevice& device,const std::string& name, const std::string& vertex, const std::string& fragment,
             std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet);
 
     //=======================================
@@ -44,13 +45,16 @@ public:
 
     //=======================================
 
+    std::string& GetName();
     DescriptorSetTemplateVariant& GetEffectUpdateStruct();
     void BuildEffect();
-
+    void Destroy();
 private:
     const VulkanCore::VDevice& m_device;
     std::shared_ptr<VulkanUtils::VPushDescriptorSet> m_descriptorSet;
     std::unique_ptr<VulkanCore::VGraphicsPipeline> m_pipeline;
+    std::string m_name;
+    std::optional<VulkanCore::VShader> shader;
 };
 
 } // VulkanUtils

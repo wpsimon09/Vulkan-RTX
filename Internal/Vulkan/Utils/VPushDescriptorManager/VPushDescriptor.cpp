@@ -88,3 +88,9 @@ void VulkanUtils::VPushDescriptorSet::CreateDstUpdateInfo(VulkanCore::VGraphicsP
     assert(m_descriptorUpdateTemplate);
     Utils::Logger::LogSuccess("Update template created !");
 }
+
+void VulkanUtils::VPushDescriptorSet::Destroy()
+{
+    m_device.GetDevice().destroyDescriptorUpdateTemplate(m_descriptorUpdateTemplate);
+    m_dstLayout->Destroy();
+}

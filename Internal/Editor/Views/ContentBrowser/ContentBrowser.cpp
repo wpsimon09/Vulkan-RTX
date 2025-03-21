@@ -11,6 +11,7 @@
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
+#include "Vulkan/Utils/VEffect/VEffect.hpp"
 
 ContentBrowser::ContentBrowser(ApplicationCore::AssetsManager& assetManager, ApplicationCore::Scene& scene): IUserInterfaceElement(), m_assetManager(assetManager), m_scene(scene)
 {
@@ -31,6 +32,11 @@ void ContentBrowser::Render()
         if (ImGui::BeginTabItem("Meshes"))
         {
             RenderMeshes();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Effects"))
+        {
+            RenderEffects();
             ImGui::EndTabItem();
         }
 
@@ -120,4 +126,34 @@ void ContentBrowser::RenderMeshes()
         i++;
     }
 
+}
+
+void ContentBrowser::RenderEffects()
+{
+    int i = 0;
+    for (auto& effect : m_assetManager.GetEffects())
+    {
+        auto& currentEffect = effect.second;
+        auto meshLabel = ICON_FA_HOURGLASS_START " " + currentEffect->GetName();
+
+        if (ImGui::Selectable(meshLabel.c_str(), m_selectedAsset == currentEffect->GetName()))
+        {
+            m_selectedAsset = currentEffect->GetName();
+        }
+
+        if (ImGui::BeginPopupContextItem(meshLabel.c_str()))
+        {
+            if (ImGui::MenuItem("Change"))
+            {
+                Utils::Logger::LogInfoClient("Changin effect");
+            }
+            if (ImGui::MenuItem("Remove"))
+            {
+
+            }
+            ImGui::EndPopup();
+        }
+
+        i++;
+    }
 }

@@ -25,6 +25,7 @@
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
+#include "EffectsLibrary/EffectsLibrary.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
@@ -178,6 +179,11 @@ namespace ApplicationCore
         mesh->SetName( IconToString(icon)+"##" + VulkanUtils::random_string(4));
 
         return std::move(mesh);
+    }
+
+    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> AssetsManager::GetEffects()
+    {
+        return m_effectsLibrary.effects;
     }
 
     void AssetsManager::AddModel(std::string path, std::vector<std::shared_ptr<ApplicationCore::SceneNode>>& model)

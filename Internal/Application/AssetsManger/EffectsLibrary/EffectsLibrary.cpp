@@ -18,7 +18,8 @@ namespace ApplicationCore {
         VulkanUtils::VPushDescriptorManager& pushDescriptorManager)
     {
         auto frowardEffect = std::make_shared<VulkanUtils::VEffect>(
-            device, "Shaders/Compiled/BasicTriangle.vert.slang.spv",
+            device, "Forward lit",
+            "Shaders/Compiled/BasicTriangle.vert.slang.spv",
             "Shaders/Compiled/GGXColourFragmentMultiLight.frag.slang.spv",
             pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
 
@@ -28,7 +29,8 @@ namespace ApplicationCore {
         //==============================================================================
 
         auto transparentEffect = std::make_shared<VulkanUtils::VEffect>(
-            device, "Shaders/Compiled/BasicTriangle.vert.slang.spv",
+            device, "Forward lit transparent",
+            "Shaders/Compiled/BasicTriangle.vert.slang.spv",
             "Shaders/Compiled/GGXColourFragmentMultiLight.frag.slang.spv",
             pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
 
@@ -41,20 +43,21 @@ namespace ApplicationCore {
         //==============================================================================
 
         auto editorBillboards = std::make_shared<VulkanUtils::VEffect>(
-            device, "Shaders/Compiled/EditorBillboard.vert.slang.spv",
+            device, "Editor billboards",
+            "Shaders/Compiled/EditorBillboard.vert.slang.spv",
             "Shaders/Compiled/EditorBilboard.frag.slang.spv",
             pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
 
         editorBillboards
             ->SetTopology(vk::PrimitiveTopology::eTriangleList)
             .SetCullNone();
-
         effects[EEffectType::EditorBilboard] = std::move(editorBillboards);
 
         //==============================================================================
 
         auto debugLine = std::make_shared<VulkanUtils::VEffect>(
-                   device, "Shaders/Compiled/BasicTriangle.vert.slang.spv",
+                   device, "Debug lines",
+                   "Shaders/Compiled/BasicTriangle.vert.slang.spv",
                    "Shaders/Compiled/DebugLines.frag.slang.spv",
                    pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
@@ -69,7 +72,8 @@ namespace ApplicationCore {
         //==============================================================================
 
         auto outline = std::make_shared<VulkanUtils::VEffect>(
-                   device, "Shaders/Compiled/BasicTriangle.vert.slang.spv",
+                   device, "Outline",
+                   "Shaders/Compiled/BasicTriangle.vert.slang.spv",
                    "Shaders/Compiled/Outliines.frag.slang.spv",
                    pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
@@ -83,9 +87,9 @@ namespace ApplicationCore {
 
         //===============================================================================
 
-
         auto debugShapes = std::make_shared<VulkanUtils::VEffect>(
-            device, "Shaders/Compiled/BasicTriangle.vert.slang.spv",
+            device, "Debug shapes",
+            "Shaders/Compiled/BasicTriangle.vert.slang.spv",
             "Shaders/Compiled/DebugGeometry.frag.slang.spv",
                    pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
@@ -95,5 +99,25 @@ namespace ApplicationCore {
 
         effects[EEffectType::DebugLine] = std::move(debugShapes);
 
+        //===============================================================================
+
+        BuildAllEffects();
+
+    }
+
+    void EffectsLibrary::BuildAllEffects()
+    {
+        for (auto& effect : effects)
+        {
+            effect.second->BuildEffect();
+        }
+    }
+
+    void EffectsLibrary::Destroy()
+    {
+        for (auto& effect : effects)
+        {
+            effect.second->Destroy();
+        }
     }
 } // ApplicationCore

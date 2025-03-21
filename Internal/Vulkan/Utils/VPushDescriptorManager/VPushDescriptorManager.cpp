@@ -92,6 +92,10 @@ namespace VulkanUtils {
     void VPushDescriptorManager::Destroy() {
         m_descriptorSetLayout->Destroy();
         m_device.GetDevice().destroyDescriptorUpdateTemplate(m_descriptorUpdateTemplate);
+        for (auto& pushDst: m_pushDescriptors)
+        {
+            pushDst.second->Destroy();
+        }
     }
 
 } // VulkanUtils

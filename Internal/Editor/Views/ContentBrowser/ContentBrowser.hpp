@@ -23,6 +23,7 @@ public:
 private:
     void RenderModels();
     void RenderMeshes();
+    void RenderEffects();
     ApplicationCore::AssetsManager& m_assetManager;
     ApplicationCore::Scene& m_scene;
     std::string m_selectedAsset;

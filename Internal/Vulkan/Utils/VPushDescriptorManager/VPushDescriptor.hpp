@@ -32,6 +32,7 @@ public:
     std::string& GetName()                                                     {return m_name;}
 
     void CreateDstUpdateInfo(VulkanCore::VGraphicsPipeline& pipelineLayout);
+    void Destroy();
 
 private:
     void AddUpdateEntry(uint32_t binding,size_t offset, size_t stride );

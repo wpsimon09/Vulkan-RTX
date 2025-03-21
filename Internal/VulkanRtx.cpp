@@ -201,6 +201,7 @@ Application::~Application() {
     }
     m_vulkanDevice->GetDevice().waitIdle();
     m_renderingSystem->Destroy();
+    m_effectsLibrary->Destroy();
     m_client->Destroy();
     m_uniformBufferManager->Destroy();
     VulkanCore::VSamplers::DestroyAllSamplers(*m_vulkanDevice);

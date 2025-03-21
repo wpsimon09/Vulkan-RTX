@@ -9,8 +9,8 @@
 
 namespace VulkanUtils
 {
-        VEffect::VEffect(const VulkanCore::VDevice& device, const VulkanCore::VShader& shader,
-                         std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet): m_device(device), m_descriptorSet(descriptorSet)
+        VEffect::VEffect(const VulkanCore::VDevice& device,const std::string& name, const VulkanCore::VShader& shader,
+                         std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet): m_device(device), m_descriptorSet(descriptorSet), m_name(name)
         {
             m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
                 device, shader,m_descriptorSet->GetLayout());
@@ -21,17 +21,14 @@ namespace VulkanUtils
 
     }
 
-        VEffect::VEffect(const VulkanCore::VDevice& device, const std::string& vertex, const std::string& fragment,
-            std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet):m_device(device), m_descriptorSet(descriptorSet)
+        VEffect::VEffect(const VulkanCore::VDevice& device,const std::string& name, const std::string& vertex, const std::string& fragment,
+            std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet):m_device(device), m_descriptorSet(descriptorSet), m_name(name), shader(std::in_place, device, vertex, fragment)
         {
-            auto shader = VulkanCore::VShader(device, vertex, fragment);
             m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
-               device, shader, m_descriptorSet->GetLayout());
+               device, shader.value(), m_descriptorSet->GetLayout());
             m_pipeline->Init();
 
             m_descriptorSet->CreateDstUpdateInfo(*m_pipeline);
-
-            shader.DestroyExistingShaderModules();
         }
 
         VEffect& VEffect::SetDisableDepthTest()
@@ -98,6 +95,11 @@ namespace VulkanUtils
             return *this;
         }
 
+        std::string& VEffect::GetName()
+        {
+            return m_name;
+        }
+
         DescriptorSetTemplateVariant& VEffect::GetEffectUpdateStruct()
         {
             return m_descriptorSet->GetDstStruct();
@@ -112,5 +114,11 @@ namespace VulkanUtils
             {
                 m_pipeline->SetCreatedPipeline(p);
             }
+            shader->DestroyExistingShaderModules();
+        }
+
+        void VEffect::Destroy()
+        {
+            m_pipeline->Destroy();
         }
 } // VulkanUtils
