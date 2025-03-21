@@ -33,13 +33,16 @@ public:
     //=======================================
     // Effect building
     //=======================================
-    void SetDisableDepthTest();
-    void SetLineWidth(int lineWidth);
-    void SetCullFrontFace();
-    void SetDisableDepthWrite();
-    void SetTopology(vk::PrimitiveTopology topology);
-    void SetPolygonLine();
-    void SetPolygonPoint();
+    VEffect& SetDisableDepthTest();
+    VEffect& SetLineWidth(int lineWidth);
+    VEffect& SetCullFrontFace();
+    VEffect& SetCullNone();
+    VEffect& SetDisableDepthWrite();
+    VEffect& SetTopology(vk::PrimitiveTopology topology);
+    VEffect& SetPolygonLine();
+    VEffect& SetPolygonPoint();
+    VEffect& EnableAdditiveBlending();
+
     //=======================================
 
     DescriptorSetTemplateVariant& GetEffectUpdateStruct();

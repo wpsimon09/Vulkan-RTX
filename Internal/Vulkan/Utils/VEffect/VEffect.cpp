@@ -35,40 +35,61 @@ namespace VulkanUtils
             shader.DestroyExistingShaderModules();
         }
 
-        void VEffect::SetDisableDepthTest()
+        VEffect& VEffect::SetDisableDepthTest()
         {
             m_pipeline->m_depthStencil.depthTestEnable = false;
+            return *this;
         }
 
-        void VEffect::SetLineWidth(int lineWidth)
+        VEffect& VEffect::SetLineWidth(int lineWidth)
         {
             m_pipeline->m_rasterizer.lineWidth = lineWidth;
+            return *this;
 
         }
 
-        void VEffect::SetCullFrontFace()
+        VEffect& VEffect::SetCullFrontFace()
         {
             m_pipeline->m_rasterizer.cullMode = vk::CullModeFlagBits::eFront;
+            return *this;
+
         }
 
-        void VEffect::SetDisableDepthWrite()
+        VEffect& VEffect::SetCullNone()
+        {
+            m_pipeline->SetCullMode(vk::CullModeFlagBits::eNone);
+            return *this;
+        }
+
+        VEffect& VEffect::SetDisableDepthWrite()
         {
             m_pipeline->m_depthStencil.depthWriteEnable = false;
+            return *this;
         }
 
-        void VEffect::SetTopology(vk::PrimitiveTopology topology)
+        VEffect& VEffect::SetTopology(vk::PrimitiveTopology topology)
         {
             m_pipeline->m_inputAssembly.topology = topology;
+            return *this;
         }
 
-        void VEffect::SetPolygonLine()
+        VEffect& VEffect::SetPolygonLine()
         {
             m_pipeline->m_rasterizer.polygonMode = vk::PolygonMode::eLine;
+            return *this;
+
         }
 
-        void VEffect::SetPolygonPoint()
+        VEffect& VEffect::SetPolygonPoint()
         {
             m_pipeline->m_rasterizer.polygonMode = vk::PolygonMode::ePoint;
+            return *this;
+        }
+
+        VEffect& VEffect::EnableAdditiveBlending()
+        {
+            m_pipeline->EnableBlendingAdditive();
+            return *this;
         }
 
         DescriptorSetTemplateVariant& VEffect::GetEffectUpdateStruct()

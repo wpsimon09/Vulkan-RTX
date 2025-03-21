@@ -5,6 +5,7 @@
 #ifndef EFFECTSLIBRARY_HPP
 #define EFFECTSLIBRARY_HPP
 #include <map>
+#include <memory>
 #include <glm/fwd.hpp>
 
 
@@ -38,8 +39,8 @@ namespace ApplicationCore {
 
 class EffectsLibrary {
 public:
-    EffectsLibrary(const VulkanCore::VDevice& device,const Renderer::RenderingSystem& renderingSystem, const VulkanUtils::VPushDescriptorManager& pushDescriptorManager );
-    std::map<EEffectType, VulkanUtils::VEffect> effects;
+    EffectsLibrary(const VulkanCore::VDevice& device,Renderer::RenderingSystem& renderingSystem, VulkanUtils::VPushDescriptorManager& pushDescriptorManager );
+    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;
 };
 
 } // ApplicationCore
