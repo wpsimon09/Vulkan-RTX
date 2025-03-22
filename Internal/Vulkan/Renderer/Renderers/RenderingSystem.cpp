@@ -114,8 +114,7 @@ namespace Renderer {
 
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
 
-        auto drawCalls = m_renderContext.GetAllDrawCall();
-        m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, drawCalls);
+        m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
         m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
 
         // render scene
