@@ -58,7 +58,7 @@ void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameInde
     m_perFrameUniform->UpdateGPUBuffer(frameIndex);
 }
 
-void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameIndex, std::map<uint64_t, VulkanStructs::DrawCallData>& drawCalls) const
+void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned short, VulkanStructs::DrawCallData>>& drawCalls) const
 {
     assert(drawCalls.size() < MAX_UBO_COUNT && "Draw calls are bigger than allocated uniform buffers on GPU");
     int i = 0;

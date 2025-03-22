@@ -199,6 +199,7 @@ struct DrawCallData
     bool isEditorBilboard = false;
 
     std::shared_ptr<ApplicationCore::Material> material;
+    std::shared_ptr<VulkanUtils::VEffect> effect;
 };
 
 struct RenderContext
@@ -210,7 +211,7 @@ struct RenderContext
     glm::mat4 view{};
     glm::mat4 projection{};
 
-    std::map<uint64_t, DrawCallData> drawCalls;
+    std::vector<std::pair<unsigned short, DrawCallData>> drawCalls;
 
     void ExtractDepthValues(glm::vec3& cameraPosition)
     {
@@ -228,19 +229,19 @@ struct RenderContext
     }
 
 
-    void GetAllDrawCall(std::map<uint64_t, DrawCallData>& outDrawCalls)
+    void GetAllDrawCall(std::vector<std::pair<unsigned short, DrawCallData>>& outDrawCalls)
     {
         outDrawCalls = drawCalls;
     }
 
-    std::map<uint64_t, DrawCallData>& GetAllDrawCall()
+    std::vector<std::pair<unsigned short, DrawCallData>>& GetAllDrawCall()
     {
         return drawCalls;
     }
 
     void AddDrawCall(const RenderingMetaData& drawCallMetaDat,DrawCallData& DrawCall)
     {
-        drawCalls.emplace(rand(), DrawCall);
+        drawCalls.emplace_back(0, DrawCall);
     }
 
     void ResetAllDrawCalls()

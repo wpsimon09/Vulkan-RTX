@@ -224,6 +224,7 @@ namespace ApplicationCore
             data.indexCount = m_mesh->GetMeshIndexCount();
             data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
             data.material = m_mesh->m_currentMaterial;
+            data.effect   = m_mesh->m_currentMaterial->GetEffect();
             data.meshData = m_mesh->GetMeshData();
             data.renderOutline = m_sceneNodeMetaData.IsSelected;
             data.position = m_transformation->GetPosition();
@@ -233,6 +234,7 @@ namespace ApplicationCore
             //=====================================================
             data.bounds = &m_mesh->GetMeshData()->bounds;
             data.isEditorBilboard = false;
+            data.material = m_mesh->m_currentMaterial;
 
             //=====================================================
             // SORT BASED ON THE DEPTH
@@ -240,8 +242,9 @@ namespace ApplicationCore
             renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,data);
 
             if (m_sceneNodeMetaData.IsSelected){
-                data.material->ChangeEffect(effectsLibrary.GetEffect(EEffectType::Outline));
-                renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,data);
+                    auto selectedData = data;
+                    selectedData.effect = effectsLibrary.GetEffect(EEffectType::Outline);
+                    renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,selectedData);
             }
 
 

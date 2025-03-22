@@ -67,8 +67,8 @@ namespace Renderer
 
 
                 cmdBuffer.pushDescriptorSetWithTemplateKHR(
-                    drawCall.material->GetEffect()->GetUpdateTemplate(),
-                    drawCall.material->GetEffect()->GetPipelineLayout(), 0,
+                    drawCall.effect->GetUpdateTemplate(),
+                    drawCall.effect->GetPipelineLayout(), 0,
                     basicEffect, m_device.DispatchLoader);
 
 
@@ -82,8 +82,8 @@ namespace Renderer
                                                             GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
                 cmdBuffer.pushDescriptorSetWithTemplateKHR(
-                    drawCall.material->GetEffect()->GetUpdateTemplate(),
-                    drawCall.material->GetEffect()->GetPipelineLayout(), 0,
+                    drawCall.effect->GetUpdateTemplate(),
+                    drawCall.effect->GetPipelineLayout(), 0,
                     unlitSingelTextureEffect, m_device.DispatchLoader);
 
             }
@@ -116,12 +116,12 @@ namespace Renderer
                 forwardShaddingEffect.LUT_LTC_Inverse = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
                 cmdBuffer.pushDescriptorSetWithTemplateKHR(
-                    drawCall.material->GetEffect()->GetUpdateTemplate(),
-                    drawCall.material->GetEffect()->GetPipelineLayout(), 0,
+                    drawCall.effect->GetUpdateTemplate(),
+                    drawCall.effect->GetPipelineLayout(), 0,
                     forwardShaddingEffect, m_device.DispatchLoader);
             }
 
-        }, drawCall.material->GetEffect()->GetEffectUpdateStruct());
+        }, drawCall.effect->GetEffectUpdateStruct());
 
     }
 
@@ -295,7 +295,7 @@ namespace Renderer
         {
             auto& material = drawCall.second.material;
 
-            drawCall.second.material->GetEffect()->BindPipeline(cmdBuffer);
+            drawCall.second.effect->BindPipeline(cmdBuffer);
 
             //================================================================================================
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED

@@ -137,4 +137,9 @@ namespace VulkanUtils
         {
             return m_descriptorSet->GetUpdateTemplate();
         }
+
+        unsigned short VEffect::EvaluateRenderingOrder()
+        {
+            return 0;
+        }
 } // VulkanUtils
