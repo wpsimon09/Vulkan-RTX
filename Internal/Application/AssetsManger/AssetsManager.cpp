@@ -225,31 +225,34 @@ namespace ApplicationCore
         m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device, m_dummyImage);
 
         MaterialPaths paths{};
-        m_dummyMaterial = std::make_shared<ApplicationCore::Material>(paths, *this);
+        m_dummyMaterial = std::make_shared<ApplicationCore::Material>(
+            m_effectsLibrary.GetEffect(EEffectType::ForwardShader),
+            paths, *this);
 
         MaterialPaths directionalLightBillboard{};
         directionalLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-directional.png";
-        auto mat = std::make_shared<ApplicationCore::Material>(directionalLightBillboard, *this);
+        auto mat = std::make_shared<ApplicationCore::Material>(
+            m_effectsLibrary.GetEffect(EEffectType::EditorBilboard),
+            directionalLightBillboard, *this);
         mat->SetMaterialname("Directional light editor billboard");
         m_editorIconsMaterials[EEditorIcon::DirectionalLight] = mat;
 
         MaterialPaths pointLightBillboard{};
         pointLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-point.png";
-        mat = std::make_shared<ApplicationCore::Material>(pointLightBillboard, *this);
+
+        mat = std::make_shared<ApplicationCore::Material>(
+            m_effectsLibrary.GetEffect(EEffectType::EditorBilboard),
+            pointLightBillboard, *this);
         mat->SetMaterialname("Point light editor billboard");
         m_editorIconsMaterials[EEditorIcon::PointLight] = mat;
 
         MaterialPaths areaLightBillboard{};
         areaLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-area.png";
-        mat = std::make_shared<ApplicationCore::Material>(areaLightBillboard, *this);
+        mat = std::make_shared<ApplicationCore::Material>(
+            m_effectsLibrary.GetEffect(EEffectType::EditorBilboard),
+            areaLightBillboard, *this);
         mat->SetMaterialname("Area light editor billboard");
         m_editorIconsMaterials[EEditorIcon::AreaLight] = mat;
-
-        MaterialPaths suskoMaterial{};
-        suskoMaterial.DiffuseMapPath = "Resources/EditorIcons/susko.jpg";
-        mat = std::make_shared<ApplicationCore::Material>(suskoMaterial, *this);
-        mat->SetMaterialname("Susko material");
-        m_materials.emplace_back(mat);
 
         //=======================================
         // LTC TEXTURES

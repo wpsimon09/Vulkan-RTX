@@ -32,6 +32,7 @@ public:
     std::string& GetName()                                                     {return m_name;}
 
     void CreateDstUpdateInfo(VulkanCore::VGraphicsPipeline& pipelineLayout);
+    vk::DescriptorUpdateTemplate& GetUpdateTemplate()                          {return m_descriptorUpdateTemplate;}
     void Destroy();
 
 private:

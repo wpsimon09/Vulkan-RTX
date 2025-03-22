@@ -45,10 +45,16 @@ public:
 
     //=======================================
 
-    std::string& GetName();
-    DescriptorSetTemplateVariant& GetEffectUpdateStruct();
-    void BuildEffect();
-    void Destroy();
+    std::string&                        GetName();
+    DescriptorSetTemplateVariant&       GetEffectUpdateStruct();
+    void                                BuildEffect();
+    vk::PipelineLayout                  GetPipelineLayout();
+    void                                BindPipeline(const vk::CommandBuffer& cmdBuffer);
+    void                                Destroy();
+    void                                SendDataToGPU(const vk::CommandBuffer& cmdBuffer);
+    vk::DescriptorUpdateTemplate&       GetUpdateTemplate();
+
+
 private:
     const VulkanCore::VDevice& m_device;
     std::shared_ptr<VulkanUtils::VPushDescriptorSet> m_descriptorSet;
@@ -56,7 +62,6 @@ private:
     std::string m_name;
     std::optional<VulkanCore::VShader> shader;
 };
-
 } // VulkanUtils
 
 #endif //VEFFECT_HPP

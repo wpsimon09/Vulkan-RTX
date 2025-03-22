@@ -51,13 +51,12 @@ public:
 
 protected:
     void CreateRenderTargets(VulkanCore::VSwapChain* swapChain) override;
-    void RecordCommandBuffer(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager, const VulkanCore::VGraphicsPipeline& pipeline) override;
+    void RecordCommandBuffer(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager) override;
 
 private:
     const VulkanCore::VDevice& m_device;
     VulkanUtils::VPushDescriptorManager& m_pushDescriptorManager;
 
-    const VulkanCore::VPipelineManager* m_pipelineManager;
     VulkanStructs::RenderContext* m_renderContextPtr;
 
     std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
@@ -74,8 +73,9 @@ private:
     bool m_allowEditorBillboards = true;
 
 private:
-    void SendGlobalDescriptorsToShader(int currentFrameIndex,const VulkanUtils::VUniformBufferManager& uniformBufferManager);
-    void SendPerObjectDescriptorsToShader(int currentFrameIndex,int objectIndex,VulkanStructs::DrawCallData& drawCall,  const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+    void PushDataToGPU(const vk::CommandBuffer& cmdBuffer, int currentFrameIndex, int objectIndex,
+                       VulkanStructs::DrawCallData& drawCall,
+                       const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
     friend class VEditor::RenderingOptions;
 };

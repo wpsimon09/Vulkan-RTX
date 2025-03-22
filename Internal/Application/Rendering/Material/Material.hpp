@@ -17,6 +17,16 @@
 #endif
 #include "MaterialStructs.hpp"
 
+namespace VulkanUtils
+{
+    class VUniformBufferManager;
+}
+
+namespace VulkanUtils
+{
+    class VEffect;
+}
+
 namespace VulkanCore
 {
     class VImage;
@@ -43,30 +53,35 @@ namespace ApplicationCore
     {
     public:
         explicit Material(MaterialPaths& materialPaths, AssetsManager& assets_manager);
+        explicit Material(std::shared_ptr<VulkanUtils::VEffect> materialEffect, MaterialPaths& materialPaths, AssetsManager& assets_manager);
 
-        PBRMaterialDescription& GetMaterialDescription() { return m_materialDescription; };
-        std::string& GetMaterialName() { return m_materialName; };
-        void SetMaterialname(std::string newName) { m_materialName = std::move(newName); };
-        std::shared_ptr<ApplicationCore::VTextureAsset>& GetTexture(ETextureType type) { return m_textures[type]; }
-        ApplicationCore::VTextureAsset* GetTextureRawPtr(ETextureType type) const { return m_textures[type].get(); }
+        PBRMaterialDescription&                                 GetMaterialDescription() { return m_materialDescription; }
+        std::shared_ptr<VulkanUtils::VEffect>&                  GetEffect();;
+        std::shared_ptr<ApplicationCore::VTextureAsset>&        GetTexture(ETextureType type) { return m_textures[type]; }
+        std::string&                                            GetMaterialName() { return m_materialName; };
+        void                                                    SetMaterialname(std::string newName);
+        ApplicationCore::VTextureAsset*                         GetTextureRawPtr(ETextureType type) const { return m_textures[type].get(); }
 
-        bool& IsTransparent() { return m_transparent; }
-        void SetTransparent(bool value) { m_transparent = value; }
-        TextureBufferView* GetTextureView() { return &m_textureView; }
-        MaterialPaths& GetMaterialPaths() { return m_materialPaths; }
-        bool IsSavable() const {return m_savable;}
-        void SetSavable(bool savable) {m_savable = savable;}
+        MaterialPaths&                                          GetMaterialPaths() { return m_materialPaths; }
+        TextureBufferView*                                      GetTextureView() { return &m_textureView; }
+
+        bool&                                                   IsTransparent() { return m_transparent; }
+        void                                                    SetTransparent(bool value) { m_transparent = value; }
+        void                                                    ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect);
+
+        bool                                                    IsSavable() const {return m_savable;}
+        void                                                    SetSavable(bool savable) {m_savable = savable;}
 
     private:
         std::string m_materialName;
         std::array<std::shared_ptr<ApplicationCore::VTextureAsset>,MAX_TEXTURE_COUNT> m_textures;
         PBRMaterialDescription m_materialDescription;
         MaterialPaths m_materialPaths;
-        AssetsManager& m_assetManager;
-        TextureBufferView m_textureView; // used only for exporting 
+        TextureBufferView m_textureView; // used only for exporting
         bool m_transparent = false;
         bool m_savable = false;
         int ID;
+        std::shared_ptr<VulkanUtils::VEffect> m_materialEffect;
 
         friend bool operator==(const Material& lhs, const Material& rhs)
         {

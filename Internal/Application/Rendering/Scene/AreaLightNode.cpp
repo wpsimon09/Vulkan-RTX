@@ -22,9 +22,9 @@ namespace ApplicationCore {
 
     }
 
-    void AreaLightNode::Render(VulkanStructs::RenderContext* renderingContext) const
+    void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanStructs::RenderContext* renderingContext) const
     {
-        SceneNode::Render(renderingContext);
+        SceneNode::Render(effectsLibrary, renderingContext);
     }
 
     void AreaLightNode::Update()

@@ -44,8 +44,6 @@ set(SOURCES
         Internal/Application/Client.hpp
         Internal/Application/Rendering/Mesh/StaticMesh.cpp
         Internal/Application/Rendering/Mesh/StaticMesh.hpp
-        Internal/Vulkan/VulkanCore/Pipeline/VPipelineManager.cpp
-        Internal/Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp
         Internal/Vulkan/Global/GlobalVulkanEnums.hpp
         Internal/Vulkan/VulkanCore/RenderPass/VRenderPass.cpp
         Internal/Vulkan/VulkanCore/RenderPass/VRenderPass.hpp

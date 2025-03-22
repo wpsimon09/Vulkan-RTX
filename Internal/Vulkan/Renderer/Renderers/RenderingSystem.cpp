@@ -17,7 +17,6 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
-#include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
@@ -61,17 +60,7 @@ namespace Renderer {
             *m_swapChain,
             uiContext);
 
-        //------------------------------------------------------------------------------------------------------------------------
-        // CREATE PIPELINE MANAGER
-        //------------------------------------------------------------------------------------------------------------------------
-        m_pipelineManager = std::make_unique<VulkanCore::VPipelineManager>(m_device, *m_swapChain, m_sceneRenderer->GetRenderTarget(), m_pushDescriptorSetManager) ;
-        m_pipelineManager->InstantiatePipelines();
-
-        m_sceneRenderer->Init(m_pipelineManager.get());
-
         m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
-
-        m_pushDescriptorSetManager.CreateUpdateTemplate(m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
 
         Utils::Logger::LogInfo("RenderingSystem initialized");
 
@@ -125,8 +114,7 @@ namespace Renderer {
 
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
 
-        auto drawCalls = m_renderContext.GetAllDrawCall();
-        m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, drawCalls);
+        m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
         m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
 
         // render scene
@@ -152,6 +140,5 @@ namespace Renderer {
         m_sceneRenderer->Destroy();
         m_uiRenderer->Destroy();
         m_swapChain->Destroy();
-        m_pipelineManager->DestroyPipelines();
     }
 } // Renderer

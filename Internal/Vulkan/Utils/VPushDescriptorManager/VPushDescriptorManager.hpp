@@ -36,19 +36,15 @@ public:
 
     void AddUpdateEntry(uint32_t binding,size_t offset, size_t stride );
     void CreateUpdateTemplate(const VulkanCore::VGraphicsPipeline& pipeline);
-    const vk::DescriptorUpdateTemplate& GetTemplate() const {return m_descriptorUpdateTemplate;}
 
     std::shared_ptr<VPushDescriptorSet>& GetPushDescriptor(EDescriptorLayoutStruct layoutType){return m_pushDescriptors[layoutType];}
 
     VulkanUtils::DescriptorSetData& GetDescriptorSetDataStruct() { return m_descriptorSetData; };
-    const VulkanCore::VDescriptorSetLayout& GetLayout() const {return *m_descriptorSetLayout;}
 
     void Destroy();
 
 private:
     const VulkanCore::VDevice& m_device;
-    vk::DescriptorUpdateTemplate m_descriptorUpdateTemplate;
-    std::unique_ptr<VulkanCore::VDescriptorSetLayout> m_descriptorSetLayout;
     std::vector<vk::DescriptorUpdateTemplateEntry> m_descriptorTemplateEntries;
 
     VulkanUtils::DescriptorSetData m_descriptorSetData;

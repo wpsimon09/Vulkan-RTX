@@ -9,9 +9,15 @@
 #include <vulkan/vulkan.hpp>
 
 #include "Application/Rendering/Material/Material.hpp"
+#include <map>
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "VMA/vk_mem_alloc.h"
 
+
+namespace ApplicationCore
+{
+    class EffectsLibrary;
+}
 
 namespace LightStructs
 {
@@ -204,18 +210,11 @@ struct RenderContext
     glm::mat4 view{};
     glm::mat4 projection{};
 
-    std::vector<DrawCallData> MainLightPassOpaque;
-    std::vector<DrawCallData> MainLightPassTransparent;
-    std::vector<DrawCallData> EditorBillboardPass;
-    std::vector<DrawCallData> SelectedGeometryPass;
-    std::vector<DrawCallData> RayTracingPlanePass;
-    std::vector<DrawCallData> DebugGeometryPass;
-
+    std::map<uint64_t, DrawCallData> drawCalls;
 
     void ExtractDepthValues(glm::vec3& cameraPosition)
     {
-        for (auto &drawCall: MainLightPassOpaque)
-            drawCall.depth = glm::length(cameraPosition - drawCall.position);
+
     }
 
     static bool CompareByDeptDesc(const DrawCallData& DrawCallA, const DrawCallData& DrawCallB)
@@ -228,78 +227,25 @@ struct RenderContext
         return DrawCallA.depth< DrawCallB.depth;
     }
 
-    RenderContext(): MainLightPassOpaque(), EditorBillboardPass(), SelectedGeometryPass(), RayTracingPlanePass()
+
+    void GetAllDrawCall(std::map<uint64_t, DrawCallData>& outDrawCalls)
     {
-        
+        outDrawCalls = drawCalls;
     }
 
-    void GetAllDrawCall(std::vector<DrawCallData>& outDrawCalls)
+    std::map<uint64_t, DrawCallData>& GetAllDrawCall()
     {
-        outDrawCalls.clear();
-        outDrawCalls.reserve(
-            MainLightPassOpaque.size() +
-            EditorBillboardPass.size() +
-            DebugGeometryPass.size() + 
-            MainLightPassTransparent.size()
-        );
-
-        outDrawCalls.insert(outDrawCalls.end(), MainLightPassOpaque.begin(), MainLightPassOpaque.end());
-        outDrawCalls.insert(outDrawCalls.end(), MainLightPassTransparent.begin(), MainLightPassTransparent.end());
-        outDrawCalls.insert(outDrawCalls.end(), EditorBillboardPass.begin(), EditorBillboardPass.end());
-        outDrawCalls.insert(outDrawCalls.end(), DebugGeometryPass.begin(), DebugGeometryPass.end());
-
-    }
-
-    std::vector<DrawCallData*> GetAllDrawCall()
-    {
-        std::vector<DrawCallData*> allDrawCalls;
-        allDrawCalls.reserve(
-            MainLightPassOpaque.size() +
-            EditorBillboardPass.size() +
-            SelectedGeometryPass.size() +
-            RayTracingPlanePass.size() + 
-            DebugGeometryPass.size() +
-            MainLightPassTransparent.size()
-        );
-
-        // Store pointers to original DrawCallData instances
-        for (auto& drawCall : MainLightPassOpaque)
-            allDrawCalls.push_back(&drawCall);
-        for (auto& drawCall : EditorBillboardPass)
-            allDrawCalls.push_back(&drawCall);
-        for (auto& drawCall : SelectedGeometryPass)
-            allDrawCalls.push_back(&drawCall);
-        for (auto& drawCall : RayTracingPlanePass)
-            allDrawCalls.push_back(&drawCall);
-        for (auto& drawCall : DebugGeometryPass)
-            allDrawCalls.push_back(&drawCall);
-        for (auto& drawCall : MainLightPassTransparent)
-            allDrawCalls.push_back(&drawCall);
-
-        return allDrawCalls;
+        return drawCalls;
     }
 
     void AddDrawCall(const RenderingMetaData& drawCallMetaDat,DrawCallData& DrawCall)
     {
-
-        if (drawCallMetaDat.bOpaquePass) MainLightPassOpaque.emplace_back(DrawCall);
-        if (drawCallMetaDat.bTransparentPass) MainLightPassTransparent.emplace_back(DrawCall);
-
-        if (drawCallMetaDat.bRTXPass) RayTracingPlanePass.emplace_back(DrawCall);
-        if (drawCallMetaDat.bEditorBillboardPass) EditorBillboardPass.emplace_back(DrawCall);
-        //if (drawCallMetaDat == SelectedGeometryPass.first) SelectedGeometryPass.second.emplace_back(DrawCall);
-        if (drawCallMetaDat.bDebugGeometryPass) DebugGeometryPass.emplace_back(DrawCall);
-
+        drawCalls.emplace(rand(), DrawCall);
     }
 
     void ResetAllDrawCalls()
     {
-        MainLightPassOpaque.clear();
-        MainLightPassTransparent.clear();
-        EditorBillboardPass.clear();
-        SelectedGeometryPass.clear();
-        RayTracingPlanePass.clear();
-        DebugGeometryPass.clear();
+       drawCalls.clear();
     }
 };
 

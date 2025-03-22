@@ -30,9 +30,9 @@ namespace ApplicationCore {
         m_transformation->SetPosition(m_lightStruct.position);
     }
 
-    void PointLightNode::Render(VulkanStructs::RenderContext* renderingContext) const
+    void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanStructs::RenderContext* renderingContext) const
     {
-        SceneNode::Render(renderingContext);
+        SceneNode::Render( effectsLibrary, renderingContext);
     }
 
     void PointLightNode::Update()

@@ -43,6 +43,8 @@ public:
     EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VPushDescriptorManager& pushDescriptorManager );
     std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;
 
+    std::shared_ptr<VulkanUtils::VEffect> GetEffect(EEffectType type);
+
     void BuildAllEffects();
     void Destroy();
 };

@@ -5,7 +5,7 @@ struct FragmentShaderIn
     float2 uv : OUT_UV;
 };
 
-[[vk::binding(4, 0)]]
+[[vk::binding(3, 0)]]
 ConstantBuffer<Sampler2D> _albedoMap;
 
 [shader("pixel")]

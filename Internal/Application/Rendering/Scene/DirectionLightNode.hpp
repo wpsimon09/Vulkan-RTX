@@ -15,7 +15,7 @@ class DirectionLightNode: public ApplicationCore::LightNode<LightStructs::Direct
 public:
     explicit DirectionLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh, LightStructs::DirectionalLight* directionalLightData);
 
-    void Render(VulkanStructs::RenderContext* renderingContext) const override;
+    void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanStructs::RenderContext* renderingContext) const override;
     void Update() override;
     void ProcessNodeRemove() override;
 private:

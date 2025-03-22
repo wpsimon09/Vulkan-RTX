@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SLANGC_PATH="/home/wpsimon09/SDKs/slang/slangc"  # Update this path to point to the slangc binary
+SLANGC_PATH="/home/wpsimon09/SDKs/vulkan/vulkansdk-linux-x86_64-1.4.304.1/1.4.304.1/x86_64/bin/slangc"  # Update this path to point to the slangc binary
 
 if [[ ! -x "$SLANGC_PATH" ]]; then
     echo "Error: Slang compiler not found at $SLANGC_PATH"

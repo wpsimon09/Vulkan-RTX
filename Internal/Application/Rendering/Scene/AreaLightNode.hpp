@@ -14,7 +14,7 @@ class AreaLightNode : public LightNode<LightStructs::AreaLight> {
 public:
     explicit AreaLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh, LightStructs::AreaLight* areaLightData = nullptr);
 
-    void Render(VulkanStructs::RenderContext* renderingContext) const override;
+    void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanStructs::RenderContext* renderingContext) const override;
     void Update()  override;
     void ProcessNodeRemove() override;
 private:

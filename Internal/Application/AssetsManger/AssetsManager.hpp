@@ -120,6 +120,7 @@ public:
     //=========================
     // Effects
     //=========================
+    EffectsLibrary& GetEffectsLibrary() {return m_effectsLibrary;}
     std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> GetEffects();
 
     //=========================
