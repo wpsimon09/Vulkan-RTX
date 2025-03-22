@@ -24,19 +24,19 @@ ConstantBuffer<MaterialConstantValues> _materialNoTextureValues;
 ConstantBuffer<MaterialFeatures> _features;
 
 [[vk::binding(5, 0)]]
-ConstantBuffer<Sampler2D> _albedoMap;
+ConstantBuffer<LightInfo> _lightInfo;
 
 [[vk::binding(6, 0)]]
-ConstantBuffer<Sampler2D> _normalMap;
+ConstantBuffer<Sampler2D> _albedoMap;
 
 [[vk::binding(7, 0)]]
-ConstantBuffer<Sampler2D> _armMap;
+ConstantBuffer<Sampler2D> _normalMap;
 
 [[vk::binding(8, 0)]]
-ConstantBuffer<Sampler2D> _emissiveMap;
+ConstantBuffer<Sampler2D> _armMap;
 
 [[vk::binding(9, 0)]]
-ConstantBuffer<LightInfo> _lightInfo;
+ConstantBuffer<Sampler2D> _emissiveMap;
 
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn)
