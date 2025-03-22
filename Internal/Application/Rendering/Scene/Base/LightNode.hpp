@@ -13,7 +13,7 @@ class LightNode: public SceneNode {
 public:
     LightNode(std::shared_ptr<StaticMesh> mesh, T* lightData = nullptr);
 
-    void Render(VulkanStructs::RenderContext* renderingContext) const override = 0;
+    void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanStructs::RenderContext* renderingContext) const override = 0;
     void Update()  override;
     void ProcessNodeRemove() override = 0;
 

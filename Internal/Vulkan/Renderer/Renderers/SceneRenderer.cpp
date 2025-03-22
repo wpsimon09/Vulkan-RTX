@@ -22,7 +22,6 @@
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
-#include "Vulkan/VulkanCore/Pipeline/VPipelineManager.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -53,40 +52,76 @@ namespace Renderer
         Utils::Logger::LogSuccess("Scene renderer created !");
     }
 
-    void SceneRenderer::SendGlobalDescriptorsToShader(int currentFrameIndex,const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+
+    void SceneRenderer::PushDataToGPU(const vk::CommandBuffer& cmdBuffer, int currentFrameIndex,int objectIndex,VulkanStructs::DrawCallData& drawCall, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
     {
-        auto& dstSetDataStruct = m_pushDescriptorManager.GetDescriptorSetDataStruct();
-        dstSetDataStruct.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-        dstSetDataStruct.lightInformation = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
-        dstSetDataStruct.LUT_LTC = MathUtils::LUT.LTC->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-        dstSetDataStruct.LUT_LTC_Inverse = MathUtils::LUT.LTCInverse->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-    }
+        std::visit([this,&currentFrameIndex,&objectIndex,&drawCall, &uniformBufferManager, cmdBuffer ](auto& effectDstStruct) {
+            auto& material = drawCall.material;
+            using T = std::decay_t<decltype(effectDstStruct)>;
 
-    void SceneRenderer::SendPerObjectDescriptorsToShader(int currentFrameIndex,int objectIndex,VulkanStructs::DrawCallData& drawCall, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
-    {
-        auto& dstSetDataStruct = m_pushDescriptorManager.GetDescriptorSetDataStruct();
-        auto& material = drawCall.material;
+            if constexpr (std::is_same_v<T, VulkanUtils::BasicDescriptorSet>)
+            {
+                auto& basicEffect = static_cast<VulkanUtils::BasicDescriptorSet&>(effectDstStruct);
+                basicEffect.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                basicEffect.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(objectIndex)[currentFrameIndex];
 
-        dstSetDataStruct.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(objectIndex)[
-            currentFrameIndex];
 
-        dstSetDataStruct.diffuseTextureImage =
-            material->GetTexture(Diffues)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                cmdBuffer.pushDescriptorSetWithTemplateKHR(
+                    drawCall.material->GetEffect()->GetUpdateTemplate(),
+                    drawCall.material->GetEffect()->GetPipelineLayout(), 0,
+                    basicEffect, m_device.DispatchLoader);
 
-        dstSetDataStruct.armTextureImage =
-            material->GetTexture(arm)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-        dstSetDataStruct.normalTextureImage =
-            material->GetTexture(normal)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            }
+            else if constexpr (std::is_same_v<T, VulkanUtils::UnlitSingleTexture>)
+            {
+                auto& unlitSingelTextureEffect = static_cast<VulkanUtils::UnlitSingleTexture&>(effectDstStruct);
+                unlitSingelTextureEffect.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                unlitSingelTextureEffect.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(objectIndex)[currentFrameIndex];
+                unlitSingelTextureEffect.texture = drawCall.material->GetTexture(ETextureType::Diffues)->GetHandle()->
+                                                            GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-        dstSetDataStruct.emissiveTextureImage =
-            material->GetTexture(emissive)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                cmdBuffer.pushDescriptorSetWithTemplateKHR(
+                    drawCall.material->GetEffect()->GetUpdateTemplate(),
+                    drawCall.material->GetEffect()->GetPipelineLayout(), 0,
+                    unlitSingelTextureEffect, m_device.DispatchLoader);
 
-        dstSetDataStruct.pbrMaterialFeatures = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(objectIndex)[
-            currentFrameIndex];
+            }
+            else if constexpr (std::is_same_v<T, VulkanUtils::ForwardShadingDstSet>)
+            {
+                auto& forwardShaddingEffect = static_cast<VulkanUtils::ForwardShadingDstSet&>(effectDstStruct);
+                forwardShaddingEffect.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                forwardShaddingEffect.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(objectIndex)[currentFrameIndex];;
+                forwardShaddingEffect.lightInformation = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
 
-        dstSetDataStruct.pbrMaterialNoTexture = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(objectIndex)[
-            currentFrameIndex];
+                forwardShaddingEffect.diffuseTextureImage =
+                    material->GetTexture(Diffues)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+                forwardShaddingEffect.armTextureImage =
+                    material->GetTexture(arm)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+                forwardShaddingEffect.normalTextureImage =
+                    material->GetTexture(normal)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+                forwardShaddingEffect.emissiveTextureImage =
+                    material->GetTexture(emissive)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+                forwardShaddingEffect.pbrMaterialFeatures = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(objectIndex)[
+                    currentFrameIndex];
+
+                forwardShaddingEffect.pbrMaterialNoTexture = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(objectIndex)[
+                    currentFrameIndex];
+
+                forwardShaddingEffect.LUT_LTC = MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                forwardShaddingEffect.LUT_LTC = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+                cmdBuffer.pushDescriptorSetWithTemplateKHR(
+                    drawCall.material->GetEffect()->GetUpdateTemplate(),
+                    drawCall.material->GetEffect()->GetPipelineLayout(), 0,
+                    forwardShaddingEffect, m_device.DispatchLoader);
+            }
+
+        }, drawCall.material->GetEffect()->GetEffectUpdateStruct());
 
     }
 
@@ -213,7 +248,7 @@ namespace Renderer
 
 
         // if there is nothing to render end the render process
-        if(m_renderContextPtr->MainLightPassOpaque.empty()){
+        if(m_renderContextPtr->drawCalls.empty()){
             cmdBuffer.endRendering();
             m_renderingStatistics.DrawCallCount = drawCallCount;
             m_selectedGeometryDrawCalls.clear();
@@ -222,10 +257,9 @@ namespace Renderer
         //=================================================
         // UPDATE DESCRIPTOR SETS
         //=================================================
-        //SendGlobalDescriptorsToShader(currentFrameIndex, uniformBufferManager);
 
-        auto currentVertexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->vertexData;
-        auto currentIndexBuffer = m_renderContextPtr->MainLightPassOpaque[0].meshData->indexData;
+        auto currentVertexBuffer = m_renderContextPtr->drawCalls.begin()->second.meshData->vertexData;
+        auto currentIndexBuffer = m_renderContextPtr->drawCalls.begin()->second.meshData->indexData;
         vk::DeviceSize indexBufferOffset = 0;
 
         cmdBuffer.bindVertexBuffers(0, {currentVertexBuffer.buffer}, {0});
@@ -260,10 +294,8 @@ namespace Renderer
         for (auto& drawCall: m_renderContextPtr->drawCalls)
         {
             auto& material = drawCall.second.material;
-            //SendPerObjectDescriptorsToShader(currentFrameIndex, i, drawCall, uniformBufferManager);
 
             drawCall.second.material->GetEffect()->BindPipeline(cmdBuffer);
-            drawCall.second.material->Update(uniformBufferManager);
 
             //================================================================================================
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
@@ -286,10 +318,7 @@ namespace Renderer
                 currentIndexBuffer = drawCall.second.meshData->indexData;
             }
 
-            cmdBuffer.pushDescriptorSetWithTemplateKHR(
-                m_pushDescriptorManager.GetTemplate(),
-                drawCall.second.material->GetEffect()->GetPipelineLayout(), 0,
-                m_pushDescriptorManager.GetDescriptorSetDataStruct(), m_device.DispatchLoader);
+            PushDataToGPU(cmdBuffer, currentFrameIndex, drawCall.second.drawCallID, drawCall.second, uniformBufferManager);
 
             cmdBuffer.drawIndexed(
                 drawCall.second.meshData->indexData.size/sizeof(uint32_t),

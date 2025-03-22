@@ -2,10 +2,10 @@ import Utils;
 #define PI 3.14159265359
 
 
-[[vk::binding(9, 0)]]
+[[vk::binding(10, 0)]]
 ConstantBuffer<Sampler2D> LTC;
 
-[[vk::binding(  10, 0)]]
+[[vk::binding(11, 0)]]
 ConstantBuffer<Sampler2D> LTC_Inverse;
 
 

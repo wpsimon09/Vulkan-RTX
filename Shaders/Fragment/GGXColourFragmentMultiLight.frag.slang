@@ -17,25 +17,25 @@ struct LightInfo {
     LightArray<AreaLight, 4> areaLights;
 }
 
-[[vk::binding(2, 0)]]
+[[vk::binding(3, 0)]]
 ConstantBuffer<MaterialConstantValues> _materialNoTextureValues;
 
-[[vk::binding(3, 0)]]
+[[vk::binding(4, 0)]]
 ConstantBuffer<MaterialFeatures> _features;
 
-[[vk::binding(4, 0)]]
+[[vk::binding(5, 0)]]
 ConstantBuffer<Sampler2D> _albedoMap;
 
-[[vk::binding(5, 0)]]
+[[vk::binding(6, 0)]]
 ConstantBuffer<Sampler2D> _normalMap;
 
-[[vk::binding(6, 0)]]
+[[vk::binding(7, 0)]]
 ConstantBuffer<Sampler2D> _armMap;
 
-[[vk::binding(7, 0)]]
+[[vk::binding(8, 0)]]
 ConstantBuffer<Sampler2D> _emissiveMap;
 
-[[vk::binding(8, 0)]]
+[[vk::binding(9, 0)]]
 ConstantBuffer<LightInfo> _lightInfo;
 
 [shader("pixel")]

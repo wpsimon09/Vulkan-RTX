@@ -50,7 +50,6 @@ namespace VulkanCore {
             .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1);
 
 
-
             m_descriptorSetLayoutBindings = std::move(BasicDescriptorSetLayout.m_descriptorBindings);
 
         }
@@ -79,7 +78,8 @@ namespace VulkanCore {
           .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
           // extra data
           .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-          // Material data (PBR material features)
+
+            // Material data (PBR material features)
           .AddBinding(3, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
           // Material data (PBR material no texture)
           .AddBinding(4, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
@@ -108,6 +108,7 @@ namespace VulkanCore {
 
 
     }, dstSetTemplate);
+
         Utils::Logger::LogInfoVerboseOnly("Creating descriptor set layout");
         std::vector<vk::DescriptorSetLayoutBinding> setBindings;
         for (auto &binding : m_descriptorSetLayoutBindings) {

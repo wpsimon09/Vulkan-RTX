@@ -48,10 +48,10 @@ namespace Renderer
 
             commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 
-            commandBuffer.pushDescriptorSetWithTemplateKHR(
+            /*commandBuffer.pushDescriptorSetWithTemplateKHR(
                 pushDescriptorManager.GetTemplate(),
                 pipeline.GetPipelineLayout(), 0,
-                dstSetDataStruct, device.DispatchLoader);
+                dstSetDataStruct, device.DispatchLoader);*/
 
             auto vertexOffset = 0;
             commandBuffer.drawIndexed(drawCall.indexCount_BB, 1, 0, static_cast<uint32_t>(vertexOffset), 0);
@@ -86,10 +86,10 @@ namespace Renderer
                                           vk::IndexType::eUint32);
             commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 
-            commandBuffer.pushDescriptorSetWithTemplateKHR(
+            /*commandBuffer.pushDescriptorSetWithTemplateKHR(
                 pushDescriptorManager.GetTemplate(),
                 pipeline.GetPipelineLayout(), 0,
-                dstSetDataStruct, device.DispatchLoader);
+                dstSetDataStruct, device.DispatchLoader);*/
 
             commandBuffer.drawIndexed(drawCall.indexCount, 1, 0, 0, 0);
             drawCallCount++;
@@ -123,10 +123,10 @@ namespace Renderer
                                           vk::IndexType::eUint32);
             commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 
-            commandBuffer.pushDescriptorSetWithTemplateKHR(
+            /*commandBuffer.pushDescriptorSetWithTemplateKHR(
                 pushDescriptorManager.GetTemplate(),
                 pipeline.GetPipelineLayout(), 0,
-                dstSetDataStruct, device.DispatchLoader);
+                dstSetDataStruct, device.DispatchLoader);*/
 
             commandBuffer.drawIndexed(drawCall.indexCount, 1, 0, 0, 0);
             drawCallCount++;

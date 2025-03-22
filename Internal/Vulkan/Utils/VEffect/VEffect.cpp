@@ -132,4 +132,9 @@ namespace VulkanUtils
         {
             m_pipeline->Destroy();
         }
+
+        vk::DescriptorUpdateTemplate& VEffect::GetUpdateTemplate()
+        {
+            return m_descriptorSet->GetUpdateTemplate();
+        }
 } // VulkanUtils

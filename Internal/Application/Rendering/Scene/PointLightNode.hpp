@@ -15,7 +15,7 @@ public:
     explicit PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo,std::shared_ptr<StaticMesh> mesh);
     explicit PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo,std::shared_ptr<StaticMesh> mesh, LightStructs::PointLight * pointLightData = nullptr);
 
-    void Render(VulkanStructs::RenderContext* renderingContext) const override;
+    void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanStructs::RenderContext* renderingContext) const override;
     void Update() override;
     void ProcessNodeRemove() override;
 private:

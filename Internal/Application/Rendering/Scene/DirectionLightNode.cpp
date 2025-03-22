@@ -20,9 +20,9 @@ namespace ApplicationCore {
     }
 
 
-    void DirectionLightNode::Render(VulkanStructs::RenderContext* renderingContext) const
+    void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanStructs::RenderContext* renderingContext) const
     {
-        SceneNode::Render(renderingContext);
+        SceneNode::Render(effectsLibrary, renderingContext);
     }
 
     void DirectionLightNode::Update()

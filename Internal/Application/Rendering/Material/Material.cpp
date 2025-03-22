@@ -7,6 +7,9 @@
 
 
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
+
 namespace ApplicationCore {
     Material::Material(std::shared_ptr<VulkanUtils::VEffect> materialEffect, MaterialPaths& materialPaths,
         AssetsManager& assets_manager):m_materialEffect(materialEffect), m_textureView()
@@ -55,9 +58,5 @@ namespace ApplicationCore {
         m_materialEffect = newEffect;
     }
 
-    void Material::Update(const VulkanUtils::VUniformBufferManager& uniformBufferManager)
-    {
-        // update the draw call with all shenenigans it needs from unifrom buffer manager or from the material like textures and shit
-    }
 
 } // ApplicationCore

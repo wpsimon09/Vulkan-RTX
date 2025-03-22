@@ -6,6 +6,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/IntersectionTests/IntersectionTests.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
@@ -239,8 +240,8 @@ namespace ApplicationCore
             renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,data);
 
             if (m_sceneNodeMetaData.IsSelected){
-
-                renderingContext->SelectedGeometryPass.emplace_back(data);
+                data.material->ChangeEffect(effectsLibrary.GetEffect(EEffectType::Outline));
+                renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,data);
             }
 
 

@@ -71,7 +71,6 @@ namespace ApplicationCore
 
         bool                                                    IsSavable() const {return m_savable;}
         void                                                    SetSavable(bool savable) {m_savable = savable;}
-        void                                                    Update(const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
     private:
         std::string m_materialName;
