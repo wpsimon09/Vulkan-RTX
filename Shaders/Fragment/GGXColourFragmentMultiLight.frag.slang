@@ -17,14 +17,14 @@ struct LightInfo {
     LightArray<AreaLight, 4> areaLights;
 }
 
-[[vk::binding(3, 0)]]
-ConstantBuffer<MaterialConstantValues> _materialNoTextureValues;
+[[vk::binding(2, 0)]]
+ConstantBuffer<LightInfo> _lightInfo;
 
-[[vk::binding(4, 0)]]
+[[vk::binding(3, 0)]]
 ConstantBuffer<MaterialFeatures> _features;
 
-[[vk::binding(5, 0)]]
-ConstantBuffer<LightInfo> _lightInfo;
+[[vk::binding(4, 0)]]
+ConstantBuffer<MaterialConstantValues> _materialNoTextureValues;
 
 [[vk::binding(6, 0)]]
 ConstantBuffer<Sampler2D> _albedoMap;

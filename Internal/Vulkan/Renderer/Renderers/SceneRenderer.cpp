@@ -62,8 +62,8 @@ namespace Renderer
             if constexpr (std::is_same_v<T, VulkanUtils::BasicDescriptorSet>)
             {
                 auto& basicEffect = static_cast<VulkanUtils::BasicDescriptorSet&>(effectDstStruct);
-                basicEffect.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-                basicEffect.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
+                basicEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                basicEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
 
 
                 cmdBuffer.pushDescriptorSetWithTemplateKHR(
@@ -76,9 +76,9 @@ namespace Renderer
             else if constexpr (std::is_same_v<T, VulkanUtils::UnlitSingleTexture>)
             {
                 auto& unlitSingelTextureEffect = static_cast<VulkanUtils::UnlitSingleTexture&>(effectDstStruct);
-                unlitSingelTextureEffect.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-                unlitSingelTextureEffect.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
-                unlitSingelTextureEffect.texture = drawCall.material->GetTexture(ETextureType::Diffues)->GetHandle()->
+                unlitSingelTextureEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                unlitSingelTextureEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
+                unlitSingelTextureEffect.texture2D_1 = drawCall.material->GetTexture(ETextureType::Diffues)->GetHandle()->
                                                             GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
                 cmdBuffer.pushDescriptorSetWithTemplateKHR(
@@ -90,30 +90,31 @@ namespace Renderer
             else if constexpr (std::is_same_v<T, VulkanUtils::ForwardShadingDstSet>)
             {
                 auto& forwardShaddingEffect = static_cast<VulkanUtils::ForwardShadingDstSet&>(effectDstStruct);
-                forwardShaddingEffect.cameraUBOBuffer = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-                forwardShaddingEffect.meshUBBOBuffer = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];;
-                forwardShaddingEffect.lightInformation = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
+                forwardShaddingEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                forwardShaddingEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];;
+                forwardShaddingEffect.buffer3 = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
 
-                forwardShaddingEffect.diffuseTextureImage =
+                forwardShaddingEffect.buffer4 = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(objectIndex)[
+                    currentFrameIndex];
+
+                forwardShaddingEffect.buffer5 = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(objectIndex)[
+                    currentFrameIndex];
+
+                forwardShaddingEffect.texture2D_1 =
                     drawCall.material->GetTexture(Diffues)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-                forwardShaddingEffect.armTextureImage =
-                    drawCall.material->GetTexture(arm)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-
-                forwardShaddingEffect.normalTextureImage =
+                forwardShaddingEffect.texture2D_2 =
                     drawCall.material->GetTexture(normal)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-                forwardShaddingEffect.emissiveTextureImage =
+                forwardShaddingEffect.texture2D_3 =
+                    drawCall.material->GetTexture(arm)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+                forwardShaddingEffect.texture2D_4 =
                     drawCall.material->GetTexture(emissive)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-                forwardShaddingEffect.pbrMaterialFeatures = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(objectIndex)[
-                    currentFrameIndex];
 
-                forwardShaddingEffect.pbrMaterialNoTexture = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(objectIndex)[
-                    currentFrameIndex];
-
-                forwardShaddingEffect.LUT_LTC = MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                forwardShaddingEffect.LUT_LTC_Inverse = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                forwardShaddingEffect.texture2D_5 = MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                forwardShaddingEffect.texture2D_6 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
                 cmdBuffer.pushDescriptorSetWithTemplateKHR(
                     drawCall.effect->GetUpdateTemplate(),

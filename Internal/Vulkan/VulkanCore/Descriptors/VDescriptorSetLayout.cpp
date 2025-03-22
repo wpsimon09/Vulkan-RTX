@@ -76,23 +76,23 @@ namespace VulkanCore {
           .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
           // Per object data (mesh uniform buffer)
           .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-          // extra data
-          .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+          // light data
+          .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
 
-            // Material data (PBR material features)
+            //Extre buffer
           .AddBinding(3, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
-          // Material data (PBR material no texture)
+          // Material features
           .AddBinding(4, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
-          // Albedo texture
-          .AddBinding(5, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-          // Normal texture
+          // PBR not texture data
+          .AddBinding(5, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
+          // Albdeo texture
           .AddBinding(6, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-          // ARM texture (Ambient, Roughness, Metallic)
+          // Normal (Ambient, Roughness, Metallic)
           .AddBinding(7, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-          // Emissive texture
+          // Normal texture
           .AddBinding(8, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
-          // Light information (uniform buffer)
-          .AddBinding(9, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
+          // Emmisive
+          .AddBinding(9, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
           // LTC (Linearly Transformed Cosines) lookup table
           .AddBinding(10, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
           // LTC inverse lookup table
