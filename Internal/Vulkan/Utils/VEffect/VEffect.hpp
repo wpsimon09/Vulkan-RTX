@@ -53,6 +53,7 @@ public:
     void                                Destroy();
     void                                SendDataToGPU(const vk::CommandBuffer& cmdBuffer);
     vk::DescriptorUpdateTemplate&       GetUpdateTemplate();
+    unsigned short                      EvaluateRenderingOrder();
 
 
 private:
