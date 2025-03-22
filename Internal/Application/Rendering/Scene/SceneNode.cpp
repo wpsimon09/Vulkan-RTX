@@ -241,13 +241,12 @@ namespace ApplicationCore
             //=====================================================
             renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,data);
 
-            if (m_sceneNodeMetaData.IsSelected){
-                    auto selectedData = data;
-                    selectedData.effect = effectsLibrary.GetEffect(EEffectType::Outline);
-                    renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,selectedData);
+            if (m_sceneNodeMetaData.IsSelected)
+            {
+                auto selectedData = data;
+                selectedData.effect = effectsLibrary.GetEffect(EEffectType::Outline);
+                renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,selectedData);
             }
-
-
         }
     }
 } // ApplicationCore
