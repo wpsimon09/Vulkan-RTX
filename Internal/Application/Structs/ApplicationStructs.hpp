@@ -110,7 +110,6 @@ struct SceneNodeMetaData
     ENodeType nodeType = ENodeType::Node;
     int ID = 0;
     int exportID = 0;
-    VulkanStructs::RenderingMetaData RenderingMetaData{true, false, false, false, false};
 };
 
 

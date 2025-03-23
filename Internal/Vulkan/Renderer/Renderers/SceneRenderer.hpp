@@ -25,6 +25,7 @@ namespace VulkanCore
 
 namespace VulkanUtils
 {
+    struct RenderContext;
     class VPushDescriptorManager;
     class UIContext;
 }
@@ -43,7 +44,7 @@ public:
     void Init(const VulkanCore::VPipelineManager* pipelineManager);
     void Render(int currentFrameIndex,
                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                VulkanStructs::RenderContext* renderContext,
+                VulkanUtils::RenderContext* renderContext,
                 VulkanCore::VTimelineSemaphore& renderingTimeLine,
                 VulkanCore::VTimelineSemaphore& transferSemaphore);
 
@@ -57,7 +58,7 @@ private:
     const VulkanCore::VDevice& m_device;
     VulkanUtils::VPushDescriptorManager& m_pushDescriptorManager;
 
-    VulkanStructs::RenderContext* m_renderContextPtr;
+    VulkanUtils::RenderContext* m_renderContextPtr;
 
     std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
 

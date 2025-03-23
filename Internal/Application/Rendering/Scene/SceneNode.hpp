@@ -11,6 +11,11 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 
+namespace VulkanUtils
+{
+    struct RenderContext;
+}
+
 //=========================
 // Forward Declarations
 //=========================
@@ -82,7 +87,7 @@ namespace ApplicationCore
         //=========================
         // Rendering
         //=========================
-        virtual void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanStructs::RenderContext* renderingContext) const;
+        virtual void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const;
 
         //=========================
         // Utility Functions

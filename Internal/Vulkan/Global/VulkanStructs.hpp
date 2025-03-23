@@ -8,15 +8,22 @@
 #include <stb_image/stb_image.h>
 #include <vulkan/vulkan.hpp>
 
-#include "Application/Rendering/Material/Material.hpp"
 #include <map>
+#include <memory>
+
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "VMA/vk_mem_alloc.h"
-#include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "glm/glm.hpp"
 
+
+namespace VulkanUtils
+{
+    class VEffect;
+}
 
 namespace ApplicationCore
 {
+    class Material;
     class EffectsLibrary;
 }
 
@@ -87,26 +94,6 @@ namespace VulkanStructs
         float radius;
     };
 
-
-
-    struct RenderingMetaData
-    {
-        bool bOpaquePass = true;
-        bool bRTXPass = false;
-        bool bEditorBillboardPass = false;
-        bool bDebugGeometryPass = false;
-        bool bTransparentPass = false;
-        
-    
-        bool operator==(const RenderingMetaData& other) const
-        {
-            return bOpaquePass == other.bOpaquePass && bRTXPass == other.bRTXPass && bEditorBillboardPass == other.bEditorBillboardPass;
-        }
-
-        bool IsRenderingContextMainLightPassOnly() const {return bOpaquePass && !bRTXPass && !bEditorBillboardPass;}
-        bool IsRenderingContextRTXOnly() const {return !bOpaquePass && bRTXPass && !bEditorBillboardPass;}
-        bool IsRenderingContextBilboardOnly() const {return !bOpaquePass && !bRTXPass && bEditorBillboardPass;}
-    };
 
     struct RenderingStatistics
     {
@@ -199,66 +186,12 @@ struct DrawCallData
     bool renderOutline = false;
     bool isEditorBilboard = false;
 
+    unsigned long key = 0;
+
     std::shared_ptr<ApplicationCore::Material> material;
     std::shared_ptr<VulkanUtils::VEffect> effect;
 };
 
-struct RenderContext
-{
-    // all draw calls that can be inside the egine
-    // TODO: maybe add unordered map instead of vector according ot this
-    // @link: https://realtimecollisiondetection.net/blog/?p=86
-
-    glm::mat4 view{};
-    glm::mat4 projection{};
-
-    std::vector<std::pair<unsigned short, DrawCallData>> drawCalls;
-
-    void ExtractDepthValues(glm::vec3& cameraPosition)
-    {
-
-    }
-
-    static bool CompareByDeptDesc(const DrawCallData& DrawCallA, const DrawCallData& DrawCallB)
-    {
-        return DrawCallA.depth > DrawCallB.depth;
-    }
-
-    static bool CompareByDeptAsc(const DrawCallData& DrawCallA, const DrawCallData& DrawCallB)
-    {
-        return DrawCallA.depth< DrawCallB.depth;
-    }
-
-
-    void GetAllDrawCall(std::vector<std::pair<unsigned short, DrawCallData>>& outDrawCalls)
-    {
-        outDrawCalls = drawCalls;
-    }
-
-    std::vector<std::pair<unsigned short, DrawCallData>>& GetAllDrawCall()
-    {
-        return drawCalls;
-    }
-
-    void AddDrawCall(const RenderingMetaData& drawCallMetaDat,DrawCallData& DrawCall)
-    {
-        drawCalls.emplace_back(GenerateDrawKey(DrawCall), DrawCall);
-    }
-
-    void ResetAllDrawCalls()
-    {
-       drawCalls.clear();
-    }
-
-    unsigned long GenerateDrawKey(DrawCallData& drawCall)
-    {
-        unsigned long key = 0;
-
-        key |= (static_cast<unsigned long>(drawCall.material->IsTransparent()) << 63);
-        key |= (static_cast<unsigned long>(drawCall.effect->GetID() &  0xFFF) << 47);
-        key |= (static_cast<unsigned long>(drawCall.material->GetID() &  0xFFF) << 36);
-    }
-};
 
 }
 

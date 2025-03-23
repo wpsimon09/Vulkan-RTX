@@ -4,6 +4,7 @@
 
 #include "RenderingSystem.hpp"
 
+#include "Application/Utils/ApplicationUtils.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
@@ -115,6 +116,8 @@ namespace Renderer {
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
         m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
         m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
+
+   
 
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext, *m_renderingTimeLine[m_currentFrameIndex], m_transferSemapohore);

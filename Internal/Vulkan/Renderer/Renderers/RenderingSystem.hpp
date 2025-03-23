@@ -10,8 +10,14 @@
 
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
+#include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
+
+namespace VulkanUtils
+{
+    struct RenderContext;
+}
 
 namespace VulkanCore
 {
@@ -33,10 +39,7 @@ namespace Renderer
     class SceneRenderer;
 }
 
-namespace VulkanStructs
-{
-    struct RenderContext;
-}
+
 
 namespace VulkanUtils
 {
@@ -57,7 +60,7 @@ public:
                     VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
                     VEditor::UIContext &uiContext);
 
-    VulkanStructs::RenderContext* GetRenderContext() {return &m_renderContext;}
+    VulkanUtils::RenderContext* GetRenderContext() {return &m_renderContext;}
 public:
     void Init();
     void Render(LightStructs::SceneLightInfo& sceneLightInfo,GlobalUniform& globalUniformUpdateInfo);
@@ -80,7 +83,7 @@ private:
 
     std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
 
-    VulkanStructs::RenderContext m_renderContext;
+    VulkanUtils::RenderContext m_renderContext;
 
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;

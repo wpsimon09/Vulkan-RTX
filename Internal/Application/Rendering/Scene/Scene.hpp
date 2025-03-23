@@ -11,6 +11,11 @@
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Structs/LightStructs.hpp"
 
+namespace VulkanUtils
+{
+    struct RenderContext;
+}
+
 namespace ApplicationCore
 {
     class DirectionLightNode;
@@ -34,7 +39,7 @@ public:
 
     void Init();
     void Update();
-    void Render(VulkanStructs::RenderContext* ctx,std::shared_ptr<SceneNode> sceneNode);
+    void Render(VulkanUtils::RenderContext* ctx,std::shared_ptr<SceneNode> sceneNode);
     void Reset();
     void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const ;
     void AddNode(std::shared_ptr<SceneNode> sceneNode) const;

@@ -19,6 +19,7 @@
 #include "GLTFLoader/LoadSceneLights.hpp"
 #include "Rendering/Scene/SceneNode.hpp"
 #include "Rendering/Scene/Scene.hpp"
+#include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 
 Client::Client(): m_globalRenderingData()
@@ -55,7 +56,7 @@ const std::vector<std::reference_wrapper<ApplicationCore::StaticMesh>> Client::G
     return result;
 }
 
-void Client::Render(VulkanStructs::RenderContext* ctx)
+void Client::Render(VulkanUtils::RenderContext* ctx)
 {
     ctx->projection = m_camera->GetProjectionMatrix();
     ctx->view = m_camera->GetViewMatrix();

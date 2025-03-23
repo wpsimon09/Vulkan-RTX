@@ -26,6 +26,7 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VDescriptorSetStructs.hpp"
+#include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 
 namespace Renderer
@@ -129,7 +130,7 @@ namespace Renderer
 
     void SceneRenderer::Render(int currentFrameIndex,
                                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                               VulkanStructs::RenderContext* renderContext,
+                               VulkanUtils::RenderContext* renderContext,
                                VulkanCore::VTimelineSemaphore& renderingTimeLine,
                                VulkanCore::VTimelineSemaphore& transferSemapohre
 

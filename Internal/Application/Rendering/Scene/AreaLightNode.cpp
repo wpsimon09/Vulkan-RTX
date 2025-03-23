@@ -11,10 +11,6 @@ namespace ApplicationCore {
     AreaLightNode::AreaLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh, LightStructs::AreaLight* areaLightData): LightNode<LightStructs::AreaLight>(mesh, areaLightData), m_sceneLightInfo(sceneLightInfo)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::AreaLightNode;
-        m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
-        m_sceneNodeMetaData.RenderingMetaData.bRTXPass = false;
-        m_sceneNodeMetaData.RenderingMetaData.bEditorBillboardPass = true;
-        m_sceneNodeMetaData.RenderingMetaData.bDebugGeometryPass = true;
 
         m_index = sceneLightInfo.AddAreaLight(&m_lightStruct);
         m_transformation->SetPosition(m_lightStruct.position);
@@ -23,7 +19,7 @@ namespace ApplicationCore {
 
     }
 
-    void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanStructs::RenderContext* renderingContext) const
+    void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const
     {
         SceneNode::Render(effectsLibrary, renderingContext);
     }

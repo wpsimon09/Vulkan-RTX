@@ -19,6 +19,7 @@
 
 namespace ApplicationCore
 {
+    struct TextureBufferView;
     enum class EEffectType : std::uint8_t;
 }
 

@@ -23,8 +23,9 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
+#include "Application/Rendering/Material/Material.hpp"
 
-namespace ApplicationCore
+    namespace ApplicationCore
 {
     GLTFLoader::GLTFLoader(ApplicationCore::AssetsManager& assetsManager): m_device(assetsManager.m_device),
                                                                            m_assetsManager(assetsManager)

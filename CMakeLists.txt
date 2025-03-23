@@ -190,6 +190,8 @@ set(SOURCES
         Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptor.cpp
         Internal/Application/AssetsManger/EffectsLibrary/EffectsLibrary.cpp
         Internal/Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp
+        Internal/Vulkan/Utils/VRenderingContext/VRenderingContext.cpp
+        Internal/Vulkan/Utils/VRenderingContext/VRenderingContext.hpp
 
 )
 

@@ -18,7 +18,7 @@ namespace VulkanUtils
 
             m_descriptorSet->CreateDstUpdateInfo(*m_pipeline);
 
-            m_ID = MaterialIndexCounter++;
+            m_ID = EffectIndexCounter++;
     }
 
         VEffect::VEffect(const VulkanCore::VDevice& device,const std::string& name, const std::string& vertex, const std::string& fragment,
@@ -30,7 +30,7 @@ namespace VulkanUtils
 
             m_descriptorSet->CreateDstUpdateInfo(*m_pipeline);
 
-            m_ID = MaterialIndexCounter++;
+            m_ID = EffectIndexCounter++;
         }
 
         VEffect& VEffect::SetDisableDepthTest()

@@ -19,6 +19,7 @@ namespace VulkanCore
 }
 
 namespace ApplicationCore {
+    class VTextureAsset;
     class Material;
 
     class VertexArray;

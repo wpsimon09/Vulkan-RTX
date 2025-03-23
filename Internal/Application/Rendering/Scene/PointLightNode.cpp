@@ -8,10 +8,6 @@ namespace ApplicationCore {
     PointLightNode::PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh):LightNode<LightStructs::PointLight>(mesh),  m_sceneLightInfo(sceneLightInfo)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::PointLightNode;
-        m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
-        m_sceneNodeMetaData.RenderingMetaData.bEditorBillboardPass = true;
-        m_sceneNodeMetaData.RenderingMetaData.bDebugGeometryPass = false;
-        m_sceneNodeMetaData.RenderingMetaData.bTransparentPass = false;
 
         m_index = sceneLightInfo.AddPointLight(&m_lightStruct);
     }
@@ -20,17 +16,13 @@ namespace ApplicationCore {
         std::shared_ptr<StaticMesh> mesh, LightStructs::PointLight* pointLightData):LightNode::LightNode<LightStructs::PointLight>(mesh, pointLightData), m_sceneLightInfo(sceneLightInfo)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::PointLightNode;
-        m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
-        m_sceneNodeMetaData.RenderingMetaData.bEditorBillboardPass = true;
-        m_sceneNodeMetaData.RenderingMetaData.bDebugGeometryPass = false;
-        m_sceneNodeMetaData.RenderingMetaData.bTransparentPass = false;
 
 
         m_index = sceneLightInfo.AddPointLight(&m_lightStruct);
         m_transformation->SetPosition(m_lightStruct.position);
     }
 
-    void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanStructs::RenderContext* renderingContext) const
+    void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const
     {
         SceneNode::Render( effectsLibrary, renderingContext);
     }

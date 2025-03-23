@@ -59,7 +59,6 @@ namespace ApplicationCore
         const std::string& GetName(){return m_name;} const
         void SetName(std::string &newName){m_name = newName;}
 
-        VulkanStructs::RenderingMetaData& GetRenderingMetaData()  {return m_renderingMetaData;}
         ApplicationCore::Transformations* GetTransformations() const { return m_transformations.get(); }
 
         MeshInfo& GeteMeshInfo() {return m_meshInfo;}
@@ -71,7 +70,6 @@ namespace ApplicationCore
         std::shared_ptr<Material> m_currentMaterial;
         std::shared_ptr<Material> m_originalMaterial;
 
-        VulkanStructs::RenderingMetaData m_renderingMetaData;
 
         friend class ApplicationCore::SceneNode;
     };

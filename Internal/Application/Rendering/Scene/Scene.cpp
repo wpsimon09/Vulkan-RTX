@@ -16,6 +16,7 @@
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Material/Material.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
+#include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 namespace ApplicationCore {
 
@@ -36,7 +37,7 @@ namespace ApplicationCore {
         m_root->Update();
     }
 
-    void Scene::Render(VulkanStructs::RenderContext* ctx,std::shared_ptr<SceneNode> sceneNode )
+    void Scene::Render(VulkanUtils::RenderContext* ctx,std::shared_ptr<SceneNode> sceneNode )
     {
         if (sceneNode->HasMesh())
         {

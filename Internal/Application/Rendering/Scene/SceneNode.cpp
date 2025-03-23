@@ -9,6 +9,7 @@
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/IntersectionTests/IntersectionTests.hpp"
 #include "Application/Logger/Logger.hpp"
+#include "Application/Rendering/Material/Material.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
@@ -16,6 +17,7 @@
 #include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
@@ -31,10 +33,7 @@ namespace ApplicationCore
             m_sceneNodeMetaData.HasMesh = true;
             m_sceneNodeMetaData.ID = ++SceneNodeIDCounter;
             m_sceneNodeMetaData.nodeType = ENodeType::MeshNode;
-            if(mesh->GetMaterial()->IsTransparent()){
-                m_sceneNodeMetaData.RenderingMetaData.bTransparentPass = true;
-                m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
-            }
+
 
         }
         else
@@ -185,15 +184,6 @@ namespace ApplicationCore
             m_transformation->ComputeModelMatrix();
         }
 
-        if(m_mesh){
-            if(m_mesh->GetMaterial()->IsTransparent()){
-                m_sceneNodeMetaData.RenderingMetaData.bTransparentPass = true;
-                m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = false;
-            }else{
-                m_sceneNodeMetaData.RenderingMetaData.bTransparentPass = false;
-                m_sceneNodeMetaData.RenderingMetaData.bOpaquePass = true;
-            }
-        }
 
         for (auto& child : m_children)
         {
@@ -201,7 +191,7 @@ namespace ApplicationCore
         }
     }
 
-    void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanStructs::RenderContext* renderingContext) const
+    void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const
     {
         if (m_mesh && m_sceneNodeMetaData.IsVisible)
         {
@@ -239,14 +229,21 @@ namespace ApplicationCore
             //=====================================================
             // SORT BASED ON THE DEPTH
             //=====================================================
-            renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,data);
+            renderingContext->AddDrawCall(data);
 
             if (m_sceneNodeMetaData.IsSelected)
             {
                 auto selectedData = data;
                 selectedData.effect = effectsLibrary.GetEffect(EEffectType::Outline);
-                renderingContext->AddDrawCall(m_sceneNodeMetaData.RenderingMetaData,selectedData);
+                renderingContext->AddDrawCall(selectedData);
             }
+
+            if (m_sceneNodeMetaData.CastsShadows)
+            {
+                // change effect
+            }
+
+            // if in ray tracing capture do some shenanigans here
         }
     }
 } // ApplicationCore

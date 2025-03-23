@@ -20,7 +20,7 @@ namespace ApplicationCore
     class GLTFLoader;
 }
 
-namespace VulkanStructs
+namespace VulkanUtils
 {
     struct RenderContext;
 }
@@ -50,7 +50,7 @@ public:
     Client();
     void Init();
     const std::vector<std::reference_wrapper<ApplicationCore::StaticMesh>> GetMeshes() const;
-    void Render(VulkanStructs::RenderContext* ctx);
+    void Render(VulkanUtils::RenderContext* ctx);
     const void MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager);
     const void Destroy();
 
