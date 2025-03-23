@@ -10,7 +10,6 @@
 #include "BaseRenderer.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
-#include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 namespace VEditor
 {
@@ -41,7 +40,6 @@ class RenderTarget;
 class SceneRenderer: public Renderer::BaseRenderer{
 public:
     SceneRenderer(const VulkanCore::VDevice& device,VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width, int height);
-    void Init(const VulkanCore::VPipelineManager* pipelineManager);
     void Render(int currentFrameIndex,
                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                 VulkanUtils::RenderContext* renderContext,
@@ -64,14 +62,8 @@ private:
 
     // not a pointer yet
     VulkanStructs::RenderContext* m_selectedGeometryPass;
-    std::vector<VulkanStructs::DrawCallData> m_selectedGeometryDrawCalls;
 
     VulkanStructs::RenderingStatistics m_renderingStatistics;
-
-    bool m_AllowDebugDraw = false;
-    bool m_WireFrame = false;
-    bool m_multiLightShader = false;
-    bool m_allowEditorBillboards = true;
 
 private:
     void PushDataToGPU(const vk::CommandBuffer& cmdBuffer, int currentFrameIndex, int objectIndex,

@@ -20,6 +20,11 @@ namespace VulkanUtils
         glm::mat4 view{};
         glm::mat4 projection{};
 
+        bool RenderBillboards = true;
+        bool RenderAABB = false;
+        bool WireFrameRendering = false;
+        // other flags
+
         std::vector<std::pair<unsigned short, VulkanStructs::DrawCallData>> drawCalls;
 
         void ExtractDepthValues(glm::vec3& cameraPosition);

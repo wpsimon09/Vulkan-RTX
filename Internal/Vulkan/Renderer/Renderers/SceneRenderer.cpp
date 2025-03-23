@@ -7,21 +7,17 @@
 #include <sys/wait.h>
 #include <Vulkan/Utils/VIimageTransitionCommands.hpp>
 
-#include "DebugRenderer.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Utils/LinearyTransformedCosinesValues.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
-#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
-#include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
-#include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -147,15 +143,6 @@ namespace Renderer
         //=====================================================
         m_commandBuffers[currentFrameIndex]->BeginRecording();
 
-        EPipelineType pipelineType;
-        if (m_WireFrame)
-        {
-            pipelineType = EPipelineType::DebugLines;
-        }else
-        {
-            pipelineType = EPipelineType::MultiLight;
-        }
-
 
         RecordCommandBuffer(currentFrameIndex, uniformBufferManager);
 
@@ -253,24 +240,22 @@ namespace Renderer
         if(m_renderContextPtr->drawCalls.empty()){
             cmdBuffer.endRendering();
             m_renderingStatistics.DrawCallCount = drawCallCount;
-            m_selectedGeometryDrawCalls.clear();
             return;
         }
         //=================================================
         // UPDATE DESCRIPTOR SETS
         //=================================================
 
-        auto currentVertexBuffer = m_renderContextPtr->drawCalls.begin()->second.meshData->vertexData;
-        auto currentIndexBuffer = m_renderContextPtr->drawCalls.begin()->second.meshData->indexData;
+        auto currentVertexBuffer = m_renderContextPtr->drawCalls.begin()->second.vertexData;
+        auto currentIndexBuffer = m_renderContextPtr->drawCalls.begin()->second.indexData;
         auto& currentEffect = m_renderContextPtr->drawCalls.begin()->second.effect;
 
         vk::DeviceSize indexBufferOffset = 0;
 
-        cmdBuffer.bindVertexBuffers(0, {currentVertexBuffer.buffer}, {0});
-        cmdBuffer.bindIndexBuffer(currentIndexBuffer.buffer, 0, vk::IndexType::eUint32);
+        cmdBuffer.bindVertexBuffers(0, {currentVertexBuffer->buffer}, {0});
+        cmdBuffer.bindIndexBuffer(currentIndexBuffer->buffer, 0, vk::IndexType::eUint32);
 
         //============================================
-        //===
         // CONFIGURE VIEW PORT
         //===============================================
         vk::Viewport viewport{};
@@ -309,78 +294,41 @@ namespace Renderer
             //================================================================================================
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
             //================================================================================================
-            if(currentVertexBuffer != drawCall.second.meshData->vertexData){
+            if(currentVertexBuffer != drawCall.second.vertexData){
                 auto firstBinding = 0;
 
-                indexBufferOffset = (currentVertexBuffer.offset + currentVertexBuffer.size)/ static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex));
+                indexBufferOffset = (currentVertexBuffer->offset + currentVertexBuffer->size)/ static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex));
 
-                std::vector<vk::Buffer> vertexBuffers = {drawCall.second.meshData->vertexData.buffer};
+                std::vector<vk::Buffer> vertexBuffers = {drawCall.second.vertexData->buffer};
                 std::vector<vk::DeviceSize> offsets = {0};
-                vertexBuffers = {drawCall.second.meshData->vertexData.buffer};
+                vertexBuffers = {drawCall.second.vertexData->buffer};
                 cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
-                currentVertexBuffer = drawCall.second.meshData->vertexData;
+                currentVertexBuffer = drawCall.second.vertexData;
             }
 
-            if(currentIndexBuffer != drawCall.second.meshData->indexData){
+            if(currentIndexBuffer != drawCall.second.indexData){
                 indexBufferOffset = 0;
-                cmdBuffer.bindIndexBuffer(drawCall.second.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
-                currentIndexBuffer = drawCall.second.meshData->indexData;
+                cmdBuffer.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
+                currentIndexBuffer = drawCall.second.indexData;
             }
 
             PushDataToGPU(cmdBuffer, currentFrameIndex, drawCall.second.drawCallID, drawCall.second, uniformBufferManager);
 
             cmdBuffer.drawIndexed(
-                drawCall.second.meshData->indexData.size/sizeof(uint32_t),
+                drawCall.second.indexData->size/sizeof(uint32_t),
                 1,
-                drawCall.second.meshData->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                    drawCall.second.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                drawCall.second.indexData->offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                    drawCall.second.vertexData->offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                 0);
 
             drawCallCount++;
 
         }
 
-        /**
-        //=================================================
-        // RECORD AABB DRAW CALLS
-        //=================================================
-        if (m_AllowDebugDraw)
-        {
-            std::vector<VulkanStructs::DrawCallData> drawCalls;
-            m_renderContextPtr->GetAllDrawCall(drawCalls);
-
-            drawCallCount += RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                                   m_pushDescriptorManager, drawCalls,
-                                                   m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
-        }
-
-
-        //=================================================
-        // RECORD OPAQUE DRAW CALLS FOR SELECTED OBJECTS
-        //=================================================
-        if (!m_renderContextPtr->SelectedGeometryPass.empty())
-        {
-            // renders the outline
-            drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                                       m_pushDescriptorManager, m_renderContextPtr->SelectedGeometryPass,
-                                                        m_pipelineManager->GetPipeline(EPipelineType::Outline));
-        }
-
-        //=================================================
-        // RECORD DEBUG GEOMETRY DRAW CALLS
-        //=================================================
-        if(!m_renderContextPtr->DebugGeometryPass.empty()){
-            drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                m_pushDescriptorManager, m_renderContextPtr->DebugGeometryPass,
-                 m_pipelineManager->GetPipeline(EPipelineType::DebugShadpes));
-        }
-
-        */
         cmdBuffer.endRendering();
 
 
         m_renderingStatistics.DrawCallCount = drawCallCount;
-        m_selectedGeometryDrawCalls.clear();
     }
 
     void SceneRenderer::Destroy()

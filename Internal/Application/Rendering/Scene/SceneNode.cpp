@@ -208,34 +208,50 @@ namespace ApplicationCore
             //=====================================================
             // NORMAL SCENE DATA
             //=====================================================
+            ;
+
             VulkanStructs::DrawCallData data;
-            data.modelMatrix = m_transformation->GetModelMatrix();
             data.firstIndex = 1;
+
             data.indexCount = m_mesh->GetMeshIndexCount();
-            data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
+           // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
+
+            data.bounds = &m_mesh->GetMeshData()->bounds;
+            data.vertexData = &m_mesh->GetMeshData()->vertexData;
+            data.indexData = &m_mesh->GetMeshData()->indexData;
+
+            data.modelMatrix = m_transformation->GetModelMatrix();
             data.material = m_mesh->m_currentMaterial;
-            data.effect   = m_mesh->m_currentMaterial->GetEffect();
-            data.meshData = m_mesh->GetMeshData();
+            data.effect = renderingContext->WireFrameRendering
+                              ? effectsLibrary.GetEffect(EEffectType::DebugLine)
+                              : m_mesh->m_currentMaterial->GetEffect();
+
             data.renderOutline = m_sceneNodeMetaData.IsSelected;
             data.position = m_transformation->GetPosition();
 
-            //=====================================================
-            // BOUNDING VOLUME STUFF
-            //=====================================================
             data.bounds = &m_mesh->GetMeshData()->bounds;
             data.isEditorBilboard = false;
             data.material = m_mesh->m_currentMaterial;
 
-            //=====================================================
-            // SORT BASED ON THE DEPTH
-            //=====================================================
             renderingContext->AddDrawCall(data);
 
             if (m_sceneNodeMetaData.IsSelected)
             {
-                auto selectedData = data;
-                selectedData.effect = effectsLibrary.GetEffect(EEffectType::Outline);
-                renderingContext->AddDrawCall(selectedData);
+                data.effect = effectsLibrary.GetEffect(EEffectType::Outline);
+                renderingContext->AddDrawCall(data);
+            }
+
+            //=====================================================
+            // BOUNDING VOLUME STUFF
+            //=====================================================
+            if (renderingContext->RenderAABB)
+            {
+                data.vertexData = &m_mesh->GetMeshData()->vertexData_BB;
+                data.indexData = &m_mesh->GetMeshData()->indexData_BB;
+                data.indexCount = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);;
+                data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
+                renderingContext->AddDrawCall(data);
+
             }
 
             if (m_sceneNodeMetaData.CastsShadows)

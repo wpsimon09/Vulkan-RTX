@@ -174,10 +174,13 @@ struct DrawCallData
     uint32_t firstIndex = 0;
     uint32_t indexCount_BB = 36;
     uint32_t instanceCount = 1;
-    mutable int drawCallID = 0;
 
+    GPUSubBufferInfo* vertexData = nullptr;
+    GPUSubBufferInfo* indexData = nullptr;
     Bounds* bounds = nullptr;
-    MeshData* meshData = nullptr;
+
+
+    mutable int drawCallID = 0;
 
     glm::mat4 modelMatrix;
     glm::vec3 position;

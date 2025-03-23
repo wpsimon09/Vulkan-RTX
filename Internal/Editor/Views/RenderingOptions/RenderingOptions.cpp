@@ -22,13 +22,11 @@ namespace VEditor {
         ImGui::Begin(ICON_FA_BOOK_JOURNAL_WHILLS " Rendering options", &m_isOpen);
 
             ImGui::Checkbox("Fake ray-tracer ", &m_renderingSystem->m_isRayTracing);
-            ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_sceneRenderer->m_allowEditorBillboards);
+            ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_renderContext.RenderBillboards);
 
-            if (ImGui::TreeNode(ICON_FA_DRAW_POLYGON " SceneRenderer"))
+            if (ImGui::TreeNode(ICON_FA_DRAW_POLYGON " Scene render"))
             {
-                ImGui::Checkbox("Wire frame mode", &m_renderingSystem->m_sceneRenderer->m_WireFrame);
-
-                ImGui::Checkbox("Multi light shader", &m_renderingSystem->m_sceneRenderer->m_multiLightShader);
+                ImGui::Checkbox("Wire frame mode", &m_renderingSystem->m_renderContext.WireFrameRendering);
 
                 ImGui::SeparatorText("Draw calls");
                 ImGui::Text("Total draw call count: %i", m_renderingSystem->m_sceneRenderer->m_renderingStatistics.DrawCallCount);
@@ -37,7 +35,7 @@ namespace VEditor {
             }
             if (ImGui::TreeNode(ICON_FA_BUG " Debug renderer"))
             {
-                ImGui::Checkbox("Draw AABBs ", &m_renderingSystem->m_sceneRenderer->m_AllowDebugDraw);
+                ImGui::Checkbox("Draw AABBs ", &m_renderingSystem->m_renderContext.RenderAABB);
 
                 ImGui::TreePop();
             }

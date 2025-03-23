@@ -115,8 +115,6 @@ set(SOURCES
         Internal/Editor/Views/SceneView/SceneView.hpp
         Internal/Editor/Views/DetailsPanel/DetailsPanel.cpp
         Internal/Editor/Views/DetailsPanel/DetailsPanel.hpp
-        Internal/Vulkan/Renderer/Renderers/DebugRenderer.cpp
-        Internal/Vulkan/Renderer/Renderers/DebugRenderer.hpp
         Internal/Editor/Views/RenderingOptions/RenderingOptions.cpp
         Internal/Editor/Views/RenderingOptions/RenderingOptions.hpp
         Internal/Editor/Views/FileExplorer/FileExplorer.cpp
