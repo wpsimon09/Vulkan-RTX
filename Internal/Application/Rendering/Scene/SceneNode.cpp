@@ -184,7 +184,6 @@ namespace ApplicationCore
             m_transformation->ComputeModelMatrix();
         }
 
-
         for (auto& child : m_children)
         {
             child->Update();
@@ -222,9 +221,18 @@ namespace ApplicationCore
 
             data.modelMatrix = m_transformation->GetModelMatrix();
             data.material = m_mesh->m_currentMaterial;
-            data.effect = renderingContext->WireFrameRendering
-                              ? effectsLibrary.GetEffect(EEffectType::DebugLine)
-                              : m_mesh->m_currentMaterial->GetEffect();
+            if (renderingContext->WireFrameRendering)
+                data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
+            else if (m_mesh->m_currentMaterial->IsTransparent())
+            {
+                data.effect = effectsLibrary.GetEffect(EEffectType::AplhaBlend);
+            }
+            else
+            {
+                data.effect = effectsLibrary.GetEffect(EEffectType::ForwardShader);
+
+            }
+
 
             data.renderOutline = m_sceneNodeMetaData.IsSelected;
             data.position = m_transformation->GetPosition();
