@@ -4,6 +4,7 @@
 
 #include "AreaLightNode.hpp"
 
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/Structs/LightStructs.hpp"
 
 namespace ApplicationCore {

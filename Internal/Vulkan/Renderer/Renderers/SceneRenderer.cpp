@@ -332,119 +332,15 @@ namespace Renderer
 
         }
 
-
-        /**
-        for (int i = 0; i < m_renderContextPtr->MainLightPassOpaque.size(); i++)
-        {
-
-            auto& drawCall = m_renderContextPtr->MainLightPassOpaque[i];
-            auto& material = drawCall.material;
-            SendPerObjectDescriptorsToShader(currentFrameIndex, i, drawCall, uniformBufferManager);
-
-            //================================================================================================
-            // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
-            //================================================================================================
-            if(currentVertexBuffer != drawCall.meshData->vertexData){
-                auto firstBinding = 0;
-
-                indexBufferOffset = (currentVertexBuffer.offset + currentVertexBuffer.size)/ static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex));
-
-                std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
-                std::vector<vk::DeviceSize> offsets = {0};
-                vertexBuffers = {drawCall.meshData->vertexData.buffer};
-                cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
-                currentVertexBuffer = drawCall.meshData->vertexData;
-            }
-
-            if(currentIndexBuffer != drawCall.meshData->indexData){
-                indexBufferOffset = 0;
-                cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
-                currentIndexBuffer = drawCall.meshData->indexData;
-            }
-
-            cmdBuffer.pushDescriptorSetWithTemplateKHR(
-                m_pushDescriptorManager.GetTemplate(),
-                drawCall.material->GetEffect()->GetPipelineLayout(), 0,
-                m_pushDescriptorManager.GetDescriptorSetDataStruct(), m_device.DispatchLoader);
-
-            cmdBuffer.drawIndexed(
-                drawCall.meshData->indexData.size/sizeof(uint32_t),
-                1,
-                drawCall.meshData->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                    drawCall.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
-                0);
-
-            drawCallCount++;
-
-            if (drawCall.renderOutline)
-            {
-                m_selectedGeometryDrawCalls.emplace_back(drawCall);
-            }
-        }
-        **/
-
-
-
-        //=================================================
-        // RECORD TRANSPARENT DRAW CALLS
-        //=================================================
-        /**
-        if(!m_renderContextPtr->MainLightPassTransparent.empty()){
-            cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipelineManager->GetPipeline(EPipelineType::Transparent).GetPipelineInstance());
-        }
-
-        for(int i = 0; i < m_renderContextPtr->MainLightPassTransparent.size(); i++)
-        {
-            auto& drawCall = m_renderContextPtr->MainLightPassTransparent[i];
-            auto& material = drawCall.material;
-            SendPerObjectDescriptorsToShader(currentFrameIndex, drawCall.drawCallID, drawCall, uniformBufferManager);
-
-            //================================================================================================
-            // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
-            //================================================================================================
-
-            if(currentVertexBuffer != drawCall.meshData->vertexData){
-                std::vector<vk::Buffer> vertexBuffers = {drawCall.meshData->vertexData.buffer};
-                std::vector<vk::DeviceSize> offsets = {0};
-                cmdBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
-                currentVertexBuffer = drawCall.meshData->vertexData;
-            }
-
-            if(currentIndexBuffer != drawCall.meshData->indexData){
-                cmdBuffer.bindIndexBuffer(drawCall.meshData->indexData.buffer, 0, vk::IndexType::eUint32);
-                currentIndexBuffer = drawCall.meshData->indexData;
-            }
-
-            cmdBuffer.pushDescriptorSetWithTemplateKHR(
-                m_pushDescriptorManager.GetTemplate(),
-                pipeline.GetPipelineLayout(), 0,
-                m_pushDescriptorManager.GetDescriptorSetDataStruct(), m_device.DispatchLoader);
-
-            cmdBuffer.drawIndexed(
-                drawCall.meshData->indexData.size/sizeof(uint32_t),
-                1,
-                drawCall.meshData->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                drawCall.meshData->vertexData.offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
-                0);
-
-            drawCallCount++;
-
-            if (drawCall.renderOutline)
-            {
-                m_selectedGeometryDrawCalls.emplace_back(drawCall);
-            }
-        }
-
-
         /**
         //=================================================
         // RECORD AABB DRAW CALLS
-        //=================================================    
+        //=================================================
         if (m_AllowDebugDraw)
         {
             std::vector<VulkanStructs::DrawCallData> drawCalls;
             m_renderContextPtr->GetAllDrawCall(drawCalls);
-    
+
             drawCallCount += RecordCommandBufferToDrawDebugGeometry(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                                                    m_pushDescriptorManager, drawCalls,
                                                    m_pipelineManager->GetPipeline(EPipelineType::DebugLines));
@@ -453,7 +349,7 @@ namespace Renderer
 
         //=================================================
         // RECORD OPAQUE DRAW CALLS FOR SELECTED OBJECTS
-        //=================================================    
+        //=================================================
         if (!m_renderContextPtr->SelectedGeometryPass.empty())
         {
             // renders the outline
@@ -464,21 +360,11 @@ namespace Renderer
 
         //=================================================
         // RECORD DEBUG GEOMETRY DRAW CALLS
-        //=================================================    
+        //=================================================
         if(!m_renderContextPtr->DebugGeometryPass.empty()){
             drawCallCount += DrawSelectedMeshes(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
                 m_pushDescriptorManager, m_renderContextPtr->DebugGeometryPass,
                  m_pipelineManager->GetPipeline(EPipelineType::DebugShadpes));
-        }
-
-        //=================================================
-        // RECORD BILLBOARDS DRAW CALLS 
-        //=================================================    
-        if (m_allowEditorBillboards) {
-            // draws editor bilboards
-            drawCallCount += DrawEditorBillboards(m_device, currentFrameIndex, cmdBuffer, uniformBufferManager,
-                                                   m_pushDescriptorManager, m_renderContextPtr->EditorBillboardPass,
-                                                    m_pipelineManager->GetPipeline(EPipelineType::EditorBillboard));
         }
 
         */

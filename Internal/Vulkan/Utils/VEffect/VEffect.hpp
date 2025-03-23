@@ -20,6 +20,8 @@ namespace VulkanCore
     class VDevice;
 }
 
+inline int EffectIndexCounter = 0;
+
 namespace VulkanUtils {
 
 class VEffect {
@@ -51,10 +53,9 @@ public:
     vk::PipelineLayout                  GetPipelineLayout();
     void                                BindPipeline(const vk::CommandBuffer& cmdBuffer);
     void                                Destroy();
-    void                                SendDataToGPU(const vk::CommandBuffer& cmdBuffer);
     vk::DescriptorUpdateTemplate&       GetUpdateTemplate();
     unsigned short                      EvaluateRenderingOrder();
-
+    int&                                GetID();
 
 private:
     const VulkanCore::VDevice& m_device;
@@ -62,6 +63,7 @@ private:
     std::unique_ptr<VulkanCore::VGraphicsPipeline> m_pipeline;
     std::string m_name;
     std::optional<VulkanCore::VShader> shader;
+    int m_ID;
 };
 } // VulkanUtils
 

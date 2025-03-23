@@ -12,6 +12,7 @@
 #include <map>
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "VMA/vk_mem_alloc.h"
+#include "Vulkan/Utils/VEffect/VEffect.hpp"
 
 
 namespace ApplicationCore
@@ -241,12 +242,21 @@ struct RenderContext
 
     void AddDrawCall(const RenderingMetaData& drawCallMetaDat,DrawCallData& DrawCall)
     {
-        drawCalls.emplace_back(0, DrawCall);
+        drawCalls.emplace_back(GenerateDrawKey(DrawCall), DrawCall);
     }
 
     void ResetAllDrawCalls()
     {
        drawCalls.clear();
+    }
+
+    unsigned long GenerateDrawKey(DrawCallData& drawCall)
+    {
+        unsigned long key = 0;
+
+        key |= (static_cast<unsigned long>(drawCall.material->IsTransparent()) << 63);
+        key |= (static_cast<unsigned long>(drawCall.effect->GetID() &  0xFFF) << 47);
+        key |= (static_cast<unsigned long>(drawCall.material->GetID() &  0xFFF) << 36);
     }
 };
 
