@@ -64,6 +64,19 @@ private:
     std::string m_name;
     std::optional<VulkanCore::VShader> shader;
     int m_ID;
+
+private:
+    friend bool operator==(const VEffect& lhs, const VEffect& rhs)
+    {
+        return lhs.m_ID == rhs.m_ID;
+    }
+
+    friend bool operator!=(const VEffect& lhs, const VEffect& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+
 };
 } // VulkanUtils
 

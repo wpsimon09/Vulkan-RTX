@@ -262,6 +262,8 @@ namespace Renderer
 
         auto currentVertexBuffer = m_renderContextPtr->drawCalls.begin()->second.meshData->vertexData;
         auto currentIndexBuffer = m_renderContextPtr->drawCalls.begin()->second.meshData->indexData;
+        auto& currentEffect = m_renderContextPtr->drawCalls.begin()->second.effect;
+
         vk::DeviceSize indexBufferOffset = 0;
 
         cmdBuffer.bindVertexBuffers(0, {currentVertexBuffer.buffer}, {0});
@@ -290,14 +292,19 @@ namespace Renderer
 
         cmdBuffer.setScissor(0, 1, &scissors);
 
+
         //=================================================
         // RECORD OPAQUE DRAW CALLS
         //=================================================
+        currentEffect->BindPipeline(cmdBuffer);
         for (auto& drawCall: m_renderContextPtr->drawCalls)
         {
             auto& material = drawCall.second.material;
-
-            drawCall.second.effect->BindPipeline(cmdBuffer);
+            if (drawCall.second.effect != currentEffect)
+            {
+                drawCall.second.effect->BindPipeline(cmdBuffer);
+                currentEffect = drawCall.second.effect;
+            }
 
             //================================================================================================
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
