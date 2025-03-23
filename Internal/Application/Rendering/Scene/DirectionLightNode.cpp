@@ -13,6 +13,7 @@ namespace ApplicationCore {
         m_sceneNodeMetaData.nodeType = ENodeType::DirectionalLightNode;
         sceneLightInfo.DirectionalLightInfo = &m_lightStruct;
         m_transformation->SetPosition(m_lightStruct.direction);
+        m_transformation->SetScale(100.0f);
     }
 
 
@@ -72,7 +73,7 @@ namespace ApplicationCore {
 
     void DirectionLightNode::Update()
     {
-        m_lightStruct.direction = glm::vec3(m_transformation->GetRotationMatrix() * glm::vec4(glm::vec3(0.0f, 0.0f, -1.0f),0.0f));;
+        m_lightStruct.direction = glm::vec3(m_transformation->GetRotationMatrix() * glm::vec4(glm::vec3(-1.0f, 0.0f, 0.0f),0.0f));;
         SceneNode::Update();
     }
 

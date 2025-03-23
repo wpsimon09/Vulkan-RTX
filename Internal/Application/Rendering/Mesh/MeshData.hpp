@@ -26,10 +26,10 @@ namespace ApplicationCore::MeshData
         {{ 0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.5f}}, // Tail of the arrow
         {{ 3.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.5f}}, // Tip of the arrow
 
-        {{ 0.3f,  0.2f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.8f, 0.3f}}, // Top of arrowhead
+        {{ 2.7f,  0.2f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.8f, 0.3f}}, // Top of arrowhead
         {{ 3.0f,  0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.5f}}, // Tip of the arrow
 
-        {{ 0.3f, -0.2f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.8f, 0.7f}}, // Bottom of arrowhead
+        {{ 2.7f, -0.2f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.8f, 0.7f}}, // Bottom of arrowhead
         {{ 3.0f,  0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.5f}}  // Tip of the arrow
     };
 
