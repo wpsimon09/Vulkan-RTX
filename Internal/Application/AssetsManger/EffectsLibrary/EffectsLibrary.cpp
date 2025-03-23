@@ -94,8 +94,9 @@ namespace ApplicationCore {
                    pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
         debugShapes->SetCullNone()
-        .SetLineWidth(2)
-        .SetPolygonLine();
+        .SetLineWidth(5)
+        .SetPolygonLine()
+        .SetTopology(vk::PrimitiveTopology::eLineList);
 
         effects[EEffectType::DebugLine] = std::move(debugShapes);
 

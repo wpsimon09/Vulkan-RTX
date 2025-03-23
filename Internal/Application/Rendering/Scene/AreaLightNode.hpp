@@ -19,6 +19,7 @@ public:
     void ProcessNodeRemove() override;
 private:
     int m_index;
+
     LightStructs::SceneLightInfo& m_sceneLightInfo;
 };
 

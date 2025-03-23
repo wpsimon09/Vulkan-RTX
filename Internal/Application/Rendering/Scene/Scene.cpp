@@ -118,8 +118,11 @@ namespace ApplicationCore {
     void Scene::AddDirectionalLight(LightStructs::DirectionalLight* directionalLightInfo)
     {
         if(m_sceneLightInfo.DirectionalLightInfo == nullptr){
-            auto light = std::make_shared<DirectionLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::DirectionalLight), directionalLightInfo);
+            auto light = std::make_shared<DirectionLightNode>(m_sceneLightInfo,
+                                                              m_assetsManager.GetEditorBilboardMesh(
+                                                                  EEditorIcon::DirectionalLight), directionalLightInfo);
             light->SetName(light->GetMesh()->GetName());
+            light->SetVisualisationMesh(m_assetsManager.GetDefaultMesh(EMeshGeometryType::Arrow));
             AddNode(light);
         }else{
 
@@ -133,6 +136,7 @@ namespace ApplicationCore {
 
             auto light = std::make_shared<PointLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::PointLight), pointLightInfo);
             light->SetName(light->GetMesh()->GetName());
+
             AddNode(light);
         }else{
             Utils::Logger::LogErrorClient("Maximun number of point lights, 20,  reached !");
@@ -144,6 +148,7 @@ namespace ApplicationCore {
         if(m_sceneLightInfo.AreaLightInfos.size()<4){
             auto light = std::make_shared<AreaLightNode>(m_sceneLightInfo, m_assetsManager.GetEditorBilboardMesh(EEditorIcon::AreaLight), areaLightInfo);
             light->SetName(light->GetMesh()->GetName());
+            light->SetVisualisationMesh(m_assetsManager.GetDefaultMesh(EMeshGeometryType::LinePlane));
             AddNode(light);
         }else{
             Utils::Logger::LogErrorClient("Maximun number of Area lights, 4,  reached !");

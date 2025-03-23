@@ -31,7 +31,8 @@ enum EMeshGeometryType
     PostProcessQuad,
     Triangle,
     Custom,
-    Cross
+    Cross,
+    Arrow, LinePlane
 };
 
 enum ETextureType

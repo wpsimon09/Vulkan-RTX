@@ -22,6 +22,39 @@ namespace ApplicationCore::MeshData
         0, 2, 3   // Second triangle (Top-right, Bottom-right, Bottom-left) - CCW
     };
 
+    inline std::vector<ApplicationCore::Vertex> arrowVertices = {
+        {{ 0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.5f}}, // Tail of the arrow
+        {{ 3.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.5f}}, // Tip of the arrow
+
+        {{ 0.3f,  0.2f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.8f, 0.3f}}, // Top of arrowhead
+        {{ 3.0f,  0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.5f}}, // Tip of the arrow
+
+        {{ 0.3f, -0.2f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.8f, 0.7f}}, // Bottom of arrowhead
+        {{ 3.0f,  0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.5f}}  // Tip of the arrow
+    };
+
+    inline std::vector<uint32_t> arrowIndices = {
+        0, 1,  // Shaft
+        2, 3,  // Top arrowhead
+        4, 5   // Bottom arrowhead
+    };
+
+    inline std::vector<ApplicationCore::Vertex> linePlaneVertices = {
+        {{-0.5f, -0.5f,  0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}, // Bottom-left
+        {{ 0.5f, -0.5f,  0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}, // Bottom-right
+        {{ 0.5f,  0.5f,  0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}}, // Top-right
+        {{-0.5f,  0.5f,  0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}  // Top-left
+    };
+
+    inline std::vector<uint32_t> linePlaneIndices = {
+        0, 1,  // Bottom edge
+        1, 2,  // Right edge
+        2, 3,  // Top edge
+        3, 0   // Left edge
+    };
+
+
+
 
     inline std::vector<Vertex> cubeVertices = {
     // Front face

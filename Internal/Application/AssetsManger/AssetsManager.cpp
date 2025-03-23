@@ -107,6 +107,16 @@ namespace ApplicationCore
                 data = m_meshDataManager.AddMeshData(MeshData::fullscreenQuadVertices,MeshData::fullscreenQuadIndices);
                 break;
             }
+        case Arrow:
+            {
+                data = m_meshDataManager.AddMeshData(MeshData::arrowVertices, MeshData::arrowIndices);
+                break;
+            }
+        case LinePlane:
+            {
+                data = m_meshDataManager.AddMeshData(MeshData::linePlaneVertices, MeshData::linePlaneIndices);
+                break;
+            }
         default: ;
             throw std::runtime_error("This geometry type is not supported !");
         }
@@ -173,7 +183,7 @@ namespace ApplicationCore
     std::shared_ptr<StaticMesh> AssetsManager::GetEditorBilboardMesh(EEditorIcon icon)
     {
 
-        auto mesh = GetDefaultMesh(Plane);
+        auto mesh = GetDefaultMesh(LinePlane);
         mesh->SetMaterial(m_editorIconsMaterials[icon]);
 
         mesh->SetName( IconToString(icon)+"##" + VulkanUtils::random_string(4));

@@ -233,12 +233,8 @@ namespace ApplicationCore
 
             }
 
-
-            data.renderOutline = m_sceneNodeMetaData.IsSelected;
             data.position = m_transformation->GetPosition();
-
             data.bounds = &m_mesh->GetMeshData()->bounds;
-            data.isEditorBilboard = false;
             data.material = m_mesh->m_currentMaterial;
 
             renderingContext->AddDrawCall(data);

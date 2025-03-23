@@ -186,8 +186,6 @@ struct DrawCallData
     glm::vec3 position;
 
     float depth = -1.0f;
-    bool renderOutline = false;
-    bool isEditorBilboard = false;
 
     unsigned long key = 0;
 

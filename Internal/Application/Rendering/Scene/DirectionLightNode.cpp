@@ -7,7 +7,8 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 
 namespace ApplicationCore {
-    DirectionLightNode::DirectionLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh,LightStructs::DirectionalLight* directionalLightData): LightNode<LightStructs::DirectionalLight>(mesh, directionalLightData), m_sceneLightInfo(sceneLightInfo)
+    DirectionLightNode::DirectionLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh,LightStructs::DirectionalLight* directionalLightData):
+        LightNode<LightStructs::DirectionalLight>(mesh, directionalLightData), m_sceneLightInfo(sceneLightInfo)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::DirectionalLightNode;
         sceneLightInfo.DirectionalLightInfo = &m_lightStruct;
@@ -17,7 +18,56 @@ namespace ApplicationCore {
 
     void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const
     {
-        SceneNode::Render(effectsLibrary, renderingContext);
+        if (m_mesh && m_sceneNodeMetaData.IsVisible)
+        {
+            //==========================
+            // render editor billboard
+            //==========================
+            // frustrum culling
+            if (m_sceneNodeMetaData.FrustumCull && GlobalVariables::RenderingOptions::EnableFrustrumCulling)
+            {
+                if (!VulkanUtils::IsInViewFrustum(
+                    &m_mesh->GetMeshData()->bounds,
+                    m_transformation->GetModelMatrix(),
+                    renderingContext->view, renderingContext->projection)) { return; }
+            }
+
+            VulkanStructs::DrawCallData data;
+            data.firstIndex = 1;
+
+            data.indexCount = m_mesh->GetMeshIndexCount();
+            // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
+
+            data.bounds = &m_mesh->GetMeshData()->bounds;
+            data.vertexData = &m_mesh->GetMeshData()->vertexData;
+            data.indexData = &m_mesh->GetMeshData()->indexData;
+
+            data.modelMatrix = m_transformation->GetModelMatrix();
+            data.material = m_mesh->GetMaterial();
+            if (renderingContext->WireFrameRendering)
+                data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
+            else
+                data.effect = effectsLibrary.GetEffect(EEffectType::EditorBilboard);
+
+            data.position = m_transformation->GetPosition();
+
+            data.bounds = &m_mesh->GetMeshData()->bounds;
+            data.material = m_mesh->GetMaterial();
+
+            renderingContext->AddDrawCall(data);
+
+            //=======================
+            // render arrow
+            //=======================
+            if (m_visualisationMesh)
+            {
+                data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
+                data.vertexData = &m_visualisationMesh->GetMeshData()->vertexData;
+                data.indexData = &m_visualisationMesh->GetMeshData()->indexData;
+                data.indexCount = m_visualisationMesh->GetMeshIndexCount();
+                renderingContext->AddDrawCall(data);
+            }
+        }
     }
 
     void DirectionLightNode::Update()
