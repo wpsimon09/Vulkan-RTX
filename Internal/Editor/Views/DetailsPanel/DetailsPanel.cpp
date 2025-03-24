@@ -69,7 +69,7 @@ namespace VEditor {
            {
                // position
                {
-                   if (ImGui::Button(ICON_FA_REPEAT"##ResetPos"))
+                   if (ImGui::Button(ICON_FA_REPLY"##ResetPos"))
                    {
                        m_selectedSceneNode->m_transformation->SetPosition(glm::vec3(0.0f));
                    }
@@ -79,7 +79,7 @@ namespace VEditor {
                // Scale
                {
 
-                   if (ImGui::Button(ICON_FA_REPEAT"##ResetScale"))
+                   if (ImGui::Button(ICON_FA_REPLY"##ResetScale"))
                    {
                        m_selectedSceneNode->m_transformation->SetScale(glm::vec3(1.0f));
                        m_uniformScaleScalar = 1.0f;
@@ -101,7 +101,7 @@ namespace VEditor {
                // rotate
                {
 
-                   if (ImGui::Button(ICON_FA_REPEAT"##ResetRotation"))
+                   if (ImGui::Button(ICON_FA_REPLY"##ResetRotation"))
                    {
                        m_selectedSceneNode->m_transformation->SetRotations(glm::vec3(0.0f));
                    }
@@ -135,7 +135,7 @@ namespace VEditor {
 
             }
             ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_REPEAT"##ResetMaterial"))
+            if (ImGui::Button(ICON_FA_REPLY"##ResetMaterial"))
             {
                 m_selectedSceneNode->GetMesh()->ResetMaterial();
             }
@@ -202,8 +202,8 @@ namespace VEditor {
 
         if (ImGui::TreeNode(ICON_FA_WAND_MAGIC_SPARKLES " Effect"))
         {
-            if (ImGui::Button(ICON_FA_REPLY " ## sldkfj")){
-
+            if (ImGui::Button(ICON_FA_REPLY " ## reset efect")){
+                m_selectedSceneNode->GetMesh()->GetMaterial()->ResetEffect();
             }
 
             ImGui::SameLine();

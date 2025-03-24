@@ -72,6 +72,7 @@ namespace ApplicationCore
 
         bool                                                    IsSavable() const {return m_savable;}
         void                                                    SetSavable(bool savable) {m_savable = savable;}
+        void                                                    ResetEffect();
 
     private:
         std::string m_materialName;
@@ -83,6 +84,7 @@ namespace ApplicationCore
         bool m_savable = false;
         int ID;
         std::shared_ptr<VulkanUtils::VEffect> m_materialEffect;
+        std::shared_ptr<VulkanUtils::VEffect> m_initialEffect;
 
         friend bool operator==(const Material& lhs, const Material& rhs)
         {

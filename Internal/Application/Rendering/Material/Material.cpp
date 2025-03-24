@@ -15,6 +15,7 @@ namespace ApplicationCore {
         AssetsManager& assets_manager):m_materialEffect(materialEffect), m_textureView(), m_materialPaths(materialPaths)
     {
         ID = ++MaterialIndexCounter;
+        m_initialEffect = materialEffect;
 
         if (!materialPaths.DiffuseMapPath.empty())
         {
@@ -58,5 +59,8 @@ namespace ApplicationCore {
         m_materialEffect = newEffect;
     }
 
-
+    void Material::ResetEffect()
+    {
+        m_materialEffect = m_initialEffect;
+    }
 } // ApplicationCore
