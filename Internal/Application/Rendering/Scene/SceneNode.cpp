@@ -229,7 +229,8 @@ namespace ApplicationCore
             }
             else
             {
-                data.effect = effectsLibrary.GetEffect(EEffectType::ForwardShader);
+                //data.effect = effectsLibrary.GetEffect(EEffectType::ForwardShader);
+                data.effect = m_mesh->GetMaterial()->GetEffect();
 
             }
 

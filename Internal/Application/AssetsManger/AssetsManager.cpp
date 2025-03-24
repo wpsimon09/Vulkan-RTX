@@ -191,7 +191,7 @@ namespace ApplicationCore
         return std::move(mesh);
     }
 
-    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> AssetsManager::GetEffects()
+    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> AssetsManager::GetEffects() const
     {
         return m_effectsLibrary.effects;
     }

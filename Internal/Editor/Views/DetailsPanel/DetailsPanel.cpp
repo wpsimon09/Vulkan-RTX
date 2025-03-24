@@ -202,8 +202,24 @@ namespace VEditor {
 
         if (ImGui::TreeNode(ICON_FA_WAND_MAGIC_SPARKLES " Effect"))
         {
-            ImGui::Text(meshMaterial->GetEffect()->GetName().c_str());
+            if (ImGui::Button(ICON_FA_REPLY " ## sldkfj")){
 
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::BeginCombo("Effect", meshMaterial->GetEffect()->GetName().c_str()))
+            {
+                for (auto& effect: m_assetsManager.GetEffects())
+                {
+                    auto label = ICON_FA_WAND_MAGIC_SPARKLES " "+ effect.second->GetName();
+                    if (ImGui::Selectable(label.c_str(), effect.second == m_selectedSceneNode->GetMesh()->GetMaterial()->GetEffect()))
+                    {
+                        m_selectedSceneNode->GetMesh()->GetMaterial()->ChangeEffect(effect.second);
+                    }
+                }
+                ImGui::EndCombo();
+            }
             ImGui::TreePop();
         }
 

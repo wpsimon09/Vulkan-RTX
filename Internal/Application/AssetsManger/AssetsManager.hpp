@@ -122,7 +122,7 @@ public:
     // Effects
     //=========================
     EffectsLibrary& GetEffectsLibrary() {return m_effectsLibrary;}
-    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> GetEffects();
+    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> GetEffects() const ;
 
     //=========================
     // Buffer Allocator
