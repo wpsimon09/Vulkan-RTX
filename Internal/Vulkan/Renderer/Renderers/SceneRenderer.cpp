@@ -302,7 +302,7 @@ namespace Renderer
                 std::vector<vk::Buffer> vertexBuffers = {drawCall.second.vertexData->buffer};
                 std::vector<vk::DeviceSize> offsets = {0};
                 vertexBuffers = {drawCall.second.vertexData->buffer};
-                cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+               cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
                 currentVertexBuffer = drawCall.second.vertexData;
             }
 

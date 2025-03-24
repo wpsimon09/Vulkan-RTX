@@ -22,12 +22,12 @@ bool VulkanUtils::RenderContext::CompareByDeptAsc(const VulkanStructs::DrawCallD
 }
 
 void VulkanUtils::RenderContext::GetAllDrawCall(
-    std::vector<std::pair<unsigned short, VulkanStructs::DrawCallData>>& outDrawCalls)
+    std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& outDrawCalls)
 {
     outDrawCalls = drawCalls;
 }
 
-std::vector<std::pair<unsigned short, VulkanStructs::DrawCallData>>& VulkanUtils::RenderContext::GetAllDrawCall()
+std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& VulkanUtils::RenderContext::GetAllDrawCall()
 {
     return drawCalls;
 }
@@ -49,6 +49,8 @@ unsigned long VulkanUtils::RenderContext::GenerateDrawKey(VulkanStructs::DrawCal
     key |= (static_cast<unsigned long>(drawCall.material->IsTransparent()) << 63);
     key |= (static_cast<unsigned long>(drawCall.effect->GetID() &  0xFFF) << 47); // reduce the number of id to be masekd by 1111 1111 1111 = 2pow25 and move it to the 47th position
     key |= (static_cast<unsigned long>(drawCall.material->GetID() &  0xFFF) << 36);
+    key |= (static_cast<unsigned long>(drawCall.vertexData->BufferID & 0x3FF) << 26);
+    key |= (static_cast<unsigned long>(drawCall.indexData->BufferID & 0x3FF) << 16);
 
     drawCall.key = key;
 

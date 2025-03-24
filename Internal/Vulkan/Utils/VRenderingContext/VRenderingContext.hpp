@@ -25,7 +25,7 @@ namespace VulkanUtils
         bool WireFrameRendering = false;
         // other flags
 
-        std::vector<std::pair<unsigned short, VulkanStructs::DrawCallData>> drawCalls;
+        std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>> drawCalls;
 
         void ExtractDepthValues(glm::vec3& cameraPosition);
 
@@ -33,8 +33,8 @@ namespace VulkanUtils
         static bool CompareByDeptAsc(const VulkanStructs::DrawCallData& DrawCallA, const VulkanStructs::DrawCallData& DrawCallB);
 
 
-        void GetAllDrawCall(std::vector<std::pair<unsigned short, VulkanStructs::DrawCallData>>& outDrawCalls);
-        std::vector<std::pair<unsigned short, VulkanStructs::DrawCallData>>& GetAllDrawCall();
+        void GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& outDrawCalls);
+        std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& GetAllDrawCall();
 
         void AddDrawCall(VulkanStructs::DrawCallData& DrawCall);
 

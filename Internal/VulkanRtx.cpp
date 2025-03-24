@@ -148,7 +148,6 @@ void Application::Update()
 {
     m_vulkanDevice->GetTransferOpsManager().StartRecording();
 
-    m_renderingSystem->Update();
     m_client->Update();
     m_client->UpdateCamera(m_windowManager->GetCameraMovement());
     if(m_windowManager->GetIsDirty()) {
@@ -167,15 +166,16 @@ void Application::Update()
 void Application::Render() {
 
 
-    m_editor->Render();
 
     m_client->GetAssetsManager().Sync();
 
-
     m_client->Render(m_renderingSystem->GetRenderContext());
 
+    m_editor->Render();
 
     m_renderingSystem->Render(m_client->GetScene().GetSceneLightInfo(),m_client->GetGlobalDataUpdateInformation());
+
+    m_renderingSystem->Update();
 
 }
 

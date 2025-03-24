@@ -31,7 +31,7 @@ namespace VulkanUtils
 
         void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
 
-        void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned short, VulkanStructs::DrawCallData>>& drawCalls) const;
+        void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& drawCalls) const;
 
         void UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const;
 
