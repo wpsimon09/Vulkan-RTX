@@ -12,7 +12,7 @@
 
 namespace ApplicationCore {
     Material::Material(std::shared_ptr<VulkanUtils::VEffect> materialEffect, MaterialPaths& materialPaths,
-        AssetsManager& assets_manager):m_materialEffect(materialEffect), m_textureView()
+        AssetsManager& assets_manager):m_materialEffect(materialEffect), m_textureView(), m_materialPaths(materialPaths)
     {
         ID = ++MaterialIndexCounter;
 
