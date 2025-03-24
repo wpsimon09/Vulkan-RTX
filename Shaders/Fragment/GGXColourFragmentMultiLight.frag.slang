@@ -56,12 +56,6 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     material.normal_map = _normalMap;
     let brdf_ = material.Prepare(g);
 
-    // LightArray<PointLight, 10> pointLights;
-    // pointLights.count = 10;
-    // for (int i = 0; i < 10; i++) {
-    //     pointLights.lights[i].position = _lightInfo.pointLigths[i].position;
-    //     pointLights.lights[i].intensity = _lightInfo.pointLigths[i].intensity;
-    // }
 
     if (material.features.hasNormalTexture) {
         g.normal = normalize(SampleNormalMap(_normalMap, fsIn.uv, fsIn.normal, fsIn.fragPos));

@@ -80,6 +80,9 @@ struct PBRMaterial : IMaterial
         if (features.hasDiffuseTexture)
         {
             brdf.albedo = albedo_map.Sample(geometry.uv);
+            if (brdf.albedo.w < 1.0) {
+                discard;
+            }
         }
         else
         {
