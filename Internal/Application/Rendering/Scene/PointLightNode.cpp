@@ -24,7 +24,8 @@ namespace ApplicationCore {
 
     void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const
     {
-        if (m_mesh && m_sceneNodeMetaData.IsVisible)
+             if (!renderingContext->RenderBillboards) return;
+           if (m_mesh && m_sceneNodeMetaData.IsVisible)
         {
             // frustrum culling
             if (m_sceneNodeMetaData.FrustumCull && GlobalVariables::RenderingOptions::EnableFrustrumCulling)

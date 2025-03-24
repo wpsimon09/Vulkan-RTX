@@ -94,7 +94,7 @@ namespace ApplicationCore {
                    pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
         debugShapes->SetCullNone()
-        .SetLineWidth(5)
+        .SetLineWidth(7)
         .SetPolygonLine()
         .SetTopology(vk::PrimitiveTopology::eLineList);
 

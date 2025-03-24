@@ -42,7 +42,6 @@ namespace ApplicationCore
     void LightNode<T>::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
         VulkanUtils::RenderContext* renderingContext) const
     {
-        //SceneNode::Render(effectsLibrary, renderingContext);
     }
 
 

@@ -19,6 +19,7 @@ namespace ApplicationCore {
 
     void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const
     {
+        if (!renderingContext->RenderBillboards) return;
         if (m_mesh && m_sceneNodeMetaData.IsVisible)
         {
             //==========================
