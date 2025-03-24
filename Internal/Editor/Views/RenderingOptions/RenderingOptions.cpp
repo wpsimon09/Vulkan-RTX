@@ -79,7 +79,7 @@ namespace VEditor {
             {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%i", drawCall.first);
+                ImGui::Text("%lu", drawCall.first);
 
                 ImGui::TableSetColumnIndex(1);
 

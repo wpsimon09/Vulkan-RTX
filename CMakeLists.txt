@@ -234,6 +234,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
 
 file(COPY ${CMAKE_SOURCE_DIR}/Resources DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${CMAKE_SOURCE_DIR}/Shaders DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/imgui.ini DESTINATION ${CMAKE_BINARY_DIR})
 
 # Set compile options based on build type
 if(CMAKE_BUILD_TYPE STREQUAL "Release")

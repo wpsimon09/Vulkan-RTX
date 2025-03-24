@@ -294,10 +294,8 @@ namespace Renderer
             //================================================================================================
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
             //================================================================================================
-            if(currentVertexBuffer != drawCall.second.vertexData){
+            if(currentVertexBuffer->BufferID != drawCall.second.vertexData->BufferID){
                 auto firstBinding = 0;
-
-                indexBufferOffset = (currentVertexBuffer->offset + currentVertexBuffer->size)/ static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex));
 
                 std::vector<vk::Buffer> vertexBuffers = {drawCall.second.vertexData->buffer};
                 std::vector<vk::DeviceSize> offsets = {0};
@@ -306,7 +304,7 @@ namespace Renderer
                 currentVertexBuffer = drawCall.second.vertexData;
             }
 
-            if(currentIndexBuffer != drawCall.second.indexData){
+            if(currentIndexBuffer->BufferID != drawCall.second.indexData->BufferID){
                 indexBufferOffset = 0;
                 cmdBuffer.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
                 currentIndexBuffer = drawCall.second.indexData;

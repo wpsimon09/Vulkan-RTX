@@ -32,7 +32,7 @@ std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& VulkanUtils:
     return drawCalls;
 }
 
-void VulkanUtils::RenderContext::AddDrawCall(VulkanStructs::DrawCallData& DrawCall)
+void VulkanUtils::RenderContext::   AddDrawCall(VulkanStructs::DrawCallData& DrawCall)
 {
     drawCalls.emplace_back(GenerateDrawKey(DrawCall), DrawCall);
 }
@@ -49,8 +49,8 @@ unsigned long VulkanUtils::RenderContext::GenerateDrawKey(VulkanStructs::DrawCal
     key |= (static_cast<unsigned long>(drawCall.material->IsTransparent()) << 63);
     key |= (static_cast<unsigned long>(drawCall.effect->GetID() &  0xFFF) << 47); // reduce the number of id to be masekd by 1111 1111 1111 = 2pow25 and move it to the 47th position
     key |= (static_cast<unsigned long>(drawCall.material->GetID() &  0xFFF) << 36);
-    key |= (static_cast<unsigned long>(drawCall.vertexData->BufferID & 0x3FF) << 26);
-    key |= (static_cast<unsigned long>(drawCall.indexData->BufferID & 0x3FF) << 16);
+    key |= (static_cast<unsigned long>(drawCall.vertexData->BufferID & 0xFFF) << 26);
+    key |= (static_cast<unsigned long>(drawCall.indexData->BufferID & 0xFFF) << 16);
 
     drawCall.key = key;
 
