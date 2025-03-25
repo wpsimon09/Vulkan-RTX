@@ -110,15 +110,13 @@ namespace ApplicationCore {
 
 
         skybox->SetCullNone()
-            .SetDepthOpEqual()
-            .SetFrontFaceClockWise()
-            .SetDisableDepthWrite();
+            .SetDisableDepthWrite()
+            .SetDepthOpLessEqual();
+
 
         effects[EEffectType::SkyBox] = std::move(skybox);
 
-
         BuildAllEffects();
-
     }
 
     std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type)

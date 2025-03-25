@@ -45,6 +45,7 @@ public:
     VEffect& EnableAdditiveBlending();
     VEffect& OutputHDR();
     VEffect& SetDepthOpEqual();
+    VEffect& SetDepthOpLessEqual();
     VEffect& SetFrontFaceClockWise();
 
     //=======================================

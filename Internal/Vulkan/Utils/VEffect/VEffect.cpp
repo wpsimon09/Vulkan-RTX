@@ -103,6 +103,12 @@ namespace VulkanUtils
             return *this;
         }
 
+        VEffect& VEffect::SetDepthOpLessEqual()
+        {
+            m_pipeline->m_depthStencil.depthCompareOp = vk::CompareOp::eLessOrEqual;
+            return *this;
+        }
+
         VEffect& VEffect::SetFrontFaceClockWise()
         {
             m_pipeline->m_rasterizer.frontFace = vk::FrontFace::eClockwise;

@@ -56,10 +56,9 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
         float4(0.0, 0.0, 0.0, 1.0)
     );
 
-    float4 pos = mul(mul(float4(vertexPos, 1.0), rotView), globalData.projection);
-    
-    //pos.y *= -1;
-    
+    float4x4 projView = mul(rotView, globalData.projection);
+    float4 pos = mul(float4(vertexPos, 1.0), projView);
+        
     out.sv_position = pos.xyww;
 
     return out;
