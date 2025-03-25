@@ -103,6 +103,12 @@ namespace VulkanUtils
             return *this;
         }
 
+        VEffect& VEffect::SetFrontFaceClockWise()
+        {
+            m_pipeline->m_rasterizer.frontFace = vk::FrontFace::eClockwise;
+            return *this;
+        }
+
         std::string& VEffect::GetName()
         {
             return m_name;

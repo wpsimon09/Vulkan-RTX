@@ -110,8 +110,9 @@ namespace ApplicationCore {
 
 
         skybox->SetCullNone()
-            .SetTopology(vk::PrimitiveTopology::eTriangleList)
-            .SetDepthOpEqual();
+            .SetDepthOpEqual()
+            .SetFrontFaceClockWise()
+            .SetDisableDepthWrite();
 
         effects[EEffectType::SkyBox] = std::move(skybox);
 
