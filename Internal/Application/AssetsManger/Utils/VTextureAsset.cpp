@@ -64,17 +64,25 @@ ApplicationCore::VTextureAsset::VTextureAsset(
 
 void ApplicationCore::VTextureAsset::Sync()
 {
+
+
     if(m_isInSync)
         return;
-    if (m_loadedImageData.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready ){
-        return;
-    }
 
-    m_isInSync = true;
-    auto imageData = m_loadedImageData.get();
-    m_assetPath = imageData.fileName;
-    m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,imageData);
-    m_transferOpsManager.DestroyBuffer(m_deviceHandle->GetImageStagingvBuffer(), true);
+    std::visit([this] (auto& imageData){
+
+        if (imageData.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready ){
+            return;
+        }else
+        {
+            auto fetchedData = imageData.get();
+            m_isInSync = true;
+            m_assetPath = fetchedData.fileName;
+            m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,fetchedData);
+            m_transferOpsManager.DestroyBuffer(m_deviceHandle->GetImageStagingvBuffer(), true);
+        }
+
+    }, m_imageFormat);
 }
 
 void ApplicationCore::VTextureAsset::Destroy()
@@ -130,7 +138,7 @@ void ApplicationCore::VTextureAsset::LoadInternal()
 
 void ApplicationCore::VTextureAsset::LoadInternalFromBuffer()
 {
-        m_loadedImageData = std::async([this](){
+        m_imageFormat = std::async([this](){
         if(m_textureBufferInfo.has_value()){
             return ApplicationCore::LoadImage(this->m_textureBufferInfo.value(), m_textureBufferInfo.value().textureID, m_savable);
         }

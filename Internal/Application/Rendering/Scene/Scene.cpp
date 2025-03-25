@@ -14,7 +14,7 @@
 #include "Application/Enums/ClientEnums.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
-#include "Application/Rendering/Material/Material.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 

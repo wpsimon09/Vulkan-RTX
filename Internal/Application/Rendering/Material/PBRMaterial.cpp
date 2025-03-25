@@ -2,7 +2,7 @@
 // Created by wpsimon09 on 26/11/24.
 //
 
-#include "Material.hpp"
+#include "PBRMaterial.hpp"
 #include "MaterialStructs.hpp"
 
 
@@ -11,8 +11,8 @@
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 
 namespace ApplicationCore {
-    Material::Material(std::shared_ptr<VulkanUtils::VEffect> materialEffect, MaterialPaths& materialPaths,
-        AssetsManager& assets_manager): m_textureView(), m_materialPaths(materialPaths), BaseMaterial(materialEffect)
+    PBRMaterial::PBRMaterial(std::shared_ptr<VulkanUtils::VEffect> materialEffect, MaterialPaths& materialPaths,
+        AssetsManager& assets_manager): m_materialPaths(materialPaths), BaseMaterial(materialEffect)
     {
 
         if (!materialPaths.DiffuseMapPath.empty())
@@ -42,18 +42,14 @@ namespace ApplicationCore {
         assets_manager.GetDummyTexture(m_textures[ETextureType::emissive]);
     }
 
-    std::shared_ptr<VulkanUtils::VEffect>& Material::GetEffect()
+    std::shared_ptr<VulkanUtils::VEffect>& PBRMaterial::GetEffect()
     {
         return m_materialEffect;
     }
 
-    void Material::SetMaterialname(std::string newName)
-    {
-        m_materialName = newName;
-    }
 
 
-    void Material::ResetEffect()
+    void PBRMaterial::ResetEffect()
     {
         m_materialEffect = m_initialEffect;
     }

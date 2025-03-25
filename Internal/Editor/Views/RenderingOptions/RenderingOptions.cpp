@@ -7,7 +7,7 @@
 #include <IconsFontAwesome6.h>
 #include <imgui.h>
 
-#include "Application/Rendering/Material/Material.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"

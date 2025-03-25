@@ -11,7 +11,7 @@
 #include <Application/AssetsManger/Utils/VTextureAsset.hpp>
 #include <Vulkan/VulkanCore/VImage/VImage.hpp>
 
-#include "Application/Rendering/Material/Material.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 
 

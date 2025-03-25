@@ -6,7 +6,7 @@
 #define VUNIFORMBUFFERMANAGER_HPP
 #include <memory>
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
-#include "Application/Rendering/Material/Material.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "UnifromsRegistry.hpp"
 #include "VUniform.hpp"
 
@@ -35,7 +35,7 @@ namespace VulkanUtils
 
         void UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const;
 
-        void UpdatePerMaterialUniformData(int frameIndex, const std::shared_ptr<ApplicationCore::Material>& material) const;
+        void UpdatePerMaterialUniformData(int frameIndex, const std::shared_ptr<ApplicationCore::PBRMaterial>& material) const;
 
         void Destroy() const;
     private:

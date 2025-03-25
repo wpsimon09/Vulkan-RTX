@@ -53,4 +53,9 @@ struct PBRMaterialDescription
     PBRMaterialFeaturees features;
 };
 
+struct SkyBoxMaterialDescription
+{
+
+};
+
 #endif //MATERIALSTRUCTS_HPP

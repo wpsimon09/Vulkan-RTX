@@ -15,7 +15,9 @@ namespace ApplicationCore {
 
 inline int MaterialIndexCounter = 0;
 
-
+/**
+ * This class is not used in rendering, only Material or SkyBoxMaterial can be used
+ */
 class BaseMaterial {
 public:
     BaseMaterial(std::shared_ptr<VulkanUtils::VEffect> effect);
@@ -25,7 +27,9 @@ public:
     bool                                                    IsSavable() const {return m_savable;}
     void                                                    SetSavable(bool savable) {m_savable = savable;}
     int                                                     GetID() {return ID;}
-    void                                                    ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect);
+    virtual void                                            ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect);
+    std::string&                                            GetMaterialName() { return m_materialName; };
+    void                                                    SetMaterialname(std::string newName);
 
 
 protected:
@@ -34,6 +38,9 @@ protected:
     int ID;
     std::shared_ptr<VulkanUtils::VEffect> m_materialEffect;
     std::shared_ptr<VulkanUtils::VEffect> m_initialEffect;
+    std::string m_materialName;
+
+
 
 private:
 

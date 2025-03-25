@@ -54,7 +54,7 @@ namespace VulkanCore {
 
         AllocateImage();
         GenerateImageView();
-        FillWithImageData(imageData, device.GetTransferOpsManager().GetCommandBuffer());
+        FillWithImageData<float>(imageData, device.GetTransferOpsManager().GetCommandBuffer());
     }
 
     void VImage2::Resize(uint32_t newWidth, uint32_t newHeight)

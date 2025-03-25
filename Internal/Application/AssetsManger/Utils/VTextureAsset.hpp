@@ -51,7 +51,6 @@ namespace ApplicationCore {
                 
         std::optional<std::filesystem::path> m_originalPathToTexture;
         std::optional<TextureBufferInfo> m_textureBufferInfo;
-        std::future<VulkanStructs::ImageData<>> m_loadedImageData;
 
         std::variant<
             std::future<VulkanStructs::ImageData<>>,

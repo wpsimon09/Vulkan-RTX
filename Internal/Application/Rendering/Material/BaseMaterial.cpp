@@ -16,4 +16,8 @@ namespace ApplicationCore {
         m_materialEffect = newEffect;
     }
 
+    void BaseMaterial::SetMaterialname(std::string newName)
+    {
+        m_materialName = newName;
+    }
 } // ApplicationCore
