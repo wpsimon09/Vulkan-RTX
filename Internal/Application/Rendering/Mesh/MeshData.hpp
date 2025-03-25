@@ -114,6 +114,66 @@ namespace ApplicationCore::MeshData
         21, 20, 23, 23, 22, 21
     };
 
+
+    inline std::vector<Vertex> skyboxVertices = {
+       // Front face
+    {{-1.9f, -1.0f,  1.0f}, {0.0f,  0.0f,  1.0f}, {0.0f, 0.0f}},  // Vertex 0
+    {{ 1.0f, -1.0f,  1.0f}, {0.0f,  0.0f,  1.0f}, {1.0f, 0.0f}},  // Vertex 1
+    {{ 1.0f,  1.0f,  1.0f}, {0.0f,  0.0f,  1.0f}, {1.0f, 1.0f}},  // Vertex 2
+    {{-1.0f,  1.0f,  1.0f}, {0.0f,  0.0f,  1.0f}, {0.0f, 1.0f}},  // Vertex 3
+
+    // Back face
+    {{-1.0f, -1.0f, -1.0f}, {0.0f,  0.0f, -1.0f}, {1.0f, 0.0f}},  // Vertex 4
+    {{ 1.0f, -1.0f, -1.0f}, {0.0f,  0.0f, -1.0f}, {0.0f, 0.0f}},  // Vertex 5
+    {{ 1.0f,  1.0f, -1.0f}, {0.0f,  0.0f, -1.0f}, {0.0f, 1.0f}},  // Vertex 6
+    {{-1.0f,  1.0f, -1.0f}, {0.0f,  0.0f, -1.0f}, {1.0f, 1.0f}},  // Vertex 7
+
+    // Left face
+    {{-1.0f, -1.0f, -1.0f}, {-1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}},  // Vertex 8
+    {{-1.0f, -1.0f,  1.0f}, {-1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}},  // Vertex 9
+    {{-1.0f,  1.0f,  1.0f}, {-1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}},  // Vertex 10
+    {{-1.0f,  1.0f, -1.0f}, {-1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}},  // Vertex 11
+
+    // Right face
+    {{ 1.0f, -1.0f, -1.0f}, { 1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}},  // Vertex 12
+    {{ 1.0f, -1.0f,  1.0f}, { 1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}},  // Vertex 13
+    {{ 1.0f,  1.0f,  1.0f}, { 1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}},  // Vertex 14
+    {{ 1.0f,  1.0f, -1.0f}, { 1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}},  // Vertex 15
+
+    // Top face
+    {{-1.0f,  1.0f, -1.0f}, {0.0f,  1.0f,  0.0f}, {0.0f, 0.0f}},  // Vertex 16
+    {{-1.0f,  1.0f,  1.0f}, {0.0f,  1.0f,  0.0f}, {0.0f, 1.0f}},  // Vertex 17
+    {{ 1.0f,  1.0f,  1.0f}, {0.0f,  1.0f,  0.0f}, {1.0f, 1.0f}},  // Vertex 18
+    {{ 1.0f,  1.0f, -1.0f}, {0.0f,  1.0f,  0.0f}, {1.0f, 0.0f}},  // Vertex 19
+
+    // Bottom face
+    {{-1.0f, -1.0f, -1.0f}, {0.0f, -1.0f,  0.0f}, {0.0f, 1.0f}},  // Vertex 20
+    {{-1.0f, -1.0f,  1.0f}, {0.0f, -1.0f,  0.0f}, {0.0f, 0.0f}},  // Vertex 21
+    {{ 1.0f, -1.0f,  1.0f}, {0.0f, -1.0f,  0.0f}, {1.0f, 0.0f}},  // Vertex 22
+    {{ 1.0f, -1.0f, -1.0f}, {0.0f, -1.0f,  0.0f}, {1.0f, 1.0f}}   // Vertex 23
+ };
+
+    inline std::vector<uint32_t> skyboxIndices = {
+        // Front face
+        0, 1, 2, 2, 3, 0,
+
+        // Right face
+        13, 12, 15, 15, 14, 13,
+
+        // Back face
+        6, 5, 4, 4, 7, 6,
+
+        // Left face
+        8, 9, 10, 10, 11, 8,
+
+        // Top face
+        16, 17, 18, 18, 19, 16,
+
+        // Bottom face
+        21, 20, 23, 23, 22, 21
+    };
+
+
     inline std::vector<Vertex> triangleVertices = {
         // First triangle vertex
         {{ 0.0f,  0.5f, 0.0f}, {0.0f,  0.0f, 1.0f}, {0.5f, 1.0f}},  // Top vertex (position, normal, UV)

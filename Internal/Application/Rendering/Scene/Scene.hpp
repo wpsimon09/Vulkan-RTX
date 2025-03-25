@@ -53,6 +53,7 @@ public:
     void AddCubeToScene() const;
     void AddSphereToScene() const;
     void AddPlaneToScene() const;
+    void AddSkyBox() const;
 
     void AddDirectionalLight(LightStructs::DirectionalLight* directionalLightInfo = nullptr) ;
     void AddPointLight(LightStructs::PointLight* pointLightInfo = nullptr) ;

@@ -46,6 +46,7 @@ void VEditor::ViewPort::Render()
                         if (ImGui::Selectable(ICON_FA_CIRCLE " Sphere")){m_scene.AddSphereToScene();}
                         if (ImGui::Selectable(ICON_FA_CUBE " Cube" )){m_scene.AddCubeToScene();}
                         if (ImGui::Selectable(ICON_FA_SQUARE " Plane")){m_scene.AddPlaneToScene();}
+                        if (ImGui::Selectable(ICON_FA_MOUNTAIN_SUN " Sky-Box")){m_scene.AddSkyBox();}
 
                         ImGui::EndMenu();
                     }

@@ -20,6 +20,7 @@ public:
     void UpdateGPUBuffer(int frameIndex);
     const std::vector<vk::DescriptorBufferInfo>& GetDescriptorBufferInfos() const {return m_bufferInfo;};
     void Destory() const;
+    bool m_isDirty = true;
 private:
     std::unique_ptr<T> m_uniformCPU;
     std::vector<std::unique_ptr<VulkanCore::VBuffer>> m_uniformGPU; // per frame in flight
@@ -41,7 +42,11 @@ VUniform<T>::VUniform(const VulkanCore::VDevice& device) {
 
 template <typename T>
 void VUniform<T>::UpdateGPUBuffer(int frameIndex) {
-    memcpy(m_uniformGPU[frameIndex]->GetMapPointer(), m_uniformCPU.get(), sizeof(T));
+    if (m_isDirty)
+    {
+        memcpy(m_uniformGPU[frameIndex]->GetMapPointer(), m_uniformCPU.get(), sizeof(T));
+        //m_isDirty = false; TODO: update data only if they are chagned
+    }
 }
 
 template <typename T>

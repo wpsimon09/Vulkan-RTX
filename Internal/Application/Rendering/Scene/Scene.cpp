@@ -115,6 +115,17 @@ namespace ApplicationCore {
         AddNode(node);
     }
 
+    void Scene::AddSkyBox() const
+    {
+        auto obj = m_assetsManager.GetDefaultMesh(Cube);
+
+        auto node = std::make_shared<SceneNode>(obj);
+        node->GetSceneNodeMetaData().nodeType = ENodeType::SkyBoxNode;
+        node->GetMesh()->GetMaterial()->ChangeEffect(m_assetsManager.GetEffectsLibrary().GetEffect(EEffectType::SkyBox));
+        node->SetName("Sky-Box ##" + VulkanUtils::random_string(5));
+        AddNode(node);
+    }
+
     void Scene::AddDirectionalLight(LightStructs::DirectionalLight* directionalLightInfo)
     {
         if(m_sceneLightInfo.DirectionalLightInfo == nullptr){

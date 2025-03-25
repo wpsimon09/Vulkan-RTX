@@ -236,6 +236,9 @@ file(COPY ${CMAKE_SOURCE_DIR}/Resources DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${CMAKE_SOURCE_DIR}/Shaders DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${CMAKE_SOURCE_DIR}/imgui.ini DESTINATION ${CMAKE_BINARY_DIR})
 
+# Link libraries
+target_link_libraries(${TARGET} PRIVATE glfw Vulkan::Vulkan )
+
 # Set compile options based on build type
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_options(${TARGET} PRIVATE ${CFLAGS_RELEASE})
@@ -243,5 +246,3 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(${TARGET} PRIVATE ${CFLAGS_DEBUG})
 endif()
 
-# Link libraries
-target_link_libraries(${TARGET} PRIVATE glfw Vulkan::Vulkan )

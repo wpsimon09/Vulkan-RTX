@@ -117,6 +117,11 @@ namespace ApplicationCore
                 data = m_meshDataManager.AddMeshData(MeshData::linePlaneVertices, MeshData::linePlaneIndices);
                 break;
             }
+        case SkyBox:
+            {
+                data = m_meshDataManager.AddMeshData(MeshData::skyboxVertices, MeshData::skyboxIndices);
+                break;
+            }
         default: ;
             throw std::runtime_error("This geometry type is not supported !");
         }

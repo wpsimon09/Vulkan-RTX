@@ -32,7 +32,7 @@ enum EMeshGeometryType
     Triangle,
     Custom,
     Cross,
-    Arrow, LinePlane
+    Arrow, LinePlane, SkyBox
 };
 
 enum ETextureType
@@ -58,7 +58,7 @@ enum ENodeType
     DirectionalLightNode,
     PointLightNode,
     SpotLightNode,
-    AreaLightNode
+    AreaLightNode, SkyBoxNode
 };
 
 inline std::string IconToString(EEditorIcon icon)

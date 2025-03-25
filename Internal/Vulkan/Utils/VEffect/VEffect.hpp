@@ -44,6 +44,7 @@ public:
     VEffect& SetPolygonPoint();
     VEffect& EnableAdditiveBlending();
     VEffect& OutputHDR();
+    VEffect& SetDepthOpEqual();
 
     //=======================================
 

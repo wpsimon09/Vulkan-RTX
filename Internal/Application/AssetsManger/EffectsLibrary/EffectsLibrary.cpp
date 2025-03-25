@@ -102,6 +102,20 @@ namespace ApplicationCore {
 
         //===============================================================================
 
+        auto skybox = std::make_shared<VulkanUtils::VEffect>(
+            device, "Sky Box",
+            "Shaders/Compiled/SkyBox.vert.slang.spv",
+            "Shaders/Compiled/SkyBox.frag.slang.spv",
+                   pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
+
+
+        skybox->SetCullNone()
+            .SetTopology(vk::PrimitiveTopology::eTriangleList)
+            .SetDepthOpEqual();
+
+        effects[EEffectType::SkyBox] = std::move(skybox);
+
+
         BuildAllEffects();
 
     }
