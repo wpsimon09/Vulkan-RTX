@@ -181,6 +181,7 @@ private:
     std::unordered_map<EEditorIcon, std::shared_ptr<Material>> m_editorIconsMaterials;
     std::unordered_map<EMeshGeometryType, VulkanStructs::MeshData> m_preloadedMeshes;
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures2;
+    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_HDRTextures;
 
     VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
 

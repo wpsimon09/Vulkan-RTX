@@ -13,6 +13,7 @@ namespace ApplicationCore
 {
     VulkanStructs::ImageData<> LoadImage(const std::string &path, bool saveToDisk = false);
     VulkanStructs::ImageData<> LoadImage(const TextureBufferInfo& data, const std::string& textureID, bool saveToDisk = false);
+    VulkanStructs::ImageData<float> LoadHDRImage(const std::string &path, bool saveToDisk = false);
 
     void SaveImageAsPNG(int width, int height, int channels, const std::string& path, const std::vector<std::byte>& data);
     bool CheckIfImageExistsInFolader(const std::filesystem::path& folder,const std::filesystem::path& image);

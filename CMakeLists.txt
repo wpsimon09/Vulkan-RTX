@@ -190,6 +190,10 @@ set(SOURCES
         Internal/Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp
         Internal/Vulkan/Utils/VRenderingContext/VRenderingContext.cpp
         Internal/Vulkan/Utils/VRenderingContext/VRenderingContext.hpp
+        Internal/Application/Rendering/Material/SkyBoxMaterial.cpp
+        Internal/Application/Rendering/Material/SkyBoxMaterial.hpp
+        Internal/Application/Rendering/Material/BaseMaterial.cpp
+        Internal/Application/Rendering/Material/BaseMaterial.hpp
 
 )
 

@@ -21,6 +21,7 @@ struct TextureBufferInfo;
 enum ETextureAssetType{
     Texture = 0,
     EditorBillboard,
+    HDRTexture,
 };
 
 namespace ApplicationCore {
@@ -52,7 +53,12 @@ namespace ApplicationCore {
         std::optional<TextureBufferInfo> m_textureBufferInfo;
         std::future<VulkanStructs::ImageData<>> m_loadedImageData;
 
+        std::variant<
+            std::future<VulkanStructs::ImageData<>>,
+            std::future<VulkanStructs::ImageData<float>>> m_imageFormat;
+
         VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
+
     };
 
 }

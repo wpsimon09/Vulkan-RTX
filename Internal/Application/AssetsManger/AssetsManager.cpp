@@ -280,6 +280,11 @@ namespace ApplicationCore
         m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
         MathUtils::LUT.LTCInverse =  std::make_shared<VTextureAsset>(m_device, std::move(ltcTexture));
 
+        MaterialPaths HDRtexture {};
+        areaLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-area.png";
+
+
+
         Sync();
     }
     

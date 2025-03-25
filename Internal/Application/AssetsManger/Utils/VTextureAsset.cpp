@@ -106,13 +106,26 @@ VulkanCore::VImage2& ApplicationCore::VTextureAsset::GetHandleByRef()
 
 void ApplicationCore::VTextureAsset::LoadInternal()
 {
-        m_loadedImageData = std::async([this](){
-        if(m_originalPathToTexture.has_value()){
-            return ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
+        if (m_textureAssetType == ETextureAssetType::EditorBillboard ||
+            m_textureAssetType == ETextureAssetType::Texture)
+        {
+            std::get<std::future<VulkanStructs::ImageData<>>>(m_imageFormat) = std::async([this](){
+            if(m_originalPathToTexture.has_value()){
+                return ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
+            }
+            throw std::logic_error("Expected struct with information about buffer ");
+            });
         }
-        throw std::logic_error("Expected struct with information about buffer ");
+        else
+        {
+            std::get<std::future<VulkanStructs::ImageData<float>>>(m_imageFormat) = std::async([this](){
+            if(m_originalPathToTexture.has_value()){
+                return ApplicationCore::LoadHDRImage(this->m_originalPathToTexture.value(), m_savable);
+            }
+            throw std::logic_error("Expected struct with information about buffer ");
+            });
 
-    });
+        }
 }
 
 void ApplicationCore::VTextureAsset::LoadInternalFromBuffer()

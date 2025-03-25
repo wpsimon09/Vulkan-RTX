@@ -12,10 +12,8 @@
 
 namespace ApplicationCore {
     Material::Material(std::shared_ptr<VulkanUtils::VEffect> materialEffect, MaterialPaths& materialPaths,
-        AssetsManager& assets_manager):m_materialEffect(materialEffect), m_textureView(), m_materialPaths(materialPaths)
+        AssetsManager& assets_manager): m_textureView(), m_materialPaths(materialPaths), BaseMaterial(materialEffect)
     {
-        ID = ++MaterialIndexCounter;
-        m_initialEffect = materialEffect;
 
         if (!materialPaths.DiffuseMapPath.empty())
         {
@@ -54,10 +52,6 @@ namespace ApplicationCore {
         m_materialName = newName;
     }
 
-    void Material::ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect)
-    {
-        m_materialEffect = newEffect;
-    }
 
     void Material::ResetEffect()
     {
