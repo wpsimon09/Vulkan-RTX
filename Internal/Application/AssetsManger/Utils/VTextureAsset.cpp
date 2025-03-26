@@ -114,26 +114,28 @@ VulkanCore::VImage2& ApplicationCore::VTextureAsset::GetHandleByRef()
 
 void ApplicationCore::VTextureAsset::LoadInternal()
 {
-        if (m_textureAssetType == ETextureAssetType::EditorBillboard ||
-            m_textureAssetType == ETextureAssetType::Texture)
+        std::visit([this] (auto& imageData)
         {
-            std::get<std::future<VulkanStructs::ImageData<>>>(m_imageFormat) = std::async([this](){
-            if(m_originalPathToTexture.has_value()){
-                return ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
+            using T = std::decay_t<decltype(imageData)>;
+            if constexpr  (std::is_same_v<T, std::future<VulkanStructs::ImageData<>>>)
+            {
+                imageData = std::async([this](){
+                if(m_originalPathToTexture.has_value()){
+                    return ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
+                }
+                throw std::logic_error("Expected struct with information about buffer ");
+                });
             }
-            throw std::logic_error("Expected struct with information about buffer ");
-            });
-        }
-        else
-        {
-            std::get<std::future<VulkanStructs::ImageData<float>>>(m_imageFormat) = std::async([this](){
-            if(m_originalPathToTexture.has_value()){
-                return ApplicationCore::LoadHDRImage(this->m_originalPathToTexture.value(), m_savable);
+            else if constexpr (std::is_same_v<T, std::future<VulkanStructs::ImageData<float>>>)
+            {
+               imageData = std::async([this](){
+                    if(m_originalPathToTexture.has_value()){
+                        return ApplicationCore::LoadHDRImage(this->m_originalPathToTexture.value(), m_savable);
+                    }
+                    throw std::logic_error("Expected struct with information about buffer ");
+                    });
             }
-            throw std::logic_error("Expected struct with information about buffer ");
-            });
-
-        }
+        }, m_imageFormat);
 }
 
 void ApplicationCore::VTextureAsset::LoadInternalFromBuffer()
