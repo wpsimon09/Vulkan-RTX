@@ -14,6 +14,7 @@
 
 #include "Application/Enums/ClientEnums.hpp"
 #include "Application/Rendering/Material/MaterialStructs.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
@@ -24,7 +25,6 @@ namespace ApplicationCore
 
 namespace ApplicationCore
 {
-    struct TextureBufferView;
     enum class EEffectType : std::uint8_t;
 }
 
@@ -101,6 +101,7 @@ public:
     //=========================
     void GetTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture, const std::string& path, bool saveToDisk = false);
     void GetTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture, const std::string& textureID, TextureBufferInfo& data, bool saveToDisk = false);
+    void GetHDRTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture, const std::string& path, bool saveToDisk = false);
     void GetDummyTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture) const { texture = m_dummyTexture; }
     std::vector<TextureBufferView> ReadBackAllTextures(std::vector<std::byte>& data);
 
@@ -118,9 +119,8 @@ public:
     void AddMaterial(MaterialPaths& paths, std::shared_ptr<PBRMaterial> material);
     std::shared_ptr<StaticMesh> GetEditorBilboardMesh(EEditorIcon icon);
 
-    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::SkyBoxMaterial>>& GetAllSkyBoxMaterials()
-    std::shared_ptr<ApplicationCore::SkyBoxMaterial> GetSkyBoxMaterial(std::string& HDRPath);
-    void AddSkyBoxMaterial(const std::string& HDRPath);
+    std::vector<std::shared_ptr<ApplicationCore::SkyBoxMaterial>>& GetAllSkyBoxMaterials();
+
 
     //=========================
     // Buffer Allocator
@@ -189,9 +189,10 @@ private:
     std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_dummyTextures;
     std::unordered_map<EEditorIcon, std::shared_ptr<PBRMaterial>> m_editorIconsMaterials;
     std::unordered_map<EMeshGeometryType, VulkanStructs::MeshData> m_preloadedMeshes;
-    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures2;
 
-    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::SkyBoxMaterial>> m_skyBoxMaterials;
+    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures2;
+    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_HDRTextures;
+    std::vector<std::shared_ptr<ApplicationCore::SkyBoxMaterial>> m_skyBoxMaterials;
 
     VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
 

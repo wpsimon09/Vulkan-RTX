@@ -59,6 +59,11 @@ namespace VulkanUtils
         UnlitSingleTexture,
         ForwardShadingDstSet> ;
 
+    using DescriptorSetTemplateVariantRef = std::variant<
+        std::reference_wrapper<BasicDescriptorSet>,
+        std::reference_wrapper<UnlitSingleTexture>,
+        std::reference_wrapper<ForwardShadingDstSet>> ;
+
     struct DescriptorSetData
     {
         vk::DescriptorBufferInfo cameraUBOBuffer; // for camera uniform buffer

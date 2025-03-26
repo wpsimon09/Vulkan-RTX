@@ -7,8 +7,14 @@
 
 
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
+#include "Application/Utils/LinearyTransformedCosinesValues.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore {
     PBRMaterial::PBRMaterial(std::shared_ptr<VulkanUtils::VEffect> materialEffect, MaterialPaths& materialPaths,
@@ -47,10 +53,52 @@ namespace ApplicationCore {
         return m_materialEffect;
     }
 
+    void UpdateGPU(VulkanUtils::DescriptorSetTemplateVariant updateStruct){
+       
+
+    }
+
+
 
 
     void PBRMaterial::ResetEffect()
     {
         m_materialEffect = m_initialEffect;
+    }
+
+    void PBRMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct)
+    {
+        std::visit([this] (auto& descriptorTemplateStruct) {
+
+            auto &effectDstStruct = descriptorTemplateStruct.get();
+            using T = std::decay_t<decltype(effectDstStruct)>;
+
+            if constexpr (std::is_same_v<T, VulkanUtils::BasicDescriptorSet>)
+            {
+
+            }
+            else if constexpr (std::is_same_v<T, VulkanUtils::UnlitSingleTexture>)
+            {
+                auto& unlitSingelTextureEffect = static_cast<VulkanUtils::UnlitSingleTexture&>(effectDstStruct);
+                unlitSingelTextureEffect.texture2D_1 = m_textures[ETextureType::Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+
+            }
+            else if constexpr (std::is_same_v<T, VulkanUtils::ForwardShadingDstSet>)
+            {
+                auto& forwardShadingDstSet = static_cast<VulkanUtils::ForwardShadingDstSet&>(effectDstStruct);
+
+                forwardShadingDstSet.texture2D_1 = m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+                forwardShadingDstSet.texture2D_2 = m_textures[normal]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+                forwardShadingDstSet.texture2D_3 = m_textures[arm]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+                forwardShadingDstSet.texture2D_4 = m_textures[emissive]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+            }
+
+        }, updateStruct);
+
     }
 } // ApplicationCore

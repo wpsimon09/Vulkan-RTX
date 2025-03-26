@@ -17,6 +17,8 @@
 #endif
 #include "BaseMaterial.hpp"
 #include "MaterialStructs.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
 
 namespace VulkanUtils
 {
@@ -44,8 +46,8 @@ namespace ApplicationCore
         int widht, height;
         int materialIndex = -1;
         std::string path;
-        ApplicationCore::VTextureAsset* textureAsset;
-    }; 
+       ApplicationCore::VTextureAsset* textureAsset;
+    };
 
     class AssetsManager;
 
@@ -63,6 +65,7 @@ namespace ApplicationCore
         MaterialPaths&                                          GetMaterialPaths() { return m_materialPaths; }
 
         void                                                    ResetEffect();
+        void                                                    UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct) override;
 
     private:
         std::array<std::shared_ptr<ApplicationCore::VTextureAsset>,MAX_TEXTURE_COUNT> m_textures;
