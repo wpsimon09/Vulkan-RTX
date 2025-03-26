@@ -52,6 +52,10 @@ namespace ApplicationCore
         {
             mesh.second->Destroy();
         }
+        for (auto& hdr : m_HDRTextures)
+        {
+            hdr.second->Destroy();
+        }
         for (auto& textureAsset : m_textures2){
             textureAsset.second->Destroy();
         }
@@ -155,6 +159,16 @@ namespace ApplicationCore
         texture = m_textures2[data.textureID];
     }
 
+    void AssetsManager::GetHDRTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture, const std::string& path,
+        bool saveToDisk)
+    {
+        if (!m_HDRTextures.contains(path))
+        {
+            m_HDRTextures[path] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, m_dummyImage, ETextureAssetType::HDRTexture, path);
+        }
+        texture = m_HDRTextures[path];
+    }
+
 
     std::vector<std::shared_ptr<PBRMaterial>> AssetsManager::GetAllMaterials() const
     {
@@ -197,7 +211,7 @@ namespace ApplicationCore
         return std::move(mesh);
     }
 
-    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::SkyBoxMaterial>>& AssetsManager::
+    std::vector<std::shared_ptr<ApplicationCore::SkyBoxMaterial>>& AssetsManager::
     GetAllSkyBoxMaterials()
     {
         return m_skyBoxMaterials;
@@ -221,20 +235,6 @@ namespace ApplicationCore
         return {};
     }
 
-    std::shared_ptr<ApplicationCore::SkyBoxMaterial> AssetsManager::GetSkyBoxMaterial(std::string& HDRPath)
-    {
-        if (!m_skyBoxMaterials.contains(HDRPath))
-        {
-            m_skyBoxMaterials[HDRPath] = std::make_shared<SkyBoxMaterial>(HDRPath, *this);
-        }
-    }
-
-    void AssetsManager::AddSkyBoxMaterial(const std::string& HDRPath)
-    {
-        m_skyBoxMaterials[HDRPath]
-            = std::make_shared<ApplicationCore::SkyBoxMaterial>(HDRPath, *this );
-
-    }
 
     void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<StaticMesh> mesh)
     {
@@ -302,7 +302,7 @@ namespace ApplicationCore
         m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
         MathUtils::LUT.LTCInverse =  std::make_shared<VTextureAsset>(m_device, std::move(ltcTexture));
 
-        AddSkyBoxMaterial("/Resources/HDRs/default.hdr");
+        m_skyBoxMaterials.emplace_back(std::make_shared<ApplicationCore::SkyBoxMaterial>("Resources/HDRs/default.hdr", *this));
 
         Sync();
     }
