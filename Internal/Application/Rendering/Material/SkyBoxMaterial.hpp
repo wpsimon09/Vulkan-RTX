@@ -22,7 +22,9 @@ public:
 
         void                                                ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect) override;
         std::shared_ptr<ApplicationCore::VTextureAsset>     GetHDRTexture();
-private:
+        void UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariant updateStruct) override;
+
+    private:
         std::shared_ptr<ApplicationCore::VTextureAsset> m_HDRTexture;
         SkyBoxMaterialDescription m_skyBoxMaterialDescription;
 };

@@ -24,4 +24,8 @@ namespace ApplicationCore {
     {
         return m_HDRTexture;;
     }
+
+    void SkyBoxMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariant updateStruct)
+    {
+    }
 } // ApplicationCore

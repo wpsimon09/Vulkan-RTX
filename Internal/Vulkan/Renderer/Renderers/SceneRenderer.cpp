@@ -8,6 +8,7 @@
 #include <Vulkan/Utils/VIimageTransitionCommands.hpp>
 
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Utils/LinearyTransformedCosinesValues.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
@@ -68,15 +69,14 @@ namespace Renderer
                     drawCall.effect->GetPipelineLayout(), 0,
                     basicEffect, m_device.DispatchLoader);
 
-
             }
             else if constexpr (std::is_same_v<T, VulkanUtils::UnlitSingleTexture>)
             {
                 auto& unlitSingelTextureEffect = static_cast<VulkanUtils::UnlitSingleTexture&>(effectDstStruct);
                 unlitSingelTextureEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
                 unlitSingelTextureEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
-                unlitSingelTextureEffect.texture2D_1 = drawCall.material->GetTexture(ETextureType::Diffues)->GetHandle()->
-                                                            GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+                drawCall.material->UpdateGPUTextureData(unlitSingelTextureEffect);
 
                 cmdBuffer.pushDescriptorSetWithTemplateKHR(
                     drawCall.effect->GetUpdateTemplate(),
@@ -97,18 +97,7 @@ namespace Renderer
                 forwardShaddingEffect.buffer5 = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(objectIndex)[
                     currentFrameIndex];
 
-                forwardShaddingEffect.texture2D_1 =
-                    drawCall.material->GetTexture(Diffues)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-
-                forwardShaddingEffect.texture2D_2 =
-                    drawCall.material->GetTexture(normal)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-
-                forwardShaddingEffect.texture2D_3 =
-                    drawCall.material->GetTexture(arm)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-
-                forwardShaddingEffect.texture2D_4 =
-                    drawCall.material->GetTexture(emissive)->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-
+                drawCall.material->UpdateGPUTextureData(forwardShaddingEffect);
 
                 forwardShaddingEffect.texture2D_5 = MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
                 forwardShaddingEffect.texture2D_6 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);

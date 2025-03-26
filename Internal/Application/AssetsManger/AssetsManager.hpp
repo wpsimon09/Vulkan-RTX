@@ -14,6 +14,7 @@
 
 #include "Application/Enums/ClientEnums.hpp"
 #include "Application/Rendering/Material/MaterialStructs.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
@@ -24,7 +25,6 @@ namespace ApplicationCore
 
 namespace ApplicationCore
 {
-    struct TextureBufferView;
     enum class EEffectType : std::uint8_t;
 }
 

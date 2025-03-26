@@ -4,6 +4,8 @@
 
 #ifndef BASEMATERIAL_HPP
 #define BASEMATERIAL_HPP
+#include "Vulkan/Utils/VPushDescriptorManager/VDescriptorSetStructs.hpp"
+#include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include <memory>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>
@@ -11,7 +13,8 @@
 namespace VulkanUtils
 {
     class VEffect;
-}
+    class VUniformBufferManager;
+};
 
 namespace ApplicationCore {
 
@@ -32,7 +35,7 @@ public:
     virtual void                                            ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect);
     std::string&                                            GetMaterialName() { return m_materialName; };
     void                                                    SetMaterialname(std::string newName);
-    void                                                    UpdateGPU(vk::CommandBuffer& cmdBuferr) = 0;                         
+    virtual void                                            UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariant updateStruct) = 0;
 
 
 protected:

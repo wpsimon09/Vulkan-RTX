@@ -6,6 +6,7 @@
 
 #include "Application/Client.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/Structs/LightStructs.hpp"

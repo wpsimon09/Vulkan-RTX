@@ -6,9 +6,11 @@
 #define VUNIFORMBUFFERMANAGER_HPP
 #include <memory>
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
-#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "UnifromsRegistry.hpp"
 #include "VUniform.hpp"
+
+struct PBRMaterialNoTexture;
+struct PBRMaterialFeaturees;
 
 namespace VulkanStructs
 {
