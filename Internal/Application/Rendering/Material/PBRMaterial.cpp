@@ -8,6 +8,8 @@
 
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Utils/LinearyTransformedCosinesValues.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
@@ -64,10 +66,11 @@ namespace ApplicationCore {
         m_materialEffect = m_initialEffect;
     }
 
-    void PBRMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariant updateStruct)
+    void PBRMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct)
     {
-        std::visit([this] (auto& effectDstStruct) {
+        std::visit([this] (auto& descriptorTemplateStruct) {
 
+            auto &effectDstStruct = descriptorTemplateStruct.get();
             using T = std::decay_t<decltype(effectDstStruct)>;
 
             if constexpr (std::is_same_v<T, VulkanUtils::BasicDescriptorSet>)

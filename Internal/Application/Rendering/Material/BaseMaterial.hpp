@@ -35,7 +35,7 @@ public:
     virtual void                                            ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect);
     std::string&                                            GetMaterialName() { return m_materialName; };
     void                                                    SetMaterialname(std::string newName);
-    virtual void                                            UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariant updateStruct) = 0;
+    virtual void                                            UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct) = 0;
 
 
 protected:

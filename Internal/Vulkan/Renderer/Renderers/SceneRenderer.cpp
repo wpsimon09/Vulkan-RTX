@@ -56,8 +56,7 @@ namespace Renderer
         std::visit([this,&currentFrameIndex,&objectIndex,&drawCall, &uniformBufferManager, cmdBuffer ](auto& effectDstStruct) {
             auto& material = drawCall.material;
             using T = std::decay_t<decltype(effectDstStruct)>;
-
-            if constexpr (std::is_same_v<T, VulkanUtils::BasicDescriptorSet>)
+                        if constexpr (std::is_same_v<T, VulkanUtils::BasicDescriptorSet>)
             {
                 auto& basicEffect = static_cast<VulkanUtils::BasicDescriptorSet&>(effectDstStruct);
                 basicEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
