@@ -9,7 +9,7 @@
 #include <thread>
 #include <future>
 #include <unordered_map>
-#include "Application/Rendering/Material/Material.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
@@ -25,6 +25,7 @@
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
+#include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "EffectsLibrary/EffectsLibrary.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -155,9 +156,9 @@ namespace ApplicationCore
     }
 
 
-    std::vector<std::shared_ptr<Material>> AssetsManager::GetAllMaterials() const
+    std::vector<std::shared_ptr<PBRMaterial>> AssetsManager::GetAllMaterials() const
     {
-        std::vector<std::shared_ptr<Material>> materials;
+        std::vector<std::shared_ptr<PBRMaterial>> materials;
         //materials.reserve(m_materials.size() +  m_editorIconsMaterials.size() );
 
 
@@ -180,7 +181,7 @@ namespace ApplicationCore
         return materials;
     }
 
-    void AssetsManager::AddMaterial(MaterialPaths& paths, std::shared_ptr<Material> material)
+    void AssetsManager::AddMaterial(MaterialPaths& paths, std::shared_ptr<PBRMaterial> material)
     {
         m_materials.emplace_back(material);
     }
@@ -194,6 +195,12 @@ namespace ApplicationCore
         mesh->SetName( IconToString(icon)+"##" + VulkanUtils::random_string(4));
 
         return std::move(mesh);
+    }
+
+    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::SkyBoxMaterial>>& AssetsManager::
+    GetAllSkyBoxMaterials()
+    {
+        return m_skyBoxMaterials;
     }
 
     std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> AssetsManager::GetEffects() const
@@ -212,6 +219,21 @@ namespace ApplicationCore
         if (it != m_models.end())
             return it->second;
         return {};
+    }
+
+    std::shared_ptr<ApplicationCore::SkyBoxMaterial> AssetsManager::GetSkyBoxMaterial(std::string& HDRPath)
+    {
+        if (!m_skyBoxMaterials.contains(HDRPath))
+        {
+            m_skyBoxMaterials[HDRPath] = std::make_shared<SkyBoxMaterial>(HDRPath, *this);
+        }
+    }
+
+    void AssetsManager::AddSkyBoxMaterial(const std::string& HDRPath)
+    {
+        m_skyBoxMaterials[HDRPath]
+            = std::make_shared<ApplicationCore::SkyBoxMaterial>(HDRPath, *this );
+
     }
 
     void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<StaticMesh> mesh)
@@ -240,13 +262,13 @@ namespace ApplicationCore
         m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device, m_dummyImage);
 
         MaterialPaths paths{};
-        m_dummyMaterial = std::make_shared<ApplicationCore::Material>(
+        m_dummyMaterial = std::make_shared<ApplicationCore::PBRMaterial>(
             m_effectsLibrary.GetEffect(EEffectType::ForwardShader),
             paths, *this);
 
         MaterialPaths directionalLightBillboard{};
         directionalLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-directional.png";
-        auto mat = std::make_shared<ApplicationCore::Material>(
+        auto mat = std::make_shared<ApplicationCore::PBRMaterial>(
             m_effectsLibrary.GetEffect(EEffectType::EditorBilboard),
             directionalLightBillboard, *this);
         mat->SetMaterialname("Directional light editor billboard");
@@ -255,7 +277,7 @@ namespace ApplicationCore
         MaterialPaths pointLightBillboard{};
         pointLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-point.png";
 
-        mat = std::make_shared<ApplicationCore::Material>(
+        mat = std::make_shared<ApplicationCore::PBRMaterial>(
             m_effectsLibrary.GetEffect(EEffectType::EditorBilboard),
             pointLightBillboard, *this);
         mat->SetMaterialname("Point light editor billboard");
@@ -263,7 +285,7 @@ namespace ApplicationCore
 
         MaterialPaths areaLightBillboard{};
         areaLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-area.png";
-        mat = std::make_shared<ApplicationCore::Material>(
+        mat = std::make_shared<ApplicationCore::PBRMaterial>(
             m_effectsLibrary.GetEffect(EEffectType::EditorBilboard),
             areaLightBillboard, *this);
         mat->SetMaterialname("Area light editor billboard");
@@ -279,6 +301,8 @@ namespace ApplicationCore
         ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, MathUtils::LTCInverse_ImageData);
         m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
         MathUtils::LUT.LTCInverse =  std::make_shared<VTextureAsset>(m_device, std::move(ltcTexture));
+
+        AddSkyBoxMaterial("/Resources/HDRs/default.hdr");
 
         Sync();
     }

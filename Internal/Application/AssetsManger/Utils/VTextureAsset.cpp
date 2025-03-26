@@ -64,17 +64,25 @@ ApplicationCore::VTextureAsset::VTextureAsset(
 
 void ApplicationCore::VTextureAsset::Sync()
 {
+
+
     if(m_isInSync)
         return;
-    if (m_loadedImageData.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready ){
-        return;
-    }
 
-    m_isInSync = true;
-    auto imageData = m_loadedImageData.get();
-    m_assetPath = imageData.fileName;
-    m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,imageData);
-    m_transferOpsManager.DestroyBuffer(m_deviceHandle->GetImageStagingvBuffer(), true);
+    std::visit([this] (auto& imageData){
+
+        if (imageData.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready ){
+            return;
+        }else
+        {
+            auto fetchedData = imageData.get();
+            m_isInSync = true;
+            m_assetPath = fetchedData.fileName;
+            m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,fetchedData);
+            m_transferOpsManager.DestroyBuffer(m_deviceHandle->GetImageStagingvBuffer(), true);
+        }
+
+    }, m_imageFormat);
 }
 
 void ApplicationCore::VTextureAsset::Destroy()
@@ -106,18 +114,31 @@ VulkanCore::VImage2& ApplicationCore::VTextureAsset::GetHandleByRef()
 
 void ApplicationCore::VTextureAsset::LoadInternal()
 {
-        m_loadedImageData = std::async([this](){
-        if(m_originalPathToTexture.has_value()){
-            return ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
+        if (m_textureAssetType == ETextureAssetType::EditorBillboard ||
+            m_textureAssetType == ETextureAssetType::Texture)
+        {
+            std::get<std::future<VulkanStructs::ImageData<>>>(m_imageFormat) = std::async([this](){
+            if(m_originalPathToTexture.has_value()){
+                return ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
+            }
+            throw std::logic_error("Expected struct with information about buffer ");
+            });
         }
-        throw std::logic_error("Expected struct with information about buffer ");
+        else
+        {
+            std::get<std::future<VulkanStructs::ImageData<float>>>(m_imageFormat) = std::async([this](){
+            if(m_originalPathToTexture.has_value()){
+                return ApplicationCore::LoadHDRImage(this->m_originalPathToTexture.value(), m_savable);
+            }
+            throw std::logic_error("Expected struct with information about buffer ");
+            });
 
-    });
+        }
 }
 
 void ApplicationCore::VTextureAsset::LoadInternalFromBuffer()
 {
-        m_loadedImageData = std::async([this](){
+        m_imageFormat = std::async([this](){
         if(m_textureBufferInfo.has_value()){
             return ApplicationCore::LoadImage(this->m_textureBufferInfo.value(), m_textureBufferInfo.value().textureID, m_savable);
         }

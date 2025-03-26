@@ -6,7 +6,7 @@
 
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
-#include "Application/Rendering/Material/Material.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 
 bool VulkanUtils::RenderContext::CompareByDeptDesc(const VulkanStructs::DrawCallData& DrawCallA,
                                                    const VulkanStructs::DrawCallData& DrawCallB)

@@ -23,7 +23,7 @@ namespace VulkanUtils
 
 namespace ApplicationCore
 {
-    class Material;
+    class PBRMaterial;
     class EffectsLibrary;
 }
 
@@ -189,7 +189,7 @@ struct DrawCallData
 
     unsigned long key = 0;
 
-    std::shared_ptr<ApplicationCore::Material> material;
+    std::shared_ptr<ApplicationCore::PBRMaterial> material;
     std::shared_ptr<VulkanUtils::VEffect> effect;
 };
 

@@ -81,8 +81,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Samplers/VSamplers.hpp
         Internal/Vulkan/VulkanCore/Samplers/VSamplers.cpp
         Internal/Vulkan/Global/VulkanStructs.hpp
-        Internal/Application/Rendering/Material/Material.cpp
-        Internal/Application/Rendering/Material/Material.hpp
+        Internal/Application/Rendering/Material/PBRMaterial.cpp
+        Internal/Application/Rendering/Material/PBRMaterial.hpp
         Internal/Application/Rendering/Scene/Scene.cpp
         Internal/Application/Rendering/Scene/Scene.hpp
         Internal/Application/Rendering/Scene/SceneNode.cpp
@@ -190,6 +190,10 @@ set(SOURCES
         Internal/Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp
         Internal/Vulkan/Utils/VRenderingContext/VRenderingContext.cpp
         Internal/Vulkan/Utils/VRenderingContext/VRenderingContext.hpp
+        Internal/Application/Rendering/Material/SkyBoxMaterial.cpp
+        Internal/Application/Rendering/Material/SkyBoxMaterial.hpp
+        Internal/Application/Rendering/Material/BaseMaterial.cpp
+        Internal/Application/Rendering/Material/BaseMaterial.hpp
 
 )
 

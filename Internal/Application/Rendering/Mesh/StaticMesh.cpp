@@ -5,13 +5,13 @@
 #include "MeshData.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Logger/Logger.hpp"
-#include "Application/Rendering/Material/Material.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
-ApplicationCore::StaticMesh::StaticMesh(VulkanStructs::MeshData& geometryData,std::shared_ptr<Material> material, EMeshGeometryType geometryType):m_meshGeomtryData(geometryData)
+ApplicationCore::StaticMesh::StaticMesh(VulkanStructs::MeshData& geometryData,std::shared_ptr<PBRMaterial> material, EMeshGeometryType geometryType):m_meshGeomtryData(geometryData)
 {
     m_geometryType = geometryType;
     m_transformations = std::make_unique<Transformations>();
@@ -25,8 +25,8 @@ ApplicationCore::StaticMesh::StaticMesh(const ApplicationCore::StaticMesh& other
     m_geometryType = other.m_geometryType;
     m_transformations = std::make_unique<Transformations>();
 
-    m_currentMaterial = std::make_shared<Material>(*other.m_currentMaterial);
-    m_originalMaterial = std::make_shared<Material>(*other.m_originalMaterial);
+    m_currentMaterial = std::make_shared<PBRMaterial>(*other.m_currentMaterial);
+    m_originalMaterial = std::make_shared<PBRMaterial>(*other.m_originalMaterial);
 }
 
 

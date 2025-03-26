@@ -122,7 +122,7 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
 
 
 void VulkanUtils::VUniformBufferManager::UpdatePerMaterialUniformData(int frameIndex,
-                                                                      const std::shared_ptr<ApplicationCore::Material>& material) const
+                                                                      const std::shared_ptr<ApplicationCore::PBRMaterial>& material) const
 {
 
 }

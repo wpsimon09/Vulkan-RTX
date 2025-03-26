@@ -23,7 +23,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
-#include "Application/Rendering/Material/Material.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 
     namespace ApplicationCore
 {
@@ -46,7 +46,7 @@
 
         std::vector<std::shared_ptr<StaticMesh>> m_meshes;
         std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures;
-        std::vector<std::shared_ptr<Material>> materials;
+        std::vector<std::shared_ptr<PBRMaterial>> materials;
 
         Utils::Logger::LogInfoClient("Loading model from path: " + gltfPath.string());
 
@@ -100,8 +100,8 @@
                 for (fastgltf::Material& m : gltf.materials)
                 {
                     MaterialPaths paths = {.saveToDisk = true};
-                    std::shared_ptr<Material> material = std::make_shared<
-                        ApplicationCore::Material>(m_assetsManager.GetEffects()[EEffectType::ForwardShader],paths, m_assetsManager);
+                    std::shared_ptr<PBRMaterial> material = std::make_shared<
+                        ApplicationCore::PBRMaterial>(m_assetsManager.GetEffects()[EEffectType::ForwardShader],paths, m_assetsManager);
                     material->SetSavable(true);
                     material->GetMaterialDescription().values.diffuse.x = m.pbrData.baseColorFactor.x();
                     material->GetMaterialDescription().values.diffuse.y = m.pbrData.baseColorFactor.y();
@@ -171,8 +171,8 @@
             {
 
                 MaterialPaths paths = {.saveToDisk = true};
-                std::shared_ptr<Material> material = std::make_shared<
-                    ApplicationCore::Material>(m_assetsManager.GetEffects()[EEffectType::ForwardShader],paths, m_assetsManager);
+                std::shared_ptr<PBRMaterial> material = std::make_shared<
+                    ApplicationCore::PBRMaterial>(m_assetsManager.GetEffects()[EEffectType::ForwardShader],paths, m_assetsManager);
                 materials.emplace_back(material);
                 m_assetsManager.m_materials.emplace_back(material);
 
@@ -200,7 +200,7 @@
 
                 MaterialPaths paths;
 
-                std::shared_ptr<Material> mat = std::make_shared<ApplicationCore::Material>(m_assetsManager.GetEffects()[EEffectType::ForwardShader],paths, m_assetsManager);
+                std::shared_ptr<PBRMaterial> mat = std::make_shared<ApplicationCore::PBRMaterial>(m_assetsManager.GetEffects()[EEffectType::ForwardShader],paths, m_assetsManager);
 
 
                 for (auto& p : m.primitives)

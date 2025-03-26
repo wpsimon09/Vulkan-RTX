@@ -111,6 +111,44 @@ namespace ApplicationCore
         return imageData;
     }
 
+    VulkanStructs::ImageData<float> LoadHDRImage(const std::string& path, bool saveToDisk)
+    {
+        VulkanStructs::ImageData<float> imageData{};
+
+        imageData.pixels = reinterpret_cast<float *>(stbi_loadf(path.c_str(), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
+        imageData.channels = 4;
+        auto imageName = path.substr(path.rfind("/") + 1);
+        imageData.fileName = GlobalVariables::textureFolder / imageName;
+        imageData.sourceType = EImageSource::File;
+        imageData.format  = vk::Format::eR32G32B32A32Sfloat;
+        auto folder = GlobalVariables::textureFolder.string();
+
+        if (saveToDisk)
+        {
+            if (CheckIfImageExistsInFolader(GlobalVariables::textureFolder, imageData.fileName))
+            {
+                Utils::Logger::LogInfo("Image already exists in the folder, skipping saving");
+            }
+            else
+            {
+                SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte> &>(imageData.pixels));
+            }
+        }
+
+        if (!imageData.pixels)
+        {
+            throw std::runtime_error("Float texture not found, this has no fallback");
+        }
+        else
+        {
+            Utils::Logger::LogSuccess("Image at path:\t" + path + "\n read successfully");
+        }
+        //-> to test the concurrency uncomment this line
+        // std::this_thread::sleep_for(std::chrono::seconds(7));
+
+        return imageData;
+    }
+
     void SaveImageAsPNG(int width, int height, int channels, const std::string &path,
                         const std::vector<std::byte> &data)
     {

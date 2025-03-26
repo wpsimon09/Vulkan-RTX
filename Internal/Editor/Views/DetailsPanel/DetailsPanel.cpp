@@ -8,7 +8,7 @@
 #include <imgui.h>
 
 #include "Application/AssetsManger/AssetsManager.hpp"
-#include "Application/Rendering/Material/Material.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/AreaLightNode.hpp"
 #include "Application/Rendering/Scene/DirectionLightNode.hpp"

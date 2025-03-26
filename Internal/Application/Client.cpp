@@ -8,7 +8,7 @@
 #include "Rendering/Mesh/StaticMesh.hpp"
 #include "VertexArray/VertexArray.hpp"
 #include "Rendering/Transformations/Transformations.hpp"
-#include "Application/Rendering/Material/Material.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/GLTFLoader/GltfLoader.hpp"
 #include "Application/GLTFExporter/GLTFExporter.hpp"
