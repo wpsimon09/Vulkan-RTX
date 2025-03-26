@@ -19,6 +19,11 @@
 
 namespace ApplicationCore
 {
+    class SkyBoxMaterial;
+}
+
+namespace ApplicationCore
+{
     struct TextureBufferView;
     enum class EEffectType : std::uint8_t;
 }
@@ -113,6 +118,10 @@ public:
     void AddMaterial(MaterialPaths& paths, std::shared_ptr<PBRMaterial> material);
     std::shared_ptr<StaticMesh> GetEditorBilboardMesh(EEditorIcon icon);
 
+    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::SkyBoxMaterial>>& GetAllSkyBoxMaterials()
+    std::shared_ptr<ApplicationCore::SkyBoxMaterial> GetSkyBoxMaterial(std::string& HDRPath);
+    void AddSkyBoxMaterial(const std::string& HDRPath);
+
     //=========================
     // Buffer Allocator
     //=========================
@@ -181,7 +190,8 @@ private:
     std::unordered_map<EEditorIcon, std::shared_ptr<PBRMaterial>> m_editorIconsMaterials;
     std::unordered_map<EMeshGeometryType, VulkanStructs::MeshData> m_preloadedMeshes;
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures2;
-    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_HDRTextures;
+
+    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::SkyBoxMaterial>> m_skyBoxMaterials;
 
     VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
 

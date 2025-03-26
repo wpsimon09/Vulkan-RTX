@@ -18,7 +18,7 @@ namespace ApplicationCore {
 
     class SkyBoxMaterial:public ApplicationCore::BaseMaterial {
 public:
-        SkyBoxMaterial(std::string& path, AssetsManager& assetsManager);
+        SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager);
 
         void                                                ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect) override;
         std::shared_ptr<ApplicationCore::VTextureAsset>     GetHDRTexture();

@@ -25,6 +25,7 @@
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
+#include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "EffectsLibrary/EffectsLibrary.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -196,6 +197,12 @@ namespace ApplicationCore
         return std::move(mesh);
     }
 
+    std::unordered_map<std::string, std::shared_ptr<ApplicationCore::SkyBoxMaterial>>& AssetsManager::
+    GetAllSkyBoxMaterials()
+    {
+        return m_skyBoxMaterials;
+    }
+
     std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> AssetsManager::GetEffects() const
     {
         return m_effectsLibrary.effects;
@@ -212,6 +219,21 @@ namespace ApplicationCore
         if (it != m_models.end())
             return it->second;
         return {};
+    }
+
+    std::shared_ptr<ApplicationCore::SkyBoxMaterial> AssetsManager::GetSkyBoxMaterial(std::string& HDRPath)
+    {
+        if (!m_skyBoxMaterials.contains(HDRPath))
+        {
+            m_skyBoxMaterials[HDRPath] = std::make_shared<SkyBoxMaterial>(HDRPath, *this);
+        }
+    }
+
+    void AssetsManager::AddSkyBoxMaterial(const std::string& HDRPath)
+    {
+        m_skyBoxMaterials[HDRPath]
+            = std::make_shared<ApplicationCore::SkyBoxMaterial>(HDRPath, *this );
+
     }
 
     void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<StaticMesh> mesh)
@@ -280,6 +302,7 @@ namespace ApplicationCore
         m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
         MathUtils::LUT.LTCInverse =  std::make_shared<VTextureAsset>(m_device, std::move(ltcTexture));
 
+        AddSkyBoxMaterial("/Resources/HDRs/default.hdr");
 
         Sync();
     }

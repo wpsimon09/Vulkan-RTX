@@ -9,10 +9,10 @@
 #include "Application/Logger/Logger.hpp"
 
 namespace ApplicationCore {
-    SkyBoxMaterial::SkyBoxMaterial(std::string& path, AssetsManager& assetsManager)
+    SkyBoxMaterial::SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager)
         :BaseMaterial(assetsManager.GetEffectsLibrary().GetEffect(EEffectType::SkyBox))
     {
-        assetsManager.GetTexture(m_HDRTexture, path, false);
+       assetsManager.GetTexture(m_HDRTexture, path, false);
     }
 
     void SkyBoxMaterial::ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect)
