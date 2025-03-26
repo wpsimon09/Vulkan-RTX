@@ -5,6 +5,8 @@
 #ifndef BASEMATERIAL_HPP
 #define BASEMATERIAL_HPP
 #include <memory>
+#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_handles.hpp>
 
 namespace VulkanUtils
 {
@@ -30,6 +32,7 @@ public:
     virtual void                                            ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect);
     std::string&                                            GetMaterialName() { return m_materialName; };
     void                                                    SetMaterialname(std::string newName);
+    void                                                    UpdateGPU(vk::CommandBuffer& cmdBuferr) = 0;                         
 
 
 protected:
