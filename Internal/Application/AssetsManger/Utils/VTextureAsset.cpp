@@ -23,7 +23,8 @@ ApplicationCore::VTextureAsset::VTextureAsset(
     m_savable = m_textureAssetType != ETextureAssetType::EditorBillboard;
     m_textureSource = EImageSource::File;
     m_assetPath = texturePath;
-
+    if (m_textureAssetType == HDRTexture) m_imageFormat = std::future<VulkanStructs::ImageData<float>>();
+    else                                  m_imageFormat = std::future<VulkanStructs::ImageData<>>();
     VTextureAsset::Load();
 }
 
@@ -70,6 +71,7 @@ void ApplicationCore::VTextureAsset::Sync()
         return;
 
     std::visit([this] (auto& imageData){
+        if (!imageData.valid()) return;
 
         if (imageData.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready ){
             return;
@@ -114,28 +116,24 @@ VulkanCore::VImage2& ApplicationCore::VTextureAsset::GetHandleByRef()
 
 void ApplicationCore::VTextureAsset::LoadInternal()
 {
-        std::visit([this] (auto& imageData)
-        {
-            using T = std::decay_t<decltype(imageData)>;
-            if constexpr  (std::is_same_v<T, std::future<VulkanStructs::ImageData<>>>)
-            {
-                imageData = std::async([this](){
-                if(m_originalPathToTexture.has_value()){
-                    return ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
-                }
-                throw std::logic_error("Expected struct with information about buffer ");
-                });
-            }
-            else if constexpr (std::is_same_v<T, std::future<VulkanStructs::ImageData<float>>>)
-            {
-               imageData = std::async([this](){
-                    if(m_originalPathToTexture.has_value()){
-                        return ApplicationCore::LoadHDRImage(this->m_originalPathToTexture.value(), m_savable);
-                    }
-                    throw std::logic_error("Expected struct with information about buffer ");
-                    });
-            }
-        }, m_imageFormat);
+    if (m_textureAssetType == ETextureAssetType::HDRTexture)
+    {
+        m_imageFormat = std::async([this](){
+               if(m_originalPathToTexture.has_value()){
+                   return ApplicationCore::LoadHDRImage(this->m_originalPathToTexture.value(), m_savable);
+               }
+               throw std::logic_error("Expected struct with information about buffer ");
+        });
+    }else
+    {
+        m_imageFormat = std::async([this](){
+               if(m_originalPathToTexture.has_value()){
+                   return ApplicationCore::LoadImage(this->m_originalPathToTexture.value(), m_savable);
+               }
+               throw std::logic_error("Expected struct with information about buffer ");
+        });
+
+    }
 }
 
 void ApplicationCore::VTextureAsset::LoadInternalFromBuffer()

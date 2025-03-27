@@ -21,7 +21,8 @@ namespace ApplicationCore {
     void SkyBoxNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
                             VulkanUtils::RenderContext* renderingContext) const
     {
-                    VulkanStructs::DrawCallData data;
+            if (!m_sceneNodeMetaData.IsVisible) return;
+            VulkanStructs::DrawCallData data;
             data.firstIndex = 1;
 
             data.indexCount = m_mesh->GetMeshIndexCount();
