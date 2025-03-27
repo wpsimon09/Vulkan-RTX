@@ -58,7 +58,6 @@ namespace ApplicationCore
         explicit PBRMaterial(std::shared_ptr<VulkanUtils::VEffect> materialEffect, MaterialPaths& materialPaths, AssetsManager& assets_manager);
 
         PBRMaterialDescription&                                 GetMaterialDescription() { return m_materialDescription; }
-        std::shared_ptr<VulkanUtils::VEffect>&                  GetEffect();
         std::shared_ptr<ApplicationCore::VTextureAsset>&        GetTexture(ETextureType type) { return m_textures[type]; }
         ApplicationCore::VTextureAsset*                         GetTextureRawPtr(ETextureType type) const { return m_textures[type].get(); }
 

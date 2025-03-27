@@ -16,6 +16,11 @@
 #include "glm/glm.hpp"
 
 
+namespace ApplicationCore
+{
+    class BaseMaterial;
+}
+
 namespace VulkanUtils
 {
     class VEffect;
@@ -189,7 +194,7 @@ struct DrawCallData
 
     unsigned long key = 0;
 
-    std::shared_ptr<ApplicationCore::PBRMaterial> material;
+    ApplicationCore::BaseMaterial* material;
     std::shared_ptr<VulkanUtils::VEffect> effect;
 };
 

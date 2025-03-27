@@ -194,6 +194,8 @@ set(SOURCES
         Internal/Application/Rendering/Material/SkyBoxMaterial.hpp
         Internal/Application/Rendering/Material/BaseMaterial.cpp
         Internal/Application/Rendering/Material/BaseMaterial.hpp
+        Internal/Application/Rendering/Scene/SkyBoxNode.cpp
+        Internal/Application/Rendering/Scene/SkyBoxNode.hpp
 
 )
 

@@ -16,6 +16,16 @@ namespace ApplicationCore {
         m_materialEffect = newEffect;
     }
 
+    std::shared_ptr<VulkanUtils::VEffect>& BaseMaterial::GetEffect()
+    {
+        return m_materialEffect;
+    }
+
+    void BaseMaterial::ResetEffect()
+    {
+        m_materialEffect = m_initialEffect;
+    }
+
     void BaseMaterial::SetMaterialname(std::string newName)
     {
         m_materialName = newName;

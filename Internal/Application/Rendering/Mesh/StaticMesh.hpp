@@ -7,14 +7,25 @@
 
 #include <memory>
 #include "Application/Enums/ClientEnums.hpp"
+#include "Application/Rendering/Scene/PointLightNode.hpp"
+#include "Application/Rendering/Scene/Base/LightNode.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
 namespace ApplicationCore
 {
+    class AreaLightNode;
+}
+
+namespace ApplicationCore
+{
+    class DirectionLightNode;
+}
+
+namespace ApplicationCore
+{
     struct Vertex;
-    class PBRMaterial;
     class SceneNode;
     class Transformations;
     class AssetsManager;
@@ -24,7 +35,7 @@ namespace ApplicationCore
 
     class StaticMesh{
     public:
-        explicit StaticMesh(VulkanStructs::MeshData& geometryData,std::shared_ptr<PBRMaterial> material, EMeshGeometryType geometryType = Custom);
+        explicit StaticMesh(VulkanStructs::MeshData& geometryData,std::shared_ptr<BaseMaterial> material, EMeshGeometryType geometryType = Custom);
         StaticMesh(const ApplicationCore::StaticMesh& other);
 
         void ResetMaterial() {m_currentMaterial = m_originalMaterial;};
@@ -35,7 +46,7 @@ namespace ApplicationCore
 
         void SetName(std::string name);
 
-        void SetMaterial(std::shared_ptr<PBRMaterial> material) {m_currentMaterial = material;};
+        void SetMaterial(std::shared_ptr<BaseMaterial> material) {m_currentMaterial = material;};
     private:
         std::string MeshGeometryTypeToString(EMeshGeometryType geometryType);
         std::string m_name;
@@ -53,7 +64,7 @@ namespace ApplicationCore
 
     public:
         const uint32_t GetMeshIndexCount() const;
-        std::shared_ptr<PBRMaterial> GetMaterial() const {return m_currentMaterial;}  ;
+        std::shared_ptr<BaseMaterial> GetMaterial() const {return m_currentMaterial;}  ;
         VulkanStructs::MeshData* GetMeshData();
 
         const std::string& GetName(){return m_name;} const
@@ -67,11 +78,14 @@ namespace ApplicationCore
         EMeshGeometryType m_geometryType;
 
         VulkanStructs::MeshData m_meshGeomtryData;
-        std::shared_ptr<PBRMaterial> m_currentMaterial;
-        std::shared_ptr<PBRMaterial> m_originalMaterial;
+        std::shared_ptr<BaseMaterial> m_currentMaterial;
+        std::shared_ptr<BaseMaterial> m_originalMaterial;
 
 
         friend class ApplicationCore::SceneNode;
+        friend class ApplicationCore::DirectionLightNode;
+        friend class ApplicationCore::PointLightNode;
+        friend class ApplicationCore::AreaLightNode;
     };
 }
 

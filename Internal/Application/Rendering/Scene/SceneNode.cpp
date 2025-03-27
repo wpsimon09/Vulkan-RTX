@@ -220,7 +220,6 @@ namespace ApplicationCore
             data.indexData = &m_mesh->GetMeshData()->indexData;
 
             data.modelMatrix = m_transformation->GetModelMatrix();
-            data.material = m_mesh->m_currentMaterial;
             if (renderingContext->WireFrameRendering)
                 data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
             else if (m_mesh->m_currentMaterial->IsTransparent())
@@ -236,7 +235,7 @@ namespace ApplicationCore
 
             data.position = m_transformation->GetPosition();
             data.bounds = &m_mesh->GetMeshData()->bounds;
-            data.material = m_mesh->m_currentMaterial;
+            data.material = m_mesh->m_currentMaterial.get();
 
             renderingContext->AddDrawCall(data);
 

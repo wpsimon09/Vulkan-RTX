@@ -4,6 +4,8 @@
 
 #include "PointLightNode.hpp"
 
+#include "Application/Rendering/Material/PBRMaterial.hpp"
+
 namespace ApplicationCore {
     PointLightNode::PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh):LightNode<LightStructs::PointLight>(mesh),  m_sceneLightInfo(sceneLightInfo)
     {
@@ -47,7 +49,7 @@ namespace ApplicationCore {
             data.indexData = &m_mesh->GetMeshData()->indexData;
 
             data.modelMatrix = m_transformation->GetModelMatrix();
-            data.material = m_mesh->GetMaterial();
+            data.material = m_mesh->GetMaterial().get();
             if (renderingContext->WireFrameRendering)
                 data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
             else
@@ -59,7 +61,6 @@ namespace ApplicationCore {
             data.position = m_transformation->GetPosition();
 
             data.bounds = &m_mesh->GetMeshData()->bounds;
-            data.material = m_mesh->GetMaterial();
 
             renderingContext->AddDrawCall(data);
 

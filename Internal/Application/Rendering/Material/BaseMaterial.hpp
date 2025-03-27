@@ -33,7 +33,9 @@ public:
     void                                                    SetSavable(bool savable) {m_savable = savable;}
     int                                                     GetID() {return ID;}
     virtual void                                            ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect);
-    std::string&                                            GetMaterialName() { return m_materialName; };
+    std::string&                                            GetMaterialName() { return m_materialName; }
+    std::shared_ptr<VulkanUtils::VEffect>&                  GetEffect();
+    void                                                    ResetEffect();
     void                                                    SetMaterialname(std::string newName);
     virtual void                                            UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct) = 0;
 

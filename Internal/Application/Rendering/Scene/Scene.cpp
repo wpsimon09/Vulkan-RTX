@@ -121,6 +121,7 @@ namespace ApplicationCore {
 
         auto node = std::make_shared<SceneNode>(obj);
         node->GetSceneNodeMetaData().nodeType = ENodeType::SkyBoxNode;
+
         node->GetMesh()->GetMaterial()->ChangeEffect(m_assetsManager.GetEffectsLibrary().GetEffect(EEffectType::SkyBox));
         node->SetName("Sky-Box ##" + VulkanUtils::random_string(5));
         AddNode(node);

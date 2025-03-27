@@ -11,7 +11,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
-ApplicationCore::StaticMesh::StaticMesh(VulkanStructs::MeshData& geometryData,std::shared_ptr<PBRMaterial> material, EMeshGeometryType geometryType):m_meshGeomtryData(geometryData)
+ApplicationCore::StaticMesh::StaticMesh(VulkanStructs::MeshData& geometryData,std::shared_ptr<BaseMaterial> material, EMeshGeometryType geometryType):m_meshGeomtryData(geometryData)
 {
     m_geometryType = geometryType;
     m_transformations = std::make_unique<Transformations>();
@@ -25,8 +25,8 @@ ApplicationCore::StaticMesh::StaticMesh(const ApplicationCore::StaticMesh& other
     m_geometryType = other.m_geometryType;
     m_transformations = std::make_unique<Transformations>();
 
-    m_currentMaterial = std::make_shared<PBRMaterial>(*other.m_currentMaterial);
-    m_originalMaterial = std::make_shared<PBRMaterial>(*other.m_originalMaterial);
+    //m_currentMaterial = std::make_shared<PBRMaterial>(*other.m_currentMaterial);
+    ///m_originalMaterial = std::make_shared<PBRMaterial>(*other.m_originalMaterial);
 }
 
 

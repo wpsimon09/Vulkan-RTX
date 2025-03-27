@@ -48,11 +48,6 @@ namespace ApplicationCore {
         assets_manager.GetDummyTexture(m_textures[ETextureType::emissive]);
     }
 
-    std::shared_ptr<VulkanUtils::VEffect>& PBRMaterial::GetEffect()
-    {
-        return m_materialEffect;
-    }
-
     void UpdateGPU(VulkanUtils::DescriptorSetTemplateVariant updateStruct){
        
 
