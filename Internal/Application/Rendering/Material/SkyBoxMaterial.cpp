@@ -6,9 +6,12 @@
 
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore {
     SkyBoxMaterial::SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager)
@@ -29,5 +32,8 @@ namespace ApplicationCore {
 
     void SkyBoxMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct)
     {
+        // sky box can only be one and not the whole variant
+        auto& data = std::get<std::reference_wrapper<VulkanUtils::UnlitSingleTexture>>(updateStruct).get();
+        data.texture2D_1 = m_HDRTexture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
     }
 } // ApplicationCore
