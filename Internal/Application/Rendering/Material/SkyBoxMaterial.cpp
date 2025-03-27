@@ -17,7 +17,7 @@ namespace ApplicationCore {
     SkyBoxMaterial::SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager)
         :BaseMaterial(assetsManager.GetEffectsLibrary().GetEffect(EEffectType::SkyBox))
     {
-       assetsManager.GetHDRTexture(m_HDRTexture, path, false);
+       assetsManager.GetHDRTexture(m_HDRTexture, path,true);
     }
 
     void SkyBoxMaterial::ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect)

@@ -3,7 +3,7 @@ struct FragmentShaderIn {
     float2 uv : OUT_UV;
 };
 
-[[vk::binding(0, 3)]]
+[[vk::binding(3, 0)]]
 ConstantBuffer<Sampler2D> _skyBoxHDR;
 
 const float2 invAtan = float2(0.1591, 0.3183);

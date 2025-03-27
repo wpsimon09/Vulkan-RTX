@@ -6,8 +6,10 @@
 
 #include <utility>
 
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/Rendering/Material/BaseMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
+#include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 namespace ApplicationCore {
 

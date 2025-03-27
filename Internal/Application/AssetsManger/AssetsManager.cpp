@@ -249,6 +249,9 @@ namespace ApplicationCore
         for(auto& tex : m_textures2){
             tex.second->Sync();
         }
+        for(auto& tex : m_HDRTextures){
+            tex.second->Sync();
+        }
         Utils::Logger::LogInfoVerboseRendering("Nothing to sync...");
         return false;
     }

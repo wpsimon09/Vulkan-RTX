@@ -55,7 +55,7 @@ namespace ApplicationCore {
 
         std::vector<TextureBufferView> m_fetchedTextureViews;
         std::unordered_map<VTextureAsset*, int> m_textureToIndex;
-        std::unordered_map<std::shared_ptr<PBRMaterial>, int> m_materialToIndex;
+        std::unordered_map<std::shared_ptr<BaseMaterial>, int> m_materialToIndex;
         std::unordered_map<std::shared_ptr<StaticMesh>, int> m_meshToIndex;
         std::unordered_map<std::shared_ptr<SceneNode>, int> m_nodes;
         std::unordered_map<std::shared_ptr<SceneNode>, int> m_childNodes;
