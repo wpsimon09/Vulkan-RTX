@@ -47,7 +47,7 @@ namespace ApplicationCore {
             data.indexData = &m_mesh->GetMeshData()->indexData;
 
             data.modelMatrix = m_transformation->GetModelMatrix();
-            data.material = m_mesh->m_currentMaterial.get();
+            data.material = m_mesh->GetMaterial().get();
 
             if (renderingContext->WireFrameRendering)
                 data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);

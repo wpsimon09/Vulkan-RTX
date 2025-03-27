@@ -10,6 +10,11 @@
 
 namespace ApplicationCore
 {
+    class SkyBoxMaterial;
+}
+
+namespace ApplicationCore
+{
     class AssetsManager;
 }
 
@@ -51,6 +56,8 @@ private:
     void RenderAreaLightUI();
     void RenderSceneNodeMetaDataToggles();
     void RenderNodeStats();
+    void RenderPBRMaterialDetails(ApplicationCore::PBRMaterial* material);
+    void RenderSkyBoxMaterialDetails(ApplicationCore::SkyBoxMaterial* material);
 };
 
 } // VEditor

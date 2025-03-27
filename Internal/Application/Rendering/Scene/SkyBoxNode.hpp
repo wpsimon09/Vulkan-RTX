@@ -10,7 +10,7 @@ namespace ApplicationCore {
 
 class SkyBoxNode:public SceneNode {
     public:
-        SkyBoxNode(std::shared_ptr<StaticMesh> mesh);
+        explicit SkyBoxNode(std::shared_ptr<StaticMesh> mesh);
         void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
 };
 

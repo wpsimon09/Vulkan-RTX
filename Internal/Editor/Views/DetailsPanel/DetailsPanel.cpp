@@ -9,6 +9,7 @@
 
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
+#include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/AreaLightNode.hpp"
 #include "Application/Rendering/Scene/DirectionLightNode.hpp"
@@ -121,106 +122,20 @@ namespace VEditor
 
     void DetailsPanel::RenderMaterialEditorPanel()
     {
-        auto meshMaterial = m_selectedSceneNode->GetMesh()->GetMaterial();
 
 
+        auto meshMaterial = m_selectedSceneNode->GetMesh()->GetMaterial().get();
         if (ImGui::TreeNode(ICON_FA_PAINTBRUSH" Material"))
         {
-            if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::MeshNode)
+            if (auto pbrMat = dynamic_cast<ApplicationCore::PBRMaterial*>(meshMaterial))
             {
-                if (ImGui::BeginCombo("Change material", meshMaterial->GetMaterialName().c_str()))
-                {
-                    for (auto& mat : m_assetsManager.GetAllMaterials())
-                    {
-                        std::string lable = mat->IsTransparent()
-                                                ? ICON_FA_GLASS_WATER
-                                                : ICON_FA_BRUSH "  " + mat->GetMaterialName();
-                        if (ImGui::Selectable(lable.c_str()))
-                        {
-                            m_selectedSceneNode->GetMesh()->SetMaterial(mat);
-                        }
-                    }
-                    ImGui::EndCombo();
-                }
-                ImGui::SameLine();
-                if (ImGui::Button(ICON_FA_REPLY"##ResetMaterial"))
-                {
-                    m_selectedSceneNode->GetMesh()->ResetMaterial();
-                }
 
-                float colourPickerWidth = 300.0f;
-                //==============
-                // ALBEDO
-                //===============
-                ImGui::SeparatorText("Albedo");
-                ImGui::Checkbox("Use texture##a",
-                                reinterpret_cast<bool*>(&meshMaterial->GetMaterialDescription().features.
-                                                                       hasDiffuseTexture));
-                ImGui::Checkbox("Is transparent", &meshMaterial->IsTransparent());
-                if (meshMaterial->GetMaterialDescription().features.hasDiffuseTexture)
-                {
-                }
-                else
-                {
-                    ImGui::SameLine();
-                    ImGui::SetNextItemWidth(colourPickerWidth);
-
-                    if (meshMaterial->IsTransparent())
-                    {
-                        ImGui::ColorEdit4("Albedo", &meshMaterial->GetMaterialDescription().values.diffuse.x,
-                                          ImGuiColorEditFlags_NoInputs);
-                    }
-                    else
-                    {
-                        meshMaterial->GetMaterialDescription().values.diffuse.w = 1.0f;
-                        ImGui::ColorEdit3("Albedo", &meshMaterial->GetMaterialDescription().values.diffuse.x,
-                                          ImGuiColorEditFlags_NoInputs);
-                    }
-                }
-
-                //==============
-                // ARM
-                //===============
-                ImGui::SeparatorText("ARM");
-                ImGui::Checkbox("Use texture##arm",
-                                reinterpret_cast<bool*>(&meshMaterial->GetMaterialDescription().features.
-                                                                       hasArmTexture));
-                if (meshMaterial->GetMaterialDescription().features.hasArmTexture)
-                {
-                }
-                else
-                {
-                    ImGui::SeparatorText("Roughness");
-                    ImGui::SliderFloat("Roughness", &meshMaterial->GetMaterialDescription().values.roughness, 0.0f,
-                                       1.0f, "%.3f");
-
-                    //==============
-                    // METALNES
-                    //===============
-                    ImGui::SeparatorText("Metalness");
-                    ImGui::SliderFloat("Metalness", &meshMaterial->GetMaterialDescription().values.metalness, 0.0f,
-                                       1.0f, "%.3f");
-                }
-                //==============
-                // EMISSIVE
-                //===============
-                ImGui::SeparatorText("Emissive");
-                ImGui::Checkbox("Use texture##e",
-                                reinterpret_cast<bool*>(&meshMaterial->GetMaterialDescription().features.
-                                                                       hasEmissiveTexture));
-                if (meshMaterial->GetMaterialDescription().features.hasDiffuseTexture)
-                {
-                }
-                else
-                {
-                    ImGui::SetNextItemWidth(colourPickerWidth);
-                    ImGui::ColorEdit3("Emission", &meshMaterial->GetMaterialDescription().values.emissive_strength.x,
-                                      ImGuiColorEditFlags_NoInputs);
-                }
+                RenderPBRMaterialDetails(pbrMat);
             }
-            else if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::SkyBoxNode)
+            else if (auto skyBoxMat = dynamic_cast<ApplicationCore::SkyBoxMaterial*>(meshMaterial))
             {
                 ImGui::SeparatorText("HDR");
+                RenderSkyBoxMaterialDetails(skyBoxMat);
             }
             else
             {
@@ -342,5 +257,105 @@ namespace VEditor
             }
             ImGui::EndTooltip();
         }
+    }
+
+    void DetailsPanel::RenderPBRMaterialDetails(ApplicationCore::PBRMaterial* material)
+    {
+        if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::MeshNode)
+            {
+                if (ImGui::BeginCombo("Change material", material->GetMaterialName().c_str()))
+                {
+                    for (auto& mat : m_assetsManager.GetAllMaterials())
+                    {
+                        std::string lable = mat->IsTransparent()
+                                                ? ICON_FA_GLASS_WATER
+                                                : ICON_FA_BRUSH "  " + mat->GetMaterialName();
+                        if (ImGui::Selectable(lable.c_str()))
+                        {
+                            m_selectedSceneNode->GetMesh()->SetMaterial(mat);
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button(ICON_FA_REPLY"##ResetMaterial"))
+                {
+                    m_selectedSceneNode->GetMesh()->ResetMaterial();
+                }
+
+                float colourPickerWidth = 300.0f;
+                //==============
+                // ALBEDO
+                //===============
+                ImGui::SeparatorText("Albedo");
+                ImGui::Checkbox("Use texture##a",
+                                reinterpret_cast<bool*>(&material->GetMaterialDescription().features.
+                                                                       hasDiffuseTexture));
+                ImGui::Checkbox("Is transparent", &material->IsTransparent());
+                if (material->GetMaterialDescription().features.hasDiffuseTexture)
+                {
+                }
+                else
+                {
+                    ImGui::SameLine();
+                    ImGui::SetNextItemWidth(colourPickerWidth);
+
+                    if (material->IsTransparent())
+                    {
+                        ImGui::ColorEdit4("Albedo", &material->GetMaterialDescription().values.diffuse.x,
+                                          ImGuiColorEditFlags_NoInputs);
+                    }
+                    else
+                    {
+                        material->GetMaterialDescription().values.diffuse.w = 1.0f;
+                        ImGui::ColorEdit3("Albedo", &material->GetMaterialDescription().values.diffuse.x,
+                                          ImGuiColorEditFlags_NoInputs);
+                    }
+                }
+
+                //==============
+                // ARM
+                //===============
+                ImGui::SeparatorText("ARM");
+                ImGui::Checkbox("Use texture##arm",
+                                reinterpret_cast<bool*>(&material->GetMaterialDescription().features.
+                                                                       hasArmTexture));
+                if (material->GetMaterialDescription().features.hasArmTexture)
+                {
+                }
+                else
+                {
+                    ImGui::SeparatorText("Roughness");
+                    ImGui::SliderFloat("Roughness", &material->GetMaterialDescription().values.roughness, 0.0f,
+                                       1.0f, "%.3f");
+
+                    //==============
+                    // METALNES
+                    //===============
+                    ImGui::SeparatorText("Metalness");
+                    ImGui::SliderFloat("Metalness", &material->GetMaterialDescription().values.metalness, 0.0f,
+                                       1.0f, "%.3f");
+                }
+                //==============
+                // EMISSIVE
+                //===============
+                ImGui::SeparatorText("Emissive");
+                ImGui::Checkbox("Use texture##e",
+                                reinterpret_cast<bool*>(&material->GetMaterialDescription().features.
+                                                                       hasEmissiveTexture));
+                if (material->GetMaterialDescription().features.hasDiffuseTexture)
+                {
+                }
+                else
+                {
+                    ImGui::SetNextItemWidth(colourPickerWidth);
+                    ImGui::ColorEdit3("Emission", &material->GetMaterialDescription().values.emissive_strength.x,
+                                      ImGuiColorEditFlags_NoInputs);
+                }
+            }
+    }
+
+    void DetailsPanel::RenderSkyBoxMaterialDetails(ApplicationCore::SkyBoxMaterial* material)
+    {
     }
 } // VEditor

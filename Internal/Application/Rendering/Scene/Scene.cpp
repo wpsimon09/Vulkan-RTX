@@ -10,6 +10,7 @@
 #include "DirectionLightNode.hpp"
 #include "PointLightNode.hpp"
 #include "SceneNode.hpp"
+#include "SkyBoxNode.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Enums/ClientEnums.hpp"
 #include "Application/Logger/Logger.hpp"
@@ -119,8 +120,7 @@ namespace ApplicationCore {
     {
         auto obj = m_assetsManager.GetDefaultMesh(Cube);
 
-        auto node = std::make_shared<SceneNode>(obj);
-        node->GetSceneNodeMetaData().nodeType = ENodeType::SkyBoxNode;
+        auto node = std::make_shared<SkyBoxNode>(obj);
 
         node->GetMesh()->GetMaterial()->ChangeEffect(m_assetsManager.GetEffectsLibrary().GetEffect(EEffectType::SkyBox));
         node->SetName("Sky-Box ##" + VulkanUtils::random_string(5));

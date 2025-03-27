@@ -6,6 +6,7 @@
 
 #include <utility>
 
+#include "Application/Rendering/Material/BaseMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 
 namespace ApplicationCore {
@@ -28,49 +29,13 @@ namespace ApplicationCore {
             data.vertexData = &m_mesh->GetMeshData()->vertexData;
             data.indexData = &m_mesh->GetMeshData()->indexData;
 
-            data.modelMatrix = m_transformation->GetModelMatrix();
-            if (renderingContext->WireFrameRendering)
-                data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
-            else if (m_mesh->m_currentMaterial->IsTransparent())
-            {
-                data.effect = effectsLibrary.GetEffect(EEffectType::AplhaBlend);
-            }
-            else
-            {
-                //data.effect = effectsLibrary.GetEffect(EEffectType::ForwardShader);
-                data.effect = m_mesh->GetMaterial()->GetEffect();
-
-            }
+            data.effect = effectsLibrary.GetEffect(EEffectType::SkyBox);
 
             data.position = m_transformation->GetPosition();
             data.bounds = &m_mesh->GetMeshData()->bounds;
-            data.material = m_mesh->m_currentMaterial.get();
+            data.material = m_mesh->GetMaterial().get();
 
             renderingContext->AddDrawCall(data);
-
-            if (m_sceneNodeMetaData.IsSelected)
-            {
-                data.effect = effectsLibrary.GetEffect(EEffectType::Outline);
-                renderingContext->AddDrawCall(data);
-            }
-
-            //=====================================================
-            // BOUNDING VOLUME STUFF
-            //=====================================================
-            if (renderingContext->RenderAABB)
-            {
-                data.vertexData = &m_mesh->GetMeshData()->vertexData_BB;
-                data.indexData = &m_mesh->GetMeshData()->indexData_BB;
-                data.indexCount = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);;
-                data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
-                renderingContext->AddDrawCall(data);
-
-            }
-
-            if (m_sceneNodeMetaData.CastsShadows)
-            {
-                // change effect
-            }
 
     }
 } // ApplicationCore

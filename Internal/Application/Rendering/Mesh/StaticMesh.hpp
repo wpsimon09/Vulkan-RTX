@@ -7,8 +7,6 @@
 
 #include <memory>
 #include "Application/Enums/ClientEnums.hpp"
-#include "Application/Rendering/Scene/PointLightNode.hpp"
-#include "Application/Rendering/Scene/Base/LightNode.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
@@ -83,9 +81,6 @@ namespace ApplicationCore
 
 
         friend class ApplicationCore::SceneNode;
-        friend class ApplicationCore::DirectionLightNode;
-        friend class ApplicationCore::PointLightNode;
-        friend class ApplicationCore::AreaLightNode;
     };
 }
 

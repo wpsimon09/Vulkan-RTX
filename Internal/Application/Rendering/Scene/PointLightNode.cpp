@@ -57,7 +57,6 @@ namespace ApplicationCore {
                 data.effect = effectsLibrary.GetEffect(EEffectType::EditorBilboard);
             }
 
-
             data.position = m_transformation->GetPosition();
 
             data.bounds = &m_mesh->GetMeshData()->bounds;
