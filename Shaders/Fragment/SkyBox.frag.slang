@@ -19,6 +19,6 @@ float2 SampleSphericalMap(float3 dir, float3 localPos) {
 [shader("fragment")]
 float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
     float2 uv = SampleSphericalMap(normalize(fsIn.localPos), fsIn.localPos);
-    float3 skyboxColour = _skyBoxHDR.Sample(uv).xyz;
+    float3 skyboxColour = _skyBoxHDR.Sample(float2(uv.x , -uv.y)).xyz;
     return float4(skyboxColour, 1.0);
 }

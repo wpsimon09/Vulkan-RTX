@@ -16,6 +16,7 @@
 #include "Application/Logger/Logger.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
+#include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
@@ -118,11 +119,12 @@ namespace ApplicationCore {
 
     void Scene::AddSkyBox() const
     {
-        auto obj = m_assetsManager.GetDefaultMesh(Cube);
+        auto obj = m_assetsManager.GetDefaultMesh(SkyBox);
+        obj->SetMaterial(std::make_shared<ApplicationCore::SkyBoxMaterial>("Resources/HDRs/default.hdr", m_assetsManager));
 
         auto node = std::make_shared<SkyBoxNode>(obj);
 
-        node->GetMesh()->GetMaterial()->ChangeEffect(m_assetsManager.GetEffectsLibrary().GetEffect(EEffectType::SkyBox));
+
         node->SetName("Sky-Box ##" + VulkanUtils::random_string(5));
         AddNode(node);
     }

@@ -305,7 +305,6 @@ namespace ApplicationCore
         m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
         MathUtils::LUT.LTCInverse =  std::make_shared<VTextureAsset>(m_device, std::move(ltcTexture));
 
-        m_skyBoxMaterials.emplace_back(std::make_shared<ApplicationCore::SkyBoxMaterial>("Resources/HDRs/default.hdr", *this));
 
         Sync();
     }
