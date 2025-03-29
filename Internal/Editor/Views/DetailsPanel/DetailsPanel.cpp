@@ -357,5 +357,17 @@ namespace VEditor
 
     void DetailsPanel::RenderSkyBoxMaterialDetails(ApplicationCore::SkyBoxMaterial* material)
     {
+        if (ImGui::BeginCombo("Change material", material->GetMaterialName().c_str()))
+        {
+            for (auto& mat : m_assetsManager.GetAllSkyBoxMaterials())
+            {
+                std::string lable = ICON_FA_MOUNTAIN "  " + mat->GetMaterialName();
+                if (ImGui::Selectable(lable.c_str()))
+                {
+                    m_selectedSceneNode->GetMesh()->SetMaterial(mat);
+                }
+            }
+            ImGui::EndCombo();
+        }
     }
 } // VEditor

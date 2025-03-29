@@ -6,6 +6,7 @@
 
 #include <IconsFontAwesome6.h>
 
+#include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/GLTFLoader/GltfLoader.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.hpp"
@@ -24,7 +25,7 @@ namespace VEditor {
 
         IGFD::FileDialogConfig config;
         config.path = ".";
-        ImGuiFileDialog::Instance()->OpenDialog("SelectModelKey", "Choose Model file", ".glb,.gltf", config);
+        ImGuiFileDialog::Instance()->OpenDialog("SelectModelKey", "Choose Model file", ".glb,.gltf,.hdr", config);
         ImGuiFileDialog::Instance()->Display("SelectModelKey");
 
         return nullptr;
@@ -47,7 +48,13 @@ namespace VEditor {
             if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
                 m_filePath = ImGuiFileDialog::Instance()->GetFilePathName();
 
-                ImGui::OpenPopup(ICON_FA_TOOLBOX" Import options");
+                if (m_filePath.extension() == ".glb" || m_filePath.extension() == ".gltf")
+                {
+                    ImGui::OpenPopup(ICON_FA_TOOLBOX" Import options");
+                }else
+                {
+                    m_scene.GetAssetsManager().AddSkyBoxMaterial(m_filePath);
+                }
             }
 
             // close

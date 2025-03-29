@@ -14,7 +14,7 @@ for vert_shader in Vertex/*.vert.slang; do
     if [[ -f "$vert_shader" ]]; then
         shader_name=$(basename "$vert_shader")
         echo "Compiling vertex shader: $shader_name"
-        $SLANGC_PATH -o "Compiled/${shader_name%.vert}.spv" "$vert_shader"
+        $SLANGC_PATH -o "Compiled/${shader_name%.vert}.spv" "$vert_shader" -allow-glsl -matrix-layout-column-major 
         if [[ $? -eq 0 ]]; then
             echo "Compiled $vert_shader to Compiled/${shader_name%.vert}.spv"
         else
@@ -29,7 +29,7 @@ for frag_shader in Fragment/*.frag.slang; do
     if [[ -f "$frag_shader" ]]; then
         shader_name=$(basename "$frag_shader")
         echo "Compiling fragment shader: $shader_name"
-        $SLANGC_PATH -allow-glsl -o "Compiled/${shader_name%.frag}.spv" "$frag_shader"
+        $SLANGC_PATH -o "Compiled/${shader_name%.frag}.spv" "$frag_shader" -allow-glsl -matrix-layout-column-major
         if [[ $? -eq 0 ]]; then
             echo "Compiled $frag_shader to Compiled/${shader_name%.frag}.spv"
         else
@@ -44,7 +44,7 @@ for util_shader in Utils/*.slang; do
     if [[ -f "$util_shader" ]]; then
         shader_name=$(basename "$util_shader")
         echo "Compiling Utility shader: $shader_name"
-        $SLANGC_PATH -allow-glsl -o "Compiled/${shader_name%}.spv" "$frag_shader"
+        $SLANGC_PATH -o "Compiled/${shader_name%}.spv" "$frag_shader" -allow-glsl -matrix-layout-column-major  
         if [[ $? -eq 0 ]]; then
             echo "Compiled $util_shader to Compiled/${shader_name%.frag}.spv"
         else
@@ -59,7 +59,7 @@ for comp_shader in Compute/*.comp; do
     if [[ -f "$comp_shader" ]]; then
         shader_name=$(basename "$comp_shader")
         echo "Compiling compute shader: $shader_name"
-        $SLANGC_PATH -o "Compiled/${shader_name%.comp}.spv" "$comp_shader"
+        $SLANGC_PATH -o -matrix-layout-column-major "Compiled/${shader_name%.comp}.spv" "$comp_shader"
         if [[ $? -eq 0 ]]; then
             echo "Compiled $comp_shader to Compiled/${shader_name%.comp}.spv"
         else

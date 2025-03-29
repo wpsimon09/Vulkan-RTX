@@ -119,7 +119,7 @@ namespace ApplicationCore {
 
     void Scene::AddSkyBox() const
     {
-        auto obj = m_assetsManager.GetDefaultMesh(SkyBox);
+        auto obj = m_assetsManager.GetDefaultMesh(Cube);
         obj->SetMaterial(std::make_shared<ApplicationCore::SkyBoxMaterial>("Resources/HDRs/default.hdr", m_assetsManager));
 
         auto node = std::make_shared<SkyBoxNode>(obj);

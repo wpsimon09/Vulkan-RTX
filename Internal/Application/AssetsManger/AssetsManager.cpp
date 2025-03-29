@@ -211,8 +211,13 @@ namespace ApplicationCore
         return std::move(mesh);
     }
 
-    std::vector<std::shared_ptr<ApplicationCore::SkyBoxMaterial>>& AssetsManager::
-    GetAllSkyBoxMaterials()
+    void AssetsManager::AddSkyBoxMaterial(const std::string& path)
+    {
+        m_skyBoxMaterials.emplace_back(std::make_shared<SkyBoxMaterial>(path, *this));
+    }
+
+    const std::vector<std::shared_ptr<ApplicationCore::SkyBoxMaterial>>& AssetsManager::
+    GetAllSkyBoxMaterials() const
     {
         return m_skyBoxMaterials;
     }

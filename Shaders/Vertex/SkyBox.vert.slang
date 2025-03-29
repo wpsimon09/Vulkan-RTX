@@ -15,8 +15,8 @@ struct VertexOutput {
 }
 
 struct GlobalData {
-    float4x4 projection;
-    float4x4 view;
+    column_major float4x4 projection;
+    column_major float4x4 view;
     float4x4 inverseView;
 
     float4 lightPosition;
@@ -44,19 +44,19 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
     out.vertexData.localPos = vertexPos;
     out.vertexData.uv = uv;
 
-    float4x4 rotView = float4x4(
-        float4(globalData.view[0].xyz, 0.0),
-        float4(globalData.view[1].xyz, 0.0),
-        float4(globalData.view[2].xyz, 0.0),
-        float4(0.0, 0.0, 0.0, 1.0)
-    );
+    
+    column_major float4x4 rotView;
+    rotView[0] = float4(globalData.view[0].xyz, 0.0);
+    rotView[1] = float4(globalData.view[1].xyz, 0.0);
+    rotView[2] = float4(globalData.view[2].xyz, 0.0);
+    rotView[3] = float4(0.0, 0.0, 0.0, 1.0);
+    
+    
+    //float4x4 proj = globalData.projection;
 
-    float4x4 proj = globalData.projection;
-
-    float4x4 projView = mul(rotView, globalData.projection);
-    float4 pos = mul(projView,  float4(vertexPos, 1.0));
-        
+    column_major float4x4 viewProj = mul(globalData.projection, rotView);
+    float4 pos = mul(viewProj, float4(VAO.inPosition, 1.0));
     out.sv_position = pos.xyww;
 
     return out;
-}
+}   

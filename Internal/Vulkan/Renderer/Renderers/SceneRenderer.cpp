@@ -75,6 +75,7 @@ namespace Renderer
                 unlitSingelTextureEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
                 unlitSingelTextureEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
 
+                // cast might be required here
                 drawCall.material->UpdateGPUTextureData(unlitSingelTextureEffect);
 
                 cmdBuffer.pushDescriptorSetWithTemplateKHR(
