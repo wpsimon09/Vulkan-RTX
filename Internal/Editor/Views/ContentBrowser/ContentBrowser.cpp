@@ -8,6 +8,8 @@
 #include <imgui.h>
 
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
+#include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
@@ -37,6 +39,11 @@ void ContentBrowser::Render()
         if (ImGui::BeginTabItem("Effects"))
         {
             RenderEffects();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("HDRs"))
+        {
+            RenderHDRs();
             ImGui::EndTabItem();
         }
 
@@ -150,6 +157,36 @@ void ContentBrowser::RenderEffects()
             if (ImGui::MenuItem("Remove"))
             {
 
+            }
+            ImGui::EndPopup();
+        }
+
+        i++;
+    }
+}
+
+void ContentBrowser::RenderHDRs()
+{
+    int i = 0;
+    for (auto& hdr : m_assetManager.GetAllSkyBoxMaterials())
+    {
+        auto& currentHDR = hdr;
+        auto hdrLabel = ICON_FA_MOUNTAIN_SUN " " + currentHDR->GetMaterialName();
+
+        if (ImGui::Selectable(hdrLabel.c_str(), m_selectedAsset == currentHDR->GetMaterialName()))
+        {
+            m_selectedAsset = currentHDR->GetMaterialName();
+        }
+
+        if (ImGui::BeginPopupContextItem(hdrLabel.c_str()))
+        {
+            if (ImGui::MenuItem("Change"))
+            {
+                //Utils::Logger::LogInfoClient("Changin effect");
+            }
+            if (ImGui::MenuItem("Remove"))
+            {
+                m_assetManager.DestroySkyBoxMaterial(hdr->GetMaterialName());
             }
             ImGui::EndPopup();
         }

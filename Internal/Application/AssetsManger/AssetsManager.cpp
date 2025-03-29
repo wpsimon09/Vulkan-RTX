@@ -54,7 +54,8 @@ namespace ApplicationCore
         }
         for (auto& hdr : m_HDRTextures)
         {
-            hdr.second->Destroy();
+            if (hdr.second)
+                hdr.second->Destroy();
         }
         for (auto& textureAsset : m_textures2){
             textureAsset.second->Destroy();
@@ -249,6 +250,21 @@ namespace ApplicationCore
         if (!m_meshes.contains(meshName))
         {
             m_meshes[meshName] = mesh;
+        }
+    }
+
+    void AssetsManager::DestroySkyBoxMaterial(const std::string& name)
+    {
+        int i = 0;
+        for (auto& skyBoxMat : m_skyBoxMaterials)
+        {
+            if (skyBoxMat->GetMaterialName() == name)
+            {
+                skyBoxMat->GetHDRTexture()->Destroy();
+                m_skyBoxMaterials.erase(m_skyBoxMaterials.begin()+i);
+                return;
+            }
+            i++;
         }
     }
 

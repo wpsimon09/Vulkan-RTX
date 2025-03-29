@@ -138,7 +138,8 @@ public:
     //=========================
     void AddModel(std::string path, std::vector<std::shared_ptr<ApplicationCore::SceneNode>>& model);
     std::vector<std::shared_ptr<ApplicationCore::SceneNode>> GetModel(const std::string& path);
-    std::unordered_map<std::string, std::vector<std::shared_ptr<ApplicationCore::SceneNode>>>& GetModels() {return m_models;};
+    std::unordered_map<std::string, std::vector<std::shared_ptr<ApplicationCore::SceneNode>>>& GetModels() {return m_models;}
+    void DestroySkyBoxMaterial(const std::string& name);;
     //=========================
     // Synchronization
     //=========================
