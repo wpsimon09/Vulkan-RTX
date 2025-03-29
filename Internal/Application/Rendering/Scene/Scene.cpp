@@ -120,10 +120,10 @@ namespace ApplicationCore {
     void Scene::AddSkyBox() const
     {
         auto obj = m_assetsManager.GetDefaultMesh(Cube);
-        obj->SetMaterial(std::make_shared<ApplicationCore::SkyBoxMaterial>("Resources/HDRs/default.hdr", m_assetsManager));
+
+        obj->SetMaterial(m_assetsManager.AddSkyBoxMaterial("Resources/HDRs/default.hdr"));
 
         auto node = std::make_shared<SkyBoxNode>(obj);
-
 
         node->SetName("Sky-Box ##" + VulkanUtils::random_string(5));
         AddNode(node);

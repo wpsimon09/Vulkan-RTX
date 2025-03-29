@@ -118,7 +118,7 @@ public:
     std::vector<std::shared_ptr<PBRMaterial>> GetAllMaterials() const;
     void AddMaterial(MaterialPaths& paths, std::shared_ptr<PBRMaterial> material);
     std::shared_ptr<StaticMesh> GetEditorBilboardMesh(EEditorIcon icon);
-    void AddSkyBoxMaterial(const std::string& path);
+    std::shared_ptr<SkyBoxMaterial> AddSkyBoxMaterial(const std::filesystem::path& path);
     const std::vector<std::shared_ptr<ApplicationCore::SkyBoxMaterial>>& GetAllSkyBoxMaterials() const ;
 
 

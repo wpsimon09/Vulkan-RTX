@@ -8,6 +8,7 @@
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/Rendering/Material/BaseMaterial.hpp"
+#include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
@@ -36,7 +37,7 @@ namespace ApplicationCore {
 
             data.position = m_transformation->GetPosition();
             data.bounds = &m_mesh->GetMeshData()->bounds;
-            data.material = m_mesh->GetMaterial().get();
+            data.material = dynamic_cast<SkyBoxMaterial*>(m_mesh->GetMaterial().get());
 
             renderingContext->AddDrawCall(data);
 
