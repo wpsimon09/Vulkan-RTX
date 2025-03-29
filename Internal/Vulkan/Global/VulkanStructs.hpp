@@ -196,6 +196,29 @@ struct DrawCallData
 
     ApplicationCore::BaseMaterial* material;
     std::shared_ptr<VulkanUtils::VEffect> effect;
+
+    friend bool operator==(const DrawCallData& lhs, const DrawCallData& rhs)
+    {
+        return lhs.indexCount == rhs.indexCount
+            && lhs.firstIndex == rhs.firstIndex
+            && lhs.indexCount_BB == rhs.indexCount_BB
+            && lhs.instanceCount == rhs.instanceCount
+            && lhs.vertexData == rhs.vertexData
+            && lhs.indexData == rhs.indexData
+            && lhs.bounds == rhs.bounds
+            && lhs.drawCallID == rhs.drawCallID
+            && lhs.modelMatrix == rhs.modelMatrix
+            && lhs.position == rhs.position
+            && lhs.depth == rhs.depth
+            && lhs.key == rhs.key
+            && lhs.material == rhs.material
+            && lhs.effect == rhs.effect;
+    }
+
+    friend bool operator!=(const DrawCallData& lhs, const DrawCallData& rhs)
+    {
+        return !(lhs == rhs);
+    }
 };
 
 

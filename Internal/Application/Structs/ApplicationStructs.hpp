@@ -110,6 +110,7 @@ struct SceneNodeMetaData
     ENodeType nodeType = ENodeType::Node;
     int ID = 0;
     int exportID = 0;
+    bool m_isDirty = false;
 };
 
 

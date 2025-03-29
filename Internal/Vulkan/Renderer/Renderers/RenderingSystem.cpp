@@ -114,8 +114,8 @@ namespace Renderer {
         m_renderingTimeLine[m_currentFrameIndex]->Reset();
 
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
-        m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
         m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
+        m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
 
         std::sort(m_renderContext.drawCalls.begin(), m_renderContext.drawCalls.end(), [](std::pair<unsigned long, VulkanStructs::DrawCallData> & lhs,std::pair<unsigned long, VulkanStructs::DrawCallData> & rhs )
         {

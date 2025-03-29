@@ -67,6 +67,7 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
     int i = 0;
     for (auto& drawCall: drawCalls)
     {
+        if ()
         drawCall.second.drawCallID = i;
 
         m_perObjectUniform[i]->GetUBOStruct().model = drawCall.second.modelMatrix;
@@ -79,8 +80,9 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
             m_materialFeaturesUniform[i]->GetUBOStruct() = mat->GetMaterialDescription().features;
             m_materialNoTextureUniform[i]->GetUBOStruct() = mat->GetMaterialDescription().values;
         }
-        m_materialFeaturesUniform[i]->UpdateGPUBuffer(frameIndex);
 
+
+        m_materialFeaturesUniform[i]->UpdateGPUBuffer(frameIndex);
         m_materialNoTextureUniform[i]->UpdateGPUBuffer(frameIndex);
         i++;
     }
