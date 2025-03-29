@@ -19,7 +19,8 @@
         m_nearPlane = 0.1f;
         m_farPlane = 3700.0f;;
         m_FOV = 65.0f;
-        m_projection = glm::perspectiveFov(glm::radians(m_FOV), width, height, m_nearPlane, m_farPlane);
+
+        m_projection = glm::perspective(glm::radians(m_FOV), m_aspect, m_nearPlane,m_farPlane);;
         m_projection[1][1] *= -1;
 
         m_radius = radius;
@@ -96,7 +97,7 @@ void ApplicationCore::Camera::MoveVertical(float distance) {
     void ApplicationCore::Camera::ProcessResize(int newWidht, int newHeight) {
         m_screenSize = {glm::max(newWidht, 1), glm::max(newHeight, 1)};
         m_aspect = (float)m_screenSize.x / (float)m_screenSize.y;
-        m_projection = glm::perspectiveFov(glm::radians(m_FOV), (float)m_screenSize.x , (float)m_screenSize.y, m_nearPlane, m_farPlane);
+        m_projection = glm::perspective(glm::radians(m_FOV), m_aspect, m_nearPlane,m_farPlane);;
         m_projection[1][1] *= -1;
         //m_farPlane = GetFarPlane();
         m_position = getEye();
@@ -164,7 +165,8 @@ void ApplicationCore::Camera::MoveVertical(float distance) {
 
     void ApplicationCore::Camera::Recalculate()
     {
-        m_projection = glm::perspectiveFov(glm::radians(m_FOV), (float)m_screenSize.x , (float)m_screenSize.y, m_nearPlane, m_farPlane);
+        m_projection = m_projection = glm::perspective(glm::radians(m_FOV), m_aspect, m_nearPlane,m_farPlane);;
+
         m_projection[1][1] *= -1;
     }
 

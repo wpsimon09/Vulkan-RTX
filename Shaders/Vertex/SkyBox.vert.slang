@@ -15,8 +15,8 @@ struct VertexOutput {
 }
 
 struct GlobalData {
-    column_major float4x4 projection;
-    column_major float4x4 view;
+    float4x4 projection;
+    float4x4 view;
     float4x4 inverseView;
 
     float4 lightPosition;
@@ -31,11 +31,6 @@ struct GlobalData {
 [[vk::binding(0,0)]]
 ConstantBuffer<GlobalData> globalData;
 
-struct PermodelData {
-    column_major float4x4 modelMatrix;
-    column_major float4x4 normalMatrix;
-    float3 positionWorldSpace;
-};
 
 [shader("vertex")]
 VertexOutput vertexMain(VertexInput VAO) // VAO input{
@@ -56,8 +51,10 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
         float4(0.0, 0.0, 0.0, 1.0)
     );
 
-    float4x4 projView = mul(globalData.projection, globalData.view);
-    float4 pos = mul(float4(vertexPos, 1.0), projView);
+    float4x4 proj = globalData.projection;
+
+    float4x4 projView = mul(rotView, globalData.projection);
+    float4 pos = mul(projView,  float4(vertexPos, 1.0));
         
     out.sv_position = pos.xyww;
 
