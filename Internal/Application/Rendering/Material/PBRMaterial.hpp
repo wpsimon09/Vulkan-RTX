@@ -17,8 +17,7 @@
 #endif
 #include "BaseMaterial.hpp"
 #include "MaterialStructs.hpp"
-#include "Application/Structs/ApplicationStructs.hpp"
-#include "Application/Structs/ApplicationStructs.hpp"
+
 
 namespace VulkanUtils
 {

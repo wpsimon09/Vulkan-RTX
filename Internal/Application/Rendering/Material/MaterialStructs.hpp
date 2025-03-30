@@ -10,6 +10,7 @@
 
 struct PBRMaterialNoTexture
 {
+
     float roughness{0.4f};
     float metalness{0.2f};
     float ao{0.2f};
@@ -18,14 +19,43 @@ struct PBRMaterialNoTexture
     glm::vec4 diffuse{0.2f, 0.9f, 0.4f, 1.0f};
 
     glm::vec4 emissive_strength{0.0f,0.0f, 0.0f, 0.0f};
+
+    friend bool operator==(const PBRMaterialNoTexture& lhs, const PBRMaterialNoTexture& rhs)
+    {
+        return lhs.roughness == rhs.roughness
+            && lhs.metalness == rhs.metalness
+            && lhs.ao == rhs.ao
+            && lhs.padding == rhs.padding
+            && lhs.diffuse == rhs.diffuse
+            && lhs.emissive_strength == rhs.emissive_strength;
+    }
+
+    friend bool operator!=(const PBRMaterialNoTexture& lhs, const PBRMaterialNoTexture& rhs)
+    {
+        return !(lhs == rhs);
+    }
 };
 
 struct PBRMaterialFeaturees
 {
+
     int hasDiffuseTexture{false};
     int hasEmissiveTexture{false};
     int hasNormalTexture{false};
     int hasArmTexture{false};
+
+    friend bool operator==(const PBRMaterialFeaturees& lhs, const PBRMaterialFeaturees& rhs)
+    {
+        return lhs.hasDiffuseTexture == rhs.hasDiffuseTexture
+            && lhs.hasEmissiveTexture == rhs.hasEmissiveTexture
+            && lhs.hasNormalTexture == rhs.hasNormalTexture
+            && lhs.hasArmTexture == rhs.hasArmTexture;
+    }
+
+    friend bool operator!=(const PBRMaterialFeaturees& lhs, const PBRMaterialFeaturees& rhs)
+    {
+        return !(lhs == rhs);
+    }
 };
 
 struct MaterialPaths

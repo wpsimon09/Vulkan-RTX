@@ -5,6 +5,8 @@
 #ifndef CLIENTENUMS_HPP
 #define CLIENTENUMS_HPP
 
+#include "string"
+
 enum EPrimitiveTopology
 {
     //points

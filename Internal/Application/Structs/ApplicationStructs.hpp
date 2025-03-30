@@ -4,11 +4,9 @@
 #pragma once
 #ifndef APPLICATIONSTRUCTS_HPP
 #define APPLICATIONSTRUCTS_HPP
-#include <iostream>
-#include <ostream>
+
 
 #include "Application/Enums/ClientEnums.hpp"
-#include "glm/glm.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 
 struct CameraUpdateInfo

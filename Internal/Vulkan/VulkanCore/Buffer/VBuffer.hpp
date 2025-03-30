@@ -9,7 +9,6 @@
 
 #include "Application/Logger/Logger.hpp"
 #include "VMA/vk_mem_alloc.h"
-#include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 

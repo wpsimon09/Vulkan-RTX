@@ -16,6 +16,8 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
+#include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
+
 
 #define MAX_UBO_COUNT 1000
 
@@ -34,18 +36,6 @@ const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager:
     return m_lightUniform->GetDescriptorBufferInfos();
 }
 
-const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::GetMaterialFeaturesDescriptorBufferInfo(
-    int meshIndex) const
-{
-    // returns 2 buffer descriptor info for each frame in flight
-    return m_materialFeaturesUniform[meshIndex]->GetDescriptorBufferInfos();
-}
-
-const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::
-GetPerMaterialNoMaterialDescrptorBufferInfo(int meshIndex) const
-{
-    return m_materialNoTextureUniform[meshIndex]->GetDescriptorBufferInfos();
-}
 
 const std::vector<vk::DescriptorBufferInfo> & VulkanUtils::VUniformBufferManager::GetPerObjectDescriptorBufferInfo(
     int meshIndex) const {
@@ -67,22 +57,24 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
     int i = 0;
     for (auto& drawCall: drawCalls)
     {
+
         drawCall.second.drawCallID = i;
-
-        m_perObjectUniform[i]->GetUBOStruct().model = drawCall.second.modelMatrix;
-        m_perObjectUniform[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse( drawCall.second.modelMatrix));
-        m_perObjectUniform[i]->GetUBOStruct().position = drawCall.second.position;
-
-        if (auto mat = dynamic_cast<ApplicationCore::PBRMaterial*>(drawCall.second.material))
+        if (drawCall.second != m_perObjectUniform[i]->GetUBOStruct())
         {
-            m_perObjectUniform[i]->GetUBOStruct().material.features = mat->GetMaterialDescription().features;
-            m_perObjectUniform[i]->GetUBOStruct().material.values  = mat->GetMaterialDescription().values;
+
+            m_perObjectUniform[i]->GetUBOStruct().model = drawCall.second.modelMatrix;
+            m_perObjectUniform[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse( drawCall.second.modelMatrix));
+            m_perObjectUniform[i]->GetUBOStruct().position = drawCall.second.position;
+
+            if (auto mat = dynamic_cast<ApplicationCore::PBRMaterial*>(drawCall.second.material))
+            {
+                m_perObjectUniform[i]->GetUBOStruct().material.features = mat->GetMaterialDescription().features;
+                m_perObjectUniform[i]->GetUBOStruct().material.values  = mat->GetMaterialDescription().values;
+            }
+
+
+            m_perObjectUniform[i]->UpdateGPUBuffer(frameIndex);
         }
-
-
-        m_perObjectUniform[i]->UpdateGPUBuffer(frameIndex);
-        //m_materialFeaturesUniform[i]->UpdateGPUBuffer(frameIndex);
-        //m_materialNoTextureUniform[i]->UpdateGPUBuffer(frameIndex);
         i++;
     }
 
@@ -128,27 +120,12 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
 }
 
 
-void VulkanUtils::VUniformBufferManager::UpdatePerMaterialUniformData(int frameIndex,
-                                                                      const std::shared_ptr<ApplicationCore::PBRMaterial>& material) const
-{
-
-}
-
-
 void VulkanUtils::VUniformBufferManager::Destroy() const {
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager and all its data...");
     m_perFrameUniform->Destory();
     m_lightUniform->Destory();
     for(auto &ubo: m_perObjectUniform) {
         ubo->Destory();
-    }
-    for (auto& mat: m_materialFeaturesUniform)
-    {
-        mat->Destory();
-    }
-    for (auto& mat: m_materialNoTextureUniform)
-    {
-        mat->Destory();
     }
     Utils::Logger::LogInfoVerboseOnly("Uniform buffer manager destroyed");
 }
@@ -161,23 +138,10 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for per object data");
 
     m_perObjectUniform.resize(MAX_UBO_COUNT);
-    m_materialFeaturesUniform.resize(MAX_UBO_COUNT);
-
-    m_materialNoTextureUniform.resize(MAX_UBO_COUNT);
 
     for(int i = 0; i <MAX_UBO_COUNT; i++) {
         m_perObjectUniform[i] = (std::make_unique<VUniform<ObjectDataUniform>>(m_device));
     }
-
-    for(int i = 0; i <MAX_UBO_COUNT; i++) {
-        m_materialFeaturesUniform[i] = (std::make_unique<VUniform<PBRMaterialFeaturees>>(m_device));
-    }
-
-    for(int i = 0; i <MAX_UBO_COUNT; i++) {
-        m_materialNoTextureUniform[i] = (std::make_unique<VUniform<PBRMaterialNoTexture>>(m_device));
-    }
-
-
 
     //assert(m_objectDataUniforms.size() == MAX_UBO_COUNT && "Failed to allocate 20 buffers");
     GlobalState::EnableLogging();
@@ -189,3 +153,4 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms() {
 
     m_lightUniform = std::make_unique<VUniform<LightUniforms>>(m_device);
 }
+

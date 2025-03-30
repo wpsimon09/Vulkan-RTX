@@ -8,12 +8,11 @@
 #include <stb_image/stb_image.h>
 #include <vulkan/vulkan.hpp>
 
-#include <map>
-#include <memory>
-
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "VMA/vk_mem_alloc.h"
 #include "glm/glm.hpp"
+#include "Application/Rendering/Material/PBRMaterial.hpp"
+#include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 
 
 namespace ApplicationCore
@@ -28,7 +27,6 @@ namespace VulkanUtils
 
 namespace ApplicationCore
 {
-    class PBRMaterial;
     class EffectsLibrary;
 }
 
@@ -197,25 +195,25 @@ struct DrawCallData
     ApplicationCore::BaseMaterial* material;
     std::shared_ptr<VulkanUtils::VEffect> effect;
 
-    friend bool operator==(const DrawCallData& lhs, const DrawCallData& rhs)
+    friend bool operator==(const DrawCallData& lhs, const ObjectDataUniform& rhs)
     {
-        return lhs.indexCount == rhs.indexCount
-            && lhs.firstIndex == rhs.firstIndex
-            && lhs.indexCount_BB == rhs.indexCount_BB
-            && lhs.instanceCount == rhs.instanceCount
-            && lhs.vertexData == rhs.vertexData
-            && lhs.indexData == rhs.indexData
-            && lhs.bounds == rhs.bounds
-            && lhs.drawCallID == rhs.drawCallID
-            && lhs.modelMatrix == rhs.modelMatrix
-            && lhs.position == rhs.position
-            && lhs.depth == rhs.depth
-            && lhs.key == rhs.key
-            && lhs.material == rhs.material
-            && lhs.effect == rhs.effect;
+        if (auto* lhsPBRMat = dynamic_cast<ApplicationCore::PBRMaterial*>(lhs.material))
+        {
+            auto& lhsMatDescription = lhsPBRMat->GetMaterialDescription();
+            auto& rhsMatDescription = rhs.material;
+            return lhsMatDescription.features == rhsMatDescription.features &&
+                   lhsMatDescription.values == rhsMatDescription.values &&
+                    lhs.modelMatrix == rhs.model &&
+                    lhs.position == rhs.position;
+        }else
+        {
+            return lhs.modelMatrix ==  rhs.model &&
+                lhs.position == rhs.position;
+        }
+
     }
 
-    friend bool operator!=(const DrawCallData& lhs, const DrawCallData& rhs)
+    friend bool operator!=(const DrawCallData& lhs, const ObjectDataUniform& rhs)
     {
         return !(lhs == rhs);
     }

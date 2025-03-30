@@ -5,9 +5,10 @@
 #ifndef VUNIFORMBUFFERMANAGER_HPP
 #define VUNIFORMBUFFERMANAGER_HPP
 #include <memory>
-#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
-#include "UnifromsRegistry.hpp"
+
 #include "VUniform.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+
 
 struct PBRMaterialNoTexture;
 struct PBRMaterialFeaturees;
@@ -15,6 +16,14 @@ struct PBRMaterialFeaturees;
 namespace VulkanStructs
 {
     struct DrawCallData;
+}
+
+struct GlobalUniform;
+struct LightUniforms ;
+
+namespace LightStructs
+{
+    struct SceneLightInfo;
 }
 
 class Client;
@@ -27,8 +36,6 @@ namespace VulkanUtils
 
         const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const; // per frame in flight
         const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
-        const std::vector<vk::DescriptorBufferInfo>& GetMaterialFeaturesDescriptorBufferInfo(int meshIndex) const; // per object per frame in flight
-        const std::vector<vk::DescriptorBufferInfo>& GetPerMaterialNoMaterialDescrptorBufferInfo(int meshIndex) const; // per object per frame in flight
         const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const; // per object per frame in flight
 
         void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
@@ -37,20 +44,15 @@ namespace VulkanUtils
 
         void UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const;
 
-        void UpdatePerMaterialUniformData(int frameIndex, const std::shared_ptr<ApplicationCore::PBRMaterial>& material) const;
-
         void Destroy() const;
     private:
         void CreateUniforms();
     private:
         const VulkanCore::VDevice& m_device;
 
-        std::unique_ptr<VulkanUtils::VUniform<LightUniforms>> m_lightUniform;
+        std::unique_ptr<VUniform<LightUniforms>> m_lightUniform;
         std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>> m_perFrameUniform;
         std::vector<std::unique_ptr<VulkanUtils::VUniform<ObjectDataUniform>>> m_perObjectUniform;
-        std::vector<std::unique_ptr<VulkanUtils::VUniform<PBRMaterialFeaturees>>> m_materialFeaturesUniform;
-        std::vector<std::unique_ptr<VulkanUtils::VUniform<PBRMaterialNoTexture>>> m_materialNoTextureUniform;
-
     };
 }
 
