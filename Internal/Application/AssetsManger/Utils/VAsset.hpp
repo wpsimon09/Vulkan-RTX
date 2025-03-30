@@ -36,7 +36,7 @@ namespace ApplicationCore{
         //===================================
         virtual void Load() {LoadInternal();}
 
-        virtual void Sync() = 0;
+        virtual bool Sync() = 0;
         virtual void Destroy() = 0;
 
         static const int ID;

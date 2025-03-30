@@ -144,6 +144,7 @@ namespace ApplicationCore
         
         if (!m_textures2.contains(path)){
             m_textures2[path] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, m_dummyImage, ETextureAssetType::Texture, path);
+            m_texturesToSync.emplace_back(m_textures2[path]);
         }
 
         texture = m_textures2[path];
@@ -155,6 +156,7 @@ namespace ApplicationCore
 
         if (!m_textures2.contains(data.textureID)){
             m_textures2[data.textureID] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, m_dummyImage, ETextureAssetType::Texture, data);
+            m_texturesToSync.emplace_back(m_textures2[data.textureID]);
         }
 
         texture = m_textures2[data.textureID];
@@ -166,6 +168,7 @@ namespace ApplicationCore
         if (!m_HDRTextures.contains(path))
         {
             m_HDRTextures[path] = std::make_shared<ApplicationCore::VTextureAsset> (m_device, m_dummyImage, ETextureAssetType::HDRTexture, path);
+            m_texturesToSync.emplace_back(m_HDRTextures[path]);
         }
         texture = m_HDRTextures[path];
     }
@@ -270,13 +273,19 @@ namespace ApplicationCore
 
     bool AssetsManager::Sync()
     {
-        for(auto& tex : m_textures2){
-            tex.second->Sync();
+        int i = 0;
+        for(auto& tex : m_texturesToSync){
+
+            if (!m_texturesToSync.empty())
+            {
+                if (tex->Sync())
+                {
+                    m_texturesToSync.erase(m_texturesToSync.begin()+ (i-1));
+                  //  m_texturesToSync.shrink_to_fit();
+                }
+                i++;
+            }
         }
-        for(auto& tex : m_HDRTextures){
-            tex.second->Sync();
-        }
-        Utils::Logger::LogInfoVerboseRendering("Nothing to sync...");
         return false;
     }
 
@@ -330,7 +339,7 @@ namespace ApplicationCore
         MathUtils::LUT.LTCInverse =  std::make_shared<VTextureAsset>(m_device, std::move(ltcTexture));
 
 
-        Sync();
+       Sync();
     }
     
     std::vector<TextureBufferView> AssetsManager::ReadBackAllTextures(std::vector<std::byte>& data)

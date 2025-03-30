@@ -70,8 +70,6 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
         //if (drawCall.second != m_perObjectUniform[i]->GetUBOStruct() || reloadAll)
         {
             m_perObjectUniform[i]->GetUBOStruct().model = drawCall.second.modelMatrix;
-            m_perObjectUniform[i]->GetUBOStruct().normalMatrix = glm::transpose(
-                glm::inverse(drawCall.second.modelMatrix));
             m_perObjectUniform[i]->GetUBOStruct().position = drawCall.second.position;
 
             if (auto mat = dynamic_cast<ApplicationCore::PBRMaterial*>(drawCall.second.material))

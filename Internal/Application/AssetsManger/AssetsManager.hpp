@@ -192,6 +192,9 @@ private:
     std::unordered_map<EMeshGeometryType, VulkanStructs::MeshData> m_preloadedMeshes;
 
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures2;
+
+    std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>> m_texturesToSync;
+
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_HDRTextures;
     std::vector<std::shared_ptr<ApplicationCore::SkyBoxMaterial>> m_skyBoxMaterials;
 

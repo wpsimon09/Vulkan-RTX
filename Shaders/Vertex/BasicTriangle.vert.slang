@@ -1,3 +1,5 @@
+import Utils;
+
 struct VertexInput {
     float3 inPosition :POSITION ;
     float3 inNormal : NORMAL;
@@ -84,8 +86,11 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
     float3 normal = VAO.inNormal;
     float2 uv = VAO.inUV;
 
+    //m_perObjectUniform[i]->GetUBOStruct().normalMatrix = glm::transpose(
+     //   glm::inverse(drawCall.second.modelMatrix));
+
     float3 FragmentWorldPos = mul(perModelData.modelMatrix, float4(vertexPos, 1.0)).xyz;
-    float3 NormalWorldPos = mul(perModelData.normalMatrix, float4(normal, 1.0)).xyz;
+    float3 NormalWorldPos = mul(transpose(inverse(perModelData.modelMatrix)), float4(normal, 1.0)).xyz;
 
     VertexOutput out;
     out.vertexData.cameraPos = globalData.cameraPostiion.xyz;

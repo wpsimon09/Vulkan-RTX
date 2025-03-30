@@ -63,28 +63,26 @@ ApplicationCore::VTextureAsset::VTextureAsset(
     m_assetPath = texture->GetImageInfo().imagePath;
 }
 
-void ApplicationCore::VTextureAsset::Sync()
+bool ApplicationCore::VTextureAsset::Sync()
 {
-
-
     if(m_isInSync)
-        return;
+        return true;
 
     std::visit([this] (auto& imageData){
-        if (!imageData.valid()) return;
+        if (!imageData.valid()) return true;
 
         if (imageData.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready ){
-            return;
-        }else
-        {
-            auto fetchedData = imageData.get();
-            m_isInSync = true;
-            m_assetPath = fetchedData.fileName;
-            m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,fetchedData);
-            m_transferOpsManager.DestroyBuffer(m_deviceHandle->GetImageStagingvBuffer(), true);
+            return false;
         }
-
+        auto fetchedData = imageData.get();
+        m_isInSync = true;
+        m_assetPath = fetchedData.fileName;
+        m_deviceHandle = std::make_shared<VulkanCore::VImage2>(m_device,fetchedData);
+        m_transferOpsManager.DestroyBuffer(m_deviceHandle->GetImageStagingvBuffer(), true);
+        return true;
     }, m_imageFormat);
+
+    return false;
 }
 
 void ApplicationCore::VTextureAsset::Destroy()
