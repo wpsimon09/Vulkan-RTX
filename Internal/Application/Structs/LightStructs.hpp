@@ -13,7 +13,9 @@
 #include <vector>
 
 namespace LightStructs {
+
 struct AreaLight {
+
   glm::vec3 colour;
   float intensity;
   glm::vec3 position;
@@ -49,9 +51,29 @@ struct AreaLight {
         glm::vec4{0.5, 0.5f, 0.0f, 1.0f}, // Third point (top-left corner)
         glm::vec4{-0.5, 0.5f, 0.0f, 1.0f}};
   }
+
+  friend bool operator==(const AreaLight& lhs, const AreaLightGPU& rhs)
+  {
+    return
+      lhs.intensity == rhs.intensity.w &&
+      lhs.colour.x == rhs.intensity.x &&
+      lhs.colour.y == rhs.intensity.y &&
+      lhs.colour.z == rhs.intensity.z &&
+      lhs.isAreaLightInUse == rhs.isInUse &&
+      lhs.twoSided == static_cast<bool>(rhs.twoSided) &&
+      lhs.edges == rhs.edges;
+  }
+
+  friend bool operator!=(const AreaLight& lhs, const AreaLightGPU& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
 };
 
 struct PointLight {
+
+
   mutable glm::vec4 colour;
 
   mutable glm::vec3 position;
@@ -73,6 +95,25 @@ struct PointLight {
     quadraticFactor = 0.0075f;
     isPointLightInUse = false;
   }
+
+  friend bool operator==(const PointLight& lhs, const PointLightGPU& rhs)
+  {
+    return
+      lhs.colour == rhs.colour &&
+      lhs.position.x == rhs.position.x &&
+      lhs.position.y == rhs.position.y &&
+      lhs.position.z == rhs.position.z &&
+      lhs.constantFactor == rhs.CLQU_Parameters.x &&
+      lhs.linearFactor == rhs.CLQU_Parameters.y &&
+      lhs.quadraticFactor == rhs.CLQU_Parameters.z &&
+      lhs.isPointLightInUse == rhs.CLQU_Parameters.w;
+
+  }
+
+  friend bool operator!=(const PointLight& lhs, const PointLightGPU& rhs)
+  {
+    return !(lhs == rhs);
+  }
 };
 
 struct DirectionalLight {
@@ -84,11 +125,23 @@ struct DirectionalLight {
     colour = glm::vec4(0.f);
     direction = glm::vec3(0.f);
   }
+
+  friend bool operator==(const DirectionalLight& lhs, const DirectionalLightGPU& rhs)
+  {
+    return lhs.colour == rhs.colour
+      && glm::vec4(lhs.direction, 1.0f) == rhs.direction;
+  }
+
+  friend bool operator!=(const DirectionalLight& lhs, const DirectionalLightGPU& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
 };
 
 struct SceneLightInfo {
-  LightStructs::DirectionalLight *DirectionalLightInfo = nullptr;
 
+  LightStructs::DirectionalLight *DirectionalLightInfo = nullptr;
   std::vector<LightStructs::PointLight *> PointLightInfos;
   std::vector<LightStructs::AreaLight *> AreaLightInfos;
 

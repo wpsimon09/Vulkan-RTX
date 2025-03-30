@@ -10,7 +10,7 @@
 namespace GlobalState
 {
 
-    inline bool ValidationLayersEnabled = true;
+    inline bool ValidationLayersEnabled = false;
     inline bool LoggingEnabled = true;
     inline bool Verbose = false;
     inline bool VerboseInRendering = false;

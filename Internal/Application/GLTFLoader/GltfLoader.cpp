@@ -108,10 +108,13 @@
                     material->GetMaterialDescription().values.diffuse.z = m.pbrData.baseColorFactor.z();
                     material->GetMaterialDescription().values.diffuse.a = m.pbrData.baseColorFactor.w();
 
+                    material->GetMaterialDescription().values.emissive_strength.x = m.emissiveFactor.x();
+                    material->GetMaterialDescription().values.emissive_strength.y = m.emissiveFactor.y();
+                    material->GetMaterialDescription().values.emissive_strength.z = m.emissiveFactor.z();
+                    material->GetMaterialDescription().values.emissive_strength.w = m.emissiveStrength;
+
                     material->GetMaterialDescription().values.metalness = m.pbrData.metallicFactor;
                     material->GetMaterialDescription().values.roughness = m.pbrData.roughnessFactor;
-
-
 
                     if (m.pbrData.metallicRoughnessTexture.has_value())
                     {
@@ -137,6 +140,19 @@
                         }else
                         {
                             material->GetMaterialDescription().features.hasDiffuseTexture = false;
+                        }
+                    }
+                    if (m.emissiveTexture.has_value())
+                    {
+                        auto& textureIndex = m.emissiveTexture.value().textureIndex;
+                        if (textureIndex < m_textures.size())
+                        {
+                            material->GetTexture(ETextureType::Emissive) = m_textures[textureIndex];
+                            material->GetMaterialPaths().EmmisivePath = m_textures[textureIndex]->GetAssetPath();
+                            material->GetMaterialDescription().features.hasEmissiveTexture = true;
+                        }else
+                        {
+                            material->GetMaterialDescription().features.hasEmissiveTexture = false;
                         }
                     }
                     if (m.normalTexture.has_value())

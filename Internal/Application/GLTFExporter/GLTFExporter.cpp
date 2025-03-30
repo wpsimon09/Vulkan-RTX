@@ -201,7 +201,11 @@ void ApplicationCore::GLTFExporter::ParseMaterial(fastgltf::Asset &asset, Assets
         material.pbrData.baseColorFactor = fastgltf::math::vec<float, 4>(matValues.diffuse.x, matValues.diffuse.y, matValues.diffuse.z, matValues.diffuse.w);
         material.pbrData.metallicFactor = matValues.metalness;
         material.pbrData.roughnessFactor = matValues.roughness;
-        
+        material.emissiveFactor.x() = matValues.emissive_strength.x;
+        material.emissiveFactor.y() = matValues.emissive_strength.y;
+        material.emissiveFactor.z() = matValues.emissive_strength.z;
+        material.emissiveStrength = matValues.emissive_strength.w;
+
         auto &materialPaths = mat->GetMaterialPaths();
         if(!materialPaths.NormalMapPath.empty()){
             fastgltf::NormalTextureInfo normalTextureInfo;
@@ -219,6 +223,11 @@ void ApplicationCore::GLTFExporter::ParseMaterial(fastgltf::Asset &asset, Assets
             fastgltf::TextureInfo armTextureInfo;
             armTextureInfo.textureIndex = m_textureToIndex[mat->GetTextureRawPtr(ETextureType::arm)];
             material.pbrData.metallicRoughnessTexture = std::move(armTextureInfo);
+        }
+        if(!materialPaths.EmmisivePath.empty()){
+            fastgltf::TextureInfo emissiveTextureInfo;
+            emissiveTextureInfo.textureIndex = m_textureToIndex[mat->GetTextureRawPtr(ETextureType::Emissive)];
+            material.emissiveTexture = std::move(emissiveTextureInfo);
         }
     
         
@@ -472,6 +481,7 @@ bool ApplicationCore::GLTFExporter::IsNodeValid(const std::shared_ptr<SceneNode>
     return (sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::AreaLightNode &&
           sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::DirectionalLightNode &&
           sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::PointLightNode &&
+          sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::SkyBoxNode &&
           sceneNode->GetName() != "Root-Node");
 
 }

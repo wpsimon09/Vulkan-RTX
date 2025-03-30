@@ -49,6 +49,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     material.albedo_map = _albedoMap;
     material.arm_map = _armMap;
     material.normal_map = _normalMap;
+    material.emissive_map = _emissiveMap;
     let brdf_ = material.Prepare(g);
 
 

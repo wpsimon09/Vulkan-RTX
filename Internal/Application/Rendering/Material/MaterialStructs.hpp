@@ -63,16 +63,17 @@ struct MaterialPaths
     std::string DiffuseMapPath;
     std::string ArmMapPath;
     std::string NormalMapPath;
+    std::string EmmisivePath;
     bool saveToDisk = false;
 
     bool operator==(const MaterialPaths& other) const
     {
-        return DiffuseMapPath == other.DiffuseMapPath && ArmMapPath == other.ArmMapPath &&  NormalMapPath == other.NormalMapPath;
+        return DiffuseMapPath == other.DiffuseMapPath && ArmMapPath == other.ArmMapPath &&  NormalMapPath == other.NormalMapPath && EmmisivePath == other.EmmisivePath;
     }
 
     bool isTextureLess() const
     {
-        return DiffuseMapPath.empty() && ArmMapPath.empty() && NormalMapPath.empty();
+        return DiffuseMapPath.empty() && ArmMapPath.empty() && NormalMapPath.empty() && EmmisivePath.empty();
     }
 };
 

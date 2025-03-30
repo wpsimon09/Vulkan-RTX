@@ -57,25 +57,24 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
     int i = 0;
     for (auto& drawCall: drawCalls)
     {
-
         drawCall.second.drawCallID = i;
+
         if (drawCall.second != m_perObjectUniform[i]->GetUBOStruct())
         {
+        m_perObjectUniform[i]->GetUBOStruct().model = drawCall.second.modelMatrix;
+        m_perObjectUniform[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse( drawCall.second.modelMatrix));
+        m_perObjectUniform[i]->GetUBOStruct().position = drawCall.second.position;
 
-            m_perObjectUniform[i]->GetUBOStruct().model = drawCall.second.modelMatrix;
-            m_perObjectUniform[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse( drawCall.second.modelMatrix));
-            m_perObjectUniform[i]->GetUBOStruct().position = drawCall.second.position;
-
-            if (auto mat = dynamic_cast<ApplicationCore::PBRMaterial*>(drawCall.second.material))
-            {
-                m_perObjectUniform[i]->GetUBOStruct().material.features = mat->GetMaterialDescription().features;
-                m_perObjectUniform[i]->GetUBOStruct().material.values  = mat->GetMaterialDescription().values;
-            }
+        if (auto mat = dynamic_cast<ApplicationCore::PBRMaterial*>(drawCall.second.material))
+        {
+            m_perObjectUniform[i]->GetUBOStruct().material.features = mat->GetMaterialDescription().features;
+            m_perObjectUniform[i]->GetUBOStruct().material.values  = mat->GetMaterialDescription().values;
+        }
 
 
             m_perObjectUniform[i]->UpdateGPUBuffer(frameIndex);
         }
-        i++;
+    i++;
     }
 
 }
@@ -83,8 +82,11 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
 void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
     LightStructs::SceneLightInfo& sceneLightInfo) const
 {
+
+
     if (sceneLightInfo.DirectionalLightInfo)
     {
+
         m_lightUniform->GetUBOStruct().directionalLight.colour = sceneLightInfo.DirectionalLightInfo->colour;
         m_lightUniform->GetUBOStruct().directionalLight.direction = glm::vec4(sceneLightInfo.DirectionalLightInfo->direction,1.0f);
     }

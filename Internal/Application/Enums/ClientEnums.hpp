@@ -42,7 +42,7 @@ enum ETextureType
     Diffues = 0,
     arm ,
     normal,
-    emissive,
+    Emissive,
 };
 
 enum EEditorIcon

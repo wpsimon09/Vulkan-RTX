@@ -62,11 +62,15 @@ struct PBRMaterial : IMaterial
 
     MaterialFeatures features;
     MaterialConstantValues values;
+    
     Sampler2D albedo_map;
     Sampler2D arm_map;
     Sampler2D normal_map;
+    Sampler2D emissive_map;
 
     float4 albedo;
+    float4 emission;
+
     float metallness;
     float roughness;
     float ao;
@@ -104,7 +108,13 @@ struct PBRMaterial : IMaterial
         }
 
         if (features.hasEmissiveTexture) {
-            // TODO: add emmisive textures
+            float4 emissive = emissive_map.Sample(geometry.uv);
+            brdf.emission = emissive;
+            if (brdf.emission.w == 0.0) {
+                brdf.emission.w = values.emissive_strength.w;
+            }
+        } else {
+            brdf.emission = values.emissive_strength;
         }
 
         return brdf;
@@ -145,6 +155,8 @@ struct CookTorrence_GGX : IBRDF
     float metallnes;
 
     float ao;
+
+    float4 emission;
 
     float DistributionGGX(float3 N, float3 H)
     {
@@ -211,7 +223,11 @@ struct CookTorrence_GGX : IBRDF
 
         float NdotL = max(dot(N, L), 0);
 
-        return (kd * albedo.xyz / PI + specular) * NdotL;
+        float3 colour =  (kd * albedo.xyz / PI + specular) * NdotL;
+
+        colour += (this.emission.xyz * this.emission.w);
+
+        return colour;
     }
 
     float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided) {
@@ -238,7 +254,7 @@ struct CookTorrence_GGX : IBRDF
         float3x3 MinV;
         MinV[0] = float3(t1.x, 0.0,   t1.y);
         MinV[1] = float3(0.0, 1.0 ,   0.0);
-        MinV[2] = float3(t1.z,   0.0,  t1.w   );
+        MinV[2] = float3(t1.z,   0.0,  t1.w);
 
         float3x3 identity;
         identity[0] = float3(1.0, 0.0, 0.0);
@@ -250,7 +266,11 @@ struct CookTorrence_GGX : IBRDF
 
         specular *= albedo.xyz * t2.x + (1.0f - albedo.xyz) * t2.y;
 
-        return (specular + (diffuse * albedo.xyz));
+        float3 colour =  (specular + (diffuse * albedo.xyz));
+
+        colour += (this.emission.xyz * this.emission.w);
+
+        return colour;
     } 
 }
 

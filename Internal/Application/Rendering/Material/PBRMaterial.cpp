@@ -43,9 +43,16 @@ namespace ApplicationCore {
         else
             assets_manager.GetDummyTexture(m_textures[ETextureType::arm]);
 
-        //m_assetManager.GetTexture(m_textures[MATERIAL_TYPE::PBR_ARM], m_materialPaths.ArmMapPath);
-        m_materialDescription.features.hasEmissiveTexture = false;
-        assets_manager.GetDummyTexture(m_textures[ETextureType::emissive]);
+        if (!materialPaths.EmmisivePath.empty())
+        {
+            assets_manager.GetTexture(m_textures[ETextureType::Emissive], m_materialPaths.EmmisivePath, m_materialPaths.saveToDisk);
+            m_materialDescription.features.hasEmissiveTexture = true;
+        }
+        else
+        {
+            assets_manager.GetDummyTexture(m_textures[ETextureType::Emissive]);
+            m_materialDescription.features.hasEmissiveTexture = false;
+        }
     }
 
     void UpdateGPU(VulkanUtils::DescriptorSetTemplateVariant updateStruct){
@@ -89,7 +96,7 @@ namespace ApplicationCore {
 
                 forwardShadingDstSet.texture2D_3 = m_textures[arm]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-                forwardShadingDstSet.texture2D_4 = m_textures[emissive]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                forwardShadingDstSet.texture2D_4 = m_textures[Emissive]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             }
 

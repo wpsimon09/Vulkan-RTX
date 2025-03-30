@@ -199,9 +199,11 @@ namespace ApplicationCore
             if (m_sceneNodeMetaData.FrustumCull && GlobalVariables::RenderingOptions::EnableFrustrumCulling)
             {
                 if (!VulkanUtils::IsInViewFrustum(
-                        &m_mesh->GetMeshData()->bounds,
+                            &m_mesh->GetMeshData()->bounds,
                         m_transformation->GetModelMatrix(),
-                        renderingContext->view, renderingContext->projection)){return;}
+                        renderingContext->view, renderingContext->projection)) {
+                    return;
+                }
             }
 
             //=====================================================
