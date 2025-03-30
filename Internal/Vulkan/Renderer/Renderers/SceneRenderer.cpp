@@ -91,11 +91,13 @@ namespace Renderer
                 forwardShaddingEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];;
                 forwardShaddingEffect.buffer3 = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
 
+                /*
                 forwardShaddingEffect.buffer4 = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(objectIndex)[
                     currentFrameIndex];
 
                 forwardShaddingEffect.buffer5 = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(objectIndex)[
                     currentFrameIndex];
+                    */
 
                 drawCall.material->UpdateGPUTextureData(forwardShaddingEffect);
 

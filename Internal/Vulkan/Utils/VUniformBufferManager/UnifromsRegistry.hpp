@@ -7,6 +7,8 @@
 #include <memory>
 #include <vector>
 #include <glm/glm.hpp>
+
+#include "Application/Rendering/Material/MaterialStructs.hpp"
 #include "vulkan/vulkan.hpp"
 
 namespace VulkanCore
@@ -30,9 +32,13 @@ struct GlobalUniform
 
 struct ObjectDataUniform
 {
+    // TODO: this struct can be ranamed DrawCall uniform and can contain Materialfeaturees and other stuff that i can later update all together
+    // TODO: this sturct will be comparable with DrawCall so that i can change if any thing changed"
     glm::mat4 model;
     glm::mat4 normalMatrix;
     glm::vec3 position;
+    float padding = 0.0f;
+    PBRMaterialDescription material;
 };
 
 struct PointLightGPU

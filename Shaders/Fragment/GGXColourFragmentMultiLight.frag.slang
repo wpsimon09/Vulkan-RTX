@@ -8,6 +8,7 @@ struct FragmentShaderIn
     float3 fragPos : OUT_FRAG_POS;
     float3 lightPos : OUT_LIGHT_POS;
     float2 uv : OUT_UV;
+    Material material : OUT_MATERIAL;
 };
 
 struct LightInfo {
@@ -19,12 +20,6 @@ struct LightInfo {
 
 [[vk::binding(2, 0)]]
 ConstantBuffer<LightInfo> _lightInfo;
-
-[[vk::binding(3, 0)]]
-ConstantBuffer<MaterialFeatures> _features;
-
-[[vk::binding(4, 0)]]
-ConstantBuffer<MaterialConstantValues> _materialNoTextureValues;
 
 [[vk::binding(6, 0)]]
 ConstantBuffer<Sampler2D> _albedoMap;
@@ -49,8 +44,8 @@ float4 fragmentMain(FragmentShaderIn fsIn)
 
     
     PBRMaterial material;
-    material.features = _features;
-    material.values = _materialNoTextureValues;
+    material.features = fsIn.material.Features;
+    material.values = fsIn.material.Values;
     material.albedo_map = _albedoMap;
     material.arm_map = _armMap;
     material.normal_map = _normalMap;

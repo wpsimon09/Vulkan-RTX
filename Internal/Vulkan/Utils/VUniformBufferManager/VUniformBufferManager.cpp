@@ -67,21 +67,20 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
     int i = 0;
     for (auto& drawCall: drawCalls)
     {
-        if ()
         drawCall.second.drawCallID = i;
 
         m_perObjectUniform[i]->GetUBOStruct().model = drawCall.second.modelMatrix;
         m_perObjectUniform[i]->GetUBOStruct().normalMatrix = glm::transpose(glm::inverse( drawCall.second.modelMatrix));
         m_perObjectUniform[i]->GetUBOStruct().position = drawCall.second.position;
-        m_perObjectUniform[i]->UpdateGPUBuffer(frameIndex);
 
         if (auto mat = dynamic_cast<ApplicationCore::PBRMaterial*>(drawCall.second.material))
         {
-            m_materialFeaturesUniform[i]->GetUBOStruct() = mat->GetMaterialDescription().features;
-            m_materialNoTextureUniform[i]->GetUBOStruct() = mat->GetMaterialDescription().values;
+            m_perObjectUniform[i]->GetUBOStruct().material.features = mat->GetMaterialDescription().features;
+            m_perObjectUniform[i]->GetUBOStruct().material.values  = mat->GetMaterialDescription().values;
         }
 
 
+        m_perObjectUniform[i]->UpdateGPUBuffer(frameIndex);
         m_materialFeaturesUniform[i]->UpdateGPUBuffer(frameIndex);
         m_materialNoTextureUniform[i]->UpdateGPUBuffer(frameIndex);
         i++;

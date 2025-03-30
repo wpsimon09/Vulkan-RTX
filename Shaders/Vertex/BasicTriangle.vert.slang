@@ -4,14 +4,6 @@ struct VertexInput {
     float2 inUV : UV;
 };
 
-struct FragmentShaderIn {
-    float3 normal : OUT_NORMAL;
-    float3 cameraPos : OUT_CAM_POS;
-    float3 fragPos : OUT_FRAG_POS;
-    float3 lightPos : OUT_LIGHT_POS;
-    float2 uv : OUT_UV;
-};
-
 struct VertexOutput {
     FragmentShaderIn vertexData : DATA;
     float4 sv_position : SV_Position;
@@ -34,10 +26,51 @@ struct GlobalData {
 [[vk::binding(0,0)]]
 ConstantBuffer<GlobalData> globalData;
 
+//=================================
+// MATERIAL STRUCTS
+//=================================
+struct MaterialConstantValues
+{
+    float roughness;
+    float metalness;
+    float ao;
+    float padding;
+
+    float4 diffuse;
+
+    float4 emissive_strength;
+}
+
+struct MaterialFeatures
+{
+    bool hasDiffuseTexture;
+    bool hasEmissiveTexture;
+    bool hasNormalTexture;
+    bool hasArmTexture;
+}
+
+struct Material
+{
+    MaterialConstantValues Values;
+    MaterialFeatures Features;
+};
+
 struct PermodelData {
     column_major float4x4 modelMatrix;
     column_major float4x4 normalMatrix;
     float3 positionWorldSpace;
+    float padding;
+
+    Material material;
+};
+
+struct FragmentShaderIn {
+    float3 normal : OUT_NORMAL;
+    float3 cameraPos : OUT_CAM_POS;
+    float3 fragPos : OUT_FRAG_POS;
+    float3 lightPos : OUT_LIGHT_POS;
+    float2 uv : OUT_UV;
+    Material material : OUT_MATERIAL;
 };
 
 [[vk::binding(1,0)]]
