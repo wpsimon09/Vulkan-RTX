@@ -96,6 +96,7 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
 
     float4x4 viewProj = mul(globalData.view, globalData.projection);
     out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
+    out.vertexData.material = perModelData.material;
 
     return out;
 }

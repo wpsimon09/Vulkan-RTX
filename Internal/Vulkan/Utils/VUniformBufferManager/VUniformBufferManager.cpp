@@ -81,8 +81,8 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
 
 
         m_perObjectUniform[i]->UpdateGPUBuffer(frameIndex);
-        m_materialFeaturesUniform[i]->UpdateGPUBuffer(frameIndex);
-        m_materialNoTextureUniform[i]->UpdateGPUBuffer(frameIndex);
+        //m_materialFeaturesUniform[i]->UpdateGPUBuffer(frameIndex);
+        //m_materialNoTextureUniform[i]->UpdateGPUBuffer(frameIndex);
         i++;
     }
 
