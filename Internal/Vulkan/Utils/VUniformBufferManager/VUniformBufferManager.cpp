@@ -67,7 +67,7 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
     {
         drawCall.second.drawCallID = i;
 
-        if (drawCall.second != m_perObjectUniform[i]->GetUBOStruct() || reloadAll)
+        //if (drawCall.second != m_perObjectUniform[i]->GetUBOStruct() || reloadAll)
         {
             m_perObjectUniform[i]->GetUBOStruct().model = drawCall.second.modelMatrix;
             m_perObjectUniform[i]->GetUBOStruct().normalMatrix = glm::transpose(
