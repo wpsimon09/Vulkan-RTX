@@ -201,6 +201,7 @@ struct DrawCallData
         {
             auto& lhsMatDescription = lhsPBRMat->GetMaterialDescription();
             auto& rhsMatDescription = rhs.material;
+
             return lhsMatDescription.features == rhsMatDescription.features &&
                    lhsMatDescription.values == rhsMatDescription.values &&
                     lhs.modelMatrix == rhs.model &&

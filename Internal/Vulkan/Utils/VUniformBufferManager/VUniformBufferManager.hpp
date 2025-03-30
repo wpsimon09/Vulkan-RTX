@@ -53,6 +53,8 @@ namespace VulkanUtils
         std::unique_ptr<VUniform<LightUniforms>> m_lightUniform;
         std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>> m_perFrameUniform;
         std::vector<std::unique_ptr<VulkanUtils::VUniform<ObjectDataUniform>>> m_perObjectUniform;
+
+        mutable int m_currentDrawCalls = 0;
     };
 }
 
