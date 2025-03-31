@@ -15,6 +15,8 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
+#define STENCIL_ONE 0xFF
+#define STENCIL_ZERO 0x00
 
 namespace Renderer {
     RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int height, vk::Format colourFormat):
@@ -48,7 +50,7 @@ namespace Renderer {
         depthAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
         depthAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eNone;
         depthAttachmentInfo.clearValue.depthStencil.depth = 1.0f;
-        depthAttachmentInfo.clearValue.depthStencil.stencil = 0.0f;
+        depthAttachmentInfo.clearValue.depthStencil.stencil = 1.0f;
 
 
 
@@ -144,7 +146,7 @@ namespace Renderer {
         CreateRenderTargetForSwapChain(swapChain);
         m_width = swapChain.GetExtent().width;
         m_height = swapChain.GetExtent().height;
-        Utils::Logger::LogSuccess("Render target for swap chain recreated");
+        Utils::Logger::LogSuccess("Render targSkip the third pass if outlines don’t need blending.et for swap chain recreated");
     }
 
     void RenderTarget::Destroy()

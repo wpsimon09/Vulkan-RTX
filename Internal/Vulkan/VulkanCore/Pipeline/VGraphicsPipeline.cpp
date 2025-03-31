@@ -188,8 +188,16 @@ void VulkanCore::VGraphicsPipeline::CreateDepthStencil() {
     m_depthStencil.depthBoundsTestEnable = vk::False;
     m_depthStencil.minDepthBounds = 0.0f;
     m_depthStencil.maxDepthBounds = 1.0f;
-    m_depthStencil.stencilTestEnable = vk::False;
 
+    m_depthStencil.stencilTestEnable = vk::True;
+    m_depthStencil.back.compareOp = vk::CompareOp::eAlways;
+    m_depthStencil.back.failOp = vk::StencilOp::eKeep;
+    m_depthStencil.back.depthFailOp = vk::StencilOp::eKeep;
+    m_depthStencil.back.passOp = vk::StencilOp::eReplace;
+    m_depthStencil.back.reference = 1;
+    m_depthStencil.back.compareMask = 0xFF;
+    m_depthStencil.back.writeMask = 0xFF;
+    m_depthStencil.front = m_depthStencil.back;
 }
 
 void VulkanCore::VGraphicsPipeline::CreateColorBlend() {
@@ -241,6 +249,7 @@ void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
     m_renderingCreateInfo.colorAttachmentCount = m_outputFormats.size();;
     m_renderingCreateInfo.pColorAttachmentFormats = m_outputFormats.data();
     m_renderingCreateInfo.depthAttachmentFormat = m_device.GetDepthFormat();
+
 }
 
 void VulkanCore::VGraphicsPipeline::EnableBlendingAlpha(){
@@ -268,6 +277,12 @@ void VulkanCore::VGraphicsPipeline::EnableBlendingAlpha(){
     m_depthStencil.depthWriteEnable = vk::False;
 }
 
+void VulkanCore::VGraphicsPipeline::SetStencilState(vk::StencilOpState& stencilState)
+{
+    m_depthStencil.back = stencilState;
+    m_depthStencil.front = m_depthStencil.back;
+}
+
 void VulkanCore::VGraphicsPipeline::EnableBlendingAdditive(){
     m_colorBlendAttachmentState.blendEnable = vk::True;
     m_colorBlendAttachmentState.colorWriteMask =
@@ -291,7 +306,7 @@ void VulkanCore::VGraphicsPipeline::EnableBlendingAdditive(){
     m_colorBlendState.blendConstants[2] = 0.0f;
     m_colorBlendState.blendConstants[3] = 0.0f;
 
-    m_depthStencil.depthWriteEnable = vk::False;
+    m_depthStencil.depthWriteEnable = vk::False ;
 }
 
 

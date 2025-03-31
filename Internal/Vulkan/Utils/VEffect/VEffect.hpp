@@ -48,6 +48,7 @@ public:
     VEffect& SetDepthOpLessEqual();
     VEffect& SetFrontFaceClockWise();
     VEffect& SetVertexInputMode(EVertexInput inputMode);
+    VEffect& SetStencilTestOutline();
 
     //=======================================
 

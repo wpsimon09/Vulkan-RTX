@@ -194,6 +194,8 @@ namespace VulkanCore
             m_depthStencil.depthWriteEnable = false;
         }
 
+        void SetStencilState(vk::StencilOpState& stencilState);
+
         
         void EnableBlendingAdditive();
         void EnableBlendingAlpha();

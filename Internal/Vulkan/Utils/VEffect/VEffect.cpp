@@ -121,6 +121,22 @@ namespace VulkanUtils
             return *this;
         }
 
+        VEffect& VEffect::SetStencilTestOutline()
+        {
+            m_pipeline->m_depthStencil.back.compareOp = vk::CompareOp::eNotEqual;
+            m_pipeline->m_depthStencil.back.failOp = vk::StencilOp::eKeep;
+            m_pipeline->m_depthStencil.back.depthFailOp = vk::StencilOp::eKeep;
+            m_pipeline->m_depthStencil.back.passOp = vk::StencilOp::eKeep;
+            m_pipeline->m_depthStencil.back.reference = 1;
+            m_pipeline->m_depthStencil.back.compareMask = 0xFF;
+            m_pipeline->m_depthStencil.back.writeMask = 0x00;
+
+            m_pipeline->m_depthStencil.front = m_pipeline->m_depthStencil.back;
+
+            return *this;
+
+        }
+
         std::string& VEffect::GetName()
         {
             return m_name;

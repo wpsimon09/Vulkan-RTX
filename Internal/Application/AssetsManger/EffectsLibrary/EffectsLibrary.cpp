@@ -81,9 +81,9 @@ namespace ApplicationCore {
 
         outline
             ->SetCullFrontFace()
-            .SetLineWidth(7)
-            .SetPolygonLine()
-            .SetDisableDepthWrite();
+            .SetDisableDepthTest()
+            .SetDisableDepthTest()
+            .SetStencilTestOutline();
 
         effects[EEffectType::Outline] = std::move(outline);
 
