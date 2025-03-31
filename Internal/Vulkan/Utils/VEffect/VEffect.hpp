@@ -47,6 +47,7 @@ public:
     VEffect& SetDepthOpEqual();
     VEffect& SetDepthOpLessEqual();
     VEffect& SetFrontFaceClockWise();
+    VEffect& SetVertexInputMode(EVertexInput inputMode);
 
     //=======================================
 

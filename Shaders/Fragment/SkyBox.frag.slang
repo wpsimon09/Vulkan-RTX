@@ -1,6 +1,5 @@
 struct FragmentShaderIn {
     float3 localPos : OUT_LOCAL_POS;
-    float2 uv : OUT_UV;
 };
 
 [[vk::binding(3, 0)]]

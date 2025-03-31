@@ -115,6 +115,12 @@ namespace VulkanUtils
             return *this;
         }
 
+        VEffect& VEffect::SetVertexInputMode(EVertexInput inputMode)
+        {
+            m_pipeline->CreateVertexInputBindingAndAttributes(inputMode);
+            return *this;
+        }
+
         std::string& VEffect::GetName()
         {
             return m_name;

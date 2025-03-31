@@ -1,7 +1,5 @@
 struct VertexInput {
     float3 inPosition :POSITION ;
-    float3 inNormal : NORMAL;
-    float2 inUV : UV;
 };
 
 struct FragmentShaderIn {
@@ -37,13 +35,9 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
 {
     // sotre for later
     float3 vertexPos = VAO.inPosition;
-    float3 normal = VAO.inNormal;
-    float2 uv = VAO.inUV;
 
     VertexOutput out;
     out.vertexData.localPos = vertexPos;
-    out.vertexData.uv = uv;
-
     
     column_major float4x4 rotView;
     rotView[0] = float4(globalData.projection[0].xyz, 0.0);

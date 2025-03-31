@@ -50,14 +50,15 @@ namespace ApplicationCore {
 
         editorBillboards
             ->SetTopology(vk::PrimitiveTopology::eTriangleList)
-            .SetCullNone();
+            .SetCullNone()
+            .SetVertexInputMode(EVertexInput::Vertex_UV);
         effects[EEffectType::EditorBilboard] = std::move(editorBillboards);
 
         //==============================================================================
 
         auto debugLine = std::make_shared<VulkanUtils::VEffect>(
                    device, "Debug lines",
-                   "Shaders/Compiled/BasicTriangle.vert.slang.spv",
+                   "Shaders/Compiled/DebugLines.vert.slang.spv",
                    "Shaders/Compiled/DebugLines.frag.slang.spv",
                    pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
@@ -65,7 +66,8 @@ namespace ApplicationCore {
             ->SetTopology(vk::PrimitiveTopology::eTriangleList)
             .SetCullNone()
             .SetPolygonLine()
-            .SetLineWidth(2);
+            .SetLineWidth(2)
+            .SetVertexInputMode(EVertexInput::VertexOnly);
 
         effects[EEffectType::DebugLine] = std::move(debugLine);
 
@@ -73,7 +75,7 @@ namespace ApplicationCore {
 
         auto outline = std::make_shared<VulkanUtils::VEffect>(
                    device, "Outline",
-                   "Shaders/Compiled/BasicTriangle.vert.slang.spv",
+                   "Shaders/Compiled/DebugLines.vert.slang.spv",
                    "Shaders/Compiled/Outliines.frag.slang.spv",
                    pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
@@ -89,13 +91,14 @@ namespace ApplicationCore {
 
         auto debugShapes = std::make_shared<VulkanUtils::VEffect>(
             device, "Debug shapes",
-            "Shaders/Compiled/BasicTriangle.vert.slang.spv",
+            "Shaders/Compiled/DebugLines.vert.slang.spv",
             "Shaders/Compiled/DebugGeometry.frag.slang.spv",
                    pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
         debugShapes->SetCullNone()
         .SetLineWidth(7)
         .SetPolygonLine()
+        .SetVertexInputMode(EVertexInput::VertexOnly)
         .SetTopology(vk::PrimitiveTopology::eLineList);
 
         effects[EEffectType::DebugLine] = std::move(debugShapes);
@@ -110,6 +113,7 @@ namespace ApplicationCore {
 
 
         skybox->SetCullNone()
+            .SetVertexInputMode(EVertexInput::VertexOnly)
             .SetDisableDepthWrite()
             .SetDepthOpLessEqual();
 

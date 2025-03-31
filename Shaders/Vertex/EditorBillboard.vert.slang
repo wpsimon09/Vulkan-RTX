@@ -2,7 +2,6 @@ import Utils;
 
 struct VertexInput {
     float3 inPosition :POSITION ;
-    float3 inNormal : NORMAL;
     float2 inUV : UV;
 };
 

@@ -56,30 +56,87 @@ vk::ImageView VulkanUtils::GenerateImageView(const vk::Device &logicalDevice, co
 }
 
 void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBindingDescription &bindingDescription,
-    std::vector<vk::VertexInputAttributeDescription> &attributeDescription) {
+                                                          std::vector<vk::VertexInputAttributeDescription> &attributeDescription, EVertexInput vertexInput) {
     bindingDescription.binding = 0;
     bindingDescription.stride = sizeof(ApplicationCore::Vertex);
     bindingDescription.inputRate = vk::VertexInputRate::eVertex;
 
-    attributeDescription.resize(3);
 
-    // FOR POSITION
-    attributeDescription[0].binding = 0;
-    attributeDescription[0].location = 0;
-    attributeDescription[0].format = vk::Format::eR32G32B32Sfloat;
-    attributeDescription[0].offset = offsetof(ApplicationCore::Vertex, position);
+    switch (vertexInput)
+    {
+    case Full:
+        {
+            attributeDescription.resize(3); // enum specifies the number
 
-    // NORMALS
-    attributeDescription[1].binding = 0;
-    attributeDescription[1].location = 1;
-    attributeDescription[1].format = vk::Format::eR32G32B32Sfloat;
-    attributeDescription[1].offset = offsetof(ApplicationCore::Vertex, normal);
+            // FOR POSITION
+            attributeDescription[0].binding = 0;
+            attributeDescription[0].location = 0;
+            attributeDescription[0].format = vk::Format::eR32G32B32Sfloat;
+            attributeDescription[0].offset = offsetof(ApplicationCore::Vertex, position);
 
-    // uv
-    attributeDescription[2].binding = 0;
-    attributeDescription[2].location = 2;
-    attributeDescription[2].format = vk::Format::eR32G32Sfloat;
-    attributeDescription[2].offset = offsetof(ApplicationCore::Vertex, uv);
+            // NORMALS
+            attributeDescription[1].binding = 0;
+            attributeDescription[1].location = 1;
+            attributeDescription[1].format = vk::Format::eR32G32B32Sfloat;
+            attributeDescription[1].offset = offsetof(ApplicationCore::Vertex, normal);
+
+            // uv
+            attributeDescription[2].binding = 0;
+            attributeDescription[2].location = 2;
+            attributeDescription[2].format = vk::Format::eR32G32Sfloat;
+            attributeDescription[2].offset = offsetof(ApplicationCore::Vertex, uv);
+
+            break;
+        }
+    case Vertex_UV:
+        {
+            attributeDescription.resize(2); // enum specifies the number
+
+            // FOR POSITION
+            attributeDescription[0].binding = 0;
+            attributeDescription[0].location = 0;
+            attributeDescription[0].format = vk::Format::eR32G32B32Sfloat;
+            attributeDescription[0].offset = offsetof(ApplicationCore::Vertex, position);
+
+            // uv
+            attributeDescription[1].binding = 0;
+            attributeDescription[1].location = 1;
+            attributeDescription[1].format = vk::Format::eR32G32Sfloat;
+            attributeDescription[1].offset = offsetof(ApplicationCore::Vertex, uv);
+
+            break;
+        };
+    case Vertex_Normal:
+        {
+            attributeDescription.resize(2); // enum specifies the number
+
+            // FOR POSITION
+            attributeDescription[0].binding = 0;
+            attributeDescription[0].location = 0;
+            attributeDescription[0].format = vk::Format::eR32G32B32Sfloat;
+            attributeDescription[0].offset = offsetof(ApplicationCore::Vertex, position);
+
+            // NORMALS
+            attributeDescription[1].binding = 0;
+            attributeDescription[1].location = 1;
+            attributeDescription[1].format = vk::Format::eR32G32B32Sfloat;
+            attributeDescription[1].offset = offsetof(ApplicationCore::Vertex, normal);
+
+            break;
+        }
+    case VertexOnly:
+        {
+            attributeDescription.resize(1); // enum specifies the number
+
+            // FOR POSITION
+            attributeDescription[0].binding = 0;
+            attributeDescription[0].location = 0;
+            attributeDescription[0].format = vk::Format::eR32G32B32Sfloat;
+            attributeDescription[0].offset = offsetof(ApplicationCore::Vertex, position);
+
+            break;
+        }
+    }
 }
 
 void VulkanUtils::CopyBuffers(const VulkanCore::VDevice &device, const VulkanCore::VSyncPrimitive<vk::Fence>& fence, const vk::Buffer &srcBuffer,

@@ -42,5 +42,13 @@ enum EImageSource{
     Generated
 };
 
+enum EVertexInput
+{
+    Full = 0,
+    VertexOnly ,
+    Vertex_UV ,
+    Vertex_Normal ,
+};
+
 
 #endif //GLOBALVULKANENUMS_HPP

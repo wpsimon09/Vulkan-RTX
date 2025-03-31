@@ -46,7 +46,7 @@ namespace VulkanUtils
     vk::ImageView GenerateImageView(const vk::Device& logicalDevice, const vk::Image& image, uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
 
     void GetVertexBindingAndAttributeDescription(vk::VertexInputBindingDescription &bindingDescription,
-        std::vector<vk::VertexInputAttributeDescription> &attributeDescription
+                                                 std::vector<vk::VertexInputAttributeDescription> &attributeDescription, EVertexInput vertexInput = Full
     );
 
     void CopyBuffers(const VulkanCore::VDevice& device, const VulkanCore::VSyncPrimitive<vk::Fence>& fence, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::

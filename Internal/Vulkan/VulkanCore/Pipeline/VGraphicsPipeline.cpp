@@ -109,8 +109,8 @@ void VulkanCore::VGraphicsPipeline::CreateShaderStages() {
 
 }
 
-void VulkanCore::VGraphicsPipeline::CreateVertexInputBindingAndAttributes() {
-    VulkanUtils::GetVertexBindingAndAttributeDescription(m_vertexInputBindingDescription, m_vertexInputAttributeDescription);
+void VulkanCore::VGraphicsPipeline::CreateVertexInputBindingAndAttributes(EVertexInput input) {
+    VulkanUtils::GetVertexBindingAndAttributeDescription(m_vertexInputBindingDescription, m_vertexInputAttributeDescription, input);
     m_vertexInputState.vertexAttributeDescriptionCount = m_vertexInputAttributeDescription.size();
     m_vertexInputState.vertexBindingDescriptionCount = 1;
 
