@@ -244,7 +244,7 @@ namespace ApplicationCore
             if (m_sceneNodeMetaData.IsSelected)
             {
                 data.effect = effectsLibrary.GetEffect(EEffectType::Outline);
-                data.modelMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(1.1f));
+                data.modelMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(1.01f));
                 renderingContext->AddDrawCall(data);
             }
 

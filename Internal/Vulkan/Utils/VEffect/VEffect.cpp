@@ -126,10 +126,12 @@ namespace VulkanUtils
             m_pipeline->m_depthStencil.back.compareOp = vk::CompareOp::eNotEqual;
             m_pipeline->m_depthStencil.back.failOp = vk::StencilOp::eKeep;
             m_pipeline->m_depthStencil.back.depthFailOp = vk::StencilOp::eKeep;
-            m_pipeline->m_depthStencil.back.passOp = vk::StencilOp::eKeep;
+            m_pipeline->m_depthStencil.back.passOp = vk::StencilOp::eReplace;
+            /*
             m_pipeline->m_depthStencil.back.reference = 1;
-            m_pipeline->m_depthStencil.back.compareMask = 0xFF;
-            m_pipeline->m_depthStencil.back.writeMask = 0x00;
+            m_pipeline->m_depthStencil.back.compareMask = 0xff;
+            m_pipeline->m_depthStencil.back.writeMask = 0x0000000;
+            */
 
             m_pipeline->m_depthStencil.front = m_pipeline->m_depthStencil.back;
 

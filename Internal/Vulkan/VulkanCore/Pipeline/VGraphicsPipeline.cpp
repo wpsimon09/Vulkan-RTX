@@ -162,7 +162,7 @@ void VulkanCore::VGraphicsPipeline::CreateDynamicState() {
 void VulkanCore::VGraphicsPipeline::CreateRasterizer() {
     m_rasterizer.depthClampEnable = vk::False;
     m_rasterizer.polygonMode = vk::PolygonMode::eFill;
-    m_rasterizer.rasterizerDiscardEnable = VK_FALSE;
+    m_rasterizer.rasterizerDiscardEnable = vk::False;
     m_rasterizer.lineWidth = 1.0f;
     m_rasterizer.cullMode = vk::CullModeFlagBits::eBack;
     m_rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
@@ -191,12 +191,12 @@ void VulkanCore::VGraphicsPipeline::CreateDepthStencil() {
 
     m_depthStencil.stencilTestEnable = vk::True;
     m_depthStencil.back.compareOp = vk::CompareOp::eAlways;
-    m_depthStencil.back.failOp = vk::StencilOp::eKeep;
-    m_depthStencil.back.depthFailOp = vk::StencilOp::eKeep;
+    m_depthStencil.back.failOp = vk::StencilOp::eReplace;
+    m_depthStencil.back.depthFailOp = vk::StencilOp::eReplace;
     m_depthStencil.back.passOp = vk::StencilOp::eReplace;
     m_depthStencil.back.reference = 1;
-    m_depthStencil.back.compareMask = 0xFF;
-    m_depthStencil.back.writeMask = 0xFF;
+    m_depthStencil.back.compareMask = 0xff;
+    m_depthStencil.back.writeMask = 0xff;
     m_depthStencil.front = m_depthStencil.back;
 }
 
@@ -248,9 +248,11 @@ void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
     assert(!m_outputFormats.empty() && "Formats are emepty ");
     m_renderingCreateInfo.colorAttachmentCount = m_outputFormats.size();;
     m_renderingCreateInfo.pColorAttachmentFormats = m_outputFormats.data();
-    m_renderingCreateInfo.depthAttachmentFormat = m_device.GetDepthFormat();
+    m_renderingCreateInfo.depthAttachmentFormat = vk::Format::eD32SfloatS8Uint;
+    m_renderingCreateInfo.stencilAttachmentFormat = vk::Format::eD32SfloatS8Uint;
 
 }
+
 
 void VulkanCore::VGraphicsPipeline::EnableBlendingAlpha(){
     m_colorBlendAttachmentState.blendEnable = vk::True;

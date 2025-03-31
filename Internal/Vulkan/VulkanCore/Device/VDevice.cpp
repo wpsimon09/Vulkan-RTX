@@ -216,7 +216,7 @@ void VulkanCore::VDevice::CreateVmaAllocator(const VulkanCore::VulkanInstance& i
 
 void VulkanCore::VDevice::RetreiveDepthFormat()
 {
-    std::vector<vk::Format> formats = {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint,vk::Format::eD24UnormS8Uint};
+    std::vector<vk::Format> formats = {vk::Format::eD32SfloatS8Uint, vk::Format::eD32Sfloat ,vk::Format::eD24UnormS8Uint};
     auto tilling = vk::ImageTiling::eOptimal;
     auto feature = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
 
@@ -241,7 +241,7 @@ void VulkanCore::VDevice::FetchMaxSampleCount()
     auto& gpuProperteis = GlobalVariables::GlobalStructs::GpuProperties;
 
     vk::SampleCountFlags maxSampleCount = gpuProperteis.limits.framebufferColorSampleCounts & gpuProperteis.limits.
-        framebufferDepthSampleCounts;
+            framebufferDepthSampleCounts;
     if (!GlobalState::MSAA)
     {
         m_sampleCount = vk::SampleCountFlagBits::e1;

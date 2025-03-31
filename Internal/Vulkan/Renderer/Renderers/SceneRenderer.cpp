@@ -217,6 +217,7 @@ namespace Renderer
         renderingInfo.colorAttachmentCount = colourAttachments.size();
         renderingInfo.pColorAttachments = colourAttachments.data();
         renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
+        renderingInfo.pStencilAttachment = &m_renderTargets->GetDepthAttachment();
 
         //==============================================
         // START RENDER PASS

@@ -233,7 +233,7 @@ namespace Renderer {
         depthAttachmentCreateInfo.height = swapChainExtent.height;
         depthAttachmentCreateInfo.width = swapChainExtent.width;
         depthAttachmentCreateInfo.mipLevels = 1;
-        depthAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eDepth;
+        depthAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil;
         depthAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
 
         m_depthAttachment.second = std::make_unique<VulkanCore::VImage2>(m_device, depthAttachmentCreateInfo);
@@ -243,6 +243,8 @@ namespace Renderer {
         depthSwapChainAttachment.clearValue.depthStencil.depth = 1.0f;
         depthSwapChainAttachment.clearValue.depthStencil.stencil = 0.0f;
         depthSwapChainAttachment.imageView = m_depthAttachment.second->GetImageView();
+
+
         depthSwapChainAttachment.loadOp = vk::AttachmentLoadOp::eClear;
         depthSwapChainAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
 

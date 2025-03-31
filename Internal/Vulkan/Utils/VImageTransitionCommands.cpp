@@ -112,7 +112,7 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(const VulkanCore::VImage& i
     barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
     barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
     barrier.image = image.GetImage();
-    barrier.subresourceRange.aspectMask = image.GetIsDepthBuffer() ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+    barrier.subresourceRange.aspectMask = image.GetIsDepthBuffer() ? vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil : vk::ImageAspectFlagBits::eColor;
     barrier.subresourceRange.baseMipLevel = 0;
     barrier.subresourceRange.levelCount = 1;
     barrier.subresourceRange.baseArrayLayer = 0;
@@ -134,7 +134,7 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(VulkanCore::VImage2& image,
     barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
     barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
     barrier.image = image.GetImage();;
-    barrier.subresourceRange.aspectMask = image.GetImageFlags().IsDepthBuffer ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+    barrier.subresourceRange.aspectMask = image.GetImageFlags().IsDepthBuffer ? vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil : vk::ImageAspectFlagBits::eColor;
     barrier.subresourceRange.baseMipLevel = 0;
     barrier.subresourceRange.levelCount = 1;
     barrier.subresourceRange.baseArrayLayer = 0;
