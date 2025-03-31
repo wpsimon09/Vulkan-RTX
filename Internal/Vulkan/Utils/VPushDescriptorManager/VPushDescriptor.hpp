@@ -30,12 +30,14 @@ public:
     DescriptorSetTemplateVariant& GetDstStruct()                               {return m_dstLayout->GetStructure();}
     VulkanCore::VDescriptorSetLayout& GetLayout()                              {return *m_dstLayout; }
     std::string& GetName()                                                     {return m_name;}
+    EDescriptorLayoutStruct GetLayoutStructTyoe ()                             {return m_layoutStructType;}
 
     void CreateDstUpdateInfo(VulkanCore::VGraphicsPipeline& pipelineLayout);
     vk::DescriptorUpdateTemplate& GetUpdateTemplate()                          {return m_descriptorUpdateTemplate;}
     void Destroy();
 
-private:
+protected:
+    EDescriptorLayoutStruct                                                    m_layoutStructType;
     void AddUpdateEntry(uint32_t binding,size_t offset, size_t stride );
     const VulkanCore::VDevice &m_device;
     std::string m_name;

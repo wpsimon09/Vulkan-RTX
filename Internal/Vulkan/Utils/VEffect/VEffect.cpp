@@ -147,7 +147,6 @@ namespace VulkanUtils
             cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline->GetPipelineInstance());
         }
 
-
         void VEffect::Destroy()
         {
             m_pipeline->Destroy();
@@ -166,5 +165,10 @@ namespace VulkanUtils
         int& VEffect::GetID()
         {
             return m_ID;
+        }
+
+        EDescriptorLayoutStruct VEffect::GetLayoutStructType()
+        {
+            return m_descriptorSet->GetLayoutStructTyoe();
         }
 } // VulkanUtils

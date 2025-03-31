@@ -22,6 +22,7 @@ VulkanUtils::VPushDescriptorSet::VPushDescriptorSet(const VulkanCore::VDevice& d
                 this->AddUpdateEntry(0, offsetof(VulkanUtils::BasicDescriptorSet, buffer1), 0);
                 this->AddUpdateEntry(1, offsetof(VulkanUtils::BasicDescriptorSet, buffer2), 0);
                 this->AddUpdateEntry(2, offsetof(VulkanUtils::BasicDescriptorSet, buffer3), 0);
+                m_layoutStructType = EDescriptorLayoutStruct::Basic;
             }
             else if constexpr (std::is_same_v<t, VulkanUtils::UnlitSingleTexture>)
             {
@@ -31,6 +32,7 @@ VulkanUtils::VPushDescriptorSet::VPushDescriptorSet(const VulkanCore::VDevice& d
                 this->AddUpdateEntry(1, offsetof(VulkanUtils::UnlitSingleTexture, buffer2), 0);
                 this->AddUpdateEntry(2, offsetof(VulkanUtils::UnlitSingleTexture, buffer3), 0);
                 this->AddUpdateEntry(3, offsetof(VulkanUtils::UnlitSingleTexture, texture2D_1), 0);
+                m_layoutStructType = EDescriptorLayoutStruct::UnlitSingleTexture;
             }
             else if constexpr (std::is_same_v<t, VulkanUtils::ForwardShadingDstSet>)
             {
@@ -48,6 +50,7 @@ VulkanUtils::VPushDescriptorSet::VPushDescriptorSet(const VulkanCore::VDevice& d
                 this->AddUpdateEntry(9, offsetof(VulkanUtils::ForwardShadingDstSet, texture2D_4), 0);
                 this->AddUpdateEntry(10, offsetof(VulkanUtils::ForwardShadingDstSet, texture2D_5), 0);
                 this->AddUpdateEntry(11, offsetof(VulkanUtils::ForwardShadingDstSet, texture2D_6), 0);
+                m_layoutStructType = EDescriptorLayoutStruct::ForwardShading;
             }
             else
             {

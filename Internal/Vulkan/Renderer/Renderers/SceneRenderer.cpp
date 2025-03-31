@@ -53,64 +53,64 @@ namespace Renderer
 
     void SceneRenderer::PushDataToGPU(const vk::CommandBuffer& cmdBuffer, int currentFrameIndex,int objectIndex,VulkanStructs::DrawCallData& drawCall, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
     {
-        std::visit([this,&currentFrameIndex,&objectIndex,&drawCall, &uniformBufferManager, cmdBuffer ](auto& effectDstStruct) {
-            auto& material = drawCall.material;
-            using T = std::decay_t<decltype(effectDstStruct)>;
-                        if constexpr (std::is_same_v<T, VulkanUtils::BasicDescriptorSet>)
-            {
-                auto& basicEffect = static_cast<VulkanUtils::BasicDescriptorSet&>(effectDstStruct);
-                basicEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-                basicEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
+        switch (drawCall.effect->GetLayoutStructType())
+        {
+            case VulkanUtils::EDescriptorLayoutStruct::Basic:
+                {
+                    auto& basicEffect = std::get<VulkanUtils::BasicDescriptorSet>(drawCall.effect->GetEffectUpdateStruct());
+                    basicEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                    basicEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
 
 
-                cmdBuffer.pushDescriptorSetWithTemplateKHR(
-                    drawCall.effect->GetUpdateTemplate(),
-                    drawCall.effect->GetPipelineLayout(), 0,
-                    basicEffect, m_device.DispatchLoader);
+                    cmdBuffer.pushDescriptorSetWithTemplateKHR(
+                        drawCall.effect->GetUpdateTemplate(),
+                        drawCall.effect->GetPipelineLayout(), 0,
+                        basicEffect, m_device.DispatchLoader);
 
+                    break;
+                }
+            case VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture:
+                {
+                    auto& unlitSingelTextureEffect = std::get<VulkanUtils::UnlitSingleTexture>(drawCall.effect->GetEffectUpdateStruct());;
+                    unlitSingelTextureEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                    unlitSingelTextureEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
+
+                    // cast might be required here
+                    drawCall.material->UpdateGPUTextureData(unlitSingelTextureEffect);
+
+                    cmdBuffer.pushDescriptorSetWithTemplateKHR(
+                        drawCall.effect->GetUpdateTemplate(),
+                        drawCall.effect->GetPipelineLayout(), 0,
+                        unlitSingelTextureEffect, m_device.DispatchLoader);
+                    break;
+                }
+            case VulkanUtils::EDescriptorLayoutStruct::ForwardShading:
+                {
+                    auto& forwardShaddingEffect = std::get<VulkanUtils::ForwardShadingDstSet>(drawCall.effect->GetEffectUpdateStruct());
+                    forwardShaddingEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                    forwardShaddingEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];;
+                    forwardShaddingEffect.buffer3 = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
+
+                    /*
+                    forwardShaddingEffect.buffer4 = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(objectIndex)[
+                        currentFrameIndex];
+
+                    forwardShaddingEffect.buffer5 = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(objectIndex)[
+                        currentFrameIndex];
+                        */
+
+                    drawCall.material->UpdateGPUTextureData(forwardShaddingEffect);
+
+                    forwardShaddingEffect.texture2D_5 = MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                    forwardShaddingEffect.texture2D_6 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+                    cmdBuffer.pushDescriptorSetWithTemplateKHR(
+                        drawCall.effect->GetUpdateTemplate(),
+                        drawCall.effect->GetPipelineLayout(), 0,
+                        forwardShaddingEffect, m_device.DispatchLoader);
+                    break;
+                }
             }
-            else if constexpr (std::is_same_v<T, VulkanUtils::UnlitSingleTexture>)
-            {
-                auto& unlitSingelTextureEffect = static_cast<VulkanUtils::UnlitSingleTexture&>(effectDstStruct);
-                unlitSingelTextureEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-                unlitSingelTextureEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
-
-                // cast might be required here
-                drawCall.material->UpdateGPUTextureData(unlitSingelTextureEffect);
-
-                cmdBuffer.pushDescriptorSetWithTemplateKHR(
-                    drawCall.effect->GetUpdateTemplate(),
-                    drawCall.effect->GetPipelineLayout(), 0,
-                    unlitSingelTextureEffect, m_device.DispatchLoader);
-
-            }
-            else if constexpr (std::is_same_v<T, VulkanUtils::ForwardShadingDstSet>)
-            {
-                auto& forwardShaddingEffect = static_cast<VulkanUtils::ForwardShadingDstSet&>(effectDstStruct);
-                forwardShaddingEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-                forwardShaddingEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];;
-                forwardShaddingEffect.buffer3 = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
-
-                /*
-                forwardShaddingEffect.buffer4 = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(objectIndex)[
-                    currentFrameIndex];
-
-                forwardShaddingEffect.buffer5 = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(objectIndex)[
-                    currentFrameIndex];
-                    */
-
-                drawCall.material->UpdateGPUTextureData(forwardShaddingEffect);
-
-                forwardShaddingEffect.texture2D_5 = MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                forwardShaddingEffect.texture2D_6 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-
-                cmdBuffer.pushDescriptorSetWithTemplateKHR(
-                    drawCall.effect->GetUpdateTemplate(),
-                    drawCall.effect->GetPipelineLayout(), 0,
-                    forwardShaddingEffect, m_device.DispatchLoader);
-            }
-
-        }, drawCall.effect->GetEffectUpdateStruct());
 
     }
 

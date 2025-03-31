@@ -59,6 +59,8 @@ public:
     vk::DescriptorUpdateTemplate&       GetUpdateTemplate();
     unsigned short                      EvaluateRenderingOrder();
     int&                                GetID();
+    EDescriptorLayoutStruct             GetLayoutStructType();
+
 
 private:
     const VulkanCore::VDevice& m_device;
