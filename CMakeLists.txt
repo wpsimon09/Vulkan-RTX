@@ -196,6 +196,12 @@ set(SOURCES
         Internal/Application/Rendering/Material/BaseMaterial.hpp
         Internal/Application/Rendering/Scene/SkyBoxNode.cpp
         Internal/Application/Rendering/Scene/SkyBoxNode.hpp
+        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorSets/VPushDesSetForwardLit.cpp
+        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorSets/VPushDesSetForwardLit.hpp
+        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorSets/VPushDesSetTextureNoLit.cpp
+        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorSets/VPushDesSetTextureNoLit.hpp
+        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorSets/VPushDesSetBasic.cpp
+        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorSets/VPushDesSetBasic.hpp
 
 )
 
