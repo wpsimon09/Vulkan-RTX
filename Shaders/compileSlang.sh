@@ -69,3 +69,29 @@ for comp_shader in Compute/*.comp; do
         echo "No compute shaders found in Compute directory"
     fi
 done
+
+echo "==============Compiling ENV================"
+for slang_shader in EnvGeneration/*.slang; do
+    if [[ -f "$slang_shader" ]]; then
+        shader_name=$(basename "$slang_shader" .slang)
+        echo "Compiling shaders from: $shader_name.slang"
+
+        # Compile vertex shader
+        $SLANGC_PATH -target spirv -stage vertex -entry vertexMain -o "Compiled/${shader_name}.vert.spv" "$slang_shader"
+        if [[ $? -eq 0 ]]; then
+            echo "Compiled vertex shader to Compiled/${shader_name}.vert.spv"
+        else
+            echo "Failed to compile vertex shader from $slang_shader"
+        fi
+
+        # Compile fragment shader
+        $SLANGC_PATH -target spirv -stage fragment -entry fragmentMain -o "Compiled/${shader_name}.frag.spv" "$slang_shader"
+        if [[ $? -eq 0 ]]; then
+            echo "Compiled fragment shader to Compiled/${shader_name}.frag.spv"
+        else
+            echo "Failed to compile fragment shader from $slang_shader"
+        fi
+    else
+        echo "No Slang shaders found in Shaders directory"
+    fi
+done
