@@ -50,7 +50,7 @@ namespace Renderer {
         depthAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
         depthAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eNone;
         depthAttachmentInfo.clearValue.depthStencil.depth = 1.0f;
-        depthAttachmentInfo.clearValue.depthStencil.stencil = 1.0f;
+        depthAttachmentInfo.clearValue.depthStencil.stencil = 0.0f;
 
 
 
