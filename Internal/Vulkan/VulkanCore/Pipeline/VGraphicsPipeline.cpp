@@ -153,7 +153,7 @@ void VulkanCore::VGraphicsPipeline::CreateDynamicState() {
     m_dynamicStates = {
         vk::DynamicState::eViewport,
         vk::DynamicState::eScissor,
-        vk::DynamicState::eStencilWriteMask,
+        vk::DynamicState::eStencilTestEnable,
     };
 
     m_dynamicStateInfo.dynamicStateCount = m_dynamicStates.size();
@@ -185,19 +185,19 @@ void VulkanCore::VGraphicsPipeline::CreateMultisampling() {
 void VulkanCore::VGraphicsPipeline::CreateDepthStencil() {
     m_depthStencil.depthTestEnable = vk::True;
     m_depthStencil.depthWriteEnable = vk::True;
-    m_depthStencil.depthCompareOp = vk::CompareOp::eLess;
+    m_depthStencil.depthCompareOp = vk::CompareOp::eLessOrEqual;
     m_depthStencil.depthBoundsTestEnable = vk::False;
     m_depthStencil.minDepthBounds = 0.0f;
     m_depthStencil.maxDepthBounds = 1.0f;
 
-    m_depthStencil.stencilTestEnable = vk::True;
+    m_depthStencil.stencilTestEnable = vk::False;
     m_depthStencil.back.compareOp = vk::CompareOp::eAlways;
     m_depthStencil.back.failOp = vk::StencilOp::eReplace;
     m_depthStencil.back.depthFailOp = vk::StencilOp::eReplace;
     m_depthStencil.back.passOp = vk::StencilOp::eReplace;
     m_depthStencil.back.reference = 1;
     m_depthStencil.back.compareMask = 0xff;
-    m_depthStencil.back.writeMask = 0x00;
+    m_depthStencil.back.writeMask = 0xff;
     m_depthStencil.front = m_depthStencil.back;
 }
 

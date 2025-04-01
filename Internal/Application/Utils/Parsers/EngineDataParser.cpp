@@ -54,7 +54,8 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
     EngineConfig["Rendering"].set({
         {"Frustrum culling", std::to_string(GlobalVariables::RenderingOptions::EnableFrustrumCulling)},
         {"MSAAEnabled", std::to_string(GlobalState::MSAA)},
-        {"MSAASamples", std::to_string(GlobalVariables::RenderingOptions::MSAASamples)}
+        {"MSAASamples", std::to_string(GlobalVariables::RenderingOptions::MSAASamples)},
+        {"OutlineWidth", std::to_string(GlobalVariables::RenderingOptions::OutlineWidth)}
     });
 
     //=========================================
@@ -137,9 +138,10 @@ void ApplicationCore::LoadConfig()
 
         if (EngineConfig["Rendering"].has("MSAAEnabled"))
             GlobalState::MSAA = std::stoi(EngineConfig["Rendering"]["MSAAEnabled"]);
-
         if (EngineConfig["Rendering"].has("MSAASamples"))
             GlobalVariables::RenderingOptions::MSAASamples = std::stoi(EngineConfig["Rendering"]["MSAASamples"]);
+        if (EngineConfig["Rendering"].has("OutlineWidth"))
+            GlobalVariables::RenderingOptions::OutlineWidth = std::stof(EngineConfig["Rendering"]["OutlineWidth"]);
     }
 
     //=======================================

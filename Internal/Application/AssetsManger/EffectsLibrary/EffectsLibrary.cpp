@@ -81,10 +81,9 @@ namespace ApplicationCore {
 
         outline
             //->SetC()
-            ->SetDisableDepthTest()
-            .SetDisableDepthWrite()
-            .SetStencilTestOutline()
-            .SetCullNone();
+            ->SetStencilTestOutline()
+              .SetDisableDepthTest()
+             .SetDisableDepthWrite();
 
         effects[EEffectType::Outline] = std::move(outline);
 

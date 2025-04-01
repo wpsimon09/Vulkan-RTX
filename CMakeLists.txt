@@ -196,6 +196,8 @@ set(SOURCES
         Internal/Application/Rendering/Material/BaseMaterial.hpp
         Internal/Application/Rendering/Scene/SkyBoxNode.cpp
         Internal/Application/Rendering/Scene/SkyBoxNode.hpp
+        Internal/Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.cpp
+        Internal/Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp
 
 )
 

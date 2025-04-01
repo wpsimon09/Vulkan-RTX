@@ -171,10 +171,12 @@ namespace VEditor {
 
                     if (isSelected)
                         ImGui::SetItemDefaultFocus();
-                }
+                                    }
 
                 ImGui::EndCombo();
             }
         }
+
+        ImGui::SliderFloat("Outline width", &GlobalVariables::RenderingOptions::OutlineWidth, 0.01f, 1.f);
     }
 } // VEditor

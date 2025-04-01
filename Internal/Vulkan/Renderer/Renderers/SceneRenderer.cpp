@@ -267,6 +267,7 @@ namespace Renderer
         scissors.extent.width = m_width;
         scissors.extent.height = m_height;
 
+
         cmdBuffer.setScissor(0, 1, &scissors);
 
 
@@ -283,8 +284,8 @@ namespace Renderer
                 currentEffect = drawCall.second.effect;
             }
 
-            if (drawCall.second.selected) cmdBuffer.setStencilWriteMask(vk::StencilFaceFlagBits::eFrontAndBack, 0xFF);
-            else                          cmdBuffer.setStencilWriteMask(vk::StencilFaceFlagBits::eFrontAndBack, 0x00);
+            if (drawCall.second.selected) cmdBuffer.setStencilTestEnable(true);
+            else                          cmdBuffer.setStencilTestEnable(false);
             //================================================================================================
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
             //================================================================================================

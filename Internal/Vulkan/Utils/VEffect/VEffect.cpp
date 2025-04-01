@@ -127,6 +127,7 @@ namespace VulkanUtils
             m_pipeline->m_depthStencil.back.failOp = vk::StencilOp::eKeep;
             m_pipeline->m_depthStencil.back.depthFailOp = vk::StencilOp::eKeep;
             m_pipeline->m_depthStencil.back.passOp = vk::StencilOp::eReplace;
+            m_pipeline->m_depthStencil.back.reference = 1;
 
 
 
@@ -140,6 +141,12 @@ namespace VulkanUtils
         {
             m_pipeline->m_depthStencil.stencilTestEnable = vk::False;
             return  *this;
+        }
+
+        VEffect& VEffect::SetDepthTestNever()
+        {
+            m_pipeline->m_depthStencil.depthCompareOp = vk::CompareOp::eNever;
+            return *this;
         }
 
         std::string& VEffect::GetName()

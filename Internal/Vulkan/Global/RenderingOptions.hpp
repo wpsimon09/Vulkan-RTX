@@ -9,6 +9,7 @@ namespace GlobalVariables::RenderingOptions
 {
     inline bool EnableFrustrumCulling = true;
     inline int MSAASamples = 4;
+    inline float OutlineWidth = 0.1;
 }
 
 #endif //RENDERINGOPTIONS_HPP

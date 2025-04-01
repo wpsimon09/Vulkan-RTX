@@ -15,6 +15,10 @@ namespace VulkanCore::VSamplers
 {
     inline vk::Sampler Sampler2D;
 
+    inline vk::Sampler SamplerClampToEdge;
+
+    inline vk::Sampler SamplerCube;
+
     void CreateAllSamplers(const VulkanCore::VDevice& device);
 
     void DestroyAllSamplers(const VulkanCore::VDevice& device);

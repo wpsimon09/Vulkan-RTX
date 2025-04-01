@@ -50,6 +50,8 @@ public:
     VEffect& SetVertexInputMode(EVertexInput inputMode);
     VEffect& SetStencilTestOutline();
     VEffect& DisableStencil();
+    VEffect& SetDepthTestNever();
+
 
     //=======================================
 

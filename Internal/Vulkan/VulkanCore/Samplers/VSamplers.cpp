@@ -36,7 +36,26 @@ namespace VulkanCore::VSamplers
         samplerInfo.maxLod = 0.0f;
         samplerInfo.minLod = 0.0f;
 
-        VulkanCore::VSamplers::Sampler2D =  device.GetDevice().createSampler(samplerInfo);
+        //---------------------------------------------------------
+        //  SAMPLER 2D - CLAMP TO EDGE
+        //---------------------------------------------------------
+        Utils::Logger::LogInfoVerboseOnly("Creating sampler...");
+        samplerInfo.magFilter = vk::Filter::eLinear;
+        samplerInfo.minFilter = vk::Filter::eLinear;
+        samplerInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+        samplerInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
+        samplerInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+        samplerInfo.anisotropyEnable = false;
+        samplerInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+        samplerInfo.unnormalizedCoordinates = false;
+        samplerInfo.compareEnable = false;
+        samplerInfo.compareOp = vk::CompareOp::eAlways;
+        samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
+        samplerInfo.mipLodBias = 0.0f;
+        samplerInfo.minLod = 0.0f;
+        samplerInfo.maxLod = 1.0f;
+
+        VulkanCore::VSamplers::SamplerClampToEdge =  device.GetDevice().createSampler(samplerInfo);
 
         Utils::Logger::LogSuccess("Sampler created successfully !");
     }

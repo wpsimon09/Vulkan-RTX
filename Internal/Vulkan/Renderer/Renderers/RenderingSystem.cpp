@@ -14,6 +14,7 @@
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
@@ -63,6 +64,8 @@ namespace Renderer {
             uiContext);
 
         m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
+
+        VulkanUtils::VEnvLightGenerator envLightGenerator(m_device);
 
         Utils::Logger::LogInfo("RenderingSystem initialized");
 

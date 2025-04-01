@@ -96,6 +96,7 @@ namespace Renderer {
             msaaAttachmentInfo.clearValue.color.setFloat32({0.2f, 0.2f, 0.2f, 1.f});
             msaaAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
 
+
         }
 
         for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
@@ -116,7 +117,6 @@ namespace Renderer {
                                                             vk::ImageLayout::eDepthStencilAttachmentOptimal,
                                                             vk::ImageLayout::eUndefined,
                                                             m_device.GetTransferOpsManager().GetCommandBuffer());
-
 
         Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
     }
