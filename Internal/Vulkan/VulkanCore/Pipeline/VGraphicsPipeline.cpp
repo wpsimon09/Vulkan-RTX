@@ -152,7 +152,8 @@ void VulkanCore::VGraphicsPipeline::CreateDynamicState() {
     //------------------------------
     m_dynamicStates = {
         vk::DynamicState::eViewport,
-        vk::DynamicState::eScissor
+        vk::DynamicState::eScissor,
+        vk::DynamicState::eStencilWriteMask,
     };
 
     m_dynamicStateInfo.dynamicStateCount = m_dynamicStates.size();
@@ -196,7 +197,7 @@ void VulkanCore::VGraphicsPipeline::CreateDepthStencil() {
     m_depthStencil.back.passOp = vk::StencilOp::eReplace;
     m_depthStencil.back.reference = 1;
     m_depthStencil.back.compareMask = 0xff;
-    m_depthStencil.back.writeMask = 0xff;
+    m_depthStencil.back.writeMask = 0x00;
     m_depthStencil.front = m_depthStencil.back;
 }
 

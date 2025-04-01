@@ -283,6 +283,8 @@ namespace Renderer
                 currentEffect = drawCall.second.effect;
             }
 
+            if (drawCall.second.selected) cmdBuffer.setStencilWriteMask(vk::StencilFaceFlagBits::eFrontAndBack, 0xFF);
+            else                          cmdBuffer.setStencilWriteMask(vk::StencilFaceFlagBits::eFrontAndBack, 0x00);
             //================================================================================================
             // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
             //================================================================================================

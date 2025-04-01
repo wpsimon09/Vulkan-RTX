@@ -239,6 +239,7 @@ namespace ApplicationCore
             data.bounds = &m_mesh->GetMeshData()->bounds;
             data.material = m_mesh->m_currentMaterial.get();
 
+            if (m_sceneNodeMetaData.IsSelected) data.selected = true;
             renderingContext->AddDrawCall(data);
 
             if (m_sceneNodeMetaData.IsSelected)

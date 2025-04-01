@@ -192,6 +192,8 @@ struct DrawCallData
 
     unsigned long key = 0;
 
+    bool selected = false;
+
     ApplicationCore::BaseMaterial* material;
     std::shared_ptr<VulkanUtils::VEffect> effect;
 
