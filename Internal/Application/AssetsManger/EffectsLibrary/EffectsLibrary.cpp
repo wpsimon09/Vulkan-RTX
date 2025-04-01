@@ -80,8 +80,8 @@ namespace ApplicationCore {
                    pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
         outline
-            ->SetCullFrontFace()
-            .SetDisableDepthTest()
+            //->SetC()
+            ->SetDisableDepthTest()
             .SetDisableDepthWrite()
             .SetStencilTestOutline()
             .SetCullNone();
@@ -116,7 +116,8 @@ namespace ApplicationCore {
         skybox->SetCullNone()
             .SetVertexInputMode(EVertexInput::VertexOnly)
             .SetDisableDepthWrite()
-            .SetDepthOpLessEqual();
+            .SetDepthOpLessEqual()
+            .DisableStencil();
 
 
         effects[EEffectType::SkyBox] = std::move(skybox);

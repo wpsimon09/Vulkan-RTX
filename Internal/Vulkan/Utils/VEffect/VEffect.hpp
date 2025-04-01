@@ -49,6 +49,7 @@ public:
     VEffect& SetFrontFaceClockWise();
     VEffect& SetVertexInputMode(EVertexInput inputMode);
     VEffect& SetStencilTestOutline();
+    VEffect& DisableStencil();
 
     //=======================================
 
@@ -62,7 +63,6 @@ public:
     unsigned short                      EvaluateRenderingOrder();
     int&                                GetID();
     EDescriptorLayoutStruct             GetLayoutStructType();
-
 
 private:
     const VulkanCore::VDevice& m_device;
