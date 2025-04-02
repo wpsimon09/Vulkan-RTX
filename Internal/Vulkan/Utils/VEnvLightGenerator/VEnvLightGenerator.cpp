@@ -27,6 +27,15 @@ const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetBRDFLut()
     return *m_brdfLut;
 }
 
+void VulkanUtils::VEnvLightGenerator::Destroy()
+{
+    m_brdfLut->Destroy();
+    m_envMapGenerationSemphore.Destroy();
+    m_transferCmdPool->Destroy();
+    m_graphicsCmdPool->Destroy();
+    m_envGenerationTransferOpsManager.Destroy();
+}
+
 void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
 {
     //============p===========================================

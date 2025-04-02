@@ -46,6 +46,8 @@ namespace VulkanUtils
 
         const VulkanCore::VImage2&                  GetBRDFLut();
         void                                        Generate(VulkanCore::VImage2& envMap);
+
+        void                                        Destroy();
     private:
         void                                        GenerateBRDFLut();
 

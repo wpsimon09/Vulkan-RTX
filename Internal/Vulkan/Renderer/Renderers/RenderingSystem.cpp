@@ -151,5 +151,6 @@ namespace Renderer {
         m_sceneRenderer->Destroy();
         m_uiRenderer->Destroy();
         m_swapChain->Destroy();
+        m_envLightGenerator->Destroy();
     }
 } // Renderer
