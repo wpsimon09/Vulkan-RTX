@@ -58,6 +58,8 @@
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
+#include "Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp"
+
 Application::Application()
 {
 }

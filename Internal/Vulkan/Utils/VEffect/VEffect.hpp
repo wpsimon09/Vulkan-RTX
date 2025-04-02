@@ -52,6 +52,8 @@ public:
     VEffect& DisableStencil();
     VEffect& SetDepthTestNever();
     VEffect& SetColourOutputFormat(vk::Format format);
+    VEffect& SetPiplineNoMultiSampling();
+    VEffect& SetNullVertexBinding();
 
 
     //=======================================

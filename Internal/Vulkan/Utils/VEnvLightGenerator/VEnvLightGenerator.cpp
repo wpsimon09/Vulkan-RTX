@@ -22,6 +22,11 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
     GenerateBRDFLut();
 }
 
+const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetBRDFLut()
+{
+    return *m_brdfLut;
+}
+
 void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
 {
     //============p===========================================
@@ -32,6 +37,7 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
     brdfCI.format = vk::Format::eR16G16Sfloat;
     brdfCI.width = 512;
     brdfCI.height = 512;
+    brdfCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment;
     m_brdfLut = std::make_unique<VulkanCore::VImage2>(m_device, brdfCI);
 
     m_transferCmdBuffer->BeginRecording();
@@ -48,6 +54,10 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
         m_envMapGenerationSemphore.GetSemaphoreSubmitInfo(0, 2),
         waitStages.data()
         );
+
+    //==========================================================================
+    // PREPARE FOR RENDERING
+    //==========================================================================
 
     vk::RenderingAttachmentInfo brdfAttachmentCI;;
     brdfAttachmentCI.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
@@ -66,8 +76,15 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
     brdfEffect.SetColourOutputFormat(brdfCI.format)
     .DisableStencil()
     .SetDisableDepthTest()
-    .SetCullNone();
+    .SetCullNone()
+    .SetNullVertexBinding()
+    .SetPiplineNoMultiSampling();
 
+    brdfEffect.BuildEffect();
+
+    //=============================================
+    // RECORD COMMAND BUFFER
+    //=============================================
     vk::RenderingInfo renderingInfo;
     renderingInfo.renderArea.offset = vk::Offset2D(0, 0);
     renderingInfo.renderArea.extent = vk::Extent2D(brdfCI.width, brdfCI.height);
@@ -86,12 +103,49 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
 
     vk::Rect2D  scissors {{0, 0}, {(uint32_t)brdfCI.width, (uint32_t)brdfCI.height} };
     cmdBuffer.setScissor(0, 1, &scissors);
+    cmdBuffer.setStencilTestEnable(false);
 
     brdfEffect.BindPipeline(cmdBuffer);
     cmdBuffer.draw(3, 1, 0, 0);
 
+    cmdBuffer.endRendering();
 
 
+    //=========================================
+    // SUBMIT RENDERING WORK
+    //=========================================
+    std::vector<vk::PipelineStageFlags> renderWaitStages = {
+        vk::PipelineStageFlagBits::eColorAttachmentOutput,
+    };
+    m_graphicsCmdBuffer->EndAndFlush(
+        m_device.GetGraphicsQueue(),
+        m_envMapGenerationSemphore.GetSemaphore(),
+        m_envMapGenerationSemphore.GetSemaphoreSubmitInfo(2, 4),
+        renderWaitStages.data());
+
+    m_envMapGenerationSemphore.CpuWaitIdle(4);
+
+    //=========================================
+    // TRANSITION TO SHADER READ ONLY
+    //=========================================
+    m_transferCmdBuffer->BeginRecording();
+
+    RecordImageTransitionLayoutCommand(*m_brdfLut, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal, *m_transferCmdBuffer);
+
+    std::vector<vk::PipelineStageFlags> waitStagesToShaderReadOnly = {
+        vk::PipelineStageFlagBits::eColorAttachmentOutput,
+    };
+
+    m_transferCmdBuffer->EndAndFlush(
+        m_device.GetTransferQueue(),
+        m_envMapGenerationSemphore.GetSemaphore(),
+        m_envMapGenerationSemphore.GetSemaphoreSubmitInfo(4, 6),
+        waitStages.data()
+        );
+
+    m_envMapGenerationSemphore.CpuWaitIdle(6);
+
+    brdfEffect.Destroy();
 
 
 }

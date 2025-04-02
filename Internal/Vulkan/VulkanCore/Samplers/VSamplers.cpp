@@ -35,6 +35,7 @@ namespace VulkanCore::VSamplers
         samplerInfo.mipLodBias = 0.0f;
         samplerInfo.maxLod = 0.0f;
         samplerInfo.minLod = 0.0f;
+        VulkanCore::VSamplers::Sampler2D =  device.GetDevice().createSampler(samplerInfo);
 
         //---------------------------------------------------------
         //  SAMPLER 2D - CLAMP TO EDGE
@@ -54,8 +55,8 @@ namespace VulkanCore::VSamplers
         samplerInfo.mipLodBias = 0.0f;
         samplerInfo.minLod = 0.0f;
         samplerInfo.maxLod = 1.0f;
-
         VulkanCore::VSamplers::SamplerClampToEdge =  device.GetDevice().createSampler(samplerInfo);
+
 
         Utils::Logger::LogSuccess("Sampler created successfully !");
     }

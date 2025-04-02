@@ -26,6 +26,7 @@
 
 
 
+
 namespace Renderer {
     RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance& instance,const VulkanCore::VDevice& device,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
@@ -65,7 +66,7 @@ namespace Renderer {
 
         m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
 
-        VulkanUtils::VEnvLightGenerator envLightGenerator(m_device, pushDescriptorManager);
+        m_envLightGenerator = std::make_unique<VulkanUtils::VEnvLightGenerator>(m_device, pushDescriptorManager);
 
         Utils::Logger::LogInfo("RenderingSystem initialized");
 
@@ -75,7 +76,8 @@ namespace Renderer {
     {
         for (int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
-            m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetRenderedImage(m_currentFrameIndex), i);
+           // m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetRenderedImage(m_currentFrameIndex), i);
+            m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_envLightGenerator->GetBRDFLut(), i);
         }
     }
 

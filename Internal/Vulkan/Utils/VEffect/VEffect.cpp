@@ -155,6 +155,21 @@ namespace VulkanUtils
             return *this;
         }
 
+        VEffect& VEffect::SetPiplineNoMultiSampling()
+        {
+            m_pipeline->m_multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+            return *this;
+        }
+
+        VEffect& VEffect::SetNullVertexBinding()
+        {
+            m_pipeline->m_vertexInputState.vertexAttributeDescriptionCount = 0;
+            m_pipeline->m_vertexInputState.vertexBindingDescriptionCount = 0;
+            m_pipeline->m_vertexInputState.pVertexBindingDescriptions = nullptr;
+            m_pipeline->m_vertexInputState.pVertexAttributeDescriptions = nullptr;
+            return *this;
+        }
+
         std::string& VEffect::GetName()
         {
             return m_name;

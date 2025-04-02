@@ -48,6 +48,7 @@ enum EVertexInput
     VertexOnly ,
     Vertex_UV ,
     Vertex_Normal ,
+    Empty
 };
 
 

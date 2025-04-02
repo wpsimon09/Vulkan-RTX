@@ -136,6 +136,10 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
 
             break;
         }
+    case Empty:
+        {
+
+        }
     }
 }
 

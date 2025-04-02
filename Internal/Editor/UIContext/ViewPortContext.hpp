@@ -34,7 +34,8 @@ struct ViewPortContext
 
     void SetImage(const VulkanCore::VImage2& renderedScene, int frameIndex)
     {
-        ds[frameIndex] = ImGui_ImplVulkan_AddTexture(VulkanCore::VSamplers::Sampler2D, renderedScene.GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+      //  ds[frameIndex] = ImGui_ImplVulkan_AddTexture(VulkanCore::VSamplers::Sampler2D, renderedScene.GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        ds[frameIndex] = ImGui_ImplVulkan_AddTexture(VulkanCore::VSamplers::SamplerClampToEdge, renderedScene.GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     }
 };
 

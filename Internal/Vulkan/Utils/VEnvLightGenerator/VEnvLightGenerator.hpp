@@ -44,6 +44,7 @@ namespace VulkanUtils
     public:
         VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanUtils::VPushDescriptorManager& pushDescriptorManager);
 
+        const VulkanCore::VImage2&                  GetBRDFLut();
         void                                        Generate(VulkanCore::VImage2& envMap);
     private:
         void                                        GenerateBRDFLut();
