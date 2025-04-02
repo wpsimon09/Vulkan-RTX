@@ -112,6 +112,9 @@ namespace VulkanCore
             m_pipeline = pipeline;
         }
 
+        void SetColourOutputFormat(vk::Format format);
+
+
         void SetVertexInputBindingDescription(
             const vk::VertexInputBindingDescription &vertexInputBindingDescription) {
             m_vertexInputBindingDescription = vertexInputBindingDescription;

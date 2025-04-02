@@ -280,6 +280,11 @@ void VulkanCore::VGraphicsPipeline::EnableBlendingAlpha(){
     m_depthStencil.depthWriteEnable = vk::False;
 }
 
+void VulkanCore::VGraphicsPipeline::SetColourOutputFormat(vk::Format format)
+{
+    m_outputFormats[0] = format;
+}
+
 void VulkanCore::VGraphicsPipeline::SetStencilState(vk::StencilOpState& stencilState)
 {
     m_depthStencil.back = stencilState;

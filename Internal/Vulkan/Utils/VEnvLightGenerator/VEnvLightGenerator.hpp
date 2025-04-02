@@ -11,6 +11,16 @@
 
 namespace VulkanCore
 {
+    class VCommandPool;
+}
+
+namespace VulkanUtils
+{
+    class VPushDescriptorManager;
+}
+
+namespace VulkanCore
+{
     class VTimelineSemaphore;
 }
 
@@ -32,7 +42,7 @@ namespace VulkanUtils
 {
     class VEnvLightGenerator {
     public:
-        VEnvLightGenerator(const VulkanCore::VDevice& device);
+        VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanUtils::VPushDescriptorManager& pushDescriptorManager);
 
         void                                        Generate(VulkanCore::VImage2& envMap);
     private:
@@ -43,7 +53,12 @@ namespace VulkanUtils
         const VulkanCore::VDevice& m_device;
         VulkanCore::VTimelineSemaphore m_envMapGenerationSemphore;
         VulkanUtils::VTransferOperationsManager m_envGenerationTransferOpsManager;
+        VulkanUtils::VPushDescriptorManager& m_pushDescriptorManager;
 
+        std::unique_ptr<VulkanCore::VCommandBuffer> m_graphicsCmdBuffer;
+        std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCmdBuffer;
+        std::unique_ptr<VulkanCore::VCommandPool> m_graphicsCmdPool;
+        std::unique_ptr<VulkanCore::VCommandPool> m_transferCmdPool;
 
     };
 }

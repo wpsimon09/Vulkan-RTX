@@ -65,7 +65,7 @@ namespace Renderer {
 
         m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
 
-        VulkanUtils::VEnvLightGenerator envLightGenerator(m_device);
+        VulkanUtils::VEnvLightGenerator envLightGenerator(m_device, pushDescriptorManager);
 
         Utils::Logger::LogInfo("RenderingSystem initialized");
 

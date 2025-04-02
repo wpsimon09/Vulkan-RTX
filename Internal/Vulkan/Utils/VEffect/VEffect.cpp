@@ -149,6 +149,12 @@ namespace VulkanUtils
             return *this;
         }
 
+        VEffect& VEffect::SetColourOutputFormat(vk::Format format)
+        {
+            m_pipeline->SetColourOutputFormat(format);
+            return *this;
+        }
+
         std::string& VEffect::GetName()
         {
             return m_name;
