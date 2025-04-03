@@ -117,7 +117,7 @@ namespace VulkanCore {
         createInfo.format = m_imageInfo.format;
         createInfo.viewType = m_imageFlags.IsCubeMap ? vk::ImageViewType::eCube : vk::ImageViewType::e2D;
         createInfo.subresourceRange.aspectMask = m_imageInfo.aspecFlags;
-        createInfo.subresourceRange.baseMipLevel = m_imageInfo.mipLevels;
+        createInfo.subresourceRange.baseMipLevel = 0;
         createInfo.subresourceRange.levelCount = m_imageInfo.mipLevels;
         createInfo.subresourceRange.baseArrayLayer = 0;
         createInfo.subresourceRange.layerCount = m_imageInfo.arrayLayers;
