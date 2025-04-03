@@ -13,6 +13,7 @@ namespace VulkanCore {
     VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& info):
         m_device(device), m_imageInfo(info)
     {
+        m_imageFlags.IsCubeMap = m_imageInfo.arrayLayers == 6;
 
         AllocateImage();
         GenerateImageView();
@@ -23,6 +24,8 @@ namespace VulkanCore {
         m_device(device), m_imageInfo(info), m_imageVK(swapChainImage), m_imageFlags{}
     {
         m_imageFlags.IsSwapChainImage = true;
+
+
         GenerateImageView();
     }
 

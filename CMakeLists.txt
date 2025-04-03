@@ -198,7 +198,6 @@ set(SOURCES
         Internal/Application/Rendering/Scene/SkyBoxNode.hpp
         Internal/Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.cpp
         Internal/Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp
-        Internal/Application/Lightning/EnvLight/EnvLightStruct.hpp
 
 )
 
