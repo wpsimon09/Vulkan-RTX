@@ -119,11 +119,15 @@ namespace Renderer {
                                                             m_device.GetTransferOpsManager().GetCommandBuffer());
 
         Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
+        m_device.GetTransferOpsManager().UpdateGPUWaitCPU(true);
+
     }
 
     RenderTarget::RenderTarget(const VulkanCore::VDevice& device,const VulkanCore::VSwapChain& swapChain): m_device(device), m_width(swapChain.GetExtent().width), m_height(swapChain.GetExtent().height)
     {
         CreateRenderTargetForSwapChain(swapChain);
+        m_device.GetTransferOpsManager().UpdateGPUWaitCPU(true);
+
         Utils::Logger::LogSuccess("Render target for swap chain created successfuly !");
     }
 
