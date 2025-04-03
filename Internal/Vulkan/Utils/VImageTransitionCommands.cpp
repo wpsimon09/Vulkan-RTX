@@ -100,28 +100,6 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(vk::ImageLayout currentLayo
         );
 }
 
-void VulkanUtils::RecordImageTransitionLayoutCommand(const VulkanCore::VImage& image, vk::ImageLayout targetLayout,
-    vk::ImageLayout currentLayout, VulkanCore::VCommandBuffer& commandBuffer)
-{
-    vk::PipelineStageFlags srcStageFlags;
-    vk::PipelineStageFlags dstStageFlags;
-
-    vk::ImageMemoryBarrier barrier{};
-    barrier.oldLayout = currentLayout;
-    barrier.newLayout = targetLayout;
-    barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
-    barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
-    barrier.image = image.GetImage();
-    barrier.subresourceRange.aspectMask = image.GetIsDepthBuffer() ? vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil : vk::ImageAspectFlagBits::eColor;
-    barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = 1;
-    barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = 1;
-
-    VulkanUtils::RecordImageTransitionLayoutCommand(currentLayout, targetLayout, barrier, commandBuffer);
-
-}
-
 void VulkanUtils::RecordImageTransitionLayoutCommand(VulkanCore::VImage2& image, vk::ImageLayout targetLayout,
     vk::ImageLayout currentLayout, VulkanCore::VCommandBuffer& commandBuffer)
 {
@@ -136,7 +114,7 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(VulkanCore::VImage2& image,
     barrier.image = image.GetImage();;
     barrier.subresourceRange.aspectMask = image.GetImageFlags().IsDepthBuffer ? vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil : vk::ImageAspectFlagBits::eColor;
     barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.levelCount = image.GetImageInfo().arrayLayers;
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
 

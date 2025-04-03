@@ -38,7 +38,7 @@ void VulkanUtils::VEnvLightGenerator::Destroy()
 
 void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
 {
-    //============p===========================================
+    //=======================================================
     // CREATE INFO FOR BRDF LOOK UP IMAGE
     //=======================================================
     VulkanCore::VImage2CreateInfo brdfCI; // CI -create info

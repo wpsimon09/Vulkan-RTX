@@ -26,6 +26,7 @@ namespace VulkanCore {
     EImageSource imageSource = EImageSource::Generated;
 
     uint32_t mipLevels = 1;
+    uint32_t arrayLayers = 1;
 
     vk::Format format = vk::Format::eR8G8B8A8Srgb;
     vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor;
@@ -52,6 +53,7 @@ namespace VulkanCore {
 struct VImage2Flags
 {
     bool IsDepthBuffer = false;
+    bool IsCubeMap = false;
     bool IsSwapChainImage = false;
     bool IsValid = false;
     bool IsLoaded = false;
@@ -104,6 +106,7 @@ class VImage2 : public VulkanCore::VObject {
         void AllocateImage();
         void GenerateImageView();
         bool IsDepth(vk::Format& format);
+        bool Isube
 };
 
 template <typename T>

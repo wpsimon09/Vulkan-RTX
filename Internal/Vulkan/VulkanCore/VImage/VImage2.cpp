@@ -35,6 +35,7 @@ namespace VulkanCore {
         m_imageInfo.format = imageData.format;
 
         m_imageFlags.IsDepthBuffer = IsDepth(m_imageInfo.format);
+        m_imageFlags.IsCubeMap = m_imageInfo.arrayLayers == 6;
 
         AllocateImage();
         GenerateImageView();
@@ -82,11 +83,12 @@ namespace VulkanCore {
         VkImageCreateInfo imageInfo = {};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         imageInfo.imageType = VK_IMAGE_TYPE_2D;
+        imageInfo.flags = m_imageFlags.IsCubeMap ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
         imageInfo.extent.width = m_imageInfo.width;
         imageInfo.extent.height = m_imageInfo.height;
         imageInfo.extent.depth = 1;
         imageInfo.mipLevels = m_imageInfo.mipLevels;
-        imageInfo.arrayLayers = 1;
+        imageInfo.arrayLayers = m_imageInfo.arrayLayers;;
         imageInfo.format = static_cast<VkFormat>(m_imageInfo.format);
         imageInfo.tiling = static_cast<VkImageTiling>(vk::ImageTiling::eOptimal);
         imageInfo.initialLayout = static_cast<VkImageLayout>(vk::ImageLayout::eUndefined);
@@ -113,12 +115,12 @@ namespace VulkanCore {
         vk::ImageViewCreateInfo createInfo{};
         createInfo.image = m_imageVK;
         createInfo.format = m_imageInfo.format;
-        createInfo.viewType = vk::ImageViewType::e2D;
+        createInfo.viewType = m_imageFlags.IsCubeMap ? vk::ImageViewType::eCube : vk::ImageViewType::e2D;
         createInfo.subresourceRange.aspectMask = m_imageInfo.aspecFlags;
         createInfo.subresourceRange.baseMipLevel = 0;
         createInfo.subresourceRange.levelCount = m_imageInfo.mipLevels;
         createInfo.subresourceRange.baseArrayLayer = 0;
-        createInfo.subresourceRange.layerCount = 1;
+        createInfo.subresourceRange.layerCount = m_imageInfo.arrayLayers;
 
         m_imageView = m_device.GetDevice().createImageView(createInfo);
         assert(m_imageView);
