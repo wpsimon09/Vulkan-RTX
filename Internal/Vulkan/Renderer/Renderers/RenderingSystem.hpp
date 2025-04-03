@@ -94,7 +94,8 @@ private:
     std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
     std::unique_ptr<VulkanUtils::VEnvLightGenerator> m_envLightGenerator;
-    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>> m_renderingTimeLine;
+    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>> m_renderingTimeLine;_
+
     VulkanCore::VTimelineSemaphore &m_transferSemapohore;
 
     bool m_isRayTracing = false;

@@ -46,16 +46,16 @@ void VEditor::ViewPort::Render()
                         if (ImGui::Selectable(ICON_FA_CIRCLE " Sphere")){m_scene.AddSphereToScene();}
                         if (ImGui::Selectable(ICON_FA_CUBE " Cube" )){m_scene.AddCubeToScene();}
                         if (ImGui::Selectable(ICON_FA_SQUARE " Plane")){m_scene.AddPlaneToScene();}
-                        if (ImGui::Selectable(ICON_FA_MOUNTAIN_SUN " Sky-Box")){m_scene.AddSkyBox();}
 
                         ImGui::EndMenu();
                     }
 
-                    if (ImGui::BeginMenu(ICON_FA_MOUNTAIN_SUN" Lights"))
+                    if (ImGui::BeginMenu(ICON_FA_SUN" Lights"))
                     {
                         if (ImGui::Selectable(ICON_FA_SUN " Directional")){m_scene.AddDirectionalLight();}
                         if (ImGui::Selectable(ICON_FA_LIGHTBULB " Point" )){m_scene.AddPointLight();}
                         if (ImGui::Selectable(ICON_FA_SQUARE " Area" )){m_scene.AddAreaLight();}
+                        if (ImGui::Selectable(ICON_FA_MOUNTAIN_SUN " Sky-Box")){m_scene.AddSkyBox();}
                         ImGui::EndMenu();
                     }
 

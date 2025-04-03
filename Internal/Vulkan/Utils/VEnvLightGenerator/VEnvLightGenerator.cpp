@@ -10,8 +10,10 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 
-VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanUtils::VPushDescriptorManager& pushDescriptorManager): m_device(device),
-    m_envMapGenerationSemphore(device), m_envGenerationTransferOpsManager(device), m_pushDescriptorManager(pushDescriptorManager)
+VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& device,
+                                                    VulkanCore::VTimelineSemaphore& renderingSemaphore,
+                                                    VulkanUtils::VPushDescriptorManager& pushDescriptorManager):
+        m_device(device), m_renderingSemaphore(renderingSemaphore),  m_pushDescriptorManager(pushDescriptorManager)
 {
     m_graphicsCmdPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     m_transferCmdPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Transfer);
@@ -27,7 +29,7 @@ const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetBRDFLut()
     return *m_brdfLut;
 }
 
-void VulkanUtils::VEnvLightGenerator::Generate(VulkanCore::VImage2& envMap,
+void VulkanUtils::VEnvLightGenerator::Generate(VulkanCore::VImage2* envMap,
     std::shared_ptr<ApplicationCore::StaticMesh> cubeMesh)
 {
     //auto cubeMash =
@@ -37,17 +39,17 @@ void VulkanUtils::VEnvLightGenerator::Generate(VulkanCore::VImage2& envMap,
     //=======================================
 }
 
+
 void VulkanUtils::VEnvLightGenerator::Destroy()
 {
     m_brdfLut->Destroy();
-    m_envMapGenerationSemphore.Destroy();
     m_transferCmdPool->Destroy();
     m_graphicsCmdPool->Destroy();
-    m_envGenerationTransferOpsManager.Destroy();
 }
 
 void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
 {
+    VulkanCore::VTimelineSemaphore brdfGenerationSemaphore(m_device);
     //=======================================================
     // CREATE INFO FOR BRDF LOOK UP IMAGE
     //=======================================================
@@ -69,8 +71,8 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
 
     m_transferCmdBuffer->EndAndFlush(
         m_device.GetTransferQueue(),
-        m_envMapGenerationSemphore.GetSemaphore(),
-        m_envMapGenerationSemphore.GetSemaphoreSubmitInfo(0, 2),
+        brdfGenerationSemaphore.GetSemaphore(),
+        brdfGenerationSemaphore.GetSemaphoreSubmitInfo(0, 2),
         waitStages.data()
         );
 
@@ -138,11 +140,11 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
     };
     m_graphicsCmdBuffer->EndAndFlush(
         m_device.GetGraphicsQueue(),
-        m_envMapGenerationSemphore.GetSemaphore(),
-        m_envMapGenerationSemphore.GetSemaphoreSubmitInfo(2, 4),
+        brdfGenerationSemaphore.GetSemaphore(),
+        brdfGenerationSemaphore.GetSemaphoreSubmitInfo(2, 4),
         renderWaitStages.data());
 
-    m_envMapGenerationSemphore.CpuWaitIdle(4);
+    brdfGenerationSemaphore.CpuWaitIdle(4);
 
     //=========================================
     // TRANSITION TO SHADER READ ONLY
@@ -157,12 +159,12 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
 
     m_transferCmdBuffer->EndAndFlush(
         m_device.GetTransferQueue(),
-        m_envMapGenerationSemphore.GetSemaphore(),
-        m_envMapGenerationSemphore.GetSemaphoreSubmitInfo(4, 6),
+        brdfGenerationSemaphore.GetSemaphore(),
+        brdfGenerationSemaphore.GetSemaphoreSubmitInfo(4, 6),
         waitStages.data()
         );
 
-    m_envMapGenerationSemphore.CpuWaitIdle(6);
+    brdfGenerationSemaphore.CpuWaitIdle(6);
 
     brdfEffect.Destroy();
 

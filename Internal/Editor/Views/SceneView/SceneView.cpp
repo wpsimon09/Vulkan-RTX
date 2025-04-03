@@ -78,6 +78,22 @@ namespace VEditor {
         {
             for (auto& sceneNode : sceneLights)
             {
+                std::string visibilityButtonLabel;
+                if (sceneNode->GetIsVisible()) visibilityButtonLabel = std::string(ICON_FA_EYE) + "##" + std::string(sceneNode->GetName());
+                else                           visibilityButtonLabel = std::string(ICON_FA_EYE_SLASH) + "##" + std::string(sceneNode->GetName());
+
+                if (ImGui::Button(visibilityButtonLabel.c_str()))
+                {
+                    if (sceneNode->GetIsVisible())
+                    {
+                        sceneNode->Setvisibility(false);
+                    }
+                    else
+                    {
+                        sceneNode->Setvisibility(true);
+                    }
+                }
+                ImGui::SameLine();
                 bool isSelected = false;
                 if (m_scene.GetSelectedSceneNode())
                 {

@@ -18,9 +18,10 @@ namespace ApplicationCore {
     SkyBoxNode::SkyBoxNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh):LightNode<LightStructs::EnvLight>(mesh)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::SkyBoxNode;
-        auto* hdrImage = dynamic_cast<ApplicationCore::SkyBoxMaterial*>(mesh->GetMaterial().get());
-
+        auto* hdrImage = dynamic_cast<ApplicationCore::SkyBoxMaterial*>(m_mesh->GetMaterial().get());
         m_lightStruct.hdrImage = hdrImage->GetHDRTexture()->GetHandle();
+
+        sceneLightInfo.environmentLight = &m_lightStruct;
     }
 
     void SkyBoxNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
@@ -48,6 +49,11 @@ namespace ApplicationCore {
     }
 
     void SkyBoxNode::ProcessNodeRemove()
+    {
+
+    }
+
+    void SkyBoxNode::Update()
     {
 
     }
