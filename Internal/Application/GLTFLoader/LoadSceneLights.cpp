@@ -5,7 +5,7 @@
 #include "LoadSceneLights.hpp"
 
 #include "Application/Rendering/Scene/Scene.hpp"
-#include "Application/Structs/LightStructs.hpp"
+#include "Application/Lightning/LightStructs.hpp"
 #include "tINI/ini.h"
 
 #define GLM_ENABLE_EXPERIMENTAL

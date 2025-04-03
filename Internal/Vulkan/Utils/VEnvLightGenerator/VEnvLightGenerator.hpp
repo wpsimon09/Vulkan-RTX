@@ -9,6 +9,11 @@
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
+namespace ApplicationCore
+{
+    class StaticMesh;
+}
+
 namespace VulkanCore
 {
     class VCommandPool;
@@ -45,7 +50,8 @@ namespace VulkanUtils
         VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanUtils::VPushDescriptorManager& pushDescriptorManager);
 
         const VulkanCore::VImage2&                  GetBRDFLut();
-        void                                        Generate(VulkanCore::VImage2& envMap);
+        void                                        Generate(VulkanCore::VImage2& envMap,
+                                                            std::shared_ptr<ApplicationCore::StaticMesh> cubeMesh);
 
         void                                        Destroy();
     private:
@@ -60,6 +66,7 @@ namespace VulkanUtils
 
         std::unique_ptr<VulkanCore::VCommandBuffer> m_graphicsCmdBuffer;
         std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCmdBuffer;
+
         std::unique_ptr<VulkanCore::VCommandPool> m_graphicsCmdPool;
         std::unique_ptr<VulkanCore::VCommandPool> m_transferCmdPool;
 

@@ -6,7 +6,7 @@
 #define AREALIGHTNODE_HPP
 
 #include "Base/LightNode.hpp"
-#include "Application/Structs/LightStructs.hpp"
+#include "Application/Lightning/LightStructs.hpp"
 
 namespace ApplicationCore {
 

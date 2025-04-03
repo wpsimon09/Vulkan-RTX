@@ -9,7 +9,12 @@
 
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
-#include "Application/Structs/LightStructs.hpp"
+#include "Application/Lightning/LightStructs.hpp"
+
+namespace ApplicationCore
+{
+    class SkyBoxMaterial;
+}
 
 namespace VulkanUtils
 {
@@ -53,7 +58,7 @@ public:
     void AddCubeToScene() const;
     void AddSphereToScene() const;
     void AddPlaneToScene() const;
-    void AddSkyBox() const;
+    void AddSkyBox() ;
 
     void AddDirectionalLight(LightStructs::DirectionalLight* directionalLightInfo = nullptr) ;
     void AddPointLight(LightStructs::PointLight* pointLightInfo = nullptr) ;
@@ -76,6 +81,8 @@ private:
     AssetsManager& m_assetsManager;
     glm::vec3 m_mousePositionWorldSpace  = {0.0f, 0.0f, 0.0F};
     std::shared_ptr<SceneNode> m_selectedSceneNode;
+
+    std::shared_ptr<SkyBoxMaterial> m_currentSkyBox;
 
     LightStructs::SceneLightInfo m_sceneLightInfo;
 };

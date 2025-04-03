@@ -9,7 +9,7 @@
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
-#include "Application/Structs/LightStructs.hpp"
+#include "Application/Lightning/LightStructs.hpp"
 #include "fastgltf/types.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"

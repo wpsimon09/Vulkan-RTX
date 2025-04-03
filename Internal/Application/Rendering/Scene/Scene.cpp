@@ -117,16 +117,25 @@ namespace ApplicationCore {
         AddNode(node);
     }
 
-    void Scene::AddSkyBox() const
+    void Scene::AddSkyBox()
     {
-        auto obj = m_assetsManager.GetDefaultMesh(Cube);
+        if (!m_currentSkyBox)
+        {
+            auto obj = m_assetsManager.GetDefaultMesh(Cube);
 
-        obj->SetMaterial(m_assetsManager.AddSkyBoxMaterial("Resources/HDRs/default.hdr"));
+            m_currentSkyBox = m_assetsManager.AddSkyBoxMaterial("Resources/HDRs/default.hdr");
 
-        auto node = std::make_shared<SkyBoxNode>(obj);
+            obj->SetMaterial(m_currentSkyBox);
 
-        node->SetName("Sky-Box ##" + VulkanUtils::random_string(5));
-        AddNode(node);
+            auto node = std::make_shared<SkyBoxNode>(obj);
+
+            node->SetName("Sky-Box ##" + VulkanUtils::random_string(5));
+
+            AddNode(node);
+        }else
+        {
+            Utils::Logger::LogError("Only one sky box can be active at time !");
+        }
     }
 
     void Scene::AddDirectionalLight(LightStructs::DirectionalLight* directionalLightInfo)

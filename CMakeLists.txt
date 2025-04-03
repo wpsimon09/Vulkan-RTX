@@ -136,7 +136,7 @@ set(SOURCES
         Internal/Application/Rendering/Scene/DirectionLightNode.hpp
         Internal/Application/Utils/MathUtils.hpp
         Internal/Application/Utils/MathUtils.cpp
-        Internal/Application/Structs/LightStructs.hpp
+        Internal/Application/Lightning/LightStructs.hpp
         Internal/Application/Rendering/Scene/PointLightNode.cpp
         Internal/Application/Rendering/Scene/PointLightNode.hpp
         Internal/Application/Rendering/Scene/Base/LightNode.cpp
@@ -198,6 +198,7 @@ set(SOURCES
         Internal/Application/Rendering/Scene/SkyBoxNode.hpp
         Internal/Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.cpp
         Internal/Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp
+        Internal/Application/Lightning/EnvLight/EnvLightStruct.hpp
 
 )
 

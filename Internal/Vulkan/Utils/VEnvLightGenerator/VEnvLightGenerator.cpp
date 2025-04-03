@@ -27,6 +27,16 @@ const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetBRDFLut()
     return *m_brdfLut;
 }
 
+void VulkanUtils::VEnvLightGenerator::Generate(VulkanCore::VImage2& envMap,
+    std::shared_ptr<ApplicationCore::StaticMesh> cubeMesh)
+{
+    //auto cubeMash =
+
+    //=======================================
+    // TRANSFER HDR TO CUBE MAP
+    //=======================================
+}
+
 void VulkanUtils::VEnvLightGenerator::Destroy()
 {
     m_brdfLut->Destroy();

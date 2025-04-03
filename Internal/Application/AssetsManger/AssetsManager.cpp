@@ -28,6 +28,7 @@
 #include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "EffectsLibrary/EffectsLibrary.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore
@@ -298,7 +299,9 @@ namespace ApplicationCore
         return false;
     }
 
-    void AssetsManager::CreateDefaultAssets()
+    void AssetsManager::
+
+    CreateDefaultAssets()
     {
         auto dummyTextureData = ApplicationCore::LoadImage("Resources/DefaultTexture.jpg", false);
         m_dummyImage = std::make_shared<VulkanCore::VImage2>(m_device, dummyTextureData);;
@@ -371,7 +374,6 @@ namespace ApplicationCore
                 views.emplace_back(textureView);
             }
         }
-
 
         return std::move(views);
     }

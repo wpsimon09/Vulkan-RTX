@@ -5,7 +5,7 @@
 #ifndef DRECTIONAL_LIGHT_NODE_H
 #define DRECTIONAL_LIGHT_NODE_H
 #include "SceneNode.hpp"
-#include "Application/Structs/LightStructs.hpp"
+#include "Application/Lightning/LightStructs.hpp"
 #include "Base/LightNode.hpp"
 #include "Base/LightNode.hpp"
 

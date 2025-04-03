@@ -106,7 +106,7 @@ class VImage2 : public VulkanCore::VObject {
         void AllocateImage();
         void GenerateImageView();
         bool IsDepth(vk::Format& format);
-        bool Isube
+        bool IsCube;
 };
 
 template <typename T>

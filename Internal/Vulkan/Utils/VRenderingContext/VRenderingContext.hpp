@@ -4,8 +4,14 @@
 
 #ifndef VRENDERINGCONTEXT_HPP
 #define VRENDERINGCONTEXT_HPP
+#include <memory>
 #include <vector>
 #include <glm/mat4x4.hpp>
+
+namespace ApplicationCore
+{
+    class SkyBoxMaterial;
+}
 
 namespace VulkanStructs
 {
@@ -25,6 +31,8 @@ namespace VulkanUtils
         bool WireFrameRendering = false;
         // other flags
 
+        std::shared_ptr<ApplicationCore::SkyBoxMaterial> SkyBox = nullptr;
+
         std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>> drawCalls;
 
         void ExtractDepthValues(glm::vec3& cameraPosition);
@@ -39,7 +47,6 @@ namespace VulkanUtils
         void AddDrawCall(VulkanStructs::DrawCallData& DrawCall);
 
         void ResetAllDrawCalls();
-
 
         static unsigned long GenerateDrawKey(VulkanStructs::DrawCallData& drawCall);
 

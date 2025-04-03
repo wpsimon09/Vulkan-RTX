@@ -5,7 +5,7 @@
 #ifndef POINTLIGHTNODE_HPP
 #define POINTLIGHTNODE_HPP
 #include "SceneNode.hpp"
-#include "Application/Structs/LightStructs.hpp"
+#include "Application/Lightning/LightStructs.hpp"
 #include "Base/LightNode.hpp"
 
 namespace ApplicationCore {

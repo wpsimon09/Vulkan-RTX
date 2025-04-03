@@ -18,6 +18,11 @@
 #include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
+namespace VulkanUtils
+{
+    class VEnvLightGenerator;
+}
+
 namespace ApplicationCore
 {
     class SkyBoxMaterial;
