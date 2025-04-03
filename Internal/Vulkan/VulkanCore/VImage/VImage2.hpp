@@ -25,8 +25,8 @@ namespace VulkanCore {
     std::filesystem::path imagePath;
     EImageSource imageSource = EImageSource::Generated;
 
-    uint32_t mipLevels = 1;
-    uint32_t arrayLayers = 1;
+    uint32_t mipLevels = 0;
+    uint32_t arrayLayers = 0;
 
     vk::Format format = vk::Format::eR8G8B8A8Srgb;
     vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor;

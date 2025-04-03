@@ -11,9 +11,8 @@
 
 
 VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& device,
-                                                    VulkanCore::VTimelineSemaphore& renderingSemaphore,
                                                     VulkanUtils::VPushDescriptorManager& pushDescriptorManager):
-        m_device(device), m_renderingSemaphore(renderingSemaphore),  m_pushDescriptorManager(pushDescriptorManager)
+        m_device(device),  m_pushDescriptorManager(pushDescriptorManager)
 {
     m_graphicsCmdPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     m_transferCmdPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Transfer);
@@ -29,15 +28,74 @@ const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetBRDFLut()
     return *m_brdfLut;
 }
 
-void VulkanUtils::VEnvLightGenerator::Generate(VulkanCore::VImage2* envMap,
-    std::shared_ptr<ApplicationCore::StaticMesh> cubeMesh)
-{
-    //auto cubeMash =
+void VulkanUtils::VEnvLightGenerator::Generate(
+    std::shared_ptr<VulkanCore::VImage2> envMap,
+                    VulkanCore::VTimelineSemaphore& renderingSemaphore)
+    {
+        if (!envMap) {return;}
+        //============================================
+        // FIRST GENERATE CUBE MAP FROM hdr MAP
+        //============================================
+        //TODO: later optimise with transfer queus for now i will just use the graphics one for everything
+        {
+            if (m_hdrCubeMaps.contains(envMap)){ return; }
 
-    //=======================================
-    // TRANSFER HDR TO CUBE MAP
-    //=======================================
-}
+            VulkanCore::VTimelineSemaphore envGenerationSemaphore(m_device);
+
+            VulkanCore::VImage2CreateInfo hdrCubeMapCI;
+            hdrCubeMapCI.channels = 4;
+            hdrCubeMapCI.format = vk::Format::eR32G32B32A32Sfloat;
+            hdrCubeMapCI.width = 512;
+            hdrCubeMapCI.height = 512;
+            hdrCubeMapCI.mipLevels = 1;
+            hdrCubeMapCI.arrayLayers = 6; // six faces
+            hdrCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
+
+            m_hdrCubeMaps[envMap] = std::make_unique<VulkanCore::VImage2>(m_device, hdrCubeMapCI);
+
+            auto& hdrCubeMap = m_hdrCubeMaps[envMap];
+            // transition to colour attachment optimal
+            m_graphicsCmdBuffer->BeginRecording();
+
+            RecordImageTransitionLayoutCommand(*hdrCubeMap, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
+            // make one image that will serve as a colour attachment, i will render to it and than transfer the results to the
+            // HDR cubeMapCi
+            std::unique_ptr<VulkanCore::VImage2> RenderAttachment;
+            {
+                VulkanCore::VImage2CreateInfo colourAttachemntCI;
+                colourAttachemntCI.width = 512;
+                colourAttachemntCI.height = 512;
+                colourAttachemntCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc;
+
+                RenderAttachment = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachemntCI);
+
+                RecordImageTransitionLayoutCommand(*RenderAttachment, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
+            }
+
+            // prepare colour attachment and rendering Cube map for rendering
+            // colourAttachemnt - will be in colour attachemtn optimal layout
+            // HDR result - will be in transfer dst optimal
+            std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
+            m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
+                                             envGenerationSemaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
+
+
+            //=============================================================
+            // START RENDERING
+            // - renders hdr map to the faces of the cube creating cube ma
+            //=============================================================
+            {
+
+            }
+
+        }
+
+        //m_transferCmdBuffer->EndAndFlush();
+        // submit transfer operations all at once
+        // ---wait on barrier----
+        // submit graphics operations all at once
+
+    }
 
 
 void VulkanUtils::VEnvLightGenerator::Destroy()
@@ -167,6 +225,4 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
     brdfGenerationSemaphore.CpuWaitIdle(6);
 
     brdfEffect.Destroy();
-
-
 }

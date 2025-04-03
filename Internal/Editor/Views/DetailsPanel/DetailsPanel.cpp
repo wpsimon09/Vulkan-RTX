@@ -8,6 +8,7 @@
 #include <imgui.h>
 
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
@@ -365,6 +366,7 @@ namespace VEditor
                 {
                     m_selectedSceneNode->GetMesh()->SetMaterial(mat);
                 }
+                ImGui::Text(reinterpret_cast<const char*>(mat->GetHDRTexture()->GetHandle().get()));
             }
             ImGui::EndCombo();
         }

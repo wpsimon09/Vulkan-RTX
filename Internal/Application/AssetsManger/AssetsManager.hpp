@@ -87,7 +87,6 @@ public:
     //=========================
     explicit AssetsManager(
         const VulkanCore::VDevice& device,
-        VulkanCore::MeshDatatManager& meshDataManager,
         ApplicationCore::EffectsLibrary& effectsLibrary);
 
     //=========================

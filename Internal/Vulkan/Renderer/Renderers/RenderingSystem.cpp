@@ -4,6 +4,7 @@
 
 #include "RenderingSystem.hpp"
 
+#include "Application/Lightning/LightStructs.hpp"
 #include "Application/Utils/ApplicationUtils.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
@@ -77,7 +78,7 @@ namespace Renderer {
         for (int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
             m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetRenderedImage(m_currentFrameIndex), i);
-           //chcks the brdf m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_envLightGenerator->GetBRDFLut(), i);
+           //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_envLightGenerator->GetBRDFLut(), i);
         }
     }
 
@@ -130,6 +131,10 @@ namespace Renderer {
 
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext, *m_renderingTimeLine[m_currentFrameIndex], m_transferSemapohore);
+
+        // generate new IBL maps if new one was selected
+        if (sceneLightInfo.environmentLight)
+            m_envLightGenerator->Generate(sceneLightInfo.environmentLight->hdrImage, *m_renderingTimeLine[m_currentFrameIndex]);
 
         // render UI and present to swap chain
         m_uiRenderer->RenderAndPresent(m_currentFrameIndex,m_currentImageIndex,m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), *m_renderingTimeLine[m_currentFrameIndex]);

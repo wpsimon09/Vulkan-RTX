@@ -34,9 +34,8 @@
 namespace ApplicationCore
 {
     AssetsManager::AssetsManager(const VulkanCore::VDevice& device
-                                 , VulkanCore::MeshDatatManager& meshDataManager
                                  , ApplicationCore::EffectsLibrary& effectsLibrary):
-        m_device(device), m_meshDataManager(meshDataManager), m_transferOpsManager(device.GetTransferOpsManager()),
+        m_device(device), m_meshDataManager(m_device.GetMeshDataManager()), m_transferOpsManager(device.GetTransferOpsManager()),
         m_materials(), m_effectsLibrary(effectsLibrary)
     {
         CreateDefaultAssets();

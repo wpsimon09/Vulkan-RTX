@@ -12,6 +12,7 @@
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
     namespace VulkanUtils
     {
@@ -54,7 +55,8 @@ namespace VulkanCore
         const vk::PhysicalDevice& GetPhysicalDevice() const { return m_physicalDevice; }
         VulkanCore::VCommandPool& GetTransferCommandPool() const;
         VulkanCore::VCommandPool& GetSingleThreadCommandPool() const { return *m_transferCommandPoolForSingleThread; }
-        const vk::Device& GetDevice() const {return m_device;};
+        const vk::Device& GetDevice() const {return m_device;}
+        VulkanCore::MeshDatatManager& GetMeshDataManager() const;;
         const VQueueFamilyIndices& GetQueueFamilyIndices() const {return m_queueFamilyIndices;};
         const VmaAllocator& GetAllocator() const { return m_vmaAllocator; };
         const vk::Queue & GetGraphicsQueue() const { return m_graphicsQueue; }
@@ -94,6 +96,7 @@ namespace VulkanCore
         std::array<std::unique_ptr<VulkanCore::VCommandPool>, GlobalVariables::MAX_THREADS> m_transferCommandPool;
         std::unique_ptr<VulkanCore::VCommandPool> m_transferCommandPoolForSingleThread;
         std::unique_ptr<VulkanUtils::VTransferOperationsManager> m_transferOpsManager;
+        std::unique_ptr<MeshDatatManager> m_meshDataManager;
 
         VQueueFamilyIndices m_queueFamilyIndices;
 

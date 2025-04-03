@@ -17,6 +17,7 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
+#include "Application/VertexArray/VertexArray.hpp"
 
 VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::PhysicalDevice& physicalDevice,
                                                               const VulkanCore::VulkanInstance& instance)
@@ -115,6 +116,7 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance): m_inst
     RetreiveDepthFormat();
 
     m_transferOpsManager = std::make_unique<VulkanUtils::VTransferOperationsManager>(*this);
+    m_meshDataManager = std::make_unique<MeshDatatManager>(*this);
 }
 
 VulkanCore::VCommandPool &VulkanCore::VDevice::GetTransferCommandPool() const
@@ -128,6 +130,11 @@ VulkanCore::VCommandPool &VulkanCore::VDevice::GetTransferCommandPool() const
             return *m_transferCommandPool[i];
         }
     }
+}
+
+VulkanCore::MeshDatatManager& VulkanCore::VDevice::GetMeshDataManager() const
+{
+    return *m_meshDataManager;
 }
 
 void VulkanCore::VDevice::CreateLogicalDevice()
