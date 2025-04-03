@@ -35,6 +35,7 @@ namespace ApplicationCore
     template <typename T>
     LightNode<T>::LightNode(std::shared_ptr<StaticMesh> mesh, T* lightData): SceneNode(mesh), m_lightStruct()
     {
+        //checks if i provided any light data from the .ini file
         m_lightStruct = lightData != nullptr ? *lightData : m_lightStruct;
     }
 

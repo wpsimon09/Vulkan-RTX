@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Rendering/Material/BaseMaterial.hpp"
 #include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
@@ -14,9 +15,12 @@
 
 namespace ApplicationCore {
 
-    SkyBoxNode::SkyBoxNode(std::shared_ptr<StaticMesh> mesh):SceneNode(mesh)
+    SkyBoxNode::SkyBoxNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh):LightNode<LightStructs::EnvLight>(mesh)
     {
         m_sceneNodeMetaData.nodeType = ENodeType::SkyBoxNode;
+        auto* hdrImage = dynamic_cast<ApplicationCore::SkyBoxMaterial*>(mesh->GetMaterial().get());
+
+        m_lightStruct.hdrImage = hdrImage->GetHDRTexture()->GetHandle();
     }
 
     void SkyBoxNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
@@ -40,6 +44,11 @@ namespace ApplicationCore {
             data.material = dynamic_cast<SkyBoxMaterial*>(m_mesh->GetMaterial().get());
 
             renderingContext->AddDrawCall(data);
+
+    }
+
+    void SkyBoxNode::ProcessNodeRemove()
+    {
 
     }
 } // ApplicationCore

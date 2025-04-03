@@ -75,6 +75,7 @@ namespace ApplicationCore {
     void DirectionLightNode::Update()
     {
         m_lightStruct.direction = glm::vec3(m_transformation->GetRotationMatrix() * glm::vec4(glm::vec3(-1.0f, 0.0f, 0.0f),0.0f));;
+        m_lightStruct.inUse = m_sceneNodeMetaData.IsVisible;
         SceneNode::Update();
     }
 

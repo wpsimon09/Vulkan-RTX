@@ -74,6 +74,7 @@ namespace ApplicationCore {
     void PointLightNode::Update()
     {
         m_lightStruct.position = m_transformation->GetPosition();
+        m_lightStruct.isPointLightInUse = m_sceneNodeMetaData.IsVisible;
         SceneNode::Update();
     }
 

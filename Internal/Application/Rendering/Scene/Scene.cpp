@@ -127,7 +127,7 @@ namespace ApplicationCore {
 
             obj->SetMaterial(m_currentSkyBox);
 
-            auto node = std::make_shared<SkyBoxNode>(obj);
+            auto node = std::make_shared<SkyBoxNode>(m_sceneLightInfo, obj);
 
             node->SetName("Sky-Box ##" + VulkanUtils::random_string(5));
 

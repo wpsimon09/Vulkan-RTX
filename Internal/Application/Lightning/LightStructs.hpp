@@ -12,6 +12,13 @@
 #include <glm/gtx/quaternion.hpp>
 #include <vector>
 
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
+
+namespace VulkanCore
+{
+  class VImage2;
+}
+
 namespace LightStructs {
 
 struct AreaLight {
@@ -125,6 +132,7 @@ struct DirectionalLight {
     colour = glm::vec4(0.f);
     direction = glm::vec3(0.f);
   }
+  bool inUse = true;
 
   friend bool operator==(const DirectionalLight& lhs, const DirectionalLightGPU& rhs)
   {
@@ -139,11 +147,19 @@ struct DirectionalLight {
 
 };
 
+struct EnvLight
+{
+    std::shared_ptr<VulkanCore::VImage2> hdrImage;
+
+    bool inUse = true;
+};
+
 struct SceneLightInfo {
 
   LightStructs::DirectionalLight *DirectionalLightInfo = nullptr;
   std::vector<LightStructs::PointLight *> PointLightInfos;
   std::vector<LightStructs::AreaLight *> AreaLightInfos;
+  EnvLight* environmentLight;
 
   int AddPointLight(PointLight *pointLight) {
     PointLightInfos.emplace_back(pointLight);
@@ -163,6 +179,8 @@ private:
   int CurrentPointLightIndex = 0;
   int CurrentAreaLightIndex = 0;
 };
+
+
 
 } // namespace LightStructs
 

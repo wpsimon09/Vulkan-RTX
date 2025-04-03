@@ -88,6 +88,7 @@ namespace ApplicationCore {
         m_lightStruct.scale.x = m_transformation->GetScale().x;
         m_lightStruct.scale.y = m_transformation->GetScale().y;
         m_lightStruct.orientation = m_transformation->GetRotationsQuat();
+        m_lightStruct.isAreaLightInUse = m_sceneNodeMetaData.IsVisible;
         for (auto& edge : m_lightStruct.GetAreaLightEdges())
         {
             auto newEdge =  m_transformation->GetModelMatrix() * edge;

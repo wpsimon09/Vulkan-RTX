@@ -157,7 +157,8 @@ namespace ApplicationCore
         return m_sceneNodeMetaData.nodeType == ENodeType::DirectionalLightNode
         || m_sceneNodeMetaData.nodeType == ENodeType::PointLightNode
         || m_sceneNodeMetaData.nodeType == ENodeType::SpotLightNode
-        || m_sceneNodeMetaData.nodeType == ENodeType::AreaLightNode;
+        || m_sceneNodeMetaData.nodeType == ENodeType::AreaLightNode
+        || m_sceneNodeMetaData.nodeType == ENodeType::SkyBoxNode;
     }
 
     SceneNode* SceneNode::GetParent()
