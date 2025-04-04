@@ -4,6 +4,7 @@
 
 #include "RenderingSystem.hpp"
 
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Lightning/LightStructs.hpp"
 #include "Application/Utils/ApplicationUtils.hpp"
 #include "Editor/UIContext/UIContext.hpp"
@@ -129,12 +130,14 @@ namespace Renderer {
             return lhs.first < rhs.first;
         });
 
-        // render scene
-        m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext, *m_renderingTimeLine[m_currentFrameIndex], m_transferSemapohore);
-
         // generate new IBL maps if new one was selected
         if (sceneLightInfo.environmentLight != nullptr)
-            m_envLightGenerator->Generate(sceneLightInfo.environmentLight->hdrImage, *m_renderingTimeLine[m_currentFrameIndex]);
+            if (sceneLightInfo.environmentLight->hdrImage->IsAvailable())
+                m_envLightGenerator->Generate(sceneLightInfo.environmentLight->hdrImage->GetHandle(), *m_renderingTimeLine[m_currentFrameIndex]);
+        m_renderContext.brdfMap = m_envLightGenerator->GetBRDFLutRaw();
+        m_renderContext.hdrCubeMap = m_envLightGenerator->GetCubeMapRaw();
+        // render scene
+        m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext, *m_renderingTimeLine[m_currentFrameIndex], m_transferSemapohore);
 
         // render UI and present to swap chain
         m_uiRenderer->RenderAndPresent(m_currentFrameIndex,m_currentImageIndex,m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), *m_renderingTimeLine[m_currentFrameIndex]);

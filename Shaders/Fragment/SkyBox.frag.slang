@@ -3,7 +3,7 @@ struct FragmentShaderIn {
 };
 
 [[vk::binding(3, 0)]]
-ConstantBuffer<Sampler2D> _skyBoxHDR;
+ConstantBuffer<SamplerCube> _skyBoxHDR;
 
 const float2 invAtan = float2(0.1591, 0.3183);
 
@@ -18,7 +18,11 @@ float2 SampleSphericalMap(float3 dir) {
 [shader("fragment")]
 float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
     float2 skyBoxUV = SampleSphericalMap(normalize(fsIn.localPos));
-    float3 skyboxColour = _skyBoxHDR.Sample(skyBoxUV).xyz;
+
+
+//    float3 skyboxColour = _skyBoxHDR.Sample(skyBoxUV).xyz;
+
+    float3 skyboxColour = _skyBoxHDR.Sample(fsIn.localPos).xyz;
 
     float3 mapped = skyboxColour / (skyboxColour + float3(1.0));
     return float4(mapped, 1.0);

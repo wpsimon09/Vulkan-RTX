@@ -149,7 +149,7 @@ struct DirectionalLight {
 
 struct EnvLight
 {
-    std::shared_ptr<VulkanCore::VImage2> hdrImage;
+    std::shared_ptr<ApplicationCore::VTextureAsset> hdrImage;
 
     bool inUse = true;
 };

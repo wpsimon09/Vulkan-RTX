@@ -34,6 +34,7 @@ namespace ApplicationCore {
         bool Sync() override;
         void Destroy() override;
         void Load() override;
+        bool IsAvailable();
 
 
         std::shared_ptr<VulkanCore::VImage2> GetHandle() override;

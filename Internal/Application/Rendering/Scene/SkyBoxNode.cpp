@@ -19,7 +19,7 @@ namespace ApplicationCore {
     {
         m_sceneNodeMetaData.nodeType = ENodeType::SkyBoxNode;
         auto* hdrImage = dynamic_cast<ApplicationCore::SkyBoxMaterial*>(m_mesh->GetMaterial().get());
-        m_lightStruct.hdrImage = hdrImage->GetHDRTexture()->GetHandle();
+        m_lightStruct.hdrImage = hdrImage->GetHDRTexture();
 
         sceneLightInfo.environmentLight = &m_lightStruct;
     }

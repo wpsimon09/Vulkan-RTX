@@ -102,6 +102,11 @@ void ApplicationCore::VTextureAsset::Load()
     }
 }
 
+bool ApplicationCore::VTextureAsset::IsAvailable()
+{
+    return m_isInSync;
+}
+
 std::shared_ptr<VulkanCore::VImage2> ApplicationCore::VTextureAsset::GetHandle()
 {
     return VAsset<VulkanCore::VImage2>::GetHandle();

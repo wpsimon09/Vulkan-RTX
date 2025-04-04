@@ -42,11 +42,10 @@ VUniform<T>::VUniform(const VulkanCore::VDevice& device) {
 
 template <typename T>
 void VUniform<T>::UpdateGPUBuffer(int frameIndex) {
-    if (m_isDirty)
-    {
+
         memcpy(m_uniformGPU[frameIndex]->GetMapPointer(), m_uniformCPU.get(), sizeof(T));
         //m_isDirty = false; TODO: update data only if they are chagned
-    }
+
 }
 
 template <typename T>

@@ -78,6 +78,12 @@ namespace Renderer
                     // cast might be required here
                     drawCall.material->UpdateGPUTextureData(unlitSingelTextureEffect);
 
+                    if (drawCall.effect->GetName() == "Sky Box"
+                        && m_renderContextPtr->hdrCubeMap)
+                    {
+                        unlitSingelTextureEffect.texture2D_1 = m_renderContextPtr->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+                    }
+
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(
                         drawCall.effect->GetUpdateTemplate(),
                         drawCall.effect->GetPipelineLayout(), 0,

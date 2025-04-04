@@ -8,6 +8,11 @@
 #include <vector>
 #include <glm/mat4x4.hpp>
 
+namespace VulkanCore
+{
+    class VImage2;
+}
+
 namespace ApplicationCore
 {
     class SkyBoxMaterial;
@@ -39,6 +44,11 @@ namespace VulkanUtils
 
         static bool CompareByDeptDesc(const VulkanStructs::DrawCallData& DrawCallA, const VulkanStructs::DrawCallData& DrawCallB);
         static bool CompareByDeptAsc(const VulkanStructs::DrawCallData& DrawCallA, const VulkanStructs::DrawCallData& DrawCallB);
+
+        VulkanCore::VImage2* hdrCubeMap = nullptr;
+        VulkanCore::VImage2* irradianceMap = nullptr;
+        VulkanCore::VImage2* prefilterMap = nullptr;
+        VulkanCore::VImage2* brdfMap = nullptr;
 
 
         void GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& outDrawCalls);

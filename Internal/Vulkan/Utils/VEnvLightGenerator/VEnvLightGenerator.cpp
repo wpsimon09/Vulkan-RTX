@@ -29,6 +29,23 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
     m_graphicsCmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_graphicsCmdPool);
     m_transferCmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_transferCmdPool);
 
+    captureProjection =  glm::perspective(glm::radians(90.0f), 1.0f,0.1f, 10.0f);
+    captureViews =
+        {
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 1.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f)) * captureProjection,
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f)) * captureProjection,
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, 1.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f)) * captureProjection,
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, -1.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, -1.0f)) * captureProjection,
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, 0.0f, 1.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f)) * captureProjection,
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, 0.0f, -1.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f)) * captureProjection
+        };
+
     GenerateBRDFLut();
 }
 
@@ -37,17 +54,33 @@ const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetBRDFLut()
     return *m_brdfLut;
 }
 
+VulkanCore::VImage2* VulkanUtils::VEnvLightGenerator::GetBRDFLutRaw()
+{
+    return m_brdfLut.get();
+}
+
+const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetCubeMap()
+{
+    return *m_hdrCubeMaps[m_currentHDR];
+}
+
+VulkanCore::VImage2* VulkanUtils::VEnvLightGenerator::GetCubeMapRaw()
+{
+    return m_hdrCubeMaps[m_currentHDR].get();
+}
+
 void VulkanUtils::VEnvLightGenerator::Generate(
     std::shared_ptr<VulkanCore::VImage2> envMap,
     VulkanCore::VTimelineSemaphore& renderingSemaphore)
 {
+
     if (!envMap) { return; }
     //============================================
     // FIRST GENERATE CUBE MAP FROM hdr MAP
     //============================================
     //TODO: later optimise with transfer queus for now i will just use the graphics one for everything
     //TODO: later try to use compute shaders for all of this since they are faster
-
+    m_currentHDR = envMap;
     if (!m_hdrCubeMaps.contains(envMap)) {HDRToCubeMap(envMap, renderingSemaphore);}
 }
 
@@ -146,12 +179,23 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             {
                 // ================ update data
                 // create projection * view matrix that will be send to the  shader
-                hdrPushBlock.GetUBOStruct().viewProj = glm::perspective((float)(M_PI / 2.0), 1.0f, 0.1f, 512.0f) * matrices[face];
+                hdrPushBlock.GetUBOStruct().viewProj = captureViews[face];
+                hdrPushBlock.UpdateGPUBuffer(0);
+                hdrPushBlock.UpdateGPUBuffer(1);
+
                 auto& updateStuct = std::get<UnlitSingleTexture>(hdrToCubeMapEffect.GetEffectUpdateStruct());
                 updateStuct.buffer1 = hdrPushBlock.GetDescriptorBufferInfos()[0];
                 updateStuct.texture2D_1 = envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                hdrPushBlock.UpdateGPUBuffer(0);
 
+                std::cout << "glm::mat4(\n";
+                for (int i = 0; i < 4; ++i) {
+                    std::cout << "  ";
+                    for (int j = 0; j < 4; ++j) {
+                        std::cout << hdrPushBlock.GetUBOStruct().viewProj[j][i] << (j < 3 ? ", " : "");
+                    }
+                    std::cout << "\n";
+                }
+                std::cout << ")" << std::endl;
 
                 //================= configure rendering
                 vk::RenderingInfo hdrToCubeMapRenderingInfo;
@@ -162,6 +206,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                 hdrToCubeMapRenderingInfo.renderArea.offset = 0;
                 hdrToCubeMapRenderingInfo.renderArea.offset = 0;
                 hdrToCubeMapRenderingInfo.layerCount = 1;
+
                 cmdBuffer.beginRendering(hdrToCubeMapRenderingInfo);
 
                 hdrToCubeMapEffect.BindPipeline(cmdBuffer);

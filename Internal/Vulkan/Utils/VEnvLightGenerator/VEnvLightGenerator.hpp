@@ -52,6 +52,11 @@ namespace VulkanUtils
         VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanUtils::VPushDescriptorManager& pushDescriptorManager);
 
         const VulkanCore::VImage2&                  GetBRDFLut();
+        VulkanCore::VImage2*                        GetBRDFLutRaw();
+
+        const VulkanCore::VImage2&                  GetCubeMap();
+        VulkanCore::VImage2*                        GetCubeMapRaw();
+
         void                                        Generate(std::shared_ptr<VulkanCore::VImage2> envMap,
                                                             VulkanCore::VTimelineSemaphore& renderingSemaphore);
 
@@ -73,6 +78,7 @@ namespace VulkanUtils
         std::unordered_map<std::shared_ptr<VulkanCore::VImage2>, std::unique_ptr<VulkanCore::VImage2>> m_irradianceMaps;
         std::unordered_map<std::shared_ptr<VulkanCore::VImage2>, std::unique_ptr<VulkanCore::VImage2>> m_prefilterMaps;
         std::unordered_map<std::shared_ptr<VulkanCore::VImage2>, std::unique_ptr<VulkanCore::VImage2>> m_hdrCubeMaps;
+        std::shared_ptr<VulkanCore::VImage2> m_currentHDR;
 
 
         const VulkanCore::VDevice& m_device;
@@ -86,6 +92,9 @@ namespace VulkanUtils
         std::unique_ptr<VulkanCore::VCommandPool> m_transferCmdPool;
 
         VulkanStructs::MeshData m_cube;
+
+        glm::mat4 captureProjection;
+        std::vector<glm::mat4> captureViews;
 
         std::vector<glm::mat4> matrices = {
             // POSITIVE_X
