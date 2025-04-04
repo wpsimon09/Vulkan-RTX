@@ -55,6 +55,13 @@ namespace VulkanUtils
         void                                        Generate(std::shared_ptr<VulkanCore::VImage2> envMap,
                                                             VulkanCore::VTimelineSemaphore& renderingSemaphore);
 
+        void                                        HDRToCubeMap(std::shared_ptr<VulkanCore::VImage2> envMap,
+                                                            VulkanCore::VTimelineSemaphore& renderingSemaphore);
+        void                                        CubeMapToIrradiance(std::shared_ptr<VulkanCore::VImage2> envMap,
+                                                            VulkanCore::VTimelineSemaphore& renderingSemaphore);
+        void                                        CubeMapToPrefilter(std::shared_ptr<VulkanCore::VImage2> envMap,
+                                                            VulkanCore::VTimelineSemaphore& renderingSemaphore)
+
         void                                        Destroy();
     private:
         void                                        GenerateBRDFLut();
