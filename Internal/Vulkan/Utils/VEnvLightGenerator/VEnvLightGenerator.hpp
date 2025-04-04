@@ -6,6 +6,7 @@
 #define VENVLIGHTGENERATOR_HPP
 #include <memory>
 #include <unordered_map>
+#include <glm/ext/matrix_transform.hpp>
 
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
@@ -76,6 +77,23 @@ namespace VulkanUtils
 
         std::unique_ptr<VulkanCore::VCommandPool> m_graphicsCmdPool;
         std::unique_ptr<VulkanCore::VCommandPool> m_transferCmdPool;
+
+        VulkanStructs::MeshData m_cube;
+
+        std::vector<glm::mat4> matrices = {
+            // POSITIVE_X
+            glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+            // NEGATIVE_X
+            glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+            // POSITIVE_Y
+            glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+            // NEGATIVE_Y
+            glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+            // POSITIVE_Z
+            glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+            // NEGATIVE_Z
+            glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+        };
 
     };
 }
