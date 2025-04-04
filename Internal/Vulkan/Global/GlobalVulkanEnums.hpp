@@ -45,9 +45,9 @@ enum EImageSource{
 enum EVertexInput
 {
     Full = 0,
-    VertexOnly ,
-    Vertex_UV ,
-    Vertex_Normal ,
+    PositionOnly ,
+    Position_UV ,
+    Position_Normal ,
     Empty
 };
 

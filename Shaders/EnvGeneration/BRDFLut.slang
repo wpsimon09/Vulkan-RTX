@@ -7,7 +7,6 @@ static const uint NUM_SAMPLES = 1024U;
 #define PI 3.1415926536
 
 
-
 [shader("vertex")]
 VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     VertexOut output;

@@ -133,7 +133,7 @@ namespace Renderer {
         m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext, *m_renderingTimeLine[m_currentFrameIndex], m_transferSemapohore);
 
         // generate new IBL maps if new one was selected
-        if (sceneLightInfo.environmentLight)
+        if (sceneLightInfo.environmentLight != nullptr)
             m_envLightGenerator->Generate(sceneLightInfo.environmentLight->hdrImage, *m_renderingTimeLine[m_currentFrameIndex]);
 
         // render UI and present to swap chain

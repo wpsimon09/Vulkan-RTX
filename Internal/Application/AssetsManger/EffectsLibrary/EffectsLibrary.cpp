@@ -51,7 +51,7 @@ namespace ApplicationCore {
         editorBillboards
             ->SetTopology(vk::PrimitiveTopology::eTriangleList)
             .SetCullNone()
-            .SetVertexInputMode(EVertexInput::Vertex_UV);
+            .SetVertexInputMode(EVertexInput::Position_UV);
         effects[EEffectType::EditorBilboard] = std::move(editorBillboards);
 
         //==============================================================================
@@ -67,7 +67,7 @@ namespace ApplicationCore {
             .SetCullNone()
             .SetPolygonLine()
             .SetLineWidth(2)
-            .SetVertexInputMode(EVertexInput::VertexOnly);
+            .SetVertexInputMode(EVertexInput::PositionOnly);
 
         effects[EEffectType::DebugLine] = std::move(debugLine);
 
@@ -98,7 +98,7 @@ namespace ApplicationCore {
         debugShapes->SetCullNone()
         .SetLineWidth(7)
         .SetPolygonLine()
-        .SetVertexInputMode(EVertexInput::VertexOnly)
+        .SetVertexInputMode(EVertexInput::PositionOnly)
         .SetTopology(vk::PrimitiveTopology::eLineList);
 
         effects[EEffectType::DebugLine] = std::move(debugShapes);
@@ -113,7 +113,7 @@ namespace ApplicationCore {
 
 
         skybox->SetCullNone()
-            .SetVertexInputMode(EVertexInput::VertexOnly)
+            .SetVertexInputMode(EVertexInput::PositionOnly)
             .SetDisableDepthWrite()
             .SetDepthOpLessEqual()
             .DisableStencil();

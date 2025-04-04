@@ -60,7 +60,7 @@ namespace VulkanUtils
         void                                        CubeMapToIrradiance(std::shared_ptr<VulkanCore::VImage2> envMap,
                                                             VulkanCore::VTimelineSemaphore& renderingSemaphore);
         void                                        CubeMapToPrefilter(std::shared_ptr<VulkanCore::VImage2> envMap,
-                                                            VulkanCore::VTimelineSemaphore& renderingSemaphore)
+                                                            VulkanCore::VTimelineSemaphore& renderingSemaphore);
 
         void                                        Destroy();
     private:

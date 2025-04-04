@@ -83,6 +83,20 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(vk::ImageLayout currentLayo
         srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
         dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
     }
+    else if (currentLayout == vk::ImageLayout::eColorAttachmentOptimal && targetLayout == vk::ImageLayout::eTransferSrcOptimal) {
+        barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+        barrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        dstStageFlags = vk::PipelineStageFlagBits::eTransfer;
+    }
+    else if (currentLayout == vk::ImageLayout::eTransferSrcOptimal && targetLayout == vk::ImageLayout::eColorAttachmentOptimal) {
+        barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
+        barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eTransfer;
+        dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+    }
     else {
         std::string currentLayoutStr = ImageLayoutToString(currentLayout);
         std::string targetLayoutStr = ImageLayoutToString(targetLayout);
@@ -114,9 +128,9 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(VulkanCore::VImage2& image,
     barrier.image = image.GetImage();;
     barrier.subresourceRange.aspectMask = image.GetImageFlags().IsDepthBuffer ? vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil : vk::ImageAspectFlagBits::eColor;
     barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = image.GetImageInfo().arrayLayers;
+    barrier.subresourceRange.levelCount = image.GetImageInfo().mipLevels;
     barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = 1;
+    barrier.subresourceRange.layerCount = image.GetImageInfo().arrayLayers;
 
     image.GetImageInfo().layout = targetLayout;
 

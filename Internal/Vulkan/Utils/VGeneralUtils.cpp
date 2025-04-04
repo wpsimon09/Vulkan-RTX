@@ -88,7 +88,7 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
 
             break;
         }
-    case Vertex_UV:
+    case Position_UV:
         {
             attributeDescription.resize(2); // enum specifies the number
 
@@ -106,7 +106,7 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
 
             break;
         };
-    case Vertex_Normal:
+    case Position_Normal:
         {
             attributeDescription.resize(2); // enum specifies the number
 
@@ -124,7 +124,7 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
 
             break;
         }
-    case VertexOnly:
+    case PositionOnly:
         {
             attributeDescription.resize(1); // enum specifies the number
 

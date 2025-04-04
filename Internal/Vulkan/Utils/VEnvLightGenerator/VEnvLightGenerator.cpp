@@ -29,7 +29,7 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
     m_graphicsCmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_graphicsCmdPool);
     m_transferCmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_transferCmdPool);
 
-    //GenerateBRDFLut();
+    GenerateBRDFLut();
 }
 
 const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetBRDFLut()
@@ -90,6 +90,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             colourAttachemntCI.height = 512;
             colourAttachemntCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment |
                 vk::ImageUsageFlagBits::eTransferSrc;
+            colourAttachemntCI.format = vk::Format::eR32G32B32A32Sfloat;
 
             renderAttachment = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachemntCI);
 
@@ -103,6 +104,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
         m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
                                          envGenerationSemaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
         envGenerationSemaphore.CpuWaitIdle(2);
+        m_graphicsCmdBuffer->BeginRecording();
 
         //=============================================================
         // START RENDERING
@@ -119,7 +121,10 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             .SetDisableDepthTest()
             .SetCullNone()
             .SetNullVertexBinding()
-            .SetPiplineNoMultiSampling();
+            .SetPiplineNoMultiSampling()
+            .SetColourOutputFormat(vk::Format::eR32G32B32A32Sfloat)
+            .SetVertexInputMode(EVertexInput::PositionOnly);
+
 
             hdrToCubeMapEffect.BuildEffect();
 
@@ -136,16 +141,16 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             renderAttachentInfo.loadOp = vk::AttachmentLoadOp::eClear;
             renderAttachentInfo.storeOp = vk::AttachmentStoreOp::eStore;
 
+            VUniform<PushBlock> hdrPushBlock(m_device);
             for (int face = 0; face < 6; face++)
             {
                 // ================ update data
                 // create projection * view matrix that will be send to the  shader
-                VUniform<PushBlock> hdrPushBlock(m_device);
                 hdrPushBlock.GetUBOStruct().viewProj = glm::perspective((float)(M_PI / 2.0), 1.0f, 0.1f, 512.0f) * matrices[face];
-                hdrPushBlock.UpdateGPUBuffer(0);
                 auto& updateStuct = std::get<UnlitSingleTexture>(hdrToCubeMapEffect.GetEffectUpdateStruct());
                 updateStuct.buffer1 = hdrPushBlock.GetDescriptorBufferInfos()[0];
                 updateStuct.texture2D_1 = envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                hdrPushBlock.UpdateGPUBuffer(0);
 
 
                 //================= configure rendering
@@ -156,6 +161,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                 hdrToCubeMapRenderingInfo.renderArea.extent.height = hdrCubeMapCI.height;
                 hdrToCubeMapRenderingInfo.renderArea.offset = 0;
                 hdrToCubeMapRenderingInfo.renderArea.offset = 0;
+                hdrToCubeMapRenderingInfo.layerCount = 1;
                 cmdBuffer.beginRendering(hdrToCubeMapRenderingInfo);
 
                 hdrToCubeMapEffect.BindPipeline(cmdBuffer);
@@ -210,7 +216,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
 
                 cmdBuffer.copyImage(
                     renderAttachment->GetImage(),
-                    vk::ImageLayout::eTransferDstOptimal,
+                    vk::ImageLayout::eTransferSrcOptimal,
                     hdrCubeMap->GetImage(),
                     vk::ImageLayout::eTransferDstOptimal,
                     copyRegion);
@@ -231,6 +237,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             envGenerationSemaphore.Reset();
             renderAttachment->Destroy();
             hdrToCubeMapEffect.Destroy();
+            hdrPushBlock.Destory();
 
         }
     }
