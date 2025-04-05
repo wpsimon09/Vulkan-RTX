@@ -150,7 +150,7 @@ struct DirectionalLight {
 struct EnvLight
 {
     std::shared_ptr<ApplicationCore::VTextureAsset> hdrImage;
-
+    float ambientIntensity = 0.07;
     bool inUse = true;
 };
 

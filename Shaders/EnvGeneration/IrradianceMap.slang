@@ -20,15 +20,6 @@
         float4 position : SV_Position;
     };
 
-    float radicalInverse_VdC(uint bits)
-    {
-        bits = (bits << 16u) | (bits >> 16u);
-        bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
-        bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
-        bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
-        bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
-        return float(bits) * 2.3283064365386963e-10; // / 0x100000000
-    }
 
     [[shader("vertex")]]
     VertexOutput vertexMain(VertexInput input) {
@@ -49,19 +40,25 @@
         float3 right = cross(up, normal);
         up = cross(normal, right);
 
-        float sampleDelta = 0.005; // how much each iterration moves along the sphere 
+        float sampleDelta = 0.025; // how much each iterration moves along the sphere 
         float nrSamples = 0.0;
 
         float deltaPhi = (2.0f * float(PI)) / 180.0f;
         float deltaTheta = (0.5f * float(PI)) / 64.0f;
 
-        for (float phi = 0.0f; phi < 2.0 * PI; phi += deltaPhi) { // mowe down along sphere
-            for (float theta = 0.0; theta < 0.5 * PI; theta += deltaTheta) { // move right along spher e
+        for (float phi = 0.0f; phi < 2.0 * PI; phi += sampleDelta) { // mowe down along sphere
+            for (float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta) { // move right along spher e
 
                 // convertes from spherical to cartesian syste
-                float3 tempVec = cos(phi) * right + sin(phi) * up;
-                float3 sampleVector = cos(theta) * normal + sin(theta) * tempVec;
-                irradiance += hdrCubeMap.Sample(sampleVector).rgb * cos(theta) * sin(theta);
+                //float3 tempVec = cos(phi) * right + sin(phi) * up;
+
+                //float3 sampleVector = cos(theta) * normal + sin(theta) * tempVec;
+
+                float3 tangentSample = float3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+                float3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * normal;
+
+
+                irradiance += hdrCubeMap.Sample(sampleVec).rgb * cos(theta) * sin(theta);
                 
                 nrSamples++;
                                 

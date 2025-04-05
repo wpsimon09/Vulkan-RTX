@@ -64,7 +64,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
 
     AmbientLight ambientLight;
     ambientLight.albedo = brdf_.albedo.xyz;
-    ambientLight.aoIntensity = 0.1;
+    ambientLight.aoIntensity = _lightInfo.info.y;
     ambientLight.applyIBL = bool(_lightInfo.info.x);
 
     LightPair<LightArray<AreaLight, 4>, AmbientLight> AreaAndAmbient;

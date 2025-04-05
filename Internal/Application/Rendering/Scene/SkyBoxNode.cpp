@@ -56,6 +56,6 @@ namespace ApplicationCore {
 
     void SkyBoxNode::Update()
     {
-
+        m_lightStruct.inUse = m_sceneNodeMetaData.IsVisible;
     }
 } // ApplicationCore

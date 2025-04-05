@@ -77,7 +77,7 @@
         float3 up = float3(0.0, 1.0, 0.0);
         float3 right = cross(up, normal);
         up = cross(normal, right);
-        const uint SAMPLE_COUNT = 16384;
+        const uint SAMPLE_COUNT = 20384;
         float totalWeight = 0.0;
 
         for (int i = 0u; i < SAMPLE_COUNT; ++i) {
@@ -89,7 +89,7 @@
             float D = 1.0 / PI;
             float pdf = (D * NdotH / (4.0)) + 0.0001;
 
-            float resolution = 512; // face resolution of the cube map
+            float resolution = 1024; // face resolution of the cube map
 
             float saTexel = 4.0 * PI / (6.0 * resolution * resolution);
 

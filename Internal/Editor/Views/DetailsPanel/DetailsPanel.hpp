@@ -54,6 +54,7 @@ private:
     void RenderDirectionLightUI();
     void RenderPointLightUI();
     void RenderAreaLightUI();
+    void RenderEnvLightUI();
     void RenderSceneNodeMetaDataToggles();
     void RenderNodeStats();
     void RenderPBRMaterialDetails(ApplicationCore::PBRMaterial* material);

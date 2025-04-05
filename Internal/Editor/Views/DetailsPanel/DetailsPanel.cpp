@@ -16,6 +16,7 @@
 #include "Application/Rendering/Scene/DirectionLightNode.hpp"
 #include "Application/Rendering/Scene/PointLightNode.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
+#include "Application/Rendering/Scene/SkyBoxNode.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 
 namespace VEditor
@@ -40,6 +41,7 @@ namespace VEditor
                 RenderMaterialEditorPanel();
                 RenderSceneNodeMetaDataToggles();
             }
+
             if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::DirectionalLightNode)
             {
                 RenderDirectionLightUI();
@@ -53,6 +55,11 @@ namespace VEditor
             if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::AreaLightNode)
             {
                 RenderAreaLightUI();
+            }
+
+            if (m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::SkyBoxNode)
+            {
+                RenderEnvLightUI();
             }
         }
 
@@ -214,6 +221,12 @@ namespace VEditor
         ImGui::ColorEdit3("LightColour", &areaLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
         ImGui::DragFloat("Intensity", &areaLightNode->GetLightStruct().intensity);
         ImGui::Checkbox("Two sided", &areaLightNode->GetLightStruct().twoSided);
+    }
+
+    void DetailsPanel::RenderEnvLightUI()
+    {
+        auto envLIght = dynamic_cast<ApplicationCore::SkyBoxNode*>(m_selectedSceneNode.get());
+        ImGui::SliderFloat("Ambient strength", &envLIght->GetLightStruct().ambientIntensity, 0.0f, 1.0f);
     }
 
     void DetailsPanel::RenderSceneNodeMetaDataToggles()

@@ -99,10 +99,7 @@ void VulkanUtils::VEnvLightGenerator::Generate(
     m_currentHDR = envMap;
 
     if (!m_hdrCubeMaps.contains(envMap)) {HDRToCubeMap(envMap, renderingSemaphore);}
-    if (!m_irradianceMaps.contains(envMap))
-    {
-        CubeMapToIrradiance(envMap, renderingSemaphore);
-    }
+    if (!m_irradianceMaps.contains(envMap)){CubeMapToIrradiance(envMap, renderingSemaphore);}
 }
 
 //==================================
@@ -120,8 +117,8 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
         VulkanCore::VImage2CreateInfo hdrCubeMapCI;
         hdrCubeMapCI.channels = 4;
         hdrCubeMapCI.format = vk::Format::eR32G32B32A32Sfloat;
-        hdrCubeMapCI.width = 512;
-        hdrCubeMapCI.height = 512;
+        hdrCubeMapCI.width = 1024;
+        hdrCubeMapCI.height = 1024;
         hdrCubeMapCI.mipLevels = 1;
         hdrCubeMapCI.arrayLayers = 6; // six faces
         hdrCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
@@ -143,8 +140,8 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
         std::unique_ptr<VulkanCore::VImage2> renderAttachment;
         {
             VulkanCore::VImage2CreateInfo colourAttachemntCI;
-            colourAttachemntCI.width = 512;
-            colourAttachemntCI.height = 512;
+            colourAttachemntCI.width = hdrCubeMapCI.width;
+            colourAttachemntCI.height = hdrCubeMapCI.height;
             colourAttachemntCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment |
                 vk::ImageUsageFlagBits::eTransferSrc;
             colourAttachemntCI.format = vk::Format::eR32G32B32A32Sfloat;
@@ -323,8 +320,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         VulkanCore::VImage2CreateInfo irradianceCubeMapCI;
         irradianceCubeMapCI.channels = 4;
         irradianceCubeMapCI.format = vk::Format::eR16G16B16A16Sfloat;
-        irradianceCubeMapCI.width = 32;
-        irradianceCubeMapCI.height = 32;
+        irradianceCubeMapCI.width = 64;
+        irradianceCubeMapCI.height = 64;
         irradianceCubeMapCI.mipLevels = 1;
         irradianceCubeMapCI.arrayLayers = 6; // six faces
         irradianceCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
@@ -346,8 +343,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         std::unique_ptr<VulkanCore::VImage2> renderAttachment;
         {
             VulkanCore::VImage2CreateInfo colourAttachemntCI;
-            colourAttachemntCI.width = 32;
-            colourAttachemntCI.height = 32;
+            colourAttachemntCI.width = irradianceCubeMapCI.width;
+            colourAttachemntCI.height = irradianceCubeMapCI.height;
             colourAttachemntCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment |
                 vk::ImageUsageFlagBits::eTransferSrc;
             colourAttachemntCI.format = vk::Format::eR16G16B16A16Sfloat;
@@ -374,8 +371,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         {
             VEffect hdrToCubeMapEffect(
                 m_device, "HDR Image to cube map",
-                "Shaders/Compiled/IrradianceMapImportanceSample.vert.spv",
-                "Shaders/Compiled/IrradianceMapImportanceSample.frag.spv",
+                "Shaders/Compiled/IrradianceMap.vert.spv",
+                "Shaders/Compiled/IrradianceMap.frag.spv",
                 m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::UnlitSingleTexture));
             hdrToCubeMapEffect.DisableStencil()
             .SetDisableDepthTest()
@@ -547,8 +544,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     std::unique_ptr<VulkanCore::VImage2> renderAttachment;
     {
         VulkanCore::VImage2CreateInfo colourAttachemntCI;
-        colourAttachemntCI.width = 32;
-        colourAttachemntCI.height = 32;
+        colourAttachemntCI.width = 64;
+        colourAttachemntCI.height = 64;
         colourAttachemntCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment |
             vk::ImageUsageFlagBits::eTransferSrc;
         colourAttachemntCI.format = vk::Format::eR16G16B16A16Sfloat;
