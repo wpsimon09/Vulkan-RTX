@@ -21,6 +21,8 @@ public:
     const std::vector<vk::DescriptorBufferInfo>& GetDescriptorBufferInfos() const {return m_bufferInfo;};
     void Destory() const;
     bool m_isDirty = true;
+
+    ~VUniform();
 private:
     std::unique_ptr<T> m_uniformCPU;
     std::vector<std::unique_ptr<VulkanCore::VBuffer>> m_uniformGPU; // per frame in flight
@@ -55,6 +57,11 @@ void VUniform<T>::Destory() const {
     }
 }
 
+template <typename T>
+VUniform<T>::~VUniform()
+{
+
+}
 } // VulkanUtils
 
 #endif //VUNIFROM_HPP

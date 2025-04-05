@@ -29,21 +29,26 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
     m_graphicsCmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_graphicsCmdPool);
     m_transferCmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_transferCmdPool);
 
-    captureProjection =  glm::perspective(glm::radians(90.0f), 1.0f,0.1f, 10.0f);
-    captureViews =
+    glm::mat4 captureProjection =  glm::perspective(glm::radians(90.0f), 1.0f,0.1f, 10.0f);
+    m_camptureViews =
         {
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 1.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, -1.0f, 0.0f)) * captureProjection,
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, -1.0f, 0.0f)) * captureProjection,
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, 1.0f, 0.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f)) * captureProjection,
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, -1.0f, 0.0f),
-        glm::vec3(0.0f, 0.0f, -1.0f)) * captureProjection,
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, 0.0f, 1.0f),
-        glm::vec3(0.0f, -1.0f, 0.0f)) * captureProjection,
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, 0.0f, -1.0f),
-        glm::vec3(0.0f, -1.0f, 0.0f)) * captureProjection
+         captureProjection * glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 1.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f)) ,
+
+        captureProjection * glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f)) ,
+
+        captureProjection * glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, 1.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f)) ,
+
+        captureProjection *glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, -1.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, -1.0f)),
+
+        captureProjection * glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, 0.0f, 1.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f)),
+
+        captureProjection * glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, 0.0f, -1.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f))
         };
 
     GenerateBRDFLut();
@@ -174,12 +179,12 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             renderAttachentInfo.loadOp = vk::AttachmentLoadOp::eClear;
             renderAttachentInfo.storeOp = vk::AttachmentStoreOp::eStore;
 
-            VUniform<PushBlock> hdrPushBlock(m_device);
             for (int face = 0; face < 6; face++)
             {
+                VUniform<PushBlock> hdrPushBlock(m_device);
                 // ================ update data
                 // create projection * view matrix that will be send to the  shader
-                hdrPushBlock.GetUBOStruct().viewProj = captureViews[face];
+                hdrPushBlock.GetUBOStruct().viewProj = m_camptureViews[face];
                 hdrPushBlock.UpdateGPUBuffer(0);
                 hdrPushBlock.UpdateGPUBuffer(1);
 
@@ -282,7 +287,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             envGenerationSemaphore.Reset();
             renderAttachment->Destroy();
             hdrToCubeMapEffect.Destroy();
-            hdrPushBlock.Destory();
+//            hdrPushBlock.Destory();
 
         }
     }
