@@ -57,6 +57,9 @@ namespace VulkanUtils
         const VulkanCore::VImage2&                  GetCubeMap();
         VulkanCore::VImage2*                        GetCubeMapRaw();
 
+        const VulkanCore::VImage2&                  GetIrradianceMap();
+        VulkanCore::VImage2*                        GetIrradianceMapRaw();
+
         void                                        Generate(std::shared_ptr<VulkanCore::VImage2> envMap,
                                                             VulkanCore::VTimelineSemaphore& renderingSemaphore);
 
@@ -68,6 +71,7 @@ namespace VulkanUtils
                                                             VulkanCore::VTimelineSemaphore& renderingSemaphore);
 
         void                                        Destroy();
+
     private:
         void                                        GenerateBRDFLut();
 
