@@ -179,24 +179,25 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             renderAttachentInfo.loadOp = vk::AttachmentLoadOp::eClear;
             renderAttachentInfo.storeOp = vk::AttachmentStoreOp::eStore;
 
+            std::array<std::unique_ptr<VUniform<PushBlock>>, 6> hdrPushBlocks;
+            for (auto& hdrPushBlock: hdrPushBlocks)
+                {hdrPushBlock = std::make_unique<VUniform<PushBlock>>(m_device, true);}
             for (int face = 0; face < 6; face++)
             {
-                VUniform<PushBlock> hdrPushBlock(m_device);
                 // ================ update data
                 // create projection * view matrix that will be send to the  shader
-                hdrPushBlock.GetUBOStruct().viewProj = m_camptureViews[face];
-                hdrPushBlock.UpdateGPUBuffer(0);
-                hdrPushBlock.UpdateGPUBuffer(1);
+                hdrPushBlocks[face]->GetUBOStruct().viewProj = m_camptureViews[face];
+                hdrPushBlocks[face]->UpdateGPUBuffer(0);
 
                 auto& updateStuct = std::get<UnlitSingleTexture>(hdrToCubeMapEffect.GetEffectUpdateStruct());
-                updateStuct.buffer1 = hdrPushBlock.GetDescriptorBufferInfos()[0];
+                updateStuct.buffer1 = hdrPushBlocks[face]->GetDescriptorBufferInfos()[0];
                 updateStuct.texture2D_1 = envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
                 std::cout << "glm::mat4(\n";
                 for (int i = 0; i < 4; ++i) {
                     std::cout << "  ";
                     for (int j = 0; j < 4; ++j) {
-                        std::cout << hdrPushBlock.GetUBOStruct().viewProj[j][i] << (j < 3 ? ", " : "");
+                        std::cout << hdrPushBlocks[face]->GetUBOStruct().viewProj[j][i] << (j < 3 ? ", " : "");
                     }
                     std::cout << "\n";
                 }
@@ -273,7 +274,10 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
 
                 //========================== transfer colour attachment back to rendering layout
                 RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer );
+
+                //hdrPushBlock.Destory();
             }
+
 
             //======================== transition the HDR image to shader read only
             RecordImageTransitionLayoutCommand(*hdrCubeMap, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eTransferDstOptimal, *m_graphicsCmdBuffer);
@@ -287,6 +291,8 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             envGenerationSemaphore.Reset();
             renderAttachment->Destroy();
             hdrToCubeMapEffect.Destroy();
+            for (auto& hdrPushBlock: hdrPushBlocks)
+            {hdrPushBlock->Destory();}
 //            hdrPushBlock.Destory();
 
         }
