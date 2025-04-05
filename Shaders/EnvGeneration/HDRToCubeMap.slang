@@ -44,5 +44,7 @@
         float3 skyboxColour = hdrMap.Sample(skyBoxUV).xyz;
 
         float3 mapped = skyboxColour / (skyboxColour + float3(1.0));
-        return float4(mapped, 1.0);        
-    }
+
+        //       return float4(mapped, 1.0);
+            return float4(skyboxColour, 1.0);
+        }
