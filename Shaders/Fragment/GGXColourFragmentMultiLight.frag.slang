@@ -16,6 +16,7 @@ struct LightInfo {
     // PointLight[10] pointLigths;
     LightArray<PointLight, 20> pointLights;
     LightArray<AreaLight, 4> areaLights;
+    float4 info;
 }
 
 [[vk::binding(2, 0)]]
@@ -52,7 +53,6 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     material.emissive_map = _emissiveMap;
     let brdf_ = material.Prepare(g);
 
-
     if (material.features.hasNormalTexture) {
         g.normal = normalize(SampleNormalMap(_normalMap, fsIn.uv, fsIn.normal, fsIn.fragPos));
     }
@@ -65,6 +65,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     AmbientLight ambientLight;
     ambientLight.albedo = brdf_.albedo.xyz;
     ambientLight.aoIntensity = 0.1;
+    ambientLight.applyIBL = bool(_lightInfo.info.x);
 
     LightPair<LightArray<AreaLight, 4>, AmbientLight> AreaAndAmbient;
     AreaAndAmbient.first = _lightInfo.areaLights;

@@ -109,6 +109,15 @@ namespace Renderer
 
                     forwardShaddingEffect.texture2D_5 = MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
                     forwardShaddingEffect.texture2D_6 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                    if (m_renderContextPtr->irradianceMap)
+                    {
+                        forwardShaddingEffect.texture2D_7 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                    }else
+                    {
+                        // this is temporary solution where i pass some other texture here to not get segv
+                        forwardShaddingEffect.texture2D_7 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);;
+                    }
+                    //forwardShaddingEffect.texture2D_7 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(
                         drawCall.effect->GetUpdateTemplate(),

@@ -1,5 +1,15 @@
 import Material;
 
+
+// [[vk::binding(13, 0)]]
+// ConstantBuffer<SamplerCube> PrefilterMap;
+
+// [[vk::binding(14, 0)]]
+// ConstantBuffer<Sampler2D> BRDF_Lut;
+
+[[vk::binding(12, 0)]]
+ConstantBuffer<SamplerCube> IrradianceMap;
+
 // B - brdf equation
 interface ILightEnv {
     float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo);
@@ -73,8 +83,18 @@ struct EmptyLightEnv : ILightEnv {
 struct AmbientLight : ILightEnv {
     float aoIntensity;
     float3 albedo;
+    bool applyIBL;
+    
     float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
-        return albedo * aoIntensity;
+        if (applyIBL) { // passed from application based on if the env is nullptr or not 
+            float3 kS = brdf.FresnellShlickRoughness(max(dot(g.normal, wo), 0.0));
+            float3 kD = float3(1.0) - kS;
+            float3 irradiance = IrradianceMap.Sample(g.normal.xyz).xyz;
+            float3 diffuse = irradiance * albedo;
+            return (kD * diffuse) * aoIntensity;
+        } else {
+            return albedo * aoIntensity;
+        }
     }
 }
 

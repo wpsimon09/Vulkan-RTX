@@ -22,8 +22,10 @@ public:
     void Update() override;
 private:
     void RenderDrawCallListWidndow(Renderer::RenderingSystem* renderingSystem);
+    void RenderLightInfoWindow(Renderer::RenderingSystem* renderingSystem);
     Renderer::RenderingSystem* m_renderingSystem;
     bool m_openDrawCallListWindow = false;
+    bool m_openLightInfoLigt = false;
 };
 
 } // VEditor

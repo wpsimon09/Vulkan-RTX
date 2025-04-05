@@ -80,6 +80,7 @@ private:
     const VulkanCore::VDevice &m_device;
     const VulkanUtils::VUniformBufferManager &m_uniformBufferManager;
     VEditor::UIContext &m_uiContext;
+    LightStructs::SceneLightInfo* m_sceneLightInfo;
 
     VulkanUtils::VPushDescriptorManager &m_pushDescriptorSetManager;
     uint32_t m_currentImageIndex = 0;

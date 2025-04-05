@@ -86,7 +86,7 @@ namespace Renderer {
     void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,GlobalUniform& globalUniformUpdateInfo)
     {
         m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
-
+        m_sceneLightInfo = &sceneLightInfo;
         //=================================================
         // GET SWAP IMAGE INDEX
         //=================================================
@@ -121,6 +121,7 @@ namespace Renderer {
 
         m_renderingTimeLine[m_currentFrameIndex]->Reset();
 
+        // ==== check if it is possible ot use env light
         m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex,globalUniformUpdateInfo);
         m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
         m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());

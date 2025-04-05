@@ -46,6 +46,8 @@ struct Material
 };
 
 
+
+
 //===================================
 // MATERIAL INTERFACE DEFINITIONS
 //===================================
@@ -127,6 +129,7 @@ struct PBRMaterial : IMaterial
 
 interface IBRDF
 {
+    float3 FresnellShlickRoughness(float cosTheta);
 
     /**
      * wo -         incoming view direction
@@ -197,6 +200,14 @@ struct CookTorrence_GGX : IBRDF
     float3 FresnelShlick(float cosThete, float3 F0)
     {
         return F0 + (1.0 - F0) * pow(1.0 - cosThete, 5.0);
+    }
+
+    float3 FresnellShlickRoughness(float cosTheta)
+    {
+        float3 F0 = float3(0.04);
+        F0 = lerp(F0, albedo.xyz, metallnes);
+        return F0 + (max(float3(1.0 - roughness), F0) - F0) *
+                        pow(1.0 - cosTheta, 5.0);
     }
 
     float3 Evaluate(float3 V, float3 L, float3 N)

@@ -36,6 +36,10 @@ namespace VEditor {
                 {
                     m_openDrawCallListWindow = true;
                 }
+                if (ImGui::Button("Show light info"))
+                {
+                    m_openLightInfoLigt = true;
+                }
                 ImGui::TreePop();
             }
             if (ImGui::TreeNode(ICON_FA_BUG " Debug renderer"))
@@ -49,6 +53,11 @@ namespace VEditor {
         if (m_openDrawCallListWindow)
         {
             RenderDrawCallListWidndow(m_renderingSystem);
+        }
+
+        if (m_openLightInfoLigt)
+        {
+            RenderLightInfoWindow(m_renderingSystem);
         }
 
         IUserInterfaceElement::Render();
@@ -124,5 +133,17 @@ namespace VEditor {
 
     }
 
+    void RenderingOptions::RenderLightInfoWindow(Renderer::RenderingSystem* renderingSystem)
+    {
+        ImGui::Begin(ICON_FA_BOLT_LIGHTNING" Light info");
 
+
+
+        ImGui::End();
+
+        if (ImGui::Button("Close"))
+        {
+            m_openLightInfoLigt = false;
+        }
+    }
 } // VEditor

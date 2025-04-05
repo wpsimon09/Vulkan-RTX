@@ -20,7 +20,7 @@ struct GlobalData {
     float4 cameraPostiion;
     float4 viewParams;
 
-    float padding;
+    float useEnvLighting;
     float padding2;
     float2 screenSize;
 };

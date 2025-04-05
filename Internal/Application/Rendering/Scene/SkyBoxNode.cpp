@@ -50,7 +50,8 @@ namespace ApplicationCore {
 
     void SkyBoxNode::ProcessNodeRemove()
     {
-
+        m_lightStruct.hdrImage = nullptr;
+        m_lightStruct.inUse = false;
     }
 
     void SkyBoxNode::Update()

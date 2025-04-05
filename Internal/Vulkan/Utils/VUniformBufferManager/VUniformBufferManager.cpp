@@ -123,6 +123,13 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
             m_lightUniform->GetUBOStruct().areaLights[i].isInUse = areaLight->isAreaLightInUse;
         }
     }
+    if (sceneLightInfo.environmentLight)
+    {
+        m_lightUniform->GetUBOStruct().info.x = (sceneLightInfo.environmentLight->inUse && (sceneLightInfo.environmentLight->hdrImage != nullptr));
+    }else
+    {
+        m_lightUniform->GetUBOStruct().info.x =static_cast<int>(false);
+    }
     m_lightUniform->UpdateGPUBuffer(frameIndex);
 }
 
