@@ -66,16 +66,25 @@
     VertexOutput vertexMain(VertexInput input) {
         VertexOutput output;
         output.position = mul(pushData.projectionView, float4(input.position, 1.0));
+        output.roughness = pushData.params.x;
         output.localPosition = input.position;
 
         return output;
 
     }
 
+    float D_GGX(float dotNH, float roughness)
+    {
+        float alpha = roughness * roughness;
+        float alpha2 = alpha * alpha;
+        float denom = dotNH * dotNH * (alpha2 - 1.0) + 1.0;
+        return (alpha2) / (PI * denom * denom);
+    }
+
     [[shader("fragment")]]
     float4 fragmentMain(VertexOutput input) {
 
-        float3 N = normalize(input.position).xyz;
+        float3 N = normalize(input.localPosition).xyz;
         float3 R = N;
         float3 V = R;
 
@@ -92,6 +101,18 @@
             float NdotL = max(dot(N, L), 0.0);
 
             if (NdotL > 0.0) {
+                // float dotNH = clamp(dot(N, H), 0.0, 1.0);
+                // float dotVH = clamp(dot(V, H), 0.0, 1.0);
+
+                // float pdf = D_GGX(dotNH, input.roughness) * dotNH / (4.0 * dotVH) + 0.0001;
+
+                // float resolution = 512.0f;
+                // float saTexel = 4.0 * PI / (6.0 * resolution * resolution);
+                // float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
+
+                // float mipLevel = 0;
+
+
                 prefilteredColor += hdrCubeMap.Sample(L).xyz * NdotL;
                 totalWeight += NdotL;
             }
@@ -100,5 +121,6 @@
         prefilteredColor = prefilteredColor  / totalWeight;
 
         return float4(prefilteredColor, 1.0);
-        
+        //return float4(hdrCubeMap.Sample(input.localPosition).xyz, 1.0);
+    
     }

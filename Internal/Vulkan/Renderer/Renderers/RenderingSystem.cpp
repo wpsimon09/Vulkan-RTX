@@ -137,8 +137,8 @@ namespace Renderer {
                 m_envLightGenerator->Generate(sceneLightInfo.environmentLight->hdrImage->GetHandle(), *m_renderingTimeLine[m_currentFrameIndex]);
         m_renderContext.brdfMap = m_envLightGenerator->GetBRDFLutRaw();
         m_renderContext.hdrCubeMap = m_envLightGenerator->GetCubeMapRaw();
-        m_renderContext.irradianceMap = m_envLightGenerator->GetIrradianceMapRaw()
-        ;
+        m_renderContext.irradianceMap = m_envLightGenerator->GetIrradianceMapRaw();
+        m_renderContext.prefilterMap = m_envLightGenerator->GetPrefilterMapRaw();
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext, *m_renderingTimeLine[m_currentFrameIndex], m_transferSemapohore);
 

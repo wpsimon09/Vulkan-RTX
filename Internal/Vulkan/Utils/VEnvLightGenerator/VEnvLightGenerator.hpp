@@ -60,6 +60,8 @@ namespace VulkanUtils
         const VulkanCore::VImage2&                  GetIrradianceMap();
         VulkanCore::VImage2*                        GetIrradianceMapRaw();
 
+        VulkanCore::VImage2*                        GetPrefilterMapRaw();
+
         void                                        Generate(std::shared_ptr<VulkanCore::VImage2> envMap,
                                                             VulkanCore::VTimelineSemaphore& renderingSemaphore);
 
