@@ -57,6 +57,18 @@ namespace VulkanCore::VSamplers
         samplerInfo.maxLod = 1.0f;
         VulkanCore::VSamplers::SamplerClampToEdge =  device.GetDevice().createSampler(samplerInfo);
 
+        samplerInfo.minLod = 0.0f;
+        samplerInfo.maxLod = 5;
+        VulkanCore::VSamplers::Sampler5Mips =  device.GetDevice().createSampler(samplerInfo);
+
+        samplerInfo.minLod = 0.0f;
+        samplerInfo.maxLod = 10;
+        VulkanCore::VSamplers::Sampler10Mips =  device.GetDevice().createSampler(samplerInfo);
+
+        samplerInfo.minLod = 0.0f;
+        samplerInfo.maxLod = 20;
+        VulkanCore::VSamplers::Sampler20Mips =  device.GetDevice().createSampler(samplerInfo);
+
 
         Utils::Logger::LogSuccess("Sampler created successfully !");
     }

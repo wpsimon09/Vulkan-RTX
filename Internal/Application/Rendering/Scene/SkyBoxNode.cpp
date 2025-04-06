@@ -29,6 +29,8 @@ namespace ApplicationCore {
                             VulkanUtils::RenderContext* renderingContext) const
     {
             if (!m_sceneNodeMetaData.IsVisible) return;
+            if (!m_showBackground) return;
+
             VulkanStructs::DrawCallData data;
             data.firstIndex = 1;
 
@@ -62,5 +64,10 @@ namespace ApplicationCore {
         {
             m_sceneLightInfo.environmentLight->hdrImage = dynamic_cast<ApplicationCore::SkyBoxMaterial*>(m_mesh->GetMaterial().get())->GetHDRTexture();
         }
+    }
+
+    void SkyBoxNode::SetShowBackground(bool show)
+    {
+        m_showBackground = show;
     }
 } // ApplicationCore

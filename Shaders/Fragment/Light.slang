@@ -1,14 +1,14 @@
 import Material;
 
-
-// [[vk::binding(13, 0)]]
-// ConstantBuffer<SamplerCube> PrefilterMap;
-
-// [[vk::binding(14, 0)]]
-// ConstantBuffer<Sampler2D> BRDF_Lut;
-
 [[vk::binding(12, 0)]]
 ConstantBuffer<SamplerCube> IrradianceMap;
+
+[[vk::binding(13, 0)]]
+ConstantBuffer<SamplerCube> PrefilterMap;
+
+[[vk::binding(14, 0)]]
+ConstantBuffer<Sampler2D> BRDF_Lut;
+
 
 // B - brdf equation
 interface ILightEnv {
@@ -84,6 +84,7 @@ struct AmbientLight : ILightEnv {
     float aoIntensity;
     float3 albedo;
     bool applyIBL;
+    float roughness;
     
     float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         if (applyIBL) { // passed from application based on if the env is nullptr or not 
@@ -91,7 +92,16 @@ struct AmbientLight : ILightEnv {
             float3 kD = float3(1.0) - kS;
             float3 irradiance = IrradianceMap.Sample(g.normal.xyz).xyz;
             float3 diffuse = irradiance * albedo;
-            return (kD * diffuse) * aoIntensity;
+
+            float3 R = reflect(-wo, g.normal);
+            const float MAX_REFLECTION_LOD = 4.0;
+
+            float3 prefilteredColor = PrefilterMap.SampleLevel(R, roughness * MAX_REFLECTION_LOD).xyz;
+
+            float2 envBrdf = BRDF_Lut.Sample(float2(max(dot(g.normal, wo), 0.0f), roughness)).xy;
+            float3 spec = prefilteredColor * (kS * envBrdf.x + envBrdf.y);
+            
+            return (kD * diffuse + spec) * aoIntensity;
         } else {
             return albedo * aoIntensity;
         }

@@ -81,7 +81,7 @@ namespace Renderer
                     if (drawCall.effect->GetName() == "Sky Box"
                         && m_renderContextPtr->hdrCubeMap)
                     {
-                        unlitSingelTextureEffect.texture2D_1 = m_renderContextPtr->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+                        unlitSingelTextureEffect.texture2D_1 = m_renderContextPtr->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
                     }
 
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(
@@ -109,14 +109,17 @@ namespace Renderer
 
                     forwardShaddingEffect.texture2D_5 = MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
                     forwardShaddingEffect.texture2D_6 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                    if (m_renderContextPtr->irradianceMap)
-                    {
+                    if (m_renderContextPtr->irradianceMap){
                         forwardShaddingEffect.texture2D_7 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                    }else
-                    {
-                        // this is temporary solution where i pass some other texture here to not get segv
-                        forwardShaddingEffect.texture2D_7 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);;
-                    }
+                    }else{ forwardShaddingEffect.texture2D_7 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
+
+                    if (m_renderContextPtr->prefilterMap){
+                        forwardShaddingEffect.texture2D_8 = m_renderContextPtr->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
+                    }else{ forwardShaddingEffect.texture2D_8 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
+
+                    if (m_renderContextPtr->brdfMap){
+                        forwardShaddingEffect.texture2D_9 = m_renderContextPtr->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                    }else{ forwardShaddingEffect.texture2D_9 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
                     //forwardShaddingEffect.texture2D_7 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(

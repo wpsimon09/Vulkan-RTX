@@ -50,9 +50,9 @@ namespace VulkanUtils
 
         vk::DescriptorImageInfo texture2D_5; // for linearly transformed cosines
         vk::DescriptorImageInfo texture2D_6; // for linearly transformed cosines
-        vk::DescriptorImageInfo texture2D_7; // for linearly transformed cosines
-       // vk::DescriptorImageInfo texture2D_8; // for linearly transformed cosines
-        //vk::DescriptorImageInfo texture2D_9; // for linearly transformed cosines
+        vk::DescriptorImageInfo texture2D_7; // for irradiance
+        vk::DescriptorImageInfo texture2D_8; // for for prefilter
+        vk::DescriptorImageInfo texture2D_9; // for for brdf
 
         // ohter look up tables, irradiance, radiance maps etc...
     };

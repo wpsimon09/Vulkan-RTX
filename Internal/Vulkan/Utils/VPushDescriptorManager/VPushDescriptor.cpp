@@ -53,8 +53,8 @@ VulkanUtils::VPushDescriptorSet::VPushDescriptorSet(const VulkanCore::VDevice& d
 
                 // global illumination IBL
                 this->AddUpdateEntry(12, offsetof(VulkanUtils::ForwardShadingDstSet, texture2D_7), 0);
-               // this->AddUpdateEntry(13, offsetof(VulkanUtils::ForwardShadingDstSet, texture2D_8), 0);
-               // this->AddUpdateEntry(14, offsetof(VulkanUtils::ForwardShadingDstSet, texture2D_9), 0);
+                this->AddUpdateEntry(13, offsetof(VulkanUtils::ForwardShadingDstSet, texture2D_8), 0);
+                this->AddUpdateEntry(14, offsetof(VulkanUtils::ForwardShadingDstSet, texture2D_9), 0);
                 m_layoutStructType = EDescriptorLayoutStruct::ForwardShading;
             }
             else

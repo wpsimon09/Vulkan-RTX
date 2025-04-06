@@ -98,11 +98,11 @@ namespace VulkanCore {
           // LTC inverse lookup table
           .AddBinding(11, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
           // irradiance map
-          .AddBinding(12, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1);
+          .AddBinding(12, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
           // prefilter map
-          //.AddBinding(13, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+          .AddBinding(13, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
           // brdf map
-          //.AddBinding(14, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1);
+          .AddBinding(14, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1);
 
            m_descriptorSetLayoutBindings= std::move(ForwardShadingDstSetLayout.m_descriptorBindings);
         }
