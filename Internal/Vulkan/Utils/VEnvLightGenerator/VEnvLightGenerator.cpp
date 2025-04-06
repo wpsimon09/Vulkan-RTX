@@ -96,10 +96,12 @@ void VulkanUtils::VEnvLightGenerator::Generate(
     //============================================
     //TODO: later optimise with transfer queus for now i will just use the graphics one for everything
     //TODO: later try to use compute shaders for all of this since they are faster
-    m_currentHDR = envMap;
+    m_currentHDR = envMap->GetID();
 
-    if (!m_hdrCubeMaps.contains(envMap)) {HDRToCubeMap(envMap, renderingSemaphore);}
-    if (!m_irradianceMaps.contains(envMap)){CubeMapToIrradiance(envMap, renderingSemaphore);}
+    if (!m_hdrCubeMaps.contains(envMap->GetID()))
+        {HDRToCubeMap(envMap, renderingSemaphore);}
+    if (!m_irradianceMaps.contains(envMap->GetID()))
+        {CubeMapToIrradiance(envMap, renderingSemaphore);}
 }
 
 //==================================
@@ -124,9 +126,9 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
         hdrCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
 
 
-        m_hdrCubeMaps[envMap] = std::make_unique<VulkanCore::VImage2>(m_device, hdrCubeMapCI);
+        m_hdrCubeMaps[envMap->GetID()] = std::make_unique<VulkanCore::VImage2>(m_device, hdrCubeMapCI);
 
-        auto& hdrCubeMap = m_hdrCubeMaps[envMap];
+        auto& hdrCubeMap = m_hdrCubeMaps[envMap->GetID()];
 
         // transition to colour attachment optimal
         m_graphicsCmdBuffer->BeginRecording();
@@ -320,16 +322,16 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         VulkanCore::VImage2CreateInfo irradianceCubeMapCI;
         irradianceCubeMapCI.channels = 4;
         irradianceCubeMapCI.format = vk::Format::eR16G16B16A16Sfloat;
-        irradianceCubeMapCI.width = 64;
-        irradianceCubeMapCI.height = 64;
+        irradianceCubeMapCI.width = 128;
+        irradianceCubeMapCI.height = 128;
         irradianceCubeMapCI.mipLevels = 1;
         irradianceCubeMapCI.arrayLayers = 6; // six faces
         irradianceCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
 
 
-        m_irradianceMaps[envMap] = std::make_unique<VulkanCore::VImage2>(m_device, irradianceCubeMapCI);
+        m_irradianceMaps.insert(std::make_pair(envMap->GetID(),  std::make_unique<VulkanCore::VImage2>(m_device, irradianceCubeMapCI)));
 
-        auto& irradianceCubeMap = m_irradianceMaps[envMap];
+        auto& irradianceCubeMap = m_irradianceMaps[envMap->GetID()];
 
         // transition to colour attachment optimal
         m_graphicsCmdBuffer->BeginRecording();
@@ -410,7 +412,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
 
                 auto& updateStuct = std::get<UnlitSingleTexture>(hdrToCubeMapEffect.GetEffectUpdateStruct());
                 updateStuct.buffer1 = hdrPushBlocks[face]->GetDescriptorBufferInfos()[0];
-                updateStuct.texture2D_1 = m_hdrCubeMaps[envMap]->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+                updateStuct.texture2D_1 = m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
 
                 //================= configure rendering
                 vk::RenderingInfo hdrToCubeMapRenderingInfo;
@@ -528,9 +530,9 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     irradianceCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
 
 
-    m_irradianceMaps[envMap] = std::make_unique<VulkanCore::VImage2>(m_device, irradianceCubeMapCI);
+    m_irradianceMaps[envMap->GetID()] = std::make_unique<VulkanCore::VImage2>(m_device, irradianceCubeMapCI);
 
-    auto& irradianceCubeMap = m_irradianceMaps[envMap];
+    auto& irradianceCubeMap = m_irradianceMaps[envMap->GetID()];
 
     // transition to colour attachment optimal
     m_graphicsCmdBuffer->BeginRecording();
@@ -611,7 +613,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
 
             auto& updateStuct = std::get<UnlitSingleTexture>(hdrToCubeMapEffect.GetEffectUpdateStruct());
             updateStuct.buffer1 = hdrPushBlocks[face]->GetDescriptorBufferInfos()[0];
-            updateStuct.texture2D_1 = m_hdrCubeMaps[envMap]->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+            updateStuct.texture2D_1 = m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
 
             //================= configure rendering
             vk::RenderingInfo hdrToCubeMapRenderingInfo;

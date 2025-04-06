@@ -79,10 +79,10 @@ namespace VulkanUtils
         std::unique_ptr<VulkanCore::VImage2> m_brdfLut;
 
         //HDR
-        std::unordered_map<std::shared_ptr<VulkanCore::VImage2>, std::unique_ptr<VulkanCore::VImage2>> m_irradianceMaps;
-        std::unordered_map<std::shared_ptr<VulkanCore::VImage2>, std::unique_ptr<VulkanCore::VImage2>> m_prefilterMaps;
-        std::unordered_map<std::shared_ptr<VulkanCore::VImage2>, std::unique_ptr<VulkanCore::VImage2>> m_hdrCubeMaps;
-        std::shared_ptr<VulkanCore::VImage2> m_currentHDR;
+        std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_irradianceMaps;
+        std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_prefilterMaps;
+        std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_hdrCubeMaps;
+        int m_currentHDR;
 
 
         const VulkanCore::VDevice& m_device;

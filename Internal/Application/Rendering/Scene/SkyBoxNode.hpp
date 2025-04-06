@@ -16,6 +16,8 @@ class SkyBoxNode:public LightNode<LightStructs::EnvLight> {
         void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
         void ProcessNodeRemove() override;
         void Update() override;
+private:
+    LightStructs::SceneLightInfo& m_sceneLightInfo;
 };
 
 } // ApplicationCore
