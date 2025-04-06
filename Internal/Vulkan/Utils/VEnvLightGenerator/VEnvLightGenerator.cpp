@@ -518,28 +518,30 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     VulkanCore::VTimelineSemaphore& renderingSemaphore)
 {
     VulkanCore::VTimelineSemaphore envGenerationSemaphore(m_device);
-
+    const vk::Format format = vk::Format::eR16G16B16A16Sfloat;
+    const uint32_t dimensions = 512;
+    const uint32_t mipLevels = static_cast<uint32_t>(floor(log2(dimensions))) + 1;
     //============================== Generate cube which is going ot be stored
-    VulkanCore::VImage2CreateInfo irradianceCubeMapCI;
-    irradianceCubeMapCI.channels = 4;
-    irradianceCubeMapCI.format = vk::Format::eR16G16B16A16Sfloat;
-    irradianceCubeMapCI.width = 32;
-    irradianceCubeMapCI.height = 32;
-    irradianceCubeMapCI.mipLevels = 1;
-    irradianceCubeMapCI.arrayLayers = 6; // six faces
-    irradianceCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
+    VulkanCore::VImage2CreateInfo preffilterMapCI;
+    preffilterMapCI.channels = 4;
+    preffilterMapCI.format = vk::Format::eR16G16B16A16Sfloat;
+    preffilterMapCI.width = dimensions;
+    preffilterMapCI.height = dimensions;
+    preffilterMapCI.mipLevels = mipLevels;
+    preffilterMapCI.arrayLayers = 6; // six faces
+    preffilterMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
 
 
-    m_irradianceMaps[envMap->GetID()] = std::make_unique<VulkanCore::VImage2>(m_device, irradianceCubeMapCI);
+    m_prefilterMaps[envMap->GetID()] = std::make_unique<VulkanCore::VImage2>(m_device, preffilterMapCI);
 
-    auto& irradianceCubeMap = m_irradianceMaps[envMap->GetID()];
+    auto& prefilterMap = m_prefilterMaps[envMap->GetID()];
 
     // transition to colour attachment optimal
     m_graphicsCmdBuffer->BeginRecording();
     auto& cmdBuffer = m_graphicsCmdBuffer->GetCommandBuffer();
 
     //============================== Transefer layout to transfer ddestination
-    RecordImageTransitionLayoutCommand(*irradianceCubeMap, vk::ImageLayout::eTransferDstOptimal,
+    RecordImageTransitionLayoutCommand(*prefilterMap, vk::ImageLayout::eTransferDstOptimal,
                                        vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
 
     //=============================== Create image that will be used to render into
@@ -559,7 +561,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
                                            vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
     }
 
-    //================ Transfer IRRADIANCE cube map to be in transfer DST optimal
+    //================ Transfer PREFILTER cube map to be in transfer DST optimal
     std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
     m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
                                      envGenerationSemaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
@@ -591,6 +593,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         struct PushBlock
         {
             glm::mat4 viewProj;
+            glm::vec4 params; //x - roughness, yzw - padding
         };
 
         // ======================= where we will render and copy to different arrray layers
@@ -604,111 +607,119 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         std::array<std::unique_ptr<VUniform<PushBlock>>, 6> hdrPushBlocks;
         for (auto& hdrPushBlock: hdrPushBlocks)
         {hdrPushBlock = std::make_unique<VUniform<PushBlock>>(m_device, true);}
-        for (int face = 0; face < 6; face++)
+        vk::Viewport viewport{0, 0, (float)preffilterMapCI.width, (float)preffilterMapCI.height, 0.0f, 1.0f};
+        vk::Rect2D scissors{{0, 0}, {(uint32_t)preffilterMapCI.width, (uint32_t)preffilterMapCI.height}};
+        for (int mipLevel = 0; mipLevel < mipLevels; mipLevel++ )
         {
-            // ================ update data
-            // create projection * view matrix that will be send to the  shader
-            hdrPushBlocks[face]->GetUBOStruct().viewProj = m_camptureViews[face];
-            hdrPushBlocks[face]->UpdateGPUBuffer(0);
+            for (int face = 0; face < 6; face++)
+            {
+                // ================ update data
+                // create projection * view matrix that will be send to the  shader
+                hdrPushBlocks[face]->GetUBOStruct().viewProj = m_camptureViews[face];
+                hdrPushBlocks[face]->GetUBOStruct().params.x = (float)mipLevel / float(mipLevels -1);
+                hdrPushBlocks[face]->UpdateGPUBuffer(0);
 
-            auto& updateStuct = std::get<UnlitSingleTexture>(hdrToCubeMapEffect.GetEffectUpdateStruct());
-            updateStuct.buffer1 = hdrPushBlocks[face]->GetDescriptorBufferInfos()[0];
-            updateStuct.texture2D_1 = m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+                viewport.width = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
+                viewport.height = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
 
-            //================= configure rendering
-            vk::RenderingInfo hdrToCubeMapRenderingInfo;
-            hdrToCubeMapRenderingInfo.colorAttachmentCount = 1;
-            hdrToCubeMapRenderingInfo.pColorAttachments = &renderAttachentInfo;
-            hdrToCubeMapRenderingInfo.renderArea.extent.width = irradianceCubeMapCI.width;
-            hdrToCubeMapRenderingInfo.renderArea.extent.height = irradianceCubeMapCI.height;
-            hdrToCubeMapRenderingInfo.renderArea.offset = 0;
-            hdrToCubeMapRenderingInfo.renderArea.offset = 0;
-            hdrToCubeMapRenderingInfo.layerCount = 1;
+                auto& updateStuct = std::get<UnlitSingleTexture>(hdrToCubeMapEffect.GetEffectUpdateStruct());
+                updateStuct.buffer1 = hdrPushBlocks[face]->GetDescriptorBufferInfos()[0];
+                updateStuct.texture2D_1 = m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
 
-            cmdBuffer.beginRendering(hdrToCubeMapRenderingInfo);
+                //================= configure rendering
+                vk::RenderingInfo hdrToCubeMapRenderingInfo;
+                hdrToCubeMapRenderingInfo.colorAttachmentCount = 1;
+                hdrToCubeMapRenderingInfo.pColorAttachments = &renderAttachentInfo;
+                hdrToCubeMapRenderingInfo.renderArea.extent.width = preffilterMapCI.width;
+                hdrToCubeMapRenderingInfo.renderArea.extent.height = preffilterMapCI.height;
+                hdrToCubeMapRenderingInfo.renderArea.offset = 0;
+                hdrToCubeMapRenderingInfo.renderArea.offset = 0;
+                hdrToCubeMapRenderingInfo.layerCount = 1;
 
-            hdrToCubeMapEffect.BindPipeline(cmdBuffer);
+                cmdBuffer.beginRendering(hdrToCubeMapRenderingInfo);
 
-            cmdBuffer.bindVertexBuffers(0, {m_cube.vertexData.buffer}, {0});
-            cmdBuffer.bindIndexBuffer(m_cube.indexData.buffer, 0, vk::IndexType::eUint32);
+                hdrToCubeMapEffect.BindPipeline(cmdBuffer);
+
+                cmdBuffer.bindVertexBuffers(0, {m_cube.vertexData.buffer}, {0});
+                cmdBuffer.bindIndexBuffer(m_cube.indexData.buffer, 0, vk::IndexType::eUint32);
 
 
-            //================== configure vieew port and scissors
-            vk::Viewport viewport{0, 0, (float)irradianceCubeMapCI.width, (float)irradianceCubeMapCI.height, 0.0f, 1.0f};
-            cmdBuffer.setViewport(0, 1, &viewport);
+                //================== configure vieew port and scissors
+                cmdBuffer.setViewport(0, 1, &viewport);
 
-            vk::Rect2D scissors{{0, 0}, {(uint32_t)irradianceCubeMapCI.width, (uint32_t)irradianceCubeMapCI.height}};
-            cmdBuffer.setScissor(0, 1, &scissors);
-            cmdBuffer.setStencilTestEnable(false);
+                cmdBuffer.setScissor(0, 1, &scissors);
+                cmdBuffer.setStencilTestEnable(false);
 
-            cmdBuffer.pushDescriptorSetWithTemplateKHR(
-                                    hdrToCubeMapEffect.GetUpdateTemplate(),
-                                    hdrToCubeMapEffect.GetPipelineLayout(), 0,
-                                    updateStuct, m_device.DispatchLoader);
+                cmdBuffer.pushDescriptorSetWithTemplateKHR(
+                                        hdrToCubeMapEffect.GetUpdateTemplate(),
+                                        hdrToCubeMapEffect.GetPipelineLayout(), 0,
+                                        updateStuct, m_device.DispatchLoader);
 
-            //==================== Render the cube as a sky box
-            cmdBuffer.drawIndexed(
-                m_cube.indexData.size/sizeof(uint32_t),
-                1,
-                m_cube.indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                    m_cube.vertexData.offset /static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
-                0);
+                //==================== Render the cube as a sky box
+                cmdBuffer.drawIndexed(
+                    m_cube.indexData.size/sizeof(uint32_t),
+                    1,
+                    m_cube.indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                        m_cube.vertexData.offset /static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                    0);
 
-            cmdBuffer.endRendering();
+                cmdBuffer.endRendering();
 
-            //=================== transition layout to transfer src
-            RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
+                //=================== transition layout to transfer src
+                RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
 
-            //=================== cpy offscreen immage to the cueb map`s face
-            vk::ImageCopy copyRegion{};
-            copyRegion.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-            copyRegion.srcSubresource.layerCount = 1;
-            copyRegion.srcSubresource.mipLevel = 0;
-            copyRegion.srcSubresource.baseArrayLayer = 0;
-            copyRegion.srcOffset = vk::Offset3D{0, 0, 0};
+                //=================== cpy offscreen immage to the cueb map`s face
+                vk::ImageCopy copyRegion{};
+                copyRegion.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+                copyRegion.srcSubresource.layerCount = 1;
+                copyRegion.srcSubresource.mipLevel = 0;
+                copyRegion.srcSubresource.baseArrayLayer = 0;
+                copyRegion.srcOffset = vk::Offset3D{0, 0, 0};
 
-            copyRegion.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-            copyRegion.dstSubresource.layerCount = 1;
-            copyRegion.dstSubresource.mipLevel = 0;
-            copyRegion.dstSubresource.baseArrayLayer = face;
-            copyRegion.dstOffset = vk::Offset3D{0, 0, 0};
+                copyRegion.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+                copyRegion.dstSubresource.layerCount = 1;
+                copyRegion.dstSubresource.mipLevel = mipLevel;
+                copyRegion.dstSubresource.baseArrayLayer = face;
+                copyRegion.dstOffset = vk::Offset3D{0, 0, 0};
 
-            copyRegion.extent.width = irradianceCubeMapCI.width;
-            copyRegion.extent.height = irradianceCubeMapCI.height;
-            copyRegion.extent.depth = 1;
+                copyRegion.extent.width = static_cast<uint32_t>(viewport.width);
+                copyRegion.extent.height = static_cast<uint32_t>(viewport.height);
+                copyRegion.extent.depth = 1;
 
-            cmdBuffer.copyImage(
-                renderAttachment->GetImage(),
-                vk::ImageLayout::eTransferSrcOptimal,
-                irradianceCubeMap->GetImage(),
-                vk::ImageLayout::eTransferDstOptimal,
-                copyRegion);
+                cmdBuffer.copyImage(
+                    renderAttachment->GetImage(),
+                    vk::ImageLayout::eTransferSrcOptimal,
+                    prefilterMap->GetImage(),
+                    vk::ImageLayout::eTransferDstOptimal,
+                    copyRegion);
 
-            //========================== transfer colour attachment back to rendering layout
-            RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer );
+                //========================== transfer colour attachment back to rendering layout
+                RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer );
 
-            //hdrPushBlock.Destory();
+                //hdrPushBlock.Destory();
+            }
         }
 
 
-        //======================== transition the HDR image to shader read only
-        RecordImageTransitionLayoutCommand(*irradianceCubeMap, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eTransferDstOptimal, *m_graphicsCmdBuffer);
+            //======================== transition the HDR image to shader read only
+            RecordImageTransitionLayoutCommand(*prefilterMap, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eTransferDstOptimal, *m_graphicsCmdBuffer);
 
-        std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,vk::PipelineStageFlagBits::eTransfer};
-        m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
-                                         envGenerationSemaphore.GetSemaphoreSubmitInfo(2, 4), waitStages.data());
+            std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,vk::PipelineStageFlagBits::eTransfer};
+            m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
+                                             envGenerationSemaphore.GetSemaphoreSubmitInfo(2, 4), waitStages.data());
 
-        envGenerationSemaphore.CpuWaitIdle(4);
+            envGenerationSemaphore.CpuWaitIdle(4);
 
-        envGenerationSemaphore.Reset();
-        renderAttachment->Destroy();
-        hdrToCubeMapEffect.Destroy();
-        for (auto& hdrPushBlock: hdrPushBlocks)
-        {hdrPushBlock->Destory();}
-        //            hdrPushBlock.Destory();
+            envGenerationSemaphore.Reset();
+            renderAttachment->Destroy();
+            hdrToCubeMapEffect.Destroy();
+            for (auto& hdrPushBlock: hdrPushBlocks)
+            {hdrPushBlock->Destory();}
+            //            hdrPushBlock.Destory();
 
 
-    }
+        }
+
 }
 
 //==================================
