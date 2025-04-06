@@ -576,8 +576,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     {
         VEffect hdrToCubeMapEffect(
             m_device, "HDR Image to cube map",
-            "Shaders/Compiled/IrradianceMapImportanceSample.vert.spv",
-            "Shaders/Compiled/IrradianceMapImportanceSample.frag.spv",
+            "Shaders/Compiled/Prefilter.vert.spv",
+            "Shaders/Compiled/Prefilter.frag.spv",
             m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::UnlitSingleTexture));
         hdrToCubeMapEffect.DisableStencil()
         .SetDisableDepthTest()
