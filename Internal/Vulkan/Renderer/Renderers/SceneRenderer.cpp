@@ -81,7 +81,7 @@ namespace Renderer
                     if (drawCall.effect->GetName() == "Sky Box"
                         && m_renderContextPtr->hdrCubeMap)
                     {
-                        unlitSingelTextureEffect.texture2D_1 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+                        unlitSingelTextureEffect.texture2D_1 = m_renderContextPtr->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
                     }
 
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(

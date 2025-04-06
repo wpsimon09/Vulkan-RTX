@@ -82,7 +82,6 @@ const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetIrradianceMap()
 VulkanCore::VImage2* VulkanUtils::VEnvLightGenerator::GetIrradianceMapRaw()
 {
     return m_irradianceMaps[m_currentHDR].get();
-
 }
 
 void VulkanUtils::VEnvLightGenerator::Generate(
@@ -102,6 +101,8 @@ void VulkanUtils::VEnvLightGenerator::Generate(
         {HDRToCubeMap(envMap, renderingSemaphore);}
     if (!m_irradianceMaps.contains(envMap->GetID()))
         {CubeMapToIrradiance(envMap, renderingSemaphore);}
+    if (!m_prefilterMaps.contains(envMap->GetID()))
+        {{CubeMapToPrefilter(envMap, renderingSemaphore);}}
 }
 
 //==================================
@@ -548,8 +549,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     std::unique_ptr<VulkanCore::VImage2> renderAttachment;
     {
         VulkanCore::VImage2CreateInfo colourAttachemntCI;
-        colourAttachemntCI.width = 64;
-        colourAttachemntCI.height = 64;
+        colourAttachemntCI.width = dimensions;
+        colourAttachemntCI.height = dimensions;
         colourAttachemntCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment |
             vk::ImageUsageFlagBits::eTransferSrc;
         colourAttachemntCI.format = vk::Format::eR16G16B16A16Sfloat;
@@ -604,7 +605,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         renderAttachentInfo.loadOp = vk::AttachmentLoadOp::eClear;
         renderAttachentInfo.storeOp = vk::AttachmentStoreOp::eStore;
 
-        std::array<std::unique_ptr<VUniform<PushBlock>>, 6> hdrPushBlocks;
+        std::vector<std::unique_ptr<VUniform<PushBlock>>> hdrPushBlocks(mipLevels * 6);
         for (auto& hdrPushBlock: hdrPushBlocks)
         {hdrPushBlock = std::make_unique<VUniform<PushBlock>>(m_device, true);}
         vk::Viewport viewport{0, 0, (float)preffilterMapCI.width, (float)preffilterMapCI.height, 0.0f, 1.0f};
@@ -615,15 +616,15 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
             {
                 // ================ update data
                 // create projection * view matrix that will be send to the  shader
-                hdrPushBlocks[face]->GetUBOStruct().viewProj = m_camptureViews[face];
-                hdrPushBlocks[face]->GetUBOStruct().params.x = (float)mipLevel / float(mipLevels -1);
-                hdrPushBlocks[face]->UpdateGPUBuffer(0);
+                hdrPushBlocks[face * mipLevel]->GetUBOStruct().viewProj = m_camptureViews[face * mipLevel];
+                hdrPushBlocks[face * mipLevel]->GetUBOStruct().params.x = (float)mipLevel / float(mipLevels -1);
+                hdrPushBlocks[face * mipLevel]->UpdateGPUBuffer(0);
 
                 viewport.width = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
                 viewport.height = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
 
                 auto& updateStuct = std::get<UnlitSingleTexture>(hdrToCubeMapEffect.GetEffectUpdateStruct());
-                updateStuct.buffer1 = hdrPushBlocks[face]->GetDescriptorBufferInfos()[0];
+                updateStuct.buffer1 = hdrPushBlocks[face * mipLevel]->GetDescriptorBufferInfos()[0];
                 updateStuct.texture2D_1 = m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
 
                 //================= configure rendering
