@@ -93,9 +93,12 @@ chmod +x compileSlang.sh
 ## Little showcase
 
 ### Editor
+
+![image](https://github.com/user-attachments/assets/69a1ac89-3466-49b0-b9ef-e5a453318cb1)
+
+
 ![image](https://github.com/user-attachments/assets/ff37dbea-127f-4f9f-8afd-b887e46abaf5)
 
-![Screenshot From 2025-03-29 14-52-13](https://github.com/user-attachments/assets/67da0735-03eb-4054-8383-7321a4b8f80c)
 
 
 
