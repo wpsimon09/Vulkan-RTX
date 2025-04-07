@@ -97,7 +97,7 @@ namespace VulkanUtils
         std::unique_ptr<VulkanCore::VCommandPool> m_graphicsCmdPool;
         std::unique_ptr<VulkanCore::VCommandPool> m_transferCmdPool;
 
-        VulkanStructs::MeshData m_cube;
+        std::unique_ptr<ApplicationCore::StaticMesh> m_cube;
 
         std::vector<glm::mat4> m_camptureViews;
 

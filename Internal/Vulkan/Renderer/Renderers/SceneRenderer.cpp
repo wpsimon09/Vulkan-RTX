@@ -62,12 +62,10 @@ namespace Renderer
                     basicEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
                     basicEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
 
-
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(
                         drawCall.effect->GetUpdateTemplate(),
                         drawCall.effect->GetPipelineLayout(), 0,
                         basicEffect, m_device.DispatchLoader);
-
                     break;
                 }
             case VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture:

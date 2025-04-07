@@ -183,6 +183,7 @@ namespace VulkanCore {
         // COPY VERTEX DATA TO THE GPU BUFFER
         for (int i = 0; i < m_vertexBuffers.size(); i++)
         {
+
             if (vertexStagingBuffers[i].m_stagingBufferVK)
             {
                 Utils::Logger::LogInfoVerboseOnly("Copying VERTEX buffer...");
@@ -296,6 +297,7 @@ namespace VulkanCore {
         VmaAllocationCreateInfo allocationCreateInfo = {};
         allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
         allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+
         assert(vmaCreateBuffer(m_device.GetAllocator(),&bufferCreateInfo,&allocationCreateInfo, &allocationInfo.bufferVMA, &allocationInfo.allocationVMA,nullptr) == VK_SUCCESS);
 
         vmaSetAllocationName(m_device.GetAllocator(), allocationInfo.allocationVMA, VulkanUtils::BufferUsageFlagToString(allocationInfo.usageFlags).c_str());

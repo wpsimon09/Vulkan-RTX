@@ -9,6 +9,7 @@
 
 #include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
+#include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniform.hpp"
@@ -17,19 +18,22 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 
+
 VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& device,
                                                     VulkanUtils::VPushDescriptorManager& pushDescriptorManager):
-    m_device(device), m_pushDescriptorManager(pushDescriptorManager), m_cube(m_device.GetMeshDataManager().AddMeshData(
-        ApplicationCore::MeshData::cubeVertices,
-        ApplicationCore::MeshData::cubeIndices))
+    m_device(device), m_pushDescriptorManager(pushDescriptorManager)
 {
+    auto meshData = m_device.GetMeshDataManager().AddMeshData(
+        ApplicationCore::MeshData::cubeVertices,
+        ApplicationCore::MeshData::cubeIndices);
+
+    m_cube = std::make_unique<ApplicationCore::StaticMesh>(meshData, nullptr);
+
     m_graphicsCmdPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     m_transferCmdPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Transfer);
 
     m_graphicsCmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_graphicsCmdPool);
     m_transferCmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_transferCmdPool);
-
-    m_device.GetTransferOpsManager().UpdateGPUWaitCPU(true);
 
 
     glm::mat4 captureProjection =  glm::perspective(glm::radians(90.0f), 1.0f,0.1f, 10.0f);
@@ -234,8 +238,8 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
 
                 hdrToCubeMapEffect.BindPipeline(cmdBuffer);
 
-                cmdBuffer.bindVertexBuffers(0, {m_cube.vertexData.buffer}, {0});
-                cmdBuffer.bindIndexBuffer(m_cube.indexData.buffer, 0, vk::IndexType::eUint32);
+                cmdBuffer.bindVertexBuffers(0, {m_cube->GetMeshData()->vertexData.buffer}, {0});
+                cmdBuffer.bindIndexBuffer(m_cube->GetMeshData()->indexData.buffer, 0, vk::IndexType::eUint32);
 
 
                 //================== configure vieew port and scissors
@@ -253,10 +257,10 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
 
                 //==================== Render the cube as a sky box
                 cmdBuffer.drawIndexed(
-                    m_cube.indexData.size/sizeof(uint32_t),
+                    m_cube->GetMeshData()->indexData.size/sizeof(uint32_t),
                     1,
-                    m_cube.indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                        m_cube.vertexData.offset /static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                    m_cube->GetMeshData()->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                        m_cube->GetMeshData()->vertexData.offset /static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                     0);
 
                 cmdBuffer.endRendering();
@@ -437,8 +441,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
 
                 hdrToCubeMapEffect.BindPipeline(cmdBuffer);
 
-                cmdBuffer.bindVertexBuffers(0, {m_cube.vertexData.buffer}, {0});
-                cmdBuffer.bindIndexBuffer(m_cube.indexData.buffer, 0, vk::IndexType::eUint32);
+                cmdBuffer.bindVertexBuffers(0, {m_cube->GetMeshData()->vertexData.buffer}, {0});
+                cmdBuffer.bindIndexBuffer(m_cube->GetMeshData()->indexData.buffer, 0, vk::IndexType::eUint32);
 
 
                 //================== configure vieew port and scissors
@@ -456,10 +460,10 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
 
                 //==================== Render the cube as a sky box
                 cmdBuffer.drawIndexed(
-                    m_cube.indexData.size/sizeof(uint32_t),
+                    m_cube->GetMeshData()->indexData.size/sizeof(uint32_t),
                     1,
-                    m_cube.indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                        m_cube.vertexData.offset /static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                    m_cube->GetMeshData()->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                        m_cube->GetMeshData()->vertexData.offset /static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                     0);
 
                 cmdBuffer.endRendering();
@@ -627,7 +631,6 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
                 // create projection * view matrix that will be send to the  shader
                 hdrPushBlocks[i]->GetUBOStruct().viewProj = m_camptureViews[face];
                 hdrPushBlocks[i]->GetUBOStruct().params.x = (float)mipLevel / float(mipLevels - 1);
-                std::cout<<(float)mipLevel / float(mipLevels - 1)<<std::endl;
                 hdrPushBlocks[i]->UpdateGPUBuffer(0);
 
                 viewport.width = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
@@ -651,8 +654,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
 
                 hdrToPrefilter.BindPipeline(cmdBuffer);
 
-                cmdBuffer.bindVertexBuffers(0, {m_cube.vertexData.buffer}, {0});
-                cmdBuffer.bindIndexBuffer(m_cube.indexData.buffer, 0, vk::IndexType::eUint32);
+                cmdBuffer.bindVertexBuffers(0, {m_cube->GetMeshData()->vertexData.buffer}, {0});
+                cmdBuffer.bindIndexBuffer(m_cube->GetMeshData()->indexData.buffer, 0, vk::IndexType::eUint32);
 
 
                 //================== configure vieew port and scissors
@@ -668,10 +671,10 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
 
                 //==================== Render the cube as a sky box
                 cmdBuffer.drawIndexed(
-                    m_cube.indexData.size/sizeof(uint32_t),
+                    m_cube->GetMeshData()->indexData.size/sizeof(uint32_t),
                     1,
-                    m_cube.indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                        m_cube.vertexData.offset /static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                    m_cube->GetMeshData()->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                        m_cube->GetMeshData()->vertexData.offset /static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                     0);
 
                 cmdBuffer.endRendering();
@@ -858,6 +861,8 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
 
     brdfGenerationSemaphore.CpuWaitIdle(6);
 
+    brdfGenerationSemaphore.Destroy();
+
     brdfEffect.Destroy();
 }
 
@@ -868,6 +873,7 @@ void VulkanUtils::VEnvLightGenerator::Destroy()
     m_brdfLut->Destroy();
     m_transferCmdPool->Destroy();
     m_graphicsCmdPool->Destroy();
+    m_device.GetTransferOpsManager().ClearResources();
     for (auto& cubeMap : m_hdrCubeMaps)
     {
         if (cubeMap.second)

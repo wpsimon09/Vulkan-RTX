@@ -338,6 +338,7 @@ void VulkanCore::VDevice::UpdateMemoryStatistics()
 
 void VulkanCore::VDevice::Destroy()
 {
+    m_meshDataManager->Destroy();
     m_transferOpsManager->Destroy();
     vmaDestroyAllocator(m_vmaAllocator);
     for(int i = 0; i < m_transferCommandPool.size(); i++)

@@ -10,6 +10,9 @@
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
+#include "Application/Rendering/Transformations/Transformations.hpp"
+
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"

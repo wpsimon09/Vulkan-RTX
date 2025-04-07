@@ -165,10 +165,9 @@ namespace ApplicationCore
     }
 
     void SaveImageAsHDR(int width, int height, int channels, const std::string& path,
-        const std::vector<std::byte>& data)
+        const std::vector<float>& data)
     {
-        const float *imageData = reinterpret_cast<const float *>(data.data());
-        int err = stbi_write_hdr(path.c_str(), width, height, channels, imageData);
+        int err = stbi_write_hdr(path.c_str(), width, height, channels, data.data());
         if (err == 0)
         {
             Utils::Logger::LogSuccess("Image saved to " + path);

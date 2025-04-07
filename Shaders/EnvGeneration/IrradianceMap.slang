@@ -40,7 +40,7 @@
         float3 right = cross(up, normal);
         up = cross(normal, right);
 
-        float sampleDelta = 0.025; // how much each iterration moves along the sphere 
+        float sampleDelta = 0.012; // how much each iterration moves along the sphere
         float nrSamples = 0.0;
 
         float deltaPhi = (2.0f * float(PI)) / 180.0f;
