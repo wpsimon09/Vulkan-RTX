@@ -132,7 +132,7 @@ void ApplicationCore::LoadSceneLights(ApplicationCore::Scene& scene, std::filesy
     {
         LightStructs::EnvLight envLight;
 
-        envLight.ambientIntensity = std::stof(ini["sky-box"]["ambientIntensity"]);
+        envLight.ambientIntensity = std::stof(ini["sky-box"]["ambient-intensity"]);
         envLight.hdrPath = ini["sky-box"]["hdr"];
 
         scene.AddSkyBox(&envLight);

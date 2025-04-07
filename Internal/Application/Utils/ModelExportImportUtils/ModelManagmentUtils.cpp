@@ -164,6 +164,21 @@ namespace ApplicationCore
         }
     }
 
+    void SaveImageAsHDR(int width, int height, int channels, const std::string& path,
+        const std::vector<std::byte>& data)
+    {
+        const float *imageData = reinterpret_cast<const float *>(data.data());
+        int err = stbi_write_hdr(path.c_str(), width, height, channels, imageData);
+        if (err == 0)
+        {
+            Utils::Logger::LogSuccess("Image saved to " + path);
+        }
+        else
+        {
+            Utils::Logger::LogErrorClient("Failed to save image to : " + path + "with error code :" + std::to_string(err));
+        }
+    }
+
     bool CheckIfImageExistsInFolader(const std::filesystem::path &folder, const std::filesystem::path &image)
     {
         for (const auto &entry : std::filesystem::directory_iterator(folder))
