@@ -125,4 +125,16 @@ void ApplicationCore::LoadSceneLights(ApplicationCore::Scene& scene, std::filesy
         scene.AddDirectionalLight(&directionalLightData);
     }
 
+    //=======================
+    // SKY-BOX LIGHT
+    //=======================
+    if (ini.has("sky-box"))
+    {
+        LightStructs::EnvLight envLight;
+
+        envLight.ambientIntensity = std::stof(ini["sky-box"]["ambientIntensity"]);
+        envLight.hdrPath = ini["sky-box"]["hdr"];
+
+        scene.AddSkyBox(&envLight);
+    }
 }

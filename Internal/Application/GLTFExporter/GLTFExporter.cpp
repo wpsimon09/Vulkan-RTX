@@ -459,6 +459,15 @@ void ApplicationCore::GLTFExporter::ParseLights(Scene& scene)
         ini["directional"]["colA"] = std::to_string(dirLight->colour.w); // intensity
     }
 
+    //=================
+    // SKY BOX
+    //=================
+    if (lightInfo.environmentLight != nullptr)
+    {
+        ini["sky-box"]["hdr"] = lightInfo.environmentLight->hdrImage->GetAssetPath();
+        ini["sky-box"]["ambient-intensity"] = std::to_string(lightInfo.environmentLight->ambientIntensity);
+    }
+
 
 
     assert(iniFile.generate(ini, true) == true && "Failed to save light info)");

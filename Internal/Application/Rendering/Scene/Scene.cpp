@@ -117,13 +117,17 @@ namespace ApplicationCore {
         AddNode(node);
     }
 
-    void Scene::AddSkyBox()
+    void Scene::AddSkyBox(LightStructs::EnvLight* envLight)
     {
         if (!m_currentSkyBox)
         {
+            if (envLight != nullptr)
+                m_currentSkyBox = m_assetsManager.AddSkyBoxMaterial(envLight->hdrPath);
+            else
+                m_currentSkyBox = m_assetsManager.AddSkyBoxMaterial("Resources/HDRs/default.hdr");
+
             auto obj = m_assetsManager.GetDefaultMesh(Cube);
 
-            m_currentSkyBox = m_assetsManager.AddSkyBoxMaterial("Resources/HDRs/default.hdr");
 
             obj->SetMaterial(m_currentSkyBox);
 
