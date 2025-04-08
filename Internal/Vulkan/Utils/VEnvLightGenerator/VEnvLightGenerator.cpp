@@ -229,7 +229,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     viewport.height = static_cast<float>(dimensions * std::pow(0.5f, mip));
                     // ================ update data
                     // create projection * view matrix that will be send to the  shader
-                    hdrPushBlocks[i]->GetUBOStruct().viewProj = m_camptureViews[i];
+                    hdrPushBlocks[i]->GetUBOStruct().viewProj = m_camptureViews[face];
                     hdrPushBlocks[i]->UpdateGPUBuffer(0);
 
                     auto& updateStuct = std::get<UnlitSingleTexture>(hdrToCubeMapEffect.GetEffectUpdateStruct());
@@ -257,7 +257,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     //================== configure vieew port and scissors
                     cmdBuffer.setViewport(0, 1, &viewport);
 
-                    vk::Rect2D scissors{{0, 0}, {(uint32_t)hdrCubeMapCI.width, (uint32_t)hdrCubeMapCI.height}};
+                    vk::Rect2D scissors{{0, 0}, {(uint32_t)viewport.width, (uint32_t)viewport.height}};
                     cmdBuffer.setScissor(0, 1, &scissors);
                     cmdBuffer.setStencilTestEnable(false);
 
@@ -293,7 +293,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     copyRegion.dstSubresource.baseArrayLayer = face;
                     copyRegion.dstOffset = vk::Offset3D{0, 0, 0};
 
-                        copyRegion.extent.width = static_cast<uint32_t>(viewport.width);
+                    copyRegion.extent.width = static_cast<uint32_t>(viewport.width);
                     copyRegion.extent.height = static_cast<uint32_t>(viewport.height);
                     copyRegion.extent.depth = 1;
 
