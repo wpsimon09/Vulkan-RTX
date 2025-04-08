@@ -348,8 +348,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         VulkanCore::VImage2CreateInfo irradianceCubeMapCI;
         irradianceCubeMapCI.channels = 4;
         irradianceCubeMapCI.format = vk::Format::eR16G16B16A16Sfloat;
-        irradianceCubeMapCI.width = 128;
-        irradianceCubeMapCI.height = 128;
+        irradianceCubeMapCI.width = 32;
+        irradianceCubeMapCI.height = 32;
         irradianceCubeMapCI.mipLevels = 1;
         irradianceCubeMapCI.arrayLayers = 6; // six faces
         irradianceCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
@@ -399,8 +399,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         {
             VEffect hdrToCubeMapEffect(
                 m_device, "HDR Image to cube map",
-                "Shaders/Compiled/IrradianceMap.vert.spv",
-                "Shaders/Compiled/IrradianceMap.frag.spv",
+                "Shaders/Compiled/IrradianceMapImportanceSample.vert.spv",
+                "Shaders/Compiled/IrradianceMapImportanceSample.frag.spv",
                 m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::UnlitSingleTexture));
             hdrToCubeMapEffect.DisableStencil()
             .SetDisableDepthTest()
@@ -438,7 +438,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
 
                 auto& updateStuct = std::get<UnlitSingleTexture>(hdrToCubeMapEffect.GetEffectUpdateStruct());
                 updateStuct.buffer1 = hdrPushBlocks[face]->GetDescriptorBufferInfos()[0];
-                updateStuct.texture2D_1 = m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+                updateStuct.texture2D_1 = m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
 
                 //================= configure rendering
                 vk::RenderingInfo hdrToCubeMapRenderingInfo;
@@ -653,7 +653,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
 
                 auto& updateStuct = std::get<UnlitSingleTexture>(hdrToPrefilter.GetEffectUpdateStruct());
                 updateStuct.buffer1 = hdrPushBlocks[i]->GetDescriptorBufferInfos()[0];
-                updateStuct.texture2D_1 = m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+                updateStuct.texture2D_1 = m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
 
                 //================= configure rendering
                 vk::RenderingInfo hdrToPreffilterRenderingInfo;
