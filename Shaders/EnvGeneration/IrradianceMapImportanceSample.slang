@@ -93,9 +93,11 @@
 
             float saTexel = 4.0 * PI / (6.0 * resolution * resolution);
 
-            float saSample = 1.0 / float(SAMPLE_COUNT) * pdf + 0.0001;
+            float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
 
-            irradiance += hdrCubeMap.Sample(H).rgb * NdotH;
+            float mipLevel = 0.5 * log2(saSample/saTexel);
+
+            irradiance += hdrCubeMap.SampleLevel(H, mipLevel).rgb * NdotH;
 
             totalWeight += NdotH;
         }
