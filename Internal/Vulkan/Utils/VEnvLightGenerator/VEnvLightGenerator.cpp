@@ -225,9 +225,6 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                 for (int face = 0; face < 6; face++)
                 {
 
-                    viewport.width = static_cast<float>(dimensions * std::pow(0.5f, mip));
-                    viewport.height = static_cast<float>(dimensions * std::pow(0.5f, mip));
-                    // ================ update data
                     // create projection * view matrix that will be send to the  shader
                     hdrPushBlocks[i]->GetUBOStruct().viewProj = m_camptureViews[face];
                     hdrPushBlocks[i]->UpdateGPUBuffer(0);
@@ -237,44 +234,17 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     updateStuct.texture2D_1 = envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
                     //================= configure rendering
-                    vk::RenderingInfo hdrToCubeMapRenderingInfo;
-                    hdrToCubeMapRenderingInfo.colorAttachmentCount = 1;
-                    hdrToCubeMapRenderingInfo.pColorAttachments = &renderAttachentInfo;
-                    hdrToCubeMapRenderingInfo.renderArea.extent.width = hdrCubeMapCI.width;
-                    hdrToCubeMapRenderingInfo.renderArea.extent.height = hdrCubeMapCI.height;
-                    hdrToCubeMapRenderingInfo.renderArea.offset = 0;
-                    hdrToCubeMapRenderingInfo.renderArea.offset = 0;
-                    hdrToCubeMapRenderingInfo.layerCount = 1;
-
-                    cmdBuffer.beginRendering(hdrToCubeMapRenderingInfo);
-
+                    viewport.width = static_cast<float>(dimensions * std::pow(0.5f, mip));
+                    viewport.height = static_cast<float>(dimensions * std::pow(0.5f, mip));
+                    // ================ update data
                     hdrToCubeMapEffect.BindPipeline(cmdBuffer);
-
-                    cmdBuffer.bindVertexBuffers(0, {m_cube->GetMeshData()->vertexData.buffer}, {0});
-                    cmdBuffer.bindIndexBuffer(m_cube->GetMeshData()->indexData.buffer, 0, vk::IndexType::eUint32);
-
-
-                    //================== configure vieew port and scissors
-                    cmdBuffer.setViewport(0, 1, &viewport);
-
-                    vk::Rect2D scissors{{0, 0}, {(uint32_t)viewport.width, (uint32_t)viewport.height}};
-                    cmdBuffer.setScissor(0, 1, &scissors);
-                    cmdBuffer.setStencilTestEnable(false);
 
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(
                                             hdrToCubeMapEffect.GetUpdateTemplate(),
                                             hdrToCubeMapEffect.GetPipelineLayout(), 0,
                                             updateStuct, m_device.DispatchLoader);
 
-                    //==================== Render the cube as a sky box
-                    cmdBuffer.drawIndexed(
-                        m_cube->GetMeshData()->indexData.size/sizeof(uint32_t),
-                        1,
-                        m_cube->GetMeshData()->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                            m_cube->GetMeshData()->vertexData.offset /static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
-                        0);
-
-                    cmdBuffer.endRendering();
+                    RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
 
                     //=================== transition layout to transfer src
                     RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
@@ -397,12 +367,12 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         // - copies offcreen buffer the one of the face of cube
         //=============================================================
         {
-            VEffect hdrToCubeMapEffect(
+            VEffect cubeMapToIrradianceEffect(
                 m_device, "HDR Image to cube map",
                 "Shaders/Compiled/IrradianceMapImportanceSample.vert.spv",
                 "Shaders/Compiled/IrradianceMapImportanceSample.frag.spv",
                 m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::UnlitSingleTexture));
-            hdrToCubeMapEffect.DisableStencil()
+            cubeMapToIrradianceEffect.DisableStencil()
             .SetDisableDepthTest()
             .SetCullNone()
             .SetNullVertexBinding()
@@ -411,7 +381,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
             .SetVertexInputMode(EVertexInput::PositionOnly);
 
 
-            hdrToCubeMapEffect.BuildEffect();
+            cubeMapToIrradianceEffect.BuildEffect();
 
             struct PushBlock
             {
@@ -436,50 +406,21 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
                 hdrPushBlocks[face]->GetUBOStruct().viewProj = m_camptureViews[face];
                 hdrPushBlocks[face]->UpdateGPUBuffer(0);
 
-                auto& updateStuct = std::get<UnlitSingleTexture>(hdrToCubeMapEffect.GetEffectUpdateStruct());
+                auto& updateStuct = std::get<UnlitSingleTexture>(cubeMapToIrradianceEffect.GetEffectUpdateStruct());
                 updateStuct.buffer1 = hdrPushBlocks[face]->GetDescriptorBufferInfos()[0];
                 updateStuct.texture2D_1 = m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
 
-                //================= configure rendering
-                vk::RenderingInfo hdrToCubeMapRenderingInfo;
-                hdrToCubeMapRenderingInfo.colorAttachmentCount = 1;
-                hdrToCubeMapRenderingInfo.pColorAttachments = &renderAttachentInfo;
-                hdrToCubeMapRenderingInfo.renderArea.extent.width = irradianceCubeMapCI.width;
-                hdrToCubeMapRenderingInfo.renderArea.extent.height = irradianceCubeMapCI.height;
-                hdrToCubeMapRenderingInfo.renderArea.offset = 0;
-                hdrToCubeMapRenderingInfo.renderArea.offset = 0;
-                hdrToCubeMapRenderingInfo.layerCount = 1;
+                cubeMapToIrradianceEffect.BindPipeline(cmdBuffer);
 
-                cmdBuffer.beginRendering(hdrToCubeMapRenderingInfo);
-
-                hdrToCubeMapEffect.BindPipeline(cmdBuffer);
-
-                cmdBuffer.bindVertexBuffers(0, {m_cube->GetMeshData()->vertexData.buffer}, {0});
-                cmdBuffer.bindIndexBuffer(m_cube->GetMeshData()->indexData.buffer, 0, vk::IndexType::eUint32);
-
+                cmdBuffer.pushDescriptorSetWithTemplateKHR(
+                                            cubeMapToIrradianceEffect.GetUpdateTemplate(),
+                                            cubeMapToIrradianceEffect.GetPipelineLayout(), 0,
+                                            updateStuct, m_device.DispatchLoader);
 
                 //================== configure vieew port and scissors
                 vk::Viewport viewport{0, 0, (float)irradianceCubeMapCI.width, (float)irradianceCubeMapCI.height, 0.0f, 1.0f};
-                cmdBuffer.setViewport(0, 1, &viewport);
 
-                vk::Rect2D scissors{{0, 0}, {(uint32_t)irradianceCubeMapCI.width, (uint32_t)irradianceCubeMapCI.height}};
-                cmdBuffer.setScissor(0, 1, &scissors);
-                cmdBuffer.setStencilTestEnable(false);
-
-                cmdBuffer.pushDescriptorSetWithTemplateKHR(
-                                        hdrToCubeMapEffect.GetUpdateTemplate(),
-                                        hdrToCubeMapEffect.GetPipelineLayout(), 0,
-                                        updateStuct, m_device.DispatchLoader);
-
-                //==================== Render the cube as a sky box
-                cmdBuffer.drawIndexed(
-                    m_cube->GetMeshData()->indexData.size/sizeof(uint32_t),
-                    1,
-                    m_cube->GetMeshData()->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                        m_cube->GetMeshData()->vertexData.offset /static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
-                    0);
-
-                cmdBuffer.endRendering();
+                RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
 
                 //=================== transition layout to transfer src
                 RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
@@ -527,7 +468,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
 
             envGenerationSemaphore.Reset();
             renderAttachment->Destroy();
-            hdrToCubeMapEffect.Destroy();
+            cubeMapToIrradianceEffect.Destroy();
             for (auto& hdrPushBlock: hdrPushBlocks)
             {hdrPushBlock->Destory();}
 //            hdrPushBlock.Destory();
@@ -600,12 +541,12 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     // - copies offcreen buffer the one of the face of cube
     //=============================================================
     {
-        VEffect hdrToPrefilter(
+        VEffect hdrToPrefilterEffect(
             m_device, "HDR Image to cube map",
             "Shaders/Compiled/Prefilter.vert.spv",
             "Shaders/Compiled/Prefilter.frag.spv",
             m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::UnlitSingleTexture));
-        hdrToPrefilter.DisableStencil()
+        hdrToPrefilterEffect.DisableStencil()
         .SetDisableDepthTest()
         .SetCullNone()
         .SetNullVertexBinding()
@@ -614,7 +555,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         .SetVertexInputMode(EVertexInput::PositionOnly);
 
 
-        hdrToPrefilter.BuildEffect();
+        hdrToPrefilterEffect.BuildEffect();
 
         struct PushBlock
         {
@@ -651,48 +592,18 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
                 viewport.width = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
                 viewport.height = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
 
-                auto& updateStuct = std::get<UnlitSingleTexture>(hdrToPrefilter.GetEffectUpdateStruct());
+                auto& updateStuct = std::get<UnlitSingleTexture>(hdrToPrefilterEffect.GetEffectUpdateStruct());
                 updateStuct.buffer1 = hdrPushBlocks[i]->GetDescriptorBufferInfos()[0];
                 updateStuct.texture2D_1 = m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
 
-                //================= configure rendering
-                vk::RenderingInfo hdrToPreffilterRenderingInfo;
-                hdrToPreffilterRenderingInfo.colorAttachmentCount = 1;
-                hdrToPreffilterRenderingInfo.pColorAttachments = &renderAttachentInfo;
-                hdrToPreffilterRenderingInfo.renderArea.extent.width = preffilterMapCI.width;
-                hdrToPreffilterRenderingInfo.renderArea.extent.height = preffilterMapCI.height;
-                hdrToPreffilterRenderingInfo.renderArea.offset = 0;
-                hdrToPreffilterRenderingInfo.renderArea.offset = 0;
-                hdrToPreffilterRenderingInfo.layerCount = 1;
-
-                cmdBuffer.beginRendering(hdrToPreffilterRenderingInfo);
-
-                hdrToPrefilter.BindPipeline(cmdBuffer);
-
-                cmdBuffer.bindVertexBuffers(0, {m_cube->GetMeshData()->vertexData.buffer}, {0});
-                cmdBuffer.bindIndexBuffer(m_cube->GetMeshData()->indexData.buffer, 0, vk::IndexType::eUint32);
-
-
-                //================== configure vieew port and scissors
-                cmdBuffer.setViewport(0, 1, &viewport);
-
-                cmdBuffer.setScissor(0, 1, &scissors);
-                cmdBuffer.setStencilTestEnable(false);
-
+                hdrToPrefilterEffect.BindPipeline(cmdBuffer);
                 cmdBuffer.pushDescriptorSetWithTemplateKHR(
-                                        hdrToPrefilter.GetUpdateTemplate(),
-                                        hdrToPrefilter.GetPipelineLayout(), 0,
-                                        updateStuct, m_device.DispatchLoader);
+                                            hdrToPrefilterEffect.GetUpdateTemplate(),
+                                            hdrToPrefilterEffect.GetPipelineLayout(), 0,
+                                            updateStuct, m_device.DispatchLoader);
 
-                //==================== Render the cube as a sky box
-                cmdBuffer.drawIndexed(
-                    m_cube->GetMeshData()->indexData.size/sizeof(uint32_t),
-                    1,
-                    m_cube->GetMeshData()->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                        m_cube->GetMeshData()->vertexData.offset /static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
-                    0);
 
-                cmdBuffer.endRendering();
+                RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
 
                 //=================== transition layout to transfer src
                 RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
@@ -742,7 +653,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
 
             envGenerationSemaphore.Reset();
             renderAttachment->Destroy();
-            hdrToPrefilter.Destroy();
+            hdrToPrefilterEffect.Destroy();
             for (auto& hdrPushBlock: hdrPushBlocks)
             {hdrPushBlock->Destory();}
             //            hdrPushBlock.Destory();
@@ -880,6 +791,48 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
 
     brdfEffect.Destroy();
 }
+
+void VulkanUtils::VEnvLightGenerator::RenderToCubeMap(
+        const vk::CommandBuffer& cmdBuffer,
+            vk::Viewport& viewport,
+            vk::RenderingAttachmentInfo& attachment)
+{
+    vk::RenderingInfo hdrToCubeMapRenderingInfo;
+    hdrToCubeMapRenderingInfo.colorAttachmentCount = 1;
+    hdrToCubeMapRenderingInfo.pColorAttachments = &attachment;
+    hdrToCubeMapRenderingInfo.renderArea.extent.width = viewport.width;
+    hdrToCubeMapRenderingInfo.renderArea.extent.height = viewport.height;
+    hdrToCubeMapRenderingInfo.renderArea.offset = 0;
+    hdrToCubeMapRenderingInfo.renderArea.offset = 0;
+    hdrToCubeMapRenderingInfo.layerCount = 1;
+
+    cmdBuffer.beginRendering(hdrToCubeMapRenderingInfo);
+
+
+    cmdBuffer.bindVertexBuffers(0, {m_cube->GetMeshData()->vertexData.buffer}, {0});
+    cmdBuffer.bindIndexBuffer(m_cube->GetMeshData()->indexData.buffer, 0, vk::IndexType::eUint32);
+
+
+    //================== configure vieew port and scissors
+    cmdBuffer.setViewport(0, 1, &viewport);
+
+    vk::Rect2D scissors{{0, 0}, {(uint32_t)viewport.width, (uint32_t)viewport.height}};
+    cmdBuffer.setScissor(0, 1, &scissors);
+    cmdBuffer.setStencilTestEnable(false);
+
+
+    //==================== Render the cube as a sky box
+    cmdBuffer.drawIndexed(
+        m_cube->GetMeshData()->indexData.size/sizeof(uint32_t),
+        1,
+        m_cube->GetMeshData()->indexData.offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+            m_cube->GetMeshData()->vertexData.offset /static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+        0);
+
+    cmdBuffer.endRendering();
+
+}
+
 
 
 

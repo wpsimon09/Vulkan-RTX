@@ -77,6 +77,7 @@ public:
 
 private:
 
+
     const VulkanCore::VDevice &m_device;
     const VulkanUtils::VUniformBufferManager &m_uniformBufferManager;
     VEditor::UIContext &m_uiContext;

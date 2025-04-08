@@ -101,6 +101,11 @@ namespace VulkanUtils
 
         std::vector<glm::mat4> m_camptureViews;
 
+        void RenderToCubeMap(
+            const vk::CommandBuffer& cmdBuffer,
+            vk::Viewport& viewport, vk::RenderingAttachmentInfo& attachment);
+
+
 
     };
 }
