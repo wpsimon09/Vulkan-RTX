@@ -62,32 +62,6 @@ cd build ## go to the build directory
 cmake -DCMAKE_BUILD_TYPE=Release -S ../ -B . ## write build files
 cmake --build .
 ```
-
-### 4. Compile shaders
-
-**Download slang for your OS from [here](https://github.com/shader-slang/slang/releases)**
-
-**For windows**
-
-- modify the `$SLANGC_PATH` in `compileSlang.ps1` to point to the `slangc.exe` that you have just downloaded 
-- run the powershell script `compileSlang.ps1`
-- 
-```powershell
-cd ./Shaders
-Set-ExecutionPolicy Unrestricted -Scope Process
-.\compileSlang.ps1
-```
-
-**For Linux**
-
-- run the shell script in `Shaders` directory
-- modify the `$SLANGC_PATH` in `compileSlang.sh` to point to the `slangc` that you have just downloaded
-
-```sh
-cd ./Shaders
-chmod +x compileSlang.sh
-./compileSlang.sh
-```
 ---
 
 ## Little showcase

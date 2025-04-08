@@ -12,7 +12,6 @@ _deps
 CMakeUserPresets.json
 /build
 .idea
-/Shaders/Compiled
 .cache
 /cache
 .vscode
