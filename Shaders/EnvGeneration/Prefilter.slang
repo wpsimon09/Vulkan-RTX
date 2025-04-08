@@ -101,8 +101,8 @@
             float NdotL = max(dot(N, L), 0.0);
 
             if (NdotL > 0.0) {
-                // float dotNH = clamp(dot(N, H), 0.0, 1.0);
-                // float dotVH = clamp(dot(V, H), 0.0, 1.0);
+                float dotNH = clamp(dot(N, H), 0.0, 1.0);
+                float dotVH = clamp(dot(V, H), 0.0, 1.0);
 
                 // float pdf = D_GGX(dotNH, input.roughness) * dotNH / (4.0 * dotVH) + 0.0001;
 
@@ -112,8 +112,16 @@
 
                 // float mipLevel = 0;
 
+                float D = D_GGX(NdotL, input.roughness);
+                float pdf = (D * dotNH / (4 * dotVH)) + 0.0001;
 
-                prefilteredColor += hdrCubeMap.Sample(L).xyz * NdotL;
+                float resolution = 1024;
+                float saTesel = 4.0 * PI / (6.0 * resolution * resolution);
+                float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001); 
+
+                float mipLevel = input.roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTesel);
+
+                prefilteredColor += hdrCubeMap.SampleLevel(L, mipLevel).xyz * NdotL;
                 totalWeight += NdotL;
             }
 
