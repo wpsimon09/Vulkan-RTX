@@ -250,7 +250,10 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
 
                     //=================== cpy offscreen immage to the cueb map`s face
-                    vk::ImageCopy copyRegion{};
+                    CopyResukt(cmdBuffer, renderAttachment->GetImage(),
+                        hdrCubeMap->GetImage(), viewport.width, viewport.height, mip, face);
+
+                    /*vk::ImageCopy copyRegion{};
                     copyRegion.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
                     copyRegion.srcSubresource.layerCount = 1;
                     copyRegion.srcSubresource.mipLevel = 0;
@@ -273,6 +276,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                         hdrCubeMap->GetImage(),
                         vk::ImageLayout::eTransferDstOptimal,
                         copyRegion);
+                        */
 
                     //========================== transfer colour attachment back to rendering layout
                     RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer );
@@ -833,7 +837,33 @@ void VulkanUtils::VEnvLightGenerator::RenderToCubeMap(
 
 }
 
+void VulkanUtils::VEnvLightGenerator::CopyResukt(const vk::CommandBuffer& cmdBuffer,const vk::Image& src,const vk::Image& dst, int w, int h, int m, int f)
+{
+    //=================== cpy offscreen immage to the cueb map`s face
+    vk::ImageCopy copyRegion{};
+    copyRegion.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+    copyRegion.srcSubresource.layerCount = 1;
+    copyRegion.srcSubresource.mipLevel = 0;
+    copyRegion.srcSubresource.baseArrayLayer = 0;
+    copyRegion.srcOffset = vk::Offset3D{0, 0, 0};
 
+    copyRegion.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+    copyRegion.dstSubresource.layerCount = 1;
+    copyRegion.dstSubresource.mipLevel = m;
+    copyRegion.dstSubresource.baseArrayLayer = f;
+    copyRegion.dstOffset = vk::Offset3D{0, 0, 0};
+
+    copyRegion.extent.width = w;
+    copyRegion.extent.height = h;
+    copyRegion.extent.depth = 1;
+
+    cmdBuffer.copyImage(
+        src,
+        vk::ImageLayout::eTransferSrcOptimal,
+        dst,
+        vk::ImageLayout::eTransferDstOptimal,
+        copyRegion);
+}
 
 
 void VulkanUtils::VEnvLightGenerator::Destroy()

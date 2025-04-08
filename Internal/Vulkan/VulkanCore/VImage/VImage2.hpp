@@ -76,6 +76,7 @@ class VImage2 : public VulkanCore::VObject {
         const VImage2CreateInfo&    GetImageInfoConstRef() const;
         const VImage2Flags&         GetImageFlags() const;
         vk::Image                   GetImage() const;
+        const vk::Image&            GetImageRef() const;
         vk::ImageView               GetImageView() const;
         vk::DescriptorImageInfo     GetDescriptorImageInfo(vk::Sampler &sampler);
 

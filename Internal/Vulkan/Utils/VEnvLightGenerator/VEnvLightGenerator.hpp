@@ -86,7 +86,6 @@ namespace VulkanUtils
         std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_hdrCubeMaps;
         int m_currentHDR;
 
-
         const VulkanCore::VDevice& m_device;
 
         VulkanUtils::VPushDescriptorManager& m_pushDescriptorManager;
@@ -105,6 +104,7 @@ namespace VulkanUtils
             const vk::CommandBuffer& cmdBuffer,
             vk::Viewport& viewport, vk::RenderingAttachmentInfo& attachment);
 
+        void CopyResukt(const vk::CommandBuffer& cmdBuffer,const  vk::Image& src,const  vk::Image& dst,int w, int h, int m = 0, int f = 0);
 
 
     };

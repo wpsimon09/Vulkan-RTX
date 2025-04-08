@@ -162,6 +162,11 @@ namespace VulkanCore {
         return m_imageVK;
     }
 
+    const vk::Image& VImage2::GetImageRef() const
+    {
+        return m_imageVK;
+    }
+
     vk::ImageView VImage2::GetImageView() const
     {
         return m_imageView;
