@@ -11,6 +11,11 @@
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
+namespace VulkanCore
+{
+    struct VImage2CreateInfo;
+}
+
 namespace ApplicationCore
 {
     class StaticMesh;
@@ -105,6 +110,13 @@ namespace VulkanUtils
             vk::Viewport& viewport, vk::RenderingAttachmentInfo& attachment);
 
         void CopyResukt(const vk::CommandBuffer& cmdBuffer,const  vk::Image& src,const  vk::Image& dst,int w, int h, int m = 0, int f = 0);
+
+        void CreateResources(
+            const vk::CommandBuffer& cmdBuffer,
+            std::unique_ptr<VulkanCore::VImage2>& cubeMap,
+            std::unique_ptr<VulkanCore::VImage2>& renderTarget,
+            VulkanCore::VImage2CreateInfo& createInfo,
+            VulkanCore::VTimelineSemaphore& semaphore);
 
 
     };

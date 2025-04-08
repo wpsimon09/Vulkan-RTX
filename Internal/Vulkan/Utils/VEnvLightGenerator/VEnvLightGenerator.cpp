@@ -105,8 +105,6 @@ void VulkanUtils::VEnvLightGenerator::Generate(
     //============================================
     // FIRST GENERATE CUBE MAP FROM hdr MAP
     //============================================
-    //TODO: later optimise with transfer queus for now i will just use the graphics one for everything
-    //TODO: later try to use compute shaders for all of this since they are faster
     m_currentHDR = envMap->GetID();
 
     if (!m_hdrCubeMaps.contains(envMap->GetID()))
@@ -140,42 +138,21 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
         hdrCubeMapCI.arrayLayers = 6; // six faces
         hdrCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
 
-
-        m_hdrCubeMaps[envMap->GetID()] = std::make_unique<VulkanCore::VImage2>(m_device, hdrCubeMapCI);
-
-        auto& hdrCubeMap = m_hdrCubeMaps[envMap->GetID()];
+        std::unique_ptr<VulkanCore::VImage2> cubeMap;
+        std::unique_ptr<VulkanCore::VImage2> renderTarget;
 
         // transition to colour attachment optimal
         m_graphicsCmdBuffer->BeginRecording();
         auto& cmdBuffer = m_graphicsCmdBuffer->GetCommandBuffer();
 
-        //============================== Transefer layout to transfer ddestination
-        RecordImageTransitionLayoutCommand(*hdrCubeMap, vk::ImageLayout::eTransferDstOptimal,
-                                           vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
+        CreateResources(
+            cmdBuffer, cubeMap,
+            renderTarget, hdrCubeMapCI, envGenerationSemaphore);
 
-        //=============================== Create image that will be used to render into
-        std::unique_ptr<VulkanCore::VImage2> renderAttachment;
-        {
-            VulkanCore::VImage2CreateInfo colourAttachemntCI;
-            colourAttachemntCI.width = hdrCubeMapCI.width;
-            colourAttachemntCI.height = hdrCubeMapCI.height;
-            colourAttachemntCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment |
-                vk::ImageUsageFlagBits::eTransferSrc;
-            colourAttachemntCI.format = vk::Format::eR32G32B32A32Sfloat;
+        m_hdrCubeMaps[envMap->GetID()] = std::move(cubeMap);;
 
-            renderAttachment = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachemntCI);
+        auto& hdrCubeMap = m_hdrCubeMaps[envMap->GetID()];
 
-            //============================ Transfer to transfer Src destination
-            RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eColorAttachmentOptimal,
-                                               vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
-        }
-
-        //================ Transfer HDR cube map to be in transfer DST optimal
-        std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
-        m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
-                                         envGenerationSemaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
-        envGenerationSemaphore.CpuWaitIdle(2);
-        m_graphicsCmdBuffer->BeginRecording();
 
         //=============================================================
         // START RENDERING
@@ -208,7 +185,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             vk::RenderingAttachmentInfo renderAttachentInfo;
             renderAttachentInfo.clearValue.color = {0.0f, 0.0f, 0.0f, 1.0f};
             renderAttachentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
-            renderAttachentInfo.imageView = renderAttachment->GetImageView();
+            renderAttachentInfo.imageView = renderTarget->GetImageView();
             renderAttachentInfo.loadOp = vk::AttachmentLoadOp::eClear;
             renderAttachentInfo.storeOp = vk::AttachmentStoreOp::eStore;
 
@@ -247,39 +224,15 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
 
                     //=================== transition layout to transfer src
-                    RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
+                    RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
 
                     //=================== cpy offscreen immage to the cueb map`s face
-                    CopyResukt(cmdBuffer, renderAttachment->GetImage(),
+                    CopyResukt(cmdBuffer, renderTarget->GetImage(),
                         hdrCubeMap->GetImage(), viewport.width, viewport.height, mip, face);
 
-                    /*vk::ImageCopy copyRegion{};
-                    copyRegion.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-                    copyRegion.srcSubresource.layerCount = 1;
-                    copyRegion.srcSubresource.mipLevel = 0;
-                    copyRegion.srcSubresource.baseArrayLayer = 0;
-                    copyRegion.srcOffset = vk::Offset3D{0, 0, 0};
-
-                    copyRegion.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-                    copyRegion.dstSubresource.layerCount = 1;
-                    copyRegion.dstSubresource.mipLevel = mip;
-                    copyRegion.dstSubresource.baseArrayLayer = face;
-                    copyRegion.dstOffset = vk::Offset3D{0, 0, 0};
-
-                    copyRegion.extent.width = static_cast<uint32_t>(viewport.width);
-                    copyRegion.extent.height = static_cast<uint32_t>(viewport.height);
-                    copyRegion.extent.depth = 1;
-
-                    cmdBuffer.copyImage(
-                        renderAttachment->GetImage(),
-                        vk::ImageLayout::eTransferSrcOptimal,
-                        hdrCubeMap->GetImage(),
-                        vk::ImageLayout::eTransferDstOptimal,
-                        copyRegion);
-                        */
 
                     //========================== transfer colour attachment back to rendering layout
-                    RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer );
+                    RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer );
 
                     //hdrPushBlock.Destory();
                     i++;
@@ -297,7 +250,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             envGenerationSemaphore.CpuWaitIdle(4);
 
             envGenerationSemaphore.Reset();
-            renderAttachment->Destroy();
+            renderTarget->Destroy();
             hdrToCubeMapEffect.Destroy();
             for (auto& hdrPushBlock: hdrPushBlocks)
             {hdrPushBlock->Destory();}
@@ -329,41 +282,16 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         irradianceCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
 
 
-        m_irradianceMaps.insert(std::make_pair(envMap->GetID(),  std::make_unique<VulkanCore::VImage2>(m_device, irradianceCubeMapCI)));
-
-        auto& irradianceCubeMap = m_irradianceMaps[envMap->GetID()];
-
         // transition to colour attachment optimal
         m_graphicsCmdBuffer->BeginRecording();
         auto& cmdBuffer = m_graphicsCmdBuffer->GetCommandBuffer();
 
-        //============================== Transefer layout to transfer ddestination
-        RecordImageTransitionLayoutCommand(*irradianceCubeMap, vk::ImageLayout::eTransferDstOptimal,
-                                           vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
+         std::unique_ptr<VulkanCore::VImage2> cubeMap;
+         std::unique_ptr<VulkanCore::VImage2> renderTarget;
+         CreateResources(cmdBuffer,cubeMap, renderTarget, irradianceCubeMapCI, envGenerationSemaphore);
 
-        //=============================== Create image that will be used to render into
-        std::unique_ptr<VulkanCore::VImage2> renderAttachment;
-        {
-            VulkanCore::VImage2CreateInfo colourAttachemntCI;
-            colourAttachemntCI.width = irradianceCubeMapCI.width;
-            colourAttachemntCI.height = irradianceCubeMapCI.height;
-            colourAttachemntCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment |
-                vk::ImageUsageFlagBits::eTransferSrc;
-            colourAttachemntCI.format = vk::Format::eR16G16B16A16Sfloat;
-
-            renderAttachment = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachemntCI);
-
-            //============================ Transfer to transfer Src destination
-            RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eColorAttachmentOptimal,
-                                               vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
-        }
-
-        //================ Transfer IRRADIANCE cube map to be in transfer DST optimal
-        std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
-        m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
-                                         envGenerationSemaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
-        envGenerationSemaphore.CpuWaitIdle(2);
-        m_graphicsCmdBuffer->BeginRecording();
+         m_irradianceMaps.insert(std::make_pair(envMap->GetID(),  std::move(cubeMap)));
+         auto& irradianceCubeMap = m_irradianceMaps[envMap->GetID()];
 
         //=============================================================
         // START RENDERING
@@ -396,7 +324,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
             vk::RenderingAttachmentInfo renderAttachentInfo;
             renderAttachentInfo.clearValue.color = {0.0f, 0.0f, 0.0f, 1.0f};
             renderAttachentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
-            renderAttachentInfo.imageView = renderAttachment->GetImageView();
+            renderAttachentInfo.imageView = renderTarget->GetImageView();
             renderAttachentInfo.loadOp = vk::AttachmentLoadOp::eClear;
             renderAttachentInfo.storeOp = vk::AttachmentStoreOp::eStore;
 
@@ -427,35 +355,15 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
                 RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
 
                 //=================== transition layout to transfer src
-                RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
+                RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
 
                 //=================== cpy offscreen immage to the cueb map`s face
-                vk::ImageCopy copyRegion{};
-                copyRegion.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-                copyRegion.srcSubresource.layerCount = 1;
-                copyRegion.srcSubresource.mipLevel = 0;
-                copyRegion.srcSubresource.baseArrayLayer = 0;
-                copyRegion.srcOffset = vk::Offset3D{0, 0, 0};
+                CopyResukt(cmdBuffer, renderTarget->GetImage(),
+                                        irradianceCubeMap->GetImage(), viewport.width, viewport.height, 0, face);
 
-                copyRegion.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-                copyRegion.dstSubresource.layerCount = 1;
-                copyRegion.dstSubresource.mipLevel = 0;
-                copyRegion.dstSubresource.baseArrayLayer = face;
-                copyRegion.dstOffset = vk::Offset3D{0, 0, 0};
-
-                copyRegion.extent.width = irradianceCubeMapCI.width;
-                copyRegion.extent.height = irradianceCubeMapCI.height;
-                copyRegion.extent.depth = 1;
-
-                cmdBuffer.copyImage(
-                    renderAttachment->GetImage(),
-                    vk::ImageLayout::eTransferSrcOptimal,
-                    irradianceCubeMap->GetImage(),
-                    vk::ImageLayout::eTransferDstOptimal,
-                    copyRegion);
 
                 //========================== transfer colour attachment back to rendering layout
-                RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer );
+                RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer );
 
                 //hdrPushBlock.Destory();
             }
@@ -471,7 +379,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
             envGenerationSemaphore.CpuWaitIdle(4);
 
             envGenerationSemaphore.Reset();
-            renderAttachment->Destroy();
+            renderTarget->Destroy();
             cubeMapToIrradianceEffect.Destroy();
             for (auto& hdrPushBlock: hdrPushBlocks)
             {hdrPushBlock->Destory();}
@@ -612,35 +520,12 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
                 //=================== transition layout to transfer src
                 RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
 
-                //=================== cpy offscreen immage to the cueb map`s face
-                vk::ImageCopy copyRegion{};
-                copyRegion.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-                copyRegion.srcSubresource.layerCount = 1;
-                copyRegion.srcSubresource.mipLevel = 0;
-                copyRegion.srcSubresource.baseArrayLayer = 0;
-                copyRegion.srcOffset = vk::Offset3D{0, 0, 0};
-
-                copyRegion.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-                copyRegion.dstSubresource.layerCount = 1;
-                copyRegion.dstSubresource.mipLevel = mipLevel;
-                copyRegion.dstSubresource.baseArrayLayer = face;
-                copyRegion.dstOffset = vk::Offset3D{0, 0, 0};
-
-                copyRegion.extent.width = static_cast<uint32_t>(viewport.width);
-                copyRegion.extent.height = static_cast<uint32_t>(viewport.height);
-                copyRegion.extent.depth = 1;
-
-                cmdBuffer.copyImage(
-                    renderAttachment->GetImage(),
-                    vk::ImageLayout::eTransferSrcOptimal,
-                    prefilterMap->GetImage(),
-                    vk::ImageLayout::eTransferDstOptimal,
-                    copyRegion);
+                CopyResukt(cmdBuffer, renderAttachment->GetImage(),
+                        prefilterMap->GetImage(), viewport.width, viewport.height, mipLevel, face);
 
                 //========================== transfer colour attachment back to rendering layout
                 RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer );
 
-                //hdrPushBlock.Destory();
                 i++;
             }
         }
@@ -863,6 +748,43 @@ void VulkanUtils::VEnvLightGenerator::CopyResukt(const vk::CommandBuffer& cmdBuf
         dst,
         vk::ImageLayout::eTransferDstOptimal,
         copyRegion);
+}
+
+void VulkanUtils::VEnvLightGenerator::CreateResources(const vk::CommandBuffer& cmdBuffer,
+    std::unique_ptr<VulkanCore::VImage2>& cubeMap, std::unique_ptr<VulkanCore::VImage2>& renderTarget,
+    VulkanCore::VImage2CreateInfo& createInfo, VulkanCore::VTimelineSemaphore& semaphore)
+{
+
+    cubeMap = std::make_unique<VulkanCore::VImage2>(m_device, createInfo);
+
+    //============================== Transefer layout to transfer ddestination
+    RecordImageTransitionLayoutCommand(*cubeMap, vk::ImageLayout::eTransferDstOptimal,
+                                       vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
+
+    //=============================== Create image that will be used to render into
+
+    {
+        VulkanCore::VImage2CreateInfo colourAttachemntCI;
+        colourAttachemntCI.width = createInfo.width;
+        colourAttachemntCI.height = createInfo.height;
+        colourAttachemntCI.format = createInfo.format;
+        colourAttachemntCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment |
+            vk::ImageUsageFlagBits::eTransferSrc;
+
+        renderTarget = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachemntCI);
+
+        //============================ Transfer to transfer Src destination
+        RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eColorAttachmentOptimal,
+                                           vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
+    }
+
+    //================ Transfer HDR cube map to be in transfer DST optimal
+    std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
+    m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), semaphore.GetSemaphore(),
+                                     semaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
+    semaphore.CpuWaitIdle(2);
+    m_graphicsCmdBuffer->BeginRecording();
+
 }
 
 
