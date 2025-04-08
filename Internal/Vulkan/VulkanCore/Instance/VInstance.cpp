@@ -35,7 +35,7 @@ VulkanCore::VulkanInstance::VulkanInstance(std::string appName, GLFWwindow *wind
 VkBool32 VulkanCore::VulkanInstance::debugMessageFunc(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
                                                       , VkDebugUtilsMessageTypeFlagsEXT messageTypes, VkDebugUtilsMessengerCallbackDataEXT const *pCallbackData, void *) {
      std::ostringstream message;
-
+    if (messageSeverity == static_cast<VkDebugUtilsMessageTypeFlagsEXT>(vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning)) {return vk::False;}
     message << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)) << ": "
         << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes)) << ":\n";
     message << std::string("\t") << "messageIDName   = <" << pCallbackData->pMessageIdName << ">\n";

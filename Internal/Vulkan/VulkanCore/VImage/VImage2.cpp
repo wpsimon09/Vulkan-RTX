@@ -13,7 +13,7 @@ namespace VulkanCore {
     VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& info):
         m_device(device), m_imageInfo(info)
     {
-        m_imageFlags.IsCubeMap = m_imageInfo.arrayLayers == 6;
+        m_imageFlags.IsCubeMap = (info.arrayLayers == 6);
 
         AllocateImage();
         GenerateImageView();

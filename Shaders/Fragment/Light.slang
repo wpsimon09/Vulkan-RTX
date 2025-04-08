@@ -103,7 +103,7 @@ struct AmbientLight : ILightEnv {
             
             return (kD * diffuse + spec) * aoIntensity;
         } else {
-            return albedo * aoIntensity;
+            return albedo * 0.7;
         }
     }
 }

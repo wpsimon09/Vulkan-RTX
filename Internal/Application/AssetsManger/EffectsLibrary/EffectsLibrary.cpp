@@ -82,6 +82,7 @@ namespace ApplicationCore {
         outline
             //->SetC()
             ->SetStencilTestOutline()
+              .SetVertexInputMode(EVertexInput::PositionOnly)
               .SetDisableDepthTest()
              .SetDisableDepthWrite();
 

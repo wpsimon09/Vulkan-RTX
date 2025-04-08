@@ -131,7 +131,7 @@ namespace ApplicationCore
             }
             else
             {
-                SaveImageAsPNG(imageData.widht, imageData.height, imageData.channels, imageData.fileName, reinterpret_cast<std::vector<std::byte> &>(imageData.pixels));
+                SaveImageAsHDR(imageData.widht, imageData.height, imageData.channels, imageData.fileName,imageData.pixels);
             }
         }
 
@@ -165,9 +165,14 @@ namespace ApplicationCore
     }
 
     void SaveImageAsHDR(int width, int height, int channels, const std::string& path,
-        const std::vector<float>& data)
+         float* data)
     {
-        int err = stbi_write_hdr(path.c_str(), width, height, channels, data.data());
+        for (int i = 0; i< width*height*channels; i++)
+
+        {
+            data[i] *= 10.0;
+        }
+        int err = stbi_write_hdr(path.c_str(), width, height, channels, data);
         if (err == 0)
         {
             Utils::Logger::LogSuccess("Image saved to " + path);

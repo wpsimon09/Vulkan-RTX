@@ -70,7 +70,6 @@ struct FragmentShaderIn {
     float3 normal : OUT_NORMAL;
     float3 cameraPos : OUT_CAM_POS;
     float3 fragPos : OUT_FRAG_POS;
-    float3 lightPos : OUT_LIGHT_POS;
     float2 uv : OUT_UV;
     Material material : OUT_MATERIAL;
 };
@@ -95,7 +94,6 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
     VertexOutput out;
     out.vertexData.cameraPos = globalData.cameraPostiion.xyz;
     out.vertexData.fragPos = FragmentWorldPos;
-    out.vertexData.lightPos = globalData.lightPosition.xyz;
     out.vertexData.normal = NormalWorldPos;
     out.vertexData.uv = uv;
 
