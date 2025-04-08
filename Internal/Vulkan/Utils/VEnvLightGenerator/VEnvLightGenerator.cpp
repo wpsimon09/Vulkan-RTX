@@ -262,7 +262,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
 
 
 //==================================
-// IRRADIANCE GNERATION
+// IRRADIANCE GENERATION
 //==================================
 void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<VulkanCore::VImage2> envMap,
     VulkanCore::VTimelineSemaphore& renderingSemaphore)
@@ -411,41 +411,17 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     preffilterMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
 
 
-    m_prefilterMaps[envMap->GetID()] = std::make_unique<VulkanCore::VImage2>(m_device, preffilterMapCI);
+    std::unique_ptr<VulkanCore::VImage2> cubeMap;
+    std::unique_ptr<VulkanCore::VImage2> renderTarget;
 
-    auto& prefilterMap = m_prefilterMaps[envMap->GetID()];
-
-    // transition to colour attachment optimal
     m_graphicsCmdBuffer->BeginRecording();
     auto& cmdBuffer = m_graphicsCmdBuffer->GetCommandBuffer();
 
-    //============================== Transefer layout to transfer ddestination
-    RecordImageTransitionLayoutCommand(*prefilterMap, vk::ImageLayout::eTransferDstOptimal,
-                                       vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
 
-    //=============================== Create image that will be used to render into
-    std::unique_ptr<VulkanCore::VImage2> renderAttachment;
-    {
-        VulkanCore::VImage2CreateInfo colourAttachemntCI;
-        colourAttachemntCI.width = dimensions;
-        colourAttachemntCI.height = dimensions;
-        colourAttachemntCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment |
-            vk::ImageUsageFlagBits::eTransferSrc;
-        colourAttachemntCI.format = vk::Format::eR16G16B16A16Sfloat;
+    CreateResources(cmdBuffer, cubeMap, renderTarget, preffilterMapCI, envGenerationSemaphore);
 
-        renderAttachment = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachemntCI);
-
-        //============================ Transfer to transfer Src destination
-        RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eColorAttachmentOptimal,
-                                           vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
-    }
-
-    //================ Transfer PREFILTER cube map to be in transfer DST optimal
-    std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
-    m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
-                                     envGenerationSemaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
-    envGenerationSemaphore.CpuWaitIdle(2);
-    m_graphicsCmdBuffer->BeginRecording();
+    m_prefilterMaps[envMap->GetID()] = std::move(cubeMap);
+    auto& prefilterMap = m_prefilterMaps[envMap->GetID()];
 
     //=============================================================
     // START RENDERING
@@ -479,7 +455,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         vk::RenderingAttachmentInfo renderAttachentInfo;
         renderAttachentInfo.clearValue.color = {0.0f, 0.0f, 0.0f, 1.0f};
         renderAttachentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
-        renderAttachentInfo.imageView = renderAttachment->GetImageView();
+        renderAttachentInfo.imageView = renderTarget->GetImageView();
         renderAttachentInfo.loadOp = vk::AttachmentLoadOp::eClear;
         renderAttachentInfo.storeOp = vk::AttachmentStoreOp::eStore;
 
@@ -518,13 +494,13 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
                 RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
 
                 //=================== transition layout to transfer src
-                RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
+                RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal,  *m_graphicsCmdBuffer);
 
-                CopyResukt(cmdBuffer, renderAttachment->GetImage(),
+                CopyResukt(cmdBuffer, renderTarget->GetImage(),
                         prefilterMap->GetImage(), viewport.width, viewport.height, mipLevel, face);
 
                 //========================== transfer colour attachment back to rendering layout
-                RecordImageTransitionLayoutCommand(*renderAttachment, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer );
+                RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer );
 
                 i++;
             }
@@ -541,7 +517,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
             envGenerationSemaphore.CpuWaitIdle(4);
 
             envGenerationSemaphore.Reset();
-            renderAttachment->Destroy();
+            renderTarget->Destroy();
             hdrToPrefilterEffect.Destroy();
             for (auto& hdrPushBlock: hdrPushBlocks)
             {hdrPushBlock->Destory();}
