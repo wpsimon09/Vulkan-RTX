@@ -542,9 +542,9 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
 
             envGenerationSemaphore.Reset();
             renderTarget->Destroy();
-            hdrToPrefilterEffect.Destroy();
             for (auto& hdrPushBlock: hdrPushBlocks)
             {hdrPushBlock->Destory();}
+            hdrToPrefilterEffect.Destroy();
             //            hdrPushBlock.Destory();
 
 

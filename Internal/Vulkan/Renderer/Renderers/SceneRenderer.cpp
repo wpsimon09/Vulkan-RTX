@@ -84,7 +84,6 @@ namespace Renderer
                             unlitSingelTextureEffect.texture2D_1 = m_renderContextPtr->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
                         }else
                             unlitSingelTextureEffect.texture2D_1 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
-
                     }
 
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(
