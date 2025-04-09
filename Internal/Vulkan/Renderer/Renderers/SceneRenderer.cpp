@@ -77,10 +77,14 @@ namespace Renderer
                     // cast might be required here
                     drawCall.material->UpdateGPUTextureData(unlitSingelTextureEffect);
 
-                    if (drawCall.effect->GetName() == "Sky Box"
-                        && m_renderContextPtr->hdrCubeMap)
+                    if (drawCall.effect->GetName() == "Sky Box")
                     {
-                        unlitSingelTextureEffect.texture2D_1 = m_renderContextPtr->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+                        if (m_renderContextPtr->hdrCubeMap)
+                        {
+                            unlitSingelTextureEffect.texture2D_1 = m_renderContextPtr->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+                        }else
+                            unlitSingelTextureEffect.texture2D_1 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+
                     }
 
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(

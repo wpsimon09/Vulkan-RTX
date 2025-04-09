@@ -403,6 +403,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
 
             envGenerationSemaphore.Reset();
             renderTarget->Destroy();
+            m_dummyCubeMap->Destroy();
+
             cubeMapToIrradianceEffect.Destroy();
             for (auto& hdrPushBlock: hdrPushBlocks)
             {hdrPushBlock->Destory();}

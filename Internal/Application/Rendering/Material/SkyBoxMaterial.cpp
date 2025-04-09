@@ -34,7 +34,7 @@ namespace ApplicationCore {
     {
         // sky box can only be one and not the whole variant
         // TODO: sky box will hold env lightning and all that good stuff and pass it to the mateiral here
-        auto& data = std::get<std::reference_wrapper<VulkanUtils::UnlitSingleTexture>>(updateStruct).get();
-        data.texture2D_1 = m_HDRTexture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+        //auto& data = std::get<std::reference_wrapper<VulkanUtils::UnlitSingleTexture>>(updateStruct).get();
+        //data.texture2D_1 = m_HDRTexture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
     }
 } // ApplicationCore

@@ -123,7 +123,7 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex,
             m_lightUniform->GetUBOStruct().areaLights[i].isInUse = areaLight->isAreaLightInUse;
         }
     }
-    if (sceneLightInfo.environmentLight)
+    if (sceneLightInfo.environmentLight != nullptr)
     {
         m_lightUniform->GetUBOStruct().info.x = (sceneLightInfo.environmentLight->inUse && (sceneLightInfo.environmentLight->hdrImage != nullptr));
         m_lightUniform->GetUBOStruct().info.y = sceneLightInfo.environmentLight->ambientIntensity;

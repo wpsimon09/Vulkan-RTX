@@ -160,7 +160,7 @@ struct SceneLightInfo {
   LightStructs::DirectionalLight *DirectionalLightInfo = nullptr;
   std::vector<LightStructs::PointLight *> PointLightInfos;
   std::vector<LightStructs::AreaLight *> AreaLightInfos;
-  EnvLight* environmentLight;
+  EnvLight* environmentLight = nullptr;
 
   int AddPointLight(PointLight *pointLight) {
     PointLightInfos.emplace_back(pointLight);
