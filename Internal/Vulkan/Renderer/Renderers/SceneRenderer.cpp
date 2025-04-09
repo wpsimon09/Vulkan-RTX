@@ -198,18 +198,11 @@ namespace Renderer
 
         assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess &&
             "Failed to submit command buffer !");
-        renderingTimeLine.CpuWaitIdle(2);
-
-        m_commandBuffers[currentFrameIndex]->Reset();
-        m_commandBuffers[currentFrameIndex]->BeginRecording();
-        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, *m_commandBuffers[currentFrameIndex]);
-
-        std::vector<vk::PipelineStageFlags> waitStagesTransfer = {
-            vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader};
-
-        m_commandBuffers[currentFrameIndex]->EndAndFlush(m_device.GetTransferQueue(),renderingTimeLine.GetSemaphore(), renderingTimeLine.GetSemaphoreSubmitInfo(2, 4), waitStagesTransfer.data());
 
         transferSemapohre.Reset();
+
+        m_commandBuffers[currentFrameIndex]->Reset();
+        m_frameCount++;
     }
 
     void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
@@ -243,7 +236,10 @@ namespace Renderer
         // START RENDER PASS
         //==============================================
         auto& cmdBuffer = m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
-        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, *m_commandBuffers[currentFrameIndex]);
+        if (m_frameCount > 0)
+        {
+            VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, *m_commandBuffers[currentFrameIndex]);
+        }
 
         cmdBuffer.beginRendering(&renderingInfo);
 
@@ -340,7 +336,7 @@ namespace Renderer
 
         cmdBuffer.endRendering();
 
-
+        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal, *m_commandBuffers[currentFrameIndex]);
         m_renderingStatistics.DrawCallCount = drawCallCount;
     }
 

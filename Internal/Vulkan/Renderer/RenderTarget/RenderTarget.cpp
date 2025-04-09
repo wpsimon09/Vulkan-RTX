@@ -119,7 +119,7 @@ namespace Renderer {
                                                             m_device.GetTransferOpsManager().GetCommandBuffer());
 
         Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
-        m_device.GetTransferOpsManager().UpdateGPUWaitCPU(true);
+       // m_device.GetTransferOpsManager().UpdateGPUWaitCPU(true);
 
     }
 

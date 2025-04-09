@@ -65,6 +65,8 @@ private:
 
     VulkanStructs::RenderingStatistics m_renderingStatistics;
 
+    uint64_t m_frameCount = 0;
+
 private:
     void PushDataToGPU(const vk::CommandBuffer& cmdBuffer, int currentFrameIndex, int objectIndex,
                        VulkanStructs::DrawCallData& drawCall,
