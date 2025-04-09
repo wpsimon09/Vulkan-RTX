@@ -30,6 +30,11 @@ namespace VulkanUtils {
             m_pushDescriptors[EDescriptorLayoutStruct::Basic] =
                 std::make_shared<VPushDescriptorSet>(m_device, std::string("Basic descriptor set"), std::move(layout));
 
+            VulkanUtils::EmtpyDescriptorSet empty{};
+            layout = std::make_unique<VulkanCore::VDescriptorSetLayout>(m_device, empty);
+            m_pushDescriptors[EDescriptorLayoutStruct::Empty] =
+                std::make_shared<VPushDescriptorSet>(m_device, std::string("Basic descriptor set"), std::move(layout));
+
 
     }
 

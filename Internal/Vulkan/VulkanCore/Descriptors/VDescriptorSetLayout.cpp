@@ -38,6 +38,11 @@ namespace VulkanCore {
         using t = std::decay_t<decltype(templateStruct)>;
 
         //if descriptors change this is where i have to update them
+        if constexpr (std::is_same_v<t, VulkanUtils::EmtpyDescriptorSet>)
+        {
+            auto emptyDescriptorLayout = VulkanCore::VDescriptorSetLayout::Builder(device);
+            m_descriptorSetLayoutBindings = std::move(emptyDescriptorLayout.m_descriptorBindings);
+        }
 
         if constexpr (std::is_same_v<t, VulkanUtils::BasicDescriptorSet>)
         {

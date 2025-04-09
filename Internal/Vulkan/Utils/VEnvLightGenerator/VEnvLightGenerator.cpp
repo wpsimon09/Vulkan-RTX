@@ -577,7 +577,7 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
     VEffect brdfEffect(m_device, "BRDF Effect",
                        "Shaders/Compiled/BRDFLut.vert.spv",
                        "Shaders/Compiled/BRDFLut.frag.spv",
-                       m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::Basic)
+                       m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::Empty)
     );
     brdfEffect.SetColourOutputFormat(brdfCI.format)
               .DisableStencil()

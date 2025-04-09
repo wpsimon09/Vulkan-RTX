@@ -11,8 +11,11 @@ namespace VulkanUtils
     {
         Basic = 0,
         UnlitSingleTexture,
-        ForwardShading
+        ForwardShading,
+        Empty
     };
+
+    struct EmtpyDescriptorSet{};
 
     struct BasicDescriptorSet
     {
@@ -60,7 +63,8 @@ namespace VulkanUtils
     using DescriptorSetTemplateVariant = std::variant<
         BasicDescriptorSet,
         UnlitSingleTexture,
-        ForwardShadingDstSet> ;
+        ForwardShadingDstSet,
+        EmtpyDescriptorSet> ;
 
     using DescriptorSetTemplateVariantRef = std::variant<
         std::reference_wrapper<BasicDescriptorSet>,

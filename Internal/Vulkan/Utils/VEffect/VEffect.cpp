@@ -170,6 +170,7 @@ namespace VulkanUtils
             return *this;
         }
 
+
         std::string& VEffect::GetName()
         {
             return m_name;

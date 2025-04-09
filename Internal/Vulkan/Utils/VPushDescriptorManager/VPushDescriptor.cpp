@@ -16,6 +16,10 @@ VulkanUtils::VPushDescriptorSet::VPushDescriptorSet(const VulkanCore::VDevice& d
             using t = std::decay_t<decltype(templateStruct)>;
 
             //if descriptors change this is where i have to update them
+            if constexpr (std::is_same_v<t, VulkanUtils::EmtpyDescriptorSet>)
+            {
+                m_layoutStructType = EDescriptorLayoutStruct::Empty;
+            }
 
             if constexpr (std::is_same_v<t, VulkanUtils::BasicDescriptorSet>)
             {
@@ -82,7 +86,7 @@ void VulkanUtils::VPushDescriptorSet::AddUpdateEntry(uint32_t binding, size_t of
 void VulkanUtils::VPushDescriptorSet::CreateDstUpdateInfo(VulkanCore::VGraphicsPipeline& pipelineLayout)
 {
     Utils::Logger::LogInfo("Creating update template object....");
-    assert(!m_descriptorTemplateEntries.empty() && "No template entries found");
+  //  assert(!m_descriptorTemplateEntries.empty() && "No template entries found");
     vk::DescriptorUpdateTemplateCreateInfo createInfo{};
     createInfo.descriptorUpdateEntryCount = static_cast<uint32_t>(m_descriptorTemplateEntries.size());
     createInfo.pDescriptorUpdateEntries = m_descriptorTemplateEntries.data();
