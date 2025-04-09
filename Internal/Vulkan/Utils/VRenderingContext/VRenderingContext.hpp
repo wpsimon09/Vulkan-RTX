@@ -49,6 +49,7 @@ namespace VulkanUtils
         VulkanCore::VImage2* irradianceMap = nullptr;
         VulkanCore::VImage2* prefilterMap = nullptr;
         VulkanCore::VImage2* brdfMap = nullptr;
+        VulkanCore::VImage2* dummyCubeMap = nullptr;
 
 
         void GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& outDrawCalls);

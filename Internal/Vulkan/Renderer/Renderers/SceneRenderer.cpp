@@ -110,15 +110,15 @@ namespace Renderer
                     forwardShaddingEffect.texture2D_6 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
                     if (m_renderContextPtr->irradianceMap){
                         forwardShaddingEffect.texture2D_7 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                    }else{ forwardShaddingEffect.texture2D_7 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
+                    }else{ forwardShaddingEffect.texture2D_7 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
 
                     if (m_renderContextPtr->prefilterMap){
                         forwardShaddingEffect.texture2D_8 = m_renderContextPtr->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
-                    }else{ forwardShaddingEffect.texture2D_8 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
+                    }else{ forwardShaddingEffect.texture2D_8 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
 
                     if (m_renderContextPtr->brdfMap){
                         forwardShaddingEffect.texture2D_9 = m_renderContextPtr->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                    }else{ forwardShaddingEffect.texture2D_9 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
+                    }else{ forwardShaddingEffect.texture2D_9 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
                     //forwardShaddingEffect.texture2D_7 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(

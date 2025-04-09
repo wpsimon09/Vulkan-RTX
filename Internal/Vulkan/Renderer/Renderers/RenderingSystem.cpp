@@ -142,6 +142,7 @@ namespace Renderer {
         m_renderContext.irradianceMap = m_envLightGenerator->GetIrradianceMapRaw();
         m_renderContext.prefilterMap =  m_envLightGenerator->GetPrefilterMapRaw();
         m_renderContext.brdfMap =       m_envLightGenerator->GetBRDFLutRaw();
+        m_renderContext.dummyCubeMap =  m_envLightGenerator->GetDummyCubeMapRaw();
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext, *m_renderingTimeLine[m_currentFrameIndex], m_transferSemapohore);
 

@@ -59,6 +59,24 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
         };
 
     GenerateBRDFLut();
+
+    const vk::Format format = vk::Format::eR16G16B16A16Sfloat;
+    const uint32_t dimensions = 512;
+    const uint32_t mipLevels = static_cast<uint32_t>(floor(log2(dimensions))) + 1;
+
+    //============================== Generate cube which is going ot be stored
+    VulkanCore::VImage2CreateInfo dummyCubeMapCI;
+    dummyCubeMapCI.channels = 4;
+    dummyCubeMapCI.format = vk::Format::eR16G16B16A16Sfloat;
+    dummyCubeMapCI.width = 1;
+    dummyCubeMapCI.height = 1;
+    dummyCubeMapCI.mipLevels = 1;
+    dummyCubeMapCI.arrayLayers = 6; // six faces
+    dummyCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
+
+    m_dummyCubeMap = std::make_unique<VulkanCore::VImage2>(m_device, dummyCubeMapCI);
+    RecordImageTransitionLayoutCommand(*m_dummyCubeMap, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined, m_device.GetTransferOpsManager().GetCommandBuffer());
+
 }
 
 const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetBRDFLut()
@@ -89,6 +107,11 @@ const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetIrradianceMap()
 VulkanCore::VImage2* VulkanUtils::VEnvLightGenerator::GetIrradianceMapRaw()
 {
     return m_irradianceMaps[m_currentHDR].get();
+}
+
+VulkanCore::VImage2* VulkanUtils::VEnvLightGenerator::GetDummyCubeMapRaw()
+{
+    return m_dummyCubeMap.get();
 }
 
 VulkanCore::VImage2* VulkanUtils::VEnvLightGenerator::GetPrefilterMapRaw()

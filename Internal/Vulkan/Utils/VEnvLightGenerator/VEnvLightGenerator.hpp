@@ -65,6 +65,8 @@ namespace VulkanUtils
         const VulkanCore::VImage2&                  GetIrradianceMap();
         VulkanCore::VImage2*                        GetIrradianceMapRaw();
 
+        VulkanCore::VImage2*                        GetDummyCubeMapRaw();
+
         VulkanCore::VImage2*                        GetPrefilterMapRaw();
 
         void                                        Generate(std::shared_ptr<VulkanCore::VImage2> envMap,
@@ -89,6 +91,7 @@ namespace VulkanUtils
         std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_irradianceMaps;
         std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_prefilterMaps;
         std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_hdrCubeMaps;
+        std::unique_ptr<VulkanCore::VImage2> m_dummyCubeMap;
         int m_currentHDR;
 
         const VulkanCore::VDevice& m_device;
