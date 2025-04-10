@@ -49,6 +49,20 @@ namespace Renderer
             m_commandBuffers[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_sceneCommandPool);
         }
 
+        //=========================
+        // CONFIGURE DEAPTH PASS EFFECT
+        //=========================
+        m_depthPrePassEffect = std::make_unique<VulkanUtils::VEffect>(
+            m_device, "Depth-PrePass effect",
+            "Shaders/Compiled/DepthPrePass.vert.spv","Shaders/Compiled/DepthPrePass.frag.spv",
+            m_pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic)  );
+        m_depthPrePassEffect
+            //->DissableFragmentWrite()
+            ->SetVertexInputMode(EVertexInput::PositionOnly)
+            .SetPiplineNoMultiSampling();
+
+        m_depthPrePassEffect->BuildEffect();
+
         Utils::Logger::LogSuccess("Scene renderer created !");
     }
 
@@ -59,46 +73,46 @@ namespace Renderer
         {
             case VulkanUtils::EDescriptorLayoutStruct::Basic:
                 {
-                    auto& basicEffect = std::get<VulkanUtils::BasicDescriptorSet>(drawCall.effect->GetEffectUpdateStruct());
-                    basicEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-                    basicEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
+                    auto& basicEffecResourceGroup = std::get<VulkanUtils::BasicDescriptorSet>(drawCall.effect->GetEffectUpdateStruct());
+                    basicEffecResourceGroup.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                    basicEffecResourceGroup.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
 
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(
                         drawCall.effect->GetUpdateTemplate(),
                         drawCall.effect->GetPipelineLayout(), 0,
-                        basicEffect, m_device.DispatchLoader);
+                        basicEffecResourceGroup, m_device.DispatchLoader);
                     break;
                 }
             case VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture:
                 {
-                    auto& unlitSingelTextureEffect = std::get<VulkanUtils::UnlitSingleTexture>(drawCall.effect->GetEffectUpdateStruct());;
-                    unlitSingelTextureEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-                    unlitSingelTextureEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
+                    auto& unlitSingleTextureResrouceGroup = std::get<VulkanUtils::UnlitSingleTexture>(drawCall.effect->GetEffectUpdateStruct());;
+                    unlitSingleTextureResrouceGroup.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                    unlitSingleTextureResrouceGroup.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
 
                     // cast might be required here
-                    drawCall.material->UpdateGPUTextureData(unlitSingelTextureEffect);
+                    drawCall.material->UpdateGPUTextureData(unlitSingleTextureResrouceGroup);
 
                     if (drawCall.effect->GetName() == "Sky Box")
                     {
                         if (m_renderContextPtr->hdrCubeMap)
                         {
-                            unlitSingelTextureEffect.texture2D_1 = m_renderContextPtr->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+                            unlitSingleTextureResrouceGroup.texture2D_1 = m_renderContextPtr->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
                         }else
-                            unlitSingelTextureEffect.texture2D_1 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
+                            unlitSingleTextureResrouceGroup.texture2D_1 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
                     }
 
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(
                         drawCall.effect->GetUpdateTemplate(),
                         drawCall.effect->GetPipelineLayout(), 0,
-                        unlitSingelTextureEffect, m_device.DispatchLoader);
+                        unlitSingleTextureResrouceGroup, m_device.DispatchLoader);
                     break;
                 }
             case VulkanUtils::EDescriptorLayoutStruct::ForwardShading:
                 {
-                    auto& forwardShaddingEffect = std::get<VulkanUtils::ForwardShadingDstSet>(drawCall.effect->GetEffectUpdateStruct());
-                    forwardShaddingEffect.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-                    forwardShaddingEffect.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];;
-                    forwardShaddingEffect.buffer3 = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
+                    auto& forwardShadingResourceGroup = std::get<VulkanUtils::ForwardShadingDstSet>(drawCall.effect->GetEffectUpdateStruct());
+                    forwardShadingResourceGroup.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                    forwardShadingResourceGroup.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];;
+                    forwardShadingResourceGroup.buffer3 = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
 
                     /*
                     forwardShaddingEffect.buffer4 = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(objectIndex)[
@@ -108,27 +122,27 @@ namespace Renderer
                         currentFrameIndex];
                         */
 
-                    drawCall.material->UpdateGPUTextureData(forwardShaddingEffect);
+                    drawCall.material->UpdateGPUTextureData(forwardShadingResourceGroup);
 
-                    forwardShaddingEffect.texture2D_5 = MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                    forwardShaddingEffect.texture2D_6 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                    forwardShadingResourceGroup.texture2D_5 = MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                    forwardShadingResourceGroup.texture2D_6 = MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
                     if (m_renderContextPtr->irradianceMap){
-                        forwardShaddingEffect.texture2D_7 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                    }else{ forwardShaddingEffect.texture2D_7 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
+                        forwardShadingResourceGroup.texture2D_7 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                    }else{ forwardShadingResourceGroup.texture2D_7 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
 
                     if (m_renderContextPtr->prefilterMap){
-                        forwardShaddingEffect.texture2D_8 = m_renderContextPtr->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
-                    }else{ forwardShaddingEffect.texture2D_8 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
+                        forwardShadingResourceGroup.texture2D_8 = m_renderContextPtr->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
+                    }else{ forwardShadingResourceGroup.texture2D_8 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
 
                     if (m_renderContextPtr->brdfMap){
-                        forwardShaddingEffect.texture2D_9 = m_renderContextPtr->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                    }else{ forwardShaddingEffect.texture2D_9 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
+                        forwardShadingResourceGroup.texture2D_9 = m_renderContextPtr->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                    }else{ forwardShadingResourceGroup.texture2D_9 = m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);; }
                     //forwardShaddingEffect.texture2D_7 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(
                         drawCall.effect->GetUpdateTemplate(),
                         drawCall.effect->GetPipelineLayout(), 0,
-                        forwardShaddingEffect, m_device.DispatchLoader);
+                        forwardShadingResourceGroup, m_device.DispatchLoader);
                     break;
                 }
             }
@@ -141,19 +155,7 @@ namespace Renderer
     {
         int drawCallCount = 0;
 
-        //=========================
-        // CONFIGURE DEAPTH PASS EFFECT
-        //=========================
-        VulkanUtils::VEffect DepthPrePassEffect(
-            m_device, "Depth-PrePass effect",
-            "Shaders/Compiled/TriangleBasic.vert.spv","Shaders/Compiled/DummyFragmnet.vert.spv",
-            m_pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic)  );
-        DepthPrePassEffect
-            .DissableFragmentWrite()
-            .SetVertexInputMode(EVertexInput::PositionOnly);
-        DepthPrePassEffect.BuildEffect();
 
-        auto depthAttachemnt = m_renderTargets->GetDepthAttachment();
 
         vk::RenderingInfo renderingInfo;
         renderingInfo.renderArea.offset = vk::Offset2D(0, 0);
@@ -162,9 +164,8 @@ namespace Renderer
         renderingInfo.colorAttachmentCount = 0;
         renderingInfo.pColorAttachments = nullptr;
         renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
-        renderingInfo.pStencilAttachment = &m_renderTargets->GetDepthAttachment();
 
-        DepthPrePassEffect.BindPipeline(m_commandBuffers[currentFrameIndex]->GetCommandBuffer());
+        m_depthPrePassEffect->BindPipeline(m_commandBuffers[currentFrameIndex]->GetCommandBuffer());
 
 
         //==============================================
@@ -186,7 +187,6 @@ namespace Renderer
         //=================================================
         auto currentVertexBuffer = m_renderContextPtr->drawCalls.begin()->second.vertexData;
         auto currentIndexBuffer = m_renderContextPtr->drawCalls.begin()->second.indexData;
-        auto& currentEffect = m_renderContextPtr->drawCalls.begin()->second.effect;
 
         vk::DeviceSize indexBufferOffset = 0;
 
@@ -223,7 +223,7 @@ namespace Renderer
 
             if (drawCall.second.inDepthPrePass)
             {
-                    cmdBuffer.setStencilTestEnable(false);
+                    //cmdBuffer.setStencilTestEnable(false);
 
                     //================================================================================================
                     // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
@@ -244,14 +244,22 @@ namespace Renderer
                         currentIndexBuffer = drawCall.second.indexData;
                     }
 
-                    std::get<VulkanUtils::BasicDescriptorSet>(DepthPrePassEffect.GetEffectUpdateStruct()).buffer1
-                        = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                    auto& update = std::get<VulkanUtils::BasicDescriptorSet>(m_depthPrePassEffect->GetEffectUpdateStruct());
+                    update.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+                    update.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.second.drawCallID)[currentFrameIndex];
 
+                    // this fucking bugs me but i dont know how else can i use emty push descriptors other than passing garbage or irrelevant data
+                    //update.buffer3 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];;
+
+                    cmdBuffer.pushDescriptorSetWithTemplateKHR(
+                                    m_depthPrePassEffect->GetUpdateTemplate(),
+                                    m_depthPrePassEffect->GetPipelineLayout(), 0,
+                                    update, m_device.DispatchLoader);
 
                     cmdBuffer.drawIndexed(
                         drawCall.second.indexData->size/sizeof(uint32_t),
                         1,
-                        drawCall.second.indexData->offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                        drawCall.second.indexData->offset/  static_cast<vk::DeviceSize>(sizeof(uint32_t)),
                             drawCall.second.vertexData->offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                         0);
 
@@ -270,9 +278,10 @@ namespace Renderer
                 );
 
 
+
             m_renderingStatistics.DrawCallCount = drawCallCount;
 
-            DepthPrePassEffect.Destroy();
+            //m_depthPrePassEffect.Destroy();
     }
 
 
@@ -484,5 +493,6 @@ namespace Renderer
     {
         BaseRenderer::Destroy();
         m_sceneCommandPool->Destroy();
+        m_depthPrePassEffect->Destroy();
     }
 } // Renderer

@@ -54,6 +54,9 @@ protected:
 
 private:
     const VulkanCore::VDevice& m_device;
+
+    std::unique_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
+
     VulkanUtils::VPushDescriptorManager& m_pushDescriptorManager;
 
     VulkanUtils::RenderContext* m_renderContextPtr;
