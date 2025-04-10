@@ -57,9 +57,7 @@ namespace Renderer
             "Shaders/Compiled/DepthPrePass.vert.spv","Shaders/Compiled/DepthPrePass.frag.spv",
             m_pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic)  );
         m_depthPrePassEffect
-            //->DissableFragmentWrite()
-            ->SetVertexInputMode(EVertexInput::PositionOnly)
-            ;
+            ->SetVertexInputMode(EVertexInput::PositionOnly);
 
         m_depthPrePassEffect->BuildEffect();
 
