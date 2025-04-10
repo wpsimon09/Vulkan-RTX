@@ -29,6 +29,7 @@ namespace ApplicationCore {
            if (!renderingContext->RenderBillboards) return;
            if (m_mesh && m_sceneNodeMetaData.IsVisible)
         {
+
             // frustrum culling
             if (m_sceneNodeMetaData.FrustumCull && GlobalVariables::RenderingOptions::EnableFrustrumCulling)
             {

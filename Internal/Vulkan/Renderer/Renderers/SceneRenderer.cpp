@@ -16,6 +16,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
@@ -139,15 +140,17 @@ namespace Renderer
         VulkanCore::VTimelineSemaphore& renderingTimeLine, VulkanCore::VTimelineSemaphore& transferSemaphore)
     {
         int drawCallCount = 0;
+
         //=========================
         // CONFIGURE DEAPTH PASS EFFECT
+        //=========================
         VulkanUtils::VEffect DepthPrePassEffect(
             m_device, "Depth-PrePass effect",
             "Shaders/Compiled/TriangleBasic.vert.spv","Shaders/Compiled/DummyFragmnet.vert.spv",
             m_pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic)  );
-
-        DepthPrePassEffect.DissableFragmentWrite();
-
+        DepthPrePassEffect
+            .DissableFragmentWrite()
+            .SetVertexInputMode(EVertexInput::PositionOnly);
         DepthPrePassEffect.BuildEffect();
 
         auto depthAttachemnt = m_renderTargets->GetDepthAttachment();
@@ -218,50 +221,58 @@ namespace Renderer
         for (auto& drawCall: m_renderContextPtr->drawCalls)
         {
 
-            cmdBuffer.setStencilTestEnable(false);
+            if (drawCall.second.inDepthPrePass)
+            {
+                    cmdBuffer.setStencilTestEnable(false);
 
-            //================================================================================================
-            // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
-            //================================================================================================
-            if(currentVertexBuffer->BufferID != drawCall.second.vertexData->BufferID){
-                auto firstBinding = 0;
+                    //================================================================================================
+                    // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
+                    //================================================================================================
+                    if(currentVertexBuffer->BufferID != drawCall.second.vertexData->BufferID){
+                        auto firstBinding = 0;
 
-                std::vector<vk::Buffer> vertexBuffers = {drawCall.second.vertexData->buffer};
-                std::vector<vk::DeviceSize> offsets = {0};
-                vertexBuffers = {drawCall.second.vertexData->buffer};
-               cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
-                currentVertexBuffer = drawCall.second.vertexData;
+                        std::vector<vk::Buffer> vertexBuffers = {drawCall.second.vertexData->buffer};
+                        std::vector<vk::DeviceSize> offsets = {0};
+                        vertexBuffers = {drawCall.second.vertexData->buffer};
+                       cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+                        currentVertexBuffer = drawCall.second.vertexData;
+                    }
+
+                    if(currentIndexBuffer->BufferID != drawCall.second.indexData->BufferID){
+                        indexBufferOffset = 0;
+                        cmdBuffer.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
+                        currentIndexBuffer = drawCall.second.indexData;
+                    }
+
+                    std::get<VulkanUtils::BasicDescriptorSet>(DepthPrePassEffect.GetEffectUpdateStruct()).buffer1
+                        = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+
+
+                    cmdBuffer.drawIndexed(
+                        drawCall.second.indexData->size/sizeof(uint32_t),
+                        1,
+                        drawCall.second.indexData->offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                            drawCall.second.vertexData->offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                        0);
+
+                    drawCallCount++;
+
+                }
+
             }
-
-            if(currentIndexBuffer->BufferID != drawCall.second.indexData->BufferID){
-                indexBufferOffset = 0;
-                cmdBuffer.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
-                currentIndexBuffer = drawCall.second.indexData;
-            }
-
-            std::get<VulkanUtils::BasicDescriptorSet>(DepthPrePassEffect.GetEffectUpdateStruct()).buffer1
-                = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+            cmdBuffer.endRendering();
 
 
-            cmdBuffer.drawIndexed(
-                drawCall.second.indexData->size/sizeof(uint32_t),
-                1,
-                drawCall.second.indexData->offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                    drawCall.second.vertexData->offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
-                0);
-
-            drawCallCount++;
-
-        }
-
-        cmdBuffer.endRendering();
-
-        // place image memroy barrier here !
-
-        m_renderingStatistics.DrawCallCount = drawCallCount;
+            VulkanUtils::PlaceImageMemoryBarrier(m_renderTargets->GetDepthImage(currentFrameIndex), *m_commandBuffers[currentFrameIndex],
+                vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eColorAttachmentOptimal,
+                vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::PipelineStageFlagBits::eEarlyFragmentTests,
+                vk::AccessFlagBits::eDepthStencilAttachmentWrite, vk::AccessFlagBits::eDepthStencilAttachmentRead
+                );
 
 
-        DepthPrePassEffect.Destroy();
+            m_renderingStatistics.DrawCallCount = drawCallCount;
+
+            DepthPrePassEffect.Destroy();
     }
 
 
@@ -284,7 +295,8 @@ namespace Renderer
         //=====================================================
         m_commandBuffers[currentFrameIndex]->BeginRecording();
 
-        RecordCommandBuffer(currentFrameIndex, uniformBufferManager);
+        DepthPrePass(currentFrameIndex, uniformBufferManager, renderContext, renderingTimeLine, transferSemapohre);
+        DrawScene(currentFrameIndex, uniformBufferManager);
 
         m_commandBuffers[currentFrameIndex]->EndRecording();
 
@@ -337,7 +349,7 @@ namespace Renderer
         m_renderTargets = std::make_unique<Renderer::RenderTarget>(m_device, m_width, m_height);
     }
 
-    void SceneRenderer::RecordCommandBuffer(int currentFrameIndex,
+    void SceneRenderer::DrawScene(int currentFrameIndex,
                                             const VulkanUtils::VUniformBufferManager& uniformBufferManager)
     {
 
@@ -349,7 +361,6 @@ namespace Renderer
             m_renderTargets->GetColourAttachmentMultiSampled(currentFrameIndex),
         };
 
-
         vk::RenderingInfo renderingInfo;
         renderingInfo.renderArea.offset = vk::Offset2D(0, 0);
         renderingInfo.renderArea.extent = vk::Extent2D(m_width, m_height);
@@ -357,6 +368,8 @@ namespace Renderer
         renderingInfo.colorAttachmentCount = colourAttachments.size();
         renderingInfo.pColorAttachments = colourAttachments.data();
         renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
+
+        m_renderTargets->GetDepthAttachment().loadOp = vk::AttachmentLoadOp::eLoad;
         renderingInfo.pStencilAttachment = &m_renderTargets->GetDepthAttachment();
 
         //==============================================

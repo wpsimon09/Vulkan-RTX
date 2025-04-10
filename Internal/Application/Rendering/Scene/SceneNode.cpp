@@ -233,6 +233,7 @@ namespace ApplicationCore
             {
                 //data.effect = effectsLibrary.GetEffect(EEffectType::ForwardShader);
                 data.effect = m_mesh->GetMaterial()->GetEffect();
+                data.inDepthPrePass = true;
 
             }
 

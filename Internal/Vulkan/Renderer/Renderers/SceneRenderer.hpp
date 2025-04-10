@@ -50,7 +50,7 @@ public:
 
 protected:
     void CreateRenderTargets(VulkanCore::VSwapChain* swapChain) override;
-    void RecordCommandBuffer(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager) override;
+    void DrawScene(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager) override;
 
 private:
     const VulkanCore::VDevice& m_device;
@@ -76,7 +76,7 @@ private:
                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                 VulkanUtils::RenderContext* renderContext,
                 VulkanCore::VTimelineSemaphore& renderingTimeLine,
-                VulkanCore::VTimelineSemaphore& transferSemaphore)
+                VulkanCore::VTimelineSemaphore& transferSemaphore);
 
     friend class VEditor::RenderingOptions;
 };
