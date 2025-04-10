@@ -90,11 +90,24 @@ void VulkanUtils::RecordImageTransitionLayoutCommand(vk::ImageLayout currentLayo
         srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
         dstStageFlags = vk::PipelineStageFlagBits::eTransfer;
     }
-    else if (currentLayout == vk::ImageLayout::eTransferSrcOptimal && targetLayout == vk::ImageLayout::eColorAttachmentOptimal) {
+    else if (currentLayout == vk::ImageLayout::eColorAttachmentOptimal && targetLayout == vk::ImageLayout::eTransferSrcOptimal) {
+        barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+        barrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        dstStageFlags = vk::PipelineStageFlagBits::eTransfer;
+    }  else if (currentLayout == vk::ImageLayout::eTransferSrcOptimal && targetLayout == vk::ImageLayout::eColorAttachmentOptimal) {
         barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
         barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
 
         srcStageFlags = vk::PipelineStageFlagBits::eTransfer;
+        dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+    }
+    else if (currentLayout == vk::ImageLayout::ePresentSrcKHR && targetLayout == vk::ImageLayout::eColorAttachmentOptimal) {
+        barrier.srcAccessMask = vk::AccessFlagBits::eNone;
+        barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
         dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
     }
     else {

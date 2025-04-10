@@ -200,8 +200,6 @@ namespace Renderer
             "Failed to submit command buffer !");
 
         transferSemapohre.Reset();
-
-        m_commandBuffers[currentFrameIndex]->Reset();
         m_frameCount++;
     }
 
