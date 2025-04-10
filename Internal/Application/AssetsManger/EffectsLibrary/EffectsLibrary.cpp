@@ -23,7 +23,9 @@ namespace ApplicationCore {
             "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
             pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
 
-        frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
+        frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList)
+        .SetDisableDepthWrite()
+        .SetDepthOpLessEqual();
         effects[EEffectType::ForwardShader] = std::move(frowardEffect);
 
         //==============================================================================
@@ -36,7 +38,9 @@ namespace ApplicationCore {
 
         transparentEffect
             ->SetTopology(vk::PrimitiveTopology::eTriangleList)
-            .EnableAdditiveBlending();
+            .EnableAdditiveBlending().SetDisableDepthWrite()
+        .SetDepthOpLessEqual();
+
 
         effects[EEffectType::AplhaBlend] = std::move(transparentEffect);
 
@@ -51,7 +55,8 @@ namespace ApplicationCore {
         editorBillboards
             ->SetTopology(vk::PrimitiveTopology::eTriangleList)
             .SetCullNone()
-            .SetVertexInputMode(EVertexInput::Position_UV);
+            .SetVertexInputMode(EVertexInput::Position_UV)
+            .SetDepthOpLessEqual();
         effects[EEffectType::EditorBilboard] = std::move(editorBillboards);
 
         //==============================================================================
@@ -67,7 +72,9 @@ namespace ApplicationCore {
             .SetCullNone()
             .SetPolygonLine()
             .SetLineWidth(2)
-            .SetVertexInputMode(EVertexInput::PositionOnly);
+            .SetVertexInputMode(EVertexInput::PositionOnly)
+            .SetDisableDepthWrite()
+            .SetDepthOpLessEqual();
 
         effects[EEffectType::DebugLine] = std::move(debugLine);
 
@@ -84,7 +91,8 @@ namespace ApplicationCore {
             ->SetStencilTestOutline()
               .SetVertexInputMode(EVertexInput::PositionOnly)
               .SetDisableDepthTest()
-             .SetDisableDepthWrite();
+             .SetDisableDepthWrite()
+            .SetDepthOpLessEqual();
 
         effects[EEffectType::Outline] = std::move(outline);
 
@@ -100,7 +108,9 @@ namespace ApplicationCore {
         .SetLineWidth(7)
         .SetPolygonLine()
         .SetVertexInputMode(EVertexInput::PositionOnly)
-        .SetTopology(vk::PrimitiveTopology::eLineList);
+        .SetTopology(vk::PrimitiveTopology::eLineList)
+        .SetDisableDepthWrite()
+        .SetDepthOpLessEqual();
 
         effects[EEffectType::DebugLine] = std::move(debugShapes);
 
@@ -117,7 +127,9 @@ namespace ApplicationCore {
             .SetVertexInputMode(EVertexInput::PositionOnly)
             .SetDisableDepthWrite()
             .SetDepthOpLessEqual()
-            .DisableStencil();
+            .DisableStencil()
+            .SetDisableDepthWrite()
+        .   SetDepthOpLessEqual();
 
 
         effects[EEffectType::SkyBox] = std::move(skybox);

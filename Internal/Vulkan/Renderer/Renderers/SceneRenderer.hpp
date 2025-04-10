@@ -68,6 +68,8 @@ private:
 
     VulkanStructs::RenderingStatistics m_renderingStatistics;
 
+    bool m_depthPrePass = true;
+
     uint64_t m_frameCount = 0;
 
 private:
@@ -76,10 +78,7 @@ private:
                        const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
     void DepthPrePass(int currentFrameIndex,
-                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                VulkanUtils::RenderContext* renderContext,
-                VulkanCore::VTimelineSemaphore& renderingTimeLine,
-                VulkanCore::VTimelineSemaphore& transferSemaphore);
+                const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
     friend class VEditor::RenderingOptions;
 };

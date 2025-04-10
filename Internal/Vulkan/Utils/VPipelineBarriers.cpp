@@ -19,7 +19,7 @@ void VulkanUtils::PlaceImageMemoryBarrier(VulkanCore::VImage2& image, VulkanCore
         vk::QueueFamilyIgnored,
         image.GetImage(),
         vk::ImageSubresourceRange{
-            vk::ImageAspectFlagBits::eColor,
+            image.GetImageFlags().IsDepthBuffer ? vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil : vk::ImageAspectFlagBits::eColor,
             0,
             1,
             0,

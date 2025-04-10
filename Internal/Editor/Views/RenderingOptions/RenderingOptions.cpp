@@ -25,6 +25,7 @@ namespace VEditor {
 
             ImGui::Checkbox("Fake ray-tracer ", &m_renderingSystem->m_isRayTracing);
             ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_renderContext.RenderBillboards);
+            ImGui::Checkbox("Back buffer ", &m_renderingSystem->m_sceneRenderer->m_depthPrePass);
 
             if (ImGui::TreeNode(ICON_FA_DRAW_POLYGON " Scene render"))
             {

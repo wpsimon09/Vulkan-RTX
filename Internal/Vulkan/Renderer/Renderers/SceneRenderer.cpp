@@ -59,7 +59,7 @@ namespace Renderer
         m_depthPrePassEffect
             //->DissableFragmentWrite()
             ->SetVertexInputMode(EVertexInput::PositionOnly)
-            .SetPiplineNoMultiSampling();
+            ;
 
         m_depthPrePassEffect->BuildEffect();
 
@@ -150,8 +150,7 @@ namespace Renderer
     }
 
     void SceneRenderer::DepthPrePass(int currentFrameIndex,
-        const VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext,
-        VulkanCore::VTimelineSemaphore& renderingTimeLine, VulkanCore::VTimelineSemaphore& transferSemaphore)
+        const VulkanUtils::VUniformBufferManager& uniformBufferManager)
     {
         int drawCallCount = 0;
 
@@ -223,7 +222,7 @@ namespace Renderer
 
             if (drawCall.second.inDepthPrePass)
             {
-                    //cmdBuffer.setStencilTestEnable(false);
+                    cmdBuffer.setStencilTestEnable(false);
 
                     //================================================================================================
                     // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
@@ -304,7 +303,10 @@ namespace Renderer
         //=====================================================
         m_commandBuffers[currentFrameIndex]->BeginRecording();
 
-        DepthPrePass(currentFrameIndex, uniformBufferManager, renderContext, renderingTimeLine, transferSemapohre);
+        if (m_depthPrePass)
+        {
+            DepthPrePass(currentFrameIndex, uniformBufferManager);
+        }
         DrawScene(currentFrameIndex, uniformBufferManager);
 
         m_commandBuffers[currentFrameIndex]->EndRecording();
