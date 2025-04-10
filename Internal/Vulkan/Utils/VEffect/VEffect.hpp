@@ -54,6 +54,7 @@ public:
     VEffect& SetColourOutputFormat(vk::Format format);
     VEffect& SetPiplineNoMultiSampling();
     VEffect& SetNullVertexBinding();
+    VEffect& DissableFragmentWrite();
 
 
     //=======================================

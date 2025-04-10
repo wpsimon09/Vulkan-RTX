@@ -134,6 +134,136 @@ namespace Renderer
 
     }
 
+    void SceneRenderer::DepthPrePass(int currentFrameIndex,
+        const VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext,
+        VulkanCore::VTimelineSemaphore& renderingTimeLine, VulkanCore::VTimelineSemaphore& transferSemaphore)
+    {
+        int drawCallCount = 0;
+        //=========================
+        // CONFIGURE DEAPTH PASS EFFECT
+        VulkanUtils::VEffect DepthPrePassEffect(
+            m_device, "Depth-PrePass effect",
+            "Shaders/Compiled/TriangleBasic.vert.spv","Shaders/Compiled/DummyFragmnet.vert.spv",
+            m_pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic)  );
+
+        DepthPrePassEffect.DissableFragmentWrite();
+
+        DepthPrePassEffect.BuildEffect();
+
+        auto depthAttachemnt = m_renderTargets->GetDepthAttachment();
+
+        vk::RenderingInfo renderingInfo;
+        renderingInfo.renderArea.offset = vk::Offset2D(0, 0);
+        renderingInfo.renderArea.extent = vk::Extent2D(m_width, m_height);
+        renderingInfo.layerCount = 1;
+        renderingInfo.colorAttachmentCount = 0;
+        renderingInfo.pColorAttachments = nullptr;
+        renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
+        renderingInfo.pStencilAttachment = &m_renderTargets->GetDepthAttachment();
+
+        DepthPrePassEffect.BindPipeline(m_commandBuffers[currentFrameIndex]->GetCommandBuffer());
+
+
+        //==============================================
+        // START RENDER PASS
+        //==============================================
+        auto& cmdBuffer = m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
+
+        cmdBuffer.beginRendering(&renderingInfo);
+
+        // if there is nothing to render end the render process
+        if(m_renderContextPtr->drawCalls.empty()){
+            cmdBuffer.endRendering();
+            m_renderingStatistics.DrawCallCount = 0;
+            return;
+        }
+
+        //=================================================
+        // INITIAL CONFIG
+        //=================================================
+        auto currentVertexBuffer = m_renderContextPtr->drawCalls.begin()->second.vertexData;
+        auto currentIndexBuffer = m_renderContextPtr->drawCalls.begin()->second.indexData;
+        auto& currentEffect = m_renderContextPtr->drawCalls.begin()->second.effect;
+
+        vk::DeviceSize indexBufferOffset = 0;
+
+        cmdBuffer.bindVertexBuffers(0, {currentVertexBuffer->buffer}, {0});
+        cmdBuffer.bindIndexBuffer(currentIndexBuffer->buffer, 0, vk::IndexType::eUint32);
+
+        //============================================
+        // CONFIGURE VIEW PORT
+        //===============================================
+        vk::Viewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+
+        viewport.width = static_cast<float>(m_width);
+        viewport.height = static_cast<float>(m_height);
+
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        cmdBuffer.setViewport(0, 1, &viewport);
+
+        vk::Rect2D scissors{};
+        scissors.offset.x = 0;
+        scissors.offset.y = 0;
+        scissors.extent.width = m_width;
+        scissors.extent.height = m_height;
+
+        cmdBuffer.setScissor(0, 1, &scissors);
+
+        //=================================================
+        // RECORD OPAQUE DRAW CALLS
+        //=================================================
+        for (auto& drawCall: m_renderContextPtr->drawCalls)
+        {
+
+            cmdBuffer.setStencilTestEnable(false);
+
+            //================================================================================================
+            // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
+            //================================================================================================
+            if(currentVertexBuffer->BufferID != drawCall.second.vertexData->BufferID){
+                auto firstBinding = 0;
+
+                std::vector<vk::Buffer> vertexBuffers = {drawCall.second.vertexData->buffer};
+                std::vector<vk::DeviceSize> offsets = {0};
+                vertexBuffers = {drawCall.second.vertexData->buffer};
+               cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+                currentVertexBuffer = drawCall.second.vertexData;
+            }
+
+            if(currentIndexBuffer->BufferID != drawCall.second.indexData->BufferID){
+                indexBufferOffset = 0;
+                cmdBuffer.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
+                currentIndexBuffer = drawCall.second.indexData;
+            }
+
+            std::get<VulkanUtils::BasicDescriptorSet>(DepthPrePassEffect.GetEffectUpdateStruct()).buffer1
+                = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
+
+
+            cmdBuffer.drawIndexed(
+                drawCall.second.indexData->size/sizeof(uint32_t),
+                1,
+                drawCall.second.indexData->offset/static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                    drawCall.second.vertexData->offset/static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                0);
+
+            drawCallCount++;
+
+        }
+
+        cmdBuffer.endRendering();
+
+        // place image memroy barrier here !
+
+        m_renderingStatistics.DrawCallCount = drawCallCount;
+
+
+        DepthPrePassEffect.Destroy();
+    }
+
 
     void SceneRenderer::Render(int currentFrameIndex,
                                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
@@ -153,7 +283,6 @@ namespace Renderer
         // RECORD COMMAND BUFFER
         //=====================================================
         m_commandBuffers[currentFrameIndex]->BeginRecording();
-
 
         RecordCommandBuffer(currentFrameIndex, uniformBufferManager);
 

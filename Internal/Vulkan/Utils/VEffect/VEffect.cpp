@@ -170,6 +170,12 @@ namespace VulkanUtils
             return *this;
         }
 
+        VEffect& VEffect::DissableFragmentWrite()
+        {
+            m_pipeline->m_rasterizer.rasterizerDiscardEnable = vk::True;
+            return *this;
+        }
+
 
         std::string& VEffect::GetName()
         {

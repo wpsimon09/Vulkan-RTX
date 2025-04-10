@@ -196,8 +196,8 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             .SetColourOutputFormat(vk::Format::eR32G32B32A32Sfloat)
             .SetVertexInputMode(EVertexInput::PositionOnly);
 
-
             hdrToCubeMapEffect.BuildEffect();
+
 
             struct PushBlock
             {

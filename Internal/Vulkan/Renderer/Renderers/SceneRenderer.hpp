@@ -72,6 +72,12 @@ private:
                        VulkanStructs::DrawCallData& drawCall,
                        const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
+    void DepthPrePass(int currentFrameIndex,
+                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                VulkanUtils::RenderContext* renderContext,
+                VulkanCore::VTimelineSemaphore& renderingTimeLine,
+                VulkanCore::VTimelineSemaphore& transferSemaphore)
+
     friend class VEditor::RenderingOptions;
 };
 
