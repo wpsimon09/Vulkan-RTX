@@ -176,7 +176,7 @@ namespace VulkanUtils
             return *this;
         }
 
-        VEffect& VEffect::SetDepthTestOpLess()
+        VEffect& VEffect::SetDepthOpLess()
         {
             m_pipeline->m_depthStencil.depthCompareOp = vk::CompareOp::eLess;
             return  *this;

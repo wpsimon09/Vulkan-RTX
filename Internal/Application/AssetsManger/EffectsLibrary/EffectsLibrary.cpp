@@ -24,8 +24,7 @@ namespace ApplicationCore {
             pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
 
         frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList)
-        .SetDisableDepthWrite()
-        .SetDepthOpLessEqual();
+        .SetDisableDepthWrite();
         effects[EEffectType::ForwardShader] = std::move(frowardEffect);
 
         //==============================================================================
@@ -38,8 +37,9 @@ namespace ApplicationCore {
 
         transparentEffect
             ->SetTopology(vk::PrimitiveTopology::eTriangleList)
-            .EnableAdditiveBlending().SetDisableDepthWrite()
-        .SetDepthOpLessEqual();
+            .EnableAdditiveBlending()
+            .SetDisableDepthWrite()
+            .SetDepthOpLessEqual();
 
 
         effects[EEffectType::AplhaBlend] = std::move(transparentEffect);
@@ -56,7 +56,8 @@ namespace ApplicationCore {
             ->SetTopology(vk::PrimitiveTopology::eTriangleList)
             .SetCullNone()
             .SetVertexInputMode(EVertexInput::Position_UV)
-            .SetDepthOpLessEqual();
+            //.SetDepthOpLessEqual()
+            ;
         effects[EEffectType::EditorBilboard] = std::move(editorBillboards);
 
         //==============================================================================
@@ -92,7 +93,8 @@ namespace ApplicationCore {
               .SetVertexInputMode(EVertexInput::PositionOnly)
               .SetDisableDepthTest()
              .SetDisableDepthWrite()
-            .SetDepthOpLessEqual();
+            //.SetDepthOpLessEqual()
+        ;
 
         effects[EEffectType::Outline] = std::move(outline);
 
@@ -110,7 +112,8 @@ namespace ApplicationCore {
         .SetVertexInputMode(EVertexInput::PositionOnly)
         .SetTopology(vk::PrimitiveTopology::eLineList)
         .SetDisableDepthWrite()
-        .SetDepthOpLessEqual();
+        //.SetDepthOpLessEqual()
+        ;
 
         effects[EEffectType::DebugLine] = std::move(debugShapes);
 
@@ -129,7 +132,8 @@ namespace ApplicationCore {
             .SetDepthOpLessEqual()
             .DisableStencil()
             .SetDisableDepthWrite()
-        .   SetDepthOpLessEqual();
+            //.SetDepthOpLessEqual()
+        ;
 
 
         effects[EEffectType::SkyBox] = std::move(skybox);

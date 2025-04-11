@@ -58,7 +58,7 @@ namespace Renderer
             m_pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic)  );
         m_depthPrePassEffect
             ->SetVertexInputMode(EVertexInput::PositionOnly)
-            .SetDepthTestOpLess();
+            .SetDepthOpLess();
 
         m_depthPrePassEffect->BuildEffect();
 
@@ -161,6 +161,8 @@ namespace Renderer
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 0;
         renderingInfo.pColorAttachments = nullptr;
+        m_renderTargets->GetDepthAttachment().loadOp = vk::AttachmentLoadOp::eClear;
+
         renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
 
         m_depthPrePassEffect->BindPipeline(m_commandBuffers[currentFrameIndex]->GetCommandBuffer());
@@ -268,7 +270,7 @@ namespace Renderer
 
             VulkanUtils::PlaceImageMemoryBarrier(
                 m_renderTargets->GetDepthImage(currentFrameIndex), *m_commandBuffers[currentFrameIndex],
-                vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eColorAttachmentOptimal,
+                vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::ImageLayout::eDepthStencilAttachmentOptimal,
                 vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::PipelineStageFlagBits::eEarlyFragmentTests,
                 vk::AccessFlagBits::eDepthStencilAttachmentWrite, vk::AccessFlagBits::eDepthStencilAttachmentRead
                 );
