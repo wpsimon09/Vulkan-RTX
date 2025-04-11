@@ -53,6 +53,7 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
     //=========================================
     EngineConfig["Rendering"].set({
         {"Frustrum culling", std::to_string(GlobalVariables::RenderingOptions::EnableFrustrumCulling)},
+        {"Depth-PrePass", std::to_string(GlobalVariables::RenderingOptions::PreformDepthPrePass)},
         {"MSAAEnabled", std::to_string(GlobalState::MSAA)},
         {"MSAASamples", std::to_string(GlobalVariables::RenderingOptions::MSAASamples)},
         {"OutlineWidth", std::to_string(GlobalVariables::RenderingOptions::OutlineWidth)}
@@ -80,7 +81,7 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
     else Utils::Logger::LogErrorClient("Failed to save engine config! ");
 
 }
-void ApplicationCore::LoadConfig(Client& client, VEditor::UIContext& uiContext)
+void ApplicationCore::LoadClientSideConfig(Client& client, VEditor::UIContext& uiContext)
 {
     mINI::INIFile engineConfigFile(engineConfigPath);
 
@@ -142,6 +143,8 @@ void ApplicationCore::LoadConfig()
             GlobalVariables::RenderingOptions::MSAASamples = std::stoi(EngineConfig["Rendering"]["MSAASamples"]);
         if (EngineConfig["Rendering"].has("OutlineWidth"))
             GlobalVariables::RenderingOptions::OutlineWidth = std::stof(EngineConfig["Rendering"]["OutlineWidth"]);
+        if (EngineConfig["Rendering"].has("Depth-PrePass"))
+            GlobalVariables::RenderingOptions::PreformDepthPrePass = static_cast<bool>(std::stoi(EngineConfig["Rendering"]["Depth-PrePass"]));
     }
 
     //=======================================

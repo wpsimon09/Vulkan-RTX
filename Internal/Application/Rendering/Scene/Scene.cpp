@@ -209,7 +209,6 @@ namespace ApplicationCore {
 
             for (int i = 0; i < hitNodes.size(); i++)
             {
-                Utils::Logger::LogInfo("Depth of the node is " + std::to_string(hitNodes[i]->GetDistanceFromCamera(m_camera.GetPosition())) );
                 if (hitNodes[i]->GetDistanceFromCamera(m_camera.GetPosition()) < closestNode->GetDistanceFromCamera(m_camera.GetPosition()))
                     closestNode = hitNodes[i];
             }

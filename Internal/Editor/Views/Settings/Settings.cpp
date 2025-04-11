@@ -153,8 +153,9 @@ namespace VEditor {
 
     void Settings::RenderRenderingSettings()
     {
-        ImGui::Checkbox("Frustrum culling", &GlobalVariables::RenderingOptions::EnableFrustrumCulling);
-        ImGui::Checkbox("MSAA Enabled", &GlobalState::MSAA);
+        ImGui::Checkbox("Frustrum culling: ", &GlobalVariables::RenderingOptions::EnableFrustrumCulling);
+        ImGui::Checkbox("MSAA Enabled: ", &GlobalState::MSAA);
+        ImGui::Checkbox("Depth pre pass: ", &GlobalVariables::RenderingOptions::PreformDepthPrePass);
 
         if (GlobalState::MSAA)
         {

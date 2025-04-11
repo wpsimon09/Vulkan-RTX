@@ -16,7 +16,7 @@ class Client;
 namespace ApplicationCore
 {
     void SaveConfig(Client& client, VEditor::UIContext& uiContext);
-    void LoadConfig(Client& client, VEditor::UIContext& uiContext);
+    void LoadClientSideConfig(Client& client, VEditor::UIContext& uiContext);
     void LoadConfig();
 
     const std::filesystem::path engineConfigPath = GlobalVariables::configFolder / "EngineConfig.ini";

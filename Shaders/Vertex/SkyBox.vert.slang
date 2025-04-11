@@ -52,5 +52,6 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
     float4 pos = mul(viewProj, float4(VAO.inPosition, 1.0));
     out.sv_position = pos.xyww;
 
+
     return out;
 }   

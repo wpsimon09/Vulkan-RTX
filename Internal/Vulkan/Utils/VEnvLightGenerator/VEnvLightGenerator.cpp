@@ -136,6 +136,7 @@ void VulkanUtils::VEnvLightGenerator::Generate(
         {CubeMapToIrradiance(envMap, renderingSemaphore);}
     if (!m_prefilterMaps.contains(envMap->GetID()))
         {{CubeMapToPrefilter(envMap, renderingSemaphore);}}
+
 }
 
 //==================================
@@ -146,7 +147,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
 {
 
     {
-
+        Utils::Logger::LogInfo("Generating IBL enviroment...");
         VulkanCore::VTimelineSemaphore envGenerationSemaphore(m_device);
         const uint32_t dimensions = 1024;
         const uint32_t mipLevels = static_cast<uint32_t>(floor(log2(dimensions))) + 1;
@@ -278,7 +279,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             for (auto& hdrPushBlock: hdrPushBlocks)
             {hdrPushBlock->Destory();}
 //            hdrPushBlock.Destory();
-
+            Utils::Logger::LogSuccess("HDR Cube map generated");
         }
     }
 }
@@ -408,6 +409,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
             for (auto& hdrPushBlock: hdrPushBlocks)
             {hdrPushBlock->Destory();}
 //            hdrPushBlock.Destory();
+            Utils::Logger::LogSuccess("Irradiance map generated");
 
         }
     }
@@ -546,6 +548,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
             {hdrPushBlock->Destory();}
             hdrToPrefilterEffect.Destroy();
             //            hdrPushBlock.Destory();
+            Utils::Logger::LogSuccess("Prefilterred generated");
 
 
         }

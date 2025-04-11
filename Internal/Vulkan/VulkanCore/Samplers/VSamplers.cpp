@@ -76,6 +76,10 @@ namespace VulkanCore::VSamplers
     void DestroyAllSamplers(const VulkanCore::VDevice &device) {
         Utils::Logger::LogInfoVerboseOnly("Destroying samplers...");
         device.GetDevice().destroySampler(VulkanCore::VSamplers::Sampler2D);
+        device.GetDevice().destroySampler(VulkanCore::VSamplers::Sampler5Mips);
+        device.GetDevice().destroySampler(VulkanCore::VSamplers::Sampler10Mips);
+        device.GetDevice().destroySampler(VulkanCore::VSamplers::Sampler20Mips);
+        device.GetDevice().destroySampler(VulkanCore::VSamplers::SamplerCube);
         Utils::Logger::LogSuccess("Sampler destroyed successfully");
     }
 

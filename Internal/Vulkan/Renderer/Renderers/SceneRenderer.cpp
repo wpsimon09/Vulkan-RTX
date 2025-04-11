@@ -16,6 +16,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
+#include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
@@ -298,7 +299,7 @@ namespace Renderer
         //=====================================================
         m_commandBuffers[currentFrameIndex]->BeginRecording();
 
-        if (m_depthPrePass)
+        if (GlobalVariables::RenderingOptions::PreformDepthPrePass)
         {
             DepthPrePass(currentFrameIndex, uniformBufferManager);
         }

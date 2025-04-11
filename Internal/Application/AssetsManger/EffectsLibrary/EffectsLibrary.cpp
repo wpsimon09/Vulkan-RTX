@@ -6,6 +6,7 @@
 
 #include <memory>
 
+#include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
@@ -23,8 +24,13 @@ namespace ApplicationCore {
             "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
             pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
 
-        frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList)
-        .SetDisableDepthWrite();
+        frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
+
+        if (GlobalVariables::RenderingOptions::PreformDepthPrePass)
+        {
+            frowardEffect->SetDisableDepthWrite();
+        }
+
         effects[EEffectType::ForwardShader] = std::move(frowardEffect);
 
         //==============================================================================
@@ -38,8 +44,11 @@ namespace ApplicationCore {
         transparentEffect
             ->SetTopology(vk::PrimitiveTopology::eTriangleList)
             .EnableAdditiveBlending()
-            .SetDisableDepthWrite()
             .SetDepthOpLessEqual();
+        if (GlobalVariables::RenderingOptions::PreformDepthPrePass)
+        {
+            transparentEffect->SetDisableDepthWrite();
+        }
 
 
         effects[EEffectType::AplhaBlend] = std::move(transparentEffect);
@@ -74,7 +83,6 @@ namespace ApplicationCore {
             .SetPolygonLine()
             .SetLineWidth(2)
             .SetVertexInputMode(EVertexInput::PositionOnly)
-            .SetDisableDepthWrite()
             .SetDepthOpLessEqual();
 
         effects[EEffectType::DebugLine] = std::move(debugLine);
@@ -92,9 +100,7 @@ namespace ApplicationCore {
             ->SetStencilTestOutline()
               .SetVertexInputMode(EVertexInput::PositionOnly)
               .SetDisableDepthTest()
-             .SetDisableDepthWrite()
-             .SetDepthOpLessEqual()
-        ;
+             .SetDisableDepthWrite();
 
         effects[EEffectType::Outline] = std::move(outline);
 
@@ -111,9 +117,12 @@ namespace ApplicationCore {
         .SetPolygonLine()
         .SetVertexInputMode(EVertexInput::PositionOnly)
         .SetTopology(vk::PrimitiveTopology::eLineList)
-        .SetDisableDepthWrite()
-        //.SetDepthOpLessEqual()
+        .SetDepthOpLessEqual()
         ;
+        if (GlobalVariables::RenderingOptions::PreformDepthPrePass)
+        {
+            debugShapes->SetDisableDepthWrite();
+        }
 
         effects[EEffectType::DebugLine] = std::move(debugShapes);
 
@@ -131,8 +140,6 @@ namespace ApplicationCore {
             .SetDisableDepthWrite()
             .SetDepthOpLessEqual()
             .DisableStencil()
-            .SetDisableDepthWrite()
-            //.SetDepthOpLessEqual()
         ;
 
 

@@ -112,7 +112,7 @@ void Application::Init()
 
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
 
-    ApplicationCore::LoadConfig(*m_client, *m_uiContext);
+    ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 
 }
 
