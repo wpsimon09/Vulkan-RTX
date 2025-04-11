@@ -9,7 +9,7 @@
 #include "Application/Utils/ApplicationUtils.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
-#include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
+#include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 
@@ -35,7 +35,7 @@
 namespace Renderer {
     RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance& instance,const VulkanCore::VDevice& device,
         const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-         VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
+         VulkanUtils::VResourceGroupManager& pushDescriptorManager,
          VEditor::UIContext &uiContext)
     : m_device(device), m_uniformBufferManager(uniformBufferManager), m_pushDescriptorSetManager(pushDescriptorManager), m_renderContext(), m_uiContext(uiContext), m_transferSemapohore(device.GetTransferOpsManager().GetTransferSemaphore())
     {

@@ -24,14 +24,14 @@
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
-#include "Vulkan/Utils/VPushDescriptorManager/VDescriptorSetStructs.hpp"
+#include "Vulkan/Utils/VResrouceGroup/VDescriptorSetStructs.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 
 namespace Renderer
 {
     SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device,
-                                 VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width,
+                                 VulkanUtils::VResourceGroupManager& pushDescriptorManager, int width,
                                  int height): BaseRenderer(device),
                                               m_pushDescriptorManager(pushDescriptorManager),
                                               m_device(device)
@@ -72,7 +72,7 @@ namespace Renderer
         {
             case VulkanUtils::EDescriptorLayoutStruct::Basic:
                 {
-                    auto& basicEffecResourceGroup = std::get<VulkanUtils::BasicDescriptorSet>(drawCall.effect->GetEffectUpdateStruct());
+                    auto& basicEffecResourceGroup = std::get<VulkanUtils::BasicDescriptorSet>(drawCall.effect->GetResrouceGroupStructVariant());
                     basicEffecResourceGroup.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
                     basicEffecResourceGroup.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
 
@@ -84,7 +84,7 @@ namespace Renderer
                 }
             case VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture:
                 {
-                    auto& unlitSingleTextureResrouceGroup = std::get<VulkanUtils::UnlitSingleTexture>(drawCall.effect->GetEffectUpdateStruct());;
+                    auto& unlitSingleTextureResrouceGroup = std::get<VulkanUtils::UnlitSingleTexture>(drawCall.effect->GetResrouceGroupStructVariant());;
                     unlitSingleTextureResrouceGroup.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
                     unlitSingleTextureResrouceGroup.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
 
@@ -108,7 +108,7 @@ namespace Renderer
                 }
             case VulkanUtils::EDescriptorLayoutStruct::ForwardShading:
                 {
-                    auto& forwardShadingResourceGroup = std::get<VulkanUtils::ForwardShadingDstSet>(drawCall.effect->GetEffectUpdateStruct());
+                    auto& forwardShadingResourceGroup = std::get<VulkanUtils::ForwardShadingDstSet>(drawCall.effect->GetResrouceGroupStructVariant());
                     forwardShadingResourceGroup.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
                     forwardShadingResourceGroup.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];;
                     forwardShadingResourceGroup.buffer3 = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
@@ -244,7 +244,7 @@ namespace Renderer
                         currentIndexBuffer = drawCall.second.indexData;
                     }
 
-                    auto& update = std::get<VulkanUtils::BasicDescriptorSet>(m_depthPrePassEffect->GetEffectUpdateStruct());
+                    auto& update = std::get<VulkanUtils::BasicDescriptorSet>(m_depthPrePassEffect->GetResrouceGroupStructVariant());
                     update.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
                     update.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.second.drawCallID)[currentFrameIndex];
 

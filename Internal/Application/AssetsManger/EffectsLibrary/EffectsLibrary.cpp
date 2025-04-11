@@ -10,12 +10,12 @@
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
-#include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
+#include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 
 namespace ApplicationCore {
     EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device,
-        VulkanUtils::VPushDescriptorManager& pushDescriptorManager)
+        VulkanUtils::VResourceGroupManager& pushDescriptorManager)
     {
         auto frowardEffect = std::make_shared<VulkanUtils::VEffect>(
             device, "Forward lit",
@@ -93,7 +93,7 @@ namespace ApplicationCore {
               .SetVertexInputMode(EVertexInput::PositionOnly)
               .SetDisableDepthTest()
              .SetDisableDepthWrite()
-            //.SetDepthOpLessEqual()
+             .SetDepthOpLessEqual()
         ;
 
         effects[EEffectType::Outline] = std::move(outline);

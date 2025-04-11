@@ -10,25 +10,25 @@
 namespace VulkanUtils
 {
         VEffect::VEffect(const VulkanCore::VDevice& device,const std::string& name, const VulkanCore::VShader& shader,
-                         std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet): m_device(device), m_descriptorSet(descriptorSet), m_name(name)
+                         std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& shaderResourceGroup): m_device(device), m_resourceGroup(shaderResourceGroup), m_name(name)
         {
             m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
-                device, shader,m_descriptorSet->GetLayout());
+                device, shader,m_resourceGroup->GetDescriptorSetLayout());
             m_pipeline->Init();
 
-            m_descriptorSet->CreateDstUpdateInfo(*m_pipeline);
+            m_resourceGroup->CreateDstUpdateInfo(*m_pipeline);
 
             m_ID = EffectIndexCounter++;
     }
 
         VEffect::VEffect(const VulkanCore::VDevice& device,const std::string& name, const std::string& vertex, const std::string& fragment,
-            std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet):m_device(device), m_descriptorSet(descriptorSet), m_name(name), shader(std::in_place, device, vertex, fragment)
+            std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet):m_device(device), m_resourceGroup(descriptorSet), m_name(name), m_shader(std::in_place, device, vertex, fragment)
         {
             m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(
-               device, shader.value(), m_descriptorSet->GetLayout());
+               device, m_shader.value(), m_resourceGroup->GetDescriptorSetLayout());
             m_pipeline->Init();
 
-            m_descriptorSet->CreateDstUpdateInfo(*m_pipeline);
+            m_resourceGroup->CreateDstUpdateInfo(*m_pipeline);
 
             m_ID = EffectIndexCounter++;
         }
@@ -188,9 +188,9 @@ namespace VulkanUtils
             return m_name;
         }
 
-        DescriptorSetTemplateVariant& VEffect::GetEffectUpdateStruct()
+        DescriptorSetTemplateVariant& VEffect::GetResrouceGroupStructVariant()
         {
-            return m_descriptorSet->GetDstStruct();
+            return m_resourceGroup->GetResourceGroupStruct();
         }
 
         void VEffect::BuildEffect()
@@ -202,7 +202,7 @@ namespace VulkanUtils
             {
                 m_pipeline->SetCreatedPipeline(p);
             }
-            shader->DestroyExistingShaderModules();
+            m_shader->DestroyExistingShaderModules();
         }
 
         vk::PipelineLayout VEffect::GetPipelineLayout()
@@ -222,7 +222,7 @@ namespace VulkanUtils
 
         vk::DescriptorUpdateTemplate& VEffect::GetUpdateTemplate()
         {
-            return m_descriptorSet->GetUpdateTemplate();
+            return m_resourceGroup->GetUpdateTemplate();
         }
 
         unsigned short VEffect::EvaluateRenderingOrder()
@@ -237,6 +237,6 @@ namespace VulkanUtils
 
         EDescriptorLayoutStruct VEffect::GetLayoutStructType()
         {
-            return m_descriptorSet->GetLayoutStructTyoe();
+            return m_resourceGroup->GetResourceGroupStrucutureType();
         }
 } // VulkanUtils

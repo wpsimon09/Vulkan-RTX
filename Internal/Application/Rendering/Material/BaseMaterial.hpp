@@ -4,7 +4,7 @@
 
 #ifndef BASEMATERIAL_HPP
 #define BASEMATERIAL_HPP
-#include "Vulkan/Utils/VPushDescriptorManager/VDescriptorSetStructs.hpp"
+#include "Vulkan/Utils/VResrouceGroup/VDescriptorSetStructs.hpp"
 #include <memory>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>

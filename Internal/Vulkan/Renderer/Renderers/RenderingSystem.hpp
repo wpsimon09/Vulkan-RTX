@@ -51,7 +51,7 @@ namespace VulkanUtils
     class UIContext;
 
     class VUniformBufferManager;
-    class VPushDescriptorManager;
+    class VResourceGroupManager;
 }
 
 struct GlobalUniform;
@@ -63,7 +63,7 @@ public:
     RenderingSystem(const VulkanCore::VulkanInstance& instance,
                     const VulkanCore::VDevice& device,
                     const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                    VulkanUtils::VPushDescriptorManager& pushDescriptorManager,
+                    VulkanUtils::VResourceGroupManager& pushDescriptorManager,
                     VEditor::UIContext &uiContext);
 
     VulkanUtils::RenderContext* GetRenderContext() {return &m_renderContext;}
@@ -83,7 +83,7 @@ private:
     VEditor::UIContext &m_uiContext;
     LightStructs::SceneLightInfo* m_sceneLightInfo;
 
-    VulkanUtils::VPushDescriptorManager &m_pushDescriptorSetManager;
+    VulkanUtils::VResourceGroupManager &m_pushDescriptorSetManager;
     uint32_t m_currentImageIndex = 0;
     uint32_t m_currentFrameIndex = 0;
 

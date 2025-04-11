@@ -6,7 +6,7 @@
 #define VEFFECT_HPP
 #include <variant>
 
-#include "Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp"
+#include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 
 namespace Renderer
@@ -26,10 +26,10 @@ namespace VulkanUtils {
 
 class VEffect {
 public:
-    VEffect(const VulkanCore::VDevice& device,const std::string& name,  const VulkanCore::VShader& shader, std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet);
+    VEffect(const VulkanCore::VDevice& device,const std::string& name,  const VulkanCore::VShader& shader, std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& shaderResourceGroup);
 
     VEffect(const VulkanCore::VDevice& device,const std::string& name, const std::string& vertex, const std::string& fragment,
-            std::shared_ptr<VulkanUtils::VPushDescriptorSet>& descriptorSet);
+            std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet);
 
     //=======================================
     // Effect building
@@ -61,7 +61,7 @@ public:
     //=======================================
 
     std::string&                        GetName();
-    DescriptorSetTemplateVariant&       GetEffectUpdateStruct();
+    DescriptorSetTemplateVariant&       GetResrouceGroupStructVariant();
     void                                BuildEffect();
     vk::PipelineLayout                  GetPipelineLayout();
     void                                BindPipeline(const vk::CommandBuffer& cmdBuffer);
@@ -73,10 +73,10 @@ public:
 
 private:
     const VulkanCore::VDevice& m_device;
-    std::shared_ptr<VulkanUtils::VPushDescriptorSet> m_descriptorSet;
+    std::shared_ptr<VulkanUtils::VShaderResrouceGroup> m_resourceGroup;
     std::unique_ptr<VulkanCore::VGraphicsPipeline> m_pipeline;
     std::string m_name;
-    std::optional<VulkanCore::VShader> shader;
+    std::optional<VulkanCore::VShader> m_shader;
     int m_ID;
 
 private:

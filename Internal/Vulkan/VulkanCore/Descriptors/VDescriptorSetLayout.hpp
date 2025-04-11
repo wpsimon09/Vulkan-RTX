@@ -10,12 +10,12 @@
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include <vulkan/vulkan.hpp>
 
-#include "Vulkan/Utils/VPushDescriptorManager/VDescriptorSetStructs.hpp"
+#include "Vulkan/Utils/VResrouceGroup/VDescriptorSetStructs.hpp"
 
 
 namespace VulkanUtils
 {
-    class VPushDescriptorManager;
+    class VResourceGroupManager;
 }
 
 namespace VulkanCore
@@ -71,7 +71,7 @@ namespace VulkanCore
         std::optional<VulkanUtils::DescriptorSetTemplateVariant> m_descriptorSetTemplateStruct;
 
         friend class VulkanCore::VDescriptorSet;
-        friend class VulkanUtils::VPushDescriptorManager;
+        friend class VulkanUtils::VResourceGroupManager;
     };
 
 

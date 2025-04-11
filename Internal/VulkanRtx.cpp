@@ -81,7 +81,7 @@ void Application::Init()
     VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
     MathUtils::InitLTC();
 
-    m_pushDescriptorSetManager = std::make_unique<VulkanUtils::VPushDescriptorManager>(*m_vulkanDevice);
+    m_pushDescriptorSetManager = std::make_unique<VulkanUtils::VResourceGroupManager>(*m_vulkanDevice);
     m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice, *m_pushDescriptorSetManager);
     auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_effectsLibrary);
     m_client->MountAssetsManger(std::move(assetManger));

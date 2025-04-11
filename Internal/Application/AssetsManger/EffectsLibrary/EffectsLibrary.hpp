@@ -12,7 +12,7 @@
 namespace VulkanUtils
 {
     class VEffect;
-    class VPushDescriptorManager;
+    class VResourceGroupManager;
 }
 
 namespace Renderer
@@ -40,7 +40,7 @@ namespace ApplicationCore {
 
 class EffectsLibrary {
 public:
-    EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VPushDescriptorManager& pushDescriptorManager );
+    EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager );
     std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;
 
     std::shared_ptr<VulkanUtils::VEffect> GetEffect(EEffectType type);

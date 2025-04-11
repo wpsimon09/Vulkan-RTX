@@ -25,7 +25,7 @@ namespace VulkanCore
 namespace VulkanUtils
 {
     struct RenderContext;
-    class VPushDescriptorManager;
+    class VResourceGroupManager;
     class UIContext;
 }
 
@@ -39,7 +39,7 @@ namespace Renderer {
 class RenderTarget;
 class SceneRenderer: public Renderer::BaseRenderer{
 public:
-    SceneRenderer(const VulkanCore::VDevice& device,VulkanUtils::VPushDescriptorManager& pushDescriptorManager, int width, int height);
+    SceneRenderer(const VulkanCore::VDevice& device,VulkanUtils::VResourceGroupManager& pushDescriptorManager, int width, int height);
     void Render(int currentFrameIndex,
                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                 VulkanUtils::RenderContext* renderContext,
@@ -57,7 +57,7 @@ private:
 
     std::unique_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
 
-    VulkanUtils::VPushDescriptorManager& m_pushDescriptorManager;
+    VulkanUtils::VResourceGroupManager& m_pushDescriptorManager;
 
     VulkanUtils::RenderContext* m_renderContextPtr;
 

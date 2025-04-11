@@ -11,7 +11,7 @@
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include "vulkan/vulkan.hpp"
 #include "VDescriptorSetStructs.hpp"
-#include "VPushDescriptor.hpp"
+#include "VResrouceGroup.hpp"
 
 namespace VulkanCore
 {
@@ -30,14 +30,14 @@ namespace VulkanUtils {
 
 
 
-class VPushDescriptorManager {
+class VResourceGroupManager {
 public:
-    explicit VPushDescriptorManager(const VulkanCore::VDevice& device);
+    explicit VResourceGroupManager(const VulkanCore::VDevice& device);
 
     void AddUpdateEntry(uint32_t binding,size_t offset, size_t stride );
     void CreateUpdateTemplate(const VulkanCore::VGraphicsPipeline& pipeline);
 
-    std::shared_ptr<VPushDescriptorSet>& GetPushDescriptor(EDescriptorLayoutStruct layoutType){return m_pushDescriptors[layoutType];}
+    std::shared_ptr<VShaderResrouceGroup>& GetPushDescriptor(EDescriptorLayoutStruct layoutType){return m_pushDescriptors[layoutType];}
 
     VulkanUtils::DescriptorSetData& GetDescriptorSetDataStruct() { return m_descriptorSetData; };
 
@@ -49,7 +49,7 @@ private:
 
     VulkanUtils::DescriptorSetData m_descriptorSetData;
 
-    std::map<EDescriptorLayoutStruct, std::shared_ptr<VulkanUtils::VPushDescriptorSet>> m_pushDescriptors;
+    std::map<EDescriptorLayoutStruct, std::shared_ptr<VulkanUtils::VShaderResrouceGroup>> m_pushDescriptors;
 
 };
 

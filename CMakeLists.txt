@@ -74,8 +74,8 @@ set(SOURCES
         Internal/Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniform.cpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniform.hpp
-        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.cpp
-        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptorManager.hpp
+        Internal/Vulkan/Utils/VResrouceGroup/VResourceGroupManager.cpp
+        Internal/Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp
         External/stb_image/stb_image.cpp
         External/stb_image/stb_image_write.cpp
         Internal/Vulkan/VulkanCore/Samplers/VSamplers.hpp
@@ -181,11 +181,11 @@ set(SOURCES
         Internal/Vulkan/Global/RenderingOptions.hpp
         Internal/Vulkan/Global/EngineOptions.hpp
         Internal/Editor/EditorOptions.hpp
-        Internal/Vulkan/Utils/VPushDescriptorManager/VDescriptorSetStructs.hpp
-        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptor.hpp
+        Internal/Vulkan/Utils/VResrouceGroup/VDescriptorSetStructs.hpp
+        Internal/Vulkan/Utils/VResrouceGroup/VResrouceGroup.hpp
         Internal/Vulkan/Utils/VEffect/VEffect.cpp
         Internal/Vulkan/Utils/VEffect/VEffect.hpp
-        Internal/Vulkan/Utils/VPushDescriptorManager/VPushDescriptor.cpp
+        Internal/Vulkan/Utils/VResrouceGroup/VResrouceGroup.cpp
         Internal/Application/AssetsManger/EffectsLibrary/EffectsLibrary.cpp
         Internal/Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp
         Internal/Vulkan/Utils/VRenderingContext/VRenderingContext.cpp

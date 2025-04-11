@@ -21,16 +21,16 @@ namespace VulkanCore
 
 namespace VulkanUtils {
 
-class VPushDescriptorSet
+class VShaderResrouceGroup
 {
 public:
-    explicit VPushDescriptorSet(const VulkanCore::VDevice &device,const std::string& name, std::unique_ptr<VulkanCore::VDescriptorSetLayout> dstLayout);
+    explicit VShaderResrouceGroup(const VulkanCore::VDevice &device,const std::string& name, std::unique_ptr<VulkanCore::VDescriptorSetLayout> dstLayout);
 
 
-    DescriptorSetTemplateVariant& GetDstStruct()                               {return m_dstLayout->GetStructure();}
-    VulkanCore::VDescriptorSetLayout& GetLayout()                              {return *m_dstLayout; }
+    DescriptorSetTemplateVariant& GetResourceGroupStruct()                               {return m_dstLayout->GetStructure();}
+    VulkanCore::VDescriptorSetLayout& GetDescriptorSetLayout()                              {return *m_dstLayout; }
     std::string& GetName()                                                     {return m_name;}
-    EDescriptorLayoutStruct GetLayoutStructTyoe ()                             {return m_layoutStructType;}
+    EDescriptorLayoutStruct GetResourceGroupStrucutureType ()                             {return m_layoutStructType;}
 
     void CreateDstUpdateInfo(VulkanCore::VGraphicsPipeline& pipelineLayout);
     vk::DescriptorUpdateTemplate& GetUpdateTemplate()                          {return m_descriptorUpdateTemplate;}

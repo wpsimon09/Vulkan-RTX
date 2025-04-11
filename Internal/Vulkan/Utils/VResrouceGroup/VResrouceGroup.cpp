@@ -1,14 +1,14 @@
 //
 // Created by wpsimon09 on 20/03/25.
 //
-#include "VPushDescriptor.hpp"
+#include "VResrouceGroup.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 
-VulkanUtils::VPushDescriptorSet::VPushDescriptorSet(const VulkanCore::VDevice& device, const std::string& name,
+VulkanUtils::VShaderResrouceGroup::VShaderResrouceGroup(const VulkanCore::VDevice& device, const std::string& name,
     std::unique_ptr<VulkanCore::VDescriptorSetLayout> dstLayout):m_device(device), m_name(name), m_dstLayout(std::move(dstLayout))
 {
     std::visit([this](auto& templateStruct)
@@ -69,7 +69,7 @@ VulkanUtils::VPushDescriptorSet::VPushDescriptorSet(const VulkanCore::VDevice& d
         }, m_dstLayout->GetStructure());
 }
 
-void VulkanUtils::VPushDescriptorSet::AddUpdateEntry(uint32_t binding, size_t offset, size_t stride)
+void VulkanUtils::VShaderResrouceGroup::AddUpdateEntry(uint32_t binding, size_t offset, size_t stride)
 {
     assert(m_dstLayout->GetBindings().count(binding) == 1 && "Binding is not part of the descriptor layout !");
     vk::DescriptorUpdateTemplateEntry entry{};
@@ -83,7 +83,7 @@ void VulkanUtils::VPushDescriptorSet::AddUpdateEntry(uint32_t binding, size_t of
     m_descriptorTemplateEntries.push_back(entry);
 }
 
-void VulkanUtils::VPushDescriptorSet::CreateDstUpdateInfo(VulkanCore::VGraphicsPipeline& pipelineLayout)
+void VulkanUtils::VShaderResrouceGroup::CreateDstUpdateInfo(VulkanCore::VGraphicsPipeline& pipelineLayout)
 {
     Utils::Logger::LogInfo("Creating update template object....");
   //  assert(!m_descriptorTemplateEntries.empty() && "No template entries found");
@@ -101,7 +101,7 @@ void VulkanUtils::VPushDescriptorSet::CreateDstUpdateInfo(VulkanCore::VGraphicsP
     Utils::Logger::LogSuccess("Update template created !");
 }
 
-void VulkanUtils::VPushDescriptorSet::Destroy()
+void VulkanUtils::VShaderResrouceGroup::Destroy()
 {
     m_device.GetDevice().destroyDescriptorUpdateTemplate(m_descriptorUpdateTemplate);
     m_dstLayout->Destroy();
