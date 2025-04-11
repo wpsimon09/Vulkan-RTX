@@ -47,7 +47,7 @@ namespace Renderer {
         depthAttachmentInfo.imageView = m_depthAttachment.second->GetImageView();
         depthAttachmentInfo.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
         depthAttachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
-        depthAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
+        depthAttachmentInfo.storeOp = vk::AttachmentStoreOp::eStore;
         depthAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eNone;
         depthAttachmentInfo.clearValue.depthStencil.depth = 1.0f;
         depthAttachmentInfo.clearValue.depthStencil.stencil = 0.0f;

@@ -57,7 +57,8 @@ namespace Renderer
             "Shaders/Compiled/DepthPrePass.vert.spv","Shaders/Compiled/DepthPrePass.frag.spv",
             m_pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic)  );
         m_depthPrePassEffect
-            ->SetVertexInputMode(EVertexInput::PositionOnly);
+            ->SetVertexInputMode(EVertexInput::PositionOnly)
+            .SetDepthTestOpLess();
 
         m_depthPrePassEffect->BuildEffect();
 
@@ -245,9 +246,6 @@ namespace Renderer
                     update.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
                     update.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.second.drawCallID)[currentFrameIndex];
 
-                    // this fucking bugs me but i dont know how else can i use emty push descriptors other than passing garbage or irrelevant data
-                    //update.buffer3 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];;
-
                     cmdBuffer.pushDescriptorSetWithTemplateKHR(
                                     m_depthPrePassEffect->GetUpdateTemplate(),
                                     m_depthPrePassEffect->GetPipelineLayout(), 0,
@@ -268,17 +266,14 @@ namespace Renderer
             cmdBuffer.endRendering();
 
 
-            VulkanUtils::PlaceImageMemoryBarrier(m_renderTargets->GetDepthImage(currentFrameIndex), *m_commandBuffers[currentFrameIndex],
+            VulkanUtils::PlaceImageMemoryBarrier(
+                m_renderTargets->GetDepthImage(currentFrameIndex), *m_commandBuffers[currentFrameIndex],
                 vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eColorAttachmentOptimal,
                 vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::PipelineStageFlagBits::eEarlyFragmentTests,
                 vk::AccessFlagBits::eDepthStencilAttachmentWrite, vk::AccessFlagBits::eDepthStencilAttachmentRead
                 );
 
-
-
             m_renderingStatistics.DrawCallCount = drawCallCount;
-
-            //m_depthPrePassEffect.Destroy();
     }
 
 

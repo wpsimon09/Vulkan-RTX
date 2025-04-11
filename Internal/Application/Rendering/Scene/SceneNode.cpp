@@ -224,16 +224,18 @@ namespace ApplicationCore
 
             data.modelMatrix = m_transformation->GetModelMatrix();
             if (renderingContext->WireFrameRendering)
+            {
                 data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
+            }
             else if (m_mesh->m_currentMaterial->IsTransparent())
             {
+                data.inDepthPrePass = false;
                 data.effect = effectsLibrary.GetEffect(EEffectType::AplhaBlend);
             }
             else
             {
                 //data.effect = effectsLibrary.GetEffect(EEffectType::ForwardShader);
                 data.effect = m_mesh->GetMaterial()->GetEffect();
-                data.inDepthPrePass = true;
 
             }
 

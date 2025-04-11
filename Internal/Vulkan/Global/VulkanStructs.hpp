@@ -192,7 +192,7 @@ struct DrawCallData
 
     unsigned long key = 0;
 
-    bool inDepthPrePass = false;
+    bool inDepthPrePass = true;
     bool selected = false;
 
     ApplicationCore::BaseMaterial* material;

@@ -55,6 +55,7 @@ public:
     VEffect& SetPiplineNoMultiSampling();
     VEffect& SetNullVertexBinding();
     VEffect& DissableFragmentWrite();
+    VEffect& SetDepthTestOpLess();
 
 
     //=======================================
