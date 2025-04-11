@@ -42,7 +42,7 @@ namespace ApplicationCore {
             data.indexData = &m_mesh->GetMeshData()->indexData;
 
             data.effect = effectsLibrary.GetEffect(EEffectType::SkyBox);
-
+            data.inDepthPrePass = false;
             data.position = m_transformation->GetPosition();
             data.bounds = &m_mesh->GetMeshData()->bounds;
             data.material = dynamic_cast<SkyBoxMaterial*>(m_mesh->GetMaterial().get());

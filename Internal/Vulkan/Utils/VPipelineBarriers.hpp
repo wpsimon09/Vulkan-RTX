@@ -11,13 +11,23 @@
 
 namespace VulkanCore
 {
+    class VImage2;
     class VCommandBuffer;
     class VImage;
 }
 
 namespace VulkanUtils
 {
-    void PlaceImageMemoryBarrier(const VulkanCore::VCommandBuffer& cmdBuffer,const VulkanCore::VImage& image,vk::ImageLayout oldLayout, vk::ImageLayout newLayout,vk::PipelineStageFlags srcPipelineStage, vk::PipelineStageFlags dstPipelineStage,  vk::AccessFlags srcData, vk::AccessFlags dstData);
+    void PlaceImageMemoryBarrier(
+        VulkanCore::VImage2& image ,
+        VulkanCore::VCommandBuffer& commandBuffer,
+        vk::ImageLayout oldLayout,
+        vk::ImageLayout newLayout,
+        vk::PipelineStageFlags srcPipelineStage,
+        vk::PipelineStageFlags dstPipelineStage,
+        vk::AccessFlags srcData,
+        vk::AccessFlags dstData
+    );
 
     void PlacePipelineBarrier(const VulkanCore::VCommandBuffer& cmdBuffer, vk::PipelineStageFlags src,vk::PipelineStageFlags dst);
 }

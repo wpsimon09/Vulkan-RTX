@@ -246,12 +246,10 @@ void VulkanCore::VGraphicsPipeline::CreatePipelineLayout() {
 
 void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
 {
-    assert(!m_outputFormats.empty() && "Formats are emepty ");
     m_renderingCreateInfo.colorAttachmentCount = m_outputFormats.size();;
     m_renderingCreateInfo.pColorAttachmentFormats = m_outputFormats.data();
     m_renderingCreateInfo.depthAttachmentFormat = vk::Format::eD32SfloatS8Uint;
     m_renderingCreateInfo.stencilAttachmentFormat = vk::Format::eD32SfloatS8Uint;
-
 }
 
 

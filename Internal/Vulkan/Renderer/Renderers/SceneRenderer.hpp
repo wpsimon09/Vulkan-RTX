@@ -50,10 +50,13 @@ public:
 
 protected:
     void CreateRenderTargets(VulkanCore::VSwapChain* swapChain) override;
-    void RecordCommandBuffer(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager) override;
+    void DrawScene(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager) override;
 
 private:
     const VulkanCore::VDevice& m_device;
+
+    std::unique_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
+
     VulkanUtils::VPushDescriptorManager& m_pushDescriptorManager;
 
     VulkanUtils::RenderContext* m_renderContextPtr;
@@ -65,6 +68,8 @@ private:
 
     VulkanStructs::RenderingStatistics m_renderingStatistics;
 
+    bool m_depthPrePass = true;
+
     uint64_t m_frameCount = 0;
 
 private:
@@ -73,10 +78,7 @@ private:
                        const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
     void DepthPrePass(int currentFrameIndex,
-                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                VulkanUtils::RenderContext* renderContext,
-                VulkanCore::VTimelineSemaphore& renderingTimeLine,
-                VulkanCore::VTimelineSemaphore& transferSemaphore)
+                const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
     friend class VEditor::RenderingOptions;
 };

@@ -7,8 +7,7 @@ SLANGC_PATH = "/home/wpsimon09/SDKs/slang/bin/slangc" ##path to slanc compiler e
 def compile_shader(command, success_msg, fail_msg, verbose):
     try:
         subprocess.check_output(command, stderr=subprocess.STDOUT)
-        if verbose:
-            print(success_msg)
+        print(success_msg)
         return True
     except subprocess.CalledProcessError as e:
         print(fail_msg)
@@ -35,11 +34,10 @@ def compile_shaders(extension, folder, output_ext, extra_args=None, verbose=True
     if not found and verbose:
         print(f"(No *{extension} files in {folder})")
 
-def compile_env_shaders(verbose):
-    print("== ENV Generation ==")
-    for file in os.listdir("EnvGeneration"):
+def compile_boundled_shaders(dir ,verbose):
+    for file in os.listdir(dir):
         if file.endswith(".slang"):
-            path = os.path.join("EnvGeneration", file)
+            path = os.path.join(dir, file)
             name = os.path.splitext(file)[0]
             # Vertex
             compile_shader(
@@ -69,11 +67,20 @@ def main():
 
     os.makedirs("Compiled", exist_ok=True)
 
+    print("== Vertex shaders ==")
     compile_shaders(".vert.slang", "Vertex", ".spv", ["-allow-glsl", "-matrix-layout-column-major"], args.verbose)
+    
+    print("== Fragment shaders ==")
     compile_shaders(".frag.slang", "Fragment", ".spv", ["-allow-glsl", "-matrix-layout-column-major"], args.verbose)
+    
+    print("== Compute shaders ==")
     compile_shaders(".comp", "Compute", ".spv", ["-matrix-layout-column-major"], args.verbose)
 
-    compile_env_shaders(args.verbose)
+    print("== ENV Generation ==")
+    compile_boundled_shaders("EnvGeneration", args.verbose)
+
+    print("== Depth pre-pass ==")
+    compile_boundled_shaders("DepthPrePass", args.verbose)
 
 if __name__ == "__main__":
     main()

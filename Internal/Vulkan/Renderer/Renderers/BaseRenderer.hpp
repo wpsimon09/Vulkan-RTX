@@ -57,7 +57,7 @@ namespace Renderer
     protected:
 
         virtual void CreateRenderTargets(VulkanCore::VSwapChain* swapChain = nullptr) = 0;
-        virtual void RecordCommandBuffer(int currentFrameIndex,
+        virtual void DrawScene(int currentFrameIndex,
                                         const VulkanUtils::VUniformBufferManager& uniformBufferManager
                                         ) = 0;
 

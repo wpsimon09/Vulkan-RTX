@@ -159,9 +159,13 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
     dynamicRenderingFeatures.dynamicRendering = true;
 
+    vk::PhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT dynamicRenderingUnUsedAttachemnts;
+    dynamicRenderingUnUsedAttachemnts.dynamicRenderingUnusedAttachments = true;
+    dynamicRenderingUnUsedAttachemnts.pNext = &dynamicRenderingFeatures;
+
     vk::PhysicalDeviceVulkan12Features features;
     features.timelineSemaphore = true;
-    features.pNext = &dynamicRenderingFeatures;
+    features.pNext = &dynamicRenderingUnUsedAttachemnts;
 
     vk::PhysicalDeviceFeatures deviceFeatures{};
     deviceFeatures.fillModeNonSolid = true;
