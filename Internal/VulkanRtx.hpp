@@ -12,6 +12,11 @@
 #include "Editor/Views/Index.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
+namespace VulkanCore
+{
+    class VRayTracingBuilderKHR;
+}
+
 namespace ApplicationCore
 {
     class EffectsLibrary;
@@ -89,6 +94,7 @@ private:
     std::unique_ptr<class VEditor::Editor> m_editor;
     std::unique_ptr<class Renderer::RenderingSystem> m_renderingSystem;
     std::unique_ptr<class ApplicationCore::EffectsLibrary> m_effectsLibrary;
+    std::unique_ptr<class VulkanCore::VRayTracingBuilderKHR> m_rayTracingBuilder;
 
 };
 

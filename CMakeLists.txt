@@ -198,6 +198,10 @@ set(SOURCES
         Internal/Application/Rendering/Scene/SkyBoxNode.hpp
         Internal/Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.cpp
         Internal/Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp
+        Internal/Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.cpp
+        Internal/Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp
+        Internal/Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.cpp
+        Internal/Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp
 
 )
 
