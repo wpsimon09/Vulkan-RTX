@@ -48,6 +48,7 @@ public:
     void Reset();
     void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const ;
     void AddNode(std::shared_ptr<SceneNode> sceneNode) const;
+    void EnumarateMeshes(std::vector<std::shared_ptr<StaticMesh>>& outMeshes,  std::shared_ptr<SceneNode> sceneNode) ;
     AssetsManager& GetAssetsManager() const {return m_assetsManager;};
 
 public:
@@ -81,7 +82,7 @@ private:
     AssetsManager& m_assetsManager;
     glm::vec3 m_mousePositionWorldSpace  = {0.0f, 0.0f, 0.0F};
     std::shared_ptr<SceneNode> m_selectedSceneNode;
-
+    std::vector<std::shared_ptr<StaticMesh>> m_staticMeshes;
     std::shared_ptr<SkyBoxMaterial> m_currentSkyBox;
 
     LightStructs::SceneLightInfo m_sceneLightInfo;

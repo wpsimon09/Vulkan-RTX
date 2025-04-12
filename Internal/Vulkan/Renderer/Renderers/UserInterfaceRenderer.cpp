@@ -63,7 +63,7 @@ namespace Renderer
         std::vector<vk::Semaphore> signalSemaphores = {renderingTimeLine.GetSemaphore(), m_ableToPresentSemaphore[currentFrameIndex]->GetSyncPrimitive()};
 
         vk::SubmitInfo submitInfo;
-        auto next = renderingTimeLine.GetSemaphoreSubmitInfo(2, 4);
+        auto next = renderingTimeLine.GetSemaphoreSubmitInfo(2, 6);
 
         std::vector<uint64_t> waitValues = {renderingTimeLine.GetCurrentWaitValue(), 20};
         std::vector<uint64_t> signalValues = {renderingTimeLine.GetCurrentSignalValue(), 21};

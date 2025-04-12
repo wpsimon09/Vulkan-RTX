@@ -114,6 +114,7 @@ void Application::Init()
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
 
     m_rayTracingBuilder = std::make_unique<VulkanCore::VRayTracingBuilderKHR>(*m_vulkanDevice, m_client->GetScene());
+    m_rayTracingBuilder->BuildBLAS();
 
     ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 

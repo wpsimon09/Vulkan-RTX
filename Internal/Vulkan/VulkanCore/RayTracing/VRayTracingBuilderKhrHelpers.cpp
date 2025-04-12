@@ -15,14 +15,14 @@ VulkanCore::BLASInput VulkanCore::StaticMeshToBLASInput(std::shared_ptr<Applicat
     vk::DeviceAddress vertexAddress = mesh->GetMeshData()->vertexData.bufferAddress;
     vk::DeviceAddress indexAddress = mesh->GetMeshData()->indexData.bufferAddress;
 
-    uint32_t maxPrimitiveCount = (mesh->GetMeshData()->indexData.size() / sizeof(uint32_t)) / 3;
+    uint32_t maxPrimitiveCount = (mesh->GetMeshData()->indexData.size/ sizeof(uint32_t)) / 3;
 
     vk::AccelerationStructureGeometryTrianglesDataKHR triangles;
     // vertices
     triangles.vertexFormat = vk::Format::eR32G32B32Sfloat;
     triangles.vertexData.deviceAddress = vertexAddress;
     triangles.vertexStride = sizeof(ApplicationCore::Vertex);
-    triangles.maxVertex = (mesh->GetMeshData()->vertexData.size() / sizeof(ApplicationCore::Vertex)) - 1;
+    triangles.maxVertex = (mesh->GetMeshData()->vertexData.size/ sizeof(ApplicationCore::Vertex)) - 1;
 
     // indices
     triangles.indexData.deviceAddress = mesh->GetMeshData()->indexData.bufferAddress;
@@ -47,7 +47,7 @@ VulkanCore::BLASInput VulkanCore::StaticMeshToBLASInput(std::shared_ptr<Applicat
     BLASInput input;
     input.asGeometry.emplace_back(asGeometry);
     input.asBuildOffSetInfo.emplace_back(asBuildOffsetInfo);
-    return input;
 
+    return input;
 }
 

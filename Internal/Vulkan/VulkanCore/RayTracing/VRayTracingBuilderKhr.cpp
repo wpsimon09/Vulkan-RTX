@@ -4,15 +4,27 @@
 
 #include "VRayTracingBuilderKhr.hpp"
 
+#include "VRayTracingBuilderKhrHelpers.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 
 namespace VulkanCore {
     VRayTracingBuilderKHR::VRayTracingBuilderKHR(const VulkanCore::VDevice& device, ApplicationCore::Scene& scene): m_device(device), m_scene(scene)
     {
-        for (auto& mesh : m_scene.GetAssetsManager().GetMeshes())
+
+    }
+
+    void VRayTracingBuilderKHR::BuildBLAS()
+    {
+        std::vector<std::shared_ptr<ApplicationCore::StaticMesh>> meshes;
+        m_scene.EnumarateMeshes(meshes, m_scene.GetRootNode());
+        for (auto& mesh : meshes)
         {
-            // store the
+            auto blas = StaticMeshToBLASInput(mesh);
+
+            BLASEntry entry;
+            entry.input = std::move(blas);
+            m_blasEntries.emplace_back(std::move(entry));
         }
     }
 } // VulkanCore

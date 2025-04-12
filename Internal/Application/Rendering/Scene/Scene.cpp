@@ -36,6 +36,7 @@ namespace ApplicationCore {
 
     void Scene::Update()
     {
+        if (!m_staticMeshes.empty()) {return m_staticMeshes.clear();}
         m_root->Update();
     }
 
@@ -82,6 +83,16 @@ namespace ApplicationCore {
         m_root->AddChild(sceneNode);
     }
 
+    void Scene::EnumarateMeshes(std::vector<std::shared_ptr<StaticMesh>>& outMeshes,
+        std::shared_ptr<SceneNode> sceneNode)
+    {
+        if (sceneNode->HasMesh()) {outMeshes.emplace_back(sceneNode->GetMesh());}
+        for (auto &child : sceneNode->GetChildrenByRef())
+        {
+            EnumarateMeshes(outMeshes, child);
+        }
+    }
+
 
     void Scene::BuildDefaultScene()
     {
@@ -89,6 +100,7 @@ namespace ApplicationCore {
         // Create materials
         Utils::Logger::LogSuccessClient("Default scene build");
     }
+
 
     void Scene::AddCubeToScene() const
     {
@@ -181,7 +193,6 @@ namespace ApplicationCore {
             Utils::Logger::LogErrorClient("Maximun number of Area lights, 4,  reached !");
         }
     }
-
 
     void Scene::PreformRayCast(glm::vec2 mousePosition)
     {

@@ -25,6 +25,12 @@ namespace VulkanCore
         std::vector<vk::AccelerationStructureBuildRangeInfoKHR> asBuildOffSetInfo;
     };
 
+    struct BLASEntry
+    {
+        BLASInput input;
+
+    };
+
     /**
      * This class will act as a Top level AS according to NVIDIA tutorial, so i might redo it later
      *
@@ -33,11 +39,12 @@ namespace VulkanCore
     {
     public:
         VRayTracingBuilderKHR(const VulkanCore::VDevice& device, ApplicationCore::Scene& scene);
-
+        void BuildBLAS();
     private:
         const VulkanCore::VDevice& m_device;
         ApplicationCore::Scene& m_scene;
-        BLASInput m_blasInput;
+        std::vector<BLASEntry> m_blasEntries;
+
     };
 } // VulkanCore
 
