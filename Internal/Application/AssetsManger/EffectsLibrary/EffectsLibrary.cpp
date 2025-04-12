@@ -97,10 +97,10 @@ namespace ApplicationCore {
 
         outline
             //->SetC()
-            ->SetStencilTestOutline()
+             ->SetStencilTestOutline()
               .SetVertexInputMode(EVertexInput::PositionOnly)
-              .SetDisableDepthTest()
-             .SetDisableDepthWrite();
+              .SetDepthOpAllways()
+              ;
 
         effects[EEffectType::Outline] = std::move(outline);
 

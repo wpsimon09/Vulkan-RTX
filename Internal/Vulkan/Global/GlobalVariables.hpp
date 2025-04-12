@@ -32,6 +32,9 @@ namespace GlobalVariables {
       static_cast<const char *>(VK_KHR_SWAPCHAIN_EXTENSION_NAME),
       static_cast<const char *>(VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME),
       static_cast<const char *>(VK_KHR_DYNAMIC_RENDERING_LOCAL_READ_EXTENSION_NAME),
+      static_cast<const char *>(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME),
+      static_cast<const char *>(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME),
+      static_cast<const char *>(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME),
 
     };
 

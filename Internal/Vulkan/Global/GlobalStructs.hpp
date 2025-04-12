@@ -50,12 +50,14 @@ namespace GlobalVariables::GlobalStructs
     inline DesiredDeviceFeatures secondaryDeviceFeatures = {
         .deviceType = vk::PhysicalDeviceType::eIntegratedGpu,
         .deviceFeatures = vk::PhysicalDeviceFeatures{}
-                        .setSamplerAnisotropy(VK_TRUE),
+                        .setSamplerAnisotropy(VK_TRUE)
+
 
     };
 
     inline vk::PhysicalDeviceProperties GpuProperties = {};
     inline vk::PhysicalDeviceMemoryProperties GpuMemoryProperties = {};
+
 }
 
 #endif //GLOBALSTRUCTS_HPP

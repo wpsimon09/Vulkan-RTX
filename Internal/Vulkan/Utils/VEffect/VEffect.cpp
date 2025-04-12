@@ -182,6 +182,12 @@ namespace VulkanUtils
             return  *this;
         }
 
+        VEffect& VEffect::SetDepthOpAllways()
+        {
+            m_pipeline->m_depthStencil.depthCompareOp = vk::CompareOp::eAlways;
+            return *this;
+        }
+
 
         std::string& VEffect::GetName()
         {

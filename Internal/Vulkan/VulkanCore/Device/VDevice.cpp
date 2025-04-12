@@ -163,14 +163,24 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     dynamicRenderingUnUsedAttachemnts.dynamicRenderingUnusedAttachments = true;
     dynamicRenderingUnUsedAttachemnts.pNext = &dynamicRenderingFeatures;
 
-    vk::PhysicalDeviceVulkan12Features features;
-    features.timelineSemaphore = true;
-    features.pNext = &dynamicRenderingUnUsedAttachemnts;
+    vk::PhysicalDeviceVulkan12Features physicalDeviceVulkan12Features;
+    physicalDeviceVulkan12Features.timelineSemaphore = true;
+    physicalDeviceVulkan12Features.pNext = &dynamicRenderingUnUsedAttachemnts;
+
+    vk::PhysicalDeviceAccelerationStructureFeaturesKHR GpuAccelerationStrucutreFeatures = {};
+    GpuAccelerationStrucutreFeatures.accelerationStructure = true;
+    GpuAccelerationStrucutreFeatures.pNext = &physicalDeviceVulkan12Features;
+
+    vk::PhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingPipelineFeatures = {};
+    rayTracingPipelineFeatures.rayTracingPipeline = true;
+    rayTracingPipelineFeatures.pNext = &GpuAccelerationStrucutreFeatures;
+
 
     vk::PhysicalDeviceFeatures deviceFeatures{};
     deviceFeatures.fillModeNonSolid = true;
     deviceFeatures.samplerAnisotropy = true;
     deviceFeatures.wideLines = true;
+
 
 
     //create the logical device
@@ -195,7 +205,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     {
         deviceCreateInfo.enabledLayerCount = 0;
     }
-    deviceCreateInfo.pNext = &features;
+    deviceCreateInfo.pNext = &rayTracingPipelineFeatures;
 
     m_device = m_physicalDevice.createDevice(deviceCreateInfo);
     assert(m_device);

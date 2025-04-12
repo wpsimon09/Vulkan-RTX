@@ -56,6 +56,7 @@ public:
     VEffect& SetNullVertexBinding();
     VEffect& DissableFragmentWrite();
     VEffect& SetDepthOpLess();
+    VEffect& SetDepthOpAllways();
 
 
     //=======================================

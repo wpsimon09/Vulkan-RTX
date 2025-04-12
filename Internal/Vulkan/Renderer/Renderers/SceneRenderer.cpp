@@ -166,6 +166,7 @@ namespace Renderer
 
         renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
 
+
         m_depthPrePassEffect->BindPipeline(m_commandBuffers[currentFrameIndex]->GetCommandBuffer());
 
 
@@ -219,12 +220,12 @@ namespace Renderer
         //=================================================
         // RECORD OPAQUE DRAW CALLS
         //=================================================
+        cmdBuffer.setStencilTestEnable(true);
         for (auto& drawCall: m_renderContextPtr->drawCalls)
         {
 
             if (drawCall.second.inDepthPrePass)
             {
-                    cmdBuffer.setStencilTestEnable(false);
 
                     //================================================================================================
                     // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
