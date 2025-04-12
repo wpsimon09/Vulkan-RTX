@@ -31,6 +31,7 @@ namespace VulkanCore
      */
     class VRayTracingBuilderKHR
     {
+    public:
         VRayTracingBuilderKHR(const VulkanCore::VDevice& device, ApplicationCore::Scene& scene);
 
     private:

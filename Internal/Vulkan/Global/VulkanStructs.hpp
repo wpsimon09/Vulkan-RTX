@@ -112,6 +112,7 @@ namespace VulkanStructs
         vk::Buffer buffer;
         int ID;
         int BufferID;
+        vk::DeviceAddress bufferAddress;
 
         bool operator==(const GPUSubBufferInfo& other) const
         {
@@ -143,6 +144,7 @@ namespace VulkanStructs
 
         vk::Buffer bufferVK;
         vk::BufferUsageFlags usageFlags;
+        vk::DeviceAddress bufferAddress;
         VkBuffer bufferVMA;
         VmaAllocation allocationVMA;
 

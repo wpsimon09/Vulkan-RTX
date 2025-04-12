@@ -181,6 +181,12 @@ void VulkanCore::VDevice::CreateLogicalDevice()
 
     vk::PhysicalDeviceVulkan12Features physicalDeviceVulkan12Features;
     physicalDeviceVulkan12Features.timelineSemaphore = true;
+    physicalDeviceVulkan12Features.bufferDeviceAddress = true;
+    // used in fore frame captures....
+    if (GlobalState::ValidationLayersEnabled)
+    {
+        physicalDeviceVulkan12Features.bufferDeviceAddressCaptureReplay = true;
+    }
     physicalDeviceVulkan12Features.pNext = &dynamicRenderingUnUsedAttachemnts;
 
     vk::PhysicalDeviceAccelerationStructureFeaturesKHR GpuAccelerationStrucutreFeatures = {};
@@ -190,6 +196,8 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     vk::PhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingPipelineFeatures = {};
     rayTracingPipelineFeatures.rayTracingPipeline = true;
     rayTracingPipelineFeatures.pNext = &GpuAccelerationStrucutreFeatures;
+
+
 
 
     vk::PhysicalDeviceFeatures deviceFeatures{};
@@ -247,6 +255,7 @@ void VulkanCore::VDevice::CreateVmaAllocator(const VulkanCore::VulkanInstance& i
     allocatorInfo.physicalDevice = m_physicalDevice;
     allocatorInfo.device = m_device;
     allocatorInfo.instance = instance.GetInstance();
+    allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
     assert(vmaCreateAllocator(&allocatorInfo, &m_vmaAllocator) == VK_SUCCESS);
     Utils::Logger::LogSuccess("Successfully created Vulkan Memory Allocator instance");
 }

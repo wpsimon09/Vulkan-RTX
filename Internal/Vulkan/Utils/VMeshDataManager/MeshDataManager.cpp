@@ -84,7 +84,8 @@ namespace VulkanCore {
             .offset = m_currentVertexBuffer->currentOffset,
             .buffer = m_currentVertexBuffer->bufferVK,
             .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1),
-            .BufferID = m_currentVertexBuffer->ID
+            .BufferID = m_currentVertexBuffer->ID,
+            .bufferAddress = m_currentVertexBuffer->bufferAddress
         };
         m_currentVertexBuffer->currentOffset += vertices.size() * sizeof(ApplicationCore::Vertex);
 
@@ -112,7 +113,8 @@ namespace VulkanCore {
             .offset = m_currentVertexBuffer_BB->currentOffset,
             .buffer = m_currentVertexBuffer_BB->bufferVK,
             .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1),
-            .BufferID = m_currentVertexBuffer_BB->ID
+            .BufferID = m_currentVertexBuffer_BB->ID,
+            .bufferAddress = m_currentVertexBuffer_BB->bufferAddress
         };
 
         m_currentVertexBuffer_BB->currentOffset += Vertices_BB.size() * sizeof(ApplicationCore::Vertex);
@@ -132,7 +134,8 @@ namespace VulkanCore {
             .offset = m_currentIndexBuffer->currentOffset,
             .buffer = m_currentIndexBuffer->bufferVK,
             .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1),
-            .BufferID = m_currentIndexBuffer->ID
+            .BufferID = m_currentIndexBuffer->ID,
+            .bufferAddress = m_currentIndexBuffer->bufferAddress
         };
 
         m_currentIndexBuffer->currentOffset += indices.size() * sizeof(uint32_t);
@@ -319,12 +322,16 @@ namespace VulkanCore {
         Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
         VulkanStructs::GPUBufferInfo newVertexBuffer{};
         newVertexBuffer.size = GlobalVariables::EngineOptions::VertexBufferChunkSize;
-        newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc;
+        newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress;
         CreateBuffer(newVertexBuffer);
         m_vertexBuffers.emplace_back(newVertexBuffer);
         m_currentVertexBuffer = &m_vertexBuffers.back();
         m_currentVertexBuffer->ID = static_cast<int>(m_vertexBuffers.size());
 
+        // get buffer device adress for ray tracing
+        vk::BufferDeviceAddressInfo bufferAdressInfo;
+        bufferAdressInfo.buffer = m_currentVertexBuffer->bufferVK;
+        m_currentVertexBuffer->bufferAddress = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
 
         if (createForBoundingBox)
         {
@@ -348,11 +355,16 @@ namespace VulkanCore {
         Utils::Logger::LogInfo("Allocating NEW 16MB IndexBuffer");
         VulkanStructs::GPUBufferInfo newIndexBuffer{};
         newIndexBuffer.size = GlobalVariables::EngineOptions::IndexBufferChunkSize;
-        newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc;
+        newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress;
         CreateBuffer(newIndexBuffer);
         m_indexBuffers.emplace_back(newIndexBuffer);
         m_currentIndexBuffer = &m_indexBuffers.back();
         m_currentIndexBuffer->ID = m_indexBuffers.size();
+
+        // get buffer device adress for ray tracing
+        vk::BufferDeviceAddressInfo bufferAdressInfo;
+        bufferAdressInfo.buffer = m_currentIndexBuffer->bufferVK;
+        m_currentIndexBuffer->bufferAddress = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
     }
 
     void MeshDatatManager::SelectMostSuitableBuffer(EBufferType bufferType, vk::DeviceSize subAllocationSize)

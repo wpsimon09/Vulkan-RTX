@@ -267,6 +267,17 @@ namespace VEditor
                 ImGui::TextUnformatted("Index buffer ID");
                 ImGui::SameLine();
                 ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->indexData.BufferID).c_str());
+
+                ImGui::TextUnformatted("Vertex buffer address");
+                ImGui::SameLine();
+                ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->vertexData.bufferAddress).c_str());
+
+                ImGui::TextUnformatted("Index buffer address");
+                ImGui::SameLine();
+                ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->indexData.bufferAddress).c_str());
+
+
+
             }
             ImGui::EndTooltip();
         }
