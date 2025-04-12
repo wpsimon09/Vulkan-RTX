@@ -53,10 +53,13 @@ namespace GlobalVariables::GlobalStructs
                         .setSamplerAnisotropy(VK_TRUE)
 
 
+
     };
 
-    inline vk::PhysicalDeviceProperties GpuProperties = {};
-    inline vk::PhysicalDeviceMemoryProperties GpuMemoryProperties = {};
+    inline vk::PhysicalDeviceProperties2 GpuProperties = {};
+    inline vk::PhysicalDeviceMemoryProperties2 GpuMemoryProperties = {};
+    inline vk::PhysicalDeviceAccelerationStructurePropertiesKHR AccelerationStructProperties = {};
+    inline vk::PhysicalDeviceRayTracingPipelinePropertiesKHR RayTracingPipelineProperties = {};
 
 }
 

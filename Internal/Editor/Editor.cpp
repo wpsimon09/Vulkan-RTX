@@ -115,7 +115,7 @@ namespace VEditor
             ImGui::SeparatorText("GPU");
             ImGui::Text("GPU:");
             ImGui::SameLine();
-            ImGui::Text(GlobalVariables::GlobalStructs::GpuProperties.deviceName);
+            ImGui::Text(GlobalVariables::GlobalStructs::GpuProperties.properties.deviceName);
             ImGui::Button(ICON_FA_INFO);
             if (ImGui::BeginItemTooltip())
             {
@@ -124,9 +124,9 @@ namespace VEditor
                 float used;
 
 
-                for (uint32_t i = 0; i < GlobalVariables::GlobalStructs::GpuMemoryProperties.memoryHeapCount; ++i) {
-                    if (GlobalVariables::GlobalStructs::GpuMemoryProperties.memoryHeaps[i].flags && VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
-                        available += GlobalVariables::GlobalStructs::GpuMemoryProperties.memoryHeaps[i].size;
+                for (uint32_t i = 0; i < GlobalVariables::GlobalStructs::GpuMemoryProperties.memoryProperties.memoryHeapCount; ++i) {
+                    if (GlobalVariables::GlobalStructs::GpuMemoryProperties.memoryProperties.memoryHeaps[i].flags && VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
+                        available += GlobalVariables::GlobalStructs::GpuMemoryProperties.memoryProperties.memoryHeaps[i].size;
                         used += m_vmaStats->memoryHeap[i].statistics.allocationBytes;
                     }
                 }

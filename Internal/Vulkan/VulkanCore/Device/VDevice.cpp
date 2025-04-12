@@ -79,8 +79,23 @@ vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice()
                     "Going to use: " + std::string(physicalDevice.getProperties().deviceName) +
                     " device, terminating next searches");
 
-                GlobalVariables::GlobalStructs::GpuProperties = physicalDevice.getProperties();
-                GlobalVariables::GlobalStructs::GpuMemoryProperties = physicalDevice.getMemoryProperties();
+
+                vk::PhysicalDeviceProperties2 physicalDeviceProperties;
+
+                vk::PhysicalDeviceRayTracingPipelinePropertiesKHR rayTracingPipelineProperties{};
+                vk::PhysicalDeviceAccelerationStructurePropertiesKHR accelerationStructureProperties{};
+                accelerationStructureProperties.pNext = &rayTracingPipelineProperties;
+                physicalDeviceProperties.pNext = &accelerationStructureProperties;
+
+                //GlobalVariables::GlobalStructs::GpuProperties.pNext = &rayTracingPipelineProperties;
+
+                physicalDevice.getProperties2(&physicalDeviceProperties);
+                GlobalVariables::GlobalStructs::GpuMemoryProperties = physicalDevice.getMemoryProperties2();
+
+                GlobalVariables::GlobalStructs::GpuProperties = physicalDeviceProperties;
+                GlobalVariables::GlobalStructs::RayTracingPipelineProperties = rayTracingPipelineProperties;
+                GlobalVariables::GlobalStructs::AccelerationStructProperties = accelerationStructureProperties;
+
                 return physicalDevice;
             }
         }
@@ -92,6 +107,7 @@ vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice()
         {
             Utils::Logger::LogError("Forcing the use of CPU !");
             Utils::Logger::LogSuccess("Going to use: " + std::string(device.getProperties().deviceName));
+
             GlobalVariables::GlobalStructs::GpuProperties = device.getProperties();
             GlobalVariables::GlobalStructs::GpuMemoryProperties = device.getMemoryProperties();
             return device;
@@ -261,7 +277,7 @@ void VulkanCore::VDevice::FetchMaxSampleCount()
 {
     auto& gpuProperteis = GlobalVariables::GlobalStructs::GpuProperties;
 
-    vk::SampleCountFlags maxSampleCount = gpuProperteis.limits.framebufferColorSampleCounts & gpuProperteis.limits.
+    vk::SampleCountFlags maxSampleCount = gpuProperteis.properties.limits.framebufferColorSampleCounts & gpuProperteis.properties.limits.
             framebufferDepthSampleCounts;
     if (!GlobalState::MSAA)
     {
