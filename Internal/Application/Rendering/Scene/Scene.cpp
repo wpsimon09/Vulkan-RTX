@@ -19,6 +19,8 @@
 #include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
+#include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
+#include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp"
 
 namespace ApplicationCore {
 
@@ -91,6 +93,21 @@ namespace ApplicationCore {
         {
             EnumarateMeshes(outMeshes, child);
         }
+    }
+
+    std::vector<VulkanCore::BLASInput> Scene::GetBLASInputs()
+    {
+        std::vector<std::shared_ptr<ApplicationCore::StaticMesh>> meshes;
+        EnumarateMeshes(meshes, m_root );
+
+        std::vector<VulkanCore::BLASInput> inputs;
+        inputs.reserve(meshes.size());
+        for (auto &m : meshes)
+        {
+            inputs.emplace_back(VulkanCore::StaticMeshToBLASInput(m));
+        }
+
+        return inputs;
     }
 
 

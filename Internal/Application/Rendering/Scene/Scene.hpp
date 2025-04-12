@@ -11,6 +11,11 @@
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Lightning/LightStructs.hpp"
 
+namespace VulkanCore
+{
+    struct BLASInput;
+}
+
 namespace ApplicationCore
 {
     class SkyBoxMaterial;
@@ -49,6 +54,7 @@ public:
     void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const ;
     void AddNode(std::shared_ptr<SceneNode> sceneNode) const;
     void EnumarateMeshes(std::vector<std::shared_ptr<StaticMesh>>& outMeshes,  std::shared_ptr<SceneNode> sceneNode) ;
+    std::vector<VulkanCore::BLASInput> GetBLASInputs()
     AssetsManager& GetAssetsManager() const {return m_assetsManager;};
 
 public:

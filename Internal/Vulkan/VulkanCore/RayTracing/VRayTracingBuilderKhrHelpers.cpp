@@ -34,6 +34,7 @@ VulkanCore::BLASInput VulkanCore::StaticMeshToBLASInput(std::shared_ptr<Applicat
     //specify that data passed to AS are OPAQUE and TRIANGULATE
     vk::AccelerationStructureGeometryKHR asGeometry;
     asGeometry.geometryType = vk::GeometryTypeKHR::eTriangles;
+    asGeometry.flags = vk::GeometryFlagBitsNV::eOpaque;
     asGeometry.geometry.triangles = triangles;
 
     //create range infos

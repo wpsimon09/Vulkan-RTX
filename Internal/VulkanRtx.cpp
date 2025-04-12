@@ -60,6 +60,7 @@
 
 #include "Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
+#include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp"
 
 Application::Application()
 {
@@ -113,8 +114,12 @@ void Application::Init()
 
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
 
-    m_rayTracingBuilder = std::make_unique<VulkanCore::VRayTracingBuilderKHR>(*m_vulkanDevice, m_client->GetScene());
-    m_rayTracingBuilder->BuildBLAS();
+    //===========================================
+    // BUILD Acceleration structures
+    m_rayTracingBuilder = std::make_unique<VulkanCore::VRayTracingBuilderKHR>(*m_vulkanDevice);
+
+    auto inputs = m_client->GetScene().GetBLASInputs();
+    m_rayTracingBuilder->BuildBLAS(inputs);
 
     ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 

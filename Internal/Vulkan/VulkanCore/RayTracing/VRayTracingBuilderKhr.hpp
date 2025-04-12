@@ -38,11 +38,10 @@ namespace VulkanCore
     class VRayTracingBuilderKHR
     {
     public:
-        VRayTracingBuilderKHR(const VulkanCore::VDevice& device, ApplicationCore::Scene& scene);
-        void BuildBLAS();
+        explicit VRayTracingBuilderKHR(const VulkanCore::VDevice& device);
+        void BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
     private:
         const VulkanCore::VDevice& m_device;
-        ApplicationCore::Scene& m_scene;
         std::vector<BLASEntry> m_blasEntries;
 
     };
