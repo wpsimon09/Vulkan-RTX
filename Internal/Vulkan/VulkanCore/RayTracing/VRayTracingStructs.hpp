@@ -7,51 +7,50 @@
 #include <vector>
 #include <vulkan/vulkan.hpp>
 
-namespace VulkanCore
-{
+namespace VulkanCore {
     class VDevice;
 }
 
-namespace VulkanCore::RTX
-{
-    struct BLASInput
-    {
+namespace VulkanCore::RTX {
+    struct BLASInput {
         std::vector<vk::AccelerationStructureGeometryKHR> asGeometry;
-        std::vector<vk::AccelerationStructureBuildRangeInfoKHR> asBuildOffSetInfo;
-        vk::BuildAccelerationStructureFlagsKHR                  flags{0};
+        std::vector<vk::AccelerationStructureBuildRangeInfoKHR>
+                asBuildOffSetInfo;
+        vk::BuildAccelerationStructureFlagsKHR flags{0};
     };
 
-    struct BLASEntry
-    {
+    struct BLASEntry {
         BLASInput input;
     };
 
-    struct AccelKHR
-    {
+    struct AccelKHR {
         vk::AccelerationStructureKHR as = nullptr;
         VkBuffer buffer = nullptr;
         vk::DeviceAddress address = {0};
     };
 
-    struct AccelerationStructBuildData
-    {
+    struct AccelerationStructBuildData {
         // what type of AS are we building
         std::optional<vk::AccelerationStructureTypeKHR> asType;
-        // build range so that we know where in vertex and index buffer the data for AS are
+        // build range so that we know where in vertex and index buffer the data
+        // for AS are
         std::vector<vk::AccelerationStructureGeometryKHR> asGeometry;
         //
-        std::vector<vk::AccelerationStructureBuildRangeInfoKHR> asBuildRangeInfo;
+        std::vector<vk::AccelerationStructureBuildRangeInfoKHR>
+                asBuildRangeInfo;
         vk::AccelerationStructureBuildGeometryInfoKHR asBuildGoemetryInfo;
         vk::AccelerationStructureBuildSizesInfoKHR asBuildSizesInfo;
 
-        void AddGeometry(const vk::AccelerationStructureGeometryKHR& g, const vk::AccelerationStructureBuildRangeInfoKHR& offset);
-        void AddGeometry(const  BLASInput& input, uint32_t index = 0);
+        void
+        AddGeometry(const vk::AccelerationStructureGeometryKHR& g,
+                    const vk::AccelerationStructureBuildRangeInfoKHR& offset);
+        void AddGeometry(const BLASInput& input, uint32_t index = 0);
 
         // returns size required to build on BLAS
-        vk::AccelerationStructureBuildSizesInfoKHR FinalizeGeometry(const VulkanCore::VDevice& device,vk::BuildAccelerationStructureFlagsKHR flags);
+        vk::AccelerationStructureBuildSizesInfoKHR
+        FinalizeGeometry(const VulkanCore::VDevice& device,
+                         vk::BuildAccelerationStructureFlagsKHR flags);
     };
-}
+} // namespace VulkanCore::RTX
 
-
-
-#endif //VRAYTRACINGSTRUCTS_HPP
+#endif // VRAYTRACINGSTRUCTS_HPP
