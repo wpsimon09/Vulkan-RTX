@@ -33,18 +33,24 @@ namespace VulkanCore::RTX {
         vk::DeviceSize maxScratchSize{0}; // find the largest scratch size
 
         std::vector<VulkanCore::RTX::AccelerationStructBuildData> asBuildData(nbBlas);
-        for (uint32_t i = 0; i<nbBlas; i++)
+            for (uint32_t i = 0; i<nbBlas; i++)
         {
             asBuildData[i].asType = vk::AccelerationStructureTypeKHR::eBottomLevel;
             asBuildData[i].asGeometry = m_blasEntries[i].input.asGeometry;
             asBuildData[i].asBuildRangeInfo = m_blasEntries[i].input.asBuildOffSetInfo;
 
             auto sizeInfo = asBuildData[i].FinalizeGeometry(m_device, inputs[i].flags | flags);
-            maxScratchSize = std::max(maxScratchSize, sizeInfo.buildScratchSize);
+           maxScratchSize = std::max(maxScratchSize, sizeInfo.buildScratchSize);
         }
 
+        vk:VkDeviceSize hintMaxBudget{256'000'000};
+        bool hasCompaction = hasFlag(static_cast<VkFlags>(flags), VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR);
 
+        VulkanCore::VBuffer blasScratchBuffer(m_device, "BLAS Scratch buffer");
+        blasScratchBuffer.CreateBuffer(maxScratchSize,
+            static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer));
 
+        uint32_t minAlignment = GlobalVariables::GlobalStructs::AccelerationStructProperties.minAccelerationStructureScratchOffsetAlignment;
     }
 
 } // VulkanCore

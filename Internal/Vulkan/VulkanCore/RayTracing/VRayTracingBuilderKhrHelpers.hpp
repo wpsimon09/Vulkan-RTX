@@ -7,7 +7,7 @@
 #include <memory>
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
-
+#include <vulkan/vulkan.hpp>
 
 namespace ApplicationCore
 {
@@ -27,6 +27,9 @@ namespace VulkanCore::RTX{
      * @return build BLAS input for the given mesh
      */
     VulkanCore::RTX::BLASInput StaticMeshToBLASInput(std::shared_ptr<ApplicationCore::StaticMesh>& mesh, glm::mat4 matrix = glm::mat4(1.0f));
+
+    bool hasFlag(VkFlags item, VkFlags flag) { return (item & flag) == flag; }
+
 }
 
 #endif //VRAYTRACINGBUILDERKHRHELPERS_HPP

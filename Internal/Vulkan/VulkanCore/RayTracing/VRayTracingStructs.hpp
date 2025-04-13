@@ -26,6 +26,13 @@ namespace VulkanCore::RTX
         BLASInput input;
     };
 
+    struct AccelKHR
+    {
+        vk::AccelerationStructureKHR as = nullptr;
+        VkBuffer buffer = nullptr;
+        vk::DeviceAddress address = {0};
+    };
+
     struct AccelerationStructBuildData
     {
         // what type of AS are we building

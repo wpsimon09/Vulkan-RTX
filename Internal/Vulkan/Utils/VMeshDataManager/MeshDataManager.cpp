@@ -16,6 +16,7 @@
 
 #include "Vulkan/Global/EngineOptions.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 
@@ -305,6 +306,12 @@ namespace VulkanCore {
 
         vmaSetAllocationName(m_device.GetAllocator(), allocationInfo.allocationVMA, VulkanUtils::BufferUsageFlagToString(allocationInfo.usageFlags).c_str());
         Utils::Logger::LogSuccess("Buffer allocated successfully || SIZE: "+ std::to_string(allocationInfo.size) + " bytes || ");
+
+        bool hasCompaction = 
+
+        VulkanCore::VBuffer blasScratchBuffer(m_device, "Scratch buffer");
+
+        blasScratchBuffer.Create;
 
         allocationInfo.bufferVK = allocationInfo.bufferVMA;
     }
