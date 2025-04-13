@@ -6583,7 +6583,7 @@ void VmaDedicatedAllocationList::Unregister(VmaAllocation alloc)
     VmaMutexLockWrite lock(m_Mutex, m_UseMutex);
     m_AllocationList.Remove(alloc);
 }
-#endif // _VMA_DEDICATED_ALLOCATION_LIST_FUNCTIONS
+#endif // _VMA_DEDICATED_ALLOCATDION_LIST_FUNCTIONS
 #endif // _VMA_DEDICATED_ALLOCATION_LIST
 
 #ifndef _VMA_SUBALLOCATION

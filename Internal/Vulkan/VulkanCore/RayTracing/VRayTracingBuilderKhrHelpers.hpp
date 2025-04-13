@@ -8,24 +8,25 @@
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
 
+
 namespace ApplicationCore
 {
     class StaticMesh;
 }
 
-namespace VulkanCore
+namespace VulkanCore::RTX
 {
     struct BLASInput;
 }
 
-namespace VulkanCore{
+namespace VulkanCore::RTX{
     /**
      * Fills in the VkAccelerationStructureGeometryTrianglesDataKHR together with VkAccelerationStructureGeometryKHR VkAccelerationStructureBuildRangeInfoKHR
      * @param mesh mesh to convert
      * @param matrix model matrix of the bottom level AS
      * @return build BLAS input for the given mesh
      */
-    VulkanCore::BLASInput StaticMeshToBLASInput(std::shared_ptr<ApplicationCore::StaticMesh>& mesh, glm::mat4 matrix = glm::mat4(1.0f));
+    VulkanCore::RTX::BLASInput StaticMeshToBLASInput(std::shared_ptr<ApplicationCore::StaticMesh>& mesh, glm::mat4 matrix = glm::mat4(1.0f));
 }
 
 #endif //VRAYTRACINGBUILDERKHRHELPERS_HPP

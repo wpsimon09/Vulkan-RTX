@@ -14,6 +14,11 @@
 
 namespace VulkanCore
 {
+    namespace RTX
+    {
+        class VRayTracingBuilderKHR;
+    }
+
     class VRayTracingBuilderKHR;
 }
 
@@ -94,7 +99,7 @@ private:
     std::unique_ptr<class VEditor::Editor> m_editor;
     std::unique_ptr<class Renderer::RenderingSystem> m_renderingSystem;
     std::unique_ptr<class ApplicationCore::EffectsLibrary> m_effectsLibrary;
-    std::unique_ptr<class VulkanCore::VRayTracingBuilderKHR> m_rayTracingBuilder;
+    std::unique_ptr<class VulkanCore::RTX::VRayTracingBuilderKHR> m_rayTracingBuilder;
 
 };
 

@@ -4,7 +4,16 @@
 
 #ifndef VRAYTRACINGBUILDERKHR_HPP
 #define VRAYTRACINGBUILDERKHR_HPP
+#include <memory>
+
 #include "vulkan/vulkan.hpp"
+
+#include "VRayTracingStructs.hpp"
+
+namespace VulkanCore
+{
+    class VCommandBuffer;
+}
 
 namespace ApplicationCore
 {
@@ -13,23 +22,13 @@ namespace ApplicationCore
 
 namespace VulkanCore
 {
+    class VCommandPool;
     class VDevice;
 }
 
-namespace VulkanCore
+namespace VulkanCore::RTX
 {
     // each mesh will be stored in one of those
-    struct BLASInput
-    {
-        std::vector<vk::AccelerationStructureGeometryKHR> asGeometry;
-        std::vector<vk::AccelerationStructureBuildRangeInfoKHR> asBuildOffSetInfo;
-    };
-
-    struct BLASEntry
-    {
-        BLASInput input;
-
-    };
 
     /**
      * This class will act as a Top level AS according to NVIDIA tutorial, so i might redo it later
@@ -39,10 +38,12 @@ namespace VulkanCore
     {
     public:
         explicit VRayTracingBuilderKHR(const VulkanCore::VDevice& device);
-        void BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
+        void BuildBLAS(std::vector<RTX::BLASInput>& inputs, vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
     private:
         const VulkanCore::VDevice& m_device;
-        std::vector<BLASEntry> m_blasEntries;
+        std::vector<RTX::BLASEntry> m_blasEntries;
+        std::unique_ptr<VulkanCore::VCommandPool> m_cmdPool;
+        std::unique_ptr<VulkanCore::VCommandBuffer> m_cmdBuffer;
 
     };
 } // VulkanCore

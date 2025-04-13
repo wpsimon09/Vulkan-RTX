@@ -5,11 +5,13 @@
 #include "VRayTracingBuilderKhrHelpers.hpp"
 
 #include "VRayTracingBuilderKhr.hpp"
+#include "VRayTracingStructs.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 
-VulkanCore::BLASInput VulkanCore::StaticMeshToBLASInput(std::shared_ptr<ApplicationCore::StaticMesh>& mesh,
-                                                        glm::mat4 matrix)
+
+VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(std::shared_ptr<ApplicationCore::StaticMesh>& mesh,
+    glm::mat4 matrix)
 {
     // get the address of vertex buffer and indeex buffers
     vk::DeviceAddress vertexAddress = mesh->GetMeshData()->vertexData.bufferAddress;
@@ -51,4 +53,3 @@ VulkanCore::BLASInput VulkanCore::StaticMeshToBLASInput(std::shared_ptr<Applicat
 
     return input;
 }
-

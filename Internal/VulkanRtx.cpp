@@ -116,7 +116,7 @@ void Application::Init()
 
     //===========================================
     // BUILD Acceleration structures
-    m_rayTracingBuilder = std::make_unique<VulkanCore::VRayTracingBuilderKHR>(*m_vulkanDevice);
+    m_rayTracingBuilder = std::make_unique<VulkanCore::RTX::VRayTracingBuilderKHR>(*m_vulkanDevice);
 
     auto inputs = m_client->GetScene().GetBLASInputs();
     m_rayTracingBuilder->BuildBLAS(inputs);

@@ -202,6 +202,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp
         Internal/Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.cpp
         Internal/Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp
+        Internal/Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp
+        Internal/Vulkan/VulkanCore/RayTracing/VRayTracingStructs.cpp
 
 )
 

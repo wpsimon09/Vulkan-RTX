@@ -21,6 +21,7 @@
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp"
+#include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
 
 namespace ApplicationCore {
 
@@ -95,16 +96,16 @@ namespace ApplicationCore {
         }
     }
 
-    std::vector<VulkanCore::BLASInput> Scene::GetBLASInputs()
+    std::vector<VulkanCore::RTX::BLASInput> Scene::GetBLASInputs()
     {
         std::vector<std::shared_ptr<ApplicationCore::StaticMesh>> meshes;
         EnumarateMeshes(meshes, m_root );
 
-        std::vector<VulkanCore::BLASInput> inputs;
+        std::vector<VulkanCore::RTX::BLASInput> inputs;
         inputs.reserve(meshes.size());
         for (auto &m : meshes)
         {
-            inputs.emplace_back(VulkanCore::StaticMeshToBLASInput(m));
+            inputs.emplace_back(VulkanCore::RTX::StaticMeshToBLASInput(m));
         }
 
         return inputs;
