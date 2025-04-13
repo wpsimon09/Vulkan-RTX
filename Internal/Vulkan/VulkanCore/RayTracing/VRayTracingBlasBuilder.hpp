@@ -25,7 +25,7 @@ namespace RTX {
 class VRayTracingBlasBuilder
 {
 public:
-  VRayTracingBlasBuilder(const VulkanCore::VDevice& device);
+  explicit VRayTracingBlasBuilder(const VulkanCore::VDevice& device);
 
   bool CmdCreateBlas(const VulkanCore::VCommandBuffer&                          cmdBuffer,
                      std::vector<VulkanCore::RTX::AccelerationStructBuildData>& buildInfo,
@@ -33,9 +33,15 @@ public:
                      vk::DeviceAddress                                          scratchAdress,
                      vk::DeviceSize                                             hintMaxBudget = 512'000'000);
 
-  void CmdCompactBlas(const VulkanCore::VCommandBuffer&         cmdBuffer,
-                      std::vector<AccelerationStructBuildData>& blasBuildData,
-                      std::vector<AccelKHR>&                    outBlas);
+  bool CmdCreateParallelBlas( const VulkanCore::VCommandBuffer&                          cmdBuffer,
+                              std::vector<VulkanCore::RTX::AccelerationStructBuildData>& buildInfo,
+                              std::vector<VulkanCore::RTX::AccelKHR>&                    outAs,
+                              std::vector<vk::DeviceAddress>&                            scratchAdresses,
+                              vk::DeviceSize                                             hintMaxBudget = 512'000'000))
+
+      void CmdCompactBlas(const VulkanCore::VCommandBuffer&         cmdBuffer,
+                          std::vector<AccelerationStructBuildData>& blasBuildData,
+                          std::vector<AccelKHR>&                    outBlas);
 
   void DestroyNonCompactedBlas();
 
@@ -45,12 +51,32 @@ public:
 
   void GetScratchAddresses(vk::DeviceSize                                  hintMaxBudget,
                            const std::vector<AccelerationStructBuildData>& blasBuildData,
-                           vk::DeviceAddress                               scratchBufferAdress,
-                           std::vector<vk::DeviceAddress>&                 scratchAddresses,
-                           uint32_t                                        minimumAlligment);
+                           vk::DeviceAddress                               scratchBufferAderess,
+                           std::vector<vk::DeviceAddress>&                 outScratchAddresses,
+                           uint32_t                                        minimumAligment);
 
 
   void Destroy();
+
+private:
+  void           DestroyQueryPool();
+  void           CreateQueryPool(uint32_t maxBlasCount);
+  void           InitializeQueryPoolIfNeeded(const std::vector<AccelerationStructBuildData>& blasBuildData);
+  vk::DeviceSize BuildAccelerationStructures(const VulkanCore::VCommandBuffer&         cmdBuffer,
+                                             std::vector<AccelerationStructBuildData>& blasBuildData,
+                                             std::vector<AccelKHR>&                    outAccel,
+                                             const std::vector<vk::DeviceAddress>&     scratchAdress,
+                                             vk::DeviceSize                            hintMaxBudget,
+                                             vk::DeviceSize                            currentBudget,
+                                             uint32_t&                                 currentQueryIndex);
+
+private:
+  const VulkanCore::VDevice& m_device;
+  vk::QueryPool              m_queryPool;
+  uint32_t                   m_currentBlasIndex{0};
+  uint32_t                   m_currentQueryIndex{0};
+
+  std::vector<AccelKHR> m_cleanUpdBlasAccell;
 };
 
 }  // namespace RTX

@@ -314,7 +314,7 @@ void MeshDatatManager::CreateBuffer(VulkanStructs::GPUBufferInfo& allocationInfo
 
       VulkanCore::VBuffer blasScratchBuffer(m_device, "Scratch buffer");
 
-  blasScratchBuffer.Create;
+//  blasScratchBuffer.Create;
 
   allocationInfo.bufferVK = allocationInfo.bufferVMA;
 }
