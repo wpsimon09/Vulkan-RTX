@@ -11,78 +11,76 @@
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 
-namespace VEditor
-{
-    class RenderingOptions;
+namespace VEditor {
+class RenderingOptions;
 }
 
-namespace VulkanCore
-{
-    class VTimelineSemaphore;
-    class VPipelineManager;
-}
+namespace VulkanCore {
+class VTimelineSemaphore;
+class VPipelineManager;
+}  // namespace VulkanCore
 
-namespace VulkanUtils
-{
-    struct RenderContext;
-    class VResourceGroupManager;
-    class UIContext;
-}
+namespace VulkanUtils {
+struct RenderContext;
+class VResourceGroupManager;
+class UIContext;
+}  // namespace VulkanUtils
 
-namespace VulkanCore
-{
-    class VDevice;
+namespace VulkanCore {
+class VDevice;
 }
 
 namespace Renderer {
 
 class RenderTarget;
-class SceneRenderer: public Renderer::BaseRenderer{
+class SceneRenderer : public Renderer::BaseRenderer
+{
 public:
-    SceneRenderer(const VulkanCore::VDevice& device,VulkanUtils::VResourceGroupManager& pushDescriptorManager, int width, int height);
-    void Render(int currentFrameIndex,
-                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                VulkanUtils::RenderContext* renderContext,
-                VulkanCore::VTimelineSemaphore& renderingTimeLine,
-                VulkanCore::VTimelineSemaphore& transferSemaphore);
+  SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager, int width, int height);
+  void Render(int                                       currentFrameIndex,
+              const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+              VulkanUtils::RenderContext*               renderContext,
+              VulkanCore::VTimelineSemaphore&           renderingTimeLine,
+              VulkanCore::VTimelineSemaphore&           transferSemaphore);
 
-    void Destroy() override;
+  void Destroy() override;
 
 protected:
-    void CreateRenderTargets(VulkanCore::VSwapChain* swapChain) override;
-    void DrawScene(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager) override;
+  void CreateRenderTargets(VulkanCore::VSwapChain* swapChain) override;
+  void DrawScene(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager) override;
 
 private:
-    const VulkanCore::VDevice& m_device;
+  const VulkanCore::VDevice& m_device;
 
-    std::unique_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
+  std::unique_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
 
-    VulkanUtils::VResourceGroupManager& m_pushDescriptorManager;
+  VulkanUtils::VResourceGroupManager& m_pushDescriptorManager;
 
-    VulkanUtils::RenderContext* m_renderContextPtr;
+  VulkanUtils::RenderContext* m_renderContextPtr;
 
-    std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
+  std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
 
-    // not a pointer yet
-    VulkanStructs::RenderContext* m_selectedGeometryPass;
+  // not a pointer yet
+  VulkanStructs::RenderContext* m_selectedGeometryPass;
 
-    VulkanStructs::RenderingStatistics m_renderingStatistics;
+  VulkanStructs::RenderingStatistics m_renderingStatistics;
 
-    bool m_depthPrePass = true;
+  bool m_depthPrePass = true;
 
-    uint64_t m_frameCount = 0;
+  uint64_t m_frameCount = 0;
 
 private:
-    void PushDataToGPU(const vk::CommandBuffer& cmdBuffer, int currentFrameIndex, int objectIndex,
-                       VulkanStructs::DrawCallData& drawCall,
-                       const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+  void PushDataToGPU(const vk::CommandBuffer&                  cmdBuffer,
+                     int                                       currentFrameIndex,
+                     int                                       objectIndex,
+                     VulkanStructs::DrawCallData&              drawCall,
+                     const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-    void DepthPrePass(int currentFrameIndex,
-                const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+  void DepthPrePass(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-    friend class VEditor::RenderingOptions;
+  friend class VEditor::RenderingOptions;
 };
 
-} // Renderer
+}  // namespace Renderer
 
-#endif //SCENERENDERER_HPP
+#endif  //SCENERENDERER_HPP

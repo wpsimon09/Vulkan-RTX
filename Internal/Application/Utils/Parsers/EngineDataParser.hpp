@@ -7,21 +7,19 @@
 #include "tINI/ini.h"
 #include "Vulkan/Global/GlobalVariables.hpp"
 
-namespace VEditor
-{
-    class UIContext;
+namespace VEditor {
+class UIContext;
 }
 
 class Client;
-namespace ApplicationCore
-{
-    void SaveConfig(Client& client, VEditor::UIContext& uiContext);
-    void LoadClientSideConfig(Client& client, VEditor::UIContext& uiContext);
-    void LoadConfig();
+namespace ApplicationCore {
+void SaveConfig(Client& client, VEditor::UIContext& uiContext);
+void LoadClientSideConfig(Client& client, VEditor::UIContext& uiContext);
+void LoadConfig();
 
-    const std::filesystem::path engineConfigPath = GlobalVariables::configFolder / "EngineConfig.ini";
-    inline mINI::INIStructure EngineConfig;
+const std::filesystem::path engineConfigPath = GlobalVariables::configFolder / "EngineConfig.ini";
+inline mINI::INIStructure   EngineConfig;
 
-}
+}  // namespace ApplicationCore
 
-#endif //ENGINEDATAPARSER_HPP
+#endif  //ENGINEDATAPARSER_HPP

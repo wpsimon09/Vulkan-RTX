@@ -6,28 +6,29 @@
 #define RENDERINGOPTIONS_HPP
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
-namespace Renderer
-{
-    class RenderingSystem;
+namespace Renderer {
+class RenderingSystem;
 }
 
 namespace VEditor {
 
-class RenderingOptions: public IUserInterfaceElement {
+class RenderingOptions : public IUserInterfaceElement
+{
 public:
-    RenderingOptions(Renderer::RenderingSystem* renderingSystem);
+  RenderingOptions(Renderer::RenderingSystem* renderingSystem);
 
-    void Resize(int newWidth, int newHeight) override;
-    void Render() override;
-    void Update() override;
+  void Resize(int newWidth, int newHeight) override;
+  void Render() override;
+  void Update() override;
+
 private:
-    void RenderDrawCallListWidndow(Renderer::RenderingSystem* renderingSystem);
-    void RenderLightInfoWindow(Renderer::RenderingSystem* renderingSystem);
-    Renderer::RenderingSystem* m_renderingSystem;
-    bool m_openDrawCallListWindow = false;
-    bool m_openLightInfoLigt = false;
+  void                       RenderDrawCallListWidndow(Renderer::RenderingSystem* renderingSystem);
+  void                       RenderLightInfoWindow(Renderer::RenderingSystem* renderingSystem);
+  Renderer::RenderingSystem* m_renderingSystem;
+  bool                       m_openDrawCallListWindow = false;
+  bool                       m_openLightInfoLigt      = false;
 };
 
-} // VEditor
+}  // namespace VEditor
 
-#endif //RENDERINGOPTIONS_HPP
+#endif  //RENDERINGOPTIONS_HPP

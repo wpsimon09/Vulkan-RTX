@@ -10,19 +10,23 @@
 
 namespace ApplicationCore {
 
-class AreaLightNode : public LightNode<LightStructs::AreaLight> {
+class AreaLightNode : public LightNode<LightStructs::AreaLight>
+{
 public:
-    explicit AreaLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh, LightStructs::AreaLight* areaLightData = nullptr);
+  explicit AreaLightNode(LightStructs::SceneLightInfo& sceneLightInfo,
+                         std::shared_ptr<StaticMesh>   mesh,
+                         LightStructs::AreaLight*      areaLightData = nullptr);
 
-    void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
-    void Update()  override;
-    void ProcessNodeRemove() override;
+  void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
+  void Update() override;
+  void ProcessNodeRemove() override;
+
 private:
-    int m_index;
+  int m_index;
 
-    LightStructs::SceneLightInfo& m_sceneLightInfo;
+  LightStructs::SceneLightInfo& m_sceneLightInfo;
 };
 
-} // ApplicationCore
+}  // namespace ApplicationCore
 
-#endif //AREALIGHTNODE_HPP
+#endif  //AREALIGHTNODE_HPP

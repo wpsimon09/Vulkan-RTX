@@ -13,16 +13,15 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 
-namespace VulkanCore
-{
-    class VImage;
+namespace VulkanCore {
+class VImage;
 }
 
 namespace ApplicationCore {
-    class VTextureAsset;
-    class PBRMaterial;
+class VTextureAsset;
+class PBRMaterial;
 
-    class VertexArray;
+class VertexArray;
 class AssetsManager;
 class StaticMesh;
 
@@ -30,28 +29,34 @@ class SceneNode;
 
 struct ImportOptions
 {
-    bool importMaterials = true;
-    bool importOnlyMaterials = false;
+  bool importMaterials     = true;
+  bool importOnlyMaterials = false;
 
-    float uniformScale = 1.0f;
+  float uniformScale = 1.0f;
 };
 
-class GLTFLoader {
+class GLTFLoader
+{
 public:
-    explicit GLTFLoader(ApplicationCore::AssetsManager& assetsManager);
+  explicit GLTFLoader(ApplicationCore::AssetsManager& assetsManager);
 
-    std::vector<std::shared_ptr<SceneNode>> LoadGLTFScene(std::filesystem::path gltfPath, const ImportOptions& importOptions ) const;
+  std::vector<std::shared_ptr<SceneNode>> LoadGLTFScene(std::filesystem::path gltfPath, const ImportOptions& importOptions) const;
 
-    ~GLTFLoader() = default;
+  ~GLTFLoader() = default;
 
 private:
-    const VulkanCore::VDevice& m_device;
-    ApplicationCore::AssetsManager& m_assetsManager;
+  const VulkanCore::VDevice&      m_device;
+  ApplicationCore::AssetsManager& m_assetsManager;
+
 private:
-    void PostLoadClear();
-    void LoadImage(fastgltf::Asset& asset,std::string parentPath, fastgltf::Image& image, std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>& imageStorage, bool saveToDisk = true) const ;
+  void PostLoadClear();
+  void LoadImage(fastgltf::Asset&                                              asset,
+                 std::string                                                   parentPath,
+                 fastgltf::Image&                                              image,
+                 std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>& imageStorage,
+                 bool                                                          saveToDisk = true) const;
 };
 
-} // ApplicationCore
+}  // namespace ApplicationCore
 
-#endif //GLTFLOADER_HPP
+#endif  //GLTFLOADER_HPP

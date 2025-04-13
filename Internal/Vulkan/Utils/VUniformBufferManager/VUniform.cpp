@@ -5,4 +5,4 @@
 #include "VUniform.hpp"
 
 namespace VulkanUtils {
-} // VulkanUtils
+}  // namespace VulkanUtils

@@ -13,52 +13,50 @@
 struct PBRMaterialNoTexture;
 struct PBRMaterialFeaturees;
 
-namespace VulkanStructs
-{
-    struct DrawCallData;
+namespace VulkanStructs {
+struct DrawCallData;
 }
 
 struct GlobalUniform;
-struct LightUniforms ;
+struct LightUniforms;
 
-namespace LightStructs
-{
-    struct SceneLightInfo;
+namespace LightStructs {
+struct SceneLightInfo;
 }
 
 class Client;
 
-namespace VulkanUtils
+namespace VulkanUtils {
+class VUniformBufferManager
 {
-    class VUniformBufferManager {
-    public:
-        VUniformBufferManager(const VulkanCore::VDevice& device);
+public:
+  VUniformBufferManager(const VulkanCore::VDevice& device);
 
-        const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const; // per frame in flight
-        const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
-        const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const; // per object per frame in flight
+  const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;  // per frame in flight
+  const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
+  const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
 
-        void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
+  void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
 
-        void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& drawCalls) const;
+  void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& drawCalls) const;
 
-        void UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const;
+  void UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const;
 
-        void Destroy() const;
-    private:
-        void CreateUniforms();
-    private:
-        const VulkanCore::VDevice& m_device;
+  void Destroy() const;
 
-        std::unique_ptr<VUniform<LightUniforms>> m_lightUniform;
-        std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>> m_perFrameUniform;
-        std::vector<std::unique_ptr<VulkanUtils::VUniform<ObjectDataUniform>>> m_perObjectUniform;
+private:
+  void CreateUniforms();
 
-        mutable int m_currentDrawCalls = 0;
-    };
-}
+private:
+  const VulkanCore::VDevice& m_device;
+
+  std::unique_ptr<VUniform<LightUniforms>>                               m_lightUniform;
+  std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>>                  m_perFrameUniform;
+  std::vector<std::unique_ptr<VulkanUtils::VUniform<ObjectDataUniform>>> m_perObjectUniform;
+
+  mutable int m_currentDrawCalls = 0;
+};
+}  // namespace VulkanUtils
 
 
-
-
-#endif //VUNIFORMBUFFERMANAGER_HPP
+#endif  //VUNIFORMBUFFERMANAGER_HPP

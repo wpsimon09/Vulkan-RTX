@@ -9,50 +9,48 @@
 #include <chrono>
 #include <imgui.h>
 
-namespace VEditor
-{
-    class Console;
+namespace VEditor {
+class Console;
 }
 
-namespace Utils
+namespace Utils {
+enum class ELogType
 {
-    enum class ELogType
-    {
-        Success = 0,
-        Error,
-        Warning,
-        Info
-    };
+  Success = 0,
+  Error,
+  Warning,
+  Info
+};
 
-    struct LogEntry
-    {
-        char *message;
-        ELogType type;
-    };
+struct LogEntry
+{
+  char*    message;
+  ELogType type;
+};
 
-    class Logger
-    {
-    public:
-        static void LogSuccess(const std::string &msg);
-        static void LogError(const std::string &msg);
-        static void LogVKValidationLayerError(const std::string &msg);
-        static void LogInfo(const std::string &msg);
-        static void LogSuccessClient(const std::string &msg);
-        static void LogErrorClient(const std::string &msg);
-        static void LogInfoClient(const std::string &msg);
-        static void LogInfoVerboseOnlyClient(const std::string &msg);
+class Logger
+{
+public:
+  static void LogSuccess(const std::string& msg);
+  static void LogError(const std::string& msg);
+  static void LogVKValidationLayerError(const std::string& msg);
+  static void LogInfo(const std::string& msg);
+  static void LogSuccessClient(const std::string& msg);
+  static void LogErrorClient(const std::string& msg);
+  static void LogInfoClient(const std::string& msg);
+  static void LogInfoVerboseOnlyClient(const std::string& msg);
 
-        static void LogInfoVerboseOnly(const std::string &msg);
-        static void LogInfoVerboseRendering(const std::string &msg);
+  static void LogInfoVerboseOnly(const std::string& msg);
+  static void LogInfoVerboseRendering(const std::string& msg);
 
-        ~Logger();
-    private:
-        static void AddLogEntry(const std::string& formattedMsg, ELogType type);
-        static std::vector<LogEntry> m_logEntries;
-        friend VEditor::Console;
+  ~Logger();
 
-    };
+private:
+  static void                  AddLogEntry(const std::string& formattedMsg, ELogType type);
+  static std::vector<LogEntry> m_logEntries;
+  friend VEditor::Console;
+};
 
-}
+}  // namespace Utils
 
-#endif //VLOGGER_HPP
+#endif  //VLOGGER_HPP

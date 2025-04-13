@@ -12,41 +12,41 @@
 
 namespace VulkanCore {
 class VDevice;
-class VTimelineSemaphore : public VObject{
+class VTimelineSemaphore : public VObject
+{
 public:
+  explicit VTimelineSemaphore(const VulkanCore::VDevice& device, uint64_t initialValue = 0);
 
-    explicit VTimelineSemaphore(const VulkanCore::VDevice& device, uint64_t initialValue = 0);
+  vk::TimelineSemaphoreSubmitInfo GetSemaphoreSubmitInfo(uint64_t waitValue, uint64_t signalValue);
+  uint64_t                        GetSemaphoreValue();
 
-    vk::TimelineSemaphoreSubmitInfo GetSemaphoreSubmitInfo(uint64_t waitValue, uint64_t signalValue);
-    uint64_t GetSemaphoreValue();
+  void CpuSignal(uint64_t signalValue);
+  void CpuWaitIdle(uint64_t waitValue);
+  void SetWaitAndSignal(uint64_t waitValue, uint64_t signalValue);
+  void Reset();
 
-    void CpuSignal(uint64_t signalValue);
-    void CpuWaitIdle(uint64_t waitValue);
-    void SetWaitAndSignal(uint64_t waitValue, uint64_t signalValue);
-    void Reset();
+  const uint64_t& GetCurrentWaitValue() const { return m_currentWait; };
+  const uint64_t& GetCurrentSignalValue() const { return m_currentSignal; };
+  const uint64_t& GetOffset() const { return m_offset; };
 
-    const uint64_t& GetCurrentWaitValue()   const  {return m_currentWait;};
-    const uint64_t& GetCurrentSignalValue() const  {return m_currentSignal;};
-    const uint64_t& GetOffset()             const  {return m_offset;};
+  vk::Semaphore& GetSemaphore() { return m_semaphore; }
 
-    vk::Semaphore& GetSemaphore() {return m_semaphore;}
+  void Destroy() override;
 
-    void Destroy() override;
 private:
-    const VulkanCore::VDevice& m_device;
+  const VulkanCore::VDevice& m_device;
 
-    std::vector<uint64_t> m_waitHistory;
-    uint64_t m_currentWait = 0;
-    uint64_t m_currentSignal = 0;
+  std::vector<uint64_t> m_waitHistory;
+  uint64_t              m_currentWait   = 0;
+  uint64_t              m_currentSignal = 0;
 
-    vk::Semaphore m_semaphore;
+  vk::Semaphore m_semaphore;
 
-    //uint64_t m_currentValue = 0;
+  //uint64_t m_currentValue = 0;
 
-    uint64_t m_offset = 0;
-
+  uint64_t m_offset = 0;
 };
 
-} // VulkanCore
+}  // namespace VulkanCore
 
-#endif //VTIMELINESEMAPHORE_HPP
+#endif  //VTIMELINESEMAPHORE_HPP

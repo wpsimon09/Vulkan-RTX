@@ -7,24 +7,23 @@
 #include "UserInterface/IUserInterfaceElement.hpp"
 
 
-namespace ApplicationCore
-{
-    class Scene;
+namespace ApplicationCore {
+class Scene;
 }
 
-namespace VEditor
+namespace VEditor {
+class Index : public IUserInterfaceElement
 {
-    class Index: public IUserInterfaceElement {
-    public:
-        Index(int width, int height);
-        void Render() override;
-        void Resize(int newWidth, int newHeight) override;
-    private:
-        int m_width;
-        int m_height;
+public:
+  Index(int width, int height);
+  void Render() override;
+  void Resize(int newWidth, int newHeight) override;
 
-    };
-}
+private:
+  int m_width;
+  int m_height;
+};
+}  // namespace VEditor
 
 
-#endif //INDEX_HPP
+#endif  //INDEX_HPP

@@ -9,11 +9,10 @@
 
 #include "fastgltf/math.hpp"
 
-namespace MathUtils
-{
-    glm::vec3 QuaternionToEuler(fastgltf::math::fquat quat);
-    fastgltf::math::fquat EulerToQuaternion(glm::vec3& euler);
+namespace MathUtils {
+glm::vec3             QuaternionToEuler(fastgltf::math::fquat quat);
+fastgltf::math::fquat EulerToQuaternion(glm::vec3& euler);
 
-}
+}  // namespace MathUtils
 
-#endif //MATHUTILS_HPP
+#endif  //MATHUTILS_HPP

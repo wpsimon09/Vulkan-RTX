@@ -10,70 +10,63 @@
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
 
-namespace VulkanCore
-{
-    class VTimelineSemaphore;
+namespace VulkanCore {
+class VTimelineSemaphore;
 }
 
-namespace VEditor
-{
-    class UIContext;
+namespace VEditor {
+class UIContext;
 }
 
-namespace VulkanCore
-{
-    class VCommandBuffer;
+namespace VulkanCore {
+class VCommandBuffer;
 }
 
 
-namespace VulkanCore
+namespace VulkanCore {
+class VGraphicsPipeline;
+class VCommandPool;
+class VSwapChain;
+class VDevice;
+}  // namespace VulkanCore
+
+namespace VulkanUtils {
+class VUniformBufferManager;
+class UIContext;
+}  // namespace VulkanUtils
+
+namespace Renderer {
+class RenderTarget;
+
+class UserInterfaceRenderer
 {
-    class VGraphicsPipeline;
-    class VCommandPool;
-    class VSwapChain;
-    class VDevice;
-}
+public:
+  explicit UserInterfaceRenderer(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain, VEditor::UIContext& uiContext);
 
-namespace VulkanUtils
-{
-    class VUniformBufferManager;
-    class UIContext;
-}
+  void RenderAndPresent(int                             currentFrameIndex,
+                        uint32_t                        swapChainImageIndex,
+                        const vk::Semaphore&            swapChainImageAvailable,
+                        VulkanCore::VTimelineSemaphore& renderingTimeLine);
 
-namespace Renderer
-{
-    class RenderTarget;
+  RenderTarget& GetRenderTarget() const { return *m_renderTarget; };
 
-    class UserInterfaceRenderer{
-    public:
-        explicit UserInterfaceRenderer(
-            const VulkanCore::VDevice& device,
-            const VulkanCore::VSwapChain& swapChain,
-            VEditor::UIContext& uiContext);
+  void Destroy();
 
-            void RenderAndPresent(int currentFrameIndex, uint32_t swapChainImageIndex,const vk::Semaphore& swapChainImageAvailable, VulkanCore::VTimelineSemaphore& renderingTimeLine);
+private:
+  const VulkanCore::VDevice&              m_device;
+  const VulkanCore::VSwapChain&           m_swapChain;
+  std::unique_ptr<Renderer::RenderTarget> m_renderTarget;
 
-            RenderTarget& GetRenderTarget() const {return *m_renderTarget;};
+  std::unique_ptr<VulkanCore::VCommandPool>                               m_commandPool;
+  std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>>                m_commandBuffer;
+  std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_ableToPresentSemaphore;
 
-            void Destroy();
-    private:
-        const VulkanCore::VDevice& m_device;
-        const VulkanCore::VSwapChain& m_swapChain;
-        std::unique_ptr<Renderer::RenderTarget> m_renderTarget;
+  VEditor::UIContext& m_imguiInitializer;
 
-        std::unique_ptr<VulkanCore::VCommandPool> m_commandPool;
-        std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_commandBuffer;
-        std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_ableToPresentSemaphore;
-
-        VEditor::UIContext& m_imguiInitializer;
-    private:
-        void RecordCommandBuffer(int currentFrameIndex,uint32_t swapChainImageIndex);
+private:
+  void RecordCommandBuffer(int currentFrameIndex, uint32_t swapChainImageIndex);
+};
+}  // namespace Renderer
 
 
-
-    };
-}
-
-
-
-#endif //USERINTERFACERENDERER_HPP
+#endif  //USERINTERFACERENDERER_HPP

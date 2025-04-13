@@ -9,28 +9,29 @@
 class Client;
 
 namespace VEditor {
-    class Editor;
+class Editor;
 
-    class Settings:public IUserInterfaceElement {
+class Settings : public IUserInterfaceElement
+{
 public:
-    Settings(Client& client, Editor* editor);
+  Settings(Client& client, Editor* editor);
 
-    void Render() override;
-    void Resize(int newWidth, int newHeight) override;
-    void Update() override;
+  void Render() override;
+  void Resize(int newWidth, int newHeight) override;
+  void Update() override;
 
-    void Open();
+  void Open();
 
 private:
-    void RenderEngineSettings();
-    void RenderApplicationSettings();
-    void RenderEditorSettings();
-    void RenderRenderingSettings();
+  void RenderEngineSettings();
+  void RenderApplicationSettings();
+  void RenderEditorSettings();
+  void RenderRenderingSettings();
 
-    Client& m_client;
-    Editor* m_editor;
+  Client& m_client;
+  Editor* m_editor;
 };
 
-} // VEditor
+}  // namespace VEditor
 
-#endif //SETTINGS_HPP
+#endif  //SETTINGS_HPP

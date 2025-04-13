@@ -10,27 +10,27 @@
 #include "Application/Structs/ApplicationStructs.hpp"
 
 
-namespace ApplicationCore
-{
-    class VTextureAsset;
+namespace ApplicationCore {
+class VTextureAsset;
 }
 
 namespace ApplicationCore {
-    class AssetsManager;
+class AssetsManager;
 
-    class SkyBoxMaterial:public ApplicationCore::BaseMaterial {
+class SkyBoxMaterial : public ApplicationCore::BaseMaterial
+{
 public:
-        SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager);
+  SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager);
 
-        void                                                ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect) override;
-        std::shared_ptr<ApplicationCore::VTextureAsset>     GetHDRTexture();
-        void UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct) override;
+  void ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect) override;
+  std::shared_ptr<ApplicationCore::VTextureAsset> GetHDRTexture();
+  void UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct) override;
 
-    private:
-        std::shared_ptr<ApplicationCore::VTextureAsset> m_HDRTexture;
-        SkyBoxMaterialDescription m_skyBoxMaterialDescription;
+private:
+  std::shared_ptr<ApplicationCore::VTextureAsset> m_HDRTexture;
+  SkyBoxMaterialDescription                       m_skyBoxMaterialDescription;
 };
 
-} // ApplicationCore
+}  // namespace ApplicationCore
 
-#endif //SKYBOXMATERIAL_HPP
+#endif  //SKYBOXMATERIAL_HPP

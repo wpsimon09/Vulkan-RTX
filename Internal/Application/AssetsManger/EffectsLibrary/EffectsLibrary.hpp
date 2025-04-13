@@ -9,46 +9,44 @@
 #include <glm/fwd.hpp>
 
 
-namespace VulkanUtils
-{
-    class VEffect;
-    class VResourceGroupManager;
+namespace VulkanUtils {
+class VEffect;
+class VResourceGroupManager;
+}  // namespace VulkanUtils
+
+namespace Renderer {
+class RenderingSystem;
 }
 
-namespace Renderer
-{
-    class RenderingSystem;
-}
-
-namespace VulkanCore
-{
-    class VDevice;
+namespace VulkanCore {
+class VDevice;
 }
 
 namespace ApplicationCore {
 
-    enum class EEffectType : std::uint8_t
-    {
-        Outline = 0,
-        ForwardShader,
-        SkyBox,
-        DebugLine,
-        AlphaMask,
-        AplhaBlend,
-        EditorBilboard
-    };
-
-class EffectsLibrary {
-public:
-    EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager );
-    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;
-
-    std::shared_ptr<VulkanUtils::VEffect> GetEffect(EEffectType type);
-
-    void BuildAllEffects();
-    void Destroy();
+enum class EEffectType : std::uint8_t
+{
+  Outline = 0,
+  ForwardShader,
+  SkyBox,
+  DebugLine,
+  AlphaMask,
+  AplhaBlend,
+  EditorBilboard
 };
 
-} // ApplicationCore
+class EffectsLibrary
+{
+public:
+  EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager);
+  std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;
 
-#endif //EFFECTSLIBRARY_HPP
+  std::shared_ptr<VulkanUtils::VEffect> GetEffect(EEffectType type);
+
+  void BuildAllEffects();
+  void Destroy();
+};
+
+}  // namespace ApplicationCore
+
+#endif  //EFFECTSLIBRARY_HPP

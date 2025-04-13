@@ -10,11 +10,10 @@
 #include <sys/stat.h>
 #include <VMA/vk_mem_alloc.h>
 
-namespace VEditor
-{
-    class Settings;
-    class MenuBar;
-}
+namespace VEditor {
+class Settings;
+class MenuBar;
+}  // namespace VEditor
 
 namespace VEditor {
 
@@ -22,31 +21,31 @@ class Index;
 class UIContext;
 class IUserInterfaceElement;
 
-class Editor {
+class Editor
+{
 public:
-    Editor(UIContext& uiContext);
+  Editor(UIContext& uiContext);
 
-    void Render();
-    void Update();
-    void SetVmaStatis(VmaTotalStatistics& stats) {m_vmaStats = &stats;};
-    void Resize(int newWidth, int newHeight);
-
-
-
-private:
-    UIContext& m_uiContext;
-    std::vector<std::unique_ptr<VEditor::IUserInterfaceElement>> m_uiElements;
-    VmaTotalStatistics* m_vmaStats;
-    std::filesystem::path m_filePath = "";
+  void Render();
+  void Update();
+  void SetVmaStatis(VmaTotalStatistics& stats) { m_vmaStats = &stats; };
+  void Resize(int newWidth, int newHeight);
 
 
 private:
-    void RenderPreformanceOverlay() const;
+  UIContext&                                                   m_uiContext;
+  std::vector<std::unique_ptr<VEditor::IUserInterfaceElement>> m_uiElements;
+  VmaTotalStatistics*                                          m_vmaStats;
+  std::filesystem::path                                        m_filePath = "";
 
-    friend class VEditor::MenuBar;
-    friend class VEditor::Settings;
+
+private:
+  void RenderPreformanceOverlay() const;
+
+  friend class VEditor::MenuBar;
+  friend class VEditor::Settings;
 };
 
-} // VEditor
+}  // namespace VEditor
 
-#endif //EDITOR_HPP
+#endif  //EDITOR_HPP

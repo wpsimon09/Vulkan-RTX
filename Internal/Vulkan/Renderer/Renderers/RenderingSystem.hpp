@@ -14,98 +14,91 @@
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
-namespace VulkanUtils
-{
-    class VEnvLightGenerator;
+namespace VulkanUtils {
+class VEnvLightGenerator;
 }
 
-namespace VulkanUtils
-{
-    struct RenderContext;
+namespace VulkanUtils {
+struct RenderContext;
 }
 
-namespace VulkanCore
-{
-    class VTimelineSemaphore;
-    class VPipelineManager;
-    class VSwapChain;
-    class VDevice;
-}
+namespace VulkanCore {
+class VTimelineSemaphore;
+class VPipelineManager;
+class VSwapChain;
+class VDevice;
+}  // namespace VulkanCore
 
-namespace VEditor
-{
-    class RenderingOptions;
-    class UIContext;
-}
+namespace VEditor {
+class RenderingOptions;
+class UIContext;
+}  // namespace VEditor
 
-namespace Renderer
-{
-    class UserInterfaceRenderer;
-    class SceneRenderer;
-}
+namespace Renderer {
+class UserInterfaceRenderer;
+class SceneRenderer;
+}  // namespace Renderer
 
 
+namespace VulkanUtils {
+class UIContext;
 
-namespace VulkanUtils
-{
-    class UIContext;
-
-    class VUniformBufferManager;
-    class VResourceGroupManager;
-}
+class VUniformBufferManager;
+class VResourceGroupManager;
+}  // namespace VulkanUtils
 
 struct GlobalUniform;
 
 namespace Renderer {
 
-class RenderingSystem {
+class RenderingSystem
+{
 public:
-    RenderingSystem(const VulkanCore::VulkanInstance& instance,
-                    const VulkanCore::VDevice& device,
-                    const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                    VulkanUtils::VResourceGroupManager& pushDescriptorManager,
-                    VEditor::UIContext &uiContext);
+  RenderingSystem(const VulkanCore::VulkanInstance&         instance,
+                  const VulkanCore::VDevice&                device,
+                  const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                  VulkanUtils::VResourceGroupManager&       pushDescriptorManager,
+                  VEditor::UIContext&                       uiContext);
 
-    VulkanUtils::RenderContext* GetRenderContext() {return &m_renderContext;}
+  VulkanUtils::RenderContext* GetRenderContext() { return &m_renderContext; }
+
 public:
-    void Init();
-    void Render(LightStructs::SceneLightInfo& sceneLightInfo,GlobalUniform& globalUniformUpdateInfo);
-    void Update();
-    void Destroy();
+  void Init();
+  void Render(LightStructs::SceneLightInfo& sceneLightInfo, GlobalUniform& globalUniformUpdateInfo);
+  void Update();
+  void Destroy();
 
-    SceneRenderer& GetSceneRenderer() {return *m_sceneRenderer;};
+  SceneRenderer& GetSceneRenderer() { return *m_sceneRenderer; };
 
 private:
+  const VulkanCore::VDevice&                m_device;
+  const VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
+  VEditor::UIContext&                       m_uiContext;
+  LightStructs::SceneLightInfo*             m_sceneLightInfo;
 
+  VulkanUtils::VResourceGroupManager& m_pushDescriptorSetManager;
+  uint32_t                            m_currentImageIndex = 0;
+  uint32_t                            m_currentFrameIndex = 0;
 
-    const VulkanCore::VDevice &m_device;
-    const VulkanUtils::VUniformBufferManager &m_uniformBufferManager;
-    VEditor::UIContext &m_uiContext;
-    LightStructs::SceneLightInfo* m_sceneLightInfo;
+  std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
 
-    VulkanUtils::VResourceGroupManager &m_pushDescriptorSetManager;
-    uint32_t m_currentImageIndex = 0;
-    uint32_t m_currentFrameIndex = 0;
+  std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
 
-    std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
+  VulkanUtils::RenderContext m_renderContext;
 
-    std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
+  std::unique_ptr<Renderer::SceneRenderer>                     m_sceneRenderer;
+  std::unique_ptr<Renderer::UserInterfaceRenderer>             m_uiRenderer;
+  std::unique_ptr<VulkanUtils::VEnvLightGenerator>             m_envLightGenerator;
+  std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>> m_renderingTimeLine;
 
-    VulkanUtils::RenderContext m_renderContext;
+  VulkanCore::VTimelineSemaphore& m_transferSemapohore;
 
-    std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
-    std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
-    std::unique_ptr<VulkanUtils::VEnvLightGenerator> m_envLightGenerator;
-    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>> m_renderingTimeLine;
+  bool m_isRayTracing = false;
 
-    VulkanCore::VTimelineSemaphore &m_transferSemapohore;
-
-    bool m_isRayTracing = false;
-
-    friend class VEditor::RenderingOptions;
-    friend class VEditor::UIContext;
+  friend class VEditor::RenderingOptions;
+  friend class VEditor::UIContext;
 };
 
-} // Renderer
+}  // namespace Renderer
 
-#endif //RENDERINGSYSTEM_HPP
+#endif  //RENDERINGSYSTEM_HPP

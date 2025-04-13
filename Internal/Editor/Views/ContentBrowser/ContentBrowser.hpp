@@ -7,29 +7,29 @@
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
 
-namespace ApplicationCore
+namespace ApplicationCore {
+class AssetsManager;
+class Scene;
+}  // namespace ApplicationCore
+
+class ContentBrowser : public VEditor::IUserInterfaceElement
 {
-    class AssetsManager;
-    class Scene;
-}
-
-class ContentBrowser:public VEditor::IUserInterfaceElement {
 public:
-    explicit ContentBrowser(ApplicationCore::AssetsManager& assetManager, ApplicationCore::Scene& scene);
+  explicit ContentBrowser(ApplicationCore::AssetsManager& assetManager, ApplicationCore::Scene& scene);
 
-    void Render() override;
-    void Resize(int newWidth, int newHeight) override;
-    void Update() override;
+  void Render() override;
+  void Resize(int newWidth, int newHeight) override;
+  void Update() override;
+
 private:
-    void RenderModels();
-    void RenderMeshes();
-    void RenderEffects();
-    void RenderHDRs();
-    ApplicationCore::AssetsManager& m_assetManager;
-    ApplicationCore::Scene& m_scene;
-    std::string m_selectedAsset;
+  void                            RenderModels();
+  void                            RenderMeshes();
+  void                            RenderEffects();
+  void                            RenderHDRs();
+  ApplicationCore::AssetsManager& m_assetManager;
+  ApplicationCore::Scene&         m_scene;
+  std::string                     m_selectedAsset;
 };
 
 
-
-#endif //CONTENTBROWSER_HPP
+#endif  //CONTENTBROWSER_HPP

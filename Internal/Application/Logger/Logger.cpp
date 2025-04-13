@@ -4,142 +4,156 @@
 
 std::vector<Utils::LogEntry> Utils::Logger::m_logEntries;
 
-void Utils::Logger::AddLogEntry(const std::string& formattedMsg, ELogType type) {
-    char* messageCopy = new char[formattedMsg.length() + 1];
-    std::strcpy(messageCopy, formattedMsg.c_str());
-    m_logEntries.push_back({ messageCopy, type });
+void Utils::Logger::AddLogEntry(const std::string& formattedMsg, ELogType type)
+{
+  char* messageCopy = new char[formattedMsg.length() + 1];
+  std::strcpy(messageCopy, formattedMsg.c_str());
+  m_logEntries.push_back({messageCopy, type});
 }
 
 void Utils::Logger::LogSuccess(const std::string& msg)
 {
-    if (!GlobalState::LoggingEnabled) {
-        return;
-    }
+  if(!GlobalState::LoggingEnabled)
+  {
+    return;
+  }
 
-    auto time = std::chrono::system_clock::now();
-    std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
-    std::tm* localTime = std::localtime(&currentTime);
-    std::ostringstream oss;
-    oss << " LOG::SUCCESS::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
-    AddLogEntry(oss.str(), ELogType::Success);
+  auto               time        = std::chrono::system_clock::now();
+  std::time_t        currentTime = std::chrono::system_clock::to_time_t(time);
+  std::tm*           localTime   = std::localtime(&currentTime);
+  std::ostringstream oss;
+  oss << " LOG::SUCCESS::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+  AddLogEntry(oss.str(), ELogType::Success);
 }
 
 void Utils::Logger::LogError(const std::string& msg)
 {
 
-    auto time = std::chrono::system_clock::now();
-    std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
-    std::tm* localTime = std::localtime(&currentTime);
-    std::ostringstream oss;
-    oss << "LOG::ERROR::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
-    AddLogEntry(oss.str(), ELogType::Error);
+  auto               time        = std::chrono::system_clock::now();
+  std::time_t        currentTime = std::chrono::system_clock::to_time_t(time);
+  std::tm*           localTime   = std::localtime(&currentTime);
+  std::ostringstream oss;
+  oss << "LOG::ERROR::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+  AddLogEntry(oss.str(), ELogType::Error);
 
-    std::cerr << "=================================================================================================================================================================================" << std::endl;
-    std::cerr << oss.str() << std::endl;
-    std::cerr << "=================================================================================================================================================================================" << std::endl;
+  std::cerr << "================================================================================================================================================================================="
+            << std::endl;
+  std::cerr << oss.str() << std::endl;
+  std::cerr << "================================================================================================================================================================================="
+            << std::endl;
 }
 
 void Utils::Logger::LogVKValidationLayerError(const std::string& msg)
 {
 
-    auto time = std::chrono::system_clock::now();
-    std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
-    std::tm* localTime = std::localtime(&currentTime);
-    std::ostringstream oss;
-    oss << "LOG::ERROR::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
-    AddLogEntry("Vulkan validation layer error see debug console for full validation layer error!", ELogType::Error);
+  auto               time        = std::chrono::system_clock::now();
+  std::time_t        currentTime = std::chrono::system_clock::to_time_t(time);
+  std::tm*           localTime   = std::localtime(&currentTime);
+  std::ostringstream oss;
+  oss << "LOG::ERROR::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+  AddLogEntry("Vulkan validation layer error see debug console for full validation layer error!", ELogType::Error);
 
-    std::cerr << "=================================================================================================================================================================================" << std::endl;
-    std::cerr << oss.str() << std::endl;
-    std::cerr << "=================================================================================================================================================================================" << std::endl;
+  std::cerr << "================================================================================================================================================================================="
+            << std::endl;
+  std::cerr << oss.str() << std::endl;
+  std::cerr << "================================================================================================================================================================================="
+            << std::endl;
 }
 
 void Utils::Logger::LogInfo(const std::string& msg)
 {
-    if (!GlobalState::LoggingEnabled) {
-        return;
-    }
+  if(!GlobalState::LoggingEnabled)
+  {
+    return;
+  }
 
-    auto time = std::chrono::system_clock::now();
-    std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
-    std::tm* localTime = std::localtime(&currentTime);
+  auto               time        = std::chrono::system_clock::now();
+  std::time_t        currentTime = std::chrono::system_clock::to_time_t(time);
+  std::tm*           localTime   = std::localtime(&currentTime);
+  std::ostringstream oss;
+  oss << "LOG::INFO::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+  AddLogEntry(oss.str(), ELogType::Info);
+}
+
+void Utils::Logger::LogSuccessClient(const std::string& msg)
+{
+  if(!GlobalState::LoggingEnabled)
+  {
+    return;
+  }
+
+  auto               time        = std::chrono::system_clock::now();
+  std::time_t        currentTime = std::chrono::system_clock::to_time_t(time);
+  std::tm*           localTime   = std::localtime(&currentTime);
+  std::ostringstream oss;
+  oss << " LOG::SUCCESS::CLIENT::[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+  AddLogEntry(oss.str(), ELogType::Success);
+}
+
+void Utils::Logger::LogErrorClient(const std::string& msg)
+{
+
+  auto               time        = std::chrono::system_clock::now();
+  std::time_t        currentTime = std::chrono::system_clock::to_time_t(time);
+  std::tm*           localTime   = std::localtime(&currentTime);
+  std::ostringstream oss;
+  oss << "LOG::ERROR::CLIENT[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+  AddLogEntry(oss.str(), ELogType::Error);
+}
+
+void Utils::Logger::LogInfoClient(const std::string& msg)
+{
+  auto               time        = std::chrono::system_clock::now();
+  std::time_t        currentTime = std::chrono::system_clock::to_time_t(time);
+  std::tm*           localTime   = std::localtime(&currentTime);
+  std::ostringstream oss;
+  oss << "LOG::INFO::CLIENT[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+  AddLogEntry(oss.str(), ELogType::Info);
+}
+
+void Utils::Logger::LogInfoVerboseOnlyClient(const std::string& msg)
+{
+  if(GlobalState::Verbose && GlobalState::LoggingEnabled)
+  {
+    auto               time        = std::chrono::system_clock::now();
+    std::time_t        currentTime = std::chrono::system_clock::to_time_t(time);
+    std::tm*           localTime   = std::localtime(&currentTime);
     std::ostringstream oss;
-    oss << "LOG::INFO::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+    oss << "VERBOSE::LOG::INFO::CLIENT[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
     AddLogEntry(oss.str(), ELogType::Info);
+  }
 }
 
-void Utils::Logger::LogSuccessClient(const std::string &msg) {
-    if (!GlobalState::LoggingEnabled) {
-        return;
-    }
-
-    auto time = std::chrono::system_clock::now();
-    std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
-    std::tm* localTime = std::localtime(&currentTime);
+void Utils::Logger::LogInfoVerboseOnly(const std::string& msg)
+{
+  if(GlobalState::Verbose && GlobalState::LoggingEnabled)
+  {
+    auto               time        = std::chrono::system_clock::now();
+    std::time_t        currentTime = std::chrono::system_clock::to_time_t(time);
+    std::tm*           localTime   = std::localtime(&currentTime);
     std::ostringstream oss;
-    oss << " LOG::SUCCESS::CLIENT::[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
-    AddLogEntry(oss.str(), ELogType::Success);
-}
-
-void Utils::Logger::LogErrorClient(const std::string &msg) {
-
-    auto time = std::chrono::system_clock::now();
-    std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
-    std::tm* localTime = std::localtime(&currentTime);
-    std::ostringstream oss;
-    oss << "LOG::ERROR::CLIENT[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
-    AddLogEntry(oss.str(), ELogType::Error);
-}
-
-void Utils::Logger::LogInfoClient(const std::string &msg) {
-    auto time = std::chrono::system_clock::now();
-    std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
-    std::tm* localTime = std::localtime(&currentTime);
-    std::ostringstream oss;
-    oss << "LOG::INFO::CLIENT[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
-    AddLogEntry(oss.str(), ELogType::Info);
-}
-
-void Utils::Logger::LogInfoVerboseOnlyClient(const std::string &msg) {
-    if (GlobalState::Verbose && GlobalState::LoggingEnabled) {
-        auto time = std::chrono::system_clock::now();
-        std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
-        std::tm* localTime = std::localtime(&currentTime);
-        std::ostringstream oss;
-        oss << "VERBOSE::LOG::INFO::CLIENT[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
-        AddLogEntry(oss.str(), ELogType::Info);
-    }
-}
-
-void Utils::Logger::LogInfoVerboseOnly(const std::string &msg) {
-    if (GlobalState::Verbose && GlobalState::LoggingEnabled) {
-        auto time = std::chrono::system_clock::now();
-        std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
-        std::tm* localTime = std::localtime(&currentTime);
-        std::ostringstream oss;
-        oss << "VERBOSE::LOG::INFO::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
-        AddLogEntry(oss.str(), ELogType::Warning);
-    }
+    oss << "VERBOSE::LOG::INFO::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+    AddLogEntry(oss.str(), ELogType::Warning);
+  }
 }
 
 void Utils::Logger::LogInfoVerboseRendering(const std::string& msg)
 {
-    if (!GlobalState::VerboseInRendering)
-        return;
-    auto time = std::chrono::system_clock::now();
-    std::time_t currentTime = std::chrono::system_clock::to_time_t(time);
-    std::tm* localTime = std::localtime(&currentTime);
-    std::ostringstream oss;
-    oss << "VERBOSE::LOG::INFO::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
-    AddLogEntry(oss.str(), ELogType::Warning);
+  if(!GlobalState::VerboseInRendering)
+    return;
+  auto               time        = std::chrono::system_clock::now();
+  std::time_t        currentTime = std::chrono::system_clock::to_time_t(time);
+  std::tm*           localTime   = std::localtime(&currentTime);
+  std::ostringstream oss;
+  oss << "VERBOSE::LOG::INFO::VULKAN[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+  AddLogEntry(oss.str(), ELogType::Warning);
 }
 
 Utils::Logger::~Logger()
 {
-    for (auto &logEntry : m_logEntries)
-    {
-        delete logEntry.message;
-    }
-    m_logEntries.clear();
+  for(auto& logEntry : m_logEntries)
+  {
+    delete logEntry.message;
+  }
+  m_logEntries.clear();
 }
-

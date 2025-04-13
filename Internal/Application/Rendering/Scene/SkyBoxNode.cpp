@@ -15,59 +15,62 @@
 
 namespace ApplicationCore {
 
-    SkyBoxNode::SkyBoxNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh):LightNode<LightStructs::EnvLight>(mesh)
-            ,m_sceneLightInfo(sceneLightInfo)
-    {
-        m_sceneNodeMetaData.nodeType = ENodeType::SkyBoxNode;
-        auto* hdrImage = dynamic_cast<ApplicationCore::SkyBoxMaterial*>(m_mesh->GetMaterial().get());
-        m_lightStruct.hdrImage = hdrImage->GetHDRTexture();
+SkyBoxNode::SkyBoxNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh)
+    : LightNode<LightStructs::EnvLight>(mesh)
+    , m_sceneLightInfo(sceneLightInfo)
+{
+  m_sceneNodeMetaData.nodeType = ENodeType::SkyBoxNode;
+  auto* hdrImage               = dynamic_cast<ApplicationCore::SkyBoxMaterial*>(m_mesh->GetMaterial().get());
+  m_lightStruct.hdrImage       = hdrImage->GetHDRTexture();
 
-        sceneLightInfo.environmentLight = &m_lightStruct;
-    }
+  sceneLightInfo.environmentLight = &m_lightStruct;
+}
 
-    void SkyBoxNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
-                            VulkanUtils::RenderContext* renderingContext) const
-    {
-            if (!m_sceneNodeMetaData.IsVisible) return;
-            if (!m_showBackground) return;
+void SkyBoxNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const
+{
+  if(!m_sceneNodeMetaData.IsVisible)
+    return;
+  if(!m_showBackground)
+    return;
 
-            VulkanStructs::DrawCallData data;
-            data.firstIndex = 1;
+  VulkanStructs::DrawCallData data;
+  data.firstIndex = 1;
 
-            data.indexCount = m_mesh->GetMeshIndexCount();
-           // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
+  data.indexCount = m_mesh->GetMeshIndexCount();
+  // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
 
-            data.bounds = &m_mesh->GetMeshData()->bounds;
-            data.vertexData = &m_mesh->GetMeshData()->vertexData;
-            data.indexData = &m_mesh->GetMeshData()->indexData;
+  data.bounds     = &m_mesh->GetMeshData()->bounds;
+  data.vertexData = &m_mesh->GetMeshData()->vertexData;
+  data.indexData  = &m_mesh->GetMeshData()->indexData;
 
-            data.effect = effectsLibrary.GetEffect(EEffectType::SkyBox);
-            data.inDepthPrePass = false;
-            data.position = m_transformation->GetPosition();
-            data.bounds = &m_mesh->GetMeshData()->bounds;
-            data.material = dynamic_cast<SkyBoxMaterial*>(m_mesh->GetMaterial().get());
+  data.effect         = effectsLibrary.GetEffect(EEffectType::SkyBox);
+  data.inDepthPrePass = false;
+  data.position       = m_transformation->GetPosition();
+  data.bounds         = &m_mesh->GetMeshData()->bounds;
+  data.material       = dynamic_cast<SkyBoxMaterial*>(m_mesh->GetMaterial().get());
 
-            renderingContext->AddDrawCall(data);
+  renderingContext->AddDrawCall(data);
+}
 
-    }
+void SkyBoxNode::ProcessNodeRemove()
+{
+  m_lightStruct.hdrImage = nullptr;
+  m_lightStruct.inUse    = false;
+}
 
-    void SkyBoxNode::ProcessNodeRemove()
-    {
-        m_lightStruct.hdrImage = nullptr;
-        m_lightStruct.inUse = false;
-    }
+void SkyBoxNode::Update()
+{
+  m_lightStruct.inUse = m_sceneNodeMetaData.IsVisible;
+  if(m_sceneLightInfo.environmentLight->hdrImage
+     != dynamic_cast<ApplicationCore::SkyBoxMaterial*>(m_mesh->GetMaterial().get())->GetHDRTexture())
+  {
+    m_sceneLightInfo.environmentLight->hdrImage =
+        dynamic_cast<ApplicationCore::SkyBoxMaterial*>(m_mesh->GetMaterial().get())->GetHDRTexture();
+  }
+}
 
-    void SkyBoxNode::Update()
-    {
-        m_lightStruct.inUse = m_sceneNodeMetaData.IsVisible;
-        if (m_sceneLightInfo.environmentLight->hdrImage != dynamic_cast<ApplicationCore::SkyBoxMaterial*>(m_mesh->GetMaterial().get())->GetHDRTexture())
-        {
-            m_sceneLightInfo.environmentLight->hdrImage = dynamic_cast<ApplicationCore::SkyBoxMaterial*>(m_mesh->GetMaterial().get())->GetHDRTexture();
-        }
-    }
-
-    void SkyBoxNode::SetShowBackground(bool show)
-    {
-        m_showBackground = show;
-    }
-} // ApplicationCore
+void SkyBoxNode::SetShowBackground(bool show)
+{
+  m_showBackground = show;
+}
+}  // namespace ApplicationCore

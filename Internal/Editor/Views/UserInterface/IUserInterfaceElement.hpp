@@ -7,30 +7,27 @@
 #include <memory>
 #include <vector>
 
-namespace VEditor
-{
-    class UIContext;
+namespace VEditor {
+class UIContext;
 }
 
-namespace VEditor
+namespace VEditor {
+struct IUserInterfaceElement
 {
-    struct IUserInterfaceElement {
 
-        std::vector<std::unique_ptr<IUserInterfaceElement>> m_uiChildren;
+  std::vector<std::unique_ptr<IUserInterfaceElement>> m_uiChildren;
 
-        virtual void Render();
+  virtual void Render();
 
-        virtual void Resize(int newWidth, int newHeight) = 0;
+  virtual void Resize(int newWidth, int newHeight) = 0;
 
-        virtual void Update();
+  virtual void Update();
 
-        virtual ~IUserInterfaceElement() = default;
+  virtual ~IUserInterfaceElement() = default;
 
-        bool m_isOpen = true;
-
-    };
-}
+  bool m_isOpen = true;
+};
+}  // namespace VEditor
 
 
-
-#endif //USERINTEFACEELEMENT_HPP
+#endif  //USERINTEFACEELEMENT_HPP

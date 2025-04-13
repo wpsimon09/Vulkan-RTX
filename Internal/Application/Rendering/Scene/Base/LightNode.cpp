@@ -5,4 +5,4 @@
 #include "LightNode.hpp"
 
 namespace ApplicationCore {
-} // ApplicationCore
+}  // namespace ApplicationCore

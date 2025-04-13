@@ -7,4 +7,4 @@
 
 namespace VulkanCore {
 
-} // VulkanCore
+}  // namespace VulkanCore

@@ -13,72 +13,76 @@
 
 namespace VEditor {
 
-    ModelImportOptions::ModelImportOptions(std::filesystem::path* path, const ApplicationCore::GLTFLoader& gltfLoader, const ApplicationCore::Scene& scene): m_gltfLoader(gltfLoader), m_scene(scene), m_path(path), m_options{}
-    {
-    }
+ModelImportOptions::ModelImportOptions(std::filesystem::path*             path,
+                                       const ApplicationCore::GLTFLoader& gltfLoader,
+                                       const ApplicationCore::Scene&      scene)
+    : m_gltfLoader(gltfLoader)
+    , m_scene(scene)
+    , m_path(path)
+    , m_options{}
+{
+}
 
-    void ModelImportOptions::Render()
+void ModelImportOptions::Render()
+{
+  if(ImGui::BeginPopupModal(ICON_FA_TOOLBOX " Import options"))
+  {
+    auto path = "Model name: " + m_path->string().substr(m_path->string().rfind('/', m_path->string().size() - 1));
+    ImGui::Text(path.c_str());
+
+    ImGui::Checkbox("Import materials", &m_options.importMaterials);
+    ImGui::Checkbox("Import only materials", &m_options.importOnlyMaterials);
+    ImGui::DragFloat("Uniform scale", &m_options.uniformScale, 1.0f, 1.0f);
+
+
+    if(ImGui::Button("Import"))
     {
-        if (ImGui::BeginPopupModal(ICON_FA_TOOLBOX" Import options"))
+      auto loadedNodes = std::async([this]() { return m_gltfLoader.LoadGLTFScene(*m_path, m_options); });
+
+      ImGui::OpenPopup("Importing");
+
+      if(ImGui::BeginPopupModal("Importing"))
+      {
+        ImGui::Text("Importing, please wait");
+
+        ImGui::EndPopup();
+
+
+        if(loadedNodes.valid())
         {
-            auto path = "Model name: "+m_path->string().substr(m_path->string().rfind('/', m_path->string().size()-1));
-            ImGui::Text(path.c_str());
-
-            ImGui::Checkbox("Import materials", &m_options.importMaterials);
-            ImGui::Checkbox("Import only materials", &m_options.importOnlyMaterials);
-            ImGui::DragFloat("Uniform scale", &m_options.uniformScale, 1.0f, 1.0f);
-
-
-            if (ImGui::Button("Import")){
-                auto loadedNodes = std::async([this](){return m_gltfLoader.LoadGLTFScene(*m_path, m_options);});
-
-                ImGui::OpenPopup("Importing");
-
-                if (ImGui::BeginPopupModal("Importing"))
-                {
-                    ImGui::Text("Importing, please wait");
-
-                    ImGui::EndPopup();
-
-
-                    if (loadedNodes.valid())
-                    {
-                        for (auto& scene_node : loadedNodes.get())
-                        {
-                            m_scene.AddNode(scene_node);
-                        }
-                        ImGui::CloseCurrentPopup();
-                    }
-
-                }
-                ImGui::CloseCurrentPopup();
-            };
-
-            ImGui::SameLine();
-
-
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
-
-            if (ImGui::Button("Cancel"))
-            {
-                ImGui::CloseCurrentPopup();
-            }
-
-            ImGui::PopStyleColor(3);
-
-            ImGui::EndPopup();
+          for(auto& scene_node : loadedNodes.get())
+          {
+            m_scene.AddNode(scene_node);
+          }
+          ImGui::CloseCurrentPopup();
         }
-        IUserInterfaceElement::Render();
+      }
+      ImGui::CloseCurrentPopup();
+    };
+
+    ImGui::SameLine();
+
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
+
+    if(ImGui::Button("Cancel"))
+    {
+      ImGui::CloseCurrentPopup();
     }
 
-    void ModelImportOptions::Resize(int newWidth, int newHeight)
-    {
-    }
+    ImGui::PopStyleColor(3);
 
-    void ModelImportOptions::Update()
-    {
-        IUserInterfaceElement::Update();
-    }
-} // VEditor
+    ImGui::EndPopup();
+  }
+  IUserInterfaceElement::Render();
+}
+
+void ModelImportOptions::Resize(int newWidth, int newHeight) {}
+
+void ModelImportOptions::Update()
+{
+  IUserInterfaceElement::Update();
+}
+}  // namespace VEditor

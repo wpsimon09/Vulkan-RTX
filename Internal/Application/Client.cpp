@@ -22,89 +22,93 @@
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 
-Client::Client(): m_globalRenderingData()
+Client::Client()
+    : m_globalRenderingData()
 {
 }
 
-void Client::Init() {
+void Client::Init()
+{
 
-    auto start = std::chrono::high_resolution_clock::now();
+  auto start = std::chrono::high_resolution_clock::now();
 
-    Utils::Logger::LogInfoVerboseOnly("Creating camera...");
-    m_camera = std::make_unique<ApplicationCore::Camera>();
-    Utils::Logger::LogSuccessClient("Camera creatd");
+  Utils::Logger::LogInfoVerboseOnly("Creating camera...");
+  m_camera = std::make_unique<ApplicationCore::Camera>();
+  Utils::Logger::LogSuccessClient("Camera creatd");
 
-    m_scene = std::make_unique<ApplicationCore::Scene>(*m_assetsManager, *m_camera);
-    m_scene->Init();
+  m_scene = std::make_unique<ApplicationCore::Scene>(*m_assetsManager, *m_camera);
+  m_scene->Init();
 
-    ApplicationCore::LoadSceneLights(*m_scene, GlobalVariables::lightInfoPath);
-
-
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+  ApplicationCore::LoadSceneLights(*m_scene, GlobalVariables::lightInfoPath);
 
 
-    Utils::Logger::LogSuccessClient("Client side initialized in: " +  std::to_string(duration.count()) + "seconds");
+  auto end      = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+
+  Utils::Logger::LogSuccessClient("Client side initialized in: " + std::to_string(duration.count()) + "seconds");
 }
 
-const std::vector<std::reference_wrapper<ApplicationCore::StaticMesh>> Client::GetMeshes() const {
-    std::vector<std::reference_wrapper<ApplicationCore::StaticMesh>> result;
-    result.reserve(m_meshes.size());
-    for (auto &mesh : m_meshes) {
-        result.push_back(std::ref(*mesh));
-    }
-    return result;
+const std::vector<std::reference_wrapper<ApplicationCore::StaticMesh>> Client::GetMeshes() const
+{
+  std::vector<std::reference_wrapper<ApplicationCore::StaticMesh>> result;
+  result.reserve(m_meshes.size());
+  for(auto& mesh : m_meshes)
+  {
+    result.push_back(std::ref(*mesh));
+  }
+  return result;
 }
 
 void Client::Render(VulkanUtils::RenderContext* ctx)
 {
-    ctx->projection = m_camera->GetProjectionMatrix();
-    ctx->view = m_camera->GetViewMatrix();
-    m_scene->Render(ctx, m_scene->GetRootNode());
+  ctx->projection = m_camera->GetProjectionMatrix();
+  ctx->view       = m_camera->GetViewMatrix();
+  m_scene->Render(ctx, m_scene->GetRootNode());
 }
 
-const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager) {
-    Utils::Logger::LogInfoClient("Mounting assets manger...");
-    m_assetsManager = std::move(assetsManager);
-    m_gltfLoader = std::make_unique<ApplicationCore::GLTFLoader>(*m_assetsManager);
-    m_gltfExporter= std::make_unique<ApplicationCore::GLTFExporter>();
-    assert(m_assetsManager);
-    Utils::Logger::LogInfoClient("Mounted assets manager successfuly to the client");
+const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager)
+{
+  Utils::Logger::LogInfoClient("Mounting assets manger...");
+  m_assetsManager = std::move(assetsManager);
+  m_gltfLoader    = std::make_unique<ApplicationCore::GLTFLoader>(*m_assetsManager);
+  m_gltfExporter  = std::make_unique<ApplicationCore::GLTFExporter>();
+  assert(m_assetsManager);
+  Utils::Logger::LogInfoClient("Mounted assets manager successfuly to the client");
 }
 
-const void Client::Destroy() {
-    Utils::Logger::LogInfoVerboseOnlyClient("Destroying client...");
-    assert(m_assetsManager);
-    Utils::Logger::LogInfoVerboseOnlyClient("Destroying assets manager...");
-    m_assetsManager->DeleteAll();
-    Utils::Logger::LogInfoVerboseOnlyClient("Assets manager destroyed");
-    Utils::Logger::LogInfoVerboseOnlyClient("Destroyed client");
+const void Client::Destroy()
+{
+  Utils::Logger::LogInfoVerboseOnlyClient("Destroying client...");
+  assert(m_assetsManager);
+  Utils::Logger::LogInfoVerboseOnlyClient("Destroying assets manager...");
+  m_assetsManager->DeleteAll();
+  Utils::Logger::LogInfoVerboseOnlyClient("Assets manager destroyed");
+  Utils::Logger::LogInfoVerboseOnlyClient("Destroyed client");
 }
 
 void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 {
-    m_camera->Update(cameraUpdateInfo);
+  m_camera->Update(cameraUpdateInfo);
 
-    m_globalRenderingData.proj = m_camera->GetProjectionMatrix();
-    m_globalRenderingData.view = m_camera->GetViewMatrix();
-    m_globalRenderingData.inverseView = m_camera->GetInverseViewMatrix();
-    m_globalRenderingData.screenSize = m_camera->GetScreenSize();
-    m_globalRenderingData.viewParams = glm::vec4(m_camera->GetCameraPlaneWidthAndHeight(), m_camera->GetNearPlane(),1.0f);
-    m_globalRenderingData.playerPosition = glm::vec4(m_camera->GetPosition(),1.0f);
+  m_globalRenderingData.proj        = m_camera->GetProjectionMatrix();
+  m_globalRenderingData.view        = m_camera->GetViewMatrix();
+  m_globalRenderingData.inverseView = m_camera->GetInverseViewMatrix();
+  m_globalRenderingData.screenSize  = m_camera->GetScreenSize();
+  m_globalRenderingData.viewParams = glm::vec4(m_camera->GetCameraPlaneWidthAndHeight(), m_camera->GetNearPlane(), 1.0f);
+  m_globalRenderingData.playerPosition = glm::vec4(m_camera->GetPosition(), 1.0f);
 }
 
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)
 {
-    m_globalRenderingData.lightPosition.x += lightUpdateInfo.moveLightX;
-    m_globalRenderingData.lightPosition.y += lightUpdateInfo.moveLightY;
-    m_isRTXOn =             lightUpdateInfo.isRTXon;
+  m_globalRenderingData.lightPosition.x += lightUpdateInfo.moveLightX;
+  m_globalRenderingData.lightPosition.y += lightUpdateInfo.moveLightY;
+  m_isRTXOn = lightUpdateInfo.isRTXon;
 
-    lightUpdateInfo.Reset();
-
+  lightUpdateInfo.Reset();
 }
 
-void Client::Update() {
-    m_scene->Update();
+void Client::Update()
+{
+  m_scene->Update();
 }
-
-

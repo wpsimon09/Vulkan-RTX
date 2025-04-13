@@ -8,18 +8,20 @@
 
 namespace VEditor {
 
-class Console: public IUserInterfaceElement {
+class Console : public IUserInterfaceElement
+{
 public:
-    Console();
+  Console();
 
-    void Render() override;
-    void Resize(int newWidth, int newHeight) override;
+  void Render() override;
+  void Resize(int newWidth, int newHeight) override;
+
 private:
-    bool m_scrollToBottom = true;
-    unsigned int m_previousNumberOfLogs = 0;
-    const int LogLimit = 700; // entries
+  bool         m_scrollToBottom       = true;
+  unsigned int m_previousNumberOfLogs = 0;
+  const int    LogLimit               = 700;  // entries
 };
 
-} // VEditor
+}  // namespace VEditor
 
-#endif //CONSOLE_HPP
+#endif  //CONSOLE_HPP

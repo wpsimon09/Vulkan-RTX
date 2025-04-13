@@ -14,27 +14,28 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore {
-    SkyBoxMaterial::SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager)
-        :BaseMaterial(assetsManager.GetEffectsLibrary().GetEffect(EEffectType::SkyBox))
-    {
-       assetsManager.GetHDRTexture(m_HDRTexture, path,true);
-    }
+SkyBoxMaterial::SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager)
+    : BaseMaterial(assetsManager.GetEffectsLibrary().GetEffect(EEffectType::SkyBox))
+{
+  assetsManager.GetHDRTexture(m_HDRTexture, path, true);
+}
 
-    void SkyBoxMaterial::ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect)
-    {
-        Utils::Logger::LogError("Can not change effect of SkyBox material");
-    }
+void SkyBoxMaterial::ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect)
+{
+  Utils::Logger::LogError("Can not change effect of SkyBox material");
+}
 
-    std::shared_ptr<ApplicationCore::VTextureAsset> SkyBoxMaterial::GetHDRTexture()
-    {
-        return m_HDRTexture;;
-    }
+std::shared_ptr<ApplicationCore::VTextureAsset> SkyBoxMaterial::GetHDRTexture()
+{
+  return m_HDRTexture;
+  ;
+}
 
-    void SkyBoxMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct)
-    {
-        // sky box can only be one and not the whole variant
-        // TODO: sky box will hold env lightning and all that good stuff and pass it to the mateiral here
-        //auto& data = std::get<std::reference_wrapper<VulkanUtils::UnlitSingleTexture>>(updateStruct).get();
-        //data.texture2D_1 = m_HDRTexture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-    }
-} // ApplicationCore
+void SkyBoxMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct)
+{
+  // sky box can only be one and not the whole variant
+  // TODO: sky box will hold env lightning and all that good stuff and pass it to the mateiral here
+  //auto& data = std::get<std::reference_wrapper<VulkanUtils::UnlitSingleTexture>>(updateStruct).get();
+  //data.texture2D_1 = m_HDRTexture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+}
+}  // namespace ApplicationCore

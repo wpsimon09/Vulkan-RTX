@@ -6,61 +6,65 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 
-namespace VulkanCore
-{
-    class VImage2;
+namespace VulkanCore {
+class VImage2;
 }
 
-namespace VulkanUtils
-{
-    class VTransferOperationsManager;
+namespace VulkanUtils {
+class VTransferOperationsManager;
 }
 
 struct TextureBufferInfo;
 
-enum ETextureAssetType{
-    Texture = 0,
-    EditorBillboard,
-    HDRTexture,
+enum ETextureAssetType
+{
+  Texture = 0,
+  EditorBillboard,
+  HDRTexture,
 };
 
 namespace ApplicationCore {
-    class VTextureAsset : public VAsset<VulkanCore::VImage2> {
-    public:
-        explicit VTextureAsset(const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage2> defaultTexture, ETextureAssetType type, std::filesystem::path texturePath);
-        explicit VTextureAsset(const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage2> defaultTexture, ETextureAssetType type, TextureBufferInfo& bufferInfo);
-        explicit VTextureAsset(const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage2> texture);
+class VTextureAsset : public VAsset<VulkanCore::VImage2>
+{
+public:
+  explicit VTextureAsset(const VulkanCore::VDevice&           device,
+                         std::shared_ptr<VulkanCore::VImage2> defaultTexture,
+                         ETextureAssetType                    type,
+                         std::filesystem::path                texturePath);
+  explicit VTextureAsset(const VulkanCore::VDevice&           device,
+                         std::shared_ptr<VulkanCore::VImage2> defaultTexture,
+                         ETextureAssetType                    type,
+                         TextureBufferInfo&                   bufferInfo);
+  explicit VTextureAsset(const VulkanCore::VDevice& device, std::shared_ptr<VulkanCore::VImage2> texture);
 
-        bool Sync() override;
-        void Destroy() override;
-        void Load() override;
-        bool IsAvailable();
+  bool Sync() override;
+  void Destroy() override;
+  void Load() override;
+  bool IsAvailable();
 
 
-        std::shared_ptr<VulkanCore::VImage2> GetHandle() override;
-        VulkanCore::VImage2& GetHandleByRef() override;
-    protected:
-        void LoadInternal() override;
-        void LoadInternalFromBuffer();
-    private:
+  std::shared_ptr<VulkanCore::VImage2> GetHandle() override;
+  VulkanCore::VImage2&                 GetHandleByRef() override;
 
-        EImageSource m_textureSource;
-        ETextureAssetType m_textureAssetType;
-        int m_width;
-        int m_height;
-        int m_mipLevels;
-                
-        std::optional<std::filesystem::path> m_originalPathToTexture;
-        std::optional<TextureBufferInfo> m_textureBufferInfo;
+protected:
+  void LoadInternal() override;
+  void LoadInternalFromBuffer();
 
-        std::variant<
-            std::future<VulkanStructs::ImageData<>>,
-            std::future<VulkanStructs::ImageData<float>>> m_imageFormat;
+private:
+  EImageSource      m_textureSource;
+  ETextureAssetType m_textureAssetType;
+  int               m_width;
+  int               m_height;
+  int               m_mipLevels;
 
-        VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
+  std::optional<std::filesystem::path> m_originalPathToTexture;
+  std::optional<TextureBufferInfo>     m_textureBufferInfo;
 
-    };
+  std::variant<std::future<VulkanStructs::ImageData<>>, std::future<VulkanStructs::ImageData<float>>> m_imageFormat;
 
-}
+  VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
+};
 
-#endif // VTEXTUREASSET_HPP
+}  // namespace ApplicationCore
+
+#endif  // VTEXTUREASSET_HPP

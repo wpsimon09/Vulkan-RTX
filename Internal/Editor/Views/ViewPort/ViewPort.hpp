@@ -11,44 +11,42 @@
 struct ImVec2;
 class WindowManager;
 
-namespace ApplicationCore
-{
-    class Scene;
+namespace ApplicationCore {
+class Scene;
 }
 
 struct ViewPortContext;
 
-namespace VEditor
+namespace VEditor {
+class ViewPort : public IUserInterfaceElement
 {
-    class ViewPort: public IUserInterfaceElement {
-    public:
-        explicit ViewPort(ViewPortContext& viewPortContext, ApplicationCore::Scene& scene, WindowManager& windowManager);
+public:
+  explicit ViewPort(ViewPortContext& viewPortContext, ApplicationCore::Scene& scene, WindowManager& windowManager);
 
-        virtual void Render() override;
+  virtual void Render() override;
 
-        void Resize(int newWidth, int newHeight) override;
+  void Resize(int newWidth, int newHeight) override;
 
-    private:
-        void RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSize);
+private:
+  void RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSize);
 
-        ApplicationCore::Scene& m_scene;
-        WindowManager& m_windowManager;
-        ViewPortContext& m_viewPortContext;
+  ApplicationCore::Scene& m_scene;
+  WindowManager&          m_windowManager;
+  ViewPortContext&        m_viewPortContext;
 
-        float m_previousWidth;
-        float m_previousHeight;
-        float m_gizmoRectOriginX;
-        float m_gizmoRectOriginY;
-        /**
+  float m_previousWidth;
+  float m_previousHeight;
+  float m_gizmoRectOriginX;
+  float m_gizmoRectOriginY;
+  /**
          * Calculates position of mouse inside the view port window
          * @param ImageWidth width of the viewport image
          * @return NDC x and y position of the mouse inside the viewport
          */
-        glm::vec2 GetMousePositionInViewPort(ImVec2& ImageWidth);
-    };
+  glm::vec2 GetMousePositionInViewPort(ImVec2& ImageWidth);
+};
 
-}
+}  // namespace VEditor
 
 
-
-#endif //VIEWPORT_HPP
+#endif  //VIEWPORT_HPP

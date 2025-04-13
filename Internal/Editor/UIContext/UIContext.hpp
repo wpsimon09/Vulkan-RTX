@@ -13,89 +13,82 @@
 #include "Application/WindowManager/WindowManager.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 
-namespace ApplicationCore
-{
-    class SceneNode;
+namespace ApplicationCore {
+class SceneNode;
 }
 
 class Client;
 
-namespace Renderer
-{
-    class RenderingSystem;
+namespace Renderer {
+class RenderingSystem;
 }
 
-namespace ApplicationCore
-{
-    class Scene;
+namespace ApplicationCore {
+class Scene;
 }
 
 struct ImGuiIO;
 
-namespace VulkanCore
-{
-    class VRenderPass;
-    class VulkanInstance;
-    class VDevice;
-}
+namespace VulkanCore {
+class VRenderPass;
+class VulkanInstance;
+class VDevice;
+}  // namespace VulkanCore
 
 namespace VEditor {
-    class Editor;
-    class UIContext {
+class Editor;
+class UIContext
+{
 public:
-    explicit UIContext(
-        const VulkanCore::VDevice& device,
-        const VulkanCore::VulkanInstance& instance,
-        WindowManager& windowManager,
-        Client& client
-    );
+  explicit UIContext(const VulkanCore::VDevice& device, const VulkanCore::VulkanInstance& instance, WindowManager& windowManager, Client& client);
 
-    ViewPortContext& GetViewPortContext(ViewPortType viewPortType) {return m_viewports[viewPortType];}
-    const VulkanCore::VDevice& GetDevice() {return m_device;}
+  ViewPortContext&           GetViewPortContext(ViewPortType viewPortType) { return m_viewports[viewPortType]; }
+  const VulkanCore::VDevice& GetDevice() { return m_device; }
 
-    void Initialize(const VulkanCore::VSwapChain& swapChain);
-    void BeginRender();
-    void Render(VulkanCore::VCommandBuffer& commandBuffer);
-    void SetRenderingSystem(Renderer::RenderingSystem* rendderingSystem) {m_renderingSystem = rendderingSystem;}
-    void EndRender();
-    void Destroy();
-    void SetCurrentOperation(ImGuizmo::OPERATION operation) {m_operation = operation;};
-    void SetSelectedSceneNode(std::shared_ptr<ApplicationCore::SceneNode> sceneNode) {m_selectedSceneNode = sceneNode;};
-    void SetColourThemePabloDark();
-    void SetColourThemePabloLight();
+  void Initialize(const VulkanCore::VSwapChain& swapChain);
+  void BeginRender();
+  void Render(VulkanCore::VCommandBuffer& commandBuffer);
+  void SetRenderingSystem(Renderer::RenderingSystem* rendderingSystem) { m_renderingSystem = rendderingSystem; }
+  void EndRender();
+  void Destroy();
+  void SetCurrentOperation(ImGuizmo::OPERATION operation) { m_operation = operation; };
+  void SetSelectedSceneNode(std::shared_ptr<ApplicationCore::SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; };
+  void SetColourThemePabloDark();
+  void SetColourThemePabloLight();
 
 public:
-    ApplicationCore::Scene& GetScene() const {return m_client.GetScene();}
-    Client& GetClient() {return m_client;}
+  ApplicationCore::Scene& GetScene() const { return m_client.GetScene(); }
+  Client&                 GetClient() { return m_client; }
+
 private:
-    const VulkanCore::VDevice& m_device;
-    const VulkanCore::VulkanInstance& m_instance;
-    WindowManager& m_windowManager;
-    Client& m_client;
+  const VulkanCore::VDevice&        m_device;
+  const VulkanCore::VulkanInstance& m_instance;
+  WindowManager&                    m_windowManager;
+  Client&                           m_client;
 
-    Renderer::RenderingSystem* m_renderingSystem;
+  Renderer::RenderingSystem* m_renderingSystem;
 
-    vk::PipelineCache m_imguiPipelineCache;
-    vk::DescriptorPool m_imguiDescriptorPool;
+  vk::PipelineCache  m_imguiPipelineCache;
+  vk::DescriptorPool m_imguiDescriptorPool;
 
-    ImDrawData* m_imguiDrawData;
+  ImDrawData* m_imguiDrawData;
 
-    std::unordered_map<ViewPortType, ViewPortContext> m_viewports;
+  std::unordered_map<ViewPortType, ViewPortContext> m_viewports;
 
-    ImGuiIO* m_io;
+  ImGuiIO* m_io;
 
-    ImFont* m_defaultFont;
-    ImFont* m_editorFont;
+  ImFont* m_defaultFont;
+  ImFont* m_editorFont;
 
-    std::shared_ptr<ApplicationCore::SceneNode> m_selectedSceneNode = nullptr;
+  std::shared_ptr<ApplicationCore::SceneNode> m_selectedSceneNode = nullptr;
 
-    ImGuizmo::OPERATION m_operation;
+  ImGuizmo::OPERATION m_operation;
 
 
-    private:
-        friend class VEditor::Editor;
+private:
+  friend class VEditor::Editor;
 };
 
-} // VEditor
+}  // namespace VEditor
 
-#endif //IMGUIINITIALIZER_HPP
+#endif  //IMGUIINITIALIZER_HPP

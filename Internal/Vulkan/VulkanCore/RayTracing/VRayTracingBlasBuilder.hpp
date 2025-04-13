@@ -43,7 +43,11 @@ public:
                                 const std::vector<AccelerationStructBuildData>& blasBuildData,
                                 uint32_t                                        minAlignment);
 
-  void GetScratchAddresses(vk::DeviceSize hintMaxBudget, const std::vector<AccelerationStructBuildData>& blasBuildData, vk::DeviceAddress scratchBufferAdress, std::vector<vk::DeviceAddress>& scratchAddresses, uint32_t minimumAlligment);
+  void GetScratchAddresses(vk::DeviceSize                                  hintMaxBudget,
+                           const std::vector<AccelerationStructBuildData>& blasBuildData,
+                           vk::DeviceAddress                               scratchBufferAdress,
+                           std::vector<vk::DeviceAddress>&                 scratchAddresses,
+                           uint32_t                                        minimumAlligment);
 
 
   void Destroy();

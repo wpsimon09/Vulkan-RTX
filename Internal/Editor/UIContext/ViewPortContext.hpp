@@ -15,29 +15,28 @@
 
 enum class ViewPortType
 {
-    eMain,
-    eMaterial
+  eMain,
+  eMaterial
 };
 
 struct ViewPortContext
 {
-    int width = 800;
-    int height = 600;
-    std::array<vk::DescriptorSet,2> ds;
-    int currentFrameInFlight = 0;
-    ApplicationCore::Camera* camera;;
+  int                              width  = 800;
+  int                              height = 600;
+  std::array<vk::DescriptorSet, 2> ds;
+  int                              currentFrameInFlight = 0;
+  ApplicationCore::Camera*         camera;
+  ;
 
-    VkDescriptorSet GetImageDs()
-    {
-        return ds[currentFrameInFlight];
-    }
+  VkDescriptorSet GetImageDs() { return ds[currentFrameInFlight]; }
 
-    void SetImage(const VulkanCore::VImage2& renderedScene, int frameIndex)
-    {
-        ds[frameIndex] = ImGui_ImplVulkan_AddTexture(VulkanCore::VSamplers::Sampler2D, renderedScene.GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-        //ds[frameIndex] = ImGui_ImplVulkan_AddTexture(VulkanCore::VSamplers::SamplerClampToEdge, renderedScene.GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-    }
+  void SetImage(const VulkanCore::VImage2& renderedScene, int frameIndex)
+  {
+    ds[frameIndex] = ImGui_ImplVulkan_AddTexture(VulkanCore::VSamplers::Sampler2D, renderedScene.GetImageView(),
+                                                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    //ds[frameIndex] = ImGui_ImplVulkan_AddTexture(VulkanCore::VSamplers::SamplerClampToEdge, renderedScene.GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+  }
 };
 
 
-#endif //VIEWPORTCONTEXT_HPP
+#endif  //VIEWPORTCONTEXT_HPP

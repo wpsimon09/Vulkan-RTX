@@ -16,66 +16,61 @@
 #include "Settings/Settings.hpp"
 
 namespace VEditor {
-    MenuBar::MenuBar(Editor* editor): m_editor(editor)
+MenuBar::MenuBar(Editor* editor)
+    : m_editor(editor)
+{
+  auto fileExplorer =
+      std::make_unique<FileExplorer>(editor->m_uiContext.GetClient().GetGLTFLoader(), editor->m_uiContext.GetScene());
+  m_uiChildren.emplace_back(std::move(fileExplorer));
+  m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
+  m_uiChildren.emplace_back(std::make_unique<VEditor::Settings>(m_editor->m_uiContext.GetClient(), editor));
+  m_settings = dynamic_cast<Settings*>(m_uiChildren.back().get());
+}
+
+void MenuBar::Resize(int newWidth, int newHeight) {}
+
+void MenuBar::Render()
+{
+  //TODO: disable window border
+  ImGui::BeginMainMenuBar();
+  if(ImGui::BeginMenu("File"))
+  {
+    if(ImGui::MenuItem(ICON_FA_DOWNLOAD " Import"))
     {
-        auto fileExplorer = std::make_unique<FileExplorer>(editor->m_uiContext.GetClient().GetGLTFLoader(),editor->m_uiContext.GetScene());
-        m_uiChildren.emplace_back(std::move(fileExplorer));
-        m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
-        m_uiChildren.emplace_back(std::make_unique<VEditor::Settings>(m_editor->m_uiContext.GetClient(), editor));
-        m_settings = dynamic_cast<Settings*>(m_uiChildren.back().get());
+      OnImportSelect();
     }
-
-    void MenuBar::Resize(int newWidth, int newHeight)
+    if(ImGui::MenuItem(ICON_FA_FILE " Save"))
     {
-
+      Utils::Logger::LogInfo("Saving scene...");
+      GlobalVariables::hasSessionBeenSaved = true;
+      m_editor->m_uiContext.GetClient().GetGLTFExporter().ExportScene("cache", m_editor->m_uiContext.GetScene(),
+                                                                      m_editor->m_uiContext.GetClient().GetAssetsManager());
     }
-
-    void MenuBar::Render()
+    ImGui::EndMenu();
+  }
+  if(ImGui::BeginMenu("Edit"))
+  {
+    if(ImGui::MenuItem(ICON_FA_SLIDERS " Options"))
     {
-        //TODO: disable window border
-        ImGui::BeginMainMenuBar();
-            if (ImGui::BeginMenu("File"))
-            {
-                if (ImGui::MenuItem(ICON_FA_DOWNLOAD" Import"))
-                {
-                    OnImportSelect();
-                }
-                if (ImGui::MenuItem(ICON_FA_FILE" Save"))
-                {
-                    Utils::Logger::LogInfo("Saving scene...");
-                    GlobalVariables::hasSessionBeenSaved = true;
-                    m_editor->m_uiContext.GetClient().GetGLTFExporter().ExportScene(
-                    "cache",
-                        m_editor->m_uiContext.GetScene(),
-                           m_editor->m_uiContext.GetClient().GetAssetsManager()
-                        );
-                }
-                ImGui::EndMenu();
-            }
-            if (ImGui::BeginMenu("Edit"))
-            {
-                if (ImGui::MenuItem(ICON_FA_SLIDERS" Options"))
-                {
-                    m_settings->Open();
-                }
-                ImGui::EndMenu();
-            }
-        ImGui::EndMainMenuBar();
-
-        IUserInterfaceElement::Render();
+      m_settings->Open();
     }
+    ImGui::EndMenu();
+  }
+  ImGui::EndMainMenuBar();
 
-    void MenuBar::Update()
-    {
+  IUserInterfaceElement::Render();
+}
 
-        IUserInterfaceElement::Update();
-    }
+void MenuBar::Update()
+{
 
-    void MenuBar::OnImportSelect()
-    {
-        Utils::Logger::LogInfo("Importing file...");
-        m_isFileDialoOpen = true;
-        m_fileExplorer->OpenForSceneImport();
+  IUserInterfaceElement::Update();
+}
 
-    }
-} // VEditor
+void MenuBar::OnImportSelect()
+{
+  Utils::Logger::LogInfo("Importing file...");
+  m_isFileDialoOpen = true;
+  m_fileExplorer->OpenForSceneImport();
+}
+}  // namespace VEditor

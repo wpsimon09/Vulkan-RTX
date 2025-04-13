@@ -5,30 +5,29 @@
 #ifndef GLOBALSTATE_HPP
 #define GLOBALSTATE_HPP
 
-#define MB  = 1024 * 1024
+#define MB = 1024 * 1024
 
-namespace GlobalState
+namespace GlobalState {
+
+inline bool ValidationLayersEnabled = true;
+inline bool LoggingEnabled          = true;
+inline bool Verbose                 = false;
+inline bool VerboseInRendering      = false;
+inline bool AutoCommandBufferFlags  = true;
+inline bool MSAA                    = true;
+
+inline void EnableLogging()
 {
-
-    inline bool ValidationLayersEnabled = true;
-    inline bool LoggingEnabled = true;
-    inline bool Verbose = false;
-    inline bool VerboseInRendering = false;
-    inline bool AutoCommandBufferFlags = true;
-    inline bool MSAA = true;
-
-    inline void EnableLogging()
-    {
-        LoggingEnabled = true;
-    }
-
-    inline void DisableLogging()
-    {
-        LoggingEnabled = false;
-    }
-
-    inline int LogLimit = 700; // entires in console
-
+  LoggingEnabled = true;
 }
 
-#endif //GLOBALSTATE_HPP
+inline void DisableLogging()
+{
+  LoggingEnabled = false;
+}
+
+inline int LogLimit = 700;  // entires in console
+
+}  // namespace GlobalState
+
+#endif  //GLOBALSTATE_HPP

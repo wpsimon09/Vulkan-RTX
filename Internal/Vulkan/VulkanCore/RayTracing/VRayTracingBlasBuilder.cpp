@@ -6,5 +6,5 @@
 
 namespace VulkanCore {
 namespace RTX {
-} // RTX
-} // VulkanCore
+}  // namespace RTX
+}  // namespace VulkanCore

@@ -12,113 +12,112 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
-namespace ApplicationCore
-{
-    struct Vertex;
+namespace ApplicationCore {
+struct Vertex;
 }
 
-namespace VulkanCore
+namespace VulkanCore {
+class VGraphicsPipeline;
+
+class VBuffer : public VObject
 {
-    class VGraphicsPipeline;
+public:
+  explicit VBuffer(const VulkanCore::VDevice& device, const std::string& name = "");
 
-    class VBuffer : public VObject
-    {
-    public:
-        explicit VBuffer(const VulkanCore::VDevice &device,const std::string& name = "");
+  const vk::Buffer&    GetBuffer() const { return m_bufferVK; }
+  const vk::Buffer&    GetStagingBuffer() const { return m_stagingBufferVK; }
+  const VmaAllocation& GetStagingBufferAllocation() const { return m_stagingAllocation; }
+  vk::DeviceSize       GetBuffeSizeInBytes() const { return m_bufferSize; };
 
-        const vk::Buffer &GetBuffer() const { return m_bufferVK; }
-        const vk::Buffer &GetStagingBuffer() const { return m_stagingBufferVK; }
-        const VmaAllocation &GetStagingBufferAllocation() const { return m_stagingAllocation; }
-        vk::DeviceSize GetBuffeSizeInBytes() const {return m_bufferSize;};
+  void* GetMapPointer() const
+  {
+    assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer);
+    return m_mappedData;
+  }
 
-        void *GetMapPointer() const {
-            assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer);
-            return m_mappedData;
-        }
+  void* MapStagingBuffer();
 
-        void *MapStagingBuffer();
+  void UnMapStagingBuffer();
 
-        void UnMapStagingBuffer();
+  vk::DescriptorBufferInfo& GetBufferInfoForDescriptor();
 
-        vk::DescriptorBufferInfo &GetBufferInfoForDescriptor();
+  template <typename T>
+  void MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size);
 
-        template <typename T>
-        void MakeUniformBuffer(const T &uniformBuffer, vk::DeviceSize size);
+  void Destroy() override;
 
-        void Destroy() override;
+  void CreateStagingBuffer(VkDeviceSize size);
 
-        void CreateStagingBuffer(VkDeviceSize size);
+  void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage);
 
-        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage);
+  void DestroyStagingBuffer() const;
 
-        void DestroyStagingBuffer() const;
+  ~VBuffer() override = default;
 
-        ~VBuffer() override = default;
+private:
+  const VulkanCore::VDevice& m_device;
 
-    private:
-        const VulkanCore::VDevice &m_device;
+  // normal buffer
+  VmaAllocation m_allocation;
+  vk::Buffer    m_bufferVK;
+  VkBuffer      m_bufferVMA;
 
-        // normal buffer
-        VmaAllocation m_allocation;
-        vk::Buffer m_bufferVK;
-        VkBuffer m_bufferVMA;
+  // staging buffer
+  VmaAllocation m_stagingAllocation;
+  VkBuffer      m_stagingBufferVMA;
+  vk::Buffer    m_stagingBufferVK;
 
-        // staging buffer
-        VmaAllocation m_stagingAllocation;
-        VkBuffer m_stagingBufferVMA;
-        vk::Buffer m_stagingBufferVK;
+  // others
+  vk::BufferUsageFlags     m_bufferType;
+  std::vector<uint32_t>    m_sharedQueueFamilyIndices;
+  vk::DescriptorBufferInfo m_descriptorBufferInfo;
 
-        // others
-        vk::BufferUsageFlags m_bufferType;
-        std::vector<uint32_t> m_sharedQueueFamilyIndices;
-        vk::DescriptorBufferInfo m_descriptorBufferInfo;
+  vk::DeviceSize    m_bufferSize;
+  const std::string m_allocationName;
 
-        vk::DeviceSize m_bufferSize;
-        const std::string m_allocationName;
-
-        bool m_isInitialized = false;
-        bool m_isPresistentlyMapped = false;
-        void *m_mappedData;
-
-    };
+  bool  m_isInitialized        = false;
+  bool  m_isPresistentlyMapped = false;
+  void* m_mappedData;
+};
 
 
-    template <typename T>
-    void VBuffer::MakeUniformBuffer(const T &uniformBuffer, vk::DeviceSize size) {
+template <typename T>
+void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size)
+{
 
-        m_isPresistentlyMapped = true;
-        assert(!m_isInitialized);
+  m_isPresistentlyMapped = true;
+  assert(!m_isInitialized);
 
-        //---------------------
-        // CREATE BUFFERS
-        // - GPU<->CPU VISIBLE
-        // - persistently mapped
-        //----------------------
-        Utils::Logger::LogInfoVerboseOnly("Allocating Uniform buffer....");
-        m_bufferType = vk::BufferUsageFlagBits::eUniformBuffer;
-        CreateBuffer(size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
-        Utils::Logger::LogSuccess("Allocation completed successfully !");
+  //---------------------
+  // CREATE BUFFERS
+  // - GPU<->CPU VISIBLE
+  // - persistently mapped
+  //----------------------
+  Utils::Logger::LogInfoVerboseOnly("Allocating Uniform buffer....");
+  m_bufferType = vk::BufferUsageFlagBits::eUniformBuffer;
+  CreateBuffer(size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+  Utils::Logger::LogSuccess("Allocation completed successfully !");
 
-        //----------------------------
-        // MAP DATA TO STAGING BUFFER
-        //----------------------------
-        Utils::Logger::LogInfoVerboseOnly("Mapping uniform buffer...");
-        vmaMapMemory(m_device.GetAllocator(), m_allocation, &m_mappedData);
-        Utils::Logger::LogSuccess("Uniform buffer is going to bre persistently mapped ");
+  //----------------------------
+  // MAP DATA TO STAGING BUFFER
+  //----------------------------
+  Utils::Logger::LogInfoVerboseOnly("Mapping uniform buffer...");
+  vmaMapMemory(m_device.GetAllocator(), m_allocation, &m_mappedData);
+  Utils::Logger::LogSuccess("Uniform buffer is going to bre persistently mapped ");
 
-        //-------------------------------------------------------
-        // FINISHING UP
-        //-------------------------------------------------------
-        m_bufferVK = vk::Buffer(m_bufferVMA);
-        m_isInitialized = true;
-        Utils::Logger::LogSuccess("Uniform buffer created !");
+  //-------------------------------------------------------
+  // FINISHING UP
+  //-------------------------------------------------------
+  m_bufferVK      = vk::Buffer(m_bufferVMA);
+  m_isInitialized = true;
+  Utils::Logger::LogSuccess("Uniform buffer created !");
 
-        m_descriptorBufferInfo.buffer = m_bufferVK;
-        m_descriptorBufferInfo.range = size;
-        m_descriptorBufferInfo.offset = 0;
-    }
+  m_descriptorBufferInfo.buffer = m_bufferVK;
+  m_descriptorBufferInfo.range  = size;
+  m_descriptorBufferInfo.offset = 0;
+}
 
 
-} // VulkanCore
+}  // namespace VulkanCore
 
-#endif //VVERTEXBUFFER_HPP
+#endif  //VVERTEXBUFFER_HPP

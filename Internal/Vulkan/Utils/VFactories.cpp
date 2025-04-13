@@ -5,11 +5,10 @@
 
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
-namespace VulkanUtils
+namespace VulkanUtils {
+VulkanStructs::MeshData AddNewMeshData(VulkanCore::MeshDatatManager&               meshDataManager,
+                                       const std::vector<ApplicationCore::Vertex>& vertices,
+                                       const std::vector<uint32_t>&                indices)
 {
-    VulkanStructs::MeshData AddNewMeshData(VulkanCore::MeshDatatManager& meshDataManager,
-        const std::vector<ApplicationCore::Vertex>& vertices, const std::vector<uint32_t>& indices)
-    {
-
-    }
 }
+}  // namespace VulkanUtils

@@ -12,95 +12,86 @@
 #include "Editor/Views/Index.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
-namespace VulkanCore
-{
-    namespace RTX
-    {
-        class VRayTracingBuilderKHR;
-    }
-
-    class VRayTracingBuilderKHR;
+namespace VulkanCore {
+namespace RTX {
+class VRayTracingBuilderKHR;
 }
 
-namespace ApplicationCore
-{
-    class EffectsLibrary;
+class VRayTracingBuilderKHR;
+}  // namespace VulkanCore
+
+namespace ApplicationCore {
+class EffectsLibrary;
 }
 
-namespace VulkanUtils
-{
-    class VTransferOperationsManager;
+namespace VulkanUtils {
+class VTransferOperationsManager;
 }
 
-namespace VEditor
-{
-    class Editor;
+namespace VEditor {
+class Editor;
 }
 
-namespace VEditor
-{
-    class UIContext;
+namespace VEditor {
+class UIContext;
 }
 
-namespace Renderer
-{
-    class RenderingSystem;
+namespace Renderer {
+class RenderingSystem;
 }
 
-namespace VulkanUtils
-{
-    class VResourceGroupManager;
-    class VUniformBufferManager;
-}
+namespace VulkanUtils {
+class VResourceGroupManager;
+class VUniformBufferManager;
+}  // namespace VulkanUtils
 
 class Client;
 
-namespace VulkanCore
+namespace VulkanCore {
+class MeshDatatManager;
+class VCommandPool;
+class VFrameBuffer;
+class VRenderPass;
+class VPipelineManager;
+class VGraphicsPipeline;
+class VSwapChain;
+class VDevice;
+class VulkanInstance;
+
+}  // namespace VulkanCore
+
+class Application
 {
-    class MeshDatatManager;
-    class VCommandPool;
-    class VFrameBuffer;
-    class VRenderPass;
-    class VPipelineManager;
-    class VGraphicsPipeline;
-    class VSwapChain;
-    class VDevice;
-    class VulkanInstance;
-
-}
-
-class Application {
 public:
-    Application();
+  Application();
 
-    void Init();
+  void Init();
 
-    void Run();
+  void Run();
 
-    void Update();
+  void Update();
 
-    void Render();
+  void Render();
 
-    void PostRender();
+  void PostRender();
 
-    void MainLoop();
+  void MainLoop();
 
-    ~Application();
+  ~Application();
 
 private:
-    std::unique_ptr<class Client> m_client;
+  std::unique_ptr<class Client> m_client;
 
-    std::unique_ptr<class WindowManager> m_windowManager;
-    std::unique_ptr<class VulkanUtils::VResourceGroupManager> m_pushDescriptorSetManager;
-    std::unique_ptr<class VulkanUtils::VUniformBufferManager> m_uniformBufferManager;
-    std::unique_ptr<class VulkanCore::VulkanInstance> m_vulkanInstance;
-    std::unique_ptr<class VulkanCore::VDevice> m_vulkanDevice;
-    std::unique_ptr<class VEditor::UIContext> m_uiContext;
-    std::unique_ptr<class VEditor::Editor> m_editor;
-    std::unique_ptr<class Renderer::RenderingSystem> m_renderingSystem;
-    std::unique_ptr<class ApplicationCore::EffectsLibrary> m_effectsLibrary;
-    std::unique_ptr<class VulkanCore::RTX::VRayTracingBuilderKHR> m_rayTracingBuilder;
-
+  std::unique_ptr<class WindowManager>                          m_windowManager;
+  std::unique_ptr<class VulkanUtils::VResourceGroupManager>     m_pushDescriptorSetManager;
+  std::unique_ptr<class VulkanUtils::VUniformBufferManager>     m_uniformBufferManager;
+  std::unique_ptr<class VulkanCore::VulkanInstance>             m_vulkanInstance;
+  std::unique_ptr<class VulkanCore::VDevice>                    m_vulkanDevice;
+  std::unique_ptr<class VEditor::UIContext>                     m_uiContext;
+  std::unique_ptr<class VEditor::Editor>                        m_editor;
+  std::unique_ptr<class Renderer::RenderingSystem>              m_renderingSystem;
+  std::unique_ptr<class ApplicationCore::EffectsLibrary>        m_effectsLibrary;
+  std::unique_ptr<class VulkanCore::RTX::VRayTracingBuilderKHR> m_rayTracingBuilder;
 };
 
-#endif //VULKANRTX_HPP
+#endif  //VULKANRTX_HPP

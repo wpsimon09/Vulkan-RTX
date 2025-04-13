@@ -13,24 +13,20 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 
 
+namespace VulkanCore {
+class VDevice;
+class VBuffer;
+}  // namespace VulkanCore
 
-namespace VulkanCore
+namespace ApplicationCore {
+struct Vertex
 {
-    class VDevice;
-    class VBuffer;
-}
+  glm::vec3 position = {0.0f, 0.0F, 0.0f};
+  glm::vec3 normal{0.0f, 1.0f, 0.0f};
+  glm::vec2 uv = {0.0f, 0.0f};
+};
 
-namespace ApplicationCore
-{
-    struct Vertex
-    {
-        glm::vec3 position = {0.0f, 0.0F, 0.0f};
-        glm::vec3 normal {0.0f, 1.0f, 0.0f};
-        glm::vec2 uv = {0.0f, 0.0f};
-    };
-
-}
+}  // namespace ApplicationCore
 
 
-
-#endif //VERTEXARRAY_HPP
+#endif  //VERTEXARRAY_HPP

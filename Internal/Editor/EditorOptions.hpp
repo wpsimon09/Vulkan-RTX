@@ -6,9 +6,8 @@
 #define EDITOROPTIONS_HPP
 #include "Application/Enums/ClientEnums.hpp"
 
-namespace GlobalVariables::EditorOptions
-{
-    inline ETheme Theme = ETheme::Dark;
+namespace GlobalVariables::EditorOptions {
+inline ETheme Theme = ETheme::Dark;
 }
 
-#endif //EDITOROPTIONS_HPP
+#endif  //EDITOROPTIONS_HPP

@@ -6,16 +6,16 @@
 
 void VEditor::IUserInterfaceElement::Render()
 {
-    for (auto &uiChild : m_uiChildren)
-    {
-        uiChild->Render();
-    }
+  for(auto& uiChild : m_uiChildren)
+  {
+    uiChild->Render();
+  }
 }
 
 void VEditor::IUserInterfaceElement::Update()
 {
-    for (auto &uiChild : m_uiChildren)
-    {
-        uiChild->Update();
-    }
+  for(auto& uiChild : m_uiChildren)
+  {
+    uiChild->Update();
+  }
 }

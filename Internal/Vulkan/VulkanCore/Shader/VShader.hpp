@@ -14,26 +14,32 @@
 
 namespace VulkanCore {
 
-    class VShader: public VObject {
-        public:
-            VShader(const VulkanCore::VDevice& device ,const std::string& vertexSource, const std::string &fragmentSource, const std::string& computeSource = "");
-            void DestroyExistingShaderModules();
-            std::vector<char> ReadSPIRVShader(const std::string& SPIRVShader);
-            const vk::ShaderModule& GetShaderModule(GlobalVariables::SHADER_TYPE shaderType) const;
-        private:
-            void CreateShaderModules();
-        private:
-            const VulkanCore::VDevice& m_device;
+class VShader : public VObject
+{
+public:
+  VShader(const VulkanCore::VDevice& device,
+          const std::string&         vertexSource,
+          const std::string&         fragmentSource,
+          const std::string&         computeSource = "");
+  void                    DestroyExistingShaderModules();
+  std::vector<char>       ReadSPIRVShader(const std::string& SPIRVShader);
+  const vk::ShaderModule& GetShaderModule(GlobalVariables::SHADER_TYPE shaderType) const;
 
-            vk::ShaderModule m_fragmentShaderModule;
-            vk::ShaderModule m_vertexShaderModule;
-            std::optional<vk::ShaderModule> m_computeShaderModule;
+private:
+  void CreateShaderModules();
 
-            std::string m_vertexSource;
-            std::string m_fragmentSource;
-            std::optional<std::string> m_computeSource;
-    };
+private:
+  const VulkanCore::VDevice& m_device;
 
-} // VulkanCore
+  vk::ShaderModule                m_fragmentShaderModule;
+  vk::ShaderModule                m_vertexShaderModule;
+  std::optional<vk::ShaderModule> m_computeShaderModule;
 
-#endif //VSHADER_HPP
+  std::string                m_vertexSource;
+  std::string                m_fragmentSource;
+  std::optional<std::string> m_computeSource;
+};
+
+}  // namespace VulkanCore
+
+#endif  //VSHADER_HPP

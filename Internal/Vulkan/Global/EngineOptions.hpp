@@ -6,10 +6,9 @@
 #define ENGINEOPTIONS_HPP
 #include "VulkanStructs.hpp"
 
-namespace GlobalVariables::EngineOptions
-{
-    inline size_t VertexBufferChunkSize = 0;
-    inline size_t IndexBufferChunkSize =  0;
-}
+namespace GlobalVariables::EngineOptions {
+inline size_t VertexBufferChunkSize = 0;
+inline size_t IndexBufferChunkSize  = 0;
+}  // namespace GlobalVariables::EngineOptions
 
-#endif //ENGINEOPTIONS_HPP
+#endif  //ENGINEOPTIONS_HPP

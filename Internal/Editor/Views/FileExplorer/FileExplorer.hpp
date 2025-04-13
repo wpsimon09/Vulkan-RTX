@@ -8,43 +8,42 @@
 
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
-namespace VEditor
-{
-    class ModelImportOptions;
+namespace VEditor {
+class ModelImportOptions;
 }
 
-namespace ApplicationCore
-{
-    class GLTFLoader;
+namespace ApplicationCore {
+class GLTFLoader;
 }
 
-namespace ApplicationCore
-{
-    class Scene;
+namespace ApplicationCore {
+class Scene;
 }
 
 namespace VEditor {
 
-class FileExplorer: public IUserInterfaceElement {
+class FileExplorer : public IUserInterfaceElement
+{
 public:
-    explicit FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader,const ApplicationCore::Scene& scene);
+  explicit FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader, const ApplicationCore::Scene& scene);
 
-    std::filesystem::path* OpenForSceneImport();
-    std::filesystem::path* OpenForMaterialImport();
+  std::filesystem::path* OpenForSceneImport();
+  std::filesystem::path* OpenForMaterialImport();
 
-    std::filesystem::path* GetPath() {return &m_filePath;};
-    std::filesystem::path  GetPathCpy() {return m_filePath;};
+  std::filesystem::path* GetPath() { return &m_filePath; };
+  std::filesystem::path  GetPathCpy() { return m_filePath; };
 
-    void Render() override;
-    void Resize(int newWidth, int newHeight) override;
-    void Update() override;
+  void Render() override;
+  void Resize(int newWidth, int newHeight) override;
+  void Update() override;
+
 private:
-    const ApplicationCore::Scene& m_scene;
-    const ApplicationCore::GLTFLoader& m_gltfLoader;
-    std::filesystem::path m_filePath;
-    std::unique_ptr<VEditor::ModelImportOptions> m_importOptions;
+  const ApplicationCore::Scene&                m_scene;
+  const ApplicationCore::GLTFLoader&           m_gltfLoader;
+  std::filesystem::path                        m_filePath;
+  std::unique_ptr<VEditor::ModelImportOptions> m_importOptions;
 };
 
-} // VEditor
+}  // namespace VEditor
 
-#endif //FILEEXPLORER_HPP
+#endif  //FILEEXPLORER_HPP

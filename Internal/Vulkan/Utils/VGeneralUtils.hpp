@@ -15,65 +15,77 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
-namespace ApplicationCore
-{
-    struct Vertex;
+namespace ApplicationCore {
+struct Vertex;
 }
 
-namespace VulkanCore
-{
-    class MeshDatatManager;
+namespace VulkanCore {
+class MeshDatatManager;
 }
 
 struct TextureBufferInfo;
 
-namespace VulkanCore
-{
-    class VSwapChain;
-    class VDevice;
-    class VCommandPool;
+namespace VulkanCore {
+class VSwapChain;
+class VDevice;
+class VCommandPool;
+}  // namespace VulkanCore
+
+namespace ApplicationCore {
+class VertexArray;
 }
 
-namespace ApplicationCore
-{
-    class VertexArray;
-}
+namespace VulkanUtils {
+uint32_t FindQueueFamily(const std::vector<vk::QueueFamilyProperties>& queueFamilyProperties, vk::QueueFlagBits queueType);
 
-namespace VulkanUtils
-{
-    uint32_t FindQueueFamily(const std::vector<vk::QueueFamilyProperties>& queueFamilyProperties, vk::QueueFlagBits queueType);
+vk::ImageView GenerateImageView(const vk::Device&    logicalDevice,
+                                const vk::Image&     image,
+                                uint32_t             mipLevels  = 1,
+                                vk::Format           format     = vk::Format::eR8G8B8A8Srgb,
+                                vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
 
-    vk::ImageView GenerateImageView(const vk::Device& logicalDevice, const vk::Image& image, uint32_t mipLevels = 1, vk::Format format = vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlags aspecFlags = vk::ImageAspectFlagBits::eColor);
+void GetVertexBindingAndAttributeDescription(vk::VertexInputBindingDescription&                bindingDescription,
+                                             std::vector<vk::VertexInputAttributeDescription>& attributeDescription,
+                                             EVertexInput                                      vertexInput = Full);
 
-    void GetVertexBindingAndAttributeDescription(vk::VertexInputBindingDescription &bindingDescription,
-                                                 std::vector<vk::VertexInputAttributeDescription> &attributeDescription, EVertexInput vertexInput = Full
-    );
+void CopyBuffers(const VulkanCore::VDevice&                   device,
+                 const VulkanCore::VSyncPrimitive<vk::Fence>& fence,
+                 const vk::Buffer&                            srcBuffer,
+                 const vk::Buffer&                            dstBuffer,
+                 vk::DeviceSize                               size,
+                 vk::DeviceSize                               srcOffset = 0,
+                 vk::DeviceSize                               dstOffset = 0);
 
-    void CopyBuffers(const VulkanCore::VDevice& device, const VulkanCore::VSyncPrimitive<vk::Fence>& fence, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::
-                     DeviceSize srcOffset = 0, vk::DeviceSize dstOffset = 0);
+void CopyBuffersWithBariers(const VulkanCore::VDevice& device,
+                            const vk::Buffer&          srcBuffer,
+                            const vk::Buffer&          dstBuffer,
+                            vk::DeviceSize             size,
+                            vk::DeviceSize             srcOffset = 0,
+                            vk::DeviceSize             dstOffset = 0);
 
-    void CopyBuffersWithBariers(const VulkanCore::VDevice& device, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size, vk::
-                     DeviceSize srcOffset = 0, vk::DeviceSize dstOffset = 0);
+std::string BufferUsageFlagToString(vk::BufferUsageFlags usage);
 
-    std::string BufferUsageFlagToString(vk::BufferUsageFlags usage);
+std::pair<vk::Result, uint32_t> SwapChainNextImageKHRWrapper(const VulkanCore::VDevice&                       device,
+                                                             const VulkanCore::VSwapChain&                    swapChain,
+                                                             uint64_t                                         timeOut,
+                                                             const VulkanCore::VSyncPrimitive<vk::Semaphore>& semaphore,
+                                                             VulkanCore::VSyncPrimitive<vk::Fence>*           fence);
 
-    std::pair<vk::Result, uint32_t> SwapChainNextImageKHRWrapper(const VulkanCore::VDevice& device,const VulkanCore::VSwapChain& swapChain, uint64_t timeOut, const VulkanCore::VSyncPrimitive<vk::Semaphore>& semaphore, VulkanCore::VSyncPrimitive<vk::Fence>* fence);
+vk::Result PresentQueueWrapper(vk::Queue queue, const vk::PresentInfoKHR& presentInfo);
 
-    vk::Result PresentQueueWrapper(vk::Queue queue, const vk::PresentInfoKHR &presentInfo);
+std::string random_string(size_t length);
 
-    std::string random_string( size_t length );
+int random_int(int min = 0, int max = 1);
 
-    int random_int(int min = 0, int max = 1);
+vk::DeviceSize GetVulkanFormatSize(vk::Format format);
 
-    vk::DeviceSize GetVulkanFormatSize(vk::Format format);
+VulkanStructs::StagingBufferInfo CreateStagingBuffer(const VulkanCore::VDevice& m_device, vk::DeviceSize size);
 
-    VulkanStructs::StagingBufferInfo CreateStagingBuffer(const VulkanCore::VDevice& m_device, vk::DeviceSize size);
+bool IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
 
-    bool IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
+int vkSampleToInt(vk::SampleCountFlagBits sample);
 
-    int vkSampleToInt(vk::SampleCountFlagBits sample);
+vk::SampleCountFlagBits IntToVkSample(int sampleCount);
+}  // namespace VulkanUtils
 
-    vk::SampleCountFlagBits IntToVkSample (int sampleCount);
-}
-
-#endif //VGENERALUTILS_HPP
+#endif  //VGENERALUTILS_HPP

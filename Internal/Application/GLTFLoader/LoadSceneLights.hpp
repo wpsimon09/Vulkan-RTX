@@ -5,11 +5,10 @@
 #ifndef LOADSCENELIGHTS_HPP
 #define LOADSCENELIGHTS_HPP
 #include <filesystem>
-namespace ApplicationCore
-{
-    class Scene;
+namespace ApplicationCore {
+class Scene;
 
-    void LoadSceneLights(ApplicationCore::Scene& scene, std::filesystem::path& lightInfoPath);
-}
+void LoadSceneLights(ApplicationCore::Scene& scene, std::filesystem::path& lightInfoPath);
+}  // namespace ApplicationCore
 
-#endif //LOADSCENELIGHTS_HPP
+#endif  //LOADSCENELIGHTS_HPP

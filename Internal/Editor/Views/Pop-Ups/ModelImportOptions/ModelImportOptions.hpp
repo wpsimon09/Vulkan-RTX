@@ -9,28 +9,29 @@
 #include "Application/GLTFLoader/GltfLoader.hpp"
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
-namespace ApplicationCore
-{
-    class GLTFLoader;
-    class Scene;
-}
+namespace ApplicationCore {
+class GLTFLoader;
+class Scene;
+}  // namespace ApplicationCore
 
 namespace VEditor {
-    class FileExplorer;
-class ModelImportOptions: public IUserInterfaceElement {
+class FileExplorer;
+class ModelImportOptions : public IUserInterfaceElement
+{
 public:
-    ModelImportOptions(std::filesystem::path* path, const ApplicationCore::GLTFLoader& gltfLoader,const ApplicationCore::Scene& scene);
+  ModelImportOptions(std::filesystem::path* path, const ApplicationCore::GLTFLoader& gltfLoader, const ApplicationCore::Scene& scene);
 
-    void Render() override;
-    void Resize(int newWidth, int newHeight) override;
-    void Update() override;
+  void Render() override;
+  void Resize(int newWidth, int newHeight) override;
+  void Update() override;
+
 private:
-    const ApplicationCore::GLTFLoader& m_gltfLoader;
-    const ApplicationCore::Scene& m_scene;
-    std::filesystem::path* m_path;
-    ApplicationCore::ImportOptions m_options;
+  const ApplicationCore::GLTFLoader& m_gltfLoader;
+  const ApplicationCore::Scene&      m_scene;
+  std::filesystem::path*             m_path;
+  ApplicationCore::ImportOptions     m_options;
 };
 
-} // VEditor
+}  // namespace VEditor
 
-#endif //MODELIMPORTOPTIONS_HPP
+#endif  //MODELIMPORTOPTIONS_HPP

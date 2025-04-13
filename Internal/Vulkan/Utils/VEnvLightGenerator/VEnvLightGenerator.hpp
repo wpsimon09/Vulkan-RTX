@@ -11,120 +11,103 @@
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
-namespace VulkanCore
-{
-    struct VImage2CreateInfo;
+namespace VulkanCore {
+struct VImage2CreateInfo;
 }
 
-namespace ApplicationCore
-{
-    class StaticMesh;
+namespace ApplicationCore {
+class StaticMesh;
 }
 
-namespace VulkanCore
-{
-    class VCommandPool;
+namespace VulkanCore {
+class VCommandPool;
 }
 
-namespace VulkanUtils
-{
-    class VResourceGroupManager;
+namespace VulkanUtils {
+class VResourceGroupManager;
 }
 
-namespace VulkanCore
-{
-    class VTimelineSemaphore;
+namespace VulkanCore {
+class VTimelineSemaphore;
 }
 
-namespace VulkanUtils
-{
-    class VTransferOperationsManager;
+namespace VulkanUtils {
+class VTransferOperationsManager;
 }
 
-namespace VulkanCore
-{
-    class VImage2;
-    class VDevice;
-}
+namespace VulkanCore {
+class VImage2;
+class VDevice;
+}  // namespace VulkanCore
 
 /**
  * This class intends to be quite large and its main purpose is to genera images for IBL, irradiance map, radiance map and HDR cube map
  */
-namespace VulkanUtils
+namespace VulkanUtils {
+class VEnvLightGenerator
 {
-    class VEnvLightGenerator {
-    public:
-        VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager);
+public:
+  VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager);
 
-        const VulkanCore::VImage2&                  GetBRDFLut();
-        VulkanCore::VImage2*                        GetBRDFLutRaw();
+  const VulkanCore::VImage2& GetBRDFLut();
+  VulkanCore::VImage2*       GetBRDFLutRaw();
 
-        const VulkanCore::VImage2&                  GetCubeMap();
-        VulkanCore::VImage2*                        GetCubeMapRaw();
+  const VulkanCore::VImage2& GetCubeMap();
+  VulkanCore::VImage2*       GetCubeMapRaw();
 
-        const VulkanCore::VImage2&                  GetIrradianceMap();
-        VulkanCore::VImage2*                        GetIrradianceMapRaw();
+  const VulkanCore::VImage2& GetIrradianceMap();
+  VulkanCore::VImage2*       GetIrradianceMapRaw();
 
-        VulkanCore::VImage2*                        GetDummyCubeMapRaw();
+  VulkanCore::VImage2* GetDummyCubeMapRaw();
 
-        VulkanCore::VImage2*                        GetPrefilterMapRaw();
+  VulkanCore::VImage2* GetPrefilterMapRaw();
 
-        void                                        Generate(std::shared_ptr<VulkanCore::VImage2> envMap,
-                                                            VulkanCore::VTimelineSemaphore& renderingSemaphore);
+  void Generate(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore);
 
-        void                                        HDRToCubeMap(std::shared_ptr<VulkanCore::VImage2> envMap,
-                                                            VulkanCore::VTimelineSemaphore& renderingSemaphore);
-        void                                        CubeMapToIrradiance(std::shared_ptr<VulkanCore::VImage2> envMap,
-                                                            VulkanCore::VTimelineSemaphore& renderingSemaphore);
-        void                                        CubeMapToPrefilter(std::shared_ptr<VulkanCore::VImage2> envMap,
-                                                            VulkanCore::VTimelineSemaphore& renderingSemaphore);
+  void HDRToCubeMap(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore);
+  void CubeMapToIrradiance(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore);
+  void CubeMapToPrefilter(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore);
 
-        void                                        Destroy();
+  void Destroy();
 
-    private:
-        void                                        GenerateBRDFLut();
+private:
+  void GenerateBRDFLut();
 
-    private:
-        std::unique_ptr<VulkanCore::VImage2> m_brdfLut;
+private:
+  std::unique_ptr<VulkanCore::VImage2> m_brdfLut;
 
-        //HDR
-        std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_irradianceMaps;
-        std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_prefilterMaps;
-        std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_hdrCubeMaps;
-        std::unique_ptr<VulkanCore::VImage2> m_dummyCubeMap;
-        int m_currentHDR;
+  //HDR
+  std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_irradianceMaps;
+  std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_prefilterMaps;
+  std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_hdrCubeMaps;
+  std::unique_ptr<VulkanCore::VImage2>                          m_dummyCubeMap;
+  int                                                           m_currentHDR;
 
-        const VulkanCore::VDevice& m_device;
+  const VulkanCore::VDevice& m_device;
 
-        VulkanUtils::VResourceGroupManager& m_pushDescriptorManager;
+  VulkanUtils::VResourceGroupManager& m_pushDescriptorManager;
 
-        std::unique_ptr<VulkanCore::VCommandBuffer> m_graphicsCmdBuffer;
-        std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCmdBuffer;
+  std::unique_ptr<VulkanCore::VCommandBuffer> m_graphicsCmdBuffer;
+  std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCmdBuffer;
 
-        std::unique_ptr<VulkanCore::VCommandPool> m_graphicsCmdPool;
-        std::unique_ptr<VulkanCore::VCommandPool> m_transferCmdPool;
+  std::unique_ptr<VulkanCore::VCommandPool> m_graphicsCmdPool;
+  std::unique_ptr<VulkanCore::VCommandPool> m_transferCmdPool;
 
-        std::unique_ptr<ApplicationCore::StaticMesh> m_cube;
+  std::unique_ptr<ApplicationCore::StaticMesh> m_cube;
 
-        std::vector<glm::mat4> m_camptureViews;
+  std::vector<glm::mat4> m_camptureViews;
 
-        void RenderToCubeMap(
-            const vk::CommandBuffer& cmdBuffer,
-            vk::Viewport& viewport, vk::RenderingAttachmentInfo& attachment);
+  void RenderToCubeMap(const vk::CommandBuffer& cmdBuffer, vk::Viewport& viewport, vk::RenderingAttachmentInfo& attachment);
 
-        void CopyResukt(const vk::CommandBuffer& cmdBuffer,const  vk::Image& src,const  vk::Image& dst,int w, int h, int m = 0, int f = 0);
+  void CopyResukt(const vk::CommandBuffer& cmdBuffer, const vk::Image& src, const vk::Image& dst, int w, int h, int m = 0, int f = 0);
 
-        void CreateResources(
-            const vk::CommandBuffer& cmdBuffer,
-            std::unique_ptr<VulkanCore::VImage2>& cubeMap,
-            std::unique_ptr<VulkanCore::VImage2>& renderTarget,
-            VulkanCore::VImage2CreateInfo& createInfo,
-            VulkanCore::VTimelineSemaphore& semaphore);
+  void CreateResources(const vk::CommandBuffer&              cmdBuffer,
+                       std::unique_ptr<VulkanCore::VImage2>& cubeMap,
+                       std::unique_ptr<VulkanCore::VImage2>& renderTarget,
+                       VulkanCore::VImage2CreateInfo&        createInfo,
+                       VulkanCore::VTimelineSemaphore&       semaphore);
+};
+}  // namespace VulkanUtils
 
 
-    };
-}
-
-
-
-#endif //VENVLIGHTGENERATOR_HPP
+#endif  //VENVLIGHTGENERATOR_HPP

@@ -8,12 +8,11 @@
 #include <glm/fwd.hpp>
 
 
-namespace ApplicationCore
-{
-    class SceneNode;
+namespace ApplicationCore {
+class SceneNode;
 
-    void RenderAndUseGizmo(std::shared_ptr<ApplicationCore::SceneNode>& m_selectedSceneNode, glm::mat4& view, glm::mat4& projection);
+void RenderAndUseGizmo(std::shared_ptr<ApplicationCore::SceneNode>& m_selectedSceneNode, glm::mat4& view, glm::mat4& projection);
 
-}
+}  // namespace ApplicationCore
 
-#endif //GIZMOUTILS_HPP
+#endif  //GIZMOUTILS_HPP

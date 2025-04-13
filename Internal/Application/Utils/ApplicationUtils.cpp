@@ -3,38 +3,40 @@
 #include <glm/ext/vector_float3.hpp>
 #include "Application/VertexArray/VertexArray.hpp"
 
-namespace ApplicationCore
+namespace ApplicationCore {
+VulkanStructs::Bounds CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices)
 {
-    VulkanStructs::Bounds CalculateBounds(const std::vector<ApplicationCore::Vertex> &vertices)
-    {
-        //========================
-        // CALCULATE BOUNDING BOX
-        //========================
-        glm::vec3 maxPos = vertices[0].position;
-        glm::vec3 minPos = vertices[0].position;
+  //========================
+  // CALCULATE BOUNDING BOX
+  //========================
+  glm::vec3 maxPos = vertices[0].position;
+  glm::vec3 minPos = vertices[0].position;
 
-        for (const auto & i : vertices)
-        {
-            minPos = glm::min(minPos, i.position);
-            maxPos = glm::max(maxPos, i.position);
-        }
-        VulkanStructs::Bounds bounds = {};
-        bounds.origin = (maxPos + minPos) /2.f;
-        bounds.extents = (maxPos - minPos) /2.f;
-        bounds.max = maxPos;
-        bounds.min = minPos;
-        bounds.radius = glm::length(bounds.extents);
+  for(const auto& i : vertices)
+  {
+    minPos = glm::min(minPos, i.position);
+    maxPos = glm::max(maxPos, i.position);
+  }
+  VulkanStructs::Bounds bounds = {};
+  bounds.origin                = (maxPos + minPos) / 2.f;
+  bounds.extents               = (maxPos - minPos) / 2.f;
+  bounds.max                   = maxPos;
+  bounds.min                   = minPos;
+  bounds.radius                = glm::length(bounds.extents);
 
-        return bounds;
-    }
+  return bounds;
 }
+}  // namespace ApplicationCore
 
 std::string ThemeToString(ETheme theme)
 {
-    switch (theme)
-    {
-        case ETheme::Light: return "Light";
-        case ETheme::Dark: return "Dark";
-        default: return "Dark";
-    }
+  switch(theme)
+  {
+    case ETheme::Light:
+      return "Light";
+    case ETheme::Dark:
+      return "Dark";
+    default:
+      return "Dark";
+  }
 }

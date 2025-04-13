@@ -8,66 +8,62 @@
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
-namespace VulkanUtils
-{
-    class UIContext;
+namespace VulkanUtils {
+class UIContext;
 }
 
-namespace VulkanUtils
-{
-    class VUniformBufferManager;
+namespace VulkanUtils {
+class VUniformBufferManager;
 }
 
 struct GlobalUniform;
 
-namespace VulkanCore
-{
-    class VCommandBuffer;
-    class VSwapChain;
-    class VGraphicsPipeline;
+namespace VulkanCore {
+class VCommandBuffer;
+class VSwapChain;
+class VGraphicsPipeline;
+}  // namespace VulkanCore
+
+namespace VulkanStructs {
+struct RenderContext;
 }
 
-namespace VulkanStructs
-{
-    struct RenderContext;
+namespace VulkanCore {
+class VDevice;
 }
 
-namespace VulkanCore
+namespace Renderer {
+class RenderTarget;
+
+class BaseRenderer
 {
-    class VDevice;
-}
 
-namespace Renderer
-{
-    class RenderTarget;
+public:
+  explicit BaseRenderer(const VulkanCore::VDevice& device);
+  virtual ~BaseRenderer() = default;
 
-    class BaseRenderer
-    {
+  VulkanCore::VImage2& GetRenderedImage(int currentFrame)
+  {
+    return *m_renderTargets->m_colourAttachments[currentFrame].second;
+  };  // i have to place fence to access the image
+  const int&                    GetTargeWidth() const { return m_width; }
+  const int&                    GetTargeHeight() const { return m_height; }
+  const Renderer::RenderTarget& GetRenderTarget() const { return *m_renderTargets; }
 
-    public:
-        explicit BaseRenderer(const VulkanCore::VDevice& device);
-        virtual ~BaseRenderer() = default;
+public:
+  virtual void Destroy();
 
-        VulkanCore::VImage2& GetRenderedImage(int currentFrame ) {return *m_renderTargets->m_colourAttachments[currentFrame].second;}; // i have to place fence to access the image
-        const int& GetTargeWidth() const  {return m_width;}
-        const int& GetTargeHeight() const {return m_height;}
-        const Renderer::RenderTarget& GetRenderTarget() const {return *m_renderTargets;}
-    public:
-        virtual void Destroy();
-    protected:
+protected:
+  virtual void CreateRenderTargets(VulkanCore::VSwapChain* swapChain = nullptr)                                 = 0;
+  virtual void DrawScene(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager) = 0;
 
-        virtual void CreateRenderTargets(VulkanCore::VSwapChain* swapChain = nullptr) = 0;
-        virtual void DrawScene(int currentFrameIndex,
-                                        const VulkanUtils::VUniformBufferManager& uniformBufferManager
-                                        ) = 0;
+protected:
+  std::unique_ptr<Renderer::RenderTarget>                  m_renderTargets;
+  std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_commandBuffers;
+  const VulkanCore::VDevice&                               m_device;
 
-    protected:
-        std::unique_ptr<Renderer::RenderTarget> m_renderTargets;
-        std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_commandBuffers;
-        const VulkanCore::VDevice& m_device;
+  int m_width, m_height;
+};
+}  // namespace Renderer
 
-        int m_width, m_height;
-    };
-} // Renderer
-
-#endif //BASERENDERER_HPP
+#endif  //BASERENDERER_HPP

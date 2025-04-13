@@ -5,4 +5,4 @@
 #include "VTextureDataManager.hpp"
 
 namespace VulkanCore {
-} // VulkanCore
+}  // namespace VulkanCore
