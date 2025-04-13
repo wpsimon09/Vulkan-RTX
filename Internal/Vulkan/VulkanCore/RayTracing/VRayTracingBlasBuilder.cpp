@@ -34,7 +34,7 @@ bool VRayTracingBlasBuilder::CmdCreateParallelBlas(const VulkanCore::VCommandBuf
     processBudget += BuildAccelerationStructures(cmdBuffer, buildInfo, outAs, scratchAdresses, hintMaxBudget, processBudget, currentQueryIndex);
   }
 
-  return m_currentBlasIndex >= buildInfo.size(); //this is wehere I have left off .....
+  return m_currentBlasIndex >= buildInfo.size();
 
 }
 
@@ -76,6 +76,7 @@ void VRayTracingBlasBuilder::CreateQueryPool(uint32_t maxBlasCount) {
 void VRayTracingBlasBuilder::InitializeQueryPoolIfNeeded(const std::vector<AccelerationStructBuildData>& blasBuildData)
 {
 }
+
 vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanCore::VCommandBuffer& cmdBuffer,
                                                                    std::vector<AccelerationStructBuildData>& blasBuildData,
                                                                    std::vector<AccelKHR>&                outAccel,
@@ -84,6 +85,8 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
                                                                    vk::DeviceSize                        currentBudget,
                                                                    uint32_t& currentQueryIndex)
 {
+
 }
+
 }  // namespace RTX
 }  // namespace VulkanCore

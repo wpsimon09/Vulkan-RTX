@@ -4,10 +4,13 @@
 
 #ifndef VRAYTRACINGBLASBUILDER_HPP
 #define VRAYTRACINGBLASBUILDER_HPP
+#include "VRayTracingStructs.hpp"
+
+
 #include <vulkan/vulkan.hpp>
 
 namespace VulkanCore::RTX {
-struct AccelKHR;
+
 struct AccelerationStructBuildData;
 }  // namespace VulkanCore::RTX
 
@@ -37,7 +40,7 @@ public:
                               std::vector<VulkanCore::RTX::AccelerationStructBuildData>& buildInfo,
                               std::vector<VulkanCore::RTX::AccelKHR>&                    outAs,
                               std::vector<vk::DeviceAddress>&                            scratchAdresses,
-                              vk::DeviceSize                                             hintMaxBudget = 512'000'000))
+                              vk::DeviceSize                                             hintMaxBudget = 512'000'000);
 
       void CmdCompactBlas(const VulkanCore::VCommandBuffer&         cmdBuffer,
                           std::vector<AccelerationStructBuildData>& blasBuildData,

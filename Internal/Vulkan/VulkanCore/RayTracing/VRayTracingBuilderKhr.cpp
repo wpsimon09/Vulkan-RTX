@@ -44,13 +44,12 @@ void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildA
     maxScratchSize = std::max(maxScratchSize, sizeInfo.buildScratchSize);
   }
 
-vk:
-  VkDeviceSize hintMaxBudget{256'000'000};
+  vk:VkDeviceSize hintMaxBudget{256'000'000};
   bool hasCompaction = hasFlag(static_cast<VkFlags>(flags), VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR);
 
+  // scratch buffer needs to be used for every BLAS and we want ot reuse it so we will allocate scratch buffer with biggest size ever needed
   VulkanCore::VBuffer blasScratchBuffer(m_device, "BLAS Scratch buffer");
-  blasScratchBuffer.CreateBuffer(maxScratchSize, static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eShaderDeviceAddress
-                                                                                 | vk::BufferUsageFlagBits::eStorageBuffer));
+  blasScratchBuffer.CreateBuffer(maxScratchSize, static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eShaderDeviceAddress| vk::BufferUsageFlagBits::eStorageBuffer));
 
   uint32_t minAlignment = GlobalVariables::GlobalStructs::AccelerationStructProperties.minAccelerationStructureScratchOffsetAlignment;
 }

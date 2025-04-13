@@ -310,12 +310,6 @@ void MeshDatatManager::CreateBuffer(VulkanStructs::GPUBufferInfo& allocationInfo
                        VulkanUtils::BufferUsageFlagToString(allocationInfo.usageFlags).c_str());
   Utils::Logger::LogSuccess("Buffer allocated successfully || SIZE: " + std::to_string(allocationInfo.size) + " bytes || ");
 
-  bool hasCompaction =
-
-      VulkanCore::VBuffer blasScratchBuffer(m_device, "Scratch buffer");
-
-//  blasScratchBuffer.Create;
-
   allocationInfo.bufferVK = allocationInfo.bufferVMA;
 }
 
