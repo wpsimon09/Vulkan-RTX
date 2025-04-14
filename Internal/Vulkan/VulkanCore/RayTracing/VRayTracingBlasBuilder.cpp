@@ -26,6 +26,7 @@ bool VRayTracingBlasBuilder::CmdCreateParallelBlas(const VulkanCore::VCommandBuf
                                                    std::vector<vk::DeviceAddress>& scratchAdresses,
                                                    vk::DeviceSize    hintMaxBudget)
 {
+
   InitializeQueryPoolIfNeeded(buildInfo);
   vk::DeviceSize  processBudget = 0; // all memroy consumed during construction
   uint32_t        currentQueryIndex = m_currentQueryIndex;
@@ -51,6 +52,7 @@ vk::DeviceSize VRayTracingBlasBuilder::GetScratchSize(vk::DeviceSize            
                                                       const std::vector<AccelerationStructBuildData>& blasBuildData,
                                                       uint32_t                                        minAlignment)
 {
+
 }
 
 void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                                  hintMaxBudget,

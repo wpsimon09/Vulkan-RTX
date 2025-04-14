@@ -50,6 +50,11 @@ struct AccelerationStructBuildData
   vk::AccelerationStructureBuildSizesInfoKHR FinalizeGeometry(const VulkanCore::VDevice&             device,
                                                               vk::BuildAccelerationStructureFlagsKHR flags);
 };
+
+struct ScratchSizeInfo {
+  vk::DeviceSize  maxScratch = 0;
+  vk::DeviceSize  totalScratch = 0;
+};
 }  // namespace VulkanCore::RTX
 
 #endif  // VRAYTRACINGSTRUCTS_HPP
