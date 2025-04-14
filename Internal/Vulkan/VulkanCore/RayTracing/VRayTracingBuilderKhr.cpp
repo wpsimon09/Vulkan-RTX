@@ -10,6 +10,7 @@
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/Utils/MathUtils.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace VulkanCore::RTX {
 VRayTracingBuilderKHR::VRayTracingBuilderKHR(const VulkanCore::VDevice& device)
@@ -23,6 +24,7 @@ VRayTracingBuilderKHR::VRayTracingBuilderKHR(const VulkanCore::VDevice& device)
 
 void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildAccelerationStructureFlagsKHR flags)
 {
+    VTimelineSemaphore blasBuildSemaphore(m_device);
     m_blasEntries.reserve(inputs.size());
     for(auto& blas : inputs)
     {
@@ -65,6 +67,13 @@ void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildA
     blasBuilder.GetScratchAddresses(hintMaxBudget, asBuildData, blasScratchBuffer.GetBufferAdress(), scratchAdresses, minAlignment);
 
 
+    m_cmdBuffer->BeginRecording();
+    bool finished = false;
+    do {
+        auto& cmdBuffer = m_cmdBuffer->GetCommandBuffer();
+//        finished =  blasBuilder.CmdCreateParallelBlas(*m_cmdBuffer, asBuildData,m_blas, scratchAdresses, hintMaxBudget);
+        //m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue())
+    }while (false);
 
     blasScratchBuffer.Destroy();
 }

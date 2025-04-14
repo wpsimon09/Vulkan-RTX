@@ -42,6 +42,9 @@ class VRayTracingBuilderKHR
     std::vector<RTX::BLASEntry>                 m_blasEntries;
     std::unique_ptr<VulkanCore::VCommandPool>   m_cmdPool;
     std::unique_ptr<VulkanCore::VCommandBuffer> m_cmdBuffer;
+
+    std::vector<VulkanCore::RTX::AccelKHR> m_blas;
+
 };
 }  // namespace VulkanCore::RTX
 
