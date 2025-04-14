@@ -34,6 +34,8 @@ VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::Physical
         std::make_pair(Graphics, VulkanUtils::FindQueueFamily(queueFamilyProperties, vk::QueueFlagBits::eGraphics));
     indices.transferFamily =
         std::make_pair(Transfer, VulkanUtils::FindQueueFamily(queueFamilyProperties, vk::QueueFlagBits::eTransfer));
+    indices.computeFamily =
+        std::make_pair(Compute, VulkanUtils::FindQueueFamily(queueFamilyProperties, vk::QueueFlagBits::eCompute));
 
     //----------------------
     // PRESENT QUEUE FAMILY
@@ -157,7 +159,9 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     m_queueFamilyIndices = FindQueueFamilies(m_physicalDevice, m_instance);
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t>                     uniqueQueueFamilies = {m_queueFamilyIndices.graphicsFamily.value().second,
-                                                                  m_queueFamilyIndices.presentFamily.value().second};
+                                                                  m_queueFamilyIndices.presentFamily.value().second,
+                                                                  m_queueFamilyIndices.transferFamily.value().second,
+                                                                  m_queueFamilyIndices.computeFamily.value().second};
 
     // we have to tell logical device what queue families it will have
     float queuePriority = 1.0f;
@@ -239,8 +243,12 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     Utils::Logger::LogSuccess("Successfully retrieved present queue");
 
     m_transferQueue = m_device.getQueue(m_queueFamilyIndices.transferFamily.value().second, 0);
-    assert(m_presentQueue != VK_NULL_HANDLE);
+    assert(m_transferQueue != VK_NULL_HANDLE);
     Utils::Logger::LogSuccess("Successfully retrieved transfer queue");
+
+    m_computeQueue = m_device.getQueue(m_queueFamilyIndices.computeFamily.value().second, 0);
+    assert(m_computeQueue != VK_NULL_HANDLE);
+    Utils::Logger::LogSuccess("Successfully retrieved compute queue");
 }
 
 void VulkanCore::VDevice::CreateVmaAllocator(const VulkanCore::VulkanInstance& instance)
@@ -348,6 +356,8 @@ const uint32_t& VulkanCore::VDevice::GetConcreteQueueFamilyIndex(EQueueFamilyInd
             return m_queueFamilyIndices.presentFamily.value().second;
         case EQueueFamilyIndexType::Transfer:
             return m_queueFamilyIndices.transferFamily.value().second;
+        case EQueueFamilyIndexType::Compute:
+            return m_queueFamilyIndices.computeFamily.value().second;
         default:
             throw std::runtime_error("Invalid queue family index");
     }
@@ -364,6 +374,8 @@ const std::string VulkanCore::VDevice::GetQueueFamilyString(EQueueFamilyIndexTyp
             return "PRESENT";
         case EQueueFamilyIndexType::Transfer:
             return "TRANSFER";
+        case EQueueFamilyIndexType::Compute:
+            return "COMPUTE";
         default:
             throw std::runtime_error("Invalid queue family index");
     }

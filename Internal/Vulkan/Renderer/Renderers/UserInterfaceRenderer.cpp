@@ -151,7 +151,6 @@ void UserInterfaceRenderer::RecordCommandBuffer(int currentFrameIndex, uint32_t 
     //==============================================
     // START RENDER PASS
     //==============================================
-
     assert(m_commandBuffer[currentFrameIndex]->GetIsRecording());
     m_imguiInitializer.Render(*m_commandBuffer[currentFrameIndex]);
 

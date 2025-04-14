@@ -25,16 +25,51 @@
 
 uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyProperties>& queueFamilyProperties, vk::QueueFlagBits queueType)
 {
-    //select just the queue fmily index that supports graphics operations
-    std::vector<vk::QueueFamilyProperties>::const_iterator graphicsQueueFamilyProperty =
-        std::find_if(queueFamilyProperties.begin(), queueFamilyProperties.end(),
-                     [queueType](vk::QueueFamilyProperties const& qfp) { return qfp.queueFlags & queueType; });
+    for (uint32_t i = 0; i < queueFamilyProperties.size(); ++i) {
+        const auto& queueFamily = queueFamilyProperties[i];
 
-    assert(graphicsQueueFamilyProperty != queueFamilyProperties.end());
-    auto queueFamilyIndex = static_cast<uint32_t>(std::distance(queueFamilyProperties.begin(), graphicsQueueFamilyProperty));
-    Utils::Logger::LogInfoVerboseOnly("Found graphics queue family at index: " + std::to_string(queueFamilyIndex));
-    return queueFamilyIndex;
+        switch (queueType) {
+        case vk::QueueFlagBits::eGraphics:
+            if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) {
+                return i;
+            }
+            break;
+
+        case vk::QueueFlagBits::eTransfer:
+            // Prefer a dedicated transfer queue (not also graphics or compute)
+                if ((queueFamily.queueFlags & vk::QueueFlagBits::eTransfer) &&
+                    !(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) &&
+                    !(queueFamily.queueFlags & vk::QueueFlagBits::eCompute)) {
+                    return i;
+                    }
+            break;
+
+        case vk::QueueFlagBits::eCompute:
+            // Prefer a dedicated compute queue (not also graphics)
+                if ((queueFamily.queueFlags & vk::QueueFlagBits::eCompute) &&
+                    !(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)) {
+                    return i;
+                    }
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    // Fallback: Try to find any queue that supports the requested type, even if not dedicated
+    for (uint32_t i = 0; i < queueFamilyProperties.size(); ++i) {
+        const auto& queueFamily = queueFamilyProperties[i];
+        if (queueFamily.queueFlags & queueType) {
+            return i;
+        }
+    }
+
+    throw std::runtime_error("Failed to find suitable queue family!");
 }
+
+
+
 
 vk::ImageView VulkanUtils::GenerateImageView(const vk::Device&    logicalDevice,
                                              const vk::Image&     image,

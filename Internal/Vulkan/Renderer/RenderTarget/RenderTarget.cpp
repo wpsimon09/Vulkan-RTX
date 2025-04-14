@@ -13,6 +13,7 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 #define STENCIL_ONE 0xFF
@@ -99,22 +100,37 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
         msaaAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
     }
 
+    VulkanCore::VTimelineSemaphore transitionTargetLayoutSempahore(m_device);
+    VulkanCore::VCommandPool cmdPool(device, EQueueFamilyIndexType::Graphics);
+    VulkanCore::VCommandBuffer cmdBuffer(m_device, cmdPool);
+
+
+    cmdBuffer.BeginRecording();
+
+
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         VulkanUtils::RecordImageTransitionLayoutCommand(*m_colourAttachments[i].second,
                                                         vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eUndefined,
-                                                        m_device.GetTransferOpsManager().GetCommandBuffer());
+                                                        cmdBuffer.GetCommandBuffer());
 
         VulkanUtils::RecordImageTransitionLayoutCommand(*m_msaaAttachments[i].second,
                                                         vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eUndefined,
-                                                        m_device.GetTransferOpsManager().GetCommandBuffer());
+                                                        cmdBuffer.GetCommandBuffer());
     }
     // TRANSITION EVERYTHING FROM UNDEFINED LAYOUT TO COLOUR ATTACHMENT
 
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_depthAttachment.second, vk::ImageLayout::eDepthStencilAttachmentOptimal,
                                                     vk::ImageLayout::eUndefined,
-                                                    m_device.GetTransferOpsManager().GetCommandBuffer());
+                                                    cmdBuffer.GetCommandBuffer());
 
+    std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
+    cmdBuffer.EndAndFlush(m_device.GetGraphicsQueue(), transitionTargetLayoutSempahore.GetSemaphore(), transitionTargetLayoutSempahore.GetSemaphoreSubmitInfo(0, 2) , waitStages.data() );
+
+    transitionTargetLayoutSempahore.CpuWaitIdle(2);
+
+    transitionTargetLayoutSempahore.Destroy();
+    cmdPool.Destroy();
     Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
     // m_device.GetTransferOpsManager().UpdateGPUWaitCPU(true);
 }
