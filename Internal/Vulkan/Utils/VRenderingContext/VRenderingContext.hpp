@@ -24,38 +24,38 @@ namespace VulkanUtils {
 
 struct RenderContext
 {
-  glm::mat4 view{};
-  glm::mat4 projection{};
+    glm::mat4 view{};
+    glm::mat4 projection{};
 
-  bool RenderBillboards   = true;
-  bool RenderAABB         = false;
-  bool WireFrameRendering = false;
-  // other flags
+    bool RenderBillboards   = true;
+    bool RenderAABB         = false;
+    bool WireFrameRendering = false;
+    // other flags
 
-  std::shared_ptr<ApplicationCore::SkyBoxMaterial> SkyBox = nullptr;
+    std::shared_ptr<ApplicationCore::SkyBoxMaterial> SkyBox = nullptr;
 
-  std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>> drawCalls;
+    std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>> drawCalls;
 
-  void ExtractDepthValues(glm::vec3& cameraPosition);
+    void ExtractDepthValues(glm::vec3& cameraPosition);
 
-  static bool CompareByDeptDesc(const VulkanStructs::DrawCallData& DrawCallA, const VulkanStructs::DrawCallData& DrawCallB);
-  static bool CompareByDeptAsc(const VulkanStructs::DrawCallData& DrawCallA, const VulkanStructs::DrawCallData& DrawCallB);
+    static bool CompareByDeptDesc(const VulkanStructs::DrawCallData& DrawCallA, const VulkanStructs::DrawCallData& DrawCallB);
+    static bool CompareByDeptAsc(const VulkanStructs::DrawCallData& DrawCallA, const VulkanStructs::DrawCallData& DrawCallB);
 
-  VulkanCore::VImage2* hdrCubeMap    = nullptr;
-  VulkanCore::VImage2* irradianceMap = nullptr;
-  VulkanCore::VImage2* prefilterMap  = nullptr;
-  VulkanCore::VImage2* brdfMap       = nullptr;
-  VulkanCore::VImage2* dummyCubeMap  = nullptr;
+    VulkanCore::VImage2* hdrCubeMap    = nullptr;
+    VulkanCore::VImage2* irradianceMap = nullptr;
+    VulkanCore::VImage2* prefilterMap  = nullptr;
+    VulkanCore::VImage2* brdfMap       = nullptr;
+    VulkanCore::VImage2* dummyCubeMap  = nullptr;
 
 
-  void GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& outDrawCalls);
-  std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& GetAllDrawCall();
+    void GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& outDrawCalls);
+    std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& GetAllDrawCall();
 
-  void AddDrawCall(VulkanStructs::DrawCallData& DrawCall);
+    void AddDrawCall(VulkanStructs::DrawCallData& DrawCall);
 
-  void ResetAllDrawCalls();
+    void ResetAllDrawCalls();
 
-  static unsigned long GenerateDrawKey(VulkanStructs::DrawCallData& drawCall);
+    static unsigned long GenerateDrawKey(VulkanStructs::DrawCallData& drawCall);
 };
 }  // namespace VulkanUtils
 

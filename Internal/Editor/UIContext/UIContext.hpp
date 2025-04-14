@@ -39,54 +39,60 @@ namespace VEditor {
 class Editor;
 class UIContext
 {
-public:
-  explicit UIContext(const VulkanCore::VDevice& device, const VulkanCore::VulkanInstance& instance, WindowManager& windowManager, Client& client);
+  public:
+    explicit UIContext(const VulkanCore::VDevice&        device,
+                       const VulkanCore::VulkanInstance& instance,
+                       WindowManager&                    windowManager,
+                       Client&                           client);
 
-  ViewPortContext&           GetViewPortContext(ViewPortType viewPortType) { return m_viewports[viewPortType]; }
-  const VulkanCore::VDevice& GetDevice() { return m_device; }
+    ViewPortContext&           GetViewPortContext(ViewPortType viewPortType) { return m_viewports[viewPortType]; }
+    const VulkanCore::VDevice& GetDevice() { return m_device; }
 
-  void Initialize(const VulkanCore::VSwapChain& swapChain);
-  void BeginRender();
-  void Render(VulkanCore::VCommandBuffer& commandBuffer);
-  void SetRenderingSystem(Renderer::RenderingSystem* rendderingSystem) { m_renderingSystem = rendderingSystem; }
-  void EndRender();
-  void Destroy();
-  void SetCurrentOperation(ImGuizmo::OPERATION operation) { m_operation = operation; };
-  void SetSelectedSceneNode(std::shared_ptr<ApplicationCore::SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; };
-  void SetColourThemePabloDark();
-  void SetColourThemePabloLight();
+    void Initialize(const VulkanCore::VSwapChain& swapChain);
+    void BeginRender();
+    void Render(VulkanCore::VCommandBuffer& commandBuffer);
+    void SetRenderingSystem(Renderer::RenderingSystem* rendderingSystem) { m_renderingSystem = rendderingSystem; }
+    void EndRender();
+    void Destroy();
+    void SetCurrentOperation(ImGuizmo::OPERATION operation) { m_operation = operation; };
+    void SetSelectedSceneNode(std::shared_ptr<ApplicationCore::SceneNode> sceneNode)
+    {
+        m_selectedSceneNode = sceneNode;
+    };
+    void SetColourThemePabloDark();
+    void SetColourThemePabloLight();
 
-public:
-  ApplicationCore::Scene& GetScene() const { return m_client.GetScene(); }
-  Client&                 GetClient() { return m_client; }
+  public:
+    ApplicationCore::Scene& GetScene() const { return m_client.GetScene(); }
+    Client&                 GetClient() { return m_client; }
 
-private:
-  const VulkanCore::VDevice&        m_device;
-  const VulkanCore::VulkanInstance& m_instance;
-  WindowManager&                    m_windowManager;
-  Client&                           m_client;
+  private:
+    const VulkanCore::VDevice&        m_device;
+    const VulkanCore::VulkanInstance& m_instance;
+    WindowManager&                    m_windowManager;
+    Client&                           m_client;
 
-  Renderer::RenderingSystem* m_renderingSystem;
+    Renderer::RenderingSystem* m_renderingSystem;
 
-  vk::PipelineCache  m_imguiPipelineCache;
-  vk::DescriptorPool m_imguiDescriptorPool;
+    vk::PipelineCache  m_imguiPipelineCache;
+    vk::DescriptorPool m_imguiDescriptorPool;
 
-  ImDrawData* m_imguiDrawData;
+    ImDrawData* m_imguiDrawData;
 
-  std::unordered_map<ViewPortType, ViewPortContext> m_viewports;
+    std::unordered_map<ViewPortType, ViewPortContext> m_viewports;
 
-  ImGuiIO* m_io;
+    ImGuiIO* m_io;
 
-  ImFont* m_defaultFont;
-  ImFont* m_editorFont;
+    ImFont* m_defaultFont;
+    ImFont* m_editorFont;
 
-  std::shared_ptr<ApplicationCore::SceneNode> m_selectedSceneNode = nullptr;
+    std::shared_ptr<ApplicationCore::SceneNode> m_selectedSceneNode = nullptr;
 
-  ImGuizmo::OPERATION m_operation;
+    ImGuizmo::OPERATION m_operation;
 
 
-private:
-  friend class VEditor::Editor;
+  private:
+    friend class VEditor::Editor;
 };
 
 }  // namespace VEditor

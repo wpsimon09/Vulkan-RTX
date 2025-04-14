@@ -13,23 +13,23 @@ class Editor;
 
 class Settings : public IUserInterfaceElement
 {
-public:
-  Settings(Client& client, Editor* editor);
+  public:
+    Settings(Client& client, Editor* editor);
 
-  void Render() override;
-  void Resize(int newWidth, int newHeight) override;
-  void Update() override;
+    void Render() override;
+    void Resize(int newWidth, int newHeight) override;
+    void Update() override;
 
-  void Open();
+    void Open();
 
-private:
-  void RenderEngineSettings();
-  void RenderApplicationSettings();
-  void RenderEditorSettings();
-  void RenderRenderingSettings();
+  private:
+    void RenderEngineSettings();
+    void RenderApplicationSettings();
+    void RenderEditorSettings();
+    void RenderRenderingSettings();
 
-  Client& m_client;
-  Editor* m_editor;
+    Client& m_client;
+    Editor* m_editor;
 };
 
 }  // namespace VEditor

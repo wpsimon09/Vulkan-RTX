@@ -21,41 +21,41 @@ class VDevice;
 
 class VSwapChain : public VObject
 {
-public:
-  VSwapChain(const VulkanCore::VDevice& device, const VulkanCore::VulkanInstance& instance);
+  public:
+    VSwapChain(const VulkanCore::VDevice& device, const VulkanCore::VulkanInstance& instance);
 
-  void Destroy() override;
-  void RecreateSwapChain();
+    void Destroy() override;
+    void RecreateSwapChain();
 
-  ~VSwapChain() = default;
+    ~VSwapChain() = default;
 
-  const vk::SwapchainKHR&       GetSwapChain() const { return m_swapChain; }
-  const vk::SurfaceFormatKHR&   GetSurfaceFormatKHR() const { return m_format; };
-  const vk::Format&             GetSwapChainFormat() const { return m_format.format; };
-  const vk::Extent2D&           GetExtent() const { return m_extent; };
-  const vk::PresentModeKHR&     GetPresentMode() const { return m_presentMode; };
-  const std::vector<vk::Image>& GetSwapChainImages() const { return m_swapChainImages; };
+    const vk::SwapchainKHR&       GetSwapChain() const { return m_swapChain; }
+    const vk::SurfaceFormatKHR&   GetSurfaceFormatKHR() const { return m_format; };
+    const vk::Format&             GetSwapChainFormat() const { return m_format.format; };
+    const vk::Extent2D&           GetExtent() const { return m_extent; };
+    const vk::PresentModeKHR&     GetPresentMode() const { return m_presentMode; };
+    const std::vector<vk::Image>& GetSwapChainImages() const { return m_swapChainImages; };
 
-private:
-  vk::SurfaceFormatKHR m_format;
-  vk::Extent2D         m_extent;
-  vk::PresentModeKHR   m_presentMode;
+  private:
+    vk::SurfaceFormatKHR m_format;
+    vk::Extent2D         m_extent;
+    vk::PresentModeKHR   m_presentMode;
 
-  vk::SwapchainKHR m_swapChain;
+    vk::SwapchainKHR m_swapChain;
 
-  std::vector<vk::Image> m_swapChainImages;
+    std::vector<vk::Image> m_swapChainImages;
 
-  const VulkanCore::VDevice&        m_device;
-  const VulkanCore::VulkanInstance& m_instance;
+    const VulkanCore::VDevice&        m_device;
+    const VulkanCore::VulkanInstance& m_instance;
 
-private:
-  void ChooseExtent();
-  void ChooseFormat();
-  void ChoosePresentMode();
+  private:
+    void ChooseExtent();
+    void ChooseFormat();
+    void ChoosePresentMode();
 
-  void CreateSwapChain();
+    void CreateSwapChain();
 
-  void RetrieveSwapChainImages();
+    void RetrieveSwapChainImages();
 };
 
 }  // namespace VulkanCore

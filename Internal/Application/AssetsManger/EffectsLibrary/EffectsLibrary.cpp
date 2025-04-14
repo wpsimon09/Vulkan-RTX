@@ -17,127 +17,128 @@
 namespace ApplicationCore {
 EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager)
 {
-  auto frowardEffect = std::make_shared<VulkanUtils::VEffect>(
-      device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv", "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
-      pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
+    auto frowardEffect = std::make_shared<VulkanUtils::VEffect>(
+        device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv", "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
+        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
 
-  frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
+    frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
 
-  if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
-  {
-    frowardEffect->SetDisableDepthWrite();
-  }
+    if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
+    {
+        frowardEffect->SetDisableDepthWrite();
+    }
 
-  effects[EEffectType::ForwardShader] = std::move(frowardEffect);
+    effects[EEffectType::ForwardShader] = std::move(frowardEffect);
 
-  //==============================================================================
+    //==============================================================================
 
-  auto transparentEffect = std::make_shared<VulkanUtils::VEffect>(
-      device, "Forward lit transparent", "Shaders/Compiled/BasicTriangle.vert.spv", "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
-      pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
+    auto transparentEffect = std::make_shared<VulkanUtils::VEffect>(
+        device, "Forward lit transparent", "Shaders/Compiled/BasicTriangle.vert.spv",
+        "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
+        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
 
-  transparentEffect->SetTopology(vk::PrimitiveTopology::eTriangleList).EnableAdditiveBlending().SetDepthOpLessEqual();
-  if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
-  {
-    transparentEffect->SetDisableDepthWrite();
-  }
-
-
-  effects[EEffectType::AplhaBlend] = std::move(transparentEffect);
-
-  //==============================================================================
-
-  auto editorBillboards = std::make_shared<VulkanUtils::VEffect>(
-      device, "Editor billboards", "Shaders/Compiled/EditorBillboard.vert.spv", "Shaders/Compiled/EditorBilboard.frag.spv",
-      pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
-
-  editorBillboards->SetTopology(vk::PrimitiveTopology::eTriangleList).SetCullNone().SetVertexInputMode(EVertexInput::Position_UV)
-      //.SetDepthOpLessEqual()
-      ;
-  effects[EEffectType::EditorBilboard] = std::move(editorBillboards);
-
-  //==============================================================================
-
-  auto debugLine = std::make_shared<VulkanUtils::VEffect>(
-      device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugLines.frag.spv",
-      pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
-
-  debugLine->SetTopology(vk::PrimitiveTopology::eTriangleList)
-      .SetCullNone()
-      .SetPolygonLine()
-      .SetLineWidth(2)
-      .SetVertexInputMode(EVertexInput::PositionOnly)
-      .SetDepthOpLessEqual();
-
-  effects[EEffectType::DebugLine] = std::move(debugLine);
-
-  //==============================================================================
-
-  auto outline = std::make_shared<VulkanUtils::VEffect>(
-      device, "Outline", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/Outliines.frag.spv",
-      pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
-
-  outline
-      //->SetC()
-      ->SetStencilTestOutline()
-      .SetVertexInputMode(EVertexInput::PositionOnly)
-      .SetDepthOpAllways();
-
-  effects[EEffectType::Outline] = std::move(outline);
-
-  //===============================================================================
-
-  auto debugShapes = std::make_shared<VulkanUtils::VEffect>(
-      device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugGeometry.frag.spv",
-      pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
-
-  debugShapes->SetCullNone()
-      .SetLineWidth(7)
-      .SetPolygonLine()
-      .SetVertexInputMode(EVertexInput::PositionOnly)
-      .SetTopology(vk::PrimitiveTopology::eLineList)
-      .SetDepthOpLessEqual();
-  if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
-  {
-    debugShapes->SetDisableDepthWrite();
-  }
-
-  effects[EEffectType::DebugLine] = std::move(debugShapes);
-
-  //===============================================================================
-
-  auto skybox = std::make_shared<VulkanUtils::VEffect>(
-      device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv", "Shaders/Compiled/SkyBox.frag.spv",
-      pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
+    transparentEffect->SetTopology(vk::PrimitiveTopology::eTriangleList).EnableAdditiveBlending().SetDepthOpLessEqual();
+    if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
+    {
+        transparentEffect->SetDisableDepthWrite();
+    }
 
 
-  skybox->SetCullNone().SetVertexInputMode(EVertexInput::PositionOnly).SetDisableDepthWrite().SetDepthOpLessEqual().DisableStencil();
+    effects[EEffectType::AplhaBlend] = std::move(transparentEffect);
+
+    //==============================================================================
+
+    auto editorBillboards = std::make_shared<VulkanUtils::VEffect>(
+        device, "Editor billboards", "Shaders/Compiled/EditorBillboard.vert.spv", "Shaders/Compiled/EditorBilboard.frag.spv",
+        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
+
+    editorBillboards->SetTopology(vk::PrimitiveTopology::eTriangleList).SetCullNone().SetVertexInputMode(EVertexInput::Position_UV)
+        //.SetDepthOpLessEqual()
+        ;
+    effects[EEffectType::EditorBilboard] = std::move(editorBillboards);
+
+    //==============================================================================
+
+    auto debugLine = std::make_shared<VulkanUtils::VEffect>(
+        device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugLines.frag.spv",
+        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
+
+    debugLine->SetTopology(vk::PrimitiveTopology::eTriangleList)
+        .SetCullNone()
+        .SetPolygonLine()
+        .SetLineWidth(2)
+        .SetVertexInputMode(EVertexInput::PositionOnly)
+        .SetDepthOpLessEqual();
+
+    effects[EEffectType::DebugLine] = std::move(debugLine);
+
+    //==============================================================================
+
+    auto outline = std::make_shared<VulkanUtils::VEffect>(
+        device, "Outline", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/Outliines.frag.spv",
+        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
+
+    outline
+        //->SetC()
+        ->SetStencilTestOutline()
+        .SetVertexInputMode(EVertexInput::PositionOnly)
+        .SetDepthOpAllways();
+
+    effects[EEffectType::Outline] = std::move(outline);
+
+    //===============================================================================
+
+    auto debugShapes = std::make_shared<VulkanUtils::VEffect>(
+        device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugGeometry.frag.spv",
+        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
+
+    debugShapes->SetCullNone()
+        .SetLineWidth(7)
+        .SetPolygonLine()
+        .SetVertexInputMode(EVertexInput::PositionOnly)
+        .SetTopology(vk::PrimitiveTopology::eLineList)
+        .SetDepthOpLessEqual();
+    if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
+    {
+        debugShapes->SetDisableDepthWrite();
+    }
+
+    effects[EEffectType::DebugLine] = std::move(debugShapes);
+
+    //===============================================================================
+
+    auto skybox = std::make_shared<VulkanUtils::VEffect>(
+        device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv", "Shaders/Compiled/SkyBox.frag.spv",
+        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
 
 
-  effects[EEffectType::SkyBox] = std::move(skybox);
+    skybox->SetCullNone().SetVertexInputMode(EVertexInput::PositionOnly).SetDisableDepthWrite().SetDepthOpLessEqual().DisableStencil();
 
-  BuildAllEffects();
+
+    effects[EEffectType::SkyBox] = std::move(skybox);
+
+    BuildAllEffects();
 }
 
 std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type)
 {
-  assert(effects.contains(type));
-  return effects[type];
+    assert(effects.contains(type));
+    return effects[type];
 }
 
 void EffectsLibrary::BuildAllEffects()
 {
-  for(auto& effect : effects)
-  {
-    effect.second->BuildEffect();
-  }
+    for(auto& effect : effects)
+    {
+        effect.second->BuildEffect();
+    }
 }
 
 void EffectsLibrary::Destroy()
 {
-  for(auto& effect : effects)
-  {
-    effect.second->Destroy();
-  }
+    for(auto& effect : effects)
+    {
+        effect.second->Destroy();
+    }
 }
 }  // namespace ApplicationCore

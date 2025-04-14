@@ -14,63 +14,63 @@
 ApplicationCore::StaticMesh::StaticMesh(VulkanStructs::MeshData& geometryData, std::shared_ptr<BaseMaterial> material, EMeshGeometryType geometryType)
     : m_meshGeomtryData(geometryData)
 {
-  m_geometryType    = geometryType;
-  m_transformations = std::make_unique<Transformations>();
+    m_geometryType    = geometryType;
+    m_transformations = std::make_unique<Transformations>();
 
-  m_currentMaterial  = material;
-  m_originalMaterial = material;
+    m_currentMaterial  = material;
+    m_originalMaterial = material;
 }
 
 ApplicationCore::StaticMesh::StaticMesh(const ApplicationCore::StaticMesh& other)
     : m_meshGeomtryData(other.m_meshGeomtryData)
 {
-  m_geometryType    = other.m_geometryType;
-  m_transformations = std::make_unique<Transformations>();
+    m_geometryType    = other.m_geometryType;
+    m_transformations = std::make_unique<Transformations>();
 
-  //m_currentMaterial = std::make_shared<PBRMaterial>(*other.m_currentMaterial);
-  ///m_originalMaterial = std::make_shared<PBRMaterial>(*other.m_originalMaterial);
+    //m_currentMaterial = std::make_shared<PBRMaterial>(*other.m_currentMaterial);
+    ///m_originalMaterial = std::make_shared<PBRMaterial>(*other.m_originalMaterial);
 }
 
 
 const uint32_t ApplicationCore::StaticMesh::GetMeshIndexCount() const
 {
-  return static_cast<uint32_t>(m_meshGeomtryData.indexData.size / sizeof(uint32_t));
+    return static_cast<uint32_t>(m_meshGeomtryData.indexData.size / sizeof(uint32_t));
 }
 
 VulkanStructs::MeshData* ApplicationCore::StaticMesh::GetMeshData()
 {
-  return &m_meshGeomtryData;
+    return &m_meshGeomtryData;
 }
 
 void ApplicationCore::StaticMesh::Update()
 {
-  m_transformations->ComputeModelMatrix();
+    m_transformations->ComputeModelMatrix();
 }
 
 void ApplicationCore::StaticMesh::Destroy() {}
 
 void ApplicationCore::StaticMesh::SetName(std::string name)
 {
-  m_name = name;
+    m_name = name;
 }
 
 
 std::string ApplicationCore::StaticMesh::MeshGeometryTypeToString(EMeshGeometryType geometryType)
 {
-  switch(geometryType)
-  {
-    case Plane:
-      return "MESH_GEOMETRY_PLANE";
-    case Cube:
-      return "MESH_GEOMETRY_CUBE";
-    case Sphere:
-      return "MESH_GEOMETRY_SPHERE";
-    case PostProcessQuad:
-      return "MESH_GEOMETRY_POST_PROCESS";
-    case Custom:
-      return "MESH_GEOMETRY_CUSTOM";
-    default:
-      return "UNKNOWN";
-  }
-  return "UNKNOWN";
+    switch(geometryType)
+    {
+        case Plane:
+            return "MESH_GEOMETRY_PLANE";
+        case Cube:
+            return "MESH_GEOMETRY_CUBE";
+        case Sphere:
+            return "MESH_GEOMETRY_SPHERE";
+        case PostProcessQuad:
+            return "MESH_GEOMETRY_POST_PROCESS";
+        case Custom:
+            return "MESH_GEOMETRY_CUSTOM";
+        default:
+            return "UNKNOWN";
+    }
+    return "UNKNOWN";
 }

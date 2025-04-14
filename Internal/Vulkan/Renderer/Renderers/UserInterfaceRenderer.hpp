@@ -40,31 +40,31 @@ class RenderTarget;
 
 class UserInterfaceRenderer
 {
-public:
-  explicit UserInterfaceRenderer(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain, VEditor::UIContext& uiContext);
+  public:
+    explicit UserInterfaceRenderer(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain, VEditor::UIContext& uiContext);
 
-  void RenderAndPresent(int                             currentFrameIndex,
-                        uint32_t                        swapChainImageIndex,
-                        const vk::Semaphore&            swapChainImageAvailable,
-                        VulkanCore::VTimelineSemaphore& renderingTimeLine);
+    void RenderAndPresent(int                             currentFrameIndex,
+                          uint32_t                        swapChainImageIndex,
+                          const vk::Semaphore&            swapChainImageAvailable,
+                          VulkanCore::VTimelineSemaphore& renderingTimeLine);
 
-  RenderTarget& GetRenderTarget() const { return *m_renderTarget; };
+    RenderTarget& GetRenderTarget() const { return *m_renderTarget; };
 
-  void Destroy();
+    void Destroy();
 
-private:
-  const VulkanCore::VDevice&              m_device;
-  const VulkanCore::VSwapChain&           m_swapChain;
-  std::unique_ptr<Renderer::RenderTarget> m_renderTarget;
+  private:
+    const VulkanCore::VDevice&              m_device;
+    const VulkanCore::VSwapChain&           m_swapChain;
+    std::unique_ptr<Renderer::RenderTarget> m_renderTarget;
 
-  std::unique_ptr<VulkanCore::VCommandPool>                               m_commandPool;
-  std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>>                m_commandBuffer;
-  std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_ableToPresentSemaphore;
+    std::unique_ptr<VulkanCore::VCommandPool>                               m_commandPool;
+    std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>>                m_commandBuffer;
+    std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_ableToPresentSemaphore;
 
-  VEditor::UIContext& m_imguiInitializer;
+    VEditor::UIContext& m_imguiInitializer;
 
-private:
-  void RecordCommandBuffer(int currentFrameIndex, uint32_t swapChainImageIndex);
+  private:
+    void RecordCommandBuffer(int currentFrameIndex, uint32_t swapChainImageIndex);
 };
 }  // namespace Renderer
 

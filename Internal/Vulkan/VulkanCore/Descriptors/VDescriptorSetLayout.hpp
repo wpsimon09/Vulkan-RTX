@@ -31,43 +31,43 @@ class VDescriptorSet;
      */
 class VDescriptorSetLayout : VObject
 {
-public:
-  class Builder
-  {
   public:
-    explicit Builder(const VulkanCore::VDevice& device);
+    class Builder
+    {
+      public:
+        explicit Builder(const VulkanCore::VDevice& device);
 
-    Builder& AddBinding(uint32_t binding, vk::DescriptorType type, vk::ShaderStageFlags stage, uint32_t descriptorCount);
+        Builder& AddBinding(uint32_t binding, vk::DescriptorType type, vk::ShaderStageFlags stage, uint32_t descriptorCount);
 
-    std::unique_ptr<VulkanCore::VDescriptorSetLayout> Build();
+        std::unique_ptr<VulkanCore::VDescriptorSetLayout> Build();
 
-    std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> m_descriptorBindings;
+        std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> m_descriptorBindings;
+
+      private:
+        const VulkanCore::VDevice& m_device;
+    };
+
+  public:
+    explicit VDescriptorSetLayout(const VulkanCore::VDevice&                                   device,
+                                  std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> bindings);
+    // generates layout basesd passed descriptor template struct
+    explicit VDescriptorSetLayout(const VulkanCore::VDevice& device, const VulkanUtils::DescriptorSetTemplateVariant& dstSetTemplate);
+
+    const vk::DescriptorSetLayout&             GetLayout() const { return m_descriptorSetLayout; }
+    VulkanUtils::DescriptorSetTemplateVariant& GetStructure() { return m_descriptorSetTemplateStruct.value(); };
+
+    auto& GetBindings() { return m_descriptorSetLayoutBindings; }
+
+    void Destroy() override;
 
   private:
-    const VulkanCore::VDevice& m_device;
-  };
+    std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> m_descriptorSetLayoutBindings;
+    const VDevice&                                               m_device;
+    vk::DescriptorSetLayout                                      m_descriptorSetLayout;
+    std::optional<VulkanUtils::DescriptorSetTemplateVariant>     m_descriptorSetTemplateStruct;
 
-public:
-  explicit VDescriptorSetLayout(const VulkanCore::VDevice&                                   device,
-                                std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> bindings);
-  // generates layout basesd passed descriptor template struct
-  explicit VDescriptorSetLayout(const VulkanCore::VDevice& device, const VulkanUtils::DescriptorSetTemplateVariant& dstSetTemplate);
-
-  const vk::DescriptorSetLayout&             GetLayout() const { return m_descriptorSetLayout; }
-  VulkanUtils::DescriptorSetTemplateVariant& GetStructure() { return m_descriptorSetTemplateStruct.value(); };
-
-  auto& GetBindings() { return m_descriptorSetLayoutBindings; }
-
-  void Destroy() override;
-
-private:
-  std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> m_descriptorSetLayoutBindings;
-  const VDevice&                                               m_device;
-  vk::DescriptorSetLayout                                      m_descriptorSetLayout;
-  std::optional<VulkanUtils::DescriptorSetTemplateVariant>     m_descriptorSetTemplateStruct;
-
-  friend class VulkanCore::VDescriptorSet;
-  friend class VulkanUtils::VResourceGroupManager;
+    friend class VulkanCore::VDescriptorSet;
+    friend class VulkanUtils::VResourceGroupManager;
 };
 
 

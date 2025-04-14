@@ -13,17 +13,17 @@ namespace ApplicationCore {
 
 class DirectionLightNode : public ApplicationCore::LightNode<LightStructs::DirectionalLight>
 {
-public:
-  explicit DirectionLightNode(LightStructs::SceneLightInfo&   sceneLightInfo,
-                              std::shared_ptr<StaticMesh>     mesh,
-                              LightStructs::DirectionalLight* directionalLightData);
+  public:
+    explicit DirectionLightNode(LightStructs::SceneLightInfo&   sceneLightInfo,
+                                std::shared_ptr<StaticMesh>     mesh,
+                                LightStructs::DirectionalLight* directionalLightData);
 
-  void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
-  void Update() override;
-  void ProcessNodeRemove() override;
+    void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
+    void Update() override;
+    void ProcessNodeRemove() override;
 
-private:
-  LightStructs::SceneLightInfo& m_sceneLightInfo;
+  private:
+    LightStructs::SceneLightInfo& m_sceneLightInfo;
 };
 
 }  // namespace ApplicationCore

@@ -13,31 +13,31 @@
 
 struct DesiredDeviceFeatures
 {
-  vk::PhysicalDeviceType     deviceType;
-  vk::PhysicalDeviceFeatures deviceFeatures;
+    vk::PhysicalDeviceType     deviceType;
+    vk::PhysicalDeviceFeatures deviceFeatures;
 
-  bool CheckAgainstRetrievedPhysicalDevice(const vk::PhysicalDevice& physicalDevice, const vk::SurfaceKHR& surface) const
-  {
-    Utils::Logger::LogInfoVerboseOnly("Checking device...");
-    if(physicalDevice.getProperties().deviceType != this->deviceType)
+    bool CheckAgainstRetrievedPhysicalDevice(const vk::PhysicalDevice& physicalDevice, const vk::SurfaceKHR& surface) const
     {
-      Utils::Logger::LogInfoVerboseOnly("Device type miss match");
-      return false;
-    }
-    if(physicalDevice.getFeatures().geometryShader != this->deviceFeatures.geometryShader)
-    {
-      Utils::Logger::LogInfoVerboseOnly("Device does not support geometry shader");
-      return false;
-    }
-    if(!VulkanUtils::DoesDeviceSupportPresentation(surface, physicalDevice))
-    {
-      Utils::Logger::LogInfoVerboseOnly("Device does not supports presentation");
-      return false;
-    }
+        Utils::Logger::LogInfoVerboseOnly("Checking device...");
+        if(physicalDevice.getProperties().deviceType != this->deviceType)
+        {
+            Utils::Logger::LogInfoVerboseOnly("Device type miss match");
+            return false;
+        }
+        if(physicalDevice.getFeatures().geometryShader != this->deviceFeatures.geometryShader)
+        {
+            Utils::Logger::LogInfoVerboseOnly("Device does not support geometry shader");
+            return false;
+        }
+        if(!VulkanUtils::DoesDeviceSupportPresentation(surface, physicalDevice))
+        {
+            Utils::Logger::LogInfoVerboseOnly("Device does not supports presentation");
+            return false;
+        }
 
-    Utils::Logger::LogInfoVerboseOnly("Device has passed all the checks");
-    return true;
-  }
+        Utils::Logger::LogInfoVerboseOnly("Device has passed all the checks");
+        return true;
+    }
 };
 
 

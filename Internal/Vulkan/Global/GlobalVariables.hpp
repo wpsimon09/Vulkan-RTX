@@ -37,9 +37,9 @@ inline const std::vector<const char*> deviceLevelExtensions = {
 
 enum SHADER_TYPE
 {
-  FRAGMENT = 0,
-  VERTEX   = 1,
-  COMPUTE  = 2,
+    FRAGMENT = 0,
+    VERTEX   = 1,
+    COMPUTE  = 2,
 };
 
 inline constexpr int MAX_FRAMES_IN_FLIGHT = 2;

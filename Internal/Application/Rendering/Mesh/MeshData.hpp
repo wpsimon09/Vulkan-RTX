@@ -186,50 +186,50 @@ inline std::vector<uint32_t> triangleIndices = {
 
 static inline void GenerateSphere(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
 {
-  const unsigned int X_SEGMENTS = 64;
-  const unsigned int Y_SEGMENTS = 64;
-  const float        PI         = 3.14159265359f;
+    const unsigned int X_SEGMENTS = 64;
+    const unsigned int Y_SEGMENTS = 64;
+    const float        PI         = 3.14159265359f;
 
-  // Generate vertices
-  for(unsigned int x = 0; x <= X_SEGMENTS; ++x)
-  {
-    for(unsigned int y = 0; y <= Y_SEGMENTS; ++y)
+    // Generate vertices
+    for(unsigned int x = 0; x <= X_SEGMENTS; ++x)
     {
-      float xSegment = (float)x / (float)X_SEGMENTS;
-      float ySegment = (float)y / (float)Y_SEGMENTS;
-      float xPos     = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
-      float yPos     = std::cos(ySegment * PI);
-      float zPos     = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+        for(unsigned int y = 0; y <= Y_SEGMENTS; ++y)
+        {
+            float xSegment = (float)x / (float)X_SEGMENTS;
+            float ySegment = (float)y / (float)Y_SEGMENTS;
+            float xPos     = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+            float yPos     = std::cos(ySegment * PI);
+            float zPos     = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
 
-      Vertex tempVertex{};
-      tempVertex.position = glm::vec3(xPos, yPos, zPos);
-      tempVertex.normal   = glm::vec3(xPos, yPos, zPos);    // Normals are the same as the position for a unit sphere
-      tempVertex.uv       = glm::vec2(xSegment, ySegment);  // Texture coordinates
-      vertices.push_back(tempVertex);
+            Vertex tempVertex{};
+            tempVertex.position = glm::vec3(xPos, yPos, zPos);
+            tempVertex.normal = glm::vec3(xPos, yPos, zPos);  // Normals are the same as the position for a unit sphere
+            tempVertex.uv     = glm::vec2(xSegment, ySegment);  // Texture coordinates
+            vertices.push_back(tempVertex);
+        }
     }
-  }
 
-  // Generate indices for triangle list
-  for(unsigned int y = 0; y < Y_SEGMENTS; ++y)
-  {
-    for(unsigned int x = 0; x < X_SEGMENTS; ++x)
+    // Generate indices for triangle list
+    for(unsigned int y = 0; y < Y_SEGMENTS; ++y)
     {
-      // Calculate the indices for the four vertices of the current quad
-      unsigned int topLeft     = y * (X_SEGMENTS + 1) + x;
-      unsigned int topRight    = y * (X_SEGMENTS + 1) + (x + 1);
-      unsigned int bottomLeft  = (y + 1) * (X_SEGMENTS + 1) + x;
-      unsigned int bottomRight = (y + 1) * (X_SEGMENTS + 1) + (x + 1);
+        for(unsigned int x = 0; x < X_SEGMENTS; ++x)
+        {
+            // Calculate the indices for the four vertices of the current quad
+            unsigned int topLeft     = y * (X_SEGMENTS + 1) + x;
+            unsigned int topRight    = y * (X_SEGMENTS + 1) + (x + 1);
+            unsigned int bottomLeft  = (y + 1) * (X_SEGMENTS + 1) + x;
+            unsigned int bottomRight = (y + 1) * (X_SEGMENTS + 1) + (x + 1);
 
-      // Add two triangles for the current quad
-      indices.push_back(topLeft);
-      indices.push_back(bottomLeft);
-      indices.push_back(topRight);
+            // Add two triangles for the current quad
+            indices.push_back(topLeft);
+            indices.push_back(bottomLeft);
+            indices.push_back(topRight);
 
-      indices.push_back(topRight);
-      indices.push_back(bottomLeft);
-      indices.push_back(bottomRight);
+            indices.push_back(topRight);
+            indices.push_back(bottomLeft);
+            indices.push_back(bottomRight);
+        }
     }
-  }
 }
 
 inline std::vector<Vertex> crossVertices = {

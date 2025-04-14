@@ -1,4 +1,5 @@
-﻿BasedOnStyle: LLVM
+﻿## .clang-format from NVIDIA nvk ray-tracing sample repo, Indent with altered from 2 to 4
+BasedOnStyle: LLVM
 AccessModifierOffset: '-2'
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: 'true'
@@ -25,7 +26,7 @@ ColumnLimit: '120'
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'false'
 Cpp11BracedListStyle: 'true'
 IndentCaseLabels: 'true'
-IndentWidth: '2'
+IndentWidth: '4'
 KeepEmptyLinesAtTheStartOfBlocks: 'true'
 Language: Cpp
 MaxEmptyLinesToKeep: '2'

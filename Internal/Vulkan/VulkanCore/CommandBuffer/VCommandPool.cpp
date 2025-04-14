@@ -12,25 +12,25 @@ VCommandPool::VCommandPool(const VulkanCore::VDevice& device, EQueueFamilyIndexT
     : m_device(device)
     , VObject()
 {
-  m_queueFamilyIndex = std::make_pair(queueFamilyType, m_device.GetConcreteQueueFamilyIndex(queueFamilyType));
-  CreateCommandPool();
+    m_queueFamilyIndex = std::make_pair(queueFamilyType, m_device.GetConcreteQueueFamilyIndex(queueFamilyType));
+    CreateCommandPool();
 }
 
 void VCommandPool::Destroy()
 {
-  Utils::Logger::LogInfoVerboseOnly("Destroying command pool....");
-  m_device.GetDevice().destroyCommandPool(m_commandPool);
-  Utils::Logger::LogInfoVerboseOnly("Command pool destroyed !");
+    Utils::Logger::LogInfoVerboseOnly("Destroying command pool....");
+    m_device.GetDevice().destroyCommandPool(m_commandPool);
+    Utils::Logger::LogInfoVerboseOnly("Command pool destroyed !");
 }
 
 void VCommandPool::CreateCommandPool()
 {
-  Utils::Logger::LogInfoVerboseOnly("Creating command pool...");
-  vk::CommandPoolCreateInfo poolInfo = {};
-  poolInfo.flags                     = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-  poolInfo.queueFamilyIndex          = m_queueFamilyIndex.second;
-  m_commandPool                      = m_device.GetDevice().createCommandPool(poolInfo);
-  Utils::Logger::LogSuccess("Command pool created !");
+    Utils::Logger::LogInfoVerboseOnly("Creating command pool...");
+    vk::CommandPoolCreateInfo poolInfo = {};
+    poolInfo.flags                     = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+    poolInfo.queueFamilyIndex          = m_queueFamilyIndex.second;
+    m_commandPool                      = m_device.GetDevice().createCommandPool(poolInfo);
+    Utils::Logger::LogSuccess("Command pool created !");
 }
 
 }  // namespace VulkanCore

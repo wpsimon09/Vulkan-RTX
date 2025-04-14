@@ -10,16 +10,16 @@ namespace VEditor {
 
 class Console : public IUserInterfaceElement
 {
-public:
-  Console();
+  public:
+    Console();
 
-  void Render() override;
-  void Resize(int newWidth, int newHeight) override;
+    void Render() override;
+    void Resize(int newWidth, int newHeight) override;
 
-private:
-  bool         m_scrollToBottom       = true;
-  unsigned int m_previousNumberOfLogs = 0;
-  const int    LogLimit               = 700;  // entries
+  private:
+    bool         m_scrollToBottom       = true;
+    unsigned int m_previousNumberOfLogs = 0;
+    const int    LogLimit               = 700;  // entries
 };
 
 }  // namespace VEditor

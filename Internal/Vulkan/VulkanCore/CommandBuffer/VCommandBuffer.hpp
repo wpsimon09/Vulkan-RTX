@@ -14,33 +14,33 @@ class VCommandPool;
 
 class VCommandBuffer : public VObject
 {
-public:
-  explicit VCommandBuffer(const VulkanCore::VDevice& device, const VulkanCore::VCommandPool& commandPool, bool isPrimary = true);
+  public:
+    explicit VCommandBuffer(const VulkanCore::VDevice& device, const VulkanCore::VCommandPool& commandPool, bool isPrimary = true);
 
-  void Destroy() override;
+    void Destroy() override;
 
-  const vk::CommandBuffer& GetCommandBuffer() const { return m_commandBuffer; };
-  const bool               GetIsRecording() const { return m_isCurrentlyRecording; }
-  const void               Reset();
+    const vk::CommandBuffer& GetCommandBuffer() const { return m_commandBuffer; };
+    const bool               GetIsRecording() const { return m_isCurrentlyRecording; }
+    const void               Reset();
 
-  void BeginRecording();
-  void EndRecording();
-  void EndAndFlush(const vk::Queue& queue);
-  void EndAndFlush(const vk::Queue& queue, const vk::Fence& fence);
-  void EndAndFlush(const vk::Queue& queue, vk::Semaphore& timeline, VkTimelineSemaphoreSubmitInfo& timelineInfo, vk::PipelineStageFlags* pWaitStages);
+    void BeginRecording();
+    void EndRecording();
+    void EndAndFlush(const vk::Queue& queue);
+    void EndAndFlush(const vk::Queue& queue, const vk::Fence& fence);
+    void EndAndFlush(const vk::Queue& queue, vk::Semaphore& timeline, VkTimelineSemaphoreSubmitInfo& timelineInfo, vk::PipelineStageFlags* pWaitStages);
 
-  void EndAndFlush(const vk::Queue&                     queue,
-                   std::vector<vk::Semaphore>&          waitSemaphores,
-                   std::vector<vk::PipelineStageFlags>& waitStages,
-                   std::vector<vk::Semaphore>&          signalSemaphores);
+    void EndAndFlush(const vk::Queue&                     queue,
+                     std::vector<vk::Semaphore>&          waitSemaphores,
+                     std::vector<vk::PipelineStageFlags>& waitStages,
+                     std::vector<vk::Semaphore>&          signalSemaphores);
 
-  ~VCommandBuffer() = default;
+    ~VCommandBuffer() = default;
 
-private:
-  const VulkanCore::VDevice&      m_device;
-  const VulkanCore::VCommandPool& m_commandPool;
-  bool                            m_isCurrentlyRecording;
-  vk::CommandBuffer               m_commandBuffer;
+  private:
+    const VulkanCore::VDevice&      m_device;
+    const VulkanCore::VCommandPool& m_commandPool;
+    bool                            m_isCurrentlyRecording;
+    vk::CommandBuffer               m_commandBuffer;
 };
 
 }  // namespace VulkanCore

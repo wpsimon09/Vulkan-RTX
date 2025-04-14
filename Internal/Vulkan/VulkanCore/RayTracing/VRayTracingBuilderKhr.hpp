@@ -32,16 +32,16 @@ namespace VulkanCore::RTX {
      */
 class VRayTracingBuilderKHR
 {
-public:
-  explicit VRayTracingBuilderKHR(const VulkanCore::VDevice& device);
-  void BuildBLAS(std::vector<RTX::BLASInput>& inputs,
-                 vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
+  public:
+    explicit VRayTracingBuilderKHR(const VulkanCore::VDevice& device);
+    void BuildBLAS(std::vector<RTX::BLASInput>& inputs,
+                   vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
 
-private:
-  const VulkanCore::VDevice&                  m_device;
-  std::vector<RTX::BLASEntry>                 m_blasEntries;
-  std::unique_ptr<VulkanCore::VCommandPool>   m_cmdPool;
-  std::unique_ptr<VulkanCore::VCommandBuffer> m_cmdBuffer;
+  private:
+    const VulkanCore::VDevice&                  m_device;
+    std::vector<RTX::BLASEntry>                 m_blasEntries;
+    std::unique_ptr<VulkanCore::VCommandPool>   m_cmdPool;
+    std::unique_ptr<VulkanCore::VCommandBuffer> m_cmdBuffer;
 };
 }  // namespace VulkanCore::RTX
 

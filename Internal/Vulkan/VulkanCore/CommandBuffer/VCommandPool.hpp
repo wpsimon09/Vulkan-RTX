@@ -13,27 +13,27 @@ class VDevice;
 
 class VCommandPool : public VObject
 {
-public:
-  explicit VCommandPool(const VulkanCore::VDevice& device, EQueueFamilyIndexType queueFamilyType);
+  public:
+    explicit VCommandPool(const VulkanCore::VDevice& device, EQueueFamilyIndexType queueFamilyType);
 
-  void Destroy() override;
+    void Destroy() override;
 
 
-  const vk::CommandPool&                            GetCommandBufferPool() const { return m_commandPool; };
-  const std::pair<EQueueFamilyIndexType, uint32_t>& GetQueueFamily() const { return m_queueFamilyIndex; }
-  bool                                              IsInUse() const { return m_inUse; }
-  void                                              SetInUse(bool inUse) { m_inUse = inUse; }
+    const vk::CommandPool&                            GetCommandBufferPool() const { return m_commandPool; };
+    const std::pair<EQueueFamilyIndexType, uint32_t>& GetQueueFamily() const { return m_queueFamilyIndex; }
+    bool                                              IsInUse() const { return m_inUse; }
+    void                                              SetInUse(bool inUse) { m_inUse = inUse; }
 
-  ~VCommandPool() = default;
+    ~VCommandPool() = default;
 
-private:
-  void CreateCommandPool();
+  private:
+    void CreateCommandPool();
 
-private:
-  bool                                       m_inUse = false;
-  std::pair<EQueueFamilyIndexType, uint32_t> m_queueFamilyIndex;
-  const VulkanCore::VDevice&                 m_device;
-  vk::CommandPool                            m_commandPool;
+  private:
+    bool                                       m_inUse = false;
+    std::pair<EQueueFamilyIndexType, uint32_t> m_queueFamilyIndex;
+    const VulkanCore::VDevice&                 m_device;
+    vk::CommandPool                            m_commandPool;
 };
 
 }  // namespace VulkanCore

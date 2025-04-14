@@ -19,16 +19,16 @@ class AssetsManager;
 
 class SkyBoxMaterial : public ApplicationCore::BaseMaterial
 {
-public:
-  SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager);
+  public:
+    SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager);
 
-  void ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect) override;
-  std::shared_ptr<ApplicationCore::VTextureAsset> GetHDRTexture();
-  void UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct) override;
+    void ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect) override;
+    std::shared_ptr<ApplicationCore::VTextureAsset> GetHDRTexture();
+    void UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct) override;
 
-private:
-  std::shared_ptr<ApplicationCore::VTextureAsset> m_HDRTexture;
-  SkyBoxMaterialDescription                       m_skyBoxMaterialDescription;
+  private:
+    std::shared_ptr<ApplicationCore::VTextureAsset> m_HDRTexture;
+    SkyBoxMaterialDescription                       m_skyBoxMaterialDescription;
 };
 
 }  // namespace ApplicationCore

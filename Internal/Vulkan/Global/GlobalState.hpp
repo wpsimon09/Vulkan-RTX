@@ -18,12 +18,12 @@ inline bool MSAA                    = true;
 
 inline void EnableLogging()
 {
-  LoggingEnabled = true;
+    LoggingEnabled = true;
 }
 
 inline void DisableLogging()
 {
-  LoggingEnabled = false;
+    LoggingEnabled = false;
 }
 
 inline int LogLimit = 700;  // entires in console

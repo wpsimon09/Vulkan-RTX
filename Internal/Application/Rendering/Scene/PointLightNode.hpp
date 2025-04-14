@@ -12,19 +12,19 @@ namespace ApplicationCore {
 
 class PointLightNode : public LightNode<LightStructs::PointLight>
 {
-public:
-  explicit PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh);
-  explicit PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo,
-                          std::shared_ptr<StaticMesh>   mesh,
-                          LightStructs::PointLight*     pointLightData = nullptr);
+  public:
+    explicit PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh);
+    explicit PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo,
+                            std::shared_ptr<StaticMesh>   mesh,
+                            LightStructs::PointLight*     pointLightData = nullptr);
 
-  void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
-  void Update() override;
-  void ProcessNodeRemove() override;
+    void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
+    void Update() override;
+    void ProcessNodeRemove() override;
 
-private:
-  LightStructs::SceneLightInfo& m_sceneLightInfo;
-  int                           m_index;
+  private:
+    LightStructs::SceneLightInfo& m_sceneLightInfo;
+    int                           m_index;
 };
 
 }  // namespace ApplicationCore

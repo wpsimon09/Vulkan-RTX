@@ -15,25 +15,25 @@ void VulkanUtils::PlaceImageMemoryBarrier(VulkanCore::VImage2&        image,
                                           vk::AccessFlags             srcData,
                                           vk::AccessFlags             dstData)
 {
-  vk::ImageMemoryBarrier imageMemBarrier{srcData,
-                                         dstData,
-                                         oldLayout,
-                                         newLayout,
-                                         vk::QueueFamilyIgnored,
-                                         vk::QueueFamilyIgnored,
-                                         image.GetImage(),
-                                         vk::ImageSubresourceRange{image.GetImageFlags().IsDepthBuffer ?
-                                                                       vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil :
-                                                                       vk::ImageAspectFlagBits::eColor,
-                                                                   0, 1, 0, image.GetImageInfo().arrayLayers}};
+    vk::ImageMemoryBarrier imageMemBarrier{srcData,
+                                           dstData,
+                                           oldLayout,
+                                           newLayout,
+                                           vk::QueueFamilyIgnored,
+                                           vk::QueueFamilyIgnored,
+                                           image.GetImage(),
+                                           vk::ImageSubresourceRange{image.GetImageFlags().IsDepthBuffer ?
+                                                                         vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil :
+                                                                         vk::ImageAspectFlagBits::eColor,
+                                                                     0, 1, 0, image.GetImageInfo().arrayLayers}};
 
-  commandBuffer.GetCommandBuffer().pipelineBarrier(srcPipelineStage, dstPipelineStage, {}, 0, nullptr, 0, nullptr, 1, &imageMemBarrier);
+    commandBuffer.GetCommandBuffer().pipelineBarrier(srcPipelineStage, dstPipelineStage, {}, 0, nullptr, 0, nullptr, 1, &imageMemBarrier);
 }
 
 void VulkanUtils::PlacePipelineBarrier(const VulkanCore::VCommandBuffer& cmdBuffer, vk::PipelineStageFlags src, vk::PipelineStageFlags dst)
 {
-  //cmdBuffer.GetCommandBuffer().pipelineBarrier(
-  //  src, dst, {},
-  //nullptr, nullptr,
-  //nullptr, nullptr);
+    //cmdBuffer.GetCommandBuffer().pipelineBarrier(
+    //  src, dst, {},
+    //nullptr, nullptr,
+    //nullptr, nullptr);
 }

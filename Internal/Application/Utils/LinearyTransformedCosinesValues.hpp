@@ -24,15 +24,15 @@ inline VulkanStructs::ImageData<float> LTCInverse_ImageData;
 
 class LookUpTalbes
 {
-public:
-  std::shared_ptr<ApplicationCore::VTextureAsset> LTC;
-  std::shared_ptr<ApplicationCore::VTextureAsset> LTCInverse;
+  public:
+    std::shared_ptr<ApplicationCore::VTextureAsset> LTC;
+    std::shared_ptr<ApplicationCore::VTextureAsset> LTCInverse;
 
-  void ClearLoopUpTables()
-  {
-    LTC->Destroy();
-    LTCInverse->Destroy();
-  }
+    void ClearLoopUpTables()
+    {
+        LTC->Destroy();
+        LTCInverse->Destroy();
+    }
 };
 
 inline LookUpTalbes LUT;

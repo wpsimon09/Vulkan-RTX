@@ -9,84 +9,84 @@
 
 enum EPrimitiveTopology
 {
-  //points
-  PointList,
+    //points
+    PointList,
 
-  //lines
-  LineList,
-  LineStrip,
+    //lines
+    LineList,
+    LineStrip,
 
-  //triangles
-  TriangleList,
-  TriangleStrip,
-  TriangleFan,
+    //triangles
+    TriangleList,
+    TriangleStrip,
+    TriangleFan,
 
-  //patch (tesselation only)
-  Patch
+    //patch (tesselation only)
+    Patch
 };
 
 enum EMeshGeometryType
 {
-  Cube,
-  Sphere,
-  Plane,
-  PostProcessQuad,
-  Triangle,
-  Custom,
-  Cross,
-  Arrow,
-  LinePlane,
-  SkyBox
+    Cube,
+    Sphere,
+    Plane,
+    PostProcessQuad,
+    Triangle,
+    Custom,
+    Cross,
+    Arrow,
+    LinePlane,
+    SkyBox
 };
 
 enum ETextureType
 {
-  Diffues = 0,
-  arm,
-  normal,
-  Emissive,
+    Diffues = 0,
+    arm,
+    normal,
+    Emissive,
 };
 
 enum EEditorIcon
 {
-  PointLight = 0,
-  DirectionalLight,
-  SpotLigth,
-  AreaLight
+    PointLight = 0,
+    DirectionalLight,
+    SpotLigth,
+    AreaLight
 };
 
 enum ENodeType
 {
-  Node = 0,
-  MeshNode,
-  DirectionalLightNode,
-  PointLightNode,
-  SpotLightNode,
-  AreaLightNode,
-  SkyBoxNode
+    Node = 0,
+    MeshNode,
+    DirectionalLightNode,
+    PointLightNode,
+    SpotLightNode,
+    AreaLightNode,
+    SkyBoxNode
 };
 
 inline std::string IconToString(EEditorIcon icon)
 {
-  switch(icon)
-  {
-    case PointLight:
-      return "Point Light";
-    case DirectionalLight:
-      return "Directional Light";
-    case SpotLigth:
-      return "Spot Light";
-    case AreaLight:
-      return "Area Light";
-    default:
-      return "Unknown";
-  }
+    switch(icon)
+    {
+        case PointLight:
+            return "Point Light";
+        case DirectionalLight:
+            return "Directional Light";
+        case SpotLigth:
+            return "Spot Light";
+        case AreaLight:
+            return "Area Light";
+        default:
+            return "Unknown";
+    }
 }
 
 enum ETheme
 {
-  Light = 0,
-  Dark
+    Light = 0,
+    Dark
 };
 
 

@@ -28,10 +28,9 @@ VulkanCore::RTX::BLASInput StaticMeshToBLASInput(std::shared_ptr<ApplicationCore
                                                  glm::mat4 matrix = glm::mat4(1.0f));
 
 
-
 inline bool hasFlag(VkFlags item, VkFlags flag)
 {
-  return (item & flag) == flag;
+    return (item & flag) == flag;
 }
 
 }  // namespace VulkanCore::RTX

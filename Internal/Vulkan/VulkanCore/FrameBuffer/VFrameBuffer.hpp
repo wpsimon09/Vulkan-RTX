@@ -17,21 +17,21 @@ class VSwapChain;
 
 class VFrameBuffer : public VObject
 {
-public:
-  VFrameBuffer(const VDevice&                                                device,
-               const VRenderPass&                                            renderPass,
-               std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments,
-               uint32_t                                                      width,
-               uint32_t                                                      height);
+  public:
+    VFrameBuffer(const VDevice&                                                device,
+                 const VRenderPass&                                            renderPass,
+                 std::vector<std::reference_wrapper<const VulkanCore::VImage>> attachments,
+                 uint32_t                                                      width,
+                 uint32_t                                                      height);
 
-  const vk::Framebuffer& GetFrameBuffer() const { return m_frameBuffer; }
+    const vk::Framebuffer& GetFrameBuffer() const { return m_frameBuffer; }
 
-  void Destroy() override;
+    void Destroy() override;
 
-private:
-  const VDevice& m_device;
+  private:
+    const VDevice& m_device;
 
-  vk::Framebuffer m_frameBuffer;
+    vk::Framebuffer m_frameBuffer;
 };
 }  // namespace VulkanCore
 

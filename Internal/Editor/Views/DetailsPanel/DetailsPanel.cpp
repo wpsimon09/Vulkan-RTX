@@ -27,350 +27,350 @@ DetailsPanel::DetailsPanel(const ApplicationCore::AssetsManager& assetsManager)
 
 void DetailsPanel::Render()
 {
-  ImGui::Begin(ICON_FA_PEN_FANCY " Details");
-  if(!m_selectedSceneNode)
-  {
-    ImGui::TextColored(ImVec4(0.9, 0.2, 0.2, 1.0), "No scene node selected");
-  }
-  else
-  {
-    RenderNodeStats();
-    RenderTransformationsPanel();
-    if(m_selectedSceneNode->HasMesh())
+    ImGui::Begin(ICON_FA_PEN_FANCY " Details");
+    if(!m_selectedSceneNode)
     {
-      RenderMaterialEditorPanel();
-      RenderSceneNodeMetaDataToggles();
+        ImGui::TextColored(ImVec4(0.9, 0.2, 0.2, 1.0), "No scene node selected");
+    }
+    else
+    {
+        RenderNodeStats();
+        RenderTransformationsPanel();
+        if(m_selectedSceneNode->HasMesh())
+        {
+            RenderMaterialEditorPanel();
+            RenderSceneNodeMetaDataToggles();
+        }
+
+        if(m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::DirectionalLightNode)
+        {
+            RenderDirectionLightUI();
+        }
+
+        if(m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::PointLightNode)
+        {
+            RenderPointLightUI();
+        }
+
+        if(m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::AreaLightNode)
+        {
+            RenderAreaLightUI();
+        }
+
+        if(m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::SkyBoxNode)
+        {
+            RenderEnvLightUI();
+        }
     }
 
-    if(m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::DirectionalLightNode)
-    {
-      RenderDirectionLightUI();
-    }
-
-    if(m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::PointLightNode)
-    {
-      RenderPointLightUI();
-    }
-
-    if(m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::AreaLightNode)
-    {
-      RenderAreaLightUI();
-    }
-
-    if(m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::SkyBoxNode)
-    {
-      RenderEnvLightUI();
-    }
-  }
-
-  ImGui::End();
-  IUserInterfaceElement::Render();
+    ImGui::End();
+    IUserInterfaceElement::Render();
 }
 
 void DetailsPanel::Resize(int newWidth, int newHeight) {}
 
 void DetailsPanel::RenderTransformationsPanel()
 {
-  ImGui::SetNextItemOpen(true);
-  if(ImGui::TreeNodeEx(ICON_FA_MAP " Transformations"))
-  {
-    // position
+    ImGui::SetNextItemOpen(true);
+    if(ImGui::TreeNodeEx(ICON_FA_MAP " Transformations"))
     {
-      if(ImGui::Button(ICON_FA_REPLY "##ResetPos"))
-      {
-        m_selectedSceneNode->m_transformation->SetPosition(glm::vec3(0.0f));
-      }
-      ImGui::SameLine();
-      ImGui::DragFloat3(ICON_FA_ARROWS_TO_DOT " Position", &m_selectedSceneNode->m_transformation->GetPosition().x,
-                        0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
-    }
-    // Scale
-    {
-      if(ImGui::Button(ICON_FA_REPLY "##ResetScale"))
-      {
-        m_selectedSceneNode->m_transformation->SetScale(glm::vec3(1.0f));
-        m_uniformScaleScalar = 1.0f;
-      }
+        // position
+        {
+            if(ImGui::Button(ICON_FA_REPLY "##ResetPos"))
+            {
+                m_selectedSceneNode->m_transformation->SetPosition(glm::vec3(0.0f));
+            }
+            ImGui::SameLine();
+            ImGui::DragFloat3(ICON_FA_ARROWS_TO_DOT " Position",
+                              &m_selectedSceneNode->m_transformation->GetPosition().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+        }
+        // Scale
+        {
+            if(ImGui::Button(ICON_FA_REPLY "##ResetScale"))
+            {
+                m_selectedSceneNode->m_transformation->SetScale(glm::vec3(1.0f));
+                m_uniformScaleScalar = 1.0f;
+            }
 
-      if(m_isUniformScaleOn)
-      {
-        ImGui::SameLine();
-        ImGui::DragFloat(ICON_FA_VECTOR_SQUARE " Scale", &m_uniformScaleScalar, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
-        m_selectedSceneNode->m_transformation->SetScale(m_uniformScaleScalar);
-      }
-      else
-      {
-        ImGui::SameLine();
-        ImGui::DragFloat3(ICON_FA_VECTOR_SQUARE " Scale", &m_selectedSceneNode->m_transformation->GetScale().x, 0.5f,
-                          -FLT_MAX, +FLT_MAX, "%.3f");
-      }
-      ImGui::SameLine();
-      ImGui::Checkbox(ICON_FA_LOCK, &m_isUniformScaleOn);
-    }
-    // rotate
-    {
-      if(ImGui::Button(ICON_FA_REPLY "##ResetRotation"))
-      {
-        m_selectedSceneNode->m_transformation->SetRotations(glm::vec3(0.0f));
-      }
-      ImGui::SameLine();
-      ImGui::DragFloat3(ICON_FA_ARROWS_ROTATE " Rotation", &m_selectedSceneNode->m_transformation->GetRotations().x,
-                        0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
-    }
+            if(m_isUniformScaleOn)
+            {
+                ImGui::SameLine();
+                ImGui::DragFloat(ICON_FA_VECTOR_SQUARE " Scale", &m_uniformScaleScalar, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+                m_selectedSceneNode->m_transformation->SetScale(m_uniformScaleScalar);
+            }
+            else
+            {
+                ImGui::SameLine();
+                ImGui::DragFloat3(ICON_FA_VECTOR_SQUARE " Scale", &m_selectedSceneNode->m_transformation->GetScale().x,
+                                  0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+            }
+            ImGui::SameLine();
+            ImGui::Checkbox(ICON_FA_LOCK, &m_isUniformScaleOn);
+        }
+        // rotate
+        {
+            if(ImGui::Button(ICON_FA_REPLY "##ResetRotation"))
+            {
+                m_selectedSceneNode->m_transformation->SetRotations(glm::vec3(0.0f));
+            }
+            ImGui::SameLine();
+            ImGui::DragFloat3(ICON_FA_ARROWS_ROTATE " Rotation",
+                              &m_selectedSceneNode->m_transformation->GetRotations().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+        }
 
-    ImGui::TreePop();
-  }
+        ImGui::TreePop();
+    }
 }
 
 void DetailsPanel::RenderMaterialEditorPanel()
 {
-  auto meshMaterial = m_selectedSceneNode->GetMesh()->GetMaterial().get();
-  if(ImGui::TreeNode(ICON_FA_PAINTBRUSH " Material"))
-  {
-    if(auto pbrMat = dynamic_cast<ApplicationCore::PBRMaterial*>(meshMaterial))
+    auto meshMaterial = m_selectedSceneNode->GetMesh()->GetMaterial().get();
+    if(ImGui::TreeNode(ICON_FA_PAINTBRUSH " Material"))
     {
-
-      RenderPBRMaterialDetails(pbrMat);
-    }
-    else if(auto skyBoxMat = dynamic_cast<ApplicationCore::SkyBoxMaterial*>(meshMaterial))
-    {
-      ImGui::SeparatorText("HDR");
-      RenderSkyBoxMaterialDetails(skyBoxMat);
-    }
-    else
-    {
-      ImGui::Text("Node has no material properties !");
-    }
-    ImGui::TreePop();
-  }
-
-  if(ImGui::TreeNode(ICON_FA_WAND_MAGIC_SPARKLES " Effect"))
-  {
-    if(ImGui::Button(ICON_FA_REPLY " ## reset efect"))
-    {
-      m_selectedSceneNode->GetMesh()->GetMaterial()->ResetEffect();
-    }
-
-    ImGui::SameLine();
-
-    if(ImGui::BeginCombo("Effect", meshMaterial->GetEffect()->GetName().c_str()))
-    {
-      for(auto& effect : m_assetsManager.GetEffects())
-      {
-        auto label = ICON_FA_WAND_MAGIC_SPARKLES " " + effect.second->GetName();
-        if(ImGui::Selectable(label.c_str(), effect.second == m_selectedSceneNode->GetMesh()->GetMaterial()->GetEffect()))
+        if(auto pbrMat = dynamic_cast<ApplicationCore::PBRMaterial*>(meshMaterial))
         {
-          m_selectedSceneNode->GetMesh()->GetMaterial()->ChangeEffect(effect.second);
+
+            RenderPBRMaterialDetails(pbrMat);
         }
-      }
-      ImGui::EndCombo();
+        else if(auto skyBoxMat = dynamic_cast<ApplicationCore::SkyBoxMaterial*>(meshMaterial))
+        {
+            ImGui::SeparatorText("HDR");
+            RenderSkyBoxMaterialDetails(skyBoxMat);
+        }
+        else
+        {
+            ImGui::Text("Node has no material properties !");
+        }
+        ImGui::TreePop();
     }
-    ImGui::TreePop();
-  }
+
+    if(ImGui::TreeNode(ICON_FA_WAND_MAGIC_SPARKLES " Effect"))
+    {
+        if(ImGui::Button(ICON_FA_REPLY " ## reset efect"))
+        {
+            m_selectedSceneNode->GetMesh()->GetMaterial()->ResetEffect();
+        }
+
+        ImGui::SameLine();
+
+        if(ImGui::BeginCombo("Effect", meshMaterial->GetEffect()->GetName().c_str()))
+        {
+            for(auto& effect : m_assetsManager.GetEffects())
+            {
+                auto label = ICON_FA_WAND_MAGIC_SPARKLES " " + effect.second->GetName();
+                if(ImGui::Selectable(label.c_str(), effect.second == m_selectedSceneNode->GetMesh()->GetMaterial()->GetEffect()))
+                {
+                    m_selectedSceneNode->GetMesh()->GetMaterial()->ChangeEffect(effect.second);
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::TreePop();
+    }
 }
 
 void DetailsPanel::RenderMeshOnlyUI()
 {
-  if(ImGui::TreeNodeEx(ICON_FA_CIRCLE_INFO " Mesh info"))
-  {
-    auto meshData = m_selectedSceneNode->GetMesh()->GeteMeshInfo();
-    ImGui::Text("Triangle count %i", meshData.numberOfTriangles);
-    ImGui::Text("Index count %i", meshData.indexCount);
-    ImGui::Text("Vertex count %i", meshData.vertexCount);
-    ImGui::TreePop();
-  }
+    if(ImGui::TreeNodeEx(ICON_FA_CIRCLE_INFO " Mesh info"))
+    {
+        auto meshData = m_selectedSceneNode->GetMesh()->GeteMeshInfo();
+        ImGui::Text("Triangle count %i", meshData.numberOfTriangles);
+        ImGui::Text("Index count %i", meshData.indexCount);
+        ImGui::Text("Vertex count %i", meshData.vertexCount);
+        ImGui::TreePop();
+    }
 }
 
 void DetailsPanel::RenderDirectionLightUI()
 {
-  auto DirLightNode = dynamic_cast<ApplicationCore::DirectionLightNode*>(m_selectedSceneNode.get());
+    auto DirLightNode = dynamic_cast<ApplicationCore::DirectionLightNode*>(m_selectedSceneNode.get());
 
-  ImGui::SeparatorText("General light settings");
-  ImGui::SetNextItemWidth(600.0f);
-  ImGui::ColorEdit3("LightColour", &DirLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
+    ImGui::SeparatorText("General light settings");
+    ImGui::SetNextItemWidth(600.0f);
+    ImGui::ColorEdit3("LightColour", &DirLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
 
-  ImGui::DragFloat("Intensity", &DirLightNode->GetLightStruct().colour.w);
+    ImGui::DragFloat("Intensity", &DirLightNode->GetLightStruct().colour.w);
 }
 
 void DetailsPanel::RenderPointLightUI()
 {
-  auto pointLightNode = dynamic_cast<ApplicationCore::PointLightNode*>(m_selectedSceneNode.get());
+    auto pointLightNode = dynamic_cast<ApplicationCore::PointLightNode*>(m_selectedSceneNode.get());
 
-  ImGui::SeparatorText("General light settings");
-  ImGui::ColorEdit3("LightColour", &pointLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
+    ImGui::SeparatorText("General light settings");
+    ImGui::ColorEdit3("LightColour", &pointLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
 
-  ImGui::DragFloat("Intensity", &pointLightNode->GetLightStruct().colour.w);
+    ImGui::DragFloat("Intensity", &pointLightNode->GetLightStruct().colour.w);
 
-  ImGui::SliderFloat("Linear", &pointLightNode->GetLightStruct().linearFactor, 0.0014f, 0.7f);
-  ImGui::SliderFloat("QuadraticTerm", &pointLightNode->GetLightStruct().quadraticFactor, 0.0001f, 0.01f, "%.3",
-                     ImGuiSliderFlags_Logarithmic);
+    ImGui::SliderFloat("Linear", &pointLightNode->GetLightStruct().linearFactor, 0.0014f, 0.7f);
+    ImGui::SliderFloat("QuadraticTerm", &pointLightNode->GetLightStruct().quadraticFactor, 0.0001f, 0.01f, "%.3",
+                       ImGuiSliderFlags_Logarithmic);
 }
 
 void DetailsPanel::RenderAreaLightUI()
 {
-  auto areaLightNode = dynamic_cast<ApplicationCore::AreaLightNode*>(m_selectedSceneNode.get());
+    auto areaLightNode = dynamic_cast<ApplicationCore::AreaLightNode*>(m_selectedSceneNode.get());
 
-  ImGui::SeparatorText("General light settings");
-  ImGui::ColorEdit3("LightColour", &areaLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
-  ImGui::DragFloat("Intensity", &areaLightNode->GetLightStruct().intensity);
-  ImGui::Checkbox("Two sided", &areaLightNode->GetLightStruct().twoSided);
+    ImGui::SeparatorText("General light settings");
+    ImGui::ColorEdit3("LightColour", &areaLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
+    ImGui::DragFloat("Intensity", &areaLightNode->GetLightStruct().intensity);
+    ImGui::Checkbox("Two sided", &areaLightNode->GetLightStruct().twoSided);
 }
 
 void DetailsPanel::RenderEnvLightUI()
 {
-  auto envLIght = dynamic_cast<ApplicationCore::SkyBoxNode*>(m_selectedSceneNode.get());
-  ImGui::Checkbox("Show sky box", &envLIght->m_showBackground);
-  ImGui::SliderFloat("Ambient strength", &envLIght->GetLightStruct().ambientIntensity, 0.0f, 1.0f);
+    auto envLIght = dynamic_cast<ApplicationCore::SkyBoxNode*>(m_selectedSceneNode.get());
+    ImGui::Checkbox("Show sky box", &envLIght->m_showBackground);
+    ImGui::SliderFloat("Ambient strength", &envLIght->GetLightStruct().ambientIntensity, 0.0f, 1.0f);
 }
 
 void DetailsPanel::RenderSceneNodeMetaDataToggles()
 {
-  if(ImGui::TreeNode(ICON_FA_SLIDERS " Options"))
-  {
-    if(m_selectedSceneNode->HasMesh())
+    if(ImGui::TreeNode(ICON_FA_SLIDERS " Options"))
     {
-      ImGui::Checkbox("Frustrum cull", &m_selectedSceneNode->GetSceneNodeMetaData().FrustumCull);
-      ImGui::Checkbox("Cast Shadows", &m_selectedSceneNode->GetSceneNodeMetaData().CastsShadows);
+        if(m_selectedSceneNode->HasMesh())
+        {
+            ImGui::Checkbox("Frustrum cull", &m_selectedSceneNode->GetSceneNodeMetaData().FrustumCull);
+            ImGui::Checkbox("Cast Shadows", &m_selectedSceneNode->GetSceneNodeMetaData().CastsShadows);
+        }
+        ImGui::TreePop();
     }
-    ImGui::TreePop();
-  }
 }
 
 void DetailsPanel::RenderNodeStats()
 {
-  ImGui::TextDisabled("(?) Node data");
-  if(ImGui::BeginItemTooltip())
-  {
-    ImGui::SeparatorText("Node data");
-    ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-
-    ImGui::TextUnformatted("ID:");
-    ImGui::SameLine();
-    ImGui::TextUnformatted(std::to_string(m_selectedSceneNode->GetSceneNodeMetaData().ID).c_str());
-
-    ImGui::PopTextWrapPos();
-    if(m_selectedSceneNode->HasMesh())
+    ImGui::TextDisabled("(?) Node data");
+    if(ImGui::BeginItemTooltip())
     {
-      ImGui::SeparatorText("Mesh data");
-      auto& mesh = m_selectedSceneNode->GetMesh();
-      ImGui::TextUnformatted("Vertex buffer ID");
-      ImGui::SameLine();
-      ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->vertexData.BufferID).c_str());
+        ImGui::SeparatorText("Node data");
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
 
-      ImGui::TextUnformatted("Index buffer ID");
-      ImGui::SameLine();
-      ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->indexData.BufferID).c_str());
+        ImGui::TextUnformatted("ID:");
+        ImGui::SameLine();
+        ImGui::TextUnformatted(std::to_string(m_selectedSceneNode->GetSceneNodeMetaData().ID).c_str());
 
-      ImGui::TextUnformatted("Vertex buffer address");
-      ImGui::SameLine();
-      ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->vertexData.bufferAddress).c_str());
+        ImGui::PopTextWrapPos();
+        if(m_selectedSceneNode->HasMesh())
+        {
+            ImGui::SeparatorText("Mesh data");
+            auto& mesh = m_selectedSceneNode->GetMesh();
+            ImGui::TextUnformatted("Vertex buffer ID");
+            ImGui::SameLine();
+            ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->vertexData.BufferID).c_str());
 
-      ImGui::TextUnformatted("Index buffer address");
-      ImGui::SameLine();
-      ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->indexData.bufferAddress).c_str());
+            ImGui::TextUnformatted("Index buffer ID");
+            ImGui::SameLine();
+            ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->indexData.BufferID).c_str());
+
+            ImGui::TextUnformatted("Vertex buffer address");
+            ImGui::SameLine();
+            ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->vertexData.bufferAddress).c_str());
+
+            ImGui::TextUnformatted("Index buffer address");
+            ImGui::SameLine();
+            ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->indexData.bufferAddress).c_str());
+        }
+        ImGui::EndTooltip();
     }
-    ImGui::EndTooltip();
-  }
 }
 
 void DetailsPanel::RenderPBRMaterialDetails(ApplicationCore::PBRMaterial* material)
 {
-  if(m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::MeshNode)
-  {
-    if(ImGui::BeginCombo("Change material", material->GetMaterialName().c_str()))
+    if(m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::MeshNode)
     {
-      for(auto& mat : m_assetsManager.GetAllMaterials())
-      {
-        std::string lable = mat->IsTransparent() ? ICON_FA_GLASS_WATER : ICON_FA_BRUSH "  " + mat->GetMaterialName();
-        if(ImGui::Selectable(lable.c_str()))
+        if(ImGui::BeginCombo("Change material", material->GetMaterialName().c_str()))
         {
-          m_selectedSceneNode->GetMesh()->SetMaterial(mat);
+            for(auto& mat : m_assetsManager.GetAllMaterials())
+            {
+                std::string lable = mat->IsTransparent() ? ICON_FA_GLASS_WATER : ICON_FA_BRUSH "  " + mat->GetMaterialName();
+                if(ImGui::Selectable(lable.c_str()))
+                {
+                    m_selectedSceneNode->GetMesh()->SetMaterial(mat);
+                }
+            }
+            ImGui::EndCombo();
         }
-      }
-      ImGui::EndCombo();
-    }
-    ImGui::SameLine();
-    if(ImGui::Button(ICON_FA_REPLY "##ResetMaterial"))
-    {
-      m_selectedSceneNode->GetMesh()->ResetMaterial();
-    }
+        ImGui::SameLine();
+        if(ImGui::Button(ICON_FA_REPLY "##ResetMaterial"))
+        {
+            m_selectedSceneNode->GetMesh()->ResetMaterial();
+        }
 
-    float colourPickerWidth = 300.0f;
-    //==============
-    // ALBEDO
-    //===============
-    ImGui::SeparatorText("Albedo");
-    ImGui::Checkbox("Use texture##a", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasDiffuseTexture));
-    ImGui::Checkbox("Is transparent", &material->IsTransparent());
-    if(material->GetMaterialDescription().features.hasDiffuseTexture)
-    {
-    }
-    else
-    {
-      ImGui::SameLine();
-      ImGui::SetNextItemWidth(colourPickerWidth);
+        float colourPickerWidth = 300.0f;
+        //==============
+        // ALBEDO
+        //===============
+        ImGui::SeparatorText("Albedo");
+        ImGui::Checkbox("Use texture##a", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasDiffuseTexture));
+        ImGui::Checkbox("Is transparent", &material->IsTransparent());
+        if(material->GetMaterialDescription().features.hasDiffuseTexture)
+        {
+        }
+        else
+        {
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(colourPickerWidth);
 
-      if(material->IsTransparent())
-      {
-        ImGui::ColorEdit4("Albedo", &material->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
-      }
-      else
-      {
-        material->GetMaterialDescription().values.diffuse.w = 1.0f;
-        ImGui::ColorEdit3("Albedo", &material->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
-      }
-    }
+            if(material->IsTransparent())
+            {
+                ImGui::ColorEdit4("Albedo", &material->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
+            }
+            else
+            {
+                material->GetMaterialDescription().values.diffuse.w = 1.0f;
+                ImGui::ColorEdit3("Albedo", &material->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
+            }
+        }
 
-    //==============
-    // ARM
-    //===============
-    ImGui::SeparatorText("ARM");
-    ImGui::Checkbox("Use texture##arm", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasArmTexture));
-    if(material->GetMaterialDescription().features.hasArmTexture)
-    {
-    }
-    else
-    {
-      ImGui::SeparatorText("Roughness");
-      ImGui::SliderFloat("Roughness", &material->GetMaterialDescription().values.roughness, 0.0f, 1.0f, "%.3f");
+        //==============
+        // ARM
+        //===============
+        ImGui::SeparatorText("ARM");
+        ImGui::Checkbox("Use texture##arm", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasArmTexture));
+        if(material->GetMaterialDescription().features.hasArmTexture)
+        {
+        }
+        else
+        {
+            ImGui::SeparatorText("Roughness");
+            ImGui::SliderFloat("Roughness", &material->GetMaterialDescription().values.roughness, 0.0f, 1.0f, "%.3f");
 
-      //==============
-      // METALNES
-      //===============
-      ImGui::SeparatorText("Metalness");
-      ImGui::SliderFloat("Metalness", &material->GetMaterialDescription().values.metalness, 0.0f, 1.0f, "%.3f");
+            //==============
+            // METALNES
+            //===============
+            ImGui::SeparatorText("Metalness");
+            ImGui::SliderFloat("Metalness", &material->GetMaterialDescription().values.metalness, 0.0f, 1.0f, "%.3f");
+        }
+        //==============
+        // EMISSIVE
+        //===============
+        ImGui::SeparatorText("Emissive");
+        ImGui::Checkbox("Use texture##e", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasEmissiveTexture));
+        if(material->GetMaterialDescription().features.hasEmissiveTexture)
+        {
+            ImGui::DragFloat("Emissive strength", &material->GetMaterialDescription().values.emissive_strength.w, 0.5f, 0.0f, 100.0f);
+        }
+        else
+        {
+            ImGui::SetNextItemWidth(colourPickerWidth);
+            ImGui::ColorEdit3("Emission", &material->GetMaterialDescription().values.emissive_strength.x, ImGuiColorEditFlags_NoInputs);
+        }
     }
-    //==============
-    // EMISSIVE
-    //===============
-    ImGui::SeparatorText("Emissive");
-    ImGui::Checkbox("Use texture##e", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasEmissiveTexture));
-    if(material->GetMaterialDescription().features.hasEmissiveTexture)
-    {
-      ImGui::DragFloat("Emissive strength", &material->GetMaterialDescription().values.emissive_strength.w, 0.5f, 0.0f, 100.0f);
-    }
-    else
-    {
-      ImGui::SetNextItemWidth(colourPickerWidth);
-      ImGui::ColorEdit3("Emission", &material->GetMaterialDescription().values.emissive_strength.x, ImGuiColorEditFlags_NoInputs);
-    }
-  }
 }
 
 void DetailsPanel::RenderSkyBoxMaterialDetails(ApplicationCore::SkyBoxMaterial* material)
 {
-  if(ImGui::BeginCombo("Change material", material->GetMaterialName().c_str()))
-  {
-    for(auto& mat : m_assetsManager.GetAllSkyBoxMaterials())
+    if(ImGui::BeginCombo("Change material", material->GetMaterialName().c_str()))
     {
-      std::string lable = ICON_FA_MOUNTAIN "  " + mat->GetMaterialName();
-      if(ImGui::Selectable(lable.c_str()))
-      {
-        m_selectedSceneNode->GetMesh()->SetMaterial(mat);
-      }
-      ImGui::Text(reinterpret_cast<const char*>(mat->GetHDRTexture()->GetHandle().get()));
+        for(auto& mat : m_assetsManager.GetAllSkyBoxMaterials())
+        {
+            std::string lable = ICON_FA_MOUNTAIN "  " + mat->GetMaterialName();
+            if(ImGui::Selectable(lable.c_str()))
+            {
+                m_selectedSceneNode->GetMesh()->SetMaterial(mat);
+            }
+            ImGui::Text(reinterpret_cast<const char*>(mat->GetHDRTexture()->GetHandle().get()));
+        }
+        ImGui::EndCombo();
     }
-    ImGui::EndCombo();
-  }
 }
 }  // namespace VEditor

@@ -21,22 +21,22 @@ namespace VEditor {
 
 class SceneView : public IUserInterfaceElement
 {
-public:
-  explicit SceneView(ApplicationCore::Scene& scene);
+  public:
+    explicit SceneView(ApplicationCore::Scene& scene);
 
-  void Resize(int newWidth, int newHeight) override;
+    void Resize(int newWidth, int newHeight) override;
 
-  void Render() override;
+    void Render() override;
 
-private:
-  void                    CreateSceneLightsList(std::vector<std::shared_ptr<ApplicationCore::SceneNode>>& sceneLights);
-  void                    CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode> sceneNode);
-  std::string             GenerateNodeLabel(std::shared_ptr<ApplicationCore::SceneNode>& sceneNode);
-  ApplicationCore::Scene& m_scene;
+  private:
+    void        CreateSceneLightsList(std::vector<std::shared_ptr<ApplicationCore::SceneNode>>& sceneLights);
+    void        CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode> sceneNode);
+    std::string GenerateNodeLabel(std::shared_ptr<ApplicationCore::SceneNode>& sceneNode);
+    ApplicationCore::Scene& m_scene;
 
-  std::vector<std::shared_ptr<ApplicationCore::SceneNode>> m_lightNodes;
+    std::vector<std::shared_ptr<ApplicationCore::SceneNode>> m_lightNodes;
 
-  DetailsPanel* m_detailsPanale;
+    DetailsPanel* m_detailsPanale;
 };
 
 }  // namespace VEditor

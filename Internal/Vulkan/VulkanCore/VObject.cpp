@@ -7,5 +7,5 @@
 
 VulkanCore::VObject::VObject()
 {
-  m_ID = ++globalIDCounter;
+    m_ID = ++globalIDCounter;
 }
