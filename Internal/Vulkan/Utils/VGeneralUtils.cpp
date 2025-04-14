@@ -25,6 +25,55 @@
 
 uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyProperties>& queueFamilyProperties, vk::QueueFlagBits queueType)
 {
+    /**
+     * TODO: this is the function that will find proper queue families however i was stupid and thought that transfer family is different from graphics family
+     * and for this reason everything that was happeing "on transfer queue" was acctualy happening on graphics queue
+     *
+     * I have to rewrite good portion of vulkan core functionality that handles image transition, copying and more to separate asnychronus queues because
+     * transfer queue has no idea about shader stages and stuff like this. I will most likely create class similuar to VTransferOpsManager that will hanlde purely initial image layout transitions and
+     * during rendering I will have like BeginFrame function that will return command buffer that can be recorded. This command buffer will also be used for image layout transitionss
+     ***/
+
+    /*for (uint32_t i = 0; i < queueFamilyProperties.size(); ++i) {
+        const auto& queueFamily = queueFamilyProperties[i];
+
+        switch (queueType) {
+        case vk::QueueFlagBits::eGraphics:
+            if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) {
+                return i;
+            }
+            break;
+
+        case vk::QueueFlagBits::eTransfer:
+            // Prefer a dedicated transfer queue (not also graphics or compute)
+                if ((queueFamily.queueFlags & vk::QueueFlagBits::eTransfer) &&
+                    !(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) &&
+                    !(queueFamily.queueFlags & vk::QueueFlagBits::eCompute)) {
+                    return i;
+                    }
+            break;
+
+        case vk::QueueFlagBits::eCompute:
+            // Prefer a dedicated compute queue (not also graphics)
+                if ((queueFamily.queueFlags & vk::QueueFlagBits::eCompute) &&
+                    !(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)) {
+                    return i;
+                    }
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    // Fallback: Try to find any queue that supports the requested type, even if not dedicated
+    for (uint32_t i = 0; i < queueFamilyProperties.size(); ++i) {
+        const auto& queueFamily = queueFamilyProperties[i];
+        if (queueFamily.queueFlags & queueType) {
+            return i;
+        }
+    }*/
+
     //select just the queue fmily index that supports graphics operations
     std::vector<vk::QueueFamilyProperties>::const_iterator graphicsQueueFamilyProperty =
         std::find_if(queueFamilyProperties.begin(), queueFamilyProperties.end(),
