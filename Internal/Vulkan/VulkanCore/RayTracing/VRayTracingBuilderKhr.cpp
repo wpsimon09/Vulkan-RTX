@@ -36,6 +36,7 @@ void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildA
     vk::DeviceSize asTotalSize{0};     // total size of the acceleration strcuture
     uint32_t       nbCompactions{0};   // number of BLAS that requested compaction
     vk::DeviceSize maxScratchSize{0};  // find the largest scratch size
+    uint32_t minAlignment = GlobalVariables::GlobalStructs::AccelerationStructProperties.minAccelerationStructureScratchOffsetAlignment;
 
     std::vector<VulkanCore::RTX::AccelerationStructBuildData> asBuildData(nbBlas);
     for(uint32_t i = 0; i < nbBlas; i++)
@@ -51,16 +52,21 @@ void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildA
     VulkanCore::VBuffer    blasScratchBuffer(m_device, "BLAS Scratch buffer");
     VRayTracingBlasBuilder blasBuilder(m_device);
 
-    vk:VkDeviceSize hintMaxBudget{256'000'000};
+    vk:VkDeviceSize hintMaxBudget{256'000'000}; // 250 MB
     bool hasCompaction = hasFlag(static_cast<VkFlags>(flags), VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR);
 
-    uint32_t minAlignment = GlobalVariables::GlobalStructs::AccelerationStructProperties.minAccelerationStructureScratchOffsetAlignment;
-
-    vk::DeviceSize scratchSize = blasBuilder.GetScratchSize(hintMaxBudget, asBuildData, minAlignment);
 
     // scratch buffer needs to be used for every BLAS and we want ot reuse it so we will allocate scratch buffer with biggest size ever needed
+    vk::DeviceSize scratchSize = blasBuilder.GetScratchSize(hintMaxBudget, asBuildData, minAlignment);
     blasScratchBuffer.CreateBuffer(scratchSize, static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eShaderDeviceAddress
                                                                                 | vk::BufferUsageFlagBits::eStorageBuffer));
+    // gets the scratch buffer adress for each blasBuildData
+    std::vector<vk::DeviceAddress> scratchAdresses;
+    blasBuilder.GetScratchAddresses(hintMaxBudget, asBuildData, blasScratchBuffer.GetBufferAdress(), scratchAdresses, minAlignment);
+
+
+
+    blasScratchBuffer.Destroy();
 }
 
 }  // namespace VulkanCore::RTX

@@ -28,6 +28,7 @@ class VBuffer : public VObject
     const vk::Buffer&    GetStagingBuffer() const { return m_stagingBufferVK; }
     const VmaAllocation& GetStagingBufferAllocation() const { return m_stagingAllocation; }
     vk::DeviceSize       GetBuffeSizeInBytes() const { return m_bufferSize; };
+    vk::DeviceAddress    GetBufferAdress() const {return m_bufferAddress;}
 
     void* GetMapPointer() const
     {
@@ -74,6 +75,7 @@ class VBuffer : public VObject
 
     vk::DeviceSize    m_bufferSize;
     const std::string m_allocationName;
+    vk::DeviceAddress m_bufferAddress;
 
     bool  m_isInitialized        = false;
     bool  m_isPresistentlyMapped = false;

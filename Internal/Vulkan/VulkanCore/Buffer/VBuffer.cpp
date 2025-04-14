@@ -102,10 +102,15 @@ void VBuffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage)
     assert(vmaCreateBuffer(m_device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo, &m_bufferVMA, &m_allocation, nullptr)
            == VK_SUCCESS);
 
+    m_bufferVK = m_bufferVMA;
     m_bufferSize = size;
 
     vmaSetAllocationName(m_device.GetAllocator(), m_allocation, m_allocationName.c_str());
     Utils::Logger::LogSuccess("Buffer allocated successfully || SIZE: " + std::to_string(size) + " bytes || ");
+
+    vk::BufferDeviceAddressInfo bufferAdressInfo;
+    bufferAdressInfo.buffer              = m_bufferVK;
+    m_bufferAddress = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
 }
 
 void VBuffer::DestroyStagingBuffer() const

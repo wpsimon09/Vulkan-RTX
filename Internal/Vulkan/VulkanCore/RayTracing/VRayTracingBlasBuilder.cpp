@@ -73,18 +73,22 @@ vk::DeviceSize VRayTracingBlasBuilder::GetScratchSize(vk::DeviceSize            
                                                       const std::vector<AccelerationStructBuildData>& blasBuildData,
                                                       uint32_t                                        minAlignment)
 {
-    ScratchSizeInfo sizeInfo = CalculateScratchAlignedSize(blasBuildData, minAlignment);
-    vk::DeviceSize maxScratch = sizeInfo.maxScratch;
-    vk::DeviceSize totalScratch = sizeInfo.totalScratch;
+    ScratchSizeInfo sizeInfo     = CalculateScratchAlignedSize(blasBuildData, minAlignment);
+    vk::DeviceSize  maxScratch   = sizeInfo.maxScratch;
+    vk::DeviceSize  totalScratch = sizeInfo.totalScratch;
 
-    if (totalScratch < hintMaxBudget) {
+    if(totalScratch < hintMaxBudget)
+    {
         return totalScratch;
-    }else {
+    }
+    else
+    {
         uint64_t numScratch = std::max(uint64_t(1), hintMaxBudget / maxScratch);
-        numScratch = std::min(numScratch, blasBuildData.size());
+        numScratch          = std::min(numScratch, blasBuildData.size());
         return numScratch * maxScratch;
     }
 }
+
 
 void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                                  hintMaxBudget,
                                                  const std::vector<AccelerationStructBuildData>& blasBuildData,
@@ -92,6 +96,30 @@ void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                 
                                                  std::vector<vk::DeviceAddress>&                 outScratchAddresses,
                                                  uint32_t                                        minimumAligment)
 {
+    ScratchSizeInfo sizeInfo     = CalculateScratchAlignedSize(blasBuildData, minimumAligment);
+    vk::DeviceSize  maxScratch   = sizeInfo.maxScratch;
+    vk::DeviceSize  totalScratch = sizeInfo.totalScratch;
+
+    // in case the scratch buffer will fir every BLAS return the same thing for each BLAS build info
+    if (totalScratch < hintMaxBudget) {
+        vk::DeviceAddress address {};
+        for (auto& buildData: blasBuildData) {
+            outScratchAddresses.emplace_back(scratchBufferAderess + address);
+            vk::DeviceSize alignedAdress = MathUtils::align_up(buildData.asBuildSizesInfo.buildScratchSize, minimumAligment);
+            address += alignedAdress;
+        }
+    }
+    // in case the toal size of BLAS is higher than the scratch buffer creat N * times the max scratch buffer that is fitting the budget
+    else{
+        uint64_t numScratch = std::max(uint64_t(1), hintMaxBudget / maxScratch);
+        numScratch          = std::min(numScratch, blasBuildData.size());
+
+        vk::DeviceAddress address {};
+        for (int i = 0; i<numScratch; i++) {
+            outScratchAddresses.emplace_back(scratchBufferAderess + address);
+            address += maxScratch;
+        }
+    }
 }
 
 void VRayTracingBlasBuilder::Destroy() {}
