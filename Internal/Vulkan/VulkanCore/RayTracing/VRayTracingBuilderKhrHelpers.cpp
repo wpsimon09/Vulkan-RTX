@@ -6,6 +6,7 @@
 
 #include "VRayTracingBuilderKhr.hpp"
 #include "VRayTracingStructs.hpp"
+#include "simdjson.h"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 
@@ -51,4 +52,27 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(std::shared_pt
     input.asBuildOffSetInfo.emplace_back(asBuildOffsetInfo);
 
     return input;
+}
+
+VulkanCore::RTX::AccelKHR VulkanCore::RTX::AllocateAccelerationStructure(const VulkanCore::VDevice& device, vk::AccelerationStructureCreateInfoKHR& createInfo)
+{
+    AccelKHR result;
+    result.buffer = std::make_unique<VulkanCore::VBuffer>(device, "BOTTOM LEVEL ACCELERATION STRUCTURE");
+    result.buffer->CreateBuffer(createInfo.size, VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+
+    // create the accelration structure in the device
+    vk::AccelerationStructureCreateInfoKHR accelCI = createInfo;
+    accelCI.buffer = result.buffer->GetBuffer();
+
+    result.as = device.GetDevice().createAccelerationStructureKHR(accelCI);
+
+    assert((void*)result.as != nullptr && "Failed to create acceleration structure");
+
+    // get its adress
+    vk::AccelerationStructureDeviceAddressInfoKHR addressInfo = {};
+    addressInfo.accelerationStructure = result.as;
+    result.address=  device.GetDevice().getAccelerationStructureAddressKHR(addressInfo);
+
+    return result;
+
 }

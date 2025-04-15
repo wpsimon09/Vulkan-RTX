@@ -4,6 +4,9 @@
 
 #ifndef VRAYTRACINGBUILDERKHRHELPERS_HPP
 #define VRAYTRACINGBUILDERKHRHELPERS_HPP
+#include "VRayTracingStructs.hpp"
+
+
 #include <memory>
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
@@ -26,6 +29,13 @@ namespace VulkanCore::RTX {
      */
 VulkanCore::RTX::BLASInput StaticMeshToBLASInput(std::shared_ptr<ApplicationCore::StaticMesh>& mesh,
                                                  glm::mat4 matrix = glm::mat4(1.0f));
+
+/**
+ * Allocates acceleration structure and retrieve its address
+ * @param createInfo info about acceleration structure
+ * @return Acceleration structure compacted in AccelKHR struct
+ */
+AccelKHR AllocateAccelerationStructure(const VulkanCore::VDevice& device, vk::AccelerationStructureCreateInfoKHR& createInfo);
 
 
 inline bool hasFlag(VkFlags item, VkFlags flag)

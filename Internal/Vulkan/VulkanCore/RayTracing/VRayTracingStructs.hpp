@@ -4,9 +4,13 @@
 
 #ifndef VRAYTRACINGSTRUCTS_HPP
 #define VRAYTRACINGSTRUCTS_HPP
+#include <memory>
 #include <vector>
 #include <vulkan/vulkan.hpp>
 
+namespace VulkanCore {
+class VBuffer;
+}
 namespace VulkanCore {
 class VDevice;
 }
@@ -26,9 +30,9 @@ struct BLASEntry
 
 struct AccelKHR
 {
-    vk::AccelerationStructureKHR as      = nullptr;
-    VkBuffer                     buffer  = nullptr;
-    vk::DeviceAddress            address = {0};
+    vk::AccelerationStructureKHR         as      = nullptr;
+    std::unique_ptr<VulkanCore::VBuffer> buffer  = nullptr;
+    vk::DeviceAddress                    address = {0};
 };
 
 struct AccelerationStructBuildData
@@ -46,13 +50,16 @@ struct AccelerationStructBuildData
     void AddGeometry(const vk::AccelerationStructureGeometryKHR& g, const vk::AccelerationStructureBuildRangeInfoKHR& offset);
     void AddGeometry(const BLASInput& input, uint32_t index = 0);
 
-    bool hasCompactFlag() const { return static_cast<bool>(asBuildGoemetryInfo.flags & vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction); }
+    bool hasCompactFlag() const
+    {
+        return static_cast<bool>(asBuildGoemetryInfo.flags & vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
+    }
 
 
     // returns size required to build on BLAS
     vk::AccelerationStructureBuildSizesInfoKHR FinalizeGeometry(const VulkanCore::VDevice&             device,
                                                                 vk::BuildAccelerationStructureFlagsKHR flags);
-    vk::AccelerationStructureCreateInfoKHR DescribeCreateInfo();
+    vk::AccelerationStructureCreateInfoKHR     DescribeCreateInfo();
 };
 
 struct ScratchSizeInfo

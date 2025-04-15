@@ -174,10 +174,10 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
     collectedRagneInfos.reserve(blasBuildData.size());
 
     // what is the total memory budget used by the AS build
-    vk::DeviceSize totalBudget = 0;
+    vk::DeviceSize totalMemoryUsed = 0;
 
     // acctualy build loop
-    while(collectedBuildInfo.size() < scratchAdress.size() && currentBudget + totalBudget < hintMaxBudget
+    while(collectedBuildInfo.size() < scratchAdress.size() && currentBudget + totalMemoryUsed < hintMaxBudget
           && m_currentBlasIndex < blasBuildData.size())
     {
         auto& data =    blasBuildData[m_currentBlasIndex];
