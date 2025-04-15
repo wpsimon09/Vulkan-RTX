@@ -16,15 +16,14 @@ namespace VulkanCore::RTX {
 VRayTracingBuilderKHR::VRayTracingBuilderKHR(const VulkanCore::VDevice& device)
     : m_device(device)
 {
-    m_cmdPool   = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
+    m_cmdPool   = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Compute);
     m_cmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_cmdPool);
 }
 
 
-
 void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildAccelerationStructureFlagsKHR flags)
 {
-    VTimelineSemaphore blasBuildSemaphore(m_device);
+    VTimelineSemaphore asBuildSemaphore(m_device);
     m_blasEntries.reserve(inputs.size());
     for(auto& blas : inputs)
     {
@@ -54,7 +53,8 @@ void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildA
     VulkanCore::VBuffer    blasScratchBuffer(m_device, "BLAS Scratch buffer");
     VRayTracingBlasBuilder blasBuilder(m_device);
 
-    vk:VkDeviceSize hintMaxBudget{256'000'000}; // 250 MB
+vk:
+    VkDeviceSize hintMaxBudget{256'000'000};  // 250 MB
     bool hasCompaction = hasFlag(static_cast<VkFlags>(flags), VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR);
 
 
@@ -68,13 +68,34 @@ void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildA
 
 
     m_cmdBuffer->BeginRecording();
+    Utils::Logger::LogInfo("Building: " + std::to_string(asBuildData.size()) + "Bottom level accelerations structures");
     bool finished = false;
-    do {
-        auto& cmdBuffer = m_cmdBuffer->GetCommandBuffer();
-//        finished =  blasBuilder.CmdCreateParallelBlas(*m_cmdBuffer, asBuildData,m_blas, scratchAdresses, hintMaxBudget);
-        //m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue())
-    }while (false);
+    do
+    {
+        {
+            auto& cmdBuffer = m_cmdBuffer->GetCommandBuffer();
+            finished =  blasBuilder.CmdCreateParallelBlas(*m_cmdBuffer, asBuildData,m_blas, scratchAdresses, hintMaxBudget);
+            std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eTopOfPipe};
+            m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue(), asBuildSemaphore.GetSemaphore(),
+                                     asBuildSemaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
+            asBuildSemaphore.CpuWaitIdle(2);
+        }
+        // compact the BLAS right away
+        if (hasCompaction) {
+            Utils::Logger::LogInfoVerboseOnly("Compacting BLAS...");
+            blasBuilder.CmdCompactBlas(*m_cmdBuffer, asBuildData, m_blas);
 
+            std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
+            m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue(), asBuildSemaphore.GetSemaphore(),
+                                     asBuildSemaphore.GetSemaphoreSubmitInfo(2, 4), waitStages.data());
+            asBuildSemaphore.CpuWaitIdle(4);
+
+            Utils::Logger::LogInfoVerboseOnly("BLAS compacted");
+        }
+        asBuildSemaphore.Reset();
+    } while(!finished);
+
+    asBuildSemaphore.Destroy();
     blasScratchBuffer.Destroy();
 }
 

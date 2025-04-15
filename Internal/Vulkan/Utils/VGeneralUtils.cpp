@@ -33,7 +33,6 @@ uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyPropertie
      * transfer queue has no idea about shader stages and stuff like this. I will most likely create class similuar to VTransferOpsManager that will hanlde purely initial image layout transitions and
      * during rendering I will have like BeginFrame function that will return command buffer that can be recorded. This command buffer will also be used for image layout transitionss
      ***/
-/*
     for (uint32_t i = 0; i < queueFamilyProperties.size(); ++i) {
         const auto& queueFamily = queueFamilyProperties[i];
 
@@ -43,7 +42,7 @@ uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyPropertie
                 return i;
             }
             break;
-
+        /**
         case vk::QueueFlagBits::eTransfer:
             // Prefer a dedicated transfer queue (not also graphics or compute)
                 if ((queueFamily.queueFlags & vk::QueueFlagBits::eTransfer) &&
@@ -52,7 +51,7 @@ uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyPropertie
                     return i;
                     }
             break;
-
+        */
         case vk::QueueFlagBits::eCompute:
             // Prefer a dedicated compute queue (not also graphics)
                 if ((queueFamily.queueFlags & vk::QueueFlagBits::eCompute) &&
@@ -72,7 +71,7 @@ uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyPropertie
         if (queueFamily.queueFlags & queueType) {
             return i;
         }
-    }*/
+    }
 
     //select just the queue fmily index that supports graphics operations
     std::vector<vk::QueueFamilyProperties>::const_iterator graphicsQueueFamilyProperty =
@@ -85,7 +84,7 @@ uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyPropertie
     return queueFamilyIndex;
     }
 
-}
+
 
 
 
