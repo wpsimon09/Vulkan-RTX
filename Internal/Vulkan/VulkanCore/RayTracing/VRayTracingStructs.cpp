@@ -43,3 +43,14 @@ vk::AccelerationStructureBuildSizesInfoKHR VulkanCore::RTX::AccelerationStructBu
 
     return asBuildSizesInfo;
 }
+vk::AccelerationStructureCreateInfoKHR VulkanCore::RTX::AccelerationStructBuildData::DescribeCreateInfo() {
+  assert(asType.has_value() && "Acceleration structure type was not set !");
+  assert(asGeometry.size() > 0 && "NO GEOMETRY WAS ADDED"); // geometry is usually 1 for each mesh
+  vk::AccelerationStructureCreateInfoKHR createInfo{};
+  createInfo.type = asType.value();
+  createInfo.size = asBuildSizesInfo.accelerationStructureSize;
+
+  return createInfo;
+
+
+}

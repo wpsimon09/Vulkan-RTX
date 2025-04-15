@@ -32,6 +32,7 @@ bool VRayTracingBlasBuilder::CmdCreateParallelBlas(const VulkanCore::VCommandBuf
 {
 
     InitializeQueryPoolIfNeeded(buildInfo);
+
     vk::DeviceSize processBudget     = 0;  // all memroy consumed during construction
     uint32_t       currentQueryIndex = m_currentQueryIndex;
 
@@ -101,21 +102,25 @@ void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                 
     vk::DeviceSize  totalScratch = sizeInfo.totalScratch;
 
     // in case the scratch buffer will fir every BLAS return the same thing for each BLAS build info
-    if (totalScratch < hintMaxBudget) {
-        vk::DeviceAddress address {};
-        for (auto& buildData: blasBuildData) {
+    if(totalScratch < hintMaxBudget)
+    {
+        vk::DeviceAddress address{};
+        for(auto& buildData : blasBuildData)
+        {
             outScratchAddresses.emplace_back(scratchBufferAderess + address);
             vk::DeviceSize alignedAdress = MathUtils::align_up(buildData.asBuildSizesInfo.buildScratchSize, minimumAligment);
             address += alignedAdress;
         }
     }
     // in case the toal size of BLAS is higher than the scratch buffer creat N * times the max scratch buffer that is fitting the budget
-    else{
+    else
+    {
         uint64_t numScratch = std::max(uint64_t(1), hintMaxBudget / maxScratch);
         numScratch          = std::min(numScratch, blasBuildData.size());
 
-        vk::DeviceAddress address {};
-        for (int i = 0; i<numScratch; i++) {
+        vk::DeviceAddress address{};
+        for(int i = 0; i < numScratch; i++)
+        {
             outScratchAddresses.emplace_back(scratchBufferAderess + address);
             address += maxScratch;
         }
@@ -137,8 +142,20 @@ void VRayTracingBlasBuilder::CreateQueryPool(uint32_t maxBlasCount)
 
 void VRayTracingBlasBuilder::InitializeQueryPoolIfNeeded(const std::vector<AccelerationStructBuildData>& blasBuildData)
 {
+    if(!m_queryPool)
+    {
+        for(auto& blas : blasBuildData)
+        {
+            if(blas.hasCompactFlag())
+            {
+                CreateQueryPool(static_cast<uint32_t>(blasBuildData.size()));
+                break;
+            }
+        }
+    }
 }
 
+// this will actually build AS and creates buffer for it to be stored
 vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanCore::VCommandBuffer& cmdBuffer,
                                                                    std::vector<AccelerationStructBuildData>& blasBuildData,
                                                                    std::vector<AccelKHR>&                outAccel,
@@ -147,6 +164,28 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
                                                                    vk::DeviceSize                        currentBudget,
                                                                    uint32_t& currentQueryIndex)
 {
+    // tempt data to store for the build
+    std::vector<vk::AccelerationStructureBuildGeometryInfoKHR> collectedBuildInfo;
+    std::vector<vk::AccelerationStructureKHR>                  collectedAs;
+    std::vector<vk::AccelerationStructureBuildRangeInfoKHR>    collectedRagneInfos;
+
+    collectedBuildInfo.reserve(blasBuildData.size());
+    collectedAs.reserve(blasBuildData.size());
+    collectedRagneInfos.reserve(blasBuildData.size());
+
+    // what is the total memory budget used by the AS build
+    vk::DeviceSize totalBudget = 0;
+
+    // acctualy build loop
+    while(collectedBuildInfo.size() < scratchAdress.size() && currentBudget + totalBudget < hintMaxBudget
+          && m_currentBlasIndex < blasBuildData.size())
+    {
+        auto& data =    blasBuildData[m_currentBlasIndex];
+        auto createInfo = blasBuildData[m_currentBlasIndex].DescribeCreateInfo();
+        AccelKHR accel{};
+
+
+    }
 }
 
 }  // namespace RTX

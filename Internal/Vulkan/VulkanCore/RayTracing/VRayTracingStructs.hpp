@@ -46,9 +46,13 @@ struct AccelerationStructBuildData
     void AddGeometry(const vk::AccelerationStructureGeometryKHR& g, const vk::AccelerationStructureBuildRangeInfoKHR& offset);
     void AddGeometry(const BLASInput& input, uint32_t index = 0);
 
+    bool hasCompactFlag() const { return static_cast<bool>(asBuildGoemetryInfo.flags & vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction); }
+
+
     // returns size required to build on BLAS
     vk::AccelerationStructureBuildSizesInfoKHR FinalizeGeometry(const VulkanCore::VDevice&             device,
                                                                 vk::BuildAccelerationStructureFlagsKHR flags);
+    vk::AccelerationStructureCreateInfoKHR DescribeCreateInfo();
 };
 
 struct ScratchSizeInfo
