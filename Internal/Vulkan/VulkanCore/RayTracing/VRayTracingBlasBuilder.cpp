@@ -4,7 +4,11 @@
 
 #include "VRayTracingBlasBuilder.hpp"
 
+#include "VRayTracingBuilderKhrHelpers.hpp"
+#include "Application/Logger/Logger.hpp"
 #include "Application/Utils/MathUtils.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {
@@ -20,8 +24,8 @@ bool VRayTracingBlasBuilder::CmdCreateBlas(const VulkanCore::VCommandBuffer&    
                                            vk::DeviceAddress                                          scratchAdress,
                                            vk::DeviceSize                                             hintMaxBudget)
 {
-    std::vector<vk::DeviceAddress> scratchAdresses = {scratchAdress};
-    return CmdCreateParallelBlas(cmdBuffer, blasBuildData, outAs, scratchAdresses, hintMaxBudget);
+    std::vector<vk::DeviceAddress> scratchAddresses = {scratchAdress};
+    return CmdCreateParallelBlas(cmdBuffer, blasBuildData, outAs, scratchAddresses, hintMaxBudget);
 }
 
 bool VRayTracingBlasBuilder::CmdCreateParallelBlas(const VulkanCore::VCommandBuffer&                          cmdBuffer,
@@ -35,6 +39,7 @@ bool VRayTracingBlasBuilder::CmdCreateParallelBlas(const VulkanCore::VCommandBuf
 
     vk::DeviceSize processBudget     = 0;  // all memroy consumed during construction
     uint32_t       currentQueryIndex = m_currentQueryIndex;
+
 
     while(m_currentBlasIndex < buildInfo.size() && processBudget < hintMaxBudget)
     {
@@ -167,7 +172,7 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
     // tempt data to store for the build
     std::vector<vk::AccelerationStructureBuildGeometryInfoKHR> collectedBuildInfo;
     std::vector<vk::AccelerationStructureKHR>                  collectedAs;
-    std::vector<vk::AccelerationStructureBuildRangeInfoKHR>    collectedRagneInfos;
+    std::vector<vk::AccelerationStructureBuildRangeInfoKHR*>   collectedRagneInfos;
 
     collectedBuildInfo.reserve(blasBuildData.size());
     collectedAs.reserve(blasBuildData.size());
@@ -175,17 +180,46 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
 
     // what is the total memory budget used by the AS build
     vk::DeviceSize totalMemoryUsed = 0;
-
     // acctualy build loop
     while(collectedBuildInfo.size() < scratchAdress.size() && currentBudget + totalMemoryUsed < hintMaxBudget
           && m_currentBlasIndex < blasBuildData.size())
     {
-        auto& data =    blasBuildData[m_currentBlasIndex];
-        auto createInfo = blasBuildData[m_currentBlasIndex].DescribeCreateInfo();
-        AccelKHR accel{};
+        auto& data                   = blasBuildData[m_currentBlasIndex];
+        auto  createInfo             = blasBuildData[m_currentBlasIndex].DescribeCreateInfo();
+        outAccel[m_currentBlasIndex] = VulkanCore::RTX::AllocateAccelerationStructure(m_device, createInfo);
 
+        data.asBuildGoemetryInfo.mode                      = vk::BuildAccelerationStructureModeKHR::eBuild;
+        data.asBuildGoemetryInfo.srcAccelerationStructure  = nullptr;
+        data.asBuildGoemetryInfo.dstAccelerationStructure  = outAccel[m_currentBlasIndex].as;
+        data.asBuildGoemetryInfo.scratchData.deviceAddress = scratchAdress[m_currentBlasIndex % scratchAdress.size()];
+        data.asBuildGoemetryInfo.pGeometries               = data.asGeometry.data();
 
+        collectedBuildInfo.push_back(data.asBuildGoemetryInfo);
+        collectedRagneInfos.push_back(data.asBuildRangeInfo.data());
+
+        totalMemoryUsed += data.asBuildSizesInfo.accelerationStructureSize;
+        m_currentBlasIndex++;
     }
+
+    assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording, this method assumes that command buffer provided is in recording state");
+
+    Utils::Logger::LogInfo("Build acceleration strucutres...");
+    cmdBuffer.GetCommandBuffer().buildAccelerationStructuresKHR(static_cast<uint32_t>(collectedBuildInfo.size()),
+                                                                collectedBuildInfo.data(), collectedRagneInfos.data(), m_device.DispatchLoader);
+
+    // wait until all operations are completed...
+    VulkanUtils::PlaceAccelerationStructureMemoryBarrier(cmdBuffer.GetCommandBuffer(), vk::AccessFlagBits::eAccelerationStructureWriteKHR,
+                                      vk::AccessFlagBits::eAccelerationStructureReadKHR);
+
+    if (m_queryPool) {
+        cmdBuffer.GetCommandBuffer().writeAccelerationStructuresPropertiesKHR(static_cast<uint32_t>(collectedAs.size()), collectedAs.data(), vk::QueryType::eAccelerationStructureCompactedSizeKHR, m_queryPool, currentQueryIndex , m_device.DispatchLoader);
+
+        currentQueryIndex += static_cast<uint32_t>(collectedAs.size());
+    }
+
+    return totalMemoryUsed;
+
+
 }
 
 }  // namespace RTX

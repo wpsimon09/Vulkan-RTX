@@ -64,14 +64,14 @@ VulkanCore::RTX::AccelKHR VulkanCore::RTX::AllocateAccelerationStructure(const V
     vk::AccelerationStructureCreateInfoKHR accelCI = createInfo;
     accelCI.buffer = result.buffer->GetBuffer();
 
-    result.as = device.GetDevice().createAccelerationStructureKHR(accelCI);
+    result.as = device.GetDevice().createAccelerationStructureKHR(accelCI, nullptr, device.DispatchLoader);
 
     assert((void*)result.as != nullptr && "Failed to create acceleration structure");
 
     // get its adress
     vk::AccelerationStructureDeviceAddressInfoKHR addressInfo = {};
     addressInfo.accelerationStructure = result.as;
-    result.address=  device.GetDevice().getAccelerationStructureAddressKHR(addressInfo);
+    result.address=  device.GetDevice().getAccelerationStructureAddressKHR(addressInfo, device.DispatchLoader);
 
     return result;
 

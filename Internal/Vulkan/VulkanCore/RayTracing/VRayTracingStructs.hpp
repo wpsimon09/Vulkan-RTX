@@ -7,10 +7,9 @@
 #include <memory>
 #include <vector>
 #include <vulkan/vulkan.hpp>
+#include <Vulkan/VulkanCore/Buffer/VBuffer.hpp>
 
-namespace VulkanCore {
-class VBuffer;
-}
+
 namespace VulkanCore {
 class VDevice;
 }

@@ -55,7 +55,8 @@ void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildA
 
 vk:
     VkDeviceSize hintMaxBudget{256'000'000};  // 250 MB
-    bool hasCompaction = hasFlag(static_cast<VkFlags>(flags), VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR);
+   // bool hasCompaction = hasFlag(static_cast<VkFlags>(flags), VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR);
+    bool hasCompaction = false;
 
 
     // scratch buffer needs to be used for every BLAS and we want ot reuse it so we will allocate scratch buffer with biggest size ever needed
@@ -67,13 +68,13 @@ vk:
     blasBuilder.GetScratchAddresses(hintMaxBudget, asBuildData, blasScratchBuffer.GetBufferAdress(), scratchAdresses, minAlignment);
 
 
-    m_cmdBuffer->BeginRecording();
     Utils::Logger::LogInfo("Building: " + std::to_string(asBuildData.size()) + "Bottom level accelerations structures");
     bool finished = false;
     do
     {
         {
-            auto& cmdBuffer = m_cmdBuffer->GetCommandBuffer();
+
+            m_cmdBuffer->BeginRecording();
             finished =  blasBuilder.CmdCreateParallelBlas(*m_cmdBuffer, asBuildData,m_blas, scratchAdresses, hintMaxBudget);
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eTopOfPipe};
             m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue(), asBuildSemaphore.GetSemaphore(),
@@ -82,6 +83,7 @@ vk:
         }
         // compact the BLAS right away
         if (hasCompaction) {
+            m_cmdBuffer->BeginRecording();
             Utils::Logger::LogInfoVerboseOnly("Compacting BLAS...");
             blasBuilder.CmdCompactBlas(*m_cmdBuffer, asBuildData, m_blas);
 

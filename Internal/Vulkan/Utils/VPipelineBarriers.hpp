@@ -26,6 +26,16 @@ void PlaceImageMemoryBarrier(VulkanCore::VImage2&        image,
                              vk::AccessFlags             dstData);
 
 void PlacePipelineBarrier(const VulkanCore::VCommandBuffer& cmdBuffer, vk::PipelineStageFlags src, vk::PipelineStageFlags dst);
+
+/**
+ * Places memory barrier specifically tailored towards accelration structure builds
+ * @param cmdBuffer command buffer that should contain memory barrier
+ * @param src stages to be completed
+ * @param dst stages to wait on
+ * @todo Redo to the vulkan HPP style instead of the C style, this might require to turn on Snychronisation2 which I was gracefully ignoring :/
+ */
+void PlaceAccelerationStructureMemoryBarrier(const vk::CommandBuffer& cmdBuffer, vk::AccessFlags src, vk::AccessFlags dst);
+
 }  // namespace VulkanUtils
 
 #endif  //VPIPELINEBARRIERS_HPP
