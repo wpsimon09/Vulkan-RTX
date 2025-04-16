@@ -115,9 +115,6 @@ void Application::Init()
   // BUILD Acceleration structures
   m_rayTracingBuilder = std::make_unique<VulkanCore::RTX::VRayTracingBuilderKHR>(*m_vulkanDevice);
 
-  auto inputs = m_client->GetScene().GetBLASInputs();
-  m_rayTracingBuilder->BuildBLAS(inputs);
-
   ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 }
 
@@ -176,6 +173,14 @@ void Application::Render()
   m_client->GetAssetsManager().Sync();
 
   m_client->Render(m_renderingSystem->GetRenderContext());
+
+  m_vulkanDevice->GetTransferOpsManager().UpdateGPU();
+  if (m_buildAS) {
+    auto inputs = m_client->GetScene().GetBLASInputs();
+    m_rayTracingBuilder->BuildBLAS(inputs);
+    m_buildAS = false;
+  }
+
 
   m_editor->Render();
 

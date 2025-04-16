@@ -92,6 +92,9 @@ private:
   std::unique_ptr<class Renderer::RenderingSystem>              m_renderingSystem;
   std::unique_ptr<class ApplicationCore::EffectsLibrary>        m_effectsLibrary;
   std::unique_ptr<class VulkanCore::RTX::VRayTracingBuilderKHR> m_rayTracingBuilder;
+
+  // debu
+  bool m_buildAS = true;;
 };
 
 #endif  //VULKANRTX_HPP

@@ -122,7 +122,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
 
     m_renderingTimeLine[m_currentFrameIndex]->Reset();
 
-    m_device.GetTransferOpsManager().UpdateGPU();
+    //m_device.GetTransferOpsManager().UpdateGPU();
 
     // ==== check if it is possible ot use env light
     m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo);

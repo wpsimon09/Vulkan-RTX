@@ -22,12 +22,12 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(std::shared_pt
     vk::AccelerationStructureGeometryTrianglesDataKHR triangles;
     // vertices
     triangles.vertexFormat             = vk::Format::eR32G32B32Sfloat;
-    triangles.vertexData.deviceAddress = vertexAddress;
+    triangles.vertexData.deviceAddress = vertexAddress + mesh->GetMeshData()->vertexData.offset;
     triangles.vertexStride             = sizeof(ApplicationCore::Vertex);
     triangles.maxVertex                = (mesh->GetMeshData()->vertexData.size / sizeof(ApplicationCore::Vertex)) - 1;
 
     // indices
-    triangles.indexData.deviceAddress = mesh->GetMeshData()->indexData.bufferAddress;
+    triangles.indexData.deviceAddress = indexAddress  + mesh->GetMeshData()->indexData.offset;
     triangles.indexType               = vk::IndexType::eUint32;
 
     // transform
@@ -36,7 +36,7 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(std::shared_pt
     //specify that data passed to AS are OPAQUE and TRIANGULATE
     vk::AccelerationStructureGeometryKHR asGeometry;
     asGeometry.geometryType       = vk::GeometryTypeKHR::eTriangles;
-    asGeometry.flags              = vk::GeometryFlagBitsNV::eOpaque;
+    asGeometry.flags              = vk::GeometryFlagBitsKHR::eOpaque;
     asGeometry.geometry.triangles = triangles;
 
     //create range infos
@@ -44,7 +44,7 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(std::shared_pt
     asBuildOffsetInfo.firstVertex    = 0;
     asBuildOffsetInfo.primitiveCount = maxPrimitiveCount;
     // needs to be offset to the index buffer htat will fatch from the vertices
-    asBuildOffsetInfo.primitiveOffset = mesh->GetMeshData()->indexData.offset;
+    asBuildOffsetInfo.primitiveOffset = 0;
     asBuildOffsetInfo.transformOffset = 0;
 
     BLASInput input;
