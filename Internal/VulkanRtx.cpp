@@ -177,7 +177,7 @@ void Application::Render()
   m_vulkanDevice->GetTransferOpsManager().UpdateGPU();
   if (m_buildAS) {
     auto inputs = m_client->GetScene().GetBLASInputs();
-    m_rayTracingBuilder->BuildBLAS(inputs);
+    m_rayTracingBuilder->BuildBLAS(inputs,  vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
     m_buildAS = false;
   }
 

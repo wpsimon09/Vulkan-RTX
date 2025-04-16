@@ -6,6 +6,13 @@
 
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
+
+
+void VulkanCore::RTX::AccelKHR::Destroy(const VulkanCore::VDevice& device) {
+  device.GetDevice().destroyAccelerationStructureKHR(as);
+  buffer->Destroy();
+}
+
 void VulkanCore::RTX::AccelerationStructBuildData::AddGeometry(const vk::AccelerationStructureGeometryKHR&       g,
                                                                const vk::AccelerationStructureBuildRangeInfoKHR& offset)
 {

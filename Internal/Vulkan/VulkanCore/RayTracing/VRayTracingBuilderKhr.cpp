@@ -55,8 +55,8 @@ void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildA
 
 vk:
     VkDeviceSize hintMaxBudget{256'000'000};  // 250 MB
-   // bool hasCompaction = hasFlag(static_cast<VkFlags>(flags), VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR);
-    bool hasCompaction = false;
+    bool hasCompaction = hasFlag(static_cast<VkFlags>(flags), VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR);
+   // bool hasCompaction = false;
 
 
     // scratch buffer needs to be used for every BLAS and we want ot reuse it so we will allocate scratch buffer with biggest size ever needed
@@ -93,6 +93,8 @@ vk:
             m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue(), asBuildSemaphore.GetSemaphore(),
                                      asBuildSemaphore.GetSemaphoreSubmitInfo(2, 4), waitStages.data());
             asBuildSemaphore.CpuWaitIdle(4);
+
+            blasBuilder.DestroyNonCompactedBlas();
 
             Utils::Logger::LogInfoVerboseOnly("BLAS compacted");
         }

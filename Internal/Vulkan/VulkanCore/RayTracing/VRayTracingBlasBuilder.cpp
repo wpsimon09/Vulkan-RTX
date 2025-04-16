@@ -54,9 +54,63 @@ void VRayTracingBlasBuilder::CmdCompactBlas(const VulkanCore::VCommandBuffer&   
                                             std::vector<AccelerationStructBuildData>& blasBuildData,
                                             std::vector<AccelKHR>&                    outBlas)
 {
+    uint32_t queryCount = m_currentBlasIndex - m_currentQueryIndex;
+
+    if(m_queryPool == nullptr || queryCount == 0)
+    {
+        Utils::Logger::LogError("Query pool is null or there are no queries to get the AS size");
+        return;
+    }
+
+    // get the compacted size from the query
+    std::vector<vk::DeviceSize> compactedSizes(queryCount);
+
+    assert(m_device.GetDevice().getQueryPoolResults(m_queryPool, m_currentQueryIndex,
+                                                    static_cast<uint32_t>(compactedSizes.size()),
+                                                    compactedSizes.size() * sizeof(vk::DeviceSize), compactedSizes.data(),
+                                                    sizeof(vk::DeviceSize), vk::QueryResultFlagBits::eWait, m_device.DispatchLoader)
+               == vk::Result::eSuccess
+           && "Failed to retrieve size of compacted BLAS");
+
+    // iterate over all BLASes and compact them
+    // m_currentBlasIndex is the number of all BLASes
+    // m_currentQueryIndex points to the query with information about the BLAs to compact
+    for(size_t i = m_currentQueryIndex; i < m_currentBlasIndex; i++)
+    {
+        size_t         idx           = i - m_currentQueryIndex;
+        vk::DeviceSize compactedSize = compactedSizes[idx];
+
+        if(compactedSize > 0)
+        {
+            blasBuildData[i].asBuildSizesInfo.accelerationStructureSize = compactedSize;
+            m_cleanUpdBlasAccell.push_back(outBlas[i]);  // later delete AS that is about to be compacted
+
+            // create new AS that will be compacted
+            vk::AccelerationStructureCreateInfoKHR accelCI = {};
+            accelCI.size                                   = compactedSize;
+            accelCI.type                                   = vk::AccelerationStructureTypeKHR::eBottomLevel;
+            outBlas[i] = AllocateAccelerationStructure(m_device, accelCI);  //since this one is coppied to the clean up list, I can directly overwirte this variable with new BLAS
+
+            vk::CopyAccelerationStructureInfoKHR copyInfo{};
+            copyInfo.src = blasBuildData[i].asBuildGoemetryInfo.dstAccelerationStructure;  // set during the build of AS
+            copyInfo.dst = outBlas[i].as;
+            copyInfo.mode = vk::CopyAccelerationStructureModeKHR::eCompact;
+            assert(m_device.GetDevice().copyAccelerationStructureKHR({}, copyInfo) == vk::Result::eSuccess
+                   && "Failed to compact acceleration struct");
+
+            // update build data, so that it points to the correct acceleration structure and not to the one that should be deleted
+            blasBuildData[i].asBuildGoemetryInfo.dstAccelerationStructure = outBlas[i].as;
+        }
+    }
+    m_currentQueryIndex = m_currentBlasIndex;
 }
 
-void VRayTracingBlasBuilder::DestroyNonCompactedBlas() {}
+void VRayTracingBlasBuilder::DestroyNonCompactedBlas() {
+    for (auto& blas : m_cleanUpdBlasAccell) {
+        blas.Destroy(m_device);
+    }
+    m_cleanUpdBlasAccell.clear();
+}
 
 VulkanCore::RTX::ScratchSizeInfo CalculateScratchAlignedSize(const std::vector<AccelerationStructBuildData>& asBuildData,
                                                              uint32_t minAlligment)
@@ -69,7 +123,7 @@ VulkanCore::RTX::ScratchSizeInfo CalculateScratchAlignedSize(const std::vector<A
     {
         vk::DeviceSize alignedSize = MathUtils::align_up(buildData.asBuildSizesInfo.buildScratchSize, minAlligment);
         //assert(alignedSize == buildData.asBuildSizesInfo.buildScratchSize);
-        maxScratch                 = std::max(maxScratch, alignedSize);
+        maxScratch = std::max(maxScratch, alignedSize);
         totalScratch += alignedSize;
     }
 
@@ -151,7 +205,7 @@ void VRayTracingBlasBuilder::CreateQueryPool(uint32_t maxBlasCount)
 
 void VRayTracingBlasBuilder::InitializeQueryPoolIfNeeded(const std::vector<AccelerationStructBuildData>& blasBuildData)
 {
-    if(!m_queryPool)
+    if(m_queryPool == nullptr)
     {
         for(auto& blas : blasBuildData)
         {
@@ -205,25 +259,28 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
         m_currentBlasIndex++;
     }
 
-    assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording, this method assumes that command buffer provided is in recording state");
+    assert(cmdBuffer.GetIsRecording()
+           && "Command buffer is not recording, this method assumes that command buffer provided is in recording state");
 
     Utils::Logger::LogInfo("Build acceleration strucutres...");
     cmdBuffer.GetCommandBuffer().buildAccelerationStructuresKHR(static_cast<uint32_t>(collectedBuildInfo.size()),
-                                                                collectedBuildInfo.data(), collectedRagneInfos.data(), m_device.DispatchLoader);
+                                                                collectedBuildInfo.data(), collectedRagneInfos.data(),
+                                                                m_device.DispatchLoader);
 
     // wait until all operations are completed...
     VulkanUtils::PlaceAccelerationStructureMemoryBarrier(cmdBuffer.GetCommandBuffer(), vk::AccessFlagBits::eAccelerationStructureWriteKHR,
-                                      vk::AccessFlagBits::eAccelerationStructureReadKHR);
+                                                         vk::AccessFlagBits::eAccelerationStructureReadKHR);
 
-    if (m_queryPool) {
-        cmdBuffer.GetCommandBuffer().writeAccelerationStructuresPropertiesKHR(static_cast<uint32_t>(collectedAs.size()), collectedAs.data(), vk::QueryType::eAccelerationStructureCompactedSizeKHR, m_queryPool, currentQueryIndex , m_device.DispatchLoader);
+    if(m_queryPool)
+    {
+        cmdBuffer.GetCommandBuffer().writeAccelerationStructuresPropertiesKHR(
+            static_cast<uint32_t>(collectedAs.size()), collectedAs.data(),
+            vk::QueryType::eAccelerationStructureCompactedSizeKHR, m_queryPool, currentQueryIndex, m_device.DispatchLoader);
 
         currentQueryIndex += static_cast<uint32_t>(collectedAs.size());
     }
 
     return totalMemoryUsed;
-
-
 }
 
 }  // namespace RTX
