@@ -70,6 +70,8 @@ vk:
 
     Utils::Logger::LogInfo("Building: " + std::to_string(asBuildData.size()) + "Bottom level accelerations structures");
     bool finished = false;
+
+    m_blas.resize(asBuildData.size());
     do
     {
         {

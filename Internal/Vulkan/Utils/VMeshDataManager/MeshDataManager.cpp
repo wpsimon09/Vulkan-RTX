@@ -326,7 +326,8 @@ void MeshDatatManager::CreateNewVertexBuffers(bool createForBoundingBox)
     VulkanStructs::GPUBufferInfo newVertexBuffer{};
     newVertexBuffer.size       = GlobalVariables::EngineOptions::VertexBufferChunkSize;
     newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst
-                                 | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress;
+                                 | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
+                                    | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR;
     CreateBuffer(newVertexBuffer);
     m_vertexBuffers.emplace_back(newVertexBuffer);
     m_currentVertexBuffer     = &m_vertexBuffers.back();
@@ -362,7 +363,8 @@ void MeshDatatManager::CreateNewIndexBuffers()
     VulkanStructs::GPUBufferInfo newIndexBuffer{};
     newIndexBuffer.size       = GlobalVariables::EngineOptions::IndexBufferChunkSize;
     newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst
-                                | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress;
+                                | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
+                                   | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR ;
     CreateBuffer(newIndexBuffer);
     m_indexBuffers.emplace_back(newIndexBuffer);
     m_currentIndexBuffer     = &m_indexBuffers.back();

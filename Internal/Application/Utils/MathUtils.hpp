@@ -22,6 +22,8 @@ constexpr bool is_aligned(integral x, size_t a) noexcept
 template <class integral>
 constexpr integral align_up(integral x, size_t a) noexcept
 {
+    static_assert(std::is_integral<integral>::value, "Integral type required");
+    assert((a & (a - 1)) == 0 && "Alignment must be a power of two");
     return integral((x + (integral(a) - 1)) & ~integral(a - 1));
 }
 

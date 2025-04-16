@@ -68,6 +68,7 @@ VulkanCore::RTX::ScratchSizeInfo CalculateScratchAlignedSize(const std::vector<A
     for(auto& buildData : asBuildData)
     {
         vk::DeviceSize alignedSize = MathUtils::align_up(buildData.asBuildSizesInfo.buildScratchSize, minAlligment);
+        //assert(alignedSize == buildData.asBuildSizesInfo.buildScratchSize);
         maxScratch                 = std::max(maxScratch, alignedSize);
         totalScratch += alignedSize;
     }
@@ -102,6 +103,8 @@ void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                 
                                                  std::vector<vk::DeviceAddress>&                 outScratchAddresses,
                                                  uint32_t                                        minimumAligment)
 {
+
+    // each BLAS build needs its own non-overlapping scratch adress and for this reason we have to return array of those adresses
     ScratchSizeInfo sizeInfo     = CalculateScratchAlignedSize(blasBuildData, minimumAligment);
     vk::DeviceSize  maxScratch   = sizeInfo.maxScratch;
     vk::DeviceSize  totalScratch = sizeInfo.totalScratch;
@@ -112,6 +115,7 @@ void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                 
         vk::DeviceAddress address{};
         for(auto& buildData : blasBuildData)
         {
+            address = MathUtils::align_up(address, minimumAligment);
             outScratchAddresses.emplace_back(scratchBufferAderess + address);
             vk::DeviceSize alignedAdress = MathUtils::align_up(buildData.asBuildSizesInfo.buildScratchSize, minimumAligment);
             address += alignedAdress;
