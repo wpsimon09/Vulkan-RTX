@@ -50,6 +50,7 @@ vk::AccelerationStructureBuildSizesInfoKHR VulkanCore::RTX::AccelerationStructBu
                                                              &asBuildGoemetryInfo, maxPrimitiveCount.data(),
                                                              &asBuildSizesInfo, device.DispatchLoader);
 
+    asBuildSizesInfo.buildScratchSize += 128;
     return asBuildSizesInfo;
 }
 vk::AccelerationStructureCreateInfoKHR VulkanCore::RTX::AccelerationStructBuildData::DescribeCreateInfo() {

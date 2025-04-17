@@ -26,6 +26,11 @@ constexpr integral align_up(integral x, size_t a) noexcept
     return integral((x + (integral(a) - 1)) & ~integral(a - 1));
 }
 
+inline uint32_t alignedSize(uint32_t value, uint32_t alignment)
+{
+    return (value + alignment - 1) & ~(alignment - 1);
+}
+
 
 template <class integral>
 constexpr integral align_down(integral x, size_t a) noexcept
@@ -35,7 +40,14 @@ constexpr integral align_down(integral x, size_t a) noexcept
 
 inline uint32_t AlignUP(uint32_t numToAlign, uint32_t multiple) {
     assert(multiple && ((multiple & (multiple - 1)) == 0));
-    return (numToAlign + multiple - 1) & -multiple;
+    if (multiple == 0)
+        return numToAlign;
+
+    int remainder = numToAlign % multiple;
+    if (remainder == 0)
+        return numToAlign;
+
+    return numToAlign + multiple - remainder;
 }
 
 }  // namespace MathUtils

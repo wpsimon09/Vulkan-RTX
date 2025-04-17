@@ -98,7 +98,7 @@ void VBuffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage)
 
     VmaAllocationCreateInfo allocationCreateInfo = {};
     allocationCreateInfo.usage                   = VMA_MEMORY_USAGE_AUTO;
-    allocationCreateInfo.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+    allocationCreateInfo.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT ;
     assert(vmaCreateBuffer(m_device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo, &m_bufferVMA, &m_allocation, nullptr)
            == VK_SUCCESS);
 

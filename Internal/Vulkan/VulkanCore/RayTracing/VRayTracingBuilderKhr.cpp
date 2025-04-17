@@ -64,7 +64,7 @@ vk:
                                                                                 | vk::BufferUsageFlagBits::eStorageBuffer));
     // gets the scratch buffer adress for each blasBuildData
     std::vector<vk::DeviceAddress> scratchAdresses;
-    blasBuilder.GetScratchAddresses(hintMaxBudget, asBuildData, blasScratchBuffer.GetBufferAdress(), scratchAdresses, minAlignment);
+    blasBuilder.GetScratchAddresses(hintMaxBudget, asBuildData, MathUtils::AlignUP(blasScratchBuffer.GetBufferAdress(), 128), scratchAdresses, minAlignment);
 
 
     Utils::Logger::LogInfo("Building: " + std::to_string(asBuildData.size()) + "Bottom level accelerations structures");
@@ -76,14 +76,15 @@ vk:
         {
 
             m_cmdBuffer->BeginRecording();
-            finished =  blasBuilder.CmdCreateParallelBlas(*m_cmdBuffer, asBuildData,m_blas, scratchAdresses, hintMaxBudget);
+            finished = blasBuilder.CmdCreateParallelBlas(*m_cmdBuffer, asBuildData, m_blas, scratchAdresses, hintMaxBudget);
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
             m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue(), asBuildSemaphore.GetSemaphore(),
                                      asBuildSemaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
             asBuildSemaphore.CpuWaitIdle(2);
         }
         // compact the BLAS right away
-        if (hasCompaction) {
+        if(hasCompaction)
+        {
             m_cmdBuffer->BeginRecording();
             Utils::Logger::LogInfoVerboseOnly("Compacting BLAS...");
             blasBuilder.CmdCompactBlas(*m_cmdBuffer, asBuildData, m_blas);
@@ -102,6 +103,12 @@ vk:
 
     asBuildSemaphore.Destroy();
     blasScratchBuffer.Destroy();
+}
+void VRayTracingBuilderKHR::Destroy() {
+    for (auto blas: m_blas) {
+        blas.Destroy(m_device);
+    }
+    m_cmdPool->Destroy();
 }
 
 }  // namespace VulkanCore::RTX

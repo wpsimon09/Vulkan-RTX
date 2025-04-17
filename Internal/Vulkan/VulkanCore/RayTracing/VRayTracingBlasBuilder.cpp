@@ -154,7 +154,7 @@ vk::DeviceSize VRayTracingBlasBuilder::GetScratchSize(vk::DeviceSize            
 }
 
 
-void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                                  hintMaxBudget,
+    void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                                  hintMaxBudget,
                                                  const std::vector<AccelerationStructBuildData>& blasBuildData,
                                                  vk::DeviceAddress                               scratchBufferAderess,
                                                  std::vector<vk::DeviceAddress>&                 outScratchAddresses,
@@ -173,9 +173,8 @@ void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                 
         vk::DeviceAddress address{};
         for(auto& buildData : blasBuildData)
         {
-            address = MathUtils::AlignUP(address, minimumAligment);
             outScratchAddresses.push_back(scratchBufferAderess + address);
-            vk::DeviceSize alignedAdress = MathUtils::AlignUP(buildData.asBuildSizesInfo.buildScratchSize, minimumAligment);
+            vk::DeviceSize alignedAdress = MathUtils::alignedSize(buildData.asBuildSizesInfo.buildScratchSize, minimumAligment);
             address += alignedAdress;
         }
     }
@@ -194,7 +193,11 @@ void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                 
     }
 }
 
-void VRayTracingBlasBuilder::Destroy() {}
+void VRayTracingBlasBuilder::Destroy() {
+    if (m_queryPool)
+        m_device.GetDevice().destroyQueryPool(m_queryPool);
+
+}
 
 void VRayTracingBlasBuilder::DestroyQueryPool() {}
 
@@ -259,7 +262,8 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
         data.asBuildGoemetryInfo.mode                      = vk::BuildAccelerationStructureModeKHR::eBuild;
         data.asBuildGoemetryInfo.srcAccelerationStructure  = nullptr;
         data.asBuildGoemetryInfo.dstAccelerationStructure  = outAccel[m_currentBlasIndex].as;
-        data.asBuildGoemetryInfo.scratchData.deviceAddress = scratchAdress[m_currentBlasIndex % scratchAdress.size()];
+        data.asBuildGoemetryInfo.scratchData.deviceAddress =
+            MathUtils::AlignUP(scratchAdress[m_currentBlasIndex % scratchAdress.size()], 128);
         data.asBuildGoemetryInfo.pGeometries               = data.asGeometry.data();
 
         collectedBuildInfo.push_back(data.asBuildGoemetryInfo);

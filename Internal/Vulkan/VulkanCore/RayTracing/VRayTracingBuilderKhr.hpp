@@ -37,6 +37,8 @@ class VRayTracingBuilderKHR
     void BuildBLAS(std::vector<RTX::BLASInput>& inputs,
                    vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
 
+    void Destroy();
+
   private:
     const VulkanCore::VDevice&                  m_device;
     std::vector<RTX::BLASEntry>                 m_blasEntries;
