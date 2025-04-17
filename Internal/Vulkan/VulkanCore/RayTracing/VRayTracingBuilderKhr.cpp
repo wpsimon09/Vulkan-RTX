@@ -77,7 +77,7 @@ vk:
 
             m_cmdBuffer->BeginRecording();
             finished =  blasBuilder.CmdCreateParallelBlas(*m_cmdBuffer, asBuildData,m_blas, scratchAdresses, hintMaxBudget);
-            std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eTopOfPipe};
+            std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
             m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue(), asBuildSemaphore.GetSemaphore(),
                                      asBuildSemaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
             asBuildSemaphore.CpuWaitIdle(2);

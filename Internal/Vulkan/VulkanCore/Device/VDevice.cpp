@@ -185,6 +185,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     physicalDeviceVulkan12Features.timelineSemaphore   = true;
     physicalDeviceVulkan12Features.bufferDeviceAddress = true;
     physicalDeviceVulkan12Features.hostQueryReset = true;
+
     // used in fore frame captures....
     if(GlobalState::ValidationLayersEnabled)
     {

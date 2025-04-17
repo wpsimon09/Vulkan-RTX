@@ -283,7 +283,6 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
 
     if(m_queryPool)
     {
-     //   cmdBuffer.GetCommandBuffer().resetQueryPool(m_queryPool, 0, static_cast<uint32_t>(blasBuildData.size()));
         cmdBuffer.GetCommandBuffer().writeAccelerationStructuresPropertiesKHR(
             static_cast<uint32_t>(collectedAs.size()), collectedAs.data(),
             vk::QueryType::eAccelerationStructureCompactedSizeKHR, m_queryPool, currentQueryIndex, m_device.DispatchLoader);
