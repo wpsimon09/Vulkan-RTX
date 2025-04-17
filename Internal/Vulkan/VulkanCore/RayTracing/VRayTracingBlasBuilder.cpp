@@ -122,8 +122,10 @@ VulkanCore::RTX::ScratchSizeInfo CalculateScratchAlignedSize(const std::vector<A
 
     for(auto& buildData : asBuildData)
     {
-        vk::DeviceSize alignedSize = MathUtils::align_up(buildData.asBuildSizesInfo.buildScratchSize, minAlligment);
-        //assert(alignedSize == buildData.asBuildSizesInfo.buildScratchSize);
+     //   vk::DeviceSize alignedSize = MathUtils::align_up(buildData.asBuildSizesInfo.buildScratchSize, minAlligment);
+        vk::DeviceSize alignedSize = MathUtils::AlignUP(buildData.asBuildSizesInfo.buildScratchSize, minAlligment);
+        assert(alignedSize == buildData.asBuildSizesInfo.buildScratchSize);
+
         maxScratch = std::max(maxScratch, alignedSize);
         totalScratch += alignedSize;
     }
@@ -166,15 +168,14 @@ void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                 
 
 
     // in case the scratch buffer will fir every BLAS return the same thing for each BLAS build info
-    assert((scratchBufferAderess % 128) == 0 && "Scratch buffer is not aligned to 128");
     if(totalScratch < hintMaxBudget)
     {
         vk::DeviceAddress address{};
         for(auto& buildData : blasBuildData)
         {
-            address = MathUtils::align_up(address, minimumAligment);
+            address = MathUtils::AlignUP(address, minimumAligment);
             outScratchAddresses.push_back(scratchBufferAderess + address);
-            vk::DeviceSize alignedAdress = MathUtils::align_up(buildData.asBuildSizesInfo.buildScratchSize, minimumAligment);
+            vk::DeviceSize alignedAdress = MathUtils::AlignUP(buildData.asBuildSizesInfo.buildScratchSize, minimumAligment);
             address += alignedAdress;
         }
     }
@@ -220,7 +221,7 @@ void VRayTracingBlasBuilder::InitializeQueryPoolIfNeeded(const std::vector<Accel
         }
     }
 
-    if(m_queryPool)
+    if(m_queryPool != nullptr)
     {
         m_device.GetDevice().resetQueryPool(m_queryPool, 0, static_cast<uint32_t>(blasBuildData.size()));
     }
@@ -282,6 +283,7 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
 
     if(m_queryPool)
     {
+     //   cmdBuffer.GetCommandBuffer().resetQueryPool(m_queryPool, 0, static_cast<uint32_t>(blasBuildData.size()));
         cmdBuffer.GetCommandBuffer().writeAccelerationStructuresPropertiesKHR(
             static_cast<uint32_t>(collectedAs.size()), collectedAs.data(),
             vk::QueryType::eAccelerationStructureCompactedSizeKHR, m_queryPool, currentQueryIndex, m_device.DispatchLoader);
