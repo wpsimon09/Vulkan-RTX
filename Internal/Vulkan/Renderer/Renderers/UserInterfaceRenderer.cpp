@@ -95,6 +95,9 @@ void UserInterfaceRenderer::RenderAndPresent(int                             cur
     auto result = m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr);
     assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 
+    renderingTimeLine.CpuWaitIdle(6);
+    renderingTimeLine.CpuSignal(8);
+
     //===========================
     // PRESENT TO SCREEN
     //===========================
@@ -112,8 +115,6 @@ void UserInterfaceRenderer::RenderAndPresent(int                             cur
 
     vk::Result presentResult = VulkanUtils::PresentQueueWrapper(m_device.GetPresentQueue(), presentInfo);
 
-    renderingTimeLine.CpuWaitIdle(4);
-    renderingTimeLine.CpuSignal(8);
     //assert(presentResult == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 }
 

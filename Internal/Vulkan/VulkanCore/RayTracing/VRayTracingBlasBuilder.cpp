@@ -95,8 +95,9 @@ void VRayTracingBlasBuilder::CmdCompactBlas(const VulkanCore::VCommandBuffer&   
             copyInfo.src = blasBuildData[i].asBuildGoemetryInfo.dstAccelerationStructure;  // set during the build of AS
             copyInfo.dst = outBlas[i].as;
             copyInfo.mode = vk::CopyAccelerationStructureModeKHR::eCompact;
-            assert(m_device.GetDevice().copyAccelerationStructureKHR({}, copyInfo) == vk::Result::eSuccess
-                   && "Failed to compact acceleration struct");
+
+            assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state");
+            cmdBuffer.GetCommandBuffer().copyAccelerationStructureKHR(copyInfo, m_device.DispatchLoader);
 
             // update build data, so that it points to the correct acceleration structure and not to the one that should be deleted
             blasBuildData[i].asBuildGoemetryInfo.dstAccelerationStructure = outBlas[i].as;
@@ -163,14 +164,16 @@ void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                 
     vk::DeviceSize  maxScratch   = sizeInfo.maxScratch;
     vk::DeviceSize  totalScratch = sizeInfo.totalScratch;
 
+
     // in case the scratch buffer will fir every BLAS return the same thing for each BLAS build info
+    assert((scratchBufferAderess % 128) == 0 && "Scratch buffer is not aligned to 128");
     if(totalScratch < hintMaxBudget)
     {
         vk::DeviceAddress address{};
         for(auto& buildData : blasBuildData)
         {
             address = MathUtils::align_up(address, minimumAligment);
-            outScratchAddresses.emplace_back(scratchBufferAderess + address);
+            outScratchAddresses.push_back(scratchBufferAderess + address);
             vk::DeviceSize alignedAdress = MathUtils::align_up(buildData.asBuildSizesInfo.buildScratchSize, minimumAligment);
             address += alignedAdress;
         }
@@ -216,6 +219,11 @@ void VRayTracingBlasBuilder::InitializeQueryPoolIfNeeded(const std::vector<Accel
             }
         }
     }
+
+    if(m_queryPool)
+    {
+        m_device.GetDevice().resetQueryPool(m_queryPool, 0, static_cast<uint32_t>(blasBuildData.size()));
+    }
 }
 
 // this will actually build AS and creates buffer for it to be stored
@@ -245,6 +253,7 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
         auto& data                   = blasBuildData[m_currentBlasIndex];
         auto  createInfo             = blasBuildData[m_currentBlasIndex].DescribeCreateInfo();
         outAccel[m_currentBlasIndex] = VulkanCore::RTX::AllocateAccelerationStructure(m_device, createInfo);
+        collectedAs.push_back(outAccel[m_currentBlasIndex].as);
 
         data.asBuildGoemetryInfo.mode                      = vk::BuildAccelerationStructureModeKHR::eBuild;
         data.asBuildGoemetryInfo.srcAccelerationStructure  = nullptr;

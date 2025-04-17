@@ -174,14 +174,6 @@ void Application::Render()
 
   m_client->Render(m_renderingSystem->GetRenderContext());
 
-  m_vulkanDevice->GetTransferOpsManager().UpdateGPU();
-  if (m_buildAS) {
-    auto inputs = m_client->GetScene().GetBLASInputs();
-    m_rayTracingBuilder->BuildBLAS(inputs,  vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
-    m_buildAS = false;
-  }
-
-
   m_editor->Render();
 
   m_renderingSystem->Render(m_client->GetScene().GetSceneLightInfo(), m_client->GetGlobalDataUpdateInformation());
@@ -192,6 +184,11 @@ void Application::Render()
 void Application::PostRender()
 {
   // m_client->().Reset();ň
+  if (m_buildAS) {
+    auto inputs = m_client->GetScene().GetBLASInputs();
+    m_rayTracingBuilder->BuildBLAS(inputs,  vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
+    m_buildAS = false;
+  }
 
   //all commands that were recorded over the frame are now gonna be submmitted
   m_vulkanDevice->GetTransferOpsManager().ClearResources();

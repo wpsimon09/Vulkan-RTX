@@ -89,12 +89,12 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
 {
     m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
     m_sceneLightInfo = &sceneLightInfo;
+
     //=================================================
     // GET SWAP IMAGE INDEX
     //=================================================
     auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
                                                                 *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
-
 
     switch(imageIndex.first)
     {
@@ -104,8 +104,13 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
             break;
         }
         case vk::Result::eErrorOutOfDateKHR: {
+
             m_swapChain->RecreateSwapChain();
             m_uiRenderer->GetRenderTarget().HandleSwapChainResize(*m_swapChain);
+
+            m_renderingTimeLine[m_currentFrameIndex]->Reset();
+            m_renderingTimeLine[m_currentFrameIndex]->CpuSignal(8);
+
             Utils::Logger::LogError("Swap chain was out of date, trying to recreate it...  ");
             return;
         }
@@ -120,9 +125,9 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
     }
 
 
-    m_renderingTimeLine[m_currentFrameIndex]->Reset();
 
-    //m_device.GetTransferOpsManager().UpdateGPU();
+    m_device.GetTransferOpsManager().UpdateGPU();
+    m_renderingTimeLine[m_currentFrameIndex]->Reset();
 
     // ==== check if it is possible ot use env light
     m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo);

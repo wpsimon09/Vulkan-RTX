@@ -30,9 +30,10 @@ struct BLASEntry
 struct AccelKHR
 {
     vk::AccelerationStructureKHR         as      = nullptr;
-    std::unique_ptr<VulkanCore::VBuffer> buffer  = nullptr;
+    std::shared_ptr<VulkanCore::VBuffer> buffer  = nullptr;
     vk::DeviceAddress                    address = {0};
     void                                  Destroy(const VulkanCore::VDevice& device);
+
 };
 
 struct AccelerationStructBuildData
