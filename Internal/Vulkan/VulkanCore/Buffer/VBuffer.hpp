@@ -9,6 +9,7 @@
 
 #include "Application/Logger/Logger.hpp"
 #include "VMA/vk_mem_alloc.h"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
@@ -52,6 +53,9 @@ class VBuffer : public VObject
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage);
 
     void CreateBufferWithAligment(VkDeviceSize size, VkBufferUsageFlags usage, vk::DeviceSize minAligment = 128);
+
+    template <typename T>
+    void CreateBufferAndPutDataOnDevice(const vk::CommandBuffer& commandBuffer, const std::vector<T>& data, vk::BufferUsageFlags usage);
 
     void DestroyStagingBuffer() const;
 
@@ -119,6 +123,15 @@ void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size)
     m_descriptorBufferInfo.buffer = m_bufferVK;
     m_descriptorBufferInfo.range  = size;
     m_descriptorBufferInfo.offset = 0;
+}
+template <typename T>
+void VBuffer::CreateBufferAndPutDataOnDevice(const vk::CommandBuffer& commandBuffer, const std::vector<T>& data, vk::BufferUsageFlags usage)
+{
+    CreateStagingBuffer(data.size() * sizeof(T));
+    CreateBuffer(data.size() * sizeof(T), usage);
+    memcpy(MapStagingBuffer(), data.data(), data.size() * sizeof(T));
+    UnMapStagingBuffer();
+    VulkanUtils::CopyBuffers(commandBuffer, m_stagingBufferVMA, m_bufferVMA, data.size() * sizeof(T));
 }
 
 

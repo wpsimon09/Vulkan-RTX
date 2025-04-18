@@ -204,7 +204,8 @@ void Application::PostRender()
             vk::AccelerationStructureInstanceKHR instanceInfo{};
             instanceInfo.transform = VulkanCore::RTX::GlmToMatrix4KHR(instance.transform);
             instanceInfo.instanceCustomIndex = i;
-            instanceInfo.flags = {vk::GeometryInstanceFlagBitsKHR::eTriangleCullDisable};
+
+            instanceInfo.flags  = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
             instanceInfo.accelerationStructureReference = m_rayTracingBuilder->GetInstanceDeviceAddress(i);
             instanceInfo.mask = 0xFF;
             instanceInfo.instanceShaderBindingTableRecordOffset = 0;

@@ -112,9 +112,13 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
                                       bool                                                     update,
                                       bool                                                     motion)
 {
+
+    auto buffer = VulkanCore::VBuffer(m_device, "TLAS buffer");
+    buffer.CreateBufferAndPutDataOnDevice(m_cmdBuffer->GetCommandBuffer(), instances, vk::BufferUsageFlagBits::eShaderDeviceAddress /*TODO: add usage flags*/);
 }
 vk::DeviceAddress VRayTracingBuilderKHR::GetInstanceDeviceAddress(uint32_t instance) const {
     if (instance > m_blasEntries.size()) throw std::runtime_error("wrong instance");
+
 
     return m_blas[instance].address;
 }

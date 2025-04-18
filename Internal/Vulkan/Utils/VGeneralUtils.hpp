@@ -56,6 +56,14 @@ void CopyBuffers(const VulkanCore::VDevice&                   device,
                  vk::DeviceSize                               srcOffset = 0,
                  vk::DeviceSize                               dstOffset = 0);
 
+// records copy command to the command buffer provided, usually this is called during acceleration structure build
+void CopyBuffers(const vk::CommandBuffer& commandBuffer,
+                 const vk::Buffer&        srcBuffer,
+                 const vk::Buffer&        dstBuffer,
+                 vk::DeviceSize           size,
+                 vk::DeviceSize           srcOffset = 0,
+                 vk::DeviceSize           dstOffset = 0);
+
 void CopyBuffersWithBariers(const VulkanCore::VDevice& device,
                             const vk::Buffer&          srcBuffer,
                             const vk::Buffer&          dstBuffer,

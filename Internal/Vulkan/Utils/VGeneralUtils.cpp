@@ -232,6 +232,25 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice&                   devic
 
     Utils::Logger::LogSuccess("Buffer copy completed !");
 }
+void VulkanUtils::CopyBuffers(const vk::CommandBuffer& commandBuffer,
+                              const vk::Buffer&        srcBuffer,
+                              const vk::Buffer&        dstBuffer,
+                              vk::DeviceSize           size,
+                              vk::DeviceSize           srcOffset,
+                              vk::DeviceSize           dstOffset)
+{
+    Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
+
+
+    vk::BufferCopy bufferCopy{};
+    bufferCopy.srcOffset = srcOffset;
+    bufferCopy.dstOffset = dstOffset;
+    bufferCopy.size      = size;
+
+    commandBuffer.copyBuffer(srcBuffer, dstBuffer, bufferCopy);
+
+    Utils::Logger::LogSuccess("Buffer copy completed !");
+}
 
 void VulkanUtils::CopyBuffersWithBariers(const VulkanCore::VDevice& device,
                                          const vk::Buffer&          srcBuffer,
