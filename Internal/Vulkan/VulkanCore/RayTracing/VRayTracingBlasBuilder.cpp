@@ -103,7 +103,7 @@ void VRayTracingBlasBuilder::CmdCompactBlas(const VulkanCore::VCommandBuffer&   
             blasBuildData[i].asBuildGoemetryInfo.dstAccelerationStructure = outBlas[i].as;
         }
     }
-    m_currentQueryIndex = m_currentBlasIndex;
+        m_currentQueryIndex = m_currentBlasIndex;
 }
 
 void VRayTracingBlasBuilder::DestroyNonCompactedBlas() {
@@ -163,14 +163,14 @@ vk::DeviceSize VRayTracingBlasBuilder::GetScratchSize(vk::DeviceSize            
 
     // each BLAS build needs its own non-overlapping scratch adress and for this reason we have to return array of those adresses
     ScratchSizeInfo sizeInfo     = CalculateScratchAlignedSize(blasBuildData, minimumAligment);
-    vk::DeviceSize  maxScratch   = sizeInfo.maxScratch;
-    vk::DeviceSize  totalScratch = sizeInfo.totalScratch;
-
+    vk::DeviceSize  maxScratch   = sizeInfo.maxScratch; // 733056 % 128 = 0
+    vk::DeviceSize  totalScratch = sizeInfo.totalScratch; // 4502144 % 128 = 0
+    // scratch sizes are correctly aligned to 128
 
     // in case the scratch buffer will fir every BLAS return the same thing for each BLAS build info
     if(totalScratch < hintMaxBudget)
     {
-        vk::DeviceAddress address{};
+        vk::DeviceAddress address{0};
         for(auto& buildData : blasBuildData)
         {
             outScratchAddresses.push_back(scratchBufferAderess + address);
@@ -262,8 +262,7 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
         data.asBuildGoemetryInfo.mode                      = vk::BuildAccelerationStructureModeKHR::eBuild;
         data.asBuildGoemetryInfo.srcAccelerationStructure  = nullptr;
         data.asBuildGoemetryInfo.dstAccelerationStructure  = outAccel[m_currentBlasIndex].as;
-        data.asBuildGoemetryInfo.scratchData.deviceAddress =
-            MathUtils::AlignUP(scratchAdress[m_currentBlasIndex % scratchAdress.size()], 128);
+        data.asBuildGoemetryInfo.scratchData.deviceAddress = scratchAdress[m_currentBlasIndex % scratchAdress.size()];
         data.asBuildGoemetryInfo.pGeometries               = data.asGeometry.data();
 
         collectedBuildInfo.push_back(data.asBuildGoemetryInfo);
@@ -287,9 +286,9 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
 
     if(m_queryPool)
     {
-        cmdBuffer.GetCommandBuffer().writeAccelerationStructuresPropertiesKHR(
-            static_cast<uint32_t>(collectedAs.size()), collectedAs.data(),
-            vk::QueryType::eAccelerationStructureCompactedSizeKHR, m_queryPool, currentQueryIndex, m_device.DispatchLoader);
+            cmdBuffer.GetCommandBuffer().writeAccelerationStructuresPropertiesKHR(
+                static_cast<uint32_t>(collectedAs.size()), collectedAs.data(),
+                vk::QueryType::eAccelerationStructureCompactedSizeKHR, m_queryPool, currentQueryIndex, m_device.DispatchLoader);
 
         currentQueryIndex += static_cast<uint32_t>(collectedAs.size());
     }

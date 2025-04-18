@@ -60,11 +60,11 @@ vk:
 
     // scratch buffer needs to be used for every BLAS and we want ot reuse it so we will allocate scratch buffer with biggest size ever needed
     vk::DeviceSize scratchSize = blasBuilder.GetScratchSize(hintMaxBudget, asBuildData, minAlignment);
-    blasScratchBuffer.CreateBuffer(scratchSize, static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eShaderDeviceAddress
-                                                                                | vk::BufferUsageFlagBits::eStorageBuffer));
+    blasScratchBuffer.CreateBufferWithAligment(scratchSize, static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eShaderDeviceAddress
+                                                                                | vk::BufferUsageFlagBits::eStorageBuffer), minAlignment);
     // gets the scratch buffer adress for each blasBuildData
     std::vector<vk::DeviceAddress> scratchAdresses;
-    blasBuilder.GetScratchAddresses(hintMaxBudget, asBuildData, MathUtils::AlignUP(blasScratchBuffer.GetBufferAdress(), 128), scratchAdresses, minAlignment);
+    blasBuilder.GetScratchAddresses(hintMaxBudget, asBuildData, blasScratchBuffer.GetBufferAdress(), scratchAdresses, minAlignment);
 
 
     Utils::Logger::LogInfo("Building: " + std::to_string(asBuildData.size()) + "Bottom level accelerations structures");

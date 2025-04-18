@@ -98,19 +98,50 @@ void VBuffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage)
 
     VmaAllocationCreateInfo allocationCreateInfo = {};
     allocationCreateInfo.usage                   = VMA_MEMORY_USAGE_AUTO;
-    allocationCreateInfo.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT ;
+    allocationCreateInfo.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
     assert(vmaCreateBuffer(m_device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo, &m_bufferVMA, &m_allocation, nullptr)
            == VK_SUCCESS);
 
-    m_bufferVK = m_bufferVMA;
+
+    m_bufferVK   = m_bufferVMA;
     m_bufferSize = size;
 
     vmaSetAllocationName(m_device.GetAllocator(), m_allocation, m_allocationName.c_str());
     Utils::Logger::LogSuccess("Buffer allocated successfully || SIZE: " + std::to_string(size) + " bytes || ");
 
     vk::BufferDeviceAddressInfo bufferAdressInfo;
-    bufferAdressInfo.buffer              = m_bufferVK;
-    m_bufferAddress = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
+    bufferAdressInfo.buffer = m_bufferVK;
+    m_bufferAddress         = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
+}
+void VBuffer::CreateBufferWithAligment(VkDeviceSize size, VkBufferUsageFlags usage, vk::DeviceSize minAligment)
+{
+    VkBufferCreateInfo bufferCreateInfo    = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+    bufferCreateInfo.size                  = size;
+    bufferCreateInfo.usage                 = usage;
+    bufferCreateInfo.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    bufferCreateInfo.queueFamilyIndexCount = m_sharedQueueFamilyIndices.size();
+    bufferCreateInfo.pQueueFamilyIndices   = m_sharedQueueFamilyIndices.data();
+
+
+    VmaAllocationCreateInfo allocationCreateInfo = {};
+    allocationCreateInfo.usage                   = VMA_MEMORY_USAGE_AUTO;
+    allocationCreateInfo.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+
+
+    if (vmaCreateBufferWithAlignment(m_device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo, minAligment, &m_bufferVMA,
+                                 &m_allocation, nullptr) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create buffer with aligment !");
+    }
+
+    m_bufferVK   = m_bufferVMA;
+    m_bufferSize = size;
+
+    vmaSetAllocationName(m_device.GetAllocator(), m_allocation, m_allocationName.c_str());
+    Utils::Logger::LogSuccess("Buffer allocated successfully || SIZE: " + std::to_string(size) + " bytes || ");
+
+    vk::BufferDeviceAddressInfo bufferAdressInfo;
+    bufferAdressInfo.buffer = m_bufferVK;
+    m_bufferAddress         = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
 }
 
 void VBuffer::DestroyStagingBuffer() const

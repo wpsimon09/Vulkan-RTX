@@ -46,11 +46,10 @@ vk::AccelerationStructureBuildSizesInfoKHR VulkanCore::RTX::AccelerationStructBu
     }
 
     //asBuildSizesInfo will contain the size that is required to build the AS
-    device.GetDevice().getAccelerationStructureBuildSizesKHR(vk::AccelerationStructureBuildTypeKHR::eDevice,
+        device.GetDevice().getAccelerationStructureBuildSizesKHR(vk::AccelerationStructureBuildTypeKHR::eDevice,
                                                              &asBuildGoemetryInfo, maxPrimitiveCount.data(),
                                                              &asBuildSizesInfo, device.DispatchLoader);
 
-    asBuildSizesInfo.buildScratchSize += 128;
     return asBuildSizesInfo;
 }
 vk::AccelerationStructureCreateInfoKHR VulkanCore::RTX::AccelerationStructBuildData::DescribeCreateInfo() {

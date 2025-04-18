@@ -51,6 +51,8 @@ class VBuffer : public VObject
 
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage);
 
+    void CreateBufferWithAligment(VkDeviceSize size, VkBufferUsageFlags usage, vk::DeviceSize minAligment = 128);
+
     void DestroyStagingBuffer() const;
 
     ~VBuffer() override = default;
