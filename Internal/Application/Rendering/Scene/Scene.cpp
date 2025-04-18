@@ -95,11 +95,11 @@ void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode) const
     m_root->AddChild(sceneNode);
 }
 
-void Scene::EnumarateMeshes(std::vector<std::shared_ptr<StaticMesh>>& outMeshes, std::shared_ptr<SceneNode> sceneNode)
+void Scene::EnumarateMeshes(std::vector<std::shared_ptr<SceneNode>>& outMeshes, std::shared_ptr<SceneNode> sceneNode)
 {
     if(sceneNode->HasMesh())
     {
-        outMeshes.emplace_back(sceneNode->GetMesh());
+        outMeshes.emplace_back(sceneNode);
     }
     for(auto& child : sceneNode->GetChildrenByRef())
     {
@@ -109,15 +109,18 @@ void Scene::EnumarateMeshes(std::vector<std::shared_ptr<StaticMesh>>& outMeshes,
 
 std::vector<VulkanCore::RTX::BLASInput> Scene::GetBLASInputs()
 {
-    std::vector<std::shared_ptr<ApplicationCore::StaticMesh>> meshes;
+    std::vector<std::shared_ptr<ApplicationCore::SceneNode>> meshes;
     EnumarateMeshes(meshes, m_root);
 
     std::vector<VulkanCore::RTX::BLASInput> inputs;
     inputs.reserve(meshes.size());
     for(auto& m : meshes)
     {
-        inputs.emplace_back(VulkanCore::RTX::StaticMeshToBLASInput(m));
+        auto& mesh = m->GetMesh();
+        mesh->SetModelMatrix(m->m_transformation->GetModelMatrix());
+        inputs.emplace_back(VulkanCore::RTX::StaticMeshToBLASInput(m->GetSceneNodeMetaData().ID,m->GetMesh(), m->m_transformation->GetModelMatrix()));
     }
+
 
     return inputs;
 }

@@ -27,7 +27,8 @@ namespace VulkanCore::RTX {
      * @param matrix model matrix of the bottom level AS
      * @return build BLAS input for the given mesh
      */
-VulkanCore::RTX::BLASInput StaticMeshToBLASInput(std::shared_ptr<ApplicationCore::StaticMesh>& mesh,
+VulkanCore::RTX::BLASInput StaticMeshToBLASInput(uint32_t                                      meshIndex,
+                                                 std::shared_ptr<ApplicationCore::StaticMesh>& mesh,
                                                  glm::mat4 matrix = glm::mat4(1.0f));
 
 /**
@@ -42,6 +43,8 @@ inline bool hasFlag(VkFlags item, VkFlags flag)
 {
     return (item & flag) == flag;
 }
+
+vk::TransformMatrixKHR GlmToMatrix4KHR(glm::mat4& m);
 
 }  // namespace VulkanCore::RTX
 

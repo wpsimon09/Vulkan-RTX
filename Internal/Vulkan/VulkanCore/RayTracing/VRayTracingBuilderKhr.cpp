@@ -60,8 +60,10 @@ vk:
 
     // scratch buffer needs to be used for every BLAS and we want ot reuse it so we will allocate scratch buffer with biggest size ever needed
     vk::DeviceSize scratchSize = blasBuilder.GetScratchSize(hintMaxBudget, asBuildData, minAlignment);
-    blasScratchBuffer.CreateBufferWithAligment(scratchSize, static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eShaderDeviceAddress
-                                                                                | vk::BufferUsageFlagBits::eStorageBuffer), minAlignment);
+    blasScratchBuffer.CreateBufferWithAligment(scratchSize,
+                                               static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eShaderDeviceAddress
+                                                                               | vk::BufferUsageFlagBits::eStorageBuffer),
+                                               minAlignment);
     // gets the scratch buffer adress for each blasBuildData
     std::vector<vk::DeviceAddress> scratchAdresses;
     blasBuilder.GetScratchAddresses(hintMaxBudget, asBuildData, blasScratchBuffer.GetBufferAdress(), scratchAdresses, minAlignment);
@@ -103,7 +105,20 @@ vk:
 
     asBuildSemaphore.Destroy();
     blasScratchBuffer.Destroy();
+    scratchAdresses.clear();
 }
+void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructureInstanceKHR>& instances,
+                                      vk::BuildAccelerationStructureFlagsKHR                   flags,
+                                      bool                                                     update,
+                                      bool                                                     motion)
+{
+}
+vk::DeviceAddress VRayTracingBuilderKHR::GetInstanceDeviceAddress(uint32_t instance) const {
+    if (instance > m_blasEntries.size()) throw std::runtime_error("wrong instance");
+
+    return m_blas[instance].address;
+}
+
 void VRayTracingBuilderKHR::Destroy() {
     for (auto blas: m_blas) {
         blas.Destroy(m_device);

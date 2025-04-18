@@ -55,6 +55,9 @@ void ApplicationCore::StaticMesh::SetName(std::string name)
 }
 
 
+void        ApplicationCore::StaticMesh::SetModelMatrix(glm::mat4& modelMatrix) {
+    m_transformations->SetModelMatrix(modelMatrix);
+}
 std::string ApplicationCore::StaticMesh::MeshGeometryTypeToString(EMeshGeometryType geometryType)
 {
     switch(geometryType)

@@ -37,16 +37,24 @@ class VRayTracingBuilderKHR
     void BuildBLAS(std::vector<RTX::BLASInput>& inputs,
                    vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
 
+    void BuildTLAS(const std::vector<vk::AccelerationStructureInstanceKHR>& instances,
+                   vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace,
+                   bool update = false,
+                   bool motion = false);
+
+    vk::DeviceAddress GetInstanceDeviceAddress(uint32_t instance) const;
+
     void Destroy();
 
   private:
     const VulkanCore::VDevice&                  m_device;
     std::vector<RTX::BLASEntry>                 m_blasEntries;
+
     std::unique_ptr<VulkanCore::VCommandPool>   m_cmdPool;
     std::unique_ptr<VulkanCore::VCommandBuffer> m_cmdBuffer;
 
+    VulkanCore::RTX::AccelKHR m_tlas;
     std::vector<VulkanCore::RTX::AccelKHR> m_blas;
-
 };
 }  // namespace VulkanCore::RTX
 

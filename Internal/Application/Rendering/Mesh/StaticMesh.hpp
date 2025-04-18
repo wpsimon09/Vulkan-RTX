@@ -43,6 +43,8 @@ class StaticMesh
 
     void SetMaterial(std::shared_ptr<BaseMaterial> material) { m_currentMaterial = material; };
 
+    void SetModelMatrix(glm::mat4& modelMatrix);
+
   private:
     std::string                                       MeshGeometryTypeToString(EMeshGeometryType geometryType);
     std::string                                       m_name;

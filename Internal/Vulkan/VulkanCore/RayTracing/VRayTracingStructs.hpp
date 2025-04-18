@@ -20,11 +20,21 @@ struct BLASInput
     std::vector<vk::AccelerationStructureGeometryKHR>       asGeometry;
     std::vector<vk::AccelerationStructureBuildRangeInfoKHR> asBuildOffSetInfo;
     vk::BuildAccelerationStructureFlagsKHR                  flags{0};
+    glm::mat4 transform;
+    uint32_t meshIndex ;
 };
 
 struct BLASEntry
 {
     BLASInput input;
+};
+
+struct Instance {
+    uint32_t blasIndex;
+    uint32_t instanceCustomID;
+    uint32_t hitGroupID {0};
+    uint32_t maks{0xFF};
+    glm::mat4 transforms;
 };
 
 struct AccelKHR

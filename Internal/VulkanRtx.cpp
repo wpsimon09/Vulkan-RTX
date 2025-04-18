@@ -66,155 +66,174 @@ Application::Application() {}
 
 void Application::Init()
 {
-  ApplicationCore::LoadConfig();
+    ApplicationCore::LoadConfig();
 
-  m_client = std::make_unique<Client>();
+    m_client = std::make_unique<Client>();
 
-  m_windowManager = std::make_unique<WindowManager>(1000, 800);
-  m_windowManager->InitWindow();
+    m_windowManager = std::make_unique<WindowManager>(1000, 800);
+    m_windowManager->InitWindow();
 
-  m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
-  m_vulkanDevice   = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
+    m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
+    m_vulkanDevice   = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
 
-  m_vulkanDevice->GetTransferOpsManager().StartRecording();
+    m_vulkanDevice->GetTransferOpsManager().StartRecording();
 
-  VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
-  MathUtils::InitLTC();
+    VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
+    MathUtils::InitLTC();
 
-  m_pushDescriptorSetManager = std::make_unique<VulkanUtils::VResourceGroupManager>(*m_vulkanDevice);
-  m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice, *m_pushDescriptorSetManager);
-  auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_effectsLibrary);
-  m_client->MountAssetsManger(std::move(assetManger));
-  m_client->Init();
+    m_pushDescriptorSetManager = std::make_unique<VulkanUtils::VResourceGroupManager>(*m_vulkanDevice);
+    m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice, *m_pushDescriptorSetManager);
+    auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_effectsLibrary);
+    m_client->MountAssetsManger(std::move(assetManger));
+    m_client->Init();
 
-  m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
+    m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 
-  //m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
-  m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
+    //m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
+    m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
-  m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager,
+    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager,
 
-                                                                  *m_pushDescriptorSetManager, *m_uiContext);
-
-
-  m_renderingSystem->Init();
-  m_uiContext->SetRenderingSystem(m_renderingSystem.get());
+                                                                    *m_pushDescriptorSetManager, *m_uiContext);
 
 
-  //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
-  ApplicationCore::ImportOptions importOptions{};
-  auto                           scene = m_client->GetGLTFLoader().LoadGLTFScene("cache/scene.gltf", importOptions);
-  for(auto& sceneNode : scene)
-  {
-    m_client->GetScene().AddNode(sceneNode);
-  }
+    m_renderingSystem->Init();
+    m_uiContext->SetRenderingSystem(m_renderingSystem.get());
 
-  m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
 
-  //===========================================
-  // BUILD Acceleration structures
-  m_rayTracingBuilder = std::make_unique<VulkanCore::RTX::VRayTracingBuilderKHR>(*m_vulkanDevice);
+    //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
+    ApplicationCore::ImportOptions importOptions{};
+    auto                           scene = m_client->GetGLTFLoader().LoadGLTFScene("cache/scene.gltf", importOptions);
+    for(auto& sceneNode : scene)
+    {
+        m_client->GetScene().AddNode(sceneNode);
+    }
 
-  ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
+    m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
+
+    //===========================================
+    // BUILD Acceleration structures
+    m_rayTracingBuilder = std::make_unique<VulkanCore::RTX::VRayTracingBuilderKHR>(*m_vulkanDevice);
+
+    ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 }
 
 void Application::MainLoop()
 {
 
-  while(!glfwWindowShouldClose(m_windowManager->GetWindow()))
-  {
-    Update();
-    Render();
-    PostRender();
+    while(!glfwWindowShouldClose(m_windowManager->GetWindow()))
+    {
+        Update();
+        Render();
+        PostRender();
 
-    glfwPollEvents();
-  }
+        glfwPollEvents();
+    }
 }
 
 void Application::Run()
 {
-  auto start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
 
-  Init();
+    Init();
 
-  auto end      = std::chrono::high_resolution_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    auto end      = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-  Utils::Logger::LogInfo("Application took: " + std::to_string(duration.count()) + " milliseconds to set-up");
-  Utils::Logger::LogSuccess("APPLICATION CONFIGURED SUCCESSFULLY !");
+    Utils::Logger::LogInfo("Application took: " + std::to_string(duration.count()) + " milliseconds to set-up");
+    Utils::Logger::LogSuccess("APPLICATION CONFIGURED SUCCESSFULLY !");
 
 
-  MainLoop();
+    MainLoop();
 }
 
 void Application::Update()
 {
-  m_vulkanDevice->GetTransferOpsManager().StartRecording();
+    m_vulkanDevice->GetTransferOpsManager().StartRecording();
 
-  m_client->Update();
-  m_client->UpdateCamera(m_windowManager->GetCameraMovement());
-  if(m_windowManager->GetIsDirty())
-  {
-    m_client->UpdateClient(m_windowManager->GetLightMovement());
-  }
-  if(GlobalState::ValidationLayersEnabled)
-  {
-    m_vulkanDevice->UpdateMemoryStatistics();
-  }
+    m_client->Update();
+    m_client->UpdateCamera(m_windowManager->GetCameraMovement());
+    if(m_windowManager->GetIsDirty())
+    {
+        m_client->UpdateClient(m_windowManager->GetLightMovement());
+    }
+    if(GlobalState::ValidationLayersEnabled)
+    {
+        m_vulkanDevice->UpdateMemoryStatistics();
+    }
 
-  m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
-  m_editor->Update();
+    m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
+    m_editor->Update();
 }
 
 void Application::Render()
 {
 
 
-  m_client->GetAssetsManager().Sync();
+    m_client->GetAssetsManager().Sync();
 
-  m_client->Render(m_renderingSystem->GetRenderContext());
+    m_client->Render(m_renderingSystem->GetRenderContext());
 
-  m_editor->Render();
+    m_editor->Render();
 
-  m_renderingSystem->Render(m_client->GetScene().GetSceneLightInfo(), m_client->GetGlobalDataUpdateInformation());
+    m_renderingSystem->Render(m_client->GetScene().GetSceneLightInfo(), m_client->GetGlobalDataUpdateInformation());
 
-  m_renderingSystem->Update();
+    m_renderingSystem->Update();
 }
 
 void Application::PostRender()
 {
-  // m_client->().Reset();ň
-  if (m_buildAS) {
-    auto inputs = m_client->GetScene().GetBLASInputs();
-    m_rayTracingBuilder->BuildBLAS(inputs,  vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
-    m_buildAS = false;
-  }
+    // m_client->().Reset();ň
 
-  //all commands that were recorded over the frame are now gonna be submmitted
-  m_vulkanDevice->GetTransferOpsManager().ClearResources();
+    // ray tracing buid is teporeraly going here
+    if(m_buildAS)
+    {
+        auto inputs = m_client->GetScene().GetBLASInputs();
+        m_rayTracingBuilder->BuildBLAS(inputs, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
+                                                   | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
+
+        // single shader hit group is going to be stored under this index...
+        std::vector<vk::AccelerationStructureInstanceKHR> instances;
+        instances.reserve(inputs.size());
+
+        int i                   = 0;
+        int shaderHitGroupIndex = 0;
+        // for now every instance will be every BLAS, i will have to later redo how scene is describing the
+        for(auto& instance : inputs)
+        {
+            vk::AccelerationStructureInstanceKHR instanceInfo{};
+            instanceInfo.transform = VulkanCore::RTX::GlmToMatrix4KHR(instance.transform);
+            instanceInfo.instanceCustomIndex =
+
+        }
+        m_buildAS = false;
+    }
+
+    //all commands that were recorded over the frame are now gonna be submmitted
+    m_vulkanDevice->GetTransferOpsManager().ClearResources();
 }
 
 Application::~Application()
 {
-  ApplicationCore::SaveConfig(*m_client, *m_uiContext);
+    ApplicationCore::SaveConfig(*m_client, *m_uiContext);
 
-  if(!GlobalVariables::hasSessionBeenSaved)
-  {
-    for(const auto& entry : std::filesystem::directory_iterator(GlobalVariables::textureFolder))
+    if(!GlobalVariables::hasSessionBeenSaved)
     {
-      std::filesystem::remove_all(entry.path());
+        for(const auto& entry : std::filesystem::directory_iterator(GlobalVariables::textureFolder))
+        {
+            std::filesystem::remove_all(entry.path());
+        }
     }
-  }
-  m_vulkanDevice->GetDevice().waitIdle();
-  m_renderingSystem->Destroy();
-  m_rayTracingBuilder->Destroy();
-  m_effectsLibrary->Destroy();
-  m_client->Destroy();
-  m_uniformBufferManager->Destroy();
-  VulkanCore::VSamplers::DestroyAllSamplers(*m_vulkanDevice);
-  m_pushDescriptorSetManager->Destroy();
-  m_uiContext->Destroy();
-  MathUtils::LUT.ClearLoopUpTables();
+    m_vulkanDevice->GetDevice().waitIdle();
+    m_renderingSystem->Destroy();
+    m_rayTracingBuilder->Destroy();
+    m_effectsLibrary->Destroy();
+    m_client->Destroy();
+    m_uniformBufferManager->Destroy();
+    VulkanCore::VSamplers::DestroyAllSamplers(*m_vulkanDevice);
+    m_pushDescriptorSetManager->Destroy();
+    m_uiContext->Destroy();
+    MathUtils::LUT.ClearLoopUpTables();
 
-  m_vulkanDevice->Destroy();
+    m_vulkanDevice->Destroy();
 }
