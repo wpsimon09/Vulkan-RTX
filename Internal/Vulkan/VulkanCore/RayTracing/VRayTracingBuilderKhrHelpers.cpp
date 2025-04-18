@@ -57,15 +57,17 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshI
     return input;
 }
 
-VulkanCore::RTX::AccelKHR VulkanCore::RTX::AllocateAccelerationStructure(const VulkanCore::VDevice& device, vk::AccelerationStructureCreateInfoKHR& createInfo)
+VulkanCore::RTX::AccelKHR VulkanCore::RTX::AllocateAccelerationStructure(const VulkanCore::VDevice& device,
+                                                                         vk::AccelerationStructureCreateInfoKHR& createInfo)
 {
     AccelKHR result;
     result.buffer = std::make_unique<VulkanCore::VBuffer>(device, "BOTTOM LEVEL ACCELERATION STRUCTURE");
-    result.buffer->CreateBuffer(createInfo.size, VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+    result.buffer->CreateBuffer(createInfo.size, VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR
+                                                     | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
 
     // create the accelration structure in the device
     vk::AccelerationStructureCreateInfoKHR accelCI = createInfo;
-    accelCI.buffer = result.buffer->GetBuffer();
+    accelCI.buffer                                 = result.buffer->GetBuffer();
 
     result.as = device.GetDevice().createAccelerationStructureKHR(accelCI, nullptr, device.DispatchLoader);
 
@@ -73,9 +75,15 @@ VulkanCore::RTX::AccelKHR VulkanCore::RTX::AllocateAccelerationStructure(const V
 
     // get its adress
     vk::AccelerationStructureDeviceAddressInfoKHR addressInfo = {};
-    addressInfo.accelerationStructure = result.as;
-    result.address=  device.GetDevice().getAccelerationStructureAddressKHR(addressInfo, device.DispatchLoader);
+    addressInfo.accelerationStructure                         = result.as;
+    result.address = device.GetDevice().getAccelerationStructureAddressKHR(addressInfo, device.DispatchLoader);
 
     return result;
-
+}
+vk::TransformMatrixKHR VulkanCore::RTX::GlmToMatrix4KHR(glm::mat4& m)
+{
+  glm::mat4            temp = glm::transpose(m);
+  VkTransformMatrixKHR out_matrix;
+  memcpy(&out_matrix, &temp, sizeof(VkTransformMatrixKHR));
+  return out_matrix;
 }

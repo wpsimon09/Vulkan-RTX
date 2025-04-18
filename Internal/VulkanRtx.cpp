@@ -193,7 +193,7 @@ void Application::PostRender()
                                                    | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
 
         // single shader hit group is going to be stored under this index...
-        std::vector<vk::AccelerationStructureInstanceKHR> instances;
+            std::vector<vk::AccelerationStructureInstanceKHR> instances;
         instances.reserve(inputs.size());
 
         int i                   = 0;
@@ -203,9 +203,16 @@ void Application::PostRender()
         {
             vk::AccelerationStructureInstanceKHR instanceInfo{};
             instanceInfo.transform = VulkanCore::RTX::GlmToMatrix4KHR(instance.transform);
-            instanceInfo.instanceCustomIndex =
+            instanceInfo.instanceCustomIndex = i;
+            instanceInfo.flags = {vk::GeometryInstanceFlagBitsKHR::eTriangleCullDisable};
+            instanceInfo.accelerationStructureReference = m_rayTracingBuilder->GetInstanceDeviceAddress(i);
+            instanceInfo.mask = 0xFF;
+            instanceInfo.instanceShaderBindingTableRecordOffset = 0;
 
+            instances.emplace_back(instanceInfo);
+            i++;
         }
+        m_rayTracingBuilder->BuildTLAS(instances);
         m_buildAS = false;
     }
 
