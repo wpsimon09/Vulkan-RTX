@@ -85,7 +85,7 @@ void VRayTracingBlasBuilder::CmdCompactBlas(const VulkanCore::VCommandBuffer&   
             blasBuildData[i].asBuildSizesInfo.accelerationStructureSize = compactedSize;
             m_cleanUpdBlasAccell.push_back(outBlas[i]);  // later delete AS that is about to be compacted
 
-            // create new AS that will be compacted
+            // create new AS that will be compacte
             vk::AccelerationStructureCreateInfoKHR accelCI = {};
             accelCI.size                                   = compactedSize;
             accelCI.type                                   = vk::AccelerationStructureTypeKHR::eBottomLevel;
