@@ -134,6 +134,7 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
 
     m_asBuildSemaphore.CpuWaitIdle(2);
 
+    buffer.DestroyStagingBuffer();
     buffer.Destroy();
     scratchBuffer.Destroy();
 

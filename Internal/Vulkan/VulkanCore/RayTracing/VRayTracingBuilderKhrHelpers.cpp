@@ -80,6 +80,7 @@ VulkanCore::RTX::AccelKHR VulkanCore::RTX::AllocateAccelerationStructure(const V
 
     return result;
 }
+
 vk::TransformMatrixKHR VulkanCore::RTX::GlmToMatrix4KHR(glm::mat4& m)
 {
   glm::mat4            temp = glm::transpose(m);
