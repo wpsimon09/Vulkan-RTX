@@ -20,8 +20,8 @@ struct BLASInput
     std::vector<vk::AccelerationStructureGeometryKHR>       asGeometry;
     std::vector<vk::AccelerationStructureBuildRangeInfoKHR> asBuildOffSetInfo;
     vk::BuildAccelerationStructureFlagsKHR                  flags{0};
-    glm::mat4 transform;
-    uint32_t meshIndex ;
+    glm::mat4                                               transform;
+    uint32_t                                                meshIndex;
 };
 
 struct BLASEntry
@@ -29,11 +29,12 @@ struct BLASEntry
     BLASInput input;
 };
 
-struct Instance {
-    uint32_t blasIndex;
-    uint32_t instanceCustomID;
-    uint32_t hitGroupID {0};
-    uint32_t maks{0xFF};
+struct Instance
+{
+    uint32_t  blasIndex;
+    uint32_t  instanceCustomID;
+    uint32_t  hitGroupID{0};
+    uint32_t  maks{0xFF};
     glm::mat4 transforms;
 };
 
@@ -42,12 +43,12 @@ struct AccelKHR
     vk::AccelerationStructureKHR         as      = nullptr;
     std::shared_ptr<VulkanCore::VBuffer> buffer  = nullptr;
     vk::DeviceAddress                    address = {0};
-    void                                  Destroy(const VulkanCore::VDevice& device);
-
+    void                                 Destroy(const VulkanCore::VDevice& device);
 };
 
-struct AccelerationStructureGeometryInfo {
-    vk::AccelerationStructureGeometryKHR asGeometry;
+struct AccelerationStructureGeometryInfo
+{
+    vk::AccelerationStructureGeometryKHR       asGeometry;
     vk::AccelerationStructureBuildRangeInfoKHR buildRangeInfo;
 };
 
@@ -61,7 +62,7 @@ struct AccelerationStructBuildData
     std::vector<vk::AccelerationStructureGeometryKHR> asGeometry;
     //
     std::vector<vk::AccelerationStructureBuildRangeInfoKHR> asBuildRangeInfo;
-    vk::AccelerationStructureBuildGeometryInfoKHR           asBuildGoemetryInfo;
+    vk::AccelerationStructureBuildGeometryInfoKHR           asBuildInfo;
     vk::AccelerationStructureBuildSizesInfoKHR              asBuildSizesInfo;
 
     void AddGeometry(const vk::AccelerationStructureGeometryKHR& g, const vk::AccelerationStructureBuildRangeInfoKHR& offset);
@@ -70,14 +71,29 @@ struct AccelerationStructBuildData
 
     bool hasCompactFlag() const
     {
-        return static_cast<bool>(asBuildGoemetryInfo.flags & vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
+        return static_cast<bool>(asBuildInfo.flags & vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
     }
 
+    /**
+     * references the buffer that was used to sotre all instances that are withing the TLAS ,this function can only be used
+     * this function can only be used if type of build data is for top level acceleration strucutre
+    */
+    AccelerationStructureGeometryInfo MakeInstanceGeometry(size_t numInstances, vk::DeviceAddress instanceBufferAdress);
 
     // returns size required to build on BLAS
     vk::AccelerationStructureBuildSizesInfoKHR FinalizeGeometry(const VulkanCore::VDevice&             device,
                                                                 vk::BuildAccelerationStructureFlagsKHR flags);
     vk::AccelerationStructureCreateInfoKHR     DescribeCreateInfo();
+
+    void CmdUpdateAs(const vk::CommandBuffer&                 cmdBuffer,
+                     vk::AccelerationStructureKHR             as,
+                     vk::DeviceAddress                        scratchAddress,
+                     const vk::detail::DispatchLoaderDynamic& dispatchLoader);
+
+    void CmdBuildAs(const vk::CommandBuffer&                 cmdBuffer,
+                    vk::AccelerationStructureKHR             as,
+                    vk::DeviceAddress                        scratchAddress,
+                    const vk::detail::DispatchLoaderDynamic& dispatch_loader);
 };
 
 struct ScratchSizeInfo

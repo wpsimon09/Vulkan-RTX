@@ -127,8 +127,8 @@ void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size)
 template <typename T>
 void VBuffer::CreateBufferAndPutDataOnDevice(const vk::CommandBuffer& commandBuffer, const std::vector<T>& data, vk::BufferUsageFlags usage)
 {
-    CreateStagingBuffer(data.size() * sizeof(T));
-    CreateBuffer(data.size() * sizeof(T), usage);
+    CreateStagingBuffer(data.size() * sizeof(T)); // implicitly maps the buffer
+    CreateBuffer(data.size() * sizeof(T), static_cast<VkBufferUsageFlags>(usage) | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
     memcpy(MapStagingBuffer(), data.data(), data.size() * sizeof(T));
     UnMapStagingBuffer();
     VulkanUtils::CopyBuffers(commandBuffer, m_stagingBufferVMA, m_bufferVMA, data.size() * sizeof(T));

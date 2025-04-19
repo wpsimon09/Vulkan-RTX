@@ -92,7 +92,7 @@ void VRayTracingBlasBuilder::CmdCompactBlas(const VulkanCore::VCommandBuffer&   
             outBlas[i] = AllocateAccelerationStructure(m_device, accelCI);  //since this one is coppied to the clean up list, I can directly overwirte this variable with new BLAS
 
             vk::CopyAccelerationStructureInfoKHR copyInfo{};
-            copyInfo.src = blasBuildData[i].asBuildGoemetryInfo.dstAccelerationStructure;  // set during the build of AS
+            copyInfo.src = blasBuildData[i].asBuildInfo.dstAccelerationStructure;  // set during the build of AS
             copyInfo.dst = outBlas[i].as;
             copyInfo.mode = vk::CopyAccelerationStructureModeKHR::eCompact;
 
@@ -100,7 +100,7 @@ void VRayTracingBlasBuilder::CmdCompactBlas(const VulkanCore::VCommandBuffer&   
             cmdBuffer.GetCommandBuffer().copyAccelerationStructureKHR(copyInfo, m_device.DispatchLoader);
 
             // update build data, so that it points to the correct acceleration structure and not to the one that should be deleted
-            blasBuildData[i].asBuildGoemetryInfo.dstAccelerationStructure = outBlas[i].as;
+            blasBuildData[i].asBuildInfo.dstAccelerationStructure = outBlas[i].as;
         }
     }
         m_currentQueryIndex = m_currentBlasIndex;
@@ -259,13 +259,13 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
         outAccel[m_currentBlasIndex] = VulkanCore::RTX::AllocateAccelerationStructure(m_device, createInfo);
         collectedAs.push_back(outAccel[m_currentBlasIndex].as);
 
-        data.asBuildGoemetryInfo.mode                      = vk::BuildAccelerationStructureModeKHR::eBuild;
-        data.asBuildGoemetryInfo.srcAccelerationStructure  = nullptr;
-        data.asBuildGoemetryInfo.dstAccelerationStructure  = outAccel[m_currentBlasIndex].as;
-        data.asBuildGoemetryInfo.scratchData.deviceAddress = scratchAdress[m_currentBlasIndex % scratchAdress.size()];
-        data.asBuildGoemetryInfo.pGeometries               = data.asGeometry.data();
+        data.asBuildInfo.mode                      = vk::BuildAccelerationStructureModeKHR::eBuild;
+        data.asBuildInfo.srcAccelerationStructure  = nullptr;
+        data.asBuildInfo.dstAccelerationStructure  = outAccel[m_currentBlasIndex].as;
+        data.asBuildInfo.scratchData.deviceAddress = scratchAdress[m_currentBlasIndex % scratchAdress.size()];
+        data.asBuildInfo.pGeometries               = data.asGeometry.data();
 
-        collectedBuildInfo.push_back(data.asBuildGoemetryInfo);
+        collectedBuildInfo.push_back(data.asBuildInfo);
         collectedRagneInfos.push_back(data.asBuildRangeInfo.data());
 
         totalMemoryUsed += data.asBuildSizesInfo.accelerationStructureSize;

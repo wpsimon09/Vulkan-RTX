@@ -9,6 +9,7 @@
 #include "vulkan/vulkan.hpp"
 
 #include "VRayTracingStructs.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace VulkanCore {
 class VCommandBuffer;
@@ -50,10 +51,12 @@ class VRayTracingBuilderKHR
     void CmdCreteTlas(const vk::CommandBuffer&                     cmdBuffer,
                       uint32_t                               numInstances,
                       vk::DeviceAddress                      instancesDataBuffer,
-                      VulkanCore::VBuffer&                   sratchBuffer,
+                      VulkanCore::VBuffer&                   scratchBuffer,
                       vk::BuildAccelerationStructureFlagsKHR flags,
                       bool                                   update,
                       bool                                   motion);
+    VTimelineSemaphore m_asBuildSemaphore;
+
 
     const VulkanCore::VDevice&  m_device;
     std::vector<RTX::BLASEntry> m_blasEntries;
