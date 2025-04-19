@@ -18,9 +18,16 @@ void VulkanCore::RTX::AccelKHR::Destroy(const VulkanCore::VDevice& device)
 void VulkanCore::RTX::AccelerationStructBuildData::AddGeometry(const vk::AccelerationStructureGeometryKHR&       g,
                                                                const vk::AccelerationStructureBuildRangeInfoKHR& offset)
 {
+    asGeometry.push_back(g);
+    asBuildRangeInfo.push_back(offset);
 }
 
 void VulkanCore::RTX::AccelerationStructBuildData::AddGeometry(const BLASInput& input, uint32_t index) {}
+
+void VulkanCore::RTX::AccelerationStructBuildData::AddGeometry(const AccelerationStructureGeometryInfo& gemetry) {
+    asGeometry.push_back(gemetry.asGeometry);
+    asBuildRangeInfo.push_back(gemetry.buildRangeInfo);
+}
 
 vk::AccelerationStructureBuildSizesInfoKHR VulkanCore::RTX::AccelerationStructBuildData::FinalizeGeometry(const VulkanCore::VDevice& device,
                                                                                                           vk::BuildAccelerationStructureFlagsKHR flags)

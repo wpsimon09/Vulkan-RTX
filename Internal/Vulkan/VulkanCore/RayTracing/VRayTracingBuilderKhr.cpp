@@ -10,6 +10,7 @@
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/Utils/MathUtils.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace VulkanCore::RTX {
@@ -114,20 +115,48 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
 {
 
     auto buffer = VulkanCore::VBuffer(m_device, "TLAS buffer");
-    buffer.CreateBufferAndPutDataOnDevice(m_cmdBuffer->GetCommandBuffer(), instances, vk::BufferUsageFlagBits::eShaderDeviceAddress /*TODO: add usage flags*/);
+    buffer.CreateBufferAndPutDataOnDevice(m_cmdBuffer->GetCommandBuffer(), instances,
+                                          vk::BufferUsageFlagBits::eShaderDeviceAddress
+                                              | vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR);
+
+    VulkanUtils::PlaceAccelerationStructureMemoryBarrier(m_cmdBuffer->GetCommandBuffer(), vk::AccessFlagBits::eTransferWrite,
+                                                         vk::AccessFlagBits::eAccelerationStructureWriteKHR);
+    // acctuall creating of the TLAS
+    VulkanCore::VBuffer scratchBuffer(m_device);
+
+    CmdCreteTlas(m_cmdBuffer->GetCommandBuffer(), instances.size(), buffer.GetBufferAdress(), scratchBuffer, flags, update, motion);
+
 }
-vk::DeviceAddress VRayTracingBuilderKHR::GetInstanceDeviceAddress(uint32_t instance) const {
-    if (instance > m_blasEntries.size()) throw std::runtime_error("wrong instance");
+
+vk::DeviceAddress VRayTracingBuilderKHR::GetInstanceDeviceAddress(uint32_t instance) const
+{
+    if(instance > m_blasEntries.size())
+        throw std::runtime_error("wrong instance");
 
 
     return m_blas[instance].address;
 }
 
-void VRayTracingBuilderKHR::Destroy() {
-    for (auto blas: m_blas) {
+void VRayTracingBuilderKHR::Destroy()
+{
+    for(auto blas : m_blas)
+    {
         blas.Destroy(m_device);
     }
     m_cmdPool->Destroy();
+}
+void VRayTracingBuilderKHR::CmdCreteTlas(const vk::CommandBuffer&                     cmdBuffer,
+                                         uint32_t                               numInstances,
+                                         vk::DeviceAddress                      instancesDataBuffer,
+                                         VulkanCore::VBuffer&                   sratchBuffer,
+                                         vk::BuildAccelerationStructureFlagsKHR flags,
+                                         bool                                   update,
+                                         bool                                   motion)
+{
+    AccelerationStructBuildData tlasBuildData;
+    tlasBuildData.asType = vk::AccelerationStructureTypeKHR::eTopLevel;
+
+
 }
 
 }  // namespace VulkanCore::RTX

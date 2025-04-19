@@ -46,6 +46,12 @@ struct AccelKHR
 
 };
 
+struct AccelerationStructureGeometryInfo {
+    vk::AccelerationStructureGeometryKHR asGeometry;
+    vk::AccelerationStructureBuildRangeInfoKHR buildRangeInfo;
+};
+
+
 struct AccelerationStructBuildData
 {
     // what type of AS are we building
@@ -60,6 +66,7 @@ struct AccelerationStructBuildData
 
     void AddGeometry(const vk::AccelerationStructureGeometryKHR& g, const vk::AccelerationStructureBuildRangeInfoKHR& offset);
     void AddGeometry(const BLASInput& input, uint32_t index = 0);
+    void AddGeometry(const AccelerationStructureGeometryInfo& gemetry);
 
     bool hasCompactFlag() const
     {

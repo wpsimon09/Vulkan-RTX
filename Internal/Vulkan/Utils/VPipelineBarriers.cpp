@@ -46,3 +46,4 @@ void VulkanUtils::PlaceAccelerationStructureMemoryBarrier(const vk::CommandBuffe
     vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
                          VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 }
+

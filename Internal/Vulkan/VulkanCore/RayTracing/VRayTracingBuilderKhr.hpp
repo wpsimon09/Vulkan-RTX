@@ -47,13 +47,21 @@ class VRayTracingBuilderKHR
     void Destroy();
 
   private:
-    const VulkanCore::VDevice&                  m_device;
-    std::vector<RTX::BLASEntry>                 m_blasEntries;
+    void CmdCreteTlas(const vk::CommandBuffer&                     cmdBuffer,
+                      uint32_t                               numInstances,
+                      vk::DeviceAddress                      instancesDataBuffer,
+                      VulkanCore::VBuffer&                   sratchBuffer,
+                      vk::BuildAccelerationStructureFlagsKHR flags,
+                      bool                                   update,
+                      bool                                   motion);
+
+    const VulkanCore::VDevice&  m_device;
+    std::vector<RTX::BLASEntry> m_blasEntries;
 
     std::unique_ptr<VulkanCore::VCommandPool>   m_cmdPool;
     std::unique_ptr<VulkanCore::VCommandBuffer> m_cmdBuffer;
 
-    VulkanCore::RTX::AccelKHR m_tlas;
+    VulkanCore::RTX::AccelKHR              m_tlas;
     std::vector<VulkanCore::RTX::AccelKHR> m_blas;
 };
 }  // namespace VulkanCore::RTX
