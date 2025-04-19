@@ -48,13 +48,6 @@ class VRayTracingBuilderKHR
     void Destroy();
 
   private:
-    void CmdCreteTlas(const vk::CommandBuffer&                     cmdBuffer,
-                      uint32_t                               numInstances,
-                      vk::DeviceAddress                      instancesDataBuffer,
-                      VulkanCore::VBuffer&                   scratchBuffer,
-                      vk::BuildAccelerationStructureFlagsKHR flags,
-                      bool                                   update,
-                      bool                                   motion);
     VTimelineSemaphore m_asBuildSemaphore;
 
 
@@ -66,6 +59,16 @@ class VRayTracingBuilderKHR
 
     VulkanCore::RTX::AccelKHR              m_tlas;
     std::vector<VulkanCore::RTX::AccelKHR> m_blas;
+
+private:
+  void CmdCreteTlas(const vk::CommandBuffer&                     cmdBuffer,
+                    uint32_t                               numInstances,
+                    vk::DeviceAddress                      instancesDataBuffer,
+                    VulkanCore::VBuffer&                   scratchBuffer,
+                    vk::BuildAccelerationStructureFlagsKHR flags,
+                    bool                                   update,
+                    bool                                   motion);
+
 };
 }  // namespace VulkanCore::RTX
 

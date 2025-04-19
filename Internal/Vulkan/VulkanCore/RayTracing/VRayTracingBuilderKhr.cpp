@@ -16,7 +16,8 @@
 
 namespace VulkanCore::RTX {
 VRayTracingBuilderKHR::VRayTracingBuilderKHR(const VulkanCore::VDevice& device)
-    : m_device(device), m_asBuildSemaphore(device)
+    : m_device(device)
+    , m_asBuildSemaphore(device)
 {
     m_cmdPool   = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Compute);
     m_cmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_cmdPool);
@@ -104,7 +105,6 @@ vk:
         m_asBuildSemaphore.Reset();
     } while(!finished);
 
-    m_asBuildSemaphore.Destroy();
     blasScratchBuffer.Destroy();
     scratchAdresses.clear();
 }
@@ -120,7 +120,7 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
     buffer.CreateBufferAndPutDataOnDevice(m_cmdBuffer->GetCommandBuffer(), instances,
 
                                           vk::BufferUsageFlagBits::eShaderDeviceAddress
-                                              | vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR);
+                                              | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR);
 
     VulkanUtils::PlaceAccelerationStructureMemoryBarrier(m_cmdBuffer->GetCommandBuffer(), vk::AccessFlagBits::eTransferWrite,
                                                          vk::AccessFlagBits::eAccelerationStructureWriteKHR);
@@ -128,6 +128,14 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
     VulkanCore::VBuffer scratchBuffer(m_device);
 
     CmdCreteTlas(m_cmdBuffer->GetCommandBuffer(), instances.size(), buffer.GetBufferAdress(), scratchBuffer, flags, update, motion);
+
+    std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
+    m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),m_asBuildSemaphore.GetSemaphoreSubmitInfo(0, 2),waitStages.data() );
+
+    m_asBuildSemaphore.CpuWaitIdle(2);
+
+    buffer.Destroy();
+    scratchBuffer.Destroy();
 
 }
 
@@ -146,9 +154,10 @@ void VRayTracingBuilderKHR::Destroy()
     {
         blas.Destroy(m_device);
     }
+    m_tlas.Destroy(m_device);
     m_cmdPool->Destroy();
 }
-void VRayTracingBuilderKHR::CmdCreteTlas(const vk::CommandBuffer&                     cmdBuffer,
+void VRayTracingBuilderKHR::CmdCreteTlas(const vk::CommandBuffer&               cmdBuffer,
                                          uint32_t                               numInstances,
                                          vk::DeviceAddress                      instancesDataBuffer,
                                          VulkanCore::VBuffer&                   scratchBuffer,
@@ -171,25 +180,28 @@ void VRayTracingBuilderKHR::CmdCreteTlas(const vk::CommandBuffer&               
     // allocate the scratch memory
     vk::DeviceSize scratchSize = update ? sizeInfo.updateScratchSize : sizeInfo.buildScratchSize;
     scratchBuffer.CreateBuffer(scratchSize, static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eShaderDeviceAddress
-                                                                               | vk::BufferUsageFlagBits::eStorageBuffer));
+                                                                            | vk::BufferUsageFlagBits::eStorageBuffer));
     vk::DeviceAddress scratchAddress = scratchBuffer.GetBufferAdress();
 
     // UPDATE TS
-    if (update) {
+    if(update)
+    {
         // we have only one instance buffer with all BLAS init
         tlasBuildData.asGeometry[0].geometry.instances.data.deviceAddress = scratchAddress;
         tlasBuildData.CmdUpdateAs(m_cmdBuffer->GetCommandBuffer(), m_tlas.as, scratchAddress, m_device.DispatchLoader);
     }
-    else {
+    else
+    {
 
         vk::AccelerationStructureCreateInfoKHR tlasCreateInfo = tlasBuildData.DescribeCreateInfo();
 #ifdef VK_NV_ray_tracing_motion_blur
-       // vk::AccelerationStructureMotionInfoNV motionInfo{};
-       // motionInfo.maxInstances = numInstances;
+        // vk::AccelerationStructureMotionInfoNV motionInfo{};
+        // motionInfo.maxInstances = numInstances;
 
 
-        if (motion) {
-            //tlasCreateInfo.createFlags = VK_ACCELERATION_STRUCTURE_CREATE_MOTION_BIT_NV;
+        if(motion)
+        {
+            //t lasCreateInfo.createFlags = VK_ACCELERATION_STRUCTURE_CREATE_MOTION_BIT_NV;
             //tlasCreateInfo.pNext = &motionInfo;
         }
 #endif
@@ -197,7 +209,6 @@ void VRayTracingBuilderKHR::CmdCreteTlas(const vk::CommandBuffer&               
 
         tlasBuildData.CmdBuildAs(cmdBuffer, m_tlas.as, scratchAddress, m_device.DispatchLoader);
     }
-
 }
 
 }  // namespace VulkanCore::RTX
