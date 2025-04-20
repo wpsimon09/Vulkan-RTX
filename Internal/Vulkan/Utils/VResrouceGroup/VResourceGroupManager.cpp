@@ -36,6 +36,13 @@ VResourceGroupManager::VResourceGroupManager(const VulkanCore::VDevice& device)
     layout = std::make_unique<VulkanCore::VDescriptorSetLayout>(m_device, empty);
     m_pushDescriptors[EDescriptorLayoutStruct::Empty] =
         std::make_shared<VShaderResrouceGroup>(m_device, std::string("Basic descriptor set"), std::move(layout));
+
+    VulkanUtils::RayTracingDescriptorSet rayTracingDescriptorSet{};
+    layout = std::make_unique<VulkanCore::VDescriptorSetLayout>(m_device, rayTracingDescriptorSet);
+    m_pushDescriptors[EDescriptorLayoutStruct::RayTracing] =
+        std::make_shared<VShaderResrouceGroup>(m_device, std::string("Ray tracing descriptor set"), std::move(layout));
+
+
 }
 
 

@@ -42,6 +42,19 @@ VulkanUtils::VShaderResrouceGroup::VShaderResrouceGroup(const VulkanCore::VDevic
                 this->AddUpdateEntry(3, offsetof(VulkanUtils::UnlitSingleTexture, texture2D_1), 0);
                 m_layoutStructType = EDescriptorLayoutStruct::UnlitSingleTexture;
             }
+            else if constexpr(std::is_same_v<t, VulkanUtils::RayTracingDescriptorSet>)
+            {
+                // Handle UnlitSingleTexture
+                // Example: Update descriptor set entries for UnlitSingleTexture
+                this->AddUpdateEntry(0, offsetof(VulkanUtils::RayTracingDescriptorSet, buffer1), 0);
+                this->AddUpdateEntry(1, offsetof(VulkanUtils::RayTracingDescriptorSet, buffer2), 0);
+                this->AddUpdateEntry(2, offsetof(VulkanUtils::RayTracingDescriptorSet, buffer3), 0);
+                this->AddUpdateEntry(3, offsetof(VulkanUtils::RayTracingDescriptorSet, buffer4), 0);
+
+                this->AddUpdateEntry(4, offsetof(VulkanUtils::RayTracingDescriptorSet, texture2D_1), 0);
+                m_layoutStructType = EDescriptorLayoutStruct::RayTracing;
+
+            }
             else if constexpr(std::is_same_v<t, VulkanUtils::ForwardShadingDstSet>)
             {
                 this->AddUpdateEntry(0, offsetof(VulkanUtils::ForwardShadingDstSet, buffer1), 0);

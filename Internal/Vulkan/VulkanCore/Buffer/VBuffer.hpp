@@ -102,8 +102,8 @@ void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size)
     // - persistently mapped
     //----------------------
     Utils::Logger::LogInfoVerboseOnly("Allocating Uniform buffer....");
-    m_bufferType = vk::BufferUsageFlagBits::eUniformBuffer;
-    CreateBuffer(size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+    m_bufferType = vk::BufferUsageFlagBits::eUniformBuffer ;
+    CreateBuffer(size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     Utils::Logger::LogSuccess("Allocation completed successfully !");
 
     //----------------------------
