@@ -79,6 +79,23 @@ VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device, co
 
                 m_descriptorSetLayoutBindings = std::move(UnlitSingleTextureLayout.m_descriptorBindings);
             }
+            else if constexpr(std::is_same_v<t, VulkanUtils::RayTracingDescriptorSet>)
+            {
+                auto UnlitSingleTextureLayout =
+                    VulkanCore::VDescriptorSetLayout::Builder(device)
+                        // Global data (camera uniform buffer)
+                        .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR, 1)
+                        // Per object data (mesh uniform buffer)
+                        .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eIntersectionKHR, 1)
+                        // Light data
+                        .AddBinding(2, vk::DescriptorType::eUniformBuffer,  vk::ShaderStageFlagBits::eIntersectionKHR, 1)
+                        // TLAS
+                        .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR, 1)
+                        // Output image
+                        .AddBinding(3, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1);
+
+                m_descriptorSetLayoutBindings = std::move(UnlitSingleTextureLayout.m_descriptorBindings);
+            }
             else if constexpr(std::is_same_v<t, VulkanUtils::ForwardShadingDstSet>)
             {
                 auto ForwardShadingDstSetLayout =

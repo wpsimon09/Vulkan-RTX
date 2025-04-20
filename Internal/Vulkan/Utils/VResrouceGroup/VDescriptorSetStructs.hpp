@@ -11,6 +11,7 @@ enum class EDescriptorLayoutStruct : uint8_t
     Basic = 0,
     UnlitSingleTexture,
     ForwardShading,
+    RayTracing,
     Empty
 };
 
@@ -61,10 +62,20 @@ struct ForwardShadingDstSet
     // ohter look up tables, irradiance, radiance maps etc...
 };
 
-using DescriptorSetTemplateVariant = std::variant<BasicDescriptorSet, UnlitSingleTexture, ForwardShadingDstSet, EmtpyDescriptorSet>;
+struct RayTracingDescriptorSet {
+    vk::DescriptorBufferInfo buffer1;  // global data
+    vk::DescriptorBufferInfo buffer2;  // light data
+    vk::DescriptorBufferInfo buffer3;  // material data
+    vk::DescriptorBufferInfo buffer4;  // TLAS data
+
+    vk::DescriptorImageInfo texture2D_1; // output image
+
+};
+
+using DescriptorSetTemplateVariant = std::variant<BasicDescriptorSet, UnlitSingleTexture, ForwardShadingDstSet, EmtpyDescriptorSet, RayTracingDescriptorSet>;
 
 using DescriptorSetTemplateVariantRef =
-    std::variant<std::reference_wrapper<BasicDescriptorSet>, std::reference_wrapper<UnlitSingleTexture>, std::reference_wrapper<ForwardShadingDstSet>>;
+    std::variant<std::reference_wrapper<RayTracingDescriptorSet>, std::reference_wrapper<BasicDescriptorSet>, std::reference_wrapper<UnlitSingleTexture>, std::reference_wrapper<ForwardShadingDstSet>>;
 
 struct DescriptorSetData
 {

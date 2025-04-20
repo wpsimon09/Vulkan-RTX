@@ -82,13 +82,17 @@ class Scene
     SceneStatistics m_sceneStatistics;
 
   private:
-    Camera&                                  m_camera;
-    std::shared_ptr<class SceneNode>         m_root;
-    AssetsManager&                           m_assetsManager;
-    glm::vec3                                m_mousePositionWorldSpace = {0.0f, 0.0f, 0.0F};
-    std::shared_ptr<SceneNode>               m_selectedSceneNode;
+    Camera&                          m_camera;
+    std::shared_ptr<class SceneNode> m_root;
+    AssetsManager&                   m_assetsManager;
+    glm::vec3                        m_mousePositionWorldSpace = {0.0f, 0.0f, 0.0F};
+    std::shared_ptr<SceneNode>       m_selectedSceneNode;
+
+    std::vector<std::shared_ptr<BaseMaterial>> m_sceneMaterials;
+
     std::vector<std::shared_ptr<StaticMesh>> m_staticMeshes;
-    std::shared_ptr<SkyBoxMaterial>          m_currentSkyBox;
+
+    std::shared_ptr<SkyBoxMaterial> m_currentSkyBox;
 
     LightStructs::SceneLightInfo m_sceneLightInfo;
 };
