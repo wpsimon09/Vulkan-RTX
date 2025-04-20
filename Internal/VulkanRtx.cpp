@@ -59,6 +59,7 @@
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
 #include "Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp"
+#include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp"
 
@@ -111,11 +112,11 @@ void Application::Init()
 
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
 
-    //===========================================
-    // BUILD Acceleration structures
-    m_rayTracingBuilder = std::make_unique<VulkanCore::RTX::VRayTracingBuilderKHR>(*m_vulkanDevice);
 
     ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
+
+    auto inputs =m_client->GetScene().GetBLASInputs();
+    m_renderingSystem->GetRayTracingManager().InitAs(inputs);
 }
 
 void Application::MainLoop()
@@ -186,36 +187,7 @@ void Application::PostRender()
     // m_client->().Reset();ň
 
     // ray tracing buid is teporeraly going here
-    if(m_buildAS)
-    {
-        auto inputs = m_client->GetScene().GetBLASInputs();
-        m_rayTracingBuilder->BuildBLAS(inputs, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
-                                                   | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
 
-        // single shader hit group is going to be stored under this index...
-            std::vector<vk::AccelerationStructureInstanceKHR> instances;
-        instances.reserve(inputs.size());
-
-        int i                   = 0;
-        int shaderHitGroupIndex = 0;
-        // for now every instance will be every BLAS, i will have to later redo how scene is describing the
-        for(auto& instance : inputs)
-        {
-            vk::AccelerationStructureInstanceKHR instanceInfo{};
-            instanceInfo.transform = VulkanCore::RTX::GlmToMatrix4KHR(instance.transform);
-            instanceInfo.instanceCustomIndex = i;
-
-            instanceInfo.flags  = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
-            instanceInfo.accelerationStructureReference = m_rayTracingBuilder->GetInstanceDeviceAddress(i);
-            instanceInfo.mask = 0xFF;
-            instanceInfo.instanceShaderBindingTableRecordOffset = 0;
-
-            instances.emplace_back(instanceInfo);
-            i++;
-        }
-        m_rayTracingBuilder->BuildTLAS(instances);
-        m_buildAS = false;
-    }
 
     //all commands that were recorded over the frame are now gonna be submmitted
     m_vulkanDevice->GetTransferOpsManager().ClearResources();
@@ -234,7 +206,6 @@ Application::~Application()
     }
     m_vulkanDevice->GetDevice().waitIdle();
     m_renderingSystem->Destroy();
-    m_rayTracingBuilder->Destroy();
     m_effectsLibrary->Destroy();
     m_client->Destroy();
     m_uniformBufferManager->Destroy();

@@ -11,8 +11,10 @@
 
 void VulkanCore::RTX::AccelKHR::Destroy(const VulkanCore::VDevice& device)
 {
-    device.GetDevice().destroyAccelerationStructureKHR(as, nullptr, device.DispatchLoader);
-    buffer->Destroy();
+    if (buffer) {
+        device.GetDevice().destroyAccelerationStructureKHR(as, nullptr, device.DispatchLoader);
+        buffer->Destroy();
+    }
 }
 
 

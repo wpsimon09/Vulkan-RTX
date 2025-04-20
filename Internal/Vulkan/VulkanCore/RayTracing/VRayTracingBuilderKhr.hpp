@@ -46,6 +46,7 @@ class VRayTracingBuilderKHR
     vk::DeviceAddress GetInstanceDeviceAddress(uint32_t instance) const;
 
     void Destroy();
+    void Clear();
 
   private:
     VTimelineSemaphore m_asBuildSemaphore;

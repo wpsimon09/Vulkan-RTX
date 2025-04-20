@@ -12,14 +12,6 @@
 #include "Editor/Views/Index.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
-namespace VulkanCore {
-namespace RTX {
-class VRayTracingBuilderKHR;
-}
-
-class VRayTracingBuilderKHR;
-}  // namespace VulkanCore
-
 namespace ApplicationCore {
 class EffectsLibrary;
 }
@@ -91,7 +83,6 @@ private:
   std::unique_ptr<class VEditor::Editor>                        m_editor;
   std::unique_ptr<class Renderer::RenderingSystem>              m_renderingSystem;
   std::unique_ptr<class ApplicationCore::EffectsLibrary>        m_effectsLibrary;
-  std::unique_ptr<class VulkanCore::RTX::VRayTracingBuilderKHR> m_rayTracingBuilder;
 
   // debu
   bool m_buildAS = true;;

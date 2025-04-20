@@ -12,7 +12,7 @@
 #include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
-
+#include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
@@ -20,6 +20,7 @@
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp"
+#include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
@@ -63,6 +64,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     //----------------------------------------------------------------------------------------------------------------------------
     // Renderers creation
     //----------------------------------------------------------------------------------------------------------------------------
+
     m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager,
                                                                 GlobalVariables::RenderTargetResolutionWidth,
                                                                 GlobalVariables::RenderTargetResolutionHeight);
@@ -72,6 +74,12 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
 
     m_envLightGenerator = std::make_unique<VulkanUtils::VEnvLightGenerator>(m_device, pushDescriptorManager);
+
+
+    //----------------------------------------------------------------------------------------------------------------------------
+    // Ray tracing initialization
+    //----------------------------------------------------------------------------------------------------------------------------
+    m_rayTracingDataManager = std::make_unique<VulkanUtils::VRayTracingDataManager>(m_device);
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }
@@ -175,5 +183,7 @@ void RenderingSystem::Destroy()
     m_uiRenderer->Destroy();
     m_swapChain->Destroy();
     m_envLightGenerator->Destroy();
+    m_rayTracingDataManager->Destroy();
 }
+
 }  // namespace Renderer

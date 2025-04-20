@@ -158,6 +158,16 @@ void VRayTracingBuilderKHR::Destroy()
     m_tlas.Destroy(m_device);
     m_cmdPool->Destroy();
 }
+void VRayTracingBuilderKHR::Clear() {
+    for(auto blas : m_blas)
+    {
+        blas.Destroy(m_device);
+    }
+    m_tlas.Destroy(m_device);
+
+    m_blas.clear();
+}
+
 void VRayTracingBuilderKHR::CmdCreteTlas(const vk::CommandBuffer&               cmdBuffer,
                                          uint32_t                               numInstances,
                                          vk::DeviceAddress                      instancesDataBuffer,

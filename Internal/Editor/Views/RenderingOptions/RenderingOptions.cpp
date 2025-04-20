@@ -8,12 +8,14 @@
 #include <imgui.h>
 
 #include "Application/Rendering/Material/PBRMaterial.hpp"
+#include "Application/Rendering/Scene/Scene.hpp"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
 
 namespace VEditor {
-RenderingOptions::RenderingOptions(Renderer::RenderingSystem* renderingSystem)
+RenderingOptions::RenderingOptions(ApplicationCore::Scene& scene,Renderer::RenderingSystem* renderingSystem):m_scene(scene)
 {
     m_renderingSystem = renderingSystem;
 }
@@ -22,6 +24,12 @@ RenderingOptions::RenderingOptions(Renderer::RenderingSystem* renderingSystem)
 void RenderingOptions::Render()
 {
     ImGui::Begin(ICON_FA_BOOK_JOURNAL_WHILLS " Rendering options", &m_isOpen);
+
+    if (ImGui::Button("Rebuild AS")) {
+        auto input = m_scene.GetBLASInputs();
+
+        m_renderingSystem->GetRayTracingManager().InitAs(input);
+    }
 
     ImGui::Checkbox("Fake ray-tracer ", &m_renderingSystem->m_isRayTracing);
     ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_renderContext.RenderBillboards);
