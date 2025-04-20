@@ -23,6 +23,10 @@ void VRayTracingDataManager::UpdateAS() {
 
 void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
 {
+    m_instances.clear();
+    m_blasInputs.clear();
+    m_instances.shrink_to_fit();
+    m_blasInputs.shrink_to_fit();
     m_rayTracingBuilder->Clear();
     m_rayTracingBuilder->BuildBLAS(blasInputs, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
                                                    | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);

@@ -115,6 +115,8 @@ void Application::Init()
 
     ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 
+    m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU(true);
+    m_client->GetScene().Update();
     auto inputs =m_client->GetScene().GetBLASInputs();
     m_renderingSystem->GetRayTracingManager().InitAs(inputs);
 }

@@ -163,9 +163,15 @@ void VRayTracingBuilderKHR::Clear() {
     {
         blas.Destroy(m_device);
     }
+
     m_tlas.Destroy(m_device);
 
     m_blas.clear();
+    m_blas.shrink_to_fit();
+    m_blasEntries.clear();
+    m_blasEntries.shrink_to_fit();
+    m_asBuildSemaphore.Reset();
+
 }
 
 void VRayTracingBuilderKHR::CmdCreteTlas(const vk::CommandBuffer&               cmdBuffer,
