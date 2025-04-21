@@ -22,7 +22,6 @@ class VShader : public VObject
             const std::string&         fragmentSource,
             const std::string&         computeSource = "");
     void                    DestroyExistingShaderModules();
-    std::vector<char>       ReadSPIRVShader(const std::string& SPIRVShader);
     const vk::ShaderModule& GetShaderModule(GlobalVariables::SHADER_TYPE shaderType) const;
 
   private:

@@ -101,6 +101,25 @@ struct ScratchSizeInfo
     vk::DeviceSize maxScratch   = 0;
     vk::DeviceSize totalScratch = 0;
 };
+
+
+struct RTXShaderPaths {
+    std::filesystem::path rayGenPath;
+    std::filesystem::path missPath;
+    std::filesystem::path rayHitPath;
+    /**
+     TODO: *Others later
+     */
+};
+
+enum ERayTracingStageIndices {
+    RayGen = 0,
+    Miss,
+    ClosestHit,
+    // TODO: insert new shaders in this exact spot
+    ShaderGroupCount, // holds count of all indices
+};
+
 }  // namespace VulkanCore::RTX
 
 #endif  // VRAYTRACINGSTRUCTS_HPP

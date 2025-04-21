@@ -23,6 +23,8 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 
+#include <fstream>
+
 uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyProperties>& queueFamilyProperties, vk::QueueFlagBits queueType)
 {
     /**
@@ -627,4 +629,38 @@ vk::SampleCountFlagBits VulkanUtils::IntToVkSample(int sampleCount)
         default:
             return vk::SampleCountFlagBits::e1;  // Fallback to 1 sample (safe default)
     }
+}
+std::vector<char> VulkanUtils::ReadSPIRVShader(std::filesystem::path shaderPath)
+{
+    std::ifstream file(shaderPath, std::ios::ate | std::ios::binary);
+
+    if(!file.is_open())
+    {
+        const auto err = "Failed to open SPIRV shader file at path: " + shaderPath.string()
+                         + " did you compile the shaders using compile.sh script ?";
+        throw std::runtime_error(err);
+    }
+
+    //create buffer to hold the binary
+    size_t            fileSize = (size_t)file.tellg();
+    std::vector<char> buffer(fileSize);
+
+    //go back to the begining and read the file again to get the content
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
+
+    file.close();
+
+    assert(buffer.size() == fileSize);
+    return buffer;
+}
+vk::ShaderModule VulkanUtils::CreateShaderModule(const VulkanCore::VDevice& device, const std::vector<char>& data) {
+    vk::ShaderModuleCreateInfo vertexShaderModuleCreateInfo;
+    vertexShaderModuleCreateInfo.codeSize = data.size();
+    vertexShaderModuleCreateInfo.pCode    = reinterpret_cast<const uint32_t*>(data.data());
+    vertexShaderModuleCreateInfo.pNext    = nullptr;
+    auto module = device.GetDevice().createShaderModule(vertexShaderModuleCreateInfo, nullptr);
+    assert(module);
+    Utils::Logger::LogInfoVerboseOnly("Created shader module");
+    return module;
 }

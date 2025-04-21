@@ -94,6 +94,10 @@ bool IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4& model, cons
 int vkSampleToInt(vk::SampleCountFlagBits sample);
 
 vk::SampleCountFlagBits IntToVkSample(int sampleCount);
+
+std::vector<char> ReadSPIRVShader(std::filesystem::path shaderPath);
+
+vk::ShaderModule CreateShaderModule(const VulkanCore::VDevice& device, const std::vector<char>& data);
 }  // namespace VulkanUtils
 
 #endif  //VGENERALUTILS_HPP

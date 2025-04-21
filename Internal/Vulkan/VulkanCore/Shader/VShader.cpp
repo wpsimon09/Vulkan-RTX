@@ -7,6 +7,7 @@
 #include <fstream>
 
 #include "Application/Logger/Logger.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 
 namespace VulkanCore {
 
@@ -34,29 +35,6 @@ void VShader::DestroyExistingShaderModules()
     Utils::Logger::LogInfoVerboseOnly("Deleted all unnecessary shader modules");
 }
 
-std::vector<char> VShader::ReadSPIRVShader(const std::string& SPIRVShader)
-{
-    std::ifstream file(SPIRVShader, std::ios::ate | std::ios::binary);
-
-    if(!file.is_open())
-    {
-        const auto err = "Failed to open SPIRV shader file at path: " + SPIRVShader + " did you compile the shaders using compile.sh script ?";
-        throw std::runtime_error(err);
-    }
-
-    //create buffer to hold the binary
-    size_t            fileSize = (size_t)file.tellg();
-    std::vector<char> buffer(fileSize);
-
-    //go back to the begining and read the file again to get the content
-    file.seekg(0);
-    file.read(buffer.data(), fileSize);
-
-    file.close();
-
-    assert(buffer.size() == fileSize);
-    return buffer;
-}
 
 const vk::ShaderModule& VShader::GetShaderModule(GlobalVariables::SHADER_TYPE shaderType) const
 {
@@ -85,38 +63,17 @@ void VShader::CreateShaderModules()
 
     Utils::Logger::LogInfoVerboseOnly("Creating shader modules...");
 
-    auto vertexSPRIV   = ReadSPIRVShader(m_vertexSource);
-    auto fragmentSPRIV = ReadSPIRVShader(m_fragmentSource);
+    auto vertexSPRIV   = VulkanUtils::ReadSPIRVShader(m_vertexSource);
+    auto fragmentSPRIV = VulkanUtils::ReadSPIRVShader(m_fragmentSource);
 
-    vk::ShaderModuleCreateInfo vertexShaderModuleCreateInfo;
-    vertexShaderModuleCreateInfo.codeSize = vertexSPRIV.size();
-    vertexShaderModuleCreateInfo.pCode    = reinterpret_cast<uint32_t*>(vertexSPRIV.data());
-    vertexShaderModuleCreateInfo.pNext    = nullptr;
-    m_vertexShaderModule = m_device.GetDevice().createShaderModule(vertexShaderModuleCreateInfo, nullptr);
-    assert(m_vertexShaderModule);
-    Utils::Logger::LogInfoVerboseOnly("Created Vertex shader module");
-
-
-    vk::ShaderModuleCreateInfo fragmentShaderModuleCreateInfo;
-    fragmentShaderModuleCreateInfo.codeSize = fragmentSPRIV.size();
-    fragmentShaderModuleCreateInfo.pCode    = reinterpret_cast<uint32_t*>(fragmentSPRIV.data());
-    fragmentShaderModuleCreateInfo.pNext    = nullptr;
-    m_fragmentShaderModule = m_device.GetDevice().createShaderModule(fragmentShaderModuleCreateInfo, nullptr);
-    assert(m_fragmentShaderModule);
-    Utils::Logger::LogInfoVerboseOnly("Created Fragment shader module");
+    m_vertexShaderModule = VulkanUtils::CreateShaderModule(m_device, vertexSPRIV);
+    m_fragmentShaderModule = VulkanUtils::CreateShaderModule(m_device, fragmentSPRIV);
 
 
     if(m_computeSource.has_value())
     {
-        auto                       computeSPRIV = ReadSPIRVShader(m_computeSource.value());
-        vk::ShaderModuleCreateInfo computeShaderModuleCreateInfo;
-        computeShaderModuleCreateInfo.codeSize = computeSPRIV.size();
-        ;
-        computeShaderModuleCreateInfo.pCode = reinterpret_cast<uint32_t*>(computeSPRIV.data());
-        computeShaderModuleCreateInfo.pNext = nullptr;
-        m_computeShaderModule = m_device.GetDevice().createShaderModule(computeShaderModuleCreateInfo, nullptr);
-        assert(m_computeShaderModule.value());
-        Utils::Logger::LogInfoVerboseOnly("Created Compute shader module");
+        auto                       computeSPRIV = VulkanUtils::ReadSPIRVShader(m_computeSource.value());
+        m_computeShaderModule = VulkanUtils::CreateShaderModule(m_device, computeSPRIV);
     }
     else
         Utils::Logger::LogInfoVerboseOnly("Compute shader was not specified");
