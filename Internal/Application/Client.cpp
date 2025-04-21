@@ -96,6 +96,7 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData.inverseView = m_camera->GetInverseViewMatrix();
     m_globalRenderingData.screenSize  = m_camera->GetScreenSize();
     m_globalRenderingData.viewParams = glm::vec4(m_camera->GetCameraPlaneWidthAndHeight(), m_camera->GetNearPlane(), 1.0f);
+    m_globalRenderingData.viewParams.w   = m_camera->GetFocalLength();
     m_globalRenderingData.playerPosition = glm::vec4(m_camera->GetPosition(), 1.0f);
 }
 

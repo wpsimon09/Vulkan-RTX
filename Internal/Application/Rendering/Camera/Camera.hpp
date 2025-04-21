@@ -64,6 +64,12 @@ class Camera
 
     float& GetFOV() { return this->m_FOV; }
 
+    float& GetFocalLength() { return this->m_focalLength; }
+
+    float& GetMaxReccursion() { return this->m_maxReccursion; }
+
+    float
+
     void SetPosition(glm::vec3& newPosition);
 
     void Update(CameraUpdateInfo& cameraUpdateInfo);
@@ -82,6 +88,8 @@ class Camera
     float m_FOV = 65.0f;
     float m_aspect;
     float m_speed = 3.3f;
+    float m_focalLength = 0.35f; // focal lenght is in CM
+    float m_maxReccursion = 10; // max ray reccrusion from the camera
 
     glm::vec3 m_position;
     glm::vec3 m_center;

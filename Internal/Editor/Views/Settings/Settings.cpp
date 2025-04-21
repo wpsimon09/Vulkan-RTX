@@ -118,6 +118,10 @@ void Settings::RenderApplicationSettings()
 
         ImGui::SliderFloat("FOV", &m_client.GetCamera().GetFOV(), 1, 360);
 
+        ImGui::SeparatorText("Ray tracing");
+        ImGui::SliderFloat("Focal length:", &m_client.GetCamera().GetFocalLength(), 0.f, 1.f);
+        ImGui::SliderFloat("Max ray reccrusion", &m_client.GetCamera().GetMaxReccursion(), 1.f, 100.f);
+
         m_client.GetCamera().Recalculate();
 
         ImGui::TreePop();
