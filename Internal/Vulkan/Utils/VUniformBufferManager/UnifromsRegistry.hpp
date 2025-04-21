@@ -23,7 +23,7 @@ struct GlobalUniform
     glm::vec4 playerPosition;
     glm::vec4 viewParams;
     float     maxReccursion;
-    float     padding2;
+    float     reccursionDepth;
     glm::vec2 screenSize;
 };
 
