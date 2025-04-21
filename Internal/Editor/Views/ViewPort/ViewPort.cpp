@@ -138,6 +138,7 @@ void VEditor::ViewPort::Resize(int newWidth, int newHeight)
     m_previousWidth  = newWidth;
 
     m_viewPortContext.camera->ProcessResize(newWidth, newHeight);
+    m_viewPortContext.hasResized = true;
 
     ImGuizmo::SetRect(m_gizmoRectOriginX, m_gizmoRectOriginY, newWidth, newHeight);
     IUserInterfaceElement::Render();
@@ -185,7 +186,7 @@ void VEditor::ViewPort::RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSiz
     ImGui::PopStyleColor(3);
 
     auto view = m_scene.GetCamera().GetViewMatrix();
-    ImGuizmo::ViewManipulate(glm::value_ptr(view), 10, ImVec2(imageSize.x - 100, imageSize.y), ImVec2(100.f, 100.f), 32);
+        ImGuizmo::ViewManipulate(glm::value_ptr(view), 10, ImVec2(imageSize.x - 100, imageSize.y), ImVec2(100.f, 100.f), 32);
     auto newCamPos = glm::vec3(glm::inverse(view)[3]);
     m_scene.GetCamera().SetPosition(newCamPos);
 }

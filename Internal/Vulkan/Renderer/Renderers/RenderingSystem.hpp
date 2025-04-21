@@ -14,6 +14,9 @@
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
+namespace Renderer {
+class RayTracer;
+}
 namespace VulkanCore::RTX {
 struct BLASInput;
 }
@@ -95,6 +98,7 @@ class RenderingSystem
 
     std::unique_ptr<Renderer::SceneRenderer>                     m_sceneRenderer;
     std::unique_ptr<Renderer::UserInterfaceRenderer>             m_uiRenderer;
+    std::unique_ptr<Renderer::RayTracer>                         m_rayTracer;
     std::unique_ptr<VulkanUtils::VEnvLightGenerator>             m_envLightGenerator;
     std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>> m_renderingTimeLine;
     std::unique_ptr<VulkanUtils::VRayTracingDataManager>             m_rayTracingDataManager;

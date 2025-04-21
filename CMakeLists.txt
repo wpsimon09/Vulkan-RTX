@@ -208,6 +208,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/RayTracing/VRayTracingBlasBuilder.hpp
         Internal/Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.cpp
         Internal/Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp
+        Internal/Vulkan/Renderer/Renderers/RayTracing/RayTracer.cpp
+        Internal/Vulkan/Renderer/Renderers/RayTracing/RayTracer.hpp
 
 )
 

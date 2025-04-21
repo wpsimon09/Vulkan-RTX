@@ -26,6 +26,7 @@ struct ViewPortContext
     std::array<vk::DescriptorSet, 2> ds;
     int                              currentFrameInFlight = 0;
     ApplicationCore::Camera*         camera;
+    bool                                        hasResized;
     ;
 
     VkDescriptorSet GetImageDs() { return ds[currentFrameInFlight]; }
