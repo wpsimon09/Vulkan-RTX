@@ -13,20 +13,19 @@
 namespace VulkanCore {
 class VDevice;
 
-class VShaderBindingTable
+class VRayTracingShaders
 {
   public:
-    VShaderBindingTable(const VulkanCore::VDevice& device, RTX::RTXShaderPaths& shaders);
+    VRayTracingShaders(const VulkanCore::VDevice& device, RTX::RTXShaderPaths& shaders);
+
+    const vk::ShaderModule& GetShaderModule(VulkanCore::RTX::ERayTracingStageIndices shaderType) const ;
 
   private:
     void CreateShaderModules(RTX::RTXShaderPaths& shaders);
-
   private:
     const VulkanCore::VDevice& m_device;
-    vk::ShaderModule m_rayGenShader;
-    vk::ShaderModule m_missShader;
-    vk::ShaderModule m_hitShader;
-    std::array<vk::PipelineShaderStageCreateInfo, RTX::ERayTracingStageIndices::ShaderGroupCount> m_shaderStages;
+    std::unordered_map<RTX::ERayTracingStageIndices, VkShaderModule> m_shaderModules;
+
 
 };
 

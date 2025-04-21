@@ -212,8 +212,8 @@ set(SOURCES
         Internal/Vulkan/Renderer/Renderers/RayTracing/RayTracer.hpp
         Internal/Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.cpp
         Internal/Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp
-        Internal/Vulkan/VulkanCore/Shader/VShaderBindingTable.cpp
-        Internal/Vulkan/VulkanCore/Shader/VShaderBindingTable.hpp
+        Internal/Vulkan/VulkanCore/Shader/VRayTracingShaders.cpp
+        Internal/Vulkan/VulkanCore/Shader/VRayTracingShaders.hpp
 
 )
 
