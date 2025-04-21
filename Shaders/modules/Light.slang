@@ -1,4 +1,4 @@
-import Material;
+module Light;
 
 [[vk::binding(12, 0)]]
 ConstantBuffer<SamplerCube> IrradianceMap;
@@ -11,25 +11,26 @@ ConstantBuffer<Sampler2D> BRDF_Lut;
 
 
 // B - brdf equation
-interface ILightEnv {
+public interface ILightEnv {
     float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo);
 }
 
-struct DirectionalLight : ILightEnv {
+public struct DirectionalLight :public ILightEnv {
     float4 direction;
     float4 intensity;
+
 
     float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         return (intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g.normal);
     }
 }
 
-struct PointLight : ILightEnv {
+public struct PointLight : public ILightEnv {
     float4 intensity;
     float4 position;
     float4 CLQU_Parameters; //constant, linear ,quadratic, inuse
 
-    float3 illuminate<B:IBRDF>(SurfaceGeometry  g, B brdf, float3 wo){
+    public float3 illuminate<B:IBRDF>(SurfaceGeometry  g, B brdf, float3 wo){
         float3 delta = position.xyz - g.position;
         float distance = length(delta);
         float3 direction = normalize(delta);
@@ -41,7 +42,7 @@ struct PointLight : ILightEnv {
     }
 }
 
-struct AreaLight : ILightEnv {
+public struct AreaLight :public ILightEnv {
     float4 intensity;
     bool isInuse;
     bool TwoSided;
@@ -60,7 +61,7 @@ struct AreaLight : ILightEnv {
 }
 // N - number of lights 
 // L - light type
-struct LightArray<L : ILightEnv, let N : int> : ILightEnv {
+public struct LightArray<L : public ILightEnv, let N : int> : ILightEnv {
     L lights[N];
     
 
@@ -74,13 +75,13 @@ struct LightArray<L : ILightEnv, let N : int> : ILightEnv {
 }
 
 // Empty light enviroment
-struct EmptyLightEnv : ILightEnv {
+public struct EmptyLightEnv :public ILightEnv {
     float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         return 0;
     }
 }
 
-struct AmbientLight : ILightEnv {
+public struct AmbientLight : public ILightEnv {
     float aoIntensity;
     float3 albedo;
     bool applyIBL;
@@ -111,7 +112,7 @@ struct AmbientLight : ILightEnv {
 // light pari allows us to create any light enviroment 
 // we can create scene of lights for 3 light types like this 
 // LightPair<LightPair<directional light, point light>, arealight>
-struct LightPair<T : ILightEnv, U : ILightEnv> : ILightEnv {
+public struct LightPair<T : ILightEnv, U : ILightEnv> : ILightEnv {
     T first;
     U second;
 

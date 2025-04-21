@@ -56,6 +56,38 @@ def compile_boundled_shaders(dir ,verbose):
                 verbose
             )
 
+def compile_ray_tracing_shaders(dir, verbose):
+    for file in os.listdir(dir):
+        if file.endswith(".slang"):
+            path = os.path.join(dir, file)
+            name = os.path.splitext(file)[0]
+            # ray gen
+            compile_shader(
+                [SLANGC_PATH, "-target", "spirv", "-stage", "raygeneration", "-entry", "rayGenMain",
+                 "-o", f"Compiled/{name}.rgen.spv", path],
+                f"✓ {name}.vert",
+                f"✗ Failed: {name}.vert",
+                verbose
+            )
+            # closest hit
+            compile_shader(
+                [SLANGC_PATH, "-target", "spirv", "-stage", "miss", "-entry", "missMain",
+                 "-o", f"Compiled/{name}.miss.spv", path],
+                f"✓ {name}.frag",
+                f"✗ Failed: {name}.frag",
+                verbose
+            )
+
+            #miss shader
+            compile_shader(
+                [SLANGC_PATH, "-target", "spirv", "-stage", "closesthit", "-entry", "closestHitMain",
+                 "-o", f"Compiled/{name}.chit.spv", path],
+                f"✓ {name}.frag",
+                f"✗ Failed: {name}.frag",
+                verbose
+            )
+ 
+
 def main():
     parser = argparse.ArgumentParser(description="Slang Shader Compiler")
     parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
@@ -81,6 +113,10 @@ def main():
 
     print("== Depth pre-pass ==")
     compile_boundled_shaders("DepthPrePass", args.verbose)
+
+    print("== Ray tracing ==")
+    compile_ray_tracing_shaders("RTX", args.verbose)
+
 
 if __name__ == "__main__":
     main()

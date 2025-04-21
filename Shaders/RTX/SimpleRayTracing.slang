@@ -53,7 +53,7 @@ struct RayPayLoad {
 }
 
 [[shader("raygeneration")]]
-void mainRayGen() {
+void rayGenMain() {
 
     
     // this is the pixel ID
@@ -90,13 +90,13 @@ void mainRayGen() {
 }
 
 [[shader("miss")]]
-void mainMiss(inout RayPayLoad payload) {
+void missMain(inout RayPayLoad payload) {
     payload.color = float3(0.0, 0.0, 0.0);
 
 }
 
 [[shader("closesthit")]]
-void mainClosestHit(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
+void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
 {
     float3 hitLocation = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
     payLoad.color = hitLocation;

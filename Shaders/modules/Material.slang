@@ -1,4 +1,7 @@
-import Utils;
+module Material;
+
+implementing Light;
+
 #define PI 3.14159265359
 
 
@@ -12,14 +15,14 @@ ConstantBuffer<Sampler2D> LTC_Inverse;
 //=================================
 // STRUCTS 
 //=================================
-struct SurfaceGeometry
+public struct SurfaceGeometry
 {
     float3 position;
     float3 normal;
     float2 uv;
 }
 
-struct MaterialConstantValues
+public struct MaterialConstantValues
 {
     float roughness;
     float metalness;
@@ -31,7 +34,7 @@ struct MaterialConstantValues
     float4 emissive_strength;
 }
 
-struct MaterialFeatures
+public struct MaterialFeatures
 {
     bool hasDiffuseTexture;
     bool hasEmissiveTexture;
@@ -39,7 +42,7 @@ struct MaterialFeatures
     bool hasArmTexture;
 }
 
-struct Material
+public struct Material
 {
     MaterialConstantValues Values;
     MaterialFeatures Features;
@@ -52,14 +55,14 @@ struct Material
 // MATERIAL INTERFACE DEFINITIONS
 //===================================
 
-interface IMaterial
+public interface IMaterial
 {
     associatedtype BRDF : IBRDF;
 
     BRDF Prepare(SurfaceGeometry geometry);
 }
 
-struct PBRMaterial : IMaterial
+public struct PBRMaterial : IMaterial
 {
 
     MaterialFeatures features;
@@ -127,7 +130,7 @@ struct PBRMaterial : IMaterial
 // BRDF DEFINITIONS
 //=========================================
 
-interface IBRDF
+public interface IBRDF
 {
 
     float3 FresnellShlickRoughness(float cosTheta);
@@ -149,7 +152,7 @@ interface IBRDF
     float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided);
 }
 
-struct CookTorrence_GGX : IBRDF
+public struct CookTorrence_GGX :public IBRDF
 {
 
     float4 albedo;
@@ -242,7 +245,7 @@ struct CookTorrence_GGX : IBRDF
         return colour;
     }
 
-    float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided) {
+    public float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided) {
 
         const float LUT_SIZE = 64.0; // ltc_texture size
         const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
@@ -292,7 +295,7 @@ struct CookTorrence_GGX : IBRDF
 // UTILITIES
 //================================
 
-float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P)
+public float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P)
 {
     float3 tangentNormal = normalMap.Sample(UV).xyz * 2.0 - 1.0;
 
@@ -310,7 +313,7 @@ float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P)
     return normalize(mul(tangentNormal, TBN));
 }
 
-float3 IntegrateEdgeVec(float3 v1, float3 v2) {
+public float3 IntegrateEdgeVec(float3 v1, float3 v2) {
     float x = dot(v1, v2);
     float y = abs(x);
 
@@ -323,7 +326,7 @@ float3 IntegrateEdgeVec(float3 v1, float3 v2) {
     return cross(v1, v2) * theta_sintheta;
 }
 
-float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4 points[4], bool twoSided) {
+public float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4 points[4], bool twoSided) {
     const float LUT_SIZE = 64.0; // ltc_texture size
     const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
     const float LUT_BIAS = 0.5 / LUT_SIZE;
