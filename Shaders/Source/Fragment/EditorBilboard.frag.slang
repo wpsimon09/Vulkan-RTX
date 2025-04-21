@@ -1,5 +1,3 @@
-import Material;
-
 struct FragmentShaderIn
 {
     float2 uv : OUT_UV;

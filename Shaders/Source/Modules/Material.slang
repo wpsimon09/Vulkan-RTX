@@ -1,3 +1,5 @@
+module Material;
+
 import Utils;
 #define PI 3.14159265359
 
@@ -12,37 +14,37 @@ ConstantBuffer<Sampler2D> LTC_Inverse;
 //=================================
 // STRUCTS 
 //=================================
-struct SurfaceGeometry
+public struct SurfaceGeometry
 {
-    float3 position;
-    float3 normal;
-    float2 uv;
+    public float3 position;
+    public float3 normal;
+    public float2 uv;
 }
 
-struct MaterialConstantValues
+public struct MaterialConstantValues
 {
-    float roughness;
-    float metalness;
-    float ao;
-    float padding;
+    public float roughness;
+    public float metalness;
+    public float ao;
+    public float padding;
 
-    float4 diffuse;
+    public float4 diffuse;
 
-    float4 emissive_strength;
+    public float4 emissive_strength;
 }
 
-struct MaterialFeatures
+public struct MaterialFeatures
 {
-    bool hasDiffuseTexture;
-    bool hasEmissiveTexture;
-    bool hasNormalTexture;
-    bool hasArmTexture;
+    public bool hasDiffuseTexture;
+    public bool hasEmissiveTexture;
+    public bool hasNormalTexture;
+    public bool hasArmTexture;
 }
 
-struct Material
+public struct Material
 {
-    MaterialConstantValues Values;
-    MaterialFeatures Features;
+    public MaterialConstantValues Values;
+    public MaterialFeatures Features;
 };
 
 
@@ -52,35 +54,30 @@ struct Material
 // MATERIAL INTERFACE DEFINITIONS
 //===================================
 
-interface IMaterial
+public interface IMaterial
 {
     associatedtype BRDF : IBRDF;
 
     BRDF Prepare(SurfaceGeometry geometry);
 }
 
-struct PBRMaterial : IMaterial
+public struct PBRMaterial : IMaterial
 {
 
-    MaterialFeatures features;
-    MaterialConstantValues values;
+    public MaterialFeatures features;
+    public MaterialConstantValues values;
+    public Sampler2D albedo_map;
+    public Sampler2D arm_map;
+    public Sampler2D normal_map;
+    public Sampler2D emissive_map;
+    public float4 albedo;
+    public float4 emission;
+    public float metallness;
+    public float roughness;
+    public float ao;
+    public typedef CookTorrence_GGX BRDF;
     
-    Sampler2D albedo_map;
-    Sampler2D arm_map;
-    Sampler2D normal_map;
-    Sampler2D emissive_map;
-
-    float4 albedo;
-    float4 emission;
-
-    float metallness;
-    float roughness;
-    float ao;
-
-    typedef CookTorrence_GGX BRDF;
-
-    
-    CookTorrence_GGX Prepare(SurfaceGeometry geometry)
+    public CookTorrence_GGX Prepare(SurfaceGeometry geometry)
     {
         CookTorrence_GGX brdf;
         if (features.hasDiffuseTexture)
@@ -127,7 +124,7 @@ struct PBRMaterial : IMaterial
 // BRDF DEFINITIONS
 //=========================================
 
-interface IBRDF
+public interface IBRDF
 {
 
     float3 FresnellShlickRoughness(float cosTheta);
@@ -149,18 +146,18 @@ interface IBRDF
     float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided);
 }
 
-struct CookTorrence_GGX : IBRDF
+public struct CookTorrence_GGX : IBRDF
 {
 
-    float4 albedo;
+    public float4 albedo;
 
-    float roughness;
+    public float roughness;
 
-    float metallnes;
+    public float metallnes;
 
-    float ao;
+    public float ao;
 
-    float4 emission;
+    public float4 emission;
 
     float DistributionGGX(float3 N, float3 H)
     {
@@ -203,7 +200,7 @@ struct CookTorrence_GGX : IBRDF
         return F0 + (1.0 - F0) * pow(1.0 - cosThete, 5.0);
     }
 
-    float3 FresnellShlickRoughness(float cosTheta)
+    public float3 FresnellShlickRoughness(float cosTheta)
     {
         float3 F0 = float3(0.04);
         F0 = lerp(F0, albedo.xyz, metallnes);
@@ -211,7 +208,7 @@ struct CookTorrence_GGX : IBRDF
                         pow(1.0 - cosTheta, 5.0);
     }
 
-    float3 Evaluate(float3 V, float3 L, float3 N)
+    public float3 Evaluate(float3 V, float3 L, float3 N)
     {
 
         float3 F0 = float3(0.04);
@@ -242,7 +239,7 @@ struct CookTorrence_GGX : IBRDF
         return colour;
     }
 
-    float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided) {
+    public float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided) {
 
         const float LUT_SIZE = 64.0; // ltc_texture size
         const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
@@ -292,7 +289,7 @@ struct CookTorrence_GGX : IBRDF
 // UTILITIES
 //================================
 
-float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P)
+public float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P)
 {
     float3 tangentNormal = normalMap.Sample(UV).xyz * 2.0 - 1.0;
 
@@ -310,7 +307,7 @@ float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P)
     return normalize(mul(tangentNormal, TBN));
 }
 
-float3 IntegrateEdgeVec(float3 v1, float3 v2) {
+public float3 IntegrateEdgeVec(float3 v1, float3 v2) {
     float x = dot(v1, v2);
     float y = abs(x);
 
@@ -323,7 +320,7 @@ float3 IntegrateEdgeVec(float3 v1, float3 v2) {
     return cross(v1, v2) * theta_sintheta;
 }
 
-float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4 points[4], bool twoSided) {
+public float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4 points[4], bool twoSided) {
     const float LUT_SIZE = 64.0; // ltc_texture size
     const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
     const float LUT_BIAS = 0.5 / LUT_SIZE;

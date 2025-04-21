@@ -37,7 +37,7 @@ ConstantBuffer<Sampler2D> _emissiveMap;
 float4 fragmentMain(FragmentShaderIn fsIn)
     : SV_Target
 {
-    SurfaceGeometry g;
+   SurfaceGeometry g;
     g.position = fsIn.fragPos;
     g.normal = normalize(fsIn.normal);
     g.uv = fsIn.uv;

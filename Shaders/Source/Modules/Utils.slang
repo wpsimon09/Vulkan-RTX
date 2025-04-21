@@ -1,8 +1,10 @@
-float inverseSqrt(float x) {
+module Utils;
+
+public float inverseSqrt(float x) {
     return max(1.0 / sqrt(x), 0.f);
 }
 
-float4x4 inverse(float4x4 m) {
+public float4x4 inverse(float4x4 m) {
     float n11 = m[0][0], n12 = m[1][0], n13 = m[2][0], n14 = m[3][0];
     float n21 = m[0][1], n22 = m[1][1], n23 = m[2][1], n24 = m[3][1];
     float n31 = m[0][2], n32 = m[1][2], n33 = m[2][2], n34 = m[3][2];
