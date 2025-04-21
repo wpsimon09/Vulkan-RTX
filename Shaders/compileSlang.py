@@ -41,7 +41,7 @@ def compile_boundled_shaders(dir ,verbose):
             name = os.path.splitext(file)[0]
             # Vertex
             compile_shader(
-                [SLANGC_PATH, "-target", "spirv", "-stage", "vertex", "-entry", "vertexMain",
+                [SLANGC_PATH, "-target", "spirv", "-stage", "vertex","-I","Source/Modules", "-entry", "vertexMain",
                  "-o", f"Compiled/{name}.vert.spv", path],
                 f"✓ {name}.vert",
                 f"✗ Failed: {name}.vert",
@@ -49,7 +49,7 @@ def compile_boundled_shaders(dir ,verbose):
             )
             # Fragment
             compile_shader(
-                [SLANGC_PATH, "-target", "spirv", "-stage", "fragment", "-entry", "fragmentMain",
+                [SLANGC_PATH, "-target", "spirv", "-stage", "fragment","-I","Source/Modules", "-entry", "fragmentMain",
                  "-o", f"Compiled/{name}.frag.spv", path],
                 f"✓ {name}.frag",
                 f"✗ Failed: {name}.frag",
@@ -63,7 +63,7 @@ def compile_ray_tracing_shaders(dir, verbose):
             name = os.path.splitext(file)[0]
             # ray gen
             compile_shader(
-                [SLANGC_PATH, "-target", "spirv", "-stage", "raygeneration", "-entry", "rayGenMain",
+                [SLANGC_PATH, "-target", "spirv", "-stage", "raygeneration" ,"-I","Source/Modules","-entry", "rayGenMain",
                  "-o", f"Compiled/{name}.rgen.spv", path],
                 f"✓ {name}.vert",
                 f"✗ Failed: {name}.vert",
@@ -71,7 +71,7 @@ def compile_ray_tracing_shaders(dir, verbose):
             )
             # closest hit
             compile_shader(
-                [SLANGC_PATH, "-target", "spirv", "-stage", "miss", "-entry", "missMain",
+                [SLANGC_PATH, "-target", "spirv", "-stage", "miss" ,"-I","Source/Modules","-entry", "missMain",
                  "-o", f"Compiled/{name}.miss.spv", path],
                 f"✓ {name}.frag",
                 f"✗ Failed: {name}.frag",
@@ -80,7 +80,7 @@ def compile_ray_tracing_shaders(dir, verbose):
 
             #miss shader
             compile_shader(
-                [SLANGC_PATH, "-target", "spirv", "-stage", "closesthit", "-entry", "closestHitMain",
+                [SLANGC_PATH, "-target", "spirv", "-stage", "closesthit" ,"-I","Source/Modules", "-entry", "closestHitMain",
                  "-o", f"Compiled/{name}.chit.spv", path],
                 f"✓ {name}.frag",
                 f"✗ Failed: {name}.frag",
@@ -100,22 +100,22 @@ def main():
     os.makedirs("Compiled", exist_ok=True)
 
     print("== Vertex shaders ==")
-    compile_shaders(".vert.slang", "Vertex", ".spv", ["-allow-glsl", "-matrix-layout-column-major"], args.verbose)
+    compile_shaders(".vert.slang", "Source/Vertex", ".spv", ["-allow-glsl", "-matrix-layout-column-major","-I","Source/Modules",], args.verbose)
     
     print("== Fragment shaders ==")
-    compile_shaders(".frag.slang", "Fragment", ".spv", ["-allow-glsl", "-matrix-layout-column-major"], args.verbose)
+    compile_shaders(".frag.slang", "Source/Fragment", ".spv", ["-allow-glsl", "-matrix-layout-column-major","-I","Source/Modules"], args.verbose)
     
     print("== Compute shaders ==")
-    compile_shaders(".comp", "Compute", ".spv", ["-matrix-layout-column-major"], args.verbose)
+    compile_shaders(".comp", "Source/Compute", ".spv", ["-matrix-layout-column-major","-I","Source/Modules"], args.verbose)
 
     print("== ENV Generation ==")
-    compile_boundled_shaders("EnvGeneration", args.verbose)
+    compile_boundled_shaders("Source/EnvGeneration", args.verbose)
 
     print("== Depth pre-pass ==")
-    compile_boundled_shaders("DepthPrePass", args.verbose)
+    compile_boundled_shaders("Source/DepthPrePass", args.verbose)
 
     print("== Ray tracing ==")
-    compile_ray_tracing_shaders("RTX", args.verbose)
+    compile_ray_tracing_shaders("Source/RTX", args.verbose)
 
 
 if __name__ == "__main__":

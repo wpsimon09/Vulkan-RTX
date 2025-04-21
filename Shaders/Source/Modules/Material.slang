@@ -1,7 +1,6 @@
 module Material;
 
-implementing Light;
-
+import Utils;
 #define PI 3.14159265359
 
 
@@ -17,35 +16,35 @@ ConstantBuffer<Sampler2D> LTC_Inverse;
 //=================================
 public struct SurfaceGeometry
 {
-    float3 position;
-    float3 normal;
-    float2 uv;
+    public float3 position;
+    public float3 normal;
+    public float2 uv;
 }
 
 public struct MaterialConstantValues
 {
-    float roughness;
-    float metalness;
-    float ao;
-    float padding;
+    public float roughness;
+    public float metalness;
+    public float ao;
+    public float padding;
 
-    float4 diffuse;
+    public float4 diffuse;
 
-    float4 emissive_strength;
+    public float4 emissive_strength;
 }
 
 public struct MaterialFeatures
 {
-    bool hasDiffuseTexture;
-    bool hasEmissiveTexture;
-    bool hasNormalTexture;
-    bool hasArmTexture;
+    public bool hasDiffuseTexture;
+    public bool hasEmissiveTexture;
+    public bool hasNormalTexture;
+    public bool hasArmTexture;
 }
 
 public struct Material
 {
-    MaterialConstantValues Values;
-    MaterialFeatures Features;
+    public MaterialConstantValues Values;
+    public MaterialFeatures Features;
 };
 
 
@@ -65,25 +64,20 @@ public interface IMaterial
 public struct PBRMaterial : IMaterial
 {
 
-    MaterialFeatures features;
-    MaterialConstantValues values;
+    public MaterialFeatures features;
+    public MaterialConstantValues values;
+    public Sampler2D albedo_map;
+    public Sampler2D arm_map;
+    public Sampler2D normal_map;
+    public Sampler2D emissive_map;
+    public float4 albedo;
+    public float4 emission;
+    public float metallness;
+    public float roughness;
+    public float ao;
+    public typedef CookTorrence_GGX BRDF;
     
-    Sampler2D albedo_map;
-    Sampler2D arm_map;
-    Sampler2D normal_map;
-    Sampler2D emissive_map;
-
-    float4 albedo;
-    float4 emission;
-
-    float metallness;
-    float roughness;
-    float ao;
-
-    typedef CookTorrence_GGX BRDF;
-
-    
-    CookTorrence_GGX Prepare(SurfaceGeometry geometry)
+    public CookTorrence_GGX Prepare(SurfaceGeometry geometry)
     {
         CookTorrence_GGX brdf;
         if (features.hasDiffuseTexture)
@@ -152,18 +146,18 @@ public interface IBRDF
     float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided);
 }
 
-public struct CookTorrence_GGX :public IBRDF
+public struct CookTorrence_GGX : IBRDF
 {
 
-    float4 albedo;
+    public float4 albedo;
 
-    float roughness;
+    public float roughness;
 
-    float metallnes;
+    public float metallnes;
 
-    float ao;
+    public float ao;
 
-    float4 emission;
+    public float4 emission;
 
     float DistributionGGX(float3 N, float3 H)
     {
@@ -206,7 +200,7 @@ public struct CookTorrence_GGX :public IBRDF
         return F0 + (1.0 - F0) * pow(1.0 - cosThete, 5.0);
     }
 
-    float3 FresnellShlickRoughness(float cosTheta)
+    public float3 FresnellShlickRoughness(float cosTheta)
     {
         float3 F0 = float3(0.04);
         F0 = lerp(F0, albedo.xyz, metallnes);
@@ -214,7 +208,7 @@ public struct CookTorrence_GGX :public IBRDF
                         pow(1.0 - cosTheta, 5.0);
     }
 
-    float3 Evaluate(float3 V, float3 L, float3 N)
+    public float3 Evaluate(float3 V, float3 L, float3 N)
     {
 
         float3 F0 = float3(0.04);
