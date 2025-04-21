@@ -12,6 +12,7 @@
 #include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
+#include "RayTracing/RayTracer.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
@@ -80,6 +81,9 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     // Ray tracing initialization
     //----------------------------------------------------------------------------------------------------------------------------
     m_rayTracingDataManager = std::make_unique<VulkanUtils::VRayTracingDataManager>(m_device);
+
+    auto cam = m_uiContext.GetClient().GetCamera();
+    m_rayTracer = std::make_unique<RayTracer>(m_device, *m_rayTracingDataManager, cam.GetScreenSize().x, cam.GetScreenSize().y);
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }
@@ -173,8 +177,7 @@ void RenderingSystem::Update()
     m_renderContext.ResetAllDrawCalls();
 }
 
-void RenderingSystem::Destroy()
-{
+void RenderingSystem::Destroy() {
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_imageAvailableSemaphores[i]->Destroy();
@@ -183,7 +186,9 @@ void RenderingSystem::Destroy()
     m_uiRenderer->Destroy();
     m_swapChain->Destroy();
     m_envLightGenerator->Destroy();
+    m_rayTracer->Destroy();
     m_rayTracingDataManager->Destroy();
 }
+
 
 }  // namespace Renderer

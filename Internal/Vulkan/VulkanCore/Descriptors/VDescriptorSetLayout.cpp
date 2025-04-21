@@ -90,6 +90,7 @@ VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device, co
                         // Light data
                         .AddBinding(2, vk::DescriptorType::eUniformBuffer,  vk::ShaderStageFlagBits::eIntersectionKHR, 1)
                         // TLAS
+                        .AddBinding(3, vk::DescriptorType::eUniformBuffer,  vk::ShaderStageFlagBits::eIntersectionKHR | vk::ShaderStageFlagBits::eRaygenKHR, 1)
                         // Output image
                         .AddBinding(4, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1);
 

@@ -23,6 +23,12 @@ RayTracer::RayTracer(const VulkanCore::VDevice& device, VulkanUtils::VRayTracing
 
 void RayTracer::TraceRays(const VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::VUniformBufferManager& unifromBufferManager, int currentFrame)
 {
+}
+void RayTracer::ProcessResize(int newWidth, int newHeight) {}
 
+void RayTracer::Destroy() {
+  for (auto& i:m_resultImage) {
+    i->Destroy();
+  }
 }
 } // Renderer

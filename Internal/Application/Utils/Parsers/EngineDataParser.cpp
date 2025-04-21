@@ -30,6 +30,9 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
         {"Near", std::to_string(cam.GetNearPlane())},
         {"Far", std::to_string(cam.GetFarPlane())},
         {"Speed", std::to_string(cam.GetSpeed())},
+        //RAY TRACING
+        {"Focal plane", std::to_string(cam.GetFocalLength())},
+        {"Max recursion", std::to_string(cam.GetMaxReccursion())},
     });
 
     //=========================================
@@ -78,6 +81,7 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
     else
         Utils::Logger::LogErrorClient("Failed to save engine config! ");
 }
+
 void ApplicationCore::LoadClientSideConfig(Client& client, VEditor::UIContext& uiContext)
 {
     mINI::INIFile engineConfigFile(engineConfigPath);
@@ -106,6 +110,10 @@ void ApplicationCore::LoadClientSideConfig(Client& client, VEditor::UIContext& u
             cam.GetFarPlane() = (std::stof(EngineConfig["Camera"]["Far"]));
         if(EngineConfig["Camera"].has("Speed"))
             cam.GetSpeed() = (std::stof(EngineConfig["Camera"]["Speed"]));
+        if (EngineConfig["Camera"].has("Focal plane"))
+            cam.GetFocalLength() = (std::stof(EngineConfig["Camera"]["Focal plane"]));
+        if (EngineConfig["Camera"].has("Max recursion"))
+            cam.GetMaxReccursion() = (std::stof(EngineConfig["Camera"]["Max recursion"]));
 
         cam.Recalculate();
     }

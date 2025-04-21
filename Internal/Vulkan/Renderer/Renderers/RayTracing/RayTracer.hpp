@@ -27,6 +27,10 @@ public:
   RayTracer(const VulkanCore::VDevice& device,VulkanUtils::VRayTracingDataManager& rtxDataManager, int width, int height);
 
   void TraceRays(const VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::VUniformBufferManager& unifromBufferManager, int currentFrame);
+
+  void ProcessResize(int newWidth, int newHeight);
+
+  void Destroy();
 private :
   const VulkanCore::VDevice& m_device;
   VulkanUtils::VRayTracingDataManager& m_rtxDataManager;

@@ -34,7 +34,7 @@
 #include "Application/GLTFLoader/GltfLoader.hpp"
 #include "Application/GLTFExporter/GLTFExporter.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
-
+#include "Vulkan/Renderer/Renderers/RayTracing/RayTracer.hpp"
 // Vulkan Utilities
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 

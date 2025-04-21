@@ -67,9 +67,7 @@ class Camera
     float& GetFocalLength() { return this->m_focalLength; }
 
     float& GetMaxReccursion() { return this->m_maxReccursion; }
-
-    float
-
+  
     void SetPosition(glm::vec3& newPosition);
 
     void Update(CameraUpdateInfo& cameraUpdateInfo);
