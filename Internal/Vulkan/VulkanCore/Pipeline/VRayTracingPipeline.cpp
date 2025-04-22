@@ -4,6 +4,7 @@
 
 #include "VRayTracingPipeline.hpp"
 
+#include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include "Vulkan/VulkanCore/Shader/VRayTracingShaders.hpp"
 
@@ -17,6 +18,22 @@ VRayTracingPipeline::VRayTracingPipeline(const VulkanCore::VDevice&             
     , m_descSetLayout(descSetLayout)
 {
 }
+
+vk::RayTracingPipelineCreateInfoKHR VRayTracingPipeline::Init() {
+    // to create the pipeline we first provide all the shader stages it needs
+    m_rtxPipelineCreateInfo.stageCount = static_cast<uint32_t>(m_shaderStages.size());
+    m_rtxPipelineCreateInfo.pStages = m_shaderStages.data();
+
+    // indicate what groups those shaders belong to
+    m_rtxPipelineCreateInfo.groupCount = m_shaderGroups.size();
+    m_rtxPipelineCreateInfo.pGroups = m_shaderGroups.data();
+
+    m_rtxPipelineCreateInfo.maxPipelineRayRecursionDepth = GlobalVariables::RenderingOptions::MaxRecursionDepth;
+    m_rtxPipelineCreateInfo.layout = m_pipelineLayout;
+
+    return m_rtxPipelineCreateInfo;
+}
+
 void VRayTracingPipeline::CreateCreatePipelineShaders()
 {
     vk::PipelineShaderStageCreateInfo stage;
@@ -82,7 +99,8 @@ void VRayTracingPipeline::CreatePipelineLayout() {
 
     pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
     pipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
-    m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout) == vk::Result::eSuccess;
+    VulkanUtils::Check(
+        m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout));
     Utils::Logger::LogSuccess("Pipeline layout created !");
 }
 

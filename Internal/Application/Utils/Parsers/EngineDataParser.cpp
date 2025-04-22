@@ -32,7 +32,6 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
         {"Speed", std::to_string(cam.GetSpeed())},
         //RAY TRACING
         {"Focal plane", std::to_string(cam.GetFocalLength())},
-        {"Max recursion", std::to_string(cam.GetMaxReccursion())},
     });
 
     //=========================================
@@ -58,7 +57,9 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
                                    {"Depth-PrePass", std::to_string(GlobalVariables::RenderingOptions::PreformDepthPrePass)},
                                    {"MSAAEnabled", std::to_string(GlobalState::MSAA)},
                                    {"MSAASamples", std::to_string(GlobalVariables::RenderingOptions::MSAASamples)},
-                                   {"OutlineWidth", std::to_string(GlobalVariables::RenderingOptions::OutlineWidth)}});
+                                   {"OutlineWidth", std::to_string(GlobalVariables::RenderingOptions::OutlineWidth)},
+                                   {"Max recursion", std::to_string(GlobalVariables::RenderingOptions::MaxRecursionDepth)}});
+    ;
 
     //=========================================
     // APPLICATION CONFIG
@@ -110,10 +111,8 @@ void ApplicationCore::LoadClientSideConfig(Client& client, VEditor::UIContext& u
             cam.GetFarPlane() = (std::stof(EngineConfig["Camera"]["Far"]));
         if(EngineConfig["Camera"].has("Speed"))
             cam.GetSpeed() = (std::stof(EngineConfig["Camera"]["Speed"]));
-        if (EngineConfig["Camera"].has("Focal plane"))
+        if(EngineConfig["Camera"].has("Focal plane"))
             cam.GetFocalLength() = (std::stof(EngineConfig["Camera"]["Focal plane"]));
-        if (EngineConfig["Camera"].has("Max recursion"))
-            cam.GetMaxReccursion() = (std::stof(EngineConfig["Camera"]["Max recursion"]));
 
         cam.Recalculate();
     }
@@ -161,6 +160,9 @@ void ApplicationCore::LoadConfig()
         if(EngineConfig["Rendering"].has("Depth-PrePass"))
             GlobalVariables::RenderingOptions::PreformDepthPrePass =
                 static_cast<bool>(std::stoi(EngineConfig["Rendering"]["Depth-PrePass"]));
+        if(EngineConfig["Rendering"].has("Max recursion"))
+            GlobalVariables::RenderingOptions::MaxRecursionDepth = (std::stof(EngineConfig["Rendering"]["Max recursion"]));
+
     }
 
     //=======================================

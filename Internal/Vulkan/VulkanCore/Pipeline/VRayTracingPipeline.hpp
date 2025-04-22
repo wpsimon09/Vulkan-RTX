@@ -31,6 +31,8 @@ namespace RTX {
 class VRayTracingPipeline: public VObject {
 public:
   VRayTracingPipeline(const VulkanCore::VDevice& device, const VulkanCore::VRayTracingShaders& rayTracingShaders,  const VulkanCore::VDescriptorSetLayout& descSetLayout);
+  vk::RayTracingPipelineCreateInfoKHR Init();
+
 private:
   void CreateCreatePipelineShaders();
 
@@ -61,6 +63,10 @@ private:
   const VulkanCore::VDevice& m_device;
   const VulkanCore::VRayTracingShaders& m_rayTracingShaders;
   const VulkanCore::VDescriptorSetLayout& m_descSetLayout;
+
+  //=======================
+  // pipeline create info
+  vk::RayTracingPipelineCreateInfoKHR m_rtxPipelineCreateInfo;
 
   //=======================
   // pipeline properties

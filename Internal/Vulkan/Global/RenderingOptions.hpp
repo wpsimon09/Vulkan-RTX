@@ -10,6 +10,7 @@ inline bool  EnableFrustrumCulling = true;
 inline int   MSAASamples           = 4;
 inline float OutlineWidth          = 0.1;
 inline bool  PreformDepthPrePass   = true;
+inline int   MaxRecursionDepth     = 1;
 }  // namespace GlobalVariables::RenderingOptions
 
 #endif  //RENDERINGOPTIONS_HPP
