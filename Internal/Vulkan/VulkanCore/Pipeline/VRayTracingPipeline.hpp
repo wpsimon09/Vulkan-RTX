@@ -12,11 +12,9 @@
 namespace vk {
 struct PipelineShaderStageCreateInfo;
 }
-namespace VulkanCore::RTX {
-enum ERayTracingStageIndices : int;
-}
+
 namespace VulkanUtils {
-class VEffect;
+class VRasterEffect;
 }
 namespace VulkanCore {
 class VRayTracingShaders;
@@ -82,7 +80,7 @@ private:
 
 
 private:
-  friend class VulkanUtils::VEffect;
+  friend class VulkanUtils::VRasterEffect;
 };
 
 } // RTX

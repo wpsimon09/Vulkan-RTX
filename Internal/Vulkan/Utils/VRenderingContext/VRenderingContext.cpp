@@ -5,7 +5,7 @@
 #include "VRenderingContext.hpp"
 
 #include "Vulkan/Global/VulkanStructs.hpp"
-#include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 
 bool VulkanUtils::RenderContext::CompareByDeptDesc(const VulkanStructs::DrawCallData& DrawCallA,

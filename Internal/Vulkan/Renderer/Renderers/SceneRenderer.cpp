@@ -19,7 +19,7 @@
 #include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
-#include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
@@ -51,7 +51,7 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VRe
     //=========================
     // CONFIGURE DEAPTH PASS EFFECT
     //=========================
-    m_depthPrePassEffect = std::make_unique<VulkanUtils::VEffect>(
+    m_depthPrePassEffect = std::make_unique<VulkanUtils::VRasterEffect>(
         m_device, "Depth-PrePass effect", "Shaders/Compiled/DepthPrePass.vert.spv", "Shaders/Compiled/DepthPrePass.frag.spv",
         m_pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
     m_depthPrePassEffect->SetVertexInputMode(EVertexInput::PositionOnly).SetDepthOpLess();

@@ -55,7 +55,7 @@
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
-#include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
 #include "Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp"

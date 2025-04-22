@@ -6,19 +6,19 @@
 
 namespace ApplicationCore {
 
-BaseMaterial::BaseMaterial(std::shared_ptr<VulkanUtils::VEffect> effect)
+BaseMaterial::BaseMaterial(std::shared_ptr<VulkanUtils::VRasterEffect> effect)
     : m_initialEffect(effect)
     , m_materialEffect(effect)
 {
     ID = MaterialIndexCounter++;
 }
 
-void BaseMaterial::ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect)
+void BaseMaterial::ChangeEffect(std::shared_ptr<VulkanUtils::VRasterEffect> newEffect)
 {
     m_materialEffect = newEffect;
 }
 
-std::shared_ptr<VulkanUtils::VEffect>& BaseMaterial::GetEffect()
+std::shared_ptr<VulkanUtils::VRasterEffect>& BaseMaterial::GetEffect()
 {
     return m_materialEffect;
 }

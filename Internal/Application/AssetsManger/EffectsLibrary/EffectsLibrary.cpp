@@ -10,14 +10,14 @@
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
-#include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 
 namespace ApplicationCore {
 EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager)
 {
-    auto frowardEffect = std::make_shared<VulkanUtils::VEffect>(
+    auto frowardEffect = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv", "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
         pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
 
@@ -32,7 +32,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     //==============================================================================
 
-    auto transparentEffect = std::make_shared<VulkanUtils::VEffect>(
+    auto transparentEffect = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Forward lit transparent", "Shaders/Compiled/BasicTriangle.vert.spv",
         "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
         pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
@@ -48,7 +48,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     //==============================================================================
 
-    auto editorBillboards = std::make_shared<VulkanUtils::VEffect>(
+    auto editorBillboards = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Editor billboards", "Shaders/Compiled/EditorBillboard.vert.spv", "Shaders/Compiled/EditorBilboard.frag.spv",
         pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
 
@@ -59,7 +59,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     //==============================================================================
 
-    auto debugLine = std::make_shared<VulkanUtils::VEffect>(
+    auto debugLine = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugLines.frag.spv",
         pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
@@ -74,7 +74,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     //==============================================================================
 
-    auto outline = std::make_shared<VulkanUtils::VEffect>(
+    auto outline = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Outline", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/Outliines.frag.spv",
         pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
@@ -88,7 +88,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     //===============================================================================
 
-    auto debugShapes = std::make_shared<VulkanUtils::VEffect>(
+    auto debugShapes = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugGeometry.frag.spv",
         pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
@@ -107,7 +107,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     //===============================================================================
 
-    auto skybox = std::make_shared<VulkanUtils::VEffect>(
+    auto skybox = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv", "Shaders/Compiled/SkyBox.frag.spv",
         pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
 
@@ -120,7 +120,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
     BuildAllEffects();
 }
 
-std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type)
+std::shared_ptr<VulkanUtils::VRasterEffect> EffectsLibrary::GetEffect(EEffectType type)
 {
     assert(effects.contains(type));
     return effects[type];

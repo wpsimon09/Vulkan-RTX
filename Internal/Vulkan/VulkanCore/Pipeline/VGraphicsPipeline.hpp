@@ -12,7 +12,7 @@
 #include "vector"
 
 namespace VulkanUtils {
-class VEffect;
+class VRasterEffect;
 }
 
 namespace Renderer {
@@ -186,7 +186,7 @@ class VGraphicsPipeline : public VObject
     void EnableBlendingAlpha();
 
   private:
-    friend VulkanUtils::VEffect;
+    friend VulkanUtils::VRasterEffect;
 };
 }  // namespace VulkanCore
 

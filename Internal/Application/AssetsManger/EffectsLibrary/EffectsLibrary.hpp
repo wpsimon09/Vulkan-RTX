@@ -10,7 +10,7 @@
 
 
 namespace VulkanUtils {
-class VEffect;
+class VRasterEffect;
 class VResourceGroupManager;
 }  // namespace VulkanUtils
 
@@ -39,9 +39,9 @@ class EffectsLibrary
 {
   public:
     EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager);
-    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;
+    std::map<EEffectType, std::shared_ptr<VulkanUtils::VRasterEffect>> effects;
 
-    std::shared_ptr<VulkanUtils::VEffect> GetEffect(EEffectType type);
+    std::shared_ptr<VulkanUtils::VRasterEffect> GetEffect(EEffectType type);
 
     void BuildAllEffects();
     void Destroy();

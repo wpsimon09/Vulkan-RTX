@@ -17,7 +17,7 @@
 #include "Application/Rendering/Scene/PointLightNode.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 #include "Application/Rendering/Scene/SkyBoxNode.hpp"
-#include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 
 namespace VEditor {
 DetailsPanel::DetailsPanel(const ApplicationCore::AssetsManager& assetsManager)

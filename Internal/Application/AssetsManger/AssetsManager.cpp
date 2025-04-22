@@ -224,7 +224,7 @@ const std::vector<std::shared_ptr<ApplicationCore::SkyBoxMaterial>>& AssetsManag
     return m_skyBoxMaterials;
 }
 
-std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> AssetsManager::GetEffects() const
+std::map<EEffectType, std::shared_ptr<VulkanUtils::VRasterEffect>> AssetsManager::GetEffects() const
 {
     return m_effectsLibrary.effects;
 }

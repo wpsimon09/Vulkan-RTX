@@ -11,13 +11,13 @@
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Utils/LinearyTransformedCosinesValues.hpp"
-#include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore {
-PBRMaterial::PBRMaterial(std::shared_ptr<VulkanUtils::VEffect> materialEffect, MaterialPaths& materialPaths, AssetsManager& assets_manager)
+PBRMaterial::PBRMaterial(std::shared_ptr<VulkanUtils::VRasterEffect> materialEffect, MaterialPaths& materialPaths, AssetsManager& assets_manager)
     : m_materialPaths(materialPaths)
     , BaseMaterial(materialEffect)
 {

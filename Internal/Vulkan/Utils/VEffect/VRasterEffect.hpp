@@ -9,6 +9,9 @@
 #include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 
+namespace VulkanCore::RTX {
+struct RTXShaderPaths;
+}
 namespace Renderer {
 class RenderTarget;
 }
@@ -22,46 +25,50 @@ inline int EffectIndexCounter = 0;
 
 namespace VulkanUtils {
 
-class VEffect
+class VRasterEffect
 {
   public:
-    VEffect(const VulkanCore::VDevice&                          device,
+    VRasterEffect(const VulkanCore::VDevice&                          device,
             const std::string&                                  name,
             const VulkanCore::VShader&                          shader,
             std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& shaderResourceGroup);
 
-    VEffect(const VulkanCore::VDevice&                          device,
+    VRasterEffect(const VulkanCore::VDevice&                          device,
             const std::string&                                  name,
             const std::string&                                  vertex,
             const std::string&                                  fragment,
             std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet);
 
-    //=======================================
-    // Effect building
-    //=======================================
-    VEffect& SetDisableDepthTest();
-    VEffect& SetLineWidth(int lineWidth);
-    VEffect& SetCullFrontFace();
-    VEffect& SetCullNone();
-    VEffect& SetDisableDepthWrite();
-    VEffect& SetTopology(vk::PrimitiveTopology topology);
-    VEffect& SetPolygonLine();
-    VEffect& SetPolygonPoint();
-    VEffect& EnableAdditiveBlending();
-    VEffect& OutputHDR();
-    VEffect& SetDepthOpEqual();
-    VEffect& SetDepthOpLessEqual();
-    VEffect& SetFrontFaceClockWise();
-    VEffect& SetVertexInputMode(EVertexInput inputMode);
-    VEffect& SetStencilTestOutline();
-    VEffect& DisableStencil();
-    VEffect& SetDepthTestNever();
-    VEffect& SetColourOutputFormat(vk::Format format);
-    VEffect& SetPiplineNoMultiSampling();
-    VEffect& SetNullVertexBinding();
-    VEffect& DissableFragmentWrite();
-    VEffect& SetDepthOpLess();
-    VEffect& SetDepthOpAllways();
+    VRasterEffect(const VulkanCore::VDevice&                          device,
+            const VulkanCore::RTX::RTXShaderPaths&              rtShaderPaths,
+            std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& resourceGroup);
+
+        //=======================================
+        // Effect building
+        //=======================================
+    VRasterEffect& SetDisableDepthTest();
+    VRasterEffect& SetLineWidth(int lineWidth);
+    VRasterEffect& SetCullFrontFace();
+    VRasterEffect& SetCullNone();
+    VRasterEffect& SetDisableDepthWrite();
+    VRasterEffect& SetTopology(vk::PrimitiveTopology topology);
+    VRasterEffect& SetPolygonLine();
+    VRasterEffect& SetPolygonPoint();
+    VRasterEffect& EnableAdditiveBlending();
+    VRasterEffect& OutputHDR();
+    VRasterEffect& SetDepthOpEqual();
+    VRasterEffect& SetDepthOpLessEqual();
+    VRasterEffect& SetFrontFaceClockWise();
+    VRasterEffect& SetVertexInputMode(EVertexInput inputMode);
+    VRasterEffect& SetStencilTestOutline();
+    VRasterEffect& DisableStencil();
+    VRasterEffect& SetDepthTestNever();
+    VRasterEffect& SetColourOutputFormat(vk::Format format);
+    VRasterEffect& SetPiplineNoMultiSampling();
+    VRasterEffect& SetNullVertexBinding();
+    VRasterEffect& DissableFragmentWrite();
+    VRasterEffect& SetDepthOpLess();
+    VRasterEffect& SetDepthOpAllways();
 
 
     //=======================================
@@ -86,9 +93,9 @@ class VEffect
     int                                                m_ID;
 
   private:
-    friend bool operator==(const VEffect& lhs, const VEffect& rhs) { return lhs.m_ID == rhs.m_ID; }
+    friend bool operator==(const VRasterEffect& lhs, const VRasterEffect& rhs) { return lhs.m_ID == rhs.m_ID; }
 
-    friend bool operator!=(const VEffect& lhs, const VEffect& rhs) { return !(lhs == rhs); }
+    friend bool operator!=(const VRasterEffect& lhs, const VRasterEffect& rhs) { return !(lhs == rhs); }
 };
 }  // namespace VulkanUtils
 

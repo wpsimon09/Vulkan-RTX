@@ -35,7 +35,7 @@ class EffectsLibrary;
 }
 
 namespace VulkanUtils {
-class VEffect;
+class VRasterEffect;
 class VTransferOperationsManager;
 }  // namespace VulkanUtils
 
@@ -135,7 +135,7 @@ class AssetsManager
     // Effects
     //=========================
     EffectsLibrary&                                              GetEffectsLibrary() { return m_effectsLibrary; }
-    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> GetEffects() const;
+    std::map<EEffectType, std::shared_ptr<VulkanUtils::VRasterEffect>> GetEffects() const;
 
     //=========================
     // Buffer Allocator
