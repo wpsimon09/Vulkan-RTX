@@ -98,6 +98,8 @@ vk::SampleCountFlagBits IntToVkSample(int sampleCount);
 std::vector<char> ReadSPIRVShader(std::filesystem::path shaderPath);
 
 vk::ShaderModule CreateShaderModule(const VulkanCore::VDevice& device, const std::vector<char>& data);
+
+void Check(vk::Result result, vk::Result expectedResult = vk::Result::eSuccess);
 }  // namespace VulkanUtils
 
 #endif  //VGENERALUTILS_HPP

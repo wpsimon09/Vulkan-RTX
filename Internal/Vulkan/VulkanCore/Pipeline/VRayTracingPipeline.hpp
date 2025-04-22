@@ -54,6 +54,7 @@ private:
    */
   void CreateShaderHitGroups();
 
+  void CreatePipelineLayout();
 private:
   //=======================
   // passed from costructor
@@ -68,6 +69,10 @@ private:
   //========================
   // shader groups
   std::vector<vk::RayTracingShaderGroupCreateInfoKHR> m_shaderGroups;
+
+  //========================
+  // pipeline layout
+  vk::PipelineLayout m_pipelineLayout;
 
 
 private:

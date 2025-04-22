@@ -4,6 +4,7 @@
 
 #include "VRayTracingPipeline.hpp"
 
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include "Vulkan/VulkanCore/Shader/VRayTracingShaders.hpp"
 
 namespace VulkanCore {
@@ -57,16 +58,32 @@ void VRayTracingPipeline::CreateShaderHitGroups()
      * generalShader is the index of the ray generation, miss, or callable shader
      * from VkRayTracingPipelineCreateInfoKHR::pStages
      */
-    groupInfoCI.type = vk::RayTracingShaderGroupTypeKHR::eGeneral;
+    groupInfoCI.type          = vk::RayTracingShaderGroupTypeKHR::eGeneral;
     groupInfoCI.generalShader = RayGen;  // index to the shader stage passed to the pipeline as an array
     m_shaderGroups.push_back(groupInfoCI);
 
     // miss shader (also belongs to the general shader group)
-    groupInfoCI.type = vk::RayTracingShaderGroupTypeKHR::eGeneral;
+    groupInfoCI.type          = vk::RayTracingShaderGroupTypeKHR::eGeneral;
     groupInfoCI.generalShader = Miss;  // index to the shader stage passed to the pipeline as an array
     m_shaderGroups.push_back(groupInfoCI);
 
+    //reset the general shader goroup since now it is going ot be hit group
+    groupInfoCI.type             = vk::RayTracingShaderGroupTypeKHR::eTrianglesHitGroup;
+    groupInfoCI.generalShader    = vk::ShaderUnusedKHR;
+    groupInfoCI.closestHitShader = ClosestHit;
+    m_shaderGroups.push_back(groupInfoCI);
+}
+void VRayTracingPipeline::CreatePipelineLayout() {
+    Utils::Logger::LogSuccess("Creating pipeline layout...");
+    vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 
+    pipelineLayoutCreateInfo.setLayoutCount = 1;
+    pipelineLayoutCreateInfo.pSetLayouts    = &m_descSetLayout.GetLayout();
+
+    pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+    pipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
+    m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout) == vk::Result::eSuccess;
+    Utils::Logger::LogSuccess("Pipeline layout created !");
 }
 
 }  // namespace RTX

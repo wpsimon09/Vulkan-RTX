@@ -28,6 +28,13 @@ inline void DisableLogging()
 
 inline int LogLimit = 700;  // entires in console
 
+#ifdef NDEBUG
+    inline bool InDebugMode = false;
+#else
+    inline bool InDebugMode = true;
+#endif
+
+
 }  // namespace GlobalState
 
 #endif  //GLOBALSTATE_HPP

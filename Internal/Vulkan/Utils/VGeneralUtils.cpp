@@ -22,6 +22,7 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
+#include "Vulkan/Global/GlobalState.hpp"
 
 #include <fstream>
 
@@ -654,7 +655,8 @@ std::vector<char> VulkanUtils::ReadSPIRVShader(std::filesystem::path shaderPath)
     assert(buffer.size() == fileSize);
     return buffer;
 }
-vk::ShaderModule VulkanUtils::CreateShaderModule(const VulkanCore::VDevice& device, const std::vector<char>& data) {
+vk::ShaderModule VulkanUtils::CreateShaderModule(const VulkanCore::VDevice& device, const std::vector<char>& data)
+{
     vk::ShaderModuleCreateInfo vertexShaderModuleCreateInfo;
     vertexShaderModuleCreateInfo.codeSize = data.size();
     vertexShaderModuleCreateInfo.pCode    = reinterpret_cast<const uint32_t*>(data.data());
@@ -663,4 +665,11 @@ vk::ShaderModule VulkanUtils::CreateShaderModule(const VulkanCore::VDevice& devi
     assert(module);
     Utils::Logger::LogInfoVerboseOnly("Created shader module");
     return module;
+}
+void VulkanUtils::Check(vk::Result result, vk::Result expectedResult) {
+    if (GlobalState::InDebugMode) {
+        assert(result == expectedResult);
+    }else {
+        if (result != expectedResult) throw std::runtime_error("Failed to create vulkan resource");
+    }
 }
