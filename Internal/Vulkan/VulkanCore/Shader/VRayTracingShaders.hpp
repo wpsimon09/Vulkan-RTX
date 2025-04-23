@@ -16,12 +16,13 @@ class VDevice;
 class VRayTracingShaders
 {
   public:
-    VRayTracingShaders(const VulkanCore::VDevice& device, RTX::RTXShaderPaths& shaders);
+    VRayTracingShaders(const VulkanCore::VDevice& device,const RTX::RTXShaderPaths& shaders);
 
     const vk::ShaderModule& GetShaderModule(VulkanCore::RTX::ERayTracingStageIndices shaderType) const ;
 
+    void DestroyShaderModules();
   private:
-    void CreateShaderModules(RTX::RTXShaderPaths& shaders);
+    void CreateShaderModules(const RTX::RTXShaderPaths& shaders);
   private:
     const VulkanCore::VDevice& m_device;
     std::unordered_map<RTX::ERayTracingStageIndices, VkShaderModule> m_shaderModules;

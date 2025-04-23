@@ -9,6 +9,9 @@
 
 #include <array>
 
+namespace VulkanUtils {
+class VRayTracingEffect;
+}
 namespace vk {
 struct PipelineShaderStageCreateInfo;
 }
@@ -26,15 +29,19 @@ namespace VulkanCore {
 class VDevice;
 namespace RTX {
 
-class VRayTracingPipeline: public VObject {
-public:
-  VRayTracingPipeline(const VulkanCore::VDevice& device, const VulkanCore::VRayTracingShaders& rayTracingShaders,  const VulkanCore::VDescriptorSetLayout& descSetLayout);
-  vk::RayTracingPipelineCreateInfoKHR Init();
+class VRayTracingPipeline : public VObject
+{
+  public:
+    VRayTracingPipeline(const VulkanCore::VDevice&              device,
+                        const VulkanCore::VRayTracingShaders&   rayTracingShaders,
+                        const VulkanCore::VDescriptorSetLayout& descSetLayout);
+    void Init();
+    vk::PipelineLayout                  GetPipelineLayout();
 
-private:
-  void CreateCreatePipelineShaders();
+  private:
+    void CreateCreatePipelineShaders();
 
-  /**
+    /**
    * Creates shader hit groups. Each entry in the Shader Binding Table (SBT)
    * corresponds to a shader group, which may include up to three shaders:
    *   - Closest Hit
@@ -52,38 +59,44 @@ private:
    *       - Intersection + closest hit
    *       - Intersection + closest hit + any hit
    */
-  void CreateShaderHitGroups();
+    void CreateShaderHitGroups();
 
-  void CreatePipelineLayout();
-private:
-  //=======================
-  // passed from costructor
-  const VulkanCore::VDevice& m_device;
-  const VulkanCore::VRayTracingShaders& m_rayTracingShaders;
-  const VulkanCore::VDescriptorSetLayout& m_descSetLayout;
+    void CreatePipelineLayout();
 
-  //=======================
-  // pipeline create info
-  vk::RayTracingPipelineCreateInfoKHR m_rtxPipelineCreateInfo;
+    void DestroyShaderModules();
 
-  //=======================
-  // pipeline properties
-  std::array<vk::PipelineShaderStageCreateInfo, ERayTracingStageIndices::ShaderGroupCount> m_shaderStages;
+  private:
+    //=======================
+    // passed from costructor
+    const VulkanCore::VDevice&              m_device;
+    const VulkanCore::VRayTracingShaders&   m_rayTracingShaders;
+    const VulkanCore::VDescriptorSetLayout& m_descSetLayout;
 
-  //========================
-  // shader groups
-  std::vector<vk::RayTracingShaderGroupCreateInfoKHR> m_shaderGroups;
+    //=======================
+    // pipeline create info
+    vk::RayTracingPipelineCreateInfoKHR m_rtxPipelineCreateInfo;
 
-  //========================
-  // pipeline layout
-  vk::PipelineLayout m_pipelineLayout;
+    //=======================
+    // pipeline properties
+    std::array<vk::PipelineShaderStageCreateInfo, ERayTracingStageIndices::ShaderGroupCount> m_shaderStages;
 
+    //========================
+    // shader groups
+    std::vector<vk::RayTracingShaderGroupCreateInfoKHR> m_shaderGroups;
 
-private:
-  friend class VulkanUtils::VRasterEffect;
+    //========================
+    // pipeline layout
+    vk::PipelineLayout m_pipelineLayout;
+
+    //========================
+    // pipeline layout
+    vk::Pipeline m_rtPipelineHandle;
+
+  private:
+    friend class VulkanUtils::VRayTracingEffect;
 };
 
-} // RTX
-} // VulkanCore
+}  // namespace RTX
+}  // namespace VulkanCore
 
-#endif //VRAYTRACINGPIPELINE_HPP
+#endif  //VRAYTRACINGPIPELINE_HPP

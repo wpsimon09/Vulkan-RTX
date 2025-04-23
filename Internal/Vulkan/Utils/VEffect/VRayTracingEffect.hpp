@@ -4,13 +4,36 @@
 
 #ifndef VRAYTRACINGEFFECT_HPP
 #define VRAYTRACINGEFFECT_HPP
+#include "VEffect.hpp"
+#include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
+#include "Vulkan/VulkanCore/Shader/VRayTracingShaders.hpp"
 
+namespace VulkanCore {
+class VRayTracingShaders;
+}
+namespace VulkanCore::RTX {
+class VRayTracingPipeline;
+}
 namespace VulkanUtils {
 
-class VRayTracingEffect {
+class VRayTracingEffect :public VEffect
+{
+  public:
+    VRayTracingEffect(const VulkanCore::VDevice&                          device,
+                      const VulkanCore::RTX::RTXShaderPaths&              shaderPaths,
+                      const std::string&                                  name,
+                      std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet);
+    void               BuildEffect() override;
+    vk::PipelineLayout GetPipelineLayout() override;
+    void               BindPipeline(const vk::CommandBuffer& cmdBuffer) override;
+    void               Destroy() override;
 
+
+private:
+    std::unique_ptr<VulkanCore::RTX::VRayTracingPipeline> m_rtPipeline;
+    VulkanCore::VRayTracingShaders m_shaders;
 };
 
-} // VulkanUtils
+}  // namespace VulkanUtils
 
-#endif //VRAYTRACINGEFFECT_HPP
+#endif  //VRAYTRACINGEFFECT_HPP

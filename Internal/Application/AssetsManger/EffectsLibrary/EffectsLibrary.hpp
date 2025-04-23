@@ -36,7 +36,8 @@ enum class EEffectType : std::uint8_t
     DebugLine,
     AlphaMask,
     AplhaBlend,
-    EditorBilboard
+    EditorBilboard,
+    RayTracing
 };
 
 class EffectsLibrary

@@ -19,19 +19,26 @@ VRayTracingPipeline::VRayTracingPipeline(const VulkanCore::VDevice&             
 {
 }
 
-vk::RayTracingPipelineCreateInfoKHR VRayTracingPipeline::Init() {
+void VRayTracingPipeline::Init()
+{
+    CreatePipelineLayout();
+    CreateCreatePipelineShaders();
+    CreateShaderHitGroups();
+
     // to create the pipeline we first provide all the shader stages it needs
     m_rtxPipelineCreateInfo.stageCount = static_cast<uint32_t>(m_shaderStages.size());
-    m_rtxPipelineCreateInfo.pStages = m_shaderStages.data();
+    m_rtxPipelineCreateInfo.pStages    = m_shaderStages.data();
 
     // indicate what groups those shaders belong to
     m_rtxPipelineCreateInfo.groupCount = m_shaderGroups.size();
-    m_rtxPipelineCreateInfo.pGroups = m_shaderGroups.data();
+    m_rtxPipelineCreateInfo.pGroups    = m_shaderGroups.data();
 
     m_rtxPipelineCreateInfo.maxPipelineRayRecursionDepth = GlobalVariables::RenderingOptions::MaxRecursionDepth;
-    m_rtxPipelineCreateInfo.layout = m_pipelineLayout;
-
-    return m_rtxPipelineCreateInfo;
+    m_rtxPipelineCreateInfo.layout                       = m_pipelineLayout;
+}
+vk::PipelineLayout VRayTracingPipeline::GetPipelineLayout()
+{
+    return m_pipelineLayout;
 }
 
 void VRayTracingPipeline::CreateCreatePipelineShaders()
@@ -90,7 +97,8 @@ void VRayTracingPipeline::CreateShaderHitGroups()
     groupInfoCI.closestHitShader = ClosestHit;
     m_shaderGroups.push_back(groupInfoCI);
 }
-void VRayTracingPipeline::CreatePipelineLayout() {
+void VRayTracingPipeline::CreatePipelineLayout()
+{
     Utils::Logger::LogSuccess("Creating pipeline layout...");
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 
@@ -99,10 +107,10 @@ void VRayTracingPipeline::CreatePipelineLayout() {
 
     pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
     pipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
-    VulkanUtils::Check(
-        m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout));
+    VulkanUtils::Check(m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout));
     Utils::Logger::LogSuccess("Pipeline layout created !");
 }
+
 
 }  // namespace RTX
 }  // namespace VulkanCore

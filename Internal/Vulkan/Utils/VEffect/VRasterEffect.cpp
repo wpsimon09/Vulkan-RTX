@@ -187,8 +187,6 @@ VRasterEffect& VRasterEffect::SetDepthOpAllways()
     return *this;
 }
 
-
-
 void VRasterEffect::BuildEffect()
 {
 

@@ -7,19 +7,28 @@
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 
 namespace VulkanCore {
-VRayTracingShaders::VRayTracingShaders(const VulkanCore::VDevice& device, RTX::RTXShaderPaths& shaders)
+VRayTracingShaders::VRayTracingShaders(const VulkanCore::VDevice& device, const RTX::RTXShaderPaths& shaders)
     : m_device(device)
 {
     CreateShaderModules(shaders);
 }
 const vk::ShaderModule& VRayTracingShaders::GetShaderModule(VulkanCore::RTX::ERayTracingStageIndices shaderType) const
 {
-    if (m_shaderModules.contains(shaderType)) {
+    if(m_shaderModules.contains(shaderType))
+    {
         return m_shaderModules.at(shaderType);
     }
     throw std::runtime_error("Shader type not found, make sure you are creating the correct shaders ! ");
 }
-void VRayTracingShaders::CreateShaderModules(RTX::RTXShaderPaths& shaders)
+
+void VRayTracingShaders::DestroyShaderModules() {
+    for (auto& s : m_shaderModules) {
+        m_device.GetDevice().destroyShaderModule(s.second);
+    }
+    m_shaderModules.clear();
+}
+
+void VRayTracingShaders::CreateShaderModules(const RTX::RTXShaderPaths& shaders)
 {
     Utils::Logger::LogInfoVerboseOnly("Creating ray tracing shader modules");
 

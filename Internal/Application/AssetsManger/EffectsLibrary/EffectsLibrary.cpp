@@ -11,8 +11,10 @@
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
+#include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
 #include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 
 namespace ApplicationCore {
 EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager)
@@ -116,6 +118,16 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
 
     effects[EEffectType::SkyBox] = std::move(skybox);
+
+    //===============================================================================
+
+    VulkanCore::RTX::RTXShaderPaths rtxShaderPaths;
+    rtxShaderPaths.rayGenPath = "Shaders/Compiled/SimpleRayTracing.rgen.spv";
+    rtxShaderPaths.missPath = "Shaders/Compiled/SimpleRayTracing.miss.spv";
+    rtxShaderPaths.rayHitPath = "Shaders/Compiled/SimpleRayTracing.chit.spv";
+    auto rayTracingHitGroup = std::make_shared<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Hit group highlight", pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::RayTracing) );
+
+    effects[EEffectType::RayTracing] = std::move(rayTracingHitGroup);
 
     BuildAllEffects();
 }

@@ -90,9 +90,9 @@ VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device, co
                         // Light data
                         .AddBinding(2, vk::DescriptorType::eUniformBuffer,  vk::ShaderStageFlagBits::eIntersectionKHR, 1)
                         // TLAS
-                        .AddBinding(3, vk::DescriptorType::eUniformBuffer,  vk::ShaderStageFlagBits::eIntersectionKHR | vk::ShaderStageFlagBits::eRaygenKHR, 1)
+                        .AddBinding(3, vk::DescriptorType::eAccelerationStructureKHR,  vk::ShaderStageFlagBits::eIntersectionKHR | vk::ShaderStageFlagBits::eRaygenKHR, 1)
                         // Output image
-                        .AddBinding(4, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1);
+                        .AddBinding(4, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eRaygenKHR, 1);
 
                 m_descriptorSetLayoutBindings = std::move(RayTracingDescriptorSetLayout.m_descriptorBindings);
             }
