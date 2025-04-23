@@ -12,16 +12,13 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
                  const std::string&                                  name,
                  const VulkanCore::VShader&                          shader,
                  std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& shaderResourceGroup)
-    : m_device(device)
-    , m_resourceGroup(shaderResourceGroup)
-    , m_name(name)
+    : VEffect(device, name, shaderResourceGroup)
 {
     m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_resourceGroup->GetDescriptorSetLayout());
     m_pipeline->Init();
 
     m_resourceGroup->CreateDstUpdateInfo(*m_pipeline);
 
-    m_ID = EffectIndexCounter++;
 }
 
 VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                          device,
@@ -29,9 +26,7 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
                  const std::string&                                  vertex,
                  const std::string&                                  fragment,
                  std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
-    : m_device(device)
-    , m_resourceGroup(descriptorSet)
-    , m_name(name)
+    : VEffect(device, name, descriptorSet)
     , m_shader(std::in_place, device, vertex, fragment)
 {
     m_pipeline =
@@ -40,7 +35,6 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
 
     m_resourceGroup->CreateDstUpdateInfo(*m_pipeline);
 
-    m_ID = EffectIndexCounter++;
 }
 
 VRasterEffect& VRasterEffect::SetDisableDepthTest()
@@ -194,15 +188,6 @@ VRasterEffect& VRasterEffect::SetDepthOpAllways()
 }
 
 
-std::string& VRasterEffect::GetName()
-{
-    return m_name;
-}
-
-DescriptorSetTemplateVariant& VRasterEffect::GetResrouceGroupStructVariant()
-{
-    return m_resourceGroup->GetResourceGroupStruct();
-}
 
 void VRasterEffect::BuildEffect()
 {
@@ -231,23 +216,4 @@ void VRasterEffect::Destroy()
     m_pipeline->Destroy();
 }
 
-vk::DescriptorUpdateTemplate& VRasterEffect::GetUpdateTemplate()
-{
-    return m_resourceGroup->GetUpdateTemplate();
-}
-
-unsigned short VRasterEffect::EvaluateRenderingOrder()
-{
-    return 0;
-}
-
-int& VRasterEffect::GetID()
-{
-    return m_ID;
-}
-
-EDescriptorLayoutStruct VRasterEffect::GetLayoutStructType()
-{
-    return m_resourceGroup->GetResourceGroupStrucutureType();
-}
 }  // namespace VulkanUtils

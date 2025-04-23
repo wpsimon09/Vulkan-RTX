@@ -10,6 +10,9 @@
 
 
 namespace VulkanUtils {
+class VEffect;
+}
+namespace VulkanUtils {
 class VRasterEffect;
 class VResourceGroupManager;
 }  // namespace VulkanUtils
@@ -39,13 +42,22 @@ class EffectsLibrary
 {
   public:
     EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager);
-    std::map<EEffectType, std::shared_ptr<VulkanUtils::VRasterEffect>> effects;
+    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;
 
-    std::shared_ptr<VulkanUtils::VRasterEffect> GetEffect(EEffectType type);
+    std::shared_ptr<VulkanUtils::VEffect> GetEffect(EEffectType type);
+
+    template <typename T>
+    std::shared_ptr<T> GetEffect(EEffectType type);
 
     void BuildAllEffects();
     void Destroy();
 };
+template <typename T>
+std::shared_ptr<T> EffectsLibrary::GetEffect(EEffectType type)
+{
+  assert(effects.contains(type));
+  return std::dynamic_pointer_cast<T>(effects[type]);
+}
 
 }  // namespace ApplicationCore
 

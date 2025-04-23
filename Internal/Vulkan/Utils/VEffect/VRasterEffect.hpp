@@ -74,25 +74,15 @@ class VRasterEffect:public VEffect
 
 
     //=======================================
+    void               BuildEffect() override;
+    vk::PipelineLayout GetPipelineLayout() override;
+    void               BindPipeline(const vk::CommandBuffer& cmdBuffer) override;
+    void               Destroy() override;
 
-    std::string&                  GetName();
-    DescriptorSetTemplateVariant& GetResrouceGroupStructVariant();
-    void                          BuildEffect();
-    vk::PipelineLayout            GetPipelineLayout();
-    void                          BindPipeline(const vk::CommandBuffer& cmdBuffer);
-    void                          Destroy();
-    vk::DescriptorUpdateTemplate& GetUpdateTemplate();
-    unsigned short                EvaluateRenderingOrder();
-    int&                          GetID();
-    EDescriptorLayoutStruct       GetLayoutStructType();
 
   private:
-    const VulkanCore::VDevice&                         m_device;
-    std::shared_ptr<VulkanUtils::VShaderResrouceGroup> m_resourceGroup;
     std::unique_ptr<VulkanCore::VGraphicsPipeline>     m_pipeline;
-    std::string                                        m_name;
     std::optional<VulkanCore::VShader>                 m_shader;
-    int                                                m_ID;
 
   private:
     friend bool operator==(const VRasterEffect& lhs, const VRasterEffect& rhs) { return lhs.m_ID == rhs.m_ID; }

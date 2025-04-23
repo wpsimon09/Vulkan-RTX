@@ -25,5 +25,5 @@ DescriptorSetTemplateVariant& VEffect::GetResrouceGroupStructVariant()
 vk::DescriptorUpdateTemplate& VEffect::GetUpdateTemplate() { return m_resourceGroup->GetUpdateTemplate(); }
 unsigned short                VEffect::EvaluateRenderingOrder() { return 0; }
 int&                          VEffect::GetID() {return m_ID;}
-EDescriptorLayoutStruct       VEffect::GetLayoutStructType() {}
+EDescriptorLayoutStruct       VEffect::GetLayoutStructType() { return m_resourceGroup->GetResourceGroupStrucutureType(); }
 }  // namespace VulkanUtils

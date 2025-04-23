@@ -52,9 +52,9 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
         data.modelMatrix = m_transformation->GetModelMatrix();
         data.material    = m_mesh->GetMaterial().get();
         if(renderingContext->WireFrameRendering)
-            data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
+            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
         else
-            data.effect = effectsLibrary.GetEffect(EEffectType::EditorBilboard);
+            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard);
 
         data.position = m_transformation->GetPosition();
 
@@ -68,7 +68,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
         //=======================
         if(m_visualisationMesh)
         {
-            data.effect     = effectsLibrary.GetEffect(EEffectType::DebugLine);
+            data.effect     = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
             data.vertexData = &m_visualisationMesh->GetMeshData()->vertexData;
             data.indexData  = &m_visualisationMesh->GetMeshData()->indexData;
             data.indexCount = m_visualisationMesh->GetMeshIndexCount();

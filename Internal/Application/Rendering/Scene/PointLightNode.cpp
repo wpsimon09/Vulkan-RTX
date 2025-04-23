@@ -59,10 +59,10 @@ void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vul
         data.modelMatrix = m_transformation->GetModelMatrix();
         data.material    = m_mesh->GetMaterial().get();
         if(renderingContext->WireFrameRendering)
-            data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
+            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
         else
         {
-            data.effect = effectsLibrary.GetEffect(EEffectType::EditorBilboard);
+            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard);
         }
 
         data.position = m_transformation->GetPosition();
@@ -73,7 +73,7 @@ void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vul
 
         if(m_sceneNodeMetaData.IsSelected)
         {
-            data.effect = effectsLibrary.GetEffect(EEffectType::Outline);
+            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::Outline);
             renderingContext->AddDrawCall(data);
         }
     }

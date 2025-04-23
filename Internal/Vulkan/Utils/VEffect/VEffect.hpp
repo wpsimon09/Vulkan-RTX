@@ -31,7 +31,7 @@ class VEffect
     int&                          GetID();
     EDescriptorLayoutStruct       GetLayoutStructType();
 
-  private:
+  protected:
     const VulkanCore::VDevice&                         m_device;
     std::string                                        m_name;
     std::shared_ptr<VulkanUtils::VShaderResrouceGroup> m_resourceGroup;

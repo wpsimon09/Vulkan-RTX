@@ -120,7 +120,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
     BuildAllEffects();
 }
 
-std::shared_ptr<VulkanUtils::VRasterEffect> EffectsLibrary::GetEffect(EEffectType type)
+std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type)
 {
     assert(effects.contains(type));
     return effects[type];
