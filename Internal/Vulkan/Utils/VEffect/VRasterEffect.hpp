@@ -2,8 +2,11 @@
 // Created by wpsimon09 on 19/03/25.
 //
 
-#ifndef VEFFECT_HPP
-#define VEFFECT_HPP
+#ifndef VRASTEREFFECT_HPP
+#define VRASTEREFFECT_HPP
+#include "VEffect.hpp"
+
+
 #include <variant>
 
 #include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
@@ -21,11 +24,10 @@ class VShader;
 class VDevice;
 }  // namespace VulkanCore
 
-inline int EffectIndexCounter = 0;
 
 namespace VulkanUtils {
 
-class VRasterEffect
+class VRasterEffect:public VEffect
 {
   public:
     VRasterEffect(const VulkanCore::VDevice&                          device,
@@ -99,4 +101,4 @@ class VRasterEffect
 };
 }  // namespace VulkanUtils
 
-#endif  //VEFFECT_HPP
+#endif  //VRASTEREFFECT_HPP

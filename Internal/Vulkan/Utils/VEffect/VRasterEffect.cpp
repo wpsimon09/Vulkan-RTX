@@ -24,7 +24,7 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
     m_ID = EffectIndexCounter++;
 }
 
-VRasterEffect::VEffect(const VulkanCore::VDevice&                          device,
+VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                          device,
                  const std::string&                                  name,
                  const std::string&                                  vertex,
                  const std::string&                                  fragment,

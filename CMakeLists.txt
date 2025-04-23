@@ -214,10 +214,10 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp
         Internal/Vulkan/VulkanCore/Shader/VRayTracingShaders.cpp
         Internal/Vulkan/VulkanCore/Shader/VRayTracingShaders.hpp
-        Internal/Vulkan/Utils/VEffect/VGraphicsEffect.cpp
-        Internal/Vulkan/Utils/VEffect/VGraphicsEffect.hpp
         Internal/Vulkan/Utils/VEffect/VRayTracingEffect.cpp
         Internal/Vulkan/Utils/VEffect/VRayTracingEffect.hpp
+        Internal/Vulkan/Utils/VEffect/VEffect.cpp
+        Internal/Vulkan/Utils/VEffect/VEffect.hpp
 
 )
 
