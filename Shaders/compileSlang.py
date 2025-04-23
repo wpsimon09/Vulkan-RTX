@@ -65,7 +65,7 @@ def compile_ray_tracing_shaders(dir, verbose):
             compile_shader(
                 [SLANGC_PATH, "-target", "spirv", "-stage", "raygeneration" ,"-I","Source/Modules","-entry", "rayGenMain",
                  "-o", f"Compiled/{name}.rgen.spv", path],
-                f"✓ {name}.vert",
+                f"✓ {name}.raygen.slagn",
                 f"✗ Failed: {name}.vert",
                 verbose
             )
@@ -73,7 +73,7 @@ def compile_ray_tracing_shaders(dir, verbose):
             compile_shader(
                 [SLANGC_PATH, "-target", "spirv", "-stage", "miss" ,"-I","Source/Modules","-entry", "missMain",
                  "-o", f"Compiled/{name}.miss.spv", path],
-                f"✓ {name}.frag",
+                f"✓ {name}.miss.slang",
                 f"✗ Failed: {name}.frag",
                 verbose
             )
@@ -82,12 +82,11 @@ def compile_ray_tracing_shaders(dir, verbose):
             compile_shader(
                 [SLANGC_PATH, "-target", "spirv", "-stage", "closesthit" ,"-I","Source/Modules", "-entry", "closestHitMain",
                  "-o", f"Compiled/{name}.chit.spv", path],
-                f"✓ {name}.frag",
+                f"✓ {name}.chit.slang",
                 f"✗ Failed: {name}.frag",
                 verbose
             )
  
-
 def main():
     parser = argparse.ArgumentParser(description="Slang Shader Compiler")
     parser.add_argument('--verbose', action='store_true', help='Enable verbose output')

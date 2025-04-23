@@ -20,7 +20,7 @@ class BaseMaterial;
 }
 
 namespace VulkanUtils {
-class VEffect;
+class VRasterEffect;
 }
 
 namespace ApplicationCore {
@@ -185,7 +185,7 @@ struct DrawCallData
     bool selected       = false;
 
     ApplicationCore::BaseMaterial*        material;
-    std::shared_ptr<VulkanUtils::VEffect> effect;
+    std::shared_ptr<VulkanUtils::VRasterEffect> effect;
 
     friend bool operator==(const DrawCallData& lhs, const ObjectDataUniform& rhs)
     {

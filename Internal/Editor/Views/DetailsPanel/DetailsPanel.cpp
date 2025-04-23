@@ -17,7 +17,7 @@
 #include "Application/Rendering/Scene/PointLightNode.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 #include "Application/Rendering/Scene/SkyBoxNode.hpp"
-#include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 
 namespace VEditor {
 DetailsPanel::DetailsPanel(const ApplicationCore::AssetsManager& assetsManager)
@@ -160,7 +160,7 @@ void DetailsPanel::RenderMaterialEditorPanel()
                 auto label = ICON_FA_WAND_MAGIC_SPARKLES " " + effect.second->GetName();
                 if(ImGui::Selectable(label.c_str(), effect.second == m_selectedSceneNode->GetMesh()->GetMaterial()->GetEffect()))
                 {
-                    m_selectedSceneNode->GetMesh()->GetMaterial()->ChangeEffect(effect.second);
+                    m_selectedSceneNode->GetMesh()->GetMaterial()->ChangeEffect(std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(effect.second));
                 }
             }
             ImGui::EndCombo();

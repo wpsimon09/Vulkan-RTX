@@ -11,7 +11,7 @@
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
-#include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniform.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
@@ -181,7 +181,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
         // - copies ofcreen buffer the the one of the face of cube
         //=============================================================
         {
-            VEffect hdrToCubeMapEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/HDRToCubeMap.vert.spv",
+            VRasterEffect hdrToCubeMapEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/HDRToCubeMap.vert.spv",
                                        "Shaders/Compiled/HDRToCubeMap.frag.spv",
                                        m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::UnlitSingleTexture));
             hdrToCubeMapEffect.DisableStencil()
@@ -325,7 +325,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         // - copies offcreen buffer the one of the face of cube
         //=============================================================
         {
-            VEffect cubeMapToIrradianceEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/IrradianceMapImportanceSample.vert.spv",
+            VRasterEffect cubeMapToIrradianceEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/IrradianceMapImportanceSample.vert.spv",
                                               "Shaders/Compiled/IrradianceMapImportanceSample.frag.spv",
                                               m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::UnlitSingleTexture));
             cubeMapToIrradianceEffect.DisableStencil()
@@ -463,7 +463,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     // - copies offcreen buffer the one of the face of cube
     //=============================================================
     {
-        VEffect hdrToPrefilterEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/Prefilter.vert.spv",
+        VRasterEffect hdrToPrefilterEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/Prefilter.vert.spv",
                                      "Shaders/Compiled/Prefilter.frag.spv",
                                      m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::UnlitSingleTexture));
         hdrToPrefilterEffect.DisableStencil()
@@ -609,7 +609,7 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
     brdfAttachmentCI.clearValue.color.setFloat32({0.0f, 0.0f, 0.0f, 1.f});
 
     //Create Effect that generates BRDF
-    VEffect brdfEffect(m_device, "BRDF Effect", "Shaders/Compiled/BRDFLut.vert.spv", "Shaders/Compiled/BRDFLut.frag.spv",
+    VRasterEffect brdfEffect(m_device, "BRDF Effect", "Shaders/Compiled/BRDFLut.vert.spv", "Shaders/Compiled/BRDFLut.frag.spv",
                        m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::Empty));
     brdfEffect.SetColourOutputFormat(brdfCI.format)
         .DisableStencil()

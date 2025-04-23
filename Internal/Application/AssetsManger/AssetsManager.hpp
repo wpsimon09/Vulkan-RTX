@@ -19,6 +19,9 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
 namespace VulkanUtils {
+class VEffect;
+}
+namespace VulkanUtils {
 class VEnvLightGenerator;
 }
 
@@ -35,7 +38,7 @@ class EffectsLibrary;
 }
 
 namespace VulkanUtils {
-class VEffect;
+class VRasterEffect;
 class VTransferOperationsManager;
 }  // namespace VulkanUtils
 
@@ -136,6 +139,7 @@ class AssetsManager
     //=========================
     EffectsLibrary&                                              GetEffectsLibrary() { return m_effectsLibrary; }
     std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> GetEffects() const;
+    std::map<EEffectType, std::shared_ptr<VulkanUtils::VRasterEffect>> GetAllRasterEffects() const;
 
     //=========================
     // Buffer Allocator

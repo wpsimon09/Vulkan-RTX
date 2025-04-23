@@ -7,10 +7,14 @@
 #include <map>
 #include <memory>
 #include <glm/fwd.hpp>
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 
 
 namespace VulkanUtils {
 class VEffect;
+}
+namespace VulkanUtils {
+class VRasterEffect;
 class VResourceGroupManager;
 }  // namespace VulkanUtils
 
@@ -43,9 +47,18 @@ class EffectsLibrary
 
     std::shared_ptr<VulkanUtils::VEffect> GetEffect(EEffectType type);
 
+    template <typename T>
+    std::shared_ptr<T> GetEffect(EEffectType type);
+
     void BuildAllEffects();
     void Destroy();
 };
+template <typename T>
+std::shared_ptr<T> EffectsLibrary::GetEffect(EEffectType type)
+{
+  assert(effects.contains(type));
+  return std::dynamic_pointer_cast<T>(effects[type]);
+}
 
 }  // namespace ApplicationCore
 

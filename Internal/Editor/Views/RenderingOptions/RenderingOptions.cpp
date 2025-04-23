@@ -11,7 +11,7 @@
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
-#include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
 
 namespace VEditor {

@@ -52,7 +52,7 @@ class SceneRenderer : public Renderer::BaseRenderer
   private:
     const VulkanCore::VDevice& m_device;
 
-    std::unique_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
+    std::unique_ptr<VulkanUtils::VRasterEffect> m_depthPrePassEffect;
 
     VulkanUtils::VResourceGroupManager& m_pushDescriptorManager;
 

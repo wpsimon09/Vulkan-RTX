@@ -19,7 +19,7 @@
 #include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
-#include "Vulkan/Utils/VEffect/VEffect.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp"
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"

@@ -233,12 +233,12 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         data.modelMatrix = m_transformation->GetModelMatrix();
         if(renderingContext->WireFrameRendering)
         {
-            data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
+            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
         }
         else if(m_mesh->m_currentMaterial->IsTransparent())
         {
             data.inDepthPrePass = false;
-            data.effect         = effectsLibrary.GetEffect(EEffectType::AplhaBlend);
+            data.effect         = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::AplhaBlend);
         }
         else
         {
@@ -258,7 +258,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         {
             data.inDepthPrePass = false;
 
-            data.effect = effectsLibrary.GetEffect(EEffectType::Outline);
+            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::Outline);
             data.modelMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(1.0f + GlobalVariables::RenderingOptions::OutlineWidth));
             renderingContext->AddDrawCall(data);
         }
@@ -272,7 +272,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
             data.indexData  = &m_mesh->GetMeshData()->indexData_BB;
             data.indexCount = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
             ;
-            data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
+            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
             renderingContext->AddDrawCall(data);
         }
 

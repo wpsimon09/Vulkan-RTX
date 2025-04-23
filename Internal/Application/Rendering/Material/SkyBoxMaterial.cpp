@@ -15,12 +15,12 @@
 
 namespace ApplicationCore {
 SkyBoxMaterial::SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager)
-    : BaseMaterial(assetsManager.GetEffectsLibrary().GetEffect(EEffectType::SkyBox))
+    : BaseMaterial(assetsManager.GetEffectsLibrary().GetEffect<VulkanUtils::VRasterEffect>(EEffectType::SkyBox))
 {
     assetsManager.GetHDRTexture(m_HDRTexture, path, true);
 }
 
-void SkyBoxMaterial::ChangeEffect(std::shared_ptr<VulkanUtils::VEffect> newEffect)
+void SkyBoxMaterial::ChangeEffect(std::shared_ptr<VulkanUtils::VRasterEffect> newEffect)
 {
     Utils::Logger::LogError("Can not change effect of SkyBox material");
 }
