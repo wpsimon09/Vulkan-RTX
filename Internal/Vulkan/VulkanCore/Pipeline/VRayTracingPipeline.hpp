@@ -38,30 +38,7 @@ class VRayTracingPipeline : public VObject
     void               Init();
     vk::PipelineLayout GetPipelineLayout();
 
-  private:
-    void CreateCreatePipelineShaders();
 
-    /**
-   * Creates shader hit groups. Each entry in the Shader Binding Table (SBT)
-   * corresponds to a shader group, which may include up to three shaders:
-   *   - Closest Hit
-   *   - Any Hit
-   *   - Intersection
-   *
-   * Hit shaders are grouped under VK_SHADER_GROUP_TYPE_HIT_GROUP.
-   * Miss, ray generation, and callable shaders use VK_SHADER_GROUP_TYPE_GENERAL.
-   *
-   * Examples:
-   *   - Triangle geometry:
-   *       - Closest hit only
-   *       - Closest hit + any hit
-   *   - Procedural geometry:
-   *       - Intersection + closest hit
-   *       - Intersection + closest hit + any hit
-   */
-    void CreateShaderHitGroups();
-
-    void CreatePipelineLayout();
 
       /*
     Each entry in the SBT is a Shader Group.
@@ -95,6 +72,31 @@ class VRayTracingPipeline : public VObject
     This table = conceptual aid for understanding grouping.
     */
     void CreateShaderBindingTable();
+
+  private:
+    void CreateCreatePipelineShaders();
+
+    /**
+   * Creates shader hit groups. Each entry in the Shader Binding Table (SBT)
+   * corresponds to a shader group, which may include up to three shaders:
+   *   - Closest Hit
+   *   - Any Hit
+   *   - Intersection
+   *
+   * Hit shaders are grouped under VK_SHADER_GROUP_TYPE_HIT_GROUP.
+   * Miss, ray generation, and callable shaders use VK_SHADER_GROUP_TYPE_GENERAL.
+   *
+   * Examples:
+   *   - Triangle geometry:
+   *       - Closest hit only
+   *       - Closest hit + any hit
+   *   - Procedural geometry:
+   *       - Intersection + closest hit
+   *       - Intersection + closest hit + any hit
+   */
+    void CreateShaderHitGroups();
+
+    void CreatePipelineLayout();
 
     void DestroyShaderModules();
 

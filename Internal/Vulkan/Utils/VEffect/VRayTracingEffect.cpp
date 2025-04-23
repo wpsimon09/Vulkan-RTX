@@ -27,6 +27,7 @@ void VRayTracingEffect::BuildEffect()
 
     m_rtPipeline->m_rtPipelineHandle = pipeline.value;
 
+    m_rtPipeline->CreateShaderBindingTable();
     m_shaders.DestroyShaderModules();
 }
 

@@ -25,7 +25,6 @@ void VRayTracingPipeline::Init()
     CreatePipelineLayout();
     CreateCreatePipelineShaders();
     CreateShaderHitGroups();
-    CreateShaderBindingTable();
 
     // to create the pipeline we first provide all the shader stages it needs
     m_rtxPipelineCreateInfo.stageCount = static_cast<uint32_t>(m_shaderStages.size());
@@ -140,6 +139,19 @@ void VRayTracingPipeline::CreateShaderBindingTable()
 
     //==========================================
     // retrieve handles for shaders form Vulkan
+    uint32_t dataSize = handleCount * handleSize;
+    std::vector<uint8_t> handles(dataSize);
+    assert(m_rtPipelineHandle != nullptr && "Make sure you have build the pipeline from the Effect inteface");
+
+    auto result = m_device.GetDevice().getRayTracingShaderGroupHandlesKHR(m_rtPipelineHandle, 0, handleCount, handleSize, handles.data(), m_device.DispatchLoader);
+    VulkanUtils::Check(result);
+
+    //===========================================
+    // allocate buffer for shader binding table
+    vk::DeviceSize deviceSize = m_rGenRegion.size + m_rMissRegion.size + m_rHitRegion.size + m_rCallRegion.size;
+
+    m_shaderBindingTable = std::make_unique<VulkanCore::VBuffer>(m_device, "Shader binding table");
+    //m_shaderBindingTable->CreateBuffer();
 }
 
 
