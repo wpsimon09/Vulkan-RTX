@@ -35,8 +35,8 @@ class VRayTracingPipeline : public VObject
     VRayTracingPipeline(const VulkanCore::VDevice&              device,
                         const VulkanCore::VRayTracingShaders&   rayTracingShaders,
                         const VulkanCore::VDescriptorSetLayout& descSetLayout);
-    void Init();
-    vk::PipelineLayout                  GetPipelineLayout();
+    void               Init();
+    vk::PipelineLayout GetPipelineLayout();
 
   private:
     void CreateCreatePipelineShaders();
@@ -62,6 +62,39 @@ class VRayTracingPipeline : public VObject
     void CreateShaderHitGroups();
 
     void CreatePipelineLayout();
+
+      /*
+    Each entry in the SBT is a Shader Group.
+    A Shader Group can logically include up to 3 shaders:
+        - Any-Hit Shader (optional)
+        - Closest-Hit Shader (optional)
+        - Intersection Shader (optional)
+
+    In practice, each group is stored as ONE record in the SBT,
+    but conceptually each group "spans" these logical shader slots.
+
+    SBT Regions:
+
+    +----------------------------+-----------------------------+-----------------------------+-----------------------------+
+    |         RayGen            |             Miss            |           Hit Group         |          Callable           |
+    +----------------------------+-----------------------------+-----------------------------+-----------------------------+
+    | RayGen Shader Group       | Miss Shader Group 0         | Hit Group 0                 | Callable Shader Group 0     |
+    |                           | Miss Shader Group 1         |   ↳ Any-Hit Shader (opt)    | Callable Shader Group 1     |
+    |                           |                             |   ↳ Closest-Hit Shader (opt)|                             |
+    |                           |                             |   ↳ Intersection Shader(opt)|                             |
+    |                           |                             | Hit Group 1                 |                             |
+    |                           |                             |   ↳ ...                     |                             |
+    +----------------------------+-----------------------------+-----------------------------+-----------------------------+
+
+    Each Shader Group Record in the buffer contains:
+        - Shader Identifier (from vkGetRayTracingShaderGroupHandlesKHR)
+        - Optional Custom Data (like material, object ID, etc.)
+        - Proper Alignment + Stride per Vulkan spec
+
+    Actual memory layout = flat array of records in GPU buffer.
+    This table = conceptual aid for understanding grouping.
+    */
+    void CreateShaderBindingTable();
 
     void DestroyShaderModules();
 
@@ -91,6 +124,14 @@ class VRayTracingPipeline : public VObject
     //========================
     // pipeline layout
     vk::Pipeline m_rtPipelineHandle;
+
+    std::unique_ptr<VulkanCore::VBuffer> m_shaderBindingTable;
+
+    vk::StridedDeviceAddressRegionKHR    m_rGenRegion;
+    vk::StridedDeviceAddressRegionKHR    m_rMissRegion;
+    vk::StridedDeviceAddressRegionKHR    m_rHitRegion;
+    vk::StridedDeviceAddressRegionKHR    m_rCallRegion;
+
 
   private:
     friend class VulkanUtils::VRayTracingEffect;

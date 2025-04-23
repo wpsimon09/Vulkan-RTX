@@ -14,7 +14,9 @@ class VDevice;
 class VImage;
 class VRenderPass;
 class VSwapChain;
-
+/**
+ * @deprecated This class is dpericated since rendering is using dynamic rendering thus no render pass and frame buffers are required
+ */
 class VFrameBuffer : public VObject
 {
   public:

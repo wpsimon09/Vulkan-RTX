@@ -14,6 +14,7 @@
 
 
 namespace VulkanUtils {
+
 class VResourceGroupManager;
 }
 
