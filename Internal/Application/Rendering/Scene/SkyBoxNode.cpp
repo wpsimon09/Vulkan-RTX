@@ -43,7 +43,7 @@ void SkyBoxNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanU
     data.vertexData = &m_mesh->GetMeshData()->vertexData;
     data.indexData  = &m_mesh->GetMeshData()->indexData;
 
-    data.effect         = effectsLibrary.GetEffect(EEffectType::SkyBox);
+    data.effect         = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::SkyBox);
     data.inDepthPrePass = false;
     data.position       = m_transformation->GetPosition();
     data.bounds         = &m_mesh->GetMeshData()->bounds;

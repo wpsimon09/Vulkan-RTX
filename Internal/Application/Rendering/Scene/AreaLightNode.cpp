@@ -53,10 +53,10 @@ void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
         data.material    = m_mesh->GetMaterial().get();
 
         if(renderingContext->WireFrameRendering)
-            data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
+            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
         else
         {
-            data.effect = effectsLibrary.GetEffect(EEffectType::EditorBilboard);
+            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard);
         }
 
         data.position = m_transformation->GetPosition();
@@ -66,7 +66,7 @@ void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
         renderingContext->AddDrawCall(data);
 
         // visualisation of the light
-        data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
+        data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
         if(m_visualisationMesh)
         {
             data.vertexData = &m_visualisationMesh->GetMeshData()->vertexData;
@@ -77,7 +77,7 @@ void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
 
         if(m_sceneNodeMetaData.IsSelected)
         {
-            data.effect = effectsLibrary.GetEffect(EEffectType::Outline);
+            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::Outline);
             renderingContext->AddDrawCall(data);
         }
     }

@@ -224,9 +224,17 @@ const std::vector<std::shared_ptr<ApplicationCore::SkyBoxMaterial>>& AssetsManag
     return m_skyBoxMaterials;
 }
 
-std::map<EEffectType, std::shared_ptr<VulkanUtils::VRasterEffect>> AssetsManager::GetEffects() const
+std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> AssetsManager::GetEffects() const
 {
     return m_effectsLibrary.effects;
+}
+std::map<EEffectType, std::shared_ptr<VulkanUtils::VRasterEffect>> AssetsManager::GetAllRasterEffects() const {
+    std::map<EEffectType, std::shared_ptr<VulkanUtils::VRasterEffect>> collectedEffects;
+    for (auto& effect :m_effectsLibrary.effects) {
+        if (auto e = std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(effect.second))
+        collectedEffects[effect.first] = e;
+    }
+    return collectedEffects;
 }
 
 void AssetsManager::AddModel(std::string path, std::vector<std::shared_ptr<ApplicationCore::SceneNode>>& model)

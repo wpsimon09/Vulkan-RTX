@@ -272,7 +272,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
             data.indexData  = &m_mesh->GetMeshData()->indexData_BB;
             data.indexCount = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
             ;
-            data.effect = effectsLibrary.GetEffect(EEffectType::DebugLine);
+            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
             renderingContext->AddDrawCall(data);
         }
 

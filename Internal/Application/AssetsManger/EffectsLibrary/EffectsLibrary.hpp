@@ -7,6 +7,7 @@
 #include <map>
 #include <memory>
 #include <glm/fwd.hpp>
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 
 
 namespace VulkanUtils {
