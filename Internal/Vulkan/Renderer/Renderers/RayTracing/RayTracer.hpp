@@ -14,6 +14,7 @@ namespace VulkanUtils {
 class VUniformBufferManager;
 }
 namespace VulkanCore {
+class VTimelineSemaphore;
 class VCommandBuffer;
 class VImage2;
 }
@@ -26,7 +27,7 @@ class RayTracer {
 public:
   RayTracer(const VulkanCore::VDevice& device,VulkanUtils::VRayTracingDataManager& rtxDataManager, int width, int height);
 
-  void TraceRays(const VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::VUniformBufferManager& unifromBufferManager, int currentFrame);
+  void TraceRays(const VulkanCore::VCommandBuffer& cmdBuffer,const VulkanCore::VTimelineSemaphore& renderingSemaphore,  VulkanUtils::VUniformBufferManager& unifromBufferManager, int currentFrame);
 
   void ProcessResize(int newWidth, int newHeight);
 

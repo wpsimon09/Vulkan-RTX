@@ -102,6 +102,8 @@ class RenderingSystem
     std::unique_ptr<VulkanUtils::VEnvLightGenerator>             m_envLightGenerator;
     std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>> m_renderingTimeLine;
     std::unique_ptr<VulkanUtils::VRayTracingDataManager>             m_rayTracingDataManager;
+    std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_renderingCommandBuffers;
+    std::unique_ptr<VulkanCore::VCommandPool> m_renderingCommandPool;;
 
     VulkanCore::VTimelineSemaphore& m_transferSemapohore;
 

@@ -31,8 +31,7 @@
 
 namespace Renderer {
 SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager, int width, int height)
-    : BaseRenderer(device)
-    , m_pushDescriptorManager(pushDescriptorManager)
+    : m_pushDescriptorManager(pushDescriptorManager)
     , m_device(device)
 
 {
@@ -45,7 +44,6 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VRe
     m_sceneCommandPool = std::make_unique<VulkanCore::VCommandPool>(device, Graphics);
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_commandBuffers[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_sceneCommandPool);
     }
 
     //=========================
@@ -175,7 +173,7 @@ void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdB
     }
 }
 
-void SceneRenderer::DepthPrePass(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+void SceneRenderer::DepthPrePass(int currentFrameIndex,VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     int drawCallCount = 0;
 
@@ -191,20 +189,20 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex, const VulkanUtils::VUnif
     renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
 
 
-    m_depthPrePassEffect->BindPipeline(m_commandBuffers[currentFrameIndex]->GetCommandBuffer());
+    m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
 
 
     //==============================================
     // START RENDER PASS
     //==============================================
-    auto& cmdBuffer = m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
+    auto& cmdB = cmdB.GetCommandBuffer();
 
-    cmdBuffer.beginRendering(&renderingInfo);
+    cmdB.beginRendering(&renderingInfo);
 
     // if there is nothing to render end the render process
     if(m_renderContextPtr->drawCalls.empty())
     {
-        cmdBuffer.endRendering();
+        cmdB.endRendering();
         m_renderingStatistics.DrawCallCount = 0;
         return;
     }
@@ -217,8 +215,8 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex, const VulkanUtils::VUnif
 
     vk::DeviceSize indexBufferOffset = 0;
 
-    cmdBuffer.bindVertexBuffers(0, {currentVertexBuffer->buffer}, {0});
-    cmdBuffer.bindIndexBuffer(currentIndexBuffer->buffer, 0, vk::IndexType::eUint32);
+    cmdB.bindVertexBuffers(0, {currentVertexBuffer->buffer}, {0});
+    cmdB.bindIndexBuffer(currentIndexBuffer->buffer, 0, vk::IndexType::eUint32);
 
     //============================================
     // CONFIGURE VIEW PORT
@@ -232,7 +230,7 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex, const VulkanUtils::VUnif
 
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    cmdBuffer.setViewport(0, 1, &viewport);
+    cmdB.setViewport(0, 1, &viewport);
 
     vk::Rect2D scissors{};
     scissors.offset.x      = 0;
@@ -240,12 +238,12 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex, const VulkanUtils::VUnif
     scissors.extent.width  = m_width;
     scissors.extent.height = m_height;
 
-    cmdBuffer.setScissor(0, 1, &scissors);
+    cmdB.setScissor(0, 1, &scissors);
 
     //=================================================
     // RECORD OPAQUE DRAW CALLS
     //=================================================
-    cmdBuffer.setStencilTestEnable(true);
+    cmdB.setStencilTestEnable(true);
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
 
@@ -262,14 +260,14 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex, const VulkanUtils::VUnif
                 std::vector<vk::Buffer>     vertexBuffers = {drawCall.second.vertexData->buffer};
                 std::vector<vk::DeviceSize> offsets       = {0};
                 vertexBuffers                             = {drawCall.second.vertexData->buffer};
-                cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+                cmdB.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
                 currentVertexBuffer = drawCall.second.vertexData;
             }
 
             if(currentIndexBuffer->BufferID != drawCall.second.indexData->BufferID)
             {
                 indexBufferOffset = 0;
-                cmdBuffer.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
+                cmdB.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
                 currentIndexBuffer = drawCall.second.indexData;
             }
 
@@ -277,10 +275,10 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex, const VulkanUtils::VUnif
             update.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
             update.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.second.drawCallID)[currentFrameIndex];
 
-            cmdBuffer.pushDescriptorSetWithTemplateKHR(m_depthPrePassEffect->GetUpdateTemplate(),
+            cmdB.pushDescriptorSetWithTemplateKHR(m_depthPrePassEffect->GetUpdateTemplate(),
                                                        m_depthPrePassEffect->GetPipelineLayout(), 0, update, m_device.DispatchLoader);
 
-            cmdBuffer.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
+            cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
                                   drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
                                   drawCall.second.vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
                                   0);
@@ -288,11 +286,11 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex, const VulkanUtils::VUnif
             drawCallCount++;
         }
     }
-    cmdBuffer.endRendering();
+    cmdB.endRendering();
 
 
     VulkanUtils::PlaceImageMemoryBarrier(
-        m_renderTargets->GetDepthImage(currentFrameIndex), *m_commandBuffers[currentFrameIndex],
+        m_renderTargets->GetDepthImage(currentFrameIndex), cmdBuffer,
         vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::ImageLayout::eDepthStencilAttachmentOptimal,
         vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::PipelineStageFlagBits::eEarlyFragmentTests,
         vk::AccessFlagBits::eDepthStencilAttachmentWrite, vk::AccessFlagBits::eDepthStencilAttachmentRead);
@@ -302,6 +300,7 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex, const VulkanUtils::VUnif
 
 
 void SceneRenderer::Render(int                                       currentFrameIndex,
+                           VulkanCore::VCommandBuffer&               cmdBuffer,
                            const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                            VulkanUtils::RenderContext*               renderContext,
                            VulkanCore::VTimelineSemaphore&           renderingTimeLine,
@@ -313,62 +312,19 @@ void SceneRenderer::Render(int                                       currentFram
     m_renderContextPtr = renderContext;
 
     auto& renderTarget = m_renderTargets;
-    m_commandBuffers[currentFrameIndex]->Reset();
 
     //=====================================================
     // RECORD COMMAND BUFFER
     //=====================================================
-    m_commandBuffers[currentFrameIndex]->BeginRecording();
+    assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
 
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
     {
-        DepthPrePass(currentFrameIndex, uniformBufferManager);
+        DepthPrePass(currentFrameIndex,cmdBuffer, uniformBufferManager);
     }
-    DrawScene(currentFrameIndex, uniformBufferManager);
+    DrawScene(currentFrameIndex,cmdBuffer, uniformBufferManager);
 
-    m_commandBuffers[currentFrameIndex]->EndRecording();
 
-    //=====================================================
-    // SUBMIT RECORDED COMMAND BUFFER
-    //=====================================================
-    vk::SubmitInfo submitInfo;
-
-    const std::vector<vk::Semaphore> semaphores = {renderingTimeLine.GetSemaphore(), transferSemapohre.GetSemaphore()};
-
-    std::vector<vk::PipelineStageFlags> waitStages = {
-        vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
-        vk::PipelineStageFlagBits::eTransfer                // Transfer wait stage
-    };
-
-    renderingTimeLine.SetWaitAndSignal(0, 2);  //
-    transferSemapohre.SetWaitAndSignal(2, 4);
-
-    const std::vector<uint64_t> waitValues = {renderingTimeLine.GetCurrentWaitValue(), transferSemapohre.GetCurrentWaitValue()};
-    const std::vector<uint64_t> signalVlaues = {renderingTimeLine.GetCurrentSignalValue(),
-                                                transferSemapohre.GetCurrentSignalValue()};
-
-    vk::TimelineSemaphoreSubmitInfo timelineinfo;
-    timelineinfo.waitSemaphoreValueCount = waitValues.size();
-    timelineinfo.pWaitSemaphoreValues    = waitValues.data();
-
-    timelineinfo.signalSemaphoreValueCount = signalVlaues.size();
-    timelineinfo.pSignalSemaphoreValues    = signalVlaues.data();
-
-    submitInfo.pNext              = &timelineinfo;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers    = &m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
-
-    submitInfo.signalSemaphoreCount = semaphores.size();
-    submitInfo.pSignalSemaphores    = semaphores.data();
-
-    submitInfo.waitSemaphoreCount = semaphores.size();
-    submitInfo.pWaitSemaphores    = semaphores.data();
-
-    submitInfo.pWaitDstStageMask = waitStages.data();
-
-    assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess && "Failed to submit command buffer !");
-
-    transferSemapohre.Reset();
     m_frameCount++;
 }
 
@@ -377,7 +333,7 @@ void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
     m_renderTargets = std::make_unique<Renderer::RenderTarget>(m_device, m_width, m_height);
 }
 
-void SceneRenderer::DrawScene(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+void SceneRenderer::DrawScene(int currentFrameIndex,VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
 
     int drawCallCount = 0;

@@ -52,14 +52,17 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_swapChain = std::make_unique<VulkanCore::VSwapChain>(m_device, instance);
 
     //------------------------------------------------------------------------------------------------------------------------
-    // CREATE SYNCHRONIZATION PRIMITIVES
+    // CREATE SYNCHRONIZATION PRIMITIVES and Command buffers
     //------------------------------------------------------------------------------------------------------------------------
-    m_renderingTimeLine.resize(2);
-    m_imageAvailableSemaphores.resize(2);
+    m_renderingTimeLine.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_imageAvailableSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_renderingCommandBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_renderingTimeLine[i]        = std::make_unique<VulkanCore::VTimelineSemaphore>(m_device, 8);
         m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+        m_renderingCommandBuffers[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device,*m_renderingCommandPool );
     }
 
     //----------------------------------------------------------------------------------------------------------------------------
@@ -160,9 +163,60 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
     m_renderContext.prefilterMap  = m_envLightGenerator->GetPrefilterMapRaw();
     m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
-    // render scene
-    m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext,
-                            *m_renderingTimeLine[m_currentFrameIndex], m_transferSemapohore);
+
+
+    m_renderingCommandBuffers[m_currentFrameIndex]->BeginRecording();
+
+    if (m_rayTracer) {
+        // render scene
+        m_sceneRenderer->Render(m_currentFrameIndex,*m_renderingCommandBuffers[m_currentFrameIndex], m_uniformBufferManager, &m_renderContext,
+                                *m_renderingTimeLine[m_currentFrameIndex], m_transferSemapohore);
+    }else {
+        //m_rayTracer->TraceRays();
+    }
+
+    //=====================================================
+    // SUBMIT RECORDED COMMAND BUFFER
+    //=====================================================
+    vk::SubmitInfo submitInfo;
+
+    const std::vector<vk::Semaphore> semaphores = {renderingTimeLine.GetSemaphore(), transferSemapohre.GetSemaphore()};
+
+    std::vector<vk::PipelineStageFlags> waitStages = {
+        vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
+        vk::PipelineStageFlagBits::eTransfer                // Transfer wait stage
+    };
+
+    renderingTimeLine.SetWaitAndSignal(0, 2);  //
+    transferSemapohre.SetWaitAndSignal(2, 4);
+
+    const std::vector<uint64_t> waitValues = {renderingTimeLine.GetCurrentWaitValue(), transferSemapohre.GetCurrentWaitValue()};
+    const std::vector<uint64_t> signalVlaues = {renderingTimeLine.GetCurrentSignalValue(),
+                                                transferSemapohre.GetCurrentSignalValue()};
+
+    vk::TimelineSemaphoreSubmitInfo timelineinfo;
+    timelineinfo.waitSemaphoreValueCount = waitValues.size();
+    timelineinfo.pWaitSemaphoreValues    = waitValues.data();
+
+    timelineinfo.signalSemaphoreValueCount = signalVlaues.size();
+    timelineinfo.pSignalSemaphoreValues    = signalVlaues.data();
+
+    submitInfo.pNext              = &timelineinfo;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers    = &m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
+
+    submitInfo.signalSemaphoreCount = semaphores.size();
+    submitInfo.pSignalSemaphores    = semaphores.data();
+
+    submitInfo.waitSemaphoreCount = semaphores.size();
+    submitInfo.pWaitSemaphores    = semaphores.data();
+
+    submitInfo.pWaitDstStageMask = waitStages.data();
+
+    assert(m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr) == vk::Result::eSuccess && "Failed to submit command buffer !");
+
+    transferSemapohre.Reset();
+
 
     // render UI and present to swap chain
     m_uiRenderer->RenderAndPresent(m_currentFrameIndex, m_currentImageIndex,

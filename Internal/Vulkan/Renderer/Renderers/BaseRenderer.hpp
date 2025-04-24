@@ -55,11 +55,9 @@ class BaseRenderer
 
   protected:
     virtual void CreateRenderTargets(VulkanCore::VSwapChain* swapChain = nullptr)                                 = 0;
-    virtual void DrawScene(int currentFrameIndex, const VulkanUtils::VUniformBufferManager& uniformBufferManager) = 0;
 
   protected:
     std::unique_ptr<Renderer::RenderTarget>                  m_renderTargets;
-    std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_commandBuffers;
     const VulkanCore::VDevice&                               m_device;
 
     int m_width, m_height;
