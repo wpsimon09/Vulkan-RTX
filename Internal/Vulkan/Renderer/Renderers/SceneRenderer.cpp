@@ -41,13 +41,8 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VRe
     m_height = height;
     SceneRenderer::CreateRenderTargets(nullptr);
 
-    m_sceneCommandPool = std::make_unique<VulkanCore::VCommandPool>(device, Graphics);
-    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-    }
-
     //=========================
-    // CONFIGURE DEAPTH PASS EFFECT
+    // CONFIGURE DEPTH PASS EFFECT
     //=========================
     m_depthPrePassEffect = std::make_unique<VulkanUtils::VRasterEffect>(
         m_device, "Depth-PrePass effect", "Shaders/Compiled/DepthPrePass.vert.spv", "Shaders/Compiled/DepthPrePass.frag.spv",
@@ -114,14 +109,6 @@ void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdB
                 uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
             ;
             forwardShadingResourceGroup.buffer3 = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
-
-            /*
-                    forwardShaddingEffect.buffer4 = uniformBufferManager.GetMaterialFeaturesDescriptorBufferInfo(objectIndex)[
-                        currentFrameIndex];
-
-                    forwardShaddingEffect.buffer5 = uniformBufferManager.GetPerMaterialNoMaterialDescrptorBufferInfo(objectIndex)[
-                        currentFrameIndex];
-                        */
 
             drawCall.material->UpdateGPUTextureData(forwardShadingResourceGroup);
 
@@ -195,7 +182,7 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex,VulkanCore::VCommandBuffe
     //==============================================
     // START RENDER PASS
     //==============================================
-    auto& cmdB = cmdB.GetCommandBuffer();
+    auto& cmdB = cmdBuffer.GetCommandBuffer();
 
     cmdB.beginRendering(&renderingInfo);
 
@@ -302,17 +289,11 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex,VulkanCore::VCommandBuffe
 void SceneRenderer::Render(int                                       currentFrameIndex,
                            VulkanCore::VCommandBuffer&               cmdBuffer,
                            const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                           VulkanUtils::RenderContext*               renderContext,
-                           VulkanCore::VTimelineSemaphore&           renderingTimeLine,
-                           VulkanCore::VTimelineSemaphore&           transferSemapohre
-
+                           VulkanUtils::RenderContext*               renderContext
 )
 {
 
     m_renderContextPtr = renderContext;
-
-    auto& renderTarget = m_renderTargets;
-
     //=====================================================
     // RECORD COMMAND BUFFER
     //=====================================================
@@ -336,6 +317,7 @@ void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
 void SceneRenderer::DrawScene(int currentFrameIndex,VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
 
+    assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
     int drawCallCount = 0;
     //==============================================
     // CREATE RENDER PASS INFO
@@ -358,21 +340,21 @@ void SceneRenderer::DrawScene(int currentFrameIndex,VulkanCore::VCommandBuffer& 
     //==============================================
     // START RENDER PASS
     //==============================================
-    auto& cmdBuffer = m_commandBuffers[currentFrameIndex]->GetCommandBuffer();
+    auto& cmdB = cmdBuffer.GetCommandBuffer();
     if(m_frameCount > 0)
     {
         VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex),
                                                         vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                        *m_commandBuffers[currentFrameIndex]);
+                                                        cmdBuffer);
     }
 
-    cmdBuffer.beginRendering(&renderingInfo);
+    cmdB.beginRendering(&renderingInfo);
 
 
     // if there is nothing to render end the render process
     if(m_renderContextPtr->drawCalls.empty())
     {
-        cmdBuffer.endRendering();
+        cmdB.endRendering();
         m_renderingStatistics.DrawCallCount = drawCallCount;
         return;
     }
@@ -386,8 +368,8 @@ void SceneRenderer::DrawScene(int currentFrameIndex,VulkanCore::VCommandBuffer& 
 
     vk::DeviceSize indexBufferOffset = 0;
 
-    cmdBuffer.bindVertexBuffers(0, {currentVertexBuffer->buffer}, {0});
-    cmdBuffer.bindIndexBuffer(currentIndexBuffer->buffer, 0, vk::IndexType::eUint32);
+    cmdB.bindVertexBuffers(0, {currentVertexBuffer->buffer}, {0});
+    cmdB.bindIndexBuffer(currentIndexBuffer->buffer, 0, vk::IndexType::eUint32);
 
     //============================================
     // CONFIGURE VIEW PORT
@@ -401,7 +383,7 @@ void SceneRenderer::DrawScene(int currentFrameIndex,VulkanCore::VCommandBuffer& 
 
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    cmdBuffer.setViewport(0, 1, &viewport);
+    cmdB.setViewport(0, 1, &viewport);
 
     vk::Rect2D scissors{};
     scissors.offset.x      = 0;
@@ -410,26 +392,25 @@ void SceneRenderer::DrawScene(int currentFrameIndex,VulkanCore::VCommandBuffer& 
     scissors.extent.height = m_height;
 
 
-    cmdBuffer.setScissor(0, 1, &scissors);
-
+    cmdB.setScissor(0, 1, &scissors);
 
     //=================================================
     // RECORD OPAQUE DRAW CALLS
     //=================================================
-    currentEffect->BindPipeline(cmdBuffer);
+    currentEffect->BindPipeline(cmdB);
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
         auto& material = drawCall.second.material;
         if(drawCall.second.effect != currentEffect)
         {
-            drawCall.second.effect->BindPipeline(cmdBuffer);
+            drawCall.second.effect->BindPipeline(cmdB);
             currentEffect = drawCall.second.effect;
         }
 
         if(drawCall.second.selected)
-            cmdBuffer.setStencilTestEnable(true);
+            cmdB.setStencilTestEnable(true);
         else
-            cmdBuffer.setStencilTestEnable(false);
+            cmdB.setStencilTestEnable(false);
         //================================================================================================
         // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
         //================================================================================================
@@ -440,38 +421,38 @@ void SceneRenderer::DrawScene(int currentFrameIndex,VulkanCore::VCommandBuffer& 
             std::vector<vk::Buffer>     vertexBuffers = {drawCall.second.vertexData->buffer};
             std::vector<vk::DeviceSize> offsets       = {0};
             vertexBuffers                             = {drawCall.second.vertexData->buffer};
-            cmdBuffer.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+            cmdB.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
             currentVertexBuffer = drawCall.second.vertexData;
         }
 
         if(currentIndexBuffer->BufferID != drawCall.second.indexData->BufferID)
         {
             indexBufferOffset = 0;
-            cmdBuffer.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
+            cmdB.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
             currentIndexBuffer = drawCall.second.indexData;
         }
 
-        PushDataToGPU(cmdBuffer, currentFrameIndex, drawCall.second.drawCallID, drawCall.second, uniformBufferManager);
+        PushDataToGPU(cmdB, currentFrameIndex, drawCall.second.drawCallID, drawCall.second, uniformBufferManager);
 
-        cmdBuffer.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
+        cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
                               drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
                               drawCall.second.vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
 
         drawCallCount++;
     }
 
-    cmdBuffer.endRendering();
+    cmdB.endRendering();
 
     VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex),
                                                     vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal,
-                                                    *m_commandBuffers[currentFrameIndex]);
+                                                    cmdBuffer);
+
     m_renderingStatistics.DrawCallCount = drawCallCount;
 }
 
 void SceneRenderer::Destroy()
 {
-    BaseRenderer::Destroy();
-    m_sceneCommandPool->Destroy();
+    m_renderTargets->Destroy();
     m_depthPrePassEffect->Destroy();
 }
 }  // namespace Renderer

@@ -48,16 +48,19 @@ namespace Renderer {
         void Render(int currentFrameIndex,
                     VulkanCore::VCommandBuffer& cmdBuffer,
                     const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                    VulkanUtils::RenderContext* renderContext,
-                    VulkanCore::VTimelineSemaphore& renderingTimeLine,
-                    VulkanCore::VTimelineSemaphore& transferSemaphore);
+                    VulkanUtils::RenderContext* renderContext);
+
+        VulkanCore::VImage2& GetRenderedImage(int currentFrame)
+        {
+            return m_renderTargets->GetColourImage(currentFrame);
+        };
 
         void Destroy();
 
     protected:
         void DrawScene(int currentFrameIndex,
                        VulkanCore::VCommandBuffer& cmdBuffer,
-                       const VulkanUtils::VUniformBufferManager& uniformBufferManager) override;
+                       const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
         void DepthPrePass(int currentFrameIndex,
                           VulkanCore::VCommandBuffer& cmdBuffer,
@@ -80,9 +83,7 @@ namespace Renderer {
         // Rendering
         std::unique_ptr<Renderer::RenderTarget> m_renderTargets;
         std::unique_ptr<VulkanUtils::VRasterEffect> m_depthPrePassEffect;
-        std::unique_ptr<VulkanCore::VCommandPool> m_sceneCommandPool;
 
-        VulkanStructs::RenderContext* m_selectedGeometryPass;
         VulkanStructs::RenderingStatistics m_renderingStatistics;
 
         // Config / state
