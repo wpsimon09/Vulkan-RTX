@@ -48,7 +48,7 @@ class VBuffer : public VObject
 
     void Destroy() override;
 
-    void CreateStagingBuffer(VkDeviceSize size);
+    void CreateHostVisibleBuffer(VkDeviceSize size, VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
 
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage);
 

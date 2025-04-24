@@ -56,14 +56,14 @@ void VBuffer::Destroy()
     vmaDestroyBuffer(m_device.GetAllocator(), m_bufferVMA, m_allocation);
 }
 
-void VBuffer::CreateStagingBuffer(VkDeviceSize size)
+void VBuffer::CreateHostVisibleBuffer(VkDeviceSize size, VkBufferUsageFlags usage)
 {
 
     std::string allocationNme = "Allocation of staging buffer for " + m_allocationName;
 
     VkBufferCreateInfo stagingBufferCreateInfo    = {};
     stagingBufferCreateInfo.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    stagingBufferCreateInfo.usage                 = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    stagingBufferCreateInfo.usage                 = usage;
     stagingBufferCreateInfo.size                  = size;
     stagingBufferCreateInfo.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
     stagingBufferCreateInfo.queueFamilyIndexCount = m_sharedQueueFamilyIndices.size();
@@ -76,9 +76,8 @@ void VBuffer::CreateStagingBuffer(VkDeviceSize size)
 
 
     Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
-    assert(vmaCreateBuffer(m_device.GetAllocator(), &stagingBufferCreateInfo, &stagingAllocationCreateInfo,
-                           &m_stagingBufferVMA, &m_stagingAllocation, nullptr)
-           == VK_SUCCESS);
+    VulkanUtils::Check(static_cast<vk::Result>(vmaCreateBuffer(m_device.GetAllocator(), &stagingBufferCreateInfo, &stagingAllocationCreateInfo,
+                           &m_stagingBufferVMA, &m_stagingAllocation, nullptr)));
     m_stagingBufferVK = m_stagingBufferVMA;
 
     vmaSetAllocationName(m_device.GetAllocator(), m_stagingAllocation, allocationNme.c_str());

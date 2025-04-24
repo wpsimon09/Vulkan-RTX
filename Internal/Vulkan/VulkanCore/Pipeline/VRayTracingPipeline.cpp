@@ -148,10 +148,46 @@ void VRayTracingPipeline::CreateShaderBindingTable()
 
     //===========================================
     // allocate buffer for shader binding table
-    vk::DeviceSize deviceSize = m_rGenRegion.size + m_rMissRegion.size + m_rHitRegion.size + m_rCallRegion.size;
+    vk::DeviceSize handlesSize = m_rGenRegion.size + m_rMissRegion.size + m_rHitRegion.size + m_rCallRegion.size;
 
     m_shaderBindingTable = std::make_unique<VulkanCore::VBuffer>(m_device, "Shader binding table");
-    //m_shaderBindingTable->CreateBuffer();
+    m_shaderBindingTable->CreateHostVisibleBuffer(handlesSize, static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
+                                                     | vk::BufferUsageFlagBits::eShaderBindingTableKHR));
+
+    m_rGenRegion.deviceAddress = m_shaderBindingTable->GetBufferAdress();
+    m_rMissRegion.deviceAddress = m_shaderBindingTable->GetBufferAdress() + m_rGenRegion.size;
+    m_rHitRegion.deviceAddress = m_shaderBindingTable->GetBufferAdress() + m_rGenRegion.size + m_rMissRegion.size;
+
+    // helper to retrieve the handle data pointer so that we can copy the shader to it
+    auto getHandle = [&](int i) { return handles.data() + i * handleSize; };
+
+    //map the SBT buffer so that we can copy to it
+    m_shaderBindingTable->MapStagingBuffer();
+    auto* pSBTBuffer = reinterpret_cast<uint8_t*>(m_shaderBindingTable->GetMapPointer());
+    uint8_t* pData = {nullptr};
+    uint32_t handleIndex = 0;
+
+    // Ray gen
+    pData = pSBTBuffer;
+    memcpy(pData, getHandle(handleIndex++),handleSize);
+
+    // miss shaders
+    pData  = pSBTBuffer + m_rGenRegion.size;
+    for (int i = 0; i<missCount; i++) {
+        memcpy(pData, getHandle(handleIndex++),handleSize);
+        pData += m_rMissRegion.stride;
+    }
+
+    // hit shaders
+    pData = pSBTBuffer + m_rGenRegion.size + m_rMissRegion.size;
+    for (int i = 0; i<hitCount; i++) {
+        memcpy(pData, getHandle(handleIndex++),handleSize);
+        pData += m_rHitRegion.stride;
+    }
+
+    m_shaderBindingTable->UnMapStagingBuffer();
+
+
 }
 
 

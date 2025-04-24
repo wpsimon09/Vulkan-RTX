@@ -139,7 +139,7 @@ void VImage2::FillWithImageData(const VulkanStructs::ImageData<T>& imageData,
     Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
 
     m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE STAGING BUFFER ==>");
-    m_stagingBufferWithPixelData->CreateStagingBuffer(imageData.GetSize());
+    m_stagingBufferWithPixelData->CreateHostVisibleBuffer(imageData.GetSize());
 
     memcpy(m_stagingBufferWithPixelData->MapStagingBuffer(), imageData.pixels, imageData.GetSize());
     m_stagingBufferWithPixelData->UnMapStagingBuffer();

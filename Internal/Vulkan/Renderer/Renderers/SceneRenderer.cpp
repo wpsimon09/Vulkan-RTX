@@ -166,7 +166,7 @@ void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdB
                     m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
                 ;
             }
-            //forwardShaddingEffect.texture2D_7 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            //forwardShadding.texture2D_7 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
             cmdBuffer.pushDescriptorSetWithTemplateKHR(drawCall.effect->GetUpdateTemplate(), drawCall.effect->GetPipelineLayout(),
                                                        0, forwardShadingResourceGroup, m_device.DispatchLoader);
