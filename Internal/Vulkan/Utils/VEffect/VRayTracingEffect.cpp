@@ -37,5 +37,6 @@ vk::PipelineLayout VRayTracingEffect::GetPipelineLayout()
 }
 
 void VRayTracingEffect::BindPipeline(const vk::CommandBuffer& cmdBuffer) {}
-void VRayTracingEffect::Destroy() {}
+void VRayTracingEffect::Destroy() { m_rtPipeline->Destroy();}
+
 }  // namespace VulkanUtils

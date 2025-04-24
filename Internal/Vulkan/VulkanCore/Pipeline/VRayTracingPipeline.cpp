@@ -41,6 +41,14 @@ vk::PipelineLayout VRayTracingPipeline::GetPipelineLayout()
 {
     return m_pipelineLayout;
 }
+void VRayTracingPipeline::Destroy()
+{
+    m_device.GetDevice().destroyPipelineLayout(m_pipelineLayout);
+    //m_shaderBindingTable->Destroy();
+    m_shaderBindingTable->DestroyStagingBuffer();
+    m_device.GetDevice().destroyPipeline(m_rtPipelineHandle);
+
+}
 
 void VRayTracingPipeline::CreateCreatePipelineShaders()
 {

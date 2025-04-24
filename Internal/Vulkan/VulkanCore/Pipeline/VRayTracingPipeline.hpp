@@ -38,6 +38,7 @@ class VRayTracingPipeline : public VObject
     void               Init();
     vk::PipelineLayout GetPipelineLayout();
 
+    void Destroy() override;
 
 
       /*

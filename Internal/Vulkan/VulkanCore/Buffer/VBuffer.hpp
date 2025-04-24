@@ -33,7 +33,7 @@ class VBuffer : public VObject
 
     void* GetMapPointer() const
     {
-        assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer);
+        //assert(m_bufferType == vk::BufferUsageFlagBits::eUniformBuffer);
         return m_mappedData;
     }
 
@@ -127,7 +127,7 @@ void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size)
 template <typename T>
 void VBuffer::CreateBufferAndPutDataOnDevice(const vk::CommandBuffer& commandBuffer, const std::vector<T>& data, vk::BufferUsageFlags usage)
 {
-    CreateStagingBuffer(data.size() * sizeof(T)); // implicitly maps the buffer
+    CreateHostVisibleBuffer(data.size() * sizeof(T)); // implicitly maps the buffer
     CreateBuffer(data.size() * sizeof(T), static_cast<VkBufferUsageFlags>(usage) | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
     memcpy(MapStagingBuffer(), data.data(), data.size() * sizeof(T));
     UnMapStagingBuffer();
