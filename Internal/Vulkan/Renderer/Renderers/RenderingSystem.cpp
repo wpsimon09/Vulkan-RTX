@@ -58,9 +58,11 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_renderingTimeLine.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_imageAvailableSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_renderingCommandBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_ableToPresentSemaphore.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
+        m_ableToPresentSemaphore[i]   =  std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_renderingTimeLine[i]        = std::make_unique<VulkanCore::VTimelineSemaphore>(m_device, 8);
         m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_renderingCommandBuffers[i]  = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_renderingCommandPool);
@@ -105,6 +107,7 @@ void RenderingSystem::Init()
 void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, GlobalUniform& globalUniformUpdateInfo)
 {
     m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
+    m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
     m_sceneLightInfo = &sceneLightInfo;
 
     //=================================================
@@ -181,7 +184,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
         //m_rayTracer->TraceRays();
     }
 
-    // render UI and present to swap chain
+    // render UI to the swap chain image
     m_uiRenderer->Render(m_currentFrameIndex, m_currentImageIndex, *m_renderingCommandBuffers[m_currentFrameIndex]);
 
 
@@ -193,7 +196,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
     vk::SubmitInfo submitInfo;
 
     const std::vector<vk::Semaphore> waitSemaphores = {m_transferSemapohore.GetSemaphore(), m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
-    const std::vector<vk::Semaphore> signalSemaphores = {m_renderingTimeLine[m_currentFrameIndex]->GetSemaphore()};
+    const std::vector<vk::Semaphore> signalSemaphores = {m_renderingTimeLine[m_currentFrameIndex]->GetSemaphore(), m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive()};
 
     std::vector<vk::PipelineStageFlags> waitStages = {
         vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
@@ -203,8 +206,8 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
     //renderingTimeLine.SetWaitAndSignal(0, 2);  //
     //transferSemapohre.SetWaitAndSignal(2, 4);
 
-    const std::vector<uint64_t> waitValues =   {2, 0};
-    const std::vector<uint64_t> signalVlaues = {4, 20};
+    const std::vector<uint64_t> waitValues =   {0, 0};
+    const std::vector<uint64_t> signalVlaues = {8, 4};
 
     vk::TimelineSemaphoreSubmitInfo timelineinfo;
     timelineinfo.waitSemaphoreValueCount = waitValues.size();
@@ -217,8 +220,8 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers    = &m_renderingCommandBuffers[m_currentFrameIndex]->GetCommandBuffer();
 
-    submitInfo.signalSemaphoreCount = waitSemaphores.size();
-    submitInfo.pSignalSemaphores    = waitSemaphores.data();
+    submitInfo.signalSemaphoreCount = signalSemaphores.size();
+    submitInfo.pSignalSemaphores    = signalSemaphores.data();
 
     submitInfo.waitSemaphoreCount = waitSemaphores.size();
     submitInfo.pWaitSemaphores    = waitSemaphores.data();
@@ -229,6 +232,13 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
     assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 
     m_transferSemapohore.Reset();
+
+
+    m_uiRenderer->Present(m_currentImageIndex, *m_renderingTimeLine[m_currentFrameIndex],
+                          m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive());
+
+
+    m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
 
     //===========================================
     // submitiion from UI
@@ -274,11 +284,6 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
 */
 
 
-    m_uiRenderer->Present(m_currentImageIndex, *m_renderingTimeLine[m_currentFrameIndex],
-                          m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive());
-
-
-    m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
 }
 
 void RenderingSystem::Update()
@@ -291,6 +296,7 @@ void RenderingSystem::Destroy()
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_imageAvailableSemaphores[i]->Destroy();
+        m_ableToPresentSemaphore[i]->Destroy();
     }
     m_sceneRenderer->Destroy();
     m_uiRenderer->Destroy();

@@ -4,57 +4,54 @@
 
 #ifndef RENDERINGSYSTEM_HPP
 #define RENDERINGSYSTEM_HPP
+
+// STL
 #include <memory>
 #include <vector>
+
+// GLM forward declaration
 #include <glm/fwd.hpp>
 
+// Project Includes
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
-namespace Renderer {
-class RayTracer;
-}
-namespace VulkanCore::RTX {
-struct BLASInput;
-}
-namespace VulkanUtils {
-class VRayTracingDataManager;
-}
-namespace VulkanUtils {
-class VEnvLightGenerator;
-}
-
-namespace VulkanUtils {
-struct RenderContext;
-}
-
+// Forward Declarations
 namespace VulkanCore {
-class VTimelineSemaphore;
-class VPipelineManager;
-class VSwapChain;
-class VDevice;
-}  // namespace VulkanCore
+    class VDevice;
+    class VSwapChain;
+    class VPipelineManager;
+    class VTimelineSemaphore;
+    template<typename T>
+    class VSyncPrimitive;
+}
+
+namespace VulkanUtils {
+    class UIContext;
+    class VEnvLightGenerator;
+    class VUniformBufferManager;
+    class VResourceGroupManager;
+    class VRayTracingDataManager;
+    struct RenderContext;
+}
+
+namespace VulkanCore::RTX {
+    struct BLASInput;
+}
+
+namespace Renderer {
+    class RayTracer;
+    class SceneRenderer;
+    class UserInterfaceRenderer;
+}
 
 namespace VEditor {
-class RenderingOptions;
-class UIContext;
-}  // namespace VEditor
-
-namespace Renderer {
-class UserInterfaceRenderer;
-class SceneRenderer;
-}  // namespace Renderer
-
-
-namespace VulkanUtils {
-class UIContext;
-
-class VUniformBufferManager;
-class VResourceGroupManager;
-}  // namespace VulkanUtils
+    class RenderingOptions;
+    class UIContext;
+}
 
 struct GlobalUniform;
 
@@ -62,57 +59,67 @@ namespace Renderer {
 
 class RenderingSystem
 {
-  public:
+public:
     RenderingSystem(const VulkanCore::VulkanInstance&         instance,
                     const VulkanCore::VDevice&                device,
                     const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                     VulkanUtils::VResourceGroupManager&       pushDescriptorManager,
                     VEditor::UIContext&                       uiContext);
 
-    VulkanUtils::RenderContext* GetRenderContext() { return &m_renderContext; }
-    VulkanUtils::VRayTracingDataManager& GetRayTracingManager() {return *m_rayTracingDataManager;} ;
-
-  public:
     void Init();
     void Render(LightStructs::SceneLightInfo& sceneLightInfo, GlobalUniform& globalUniformUpdateInfo);
     void Update();
     void Destroy();
 
-    SceneRenderer& GetSceneRenderer() { return *m_sceneRenderer; };
+    SceneRenderer&                         GetSceneRenderer() { return *m_sceneRenderer; };
+    VulkanUtils::RenderContext*            GetRenderContext() { return &m_renderContext; }
+    VulkanUtils::VRayTracingDataManager&   GetRayTracingManager() { return *m_rayTracingDataManager; };
 
-  private:
+private:
+    // Core Vulkan references
     const VulkanCore::VDevice&                m_device;
     const VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
+    VulkanUtils::VResourceGroupManager&       m_pushDescriptorSetManager;
     VEditor::UIContext&                       m_uiContext;
-    LightStructs::SceneLightInfo*             m_sceneLightInfo;
 
-    VulkanUtils::VResourceGroupManager& m_pushDescriptorSetManager;
-    uint32_t                            m_currentImageIndex = 0;
-    uint32_t                            m_currentFrameIndex = 0;
+    // Scene state
+    LightStructs::SceneLightInfo* m_sceneLightInfo = nullptr;
 
+    // Renderers
+    std::unique_ptr<Renderer::SceneRenderer>         m_sceneRenderer;
+    std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
+    std::unique_ptr<Renderer::RayTracer>             m_rayTracer;
+
+    // Environment
+    std::unique_ptr<VulkanUtils::VEnvLightGenerator> m_envLightGenerator;
+
+    // Swapchain and Command Buffers
+    std::unique_ptr<VulkanCore::VSwapChain>                    m_swapChain;
+    std::unique_ptr<VulkanCore::VCommandPool>                  m_renderingCommandPool;
+    std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>>   m_renderingCommandBuffers;
+
+    // Synchronization
     std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
+    std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_ableToPresentSemaphore;
+    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>>            m_renderingTimeLine;
+    VulkanCore::VTimelineSemaphore&                                           m_transferSemapohore;
 
-    std::unique_ptr<class VulkanCore::VSwapChain> m_swapChain;
+    // Ray Tracing
+    std::unique_ptr<VulkanUtils::VRayTracingDataManager> m_rayTracingDataManager;
 
+    // Render context
     VulkanUtils::RenderContext m_renderContext;
 
-    std::unique_ptr<Renderer::SceneRenderer>                     m_sceneRenderer;
-    std::unique_ptr<Renderer::UserInterfaceRenderer>             m_uiRenderer;
-    std::unique_ptr<Renderer::RayTracer>                         m_rayTracer;
-    std::unique_ptr<VulkanUtils::VEnvLightGenerator>             m_envLightGenerator;
-    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>> m_renderingTimeLine;
-    std::unique_ptr<VulkanUtils::VRayTracingDataManager>             m_rayTracingDataManager;
-    std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_renderingCommandBuffers;
-    std::unique_ptr<VulkanCore::VCommandPool> m_renderingCommandPool;;
+    // State
+    uint32_t m_currentImageIndex = 0;
+    uint32_t m_currentFrameIndex = 0;
+    bool     m_isRayTracing = false;
 
-    VulkanCore::VTimelineSemaphore& m_transferSemapohore;
-
-    bool m_isRayTracing = false;
-
+    // Editor Integration
     friend class VEditor::RenderingOptions;
     friend class VEditor::UIContext;
 };
 
 }  // namespace Renderer
 
-#endif  //RENDERINGSYSTEM_HPP
+#endif  // RENDERINGSYSTEM_HPP

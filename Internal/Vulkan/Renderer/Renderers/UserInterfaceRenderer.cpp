@@ -28,11 +28,6 @@ UserInterfaceRenderer::UserInterfaceRenderer(const VulkanCore::VDevice&    devic
     , m_imguiInitializer(uiContext)
     , m_swapChain(swapChain)
 {
-    m_ableToPresentSemaphore.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        m_ableToPresentSemaphore[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(device, false);
-    }
 
     m_renderTarget = std::make_unique<Renderer::RenderTarget>(m_device, swapChain);
     uiContext.Initialize(swapChain);
@@ -90,17 +85,17 @@ void UserInterfaceRenderer::Render(int currentFrameIndex, uint32_t swapChainImag
 }
 void UserInterfaceRenderer::Present(uint32_t                        swapChainImageIndex,
                                     VulkanCore::VTimelineSemaphore& renderingTimeLine,
-                                    const vk::Semaphore&            swapChainImageAvailable)
+                                    const vk::Semaphore&            ableToPresentSemaphore)
 {
     //===========================
     // PRESENT TO SCREEN
     //===========================
     vk::PresentInfoKHR presentInfo;
-    auto next = renderingTimeLine.GetSemaphoreSubmitInfo(4, 8);
-    presentInfo.pNext = &next;
+    //auto next = renderingTimeLine.GetSemaphoreSubmitInfo(4, 8);
+    //presentInfo.pNext = &next;
 
     presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores    = &renderingTimeLine.GetSemaphore();
+    presentInfo.pWaitSemaphores    = &ableToPresentSemaphore;
 
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains    = &m_swapChain.GetSwapChain();
@@ -111,18 +106,10 @@ void UserInterfaceRenderer::Present(uint32_t                        swapChainIma
     vk::Result presentResult = VulkanUtils::PresentQueueWrapper(m_device.GetPresentQueue(), presentInfo);
 }
 
-void UserInterfaceRenderer::RecordCommandBuffer(int currentFrameIndex, uint32_t swapChainImageIndex)
-{
-
-
-}
 
 void UserInterfaceRenderer::Destroy()
 {
-    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        m_ableToPresentSemaphore[i]->Destroy();
-    }
+
     m_renderTarget->Destroy();
     m_commandPool->Destroy();
 }
