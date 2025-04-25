@@ -18,6 +18,8 @@ VRayTracingEffect::VRayTracingEffect(const VulkanCore::VDevice&                 
     m_rtPipeline =
         std::make_unique<VulkanCore::RTX::VRayTracingPipeline>(device, m_shaders, descriptorSet->GetDescriptorSetLayout());
     m_rtPipeline->Init();
+
+    m_resourceGroup->CreateDstUpdateInfo(m_rtPipeline->GetPipelineLayout(), vk::PipelineBindPoint::eRayTracingKHR);
 }
 void VRayTracingEffect::BuildEffect()
 {

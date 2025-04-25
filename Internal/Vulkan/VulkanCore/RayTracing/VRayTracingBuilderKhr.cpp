@@ -231,7 +231,7 @@ void VRayTracingBuilderKHR::CmdCreteTlas(const vk::CommandBuffer&               
     }
 }
 
-const vk::AccelerationStructureKHR VRayTracingBuilderKHR::GetTLAS() const{
+const vk::AccelerationStructureKHR& VRayTracingBuilderKHR::GetTLAS() const{
     return m_tlas.as;
 }
 

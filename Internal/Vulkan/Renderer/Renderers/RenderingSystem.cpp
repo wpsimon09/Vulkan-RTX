@@ -31,6 +31,9 @@
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
+#include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
+
 
 
 namespace Renderer {

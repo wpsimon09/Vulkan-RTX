@@ -12,6 +12,8 @@
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 
 namespace Renderer {
 RayTracer::RayTracer(const VulkanCore::VDevice&           device,
@@ -34,6 +36,7 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
             vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled;
         imageCI.layout = vk::ImageLayout::eGeneral;
         imageCI.format = vk::Format::eR16G16B16A16Sfloat;
+        imageCI.isStorage = true;
 
         m_resultImage[i] = std::make_unique<VulkanCore::VImage2>(device, imageCI);
 
@@ -61,12 +64,22 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                           const VulkanUtils::VUniformBufferManager& unifromBufferManager,
                           int                                       currentFrame)
 {
+    assert(cmdBuffer.GetIsRecording() && "Command buffer is not recordgin !");
+    m_rtxEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
+
+    auto& cmdB = cmdBuffer.GetCommandBuffer();
+
     auto& descriptor = std::get<VulkanUtils::RayTracingDescriptorSet>(m_rtxEffect->GetResrouceGroupStructVariant());
     descriptor.buffer1 = unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame];
     descriptor.buffer2 = unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame];
 
     descriptor.tlas = m_rtxDataManager.GetTlasWriteInfo();
     descriptor.storage2D_1 = m_resultImage[currentFrame]->GetDescriptorImageInfo();
+
+    cmdB.pushDescriptorSetWithTemplateKHR(m_rtxEffect->GetUpdateTemplate(), m_rtxEffect->GetPipelineLayout(),
+                                                       0, descriptor, m_device.DispatchLoader);
+
+    //cmdB.traceRaysKHR()
 }
 
 
@@ -74,6 +87,7 @@ void RayTracer::ProcessResize(int newWidth, int newHeight) {}
 
 void RayTracer::Destroy()
 {
+    m_rtxEffect->Destroy();
     for(auto& i : m_resultImage)
     {
         i->Destroy();

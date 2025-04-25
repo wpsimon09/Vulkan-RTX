@@ -37,7 +37,7 @@ void VRayTracingPipeline::Init()
     m_rtxPipelineCreateInfo.maxPipelineRayRecursionDepth = GlobalVariables::RenderingOptions::MaxRecursionDepth;
     m_rtxPipelineCreateInfo.layout                       = m_pipelineLayout;
 }
-vk::PipelineLayout VRayTracingPipeline::GetPipelineLayout()
+const vk::PipelineLayout& VRayTracingPipeline::GetPipelineLayout()
 {
     return m_pipelineLayout;
 }

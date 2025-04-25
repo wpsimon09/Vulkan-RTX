@@ -33,7 +33,7 @@ class VShaderResrouceGroup
     std::string&                      GetName() { return m_name; }
     EDescriptorLayoutStruct           GetResourceGroupStrucutureType() { return m_layoutStructType; }
 
-    void                          CreateDstUpdateInfo(VulkanCore::VGraphicsPipeline& pipelineLayout);
+    void                          CreateDstUpdateInfo(const vk::PipelineLayout& pipelineLayout, vk::PipelineBindPoint bindPoint = vk::PipelineBindPoint::eGraphics);
     vk::DescriptorUpdateTemplate& GetUpdateTemplate() { return m_descriptorUpdateTemplate; }
     void                          Destroy();
 

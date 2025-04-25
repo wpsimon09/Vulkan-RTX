@@ -187,6 +187,14 @@ vk::DescriptorImageInfo VImage2::GetDescriptorImageInfo(vk::Sampler& sampler)
     imageInfo.sampler     = sampler;
     return imageInfo;
 }
+vk::DescriptorImageInfo VImage2::GetDescriptorImageInfo() {
+    assert(m_imageFlags.IsStorage && "This function is only available for storage images !");
+    vk::DescriptorImageInfo imageInfo{};
+    imageInfo.imageLayout = m_imageInfo.layout;
+    imageInfo.imageView   = m_imageView;
+    imageInfo.sampler     = nullptr;
+    return imageInfo;
+}
 
 vk::DeviceSize VImage2::GetImageSizeBytes()
 {

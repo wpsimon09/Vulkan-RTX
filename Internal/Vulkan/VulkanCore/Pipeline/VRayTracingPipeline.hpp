@@ -35,8 +35,8 @@ class VRayTracingPipeline : public VObject
     VRayTracingPipeline(const VulkanCore::VDevice&              device,
                         const VulkanCore::VRayTracingShaders&   rayTracingShaders,
                         const VulkanCore::VDescriptorSetLayout& descSetLayout);
-    void               Init();
-    vk::PipelineLayout GetPipelineLayout();
+    void                      Init();
+    const vk::PipelineLayout& GetPipelineLayout();
 
     void Destroy() override;
 

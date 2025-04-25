@@ -17,7 +17,7 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
     m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_resourceGroup->GetDescriptorSetLayout());
     m_pipeline->Init();
 
-    m_resourceGroup->CreateDstUpdateInfo(*m_pipeline);
+    m_resourceGroup->CreateDstUpdateInfo(m_pipeline->GetPipelineLayout());
 
 }
 
@@ -33,7 +33,7 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
         std::make_unique<VulkanCore::VGraphicsPipeline>(device, m_shader.value(), m_resourceGroup->GetDescriptorSetLayout());
     m_pipeline->Init();
 
-    m_resourceGroup->CreateDstUpdateInfo(*m_pipeline);
+    m_resourceGroup->CreateDstUpdateInfo(m_pipeline->GetPipelineLayout());
 
 }
 

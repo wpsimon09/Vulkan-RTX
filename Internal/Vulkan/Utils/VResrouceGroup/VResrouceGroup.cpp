@@ -101,7 +101,7 @@ void VulkanUtils::VShaderResrouceGroup::AddUpdateEntry(uint32_t binding, size_t 
     m_descriptorTemplateEntries.push_back(entry);
 }
 
-void VulkanUtils::VShaderResrouceGroup::CreateDstUpdateInfo(VulkanCore::VGraphicsPipeline& pipelineLayout)
+void VulkanUtils::VShaderResrouceGroup::CreateDstUpdateInfo( const vk::PipelineLayout& pipelineLayout,  vk::PipelineBindPoint bindPoint)
 {
     Utils::Logger::LogInfo("Creating update template object....");
     //  assert(!m_descriptorTemplateEntries.empty() && "No template entries found");
@@ -110,8 +110,8 @@ void VulkanUtils::VShaderResrouceGroup::CreateDstUpdateInfo(VulkanCore::VGraphic
     createInfo.pDescriptorUpdateEntries   = m_descriptorTemplateEntries.data();
     createInfo.templateType               = vk::DescriptorUpdateTemplateType::ePushDescriptors;
     createInfo.descriptorSetLayout        = nullptr;
-    createInfo.pipelineBindPoint          = vk::PipelineBindPoint::eGraphics;
-    createInfo.pipelineLayout             = pipelineLayout.GetPipelineLayout();
+    createInfo.pipelineBindPoint          = bindPoint;
+    createInfo.pipelineLayout             = pipelineLayout;
 
     m_descriptorUpdateTemplate = m_device.GetDevice().createDescriptorUpdateTemplate(createInfo);
 

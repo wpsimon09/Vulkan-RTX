@@ -85,6 +85,7 @@ class VImage2 : public VulkanCore::VObject
     const vk::Image&         GetImageRef() const;
     vk::ImageView            GetImageView() const;
     vk::DescriptorImageInfo  GetDescriptorImageInfo(vk::Sampler& sampler);
+    vk::DescriptorImageInfo  GetDescriptorImageInfo();
 
     vk::DeviceSize GetImageSizeBytes();
     VmaAllocation& GetImageAllocation();
