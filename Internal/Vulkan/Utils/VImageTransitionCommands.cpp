@@ -208,6 +208,13 @@ void VulkanUtils::EvaluateBarrierMasks(vk::ImageLayout targetLayout, vk::ImageLa
         srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
         dstStageFlags = vk::PipelineStageFlagBits::eRayTracingShaderKHR; // or eFragmentShader depending on usage
     }
+    else if (currentLayout == vk::ImageLayout::eUndefined && targetLayout == vk::ImageLayout::ePresentSrcKHR) {
+        barrier.srcAccessMask = {};
+        barrier.dstAccessMask = {};
+
+        srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+        dstStageFlags = vk::PipelineStageFlagBits::eBottomOfPipe; // or eFragmentShader depending on usage
+    }
     else
     {
         std::string currentLayoutStr = ImageLayoutToString(currentLayout);
