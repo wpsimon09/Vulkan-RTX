@@ -107,6 +107,7 @@ void RenderingSystem::Init()
 void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, GlobalUniform& globalUniformUpdateInfo)
 {
     m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
+
     m_sceneLightInfo = &sceneLightInfo;
 
     //=================================================
@@ -144,10 +145,11 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
     }
 
 
-    m_device.GetTransferOpsManager().UpdateGPU();
     m_renderingTimeLine[m_currentFrameIndex]->Reset();
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
-
+    m_device.GetTransferOpsManager().UpdateGPU();
+    m_transferSemapohore.CpuWaitIdle(2);
+    m_transferSemapohore.Reset();
 
     // ==== check if it is possible ot use env light
     m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo);
@@ -201,14 +203,16 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
 
     std::vector<vk::PipelineStageFlags> waitStages = {
         vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
-        vk::PipelineStageFlagBits::eTransfer  // Transfer wait stage
+        vk::PipelineStageFlagBits::eTransfer,
+        vk::PipelineStageFlagBits::eNone
+        // Transfer wait stage
     };
 
     m_renderingTimeLine[m_currentFrameIndex]->SetWaitAndSignal(0, 8);  //
-    m_transferSemapohore.SetWaitAndSignal(2, 4);
+    //m_transferSemapohore.SetWaitAndSignal(2, 4);
 
-    const std::vector<uint64_t> waitValues =   {m_transferSemapohore.GetCurrentWaitValue(), /*transfer- wait*/  4 /*able to present - binary*/};
-    const std::vector<uint64_t> signalVlaues = {m_renderingTimeLine[m_currentFrameIndex]->GetCurrentSignalValue() /*rendering signal*/,  4  /*able to present - binary*/ };
+    const std::vector<uint64_t> waitValues =   {2, /*transfer- wait*/  4 /*able to present - binary*/};
+    const std::vector<uint64_t> signalVlaues = {m_renderingTimeLine[m_currentFrameIndex]->GetCurrentSignalValue() /*rendering signal*/,  7  /*able to present - binary*/ };
 
     vk::TimelineSemaphoreSubmitInfo timelineinfo;
     timelineinfo.waitSemaphoreValueCount = waitValues.size();
@@ -231,9 +235,6 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
 
     auto result = m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr);
     assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
-
-    m_transferSemapohore.Reset();
-
 
     m_uiRenderer->Present(m_currentImageIndex, *m_renderingTimeLine[m_currentFrameIndex],
                           m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive());

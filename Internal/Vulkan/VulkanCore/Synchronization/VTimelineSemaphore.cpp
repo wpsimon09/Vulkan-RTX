@@ -77,7 +77,7 @@ void VTimelineSemaphore::SetWaitAndSignal(uint64_t waitValue, uint64_t signalVal
 
 void VTimelineSemaphore::Reset()
 {
-    if(m_waitHistory.empty())
+    if(!m_waitHistory.empty())
     {
         m_waitHistory.clear();
     }

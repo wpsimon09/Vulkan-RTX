@@ -111,6 +111,5 @@ void UserInterfaceRenderer::Destroy()
 {
 
     m_renderTarget->Destroy();
-    m_commandPool->Destroy();
 }
 }  // namespace Renderer
