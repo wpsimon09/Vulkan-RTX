@@ -31,7 +31,7 @@ void RenderingOptions::Render()
         m_renderingSystem->GetRayTracingManager().InitAs(input);
     }
 
-    ImGui::Checkbox("Fake ray-tracer ", &m_renderingSystem->m_isRayTracing);
+    ImGui::Checkbox("RTX ", &m_renderingSystem->m_isRayTracing);
     ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_renderContext.RenderBillboards);
 
     if(ImGui::TreeNode(ICON_FA_DRAW_POLYGON " Scene render"))

@@ -89,6 +89,6 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
 }
 
 [shader("fragment")]
-float4 fragmentMain() {
-    return float4(0.0);
+void fragmentMain() {
+
 }

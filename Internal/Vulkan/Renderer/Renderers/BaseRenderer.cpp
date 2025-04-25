@@ -15,7 +15,6 @@ namespace Renderer {
 BaseRenderer::BaseRenderer(const VulkanCore::VDevice& device)
     : m_device(device)
 {
-    m_commandBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
 }
 
 void BaseRenderer::Destroy()

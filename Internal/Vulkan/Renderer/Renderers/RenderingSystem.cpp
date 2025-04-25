@@ -18,6 +18,7 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp"
@@ -52,14 +53,19 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_swapChain = std::make_unique<VulkanCore::VSwapChain>(m_device, instance);
 
     //------------------------------------------------------------------------------------------------------------------------
-    // CREATE SYNCHRONIZATION PRIMITIVES
+    // CREATE SYNCHRONIZATION PRIMITIVES and Command buffers
     //------------------------------------------------------------------------------------------------------------------------
-    m_renderingTimeLine.resize(2);
-    m_imageAvailableSemaphores.resize(2);
+    m_renderingTimeLine.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_imageAvailableSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_renderingCommandBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_ableToPresentSemaphore.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
+        m_ableToPresentSemaphore[i]   =  std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_renderingTimeLine[i]        = std::make_unique<VulkanCore::VTimelineSemaphore>(m_device, 8);
         m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+        m_renderingCommandBuffers[i]  = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_renderingCommandPool);
     }
 
     //----------------------------------------------------------------------------------------------------------------------------
@@ -83,7 +89,8 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_rayTracingDataManager = std::make_unique<VulkanUtils::VRayTracingDataManager>(m_device);
 
     auto cam = m_uiContext.GetClient().GetCamera();
-    m_rayTracer = std::make_unique<RayTracer>(m_device, *m_rayTracingDataManager, cam.GetScreenSize().x, cam.GetScreenSize().y);
+    m_rayTracer =
+        std::make_unique<RayTracer>(m_device, *m_rayTracingDataManager, cam.GetScreenSize().x, cam.GetScreenSize().y);
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }
@@ -137,9 +144,10 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
     }
 
 
-
     m_device.GetTransferOpsManager().UpdateGPU();
     m_renderingTimeLine[m_currentFrameIndex]->Reset();
+    m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
+
 
     // ==== check if it is possible ot use env light
     m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo);
@@ -160,16 +168,123 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
     m_renderContext.prefilterMap  = m_envLightGenerator->GetPrefilterMapRaw();
     m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
-    // render scene
-    m_sceneRenderer->Render(m_currentFrameIndex, m_uniformBufferManager, &m_renderContext,
-                            *m_renderingTimeLine[m_currentFrameIndex], m_transferSemapohore);
 
-    // render UI and present to swap chain
-    m_uiRenderer->RenderAndPresent(m_currentFrameIndex, m_currentImageIndex,
-                                   m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(),
-                                   *m_renderingTimeLine[m_currentFrameIndex]);
+
+    //============================================================
+    // start recording command buffer that will render the scene
+    m_renderingCommandBuffers[m_currentFrameIndex]->BeginRecording();
+
+    if(!m_isRayTracing)
+    {
+        // render scene
+        m_sceneRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_uniformBufferManager,
+                                &m_renderContext);
+    }
+    else
+    {
+        //m_rayTracer->TraceRays();
+    }
+
+    // render UI to the swap chain image
+    m_uiRenderer->Render(m_currentFrameIndex, m_currentImageIndex, *m_renderingCommandBuffers[m_currentFrameIndex]);
+
+
+    m_renderingCommandBuffers[m_currentFrameIndex]->EndRecording();
+
+    //=====================================================
+    // SUBMIT RECORDED COMMAND BUFFER
+    //=====================================================
+    vk::SubmitInfo submitInfo;
+
+    const std::vector<vk::Semaphore> waitSemaphores = {m_transferSemapohore.GetSemaphore(), m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
+    const std::vector<vk::Semaphore> signalSemaphores = {m_renderingTimeLine[m_currentFrameIndex]->GetSemaphore(), m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive()};
+
+    std::vector<vk::PipelineStageFlags> waitStages = {
+        vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
+        vk::PipelineStageFlagBits::eTransfer  // Transfer wait stage
+    };
+
+    m_renderingTimeLine[m_currentFrameIndex]->SetWaitAndSignal(0, 8);  //
+    m_transferSemapohore.SetWaitAndSignal(2, 4);
+
+    const std::vector<uint64_t> waitValues =   {m_transferSemapohore.GetCurrentWaitValue(), /*transfer- wait*/  4 /*able to present - binary*/};
+    const std::vector<uint64_t> signalVlaues = {m_renderingTimeLine[m_currentFrameIndex]->GetCurrentSignalValue() /*rendering signal*/,  4  /*able to present - binary*/ };
+
+    vk::TimelineSemaphoreSubmitInfo timelineinfo;
+    timelineinfo.waitSemaphoreValueCount = waitValues.size();
+    timelineinfo.pWaitSemaphoreValues    = waitValues.data();
+
+    timelineinfo.signalSemaphoreValueCount = signalVlaues.size();
+    timelineinfo.pSignalSemaphoreValues    = signalVlaues.data();
+
+    submitInfo.pNext              = &timelineinfo;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers    = &m_renderingCommandBuffers[m_currentFrameIndex]->GetCommandBuffer();
+
+    submitInfo.signalSemaphoreCount = signalSemaphores.size();
+    submitInfo.pSignalSemaphores    = signalSemaphores.data();
+
+    submitInfo.waitSemaphoreCount = waitSemaphores.size();
+    submitInfo.pWaitSemaphores    = waitSemaphores.data();
+
+    submitInfo.pWaitDstStageMask = waitStages.data();
+
+    auto result = m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr);
+    assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
+
+    m_transferSemapohore.Reset();
+
+
+    m_uiRenderer->Present(m_currentImageIndex, *m_renderingTimeLine[m_currentFrameIndex],
+                          m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive());
+
 
     m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
+
+    //===========================================
+    // submitiion from UI
+    //
+    /**
+    *
+    *    std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,
+    vk::PipelineStageFlagBits::eTopOfPipe};
+
+    std::vector<vk::Semaphore> waitSemaphores   = {renderingTimeLine.GetSemaphore(), swapChainImageAvailable};
+    std::vector<vk::Semaphore> signalSemaphores = {renderingTimeLine.GetSemaphore(),
+    m_ableToPresentSemaphore[currentFrameIndex]->GetSyncPrimitive()};
+
+    vk::SubmitInfo submitInfo;
+    auto           next = renderingTimeLine.GetSemaphoreSubmitInfo(2, 6);
+
+    std::vector<uint64_t> waitValues   = {renderingTimeLine.GetCurrentWaitValue(), 20};
+    std::vector<uint64_t> signalValues = {renderingTimeLine.GetCurrentSignalValue(), 21};
+
+    next.pWaitSemaphoreValues    = waitValues.data();
+    next.waitSemaphoreValueCount = waitValues.size();
+
+    next.signalSemaphoreValueCount = signalValues.size();
+    next.pSignalSemaphoreValues    = signalValues.data();
+
+    submitInfo.pNext              = &next;
+    submitInfo.pWaitSemaphores    = waitSemaphores.data();
+    submitInfo.waitSemaphoreCount = waitSemaphores.size();
+
+    submitInfo.pWaitDstStageMask = waitStages.data();
+
+    submitInfo.signalSemaphoreCount = signalValues.size();
+    submitInfo.pSignalSemaphores    = signalSemaphores.data();
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers    = &m_commandBuffer[currentFrameIndex]->GetCommandBuffer();
+
+    auto result = m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr);
+    assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
+
+    renderingTimeLine.CpuWaitIdle(6);
+    renderingTimeLine.CpuSignal(8);
+*/
+
+
 }
 
 void RenderingSystem::Update()
@@ -177,10 +292,12 @@ void RenderingSystem::Update()
     m_renderContext.ResetAllDrawCalls();
 }
 
-void RenderingSystem::Destroy() {
+void RenderingSystem::Destroy()
+{
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_imageAvailableSemaphores[i]->Destroy();
+        m_ableToPresentSemaphore[i]->Destroy();
     }
     m_sceneRenderer->Destroy();
     m_uiRenderer->Destroy();
