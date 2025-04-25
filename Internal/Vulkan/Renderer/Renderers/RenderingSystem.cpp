@@ -41,7 +41,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
                                  VEditor::UIContext&                       uiContext)
     : m_device(device)
     , m_uniformBufferManager(uniformBufferManager)
-    , m_pushDescriptorSetManager(pushDescriptorManager)
+    , m_resrouceGroupManager(pushDescriptorManager)
     , m_renderContext()
     , m_uiContext(uiContext)
     , m_transferSemapohore(device.GetTransferOpsManager().GetTransferSemaphore())
@@ -72,7 +72,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     // Renderers creation
     //----------------------------------------------------------------------------------------------------------------------------
 
-    m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_pushDescriptorSetManager,
+    m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_resrouceGroupManager,
                                                                 GlobalVariables::RenderTargetResolutionWidth,
                                                                 GlobalVariables::RenderTargetResolutionHeight);
 
@@ -90,7 +90,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
 
     auto cam = m_uiContext.GetClient().GetCamera();
     m_rayTracer =
-        std::make_unique<RayTracer>(m_device, *m_rayTracingDataManager, cam.GetScreenSize().x, cam.GetScreenSize().y);
+        std::make_unique<RayTracer>(m_device,m_resrouceGroupManager, *m_rayTracingDataManager, cam.GetScreenSize().x, cam.GetScreenSize().y);
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }
@@ -184,7 +184,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
     }
     else
     {
-        //m_rayTracer->TraceRays();
+        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex], *m_renderingTimeLine[m_currentFrameIndex], m_uniformBufferManager,m_currentFrameIndex );
     }
 
     // render UI to the swap chain image
@@ -241,51 +241,6 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
 
 
     m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
-
-    //===========================================
-    // submitiion from UI
-    //
-    /**
-    *
-    *    std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,
-    vk::PipelineStageFlagBits::eTopOfPipe};
-
-    std::vector<vk::Semaphore> waitSemaphores   = {renderingTimeLine.GetSemaphore(), swapChainImageAvailable};
-    std::vector<vk::Semaphore> signalSemaphores = {renderingTimeLine.GetSemaphore(),
-    m_ableToPresentSemaphore[currentFrameIndex]->GetSyncPrimitive()};
-
-    vk::SubmitInfo submitInfo;
-    auto           next = renderingTimeLine.GetSemaphoreSubmitInfo(2, 6);
-
-    std::vector<uint64_t> waitValues   = {renderingTimeLine.GetCurrentWaitValue(), 20};
-    std::vector<uint64_t> signalValues = {renderingTimeLine.GetCurrentSignalValue(), 21};
-
-    next.pWaitSemaphoreValues    = waitValues.data();
-    next.waitSemaphoreValueCount = waitValues.size();
-
-    next.signalSemaphoreValueCount = signalValues.size();
-    next.pSignalSemaphoreValues    = signalValues.data();
-
-    submitInfo.pNext              = &next;
-    submitInfo.pWaitSemaphores    = waitSemaphores.data();
-    submitInfo.waitSemaphoreCount = waitSemaphores.size();
-
-    submitInfo.pWaitDstStageMask = waitStages.data();
-
-    submitInfo.signalSemaphoreCount = signalValues.size();
-    submitInfo.pSignalSemaphores    = signalSemaphores.data();
-
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers    = &m_commandBuffer[currentFrameIndex]->GetCommandBuffer();
-
-    auto result = m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr);
-    assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
-
-    renderingTimeLine.CpuWaitIdle(6);
-    renderingTimeLine.CpuSignal(8);
-*/
-
-
 }
 
 void RenderingSystem::Update()

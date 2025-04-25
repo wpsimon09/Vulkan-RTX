@@ -54,8 +54,14 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
     }
     m_rayTracingBuilder->BuildTLAS(m_instances);
 }
-void VRayTracingDataManager::Destroy() {
+void VRayTracingDataManager::Destroy()
+{
     m_rayTracingBuilder->Destroy();
+}
+vk::WriteDescriptorSetAccelerationStructureKHR VRayTracingDataManager::GetTlasWriteInfo() {
+    vk::WriteDescriptorSetAccelerationStructureKHR as;
+    as.accelerationStructureCount = 1;
+    as.pAccelerationStructures = &m_rayTracingBuilder->GetTLAS();
 }
 
 } // VulkanUtils

@@ -34,6 +34,7 @@ class VRayTracingDataManager {
     // rebuilds every acceleration structures
     void InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs);
     void Destroy();
+    vk::WriteDescriptorSetAccelerationStructureKHR  GetTlasWriteInfo();
 
   private:
     const VulkanCore::VDevice& m_device;

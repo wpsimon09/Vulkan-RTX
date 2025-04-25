@@ -119,16 +119,6 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     effects[EEffectType::SkyBox] = std::move(skybox);
 
-    //===============================================================================
-
-    VulkanCore::RTX::RTXShaderPaths rtxShaderPaths;
-    rtxShaderPaths.rayGenPath = "Shaders/Compiled/SimpleRayTracing.rgen.spv";
-    rtxShaderPaths.missPath = "Shaders/Compiled/SimpleRayTracing.miss.spv";
-    rtxShaderPaths.rayHitPath = "Shaders/Compiled/SimpleRayTracing.chit.spv";
-    auto rayTracingHitGroup = std::make_shared<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Hit group highlight", pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::RayTracing) );
-
-    effects[EEffectType::RayTracing] = std::move(rayTracingHitGroup);
-
     BuildAllEffects();
 }
 

@@ -90,7 +90,7 @@ void Application::Init()
 
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 
-    //m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_pushDescriptorSetManager);
+    //m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_resrouceGroupManager);
     m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
     m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager,
@@ -186,12 +186,6 @@ void Application::Render()
 
 void Application::PostRender()
 {
-    // m_client->().Reset();ň
-
-    // ray tracing buid is teporeraly going here
-
-
-    //all commands that were recorded over the frame are now gonna be submmitted
     m_vulkanDevice->GetTransferOpsManager().ClearResources();
 }
 

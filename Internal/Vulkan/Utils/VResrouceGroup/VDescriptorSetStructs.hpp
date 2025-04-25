@@ -66,9 +66,9 @@ struct RayTracingDescriptorSet {
     vk::DescriptorBufferInfo buffer1;  // global data
     vk::DescriptorBufferInfo buffer2;  // light data
     vk::DescriptorBufferInfo buffer3;  // material data
-    vk::DescriptorBufferInfo buffer4;  // TLAS data
+    vk::WriteDescriptorSetAccelerationStructureKHR tlas;  // TLAS data
 
-    vk::DescriptorImageInfo texture2D_1; // output image
+    vk::DescriptorImageInfo storage2D_1; // output image
 
 };
 

@@ -23,6 +23,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& inf
 
     AllocateImage();
     GenerateImageView();
+    m_imageFlags.IsStorage = info.isStorage;
     m_imageFlags.IsDepthBuffer = IsDepth(m_imageInfo.format);
 }
 
@@ -33,7 +34,6 @@ VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& inf
     , m_imageFlags{}
 {
     m_imageFlags.IsSwapChainImage = true;
-
 
     GenerateImageView();
 }

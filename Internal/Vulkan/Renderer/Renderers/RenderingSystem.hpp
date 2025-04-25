@@ -79,7 +79,7 @@ private:
     // Core Vulkan references
     const VulkanCore::VDevice&                m_device;
     const VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
-    VulkanUtils::VResourceGroupManager&       m_pushDescriptorSetManager;
+    VulkanUtils::VResourceGroupManager&       m_resrouceGroupManager;
     VEditor::UIContext&                       m_uiContext;
 
     // Scene state

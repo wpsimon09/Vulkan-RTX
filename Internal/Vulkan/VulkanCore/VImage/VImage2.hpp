@@ -34,6 +34,8 @@ struct VImage2CreateInfo
     vk::SampleCountFlagBits samples    = vk::SampleCountFlagBits::e1;
     vk::ImageLayout         layout     = vk::ImageLayout::eUndefined;
 
+    bool isStorage = false;
+
     void SetImageLayout(vk::ImageLayout newLayout) { layout = newLayout; }
     void SetWidth(int newWidth) { width = newWidth; }
     void SetHeight(int newHeight) { height = newHeight; }
@@ -57,6 +59,7 @@ struct VImage2Flags
     bool IsValid          = false;
     bool IsLoaded         = false;
     bool IsSavable        = false;
+    bool IsStorage        = false;
 };
 
 class VImage2 : public VulkanCore::VObject
