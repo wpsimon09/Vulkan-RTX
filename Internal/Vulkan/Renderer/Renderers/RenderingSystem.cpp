@@ -107,7 +107,6 @@ void RenderingSystem::Init()
 void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, GlobalUniform& globalUniformUpdateInfo)
 {
     m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
-    m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
     m_sceneLightInfo = &sceneLightInfo;
 
     //=================================================
@@ -147,6 +146,8 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
 
     m_device.GetTransferOpsManager().UpdateGPU();
     m_renderingTimeLine[m_currentFrameIndex]->Reset();
+    m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
+
 
     // ==== check if it is possible ot use env light
     m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo);
@@ -200,14 +201,14 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
 
     std::vector<vk::PipelineStageFlags> waitStages = {
         vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
-        vk::PipelineStageFlagBits::eTransfer                // Transfer wait stage
+        vk::PipelineStageFlagBits::eTransfer  // Transfer wait stage
     };
 
-    //renderingTimeLine.SetWaitAndSignal(0, 2);  //
-    //transferSemapohre.SetWaitAndSignal(2, 4);
+    m_renderingTimeLine[m_currentFrameIndex]->SetWaitAndSignal(0, 8);  //
+    m_transferSemapohore.SetWaitAndSignal(2, 4);
 
-    const std::vector<uint64_t> waitValues =   {0, 0};
-    const std::vector<uint64_t> signalVlaues = {8, 4};
+    const std::vector<uint64_t> waitValues =   {m_transferSemapohore.GetCurrentWaitValue(), /*transfer- wait*/  4 /*able to present - binary*/};
+    const std::vector<uint64_t> signalVlaues = {m_renderingTimeLine[m_currentFrameIndex]->GetCurrentSignalValue() /*rendering signal*/,  4  /*able to present - binary*/ };
 
     vk::TimelineSemaphoreSubmitInfo timelineinfo;
     timelineinfo.waitSemaphoreValueCount = waitValues.size();
