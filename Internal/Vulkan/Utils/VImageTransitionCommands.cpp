@@ -213,7 +213,7 @@ void VulkanUtils::EvaluateBarrierMasks(vk::ImageLayout targetLayout, vk::ImageLa
         barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
 
         srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
-        dstStageFlags = vk::PipelineStageFlagBits::eBottomOfPipe; // or eFragmentShader depending on usage
+        dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput; // or eFragmentShader depending on usage
     }
     else
     {

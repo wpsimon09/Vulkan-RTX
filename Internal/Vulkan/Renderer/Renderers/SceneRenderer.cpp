@@ -341,12 +341,10 @@ void SceneRenderer::DrawScene(int currentFrameIndex,VulkanCore::VCommandBuffer& 
     // START RENDER PASS
     //==============================================
     auto& cmdB = cmdBuffer.GetCommandBuffer();
-    if(m_frameCount > 0)
-    {
-        VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex),
-                                                        vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                        cmdBuffer);
-    }
+
+    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex),
+                                                    vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                    cmdBuffer);
 
     cmdB.beginRendering(&renderingInfo);
 

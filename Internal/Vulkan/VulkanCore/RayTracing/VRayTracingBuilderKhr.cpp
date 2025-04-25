@@ -26,6 +26,7 @@ VRayTracingBuilderKHR::VRayTracingBuilderKHR(const VulkanCore::VDevice& device)
 
 void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildAccelerationStructureFlagsKHR flags)
 {
+    if (inputs.empty()) return;
     m_blasEntries.reserve(inputs.size());
     for(auto& blas : inputs)
     {
@@ -113,6 +114,8 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
                                       bool                                                     update,
                                       bool                                                     motion)
 {
+
+    if (instances.empty()) return;
 
     m_cmdBuffer->BeginRecording();
 

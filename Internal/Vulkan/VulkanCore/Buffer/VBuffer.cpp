@@ -127,10 +127,8 @@ void VBuffer::CreateBufferWithAligment(VkDeviceSize size, VkBufferUsageFlags usa
     allocationCreateInfo.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 
 
-    if (vmaCreateBufferWithAlignment(m_device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo, minAligment, &m_bufferVMA,
-                                 &m_allocation, nullptr) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create buffer with aligment !");
-    }
+    VulkanUtils::Check(static_cast<vk::Result>(vmaCreateBufferWithAlignment(m_device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo, minAligment, &m_bufferVMA,
+                                 &m_allocation, nullptr)));
 
     m_bufferVK   = m_bufferVMA;
     m_bufferSize = size;

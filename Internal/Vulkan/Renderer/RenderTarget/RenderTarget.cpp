@@ -111,7 +111,7 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         VulkanUtils::RecordImageTransitionLayoutCommand(*m_colourAttachments[i].second,
-                                                        vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eUndefined,
+                                                        vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined,
                                                         cmdBuffer.GetCommandBuffer());
 
         VulkanUtils::RecordImageTransitionLayoutCommand(*m_msaaAttachments[i].second,
