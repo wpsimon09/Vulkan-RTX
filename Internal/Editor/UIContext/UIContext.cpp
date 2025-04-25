@@ -37,8 +37,9 @@ UIContext::UIContext(const VulkanCore::VDevice& device, const VulkanCore::Vulkan
     , m_windowManager(windowManager)
     , m_client(client)
 {
-    m_io                             = nullptr;
-    m_viewports[ViewPortType::eMain] = {.camera = &m_client.GetCamera()};
+    m_io                                      = nullptr;
+    m_viewports[ViewPortType::eMain]          = {.camera = &m_client.GetCamera()};
+    m_viewports[ViewPortType::eMainRayTracer] = {.camera = &m_client.GetCamera()};
 }
 
 void UIContext::Initialize(const VulkanCore::VSwapChain& swapChain)
@@ -47,6 +48,8 @@ void UIContext::Initialize(const VulkanCore::VSwapChain& swapChain)
 
     // if i want to have more images like view port material view, i should put it here
     vk::DescriptorPoolSize poolSizes[] = {
+        {vk::DescriptorType::eCombinedImageSampler, 1},
+        {vk::DescriptorType::eCombinedImageSampler, 1},
         {vk::DescriptorType::eCombinedImageSampler, 1},
         {vk::DescriptorType::eCombinedImageSampler, 1},
         {vk::DescriptorType::eCombinedImageSampler, 1},
@@ -161,6 +164,7 @@ void UIContext::Destroy()
     m_device.GetDevice().destroyDescriptorPool(m_imguiDescriptorPool);
     Utils::Logger::LogSuccess("ImGui successfully destroyed");
 }
+
 
 void UIContext::SetColourThemePabloDark()
 {

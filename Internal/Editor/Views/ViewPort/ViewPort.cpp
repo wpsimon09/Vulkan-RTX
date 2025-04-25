@@ -17,13 +17,15 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 
 
-VEditor::ViewPort::ViewPort(ViewPortContext& viewPortContext, ApplicationCore::Scene& scene, WindowManager& windowManager)
-    : m_viewPortContext(viewPortContext)
+VEditor::ViewPort::ViewPort(ViewPortContext& rasterViewportContext,ViewPortContext& rayTracedViewPortContext,bool &isRayTracing,  ApplicationCore::Scene& scene, WindowManager& windowManager)
+    : m_rasterViewPortContext(rasterViewportContext)
+    , m_rayTracedViewPortContext(rayTracedViewPortContext)
+    , m_isRayTracing(isRayTracing)
     , m_scene(scene)
     , m_windowManager(windowManager)
 {
-    m_previousHeight = viewPortContext.height;
-    m_previousWidth  = viewPortContext.width;
+    m_previousHeight = rasterViewportContext.height;
+    m_previousWidth  = rasterViewportContext.width;
 }
 
 void VEditor::ViewPort::Render()
@@ -93,7 +95,13 @@ void VEditor::ViewPort::Render()
     auto   imageOrigin       = ImGui::GetCursorScreenPos();
     m_gizmoRectOriginX       = imageOrigin.x;
     m_gizmoRectOriginY       = imageOrigin.y;
-    ImGui::Image((ImTextureID)m_viewPortContext.GetImageDs(), imageSize);
+
+
+    if (m_isRayTracing) {
+        ImGui::Image((ImTextureID)m_rayTracedViewPortContext.GetImageDs(), imageSize);
+    }else {
+        ImGui::Image((ImTextureID)m_rasterViewPortContext.GetImageDs(), imageSize);
+    }
     ImGuizmo::SetRect(m_gizmoRectOriginX, m_gizmoRectOriginY, imageSize.x, imageSize.y);
 
     RenderGizmoActions(imageOrigin, imageSize);
@@ -137,11 +145,14 @@ void VEditor::ViewPort::Resize(int newWidth, int newHeight)
     m_previousHeight = newHeight;
     m_previousWidth  = newWidth;
 
-    m_viewPortContext.camera->ProcessResize(newWidth, newHeight);
-    m_viewPortContext.hasResized = true;
+    m_rasterViewPortContext.camera->ProcessResize(newWidth, newHeight);
+    m_rasterViewPortContext.hasResized = true;
 
     ImGuizmo::SetRect(m_gizmoRectOriginX, m_gizmoRectOriginY, newWidth, newHeight);
     IUserInterfaceElement::Render();
+}
+void VEditor::ViewPort::SetViewPortContext(ViewPortContext& viewPortContext) {
+    m_rasterViewPortContext = viewPortContext;
 }
 
 void VEditor::ViewPort::RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSize)

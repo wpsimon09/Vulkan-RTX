@@ -62,6 +62,9 @@ class UIContext
     void SetColourThemePabloDark();
     void SetColourThemePabloLight();
 
+    bool m_isRayTracing = false;
+
+
   public:
     ApplicationCore::Scene& GetScene() const { return m_client.GetScene(); }
     Client&                 GetClient() { return m_client; }
@@ -90,6 +93,9 @@ class UIContext
 
     ImGuizmo::OPERATION m_operation;
 
+
+  private:
+    ;
 
   private:
     friend class VEditor::Editor;

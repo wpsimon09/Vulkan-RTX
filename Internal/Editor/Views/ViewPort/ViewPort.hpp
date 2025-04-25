@@ -21,23 +21,28 @@ namespace VEditor {
 class ViewPort : public IUserInterfaceElement
 {
   public:
-    explicit ViewPort(ViewPortContext& viewPortContext, ApplicationCore::Scene& scene, WindowManager& windowManager);
+    explicit ViewPort(ViewPortContext& rasterViewportContext,ViewPortContext& rayTracedViewPortContext, bool &isRayTracing, ApplicationCore::Scene& scene, WindowManager& windowManager);
 
     virtual void Render() override;
 
     void Resize(int newWidth, int newHeight) override;
+
+    void SetViewPortContext(ViewPortContext& viewPortContext);
 
   private:
     void RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSize);
 
     ApplicationCore::Scene& m_scene;
     WindowManager&          m_windowManager;
-    ViewPortContext&        m_viewPortContext;
+    ViewPortContext&        m_rasterViewPortContext;
+    ViewPortContext&        m_rayTracedViewPortContext;
 
     float m_previousWidth;
     float m_previousHeight;
     float m_gizmoRectOriginX;
     float m_gizmoRectOriginY;
+    bool& m_isRayTracing;
+
     /**
          * Calculates position of mouse inside the view port window
          * @param ImageWidth width of the viewport image

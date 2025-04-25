@@ -37,6 +37,9 @@ vk::PipelineLayout VRayTracingEffect::GetPipelineLayout()
 {
     return m_rtPipeline->GetPipelineLayout();
 }
+VulkanCore::RTX::VRayTracingPipeline& VRayTracingEffect::GetRTXPipeline() {
+    return *m_rtPipeline;
+}
 
 void VRayTracingEffect::BindPipeline(const vk::CommandBuffer& cmdBuffer) {
     cmdBuffer.bindPipeline(vk::PipelineBindPoint::eRayTracingKHR, m_rtPipeline->m_rtPipelineHandle, m_device.DispatchLoader);   

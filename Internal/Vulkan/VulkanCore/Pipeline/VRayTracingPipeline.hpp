@@ -40,6 +40,12 @@ class VRayTracingPipeline : public VObject
 
     void Destroy() override;
 
+    vk::StridedDeviceAddressRegionKHR    m_rGenRegion;
+    vk::StridedDeviceAddressRegionKHR    m_rMissRegion;
+    vk::StridedDeviceAddressRegionKHR    m_rHitRegion;
+    vk::StridedDeviceAddressRegionKHR    m_rCallRegion;
+
+
 
       /*
     Each entry in the SBT is a Shader Group.
@@ -130,10 +136,6 @@ class VRayTracingPipeline : public VObject
 
     std::unique_ptr<VulkanCore::VBuffer> m_shaderBindingTable;
 
-    vk::StridedDeviceAddressRegionKHR    m_rGenRegion;
-    vk::StridedDeviceAddressRegionKHR    m_rMissRegion;
-    vk::StridedDeviceAddressRegionKHR    m_rHitRegion;
-    vk::StridedDeviceAddressRegionKHR    m_rCallRegion;
 
 
   private:

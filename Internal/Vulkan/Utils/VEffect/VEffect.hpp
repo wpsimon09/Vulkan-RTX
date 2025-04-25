@@ -25,11 +25,12 @@ class VEffect
     virtual void                  BuildEffect()                                    = 0;
     virtual vk::PipelineLayout    GetPipelineLayout()                              = 0;
     virtual void                  BindPipeline(const vk::CommandBuffer& cmdBuffer) = 0;
-    virtual void                  Destroy()                                        = 0;
+    virtual void                  Destroy()= 0;
     vk::DescriptorUpdateTemplate& GetUpdateTemplate();
     unsigned short                EvaluateRenderingOrder();
     int&                          GetID();
     EDescriptorLayoutStruct       GetLayoutStructType();
+
 
   protected:
     const VulkanCore::VDevice&                         m_device;

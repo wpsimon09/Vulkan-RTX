@@ -45,6 +45,8 @@ class RayTracer
 
     void ProcessResize(int newWidth, int newHeight);
 
+    VulkanCore::VImage2 &  GetRenderedImage(int currentFrameIndex);
+
     void Destroy();
 
   private:

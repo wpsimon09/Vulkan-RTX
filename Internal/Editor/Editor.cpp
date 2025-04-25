@@ -31,6 +31,8 @@ Editor::Editor(UIContext& uiContext)
                                                   uiContext.m_windowManager.GetWindowHeight());
 
     auto viewPort = std::make_unique<ViewPort>(uiContext.m_viewports[ViewPortType::eMain],
+                                               uiContext.m_viewports[ViewPortType::eMainRayTracer],
+                                               uiContext.m_isRayTracing,
                                                m_uiContext.m_client.GetScene(), m_uiContext.m_windowManager);
     index->m_uiChildren.emplace_back(std::move(viewPort));
 
@@ -40,7 +42,7 @@ Editor::Editor(UIContext& uiContext)
     auto sceneGraph = std::make_unique<SceneView>(uiContext.GetScene());
     index->m_uiChildren.emplace_back(std::move(sceneGraph));
 
-    auto renderingSystem = std::make_unique<RenderingOptions>(uiContext.GetScene(),uiContext.m_renderingSystem);
+    auto renderingSystem = std::make_unique<RenderingOptions>(uiContext.GetScene(), uiContext.m_renderingSystem);
     index->m_uiChildren.emplace_back(std::move(renderingSystem));
 
     auto contentBrowser = std::make_unique<ContentBrowser>(uiContext.GetScene().GetAssetsManager(), uiContext.GetScene());

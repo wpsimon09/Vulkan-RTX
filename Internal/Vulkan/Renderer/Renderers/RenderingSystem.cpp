@@ -104,6 +104,8 @@ void RenderingSystem::Init()
     {
         m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetRenderedImage(m_currentFrameIndex), i);
         //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_envLightGenerator->GetBRDFLut(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_rayTracer->GetRenderedImage(m_currentFrameIndex),i);
+
     }
 }
 
@@ -129,6 +131,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
         case vk::Result::eErrorOutOfDateKHR: {
 
             m_swapChain->RecreateSwapChain();
+
             m_uiRenderer->GetRenderTarget().HandleSwapChainResize(*m_swapChain);
 
             m_renderingTimeLine[m_currentFrameIndex]->Reset();
@@ -179,7 +182,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
     // start recording command buffer that will render the scene
     m_renderingCommandBuffers[m_currentFrameIndex]->BeginRecording();
 
-    if(!m_isRayTracing)
+    if(!m_uiContext.m_isRayTracing)
     {
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_uniformBufferManager,
@@ -192,7 +195,6 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
 
     // render UI to the swap chain image
     m_uiRenderer->Render(m_currentFrameIndex, m_currentImageIndex, *m_renderingCommandBuffers[m_currentFrameIndex]);
-
 
     m_renderingCommandBuffers[m_currentFrameIndex]->EndRecording();
 
@@ -242,13 +244,13 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, Globa
     m_uiRenderer->Present(m_currentImageIndex, *m_renderingTimeLine[m_currentFrameIndex],
                           m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive());
 
-
     m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
 }
 
 void RenderingSystem::Update()
 {
     m_renderContext.ResetAllDrawCalls();
+    m_uiContext.m_isRayTracing = m_isRayTracing;
 }
 
 void RenderingSystem::Destroy()

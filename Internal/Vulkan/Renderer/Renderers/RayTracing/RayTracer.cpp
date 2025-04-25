@@ -34,8 +34,8 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
         imageCI.height = height;
         imageCI.imageUsage =
             vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled;
-        imageCI.layout = vk::ImageLayout::eGeneral;
-        imageCI.format = vk::Format::eR16G16B16A16Sfloat;
+        imageCI.layout    = vk::ImageLayout::eGeneral;
+        imageCI.format    = vk::Format::eR16G16B16A16Sfloat;
         imageCI.isStorage = true;
 
         m_resultImage[i] = std::make_unique<VulkanCore::VImage2>(device, imageCI);
@@ -69,21 +69,27 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
 
     auto& cmdB = cmdBuffer.GetCommandBuffer();
 
-    auto& descriptor = std::get<VulkanUtils::RayTracingDescriptorSet>(m_rtxEffect->GetResrouceGroupStructVariant());
+    auto& descriptor   = std::get<VulkanUtils::RayTracingDescriptorSet>(m_rtxEffect->GetResrouceGroupStructVariant());
     descriptor.buffer1 = unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame];
     descriptor.buffer2 = unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame];
 
-    descriptor.tlas = m_rtxDataManager.GetTlasWriteInfo();
+    descriptor.tlas        = m_rtxDataManager.GetTlasWriteInfo();
     descriptor.storage2D_1 = m_resultImage[currentFrame]->GetDescriptorImageInfo();
 
-    cmdB.pushDescriptorSetWithTemplateKHR(m_rtxEffect->GetUpdateTemplate(), m_rtxEffect->GetPipelineLayout(),
-                                                       0, descriptor, m_device.DispatchLoader);
+    cmdB.pushDescriptorSetWithTemplateKHR(m_rtxEffect->GetUpdateTemplate(), m_rtxEffect->GetPipelineLayout(), 0,
+                                          descriptor, m_device.DispatchLoader);
 
-    //cmdB.traceRaysKHR()
+    auto& p = m_rtxEffect->GetRTXPipeline();
+    cmdB.traceRaysKHR(p.m_rGenRegion, p.m_rMissRegion, p.m_rHitRegion, p.m_rCallRegion,
+                      m_resultImage[currentFrame]->GetImageInfo().width,
+                      m_resultImage[currentFrame]->GetImageInfo().height, 1, m_device.DispatchLoader);
+
+
 }
 
 
-void RayTracer::ProcessResize(int newWidth, int newHeight) {}
+void                 RayTracer::ProcessResize(int newWidth, int newHeight) {}
+VulkanCore::VImage2& RayTracer::GetRenderedImage(int currentFrameIndex) { return *m_resultImage[currentFrameIndex];}
 
 void RayTracer::Destroy()
 {

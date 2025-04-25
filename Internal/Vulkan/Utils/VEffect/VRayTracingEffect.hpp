@@ -16,22 +16,23 @@ class VRayTracingPipeline;
 }
 namespace VulkanUtils {
 
-class VRayTracingEffect :public VEffect
+class VRayTracingEffect : public VEffect
 {
   public:
     VRayTracingEffect(const VulkanCore::VDevice&                          device,
                       const VulkanCore::RTX::RTXShaderPaths&              shaderPaths,
                       const std::string&                                  name,
                       std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet);
-    void               BuildEffect() override;
-    vk::PipelineLayout GetPipelineLayout() override;
-    void               BindPipeline(const vk::CommandBuffer& cmdBuffer) override;
-    void               Destroy() override;
+    void                                  BuildEffect() override;
+    vk::PipelineLayout                    GetPipelineLayout() override;
+    VulkanCore::RTX::VRayTracingPipeline& GetRTXPipeline();
+    void                                  BindPipeline(const vk::CommandBuffer& cmdBuffer) override;
+    void                                  Destroy() override;
 
 
-private:
+  private:
     std::unique_ptr<VulkanCore::RTX::VRayTracingPipeline> m_rtPipeline;
-    VulkanCore::VRayTracingShaders m_shaders;
+    VulkanCore::VRayTracingShaders                        m_shaders;
 };
 
 }  // namespace VulkanUtils
