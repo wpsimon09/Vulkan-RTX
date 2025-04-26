@@ -71,7 +71,7 @@ void rayGenMain() {
 
     RayDesc ray;
     ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-    float3 worldSpaceDirection = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
+    ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
     //ray.Direction = normalize(worldSpaceDirection).xyz;
     ray.TMin = 0.001f;
     ray.TMax = 100000.0f;
@@ -96,5 +96,6 @@ void missMain(inout RayPayLoad payload) {
 void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
 {
     float3 hitLocation = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
-    payLoad.color = float3(0.4, 0.3,0.1);
+
+    payLoad.color = cross(hitLocation, WorldRayDirection());
 }
