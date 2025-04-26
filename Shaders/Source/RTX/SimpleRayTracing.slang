@@ -5,6 +5,7 @@ struct GlobalData {
     column_major float4x4 projection;
     column_major float4x4 view;
     float4x4 inverseView;
+    float4x4 invProjection;
     
 
     float4 lightPosition;
@@ -61,37 +62,39 @@ void rayGenMain() {
     uint2 launchSize = DispatchRaysDimensions().xy;
 
     const float2 pixelCenter = float2(threadIdx.xy) + float2(0.5, 0.5);
+    // get position on the screen inf 0, 1 interval
     const float2 inUv = pixelCenter / float2(launchSize);
-
 
     float2 d = inUv * 2.0 - 1.0;
     // pixel position on view plane 
-    float4 target = mul(inverse(globalData.projection), float4(d.x, d.y, 1.0, 1.0));
+    float4 target = mul(globalData.invProjection, float4(d.x, d.y, 1.0, 1.0));
 
     RayDesc ray;
     ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-    ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0)).xyz;
+    float3 worldSpaceDirection = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
+    //ray.Direction = normalize(worldSpaceDirection).xyz;
     ray.TMin = 0.001f;
-    ray.TMax = 10000.0f;
+    ray.TMax = 100000.0f;
 
     float3 totalRadiance = 0.0f;
 
     RayPayLoad payload;
+    
     TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
     float3 hitColor = payload.color;
     totalRadiance = payload.color;
 
-     _film[int2(threadIdx.xy)] = float4(ray.Direction, 1.0);
+     _film[int2(threadIdx.xy)] = float4(totalRadiance, 1.0);
 }
 
 [[shader("miss")]]
 void missMain(inout RayPayLoad payload) {
-    payload.color = float3(0.0, 0.0, 1.0);
+    payload.color = float3(0.0, 0.0, 0.4);
 }
 
 [[shader("closesthit")]]
 void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
 {
     float3 hitLocation = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
-    payLoad.color = float3(1.0, 0.0, 0.0);
+    payLoad.color = float3(0.4, 0.3,0.1);
 }

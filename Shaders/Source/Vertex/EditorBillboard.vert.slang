@@ -18,6 +18,7 @@ struct GlobalData {
     float4x4 projection;
     float4x4 view;
     float4x4 inverseView;
+    float4x4 invProjection;
 
     float4 lightPosition;
     float4 cameraPostiion;

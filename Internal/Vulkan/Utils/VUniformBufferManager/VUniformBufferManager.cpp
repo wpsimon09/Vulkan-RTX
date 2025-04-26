@@ -50,6 +50,9 @@ void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameInde
 {
     m_perFrameUniform->GetUBOStruct() = perFrameData;
     auto view                         = perFrameData.view;
+    auto projection                         = perFrameData.proj;
+    m_perFrameUniform->GetUBOStruct().inverseView = glm::inverse(view);
+    m_perFrameUniform->GetUBOStruct().inverseProj = glm::inverse(projection);
 
     m_perFrameUniform->UpdateGPUBuffer(frameIndex);
 }

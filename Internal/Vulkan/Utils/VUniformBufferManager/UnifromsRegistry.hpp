@@ -18,6 +18,7 @@ struct GlobalUniform
     glm::mat4 view;
     glm::mat4 proj;
     glm::mat4 inverseView;
+    glm::mat4 inverseProj;
 
     glm::vec4 lightPosition = glm::vec4(2.0f, 400.0f, 2.0f, 1.0f);
     glm::vec4 playerPosition;

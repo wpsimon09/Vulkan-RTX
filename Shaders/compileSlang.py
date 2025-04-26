@@ -90,6 +90,9 @@ def compile_ray_tracing_shaders(dir, verbose):
 def main():
     parser = argparse.ArgumentParser(description="Slang Shader Compiler")
     parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
+    parser.add_argument('--stage', choices=[
+        "vertex", "fragment", "compute", "env", "depth", "raytracing", "all"
+    ], default="all", help='Which stage to compile') 
     args = parser.parse_args()
 
     if not os.path.isfile(SLANGC_PATH) or not os.access(SLANGC_PATH, os.X_OK):
@@ -98,23 +101,29 @@ def main():
 
     os.makedirs("Compiled", exist_ok=True)
 
-    print("== Vertex shaders ==")
-    compile_shaders(".vert.slang", "Source/Vertex", ".spv", ["-allow-glsl", "-matrix-layout-column-major","-I","Source/Modules",], args.verbose)
-    
-    print("== Fragment shaders ==")
-    compile_shaders(".frag.slang", "Source/Fragment", ".spv", ["-allow-glsl", "-matrix-layout-column-major","-I","Source/Modules"], args.verbose)
-    
-    print("== Compute shaders ==")
-    compile_shaders(".comp", "Source/Compute", ".spv", ["-matrix-layout-column-major","-I","Source/Modules"], args.verbose)
+    if args.stage == "vertex" or args.stage == "all":
+        print("== Vertex shaders ==")
+        compile_shaders(".vert.slang", "Source/Vertex", ".spv", ["-allow-glsl", "-matrix-layout-column-major","-I","Source/Modules",], args.verbose)
 
-    print("== ENV Generation ==")
-    compile_boundled_shaders("Source/EnvGeneration", args.verbose)
+    if args.stage == "fragment" or args.stage == "all":
+        print("== Fragment shaders ==")
+        compile_shaders(".frag.slang", "Source/Fragment", ".spv", ["-allow-glsl", "-matrix-layout-column-major","-I","Source/Modules"], args.verbose)
 
-    print("== Depth pre-pass ==")
-    compile_boundled_shaders("Source/DepthPrePass", args.verbose)
+    if args.stage == "compute" or args.stage == "all":
+        print("== Compute shaders ==")
+        compile_shaders(".comp", "Source/Compute", ".spv", ["-matrix-layout-column-major","-I","Source/Modules"], args.verbose)
 
-    print("== Ray tracing ==")
-    compile_ray_tracing_shaders("Source/RTX", args.verbose)
+    if args.stage == "env" or args.stage == "all":
+        print("== ENV Generation ==")
+        compile_boundled_shaders("Source/EnvGeneration", args.verbose)
+
+    if args.stage == "depth" or args.stage == "all":
+        print("== Depth pre-pass ==")
+        compile_boundled_shaders("Source/DepthPrePass", args.verbose)
+
+    if args.stage == "raytracing" or args.stage == "all":
+        print("== Ray tracing ==")
+        compile_ray_tracing_shaders("Source/RTX", args.verbose)
 
 
 if __name__ == "__main__":

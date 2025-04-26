@@ -24,6 +24,8 @@ SkyBoxNode::SkyBoxNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared
     m_lightStruct.hdrImage       = hdrImage->GetHDRTexture();
 
     sceneLightInfo.environmentLight = &m_lightStruct;
+
+    m_sceneNodeMetaData.VisibleInRayTracing = false;
 }
 
 void SkyBoxNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const

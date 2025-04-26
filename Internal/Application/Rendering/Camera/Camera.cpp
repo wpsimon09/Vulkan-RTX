@@ -22,7 +22,7 @@ ApplicationCore::Camera::Camera(glm::vec3 center, glm::vec3 up, float radius, fl
     ;
     m_FOV = 65.0f;
 
-    m_projection = glm::perspective(glm::radians(m_FOV), m_aspect, m_nearPlane, m_farPlane);
+    m_projection = glm::perspectiveRH_ZO(glm::radians(m_FOV), m_aspect, m_nearPlane, m_farPlane);
     ;
     m_projection[1][1] *= -1;
 
@@ -112,7 +112,7 @@ void ApplicationCore::Camera::ProcessResize(int newWidht, int newHeight)
 {
     m_screenSize = {glm::max(newWidht, 1), glm::max(newHeight, 1)};
     m_aspect     = (float)m_screenSize.x / (float)m_screenSize.y;
-    m_projection = glm::perspective(glm::radians(m_FOV), m_aspect, m_nearPlane, m_farPlane);
+    m_projection = glm::perspectiveRH_ZO(glm::radians(m_FOV), m_aspect, m_nearPlane, m_farPlane);
     ;
     m_projection[1][1] *= -1;
     //m_farPlane = GetFarPlane();
@@ -181,7 +181,7 @@ void ApplicationCore::Camera::Update(CameraUpdateInfo& cameraUpdateInfo)
 
 void ApplicationCore::Camera::Recalculate()
 {
-    m_projection = m_projection = glm::perspective(glm::radians(m_FOV), m_aspect, m_nearPlane, m_farPlane);
+    m_projection = m_projection = glm::perspectiveRH_ZO(glm::radians(m_FOV), m_aspect, m_nearPlane, m_farPlane);
     ;
 
     m_projection[1][1] *= -1;
