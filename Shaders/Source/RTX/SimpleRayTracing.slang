@@ -59,9 +59,6 @@ void rayGenMain() {
     // this is the pixel ID
     uint2 threadIdx = DispatchRaysIndex().xy;
     uint2 launchSize = DispatchRaysDimensions().xy;
-    
-    if (threadIdx.x >= (int)globalData.screenSize.x) return;
-    if (threadIdx.y >= (int)globalData.screenSize.y) return;
 
     const float2 pixelCenter = float2(threadIdx.xy) + float2(0.5, 0.5);
     const float2 inUv = pixelCenter / float2(launchSize);
@@ -74,17 +71,15 @@ void rayGenMain() {
     RayDesc ray;
     ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
     ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0)).xyz;
-    ray.TMin = 0.0f;
+    ray.TMin = 0.001f;
     ray.TMax = 10000.0f;
 
     float3 totalRadiance = 0.0f;
 
-    for (int i = 0; i < globalData.reccursionDepth; i++) {
-        RayPayLoad payload;
-        TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
-        float3 hitColor = payload.color;
-        totalRadiance += hitColor;
-     }
+    RayPayLoad payload;
+    TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
+    float3 hitColor = payload.color;
+    totalRadiance = payload.color;
 
      _film[int2(threadIdx.xy)] = float4(totalRadiance, 0.0);
 }
@@ -92,7 +87,6 @@ void rayGenMain() {
 [[shader("miss")]]
 void missMain(inout RayPayLoad payload) {
     payload.color = float3(1.0, 0.0, 1.0);
-
 }
 
 [[shader("closesthit")]]

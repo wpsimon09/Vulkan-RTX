@@ -38,6 +38,7 @@ UIContext::UIContext(const VulkanCore::VDevice& device, const VulkanCore::Vulkan
     , m_client(client)
 {
     m_io                                      = nullptr;
+
     m_viewports[ViewPortType::eMain]          = {.camera = &m_client.GetCamera()};
     m_viewports[ViewPortType::eMainRayTracer] = {.camera = &m_client.GetCamera()};
 }
