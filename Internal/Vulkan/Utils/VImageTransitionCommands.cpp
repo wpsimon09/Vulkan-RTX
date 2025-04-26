@@ -206,7 +206,21 @@ void VulkanUtils::EvaluateBarrierMasks(vk::ImageLayout targetLayout, vk::ImageLa
         barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
 
         srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
-        dstStageFlags = vk::PipelineStageFlagBits::eRayTracingShaderKHR; // or eFragmentShader depending on usage
+        dstStageFlags = vk::PipelineStageFlagBits::eRayTracingShaderKHR | vk::PipelineStageFlagBits::eFragmentShader;
+    }
+    else if (currentLayout == vk::ImageLayout::eShaderReadOnlyOptimal && targetLayout == vk::ImageLayout::eGeneral) {
+        barrier.srcAccessMask = vk::AccessFlagBits::eShaderRead;
+        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eFragmentShader | vk::PipelineStageFlagBits::eRayTracingShaderKHR;
+        dstStageFlags = vk::PipelineStageFlagBits::eRayTracingShaderKHR | vk::PipelineStageFlagBits::eComputeShader  ;
+    }
+    else if (currentLayout == vk::ImageLayout::eGeneral && targetLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
+        barrier.srcAccessMask = vk::AccessFlagBits::eShaderWrite;
+        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eRayTracingShaderKHR | vk::PipelineStageFlagBits::eComputeShader;
+        dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader | vk::PipelineStageFlagBits::eRayTracingShaderKHR;
     }
     else if (currentLayout == vk::ImageLayout::eUndefined && targetLayout == vk::ImageLayout::ePresentSrcKHR) {
         barrier.srcAccessMask = {};
