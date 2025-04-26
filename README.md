@@ -58,8 +58,9 @@ sudo zypper install glfw-devel
 ```sh
 cd Vulkan-RTX ## navigate to repo
 mkdir build ## create build directory
+mkdir cache ## create cache directory, TODO: this will be part of the build script
 cd build ## go to the build directory
-cmake -DCMAKE_BUILD_TYPE=Release -S ../ -B . ## write build files
+cmake .. ## write build files
 cmake --build .
 ```
 ---
