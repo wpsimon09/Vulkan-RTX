@@ -56,7 +56,7 @@ void VBuffer::Destroy()
     vmaDestroyBuffer(m_device.GetAllocator(), m_bufferVMA, m_allocation);
 }
 
-void VBuffer::CreateHostVisibleBuffer(VkDeviceSize size, VkBufferUsageFlags usage)
+void VBuffer::CreateHostVisibleBuffer(VkDeviceSize size, VkBufferUsageFlags usage, uint32_t aligment)
 {
 
     std::string allocationNme = "Allocation of staging buffer for " + m_allocationName;
@@ -76,11 +76,28 @@ void VBuffer::CreateHostVisibleBuffer(VkDeviceSize size, VkBufferUsageFlags usag
 
 
     Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
-    VulkanUtils::Check(static_cast<vk::Result>(vmaCreateBuffer(m_device.GetAllocator(), &stagingBufferCreateInfo, &stagingAllocationCreateInfo,
-                           &m_stagingBufferVMA, &m_stagingAllocation, nullptr)));
+
+    if(aligment == 0)
+    {
+
+        VulkanUtils::Check(static_cast<vk::Result>(vmaCreateBuffer(m_device.GetAllocator(), &stagingBufferCreateInfo, &stagingAllocationCreateInfo,
+                                                                   &m_stagingBufferVMA, &m_stagingAllocation, nullptr)));
+    }
+    else
+    {
+        VulkanUtils::Check(static_cast<vk::Result>(
+            vmaCreateBufferWithAlignment(m_device.GetAllocator(), &stagingBufferCreateInfo, &stagingAllocationCreateInfo,
+                                         aligment, &m_stagingBufferVMA, &m_stagingAllocation, nullptr)));
+    }
     m_stagingBufferVK = m_stagingBufferVMA;
 
     vmaSetAllocationName(m_device.GetAllocator(), m_stagingAllocation, allocationNme.c_str());
+
+    if (usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) {
+        vk::BufferDeviceAddressInfo bufferAdressInfo;
+        bufferAdressInfo.buffer = m_stagingBufferVK;
+        m_bufferAddress         = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
+    }
 
     Utils::Logger::LogSuccess("Staging buffer created || SIZE: " + std::to_string(size) + "bytes ||");
 }
@@ -127,8 +144,8 @@ void VBuffer::CreateBufferWithAligment(VkDeviceSize size, VkBufferUsageFlags usa
     allocationCreateInfo.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 
 
-    VulkanUtils::Check(static_cast<vk::Result>(vmaCreateBufferWithAlignment(m_device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo, minAligment, &m_bufferVMA,
-                                 &m_allocation, nullptr)));
+    VulkanUtils::Check(static_cast<vk::Result>(vmaCreateBufferWithAlignment(
+        m_device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo, minAligment, &m_bufferVMA, &m_allocation, nullptr)));
 
     m_bufferVK   = m_bufferVMA;
     m_bufferSize = size;

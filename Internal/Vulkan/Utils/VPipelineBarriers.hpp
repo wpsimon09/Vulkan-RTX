@@ -25,6 +25,15 @@ void PlaceImageMemoryBarrier(VulkanCore::VImage2&        image,
                              vk::AccessFlags             srcData,
                              vk::AccessFlags             dstData);
 
+void PlaceImageMemoryBarrier(VulkanCore::VImage2&        image,
+                             const VulkanCore::VCommandBuffer& commandBuffer,
+                             vk::ImageLayout             oldLayout,
+                             vk::ImageLayout             newLayout,
+                             vk::PipelineStageFlags      srcPipelineStage,
+                             vk::PipelineStageFlags      dstPipelineStage,
+                             vk::AccessFlags             srcData,
+                             vk::AccessFlags             dstData);
+
 void PlacePipelineBarrier(const VulkanCore::VCommandBuffer& cmdBuffer, vk::PipelineStageFlags src, vk::PipelineStageFlags dst);
 
 /**

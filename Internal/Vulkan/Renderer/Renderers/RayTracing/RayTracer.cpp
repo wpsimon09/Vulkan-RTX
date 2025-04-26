@@ -5,6 +5,7 @@
 #include "RayTracer.hpp"
 
 #include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
@@ -42,7 +43,7 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
 
         auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
 
-        VulkanUtils::RecordImageTransitionLayoutCommand(*m_resultImage[i], vk::ImageLayout::eGeneral,
+        VulkanUtils::RecordImageTransitionLayoutCommand(*m_resultImage[i], vk::ImageLayout::eShaderReadOnlyOptimal,
                                                         vk::ImageLayout::eUndefined, cmdBuffer);
     }
 
@@ -69,6 +70,11 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
 
     auto& cmdB = cmdBuffer.GetCommandBuffer();
 
+    VulkanUtils::PlaceImageMemoryBarrier(*m_resultImage[currentFrame], cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                         vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eTopOfPipe,
+                                         vk::PipelineStageFlagBits::eTopOfPipe, vk::AccessFlagBits::eNone,
+                                         vk::AccessFlagBits::eShaderWrite);
+
     auto& descriptor   = std::get<VulkanUtils::RayTracingDescriptorSet>(m_rtxEffect->GetResrouceGroupStructVariant());
     descriptor.buffer1 = unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame];
     descriptor.buffer2 = unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame];
@@ -84,12 +90,18 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                       m_resultImage[currentFrame]->GetImageInfo().width,
                       m_resultImage[currentFrame]->GetImageInfo().height, 1, m_device.DispatchLoader);
 
-
+    VulkanUtils::PlaceImageMemoryBarrier(*m_resultImage[currentFrame], cmdBuffer, vk::ImageLayout::eGeneral,
+                                         vk::ImageLayout::eShaderReadOnlyOptimal, vk::PipelineStageFlagBits::eRayTracingShaderKHR,
+                                         vk::PipelineStageFlagBits::eBottomOfPipe, vk::AccessFlagBits::eShaderWrite,
+                                         vk::AccessFlagBits::eShaderRead);
 }
 
 
 void                 RayTracer::ProcessResize(int newWidth, int newHeight) {}
-VulkanCore::VImage2& RayTracer::GetRenderedImage(int currentFrameIndex) { return *m_resultImage[currentFrameIndex];}
+VulkanCore::VImage2& RayTracer::GetRenderedImage(int currentFrameIndex)
+{
+    return *m_resultImage[currentFrameIndex];
+}
 
 void RayTracer::Destroy()
 {

@@ -156,10 +156,10 @@ void VRayTracingPipeline::CreateShaderBindingTable()
 
     //===========================================
     // allocate buffer for shader binding table
-    vk::DeviceSize handlesSize = m_rGenRegion.size + m_rMissRegion.size + m_rHitRegion.size + m_rCallRegion.size;
+    vk::DeviceSize sbtSize = m_rGenRegion.size + m_rMissRegion.size + m_rHitRegion.size + m_rCallRegion.size;
 
     m_shaderBindingTable = std::make_unique<VulkanCore::VBuffer>(m_device, "Shader binding table");
-    m_shaderBindingTable->CreateHostVisibleBuffer(handlesSize, static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
+    m_shaderBindingTable->CreateHostVisibleBuffer(sbtSize, static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
                                                      | vk::BufferUsageFlagBits::eShaderBindingTableKHR));
 
     m_rGenRegion.deviceAddress = m_shaderBindingTable->GetBufferAdress();
