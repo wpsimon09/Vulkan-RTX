@@ -81,17 +81,17 @@ void rayGenMain() {
     float3 hitColor = payload.color;
     totalRadiance = payload.color;
 
-     _film[int2(threadIdx.xy)] = float4(totalRadiance, 0.0);
+     _film[int2(threadIdx.xy)] = float4(ray.Direction, 1.0);
 }
 
 [[shader("miss")]]
 void missMain(inout RayPayLoad payload) {
-    payload.color = float3(1.0, 0.0, 1.0);
+    payload.color = float3(0.0, 0.0, 1.0);
 }
 
 [[shader("closesthit")]]
 void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
 {
     float3 hitLocation = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
-    payLoad.color = float3(0.2, 0.1, 0.5);
+    payLoad.color = float3(1.0, 0.0, 0.0);
 }
