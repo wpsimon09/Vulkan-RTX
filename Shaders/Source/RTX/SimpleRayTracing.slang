@@ -91,7 +91,7 @@ void rayGenMain() {
 
 [[shader("miss")]]
 void missMain(inout RayPayLoad payload) {
-    payload.color = float3(0.0, 0.0, 0.0);
+    payload.color = float3(1.0, 0.0, 1.0);
 
 }
 
@@ -99,5 +99,5 @@ void missMain(inout RayPayLoad payload) {
 void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
 {
     float3 hitLocation = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
-    payLoad.color = hitLocation;
+    payLoad.color = float3(0.2, 0.1, 0.5);
 }

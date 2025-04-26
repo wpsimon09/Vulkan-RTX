@@ -58,12 +58,8 @@ void VRayTracingDataManager::Destroy()
 {
     m_rayTracingBuilder->Destroy();
 }
-vk::WriteDescriptorSetAccelerationStructureKHR VRayTracingDataManager::GetTlasWriteInfo() {
-    vk::WriteDescriptorSetAccelerationStructureKHR asWrite;
-    asWrite.accelerationStructureCount = 1;
-    asWrite.pAccelerationStructures = &m_rayTracingBuilder->GetTLAS();
-
-    return  asWrite ;
+const vk::AccelerationStructureKHR& VRayTracingDataManager::GetTLAS() {
+    return m_rayTracingBuilder->GetTLAS();
 }
 
 } // VulkanUtils

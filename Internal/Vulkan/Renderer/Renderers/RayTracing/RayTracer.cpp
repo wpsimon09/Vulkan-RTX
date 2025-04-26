@@ -76,7 +76,7 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     descriptor.buffer1 = unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame];
     descriptor.buffer2 = unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame];
 
-    descriptor.tlas        = m_rtxDataManager.GetTlasWriteInfo();
+    descriptor.tlas        = m_rtxDataManager.GetTLAS();
     descriptor.storage2D_1 = m_resultImage[currentFrame]->GetDescriptorImageInfo();
 
     cmdB.pushDescriptorSetWithTemplateKHR(m_rtxEffect->GetUpdateTemplate(), m_rtxEffect->GetPipelineLayout(), 0,
