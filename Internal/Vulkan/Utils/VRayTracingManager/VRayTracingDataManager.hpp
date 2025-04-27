@@ -31,6 +31,8 @@ class VRayTracingDataManager {
     // updates transformations in TLAS
     void UpdateAS();
 
+    vk::DescriptorBufferInfo GetObjDescriptionBufferInfo();
+
     // rebuilds every acceleration structures
     void InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs);
     void Destroy();
@@ -39,7 +41,9 @@ class VRayTracingDataManager {
   private:
     const VulkanCore::VDevice& m_device;
 
+    std::vector<RTXObjDescription> m_rtxObjectDescriptions;
     std::unique_ptr<VulkanCore::RTX::VRayTracingBuilderKHR> m_rayTracingBuilder;
+    std::unique_ptr<VulkanCore::VBuffer> m_objDescriptionBuffer;
     std::vector <VulkanCore::RTX::BLASInput> m_blasInputs;
     std::vector<vk::AccelerationStructureInstanceKHR> m_instances;
 };

@@ -1,5 +1,6 @@
 import Light;
 import Utils;
+import RayTracingData;
 
 struct GlobalData {
     column_major float4x4 projection;
@@ -38,6 +39,9 @@ ConstantBuffer<LightInfo> _lightInfo;
     cann access this information via custom index specified in the acceleration strucutre construction
 */
 
+[[vk::binding(2, 0)]]
+ConstantBuffer<ObjDescription> descriptions[];
+
 // top level acceleration structure
 [[vk::binding(3, 0)]]
 RaytracingAccelerationStructure _TLAS;
@@ -45,6 +49,7 @@ RaytracingAccelerationStructure _TLAS;
 // output of the ray tracing
 [[vk::binding(4, 0)]]
 ConstantBuffer<RWTexture2D> _film;
+
 
 struct RayPayLoad {
     float3 color;

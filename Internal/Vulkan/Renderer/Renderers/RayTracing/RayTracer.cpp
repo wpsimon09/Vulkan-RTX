@@ -70,12 +70,14 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
 
     auto& cmdB = cmdBuffer.GetCommandBuffer();
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_resultImage[currentFrame], vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, cmdB);
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_resultImage[currentFrame], vk::ImageLayout::eGeneral,
+                                                    vk::ImageLayout::eShaderReadOnlyOptimal, cmdB);
 
     auto& descriptor   = std::get<VulkanUtils::RayTracingDescriptorSet>(m_rtxEffect->GetResrouceGroupStructVariant());
     descriptor.buffer1 = unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame];
     descriptor.buffer2 = unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame];
-    descriptor.tlas        = m_rtxDataManager.GetTLAS();
+    descriptor.buffer3 = m_rtxDataManager.GetObjDescriptionBufferInfo();
+    descriptor.tlas    = m_rtxDataManager.GetTLAS();
     descriptor.storage2D_1 = m_resultImage[currentFrame]->GetDescriptorImageInfo();
 
     cmdB.pushDescriptorSetWithTemplateKHR(m_rtxEffect->GetUpdateTemplate(), m_rtxEffect->GetPipelineLayout(), 0,
@@ -86,7 +88,8 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                       m_resultImage[currentFrame]->GetImageInfo().width,
                       m_resultImage[currentFrame]->GetImageInfo().height, 1, m_device.DispatchLoader);
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_resultImage[currentFrame], vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, cmdB);
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_resultImage[currentFrame], vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                    vk::ImageLayout::eGeneral, cmdB);
 }
 
 

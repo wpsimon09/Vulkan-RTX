@@ -67,5 +67,13 @@ struct LightUniforms
     glm::vec4                     info;  // x - use env, yzw - padding
 };
 
+struct RTXObjDescription {
+    vk::DeviceAddress vertexAddress;
+    vk::DeviceAddress indexAddresss;
+    // material
+    // material index
+    // etc etc
+};
+
 
 #endif  //UNIFROMDEFINITION_HPP

@@ -27,6 +27,7 @@ class AssetsManager;
 class VertexArray;
 
 
+
 class StaticMesh
 {
   public:

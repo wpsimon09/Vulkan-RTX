@@ -54,6 +54,13 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshI
     input.transform = matrix;;
     input.meshIndex = meshIndex;
 
+    //=============================================================================================
+    // I have to sent normal and index data to the shader with descriptor and i can do it by
+    // construcuting buffer that contains ObjDescription array in it and get it with
+    // the custom index ID in the shader
+    input.objDescription.indexAddresss = triangles.indexData.deviceAddress;
+    input.objDescription.vertexAddress = triangles.vertexData.deviceAddress;
+
     return input;
 }
 
