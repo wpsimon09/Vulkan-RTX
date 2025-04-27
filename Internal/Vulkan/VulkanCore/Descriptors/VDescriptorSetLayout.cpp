@@ -85,10 +85,10 @@ VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device, co
                     VulkanCore::VDescriptorSetLayout::Builder(device)
                         // Global data (camera uniform buffer)
                         .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR, 1)
-                        // Per object data (mesh uniform buffer)
-                        .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eIntersectionKHR, 1)
-                        // Light data
-                        .AddBinding(2, vk::DescriptorType::eUniformBuffer,  vk::ShaderStageFlagBits::eIntersectionKHR, 1)
+                        // light data
+                        .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eClosestHitKHR, 1)
+                        // Scene object data
+                        .AddBinding(2, vk::DescriptorType::eStorageBuffer,  vk::ShaderStageFlagBits::eIntersectionKHR, 1)
                         // TLAS
                         .AddBinding(3, vk::DescriptorType::eAccelerationStructureKHR,  vk::ShaderStageFlagBits::eIntersectionKHR | vk::ShaderStageFlagBits::eRaygenKHR, 1)
                         // Output image

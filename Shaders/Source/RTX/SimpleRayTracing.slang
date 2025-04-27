@@ -1,6 +1,7 @@
 import Light;
 import Utils;
 import RayTracingData;
+import Material;
 
 struct GlobalData {
     column_major float4x4 projection;
@@ -39,8 +40,6 @@ ConstantBuffer<LightInfo> _lightInfo;
     cann access this information via custom index specified in the acceleration strucutre construction
 */
 
-[[vk::binding(2, 0)]]
-ConstantBuffer<ObjDescription> descriptions[];
 
 // top level acceleration structure
 [[vk::binding(3, 0)]]
@@ -100,7 +99,7 @@ void missMain(inout RayPayLoad payload) {
 [[shader("closesthit")]]
 void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
 {
-    float3 hitLocation = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
+    SurfaceGeometry g = GetSurfaceInfo(InstanceIndex(), PrimitiveIndex(), attr.barycentrics);
 
-    payLoad.color = cross(hitLocation, WorldRayDirection());
+    payLoad.color = g.normal;
 }

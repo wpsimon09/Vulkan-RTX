@@ -22,6 +22,7 @@ void                     VRayTracingDataManager::UpdateAS() {}
 vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo() {
     vk::DescriptorBufferInfo bu {};
     bu.buffer = m_objDescriptionBuffer->GetBuffer();
+    bu.range = vk::WholeSize;
     return bu;
 }
 
@@ -57,6 +58,7 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
         instanceInfo.instanceShaderBindingTableRecordOffset = 0;
 
         m_instances.emplace_back(instanceInfo);
+        m_rtxObjectDescriptions.emplace_back(blasInputs[i].objDescription);
         i++;
     }
     m_rayTracingBuilder->BuildTLAS(m_instances);
@@ -72,6 +74,7 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
 }
 void VRayTracingDataManager::Destroy()
 {
+    m_objDescriptionBuffer->Destroy();
     m_rayTracingBuilder->Destroy();
 }
 const vk::AccelerationStructureKHR& VRayTracingDataManager::GetTLAS()
