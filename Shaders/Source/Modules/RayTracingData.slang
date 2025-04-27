@@ -1,12 +1,12 @@
 module RayTracingData;
-import Material;
+import Surface;
 
 [[vk::binding(2, 0)]]
 StructuredBuffer<ObjDescription> descriptions;
 
 public struct ObjDescription {
-    ConstBufferPointer<Vertex> vertexAddress;
-    ConstBufferPointer<int> indexAddress;
+    public Vertex* vertexAddresses;
+    public int* indexAddress;
 }
 
 public struct Vertex {
@@ -20,20 +20,27 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     const float3 barycentricCoords = float3(1.0f - baricentric.x - baricentric.y, baricentric.x, baricentric.y);
 
     ObjDescription object = descriptions[instanceIndex];
-    //=================================================
-    // for each vertex there is one index that can
-    // be used to look up the correct vertex in the array
-    int i1 = object.indexAddress[(primitiveIndex * 3)    ]; 
-    int i2 = object.indexAddress[(primitiveIndex * 3) + 1];
-    int i3 = object.indexAddress[(primitiveIndex) + 2];
 
-    Vertex v1 = object.vertexAddress[i1];
-    Vertex v2 = object.vertexAddress[i2];
-    Vertex v3 = object.vertexAddress[i3];
 
+    // Vertex *vertexBuffer = (Vertex *)(object.vertexAddresses); // Cast to Vertex pointer
+    // int *indexBuffer = (int *)(object.indexAddress);        // Cast to int pointer (assuming indices are integers)
+
+    // //=================================================
+    // // for each vertex there is one index that can
+    // // be used to look up the correct vertex in the array
+    int i1 = object.indexAddress[primitiveIndex * 3];     // First index
+    int i2 = object.indexAddress[primitiveIndex * 3 + 1]; // Second index
+    int i3 = object.indexAddress[primitiveIndex * 3 + 2]; // Third index
+
+    // // Fetch the corresponding vertices
+    Vertex v1 = object.vertexAddresses[i1];
+    Vertex v2 = object.vertexAddresses[i2];
+    Vertex v3 = object.vertexAddresses[i3];
+
+    // Calculate normal using barycentric interpolation
     SurfaceGeometry g;
-    // get normal of triangle from 3 vertex positions and baricentrics of the current hit point 
-    g.normal = v1.norm.xyz * barycentricCoords.x + v2.norm.xyz * barycentricCoords.y + v3.norm.xyz * barycentricCoords.z;
+    g.normal = normalize(v1.norm * barycentricCoords.x + v2.norm * barycentricCoords.y + v3.norm * barycentricCoords.z);
+
     return g;
 }
 

@@ -1,5 +1,6 @@
 import Material;
 import Light;
+import Surface;
 
 struct FragmentShaderIn
 {

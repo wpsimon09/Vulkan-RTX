@@ -1,6 +1,7 @@
 module Light;
 
 import Material;
+import Surface;
 
 [[vk::binding(12, 0)]]
 ConstantBuffer<SamplerCube> IrradianceMap;

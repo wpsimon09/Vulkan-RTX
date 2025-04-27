@@ -88,7 +88,7 @@ VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device, co
                         // light data
                         .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eClosestHitKHR, 1)
                         // Scene object data
-                        .AddBinding(2, vk::DescriptorType::eStorageBuffer,  vk::ShaderStageFlagBits::eIntersectionKHR, 1)
+                        .AddBinding(2, vk::DescriptorType::eStorageBuffer,  vk::ShaderStageFlagBits::eClosestHitKHR, 1)
                         // TLAS
                         .AddBinding(3, vk::DescriptorType::eAccelerationStructureKHR,  vk::ShaderStageFlagBits::eIntersectionKHR | vk::ShaderStageFlagBits::eRaygenKHR, 1)
                         // Output image

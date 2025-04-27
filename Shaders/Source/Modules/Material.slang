@@ -1,6 +1,7 @@
 module Material;
 
 import Utils;
+import Surface;
 #define PI 3.14159265359
 
 
@@ -11,15 +12,6 @@ ConstantBuffer<Sampler2D> LTC;
 ConstantBuffer<Sampler2D> LTC_Inverse;
 
 
-//=================================
-// STRUCTS 
-//=================================
-public struct SurfaceGeometry
-{
-    public float3 position;
-    public float3 normal;
-    public float2 uv;
-}
 
 public struct MaterialConstantValues
 {

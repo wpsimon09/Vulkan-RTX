@@ -2,6 +2,7 @@ import Light;
 import Utils;
 import RayTracingData;
 import Material;
+import Surface;
 
 struct GlobalData {
     column_major float4x4 projection;
@@ -99,7 +100,7 @@ void missMain(inout RayPayLoad payload) {
 [[shader("closesthit")]]
 void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
 {
-    SurfaceGeometry g = GetSurfaceInfo(InstanceIndex(), PrimitiveIndex(), attr.barycentrics);
+    SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
 
     payLoad.color = g.normal;
 }
