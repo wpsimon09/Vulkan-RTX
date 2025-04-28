@@ -12,7 +12,7 @@
 
 namespace ApplicationCore {
 
-class Transformations
+class   Transformations
 {
   private:
     glm::vec3 m_position;
@@ -23,6 +23,8 @@ class Transformations
     glm::mat4 m_modelMatrix;
     glm::mat4 m_rotationMatrix;
     glm::mat4 m_alteredModelMatrix = glm::mat4(1.0f);
+
+    glm::mat4 m_previousModelMatrix = glm::mat4(1.0f);
 
     glm::quat m_rotationQuat;
 
@@ -56,7 +58,7 @@ class Transformations
     void       SetScale(float scalar);
     void       SetScale(float x, float y, float z);
 
-    bool HasChanged() { return m_isDirty; }
+    bool HasChanged();
     bool HasRotationChanged() { return m_hasRotationChanged; }
 
     glm::vec3& GetWorldPosition() { return m_worldPosition; }

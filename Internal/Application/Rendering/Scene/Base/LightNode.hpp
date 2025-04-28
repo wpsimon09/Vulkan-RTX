@@ -19,7 +19,7 @@ class LightNode : public SceneNode
     LightNode(std::shared_ptr<StaticMesh> mesh, T* lightData = nullptr);
 
     void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
-    void Update() override;
+    void Update(bool & needsUpdate) override;
     void ProcessNodeRemove() override = 0;
 
     T&   GetLightStruct() { return m_lightStruct; };
@@ -46,9 +46,9 @@ void LightNode<T>::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulka
 
 
 template <typename T>
-void LightNode<T>::Update()
+void LightNode<T>::Update(bool& needsUpdate)
 {
-    SceneNode::Update();
+    SceneNode::Update(needsUpdate);
 }
 
 template <typename T>

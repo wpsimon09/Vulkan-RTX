@@ -71,6 +71,7 @@ class VRayTracingBuilderKHR
                       vk::BuildAccelerationStructureFlagsKHR flags,
                       bool                                   update,
                       bool                                   motion);
+
 };
 }  // namespace VulkanCore::RTX
 

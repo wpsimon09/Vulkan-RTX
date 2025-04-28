@@ -19,7 +19,7 @@ class PointLightNode : public LightNode<LightStructs::PointLight>
                             LightStructs::PointLight*     pointLightData = nullptr);
 
     void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
-    void Update() override;
+    void Update(bool& needsUpdate) override;
     void ProcessNodeRemove() override;
 
   private:

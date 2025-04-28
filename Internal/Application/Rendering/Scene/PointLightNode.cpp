@@ -79,11 +79,11 @@ void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vul
     }
 }
 
-void PointLightNode::Update()
+void PointLightNode::Update(bool& needsUpdate)
 {
     m_lightStruct.position          = m_transformation->GetPosition();
     m_lightStruct.isPointLightInUse = m_sceneNodeMetaData.IsVisible;
-    SceneNode::Update();
+    SceneNode::Update(needsUpdate);
 }
 
 void PointLightNode::ProcessNodeRemove()

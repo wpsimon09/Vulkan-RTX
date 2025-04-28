@@ -29,7 +29,7 @@ class VRayTracingDataManager {
     VRayTracingDataManager(const VulkanCore::VDevice& device);
 
     // updates transformations in TLAS
-    void UpdateAS();
+    void UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& blasInputs);
 
     vk::DescriptorBufferInfo GetObjDescriptionBufferInfo();
 

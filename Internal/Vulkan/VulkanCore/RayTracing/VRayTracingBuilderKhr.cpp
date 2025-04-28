@@ -131,14 +131,14 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
     VulkanCore::VBuffer scratchBuffer(m_device);
 
     CmdCreteTlas(m_cmdBuffer->GetCommandBuffer(), instances.size(), buffer.GetBufferAdress(), scratchBuffer, flags, update, motion);
-
-    std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
+        std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
     m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),m_asBuildSemaphore.GetSemaphoreSubmitInfo(0, 2),waitStages.data() );
 
     m_asBuildSemaphore.CpuWaitIdle(2);
 
     buffer.DestroyStagingBuffer();
     buffer.Destroy();
+    m_asBuildSemaphore.Reset();
     scratchBuffer.Destroy();
 
 }
@@ -207,7 +207,7 @@ void VRayTracingBuilderKHR::CmdCreteTlas(const vk::CommandBuffer&               
     if(update)
     {
         // we have only one instance buffer with all BLAS init
-        tlasBuildData.asGeometry[0].geometry.instances.data.deviceAddress = scratchAddress;
+        tlasBuildData.asGeometry[0].geometry.instances.data.deviceAddress = instancesDataBuffer;
         tlasBuildData.CmdUpdateAs(m_cmdBuffer->GetCommandBuffer(), m_tlas.as, scratchAddress, m_device.DispatchLoader);
     }
     else

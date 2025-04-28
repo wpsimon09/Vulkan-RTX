@@ -185,9 +185,6 @@ std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildrenByWrapper()
 
 void SceneNode::Update(bool& needsUpdate)
 {
-    if (needsUpdate != true) {
-        m_transformation->GetIsDirty();
-    }
     if(m_parent)
     {
         m_transformation->ComputeModelMatrix(m_parent->m_transformation->GetModelMatrix());
@@ -197,9 +194,13 @@ void SceneNode::Update(bool& needsUpdate)
         m_transformation->ComputeModelMatrix();
     }
 
+    if (needsUpdate != true) {
+        needsUpdate = m_transformation->HasChanged();
+    }
+
     for(auto& child : m_children)
     {
-        child->Update();
+        child->Update(needsUpdate);
     }
 }
 

@@ -169,6 +169,13 @@ void Application::Update()
 
     m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
     m_editor->Update();
+
+    if (m_client->GetScene().NeedsUpdate()) {
+        auto blasInput = m_client->GetScene().GetBLASInputs();
+        m_renderingSystem->GetRayTracingManager().UpdateAS(blasInput);
+        Utils::Logger::LogInfo("Updating AS");
+    }
+
 }
 
 void Application::Render()
@@ -189,6 +196,7 @@ void Application::Render()
 void Application::PostRender()
 {
     m_vulkanDevice->GetTransferOpsManager().ClearResources();
+    m_client->GetScene().Reset();
 }
 
 Application::~Application()

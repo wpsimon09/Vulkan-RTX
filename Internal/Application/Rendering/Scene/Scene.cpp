@@ -46,7 +46,7 @@ void Scene::Update()
     {
         return m_staticMeshes.clear();
     }
-    m_root->Update();
+    m_root->Update(m_needsUpdate);
 }
 
 void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> sceneNode)
@@ -64,6 +64,7 @@ void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> s
 
 void Scene::Reset()
 {
+    m_needsUpdate = false;
     m_sceneStatistics.Reset();
 }
 
@@ -277,4 +278,5 @@ void Scene::PreformRayCast(glm::vec2 mousePosition)
         Utils::Logger::LogErrorClient("Mouse is outside NDC");
     }
 }
+bool Scene::NeedsUpdate() {return m_needsUpdate;}
 }  // namespace ApplicationCore

@@ -36,6 +36,7 @@ ApplicationCore::Transformations::Transformations(glm::vec3 position, glm::vec3 
 
 glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix()
 {
+
     //make rotation matrix
     m_rotationQuat   = glm::quat(glm::radians(m_rotation));
     m_rotationMatrix = glm::mat4_cast(m_rotationQuat);
@@ -46,6 +47,7 @@ glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix()
 
 void ApplicationCore::Transformations::ComputeModelMatrix()
 {
+    m_previousModelMatrix = m_modelMatrix;
     if(m_isDirty)
     {
         m_modelMatrix   = ComputeLocalModelMatrix();
@@ -57,6 +59,8 @@ void ApplicationCore::Transformations::ComputeModelMatrix()
 
 void ApplicationCore::Transformations::ComputeModelMatrix(glm::mat4& parentGlobalMatrix)
 {
+    m_previousModelMatrix = m_modelMatrix;
+
     m_modelMatrix   = parentGlobalMatrix * ComputeLocalModelMatrix();
     m_worldPosition = m_modelMatrix * glm::vec4(m_position, 1.0f);
     m_isDirty       = false;
@@ -128,6 +132,7 @@ void ApplicationCore::Transformations::SetScale(float scalar)
     m_scale.x = scalar;
     m_scale.y = scalar;
     m_scale.z = scalar;
+    m_isDirty = true;
 }
 
 void ApplicationCore::Transformations::SetScale(float x, float y, float z)
@@ -135,6 +140,10 @@ void ApplicationCore::Transformations::SetScale(float x, float y, float z)
     m_scale   = glm::vec3(x, y, z);
     m_isDirty = true;
 }
+bool ApplicationCore::Transformations::HasChanged() {
+    return m_previousModelMatrix != m_modelMatrix;
+}
+
 bool ApplicationCore::Transformations::GetIsDirty() {
     return m_isDirty;
 }
