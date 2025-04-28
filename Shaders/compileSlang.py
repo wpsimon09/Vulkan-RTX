@@ -69,7 +69,7 @@ def compile_ray_tracing_shaders(dir, verbose):
                 f"✗ Failed: {name}.vert",
                 verbose
             )
-            # closest hit
+            # miss hit
             compile_shader(
                 [SLANGC_PATH, "-target", "spirv", "-stage", "miss" ,"-I","Source/Modules","-entry", "missMain",
                  "-o", f"Compiled/{name}.miss.spv", path],
@@ -79,6 +79,15 @@ def compile_ray_tracing_shaders(dir, verbose):
             )
 
             #miss shader
+            compile_shader(
+                [SLANGC_PATH, "-target", "spirv", "-stage", "miss" ,"-I","Source/Modules", "-entry", "missMain2",
+                 "-o", f"Compiled/{name}.miss2.spv", path],
+                f"✓ {name}.miss2.slang",
+                f"✗ Failed: {name}.frag, there is no second miss shader ",
+                verbose
+            )
+
+            #closest hit shader
             compile_shader(
                 [SLANGC_PATH, "-target", "spirv", "-stage", "closesthit" ,"-I","Source/Modules", "-entry", "closestHitMain",
                  "-o", f"Compiled/{name}.chit.spv", path],

@@ -116,7 +116,7 @@ std::vector<VulkanCore::RTX::BLASInput> Scene::GetBLASInputs()
     inputs.reserve(meshes.size());
     for(auto& m : meshes)
     {
-        if ( m->GetSceneNodeMetaData().VisibleInRayTracing) {
+        if ( m->GetSceneNodeMetaData().VisibleInRayTracing && !m->IsLight()) {
             auto& mesh = m->GetMesh();
             mesh->SetModelMatrix(m->m_transformation->GetModelMatrix());
             inputs.emplace_back(VulkanCore::RTX::StaticMeshToBLASInput(m->GetSceneNodeMetaData().ID,m->GetMesh(), m->m_transformation->GetModelMatrix()));

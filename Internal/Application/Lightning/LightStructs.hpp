@@ -141,6 +141,7 @@ struct SceneLightInfo
     std::vector<LightStructs::PointLight*> PointLightInfos;
     std::vector<LightStructs::AreaLight*>  AreaLightInfos;
     EnvLight*                              environmentLight = nullptr;
+    float ambientStrenght = 0.4;
 
     int AddPointLight(PointLight* pointLight)
     {

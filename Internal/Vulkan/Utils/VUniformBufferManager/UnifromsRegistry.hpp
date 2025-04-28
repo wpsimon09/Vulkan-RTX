@@ -64,7 +64,7 @@ struct LightUniforms
     DirectionalLightGPU           directionalLight;
     std::array<PointLightGPU, 20> pointLight;
     std::array<AreaLightGPU, 4>   areaLights;
-    glm::vec4                     info;  // x - use env, yzw - padding
+    glm::vec4                     info;  // x - use env, y - ambient strength,zw - padding
 };
 
 struct RTXObjDescription {

@@ -58,6 +58,10 @@ struct RayPayLoad {
     float3 reflector;
 }
 
+struct RayPayloadShadow {
+    bool inShadow;
+}
+
 [[shader("raygeneration")]]
 void rayGenMain() {
 
@@ -94,7 +98,24 @@ void rayGenMain() {
 
 [[shader("miss")]]
 void missMain(inout RayPayLoad payload) {
-    payload.color = float3(0.0, 0.0, 0.4);
+    float3 SkyColorHorizon = float3(1.0, 1.0, 1.0);
+    float3 SkyColorZenith = float3(0.7, 0.7, 0.9);
+    float3 GroundColor = float3(0.4, 0.4, 0.4);
+
+    float3 ray_d = WorldRayDirection().xyz;
+
+    float skyGradientT = pow(smoothstep(0, 0.4, ray_d.y), 0.35);
+    float groundToSkyT = smoothstep(-0.01, 0, ray_d.y);
+
+    float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
+    float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 200.0) * _lightInfo.dirLight.intensity.w;
+
+    payload.color = lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1);
+}
+
+[[shader("miss")]]
+void missMain2(inout RayPayLoad payload) {
+
 }
 
 [[shader("closesthit")]]
@@ -107,7 +128,10 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     float3 albedo = float3(0.5, 0.2, 0.5);
 
+    float3 ambient = albedo * 0.6;
+
+
     float diff = max(dot(g.shadingNormal, L), 0.0);
     
-    payLoad.color = diff * Le * albedo;
+    payLoad.color = (diff * Le * albedo) + ambient;
 }

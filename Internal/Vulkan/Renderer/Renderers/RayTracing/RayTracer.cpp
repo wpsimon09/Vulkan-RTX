@@ -49,10 +49,11 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
 
 
     VulkanCore::RTX::RTXShaderPaths rtxShaderPaths;
-    rtxShaderPaths.rayGenPath = "Shaders/Compiled/SimpleRayTracing.rgen.spv";
-    rtxShaderPaths.missPath   = "Shaders/Compiled/SimpleRayTracing.miss.spv";
-    rtxShaderPaths.rayHitPath = "Shaders/Compiled/SimpleRayTracing.chit.spv";
-    auto rayTracingHitGroup   = std::make_unique<VulkanUtils::VRayTracingEffect>(
+    rtxShaderPaths.rayGenPath     = "Shaders/Compiled/SimpleRayTracing.rgen.spv";
+    rtxShaderPaths.missPath       = "Shaders/Compiled/SimpleRayTracing.miss.spv";
+    rtxShaderPaths.missShadowPath = "Shaders/Compiled/SimpleRayTracing.miss2.spv";
+    rtxShaderPaths.rayHitPath     = "Shaders/Compiled/SimpleRayTracing.chit.spv";
+    auto rayTracingHitGroup       = std::make_unique<VulkanUtils::VRayTracingEffect>(
         device, rtxShaderPaths, "Hit group highlight",
         m_resourceGroupManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::RayTracing));
 

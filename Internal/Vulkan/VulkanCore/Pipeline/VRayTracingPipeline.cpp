@@ -34,6 +34,7 @@ void VRayTracingPipeline::Init()
     m_rtxPipelineCreateInfo.groupCount = m_shaderGroups.size();
     m_rtxPipelineCreateInfo.pGroups    = m_shaderGroups.data();
 
+    assert(GlobalVariables::RenderingOptions::MaxRecursionDepth <= GlobalVariables::GlobalStructs::RayTracingPipelineProperties.maxRayRecursionDepth);
     m_rtxPipelineCreateInfo.maxPipelineRayRecursionDepth = GlobalVariables::RenderingOptions::MaxRecursionDepth;
     m_rtxPipelineCreateInfo.layout                       = m_pipelineLayout;
 }
@@ -66,6 +67,12 @@ void VRayTracingPipeline::CreateCreatePipelineShaders()
     stage.module         = m_rayTracingShaders.GetShaderModule(Miss);
     stage.stage          = vk::ShaderStageFlagBits::eMissKHR;
     m_shaderStages[Miss] = stage;
+
+    //======================
+    // miss - shadow
+    stage.module = m_rayTracingShaders.GetShaderModule(MissShadow);
+    stage.stage = vk::ShaderStageFlagBits::eMissKHR;
+    m_shaderStages[MissShadow] = stage;
 
     //===================================================================================
     // HIT GROUP (groups, any hit shader, closest hit shader and intersection test shader
@@ -100,6 +107,11 @@ void VRayTracingPipeline::CreateShaderHitGroups()
     groupInfoCI.generalShader = Miss;  // index to the shader stage passed to the pipeline as an array
     m_shaderGroups.push_back(groupInfoCI);
 
+    // miss shadow shader (also belongs to the general shader group)
+    groupInfoCI.type          = vk::RayTracingShaderGroupTypeKHR::eGeneral;
+    groupInfoCI.generalShader = MissShadow;  // index to the shader stage passed to the pipeline as an array
+    m_shaderGroups.push_back(groupInfoCI);
+
     //reset the general shader goroup since now it is going ot be hit group
     groupInfoCI.type             = vk::RayTracingShaderGroupTypeKHR::eTrianglesHitGroup;
     groupInfoCI.generalShader    = vk::ShaderUnusedKHR;
@@ -122,7 +134,7 @@ void VRayTracingPipeline::CreatePipelineLayout()
 void VRayTracingPipeline::CreateShaderBindingTable()
 {
     uint32_t hitCount    = 1;
-    uint32_t missCount   = 1;
+    uint32_t missCount   = 2;
     auto     handleCount = hitCount + missCount + 1;  // 1 is for ray gen which is ALLWAYS one
     uint32_t handleSize  = GlobalVariables::GlobalStructs::RayTracingPipelineProperties.shaderGroupHandleSize;
 

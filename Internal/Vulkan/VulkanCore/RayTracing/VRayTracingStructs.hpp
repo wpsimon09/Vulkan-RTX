@@ -107,6 +107,7 @@ struct ScratchSizeInfo
 struct RTXShaderPaths {
     std::filesystem::path rayGenPath;
     std::filesystem::path missPath;
+    std::filesystem::path missShadowPath;
     std::filesystem::path rayHitPath;
     /**
      TODO: *Others later
@@ -116,6 +117,7 @@ struct RTXShaderPaths {
 enum ERayTracingStageIndices {
     RayGen = 0,
     Miss,
+    MissShadow,
     ClosestHit,
     // TODO: insert new shaders in this exact spot
     ShaderGroupCount, // holds count of all indices
