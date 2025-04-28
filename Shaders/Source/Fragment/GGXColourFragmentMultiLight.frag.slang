@@ -80,6 +80,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
    
     float3 finalColor = lightingEnv.illuminate(g, brdf_, V);
 
-    return float4(finalColor, brdf_.albedo.w);
+     return float4(finalColor, brdf_.albedo.w);
+    //return float4(g.normal, 1.0);
 }
 

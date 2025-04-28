@@ -39,7 +39,15 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
 
     // Calculate normal using barycentric interpolation
     SurfaceGeometry g;
-    g.normal = normalize(v1.norm * barycentricCoords.x + v2.norm * barycentricCoords.y + v3.norm * barycentricCoords.z);
+    float3 N = v1.norm * barycentricCoords.x + v2.norm * barycentricCoords.y + v3.norm * barycentricCoords.z;
+    g.normal = N;
+    g.shadingNormal = normalize(mul(ObjectToWorld3x4(), float4(N,1.0)));
+
+    float3 pos = v1.pos * barycentricCoords.x + v2.pos * barycentricCoords.y + v3.pos * barycentricCoords.z;
+    g.position = pos;
+    g.shadingPosition = mul(ObjectToWorld(), float4(pos, 1.0)).xyz;
+
+    float2 uv = v1.uv * baricentric.x + v2.uv * baricentric.y;
 
     return g;
 }

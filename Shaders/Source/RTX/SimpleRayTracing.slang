@@ -102,5 +102,12 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 {
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
 
-    payLoad.color = g.normal;
+    float3 L = _lightInfo.dirLight.direction.xyz;
+    float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
+
+    float3 albedo = float3(0.5, 0.2, 0.5);
+
+    float diff = max(dot(g.shadingNormal, L), 0.0);
+    
+    payLoad.color = diff * Le * albedo;
 }
