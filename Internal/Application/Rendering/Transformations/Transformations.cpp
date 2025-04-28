@@ -135,3 +135,6 @@ void ApplicationCore::Transformations::SetScale(float x, float y, float z)
     m_scale   = glm::vec3(x, y, z);
     m_isDirty = true;
 }
+bool ApplicationCore::Transformations::GetIsDirty() {
+    return m_isDirty;
+}

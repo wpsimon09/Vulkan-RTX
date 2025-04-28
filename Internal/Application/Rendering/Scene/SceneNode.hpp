@@ -79,7 +79,7 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
     //=========================
     // Transformation
     //=========================
-    virtual void Update();
+    virtual void Update(bool& needsUpdate);
 
     //=========================
     // Rendering

@@ -114,8 +114,8 @@ void missMain(inout RayPayLoad payload) {
 }
 
 [[shader("miss")]]
-void missMain2(inout RayPayLoad payload) {
-
+void missMain2(inout RayPayloadShadow payload) {
+    payload.inShadow = false;
 }
 
 [[shader("closesthit")]]
@@ -128,10 +128,28 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     float3 albedo = float3(0.5, 0.2, 0.5);
 
-    float3 ambient = albedo * 0.6;
+    float3 ambient = albedo * _lightInfo.info.y; // y is the ambient strengt
 
+    RayPayloadShadow shadowPayLoad;
+    shadowPayLoad.inShadow = true;
 
-    float diff = max(dot(g.shadingNormal, L), 0.0);
-    
-    payLoad.color = (diff * Le * albedo) + ambient;
+    if (dot(g.shadingNormal, L) > 0.0) {
+        // trace the shadow rays
+        RayDesc shadowRay;
+        shadowRay.Direction = L;
+        shadowRay.Origin = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
+        shadowRay.TMax = 10000;
+        shadowRay.TMin = 0.01;
+
+        TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER  , 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
+    }
+
+    if (!shadowPayLoad.inShadow) {
+        float diff = max(dot(g.shadingNormal, L), 0.0);
+        
+        payLoad.color = (diff * Le * albedo) + ambient;
+    } else {
+        payLoad.color =  ambient;
+    }
+
 }

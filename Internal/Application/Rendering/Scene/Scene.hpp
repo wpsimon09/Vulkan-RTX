@@ -75,6 +75,8 @@ class Scene
 
     void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; };
 
+    bool NeedsUpdate();
+
     LightStructs::SceneLightInfo& GetSceneLightInfo() { return m_sceneLightInfo; }
 
   private:
@@ -95,7 +97,10 @@ class Scene
     std::shared_ptr<SkyBoxMaterial> m_currentSkyBox;
 
     LightStructs::SceneLightInfo m_sceneLightInfo;
+
+    bool m_needsUpdate = false;
 };
+
 
 }  // namespace ApplicationCore
 #endif  //SCENE_HPP

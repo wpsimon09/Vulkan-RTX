@@ -59,7 +59,8 @@ class Transformations
     bool HasChanged() { return m_isDirty; }
     bool HasRotationChanged() { return m_hasRotationChanged; }
 
-    glm::vec3& GetWorldPosition() { return m_worldPosition; };
+    glm::vec3& GetWorldPosition() { return m_worldPosition; }
+    bool       GetIsDirty();
 
     glm::mat4& GetModelMatrix() { return m_modelMatrix; }
 

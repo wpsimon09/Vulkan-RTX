@@ -140,12 +140,14 @@ void RenderingOptions::RenderLightInfoWindow(Renderer::RenderingSystem* renderin
 {
     ImGui::Begin(ICON_FA_BOLT_LIGHTNING " Light info");
 
-
-    ImGui::End();
+    ImGui::SliderFloat("Ambient strength", &m_scene.GetSceneLightInfo().ambientStrenght, 0.0f, 1.0f);
 
     if(ImGui::Button("Close"))
     {
         m_openLightInfoLigt = false;
     }
+
+    ImGui::End();
+
 }
 }  // namespace VEditor

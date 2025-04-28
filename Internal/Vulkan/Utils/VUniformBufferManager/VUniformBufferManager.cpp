@@ -89,6 +89,8 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
 
 void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const
 {
+
+
     if(sceneLightInfo.DirectionalLightInfo)
     {
         m_lightUniform->GetUBOStruct().directionalLight.colour = sceneLightInfo.DirectionalLightInfo->colour;
@@ -130,7 +132,7 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, 
     }
     else
     {
-        m_lightUniform->GetUBOStruct().info.y = 0.07;
+        m_lightUniform->GetUBOStruct().info.y = sceneLightInfo.ambientStrenght;
         m_lightUniform->GetUBOStruct().info.x = static_cast<int>(false);
     }
     m_lightUniform->UpdateGPUBuffer(frameIndex);

@@ -75,10 +75,10 @@ def compile_ray_tracing_shaders(dir, verbose):
                  "-o", f"Compiled/{name}.miss.spv", path],
                 f"✓ {name}.miss.slang",
                 f"✗ Failed: {name}.frag",
-                verbose
+                verbose 
             )
 
-            #miss shader
+            #miss shadow
             compile_shader(
                 [SLANGC_PATH, "-target", "spirv", "-stage", "miss" ,"-I","Source/Modules", "-entry", "missMain2",
                  "-o", f"Compiled/{name}.miss2.spv", path],
