@@ -47,6 +47,9 @@ struct SceneData {
   std::vector<std::shared_ptr<ApplicationCore::StaticMesh>> meshes;
   std::vector<std::shared_ptr<BaseMaterial>> materials;
   std::vector<std::shared_ptr<SceneNode>> nodes;
+  std::vector<std::shared_ptr<VTextureAsset>> textures;
+
+  void AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node);
 };
 
 

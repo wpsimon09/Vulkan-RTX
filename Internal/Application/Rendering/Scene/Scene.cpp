@@ -25,6 +25,16 @@
 
 namespace ApplicationCore {
 
+void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node) {
+    if (node->HasMesh()) {
+        auto& mesh = node->GetMesh();
+        meshes.emplace_back(mesh);
+        materials.emplace_back(mesh->GetMaterial());
+       // textures.insert(textures.end(),mesh->GetMaterial()->EnumarateTexture() )
+    }
+    nodes.emplace_back(node);
+}
+
 Scene::Scene(AssetsManager& assetsManager, Camera& camera)
     : m_assetsManager(assetsManager)
     , m_sceneStatistics()
