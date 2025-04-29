@@ -84,6 +84,7 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
 }
 void VRayTracingDataManager::Destroy()
 {
+    m_objDescriptionBuffer->DestroyStagingBuffer();
     m_objDescriptionBuffer->Destroy();
     m_rayTracingBuilder->Destroy();
 }
