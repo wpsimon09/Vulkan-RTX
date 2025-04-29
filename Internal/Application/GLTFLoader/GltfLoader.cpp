@@ -34,11 +34,11 @@ GLTFLoader::GLTFLoader(ApplicationCore::AssetsManager& assetsManager)
     Utils::Logger::LogSuccess("Crated GLTFLoader !");
 }
 
-std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, const ImportOptions& importOptions) const
+void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, const ImportOptions& importOptions) const
 {
     const auto& model = m_assetsManager.GetModel(gltfPath.string());
     if(!model.empty())
-        return model;
+        return ;
 
     // temp data
     std::shared_ptr<SceneNode>              m_rootNode;
@@ -66,7 +66,7 @@ std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(Scene& scene, 
     {
         Utils::Logger::LogErrorClient("Failed to load GLTF file: " + gltfPath.string());
         Utils::Logger::LogErrorClient("fastgltf says: " + std::string(fastgltf::getErrorMessage(gltfFile.error())));
-        return std::vector<std::shared_ptr<SceneNode>>();
+        return;
     }
 
     fastgltf::Asset gltf;
@@ -207,7 +207,7 @@ std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(Scene& scene, 
         //==============================================================
         if(importOptions.importOnlyMaterials)
         {
-            return {};
+            return ;
         }
         // temporal data that will hold everything
         std::vector<uint32_t> indices;
@@ -398,9 +398,13 @@ std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(Scene& scene, 
         m_assetsManager.AddModel(gltfPath.string() + "/" + topNode->GetName(), topNode->GetChildrenByRef());
     }
 
+    for(auto& sceneNode : m_topNodes)
+    {
+       scene.AddNode(sceneNode);
+    }
+
     GlobalState::EnableLogging();
     Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");
-    return m_topNodes;
 }
 
 

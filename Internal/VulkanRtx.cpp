@@ -106,11 +106,9 @@ void Application::Init()
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     ApplicationCore::ImportOptions importOptions{};
-    auto                           scene = m_client->GetGLTFLoader().LoadGLTFScene(m_client->GetScene(),"cache/scene.gltf", importOptions);
-    for(auto& sceneNode : scene)
-    {
-        m_client->GetScene().AddNode(sceneNode);
-    }
+
+    m_client->GetGLTFLoader().LoadGLTFScene(m_client->GetScene(),"cache/scene.gltf", importOptions);
+
 
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
 

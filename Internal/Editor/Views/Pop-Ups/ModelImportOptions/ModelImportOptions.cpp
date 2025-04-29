@@ -37,7 +37,7 @@ void ModelImportOptions::Render()
 
         if(ImGui::Button("Import"))
         {
-            auto loadedNodes = std::async([this]() { return m_gltfLoader.LoadGLTFScene(m_scene, *m_path, m_options); });
+            std::async([this]() { return m_gltfLoader.LoadGLTFScene(m_scene, *m_path, m_options); });
 
             ImGui::OpenPopup("Importing");
 
@@ -46,16 +46,6 @@ void ModelImportOptions::Render()
                 ImGui::Text("Importing, please wait");
 
                 ImGui::EndPopup();
-
-
-                if(loadedNodes.valid())
-                {
-                    for(auto& scene_node : loadedNodes.get())
-                    {
-                        m_scene.AddNode(scene_node);
-                    }
-                    ImGui::CloseCurrentPopup();
-                }
             }
             ImGui::CloseCurrentPopup();
         };
