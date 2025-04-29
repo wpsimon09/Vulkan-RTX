@@ -49,7 +49,7 @@ struct SceneData {
   std::vector<std::shared_ptr<SceneNode>> nodes;
   std::vector<std::shared_ptr<VTextureAsset>> textures;
 
-  void AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node);
+  void AddEntry(const std::shared_ptr<ApplicationCore::SceneNode>& node);
 };
 
 
@@ -90,6 +90,7 @@ class Scene
     void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; };
 
     bool NeedsUpdate();
+    bool NeedsRebuild();
 
     const SceneData& GetSceneDataConst() const { return m_sceneData; }
     SceneData& GetSceneData() {return m_sceneData;}
@@ -117,8 +118,8 @@ class Scene
 
     SceneData m_sceneData;
 
-
     bool m_needsUpdate = false;
+    bool m_needsRebuild = false;
 };
 
 

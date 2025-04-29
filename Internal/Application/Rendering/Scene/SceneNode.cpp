@@ -4,6 +4,8 @@
 
 #include "SceneNode.hpp"
 
+#include "Scene.hpp"
+
 #include <GLFW/glfw3.h>
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
@@ -78,6 +80,7 @@ void SceneNode::AddChild(SceneData& sceneData, const std::shared_ptr<SceneNode>&
         m_children.emplace_back(child);
         child->m_parent                  = this;
         m_sceneNodeMetaData.IsParentNode = true;
+        sceneData.AddEntry(child);
     }
     else
     {
@@ -93,6 +96,7 @@ void SceneNode::AddChild(SceneData& sceneData, std::shared_ptr<StaticMesh> child
         newNode->m_parent = this;
         m_children.emplace_back(newNode);
         m_sceneNodeMetaData.IsParentNode = true;
+
     }
     else
     {

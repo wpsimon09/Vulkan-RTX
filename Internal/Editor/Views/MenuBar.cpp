@@ -73,4 +73,5 @@ void MenuBar::OnImportSelect()
     m_isFileDialoOpen = true;
     m_fileExplorer->OpenForSceneImport();
 }
+
 }  // namespace VEditor

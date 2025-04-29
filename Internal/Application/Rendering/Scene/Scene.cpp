@@ -25,12 +25,13 @@
 
 namespace ApplicationCore {
 
-void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node) {
+void SceneData::AddEntry(const std::shared_ptr<ApplicationCore::SceneNode>& node) {
     if (node->HasMesh()) {
         auto& mesh = node->GetMesh();
         meshes.emplace_back(mesh);
         materials.emplace_back(mesh->GetMaterial());
-       // textures.insert(textures.end(),mesh->GetMaterial()->EnumarateTexture() )
+        auto matTextures = mesh->GetMaterial()->EnumarateTexture();
+        textures.insert(textures.end(), matTextures.begin(), matTextures.end());
     }
     nodes.emplace_back(node);
 }
@@ -75,6 +76,7 @@ void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> s
 void Scene::Reset()
 {
     m_needsUpdate = false;
+    m_needsRebuild = false;
     m_sceneStatistics.Reset();
 }
 
@@ -104,6 +106,7 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
 void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode)
 {
     m_root->AddChild(m_sceneData, sceneNode);
+    m_needsRebuild = true;
 }
 
 void Scene::EnumarateMeshes(std::vector<std::shared_ptr<SceneNode>>& outMeshes, std::shared_ptr<SceneNode> sceneNode)
@@ -293,5 +296,8 @@ void Scene::PreformRayCast(glm::vec2 mousePosition)
 bool Scene::NeedsUpdate()
 {
     return m_needsUpdate;
+}
+bool Scene::NeedsRebuild() {
+    return m_needsRebuild;
 }
 }  // namespace ApplicationCore
