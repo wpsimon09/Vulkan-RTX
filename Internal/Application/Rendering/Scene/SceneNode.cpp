@@ -4,6 +4,8 @@
 
 #include "SceneNode.hpp"
 
+#include "Scene.hpp"
+
 #include <GLFW/glfw3.h>
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
@@ -40,7 +42,7 @@ SceneNode::SceneNode(std::shared_ptr<StaticMesh> mesh)
     }
 }
 
-SceneNode::SceneNode(SceneNode& other)
+SceneNode::SceneNode(SceneData& sceneData, SceneNode& other)
     : m_transformation(&m_localTransformation)
 {
     m_parent = nullptr;
@@ -56,7 +58,7 @@ SceneNode::SceneNode(SceneNode& other)
 
     for(auto& child : other.m_children)
     {
-        AddChild(std::make_shared<SceneNode>(*child));
+        AddChild(sceneData, std::make_shared<SceneNode>(*child));
     }
 }
 
@@ -71,13 +73,14 @@ SceneNode::SceneNode()
     // `scene node` node type is defautl
 }
 
-void SceneNode::AddChild(const std::shared_ptr<SceneNode>& child)
+void SceneNode::AddChild(SceneData& sceneData, const std::shared_ptr<SceneNode>& child)
 {
     if(child != nullptr)
     {
         m_children.emplace_back(child);
         child->m_parent                  = this;
         m_sceneNodeMetaData.IsParentNode = true;
+        sceneData.AddEntry(child);
     }
     else
     {
@@ -85,7 +88,7 @@ void SceneNode::AddChild(const std::shared_ptr<SceneNode>& child)
     }
 }
 
-void SceneNode::AddChild(std::shared_ptr<StaticMesh> child)
+void SceneNode::AddChild(SceneData& sceneData, std::shared_ptr<StaticMesh> child)
 {
     if(child)
     {
@@ -93,19 +96,11 @@ void SceneNode::AddChild(std::shared_ptr<StaticMesh> child)
         newNode->m_parent = this;
         m_children.emplace_back(newNode);
         m_sceneNodeMetaData.IsParentNode = true;
+
     }
     else
     {
         Utils::Logger::LogErrorClient("Failed to add child node, child node is nullptr");
-    }
-}
-
-void SceneNode::Setvisibility(bool isVisible)
-{
-    m_sceneNodeMetaData.IsVisible = isVisible;
-    for(auto& child : m_children)
-    {
-        child->Setvisibility(isVisible);
     }
 }
 
@@ -170,6 +165,13 @@ bool SceneNode::IsLight() const
 SceneNode* SceneNode::GetParent()
 {
     return m_parent;
+}
+void SceneNode::SetVisibility(bool isVisible) {
+    m_sceneNodeMetaData.IsVisible = isVisible;
+    for(auto& child : m_children)
+    {
+        child->SetVisibility(isVisible);
+    }
 }
 
 std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildrenByWrapper()

@@ -32,9 +32,12 @@ class SceneView : public IUserInterfaceElement
     void        CreateSceneLightsList(std::vector<std::shared_ptr<ApplicationCore::SceneNode>>& sceneLights);
     void        CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode> sceneNode);
     std::string GenerateNodeLabel(std::shared_ptr<ApplicationCore::SceneNode>& sceneNode);
+    void RenderSceneDataView();
     ApplicationCore::Scene& m_scene;
 
     std::vector<std::shared_ptr<ApplicationCore::SceneNode>> m_lightNodes;
+
+    bool m_openSceneDataView = false;
 
     DetailsPanel* m_detailsPanale;
 };

@@ -15,6 +15,7 @@ class VUniformBufferManager;
 };  // namespace VulkanUtils
 
 namespace ApplicationCore {
+class VTextureAsset;
 
 inline int MaterialIndexCounter = 0;
 
@@ -37,6 +38,7 @@ class BaseMaterial
     void                                   ResetEffect();
     void                                   SetMaterialname(std::string newName);
     virtual void UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct) = 0;
+    virtual std::vector<std::shared_ptr<VTextureAsset>>          EnumarateTexture() = 0;
 
 
   protected:

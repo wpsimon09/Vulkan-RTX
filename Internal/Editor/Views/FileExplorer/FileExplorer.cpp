@@ -15,7 +15,7 @@
 
 namespace VEditor {
 
-FileExplorer::FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader, const ApplicationCore::Scene& scene)
+FileExplorer::FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader, ApplicationCore::Scene& scene)
     : m_scene(scene)
     , m_gltfLoader(gltfLoader)
 {

@@ -101,4 +101,22 @@ void PBRMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariant
         },
         updateStruct);
 }
+std::vector<std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTexture() {
+    std::vector<std::shared_ptr<VTextureAsset>> result;
+    result.reserve(m_textures.size());
+    if (m_materialDescription.features.hasDiffuseTexture) {
+        result.emplace_back(m_textures[Diffues]);
+    }
+    if (m_materialDescription.features.hasArmTexture) {
+        result.emplace_back(m_textures[arm]);
+    }
+    if (m_materialDescription.features.hasNormalTexture) {
+        result.emplace_back(m_textures[normal]);
+    }
+    if (m_materialDescription.features.hasEmissiveTexture) {
+        result.emplace_back(m_textures[Emissive]);
+    }
+
+    return result;
+}
 }  // namespace ApplicationCore

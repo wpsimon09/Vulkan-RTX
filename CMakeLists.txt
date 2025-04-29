@@ -220,7 +220,6 @@ set(SOURCES
         Internal/Vulkan/Utils/VEffect/VEffect.hpp
         Internal/Vulkan/VulkanCore/RayTracing/VShaderBindingTable/VShaderBindingTable.cpp
         Internal/Vulkan/VulkanCore/RayTracing/VShaderBindingTable/VShaderBindingTable.hpp
-
 )
 
 

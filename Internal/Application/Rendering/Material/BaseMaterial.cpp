@@ -32,4 +32,5 @@ void BaseMaterial::SetMaterialname(std::string newName)
 {
     m_materialName = newName;
 }
+
 }  // namespace ApplicationCore

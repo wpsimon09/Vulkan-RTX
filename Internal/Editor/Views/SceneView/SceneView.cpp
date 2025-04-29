@@ -32,6 +32,13 @@ void SceneView::Render()
     ImGui::Begin(ICON_FA_MOUNTAIN " Scene graph", &m_isOpen,
                  ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
     ImGui::SeparatorText("Scene");
+
+    ImGui::SameLine();
+    if (ImGui::Button(ICON_FA_LAYER_GROUP)) {
+        m_openSceneDataView = true;
+    }
+
+
     ImGui::BeginChild("Scrolling");
 
     std::vector<std::shared_ptr<ApplicationCore::SceneNode>> lightNodes;
@@ -67,6 +74,17 @@ void SceneView::Render()
     }
     ImGui::EndChild();
     ImGui::End();
+
+
+    //=================================
+    // Renders window with scene data
+    //================================
+    if (m_openSceneDataView) {
+        RenderSceneDataView();
+    }
+
+
+
     IUserInterfaceElement::Render();
 }
 
@@ -86,11 +104,11 @@ void SceneView::CreateSceneLightsList(std::vector<std::shared_ptr<ApplicationCor
             {
                 if(sceneNode->GetIsVisible())
                 {
-                    sceneNode->Setvisibility(false);
+                    sceneNode->SetVisibility(false);
                 }
                 else
                 {
-                    sceneNode->Setvisibility(true);
+                    sceneNode->SetVisibility(true);
                 }
             }
             ImGui::SameLine();
@@ -171,11 +189,11 @@ void SceneView::CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode> scene
     {
         if(sceneNode->GetIsVisible())
         {
-            sceneNode->Setvisibility(false);
+            sceneNode->SetVisibility(false);
         }
         else
         {
-            sceneNode->Setvisibility(true);
+            sceneNode->SetVisibility(true);
         }
     }
     ImGui::SameLine();
@@ -253,4 +271,56 @@ std::string SceneView::GenerateNodeLabel(std::shared_ptr<ApplicationCore::SceneN
     }
     return nodeLabel;
 }
+
+void SceneView::RenderSceneDataView() {
+    ImGui::Begin(ICON_FA_LAYER_GROUP " Scene data view ");
+
+    ImGui::BeginTabBar("Scene data");
+
+    {
+        if (ImGui::BeginTabItem("Nodes")) {
+            int i = 0;
+            for (auto& n : m_scene.GetSceneData().nodes) {
+
+                ImGui::Text("Index: %i", i);
+                ImGui::SameLine();
+                ImGui::Text(ICON_FA_CIRCLE_NODES " %s", n->GetName().c_str());
+                i++;
+            }
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Meshes")) {
+            int i = 0;
+            for (auto& m : m_scene.GetSceneData().meshes) {
+
+                ImGui::Text("Index: %i", i);
+                ImGui::SameLine();
+                ImGui::Text(ICON_FA_CUBE " %s", m->GetName().c_str());
+                i++;
+            }
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Materials")) {
+            int i = 0;
+            for (auto& m : m_scene.GetSceneData().materials) {
+
+                ImGui::Text("Index: %i", i);
+                ImGui::SameLine();
+                ImGui::Text(ICON_FA_CIRCLE_HALF_STROKE " %s", m->GetMaterialName().c_str());
+                i++;
+            }
+            ImGui::EndTabItem();
+        }
+
+
+    }
+    ImGui::EndTabBar();
+
+    if (ImGui::Button("Close")) {
+        m_openSceneDataView = false;
+    }
+
+    ImGui::End();
+}
+
 }  // namespace VEditor

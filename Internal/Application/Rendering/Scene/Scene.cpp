@@ -25,6 +25,17 @@
 
 namespace ApplicationCore {
 
+void SceneData::AddEntry(const std::shared_ptr<ApplicationCore::SceneNode>& node) {
+    if (node->HasMesh()) {
+        auto& mesh = node->GetMesh();
+        meshes.emplace_back(mesh);
+        materials.emplace_back(mesh->GetMaterial());
+        auto matTextures = mesh->GetMaterial()->EnumarateTexture();
+        textures.insert(textures.end(), matTextures.begin(), matTextures.end());
+    }
+    nodes.emplace_back(node);
+}
+
 Scene::Scene(AssetsManager& assetsManager, Camera& camera)
     : m_assetsManager(assetsManager)
     , m_sceneStatistics()
@@ -65,6 +76,7 @@ void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> s
 void Scene::Reset()
 {
     m_needsUpdate = false;
+    m_needsRebuild = false;
     m_sceneStatistics.Reset();
 }
 
@@ -91,9 +103,10 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
 }
 
 
-void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode) const
+void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode)
 {
-    m_root->AddChild(sceneNode);
+    m_root->AddChild(m_sceneData, sceneNode);
+    m_needsRebuild = true;
 }
 
 void Scene::EnumarateMeshes(std::vector<std::shared_ptr<SceneNode>>& outMeshes, std::shared_ptr<SceneNode> sceneNode)
@@ -117,10 +130,12 @@ std::vector<VulkanCore::RTX::BLASInput> Scene::GetBLASInputs()
     inputs.reserve(meshes.size());
     for(auto& m : meshes)
     {
-        if ( m->GetSceneNodeMetaData().VisibleInRayTracing && !m->IsLight()) {
+        if(m->GetSceneNodeMetaData().VisibleInRayTracing && !m->IsLight())
+        {
             auto& mesh = m->GetMesh();
             mesh->SetModelMatrix(m->m_transformation->GetModelMatrix());
-            inputs.emplace_back(VulkanCore::RTX::StaticMeshToBLASInput(m->GetSceneNodeMetaData().ID,m->GetMesh(), m->m_transformation->GetModelMatrix()));
+            inputs.emplace_back(VulkanCore::RTX::StaticMeshToBLASInput(m->GetSceneNodeMetaData().ID, m->GetMesh(),
+                                                                       m->m_transformation->GetModelMatrix()));
         }
     }
 
@@ -137,7 +152,7 @@ void Scene::BuildDefaultScene()
 }
 
 
-void Scene::AddCubeToScene() const
+void Scene::AddCubeToScene()
 {
     auto obj = m_assetsManager.GetDefaultMesh(Cube);
 
@@ -146,7 +161,7 @@ void Scene::AddCubeToScene() const
     AddNode(node);
 }
 
-void Scene::AddSphereToScene() const
+void Scene::AddSphereToScene()
 {
     auto obj = m_assetsManager.GetDefaultMesh(Sphere);
 
@@ -155,7 +170,7 @@ void Scene::AddSphereToScene() const
     AddNode(node);
 }
 
-void Scene::AddPlaneToScene() const
+void Scene::AddPlaneToScene()
 {
     auto obj = m_assetsManager.GetDefaultMesh(Plane);
 
@@ -278,5 +293,11 @@ void Scene::PreformRayCast(glm::vec2 mousePosition)
         Utils::Logger::LogErrorClient("Mouse is outside NDC");
     }
 }
-bool Scene::NeedsUpdate() {return m_needsUpdate;}
+bool Scene::NeedsUpdate()
+{
+    return m_needsUpdate;
+}
+bool Scene::NeedsRebuild() {
+    return m_needsRebuild;
+}
 }  // namespace ApplicationCore

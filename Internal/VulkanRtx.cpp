@@ -106,11 +106,9 @@ void Application::Init()
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     ApplicationCore::ImportOptions importOptions{};
-    auto                           scene = m_client->GetGLTFLoader().LoadGLTFScene("cache/scene.gltf", importOptions);
-    for(auto& sceneNode : scene)
-    {
-        m_client->GetScene().AddNode(sceneNode);
-    }
+
+    m_client->GetGLTFLoader().LoadGLTFScene(m_client->GetScene(),"cache/scene.gltf", importOptions);
+
 
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
 
@@ -170,10 +168,16 @@ void Application::Update()
     m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
     m_editor->Update();
 
-    if (m_client->GetScene().NeedsUpdate()) {
+    if (m_client->GetScene().NeedsUpdate() && !m_client->GetScene().NeedsRebuild()) {
         auto blasInput = m_client->GetScene().GetBLASInputs();
         m_renderingSystem->GetRayTracingManager().UpdateAS(blasInput);
         Utils::Logger::LogInfo("Updating AS");
+    }
+
+    if (m_client->GetScene().NeedsRebuild()) {
+        auto blasInpu = m_client->GetScene().GetBLASInputs();
+        m_renderingSystem->GetRayTracingManager().InitAs(blasInpu);
+        Utils::Logger::LogInfo("Rebuilding AS");
     }
 
 }

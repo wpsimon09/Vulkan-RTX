@@ -38,4 +38,7 @@ void SkyBoxMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVari
     //auto& data = std::get<std::reference_wrapper<VulkanUtils::UnlitSingleTexture>>(updateStruct).get();
     //data.storage2D_1 = m_HDRTexture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 }
+std::vector<std::shared_ptr<VTextureAsset>> SkyBoxMaterial::EnumarateTexture() {
+    return {m_HDRTexture};
+}
 }  // namespace ApplicationCore
