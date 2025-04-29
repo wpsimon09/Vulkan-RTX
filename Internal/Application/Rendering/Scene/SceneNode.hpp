@@ -1,12 +1,14 @@
 /*
-// Created by wpsimon09 on 26/11/24.
-*/
+ * Created by wpsimon09 on 26/11/24.
+ */
 
 #ifndef SCENENODE_HPP
 #define SCENENODE_HPP
 
 #include <memory>
 #include <vector>
+#include <string>
+#include <functional>
 
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
@@ -15,20 +17,17 @@ namespace VulkanUtils {
 struct RenderContext;
 }
 
-//=========================
-// Forward Declarations
-//=========================
-struct Ray;
-
 namespace VulkanStructs {
 struct DrawCallData;
 struct RenderContext;
 }  // namespace VulkanStructs
 
 namespace ApplicationCore {
-class Transformations;
+struct SceneData;
+
 class StaticMesh;
 struct DrawContext;
+class Transformations;
 
 //=========================
 // Static Variables
@@ -46,32 +45,34 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
     //=========================
     explicit SceneNode(std::shared_ptr<StaticMesh> mesh);
     explicit SceneNode();
-    SceneNode(SceneNode& other);
+    SceneNode(SceneData& sceneData, SceneNode& other);
 
     //=========================
     // Hierarchy Management
     //=========================
-    void       AddChild(const std::shared_ptr<SceneNode>& child);
-    void       AddChild(std::shared_ptr<StaticMesh> child);
+    void AddChild(SceneData& sceneData, const std::shared_ptr<SceneNode>& child);
+    void AddChild(SceneData& sceneData, std::shared_ptr<StaticMesh> child);
+    void AddChild(SceneData& sceneData, std::shared_ptr<StaticMesh> child, std::shared_ptr<BaseMaterial> material);
     SceneNode* GetParent();
+    bool       IsParent() const { return m_parent == nullptr; }
 
     //=========================
     // Visibility Management
     //=========================
-    void Setvisibility(bool isVisible);
+    void SetVisibility(bool isVisible);
     bool GetIsVisible() const { return m_sceneNodeMetaData.IsVisible; }
 
     void SetHiddenInEditor() { m_sceneNodeMetaData.ShowInEditor = false; }
     void SetVisibleInEditor() { m_sceneNodeMetaData.ShowInEditor = true; }
     bool IsVisibleInEditor() const { return m_sceneNodeMetaData.ShowInEditor; }
 
-
     //=========================
     // Selection Management
     //=========================
-    void               SetExpansionState(bool expansionState) { m_sceneNodeMetaData.IsOpen = expansionState; }
-    void               Select(bool selectedFromWorld = false);
-    void               Deselect();
+    void SetExpansionState(bool expansionState) { m_sceneNodeMetaData.IsOpen = expansionState; }
+    void Select(bool selectedFromWorld = false);
+    void Deselect();
+
     bool               IsSelected() const { return m_sceneNodeMetaData.IsSelected; }
     bool               IsOpen() const { return m_sceneNodeMetaData.IsOpen; }
     SceneNodeMetaData& GetSceneNodeMetaData() { return m_sceneNodeMetaData; }
@@ -80,6 +81,11 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
     // Transformation
     //=========================
     virtual void Update(bool& needsUpdate);
+    void         SetLocalTransform(Transformations& transformations)
+    {
+        m_localTransformation = transformations;
+        m_transformation      = &m_localTransformation;
+    }
 
     //=========================
     // Rendering
@@ -89,13 +95,7 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
     //=========================
     // Utility Functions
     //=========================
-    void PreformRayIntersectionTest(Ray& ray, std::vector<std::shared_ptr<SceneNode>>& result);
-    void SetLocalTransform(Transformations& transformations)
-    {
-        m_localTransformation = transformations;
-        m_transformation      = &m_localTransformation;
-    };
-    bool  IsParent() const { return m_parent == nullptr; }
+    void  PreformRayIntersectionTest(Ray& ray, std::vector<std::shared_ptr<SceneNode>>& result);
     bool  HasMesh() const { return m_sceneNodeMetaData.HasMesh; }
     float GetDistanceFromCamera(glm::vec3 cameraPosition);
     bool  IsLight() const;
@@ -113,12 +113,12 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
     std::vector<std::shared_ptr<SceneNode>>&       GetChildrenByRef() { return m_children; }
 
     //=========================
-    // Callback functions
+    // Callback Functions
     //=========================
-    virtual void ProcessNodeRemove() {};
+    virtual void ProcessNodeRemove() {}
 
     //=========================
-    // Operator Overloading
+    // Operators
     //=========================
     friend bool operator==(const SceneNode& lhs, const SceneNode& rhs)
     {
@@ -128,17 +128,21 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
     friend bool operator!=(const SceneNode& lhs, const SceneNode& rhs) { return !(lhs == rhs); }
 
   public:
-    Transformations* m_transformation;
+    Transformations* m_transformation = nullptr;
 
   protected:
     //=========================
     // Member Variables
     //=========================
     Transformations                         m_localTransformation;
-    SceneNode*                              m_parent;
-    std::shared_ptr<StaticMesh>             m_mesh;
+    SceneNode*                              m_parent = nullptr;
     std::string                             m_name;
+    std::shared_ptr<StaticMesh>             m_mesh;
     std::vector<std::shared_ptr<SceneNode>> m_children;
+
+    std::vector<int> m_childrenIdx;
+    int              m_meshIdx     = -1;
+    int              m_materialIdx = -1;
 
     SceneNodeMetaData m_sceneNodeMetaData;
 };

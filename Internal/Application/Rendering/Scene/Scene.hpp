@@ -40,8 +40,19 @@ class AssetsManager;
 
 namespace ApplicationCore {
 
+/**
+ * Strurct that contains flat lists of scene data used to indexing in shaders and buffers
+ */
+struct SceneData {
+  std::vector<std::shared_ptr<ApplicationCore::StaticMesh>> meshes;
+  std::vector<std::shared_ptr<BaseMaterial>> materials;
+  std::vector<std::shared_ptr<SceneNode>> nodes;
+};
+
+
 class Scene
 {
+
   public:
     Scene(AssetsManager& assetsManager, Camera& camera);
 
@@ -50,7 +61,7 @@ class Scene
     void Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> sceneNode);
     void Reset();
     void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const;
-    void AddNode(std::shared_ptr<SceneNode> sceneNode) const;
+    void AddNode(std::shared_ptr<SceneNode> sceneNode) ;
     void EnumarateMeshes(std::vector<std::shared_ptr<SceneNode>>& outMeshes, std::shared_ptr<SceneNode> sceneNode);
     std::vector<VulkanCore::RTX::BLASInput> GetBLASInputs();
     AssetsManager&                          GetAssetsManager() const { return m_assetsManager; };
@@ -60,9 +71,9 @@ class Scene
     std::shared_ptr<SceneNode> GetSelectedSceneNode() const { return m_selectedSceneNode; }
     const SceneStatistics&     GetSceneStatistics() const { return m_sceneStatistics; }
 
-    void AddCubeToScene() const;
-    void AddSphereToScene() const;
-    void AddPlaneToScene() const;
+    void AddCubeToScene();
+    void AddSphereToScene();
+    void AddPlaneToScene() ;
 
     void AddSkyBox(LightStructs::EnvLight* envLight = nullptr);
     void AddDirectionalLight(LightStructs::DirectionalLight* directionalLightInfo = nullptr);
@@ -76,6 +87,9 @@ class Scene
     void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; };
 
     bool NeedsUpdate();
+
+    const SceneData& GetSceneDataConst() const { return m_sceneData; }
+    SceneData& GetSceneData() {return m_sceneData;}
 
     LightStructs::SceneLightInfo& GetSceneLightInfo() { return m_sceneLightInfo; }
 
@@ -97,6 +111,9 @@ class Scene
     std::shared_ptr<SkyBoxMaterial> m_currentSkyBox;
 
     LightStructs::SceneLightInfo m_sceneLightInfo;
+
+    SceneData m_sceneData;
+
 
     bool m_needsUpdate = false;
 };

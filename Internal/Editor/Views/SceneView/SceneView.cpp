@@ -86,11 +86,11 @@ void SceneView::CreateSceneLightsList(std::vector<std::shared_ptr<ApplicationCor
             {
                 if(sceneNode->GetIsVisible())
                 {
-                    sceneNode->Setvisibility(false);
+                    sceneNode->SetVisibility(false);
                 }
                 else
                 {
-                    sceneNode->Setvisibility(true);
+                    sceneNode->SetVisibility(true);
                 }
             }
             ImGui::SameLine();
@@ -171,11 +171,11 @@ void SceneView::CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode> scene
     {
         if(sceneNode->GetIsVisible())
         {
-            sceneNode->Setvisibility(false);
+            sceneNode->SetVisibility(false);
         }
         else
         {
-            sceneNode->Setvisibility(true);
+            sceneNode->SetVisibility(true);
         }
     }
     ImGui::SameLine();

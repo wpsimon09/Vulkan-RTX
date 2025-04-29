@@ -19,7 +19,7 @@ class FileExplorer;
 class ModelImportOptions : public IUserInterfaceElement
 {
   public:
-    ModelImportOptions(std::filesystem::path* path, const ApplicationCore::GLTFLoader& gltfLoader, const ApplicationCore::Scene& scene);
+    ModelImportOptions(std::filesystem::path* path, const ApplicationCore::GLTFLoader& gltfLoader, ApplicationCore::Scene& scene);
 
     void Render() override;
     void Resize(int newWidth, int newHeight) override;
@@ -27,7 +27,7 @@ class ModelImportOptions : public IUserInterfaceElement
 
   private:
     const ApplicationCore::GLTFLoader& m_gltfLoader;
-    const ApplicationCore::Scene&      m_scene;
+    ApplicationCore::Scene&      m_scene;
     std::filesystem::path*             m_path;
     ApplicationCore::ImportOptions     m_options;
 };

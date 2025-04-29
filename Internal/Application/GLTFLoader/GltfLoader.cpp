@@ -24,6 +24,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
+#include "Application/Rendering/Scene/Scene.hpp"
 
 namespace ApplicationCore {
 GLTFLoader::GLTFLoader(ApplicationCore::AssetsManager& assetsManager)
@@ -33,7 +34,7 @@ GLTFLoader::GLTFLoader(ApplicationCore::AssetsManager& assetsManager)
     Utils::Logger::LogSuccess("Crated GLTFLoader !");
 }
 
-std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesystem::path gltfPath, const ImportOptions& importOptions) const
+std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, const ImportOptions& importOptions) const
 {
     const auto& model = m_assetsManager.GetModel(gltfPath.string());
     if(!model.empty())
@@ -178,11 +179,13 @@ std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesyste
 
                 if(m.alphaMode == fastgltf::AlphaMode::Blend)
                 {
-                    material->ChangeEffect(std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(m_assetsManager.GetEffects()[EEffectType::AplhaBlend]));
+                    material->ChangeEffect(std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(
+                        m_assetsManager.GetEffects()[EEffectType::AplhaBlend]));
                 }
                 else if(m.alphaMode == fastgltf::AlphaMode::Mask)
                 {
-                    material->ChangeEffect(std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(m_assetsManager.GetEffects()[EEffectType::AplhaBlend]));
+                    material->ChangeEffect(std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(
+                        m_assetsManager.GetEffects()[EEffectType::AplhaBlend]));
                 }
                 material->SetTransparent(m.alphaMode == fastgltf::AlphaMode::Blend);
                 materials.emplace_back(material);
@@ -192,10 +195,9 @@ std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesyste
         else
         {
 
-            MaterialPaths                paths = {.saveToDisk = true};
-            std::shared_ptr<PBRMaterial> material =
-                std::make_shared<ApplicationCore::PBRMaterial>(m_assetsManager.GetAllRasterEffects()[EEffectType::ForwardShader],
-                                                               paths, m_assetsManager);
+            MaterialPaths                paths    = {.saveToDisk = true};
+            std::shared_ptr<PBRMaterial> material = std::make_shared<ApplicationCore::PBRMaterial>(
+                m_assetsManager.GetAllRasterEffects()[EEffectType::ForwardShader], paths, m_assetsManager);
             materials.emplace_back(material);
             m_assetsManager.m_materials.emplace_back(material);
         }
@@ -222,9 +224,8 @@ std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesyste
 
             MaterialPaths paths;
 
-            std::shared_ptr<PBRMaterial> mat =
-                std::make_shared<ApplicationCore::PBRMaterial>(m_assetsManager.GetAllRasterEffects()[EEffectType::ForwardShader],
-                                                               paths, m_assetsManager);
+            std::shared_ptr<PBRMaterial> mat = std::make_shared<ApplicationCore::PBRMaterial>(
+                m_assetsManager.GetAllRasterEffects()[EEffectType::ForwardShader], paths, m_assetsManager);
 
 
             for(auto& p : m.primitives)
@@ -378,7 +379,7 @@ std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesyste
 
         for(auto c : gltf.nodes[i].children)
         {
-            sceneNode->AddChild(m_nodes[c]);
+            sceneNode->AddChild(scene.GetSceneData(), m_nodes[c]);
         }
     }
 
@@ -401,6 +402,7 @@ std::vector<std::shared_ptr<SceneNode>> GLTFLoader::LoadGLTFScene(std::filesyste
     Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");
     return m_topNodes;
 }
+
 
 void GLTFLoader::LoadImage(fastgltf::Asset&                                              asset,
                            std::string                                                   parentPath,

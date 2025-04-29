@@ -15,7 +15,7 @@ namespace VEditor {
 
 ModelImportOptions::ModelImportOptions(std::filesystem::path*             path,
                                        const ApplicationCore::GLTFLoader& gltfLoader,
-                                       const ApplicationCore::Scene&      scene)
+                                       ApplicationCore::Scene&      scene)
     : m_gltfLoader(gltfLoader)
     , m_scene(scene)
     , m_path(path)
@@ -37,7 +37,7 @@ void ModelImportOptions::Render()
 
         if(ImGui::Button("Import"))
         {
-            auto loadedNodes = std::async([this]() { return m_gltfLoader.LoadGLTFScene(*m_path, m_options); });
+            auto loadedNodes = std::async([this]() { return m_gltfLoader.LoadGLTFScene(m_scene, *m_path, m_options); });
 
             ImGui::OpenPopup("Importing");
 
