@@ -123,14 +123,10 @@ void Scene::EnumarateMeshes(std::vector<std::shared_ptr<SceneNode>>& outMeshes, 
 
 std::vector<VulkanCore::RTX::BLASInput> Scene::GetBLASInputs()
 {
-    std::vector<std::shared_ptr<ApplicationCore::SceneNode>> meshes;
-    EnumarateMeshes(meshes, m_root);
-
     std::vector<VulkanCore::RTX::BLASInput> inputs;
-    inputs.reserve(meshes.size());
-    for(auto& m : meshes)
+    for(auto& m : m_sceneData.nodes)
     {
-        if(m->GetSceneNodeMetaData().VisibleInRayTracing && !m->IsLight())
+        if(m->HasMesh() && m->GetSceneNodeMetaData().VisibleInRayTracing && !m->IsLight())
         {
             auto& mesh = m->GetMesh();
             mesh->SetModelMatrix(m->m_transformation->GetModelMatrix());
