@@ -37,7 +37,7 @@ void ModelImportOptions::Render()
 
         if(ImGui::Button("Import"))
         {
-            std::async([this]() { return m_gltfLoader.LoadGLTFScene(m_scene, *m_path, m_options); });
+            m_gltfLoader.LoadGLTFScene(m_scene, *m_path, m_options);
 
             ImGui::OpenPopup("Importing");
 

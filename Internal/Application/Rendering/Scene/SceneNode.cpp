@@ -197,7 +197,7 @@ void SceneNode::Update(bool& needsUpdate)
     }
 
     if (needsUpdate != true) {
-        needsUpdate = m_transformation->HasChanged();
+        needsUpdate = m_transformation->HasChanged() && !IsLight();
     }
 
     for(auto& child : m_children)
