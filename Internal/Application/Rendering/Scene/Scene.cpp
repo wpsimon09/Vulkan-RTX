@@ -25,15 +25,51 @@
 
 namespace ApplicationCore {
 
-void SceneData::AddEntry(const std::shared_ptr<ApplicationCore::SceneNode>& node) {
-    if (node->HasMesh()) {
+void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
+{
+    if(node->HasMesh())
+    {
         auto& mesh = node->GetMesh();
-        meshes.emplace_back(mesh);
-        materials.emplace_back(mesh->GetMaterial());
-        auto matTextures = mesh->GetMaterial()->EnumarateTexture();
-        textures.insert(textures.end(), matTextures.begin(), matTextures.end());
+        //===================
+        // for now only PBR materials will be supported
+        if (auto m = dynamic_cast<PBRMaterial*>(mesh->GetMaterial().get())) {
+            meshes.emplace_back(mesh);
+
+            // retrieve texture and what type of the texture it is
+            auto materialTextures = m->EnumarateTextureMap();
+            int i = textures.size();
+            for (auto& tex : materialTextures) {
+
+                // assign indexes to the material struct so that we know what array it can access
+                textures.emplace_back(tex.second);
+                auto& material = m->GetMaterialDescription().features;
+                switch (tex.first) {
+                case ETextureType::Diffues: material.albedoTextureIdx = textures.size(); break;
+                case ETextureType::normal: material.normalTextureIdx = textures.size(); break;
+                case ETextureType::arm: material.armTextureIdx = textures.size(); break;
+                case ETextureType::Emissive: material.emissiveTextureIdx = textures.size(); break;
+
+                }
+                i++;
+            }
+
+            pbrMaterials.emplace_back(m->GetMaterialDescription());
+
+            auto matTextures = m->EnumarateTexture();
+            textures.insert(textures.end(), matTextures.begin(), matTextures.end());
+        }
     }
     nodes.emplace_back(node);
+    IndexNode(node);
+}
+void SceneData::RemoveEntry(const std::shared_ptr<ApplicationCore::SceneNode>& node) {}
+
+void SceneData::IndexNode(std::shared_ptr<ApplicationCore::SceneNode>& node) {
+    if (node->HasMesh()) {
+        node->m_meshIdx = meshes.size();
+        node->m_materialIdx = pbrMaterials.size();
+
+    }
 }
 
 Scene::Scene(AssetsManager& assetsManager, Camera& camera)

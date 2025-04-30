@@ -101,20 +101,47 @@ void PBRMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariant
         },
         updateStruct);
 }
-std::vector<std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTexture() {
+std::vector<std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTexture()
+{
     std::vector<std::shared_ptr<VTextureAsset>> result;
     result.reserve(m_textures.size());
-    if (m_materialDescription.features.hasDiffuseTexture) {
+    if(m_materialDescription.features.hasDiffuseTexture)
+    {
         result.emplace_back(m_textures[Diffues]);
     }
-    if (m_materialDescription.features.hasArmTexture) {
+    if(m_materialDescription.features.hasArmTexture)
+    {
         result.emplace_back(m_textures[arm]);
     }
-    if (m_materialDescription.features.hasNormalTexture) {
+    if(m_materialDescription.features.hasNormalTexture)
+    {
         result.emplace_back(m_textures[normal]);
     }
-    if (m_materialDescription.features.hasEmissiveTexture) {
+    if(m_materialDescription.features.hasEmissiveTexture)
+    {
         result.emplace_back(m_textures[Emissive]);
+    }
+
+    return result;
+}
+std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTextureMap() {
+    std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> result;
+    result.reserve(m_textures.size());
+    if(m_materialDescription.features.hasDiffuseTexture)
+    {
+        result[Diffues] = m_textures[Diffues];
+    }
+    if(m_materialDescription.features.hasArmTexture)
+    {
+        result[arm] = m_textures[arm];
+    }
+    if(m_materialDescription.features.hasNormalTexture)
+    {
+        result[normal] = m_textures[normal];
+    }
+    if(m_materialDescription.features.hasEmissiveTexture)
+    {
+        result[Emissive] = m_textures[Emissive];
     }
 
     return result;

@@ -255,6 +255,7 @@ void RenderingSystem::Update()
 
 void RenderingSystem::Destroy()
 {
+    m_rayTracingDataManager->Destroy();
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_imageAvailableSemaphores[i]->Destroy();
@@ -265,7 +266,6 @@ void RenderingSystem::Destroy()
     m_swapChain->Destroy();
     m_envLightGenerator->Destroy();
     m_rayTracer->Destroy();
-    m_rayTracingDataManager->Destroy();
 }
 
 

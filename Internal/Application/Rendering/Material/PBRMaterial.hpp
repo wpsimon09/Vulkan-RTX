@@ -17,6 +17,8 @@
 #include "BaseMaterial.hpp"
 #include "MaterialStructs.hpp"
 
+#include <unordered_map>
+
 
 namespace VulkanUtils {
 class VUniformBufferManager;
@@ -60,6 +62,7 @@ class PBRMaterial : public BaseMaterial
     void ResetEffect();
     void UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct) override;
     std::vector<std::shared_ptr<VTextureAsset>> EnumarateTexture() override;
+    std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> EnumarateTextureMap();
 
   private:
     std::array<std::shared_ptr<ApplicationCore::VTextureAsset>, MAX_TEXTURE_COUNT> m_textures;

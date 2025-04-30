@@ -58,7 +58,7 @@ SceneNode::SceneNode(SceneData& sceneData, SceneNode& other)
 
     for(auto& child : other.m_children)
     {
-        AddChild(sceneData, std::make_shared<SceneNode>(*child));
+       // AddChild(sceneData, std::make_shared<SceneNode>(*child));
     }
 }
 
@@ -73,7 +73,7 @@ SceneNode::SceneNode()
     // `scene node` node type is defautl
 }
 
-void SceneNode::AddChild(SceneData& sceneData, const std::shared_ptr<SceneNode>& child)
+void SceneNode::AddChild(SceneData& sceneData,  std::shared_ptr<SceneNode>& child)
 {
     if(child != nullptr)
     {

@@ -50,7 +50,7 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
     //=========================
     // Hierarchy Management
     //=========================
-    void AddChild(SceneData& sceneData, const std::shared_ptr<SceneNode>& child);
+    void AddChild(SceneData& sceneData, std::shared_ptr<SceneNode>& child);
     void AddChild(SceneData& sceneData, std::shared_ptr<StaticMesh> child);
     void AddChild(SceneData& sceneData, std::shared_ptr<StaticMesh> child, std::shared_ptr<BaseMaterial> material);
     SceneNode* GetParent();
@@ -145,6 +145,9 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
     int              m_materialIdx = -1;
 
     SceneNodeMetaData m_sceneNodeMetaData;
+
+private:
+    friend SceneData;
 };
 
 }  // namespace ApplicationCore

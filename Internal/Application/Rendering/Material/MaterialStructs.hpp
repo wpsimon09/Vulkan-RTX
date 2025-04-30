@@ -37,6 +37,14 @@ struct PBRMaterialFeaturees
     int hasNormalTexture{false};
     int hasArmTexture{false};
 
+
+    //===========================================================
+    // indexes to the texture array in scene data for ray tracing
+    int albedoTextureIdx;
+    int armTextureIdx;
+    int emissiveTextureIdx;
+    int normalTextureIdx;
+
     friend bool operator==(const PBRMaterialFeaturees& lhs, const PBRMaterialFeaturees& rhs)
     {
         return lhs.hasDiffuseTexture == rhs.hasDiffuseTexture && lhs.hasEmissiveTexture == rhs.hasEmissiveTexture
@@ -71,6 +79,8 @@ struct PBRMaterialDescription
 {
     PBRMaterialNoTexture values;
     PBRMaterialFeaturees features;
+
+
 };
 
 struct SkyBoxMaterialDescription
