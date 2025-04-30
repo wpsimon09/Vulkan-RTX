@@ -192,7 +192,7 @@ void Application::Render()
 
     m_editor->Render();
 
-    m_renderingSystem->Render(m_client->GetScene().GetSceneLightInfo(), m_client->GetGlobalDataUpdateInformation());
+    m_renderingSystem->Render(m_client->GetScene().GetSceneLightInfo(),m_client->GetScene().GetSceneData(), m_client->GetGlobalDataUpdateInformation());
 
     m_renderingSystem->Update();
 }

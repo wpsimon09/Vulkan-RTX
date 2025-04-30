@@ -23,6 +23,7 @@ struct BLASInput
     glm::mat4                                               transform;
     uint32_t                                                meshIndex;
     RTXObjDescription                                       objDescription; // for passing normals and other data to the shaders
+
 };
 
 struct BLASEntry

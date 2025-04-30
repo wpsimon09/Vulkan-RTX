@@ -64,6 +64,7 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
 void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                           const VulkanCore::VTimelineSemaphore&     renderingSemaphore,
                           const VulkanUtils::VUniformBufferManager& unifromBufferManager,
+                          const ApplicationCore::SceneData& sceneData,
                           int                                       currentFrame)
 {
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recordgin !");
@@ -80,6 +81,7 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     descriptor.buffer3 = m_rtxDataManager.GetObjDescriptionBufferInfo();
     descriptor.tlas    = m_rtxDataManager.GetTLAS();
     descriptor.storage2D_1 = m_resultImage[currentFrame]->GetDescriptorImageInfo();
+    descriptor.textures2D_1 = unifromBufferManager.GetAll2DTextureDescriptorImageInfo(sceneData);
 
     cmdB.pushDescriptorSetWithTemplateKHR(m_rtxEffect->GetUpdateTemplate(), m_rtxEffect->GetPipelineLayout(), 0,
                                           descriptor, m_device.DispatchLoader);

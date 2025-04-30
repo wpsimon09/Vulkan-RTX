@@ -61,7 +61,6 @@ VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device, co
                         //extra data
                         .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1);
 
-
                 m_descriptorSetLayoutBindings = std::move(BasicDescriptorSetLayout.m_descriptorBindings);
             }
             else if constexpr(std::is_same_v<t, VulkanUtils::UnlitSingleTexture>)
@@ -92,7 +91,11 @@ VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device, co
                         // TLAS
                         .AddBinding(3, vk::DescriptorType::eAccelerationStructureKHR, vk::ShaderStageFlagBits::eClosestHitKHR | vk::ShaderStageFlagBits::eIntersectionKHR | vk::ShaderStageFlagBits::eRaygenKHR, 1)
                         // Output
-                        .AddBinding(4, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eRaygenKHR, 1);
+                        .AddBinding(4, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eRaygenKHR, 1)
+                        // Bindless material buffer
+                        .AddBinding(5, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eRaygenKHR, 1)
+                        // Bindless material buffer
+                        .AddBinding(6, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eRaygenKHR, 2048);
 
                 m_descriptorSetLayoutBindings = std::move(RayTracingDescriptorSetLayout.m_descriptorBindings);
             }
@@ -174,7 +177,8 @@ VDescriptorSetLayout::Builder::Builder(const VulkanCore::VDevice& device)
 VDescriptorSetLayout::Builder& VDescriptorSetLayout::Builder::AddBinding(uint32_t             binding,
                                                                          vk::DescriptorType   type,
                                                                          vk::ShaderStageFlags stage,
-                                                                         uint32_t             descriptorCount)
+                                                                         uint32_t             descriptorCount,
+                                                                         bool dynamicIndexEnable)
 {
 
     assert(m_descriptorBindings.count(binding) == 0 && "Binding already exists");
@@ -184,7 +188,10 @@ VDescriptorSetLayout::Builder& VDescriptorSetLayout::Builder::AddBinding(uint32_
     bindingInfo.descriptorType    = type;
     bindingInfo.descriptorCount   = descriptorCount;
     bindingInfo.stageFlags        = stage;
+
+
     m_descriptorBindings[binding] = bindingInfo;
+
 
     return *this;
 }

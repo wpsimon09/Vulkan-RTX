@@ -70,6 +70,8 @@ struct RayTracingDescriptorSet {
 
     vk::DescriptorImageInfo storage2D_1; // output image
 
+    std::vector<vk::DescriptorImageInfo> textures2D_1;
+
 };
 
 using DescriptorSetTemplateVariant = std::variant<BasicDescriptorSet, UnlitSingleTexture, ForwardShadingDstSet, EmtpyDescriptorSet, RayTracingDescriptorSet>;

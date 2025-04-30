@@ -10,6 +10,9 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
+namespace ApplicationCore {
+struct SceneData;
+}
 struct PBRMaterialNoTexture;
 struct PBRMaterialFeaturees;
 
@@ -35,6 +38,7 @@ class VUniformBufferManager
     const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;  // per frame in flight
     const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
+    std::vector<vk::DescriptorImageInfo>  GetAll2DTextureDescriptorImageInfo(const ApplicationCore::SceneData& sceneData) const;  // per object per frame in flight
 
     void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
 
@@ -53,6 +57,7 @@ class VUniformBufferManager
     std::unique_ptr<VUniform<LightUniforms>>                               m_lightUniform;
     std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>>                  m_perFrameUniform;
     std::vector<std::unique_ptr<VulkanUtils::VUniform<ObjectDataUniform>>> m_perObjectUniform;
+
 
     mutable int m_currentDrawCalls = 0;
 };

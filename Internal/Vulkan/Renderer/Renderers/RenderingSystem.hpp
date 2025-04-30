@@ -19,6 +19,9 @@
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
+namespace ApplicationCore {
+struct SceneData;
+}
 // Forward Declarations
 namespace VulkanCore {
     class VDevice;
@@ -67,7 +70,7 @@ public:
                     VEditor::UIContext&                       uiContext);
 
     void Init();
-    void Render(LightStructs::SceneLightInfo& sceneLightInfo, GlobalUniform& globalUniformUpdateInfo);
+    void Render(LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalUniform& globalUniformUpdateInfo);
     void Update();
     void Destroy();
 

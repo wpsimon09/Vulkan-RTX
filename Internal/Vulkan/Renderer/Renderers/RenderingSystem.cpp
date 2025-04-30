@@ -109,7 +109,7 @@ void RenderingSystem::Init()
     }
 }
 
-void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo, GlobalUniform& globalUniformUpdateInfo)
+void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalUniform& globalUniformUpdateInfo)
 {
     m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
 

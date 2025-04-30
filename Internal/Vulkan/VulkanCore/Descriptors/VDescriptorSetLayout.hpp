@@ -38,7 +38,7 @@ class VDescriptorSetLayout : VObject
       public:
         explicit Builder(const VulkanCore::VDevice& device);
 
-        Builder& AddBinding(uint32_t binding, vk::DescriptorType type, vk::ShaderStageFlags stage, uint32_t descriptorCount);
+        Builder& AddBinding(uint32_t binding, vk::DescriptorType type, vk::ShaderStageFlags stage, uint32_t descriptorCount, bool dynamicIndexEnable = false);
 
         std::unique_ptr<VulkanCore::VDescriptorSetLayout> Build();
 

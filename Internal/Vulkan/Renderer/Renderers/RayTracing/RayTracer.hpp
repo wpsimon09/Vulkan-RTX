@@ -7,6 +7,9 @@
 #include <memory>
 #include <vector>
 
+namespace ApplicationCore {
+struct SceneData;
+}
 namespace VulkanUtils {
 class VResourceGroupManager;
 }
@@ -41,6 +44,7 @@ class RayTracer
     void TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                    const VulkanCore::VTimelineSemaphore&     renderingSemaphore,
                    const VulkanUtils::VUniformBufferManager& unifromBufferManager,
+                   const ApplicationCore::SceneData& sceneData,
                    int                                       currentFrame);
 
     void ProcessResize(int newWidth, int newHeight);

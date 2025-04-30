@@ -43,9 +43,11 @@ class VRayTracingDataManager {
 
     std::vector<RTXObjDescription> m_rtxObjectDescriptions;
     std::unique_ptr<VulkanCore::RTX::VRayTracingBuilderKHR> m_rayTracingBuilder;
-    std::unique_ptr<VulkanCore::VBuffer> m_objDescriptionBuffer;
     std::vector <VulkanCore::RTX::BLASInput> m_blasInputs;
     std::vector<vk::AccelerationStructureInstanceKHR> m_instances;
+
+    std::unique_ptr<VulkanCore::VBuffer> m_objDescriptionBuffer;
+    std::unique_ptr<VulkanCore::VBuffer> m_materialDescriptionBuffer;
 };
 
 } // VulkanUtils

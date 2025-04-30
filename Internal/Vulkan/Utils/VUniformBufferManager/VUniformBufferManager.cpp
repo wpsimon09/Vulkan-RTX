@@ -5,11 +5,13 @@
 #include "VUniformBufferManager.hpp"
 
 #include "Application/Client.hpp"
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/Lightning/LightStructs.hpp"
+#include "Application/Rendering/Scene/Scene.hpp"
 #include "fastgltf/types.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
@@ -17,6 +19,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 
 
 #define MAX_UBO_COUNT 1000
@@ -44,6 +47,16 @@ const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager:
 {
     // returns 2 buffer descriptor info for each frame in flight
     return m_perObjectUniform[meshIndex]->GetDescriptorBufferInfos();
+}
+std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2DTextureDescriptorImageInfo (
+    const ApplicationCore::SceneData& sceneData)const
+{
+    std::vector<vk::DescriptorImageInfo> result;
+    result.reserve(sceneData.textures.size());
+    for (auto& texture : sceneData.textures) {
+        result.emplace_back(texture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    }
+    return result;
 }
 
 void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const
@@ -163,6 +176,7 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     for(int i = 0; i < MAX_UBO_COUNT; i++)
     {
         m_perObjectUniform[i] = (std::make_unique<VUniform<ObjectDataUniform>>(m_device));
+        m_rayTracingMaterials[i] = (std::make_unique<VUniform<PBRMaterialDescription>>(m_device));
     }
 
     //assert(m_objectDataUniforms.size() == MAX_UBO_COUNT && "Failed to allocate 20 buffers");
