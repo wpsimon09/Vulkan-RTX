@@ -38,8 +38,7 @@ class BaseMaterial
     void                                   ResetEffect();
     void                                   SetMaterialname(std::string newName);
     virtual void UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct) = 0;
-    virtual std::vector<std::shared_ptr<VTextureAsset>>          EnumarateTexture() = 0;
-
+w
 
   protected:
     bool                                  m_transparent = false;

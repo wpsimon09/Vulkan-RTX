@@ -36,7 +36,8 @@ void SceneView::Render()
     ImGui::SeparatorText("Scene");
 
     ImGui::SameLine();
-    if (ImGui::Button(ICON_FA_LAYER_GROUP)) {
+    if(ImGui::Button(ICON_FA_LAYER_GROUP))
+    {
         m_openSceneDataView = true;
     }
 
@@ -81,10 +82,10 @@ void SceneView::Render()
     //=================================
     // Renders window with scene data
     //================================
-    if (m_openSceneDataView) {
+    if(m_openSceneDataView)
+    {
         RenderSceneDataView();
     }
-
 
 
     IUserInterfaceElement::Render();
@@ -274,15 +275,18 @@ std::string SceneView::GenerateNodeLabel(std::shared_ptr<ApplicationCore::SceneN
     return nodeLabel;
 }
 
-void SceneView::RenderSceneDataView() {
+void SceneView::RenderSceneDataView()
+{
     ImGui::Begin(ICON_FA_LAYER_GROUP " Scene data view ");
 
     ImGui::BeginTabBar("Scene data");
 
     {
-        if (ImGui::BeginTabItem("Nodes")) {
+        if(ImGui::BeginTabItem("Nodes"))
+        {
             int i = 0;
-            for (auto& n : m_scene.GetSceneData().nodes) {
+            for(auto& n : m_scene.GetSceneData().nodes)
+            {
 
                 ImGui::Text("Index: %i", i);
                 ImGui::SameLine();
@@ -291,9 +295,11 @@ void SceneView::RenderSceneDataView() {
             }
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Meshes")) {
+        if(ImGui::BeginTabItem("Meshes"))
+        {
             int i = 0;
-            for (auto& m : m_scene.GetSceneData().meshes) {
+            for(auto& m : m_scene.GetSceneData().meshes)
+            {
 
                 ImGui::Text("Index: %i", i);
                 ImGui::SameLine();
@@ -302,19 +308,22 @@ void SceneView::RenderSceneDataView() {
             }
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Materials")) {
+        if(ImGui::BeginTabItem("Materials"))
+        {
             int i = 0;
-            for (auto& m : m_scene.GetSceneData().pbrMaterials) {
+            for(auto& m : m_scene.GetSceneData().pbrMaterials)
+            {
 
                 ImGui::Text("Index: %i", i);
                 ImGui::SameLine();
                 //ImGui::Text(ICON_FA_CIRCLE_HALF_STROKE " %s", m->GetMaterialName().c_str());
                 std::string treeNodeLabel = ICON_FA_CIRCLE_HALF_STROKE " Material " + i;
-                if (ImGui::TreeNodeEx(treeNodeLabel.c_str())) {
-                    ImGui::Text("Diffuse index %i", m.features.albedoTextureIdx );
-                    ImGui::Text("Normal index %i", m.features.normalTextureIdx );
-                    ImGui::Text("Arm index %i", m.features.armTextureIdx );
-                    ImGui::Text("Emissive %i", m.features.emissiveTextureIdx );
+                if(ImGui::TreeNodeEx(treeNodeLabel.c_str()))
+                {
+                    ImGui::Text("Diffuse index %i", m.features.albedoTextureIdx);
+                    ImGui::Text("Normal index %i", m.features.normalTextureIdx);
+                    ImGui::Text("Arm index %i", m.features.armTextureIdx);
+                    ImGui::Text("Emissive %i", m.features.emissiveTextureIdx);
 
                     ImGui::TreePop();
                 }
@@ -322,9 +331,11 @@ void SceneView::RenderSceneDataView() {
             }
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Textures")) {
+        if(ImGui::BeginTabItem("Textures"))
+        {
             int i = 0;
-            for (auto& t : m_scene.GetSceneData().textures) {
+            for(auto& t : m_scene.GetSceneData().textures)
+            {
 
                 ImGui::Text("Index: %i", i);
                 ImGui::SameLine();
@@ -333,12 +344,11 @@ void SceneView::RenderSceneDataView() {
             }
             ImGui::EndTabItem();
         }
-
-
     }
     ImGui::EndTabBar();
 
-    if (ImGui::Button("Close")) {
+    if(ImGui::Button("Close"))
+    {
         m_openSceneDataView = false;
     }
 
