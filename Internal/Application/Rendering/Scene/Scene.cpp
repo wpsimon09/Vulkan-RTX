@@ -56,7 +56,6 @@ void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
             pbrMaterials.emplace_back(m->GetMaterialDescription());
 
             auto matTextures = m->EnumarateTexture();
-            textures.insert(textures.end(), matTextures.begin(), matTextures.end());
         }
     }
     nodes.emplace_back(node);

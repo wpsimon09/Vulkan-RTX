@@ -4,6 +4,8 @@
 
 #include "SceneView.hpp"
 
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
+
 #include <imgui.h>
 #include <IconFontCppHeaders/IconsFontAwesome6.h>
 
@@ -302,11 +304,31 @@ void SceneView::RenderSceneDataView() {
         }
         if (ImGui::BeginTabItem("Materials")) {
             int i = 0;
-            for (auto& m : m_scene.GetSceneData().materials) {
+            for (auto& m : m_scene.GetSceneData().pbrMaterials) {
 
                 ImGui::Text("Index: %i", i);
                 ImGui::SameLine();
-                ImGui::Text(ICON_FA_CIRCLE_HALF_STROKE " %s", m->GetMaterialName().c_str());
+                //ImGui::Text(ICON_FA_CIRCLE_HALF_STROKE " %s", m->GetMaterialName().c_str());
+                std::string treeNodeLabel = ICON_FA_CIRCLE_HALF_STROKE " Material " + i;
+                if (ImGui::TreeNodeEx(treeNodeLabel.c_str())) {
+                    ImGui::Text("Diffuse index %i", m.features.albedoTextureIdx );
+                    ImGui::Text("Normal index %i", m.features.normalTextureIdx );
+                    ImGui::Text("Arm index %i", m.features.armTextureIdx );
+                    ImGui::Text("Emissive %i", m.features.emissiveTextureIdx );
+
+                    ImGui::TreePop();
+                }
+                i++;
+            }
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Textures")) {
+            int i = 0;
+            for (auto& t : m_scene.GetSceneData().textures) {
+
+                ImGui::Text("Index: %i", i);
+                ImGui::SameLine();
+                ImGui::Text(ICON_FA_FILE_IMAGE " %s", t->GetName().c_str());
                 i++;
             }
             ImGui::EndTabItem();
