@@ -50,7 +50,6 @@ RaytracingAccelerationStructure _TLAS;
 [[vk::binding(4, 0)]]
 ConstantBuffer<RWTexture2D> _film;
 
-
 struct RayPayLoad {
     float3 color;
     float3 distance;
@@ -93,6 +92,7 @@ void rayGenMain() {
     float3 hitColor = payload.color;
     totalRadiance = payload.color;
 
+
      _film[int2(threadIdx.xy)] = float4(totalRadiance, 1.0);
 }
 
@@ -126,7 +126,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     float3 L = _lightInfo.dirLight.direction.xyz;
     float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
 
-    float3 albedo = float3(0.5, 0.2, 0.5);
+    float3 albedo = float3(0.2, 0.2, 1.0);
 
     float3 ambient = albedo * _lightInfo.info.y; // y is the ambient strengt
 

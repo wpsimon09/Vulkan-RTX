@@ -190,7 +190,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
     }
     else
     {
-        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex], *m_renderingTimeLine[m_currentFrameIndex], m_uniformBufferManager,m_currentFrameIndex );
+        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex], *m_renderingTimeLine[m_currentFrameIndex], m_uniformBufferManager, sceneData, m_currentFrameIndex );
     }
 
     // render UI to the swap chain image
