@@ -29,7 +29,7 @@ class VBuffer : public VObject
     const vk::Buffer&    GetStagingBuffer() const { return m_stagingBufferVK; }
     const VmaAllocation& GetStagingBufferAllocation() const { return m_stagingAllocation; }
     vk::DeviceSize       GetBuffeSizeInBytes() const { return m_bufferSize; };
-    vk::DeviceAddress    GetBufferAdress() const {return m_bufferAddress;}
+    vk::DeviceAddress    GetBufferAdress() const {return m_bufferAddress.value_or(0);}
 
     void* GetMapPointer() const
     {
@@ -81,7 +81,7 @@ class VBuffer : public VObject
 
     vk::DeviceSize    m_bufferSize;
     const std::string m_allocationName;
-    vk::DeviceAddress m_bufferAddress;
+    std::optional<vk::DeviceAddress> m_bufferAddress;
 
     bool  m_isInitialized        = false;
     bool  m_isPresistentlyMapped = false;
@@ -104,7 +104,11 @@ void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size, boo
     //----------------------
     Utils::Logger::LogInfoVerboseOnly("Allocating Uniform buffer....");
     m_bufferType = vk::BufferUsageFlagBits::eUniformBuffer ;
-    CreateBuffer(size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | makeDeviceAddress ? VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT  : 0 | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    VkBufferUsageFlags usageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT  | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    if (makeDeviceAddress){
+        usageFlags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT ;
+    }
+    CreateBuffer(size, usageFlags );
     Utils::Logger::LogSuccess("Allocation completed successfully !");
 
     //----------------------------

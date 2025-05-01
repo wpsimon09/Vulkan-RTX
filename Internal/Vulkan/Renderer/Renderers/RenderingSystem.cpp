@@ -161,6 +161,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
     m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo);
     m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
     m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
+    m_uniformBufferManager.UpdateSceneDataInfo(m_currentFrameIndex, sceneData);
 
     std::sort(m_renderContext.drawCalls.begin(), m_renderContext.drawCalls.end(),
               [](std::pair<unsigned long, VulkanStructs::DrawCallData>& lhs,

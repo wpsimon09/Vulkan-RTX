@@ -60,8 +60,7 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshI
     // the custom index ID in the shader
     input.objDescription.indexAddresss = triangles.indexData.deviceAddress;
     input.objDescription.vertexAddress = triangles.vertexData.deviceAddress;
-
-
+  
     return input;
 }
 

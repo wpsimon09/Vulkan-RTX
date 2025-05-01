@@ -16,7 +16,7 @@ template <typename T>
 class VUniform
 {
   public:
-    explicit VUniform(const VulkanCore::VDevice& device, bool oneTime = false, bool makeDeviceAddress = false; );
+    explicit VUniform(const VulkanCore::VDevice& device, bool oneTime = false, bool makeDeviceAddress = false );
     T&                                           GetUBOStruct() { return *m_uniformCPU; };
     void                                         UpdateGPUBuffer(int frameIndex);
     const std::vector<vk::DescriptorBufferInfo>& GetDescriptorBufferInfos() const { return m_bufferInfo; };
@@ -50,7 +50,7 @@ VUniform<T>::VUniform(const VulkanCore::VDevice& device, bool oneTime, bool make
     for(int i = 0; i < m_framesInFlight; i++)
     {
         m_uniformGPU[i] = std::make_unique<VulkanCore::VBuffer>(device, "<== UNIFORM BUFFER ==>");
-        m_uniformGPU[i]->MakeUniformBuffer(m_uniformCPU.get(), sizeof(T));
+        m_uniformGPU[i]->MakeUniformBuffer(m_uniformCPU.get(), sizeof(T), makeDeviceAddress);
         m_bufferInfo[i] = m_uniformGPU[i]->GetBufferInfoForDescriptor();
     }
 }
@@ -63,7 +63,6 @@ void VUniform<T>::UpdateGPUBuffer(int frameIndex)
         frameIndex = 0;
     }
     memcpy(m_uniformGPU[frameIndex]->GetMapPointer(), m_uniformCPU.get(), sizeof(T));
-    //m_isDirty = false; TODO: update data only if they are chagned
 }
 
 template <typename T>

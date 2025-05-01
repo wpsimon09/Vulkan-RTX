@@ -156,9 +156,11 @@ void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, con
     // only for materials now
     for (int i = 0; i<sceneData.pbrMaterials.size(); i++) {
         if (i< MAX_UBO_COUNT) {
-
+            m_rtxMaterialDescriptions[i]->GetUBOStruct() = sceneData.pbrMaterials[i];
         }
+        m_rtxMaterialDescriptions[i]->UpdateGPUBuffer(frameIndex);
     }
+
 }
 
 

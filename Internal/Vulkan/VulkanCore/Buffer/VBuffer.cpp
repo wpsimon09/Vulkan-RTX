@@ -125,9 +125,12 @@ void VBuffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage)
     vmaSetAllocationName(m_device.GetAllocator(), m_allocation, m_allocationName.c_str());
     Utils::Logger::LogSuccess("Buffer allocated successfully || SIZE: " + std::to_string(size) + " bytes || ");
 
-    vk::BufferDeviceAddressInfo bufferAdressInfo;
-    bufferAdressInfo.buffer = m_bufferVK;
-    m_bufferAddress         = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
+    if (usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) {
+
+        vk::BufferDeviceAddressInfo bufferAdressInfo;
+        bufferAdressInfo.buffer = m_bufferVK;
+        m_bufferAddress         = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
+    }
 }
 void VBuffer::CreateBufferWithAligment(VkDeviceSize size, VkBufferUsageFlags usage, vk::DeviceSize minAligment)
 {
