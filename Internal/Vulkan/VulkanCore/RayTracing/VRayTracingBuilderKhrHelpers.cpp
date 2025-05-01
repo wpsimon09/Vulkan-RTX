@@ -61,6 +61,7 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshI
     input.objDescription.indexAddresss = triangles.indexData.deviceAddress;
     input.objDescription.vertexAddress = triangles.vertexData.deviceAddress;
 
+
     return input;
 }
 

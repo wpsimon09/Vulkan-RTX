@@ -50,6 +50,7 @@ RaytracingAccelerationStructure _TLAS;
 [[vk::binding(4, 0)]]
 ConstantBuffer<RWTexture2D> _film;
 
+
 struct RayPayLoad {
     float3 color;
     float3 distance;

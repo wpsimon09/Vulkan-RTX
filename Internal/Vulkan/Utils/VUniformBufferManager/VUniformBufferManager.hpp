@@ -38,12 +38,15 @@ class VUniformBufferManager
     const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;  // per frame in flight
     const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
+    std::vector<vk::DescriptorImageInfo>  GetAll2DTextureDescriptorImageInfo(const ApplicationCore::SceneData& sceneData) const;  // per object per frame in flight
 
     void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
 
     void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& drawCalls) const;
 
     void UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const;
+
+    void UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData) const;
 
     void Destroy() const;
 
@@ -55,7 +58,12 @@ class VUniformBufferManager
 
     std::unique_ptr<VUniform<LightUniforms>>                               m_lightUniform;
     std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>>                  m_perFrameUniform;
+
     std::vector<std::unique_ptr<VulkanUtils::VUniform<ObjectDataUniform>>> m_perObjectUniform;
+
+    //=======================================================
+    // storage buffers containing all of the data for materials
+    std::vector<std::unique_ptr<VulkanUtils::VUniform<PBRMaterialDescription>>> m_rtxMaterialDescriptions;
 
 
     mutable int m_currentDrawCalls = 0;

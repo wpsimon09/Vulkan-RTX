@@ -151,6 +151,16 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, 
     m_lightUniform->UpdateGPUBuffer(frameIndex);
 }
 
+void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData) const
+{
+    // only for materials now
+    for (int i = 0; i<sceneData.pbrMaterials.size(); i++) {
+        if (i< MAX_UBO_COUNT) {
+
+        }
+    }
+}
+
 
 void VulkanUtils::VUniformBufferManager::Destroy() const
 {
@@ -158,6 +168,10 @@ void VulkanUtils::VUniformBufferManager::Destroy() const
     m_perFrameUniform->Destory();
     m_lightUniform->Destory();
     for(auto& ubo : m_perObjectUniform)
+    {
+        ubo->Destory();
+    }
+    for(auto& ubo : m_rtxMaterialDescriptions)
     {
         ubo->Destory();
     }
@@ -172,10 +186,13 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for per object data");
 
     m_perObjectUniform.resize(MAX_UBO_COUNT);
+    m_rtxMaterialDescriptions.resize(MAX_UBO_COUNT);
 
     for(int i = 0; i < MAX_UBO_COUNT; i++)
     {
         m_perObjectUniform[i] = (std::make_unique<VUniform<ObjectDataUniform>>(m_device));
+        m_rtxMaterialDescriptions[i] = std::make_unique<VUniform<PBRMaterialDescription>>(m_device);
+
         //m_rayTracingMaterials[i] = (std::make_unique<VUniform<PBRMaterialDescription>>(m_device));
     }
 

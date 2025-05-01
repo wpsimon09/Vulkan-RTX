@@ -16,7 +16,7 @@ template <typename T>
 class VUniform
 {
   public:
-    explicit VUniform(const VulkanCore::VDevice& device, bool oneTime = false);
+    explicit VUniform(const VulkanCore::VDevice& device, bool oneTime = false, bool makeDeviceAddress = false; );
     T&                                           GetUBOStruct() { return *m_uniformCPU; };
     void                                         UpdateGPUBuffer(int frameIndex);
     const std::vector<vk::DescriptorBufferInfo>& GetDescriptorBufferInfos() const { return m_bufferInfo; };
@@ -33,7 +33,7 @@ class VUniform
 };
 
 template <typename T>
-VUniform<T>::VUniform(const VulkanCore::VDevice& device, bool oneTime)
+VUniform<T>::VUniform(const VulkanCore::VDevice& device, bool oneTime, bool makeDeviceAddress)
 {
     if(oneTime)
     {

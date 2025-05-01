@@ -44,7 +44,7 @@ class VBuffer : public VObject
     vk::DescriptorBufferInfo& GetBufferInfoForDescriptor();
 
     template <typename T>
-    void MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size);
+    void MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size,  bool makeDeviceAddress = false);
 
     void Destroy() override;
 
@@ -85,12 +85,13 @@ class VBuffer : public VObject
 
     bool  m_isInitialized        = false;
     bool  m_isPresistentlyMapped = false;
+    bool  m_hasShaderDeviceAddress = false;
     void* m_mappedData;
 };
 
 
 template <typename T>
-void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size)
+void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size, bool makeDeviceAddress)
 {
 
     m_isPresistentlyMapped = true;
@@ -103,7 +104,7 @@ void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size)
     //----------------------
     Utils::Logger::LogInfoVerboseOnly("Allocating Uniform buffer....");
     m_bufferType = vk::BufferUsageFlagBits::eUniformBuffer ;
-    CreateBuffer(size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    CreateBuffer(size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | makeDeviceAddress ? VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT  : 0 | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     Utils::Logger::LogSuccess("Allocation completed successfully !");
 
     //----------------------------
@@ -119,6 +120,10 @@ void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size)
     m_bufferVK      = vk::Buffer(m_bufferVMA);
     m_isInitialized = true;
     Utils::Logger::LogSuccess("Uniform buffer created !");
+
+    //--------------------------------------------------------
+    // Get device address
+    //--------------------------------------------------------
 
     m_descriptorBufferInfo.buffer = m_bufferVK;
     m_descriptorBufferInfo.range  = size;

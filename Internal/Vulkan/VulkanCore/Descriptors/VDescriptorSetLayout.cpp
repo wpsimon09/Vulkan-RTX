@@ -92,7 +92,6 @@ VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device, co
                         .AddBinding(3, vk::DescriptorType::eAccelerationStructureKHR, vk::ShaderStageFlagBits::eClosestHitKHR | vk::ShaderStageFlagBits::eIntersectionKHR | vk::ShaderStageFlagBits::eRaygenKHR, 1)
                         // Output
                         .AddBinding(4, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eRaygenKHR, 1);
-
                 m_descriptorSetLayoutBindings = std::move(RayTracingDescriptorSetLayout.m_descriptorBindings);
             }
             else if constexpr(std::is_same_v<t, VulkanUtils::ForwardShadingDstSet>)
