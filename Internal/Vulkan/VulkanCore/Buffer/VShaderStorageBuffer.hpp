@@ -7,7 +7,9 @@
 #include "Application/Logger/Logger.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 
@@ -28,9 +30,8 @@ class VShaderStorageBuffer : public VObject
      * Sends data to the GPU and checks if the handle is still capable of fitting in withint the buffer,
      * if not buffer will be resized to accomodate for this
      */
-    void Update();
-
-    void* GetUpdateHandle();
+    template <typename T>
+    void Update(const std::vector<T>& data);
 
     /**
      * Resizes the buffer and puts new data to the GPU
@@ -50,10 +51,24 @@ class VShaderStorageBuffer : public VObject
   private:
     const VulkanCore::VDevice& m_device;
 
-    vk::DeviceSize m_bufferSize;
-    vk::DeviceSize m_currentSize;
+    vk::DeviceSize    m_bufferSize;
+    vk::DeviceSize    m_currentSize;
     vk::DeviceAddress m_deviceAddress;
 };
+
+template <typename T>
+void VShaderStorageBuffer::Update(const std::vector<T>& data)
+{
+    size_t updateSize = data.size() * sizeof(T);
+
+    assert((m_bufferSize - m_currentSize) > updateSize && "Buffer is not possible to update, i have to implement the resize feature");
+
+    memcpy(m_stagingBuffer.mappedPtr, data.data(), data.size() * sizeof(T));
+
+    VulkanUtils::CopyBuffers(m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(),
+                             m_stagingBuffer.buffer, m_buffer.buffer, vk::WholeSize, 0);
+
+}
 
 }  // namespace VulkanCore
 
