@@ -58,8 +58,8 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
 
 public Material GetMaterial(uint32_t instanceIndex) {
     Material mat;
-    mat.Features = materialValues[0].Features;
-    mat.Values = materialValues[0].Values;
+    mat.Features = materialValues[instanceIndex].Features;
+    mat.Values = materialValues[instanceIndex].Values;
     return mat;
 }
 

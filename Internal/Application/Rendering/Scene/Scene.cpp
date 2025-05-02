@@ -53,7 +53,7 @@ void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
                 i++;
             }
 
-            pbrMaterials.emplace_back(m->GetMaterialDescription());
+            pbrMaterials.emplace_back(&m->GetMaterialDescription());
 
             auto matTextures = m->EnumarateTexture();
         }

@@ -14,6 +14,8 @@
 #include "Application/Rendering/Scene/SceneNode.hpp"
 #include "Editor/Views/DetailsPanel/DetailsPanel.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
+
 namespace VEditor {
 SceneView::SceneView(ApplicationCore::Scene& scene)
     : m_scene(scene)
@@ -314,16 +316,35 @@ void SceneView::RenderSceneDataView()
             for(auto& m : m_scene.GetSceneData().pbrMaterials)
             {
 
-                ImGui::Text("Index: %i", i);
+                ImGui::Text("%i", i);
                 ImGui::SameLine();
                 //ImGui::Text(ICON_FA_CIRCLE_HALF_STROKE " %s", m->GetMaterialName().c_str());
-                std::string treeNodeLabel = ICON_FA_CIRCLE_HALF_STROKE " Material " + i;
+                std::string treeNodeLabel = ICON_FA_CIRCLE_HALF_STROKE  " Material " + i;
                 if(ImGui::TreeNodeEx(treeNodeLabel.c_str()))
                 {
-                    ImGui::Text("Diffuse index %i", m.features.albedoTextureIdx);
-                    ImGui::Text("Normal index %i", m.features.normalTextureIdx);
-                    ImGui::Text("Arm index %i", m.features.armTextureIdx);
-                    ImGui::Text("Emissive %i", m.features.emissiveTextureIdx);
+                    ImGui::Text("Diffuse index %i", m->features.albedoTextureIdx);
+                    ImGui::Text("Normal index %i", m->features.normalTextureIdx);
+                    ImGui::Text("Arm index %i", m->features.armTextureIdx);
+                    ImGui::Text("Emissive %i", m->features.emissiveTextureIdx);
+
+                    ImGui::Separator();
+
+                    ImGui::Text("Diffuce val") ; ImGui::SameLine() ;
+                    ImVec4 col;
+                    col.x = m->values.diffuse.x;
+                    col.y = m->values.diffuse.y;
+                    col.z = m->values.diffuse.z;
+                    col.w = m->values.diffuse.w;
+                    ImGui::ColorButton("Diffuce colour", col, ImGuiColorEditFlags_NoInputs);
+
+                    ImGui::Text("Roughness %f", m->values.roughness);
+                    ImGui::Text("Meallnes %f", m->values.metalness);
+                    ImGui::Text("Ao %f", m->values.ao);
+
+                    col.x = m->values.emissive_strength.x;
+                    col.y = m->values.emissive_strength.y;
+                    col.z = m->values.emissive_strength.z;
+                    ImGui::ColorButton("Emissive colour", col, ImGuiColorEditFlags_NoInputs);
 
                     ImGui::TreePop();
                 }

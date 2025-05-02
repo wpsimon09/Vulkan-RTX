@@ -165,7 +165,11 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, 
 
 void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData) const
 {
-    m_rtxMaterialDescriptions[frameIndex]->Update(sceneData.pbrMaterials);
+    std::vector<PBRMaterialDescription> materials(sceneData.pbrMaterials.size());
+    for(int i = 0; i < sceneData.pbrMaterials.size(); i++) {
+        materials[i] = *sceneData.pbrMaterials[i];
+    }
+    m_rtxMaterialDescriptions[frameIndex]->Update(materials);
 }
 
 

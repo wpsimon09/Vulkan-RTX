@@ -40,10 +40,10 @@ struct PBRMaterialFeaturees
 
     //===========================================================
     // indexes to the texture array in scene data for ray tracing
-    int albedoTextureIdx;
-    int armTextureIdx;
-    int emissiveTextureIdx;
-    int normalTextureIdx;
+    int albedoTextureIdx = -1;
+    int armTextureIdx = -1;
+    int emissiveTextureIdx = -1;
+    int normalTextureIdx = - 1;
 
     friend bool operator==(const PBRMaterialFeaturees& lhs, const PBRMaterialFeaturees& rhs)
     {
