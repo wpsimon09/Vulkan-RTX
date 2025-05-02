@@ -27,6 +27,7 @@ namespace ApplicationCore {
 
 void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
 {
+    if (node->IsLight()) return;
     if(node->HasMesh())
     {
         auto& mesh = node->GetMesh();
