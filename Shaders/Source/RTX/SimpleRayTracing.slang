@@ -123,13 +123,13 @@ void missMain2(inout RayPayloadShadow payload) {
 void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
 {
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
-    //Material m = GetMaterial(InstanceID());
+    Material m = GetMaterial(InstanceID());
 
 
     float3 L = _lightInfo.dirLight.direction.xyz;
     float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
 
-    float3 albedo = float3(0.2, 0.2, 1.0);
+    float3 albedo = m.Values.diffuse.xyz; //float3(0.2, 0.2, 1.0);
 
     float3 ambient = albedo * _lightInfo.info.y; // y is the ambient strengt
 

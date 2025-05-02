@@ -30,10 +30,10 @@ void                     VRayTracingDataManager::UpdateAS(std::vector<VulkanCore
 }
 
 vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo() {
-    vk::DescriptorBufferInfo bu {};
-    bu.buffer = m_objDescriptionBuffer->GetBuffer();
-    bu.range = vk::WholeSize;
-    return bu;
+    vk::DescriptorBufferInfo info {};
+    info.buffer = m_objDescriptionBuffer->GetBuffer();
+    info.range = vk::WholeSize;
+    return info;
 }
 
 void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs)

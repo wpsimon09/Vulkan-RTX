@@ -6,7 +6,7 @@ import Material;
 StructuredBuffer<ObjDescription> descriptions;
 
 [[vk::binding(5, 0)]]
-StructuredBuffer<Material> materialValues;
+StructuredBuffer<Material, Std430DataLayout> materialValues;
 
 public struct ObjDescription {
     public Vertex* vertexAddresses;
@@ -57,7 +57,10 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
 }
 
 public Material GetMaterial(uint32_t instanceIndex) {
-    return materialValues[instanceIndex];
+    Material mat;
+    mat.Features = materialValues[0].Features;
+    mat.Values = materialValues[0].Values;
+    return mat;
 }
 
 
