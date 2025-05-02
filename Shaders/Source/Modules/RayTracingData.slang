@@ -1,8 +1,12 @@
 module RayTracingData;
 import Surface;
+import Material;
 
 [[vk::binding(2, 0)]]
 StructuredBuffer<ObjDescription> descriptions;
+
+[[vk::binding(5, 0)]]
+StructuredBuffer<Material> materialValues;
 
 public struct ObjDescription {
     public Vertex* vertexAddresses;
@@ -20,7 +24,7 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     const float3 barycentricCoords = float3(1.0f - baricentric.x - baricentric.y, baricentric.x, baricentric.y);
 
     ObjDescription object = descriptions[instanceIndex];
-
+    Material mat = materialValues[instanceIndex];
 
     // Vertex *vertexBuffer = (Vertex *)(object.vertexAddresses); // Cast to Vertex pointer
     // int *indexBuffer = (int *)(object.indexAddress);        // Cast to int pointer (assuming indices are integers)
@@ -50,6 +54,10 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     float2 uv = v1.uv * baricentric.x + v2.uv * baricentric.y;
 
     return g;
+}
+
+public Material GetMaterial(uint32_t instanceIndex) {
+    return materialValues[instanceIndex];
 }
 
 

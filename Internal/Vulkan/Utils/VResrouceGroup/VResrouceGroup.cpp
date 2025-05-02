@@ -52,6 +52,7 @@ VulkanUtils::VShaderResrouceGroup::VShaderResrouceGroup(const VulkanCore::VDevic
                 this->AddUpdateEntry(3, offsetof(VulkanUtils::RayTracingDescriptorSet, tlas), 0);
 
                 this->AddUpdateEntry(4, offsetof(VulkanUtils::RayTracingDescriptorSet, storage2D_1), 0);
+                this->AddUpdateEntry(5, offsetof(VulkanUtils::RayTracingDescriptorSet, buffer4), 0);
 
                 m_layoutStructType = EDescriptorLayoutStruct::RayTracing;
 

@@ -24,7 +24,9 @@ class VShaderStorageBuffer : public VObject
   public:
     VShaderStorageBuffer(const VulkanCore::VDevice& device, vk::DeviceSize initialSize);
 
-    void Allocate(vk::BufferUsageFlags usage);
+    void Allocate();
+
+    const vk::Buffer& GetBuffer() const;
 
     /**
      * Sends data to the GPU and checks if the handle is still capable of fitting in withint the buffer,
@@ -39,6 +41,9 @@ class VShaderStorageBuffer : public VObject
      */
     void Resize(vk::DeviceSize newSize);
 
+    void Destroy() override;
+
+    vk::DeviceSize  GetCurrentSize() const ;
 
   private:
     struct BufferHandle
@@ -63,10 +68,12 @@ void VShaderStorageBuffer::Update(const std::vector<T>& data)
 
     assert((m_bufferSize - m_currentSize) > updateSize && "Buffer is not possible to update, i have to implement the resize feature");
 
+    m_currentSize = updateSize;
+
     memcpy(m_stagingBuffer.mappedPtr, data.data(), data.size() * sizeof(T));
 
     VulkanUtils::CopyBuffers(m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(),
-                             m_stagingBuffer.buffer, m_buffer.buffer, vk::WholeSize, 0);
+                             m_stagingBuffer.buffer, m_buffer.buffer, updateSize, 0);
 
 }
 

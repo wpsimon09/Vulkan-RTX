@@ -37,6 +37,8 @@
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 #include "Vulkan/Renderer/Renderers/RayTracing/RayTracer.hpp"
+#include "Vulkan/VulkanCore/Buffer/VShaderStorageBuffer.hpp"
+
 // Vulkan Utilities
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 

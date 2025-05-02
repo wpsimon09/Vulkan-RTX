@@ -19,10 +19,12 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
+#include "Vulkan/VulkanCore/Buffer/VShaderStorageBuffer.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 
 
 #define MAX_UBO_COUNT 1000
+#define MATERIAL_BUFFER_SIZE 16'777'216
 
 VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDevice& device)
     : m_device(device)
@@ -48,16 +50,27 @@ const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager:
     // returns 2 buffer descriptor info for each frame in flight
     return m_perObjectUniform[meshIndex]->GetDescriptorBufferInfos();
 }
-std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2DTextureDescriptorImageInfo (
-    const ApplicationCore::SceneData& sceneData)const
+std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2DTextureDescriptorImageInfo(
+    const ApplicationCore::SceneData& sceneData) const
 {
     std::vector<vk::DescriptorImageInfo> result;
     result.reserve(sceneData.textures.size());
-    for (auto& texture : sceneData.textures) {
+    for(auto& texture : sceneData.textures)
+    {
         result.emplace_back(texture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     }
     return result;
 }
+vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetSceneBufferDescriptorInfo(int frameIndex) const
+{
+    vk::DescriptorBufferInfo descriptorBuffer{};
+    descriptorBuffer.buffer = m_rtxMaterialDescriptions[frameIndex]->GetBuffer();
+    descriptorBuffer.offset = 0;
+    descriptorBuffer.range = vk::WholeSize;
+
+    return  descriptorBuffer;
+}
+
 
 void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const
 {
@@ -102,7 +115,6 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
 
 void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const
 {
-
 
     if(sceneLightInfo.DirectionalLightInfo)
     {
@@ -153,7 +165,7 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, 
 
 void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData) const
 {
-
+    m_rtxMaterialDescriptions[frameIndex]->Update(sceneData.pbrMaterials);
 }
 
 
@@ -165,6 +177,10 @@ void VulkanUtils::VUniformBufferManager::Destroy() const
     for(auto& ubo : m_perObjectUniform)
     {
         ubo->Destory();
+    }
+
+    for (auto& ssbo : m_rtxMaterialDescriptions) {
+        ssbo->Destroy();
     }
 
     Utils::Logger::LogInfoVerboseOnly("Uniform buffer manager destroyed");
@@ -185,6 +201,12 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
         m_perObjectUniform[i] = (std::make_unique<VUniform<ObjectDataUniform>>(m_device));
 
         //m_rayTracingMaterials[i] = (std::make_unique<VUniform<PBRMaterialDescription>>(m_device));
+    }
+
+    m_rtxMaterialDescriptions.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+        m_rtxMaterialDescriptions[i] = std::make_unique<VulkanCore::VShaderStorageBuffer>(m_device, MATERIAL_BUFFER_SIZE);
+        m_rtxMaterialDescriptions[i]->Allocate();
     }
 
     //assert(m_objectDataUniforms.size() == MAX_UBO_COUNT && "Failed to allocate 20 buffers");

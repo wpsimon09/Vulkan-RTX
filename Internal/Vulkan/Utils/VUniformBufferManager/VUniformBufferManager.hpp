@@ -10,6 +10,9 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
+namespace VulkanCore {
+class VShaderStorageBuffer;
+}
 namespace ApplicationCore {
 struct SceneData;
 }
@@ -39,6 +42,7 @@ class VUniformBufferManager
     const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
     std::vector<vk::DescriptorImageInfo>  GetAll2DTextureDescriptorImageInfo(const ApplicationCore::SceneData& sceneData) const;  // per object per frame in flight
+    vk::DescriptorBufferInfo GetSceneBufferDescriptorInfo(int frameIndex) const;
 
     void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
 
@@ -63,11 +67,9 @@ class VUniformBufferManager
 
     //=======================================================
     // storage buffers containing all of the data for materials
-    std::vector<std::unique_ptr<VulkanCore::VBuffer>> m_rtxMaterialDescriptions;
+    std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_rtxMaterialDescriptions;
 
     std::unique_ptr<VulkanCore::VBuffer> m_objDescriptionBuffer;
-
-
 
     mutable int m_currentDrawCalls = 0;
 };

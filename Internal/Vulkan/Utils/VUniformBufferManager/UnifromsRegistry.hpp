@@ -70,10 +70,6 @@ struct LightUniforms
 struct RTXObjDescription {
     vk::DeviceAddress vertexAddress;
     vk::DeviceAddress indexAddresss;
-    //vk::DeviceAddress materialAddress;
-    // material
-    // material index
-    // etc etc
 };
 
 

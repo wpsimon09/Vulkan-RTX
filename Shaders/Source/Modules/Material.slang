@@ -31,6 +31,11 @@ public struct MaterialFeatures
     public bool hasEmissiveTexture;
     public bool hasNormalTexture;
     public bool hasArmTexture;
+
+    public int albedoTextureIdx;
+    public int armTextureIdx;
+    public int emissiveTextureIdx;
+    public int normalTextureIdx;
 }
 
 public struct Material

@@ -11,7 +11,7 @@ VShaderStorageBuffer::VShaderStorageBuffer(const VulkanCore::VDevice& device, vk
     , m_currentSize(0)
 {
 }
-void VShaderStorageBuffer::Allocate(vk::BufferUsageFlags usage)
+void VShaderStorageBuffer::Allocate()
 {
     std::string allocationNme = "Allocation of staging buffer for Shader storage buffer";
 
@@ -20,10 +20,10 @@ void VShaderStorageBuffer::Allocate(vk::BufferUsageFlags usage)
     //============================================================================================
     VkBufferCreateInfo stagingBufferCreateInfo = {};
     stagingBufferCreateInfo.sType              = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    stagingBufferCreateInfo.usage = static_cast<VkBufferUsageFlags>(usage | vk::BufferUsageFlagBits::eTransferSrc);
-    stagingBufferCreateInfo.size  = static_cast<VkDeviceSize>(m_bufferSize);
-    stagingBufferCreateInfo.sharingMode      = VK_SHARING_MODE_EXCLUSIVE;
-    std::vector<uint32_t> shaderQueueIndices = {
+    stagingBufferCreateInfo.usage              = static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eTransferSrc);
+    stagingBufferCreateInfo.size               = static_cast<VkDeviceSize>(m_bufferSize);
+    stagingBufferCreateInfo.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+    std::vector<uint32_t> shaderQueueIndices   = {
         m_device.GetQueueFamilyIndices().transferFamily.value().second,
         m_device.GetQueueFamilyIndices().graphicsFamily.value().second,
         m_device.GetQueueFamilyIndices().computeFamily.value().second,
@@ -54,9 +54,8 @@ void VShaderStorageBuffer::Allocate(vk::BufferUsageFlags usage)
     // ALLOCATE DEVICE ONLY BUFFER
     //============================================================
     VkBufferCreateInfo bufferCreateInfo = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
-    bufferCreateInfo.size               = m_currentSize;
-    bufferCreateInfo.usage = static_cast<VkBufferUsageFlags>(usage | vk::BufferUsageFlagBits::eStorageBuffer
-                                                             | vk::BufferUsageFlagBits::eShaderDeviceAddress
+    bufferCreateInfo.size               = m_bufferSize;
+    bufferCreateInfo.usage = static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress
                                                              | vk::BufferUsageFlagBits::eTransferDst);
     ;
     bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -80,9 +79,19 @@ void VShaderStorageBuffer::Allocate(vk::BufferUsageFlags usage)
     bufferAdressInfo.buffer = m_buffer.buffer;
     m_deviceAddress         = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
 }
-void VShaderStorageBuffer::Resize(vk::DeviceSize newSize) {
-  assert(0 == 1 && "Not implemented yet !");
+const vk::Buffer& VShaderStorageBuffer::GetBuffer() const { return m_buffer.buffer;}
+
+void VShaderStorageBuffer::Resize(vk::DeviceSize newSize)
+{
+    assert(0 == 1 && "Not implemented yet !");
 }
+void VShaderStorageBuffer::Destroy()
+{
+    vmaUnmapMemory(m_device.GetAllocator(), m_stagingBuffer.allocation);
+    vmaDestroyBuffer(m_device.GetAllocator(), m_stagingBuffer.buffer, m_stagingBuffer.allocation);
+    vmaDestroyBuffer(m_device.GetAllocator(), m_buffer.buffer, m_buffer.allocation);
+}
+vk::DeviceSize VShaderStorageBuffer::GetCurrentSize() const {return m_currentSize; }
 
 
 } // VulkanCore

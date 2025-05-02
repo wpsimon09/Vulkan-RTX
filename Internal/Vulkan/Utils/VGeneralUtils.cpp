@@ -252,7 +252,7 @@ void VulkanUtils::CopyBuffers(const vk::CommandBuffer& commandBuffer,
 
     commandBuffer.copyBuffer(srcBuffer, dstBuffer, bufferCopy);
 
-    Utils::Logger::LogSuccess("Buffer copy completed !");
+    Utils::Logger::LogInfoVerboseOnly("Buffer copy completed !");
 }
 
 void VulkanUtils::CopyBuffersWithBariers(const VulkanCore::VDevice& device,

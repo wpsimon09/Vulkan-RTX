@@ -153,15 +153,16 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
 
     m_renderingTimeLine[m_currentFrameIndex]->Reset();
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
-    m_device.GetTransferOpsManager().UpdateGPU();
-    m_transferSemapohore.CpuWaitIdle(2);
-    m_transferSemapohore.Reset();
 
     // ==== check if it is possible ot use env light
     m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo);
     m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
     m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
     m_uniformBufferManager.UpdateSceneDataInfo(m_currentFrameIndex, sceneData);
+
+    m_device.GetTransferOpsManager().UpdateGPU();
+    m_transferSemapohore.CpuWaitIdle(2);
+    m_transferSemapohore.Reset();
 
     std::sort(m_renderContext.drawCalls.begin(), m_renderContext.drawCalls.end(),
               [](std::pair<unsigned long, VulkanStructs::DrawCallData>& lhs,
