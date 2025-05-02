@@ -57,6 +57,10 @@ class VBuffer : public VObject
     template <typename T>
     void CreateBufferAndPutDataOnDevice(const vk::CommandBuffer& commandBuffer, const std::vector<T>& data, vk::BufferUsageFlags usage);
 
+    template <typename T>
+    void UpdateContents(const vk::CommandBuffer& commandBuffer, const std::vector<T>& data, vk::BufferUsageFlags usage);
+
+
     void DestroyStagingBuffer() const;
 
     ~VBuffer() override = default;

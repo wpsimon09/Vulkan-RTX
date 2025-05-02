@@ -47,7 +47,6 @@ class VRayTracingDataManager {
     std::vector<vk::AccelerationStructureInstanceKHR> m_instances;
 
     std::unique_ptr<VulkanCore::VBuffer> m_objDescriptionBuffer;
-    std::unique_ptr<VulkanCore::VBuffer> m_materialDescriptionBuffer;
 };
 
 } // VulkanUtils

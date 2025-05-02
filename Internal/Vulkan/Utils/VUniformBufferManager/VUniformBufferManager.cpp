@@ -153,13 +153,6 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, 
 
 void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData) const
 {
-    // only for materials now
-    for (int i = 0; i<sceneData.pbrMaterials.size(); i++) {
-        if (i< MAX_UBO_COUNT) {
-            m_rtxMaterialDescriptions[i]->GetUBOStruct() = sceneData.pbrMaterials[i];
-        }
-        m_rtxMaterialDescriptions[i]->UpdateGPUBuffer(frameIndex);
-    }
 
 }
 
@@ -173,10 +166,7 @@ void VulkanUtils::VUniformBufferManager::Destroy() const
     {
         ubo->Destory();
     }
-    for(auto& ubo : m_rtxMaterialDescriptions)
-    {
-        ubo->Destory();
-    }
+
     Utils::Logger::LogInfoVerboseOnly("Uniform buffer manager destroyed");
 }
 
@@ -193,7 +183,6 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     for(int i = 0; i < MAX_UBO_COUNT; i++)
     {
         m_perObjectUniform[i] = (std::make_unique<VUniform<ObjectDataUniform>>(m_device));
-        m_rtxMaterialDescriptions[i] = std::make_unique<VUniform<PBRMaterialDescription>>(m_device);
 
         //m_rayTracingMaterials[i] = (std::make_unique<VUniform<PBRMaterialDescription>>(m_device));
     }
