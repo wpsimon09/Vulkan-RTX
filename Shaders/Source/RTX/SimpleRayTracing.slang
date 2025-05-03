@@ -3,13 +3,13 @@ import Utils;
 import RayTracingData;
 import Material;
 import Surface;
+import RandomValues;
 
 struct GlobalData {
     column_major float4x4 projection;
     column_major float4x4 view;
     float4x4 inverseView;
     float4x4 invProjection;
-    
 
     float4 lightPosition;
     float4 cameraPostiion;
@@ -56,6 +56,15 @@ struct RayPayLoad {
     float3 distance;
     float3 normal;
     float3 reflector;
+
+    float3 incomingLightColour;
+    float3 rayColour;
+
+    float3 rayDirection;
+    float3 rayOrigin;
+
+    uint depth;
+    uint randomContext;
 }
 
 struct RayPayloadShadow {
@@ -75,6 +84,11 @@ void rayGenMain() {
     const float2 inUv = pixelCenter / float2(launchSize);
 
     float2 d = inUv * 2.0 - 1.0;
+
+    float2 pixelCoord = inUv * globalData.screenSize;
+    uint pixelIndex = pixelCenter.y * globalData.screenSize.x + pixelCenter.x;
+
+
     // pixel position on view plane 
     float4 target = mul(globalData.invProjection, float4(d.x, d.y, 1.0, 1.0));
 
@@ -88,13 +102,25 @@ void rayGenMain() {
     float3 totalRadiance = 0.0f;
 
     RayPayLoad payload;
+    payload.incomingLightColour = float3(0.0);
+    payload.rayColour = float3(1.0);
+    payload.randomContext = pixelIndex;
+
+    for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
+
+
+        TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
+
+        ray.Origin = payload.rayOrigin;
+        ray.Direction = payload.rayDirection;
+
+    }
+
+    totalRadiance = payload.incomingLightColour;
+
     
-    TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
-    float3 hitColor = payload.color;
-    totalRadiance = payload.color;
 
-
-     _film[int2(threadIdx.xy)] = float4(totalRadiance, 1.0);
+    _film[int2(threadIdx.xy)] = float4(totalRadiance, 1.0);
 }
 
 [[shader("miss")]]
@@ -111,7 +137,7 @@ void missMain(inout RayPayLoad payload) {
     float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 200.0) * _lightInfo.dirLight.intensity.w;
 
-    payload.color = lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1);
+    payload.incomingLightColour  += lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1);
 }
 
 [[shader("miss")]]
@@ -122,10 +148,25 @@ void missMain2(inout RayPayloadShadow payload) {
 [[shader("closesthit")]]
 void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
 {
+
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
     Material m = GetMaterial(InstanceID());
 
+    // calculate next bounce direction of the ray 
+    float3 diffuseDir = normalize(g.shadingNormal + RandomHemisphereDirection(g.normal, payLoad.randomContext));
+    payLoad.rayDirection = diffuseDir;
+    payLoad.rayOrigin = g.shadingPosition;
+    
+    // other direction
+    float3 emmittedLight = m.Values.emissive_strength.xyz * m.Values.emissive_strength.w;
 
+    payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
+    payLoad.rayColour *= m.Values.diffuse.xyz;
+
+    //=================================
+    // DIRECT LIGHTNING
+    //=================================
+    /**
     float3 L = _lightInfo.dirLight.direction.xyz;
     float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
 
@@ -147,12 +188,14 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER  , 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
     }
 
+    
     if (!shadowPayLoad.inShadow) {
         float diff = max(dot(g.shadingNormal, L), 0.0);
         
-        payLoad.color = (diff * Le * albedo) + ambient;
+        //payLoad.color += (diff * Le * albedo) + ambient;
     } else {
-        payLoad.color =  ambient;
+        //payLoad.color +=  ambient;
     }
-
+        */
+  
 }
