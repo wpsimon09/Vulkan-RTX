@@ -65,6 +65,8 @@ struct RayPayLoad {
 
     uint depth;
     uint randomContext;
+
+    bool hasHit;
 }
 
 struct RayPayloadShadow {
@@ -86,8 +88,7 @@ void rayGenMain() {
     float2 d = inUv * 2.0 - 1.0;
 
     float2 pixelCoord = inUv * globalData.screenSize;
-    uint pixelIndex = threadIdx.y * globalData.screenSize.x + threadIdx.x;
-
+    uint pixelIndex = threadIdx.y * launchSize.x + threadIdx.x;
 
     // pixel position on view plane 
     float4 target = mul(globalData.invProjection, float4(d.x, d.y, 1.0, 1.0));
@@ -104,21 +105,21 @@ void rayGenMain() {
     RayPayLoad payload;
     payload.incomingLightColour = float3(0.0);
     payload.rayColour = float3(1.0);
-    payload.randomContext = pixelIndex;
-
-    for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
-
-
+    payload.hasHit = true;
+    
+    for (; payload.depth < globalData.reccursionDepth && payload.hasHit; payload.depth++) {
+        
+        
         TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
-
+        totalRadiance += payload.incomingLightColour;
+        payload.randomContext = pixelIndex;
+        
         ray.Origin = payload.rayOrigin;
         ray.Direction = payload.rayDirection;
-
-        totalRadiance += payload.incomingLightColour;
+        
     }
 
 
-    
 
     _film[int2(threadIdx.xy)] = float4(totalRadiance, 1.0);
 }
@@ -137,8 +138,9 @@ void missMain(inout RayPayLoad payload) {
     float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 200.0) * _lightInfo.dirLight.intensity.w;
 
-    payload.incomingLightColour = 0.f;
-    //payload.incomingLightColour  += lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1);
+    //payload.incomingLightColour = 0.f;
+    payload.incomingLightColour += lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1);
+    payload.hasHit = false;
 }
 
 [[shader("miss")]]
@@ -163,6 +165,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
     payLoad.rayColour *= m.Values.diffuse.xyz;
+    payLoad.hasHit = true;
 
     //=================================
     // DIRECT LIGHTNING
