@@ -86,7 +86,7 @@ void rayGenMain() {
     float2 d = inUv * 2.0 - 1.0;
 
     float2 pixelCoord = inUv * globalData.screenSize;
-    uint pixelIndex = pixelCenter.y * globalData.screenSize.x + pixelCenter.x;
+    uint pixelIndex = threadIdx.y * globalData.screenSize.x + threadIdx.x;
 
 
     // pixel position on view plane 
@@ -97,7 +97,7 @@ void rayGenMain() {
     ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
     //ray.Direction = normalize(worldSpaceDirection).xyz;
     ray.TMin = 0.001f;
-    ray.TMax = 100000.0f;
+    ray.TMax = 10000.0f;
 
     float3 totalRadiance = 0.0f;
 
@@ -114,9 +114,9 @@ void rayGenMain() {
         ray.Origin = payload.rayOrigin;
         ray.Direction = payload.rayDirection;
 
+        totalRadiance += payload.incomingLightColour;
     }
 
-    totalRadiance = payload.incomingLightColour;
 
     
 
@@ -137,7 +137,8 @@ void missMain(inout RayPayLoad payload) {
     float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 200.0) * _lightInfo.dirLight.intensity.w;
 
-    payload.incomingLightColour  += lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1);
+    payload.incomingLightColour = 0.f;
+    //payload.incomingLightColour  += lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1);
 }
 
 [[shader("miss")]]
@@ -153,7 +154,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     Material m = GetMaterial(InstanceID());
 
     // calculate next bounce direction of the ray 
-    float3 diffuseDir = normalize(g.shadingNormal + RandomHemisphereDirection(g.normal, payLoad.randomContext));
+    float3 diffuseDir = normalize(g.shadingNormal + RandomHemisphereDirection(g.shadingNormal, payLoad.randomContext));
     payLoad.rayDirection = diffuseDir;
     payLoad.rayOrigin = g.shadingPosition;
     

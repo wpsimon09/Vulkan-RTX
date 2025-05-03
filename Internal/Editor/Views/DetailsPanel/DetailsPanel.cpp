@@ -350,7 +350,7 @@ void DetailsPanel::RenderPBRMaterialDetails(ApplicationCore::PBRMaterial* materi
         }
         else
         {
-            ImGui::DragFloat("Emissive strength", &material->GetMaterialDescription().values.emissive_strength.w, 0.5f, 0.0f, 100.0f);
+            ImGui::DragFloat("Emissive strength", &material->GetMaterialDescription().values.emissive_strength.w, 0.5f, 0.0f);
             ImGui::SetNextItemWidth(colourPickerWidth);
             ImGui::ColorEdit3("Emission", &material->GetMaterialDescription().values.emissive_strength.x, ImGuiColorEditFlags_NoInputs);
         }
