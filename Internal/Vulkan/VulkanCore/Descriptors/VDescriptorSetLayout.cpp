@@ -83,7 +83,7 @@ VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device, co
                 auto RayTracingDescriptorSetLayout =
                     VulkanCore::VDescriptorSetLayout::Builder(device)
                         // Global data (camera uniform buffer)
-                        .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR, 1)
+                        .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR, 1)
                         // light data
                         .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eClosestHitKHR | vk::ShaderStageFlagBits::eMissKHR, 1)
                         // Scene object data

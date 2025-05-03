@@ -19,6 +19,7 @@
 #include "GLTFLoader/LoadSceneLights.hpp"
 #include "Rendering/Scene/SceneNode.hpp"
 #include "Rendering/Scene/Scene.hpp"
+#include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 
@@ -97,7 +98,7 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData.screenSize  = m_camera->GetScreenSize();
     m_globalRenderingData.viewParams = glm::vec4(m_camera->GetCameraPlaneWidthAndHeight(), m_camera->GetNearPlane(), 1.0f);
     m_globalRenderingData.viewParams.w   = m_camera->GetFocalLength();
-    m_globalRenderingData.reccursionDepth = m_camera->GetMaxReccursion();
+    m_globalRenderingData.reccursionDepth = GlobalVariables::RenderingOptions::MaxRecursionDepth;
     m_globalRenderingData.playerPosition = glm::vec4(m_camera->GetPosition(), 1.0f);
 }
 

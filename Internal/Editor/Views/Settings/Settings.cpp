@@ -182,5 +182,7 @@ void Settings::RenderRenderingSettings()
     }
 
     ImGui::SliderFloat("Outline width", &GlobalVariables::RenderingOptions::OutlineWidth, 0.01f, 1.f);
+
+    ImGui::SliderInt("Reccursion depth", &GlobalVariables::RenderingOptions::MaxRecursionDepth, 0, 20);
 }
 }  // namespace VEditor

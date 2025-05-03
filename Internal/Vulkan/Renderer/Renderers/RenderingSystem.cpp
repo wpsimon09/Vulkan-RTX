@@ -155,6 +155,10 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
 
     // ==== check if it is possible ot use env light
+    if (m_isRayTracing) {
+        globalUniformUpdateInfo.screenSize.x = m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().width;
+        globalUniformUpdateInfo.screenSize.y = m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().height;
+    }
     m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo);
     m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
     m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
