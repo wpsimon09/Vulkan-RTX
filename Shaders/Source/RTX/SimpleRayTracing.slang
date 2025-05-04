@@ -111,6 +111,7 @@ void rayGenMain() {
     for (; payload.depth < globalData.reccursionDepth && payload.hasHit; payload.depth++) {
         
         
+        
         TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
         totalRadiance += payload.incomingLightColour;
         
@@ -138,7 +139,6 @@ void missMain(inout RayPayLoad payload) {
 
     //payload.incomingLightColour = float3(0.f);
     payload.incomingLightColour = lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1);
-    payload.rayColour = float3(1.f);
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
@@ -162,8 +162,38 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     // other direction
     float3 emmittedLight = m.Values.emissive_strength.xyz * m.Values.emissive_strength.w;
 
-    payLoad.incomingLightColour = emmittedLight * payLoad.rayColour;
+    payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
     payLoad.rayColour *= m.Values.diffuse.xyz;
     payLoad.hasHit = true;
+
+    //========================
+    // direct light
+
+    float3 L = _lightInfo.dirLight.direction.xyz;
+    float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
+
+    float3 albedo = m.Values.diffuse.xyz; // float3(0.2, 0.2, 1.0);
+
+    float3 ambient = albedo * _lightInfo.info.y; // y is the ambient strengt
+
+    RayPayloadShadow shadowPayLoad;
+    shadowPayLoad.inShadow = true;
+
+    if (dot(g.shadingNormal, L) > 0.0) {
+        // trace the shadow rays
+        RayDesc shadowRay;
+        shadowRay.Direction = L;
+        shadowRay.Origin = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
+        shadowRay.TMax = 10000;
+        shadowRay.TMin = 0.01;
+
+        TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
+    }
+
+    if (!shadowPayLoad.inShadow) {
+        float diff = max(dot(g.shadingNormal, L), 0.0);
+
+        payLoad.incomingLightColour += (diff * Le * albedo) + ambient;
+    } 
 
 }
