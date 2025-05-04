@@ -106,13 +106,14 @@ void rayGenMain() {
     payload.incomingLightColour = float3(0.0);
     payload.rayColour = float3(1.0);
     payload.hasHit = true;
+    payload.randomContext = pixelIndex;
+
     
     for (; payload.depth < globalData.reccursionDepth && payload.hasHit; payload.depth++) {
         
         
         TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
         totalRadiance += payload.incomingLightColour;
-        payload.randomContext = pixelIndex;
         
         ray.Origin = payload.rayOrigin;
         ray.Direction = payload.rayDirection;
@@ -154,9 +155,9 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
     Material m = GetMaterial(InstanceID());
-
+    uint rngState = payLoad.randomContext;
     // calculate next bounce direction of the ray 
-    float3 diffuseDir = normalize(g.shadingNormal + RandomHemisphereDirection(g.shadingNormal, payLoad.randomContext));
+    float3 diffuseDir = normalize(g.shadingNormal + RandomHemisphereDirection(g.shadingNormal, rngState));
     payLoad.rayDirection = diffuseDir;
     payLoad.rayOrigin = g.shadingPosition;
     
@@ -166,40 +167,5 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
     payLoad.rayColour *= m.Values.diffuse.xyz;
     payLoad.hasHit = true;
-
-    //=================================
-    // DIRECT LIGHTNING
-    //=================================
-    /**
-    float3 L = _lightInfo.dirLight.direction.xyz;
-    float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
-
-    float3 albedo = m.Values.diffuse.xyz; //float3(0.2, 0.2, 1.0);
-
-    float3 ambient = albedo * _lightInfo.info.y; // y is the ambient strengt
-
-    RayPayloadShadow shadowPayLoad;
-    shadowPayLoad.inShadow = true;
-
-    if (dot(g.shadingNormal, L) > 0.0) {
-        // trace the shadow rays
-        RayDesc shadowRay;
-        shadowRay.Direction = L;
-        shadowRay.Origin = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
-        shadowRay.TMax = 10000;
-        shadowRay.TMin = 0.01;
-
-        TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER  , 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
-    }
-
-    
-    if (!shadowPayLoad.inShadow) {
-        float diff = max(dot(g.shadingNormal, L), 0.0);
-        
-        //payLoad.color += (diff * Le * albedo) + ambient;
-    } else {
-        //payLoad.color +=  ambient;
-    }
-        */
-  
+    payLoad.randomContext = rngState;
 }
