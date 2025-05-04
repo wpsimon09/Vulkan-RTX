@@ -52,7 +52,6 @@ ConstantBuffer<RWTexture2D> _film;
 
 
 struct RayPayLoad {
-    float3 color;
     float3 distance;
     float3 normal;
     float3 reflector;
@@ -108,7 +107,6 @@ void rayGenMain() {
     payload.hasHit = true;
     payload.randomContext = pixelIndex;
 
-    
     for (; payload.depth < globalData.reccursionDepth && payload.hasHit; payload.depth++) {
         
         
@@ -117,11 +115,9 @@ void rayGenMain() {
         
         ray.Origin = payload.rayOrigin;
         ray.Direction = payload.rayDirection;
-        
     }
 
-
-
+ 
     _film[int2(threadIdx.xy)] = float4(totalRadiance, 1.0);
 }
 
@@ -139,8 +135,10 @@ void missMain(inout RayPayLoad payload) {
     float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 200.0) * _lightInfo.dirLight.intensity.w;
 
-    //payload.incomingLightColour = 0.f;
-    payload.incomingLightColour += lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1);
+    //payload.incomingLightColour = float3(0.f);
+    payload.incomingLightColour = lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1);
+    payload.rayColour = float3(1.f);
+    payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
 
@@ -155,17 +153,16 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
     Material m = GetMaterial(InstanceID());
-    uint rngState = payLoad.randomContext;
     // calculate next bounce direction of the ray 
-    float3 diffuseDir = normalize(g.shadingNormal + RandomHemisphereDirection(g.shadingNormal, rngState));
+    float3 diffuseDir = normalize(g.shadingNormal + RandomHemisphereDirection(g.shadingNormal, payLoad.randomContext));
     payLoad.rayDirection = diffuseDir;
     payLoad.rayOrigin = g.shadingPosition;
     
     // other direction
     float3 emmittedLight = m.Values.emissive_strength.xyz * m.Values.emissive_strength.w;
 
-    payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
+    payLoad.incomingLightColour = emmittedLight * payLoad.rayColour;
     payLoad.rayColour *= m.Values.diffuse.xyz;
     payLoad.hasHit = true;
-    payLoad.randomContext = rngState;
+
 }
