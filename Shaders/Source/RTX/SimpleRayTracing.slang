@@ -106,6 +106,7 @@ void rayGenMain() {
     payload.rayColour = float3(1.0);
     payload.hasHit = true;
     payload.randomContext = pixelIndex;
+    payload.depth = 0; 
 
     for (; payload.depth < globalData.reccursionDepth && payload.hasHit; payload.depth++) {
         
