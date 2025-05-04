@@ -118,9 +118,7 @@ void Settings::RenderApplicationSettings()
 
         ImGui::SliderFloat("FOV", &m_client.GetCamera().GetFOV(), 1, 360);
 
-        ImGui::SeparatorText("Ray tracing");
         ImGui::SliderFloat("Focal length:", &m_client.GetCamera().GetFocalLength(), 0.f, 1.f);
-        ImGui::SliderFloat("Max ray reccrusion", &m_client.GetCamera().GetMaxReccursion(), 1.f, 100.f);
 
         m_client.GetCamera().Recalculate();
 
@@ -183,6 +181,7 @@ void Settings::RenderRenderingSettings()
 
     ImGui::SliderFloat("Outline width", &GlobalVariables::RenderingOptions::OutlineWidth, 0.01f, 1.f);
 
-    ImGui::SliderInt("Reccursion depth", &GlobalVariables::RenderingOptions::MaxRecursionDepth, 0, 20);
+    ImGui::SliderInt("Reccursion depth", &GlobalVariables::RenderingOptions::MaxRecursionDepth, 1, 20);
+    ImGui::SliderInt("Rays per pixel", &GlobalVariables::RenderingOptions::RaysPerPixel, 1, 20);
 }
 }  // namespace VEditor

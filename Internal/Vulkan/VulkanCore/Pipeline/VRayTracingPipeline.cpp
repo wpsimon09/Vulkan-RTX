@@ -35,7 +35,7 @@ void VRayTracingPipeline::Init()
     m_rtxPipelineCreateInfo.pGroups    = m_shaderGroups.data();
 
     assert(GlobalVariables::RenderingOptions::MaxRecursionDepth <= GlobalVariables::GlobalStructs::RayTracingPipelineProperties.maxRayRecursionDepth);
-    m_rtxPipelineCreateInfo.maxPipelineRayRecursionDepth = GlobalVariables::RenderingOptions::MaxRecursionDepth;
+    m_rtxPipelineCreateInfo.maxPipelineRayRecursionDepth = GlobalVariables::GlobalStructs::RayTracingPipelineProperties.maxRayRecursionDepth;
     m_rtxPipelineCreateInfo.layout                       = m_pipelineLayout;
 }
 const vk::PipelineLayout& VRayTracingPipeline::GetPipelineLayout()

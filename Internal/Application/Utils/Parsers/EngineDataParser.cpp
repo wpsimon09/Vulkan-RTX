@@ -58,7 +58,8 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
                                    {"MSAAEnabled", std::to_string(GlobalState::MSAA)},
                                    {"MSAASamples", std::to_string(GlobalVariables::RenderingOptions::MSAASamples)},
                                    {"OutlineWidth", std::to_string(GlobalVariables::RenderingOptions::OutlineWidth)},
-                                   {"Max recursion", std::to_string(GlobalVariables::RenderingOptions::MaxRecursionDepth)}});
+                                   {"Max recursion", std::to_string(GlobalVariables::RenderingOptions::MaxRecursionDepth)},
+                                   {"Rays per pixel", std::to_string(GlobalVariables::RenderingOptions::RaysPerPixel)}});
     ;
 
     //=========================================
@@ -161,8 +162,9 @@ void ApplicationCore::LoadConfig()
             GlobalVariables::RenderingOptions::PreformDepthPrePass =
                 static_cast<bool>(std::stoi(EngineConfig["Rendering"]["Depth-PrePass"]));
         if(EngineConfig["Rendering"].has("Max recursion"))
-            GlobalVariables::RenderingOptions::MaxRecursionDepth = (std::stof(EngineConfig["Rendering"]["Max recursion"]));
-
+            GlobalVariables::RenderingOptions::MaxRecursionDepth = (std::stoi(EngineConfig["Rendering"]["Max recursion"]));
+        if(EngineConfig["Rendering"].has("Rays per pixel"))
+            GlobalVariables::RenderingOptions::RaysPerPixel = (std::stoi(EngineConfig["Rendering"]["Rays per pixel"]));
     }
 
     //=======================================

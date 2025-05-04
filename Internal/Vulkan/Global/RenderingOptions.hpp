@@ -11,6 +11,7 @@ inline int   MSAASamples           = 4;
 inline float OutlineWidth          = 0.1;
 inline bool  PreformDepthPrePass   = true;
 inline int   MaxRecursionDepth     = 1;
+inline int   RaysPerPixel          = 2;
 }  // namespace GlobalVariables::RenderingOptions
 
 #endif  //RENDERINGOPTIONS_HPP

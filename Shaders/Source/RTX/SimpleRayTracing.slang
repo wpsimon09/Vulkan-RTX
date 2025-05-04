@@ -15,8 +15,8 @@ struct GlobalData {
     float4 cameraPostiion;
     float4 viewParams; // xy- camera plane width and height,z - nerPlane, w - focal length
 
-    float useEnvLighting;
-    float reccursionDepth;;
+    float raysPerPixel;
+    float reccursionDepth;
     float2 screenSize;
 };
 
@@ -106,21 +106,22 @@ void rayGenMain() {
     payload.rayColour = float3(1.0);
     payload.hasHit = true;
     payload.randomContext = pixelIndex;
-    payload.depth = 0; 
+    payload.depth = 0;
 
-    for (; payload.depth < globalData.reccursionDepth && payload.hasHit; payload.depth++) {
-        
-        
-        
-        TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
-        totalRadiance += payload.incomingLightColour;
-        
-        ray.Origin = payload.rayOrigin;
-        ray.Direction = payload.rayDirection;
+    for (int i = 0; i < globalData.raysPerPixel; i++) {
+        float3 rayRadiacne = float3(0.0);
+        for (; payload.depth < globalData.reccursionDepth && payload.hasHit; payload.depth++) {
+
+            TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
+            rayRadiacne += payload.incomingLightColour;
+            
+            ray.Origin = payload.rayOrigin;
+            ray.Direction = payload.rayDirection;
+        }
+        totalRadiance += rayRadiacne;
     }
-
  
-    _film[int2(threadIdx.xy)] = float4(totalRadiance, 1.0);
+    _film[int2(threadIdx.xy)] = float4(totalRadiance/globalData.raysPerPixel, 1.0);
 }
 
 [[shader("miss")]]
@@ -138,7 +139,7 @@ void missMain(inout RayPayLoad payload) {
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 200.0) * _lightInfo.dirLight.intensity.w;
 
     //payload.incomingLightColour = float3(0.f);
-    payload.incomingLightColour = lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1);
+    payload.incomingLightColour += lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1) ;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
@@ -154,21 +155,9 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
     Material m = GetMaterial(InstanceID());
-    // calculate next bounce direction of the ray 
-    float3 diffuseDir = normalize(g.shadingNormal + RandomHemisphereDirection(g.shadingNormal, payLoad.randomContext));
-    payLoad.rayDirection = diffuseDir;
-    payLoad.rayOrigin = g.shadingPosition;
-    
-    // other direction
-    float3 emmittedLight = m.Values.emissive_strength.xyz * m.Values.emissive_strength.w;
-
-    payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
-    payLoad.rayColour *= m.Values.diffuse.xyz;
-    payLoad.hasHit = true;
 
     //========================
     // direct light
-
     float3 L = _lightInfo.dirLight.direction.xyz;
     float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
 
@@ -194,6 +183,23 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         float diff = max(dot(g.shadingNormal, L), 0.0);
 
         payLoad.incomingLightColour += (diff * Le * albedo) + ambient;
-    } 
+    }
+
+    //==============================
+    // Path tracing 
+
+    // calculate next bounce direction of the ray 
+    float3 diffuseDir = normalize(g.shadingNormal + RandomHemisphereDirection(g.shadingNormal, payLoad.randomContext));
+    payLoad.rayDirection = diffuseDir;
+    payLoad.rayOrigin = g.shadingPosition;
+    
+    // other direction
+    float3 emmittedLight = m.Values.emissive_strength.xyz * m.Values.emissive_strength.w;
+
+    payLoad.rayColour *= m.Values.diffuse.xyz;
+    payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
+    payLoad.hasHit = true;
+
+    
 
 }
