@@ -66,6 +66,7 @@ class RayTracer
 
     std::vector<std::unique_ptr<VulkanCore::VImage2>> m_resultImage;
     std::vector<std::unique_ptr<VulkanCore::VImage2>> m_accumulationResultImage;
+    uint32_t m_numberOfRayTracedFrames = 0;
 };
 
 }  // namespace Renderer

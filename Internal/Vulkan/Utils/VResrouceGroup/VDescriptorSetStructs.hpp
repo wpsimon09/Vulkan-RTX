@@ -77,7 +77,6 @@ struct RayTracingDescriptorSet {
 
 struct PostProcessingDescriptorSet {
     vk::DescriptorBufferInfo buffer1;
-    vk::DescriptorBufferInfo buffer2;
 
     vk::DescriptorImageInfo texture2D_1;
     vk::DescriptorImageInfo texture2D_2;

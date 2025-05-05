@@ -19,11 +19,14 @@ struct GlobalData {
     float numberOfFrames;
 };
 
-[[vk::binding(3, 0)]]
-ConstantBuffer<Sampler2D> _previousRender;
+[[vk::binding(0, 0)]]
+ConstantBuffer<GlobalData> _globalData;
 
-[[vk::binding(4, 0)]]
-ConstantBuffer<Sampler2D> _currentRender;
+[[vk::binding(1, 0)]]
+Sampler2D _previousRender;
+
+[[vk::binding(2, 0)]]
+Sampler2D _currentRender;
 
 
 [shader("vertex")]
@@ -38,5 +41,5 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut in) {
-    return float4(0.0f, 0.0f, 0.0, 1.0);
+    return float4(_previousRender.Sample(in.uv).xyz, 1.0);
 }

@@ -132,7 +132,7 @@ def main():
     
 
     if args.stage == "postprocessing" or args.stage == "all":
-        print("== Post processing pre-pass ==")
+        print("== Post processing ==")
         compile_boundled_shaders("Source/PostProcessing", args.verbose)
 
     if args.stage == "raytracing" or args.stage == "all":

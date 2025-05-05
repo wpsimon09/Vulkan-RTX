@@ -15,6 +15,8 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
+#include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 
 namespace Renderer {
 RayTracer::RayTracer(const VulkanCore::VDevice&           device,
@@ -50,6 +52,8 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
         imageCI.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
         imageCI.layout     = vk::ImageLayout::eColorAttachmentOptimal;
         imageCI.format     = vk::Format::eR16G16B16A16Sfloat;
+        imageCI.isStorage = false;
+
 
         m_accumulationResultImage[i] = std::make_unique<VulkanCore::VImage2>(device, imageCI);
 
@@ -152,10 +156,27 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     cmdB.setScissor(0, 1, &scissors);
     cmdB.setStencilTestEnable(false);
 
+    auto& descriptorAccumulation   = std::get<VulkanUtils::PostProcessingDescriptorSet>(m_accumulationEffect->GetResrouceGroupStructVariant());
+
     m_accumulationEffect->BindPipeline(cmdB);
+    int previousIndex;
+    if (currentFrame == 1) {
+        previousIndex = 0;
+    }else if (currentFrame == 0) {
+        previousIndex = 1;
+    }
+    descriptorAccumulation.buffer1 = unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame];
+    descriptorAccumulation.texture2D_1 = m_resultImage[previousIndex]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+    descriptorAccumulation.texture2D_2 = m_resultImage[currentFrame]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+    cmdB.pushDescriptorSetWithTemplateKHR(m_accumulationEffect->GetUpdateTemplate(), m_accumulationEffect->GetPipelineLayout(), 0,
+                                          descriptorAccumulation, m_device.DispatchLoader);
+
     cmdB.draw(3,1,0,0);
 
     cmdB.endRendering();
+
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage[currentFrame], vk::ImageLayout::eShaderReadOnlyOptimal,vk::ImageLayout::eColorAttachmentOptimal, cmdB);
 
 }
 
