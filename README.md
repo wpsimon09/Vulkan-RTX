@@ -10,13 +10,6 @@ Simple Vulkan physically based render that can render meshes in classic rasteris
 - _Math_ - glm  
 - _Dear::ImGui_ - User interface
 
-## Notes
-
-- Current code needs quite a lot of refactoring and simplification.
-- Ray Tracer **does not** yet represent the scene that is rendered with raster pipeline
-- Ray Tracer **does not** yet use accumulated average to de-noise the rendered image
-- This is quite silly project for me to learn how ray tracing and Vulkan works
-
 ## Build
 
 ### 1. Clone this repo
