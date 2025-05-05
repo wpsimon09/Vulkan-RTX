@@ -17,7 +17,7 @@ VResourceGroupManager::VResourceGroupManager(const VulkanCore::VDevice& device)
     : m_device(device)
 {
 
-    VulkanUtils::UnlitSingleTexture unlitSingleTexture{};
+    VulkanUtils::Unlit unlitSingleTexture{};
     auto layout = std::make_unique<VulkanCore::VDescriptorSetLayout>(m_device, unlitSingleTexture);
     m_pushDescriptors[EDescriptorLayoutStruct::UnlitSingleTexture] =
         std::make_shared<VShaderResrouceGroup>(m_device, std::string("Unlit single texture"), std::move(layout));

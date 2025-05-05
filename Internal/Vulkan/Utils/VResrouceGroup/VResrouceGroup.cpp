@@ -32,20 +32,21 @@ VulkanUtils::VShaderResrouceGroup::VShaderResrouceGroup(const VulkanCore::VDevic
                 this->AddUpdateEntry(2, offsetof(VulkanUtils::BasicDescriptorSet, buffer3), 0);
                 m_layoutStructType = EDescriptorLayoutStruct::Basic;
             }
-            else if constexpr(std::is_same_v<t, VulkanUtils::UnlitSingleTexture>)
+            else if constexpr(std::is_same_v<t, VulkanUtils::Unlit>)
             {
-                // Handle UnlitSingleTexture
-                // Example: Update descriptor set entries for UnlitSingleTexture
-                this->AddUpdateEntry(0, offsetof(VulkanUtils::UnlitSingleTexture, buffer1), 0);
-                this->AddUpdateEntry(1, offsetof(VulkanUtils::UnlitSingleTexture, buffer2), 0);
-                this->AddUpdateEntry(2, offsetof(VulkanUtils::UnlitSingleTexture, buffer3), 0);
-                this->AddUpdateEntry(3, offsetof(VulkanUtils::UnlitSingleTexture, texture2D_1), 0);
+                // Handle Unlit
+                // Example: Update descriptor set entries for Unlit
+                this->AddUpdateEntry(0, offsetof(VulkanUtils::Unlit, buffer1), 0);
+                this->AddUpdateEntry(1, offsetof(VulkanUtils::Unlit, buffer2), 0);
+                this->AddUpdateEntry(2, offsetof(VulkanUtils::Unlit, buffer3), 0);
+                this->AddUpdateEntry(3, offsetof(VulkanUtils::Unlit, texture2D_1), 0);
+                this->AddUpdateEntry(4, offsetof(VulkanUtils::Unlit, texture2D_2), 0);
                 m_layoutStructType = EDescriptorLayoutStruct::UnlitSingleTexture;
             }
             else if constexpr(std::is_same_v<t, VulkanUtils::RayTracingDescriptorSet>)
             {
-                // Handle UnlitSingleTexture
-                // Example: Update descriptor set entries for UnlitSingleTexture
+                // Handle Unlit
+                // Example: Update descriptor set entries for Unlit
                 this->AddUpdateEntry(0, offsetof(VulkanUtils::RayTracingDescriptorSet, buffer1), 0);
                 this->AddUpdateEntry(1, offsetof(VulkanUtils::RayTracingDescriptorSet, buffer2), 0);
                 this->AddUpdateEntry(2, offsetof(VulkanUtils::RayTracingDescriptorSet, buffer3), 0);

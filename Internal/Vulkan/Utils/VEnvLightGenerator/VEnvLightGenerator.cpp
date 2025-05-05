@@ -227,9 +227,10 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     hdrPushBlocks[i]->GetUBOStruct().viewProj = m_camptureViews[face];
                     hdrPushBlocks[i]->UpdateGPUBuffer(0);
 
-                    auto& updateStuct = std::get<UnlitSingleTexture>(hdrToCubeMapEffect.GetResrouceGroupStructVariant());
+                    auto& updateStuct = std::get<Unlit>(hdrToCubeMapEffect.GetResrouceGroupStructVariant());
                     updateStuct.buffer1     = hdrPushBlocks[i]->GetDescriptorBufferInfos()[0];
                     updateStuct.texture2D_1 = envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                    updateStuct.texture2D_2 = envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
                     //================= configure rendering
                     viewport.width  = static_cast<float>(dimensions * std::pow(0.5f, mip));
@@ -364,7 +365,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
                 hdrPushBlocks[face]->GetUBOStruct().viewProj = m_camptureViews[face];
                 hdrPushBlocks[face]->UpdateGPUBuffer(0);
 
-                auto& updateStuct = std::get<UnlitSingleTexture>(cubeMapToIrradianceEffect.GetResrouceGroupStructVariant());
+                auto& updateStuct = std::get<Unlit>(cubeMapToIrradianceEffect.GetResrouceGroupStructVariant());
                 updateStuct.buffer1 = hdrPushBlocks[face]->GetDescriptorBufferInfos()[0];
                 updateStuct.texture2D_1 =
                     m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
@@ -514,7 +515,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
                 viewport.width  = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
                 viewport.height = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
 
-                auto& updateStuct = std::get<UnlitSingleTexture>(hdrToPrefilterEffect.GetResrouceGroupStructVariant());
+                auto& updateStuct = std::get<Unlit>(hdrToPrefilterEffect.GetResrouceGroupStructVariant());
                 updateStuct.buffer1 = hdrPushBlocks[i]->GetDescriptorBufferInfos()[0];
                 updateStuct.texture2D_1 =
                     m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);

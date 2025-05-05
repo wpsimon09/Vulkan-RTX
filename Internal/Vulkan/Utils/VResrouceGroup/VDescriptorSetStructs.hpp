@@ -28,13 +28,14 @@ struct BasicDescriptorSet
     virtual ~BasicDescriptorSet() = default;
 };
 
-struct UnlitSingleTexture
+struct Unlit
 {
     vk::DescriptorBufferInfo buffer1;  // for camera uniform buffer
     vk::DescriptorBufferInfo buffer2;  // for mesh uniform buffer
     vk::DescriptorBufferInfo buffer3;
 
     vk::DescriptorImageInfo texture2D_1;
+    vk::DescriptorImageInfo texture2D_2;
     // ohter look up tables, irradiance, radiance maps etc...
 };
 
@@ -73,10 +74,10 @@ struct RayTracingDescriptorSet {
 
 };
 
-using DescriptorSetTemplateVariant = std::variant<BasicDescriptorSet, UnlitSingleTexture, ForwardShadingDstSet, EmtpyDescriptorSet, RayTracingDescriptorSet>;
+using DescriptorSetTemplateVariant = std::variant<BasicDescriptorSet, Unlit, ForwardShadingDstSet, EmtpyDescriptorSet, RayTracingDescriptorSet>;
 
 using DescriptorSetTemplateVariantRef =
-    std::variant<std::reference_wrapper<RayTracingDescriptorSet>, std::reference_wrapper<BasicDescriptorSet>, std::reference_wrapper<UnlitSingleTexture>, std::reference_wrapper<ForwardShadingDstSet>>;
+    std::variant<std::reference_wrapper<RayTracingDescriptorSet>, std::reference_wrapper<BasicDescriptorSet>, std::reference_wrapper<Unlit>, std::reference_wrapper<ForwardShadingDstSet>>;
 
 struct DescriptorSetData
 {

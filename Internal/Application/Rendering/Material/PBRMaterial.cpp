@@ -76,9 +76,9 @@ void PBRMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariant
             if constexpr(std::is_same_v<T, VulkanUtils::BasicDescriptorSet>)
             {
             }
-            else if constexpr(std::is_same_v<T, VulkanUtils::UnlitSingleTexture>)
+            else if constexpr(std::is_same_v<T, VulkanUtils::Unlit>)
             {
-                auto& unlitSingelTextureEffect = static_cast<VulkanUtils::UnlitSingleTexture&>(effectDstStruct);
+                auto& unlitSingelTextureEffect = static_cast<VulkanUtils::Unlit&>(effectDstStruct);
                 unlitSingelTextureEffect.texture2D_1 =
                     m_textures[ETextureType::Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
             }

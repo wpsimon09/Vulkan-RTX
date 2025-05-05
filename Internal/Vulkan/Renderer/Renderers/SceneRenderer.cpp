@@ -76,7 +76,7 @@ void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdB
         }
         case VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture: {
             auto& unlitSingleTextureResrouceGroup =
-                std::get<VulkanUtils::UnlitSingleTexture>(drawCall.effect->GetResrouceGroupStructVariant());
+                std::get<VulkanUtils::Unlit>(drawCall.effect->GetResrouceGroupStructVariant());
             ;
             unlitSingleTextureResrouceGroup.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
             unlitSingleTextureResrouceGroup.buffer2 =
