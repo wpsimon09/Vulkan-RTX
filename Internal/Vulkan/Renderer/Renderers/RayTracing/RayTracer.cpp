@@ -166,8 +166,8 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
         previousIndex = 1;
     }
     descriptorAccumulation.buffer1 = unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame];
-    descriptorAccumulation.texture2D_1 = m_resultImage[previousIndex]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-    descriptorAccumulation.texture2D_2 = m_resultImage[currentFrame]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+    descriptorAccumulation.texture2D_1 = m_accumulationResultImage[previousIndex]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+    descriptorAccumulation.texture2D_2 = m_accumulationResultImage[currentFrame]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
     cmdB.pushDescriptorSetWithTemplateKHR(m_accumulationEffect->GetUpdateTemplate(), m_accumulationEffect->GetPipelineLayout(), 0,
                                           descriptorAccumulation, m_device.DispatchLoader);
@@ -184,7 +184,7 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
 void                 RayTracer::ProcessResize(int newWidth, int newHeight) {}
 VulkanCore::VImage2& RayTracer::GetRenderedImage(int currentFrameIndex)
 {
-    return *m_resultImage[currentFrameIndex];
+    return *m_accumulationResultImage[currentFrameIndex];
 }
 
 void RayTracer::Destroy()

@@ -41,5 +41,11 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut in) {
-    return float4(_previousRender.Sample(in.uv).xyz, 1.0);
+    float3 oldRender = _previousRender.Sample(in.uv).xyz;
+    float3 newRender = _currentRender.Sample(in.uv).xyz;
+
+    float weight = 1.0 / (_globalData.numberOfFrames + 1);
+    float3 accumulatedAverage = oldRender * (1 - weight) + newRender * weight;
+
+    return float4(accumulatedAverage, 1.0);
 }

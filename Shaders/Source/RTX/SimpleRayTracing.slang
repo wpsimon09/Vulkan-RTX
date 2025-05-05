@@ -18,6 +18,7 @@ struct GlobalData {
     float raysPerPixel;
     float reccursionDepth;
     float2 screenSize;
+    float currentFrame;
 };
 
 // global data for the ray tracing 
@@ -89,6 +90,7 @@ void rayGenMain() {
     float2 pixelCoord = inUv * globalData.screenSize;
     uint pixelIndex = threadIdx.y * launchSize.x + threadIdx.x;
 
+    pixelIndex += (uint)globalData.currentFrame * 719393;
     // pixel position on view plane 
     float4 target = mul(globalData.invProjection, float4(d.x, d.y, 1.0, 1.0));
 
