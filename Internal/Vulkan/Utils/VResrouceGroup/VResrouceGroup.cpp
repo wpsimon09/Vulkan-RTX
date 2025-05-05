@@ -43,6 +43,16 @@ VulkanUtils::VShaderResrouceGroup::VShaderResrouceGroup(const VulkanCore::VDevic
                 this->AddUpdateEntry(4, offsetof(VulkanUtils::Unlit, texture2D_2), 0);
                 m_layoutStructType = EDescriptorLayoutStruct::UnlitSingleTexture;
             }
+            else if constexpr(std::is_same_v<t, VulkanUtils::PostProcessingDescriptorSet>)
+            {
+                // Handle Post processing
+                // Example: buffer 1 some settings, buffer 2 other settings, image 1 scene render, image 2 other scene stuff
+                this->AddUpdateEntry(0, offsetof(VulkanUtils::Unlit, buffer1), 0);
+                this->AddUpdateEntry(1, offsetof(VulkanUtils::Unlit, buffer2), 0);
+                this->AddUpdateEntry(2, offsetof(VulkanUtils::Unlit, texture2D_1), 0);
+                this->AddUpdateEntry(3, offsetof(VulkanUtils::Unlit, texture2D_2), 0);
+                m_layoutStructType = EDescriptorLayoutStruct::UnlitSingleTexture;
+            }
             else if constexpr(std::is_same_v<t, VulkanUtils::RayTracingDescriptorSet>)
             {
                 // Handle Unlit

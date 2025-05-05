@@ -182,8 +182,8 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
         //=============================================================
         {
             VRasterEffect hdrToCubeMapEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/HDRToCubeMap.vert.spv",
-                                       "Shaders/Compiled/HDRToCubeMap.frag.spv",
-                                       m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::UnlitSingleTexture));
+                                             "Shaders/Compiled/HDRToCubeMap.frag.spv",
+                                             m_pushDescriptorManager.GetResourceGroup(EDescriptorLayoutStruct::UnlitSingleTexture));
             hdrToCubeMapEffect.DisableStencil()
                 .SetDisableDepthTest()
                 .SetCullNone()
@@ -227,7 +227,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     hdrPushBlocks[i]->GetUBOStruct().viewProj = m_camptureViews[face];
                     hdrPushBlocks[i]->UpdateGPUBuffer(0);
 
-                    auto& updateStuct = std::get<Unlit>(hdrToCubeMapEffect.GetResrouceGroupStructVariant());
+                    auto& updateStuct       = std::get<Unlit>(hdrToCubeMapEffect.GetResrouceGroupStructVariant());
                     updateStuct.buffer1     = hdrPushBlocks[i]->GetDescriptorBufferInfos()[0];
                     updateStuct.texture2D_1 = envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
                     updateStuct.texture2D_2 = envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
@@ -326,9 +326,10 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         // - copies offcreen buffer the one of the face of cube
         //=============================================================
         {
-            VRasterEffect cubeMapToIrradianceEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/IrradianceMapImportanceSample.vert.spv",
-                                              "Shaders/Compiled/IrradianceMapImportanceSample.frag.spv",
-                                              m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::UnlitSingleTexture));
+            VRasterEffect cubeMapToIrradianceEffect(
+                m_device, "HDR Image to cube map", "Shaders/Compiled/IrradianceMapImportanceSample.vert.spv",
+                "Shaders/Compiled/IrradianceMapImportanceSample.frag.spv",
+                m_pushDescriptorManager.GetResourceGroup(EDescriptorLayoutStruct::UnlitSingleTexture));
             cubeMapToIrradianceEffect.DisableStencil()
                 .SetDisableDepthTest()
                 .SetCullNone()
@@ -365,7 +366,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
                 hdrPushBlocks[face]->GetUBOStruct().viewProj = m_camptureViews[face];
                 hdrPushBlocks[face]->UpdateGPUBuffer(0);
 
-                auto& updateStuct = std::get<Unlit>(cubeMapToIrradianceEffect.GetResrouceGroupStructVariant());
+                auto& updateStuct   = std::get<Unlit>(cubeMapToIrradianceEffect.GetResrouceGroupStructVariant());
                 updateStuct.buffer1 = hdrPushBlocks[face]->GetDescriptorBufferInfos()[0];
                 updateStuct.texture2D_1 =
                     m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
@@ -465,8 +466,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     //=============================================================
     {
         VRasterEffect hdrToPrefilterEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/Prefilter.vert.spv",
-                                     "Shaders/Compiled/Prefilter.frag.spv",
-                                     m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::UnlitSingleTexture));
+                                           "Shaders/Compiled/Prefilter.frag.spv",
+                                           m_pushDescriptorManager.GetResourceGroup(EDescriptorLayoutStruct::UnlitSingleTexture));
         hdrToPrefilterEffect.DisableStencil()
             .SetDisableDepthTest()
             .SetCullNone()
@@ -515,7 +516,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
                 viewport.width  = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
                 viewport.height = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
 
-                auto& updateStuct = std::get<Unlit>(hdrToPrefilterEffect.GetResrouceGroupStructVariant());
+                auto& updateStuct   = std::get<Unlit>(hdrToPrefilterEffect.GetResrouceGroupStructVariant());
                 updateStuct.buffer1 = hdrPushBlocks[i]->GetDescriptorBufferInfos()[0];
                 updateStuct.texture2D_1 =
                     m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
@@ -611,7 +612,7 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
 
     //Create Effect that generates BRDF
     VRasterEffect brdfEffect(m_device, "BRDF Effect", "Shaders/Compiled/BRDFLut.vert.spv", "Shaders/Compiled/BRDFLut.frag.spv",
-                       m_pushDescriptorManager.GetPushDescriptor(EDescriptorLayoutStruct::Empty));
+                             m_pushDescriptorManager.GetResourceGroup(EDescriptorLayoutStruct::Empty));
     brdfEffect.SetColourOutputFormat(brdfCI.format)
         .DisableStencil()
         .SetDisableDepthTest()

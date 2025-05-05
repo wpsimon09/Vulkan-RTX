@@ -7,6 +7,9 @@
 #include <memory>
 #include <vector>
 
+namespace VulkanUtils {
+class VRasterEffect;
+}
 namespace ApplicationCore {
 struct SceneData;
 }
@@ -59,7 +62,7 @@ class RayTracer
     VulkanUtils::VResourceGroupManager& m_resourceGroupManager;
 
     std::unique_ptr<VulkanUtils::VRayTracingEffect> m_rtxEffect;
-    std::unique_ptr<VulkanUtils::VRayTracingEffect> m_accumulationEffect;
+    std::unique_ptr<VulkanUtils::VRasterEffect> m_accumulationEffect;
 
     std::vector<std::unique_ptr<VulkanCore::VImage2>> m_resultImage;
     std::vector<std::unique_ptr<VulkanCore::VImage2>> m_accumulationResultImage;

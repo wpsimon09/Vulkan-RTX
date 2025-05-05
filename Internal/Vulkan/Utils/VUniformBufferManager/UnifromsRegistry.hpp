@@ -26,7 +26,8 @@ struct GlobalUniform
     float     raysPerPixel;
     float     reccursionDepth;
     glm::vec2 screenSize;
-
+    float numberOfFrames;
+    float padding1, padding2, padding3;
 };
 
 struct ObjectDataUniform

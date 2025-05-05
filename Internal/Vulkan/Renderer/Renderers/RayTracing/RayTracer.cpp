@@ -48,12 +48,13 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
                                                         vk::ImageLayout::eUndefined, cmdBuffer);
 
         imageCI.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
-        imageCI.layout    = vk::ImageLayout::eColorAttachmentOptimal;
-        imageCI.format    = vk::Format::eR16G16B16A16Sfloat;
+        imageCI.layout     = vk::ImageLayout::eColorAttachmentOptimal;
+        imageCI.format     = vk::Format::eR16G16B16A16Sfloat;
 
         m_accumulationResultImage[i] = std::make_unique<VulkanCore::VImage2>(device, imageCI);
 
-        VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage[i],vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined, cmdBuffer);
+        VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage[i], vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                        vk::ImageLayout::eUndefined, cmdBuffer);
     }
 
 
@@ -64,19 +65,29 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
     rtxShaderPaths.rayHitPath     = "Shaders/Compiled/SimpleRayTracing.chit.spv";
     auto rayTracingHitGroup       = std::make_unique<VulkanUtils::VRayTracingEffect>(
         device, rtxShaderPaths, "Hit group highlight",
-        m_resourceGroupManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::RayTracing));
+        m_resourceGroupManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::RayTracing));
 
     m_rtxEffect = std::move(rayTracingHitGroup);
     m_rtxEffect->BuildEffect();
 
+    m_accumulationEffect = std::make_unique<VulkanUtils::VRasterEffect>(
+        m_device, "Accumulation of ray traced images effect", "Shaders/Compiled/RayTracingAccumultion.vert.spv",
+        "Shaders/Compiled/RayTracingAccumultion.frag.spv",
+        m_resourceGroupManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::PostProcessing));
 
-
+    m_accumulationEffect->SetColourOutputFormat(vk::Format::eR16G16B16A16Sfloat)
+        .DisableStencil()
+        .SetDisableDepthTest()
+        .SetCullNone()
+        .SetNullVertexBinding()
+        .SetPiplineNoMultiSampling();
+    m_accumulationEffect->BuildEffect();
 }
 
 void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                           const VulkanCore::VTimelineSemaphore&     renderingSemaphore,
                           const VulkanUtils::VUniformBufferManager& unifromBufferManager,
-                          const ApplicationCore::SceneData& sceneData,
+                          const ApplicationCore::SceneData&         sceneData,
                           int                                       currentFrame)
 {
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recordgin !");
@@ -93,7 +104,7 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     descriptor.buffer3 = m_rtxDataManager.GetObjDescriptionBufferInfo();
     descriptor.tlas    = m_rtxDataManager.GetTLAS();
     descriptor.storage2D_1 = m_resultImage[currentFrame]->GetDescriptorImageInfo();
-    descriptor.buffer4 = unifromBufferManager.GetSceneBufferDescriptorInfo(currentFrame);
+    descriptor.buffer4     = unifromBufferManager.GetSceneBufferDescriptorInfo(currentFrame);
 
     cmdB.pushDescriptorSetWithTemplateKHR(m_rtxEffect->GetUpdateTemplate(), m_rtxEffect->GetPipelineLayout(), 0,
                                           descriptor, m_device.DispatchLoader);
@@ -105,6 +116,47 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
 
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_resultImage[currentFrame], vk::ImageLayout::eShaderReadOnlyOptimal,
                                                     vk::ImageLayout::eGeneral, cmdB);
+
+    //======================================
+    // Accumulate the the samples
+    //======================================
+
+    // configure render pass and attachment stuff
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage[currentFrame], vk::ImageLayout::eColorAttachmentOptimal,
+                                                    vk::ImageLayout::eShaderReadOnlyOptimal, cmdB);
+
+    vk::RenderingAttachmentInfo accumulationAttachment;
+    accumulationAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    accumulationAttachment.imageView   = m_accumulationResultImage[currentFrame]->GetImageView();
+    accumulationAttachment.loadOp      = vk::AttachmentLoadOp::eClear;
+    accumulationAttachment.resolveMode = vk::ResolveModeFlagBits::eNone;
+    accumulationAttachment.storeOp     = vk::AttachmentStoreOp::eStore;
+    accumulationAttachment.clearValue.color.setFloat32({0.0f, 0.0f, 0.0f, 1.f});
+
+
+    vk::RenderingInfo renderingInfo;
+    renderingInfo.renderArea.offset        = vk::Offset2D(0, 0);
+    renderingInfo.renderArea.extent.width  = m_resultImage[currentFrame]->GetImageInfo().width;
+    renderingInfo.renderArea.extent.height = m_resultImage[currentFrame]->GetImageInfo().height;
+    renderingInfo.layerCount               = 1;
+    renderingInfo.colorAttachmentCount     = 1;
+    renderingInfo.pColorAttachments        = &accumulationAttachment;
+
+    cmdB.beginRendering(&renderingInfo);
+
+    vk::Viewport viewport{
+        0, 0, (float)renderingInfo.renderArea.extent.width, (float)renderingInfo.renderArea.extent.height, 0.0f, 1.0f};
+    cmdB.setViewport(0, 1, &viewport);
+
+    vk::Rect2D scissors{{0, 0}, {(uint32_t)renderingInfo.renderArea.extent.width, (uint32_t)renderingInfo.renderArea.extent.height}};
+    cmdB.setScissor(0, 1, &scissors);
+    cmdB.setStencilTestEnable(false);
+
+    m_accumulationEffect->BindPipeline(cmdB);
+    cmdB.draw(3,1,0,0);
+
+    cmdB.endRendering();
+
 }
 
 

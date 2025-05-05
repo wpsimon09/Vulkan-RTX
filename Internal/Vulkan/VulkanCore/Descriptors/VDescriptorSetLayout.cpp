@@ -112,7 +112,7 @@ VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device, co
                         .AddBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex , 1)
                         .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 1)
                         .AddBinding(2, vk::DescriptorType::eCombinedImageSampler,  vk::ShaderStageFlagBits::eFragment, 1)
-                        .AddBinding(3, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR | vk::ShaderStageFlagBits::eIntersectionKHR | vk::ShaderStageFlagBits::eRaygenKHR, 1)
+                        .AddBinding(3, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1);
                 m_descriptorSetLayoutBindings = std::move(PostProcessingLayout.m_descriptorBindings);
             }
             else if constexpr(std::is_same_v<t, VulkanUtils::ForwardShadingDstSet>)

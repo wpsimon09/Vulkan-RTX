@@ -160,6 +160,8 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
         globalUniformUpdateInfo.screenSize.x = m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().width;
         globalUniformUpdateInfo.screenSize.y = m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().height;
     }
+    globalUniformUpdateInfo.numberOfFrames = m_frameCount;
+
     m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo);
     m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
     m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());

@@ -42,7 +42,10 @@ VResourceGroupManager::VResourceGroupManager(const VulkanCore::VDevice& device)
     m_pushDescriptors[EDescriptorLayoutStruct::RayTracing] =
         std::make_shared<VShaderResrouceGroup>(m_device, std::string("Ray tracing descriptor set"), std::move(layout));
 
-
+    VulkanUtils::PostProcessingDescriptorSet postProcessingDescriptorSet{};
+    layout = std::make_unique<VulkanCore::VDescriptorSetLayout>(m_device, postProcessingDescriptorSet);
+    m_pushDescriptors[EDescriptorLayoutStruct::PostProcessing] =
+        std::make_shared<VShaderResrouceGroup>(m_device, std::string("Postprocessing descriptor set"), std::move(layout));
 }
 
 

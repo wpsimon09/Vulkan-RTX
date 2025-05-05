@@ -12,7 +12,8 @@ enum class EDescriptorLayoutStruct : uint8_t
     UnlitSingleTexture,
     ForwardShading,
     RayTracing,
-    Empty
+    Empty,
+    PostProcessing
 };
 
 struct EmtpyDescriptorSet

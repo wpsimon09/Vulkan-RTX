@@ -21,7 +21,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 {
     auto frowardEffect = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv", "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
-        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
+        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
 
     frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
 
@@ -37,7 +37,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
     auto transparentEffect = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Forward lit transparent", "Shaders/Compiled/BasicTriangle.vert.spv",
         "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
-        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
+        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
 
     transparentEffect->SetTopology(vk::PrimitiveTopology::eTriangleList).EnableAdditiveBlending().SetDepthOpLessEqual();
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
@@ -52,7 +52,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     auto editorBillboards = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Editor billboards", "Shaders/Compiled/EditorBillboard.vert.spv", "Shaders/Compiled/EditorBilboard.frag.spv",
-        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
+        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
 
     editorBillboards->SetTopology(vk::PrimitiveTopology::eTriangleList).SetCullNone().SetVertexInputMode(EVertexInput::Position_UV)
         //.SetDepthOpLessEqual()
@@ -63,7 +63,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     auto debugLine = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugLines.frag.spv",
-        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
+        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
     debugLine->SetTopology(vk::PrimitiveTopology::eTriangleList)
         .SetCullNone()
@@ -78,7 +78,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     auto outline = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Outline", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/Outliines.frag.spv",
-        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
+        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
     outline
         //->SetC()
@@ -92,7 +92,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     auto debugShapes = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugGeometry.frag.spv",
-        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::Basic));
+        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
 
     debugShapes->SetCullNone()
         .SetLineWidth(7)
@@ -111,7 +111,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     auto skybox = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv", "Shaders/Compiled/SkyBox.frag.spv",
-        pushDescriptorManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
+        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
 
 
     skybox->SetCullNone().SetVertexInputMode(EVertexInput::PositionOnly).SetDisableDepthWrite().SetDepthOpLessEqual().DisableStencil();

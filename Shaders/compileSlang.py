@@ -100,7 +100,7 @@ def main():
     parser = argparse.ArgumentParser(description="Slang Shader Compiler")
     parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
     parser.add_argument('--stage', choices=[
-        "vertex", "fragment", "compute", "env", "depth", "raytracing", "all"
+        "vertex", "fragment", "compute", "env", "depth","postprocessing", "raytracing", "all"
     ], default="all", help='Which stage to compile') 
     args = parser.parse_args()
 
@@ -129,6 +129,11 @@ def main():
     if args.stage == "depth" or args.stage == "all":
         print("== Depth pre-pass ==")
         compile_boundled_shaders("Source/DepthPrePass", args.verbose)
+    
+
+    if args.stage == "postprocessing" or args.stage == "all":
+        print("== Post processing pre-pass ==")
+        compile_boundled_shaders("Source/PostProcessing", args.verbose)
 
     if args.stage == "raytracing" or args.stage == "all":
         print("== Ray tracing ==")
