@@ -153,6 +153,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
 
     m_renderingTimeLine[m_currentFrameIndex]->Reset();
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
+    m_frameCount ++;
 
     // ==== check if it is possible ot use env light
     if (m_isRayTracing) {

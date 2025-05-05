@@ -27,6 +27,7 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
     , m_resourceGroupManager(resourceGroupManager)
 {
     m_resultImage.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_accumulationResultImage.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
 
@@ -45,6 +46,14 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
 
         VulkanUtils::RecordImageTransitionLayoutCommand(*m_resultImage[i], vk::ImageLayout::eShaderReadOnlyOptimal,
                                                         vk::ImageLayout::eUndefined, cmdBuffer);
+
+        imageCI.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+        imageCI.layout    = vk::ImageLayout::eColorAttachmentOptimal;
+        imageCI.format    = vk::Format::eR16G16B16A16Sfloat;
+
+        m_accumulationResultImage[i] = std::make_unique<VulkanCore::VImage2>(device, imageCI);
+
+        VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage[i],vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined, cmdBuffer);
     }
 
 
@@ -58,9 +67,12 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
         m_resourceGroupManager.GetPushDescriptor(VulkanUtils::EDescriptorLayoutStruct::RayTracing));
 
     m_rtxEffect = std::move(rayTracingHitGroup);
-
     m_rtxEffect->BuildEffect();
+
+
+
 }
+
 void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                           const VulkanCore::VTimelineSemaphore&     renderingSemaphore,
                           const VulkanUtils::VUniformBufferManager& unifromBufferManager,

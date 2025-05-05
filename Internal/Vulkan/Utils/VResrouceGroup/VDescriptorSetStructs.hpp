@@ -74,10 +74,18 @@ struct RayTracingDescriptorSet {
 
 };
 
-using DescriptorSetTemplateVariant = std::variant<BasicDescriptorSet, Unlit, ForwardShadingDstSet, EmtpyDescriptorSet, RayTracingDescriptorSet>;
+struct PostProcessingDescriptorSet {
+    vk::DescriptorBufferInfo buffer1;
+    vk::DescriptorBufferInfo buffer2;
+
+    vk::DescriptorImageInfo texture2D_1;
+    vk::DescriptorImageInfo texture2D_2;
+};
+
+using DescriptorSetTemplateVariant = std::variant<BasicDescriptorSet, Unlit, ForwardShadingDstSet, EmtpyDescriptorSet, RayTracingDescriptorSet, PostProcessingDescriptorSet>;
 
 using DescriptorSetTemplateVariantRef =
-    std::variant<std::reference_wrapper<RayTracingDescriptorSet>, std::reference_wrapper<BasicDescriptorSet>, std::reference_wrapper<Unlit>, std::reference_wrapper<ForwardShadingDstSet>>;
+    std::variant<std::reference_wrapper<RayTracingDescriptorSet>, std::reference_wrapper<BasicDescriptorSet>, std::reference_wrapper<Unlit>, std::reference_wrapper<ForwardShadingDstSet>, std::reference_wrapper<PostProcessingDescriptorSet>>;
 
 struct DescriptorSetData
 {

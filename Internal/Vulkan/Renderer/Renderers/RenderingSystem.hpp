@@ -116,6 +116,7 @@ private:
     // State
     uint32_t m_currentImageIndex = 0;
     uint32_t m_currentFrameIndex = 0;
+    uint64_t m_frameCount = 0;
     bool     m_isRayTracing = false;
 
     // Editor Integration
