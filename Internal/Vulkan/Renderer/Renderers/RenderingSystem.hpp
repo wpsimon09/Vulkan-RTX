@@ -70,7 +70,7 @@ public:
                     VEditor::UIContext&                       uiContext);
 
     void Init();
-    void Render(LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalUniform& globalUniformUpdateInfo);
+    void Render(LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalUniform& globalUniformUpdateInfo, SceneUpdateFlags& sceneUpdateFlags);
     void Update();
     void Destroy();
 
@@ -117,6 +117,7 @@ private:
     uint32_t m_currentImageIndex = 0;
     uint32_t m_currentFrameIndex = 0;
     uint64_t m_frameCount = 0;
+    uint64_t m_accumulatedFramesCount = 0;
     bool     m_isRayTracing = false;
 
     // Editor Integration

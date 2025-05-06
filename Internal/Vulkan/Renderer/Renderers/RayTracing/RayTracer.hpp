@@ -45,9 +45,7 @@ class RayTracer
               int height);
 
     void TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
-                   const VulkanCore::VTimelineSemaphore&     renderingSemaphore,
                    const VulkanUtils::VUniformBufferManager& unifromBufferManager,
-                   const ApplicationCore::SceneData& sceneData,
                    int                                       currentFrame);
 
     void ProcessResize(int newWidth, int newHeight);
@@ -66,7 +64,6 @@ class RayTracer
 
     std::vector<std::unique_ptr<VulkanCore::VImage2>> m_resultImage;
     std::unique_ptr<VulkanCore::VImage2>              m_accumulationResultImage;
-    uint32_t m_numberOfRayTracedFrames = 0;
 };
 
 }  // namespace Renderer

@@ -93,9 +93,7 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
 }
 
 void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
-                          const VulkanCore::VTimelineSemaphore&     renderingSemaphore,
                           const VulkanUtils::VUniformBufferManager& unifromBufferManager,
-                          const ApplicationCore::SceneData&         sceneData,
                           int                                       currentFrame)
 {
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recordgin !");

@@ -109,7 +109,7 @@ void RenderingSystem::Init()
     }
 }
 
-void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalUniform& globalUniformUpdateInfo)
+void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalUniform& globalUniformUpdateInfo, SceneUpdateFlags& sceneUpdateFlags)
 {
     m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
 
@@ -155,12 +155,17 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
     m_frameCount ++;
 
+    if (sceneUpdateFlags.resetAccumulation){ Utils::Logger::LogInfo("Reseting accumulaion"); m_accumulatedFramesCount = 0;}
+
     // ==== check if it is possible ot use env light
     if (m_isRayTracing) {
         globalUniformUpdateInfo.screenSize.x = m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().width;
         globalUniformUpdateInfo.screenSize.y = m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().height;
+        // will cause to multiply by 0 thus clear the colour
+        globalUniformUpdateInfo.numberOfFrames = m_accumulatedFramesCount;
+    }else {
+        globalUniformUpdateInfo.numberOfFrames = m_frameCount;
     }
-    globalUniformUpdateInfo.numberOfFrames = m_frameCount;
 
     m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo);
     m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
@@ -196,10 +201,11 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_uniformBufferManager,
                                 &m_renderContext);
+        m_accumulatedFramesCount = m_frameCount;
     }
     else
     {
-        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex], *m_renderingTimeLine[m_currentFrameIndex], m_uniformBufferManager, sceneData, m_currentFrameIndex );
+        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex],  m_uniformBufferManager, m_currentFrameIndex );
     }
 
     // render UI to the swap chain image
