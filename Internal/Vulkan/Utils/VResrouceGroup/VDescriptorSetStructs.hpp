@@ -72,6 +72,7 @@ struct RayTracingDescriptorSet {
 
     vk::DescriptorImageInfo storage2D_1; // output image
     vk::DescriptorBufferInfo buffer4;
+    vk::DescriptorImageInfo texture2D_2;
 
 };
 

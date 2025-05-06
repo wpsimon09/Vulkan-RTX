@@ -102,7 +102,9 @@ VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device, co
                         // Output
                         .AddBinding(4, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eRaygenKHR, 1)
                         // Materisl
-                        .AddBinding(5, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR, 1);
+                        .AddBinding(5, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR, 1)
+
+                        .AddBinding(6, vk::DescriptorType::eSampledImage, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR, 1);
                 m_descriptorSetLayoutBindings = std::move(RayTracingDescriptorSetLayout.m_descriptorBindings);
             }
             else if constexpr(std::is_same_v<t, VulkanUtils::PostProcessingDescriptorSet>)

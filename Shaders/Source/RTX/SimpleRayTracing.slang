@@ -51,6 +51,8 @@ RaytracingAccelerationStructure _TLAS;
 [[vk::binding(4, 0)]]
 ConstantBuffer<RWTexture2D> _film;
 
+[[vk::binding(6, 0)]]
+Sampler2D _previousRender;
 
 struct RayPayLoad {
     float3 distance;
@@ -122,8 +124,11 @@ void rayGenMain() {
         }
         totalRadiance += rayRadiacne;
     }
- 
-    _film[int2(threadIdx.xy)] = float4(totalRadiance/globalData.raysPerPixel, 1.0);
+
+    float weight = 1.0 / (globalData.currentFrame + 1);
+    float3 accumulatedAverage = _previousRender.Sample(inUv).rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight;
+
+    _film[int2(threadIdx.xy)] = float4(_previousRender.Sample(inUv).rgb, 1.0);
 }
 
 [[shader("miss")]]

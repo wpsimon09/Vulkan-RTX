@@ -117,6 +117,7 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     descriptor.tlas    = m_rtxDataManager.GetTLAS();
     descriptor.storage2D_1 = m_resultImage[currentFrame]->GetDescriptorImageInfo();
     descriptor.buffer4     = unifromBufferManager.GetSceneBufferDescriptorInfo(currentFrame);
+    descriptor.texture2D_2 = m_resultImage[previousFrame]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
     cmdB.pushDescriptorSetWithTemplateKHR(m_rtxEffect->GetUpdateTemplate(), m_rtxEffect->GetPipelineLayout(), 0,
                                           descriptor, m_device.DispatchLoader);
@@ -133,7 +134,8 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     // Accumulate the the samples
     //======================================
 
-    // configure render pass and attachment stuff
+    /**
+    //  configure render pass and attachment stuff
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage[previousFrame], vk::ImageLayout::eShaderReadOnlyOptimal,
                                                     vk::ImageLayout::eColorAttachmentOptimal, cmdB);
 
@@ -185,14 +187,14 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
 
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage[currentFrame], vk::ImageLayout::eShaderReadOnlyOptimal,vk::ImageLayout::eColorAttachmentOptimal, cmdB);
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage[previousFrame], vk::ImageLayout::eColorAttachmentOptimal,vk::ImageLayout::eShaderReadOnlyOptimal, cmdB);
-
+        */
 }
 
 
 void                 RayTracer::ProcessResize(int newWidth, int newHeight) {}
 VulkanCore::VImage2& RayTracer::GetRenderedImage(int currentFrameIndex)
 {
-    return *m_accumulationResultImage[currentFrameIndex];
+    return *m_resultImage[currentFrameIndex];
 }
 
 void RayTracer::Destroy()
