@@ -52,7 +52,7 @@ RaytracingAccelerationStructure _TLAS;
 ConstantBuffer<RWTexture2D> _film;
 
 [[vk::binding(6, 0)]]
-Sampler2D _previousRender;
+ConstantBuffer<RWTexture2D> _accumulationImage;
 
 struct RayPayLoad {
     float3 distance;
@@ -126,9 +126,14 @@ void rayGenMain() {
     }
 
     float weight = 1.0 / (globalData.currentFrame + 1);
-    float3 accumulatedAverage = _previousRender.Sample(inUv).rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight;
 
-    _film[int2(threadIdx.xy)] = float4(_previousRender.Sample(inUv).rgb, 1.0);
+    // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
+    _film[int2(threadIdx.xy)] = float4(totalRadiance / globalData.raysPerPixel, 1.0);
+
+    // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
+    float3 accumulatedAverage = _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight;
+
+    _accumulationImage[int2(threadIdx.xy)] = float4(accumulatedAverage, 1.0);
 }
 
 [[shader("miss")]]

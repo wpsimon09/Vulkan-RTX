@@ -71,8 +71,9 @@ struct RayTracingDescriptorSet {
     vk::AccelerationStructureKHR tlas;     // TLAS data
 
     vk::DescriptorImageInfo storage2D_1; // output image
+    vk::DescriptorImageInfo storage2D_2; // accumulation image
+
     vk::DescriptorBufferInfo buffer4;
-    vk::DescriptorImageInfo texture2D_2;
 
 };
 
