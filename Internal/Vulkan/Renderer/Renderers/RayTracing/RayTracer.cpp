@@ -95,6 +95,14 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                           int                                       currentFrame)
 {
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recordgin !");
+
+    int previousFrame;
+    if (currentFrame == 1) {
+        previousFrame = 0;
+    }else if (currentFrame == 0) {
+        previousFrame = 1;
+    }
+
     m_rtxEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
 
     auto& cmdB = cmdBuffer.GetCommandBuffer();
@@ -124,6 +132,10 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     //======================================
     // Accumulate the the samples
     //======================================
+
+    // configure render pass and attachment stuff
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage[previousFrame], vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                    vk::ImageLayout::eColorAttachmentOptimal, cmdB);
 
     // configure render pass and attachment stuff
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage[currentFrame], vk::ImageLayout::eColorAttachmentOptimal,
@@ -159,15 +171,10 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     auto& descriptorAccumulation   = std::get<VulkanUtils::PostProcessingDescriptorSet>(m_accumulationEffect->GetResrouceGroupStructVariant());
 
     m_accumulationEffect->BindPipeline(cmdB);
-    int previousIndex;
-    if (currentFrame == 1) {
-        previousIndex = 0;
-    }else if (currentFrame == 0) {
-        previousIndex = 1;
-    }
+
     descriptorAccumulation.buffer1 = unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame];
-    descriptorAccumulation.texture2D_1 = m_resultImage[previousIndex]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-    descriptorAccumulation.texture2D_2 = m_resultImage[currentFrame]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+    descriptorAccumulation.texture2D_1 = m_resultImage[previousFrame]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+    descriptorAccumulation.texture2D_2 = m_accumulationResultImage[previousFrame]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
     cmdB.pushDescriptorSetWithTemplateKHR(m_accumulationEffect->GetUpdateTemplate(), m_accumulationEffect->GetPipelineLayout(), 0,
                                           descriptorAccumulation, m_device.DispatchLoader);
@@ -177,6 +184,7 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     cmdB.endRendering();
 
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage[currentFrame], vk::ImageLayout::eShaderReadOnlyOptimal,vk::ImageLayout::eColorAttachmentOptimal, cmdB);
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage[previousFrame], vk::ImageLayout::eColorAttachmentOptimal,vk::ImageLayout::eShaderReadOnlyOptimal, cmdB);
 
 }
 
