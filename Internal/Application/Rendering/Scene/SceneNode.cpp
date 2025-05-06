@@ -185,7 +185,7 @@ std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildrenByWrapper()
     return result;
 }
 
-void SceneNode::Update(bool& needsUpdate)
+void SceneNode::Update(SceneUpdateFlags& sceneUpdateFlags)
 {
     if(m_parent)
     {
@@ -196,13 +196,17 @@ void SceneNode::Update(bool& needsUpdate)
         m_transformation->ComputeModelMatrix();
     }
 
-    if (needsUpdate != true) {
-        needsUpdate = m_transformation->HasChanged() && !IsLight();
+    if (sceneUpdateFlags.updateAs != true) {
+         if (m_transformation->HasChanged() && !IsLight())     { sceneUpdateFlags.updateAs = true; }
+    }
+    if (sceneUpdateFlags.resetAccumulation != true) {
+         // in case only light node has changed do not reset the As but only accumulation instead
+        if (m_transformation->HasChanged() && IsLight()) { sceneUpdateFlags.resetAccumulation = true; }
     }
 
     for(auto& child : m_children)
     {
-        child->Update(needsUpdate);
+        child->Update(sceneUpdateFlags);
     }
 }
 

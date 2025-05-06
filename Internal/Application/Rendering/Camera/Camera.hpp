@@ -5,6 +5,9 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
+#include "Application/Structs/ApplicationStructs.hpp"
+
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -70,7 +73,7 @@ class Camera
   
     void SetPosition(glm::vec3& newPosition);
 
-    void Update(CameraUpdateInfo& cameraUpdateInfo);
+    void Update(CameraUpdateInfo& cameraUpdateInfo, SceneUpdateFlags& sceneUpdateFlags);
 
     void Recalculate();
 
@@ -100,6 +103,9 @@ class Camera
 
     float m_farPlane;
     float m_nearPlane;
+
+    CameraUpdateInfo m_previusUpdateInfo;
+    bool m_hasChanged = true;
 };
 
 }  // namespace ApplicationCore

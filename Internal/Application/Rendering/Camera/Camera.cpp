@@ -155,26 +155,28 @@ void ApplicationCore::Camera::SetPosition(glm::vec3& newPosition)
     m_position = newPosition;
 }
 
-void ApplicationCore::Camera::Update(CameraUpdateInfo& cameraUpdateInfo)
+void ApplicationCore::Camera::Update(CameraUpdateInfo& cameraUpdateInfo, SceneUpdateFlags& sceneUpdateFlags)
 {
-    //Utils::Logger::LogInfo("Updating camera");
-    //cameraUpdateInfo.Print();
+    if (m_previusUpdateInfo != cameraUpdateInfo) {
+        RotateAzimutn(cameraUpdateInfo.RotateAzimuthValue);
+        RotatePolar(cameraUpdateInfo.RotatePolarValue);
+        Zoom(cameraUpdateInfo.ZoomValue);
+        if(cameraUpdateInfo.NewHeight > 0.0f || cameraUpdateInfo.NewWidth > 0.0f)
+        {
+            ProcessResize(cameraUpdateInfo.NewWidth, cameraUpdateInfo.NewHeight);
+        }
+        MoveForward(cameraUpdateInfo.MoveZ);
+        MoveHorizontal(cameraUpdateInfo.MoveX);
+        MoveVertical(cameraUpdateInfo.MoveY);
 
-    RotateAzimutn(cameraUpdateInfo.RotateAzimuthValue);
-    RotatePolar(cameraUpdateInfo.RotatePolarValue);
-    Zoom(cameraUpdateInfo.ZoomValue);
-    if(cameraUpdateInfo.NewHeight > 0.0f || cameraUpdateInfo.NewWidth > 0.0f)
-    {
-        ProcessResize(cameraUpdateInfo.NewWidth, cameraUpdateInfo.NewHeight);
+        m_nearPlane += cameraUpdateInfo.MoveNear;
+
+
+        m_view = glm::lookAt(this->m_position, m_center, this->m_worldUp);
+
+        sceneUpdateFlags.resetAccumulation = true;
     }
-    MoveForward(cameraUpdateInfo.MoveZ);
-    MoveHorizontal(cameraUpdateInfo.MoveX);
-    MoveVertical(cameraUpdateInfo.MoveY);
 
-    m_nearPlane += cameraUpdateInfo.MoveNear;
-
-
-    m_view = glm::lookAt(this->m_position, m_center, this->m_worldUp);
 
     cameraUpdateInfo.Reset();
 }

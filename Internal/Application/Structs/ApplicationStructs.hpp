@@ -11,6 +11,7 @@
 
 struct CameraUpdateInfo
 {
+
     float RotatePolarValue   = 0.0f;
     float RotateAzimuthValue = 0.0f;
     float ZoomValue          = 0.0f;
@@ -43,6 +44,14 @@ struct CameraUpdateInfo
         std::cout << "===================================================="<<std::endl;
          */
     }
+
+    friend bool operator==(const CameraUpdateInfo& lhs, const CameraUpdateInfo& rhs)
+    {
+        return lhs.RotatePolarValue == rhs.RotatePolarValue && lhs.RotateAzimuthValue == rhs.RotateAzimuthValue
+               && lhs.ZoomValue == rhs.ZoomValue && lhs.NewWidth == rhs.NewWidth && lhs.NewHeight == rhs.NewHeight
+               && lhs.MoveX == rhs.MoveX && lhs.MoveY == rhs.MoveY && lhs.MoveZ == rhs.MoveZ && lhs.MoveNear == rhs.MoveNear;
+    }
+    friend bool operator!=(const CameraUpdateInfo& lhs, const CameraUpdateInfo& rhs) { return !(lhs == rhs); }
 };
 
 struct ClientUpdateInfo
@@ -109,6 +118,18 @@ struct SceneNodeMetaData
     int       ID                  = 0;
     int       exportID            = 0;
     bool      m_isDirty           = false;
+};
+
+struct SceneUpdateFlags {
+    bool rebuildAs = true;
+    bool updateAs = true;
+    bool resetAccumulation = true;
+
+    void Reset() {
+        rebuildAs = false;
+        updateAs = false;
+        resetAccumulation = false;
+    }
 };
 
 

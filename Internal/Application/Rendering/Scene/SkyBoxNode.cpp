@@ -60,7 +60,7 @@ void SkyBoxNode::ProcessNodeRemove()
     m_lightStruct.inUse    = false;
 }
 
-void SkyBoxNode::Update(bool& needsUpdate)
+void SkyBoxNode::Update(SceneUpdateFlags& sceneUpdateFlags)
 {
     m_lightStruct.inUse = m_sceneNodeMetaData.IsVisible;
     if(m_sceneLightInfo.environmentLight->hdrImage
@@ -69,6 +69,8 @@ void SkyBoxNode::Update(bool& needsUpdate)
         m_sceneLightInfo.environmentLight->hdrImage =
             dynamic_cast<ApplicationCore::SkyBoxMaterial*>(m_mesh->GetMaterial().get())->GetHDRTexture();
     }
+
+    SceneNode::Update(sceneUpdateFlags);
 }
 
 void SkyBoxNode::SetShowBackground(bool show)

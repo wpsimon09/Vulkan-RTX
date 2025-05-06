@@ -16,7 +16,7 @@ class SkyBoxNode : public LightNode<LightStructs::EnvLight>
     explicit SkyBoxNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh);
     void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
     void ProcessNodeRemove() override;
-    void Update(bool& needsUpdate) override;
+    void Update(SceneUpdateFlags& sceneUpdateFlags) override;
     void SetShowBackground(bool show);
     bool m_showBackground = true;
 

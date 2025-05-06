@@ -170,13 +170,14 @@ void Application::Update()
     m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
     m_editor->Update();
 
-    if (m_client->GetScene().NeedsUpdate() && !m_client->GetScene().NeedsRebuild()) {
+    if (m_client->GetScene().GetSceneUpdateFlags().updateAs) {
         auto blasInput = m_client->GetScene().GetBLASInputs();
         m_renderingSystem->GetRayTracingManager().UpdateAS(blasInput);
         Utils::Logger::LogInfo("Updating AS");
     }
 
-    if (m_client->GetScene().NeedsRebuild()) {
+    if (m_client->GetScene().GetSceneUpdateFlags().rebuildAs
+        ) {
         auto blasInpu = m_client->GetScene().GetBLASInputs();
         m_renderingSystem->GetRayTracingManager().InitAs(blasInpu);
         Utils::Logger::LogInfo("Rebuilding AS");

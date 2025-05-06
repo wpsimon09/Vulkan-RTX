@@ -93,7 +93,7 @@ void Scene::Update()
     {
         return m_staticMeshes.clear();
     }
-    m_root->Update(m_needsUpdate);
+    m_root->Update(m_sceneUpdateFlags);
 }
 
 void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> sceneNode)
@@ -111,8 +111,7 @@ void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> s
 
 void Scene::Reset()
 {
-    m_needsUpdate = false;
-    m_needsRebuild = false;
+    m_sceneUpdateFlags.Reset();
     m_sceneStatistics.Reset();
 }
 
@@ -142,7 +141,10 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
 void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode)
 {
     m_root->AddChild(m_sceneData, sceneNode);
-    m_needsRebuild = true;
+    m_sceneUpdateFlags.resetAccumulation = true;
+    m_sceneUpdateFlags.rebuildAs = true;
+    m_sceneUpdateFlags.updateAs = false;
+
 }
 
 void Scene::EnumarateMeshes(std::vector<std::shared_ptr<SceneNode>>& outMeshes, std::shared_ptr<SceneNode> sceneNode)
@@ -325,11 +327,6 @@ void Scene::PreformRayCast(glm::vec2 mousePosition)
         Utils::Logger::LogErrorClient("Mouse is outside NDC");
     }
 }
-bool Scene::NeedsUpdate()
-{
-    return m_needsUpdate;
-}
-bool Scene::NeedsRebuild() {
-    return m_needsRebuild;
-}
+SceneUpdateFlags & Scene::GetSceneUpdateFlags(){ return m_sceneUpdateFlags;}
+
 }  // namespace ApplicationCore

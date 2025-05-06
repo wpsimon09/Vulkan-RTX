@@ -83,9 +83,9 @@ void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
     }
 }
 
-void AreaLightNode::Update(bool& needsUpdate)
+void AreaLightNode::Update(SceneUpdateFlags& sceneUpdateFlags)
 {
-    LightNode<LightStructs::AreaLight>::Update(needsUpdate);
+    LightNode<LightStructs::AreaLight>::Update(sceneUpdateFlags);
     int i                          = 0;
     m_lightStruct.position         = m_transformation->GetPosition();
     m_lightStruct.scale.x          = m_transformation->GetScale().x;

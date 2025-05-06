@@ -90,7 +90,7 @@ const void Client::Destroy()
 
 void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 {
-    m_camera->Update(cameraUpdateInfo);
+    m_camera->Update(cameraUpdateInfo, m_scene->GetSceneUpdateFlags());
 
     m_globalRenderingData.proj        = m_camera->GetProjectionMatrix();
     m_globalRenderingData.view        = m_camera->GetViewMatrix();
@@ -105,6 +105,7 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)
 {
+    // deprecated
     m_globalRenderingData.lightPosition.x += lightUpdateInfo.moveLightX;
     m_globalRenderingData.lightPosition.y += lightUpdateInfo.moveLightY;
     m_isRTXOn = lightUpdateInfo.isRTXon;

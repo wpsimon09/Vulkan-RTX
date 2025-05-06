@@ -19,7 +19,7 @@ class DirectionLightNode : public ApplicationCore::LightNode<LightStructs::Direc
                                 LightStructs::DirectionalLight* directionalLightData);
 
     void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
-    void Update(bool& needsUpdate) override;
+    void Update(SceneUpdateFlags& sceneUpdateFlags) override;
     void ProcessNodeRemove() override;
 
   private:
