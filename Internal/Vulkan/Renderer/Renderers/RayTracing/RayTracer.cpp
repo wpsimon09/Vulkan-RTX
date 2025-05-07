@@ -109,8 +109,8 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     {
         vk::ClearColorValue                    clearColorVal{0.0f, 0.0f, 0.0f, 1.0f};
         std::vector<vk::ImageSubresourceRange> subresourceRanges{m_accumulationResultImage->GetSubresrouceRange()};
-        cmdB.clearColorImage(m_accumulationResultImage->GetImage(), vk::ImageLayout::eGeneral, &clearColorVal,
-                             subresourceRanges.size(), subresourceRanges.data());
+        //cmdB.clearColorImage(m_accumulationResultImage->GetImage(), vk::ImageLayout::eGeneral, &clearColorVal,
+                             //subresourceRanges.size(), subresourceRanges.data());
     }
 
     auto& descriptor   = std::get<VulkanUtils::RayTracingDescriptorSet>(m_rtxEffect->GetResrouceGroupStructVariant());
