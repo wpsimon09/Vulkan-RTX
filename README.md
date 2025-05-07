@@ -67,10 +67,10 @@ cmake --build .
 ## Early version of path tracing 
 
 ### RTX OFF
-![image](https://github.com/user-attachments/assets/7a3af6aa-d296-49ac-9d4e-4aede9a9cb06)
+![image](https://github.com/user-attachments/assets/5ce4636b-7d55-448c-9a10-c18c1e0944d1)
 
 
 ### RTX ON
-![image](https://github.com/user-attachments/assets/7b97e6ca-bb6f-402c-ade9-394566150c87)
+![image](https://github.com/user-attachments/assets/3f7a2fc2-b993-499d-bbe8-eb2047063820)
 
 
