@@ -62,7 +62,24 @@ void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
     nodes.emplace_back(node);
     IndexNode(node);
 }
-void SceneData::RemoveEntry(const std::shared_ptr<ApplicationCore::SceneNode>& node) {}
+void SceneData::RemoveEntry(const ApplicationCore::SceneNode& node) {
+
+    if (node.HasMesh()) {
+        auto meshIt = std::find(meshes.begin(), meshes.end(), node.m_mesh);
+        if (meshIt != meshes.end()) {
+            meshes.erase(meshIt);
+        }
+        if (PBRMaterial* m = dynamic_cast<PBRMaterial*>(node.m_mesh->GetMaterial().get())) {
+            auto materialIT = std::find_if(pbrMaterials.begin(), pbrMaterials.end(),
+                           [&m](const PBRMaterialDescription* matDesc) {
+                               return matDesc == &m->GetMaterialDescription();
+                           });
+            if (materialIT != pbrMaterials.end()) {
+                pbrMaterials.erase(materialIT);
+            }
+        }
+    }
+}
 
 void SceneData::IndexNode(std::shared_ptr<ApplicationCore::SceneNode>& node) {
     if (node->HasMesh()) {
@@ -115,18 +132,21 @@ void Scene::Reset()
     m_sceneStatistics.Reset();
 }
 
-void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const
+void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove)
 {
     auto& children = parent->GetChildrenByRef();
-
     for(auto it = children.begin(); it != children.end();)
     {
         if(*it == nodeToRemove)
         {
+            auto node = it->get();
+
             it->get()->ProcessNodeRemove();
+            it->get()->ProcessNodeRemove(m_sceneData);
             // in future when multiple nodes can be selected, this will account for shifting the list to the right
             it = children.erase(it);
             Utils::Logger::LogSuccessClient("Removed node from the scene graph");
+
             return;
         }
         else
@@ -134,6 +154,8 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
             ++it;
         }
     }
+
+
     Utils::Logger::LogErrorClient("Node not found");
 }
 

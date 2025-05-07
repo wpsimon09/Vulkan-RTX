@@ -77,6 +77,14 @@ struct MaterialPaths
 
 struct PBRMaterialDescription
 {
+    friend bool operator==(const PBRMaterialDescription& lhs, const PBRMaterialDescription& rhs)
+    {
+        return lhs.values == rhs.values && lhs.features == rhs.features;
+    }
+    friend bool operator!=(const PBRMaterialDescription& lhs, const PBRMaterialDescription& rhs)
+    {
+        return !(lhs == rhs);
+    }
     PBRMaterialNoTexture values;
     PBRMaterialFeaturees features;
 

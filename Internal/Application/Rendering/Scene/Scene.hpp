@@ -52,7 +52,7 @@ struct SceneData {
 
   void AddEntry( std::shared_ptr<ApplicationCore::SceneNode>& node);
 
-  void RemoveEntry(const std::shared_ptr<ApplicationCore::SceneNode>& node);
+  void RemoveEntry(const ApplicationCore::SceneNode& node);
 private:
   void IndexNode(std::shared_ptr<ApplicationCore::SceneNode>& node);
 
@@ -69,7 +69,7 @@ class Scene
     void Update();
     void Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> sceneNode);
     void Reset();
-    void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) const;
+    void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) ;
     void AddNode(std::shared_ptr<SceneNode> sceneNode) ;
     void EnumarateMeshes(std::vector<std::shared_ptr<SceneNode>>& outMeshes, std::shared_ptr<SceneNode> sceneNode);
     std::vector<VulkanCore::RTX::BLASInput> GetBLASInputs();
