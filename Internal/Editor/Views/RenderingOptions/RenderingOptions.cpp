@@ -48,6 +48,10 @@ void RenderingOptions::Render()
         {
             m_openLightInfoLigt = true;
         }
+
+        ImGui::Text("Number of frames: %lu", m_renderingSystem->m_frameCount);
+        ImGui::Text("Accumulated frames: %iu", m_renderingSystem->m_accumulatedFramesCount);
+
         ImGui::TreePop();
     }
     if(ImGui::TreeNode(ICON_FA_BUG " Debug renderer"))

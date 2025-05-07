@@ -137,7 +137,6 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
             m_renderingTimeLine[m_currentFrameIndex]->Reset();
             m_renderingTimeLine[m_currentFrameIndex]->CpuSignal(8);
 
-            Utils::Logger::LogError("Swap chain was out of date, trying to recreate it...  ");
             return;
         }
         case vk::Result::eSuboptimalKHR: {
@@ -155,7 +154,10 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
     m_frameCount ++;
 
-    if (sceneUpdateFlags.resetAccumulation){ Utils::Logger::LogInfo("Reseting accumulaion"); m_accumulatedFramesCount = 0;}
+    if (sceneUpdateFlags.resetAccumulation) {
+        Utils::Logger::LogInfo("Reseting accumulaion");
+        m_accumulatedFramesCount = 0;
+    }
 
     // ==== check if it is possible ot use env light
     if (m_isRayTracing) {
@@ -201,11 +203,11 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_uniformBufferManager,
                                 &m_renderContext);
-        m_accumulatedFramesCount = m_frameCount;
     }
     else
     {
         m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex],  m_uniformBufferManager, m_currentFrameIndex );
+        m_accumulatedFramesCount = m_frameCount;
     }
 
     // render UI to the swap chain image
