@@ -202,13 +202,19 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     // calculate next bounce direction of the ray 
     float3 diffuseDir = normalize(g.shadingNormal + RandomHemisphereDirection(g.shadingNormal, payLoad.randomContext));
-    payLoad.rayDirection = diffuseDir;
     payLoad.rayOrigin = g.shadingPosition;
     
+    float3 specularDir = reflect(WorldRayDirection(), g.shadingNormal);
+    
+    bool isSpecularRay = (1.0 - m.Values.roughness) >= RandomValue(payLoad.randomContext);
+    
+    payLoad.rayDirection = lerp(diffuseDir, specularDir,m.Values.metalness * (float)isSpecularRay );
+
+
     // other direction
     float3 emmittedLight = m.Values.emissive_strength.xyz * m.Values.emissive_strength.w;
 
-    payLoad.rayColour *= m.Values.diffuse.xyz;
+    payLoad.rayColour *= m.Values.diffuse.xyz ;
     payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
     payLoad.hasHit = true;
 
