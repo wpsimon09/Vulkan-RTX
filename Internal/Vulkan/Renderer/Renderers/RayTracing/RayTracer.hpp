@@ -7,6 +7,8 @@
 #include <memory>
 #include <vector>
 
+
+struct SceneUpdateFlags;
 namespace VulkanUtils {
 class VRasterEffect;
 }
@@ -45,6 +47,7 @@ class RayTracer
               int height);
 
     void TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
+                   const SceneUpdateFlags&                   sceneUpdateFlags,
                    const VulkanUtils::VUniformBufferManager& unifromBufferManager,
                    int                                       currentFrame);
 

@@ -35,29 +35,27 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
     {
 
         VulkanCore::VImage2CreateInfo imageCI;
-        imageCI.width  = width;
-        imageCI.height = height;
-        imageCI.imageUsage =
-            vk::ImageUsageFlagBits::eStorage;
-        imageCI.layout    = vk::ImageLayout::eGeneral;
-        imageCI.format    = vk::Format::eR32G32B32A32Sfloat;
-        imageCI.isStorage = true;
+        imageCI.width      = width;
+        imageCI.height     = height;
+        imageCI.imageUsage = vk::ImageUsageFlagBits::eStorage;
+        imageCI.layout     = vk::ImageLayout::eGeneral;
+        imageCI.format     = vk::Format::eR32G32B32A32Sfloat;
+        imageCI.isStorage  = true;
 
         m_resultImage[i] = std::make_unique<VulkanCore::VImage2>(device, imageCI);
 
 
         VulkanUtils::RecordImageTransitionLayoutCommand(*m_resultImage[i], vk::ImageLayout::eGeneral,
                                                         vk::ImageLayout::eUndefined, cmdBuffer);
-
     }
 
     VulkanCore::VImage2CreateInfo imageCI;
-    imageCI.width  = width;
-    imageCI.height = height;
+    imageCI.width      = width;
+    imageCI.height     = height;
     imageCI.imageUsage = vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled;
     imageCI.layout     = vk::ImageLayout::eGeneral;
     imageCI.format     = vk::Format::eR32G32B32A32Sfloat;
-    imageCI.isStorage = true;
+    imageCI.isStorage  = true;
 
 
     m_accumulationResultImage = std::make_unique<VulkanCore::VImage2>(device, imageCI);
@@ -93,29 +91,38 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
 }
 
 void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
+                          const SceneUpdateFlags&                   sceneUpdateFlags,
                           const VulkanUtils::VUniformBufferManager& unifromBufferManager,
                           int                                       currentFrame)
 {
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recordgin !");
 
+    auto& cmdB = cmdBuffer.GetCommandBuffer();
 
     m_rtxEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
 
-    auto& cmdB = cmdBuffer.GetCommandBuffer();
 
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage, vk::ImageLayout::eGeneral,
                                                     vk::ImageLayout::eShaderReadOnlyOptimal, cmdB);
+
+    if(sceneUpdateFlags.resetAccumulation)
+    {
+        vk::ClearColorValue                    clearColorVal{0.0f, 0.0f, 0.0f, 1.0f};
+        std::vector<vk::ImageSubresourceRange> subresourceRanges{m_accumulationResultImage->GetSubresrouceRange()};
+        cmdB.clearColorImage(m_accumulationResultImage->GetImage(), vk::ImageLayout::eGeneral, &clearColorVal,
+                             subresourceRanges.size(), subresourceRanges.data());
+    }
 
     auto& descriptor   = std::get<VulkanUtils::RayTracingDescriptorSet>(m_rtxEffect->GetResrouceGroupStructVariant());
     descriptor.buffer1 = unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame];
     descriptor.buffer2 = unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame];
     descriptor.buffer3 = m_rtxDataManager.GetObjDescriptionBufferInfo();
-    descriptor.buffer4     = unifromBufferManager.GetSceneBufferDescriptorInfo(currentFrame);
+    descriptor.buffer4 = unifromBufferManager.GetSceneBufferDescriptorInfo(currentFrame);
 
     descriptor.storage2D_1 = m_resultImage[currentFrame]->GetDescriptorImageInfo();
     descriptor.storage2D_2 = m_accumulationResultImage->GetDescriptorImageInfo();
 
-    descriptor.tlas    = m_rtxDataManager.GetTLAS();
+    descriptor.tlas = m_rtxDataManager.GetTLAS();
 
     cmdB.pushDescriptorSetWithTemplateKHR(m_rtxEffect->GetUpdateTemplate(), m_rtxEffect->GetPipelineLayout(), 0,
                                           descriptor, m_device.DispatchLoader);

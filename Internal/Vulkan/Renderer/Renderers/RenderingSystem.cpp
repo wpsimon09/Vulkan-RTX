@@ -156,7 +156,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
 
     if (sceneUpdateFlags.resetAccumulation) {
         Utils::Logger::LogInfo("Reseting accumulaion");
-        m_accumulatedFramesCount = 0;
+       // m_accumulatedFramesCount = 0;
     }
 
     // ==== check if it is possible ot use env light
@@ -164,7 +164,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
         globalUniformUpdateInfo.screenSize.x = m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().width;
         globalUniformUpdateInfo.screenSize.y = m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().height;
         // will cause to multiply by 0 thus clear the colour
-        globalUniformUpdateInfo.numberOfFrames = m_accumulatedFramesCount;
+        globalUniformUpdateInfo.numberOfFrames = m_frameCount;
     }else {
         globalUniformUpdateInfo.numberOfFrames = m_frameCount;
     }
@@ -206,7 +206,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
     }
     else
     {
-        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex],  m_uniformBufferManager, m_currentFrameIndex );
+        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex],sceneUpdateFlags,  m_uniformBufferManager,  m_currentFrameIndex );
         m_accumulatedFramesCount = m_frameCount;
     }
 

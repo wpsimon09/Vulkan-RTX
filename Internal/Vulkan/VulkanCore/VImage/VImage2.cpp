@@ -187,13 +187,26 @@ vk::DescriptorImageInfo VImage2::GetDescriptorImageInfo(vk::Sampler& sampler)
     imageInfo.sampler     = sampler;
     return imageInfo;
 }
-vk::DescriptorImageInfo VImage2::GetDescriptorImageInfo() {
+vk::DescriptorImageInfo VImage2::GetDescriptorImageInfo()
+{
     assert(m_imageFlags.IsStorage && "This function is only available for storage images !");
     vk::DescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = m_imageInfo.layout;
     imageInfo.imageView   = m_imageView;
     imageInfo.sampler     = nullptr;
     return imageInfo;
+}
+vk::ImageSubresourceRange VImage2::GetSubresrouceRange() {
+    vk::ImageSubresourceRange sub;
+    sub.aspectMask = GetImageFlags().IsDepthBuffer ?
+                                                  vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil :
+                                                  vk::ImageAspectFlagBits::eColor;
+    sub.baseMipLevel = 0;
+    sub.levelCount = m_imageInfo.mipLevels;
+    sub.baseArrayLayer = 0;
+    sub.layerCount = m_imageInfo.arrayLayers;
+
+    return sub;
 }
 
 vk::DeviceSize VImage2::GetImageSizeBytes()
