@@ -65,18 +65,13 @@ void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
 void SceneData::RemoveEntry(const ApplicationCore::SceneNode& node) {
 
     if (node.HasMesh()) {
-        auto meshIt = std::find(meshes.begin(), meshes.end(), node.m_mesh);
-        if (meshIt != meshes.end()) {
-            meshes.erase(meshIt);
-        }
-        if (PBRMaterial* m = dynamic_cast<PBRMaterial*>(node.m_mesh->GetMaterial().get())) {
-            auto materialIT = std::find_if(pbrMaterials.begin(), pbrMaterials.end(),
-                           [&m](PBRMaterialDescription* matDesc) {
-                               return matDesc == &m->GetMaterialDescription();
-                           });
-            if (materialIT != pbrMaterials.end()) {
-                pbrMaterials.erase(materialIT);
-            }
+        try {
+            meshes.erase(meshes.erase(meshes.begin() + node.m_meshIdx));
+            pbrMaterials.erase(pbrMaterials.begin() + node.m_materialIdx);
+            meshes.shrink_to_fit();
+            pbrMaterials.shrink_to_fit();
+        }catch (std::exception& e) {
+            Utils::Logger::LogError("Failed to remove the node from the description, exceptions:" + *e.what());
         }
     }
 }
