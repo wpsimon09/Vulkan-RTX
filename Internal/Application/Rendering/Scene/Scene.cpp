@@ -63,13 +63,11 @@ void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
     IndexNode(node);
 }
 void SceneData::RemoveEntry(const ApplicationCore::SceneNode& node) {
-
     if (node.HasMesh()) {
         try {
-            meshes.erase(meshes.erase(meshes.begin() + node.m_meshIdx));
+            meshes.erase(meshes.begin() + node.m_meshIdx);
             pbrMaterials.erase(pbrMaterials.begin() + node.m_materialIdx);
-            meshes.shrink_to_fit();
-            pbrMaterials.shrink_to_fit();
+
         }catch (std::exception& e) {
             Utils::Logger::LogError("Failed to remove the node from the description, exceptions:" + *e.what());
         }
@@ -137,7 +135,8 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
             auto node = it->get();
 
             it->get()->ProcessNodeRemove();
-            it->get()->ProcessNodeRemove(m_sceneData);
+            it->get()->ProcessNodeRemove(*node, m_sceneData);
+
             // in future when multiple nodes can be selected, this will account for shifting the list to the right
             it = children.erase(it);
             Utils::Logger::LogSuccessClient("Removed node from the scene graph");
@@ -149,7 +148,6 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
             ++it;
         }
     }
-
 
     Utils::Logger::LogErrorClient("Node not found");
 }

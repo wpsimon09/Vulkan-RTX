@@ -184,8 +184,18 @@ std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildrenByWrapper()
 
     return result;
 }
-void SceneNode::ProcessNodeRemove(SceneData& sceneData) {
-    sceneData.RemoveEntry(*this);
+void SceneNode::ProcessNodeRemove(SceneData& sceneData)
+{
+}
+
+void SceneNode::ProcessNodeRemove(const SceneNode& node, SceneData& sceneData) {
+    sceneData.RemoveEntry(node);
+    for(auto& child : node.m_children)
+    {
+        ProcessNodeRemove(*child, sceneData);
+    }
+
+
 }
 
 void SceneNode::Update(SceneUpdateFlags& sceneUpdateFlags)

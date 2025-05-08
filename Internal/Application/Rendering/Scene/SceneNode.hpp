@@ -117,6 +117,7 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
     //=========================
     virtual void ProcessNodeRemove() {}
     virtual void ProcessNodeRemove(SceneData& sceneData);
+    virtual void ProcessNodeRemove(const SceneNode& node, SceneData& sceneData);
 
     //=========================
     // Operators
