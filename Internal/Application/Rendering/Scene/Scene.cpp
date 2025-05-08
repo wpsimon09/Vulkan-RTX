@@ -71,7 +71,7 @@ void SceneData::RemoveEntry(const ApplicationCore::SceneNode& node) {
         }
         if (PBRMaterial* m = dynamic_cast<PBRMaterial*>(node.m_mesh->GetMaterial().get())) {
             auto materialIT = std::find_if(pbrMaterials.begin(), pbrMaterials.end(),
-                           [&m](const PBRMaterialDescription* matDesc) {
+                           [&m](PBRMaterialDescription* matDesc) {
                                return matDesc == &m->GetMaterialDescription();
                            });
             if (materialIT != pbrMaterials.end()) {
