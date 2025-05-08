@@ -393,12 +393,12 @@ void VulkanCore::VDevice::Destroy()
 {
     m_meshDataManager->Destroy();
     m_transferOpsManager->Destroy();
-    vmaDestroyAllocator(m_vmaAllocator);
     for(int i = 0; i < m_transferCommandPool.size(); i++)
     {
         m_transferCommandPool[i]->Destroy();
     }
     m_transferCommandPoolForSingleThread->Destroy();
+    vmaDestroyAllocator(m_vmaAllocator);
     m_device.destroy();
     Utils::Logger::LogInfoVerboseOnly("Logical device destroyed");
 }

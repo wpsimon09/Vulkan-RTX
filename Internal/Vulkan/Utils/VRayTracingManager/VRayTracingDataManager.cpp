@@ -44,6 +44,11 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
     m_blasInputs.shrink_to_fit();
     m_rtxObjectDescriptions.clear();
     m_rtxObjectDescriptions.shrink_to_fit();
+    m_device.GetDevice().waitIdle();
+    if (m_objDescriptionBuffer) {
+        m_objDescriptionBuffer->DestroyStagingBuffer();
+        m_objDescriptionBuffer->Destroy();
+    }
     m_rayTracingBuilder->Clear();
     m_rayTracingBuilder->BuildBLAS(blasInputs, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
                                                    | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
@@ -80,13 +85,17 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
         m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(), m_rtxObjectDescriptions,
         vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer);
 
+
+
 }
 void VRayTracingDataManager::Destroy()
 {
+
     m_objDescriptionBuffer->DestroyStagingBuffer();
     m_objDescriptionBuffer->Destroy();
     m_rayTracingBuilder->Destroy();
 }
+
 const vk::AccelerationStructureKHR& VRayTracingDataManager::GetTLAS()
 {
     return m_rayTracingBuilder->GetTLAS();

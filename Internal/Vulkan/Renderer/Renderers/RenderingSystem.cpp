@@ -155,7 +155,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
     m_frameCount ++;
 
     if (sceneUpdateFlags.resetAccumulation) {
-        Utils::Logger::LogInfo("Reseting accumulaion");
+        // reset the accumulation
         m_accumulatedFramesCount = 0;
     }
 

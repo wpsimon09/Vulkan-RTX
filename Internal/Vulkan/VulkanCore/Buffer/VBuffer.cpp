@@ -53,6 +53,7 @@ void VBuffer::Destroy()
         vmaUnmapMemory(m_device.GetAllocator(), m_allocation);
     }
 
+
     vmaDestroyBuffer(m_device.GetAllocator(), m_bufferVMA, m_allocation);
 }
 
@@ -73,6 +74,7 @@ void VBuffer::CreateHostVisibleBuffer(VkDeviceSize size, VkBufferUsageFlags usag
     stagingAllocationCreateInfo.usage                   = VMA_MEMORY_USAGE_AUTO;
     stagingAllocationCreateInfo.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
     stagingAllocationCreateInfo.priority                = 1.0f;
+
 
 
     Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");

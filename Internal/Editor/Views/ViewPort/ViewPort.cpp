@@ -148,6 +148,7 @@ void VEditor::ViewPort::Resize(int newWidth, int newHeight)
     m_rasterViewPortContext.camera->ProcessResize(newWidth, newHeight);
     m_rasterViewPortContext.hasResized = true;
 
+
     ImGuizmo::SetRect(m_gizmoRectOriginX, m_gizmoRectOriginY, newWidth, newHeight);
     IUserInterfaceElement::Render();
 }
