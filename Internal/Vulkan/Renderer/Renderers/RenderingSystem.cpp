@@ -35,7 +35,6 @@
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 
 
-
 namespace Renderer {
 RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         instance,
                                  const VulkanCore::VDevice&                device,
@@ -65,7 +64,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_ableToPresentSemaphore[i]   =  std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+        m_ableToPresentSemaphore[i]   = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_renderingTimeLine[i]        = std::make_unique<VulkanCore::VTimelineSemaphore>(m_device, 8);
         m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_renderingCommandBuffers[i]  = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_renderingCommandPool);
@@ -91,9 +90,8 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     //----------------------------------------------------------------------------------------------------------------------------
     m_rayTracingDataManager = std::make_unique<VulkanUtils::VRayTracingDataManager>(m_device);
 
-    auto cam = m_uiContext.GetClient().GetCamera();
-    m_rayTracer =
-        std::make_unique<RayTracer>(m_device,m_resrouceGroupManager, *m_rayTracingDataManager, 1980, 1080);
+    auto cam    = m_uiContext.GetClient().GetCamera();
+    m_rayTracer = std::make_unique<RayTracer>(m_device, m_resrouceGroupManager, *m_rayTracingDataManager, 1980, 1080);
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }
@@ -104,12 +102,14 @@ void RenderingSystem::Init()
     {
         m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetRenderedImage(i), i);
         //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_envLightGenerator->GetBRDFLut(), i);
-        m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_rayTracer->GetRenderedImage(i),i);
-
+        m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_rayTracer->GetRenderedImage(i), i);
     }
 }
 
-void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalUniform& globalUniformUpdateInfo, SceneUpdateFlags& sceneUpdateFlags)
+void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
+                             ApplicationCore::SceneData&   sceneData,
+                             GlobalUniform&                globalUniformUpdateInfo,
+                             SceneUpdateFlags&             sceneUpdateFlags)
 {
     m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
 
@@ -152,20 +152,24 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
 
     m_renderingTimeLine[m_currentFrameIndex]->Reset();
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
-    m_frameCount ++;
+    m_frameCount++;
 
-    if (sceneUpdateFlags.resetAccumulation) {
+    if(sceneUpdateFlags.resetAccumulation)
+    {
         // reset the accumulation
         m_accumulatedFramesCount = 0;
     }
 
     // ==== check if it is possible ot use env light
-    if (m_isRayTracing) {
+    if(m_isRayTracing)
+    {
         globalUniformUpdateInfo.screenSize.x = m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().width;
         globalUniformUpdateInfo.screenSize.y = m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().height;
         // will cause to multiply by 0 thus clear the colour
         globalUniformUpdateInfo.numberOfFrames = m_accumulatedFramesCount;
-    }else {
+    }
+    else
+    {
         globalUniformUpdateInfo.numberOfFrames = m_frameCount;
     }
 
@@ -201,13 +205,14 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
     if(!m_uiContext.m_isRayTracing)
     {
         // render scene
-        m_sceneRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_uniformBufferManager,
-                                &m_renderContext);
+        m_sceneRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex],
+                                m_uniformBufferManager, &m_renderContext);
     }
     else
     {
         // path trace the scene
-        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex],sceneUpdateFlags,  m_uniformBufferManager,  m_currentFrameIndex );
+        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex], sceneUpdateFlags,
+                               m_uniformBufferManager, m_currentFrameIndex);
         m_accumulatedFramesCount++;
     }
 
@@ -221,21 +226,23 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,Applic
     //=====================================================
     vk::SubmitInfo submitInfo;
 
-    const std::vector<vk::Semaphore> waitSemaphores = {m_transferSemapohore.GetSemaphore(), m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
-    const std::vector<vk::Semaphore> signalSemaphores = {m_renderingTimeLine[m_currentFrameIndex]->GetSemaphore(), m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive()};
+    const std::vector<vk::Semaphore> waitSemaphores   = {m_transferSemapohore.GetSemaphore(),
+                                                         m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
+    const std::vector<vk::Semaphore> signalSemaphores = {m_renderingTimeLine[m_currentFrameIndex]->GetSemaphore(),
+                                                         m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive()};
 
     std::vector<vk::PipelineStageFlags> waitStages = {
         vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
-        vk::PipelineStageFlagBits::eTransfer,
-        vk::PipelineStageFlagBits::eNone
+        vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eNone
         // Transfer wait stage
     };
 
     m_renderingTimeLine[m_currentFrameIndex]->SetWaitAndSignal(0, 8);  //
     //m_transferSemapohore.SetWaitAndSignal(2, 4);
 
-    const std::vector<uint64_t> waitValues =   {2, /*transfer- wait*/  4 /*able to present - binary*/};
-    const std::vector<uint64_t> signalVlaues = {m_renderingTimeLine[m_currentFrameIndex]->GetCurrentSignalValue() /*rendering signal*/,  7  /*able to present - binary*/ };
+    const std::vector<uint64_t> waitValues = {2, /*transfer- wait*/ 4 /*able to present - binary*/};
+    const std::vector<uint64_t> signalVlaues = {m_renderingTimeLine[m_currentFrameIndex]->GetCurrentSignalValue() /*rendering signal*/,
+                                                7 /*able to present - binary*/};
 
     vk::TimelineSemaphoreSubmitInfo timelineinfo;
     timelineinfo.waitSemaphoreValueCount = waitValues.size();

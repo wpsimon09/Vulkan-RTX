@@ -138,8 +138,8 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
 
     buffer.DestroyStagingBuffer();
     buffer.Destroy();
-    m_asBuildSemaphore.Reset();
     scratchBuffer.Destroy();
+    m_asBuildSemaphore.Reset();
 
 }
 

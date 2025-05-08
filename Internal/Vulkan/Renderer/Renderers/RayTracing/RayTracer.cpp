@@ -210,5 +210,6 @@ void RayTracer::Destroy()
     {
         i->Destroy();
     }
+    m_accumulationResultImage->Destroy();
 }
 }  // namespace Renderer
