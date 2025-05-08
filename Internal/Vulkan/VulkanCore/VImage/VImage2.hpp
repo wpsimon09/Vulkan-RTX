@@ -34,6 +34,8 @@ struct VImage2CreateInfo
     vk::SampleCountFlagBits samples    = vk::SampleCountFlagBits::e1;
     vk::ImageLayout         layout     = vk::ImageLayout::eUndefined;
 
+    std::string imageAllocationName = "Image allocation name not set !";
+
     bool isStorage = false;
 
     void SetImageLayout(vk::ImageLayout newLayout) { layout = newLayout; }

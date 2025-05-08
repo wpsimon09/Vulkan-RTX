@@ -285,12 +285,15 @@ void RenderingSystem::Destroy()
     {
         m_imageAvailableSemaphores[i]->Destroy();
         m_ableToPresentSemaphore[i]->Destroy();
+        m_renderingTimeLine[i]->Destroy();
     }
     m_sceneRenderer->Destroy();
     m_uiRenderer->Destroy();
     m_swapChain->Destroy();
     m_envLightGenerator->Destroy();
     m_rayTracer->Destroy();
+    m_renderingCommandPool->Destroy();
+
 }
 
 

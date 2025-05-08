@@ -275,6 +275,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             envGenerationSemaphore.CpuWaitIdle(4);
 
             envGenerationSemaphore.Reset();
+            envGenerationSemaphore.Destroy();
             renderTarget->Destroy();
             hdrToCubeMapEffect.Destroy();
             for(auto& hdrPushBlock : hdrPushBlocks)
@@ -412,6 +413,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
             envGenerationSemaphore.CpuWaitIdle(4);
 
             envGenerationSemaphore.Reset();
+            envGenerationSemaphore.Destroy();
             renderTarget->Destroy();
 
             cubeMapToIrradianceEffect.Destroy();
@@ -557,6 +559,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         envGenerationSemaphore.CpuWaitIdle(4);
 
         envGenerationSemaphore.Reset();
+        envGenerationSemaphore.Destroy();
         renderTarget->Destroy();
         for(auto& hdrPushBlock : hdrPushBlocks)
         {

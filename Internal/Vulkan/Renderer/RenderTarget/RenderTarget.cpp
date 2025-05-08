@@ -100,6 +100,9 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
         msaaAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
     }
 
+    /**
+     * TODO: this is so wrong, it should take transfer ops manager command buffer instead of creating it here
+     */
     VulkanCore::VTimelineSemaphore transitionTargetLayoutSempahore(m_device);
     VulkanCore::VCommandPool cmdPool(device, EQueueFamilyIndexType::Graphics);
     VulkanCore::VCommandBuffer cmdBuffer(m_device, cmdPool);

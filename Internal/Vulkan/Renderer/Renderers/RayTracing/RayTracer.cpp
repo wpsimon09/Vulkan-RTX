@@ -41,6 +41,7 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
         imageCI.layout     = vk::ImageLayout::eGeneral;
         imageCI.format     = vk::Format::eR32G32B32A32Sfloat;
         imageCI.isStorage  = true;
+        imageCI.imageAllocationName = "Ray tracing result image";
 
         m_resultImage[i] = std::make_unique<VulkanCore::VImage2>(device, imageCI);
 
@@ -56,6 +57,7 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
     imageCI.layout     = vk::ImageLayout::eGeneral;
     imageCI.format     = vk::Format::eR32G32B32A32Sfloat;
     imageCI.isStorage  = true;
+    imageCI.imageAllocationName = "Ray tracing accumulation image";
 
 
     m_accumulationResultImage = std::make_unique<VulkanCore::VImage2>(device, imageCI);
@@ -137,7 +139,7 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
 
     //======================================
     // Accumulate the the samples
-    // TODO: i stupidly thought that i need to accumulate in separate rendre pass, remove this later
+    // TODO: i stupidly thought that i need to accumulate in separate rendre pass, remove this later or use it for tone mapping and exposure
     //======================================
 
     /**

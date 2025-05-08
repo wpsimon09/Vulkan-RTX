@@ -107,6 +107,7 @@ vk:
     } while(!finished);
 
     blasScratchBuffer.Destroy();
+    blasBuilder.Destroy();
     scratchAdresses.clear();
 }
 void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructureInstanceKHR>& instances,
@@ -160,6 +161,7 @@ void VRayTracingBuilderKHR::Destroy()
     }
     m_tlas.Destroy(m_device);
     m_cmdPool->Destroy();
+    m_asBuildSemaphore.Destroy();
 }
 void VRayTracingBuilderKHR::Clear() {
     for(auto blas : m_blas)
