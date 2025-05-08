@@ -6,7 +6,7 @@ import Material;
 StructuredBuffer<ObjDescription> descriptions;
 
 [[vk::binding(5, 0)]]
-StructuredBuffer<Material, Std430DataLayout> materialValues;
+StructuredBuffer<Material> materialValues;
 
 public struct ObjDescription {
     public Vertex* vertexAddresses;

@@ -66,20 +66,31 @@ void SceneData::RemoveEntry(const ApplicationCore::SceneNode& node) {
     if (node.HasMesh()) {
         try {
             meshes.erase(meshes.begin() + node.m_meshIdx);
+
+            auto m = pbrMaterials[node.m_materialIdx];
+
+            if (m->features.hasDiffuseTexture) { textures.erase(textures.begin() + m->features.albedoTextureIdx); }
+            if (m->features.hasArmTexture) { textures.erase(textures.begin() + m->features.armTextureIdx); }
+            if (m->features.hasEmissiveTexture) { textures.erase(textures.begin() + m->features.emissiveTextureIdx); }
+            if (m->features.hasNormalTexture) { textures.erase(textures.begin() + m->features.normalTextureIdx); }
+
             pbrMaterials.erase(pbrMaterials.begin() + node.m_materialIdx);
+
 
         }catch (std::exception& e) {
             Utils::Logger::LogError("Failed to remove the node from the description, exceptions:" + *e.what());
         }
     }
+    nodes.erase(nodes.begin()  + node.m_nodeIndex);
+
 }
 
 void SceneData::IndexNode(std::shared_ptr<ApplicationCore::SceneNode>& node) {
     if (node->HasMesh()) {
         node->m_meshIdx = meshes.size();
         node->m_materialIdx = pbrMaterials.size();
-
     }
+    node->m_nodeIndex = nodes.size();
 }
 
 Scene::Scene(AssetsManager& assetsManager, Camera& camera)

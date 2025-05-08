@@ -319,7 +319,7 @@ void SceneView::RenderSceneDataView()
                 ImGui::Text("%i", i);
                 ImGui::SameLine();
                 //ImGui::Text(ICON_FA_CIRCLE_HALF_STROKE " %s", m->GetMaterialName().c_str());
-                std::string treeNodeLabel = ICON_FA_CIRCLE_HALF_STROKE  " Material " + i;
+                std::string treeNodeLabel = ICON_FA_CIRCLE_HALF_STROKE  " Material##"+ std::to_string(i);
                 if(ImGui::TreeNodeEx(treeNodeLabel.c_str()))
                 {
                     ImGui::Text("Diffuse index %i", m->features.albedoTextureIdx);

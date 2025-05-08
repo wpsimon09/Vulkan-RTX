@@ -133,7 +133,7 @@ void rayGenMain() {
     // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
     float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
 
-    _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAv erage : totalRadiance / globalData.raysPerPixel, 1.0) ;
+    _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0) ;
 }
 
 [[shader("miss")]]
