@@ -210,7 +210,7 @@ void SceneNode::Update(SceneUpdateFlags& sceneUpdateFlags)
     }
 
     if (sceneUpdateFlags.updateAs != true) {
-         if (m_transformation->HasChanged() && !IsLight())     { sceneUpdateFlags.updateAs = true; }
+         if (m_transformation->HasChanged() && !IsLight())     {sceneUpdateFlags.resetAccumulation = true;  sceneUpdateFlags.updateAs = true; }
     }
     if (sceneUpdateFlags.resetAccumulation != true) {
          // in case only light node has changed do not reset the As but only accumulation instead
