@@ -43,6 +43,7 @@ class RenderTarget
     vk::ImageView GetResolveImageView(int currentFrame) const;
 
     vk::RenderingAttachmentInfo& GetColourAttachmentOneSample(int currentFrame);
+
     /**
      * This is the attachment that will be used to render into, use to to specify the render target for the render pass !!!
      * @param currentFrame current index of the frame 0 / 1

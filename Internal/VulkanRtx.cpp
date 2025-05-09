@@ -111,9 +111,7 @@ void Application::Init()
 
     m_client->GetGLTFLoader().LoadGLTFScene(m_client->GetScene(),"cache/scene.gltf", importOptions);
 
-
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
-
 
     ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 
@@ -218,12 +216,12 @@ Application::~Application()
         }
     }
     m_vulkanDevice->GetDevice().waitIdle();
+    m_pushDescriptorSetManager->Destroy();
     m_renderingSystem->Destroy();
     m_effectsLibrary->Destroy();
     m_client->Destroy();
     m_uniformBufferManager->Destroy();
     VulkanCore::VSamplers::DestroyAllSamplers(*m_vulkanDevice);
-    m_pushDescriptorSetManager->Destroy();
     m_uiContext->Destroy();
     MathUtils::LUT.ClearLoopUpTables();
 

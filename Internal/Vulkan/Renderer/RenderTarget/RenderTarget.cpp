@@ -105,10 +105,10 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
      */
     VulkanCore::VTimelineSemaphore transitionTargetLayoutSempahore(m_device);
     VulkanCore::VCommandPool cmdPool(device, EQueueFamilyIndexType::Graphics);
-    VulkanCore::VCommandBuffer cmdBuffer(m_device, cmdPool);
+    //VulkanCore::VCommandBuffer cmdBuffer(m_device, cmdPool);
 
 
-    cmdBuffer.BeginRecording();
+    auto& cmdBuffer  = m_device.GetTransferOpsManager().GetCommandBuffer();;
 
 
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
@@ -127,10 +127,10 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
                                                     vk::ImageLayout::eUndefined,
                                                     cmdBuffer.GetCommandBuffer());
 
-    std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
-    cmdBuffer.EndAndFlush(m_device.GetGraphicsQueue(), transitionTargetLayoutSempahore.GetSemaphore(), transitionTargetLayoutSempahore.GetSemaphoreSubmitInfo(0, 2) , waitStages.data() );
+    //std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
+    //cmdBuffer.EndAndFlush(m_device.GetGraphicsQueue(), transitionTargetLayoutSempahore.GetSemaphore(), transitionTargetLayoutSempahore.GetSemaphoreSubmitInfo(0, 2) , waitStages.data() );
 
-    transitionTargetLayoutSempahore.CpuWaitIdle(2);
+    //transitionTargetLayoutSempahore.CpuWaitIdle(2);
 
     transitionTargetLayoutSempahore.Destroy();
     cmdPool.Destroy();
@@ -144,7 +144,7 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, const VulkanCore::
     , m_height(swapChain.GetExtent().height)
 {
     CreateRenderTargetForSwapChain(swapChain);
-    m_device.GetTransferOpsManager().UpdateGPUWaitCPU(true);
+    //m_device.GetTransferOpsManager().UpdateGPUWaitCPU(true);
 
     Utils::Logger::LogSuccess("Render target for swap chain created successfuly !");
 }

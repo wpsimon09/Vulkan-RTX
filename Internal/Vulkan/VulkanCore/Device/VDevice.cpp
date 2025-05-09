@@ -133,6 +133,7 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance)
     RetreiveDepthFormat();
 
     m_transferOpsManager = std::make_unique<VulkanUtils::VTransferOperationsManager>(*this);
+    m_transferOpsManager->StartRecording();
     m_meshDataManager    = std::make_unique<MeshDatatManager>(*this);
 }
 
