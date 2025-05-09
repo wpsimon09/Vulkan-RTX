@@ -81,6 +81,8 @@ void DestroyAllSamplers(const VulkanCore::VDevice& device)
     device.GetDevice().destroySampler(VulkanCore::VSamplers::Sampler5Mips);
     device.GetDevice().destroySampler(VulkanCore::VSamplers::Sampler10Mips);
     device.GetDevice().destroySampler(VulkanCore::VSamplers::Sampler20Mips);
+    device.GetDevice().destroySampler(VulkanCore::VSamplers::SamplerClampToEdge);
+
     device.GetDevice().destroySampler(VulkanCore::VSamplers::SamplerCube);
     Utils::Logger::LogSuccess("Sampler destroyed successfully");
 }
