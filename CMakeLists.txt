@@ -222,6 +222,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/RayTracing/VShaderBindingTable/VShaderBindingTable.hpp
         Internal/Vulkan/VulkanCore/Buffer/VShaderStorageBuffer.cpp
         Internal/Vulkan/VulkanCore/Buffer/VShaderStorageBuffer.hpp
+        Internal/Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.cpp
+        Internal/Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp
 )
 
 
