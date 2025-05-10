@@ -77,6 +77,11 @@ struct RayTracingDescriptorSet {
 
 };
 
+struct GlobalTextureBuffer {
+    std::vector<vk::DescriptorImageInfo> sceneTextures;
+    vk::DescriptorBufferInfo allMaterials;
+};
+
 struct PostProcessingDescriptorSet {
     vk::DescriptorBufferInfo buffer1;
 

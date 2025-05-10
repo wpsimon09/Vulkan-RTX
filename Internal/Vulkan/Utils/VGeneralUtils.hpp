@@ -13,8 +13,12 @@
 #include "fastgltf/base64.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
+namespace VulkanCore {
+class VDescriptorAllocator;
+}
 namespace ApplicationCore {
 struct Vertex;
 }
@@ -100,6 +104,9 @@ std::vector<char> ReadSPIRVShader(std::filesystem::path shaderPath);
 vk::ShaderModule CreateShaderModule(const VulkanCore::VDevice& device, const std::vector<char>& data);
 
 void Check(vk::Result result, vk::Result expectedResult = vk::Result::eSuccess);
+
+vk::DescriptorPool CreatePool(const VulkanCore::VDevice& devic, const VulkanCore::VDescriptorAllocator::PoolSizes& poolSizes, int count, vk::DescriptorPoolCreateFlags flags);
+
 }  // namespace VulkanUtils
 
 #endif  //VGENERALUTILS_HPP
