@@ -24,8 +24,10 @@ void VDescriptorAllocator::Destroy()
         m_device.GetDevice().destroyDescriptorPool(p);
     }
 }
-void VDescriptorAllocator::ResetPools() {
-    for(auto& p : m_usedPools) {
+void VDescriptorAllocator::ResetPools()
+{
+    for(auto& p : m_usedPools)
+    {
         m_device.GetDevice().resetDescriptorPool(p);
     }
 }
@@ -65,18 +67,123 @@ bool VDescriptorAllocator::Allocate(vk::DescriptorSet* set, vk::DescriptorSetLay
         case vk::Result::eSuccess: {
             return true;
         };
-        case vk::Result::eErrorFragmentedPool: {};
-        case vk::Result::eErrorOutOfPoolMemory: { needsToReAllocate = true; break;} // create new pool and allocate descriptor set from there
-        default: return false; // unknown error
+        case vk::Result::eErrorFragmentedPool: {
+        };
+        case vk::Result::eErrorOutOfPoolMemory: {
+            needsToReAllocate = true;
+            break;
+        }  // create new pool and allocate descriptor set from there
+        default:
+            return false;  // unknown error
     }
 
-    if (needsToReAllocate) {
-        m_currentPool = GrabPool(); // creates new pool
+    if(needsToReAllocate)
+    {
+        m_currentPool = GrabPool();  // creates new pool
         m_usedPools.push_back(m_currentPool);
 
         VulkanUtils::Check(m_device.GetDevice().allocateDescriptorSets(&allocInfo, set));
         return true;
-    }return false;
+    }
+    return false;
 }
 
-} // VulkanCore
+//======================================================================================================
+// DESCRIPTOR LAYOUT CHACHE ALLOCATION
+//======================================================================================================
+
+vk::DescriptorSetLayout VDescriptorLayoutCache::CreateDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo* info)
+{
+    DescriptorSetLayoutInfo layoutInfo;
+    layoutInfo.bindings.reserve(info->bindingCount);
+
+    bool isSorted    = true;
+    int  lastBinding = -1;
+
+
+    // copy bindings from the bindings to classes member variable
+    for(int i = 0; i < info->bindingCount; i++)
+    {
+        layoutInfo.bindings.push_back(info->pBindings[i]);
+        if(info->pBindings[i].binding > lastBinding)
+        {
+            lastBinding = info->pBindings[i].binding;
+        }
+        else
+        {
+            isSorted = false;
+        }
+    }
+
+    // sort the bindings so that they go from 0 to 1
+    if(!isSorted)
+    {
+        std::sort(layoutInfo.bindings.begin(), layoutInfo.bindings.end(),
+                  [](vk::DescriptorSetLayoutBinding& a, vk::DescriptorSetLayoutBinding& b) {
+                      return a.binding < b.binding;
+                  });
+    }
+
+    auto it = m_layoutCache.find(layoutInfo);
+    if(it != m_layoutCache.end())
+    {
+        // the layout was found so we dont have to recreate it !
+        return (*it).second;
+    }
+    else
+    {
+        vk::DescriptorSetLayout layout;
+        VulkanUtils::Check(m_device.GetDevice().createDescriptorSetLayout(info, nullptr, &layout));
+
+        m_layoutCache[layoutInfo] = layout;
+        return layout;
+    }
+}
+
+bool VDescriptorLayoutCache::DescriptorSetLayoutInfo::operator==(const DescriptorSetLayoutInfo& other) const
+{
+    if(other.bindings.size() != bindings.size())
+    {
+        return false;
+    }
+    else
+    {
+        for(int i = 0; i < bindings.size(); i++)
+        {
+            if(other.bindings[i].binding != bindings[i].binding)
+            {
+                return false;
+            }
+            if(other.bindings[i].descriptorType != bindings[i].descriptorType)
+            {
+                return false;
+            }
+            if(other.bindings[i].descriptorCount != bindings[i].descriptorCount)
+            {
+                return false;
+            }
+            if(other.bindings[i].stageFlags != bindings[i].stageFlags)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+size_t VDescriptorLayoutCache::DescriptorSetLayoutInfo::hash() const {
+    using std::size_t;
+    using std::hash;
+
+    size_t result = hash<size_t>()(bindings.size());
+
+    for (const vk::DescriptorSetLayoutBinding& b : bindings) {
+        size_t binding_hash = b.binding | static_cast<uint>(b.descriptorType) << 8 | b.descriptorCount << 16 | static_cast<uint>(b.stageFlags) << 24;
+
+        result ^= hash<size_t>()(binding_hash);
+    }
+
+    return result;
+}
+
+
+}  // namespace VulkanCore

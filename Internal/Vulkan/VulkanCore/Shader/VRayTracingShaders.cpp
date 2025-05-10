@@ -12,11 +12,11 @@ VRayTracingShaders::VRayTracingShaders(const VulkanCore::VDevice& device, const 
 {
     CreateShaderModules(shaders);
 }
-const vk::ShaderModule& VRayTracingShaders::GetShaderModule(VulkanCore::RTX::ERayTracingStageIndices shaderType) const
+ vk::ShaderModule VRayTracingShaders::GetShaderModule(VulkanCore::RTX::ERayTracingStageIndices shaderType)
 {
     if(m_shaderModules.contains(shaderType))
     {
-        return m_shaderModules.at(shaderType);
+        return m_shaderModules[shaderType];
     }
     throw std::runtime_error("Shader type not found, make sure you are creating the correct shaders ! ");
 }

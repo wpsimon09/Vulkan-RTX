@@ -12,7 +12,7 @@
 namespace VulkanCore {
 namespace RTX {
 VRayTracingPipeline::VRayTracingPipeline(const VulkanCore::VDevice&              device,
-                                         const VulkanCore::VRayTracingShaders&   rayTracingShaders,
+VulkanCore::VRayTracingShaders&   rayTracingShaders,
                                          const VulkanCore::VDescriptorSetLayout& descSetLayout)
     : m_device(device)
     , m_rayTracingShaders(rayTracingShaders)

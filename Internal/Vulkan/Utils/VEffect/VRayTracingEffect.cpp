@@ -31,7 +31,7 @@ void VRayTracingEffect::BuildEffect()
 
     m_rtPipeline->CreateShaderBindingTable();
 
-    m_shaders.DestroyShaderModules();
+   // m_shaders.DestroyShaderModules();
 }
 
 vk::PipelineLayout VRayTracingEffect::GetPipelineLayout()

@@ -8,13 +8,14 @@
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include "vulkan/vulkan.hpp"
 
+#include <unordered_map>
 #include <vector>
 // thin abstraction over descriptor sets based on  https://github.com/vblanco20-1/Vulkan-Descriptor-Allocator
 
 namespace VulkanCore {
 class VDevice;
 
-class VDescriptorAllocator: public VulkanCore::VObject
+class VDescriptorAllocator : public VulkanCore::VObject
 {
   public:
     VDescriptorAllocator(const VDevice& device);
@@ -37,20 +38,46 @@ class VDescriptorAllocator: public VulkanCore::VObject
 
     void ResetPools();
     bool Allocate(vk::DescriptorSet* set, vk::DescriptorSetLayout dLayout);
-private:
-    vk::DescriptorPool GrabPool();
+
   private:
-    vk::DescriptorPool m_currentPool;
+    vk::DescriptorPool GrabPool();
+
+  private:
+    vk::DescriptorPool         m_currentPool;
     const VulkanCore::VDevice& m_device;
 
-    PoolSizes m_descriptorSizes;
+    PoolSizes                       m_descriptorSizes;
     std::vector<vk::DescriptorPool> m_freePools;
     std::vector<vk::DescriptorPool> m_usedPools;
-
 };
 
-class vDescriptorLayoutCache
+class VDescriptorLayoutCache : public VObject
 {
+  public:
+    VDescriptorLayoutCache(const VDevice& device);
+
+    void Destroy() override;
+
+    vk::DescriptorSetLayout CreateDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo* info);
+
+    struct DescriptorSetLayoutInfo
+    {
+        std::vector<vk::DescriptorSetLayoutBinding> bindings;
+        bool                                        operator==(const DescriptorSetLayoutInfo& other) const;
+
+        size_t hash() const;
+    };
+
+  private :
+
+    struct DescriptorLayoutHash
+    {
+        std::size_t operator()(const DescriptorSetLayoutInfo& k) const { return k.hash(); }
+    };
+
+    std::unordered_map<DescriptorSetLayoutInfo, vk::DescriptorSetLayout, DescriptorLayoutHash> m_layoutCache;
+
+    const VDevice& m_device;
 };
 
 
