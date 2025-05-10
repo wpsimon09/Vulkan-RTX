@@ -697,7 +697,7 @@ vk::DescriptorPool VulkanUtils::CreatePool(const VulkanCore::VDevice&           
     poolCI.poolSizeCount = uint32_t(sizes.size());
     poolCI.pPoolSizes = sizes.data();
 
-    vk::DescriptorPool descriptorPool = devic.GetDevice().createDescriptorPool(poolCI, nullptr, &descriptorPool);
+    vk::DescriptorPool descriptorPool = devic.GetDevice().createDescriptorPool(poolCI, nullptr);
 
     return descriptorPool;
 }

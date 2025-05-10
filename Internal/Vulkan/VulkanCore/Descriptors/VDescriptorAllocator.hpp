@@ -36,14 +36,14 @@ class VDescriptorAllocator: public VulkanCore::VObject
     void Destroy() override;
 
     void ResetPools();
-    void ResetBool();
     bool Allocate(vk::DescriptorSet* set, vk::DescriptorSetLayout dLayout);
 private:
-    vk::DescriptorPool GrapPool();
+    vk::DescriptorPool GrabPool();
   private:
     vk::DescriptorPool m_currentPool;
     const VulkanCore::VDevice& m_device;
 
+    PoolSizes m_descriptorSizes;
     std::vector<vk::DescriptorPool> m_freePools;
     std::vector<vk::DescriptorPool> m_usedPools;
 
