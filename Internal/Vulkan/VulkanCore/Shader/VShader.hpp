@@ -10,12 +10,27 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
-
+#include "SPIRV-Reflect/spirv_reflect.h"
 
 namespace VulkanCore {
 
+struct ReflecSetLayoutData {
+  uint32_t setNumber;
+  vk::DescriptorSetLayoutCreateInfo createInfo;
+  std::vector<vk::DescriptorSetLayoutBinding> bindings;
+};
+
+struct ReflectionData {
+  SpvReflectShaderModule m_moduleReflection;
+  std::vector<ReflecSetLayoutData> setLayouts;
+
+  void Init(const void* byteCode, size_t size);
+  void Destroy();
+};
+
 class VShader : public VObject
 {
+
   public:
     VShader(const VulkanCore::VDevice& device,
             const std::string&         vertexSource,
@@ -29,6 +44,10 @@ class VShader : public VObject
 
   private:
     const VulkanCore::VDevice& m_device;
+
+    ReflectionData m_fragmentReflection;
+    ReflectionData m_vertexReflection;
+    std::optional<ReflectionData> m_computeReflection;
 
     vk::ShaderModule                m_fragmentShaderModule;
     vk::ShaderModule                m_vertexShaderModule;

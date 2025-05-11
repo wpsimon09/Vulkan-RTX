@@ -224,6 +224,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Buffer/VShaderStorageBuffer.hpp
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.cpp
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp
+        External/SPIRV-Reflect/spirv_reflect.h
+        External/SPIRV-Reflect/spirv_reflect.cpp
 )
 
 
