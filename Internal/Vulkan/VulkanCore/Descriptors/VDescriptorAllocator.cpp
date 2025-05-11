@@ -89,7 +89,9 @@ bool VDescriptorAllocator::Allocate(vk::DescriptorSet* set, vk::DescriptorSetLay
 }
 
 //======================================================================================================
-// DESCRIPTOR LAYOUT CHACHE ALLOCATION
+//======================================================================================================
+// DESCRIPTOR LAYOUT CACHE ALLOCATION
+//======================================================================================================
 //======================================================================================================
 
 vk::DescriptorSetLayout VDescriptorLayoutCache::CreateDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo* info)
@@ -170,19 +172,37 @@ bool VDescriptorLayoutCache::DescriptorSetLayoutInfo::operator==(const Descripto
         return true;
     }
 }
-size_t VDescriptorLayoutCache::DescriptorSetLayoutInfo::hash() const {
-    using std::size_t;
+size_t VDescriptorLayoutCache::DescriptorSetLayoutInfo::hash() const
+{
     using std::hash;
+    using std::size_t;
 
     size_t result = hash<size_t>()(bindings.size());
 
-    for (const vk::DescriptorSetLayoutBinding& b : bindings) {
-        size_t binding_hash = b.binding | static_cast<uint>(b.descriptorType) << 8 | b.descriptorCount << 16 | static_cast<uint>(b.stageFlags) << 24;
+    for(const vk::DescriptorSetLayoutBinding& b : bindings)
+    {
+        size_t binding_hash = b.binding | static_cast<uint>(b.descriptorType) << 8 | b.descriptorCount << 16
+                              | static_cast<uint>(b.stageFlags) << 24;
 
         result ^= hash<size_t>()(binding_hash);
     }
 
     return result;
+}
+
+
+//======================================================================================================
+//======================================================================================================
+// DESCRIPTOR LAYOUT CACHE ALLOCATION
+//======================================================================================================
+//======================================================================================================
+
+VDescriptorBuilder VDescriptorBuilder::Begin(VDescriptorLayoutCache* layoutCache, VDescriptorAllocator* allocator) {
+    VDescriptorBuilder builder;
+
+    builder.m_descLayoutCache = layoutCache;
+    builder.m_descAllocator = allocator;
+    return builder;
 }
 
 

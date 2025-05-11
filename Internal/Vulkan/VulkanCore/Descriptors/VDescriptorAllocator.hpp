@@ -15,6 +15,9 @@
 namespace VulkanCore {
 class VDevice;
 
+/**
+ * Class used to allocate descriptors from the provided layout, under the hood it also manages descriptor pool craetion and management.
+ */
 class VDescriptorAllocator : public VulkanCore::VObject
 {
   public:
@@ -32,7 +35,8 @@ class VDescriptorAllocator : public VulkanCore::VObject
                                                                    {vk::DescriptorType::eStorageBuffer, 2.f},
                                                                    {vk::DescriptorType::eUniformBufferDynamic, 1.f},
                                                                    {vk::DescriptorType::eStorageBufferDynamic, 1.f},
-                                                                   {vk::DescriptorType::eInputAttachment, 0.5f}};
+                                                                   {vk::DescriptorType::eInputAttachment, 0.5f},
+                                                                   {vk::DescriptorType::eAccelerationStructureKHR, 0.001}};
     };
     void Destroy() override;
 
@@ -51,6 +55,10 @@ class VDescriptorAllocator : public VulkanCore::VObject
     std::vector<vk::DescriptorPool> m_usedPools;
 };
 
+/**
+ * Class that handles descriptor layout caching, in case exact same layout is about to be created, this class will look for allready existing layout
+ * and return it instead of crating a new desriptor set layout.
+ */
 class VDescriptorLayoutCache : public VObject
 {
   public:
@@ -68,8 +76,7 @@ class VDescriptorLayoutCache : public VObject
         size_t hash() const;
     };
 
-  private :
-
+  private:
     struct DescriptorLayoutHash
     {
         std::size_t operator()(const DescriptorSetLayoutInfo& k) const { return k.hash(); }
@@ -78,6 +85,32 @@ class VDescriptorLayoutCache : public VObject
     std::unordered_map<DescriptorSetLayoutInfo, vk::DescriptorSetLayout, DescriptorLayoutHash> m_layoutCache;
 
     const VDevice& m_device;
+};
+
+/**
+ * This class will build the descriptor set layouts and and allocate them from the pool(s)
+ */
+class VDescriptorBuilder
+{
+  public:
+    static VDescriptorBuilder Begin(VDescriptorLayoutCache* layoutCache, VDescriptorAllocator* allocator);
+
+    VDescriptorBuilder& BindBuffer(uint32_t bindig, vk::DescriptorBufferInfo* bufferInfo, vk::DescriptorType type, vk::ShaderStageFlags stages);
+    VDescriptorBuilder& BindImage(uint32_t bindig, vk::DescriptorImageInfo* imageInfo, vk::DescriptorType type, vk::ShaderStageFlags stages);
+    VDescriptorBuilder& BindAS(uint32_t bindig, vk::AccelerationStructureKHR* as, vk::DescriptorType type, vk::ShaderStageFlags stages);
+
+    bool Build(vk::DescriptorSet& set, vk::DescriptorSetLayout& layout);
+    bool Build(vk::DescriptorSet& set);
+
+  private:
+    std::vector<vk::WriteDescriptorSet>         m_descriptorWrites;
+    std::vector<vk::DescriptorSetLayoutBinding> m_layoutBindings;
+
+    VDescriptorLayoutCache* m_descLayoutCache = nullptr;
+    VDescriptorAllocator*   m_descAllocator = nullptr;
+
+
+  private:
 };
 
 
