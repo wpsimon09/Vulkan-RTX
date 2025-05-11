@@ -7,10 +7,14 @@
 #include "Vulkan/Utils/VResrouceGroup/VResrouceGroup.hpp"
 
 namespace VulkanUtils {
-VEffect::VEffect(const VulkanCore::VDevice& device, const std::string& name, std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
+VEffect::VEffect(const VulkanCore::VDevice&                          device,
+                 const std::string&                                  name,
+                 const VulkanCore::VDescriptorLayoutCache&           descriptoSetLayoutCache,
+                 std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
     : m_device(device)
     , m_name(name)
     , m_resourceGroup(descriptorSet)
+    , m_descriptorSetLayoutCache(descriptoSetLayoutCache)
 {
     m_ID = EffectIndexCounter++;
 }
@@ -22,8 +26,20 @@ DescriptorSetTemplateVariant& VEffect::GetResrouceGroupStructVariant()
 {
     return m_resourceGroup->GetResourceGroupStruct();
 }
-vk::DescriptorUpdateTemplate& VEffect::GetUpdateTemplate() { return m_resourceGroup->GetUpdateTemplate(); }
-unsigned short                VEffect::EvaluateRenderingOrder() { return 0; }
-int&                          VEffect::GetID() {return m_ID;}
-EDescriptorLayoutStruct       VEffect::GetLayoutStructType() { return m_resourceGroup->GetResourceGroupStrucutureType(); }
+vk::DescriptorUpdateTemplate& VEffect::GetUpdateTemplate()
+{
+    return m_resourceGroup->GetUpdateTemplate();
+}
+unsigned short VEffect::EvaluateRenderingOrder()
+{
+    return 0;
+}
+int& VEffect::GetID()
+{
+    return m_ID;
+}
+EDescriptorLayoutStruct VEffect::GetLayoutStructType()
+{
+    return m_resourceGroup->GetResourceGroupStrucutureType();
+}
 }  // namespace VulkanUtils

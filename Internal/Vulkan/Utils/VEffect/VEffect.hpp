@@ -6,6 +6,9 @@
 #define VEFFECT_HPP
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
+namespace VulkanCore {
+class VDescriptorLayoutCache;
+}
 inline int EffectIndexCounter = 0;
 
 namespace VulkanUtils {
@@ -17,6 +20,7 @@ class VEffect
   public:
     explicit VEffect(const VulkanCore::VDevice&                          device,
                      const std::string&                                  name,
+                     const VulkanCore::VDescriptorLayoutCache&           descriptoSetLayoutCache,
                      std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet);
 
   public:
@@ -25,7 +29,7 @@ class VEffect
     virtual void                  BuildEffect()                                    = 0;
     virtual vk::PipelineLayout    GetPipelineLayout()                              = 0;
     virtual void                  BindPipeline(const vk::CommandBuffer& cmdBuffer) = 0;
-    virtual void                  Destroy()= 0;
+    virtual void                  Destroy()                                        = 0;
     vk::DescriptorUpdateTemplate& GetUpdateTemplate();
     unsigned short                EvaluateRenderingOrder();
     int&                          GetID();
@@ -37,6 +41,7 @@ class VEffect
     std::string                                        m_name;
     std::shared_ptr<VulkanUtils::VShaderResrouceGroup> m_resourceGroup;
     int                                                m_ID;
+    const VulkanCore::VDescriptorLayoutCache&          m_descriptorSetLayoutCache;
 };
 
 }  // namespace VulkanUtils

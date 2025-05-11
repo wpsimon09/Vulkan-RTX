@@ -21,6 +21,12 @@ VRayTracingShaders::VRayTracingShaders(const VulkanCore::VDevice& device, const 
     }
     throw std::runtime_error("Shader type not found, make sure you are creating the correct shaders ! ");
 }
+const ReflectionData& VRayTracingShaders::GetReflectionData(VulkanCore::RTX::ERayTracingStageIndices shaderType) {
+    if (m_reflectionModeules.contains(shaderType)) {
+        return m_reflectionModeules[shaderType];
+    }
+    throw std::runtime_error("Shader type not found, , make sure you are creating the correct shaders !  ");
+}
 
 void VRayTracingShaders::DestroyShaderModules()
 {
