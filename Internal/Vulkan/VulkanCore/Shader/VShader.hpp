@@ -18,11 +18,12 @@ struct ReflecSetLayoutData {
   uint32_t setNumber;
   vk::DescriptorSetLayoutCreateInfo createInfo;
   std::vector<vk::DescriptorSetLayoutBinding> bindings;
+  std::vector<std::pair<std::string, vk::DescriptorType>> variableNames;
 };
 
 struct ReflectionData {
-  SpvReflectShaderModule m_moduleReflection;
-  std::vector<ReflecSetLayoutData> setLayouts;
+  SpvReflectShaderModule moduleReflection;
+  std::vector<ReflecSetLayoutData> descriptorSets;
 
   void Init(const void* byteCode, size_t size);
   void Destroy();

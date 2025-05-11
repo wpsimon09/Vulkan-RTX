@@ -4,6 +4,7 @@
 
 #ifndef VSHADERBINDINGTABLE_HPP
 #define VSHADERBINDINGTABLE_HPP
+#include "VShader.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
 
 
@@ -26,6 +27,7 @@ class VRayTracingShaders
   private:
     const VulkanCore::VDevice& m_device;
     std::unordered_map<RTX::ERayTracingStageIndices, VkShaderModule> m_shaderModules;
+    std::unordered_map<RTX::ERayTracingStageIndices, ReflectionData> m_reflectionModeules;
 
 
 };

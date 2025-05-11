@@ -4,6 +4,7 @@
 
 #include "VRayTracingShaders.hpp"
 
+#include "VShader.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 
 namespace VulkanCore {
@@ -43,6 +44,13 @@ void VRayTracingShaders::CreateShaderModules(const RTX::RTXShaderPaths& shaders)
     m_shaderModules[RTX::ERayTracingStageIndices::Miss]   = VulkanUtils::CreateShaderModule(m_device, rayMissSPIRV);
     m_shaderModules[RTX::ERayTracingStageIndices::MissShadow] = VulkanUtils::CreateShaderModule(m_device, rayMissShadowSPIRV);
     m_shaderModules[RTX::ERayTracingStageIndices::ClosestHit] = VulkanUtils::CreateShaderModule(m_device, rayHitSPIRV);
+
+    m_reflectionModeules[RTX::ERayTracingStageIndices::RayGen].Init(rayGenSPIRV.data(), rayGenSPIRV.size()*sizeof(char));
+    m_reflectionModeules[RTX::ERayTracingStageIndices::Miss].Init(rayMissSPIRV.data(), rayMissSPIRV.size()*sizeof(char));
+    m_reflectionModeules[RTX::ERayTracingStageIndices::MissShadow].Init(rayMissShadowSPIRV.data(), rayMissShadowSPIRV.size()*sizeof(char));
+    m_reflectionModeules[RTX::ERayTracingStageIndices::ClosestHit].Init(rayHitSPIRV.data(), rayHitSPIRV.size()*sizeof(char));
+
+
 
     Utils::Logger::LogInfoVerboseOnly("Created Ray tracing shader module");
 

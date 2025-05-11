@@ -9,23 +9,22 @@
 
 namespace VulkanUtils {
 VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                          device,
-                 const std::string&                                  name,
-                 const VulkanCore::VShader&                          shader,
-                 std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& shaderResourceGroup)
+                             const std::string&                                  name,
+                             const VulkanCore::VShader&                          shader,
+                             std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& shaderResourceGroup)
     : VEffect(device, name, shaderResourceGroup)
 {
     m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_resourceGroup->GetDescriptorSetLayout());
     m_pipeline->Init();
 
     m_resourceGroup->CreateDstUpdateInfo(m_pipeline->GetPipelineLayout());
-
 }
 
 VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                          device,
-                 const std::string&                                  name,
-                 const std::string&                                  vertex,
-                 const std::string&                                  fragment,
-                 std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
+                             const std::string&                                  name,
+                             const std::string&                                  vertex,
+                             const std::string&                                  fragment,
+                             std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
     : VEffect(device, name, descriptorSet)
     , m_shader(std::in_place, device, vertex, fragment)
 {
@@ -34,7 +33,6 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
     m_pipeline->Init();
 
     m_resourceGroup->CreateDstUpdateInfo(m_pipeline->GetPipelineLayout());
-
 }
 
 VRasterEffect& VRasterEffect::SetDisableDepthTest()

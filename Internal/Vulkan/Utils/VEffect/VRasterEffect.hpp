@@ -12,6 +12,9 @@
 #include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 
+namespace VulkanCore {
+class VDescriptorLayoutCache;
+}
 namespace VulkanCore::RTX {
 struct RTXShaderPaths;
 }
@@ -41,13 +44,9 @@ class VRasterEffect:public VEffect
             const std::string&                                  fragment,
             std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet);
 
-    VRasterEffect(const VulkanCore::VDevice&                          device,
-            const VulkanCore::RTX::RTXShaderPaths&              rtShaderPaths,
-            std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& resourceGroup);
-
-        //=======================================
-        // Effect building
-        //=======================================
+    //=======================================
+    // Effect building
+    //=======================================
     VRasterEffect& SetDisableDepthTest();
     VRasterEffect& SetLineWidth(int lineWidth);
     VRasterEffect& SetCullFrontFace();
