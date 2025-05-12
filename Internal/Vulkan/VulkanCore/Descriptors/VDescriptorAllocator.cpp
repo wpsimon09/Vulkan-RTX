@@ -94,7 +94,12 @@ bool VDescriptorAllocator::Allocate(vk::DescriptorSet* set, vk::DescriptorSetLay
 //======================================================================================================
 //======================================================================================================
 
-VDescriptorLayoutCache::VDescriptorLayoutCache(const VDevice& device):m_device(device) {
+VDescriptorLayoutCache::VDescriptorLayoutCache(const VDevice& device)
+    : m_device(device), VObject()
+{
+}
+void VDescriptorLayoutCache::Destroy()
+{
 
 }
 
