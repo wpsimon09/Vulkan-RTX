@@ -7,6 +7,9 @@
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {
+struct ReflectionData;
+}
+namespace VulkanCore {
 class VDescriptorLayoutCache;
 }
 inline int EffectIndexCounter = 0;
@@ -20,7 +23,7 @@ class VEffect
   public:
     explicit VEffect(const VulkanCore::VDevice&                          device,
                      const std::string&                                  name,
-                     const VulkanCore::VDescriptorLayoutCache&           descriptoSetLayoutCache,
+                     VulkanCore::VDescriptorLayoutCache&           descriptoSetLayoutCache,
                      std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet);
 
   public:
@@ -34,6 +37,7 @@ class VEffect
     unsigned short                EvaluateRenderingOrder();
     int&                          GetID();
     EDescriptorLayoutStruct       GetLayoutStructType();
+    void                          CreateLayouts(const VulkanCore::ReflectionData& reflectionData);
 
 
   protected:
@@ -41,7 +45,7 @@ class VEffect
     std::string                                        m_name;
     std::shared_ptr<VulkanUtils::VShaderResrouceGroup> m_resourceGroup;
     int                                                m_ID;
-    const VulkanCore::VDescriptorLayoutCache&          m_descriptorSetLayoutCache;
+  VulkanCore::VDescriptorLayoutCache&          m_descriptorSetLayoutCache;
 };
 
 }  // namespace VulkanUtils

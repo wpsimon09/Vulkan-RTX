@@ -5,11 +5,12 @@
 #include "VEffect.hpp"
 
 #include "Vulkan/Utils/VResrouceGroup/VResrouceGroup.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
 
 namespace VulkanUtils {
 VEffect::VEffect(const VulkanCore::VDevice&                          device,
                  const std::string&                                  name,
-                 const VulkanCore::VDescriptorLayoutCache&           descriptoSetLayoutCache,
+                 VulkanCore::VDescriptorLayoutCache&           descriptoSetLayoutCache,
                  std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
     : m_device(device)
     , m_name(name)
@@ -42,4 +43,8 @@ EDescriptorLayoutStruct VEffect::GetLayoutStructType()
 {
     return m_resourceGroup->GetResourceGroupStrucutureType();
 }
+void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData) {
+
+}
+
 }  // namespace VulkanUtils

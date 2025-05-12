@@ -14,7 +14,8 @@ namespace VulkanCore {
 //=============================================
 // REFLECTION DATA
 //=============================================
-void ReflectionData::Init(const void* byteCode, size_t size)
+void ReflectionData::Init(const void* byteCode, size_t size) {}
+void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage)
 {
     auto result = spvReflectCreateShaderModule(size, byteCode, &moduleReflection);
     assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to reflect shader bytecode ensure size and code is correct ");
@@ -29,14 +30,17 @@ void ReflectionData::Init(const void* byteCode, size_t size)
     result = spvReflectEnumerateDescriptorSets(&moduleReflection, &count, sets.data());
     assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to retrieve binding handles ");
 
-    descriptorSets.resize(sets.size());
+
     // go through each descriptor set
     for(size_t i_set = 0; i_set < sets.size(); i_set++)
     {
+
+        ReflecSetLayoutData newBindings;
+        newBindings.bindings.resize(sets.size());
         // go through each binding in set the set
         const SpvReflectDescriptorSet& reflSet = *(sets[i_set]);
-        descriptorSets[i_set].bindings.resize(reflSet.binding_count);
-        descriptorSets[i_set].variableNames.resize(reflSet.binding_count);
+        newBindings.bindings.resize(reflSet.binding_count);
+        newBindings.variableNames.resize(reflSet.binding_count);
 
         for(uint32_t i_binding = 0; i_binding < reflSet.binding_count; i_binding++)
         {
@@ -50,23 +54,35 @@ void ReflectionData::Init(const void* byteCode, size_t size)
                 binding.descriptorCount *= reflBinding.array.dims[i_dim];
             }
 
+            // TODO: add correct stage to the binding instead of used eAll
             binding.stageFlags = vk::ShaderStageFlagBits::eAll;
 
 
-            descriptorSets[i_set].bindings[i_binding]      = binding;
-            descriptorSets[i_set].variableNames[i_binding] = {reflBinding.name, binding.descriptorType};
+            newBindings.bindings[i_binding]      = binding;
+            newBindings.variableNames[i_binding] = {reflBinding.name, binding.descriptorType};
         }
 
+        // set the descriptor set layout
         descriptorSets[i_set].setNumber = i_set;
+
+        // take the current bindings from the descriptor set
+        auto& currentBindings = descriptorSets[i_set];
+
+        // insert currently cerated bindings to the newly ones
+        currentBindings.bindings.insert(currentBindings.bindings.end(), newBindings.bindings.begin(), newBindings.bindings.end());
+        currentBindings.variableNames.insert(currentBindings.variableNames.end(), newBindings.variableNames.begin(), newBindings.variableNames.end());
         // TODO: allow update after bind bit here later
-        descriptorSets[i_set].createInfo.bindingCount = descriptorSets[i_set].bindings.size();
+        currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
+
+
+        descriptorSets[i_set].createInfo.pBindings = currentBindings.bindings.data();
         ;
-        descriptorSets[i_set].createInfo.pBindings = descriptorSets[i_set].bindings.data();
-        ;
-        descriptorSets[i_set].createInfo.pBindings = descriptorSets[i_set].bindings.data();
+        descriptorSets[i_set].createInfo.pBindings = currentBindings.bindings.data();
         ;
     }
 }
+
+
 void ReflectionData::Destroy()
 {
     spvReflectDestroyShaderModule(&moduleReflection);
@@ -122,26 +138,9 @@ const vk::ShaderModule& VShader::GetShaderModule(GlobalVariables::SHADER_TYPE sh
     }
 }
 
-const ReflectionData& VShader::GetReflectionData(GlobalVariables::SHADER_TYPE shaderType) const
+const ReflectionData& VShader::GetReflectionData() const
 {
-    switch(shaderType)
-    {
-        case GlobalVariables::SHADER_TYPE::VERTEX: {
-            return m_vertexReflection;
-        }
-        case GlobalVariables::SHADER_TYPE::FRAGMENT: {
-            return m_fragmentReflection;
-        }
-        case GlobalVariables::SHADER_TYPE::COMPUTE: {
-            assert(m_computeShaderModule.has_value());
-            return m_computeReflection.value();
-            break;
-        }
-        default: {
-            throw std::runtime_error("Unknown shader type");
-            break;
-        }
-    }
+    return m_shaderReeflection;
 }
 
 void VShader::CreateShaderModules()
@@ -157,8 +156,8 @@ void VShader::CreateShaderModules()
 
     //SpvReflectResult result = spvReflectCreateShaderModule(vertexSPRIV.size() * sizeof(char),vertexSPRIV.data(), &m_vertexReflection) ;
 
-    m_vertexReflection.Init(vertexSPRIV.data(), sizeof(char) * vertexSPRIV.size());
-    m_fragmentReflection.Init(fragmentSPRIV.data(), sizeof(char) * fragmentSPRIV.size());
+    m_shaderReeflection.AddShader(vertexSPRIV.data(), sizeof(char) * vertexSPRIV.size(), vk::ShaderStageFlagBits::eVertex);
+    m_shaderReeflection.AddShader(fragmentSPRIV.data(), sizeof(char) * fragmentSPRIV.size(), vk::ShaderStageFlagBits::eFragment);
 
     // assert(result == SPV_REFLECT_RESULT_SUCCESS);
 

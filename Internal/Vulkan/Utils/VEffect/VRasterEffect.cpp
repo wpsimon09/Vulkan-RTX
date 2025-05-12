@@ -15,6 +15,8 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
                              std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& shaderResourceGroup)
     : VEffect(device, name, descLayoutCache, shaderResourceGroup)
 {
+    CreateLayouts(shader.GetReflectionData());
+
     m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_resourceGroup->GetDescriptorSetLayout());
     m_pipeline->Init();
 
