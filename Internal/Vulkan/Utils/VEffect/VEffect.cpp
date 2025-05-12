@@ -4,8 +4,10 @@
 
 #include "VEffect.hpp"
 
+#include "Application/Logger/Logger.hpp"
 #include "Vulkan/Utils/VResrouceGroup/VResrouceGroup.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
+#include "Vulkan/VulkanCore/Shader/VShader.hpp"
 
 namespace VulkanUtils {
 VEffect::VEffect(const VulkanCore::VDevice&                          device,
@@ -44,6 +46,15 @@ EDescriptorLayoutStruct VEffect::GetLayoutStructType()
     return m_resourceGroup->GetResourceGroupStrucutureType();
 }
 void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData) {
+    m_reflectionData = &reflectionData;
+
+    m_descriptorSets.reserve(reflectionData.descriptorSets.size())
+    ;
+    for (auto& set: reflectionData.descriptorSets) {
+        m_descriptorSets.push_back(m_descriptorSetLayoutCache.CreateDescriptorSetLayout(&set.second.createInfo));
+    }
+
+    Utils::Logger::LogSuccess("Descriptor set layout created successfully");
 
 }
 

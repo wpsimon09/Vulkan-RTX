@@ -23,7 +23,7 @@ class VEffect
   public:
     explicit VEffect(const VulkanCore::VDevice&                          device,
                      const std::string&                                  name,
-                     VulkanCore::VDescriptorLayoutCache&           descriptoSetLayoutCache,
+                     VulkanCore::VDescriptorLayoutCache&                 descriptoSetLayoutCache,
                      std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet);
 
   public:
@@ -45,7 +45,13 @@ class VEffect
     std::string                                        m_name;
     std::shared_ptr<VulkanUtils::VShaderResrouceGroup> m_resourceGroup;
     int                                                m_ID;
-  VulkanCore::VDescriptorLayoutCache&          m_descriptorSetLayoutCache;
+
+    //========================================================================
+    // Effect descriptor data
+    //========================================================================
+    std::vector<vk::DescriptorSetLayout> m_descriptorSets;
+    const VulkanCore::ReflectionData*    m_reflectionData;
+    VulkanCore::VDescriptorLayoutCache&  m_descriptorSetLayoutCache;
 };
 
 }  // namespace VulkanUtils

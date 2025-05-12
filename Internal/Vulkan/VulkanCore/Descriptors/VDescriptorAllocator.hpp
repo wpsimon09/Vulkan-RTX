@@ -66,7 +66,7 @@ class VDescriptorLayoutCache : public VObject
 
     void Destroy() override;
 
-    vk::DescriptorSetLayout CreateDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo* info);
+    vk::DescriptorSetLayout CreateDescriptorSetLayout(const vk::DescriptorSetLayoutCreateInfo* info);
 
     struct DescriptorSetLayoutInfo
     {

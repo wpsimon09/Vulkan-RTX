@@ -21,12 +21,7 @@ VRayTracingShaders::VRayTracingShaders(const VulkanCore::VDevice& device, const 
     }
     throw std::runtime_error("Shader type not found, make sure you are creating the correct shaders ! ");
 }
-const ReflectionData& VRayTracingShaders::GetReflectionData(VulkanCore::RTX::ERayTracingStageIndices shaderType) {
-    if (m_reflectionModeules.contains(shaderType)) {
-        return m_reflectionModeules[shaderType];
-    }
-    throw std::runtime_error("Shader type not found, , make sure you are creating the correct shaders !  ");
-}
+const ReflectionData& VRayTracingShaders::GetReflectionData() {return m_reflectionData;}
 
 void VRayTracingShaders::DestroyShaderModules()
 {
@@ -51,12 +46,10 @@ void VRayTracingShaders::CreateShaderModules(const RTX::RTXShaderPaths& shaders)
     m_shaderModules[RTX::ERayTracingStageIndices::MissShadow] = VulkanUtils::CreateShaderModule(m_device, rayMissShadowSPIRV);
     m_shaderModules[RTX::ERayTracingStageIndices::ClosestHit] = VulkanUtils::CreateShaderModule(m_device, rayHitSPIRV);
 
-    m_reflectionModeules[RTX::ERayTracingStageIndices::RayGen].Init(rayGenSPIRV.data(), rayGenSPIRV.size()*sizeof(char));
-    m_reflectionModeules[RTX::ERayTracingStageIndices::Miss].Init(rayMissSPIRV.data(), rayMissSPIRV.size()*sizeof(char));
-    m_reflectionModeules[RTX::ERayTracingStageIndices::MissShadow].Init(rayMissShadowSPIRV.data(), rayMissShadowSPIRV.size()*sizeof(char));
-    m_reflectionModeules[RTX::ERayTracingStageIndices::ClosestHit].Init(rayHitSPIRV.data(), rayHitSPIRV.size()*sizeof(char));
-
-
+    m_reflectionData.AddShader(rayGenSPIRV.data(), rayGenSPIRV.size()*sizeof(char), vk::ShaderStageFlagBits::eRaygenKHR);
+    m_reflectionData.AddShader(rayMissSPIRV.data(), rayMissSPIRV.size()*sizeof(char), vk::ShaderStageFlagBits::eMissKHR);
+    m_reflectionData.AddShader(rayMissShadowSPIRV.data(), rayMissShadowSPIRV.size()*sizeof(char), vk::ShaderStageFlagBits::eMissKHR);
+    m_reflectionData.AddShader(rayHitSPIRV.data(), rayHitSPIRV.size()*sizeof(char), vk::ShaderStageFlagBits::eClosestHitKHR);
 
     Utils::Logger::LogInfoVerboseOnly("Created Ray tracing shader module");
 

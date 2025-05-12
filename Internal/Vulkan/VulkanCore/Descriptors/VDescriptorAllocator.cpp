@@ -103,7 +103,7 @@ void VDescriptorLayoutCache::Destroy()
 
 }
 
-vk::DescriptorSetLayout VDescriptorLayoutCache::CreateDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo* info)
+vk::DescriptorSetLayout VDescriptorLayoutCache::CreateDescriptorSetLayout(const vk::DescriptorSetLayoutCreateInfo* info)
 {
     DescriptorSetLayoutInfo layoutInfo;
     layoutInfo.bindings.reserve(info->bindingCount);

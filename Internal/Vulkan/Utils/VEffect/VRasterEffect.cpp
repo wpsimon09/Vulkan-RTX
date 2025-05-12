@@ -32,6 +32,10 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
     : VEffect(device, name, descLayoutCache, descriptorSet)
     , m_shader(std::in_place, device, vertex, fragment)
 {
+    if (m_shader.has_value())
+        CreateLayouts(m_shader.value().GetReflectionData());
+    else throw std::runtime_error("Failed to retrieve reflection data from compiled SPIRV-Shader");
+
     m_pipeline =
         std::make_unique<VulkanCore::VGraphicsPipeline>(device, m_shader.value(), m_resourceGroup->GetDescriptorSetLayout());
     m_pipeline->Init();
