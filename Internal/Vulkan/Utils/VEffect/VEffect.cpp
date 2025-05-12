@@ -4,13 +4,20 @@
 
 #include "VEffect.hpp"
 
+#include "Application/Logger/Logger.hpp"
 #include "Vulkan/Utils/VResrouceGroup/VResrouceGroup.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
+#include "Vulkan/VulkanCore/Shader/VShader.hpp"
 
 namespace VulkanUtils {
-VEffect::VEffect(const VulkanCore::VDevice& device, const std::string& name, std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
+VEffect::VEffect(const VulkanCore::VDevice&                          device,
+                 const std::string&                                  name,
+                 VulkanCore::VDescriptorLayoutCache&           descriptoSetLayoutCache,
+                 std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
     : m_device(device)
     , m_name(name)
     , m_resourceGroup(descriptorSet)
+    , m_descriptorSetLayoutCache(descriptoSetLayoutCache)
 {
     m_ID = EffectIndexCounter++;
 }
@@ -22,8 +29,33 @@ DescriptorSetTemplateVariant& VEffect::GetResrouceGroupStructVariant()
 {
     return m_resourceGroup->GetResourceGroupStruct();
 }
-vk::DescriptorUpdateTemplate& VEffect::GetUpdateTemplate() { return m_resourceGroup->GetUpdateTemplate(); }
-unsigned short                VEffect::EvaluateRenderingOrder() { return 0; }
-int&                          VEffect::GetID() {return m_ID;}
-EDescriptorLayoutStruct       VEffect::GetLayoutStructType() { return m_resourceGroup->GetResourceGroupStrucutureType(); }
+vk::DescriptorUpdateTemplate& VEffect::GetUpdateTemplate()
+{
+    return m_resourceGroup->GetUpdateTemplate();
+}
+unsigned short VEffect::EvaluateRenderingOrder()
+{
+    return 0;
+}
+int& VEffect::GetID()
+{
+    return m_ID;
+}
+EDescriptorLayoutStruct VEffect::GetLayoutStructType()
+{
+    return m_resourceGroup->GetResourceGroupStrucutureType();
+}
+void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData) {
+    m_reflectionData = &reflectionData;
+
+    m_descriptorSets.reserve(reflectionData.descriptorSets.size())
+    ;
+    for (auto& set: reflectionData.descriptorSets) {
+        m_descriptorSets.push_back(m_descriptorSetLayoutCache.CreateDescriptorSetLayout(&set.second.createInfo));
+    }
+
+    Utils::Logger::LogSuccess("Descriptor set layout created successfully");
+
+}
+
 }  // namespace VulkanUtils

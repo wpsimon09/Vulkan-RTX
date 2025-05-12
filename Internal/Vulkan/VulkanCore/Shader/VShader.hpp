@@ -23,9 +23,10 @@ struct ReflecSetLayoutData {
 
 struct ReflectionData {
   SpvReflectShaderModule moduleReflection;
-  std::vector<ReflecSetLayoutData> descriptorSets;
+  std::map<int , ReflecSetLayoutData> descriptorSets;
 
   void Init(const void* byteCode, size_t size);
+  void AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage);
   void Destroy();
 };
 
@@ -39,6 +40,7 @@ class VShader : public VObject
             const std::string&         computeSource = "");
     void                    DestroyExistingShaderModules();
     const vk::ShaderModule& GetShaderModule(GlobalVariables::SHADER_TYPE shaderType) const;
+    const ReflectionData&   GetReflectionData() const;
 
   private:
     void CreateShaderModules();
@@ -46,8 +48,13 @@ class VShader : public VObject
   private:
     const VulkanCore::VDevice& m_device;
 
-    ReflectionData m_fragmentReflection;
-    ReflectionData m_vertexReflection;
+    ReflectionData                m_fragmentReflection;
+    ReflectionData                m_vertexReflection;
+
+    ReflectionData                m_shaderReeflection;
+
+
+
     std::optional<ReflectionData> m_computeReflection;
 
     vk::ShaderModule                m_fragmentShaderModule;

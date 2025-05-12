@@ -62,11 +62,11 @@ class VDescriptorAllocator : public VulkanCore::VObject
 class VDescriptorLayoutCache : public VObject
 {
   public:
-    VDescriptorLayoutCache(const VDevice& device);
+    explicit VDescriptorLayoutCache(const VDevice& device);
 
     void Destroy() override;
 
-    vk::DescriptorSetLayout CreateDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo* info);
+    vk::DescriptorSetLayout CreateDescriptorSetLayout(const vk::DescriptorSetLayoutCreateInfo* info);
 
     struct DescriptorSetLayoutInfo
     {

@@ -20,12 +20,14 @@ class VRayTracingShaders
     VRayTracingShaders(const VulkanCore::VDevice& device,const RTX::RTXShaderPaths& shaders);
 
      vk::ShaderModule GetShaderModule(VulkanCore::RTX::ERayTracingStageIndices shaderType)  ;
+    const ReflectionData& GetReflectionData();
 
     void DestroyShaderModules();
   private:
     void CreateShaderModules(const RTX::RTXShaderPaths& shaders);
   private:
     const VulkanCore::VDevice& m_device;
+    ReflectionData m_reflectionData;
     std::unordered_map<RTX::ERayTracingStageIndices, VkShaderModule> m_shaderModules;
     std::unordered_map<RTX::ERayTracingStageIndices, ReflectionData> m_reflectionModeules;
 

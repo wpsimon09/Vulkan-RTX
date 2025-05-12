@@ -11,9 +11,12 @@ namespace VulkanUtils {
 VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                          device,
                              const std::string&                                  name,
                              const VulkanCore::VShader&                          shader,
+                             VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                              std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& shaderResourceGroup)
-    : VEffect(device, name, shaderResourceGroup)
+    : VEffect(device, name, descLayoutCache, shaderResourceGroup)
 {
+    CreateLayouts(shader.GetReflectionData());
+
     m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_resourceGroup->GetDescriptorSetLayout());
     m_pipeline->Init();
 
@@ -24,10 +27,15 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
                              const std::string&                                  name,
                              const std::string&                                  vertex,
                              const std::string&                                  fragment,
+                             VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                              std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
-    : VEffect(device, name, descriptorSet)
+    : VEffect(device, name, descLayoutCache, descriptorSet)
     , m_shader(std::in_place, device, vertex, fragment)
 {
+    if (m_shader.has_value())
+        CreateLayouts(m_shader.value().GetReflectionData());
+    else throw std::runtime_error("Failed to retrieve reflection data from compiled SPIRV-Shader");
+
     m_pipeline =
         std::make_unique<VulkanCore::VGraphicsPipeline>(device, m_shader.value(), m_resourceGroup->GetDescriptorSetLayout());
     m_pipeline->Init();

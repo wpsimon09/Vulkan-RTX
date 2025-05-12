@@ -14,14 +14,15 @@ namespace VulkanCore {
 //=============================================
 // REFLECTION DATA
 //=============================================
-void ReflectionData::Init(const void* byteCode, size_t size)
+void ReflectionData::Init(const void* byteCode, size_t size) {}
+void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage)
 {
     auto result = spvReflectCreateShaderModule(size, byteCode, &moduleReflection);
     assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to reflect shader bytecode ensure size and code is correct ");
 
     //get how many set layouts are in the shader
     uint32_t count = 0;
-    result = spvReflectEnumerateDescriptorSets(&moduleReflection, &count, nullptr);
+    result         = spvReflectEnumerateDescriptorSets(&moduleReflection, &count, nullptr);
     assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to enumerate descriptor set counts ");
 
     // get the concrete sets
@@ -29,40 +30,61 @@ void ReflectionData::Init(const void* byteCode, size_t size)
     result = spvReflectEnumerateDescriptorSets(&moduleReflection, &count, sets.data());
     assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to retrieve binding handles ");
 
-    descriptorSets.resize(sets.size());
+
     // go through each descriptor set
-    for (size_t i_set = 0; i_set < sets.size(); i_set++) {
+    for(size_t i_set = 0; i_set < sets.size(); i_set++)
+    {
+
+        ReflecSetLayoutData newBindings;
+        newBindings.bindings.resize(sets.size());
         // go through each binding in set the set
         const SpvReflectDescriptorSet& reflSet = *(sets[i_set]);
-        descriptorSets[i_set].bindings.resize(reflSet.binding_count);
-        descriptorSets[i_set].variableNames.resize(reflSet.binding_count);
+        newBindings.bindings.resize(reflSet.binding_count);
+        newBindings.variableNames.resize(reflSet.binding_count);
 
-        for (uint32_t i_binding = 0; i_binding < reflSet.binding_count; i_binding++) {
+        for(uint32_t i_binding = 0; i_binding < reflSet.binding_count; i_binding++)
+        {
             const SpvReflectDescriptorBinding reflBinding = *(reflSet.bindings[i_binding]);
-            vk::DescriptorSetLayoutBinding binding;
-            binding.binding = reflBinding.binding;
-            binding.descriptorType = static_cast<vk::DescriptorType>(reflBinding.descriptor_type);
+            vk::DescriptorSetLayoutBinding    binding;
+            binding.binding         = reflBinding.binding;
+            binding.descriptorType  = static_cast<vk::DescriptorType>(reflBinding.descriptor_type);
             binding.descriptorCount = 1;
-            for (uint32_t i_dim = 0; i_dim<reflBinding.array.dims_count;++i_dim) {
+            for(uint32_t i_dim = 0; i_dim < reflBinding.array.dims_count; ++i_dim)
+            {
                 binding.descriptorCount *= reflBinding.array.dims[i_dim];
             }
+
+            // TODO: add correct stage to the binding instead of used eAll
             binding.stageFlags = vk::ShaderStageFlagBits::eAll;
 
 
-            descriptorSets[i_set].bindings[i_binding] = binding;
-            descriptorSets[i_set].variableNames[i_binding] = { reflBinding.name, binding.descriptorType};
-
+            newBindings.bindings[i_binding]      = binding;
+            newBindings.variableNames[i_binding] = {reflBinding.name, binding.descriptorType};
         }
 
-        descriptorSets[i_set].setNumber= i_set;
-        // TODO: allow update after bind bit here later
-        descriptorSets[i_set].createInfo.bindingCount = descriptorSets[i_set].bindings.size();;
-        descriptorSets[i_set].createInfo.pBindings = descriptorSets[i_set].bindings.data();;
-        descriptorSets[i_set].createInfo.pBindings = descriptorSets[i_set].bindings.data();;
+        // set the descriptor set layout
+        descriptorSets[i_set].setNumber = i_set;
 
+        // take the current bindings from the descriptor set
+        auto& currentBindings = descriptorSets[i_set];
+
+        // insert currently cerated bindings to the newly ones
+        currentBindings.bindings.insert(currentBindings.bindings.end(), newBindings.bindings.begin(), newBindings.bindings.end());
+        currentBindings.variableNames.insert(currentBindings.variableNames.end(), newBindings.variableNames.begin(), newBindings.variableNames.end());
+        // TODO: allow update after bind bit here later
+        currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
+
+
+        descriptorSets[i_set].createInfo.pBindings = currentBindings.bindings.data();
+        ;
+        descriptorSets[i_set].createInfo.pBindings = currentBindings.bindings.data();
+        ;
     }
 }
-void ReflectionData::Destroy() {
+
+
+void ReflectionData::Destroy()
+{
     spvReflectDestroyShaderModule(&moduleReflection);
 }
 
@@ -116,6 +138,11 @@ const vk::ShaderModule& VShader::GetShaderModule(GlobalVariables::SHADER_TYPE sh
     }
 }
 
+const ReflectionData& VShader::GetReflectionData() const
+{
+    return m_shaderReeflection;
+}
+
 void VShader::CreateShaderModules()
 {
 
@@ -124,25 +151,25 @@ void VShader::CreateShaderModules()
     auto vertexSPRIV   = VulkanUtils::ReadSPIRVShader(m_vertexSource);
     auto fragmentSPRIV = VulkanUtils::ReadSPIRVShader(m_fragmentSource);
 
-    m_vertexShaderModule = VulkanUtils::CreateShaderModule(m_device, vertexSPRIV);
+    m_vertexShaderModule   = VulkanUtils::CreateShaderModule(m_device, vertexSPRIV);
     m_fragmentShaderModule = VulkanUtils::CreateShaderModule(m_device, fragmentSPRIV);
 
     //SpvReflectResult result = spvReflectCreateShaderModule(vertexSPRIV.size() * sizeof(char),vertexSPRIV.data(), &m_vertexReflection) ;
 
-    m_vertexReflection.Init(vertexSPRIV.data(), sizeof(char) * vertexSPRIV.size());
-    m_fragmentReflection.Init(fragmentSPRIV.data(), sizeof(char) * fragmentSPRIV.size());
+    m_shaderReeflection.AddShader(vertexSPRIV.data(), sizeof(char) * vertexSPRIV.size(), vk::ShaderStageFlagBits::eVertex);
+    m_shaderReeflection.AddShader(fragmentSPRIV.data(), sizeof(char) * fragmentSPRIV.size(), vk::ShaderStageFlagBits::eFragment);
 
-   // assert(result == SPV_REFLECT_RESULT_SUCCESS);
+    // assert(result == SPV_REFLECT_RESULT_SUCCESS);
 
     uint32_t varCount = 0;
-   // result = spvReflectEnumerateInputVariables(&m_vertexReflection, &varCount, nullptr);
+    // result = spvReflectEnumerateInputVariables(&m_vertexReflection, &varCount, nullptr);
 
-   // assert(result == SPV_REFLECT_RESULT_SUCCESS);
+    // assert(result == SPV_REFLECT_RESULT_SUCCESS);
 
 
     if(m_computeSource.has_value())
     {
-        auto                       computeSPRIV = VulkanUtils::ReadSPIRVShader(m_computeSource.value());
+        auto computeSPRIV     = VulkanUtils::ReadSPIRVShader(m_computeSource.value());
         m_computeShaderModule = VulkanUtils::CreateShaderModule(m_device, computeSPRIV);
         m_computeReflection->Init(m_computeSource.value().data(), computeSPRIV.size() * sizeof(char));
     }

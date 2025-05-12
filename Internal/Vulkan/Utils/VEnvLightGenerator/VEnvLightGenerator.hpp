@@ -12,6 +12,9 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace VulkanCore {
+class VDescriptorLayoutCache;
+}
+namespace VulkanCore {
 struct VImage2CreateInfo;
 }
 
@@ -47,7 +50,7 @@ namespace VulkanUtils {
 class VEnvLightGenerator
 {
   public:
-    VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager);
+    VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache,  VulkanUtils::VResourceGroupManager& pushDescriptorManager);
 
     const VulkanCore::VImage2& GetBRDFLut();
     VulkanCore::VImage2*       GetBRDFLutRaw();
@@ -84,7 +87,7 @@ class VEnvLightGenerator
     int                                                           m_currentHDR;
 
     const VulkanCore::VDevice& m_device;
-
+    VulkanCore::VDescriptorLayoutCache& m_descLayoutChache;
     VulkanUtils::VResourceGroupManager& m_pushDescriptorManager;
 
     std::unique_ptr<VulkanCore::VCommandBuffer> m_graphicsCmdBuffer;
@@ -106,6 +109,7 @@ class VEnvLightGenerator
                          std::unique_ptr<VulkanCore::VImage2>& renderTarget,
                          VulkanCore::VImage2CreateInfo&        createInfo,
                          VulkanCore::VTimelineSemaphore&       semaphore);
+
 };
 }  // namespace VulkanUtils
 

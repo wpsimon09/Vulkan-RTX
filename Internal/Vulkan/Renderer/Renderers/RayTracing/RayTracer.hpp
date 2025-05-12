@@ -28,6 +28,7 @@ namespace VulkanUtils {
 class VUniformBufferManager;
 }
 namespace VulkanCore {
+class VDescriptorLayoutCache;
 class VTimelineSemaphore;
 class VCommandBuffer;
 class VImage2;
@@ -43,6 +44,7 @@ class RayTracer
     RayTracer(const VulkanCore::VDevice& device,
               VulkanUtils::VResourceGroupManager& resourceGroupManager,
               VulkanUtils::VRayTracingDataManager& rtxDataManager,
+              VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
               int width,
               int height);
 
@@ -67,6 +69,9 @@ class RayTracer
 
     std::vector<std::unique_ptr<VulkanCore::VImage2>> m_resultImage;
     std::unique_ptr<VulkanCore::VImage2>              m_accumulationResultImage;
+
+    VulkanCore::VDescriptorLayoutCache&       m_descLayoutCache;
+
 };
 
 }  // namespace Renderer
