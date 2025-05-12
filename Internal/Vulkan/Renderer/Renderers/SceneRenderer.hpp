@@ -43,6 +43,7 @@ namespace Renderer {
     public:
         SceneRenderer(const VulkanCore::VDevice& device,
                       VulkanUtils::VResourceGroupManager& pushDescriptorManager,
+                      VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                       int width, int height);
 
         void Render(int currentFrameIndex,

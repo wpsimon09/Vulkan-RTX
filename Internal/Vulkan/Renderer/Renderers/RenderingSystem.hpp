@@ -19,6 +19,9 @@
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
+namespace VulkanCore {
+class VDescriptorLayoutCache;
+}
 namespace ApplicationCore {
 struct SceneData;
 }
@@ -67,6 +70,7 @@ public:
                     const VulkanCore::VDevice&                device,
                     const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                     VulkanUtils::VResourceGroupManager&       pushDescriptorManager,
+                    VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
                     VEditor::UIContext&                       uiContext);
 
     void Init();
@@ -119,6 +123,8 @@ private:
     uint64_t m_frameCount = 0;
     uint64_t m_accumulatedFramesCount = 0;
     bool     m_isRayTracing = false;
+
+    VulkanCore::VDescriptorLayoutCache& m_descLayoutCache;
 
     // Editor Integration
     friend class VEditor::RenderingOptions;

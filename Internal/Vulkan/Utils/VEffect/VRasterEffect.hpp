@@ -36,12 +36,14 @@ class VRasterEffect:public VEffect
     VRasterEffect(const VulkanCore::VDevice&                          device,
             const std::string&                                  name,
             const VulkanCore::VShader&                          shader,
+            VulkanCore::VDescriptorLayoutCache& descLayoutCache,
             std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& shaderResourceGroup);
 
     VRasterEffect(const VulkanCore::VDevice&                          device,
             const std::string&                                  name,
             const std::string&                                  vertex,
             const std::string&                                  fragment,
+            VulkanCore::VDescriptorLayoutCache& descLayoutCache,
             std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet);
 
     //=======================================

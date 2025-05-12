@@ -11,8 +11,9 @@ namespace VulkanUtils {
 VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                          device,
                              const std::string&                                  name,
                              const VulkanCore::VShader&                          shader,
+                             VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                              std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& shaderResourceGroup)
-    : VEffect(device, name, shaderResourceGroup)
+    : VEffect(device, name, descLayoutCache, shaderResourceGroup)
 {
     m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_resourceGroup->GetDescriptorSetLayout());
     m_pipeline->Init();
@@ -24,8 +25,9 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
                              const std::string&                                  name,
                              const std::string&                                  vertex,
                              const std::string&                                  fragment,
+                             VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                              std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
-    : VEffect(device, name, descriptorSet)
+    : VEffect(device, name, descLayoutCache, descriptorSet)
     , m_shader(std::in_place, device, vertex, fragment)
 {
     m_pipeline =

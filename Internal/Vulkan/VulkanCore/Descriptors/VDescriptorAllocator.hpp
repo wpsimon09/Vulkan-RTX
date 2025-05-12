@@ -62,7 +62,7 @@ class VDescriptorAllocator : public VulkanCore::VObject
 class VDescriptorLayoutCache : public VObject
 {
   public:
-    VDescriptorLayoutCache(const VDevice& device);
+    explicit VDescriptorLayoutCache(const VDevice& device);
 
     void Destroy() override;
 

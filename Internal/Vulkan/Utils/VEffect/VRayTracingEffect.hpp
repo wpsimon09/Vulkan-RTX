@@ -22,6 +22,8 @@ class VRayTracingEffect : public VEffect
     VRayTracingEffect(const VulkanCore::VDevice&                          device,
                       const VulkanCore::RTX::RTXShaderPaths&              shaderPaths,
                       const std::string&                                  name,
+                      VulkanCore::VDescriptorLayoutCache& descLayoutCache,
+
                       std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet);
     void                                  BuildEffect() override;
     vk::PipelineLayout                    GetPipelineLayout() override;

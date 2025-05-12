@@ -40,12 +40,14 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
                                  const VulkanCore::VDevice&                device,
                                  const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                                  VulkanUtils::VResourceGroupManager&       pushDescriptorManager,
+                                 VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
                                  VEditor::UIContext&                       uiContext)
     : m_device(device)
     , m_uniformBufferManager(uniformBufferManager)
     , m_resrouceGroupManager(pushDescriptorManager)
     , m_renderContext()
     , m_uiContext(uiContext)
+    , m_descLayoutCache(descLayoutCache)
     , m_transferSemapohore(device.GetTransferOpsManager().GetTransferSemaphore())
 {
 
@@ -74,7 +76,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     // Renderers creation
     //----------------------------------------------------------------------------------------------------------------------------
 
-    m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_resrouceGroupManager,
+    m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_resrouceGroupManager, descLayoutCache,
                                                                 GlobalVariables::RenderTargetResolutionWidth,
                                                                 GlobalVariables::RenderTargetResolutionHeight);
 
@@ -82,7 +84,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
 
     m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
 
-    m_envLightGenerator = std::make_unique<VulkanUtils::VEnvLightGenerator>(m_device, pushDescriptorManager);
+    m_envLightGenerator = std::make_unique<VulkanUtils::VEnvLightGenerator>(m_device, descLayoutCache,  pushDescriptorManager);
 
 
     //----------------------------------------------------------------------------------------------------------------------------
@@ -91,7 +93,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_rayTracingDataManager = std::make_unique<VulkanUtils::VRayTracingDataManager>(m_device);
 
     auto cam    = m_uiContext.GetClient().GetCamera();
-    m_rayTracer = std::make_unique<RayTracer>(m_device, m_resrouceGroupManager, *m_rayTracingDataManager, 1980, 1080);
+    m_rayTracer = std::make_unique<RayTracer>(m_device, m_resrouceGroupManager, *m_rayTracingDataManager, descLayoutCache, 1980, 1080);
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }

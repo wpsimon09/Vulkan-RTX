@@ -66,6 +66,7 @@
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
 
 Application::Application() {}
 
@@ -89,7 +90,7 @@ void Application::Init()
     m_descriptorSetLayoutCache = std::make_unique<VulkanCore::VDescriptorLayoutCache>(*m_vulkanDevice);
 
     m_pushDescriptorSetManager = std::make_unique<VulkanUtils::VResourceGroupManager>(*m_vulkanDevice);
-    m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice, *m_pushDescriptorSetManager);
+    m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice,*m_descriptorSetLayoutCache, *m_pushDescriptorSetManager);
     auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_effectsLibrary);
     m_client->MountAssetsManger(std::move(assetManger));
     m_client->Init();
@@ -101,7 +102,7 @@ void Application::Init()
 
     m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager,
 
-                                                                    *m_pushDescriptorSetManager, *m_uiContext);
+                                                                    *m_pushDescriptorSetManager,*m_descriptorSetLayoutCache,  *m_uiContext );
 
 
     m_renderingSystem->Init();

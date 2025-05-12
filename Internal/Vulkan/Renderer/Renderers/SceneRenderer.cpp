@@ -30,7 +30,7 @@
 
 
 namespace Renderer {
-SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager, int width, int height)
+SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height)
     : m_pushDescriptorManager(pushDescriptorManager)
     , m_device(device)
 
@@ -45,7 +45,7 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VRe
     // CONFIGURE DEPTH PASS EFFECT
     //=========================
     m_depthPrePassEffect = std::make_unique<VulkanUtils::VRasterEffect>(
-        m_device, "Depth-PrePass effect", "Shaders/Compiled/DepthPrePass.vert.spv", "Shaders/Compiled/DepthPrePass.frag.spv",
+        m_device, "Depth-PrePass effect", "Shaders/Compiled/DepthPrePass.vert.spv", "Shaders/Compiled/DepthPrePass.frag.spv", descLayoutCache,
         m_pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
     m_depthPrePassEffect->SetVertexInputMode(EVertexInput::PositionOnly).SetDepthOpLess();
 

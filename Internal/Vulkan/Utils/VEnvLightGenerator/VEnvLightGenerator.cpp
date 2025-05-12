@@ -18,9 +18,10 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 
-VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager)
+VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, VulkanUtils::VResourceGroupManager& pushDescriptorManager)
     : m_device(device)
     , m_pushDescriptorManager(pushDescriptorManager)
+    , m_descLayoutChache(descLayoutCache)
 {
     auto meshData = m_device.GetMeshDataManager().AddMeshData(ApplicationCore::MeshData::cubeVertices,
                                                               ApplicationCore::MeshData::cubeIndices);
@@ -182,7 +183,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
         //=============================================================
         {
             VRasterEffect hdrToCubeMapEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/HDRToCubeMap.vert.spv",
-                                             "Shaders/Compiled/HDRToCubeMap.frag.spv",
+                                             "Shaders/Compiled/HDRToCubeMap.frag.spv", m_descLayoutChache,
                                              m_pushDescriptorManager.GetResourceGroup(EDescriptorLayoutStruct::UnlitSingleTexture));
             hdrToCubeMapEffect.DisableStencil()
                 .SetDisableDepthTest()
@@ -329,7 +330,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         {
             VRasterEffect cubeMapToIrradianceEffect(
                 m_device, "HDR Image to cube map", "Shaders/Compiled/IrradianceMapImportanceSample.vert.spv",
-                "Shaders/Compiled/IrradianceMapImportanceSample.frag.spv",
+                "Shaders/Compiled/IrradianceMapImportanceSample.frag.spv", m_descLayoutChache,
                 m_pushDescriptorManager.GetResourceGroup(EDescriptorLayoutStruct::UnlitSingleTexture));
             cubeMapToIrradianceEffect.DisableStencil()
                 .SetDisableDepthTest()
@@ -468,7 +469,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     //=============================================================
     {
         VRasterEffect hdrToPrefilterEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/Prefilter.vert.spv",
-                                           "Shaders/Compiled/Prefilter.frag.spv",
+                                           "Shaders/Compiled/Prefilter.frag.spv", m_descLayoutChache,
                                            m_pushDescriptorManager.GetResourceGroup(EDescriptorLayoutStruct::UnlitSingleTexture));
         hdrToPrefilterEffect.DisableStencil()
             .SetDisableDepthTest()
@@ -614,7 +615,7 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
     brdfAttachmentCI.clearValue.color.setFloat32({0.0f, 0.0f, 0.0f, 1.f});
 
     //Create Effect that generates BRDF
-    VRasterEffect brdfEffect(m_device, "BRDF Effect", "Shaders/Compiled/BRDFLut.vert.spv", "Shaders/Compiled/BRDFLut.frag.spv",
+    VRasterEffect brdfEffect(m_device, "BRDF Effect", "Shaders/Compiled/BRDFLut.vert.spv", "Shaders/Compiled/BRDFLut.frag.spv", m_descLayoutChache,
                              m_pushDescriptorManager.GetResourceGroup(EDescriptorLayoutStruct::Empty));
     brdfEffect.SetColourOutputFormat(brdfCI.format)
         .DisableStencil()

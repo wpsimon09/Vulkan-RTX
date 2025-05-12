@@ -43,7 +43,7 @@ enum class EEffectType : std::uint8_t
 class EffectsLibrary
 {
   public:
-    EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager);
+    EffectsLibrary(const VulkanCore::VDevice& device,VulkanCore::VDescriptorLayoutCache& descLayoutCache, VulkanUtils::VResourceGroupManager& pushDescriptorManager);
     std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;
 
     std::shared_ptr<VulkanUtils::VEffect> GetEffect(EEffectType type);
@@ -53,6 +53,9 @@ class EffectsLibrary
 
     void BuildAllEffects();
     void Destroy();
+
+  private:
+    VulkanCore::VDescriptorLayoutCache& m_descLayoutCache;
 };
 template <typename T>
 std::shared_ptr<T> EffectsLibrary::GetEffect(EEffectType type)
