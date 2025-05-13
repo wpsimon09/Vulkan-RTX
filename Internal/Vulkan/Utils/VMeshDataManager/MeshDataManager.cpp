@@ -55,12 +55,12 @@ MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device)
     vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
 }
 
-VulkanStructs::MeshData MeshDatatManager::AddMeshData(std::vector<ApplicationCore::Vertex>& vertices, std::vector<uint32_t>& indices)
+VulkanStructs::VMeshData MeshDatatManager::AddMeshData(std::vector<ApplicationCore::Vertex>& vertices, std::vector<uint32_t>& indices)
 {
 
 
     auto                    bounds   = ApplicationCore::CalculateBounds(vertices);
-    VulkanStructs::MeshData meshData = {};
+    VulkanStructs::VMeshData meshData = {};
 
     meshData.vertexData    = GenerateVertexBuffer(vertices);
     meshData.indexData     = GenerateIndexBuffer(indices);
@@ -74,7 +74,7 @@ VulkanStructs::MeshData MeshDatatManager::AddMeshData(std::vector<ApplicationCor
     return meshData;
 }
 
-VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices)
+VulkanStructs::VGPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices)
 {
     //=======================================================================================
     // RETURNS A STRUCT THAT SPECIFIES WHERE THE VERTICES ARE STORED IN 16mb CHUNK OF MEMORY
@@ -86,7 +86,7 @@ VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer(const std
     m_stagingVertices[m_currentVertexBuffer->ID - 1].insert(m_stagingVertices[m_currentVertexBuffer->ID - 1].end(),
                                                             vertices.begin(), vertices.end());
 
-    VulkanStructs::GPUSubBufferInfo bufferInfo = {.size   = vertices.size() * sizeof(ApplicationCore::Vertex),
+    VulkanStructs::VGPUSubBufferInfo bufferInfo = {.size   = vertices.size() * sizeof(ApplicationCore::Vertex),
                                                   .offset = m_currentVertexBuffer->currentOffset,
                                                   .buffer = m_currentVertexBuffer->bufferVK,
                                                   .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1),
@@ -97,7 +97,7 @@ VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer(const std
     return bufferInfo;
 }
 
-VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer_BB(VulkanStructs::Bounds& bounds)
+VulkanStructs::VGPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer_BB(VulkanStructs::VBounds& bounds)
 {
     std::vector<ApplicationCore::Vertex> Vertices_BB = {
         {bounds.origin + glm::vec3(-bounds.extents.x, -bounds.extents.y, -bounds.extents.z), {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},  // V0
@@ -112,7 +112,7 @@ VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer_BB(Vulkan
 
     m_stagingVertices_BB[0].insert(m_stagingVertices_BB[0].end(), Vertices_BB.begin(), Vertices_BB.end());
 
-    VulkanStructs::GPUSubBufferInfo bufferInfo = {.size   = Vertices_BB.size() * sizeof(ApplicationCore::Vertex),
+    VulkanStructs::VGPUSubBufferInfo bufferInfo = {.size   = Vertices_BB.size() * sizeof(ApplicationCore::Vertex),
                                                   .offset = m_currentVertexBuffer_BB->currentOffset,
                                                   .buffer = m_currentVertexBuffer_BB->bufferVK,
                                                   .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1),
@@ -125,14 +125,14 @@ VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer_BB(Vulkan
 }
 
 
-VulkanStructs::GPUSubBufferInfo MeshDatatManager::GenerateIndexBuffer(const std::vector<uint32_t>& indices)
+VulkanStructs::VGPUSubBufferInfo MeshDatatManager::GenerateIndexBuffer(const std::vector<uint32_t>& indices)
 {
     SelectMostSuitableBuffer(EBufferType::Index, indices.size() * sizeof(uint32_t));
 
     m_stagingIndices[m_currentIndexBuffer->ID - 1].insert(m_stagingIndices[m_currentIndexBuffer->ID - 1].end(),
                                                           indices.begin(), indices.end());
 
-    VulkanStructs::GPUSubBufferInfo bufferInfo = {.size   = indices.size() * sizeof(uint32_t),
+    VulkanStructs::VGPUSubBufferInfo bufferInfo = {.size   = indices.size() * sizeof(uint32_t),
                                                   .offset = m_currentIndexBuffer->currentOffset,
                                                   .buffer = m_currentIndexBuffer->bufferVK,
                                                   .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1),
@@ -148,7 +148,7 @@ void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
     //=========================================================================================================================================
     // VERTEX STAGING BUFFER
     //==========================================================================================================================================
-    std::vector<VulkanStructs::StagingBufferInfo> vertexStagingBuffers(m_vertexBuffers.size());
+    std::vector<VulkanStructs::VStagingBufferInfo> vertexStagingBuffers(m_vertexBuffers.size());
     for(int i = 0; i < m_vertexBuffers.size(); i++)
     {
         if(!m_stagingVertices[i].empty())
@@ -172,7 +172,7 @@ void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
     //=========================================================================================================================================
     // INDEX STAGING BUFFER
     //==========================================================================================================================================
-    std::vector<VulkanStructs::StagingBufferInfo> indexStagingBuffers(m_indexBuffers.size());
+    std::vector<VulkanStructs::VStagingBufferInfo> indexStagingBuffers(m_indexBuffers.size());
     for(int i = 0; i < m_indexBuffers.size(); i++)
     {
         if(!m_stagingIndices[i].empty())
@@ -285,7 +285,7 @@ void MeshDatatManager::Destroy()
     m_transferCommandPool->Destroy();
 }
 
-void MeshDatatManager::CreateBuffer(VulkanStructs::GPUBufferInfo& allocationInfo) const
+void MeshDatatManager::CreateBuffer(VulkanStructs::VGPUBufferInfo& allocationInfo) const
 {
     VkBufferCreateInfo bufferCreateInfo = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
     bufferCreateInfo.size               = allocationInfo.size;
@@ -323,7 +323,7 @@ void MeshDatatManager::CreateNewVertexBuffers(bool createForBoundingBox)
     //==========================================================
     m_vertexBuffers.reserve(GlobalVariables::EngineOptions::VertexBufferChunkSize);
     Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
-    VulkanStructs::GPUBufferInfo newVertexBuffer{};
+    VulkanStructs::VGPUBufferInfo newVertexBuffer{};
     newVertexBuffer.size       = GlobalVariables::EngineOptions::VertexBufferChunkSize;
     newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst
                                  | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
@@ -340,7 +340,7 @@ void MeshDatatManager::CreateNewVertexBuffers(bool createForBoundingBox)
 
     if(createForBoundingBox)
     {
-        VulkanStructs::GPUBufferInfo newBBVertexBuffer{};
+        VulkanStructs::VGPUBufferInfo newBBVertexBuffer{};
         newBBVertexBuffer.size       = GlobalVariables::EngineOptions::VertexBufferChunkSize;
         newBBVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst
                                        | vk::BufferUsageFlagBits::eTransferSrc;
@@ -360,7 +360,7 @@ void MeshDatatManager::CreateNewIndexBuffers()
     //==============================
     m_indexBuffers.reserve(GlobalVariables::EngineOptions::IndexBufferChunkSize);
     Utils::Logger::LogInfo("Allocating NEW 16MB IndexBuffer");
-    VulkanStructs::GPUBufferInfo newIndexBuffer{};
+    VulkanStructs::VGPUBufferInfo newIndexBuffer{};
     newIndexBuffer.size       = GlobalVariables::EngineOptions::IndexBufferChunkSize;
     newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst
                                 | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
@@ -384,7 +384,7 @@ void MeshDatatManager::SelectMostSuitableBuffer(EBufferType bufferType, vk::Devi
     // VALUE WITH BUFFER THAT IS GOING TO HOLD THE SUBALLOCATION DATA
     //===================================================================================================
 
-    std::vector<VulkanStructs::GPUBufferInfo>& buffers = bufferType == EBufferType::Vertex ? m_vertexBuffers : m_indexBuffers;
+    std::vector<VulkanStructs::VGPUBufferInfo>& buffers = bufferType == EBufferType::Vertex ? m_vertexBuffers : m_indexBuffers;
 
     // loops through all the 16 MB chunks of buffers
     for(auto& buffer : buffers)
@@ -415,7 +415,7 @@ void MeshDatatManager::SelectMostSuitableBuffer(EBufferType bufferType, vk::Devi
         CreateNewIndexBuffers();
 }
 
-std::vector<ApplicationCore::Vertex> MeshDatatManager::ReadBack(VulkanStructs::GPUSubBufferInfo& bufferInfo)
+std::vector<ApplicationCore::Vertex> MeshDatatManager::ReadBack(VulkanStructs::VGPUSubBufferInfo& bufferInfo)
 {
     auto bufferCopiedFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
     std::vector<ApplicationCore::Vertex> vertices;
@@ -438,12 +438,12 @@ std::vector<ApplicationCore::Vertex> MeshDatatManager::ReadBack(VulkanStructs::G
     return vertices;
 }
 
-std::vector<VulkanStructs::ReadBackBufferInfo<ApplicationCore::Vertex>> MeshDatatManager::ReadBackVertexBuffer()
+std::vector<VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex>> MeshDatatManager::ReadBackVertexBuffer()
 {
 
     auto bufferCopiedFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
 
-    std::vector<VulkanStructs::ReadBackBufferInfo<ApplicationCore::Vertex>> vertexReadBackBufferInfos;
+    std::vector<VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex>> vertexReadBackBufferInfos;
     vertexReadBackBufferInfos.resize(m_vertexBuffers.size());
 
     // create staging buffer to copy readback memory from
@@ -470,12 +470,12 @@ std::vector<VulkanStructs::ReadBackBufferInfo<ApplicationCore::Vertex>> MeshData
     return vertexReadBackBufferInfos;
 }
 
-std::vector<VulkanStructs::ReadBackBufferInfo<uint32_t>> MeshDatatManager::ReadBackIndexBuffers()
+std::vector<VulkanStructs::VReadBackBufferInfo<uint32_t>> MeshDatatManager::ReadBackIndexBuffers()
 {
 
     auto bufferCopiedFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
 
-    std::vector<VulkanStructs::ReadBackBufferInfo<uint32_t>> indexReadBackBufferInfos;
+    std::vector<VulkanStructs::VReadBackBufferInfo<uint32_t>> indexReadBackBufferInfos;
     indexReadBackBufferInfos.resize(m_indexBuffers.size());
 
     // create staging buffer to copy readback memory from

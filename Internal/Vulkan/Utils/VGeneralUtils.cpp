@@ -511,12 +511,12 @@ vk::DeviceSize VulkanUtils::GetVulkanFormatSize(vk::Format format)
     }
 }
 
-VulkanStructs::StagingBufferInfo VulkanUtils::CreateStagingBuffer(const VulkanCore::VDevice& m_device, vk::DeviceSize size)
+VulkanStructs::VStagingBufferInfo VulkanUtils::CreateStagingBuffer(const VulkanCore::VDevice& m_device, vk::DeviceSize size)
 {
 
     std::string allocationNme = "Allocation of staging buffer for vertex, index or image ";
 
-    VulkanStructs::StagingBufferInfo staginBufferInfo = {};
+    VulkanStructs::VStagingBufferInfo staginBufferInfo = {};
     staginBufferInfo.size                             = size;
 
     VkBufferCreateInfo stagingBufferCreateInfo = {};
@@ -552,7 +552,7 @@ VulkanStructs::StagingBufferInfo VulkanUtils::CreateStagingBuffer(const VulkanCo
     return staginBufferInfo;
 }
 
-bool VulkanUtils::IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection)
+bool VulkanUtils::IsInViewFrustum(VulkanStructs::VBounds* bounds, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection)
 {
 
     glm::mat4 mvpMatrix = projection * view * model;

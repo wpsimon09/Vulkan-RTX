@@ -39,7 +39,6 @@ class VEffect
     EDescriptorLayoutStruct       GetLayoutStructType();
     void                          CreateLayouts(const VulkanCore::ReflectionData& reflectionData);
 
-
   protected:
     const VulkanCore::VDevice&                         m_device;
     std::string                                        m_name;
@@ -49,9 +48,10 @@ class VEffect
     //========================================================================
     // Effect descriptor data
     //========================================================================
-    std::vector<vk::DescriptorSetLayout> m_descriptorSets;
-    const VulkanCore::ReflectionData*    m_reflectionData;
-    VulkanCore::VDescriptorLayoutCache&  m_descriptorSetLayoutCache;
+    std::vector<VulkanStructs::VDescriptorSet> m_descriptorSets;
+    std::vector<vk::DescriptorSetLayout>       m_descriptorSetLayouts;
+    const VulkanCore::ReflectionData*          m_reflectionData;
+    VulkanCore::VDescriptorLayoutCache&        m_descriptorSetLayoutCache;
 };
 
 }  // namespace VulkanUtils

@@ -185,8 +185,8 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
     m_transferSemapohore.Reset();
 
     std::sort(m_renderContext.drawCalls.begin(), m_renderContext.drawCalls.end(),
-              [](std::pair<unsigned long, VulkanStructs::DrawCallData>& lhs,
-                 std::pair<unsigned long, VulkanStructs::DrawCallData>& rhs) { return lhs.first < rhs.first; });
+              [](std::pair<unsigned long, VulkanStructs::VDrawCallData>& lhs,
+                 std::pair<unsigned long, VulkanStructs::VDrawCallData>& rhs) { return lhs.first < rhs.first; });
 
     // generate new IBL maps if new one was selected
     if(sceneLightInfo.environmentLight != nullptr)

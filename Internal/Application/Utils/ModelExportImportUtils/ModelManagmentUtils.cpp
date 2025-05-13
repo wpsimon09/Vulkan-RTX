@@ -11,9 +11,9 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 
 namespace ApplicationCore {
-VulkanStructs::ImageData<> LoadImage(const std::string& path, bool saveToDisk)
+VulkanStructs::VImageData<> LoadImage(const std::string& path, bool saveToDisk)
 {
-    VulkanStructs::ImageData imageData{};
+    VulkanStructs::VImageData imageData{};
 
     imageData.pixels = reinterpret_cast<uint32_t*>(
         stbi_load(path.c_str(), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
@@ -61,9 +61,9 @@ VulkanStructs::ImageData<> LoadImage(const std::string& path, bool saveToDisk)
     return imageData;
 }
 
-VulkanStructs::ImageData<> LoadImage(const TextureBufferInfo& data, const std::string& textureID, bool saveToDisk)
+VulkanStructs::VImageData<> LoadImage(const TextureBufferInfo& data, const std::string& textureID, bool saveToDisk)
 {
-    VulkanStructs::ImageData imageData{};
+    VulkanStructs::VImageData imageData{};
     if(data.data)
     {
 
@@ -117,9 +117,9 @@ VulkanStructs::ImageData<> LoadImage(const TextureBufferInfo& data, const std::s
     return imageData;
 }
 
-VulkanStructs::ImageData<float> LoadHDRImage(const std::string& path, bool saveToDisk)
+VulkanStructs::VImageData<float> LoadHDRImage(const std::string& path, bool saveToDisk)
 {
-    VulkanStructs::ImageData<float> imageData{};
+    VulkanStructs::VImageData<float> imageData{};
 
     imageData.pixels = reinterpret_cast<float*>(
         stbi_loadf(path.c_str(), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));

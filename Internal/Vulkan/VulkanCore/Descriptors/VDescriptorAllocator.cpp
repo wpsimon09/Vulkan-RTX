@@ -100,10 +100,12 @@ VDescriptorLayoutCache::VDescriptorLayoutCache(const VDevice& device)
 }
 void VDescriptorLayoutCache::Destroy()
 {
-
+    for (auto& layout: m_layoutCache) {
+        m_device.GetDevice().destroyDescriptorSetLayout(layout.second);
+    }
 }
 
-vk::DescriptorSetLayout VDescriptorLayoutCache::CreateDescriptorSetLayout(const vk::DescriptorSetLayoutCreateInfo* info)
+vk::DescriptorSetLayout VDescriptorLayoutCache::CreateDescriptorSetLayout(const vk::DescriptorSetLayoutCreateInfo* info )
 {
     DescriptorSetLayoutInfo layoutInfo;
     layoutInfo.bindings.reserve(info->bindingCount);

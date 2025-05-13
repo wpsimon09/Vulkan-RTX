@@ -58,7 +58,7 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VRe
 void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdBuffer,
                                   int                                       currentFrameIndex,
                                   int                                       objectIndex,
-                                  VulkanStructs::DrawCallData&              drawCall,
+                                  VulkanStructs::VDrawCallData&              drawCall,
                                   const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     switch(drawCall.effect->GetLayoutStructType())

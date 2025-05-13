@@ -39,7 +39,7 @@ void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
             }
         }
 
-        VulkanStructs::DrawCallData data;
+        VulkanStructs::VDrawCallData data;
         data.firstIndex = 1;
 
         data.indexCount = m_mesh->GetMeshIndexCount();

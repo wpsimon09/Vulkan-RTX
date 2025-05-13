@@ -45,17 +45,30 @@ EDescriptorLayoutStruct VEffect::GetLayoutStructType()
 {
     return m_resourceGroup->GetResourceGroupStrucutureType();
 }
-void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData) {
+void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
+{
     m_reflectionData = &reflectionData;
 
-    m_descriptorSets.reserve(reflectionData.descriptorSets.size())
-    ;
-    for (auto& set: reflectionData.descriptorSets) {
-        m_descriptorSets.push_back(m_descriptorSetLayoutCache.CreateDescriptorSetLayout(&set.second.createInfo));
+    m_descriptorSets.reserve(reflectionData.descriptorSets.size());
+
+    for(auto& set : reflectionData.descriptorSets)
+    {
+        VulkanStructs::VDescriptorSet newSet;
+        newSet.layouts = m_descriptorSetLayoutCache.CreateDescriptorSetLayout(&set.second.createInfo);
+
+        // copy the layout for pieline creation
+        m_descriptorSetLayouts.push_back(newSet.layouts);
+        for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
+            vk::DescriptorsetCreate
+            // create the sets from the pool
+        }
+
+        m_descriptorSets.push_back(newSet);
     }
 
     Utils::Logger::LogSuccess("Descriptor set layout created successfully");
-
 }
+
 
 }  // namespace VulkanUtils

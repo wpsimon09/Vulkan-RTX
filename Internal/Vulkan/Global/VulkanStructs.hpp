@@ -33,7 +33,7 @@ struct SceneLightInfo;
 
 namespace VulkanStructs {
 template <typename T = uint32_t>
-struct ImageData
+struct VImageData
 {
     T*           pixels;
     int          widht, height, channels;
@@ -63,7 +63,7 @@ struct ImageData
 };
 
 
-struct Bounds
+struct VBounds
 {
     glm::vec3                origin;
     glm::vec3                extents;
@@ -90,13 +90,13 @@ struct Bounds
 };
 
 
-struct RenderingStatistics
+struct VRenderingStatistics
 {
     int DrawCallCount = 0;
 };
 
 // holds offset to the larger buffer that is in GPU to prevent fragmentation
-struct GPUSubBufferInfo
+struct VGPUSubBufferInfo
 {
     vk::DeviceSize size;
     vk::DeviceSize offset;
@@ -106,22 +106,22 @@ struct GPUSubBufferInfo
     int               BufferID;
     vk::DeviceAddress bufferAddress;
 
-    bool operator==(const GPUSubBufferInfo& other) const { return BufferID == other.BufferID; }
+    bool operator==(const VGPUSubBufferInfo& other) const { return BufferID == other.BufferID; }
 
-    bool operator!=(const GPUSubBufferInfo& other) const { return BufferID != other.BufferID; }
+    bool operator!=(const VGPUSubBufferInfo& other) const { return BufferID != other.BufferID; }
 };
 ;
 
-struct MeshData
+struct VMeshData
 {
-    GPUSubBufferInfo vertexData;
-    GPUSubBufferInfo indexData;
-    GPUSubBufferInfo vertexData_BB;
-    GPUSubBufferInfo indexData_BB;
-    Bounds           bounds;
+    VGPUSubBufferInfo vertexData;
+    VGPUSubBufferInfo indexData;
+    VGPUSubBufferInfo vertexData_BB;
+    VGPUSubBufferInfo indexData_BB;
+    VBounds           bounds;
 };
 
-struct GPUBufferInfo
+struct VGPUBufferInfo
 {
     vk::DeviceSize size          = 0;
     vk::DeviceSize currentOffset = 0;
@@ -141,14 +141,14 @@ struct GPUBufferInfo
 };
 
 template <typename T>
-struct ReadBackBufferInfo
+struct VReadBackBufferInfo
 {
     std::vector<T> data;
     int            bufferID;
     size_t         size;
 };
 
-struct StagingBufferInfo
+struct VStagingBufferInfo
 {
     void*          mappedPointer;
     vk::DeviceSize size;
@@ -160,16 +160,16 @@ struct StagingBufferInfo
     VkBuffer copyDstBuffer;
 };
 
-struct DrawCallData
+struct VDrawCallData
 {
     uint32_t indexCount    = 0;
     uint32_t firstIndex    = 0;
     uint32_t indexCount_BB = 36;
     uint32_t instanceCount = 1;
 
-    GPUSubBufferInfo* vertexData = nullptr;
-    GPUSubBufferInfo* indexData  = nullptr;
-    Bounds*           bounds     = nullptr;
+    VGPUSubBufferInfo* vertexData = nullptr;
+    VGPUSubBufferInfo* indexData  = nullptr;
+    VBounds*           bounds     = nullptr;
 
 
     mutable int drawCallID = 0;
@@ -187,7 +187,7 @@ struct DrawCallData
     ApplicationCore::BaseMaterial*        material;
     std::shared_ptr<VulkanUtils::VRasterEffect> effect;
 
-    friend bool operator==(const DrawCallData& lhs, const ObjectDataUniform& rhs)
+    friend bool operator==(const VDrawCallData& lhs, const ObjectDataUniform& rhs)
     {
         if(auto* lhsPBRMat = dynamic_cast<ApplicationCore::PBRMaterial*>(lhs.material))
         {
@@ -204,7 +204,14 @@ struct DrawCallData
         }
     }
 
-    friend bool operator!=(const DrawCallData& lhs, const ObjectDataUniform& rhs) { return !(lhs == rhs); }
+    friend bool operator!=(const VDrawCallData& lhs, const ObjectDataUniform& rhs) { return !(lhs == rhs); }
+};
+
+struct VDescriptorSet {
+    std::vector<vk::DescriptorSet>       sets; // per frame in flight
+
+    vk::DescriptorSetLayout              layouts;
+
 };
 
 

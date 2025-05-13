@@ -73,7 +73,7 @@ namespace Renderer {
         void PushDataToGPU(const vk::CommandBuffer& cmdBuffer,
                            int currentFrameIndex,
                            int objectIndex,
-                           VulkanStructs::DrawCallData& drawCall,
+                           VulkanStructs::VDrawCallData& drawCall,
                            const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
         // Vulkan context & managers
@@ -85,7 +85,7 @@ namespace Renderer {
         std::unique_ptr<Renderer::RenderTarget> m_renderTargets;
         std::unique_ptr<VulkanUtils::VRasterEffect> m_depthPrePassEffect;
 
-        VulkanStructs::RenderingStatistics m_renderingStatistics;
+        VulkanStructs::VRenderingStatistics m_renderingStatistics;
 
         // Config / state
         bool m_depthPrePass = true;

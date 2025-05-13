@@ -20,11 +20,11 @@
 
 VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice&              device,
                                                  const VulkanCore::VShader&              shaders,
-                                                 const VulkanCore::VDescriptorSetLayout& descriptorLayout)
+                                                 const std::vector<vk::DescriptorSetLayout>&   descriptorSets)
     : VObject()
     , m_shaders(shaders)
     , m_device(device)
-    , m_descriptorSetLayout(descriptorLayout)
+    , m_descriptorSets(descriptorSets)
 {
     m_outputFormats.resize(1);
     m_outputFormats[0] = vk::Format::eR8G8B8A8Unorm;
@@ -249,8 +249,8 @@ void VulkanCore::VGraphicsPipeline::CreatePipelineLayout()
     Utils::Logger::LogSuccess("Creating pipeline layout...");
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 
-    pipelineLayoutCreateInfo.setLayoutCount = 1;
-    pipelineLayoutCreateInfo.pSetLayouts    = &m_descriptorSetLayout.GetLayout();
+    pipelineLayoutCreateInfo.setLayoutCount = m_descriptorSets.size();
+    pipelineLayoutCreateInfo.pSetLayouts    = m_descriptorSets.data();
 
     pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
     pipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;

@@ -26,9 +26,9 @@ ApplicationCore::VTextureAsset::VTextureAsset(const VulkanCore::VDevice&        
     m_textureSource = EImageSource::File;
     m_assetPath     = texturePath;
     if(m_textureAssetType == HDRTexture)
-        m_imageFormat = std::future<VulkanStructs::ImageData<float>>();
+        m_imageFormat = std::future<VulkanStructs::VImageData<float>>();
     else
-        m_imageFormat = std::future<VulkanStructs::ImageData<>>();
+        m_imageFormat = std::future<VulkanStructs::VImageData<>>();
     VTextureAsset::Load();
 }
 
