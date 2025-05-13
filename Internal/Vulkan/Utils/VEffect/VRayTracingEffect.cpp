@@ -47,9 +47,11 @@ VulkanCore::RTX::VRayTracingPipeline& VRayTracingEffect::GetRTXPipeline() {
 void VRayTracingEffect::BindPipeline(const vk::CommandBuffer& cmdBuffer) {
     cmdBuffer.bindPipeline(vk::PipelineBindPoint::eRayTracingKHR, m_rtPipeline->m_rtPipelineHandle, m_device.DispatchLoader);   
 }
-void VRayTracingEffect::Destroy() {
+void VRayTracingEffect::Destroy()
+{
 
     m_rtPipeline->Destroy();
 }
+void VRayTracingEffect::BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) {}
 
 }  // namespace VulkanUtils

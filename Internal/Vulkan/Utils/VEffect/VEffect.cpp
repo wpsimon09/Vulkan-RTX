@@ -82,8 +82,10 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
 
     Utils::Logger::LogSuccess("Descriptor set layout created successfully");
 }
-void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorBufferInfo& bufferInfo)
+void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorBufferInfo bufferInfo)
 {
+    assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
+
     auto& write = m_descriptorSets[set].writes[frame][binding];
     assert(write.descriptorType == vk::DescriptorType::eUniformBuffer || write.descriptorType == vk::DescriptorType::eUniformBuffer);
 
@@ -91,10 +93,11 @@ void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::De
     write.pBufferInfo = &m_bufferInfos.back();
 }
 
-void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo& imageInfo)
+void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo imageInfo)
 {
+    assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
     auto& write = m_descriptorSets[set].writes[frame][binding];
-    assert(write.descriptorType == vk::DescriptorType::eSampledImage || write.descriptorType == vk::DescriptorType::eStorageImage);
+    assert(write.descriptorType == vk::DescriptorType::eCombinedImageSampler || write.descriptorType == vk::DescriptorType::eSampledImage || write.descriptorType == vk::DescriptorType::eStorageImage);
 
     m_imageInfos.push_back(imageInfo);
     write.pImageInfo = &m_imageInfos.back();
@@ -102,6 +105,9 @@ void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::Des
 
 void VEffect::WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR& asInfo)
 {
+    assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
+
+
     auto& write = m_descriptorSets[set].writes[frame][binding];
     assert(m_descriptorSets[set].writes[frame][binding].descriptorType == vk::DescriptorType::eAccelerationStructureKHR);
 
@@ -132,7 +138,6 @@ void VEffect::ApplyWrites(uint32_t frame)
     m_asInfos.clear();
 }
 
-void VEffect::BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) {}
 
 
 }  // namespace VulkanUtils

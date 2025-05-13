@@ -220,5 +220,8 @@ void VRasterEffect::Destroy()
 {
     m_pipeline->Destroy();
 }
+void VRasterEffect::BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) {
+    cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipeline->GetPipelineLayout(), set, m_descriptorSets.size(), &m_descriptorSets[set].sets[frame], 0, nullptr);
+}
 
 }  // namespace VulkanUtils

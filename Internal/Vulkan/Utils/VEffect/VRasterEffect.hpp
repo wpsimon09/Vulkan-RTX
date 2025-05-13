@@ -79,6 +79,7 @@ class VRasterEffect:public VEffect
     vk::PipelineLayout GetPipelineLayout() override;
     void               BindPipeline(const vk::CommandBuffer& cmdBuffer) override;
     void               Destroy() override;
+    void               BindDescriptorSet(const vk::CommandBuffer &cmdBuffer, uint32_t frame, uint32_t set) override;
 
 
   private:

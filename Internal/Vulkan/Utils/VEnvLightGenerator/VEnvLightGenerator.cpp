@@ -197,7 +197,6 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             hdrToCubeMapEffect.BuildEffect();
 
 
-            hdrToCubeMapEffect.GetDescriptorWrite(m_currentFrame, 0, 0).pBufferInfo;
 
             struct PushBlock
             {
@@ -232,10 +231,8 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     hdrPushBlocks[i]->GetUBOStruct().viewProj = m_camptureViews[face];
                     hdrPushBlocks[i]->UpdateGPUBuffer(0);
 
-                    auto& updateStuct       = std::get<Unlit>(hdrToCubeMapEffect.GetResrouceGroupStructVariant());
-                    updateStuct.buffer1     = hdrPushBlocks[i]->GetDescriptorBufferInfos()[0];
-                    updateStuct.texture2D_1 = envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                    updateStuct.texture2D_2 = envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                    hdrToCubeMapEffect.WriteBuffer(m_currentFrame, 0, 0, hdrPushBlocks[i]->GetDescriptorBufferInfos()[i]);
+                    hdrToCubeMapEffect.WriteImage(m_currentFrame, 0, 1, envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                     //================= configure rendering
                     viewport.width  = static_cast<float>(dimensions * std::pow(0.5f, mip));
@@ -243,9 +240,8 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     // ================ update data
                     hdrToCubeMapEffect.BindPipeline(cmdBuffer);
 
-                    cmdBuffer.pushDescriptorSetWithTemplateKHR(hdrToCubeMapEffect.GetUpdateTemplate(),
-                                                               hdrToCubeMapEffect.GetPipelineLayout(), 0, updateStuct,
-                                                               m_device.DispatchLoader);
+                    hdrToCubeMapEffect.ApplyWrites(m_currentFrame);
+                    hdrToCubeMapEffect.BindDescriptorSet(cmdBuffer, m_currentFrame, 0);
 
                     RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
 

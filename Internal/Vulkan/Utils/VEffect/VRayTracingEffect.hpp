@@ -30,6 +30,7 @@ class VRayTracingEffect : public VEffect
     VulkanCore::RTX::VRayTracingPipeline& GetRTXPipeline();
     void                                  BindPipeline(const vk::CommandBuffer& cmdBuffer) override;
     void                                  Destroy() override;
+    void BindDescriptorSet(const vk::CommandBuffer &cmdBuffer, uint32_t frame, uint32_t set) override;
 
 
   private:

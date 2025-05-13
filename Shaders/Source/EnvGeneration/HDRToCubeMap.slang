@@ -5,7 +5,7 @@
 
     [[vk::binding(0, 0)]] ConstantBuffer<HDRToCubeMapPushData> pushData;
 
-    [[vk::binding(3, 0)]] ConstantBuffer<Sampler2D> hdrMap;
+    [[vk::binding(1, 0)]] ConstantBuffer<Sampler2D> hdrMap;
 
     struct VertexInput 
     {
