@@ -39,6 +39,22 @@ class VEffect
     EDescriptorLayoutStruct       GetLayoutStructType();
     void                          CreateLayouts(const VulkanCore::ReflectionData& reflectionData);
 
+    //=====================================
+    // DESCRIPTOR WRITES
+    //=====================================
+    void WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorBufferInfo& bufferInfo);
+    void WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo& imageInfo);
+    void WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR& asInfo);
+    void ApplyWrites(uint32_t frame);
+    void BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set);
+
+    //======================================
+    // COPY OF RESOURCES
+    //======================================
+    std::vector<vk::DescriptorBufferInfo> m_bufferInfos;
+    std::vector<vk::DescriptorImageInfo> m_imageInfos;
+    std::vector<vk::WriteDescriptorSetAccelerationStructureKHR> m_asInfos;
+
   protected:
     const VulkanCore::VDevice&                         m_device;
     std::string                                        m_name;
@@ -52,7 +68,6 @@ class VEffect
     std::vector<vk::DescriptorSetLayout>       m_descriptorSetLayouts;
     const VulkanCore::ReflectionData*          m_reflectionData;
     VulkanCore::VDescriptorLayoutCache&        m_descriptorSetLayoutCache;
-
 };
 
 }  // namespace VulkanUtils

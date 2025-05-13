@@ -110,8 +110,9 @@ VulkanCore::VImage2* VulkanUtils::VEnvLightGenerator::GetPrefilterMapRaw()
     return m_prefilterMaps[m_currentHDR].get();
 }
 
-void VulkanUtils::VEnvLightGenerator::Generate(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore)
+void VulkanUtils::VEnvLightGenerator::Generate(uint32_t currentFrame, std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore)
 {
+    m_currentFrame = currentFrame;
 
     if(!envMap)
     {
@@ -196,10 +197,13 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             hdrToCubeMapEffect.BuildEffect();
 
 
+            hdrToCubeMapEffect.GetDescriptorWrite(m_currentFrame, 0, 0).pBufferInfo;
+
             struct PushBlock
             {
                 glm::mat4 viewProj;
             };
+
 
             // ======================= where we will render and copy to different arrray layers
             vk::RenderingAttachmentInfo renderAttachentInfo;
