@@ -12,6 +12,8 @@ Simple Vulkan physically based render that can render meshes in classic rasteris
 
 ## Build
 
+To run this project, for now it is crucial that your GPU supports `VK_KHR_ray_tracing_pipeline` ! 
+
 ### 1. Clone this repo
 
 ```sh
