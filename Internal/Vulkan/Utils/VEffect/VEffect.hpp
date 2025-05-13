@@ -52,6 +52,7 @@ class VEffect
     std::vector<vk::DescriptorSetLayout>       m_descriptorSetLayouts;
     const VulkanCore::ReflectionData*          m_reflectionData;
     VulkanCore::VDescriptorLayoutCache&        m_descriptorSetLayoutCache;
+
 };
 
 }  // namespace VulkanUtils

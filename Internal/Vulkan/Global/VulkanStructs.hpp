@@ -14,6 +14,8 @@
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 
+#include <map>
+
 
 namespace ApplicationCore {
 class BaseMaterial;
@@ -184,7 +186,7 @@ struct VDrawCallData
     bool inDepthPrePass = true;
     bool selected       = false;
 
-    ApplicationCore::BaseMaterial*        material;
+    ApplicationCore::BaseMaterial*              material;
     std::shared_ptr<VulkanUtils::VRasterEffect> effect;
 
     friend bool operator==(const VDrawCallData& lhs, const ObjectDataUniform& rhs)
@@ -207,11 +209,12 @@ struct VDrawCallData
     friend bool operator!=(const VDrawCallData& lhs, const ObjectDataUniform& rhs) { return !(lhs == rhs); }
 };
 
-struct VDescriptorSet {
-    std::vector<vk::DescriptorSet>       sets; // per frame in flight
-
-    vk::DescriptorSetLayout              layouts;
-
+struct VDescriptorSet
+{
+    std::vector<vk::DescriptorSet> sets;  // per frame in flight
+    vk::DescriptorSetLayout        layout;
+    std::map<uint32_t, std::vector<vk::WriteDescriptorSet>> writes;  // writes are per frame in flight, map key is the frame and
+                                                                     // value is the vector of writes
 };
 
 

@@ -18,6 +18,7 @@
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
 
 VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::PhysicalDevice&         physicalDevice,
                                                               const VulkanCore::VulkanInstance& instance)
@@ -135,6 +136,7 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance)
     m_transferOpsManager = std::make_unique<VulkanUtils::VTransferOperationsManager>(*this);
     m_transferOpsManager->StartRecording();
     m_meshDataManager    = std::make_unique<MeshDatatManager>(*this);
+    m_descriptorAllocator = std::make_unique<VulkanCore::VDescriptorAllocator>(*this);
 }
 
 VulkanCore::VCommandPool& VulkanCore::VDevice::GetTransferCommandPool() const
