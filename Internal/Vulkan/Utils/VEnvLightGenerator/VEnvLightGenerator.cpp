@@ -231,7 +231,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     hdrPushBlocks[i]->GetUBOStruct().viewProj = m_camptureViews[face];
                     hdrPushBlocks[i]->UpdateGPUBuffer(0);
 
-                    hdrToCubeMapEffect.WriteBuffer(m_currentFrame, 0, 0, hdrPushBlocks[i]->GetDescriptorBufferInfos()[i]);
+                    hdrToCubeMapEffect.WriteBuffer(m_currentFrame, 0, 0, hdrPushBlocks[i]->GetDescriptorBufferInfos()[0]);
                     hdrToCubeMapEffect.WriteImage(m_currentFrame, 0, 1, envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                     //================= configure rendering
