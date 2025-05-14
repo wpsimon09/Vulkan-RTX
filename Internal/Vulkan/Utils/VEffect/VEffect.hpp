@@ -65,6 +65,10 @@ class VEffect
     //========================================================================
     // Effect descriptor data
     //========================================================================
+
+    /**
+     * There can be multiple descriptor sets per pipeline therefore this is an array
+     */
     std::vector<VulkanStructs::VDescriptorSet> m_descriptorSets;
     std::vector<vk::DescriptorSetLayout>       m_descriptorSetLayouts;
     const VulkanCore::ReflectionData*          m_reflectionData;

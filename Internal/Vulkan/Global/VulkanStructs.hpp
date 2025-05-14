@@ -209,6 +209,13 @@ struct VDrawCallData
     friend bool operator!=(const VDrawCallData& lhs, const ObjectDataUniform& rhs) { return !(lhs == rhs); }
 };
 
+/**
+ * Struct that represent single descriptor sets it holds:
+ *  - its layout
+ *  - separate sets per frame in flight
+ *  - writes per set, each write is accessed by the "current frame" variable and binding
+ *  example writes[currentFrame = 0 ][binding = 1] retrieves write for binding 1 and frame 0
+ */
 struct VDescriptorSet
 {
     std::vector<vk::DescriptorSet> sets;  // per frame in flight

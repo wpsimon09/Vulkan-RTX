@@ -241,6 +241,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     hdrToCubeMapEffect.BindPipeline(cmdBuffer);
 
                     hdrToCubeMapEffect.ApplyWrites(m_currentFrame);
+
                     hdrToCubeMapEffect.BindDescriptorSet(cmdBuffer, m_currentFrame, 0);
 
                     RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);

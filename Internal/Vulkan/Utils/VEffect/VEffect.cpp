@@ -134,8 +134,14 @@ void VEffect::ApplyWrites(uint32_t frame)
     }
 
     m_bufferInfos.clear();
+    m_bufferInfos.shrink_to_fit();
+
     m_imageInfos.clear();
+    m_imageInfos.shrink_to_fit();
+
     m_asInfos.clear();
+    m_asInfos.shrink_to_fit();
+
 }
 
 
