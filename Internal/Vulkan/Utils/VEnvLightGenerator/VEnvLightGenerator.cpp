@@ -372,9 +372,9 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
                 hdrPushBlocks[face]->GetUBOStruct().viewProj = m_camptureViews[face];
                 hdrPushBlocks[face]->UpdateGPUBuffer(0);
 
-                cubeMapToIrradianceEffect.WriteBuffer(0, 0, 0, hdrPushBlocks[face]->GetDescriptorBufferInfos()[0]);
+                cubeMapToIrradianceEffect.WriteBuffer(m_currentFrame, 0, 0, hdrPushBlocks[face]->GetDescriptorBufferInfos()[0]);
                 cubeMapToIrradianceEffect.WriteImage(
-                    0, 0, 1, m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
+                    m_currentFrame, 0, 1, m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
 
                 cubeMapToIrradianceEffect.ApplyWrites(m_currentFrame);
 
