@@ -12,7 +12,7 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
                              const std::string&                                  name,
                              const VulkanCore::VShader&                          shader,
                              VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                             std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& shaderResourceGroup)
+                             std::shared_ptr<VulkanUtils::VShaderResourceGroup>& shaderResourceGroup)
     : VEffect(device, name, descLayoutCache, shaderResourceGroup)
 {
     CreateLayouts(shader.GetReflectionData());
@@ -29,7 +29,7 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
                              const std::string&                                  vertex,
                              const std::string&                                  fragment,
                              VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                             std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
+                             std::shared_ptr<VulkanUtils::VShaderResourceGroup>& descriptorSet)
     : VEffect(device, name, descLayoutCache, descriptorSet)
     , m_shader(std::in_place, device, vertex, fragment)
 {

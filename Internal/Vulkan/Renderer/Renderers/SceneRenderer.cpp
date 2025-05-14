@@ -74,6 +74,7 @@ void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdB
                                                        0, basicEffecResourceGroup, m_device.DispatchLoader);
             break;
         }
+
         case VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture: {
             auto& unlitSingleTextureResrouceGroup =
                 std::get<VulkanUtils::Unlit>(drawCall.effect->GetResrouceGroupStructVariant());
@@ -175,7 +176,6 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex,VulkanCore::VCommandBuffe
 
     renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
 
-
     m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
 
 
@@ -258,12 +258,15 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex,VulkanCore::VCommandBuffe
                 currentIndexBuffer = drawCall.second.indexData;
             }
 
-            auto& update = std::get<VulkanUtils::BasicDescriptorSet>(m_depthPrePassEffect->GetResrouceGroupStructVariant());
-            update.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-            update.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.second.drawCallID)[currentFrameIndex];
 
-            cmdB.pushDescriptorSetWithTemplateKHR(m_depthPrePassEffect->GetUpdateTemplate(),
-                                                       m_depthPrePassEffect->GetPipelineLayout(), 0, update, m_device.DispatchLoader);
+            m_depthPrePassEffect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+            m_depthPrePassEffect->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.second.drawCallID)[currentFrameIndex]);
+
+            m_depthPrePassEffect->ApplyWrites(currentFrameIndex);
+
+
+            // TODO: so wrong i will rewrite this to the descriptor indexing
+            m_depthPrePassEffect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
 
             cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
                                   drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),

@@ -198,7 +198,7 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for per object data");
 
     m_perObjectUniform.resize(MAX_UBO_COUNT);
-    m_rtxMaterialDescriptions.resize(MAX_UBO_COUNT);
+    m_rtxMaterialDescriptions.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
 
     for(int i = 0; i < MAX_UBO_COUNT; i++)
     {

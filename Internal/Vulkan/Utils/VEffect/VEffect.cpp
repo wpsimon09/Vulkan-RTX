@@ -13,7 +13,7 @@ namespace VulkanUtils {
 VEffect::VEffect(const VulkanCore::VDevice&                          device,
                  const std::string&                                  name,
                  VulkanCore::VDescriptorLayoutCache&                 descriptoSetLayoutCache,
-                 std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
+                 std::shared_ptr<VulkanUtils::VShaderResourceGroup>& descriptorSet)
     : m_device(device)
     , m_name(name)
     , m_resourceGroup(descriptorSet)
@@ -128,7 +128,9 @@ void VEffect::ApplyWrites(uint32_t frame)
     {
         for(auto& write : set.writes[frame])
         {
-            writes.push_back(write.second);
+            if (write.second.pBufferInfo != nullptr || write.second.pImageInfo != nullptr) {
+                writes.push_back(write.second);
+            }
         }
         m_device.GetDevice().updateDescriptorSets(writes.size(), writes.data(), 0, nullptr);
     }

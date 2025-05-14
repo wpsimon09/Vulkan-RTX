@@ -34,7 +34,7 @@ class VResourceGroupManager
     void AddUpdateEntry(uint32_t binding, size_t offset, size_t stride);
     void CreateUpdateTemplate(const VulkanCore::VGraphicsPipeline& pipeline);
 
-    std::shared_ptr<VShaderResrouceGroup>& GetResourceGroup(EDescriptorLayoutStruct layoutType)
+    std::shared_ptr<VShaderResourceGroup>& GetResourceGroup(EDescriptorLayoutStruct layoutType)
     {
         return m_pushDescriptors[layoutType];
     }
@@ -49,7 +49,7 @@ class VResourceGroupManager
 
     VulkanUtils::DescriptorSetData m_descriptorSetData;
 
-    std::map<EDescriptorLayoutStruct, std::shared_ptr<VulkanUtils::VShaderResrouceGroup>> m_pushDescriptors;
+    std::map<EDescriptorLayoutStruct, std::shared_ptr<VulkanUtils::VShaderResourceGroup>> m_pushDescriptors;
 };
 
 }  // namespace VulkanUtils

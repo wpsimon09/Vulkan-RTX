@@ -20,10 +20,10 @@ class VDevice;
 
 namespace VulkanUtils {
 
-class VShaderResrouceGroup
+class VShaderResourceGroup
 {
   public:
-    explicit VShaderResrouceGroup(const VulkanCore::VDevice&                        device,
+    explicit VShaderResourceGroup(const VulkanCore::VDevice&                        device,
                                   const std::string&                                name,
                                   std::unique_ptr<VulkanCore::VDescriptorSetLayout> dstLayout);
 

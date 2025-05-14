@@ -15,7 +15,7 @@ class VDescriptorLayoutCache;
 inline int EffectIndexCounter = 0;
 
 namespace VulkanUtils {
-class VShaderResrouceGroup;
+class VShaderResourceGroup;
 
 
 class VEffect
@@ -24,7 +24,7 @@ class VEffect
     explicit VEffect(const VulkanCore::VDevice&                          device,
                      const std::string&                                  name,
                      VulkanCore::VDescriptorLayoutCache&                 descriptoSetLayoutCache,
-                     std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet);
+                     std::shared_ptr<VulkanUtils::VShaderResourceGroup>& descriptorSet);
 
   public:
     std::string&                  GetName();
@@ -59,7 +59,7 @@ class VEffect
   protected:
     const VulkanCore::VDevice&                         m_device;
     std::string                                        m_name;
-    std::shared_ptr<VulkanUtils::VShaderResrouceGroup> m_resourceGroup;
+    std::shared_ptr<VulkanUtils::VShaderResourceGroup> m_resourceGroup;
     int                                                m_ID;
 
     //========================================================================

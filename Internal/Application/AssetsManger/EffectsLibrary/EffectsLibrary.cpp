@@ -17,8 +17,11 @@
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 
 namespace ApplicationCore {
-EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, VulkanUtils::VResourceGroupManager& pushDescriptorManager)
-    :m_descLayoutCache(descLayoutCache)
+EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
+                               VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                               VulkanCore::VDescriptorLayoutCache& descLayoutCache,
+                               VulkanUtils::VResourceGroupManager& pushDescriptorManager)
+    : m_descLayoutCache(descLayoutCache)
 {
     auto frowardEffect = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv", "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
@@ -111,8 +114,8 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanCore::VD
     //===============================================================================
 
     auto skybox = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv", "Shaders/Compiled/SkyBox.frag.spv",
-        descLayoutCache, pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
+        device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv", "Shaders/Compiled/SkyBox.frag.spv", descLayoutCache,
+        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
 
 
     skybox->SetCullNone().SetVertexInputMode(EVertexInput::PositionOnly).SetDisableDepthWrite().SetDepthOpLessEqual().DisableStencil();
@@ -144,4 +147,43 @@ void EffectsLibrary::Destroy()
         effect.second->Destroy();
     }
 }
+
+void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager& uniformBufferManager)
+{
+    for(auto& effect : effects)
+    {
+        switch(effect.first)
+        {
+            case EEffectType::Outline:
+
+                break;
+            case EEffectType::ForwardShader:
+                // Handle ForwardShader effect
+                break;
+            case EEffectType::SkyBox:
+                // Handle SkyBox effect
+                break;
+            case EEffectType::DebugLine:
+                // Handle DebugLine effect
+                break;
+            case EEffectType::AlphaMask:
+                // Handle AlphaMask effect
+                break;
+            case EEffectType::AplhaBlend:
+                // Handle AlphaBlend effect
+                break;
+            case EEffectType::EditorBilboard:
+                // Handle EditorBilboard effect
+                break;
+            case EEffectType::RayTracing:
+                // Handle RayTracing effect
+                break;
+            default:
+                // Handle unknown effect type
+                break;
+        }
+    }
+}
+
+
 }  // namespace ApplicationCore

@@ -12,7 +12,7 @@ VRayTracingEffect::VRayTracingEffect(const VulkanCore::VDevice&                 
                                      const VulkanCore::RTX::RTXShaderPaths&              shaderPaths,
                                      const std::string&                                  name,
                                      VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                                     std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
+                                     std::shared_ptr<VulkanUtils::VShaderResourceGroup>& descriptorSet)
     : VEffect(device, name, descLayoutCache ,descriptorSet)
     , m_shaders(device, shaderPaths)
 {

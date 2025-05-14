@@ -89,13 +89,14 @@ void Application::Init()
 
     m_descriptorSetLayoutCache = std::make_unique<VulkanCore::VDescriptorLayoutCache>(*m_vulkanDevice);
 
+    m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
+
     m_pushDescriptorSetManager = std::make_unique<VulkanUtils::VResourceGroupManager>(*m_vulkanDevice);
-    m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice,*m_descriptorSetLayoutCache, *m_pushDescriptorSetManager);
+    m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice,*m_uniformBufferManager, *m_descriptorSetLayoutCache, *m_pushDescriptorSetManager);
     auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_effectsLibrary);
     m_client->MountAssetsManger(std::move(assetManger));
     m_client->Init();
 
-    m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 
     //m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_resrouceGroupManager);
     m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
@@ -122,6 +123,7 @@ void Application::Init()
     m_client->GetScene().Update();
     auto inputs =m_client->GetScene().GetBLASInputs();
     m_renderingSystem->GetRayTracingManager().InitAs(inputs);
+
 }
 
 void Application::MainLoop()

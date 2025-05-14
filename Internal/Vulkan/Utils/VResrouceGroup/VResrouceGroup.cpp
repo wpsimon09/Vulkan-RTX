@@ -8,7 +8,7 @@
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 
-VulkanUtils::VShaderResrouceGroup::VShaderResrouceGroup(const VulkanCore::VDevice&                        device,
+VulkanUtils::VShaderResourceGroup::VShaderResourceGroup(const VulkanCore::VDevice&                        device,
                                                         const std::string&                                name,
                                                         std::unique_ptr<VulkanCore::VDescriptorSetLayout> dstLayout)
     : m_device(device)
@@ -100,7 +100,7 @@ VulkanUtils::VShaderResrouceGroup::VShaderResrouceGroup(const VulkanCore::VDevic
         m_dstLayout->GetStructure());
 }
 
-void VulkanUtils::VShaderResrouceGroup::AddUpdateEntry(uint32_t binding, size_t offset, size_t stride)
+void VulkanUtils::VShaderResourceGroup::AddUpdateEntry(uint32_t binding, size_t offset, size_t stride)
 {
     assert(m_dstLayout->GetBindings().count(binding) == 1 && "Binding is not part of the descriptor layout !");
     vk::DescriptorUpdateTemplateEntry entry{};
@@ -114,7 +114,7 @@ void VulkanUtils::VShaderResrouceGroup::AddUpdateEntry(uint32_t binding, size_t 
     m_descriptorTemplateEntries.push_back(entry);
 }
 
-void VulkanUtils::VShaderResrouceGroup::CreateDstUpdateInfo( const vk::PipelineLayout& pipelineLayout,  vk::PipelineBindPoint bindPoint)
+void VulkanUtils::VShaderResourceGroup::CreateDstUpdateInfo( const vk::PipelineLayout& pipelineLayout,  vk::PipelineBindPoint bindPoint)
 {
     Utils::Logger::LogInfo("Creating update template object....");
     //  assert(!m_descriptorTemplateEntries.empty() && "No template entries found");
@@ -132,7 +132,7 @@ void VulkanUtils::VShaderResrouceGroup::CreateDstUpdateInfo( const vk::PipelineL
     Utils::Logger::LogSuccess("Update template created !");
 }
 
-void VulkanUtils::VShaderResrouceGroup::Destroy()
+void VulkanUtils::VShaderResourceGroup::Destroy()
 {
     m_device.GetDevice().destroyDescriptorUpdateTemplate(m_descriptorUpdateTemplate);
     m_dstLayout->Destroy();
