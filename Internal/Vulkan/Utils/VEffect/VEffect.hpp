@@ -38,6 +38,13 @@ class VEffect
     int&                          GetID();
     EDescriptorLayoutStruct       GetLayoutStructType();
     void                          CreateLayouts(const VulkanCore::ReflectionData& reflectionData);
+    /**
+     * Informs how many writes will be needed for each element in the descriptor sets
+     * @param buffers number of buffers for writes
+     * @param images number of images for writes
+     * @param accels number of acceleration structures for writes
+     */
+    void                          SetNumWrites(uint32_t buffers = 1, uint32_t images = 1 , uint32_t accels = 1);
 
     //=====================================
     // DESCRIPTOR WRITES

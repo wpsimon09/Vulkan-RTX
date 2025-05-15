@@ -259,6 +259,7 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex,VulkanCore::VCommandBuffe
             }
 
 
+            m_depthPrePassEffect->SetNumWrites(2, 0, 0);
             m_depthPrePassEffect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
             m_depthPrePassEffect->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.second.drawCallID)[currentFrameIndex]);
 

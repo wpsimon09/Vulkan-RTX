@@ -82,15 +82,21 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
 
     Utils::Logger::LogSuccess("Descriptor set layout created successfully");
 }
+void VEffect::SetNumWrites(uint32_t buffers, uint32_t images, uint32_t accels) {
+    m_bufferInfos.reserve(buffers);
+    m_imageInfos.reserve(images);
+    m_asInfos.reserve(accels);
+}
+
 void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorBufferInfo bufferInfo)
 {
     assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
 
     auto& write = m_descriptorSets[set].writes[frame][binding];
-    assert(write.descriptorType == vk::DescriptorType::eUniformBuffer || write.descriptorType == vk::DescriptorType::eUniformBuffer);
+    assert(write.descriptorType == vk::DescriptorType::eUniformBuffer || write.descriptorType == vk::DescriptorType::eStorageBuffer);
 
     m_bufferInfos.push_back(bufferInfo);
-    write.pBufferInfo = &m_bufferInfos.back();
+    write.pBufferInfo = &m_bufferInfos[m_bufferInfos.size() - 1];
 }
 
 void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo imageInfo)
@@ -100,7 +106,7 @@ void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::Des
     assert(write.descriptorType == vk::DescriptorType::eCombinedImageSampler || write.descriptorType == vk::DescriptorType::eSampledImage || write.descriptorType == vk::DescriptorType::eStorageImage);
 
     m_imageInfos.push_back(imageInfo);
-    write.pImageInfo = &m_imageInfos.back();
+    write.pImageInfo = &m_imageInfos[m_imageInfos.size()-1];
 }
 
 void VEffect::WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR& asInfo)
@@ -116,7 +122,7 @@ void VEffect::WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t 
     asWrite.pAccelerationStructures    = &asInfo;
     m_asInfos.push_back(asWrite);
 
-    write.pNext = &m_asInfos.back();
+    write.pNext = &m_asInfos[m_asInfos.size() - 1];
 }
 
 
