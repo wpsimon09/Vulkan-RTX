@@ -307,7 +307,7 @@ void SceneRenderer::Render(int                                       currentFram
     {
         DepthPrePass(currentFrameIndex,cmdBuffer, uniformBufferManager);
     }
-    DrawScene(currentFrameIndex,cmdBuffer, uniformBufferManager);
+  //  DrawScene(currentFrameIndex,cmdBuffer, uniformBufferManager);
 
 
     m_frameCount++;
