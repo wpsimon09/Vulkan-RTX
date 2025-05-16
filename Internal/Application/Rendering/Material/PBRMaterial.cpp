@@ -87,13 +87,13 @@ void PBRMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariant
             {
 
                 m_materialEffect->WriteImage(
-                    frame, 0, 6, m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    frame, 0, 5, m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                 m_materialEffect->WriteImage(
-                    frame, 0, 7, m_textures[normal]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    frame, 0, 6, m_textures[normal]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                 m_materialEffect->WriteImage(
-                    frame, 0, 8, m_textures[arm]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    frame, 0, 7, m_textures[arm]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                 m_materialEffect->WriteImage(
-                    frame, 0, 9, m_textures[Emissive]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    frame, 0, 8, m_textures[Emissive]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
             }
         },
         updateStruct);

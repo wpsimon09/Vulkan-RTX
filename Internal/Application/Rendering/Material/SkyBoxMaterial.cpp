@@ -37,6 +37,7 @@ void SkyBoxMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVari
 {
     // sky box is special case and pushing data of sky box material happens inside scene renderer directly,
     // TODO: this is extremly cluterred and shows that whole effect-material system deserves rewrite
+    m_materialEffect->WriteImage(frame, 0, 3, m_HDRTexture->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge));
 }
 std::vector<std::shared_ptr<VTextureAsset>> SkyBoxMaterial::EnumarateTexture() {
     return {m_HDRTexture};

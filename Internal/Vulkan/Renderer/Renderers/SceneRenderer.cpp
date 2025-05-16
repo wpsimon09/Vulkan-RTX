@@ -74,7 +74,6 @@ void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdB
             drawCall.effect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
             drawCall.effect->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex]);
 
-            drawCall.effect->ApplyWrites(currentFrameIndex);
 
             break;
         }
@@ -84,43 +83,32 @@ void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdB
                 std::get<VulkanUtils::Unlit>(drawCall.effect->GetResrouceGroupStructVariant());
             ;
 
-            // 20 images, cause i am not sure how many there might be in the future
-            drawCall.effect->SetNumWrites(2, 20, 0);
+            drawCall.effect->SetNumWrites(2, 4, 0);
             drawCall.effect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
             drawCall.effect->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex]);
 
             // cast might be required here
             drawCall.material->UpdateGPUTextureData(unlitSingleTextureResrouceGroup);
 
-            if(drawCall.effect->GetName() == "Sky Box")
-            {
-                if(m_renderContextPtr->hdrCubeMap)
-                {
-                    unlitSingleTextureResrouceGroup.texture2D_1 =
-                        m_renderContextPtr->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
-                }
-                else
-                    unlitSingleTextureResrouceGroup.texture2D_1 =
-                        m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
-            }
-
-            cmdBuffer.pushDescriptorSetWithTemplateKHR(drawCall.effect->GetUpdateTemplate(), drawCall.effect->GetPipelineLayout(),
-                                                       0, unlitSingleTextureResrouceGroup, m_device.DispatchLoader);
             break;
         }
         case VulkanUtils::EDescriptorLayoutStruct::ForwardShading: {
+            // 20 images, cause i am not sure how many there might be in the future
+            drawCall.effect->SetNumWrites(2, 20, 0);
+
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex]);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex]);
+
             auto& forwardShadingResourceGroup =
                 std::get<VulkanUtils::ForwardShadingDstSet>(drawCall.effect->GetResrouceGroupStructVariant());
-            forwardShadingResourceGroup.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-            forwardShadingResourceGroup.buffer2 =
-                uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
-            ;
-            forwardShadingResourceGroup.buffer3 = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
 
             drawCall.material->UpdateGPUTextureData(forwardShadingResourceGroup);
 
-            forwardShadingResourceGroup.texture2D_5 =
-                MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            drawCall.effect->WriteImage(currentFrameIndex, 0, 10, MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            drawCall.effect->WriteImage(currentFrameIndex, 0, 11, MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+            // TODO: finish writing texture descripture
             forwardShadingResourceGroup.texture2D_6 =
                 MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
             if(m_renderContextPtr->irradianceMap)
@@ -164,7 +152,9 @@ void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdB
                                                        0, forwardShadingResourceGroup, m_device.DispatchLoader);
             break;
         }
+
     }
+    drawCall.effect->ApplyWrites(currentFrameIndex);
 }
 
 void SceneRenderer::DepthPrePass(int currentFrameIndex,VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
