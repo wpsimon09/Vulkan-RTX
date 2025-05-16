@@ -687,17 +687,19 @@ vk::DescriptorPool VulkanUtils::CreatePool(const VulkanCore::VDevice&           
     std::vector<vk::DescriptorPoolSize> sizes;
     sizes.reserve(poolSizes.sizes.size());
 
-    for (auto& sz : poolSizes.sizes) {
+    for(auto& sz : poolSizes.sizes)
+    {
         sizes.push_back({sz.first, uint32_t(sz.second * count)});
     }
 
     vk::DescriptorPoolCreateInfo poolCI;
-    poolCI.flags = flags;
-    poolCI.maxSets = count;
+    poolCI.flags         = flags;
+    poolCI.maxSets       = count;
     poolCI.poolSizeCount = uint32_t(sizes.size());
-    poolCI.pPoolSizes = sizes.data();
+    poolCI.pPoolSizes    = sizes.data();
 
     vk::DescriptorPool descriptorPool = devic.GetDevice().createDescriptorPool(poolCI, nullptr);
 
     return descriptorPool;
 }
+

@@ -16,6 +16,8 @@
 #endif
 #include "BaseMaterial.hpp"
 #include "MaterialStructs.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
 
 #include <unordered_map>
 
@@ -60,7 +62,7 @@ class PBRMaterial : public BaseMaterial
     MaterialPaths& GetMaterialPaths() { return m_materialPaths; }
 
     void ResetEffect();
-    void UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct) override;
+    void UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct, int frame = 0) override;
     std::vector<std::shared_ptr<VTextureAsset>> EnumarateTexture() override;
     std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> EnumarateTextureMap();
 

@@ -16,6 +16,9 @@
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 
+namespace VulkanUtils {
+class VEffect;
+}
 namespace VulkanCore {
 class VDescriptorAllocator;
 }
@@ -106,6 +109,8 @@ vk::ShaderModule CreateShaderModule(const VulkanCore::VDevice& device, const std
 void Check(vk::Result result, vk::Result expectedResult = vk::Result::eSuccess);
 
 vk::DescriptorPool CreatePool(const VulkanCore::VDevice& devic, const VulkanCore::VDescriptorAllocator::PoolSizes& poolSizes, int count, vk::DescriptorPoolCreateFlags flags);
+
+void WriteMaterialToDescriptorSet(ApplicationCore::BaseMaterial* mat, VEffect& effect);
 
 }  // namespace VulkanUtils
 

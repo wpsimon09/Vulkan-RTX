@@ -70,8 +70,12 @@ void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdB
             basicEffecResourceGroup.buffer2 =
                 uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
 
-            cmdBuffer.pushDescriptorSetWithTemplateKHR(drawCall.effect->GetUpdateTemplate(), drawCall.effect->GetPipelineLayout(),
-                                                       0, basicEffecResourceGroup, m_device.DispatchLoader);
+            drawCall.effect->SetNumWrites(2,0,0);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex]);
+
+            drawCall.effect->ApplyWrites(currentFrameIndex);
+
             break;
         }
 
@@ -79,9 +83,11 @@ void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdB
             auto& unlitSingleTextureResrouceGroup =
                 std::get<VulkanUtils::Unlit>(drawCall.effect->GetResrouceGroupStructVariant());
             ;
-            unlitSingleTextureResrouceGroup.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-            unlitSingleTextureResrouceGroup.buffer2 =
-                uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
+
+            // 20 images, cause i am not sure how many there might be in the future
+            drawCall.effect->SetNumWrites(2, 20, 0);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex]);
 
             // cast might be required here
             drawCall.material->UpdateGPUTextureData(unlitSingleTextureResrouceGroup);
@@ -307,7 +313,7 @@ void SceneRenderer::Render(int                                       currentFram
     {
         DepthPrePass(currentFrameIndex,cmdBuffer, uniformBufferManager);
     }
-  //  DrawScene(currentFrameIndex,cmdBuffer, uniformBufferManager);
+    //  DrawScene(currentFrameIndex,cmdBuffer, uniformBufferManager);
 
 
     m_frameCount++;
@@ -392,7 +398,6 @@ void SceneRenderer::DrawScene(int currentFrameIndex,VulkanCore::VCommandBuffer& 
     scissors.offset.y      = 0;
     scissors.extent.width  = m_width;
     scissors.extent.height = m_height;
-
 
     cmdB.setScissor(0, 1, &scissors);
 

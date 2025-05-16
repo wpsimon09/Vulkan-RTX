@@ -10,6 +10,8 @@
 #include "Application/Logger/Logger.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
@@ -31,12 +33,10 @@ std::shared_ptr<ApplicationCore::VTextureAsset> SkyBoxMaterial::GetHDRTexture()
     ;
 }
 
-void SkyBoxMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct)
+void SkyBoxMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct, int frame)
 {
-    // sky box can only be one and not the whole variant
-    // TODO: sky box will hold env lightning and all that good stuff and pass it to the mateiral here
-    //auto& data = std::get<std::reference_wrapper<VulkanUtils::Unlit>>(updateStruct).get();
-    //data.storage2D_1 = m_HDRTexture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+    // sky box is special case and pushing data of sky box material happens inside scene renderer directly,
+    // TODO: this is extremly cluterred and shows that whole effect-material system deserves rewrite
 }
 std::vector<std::shared_ptr<VTextureAsset>> SkyBoxMaterial::EnumarateTexture() {
     return {m_HDRTexture};

@@ -137,7 +137,6 @@ struct VGPUBufferInfo
     VmaAllocation        allocationVMA;
 
     int ID;
-
     vk::DeviceSize GetAvailableSize() const { return (currentOffset >= size) ? 0 : (size - currentOffset); }
     bool           WillNewBufferFit(vk::DeviceSize size) const { return size <= GetAvailableSize(); }
 };
@@ -214,7 +213,7 @@ struct VDrawCallData
  *  - its layout
  *  - separate sets per frame in flight
  *  - writes per set, each write is accessed by the "current frame" variable and binding
- *  example writes[currentFrame = 0 ][binding = 1] retrieves write for binding 1 and frame 0
+ *  example writes[currentFrame = 0 ][binding = 1] retrieves write for binding 1 and frame 0 
  */
 struct VDescriptorSet
 {
