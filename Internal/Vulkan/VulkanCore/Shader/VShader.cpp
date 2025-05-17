@@ -75,10 +75,11 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
 
 
+        //descriptorSets[i_set].createInfo.flags = vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR;
+;
+
         descriptorSets[i_set].createInfo.pBindings = currentBindings.bindings.data();
-        ;
         descriptorSets[i_set].createInfo.pBindings = currentBindings.bindings.data();
-        ;
     }
 }
 

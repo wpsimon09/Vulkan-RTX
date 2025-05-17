@@ -17,7 +17,7 @@ class SkyBoxMaterial;
 }
 
 namespace VulkanStructs {
-struct DrawCallData;
+struct VDrawCallData;
 }
 
 namespace VulkanUtils {
@@ -34,12 +34,12 @@ struct RenderContext
 
     std::shared_ptr<ApplicationCore::SkyBoxMaterial> SkyBox = nullptr;
 
-    std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>> drawCalls;
+    std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>> drawCalls;
 
     void ExtractDepthValues(glm::vec3& cameraPosition);
 
-    static bool CompareByDeptDesc(const VulkanStructs::DrawCallData& DrawCallA, const VulkanStructs::DrawCallData& DrawCallB);
-    static bool CompareByDeptAsc(const VulkanStructs::DrawCallData& DrawCallA, const VulkanStructs::DrawCallData& DrawCallB);
+    static bool CompareByDeptDesc(const VulkanStructs::VDrawCallData& DrawCallA, const VulkanStructs::VDrawCallData& DrawCallB);
+    static bool CompareByDeptAsc(const VulkanStructs::VDrawCallData& DrawCallA, const VulkanStructs::VDrawCallData& DrawCallB);
 
     VulkanCore::VImage2* hdrCubeMap    = nullptr;
     VulkanCore::VImage2* irradianceMap = nullptr;
@@ -48,14 +48,14 @@ struct RenderContext
     VulkanCore::VImage2* dummyCubeMap  = nullptr;
 
 
-    void GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& outDrawCalls);
-    std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& GetAllDrawCall();
+    void GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& outDrawCalls);
+    std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& GetAllDrawCall();
 
-    void AddDrawCall(VulkanStructs::DrawCallData& DrawCall);
+    void AddDrawCall(VulkanStructs::VDrawCallData& DrawCall);
 
     void ResetAllDrawCalls();
 
-    static unsigned long GenerateDrawKey(VulkanStructs::DrawCallData& drawCall);
+    static unsigned long GenerateDrawKey(VulkanStructs::VDrawCallData& drawCall);
 };
 }  // namespace VulkanUtils
 

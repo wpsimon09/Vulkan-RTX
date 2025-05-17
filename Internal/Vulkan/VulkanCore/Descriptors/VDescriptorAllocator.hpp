@@ -95,10 +95,6 @@ class VDescriptorBuilder
   public:
     static VDescriptorBuilder Begin(VDescriptorLayoutCache* layoutCache, VDescriptorAllocator* allocator);
 
-    VDescriptorBuilder& BindBuffer(uint32_t bindig, vk::DescriptorBufferInfo* bufferInfo, vk::DescriptorType type, vk::ShaderStageFlags stages);
-    VDescriptorBuilder& BindImage(uint32_t bindig, vk::DescriptorImageInfo* imageInfo, vk::DescriptorType type, vk::ShaderStageFlags stages);
-    VDescriptorBuilder& BindAS(uint32_t bindig, vk::AccelerationStructureKHR* as, vk::DescriptorType type, vk::ShaderStageFlags stages);
-
     bool Build(vk::DescriptorSet& set, vk::DescriptorSetLayout& layout);
     bool Build(vk::DescriptorSet& set);
 

@@ -79,7 +79,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice&         device,
     {
         AllocateImage(0);
         m_isDepthBuffer                         = false;
-        VulkanStructs::ImageData dummyImageData = {};
+        VulkanStructs::VImageData dummyImageData = {};
         dummyImageData.channels                 = 4;
         dummyImageData.height                   = 1;
         dummyImageData.widht                    = 1;
@@ -104,7 +104,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice&         device,
     }
 }
 
-VulkanCore::VImage::VImage(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData)
+VulkanCore::VImage::VImage(const VulkanCore::VDevice& device, VulkanStructs::VImageData<uint32_t>& imageData)
     : m_device(device)
     , m_mipLevels(1)
     , m_format(vk::Format::eR8G8B8A8Unorm)

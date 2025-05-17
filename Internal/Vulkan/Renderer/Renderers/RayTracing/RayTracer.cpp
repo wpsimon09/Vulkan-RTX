@@ -9,7 +9,6 @@
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
-#include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -20,14 +19,12 @@
 
 namespace Renderer {
 RayTracer::RayTracer(const VulkanCore::VDevice&           device,
-                     VulkanUtils::VResourceGroupManager&  resourceGroupManager,
                      VulkanUtils::VRayTracingDataManager& rtxDataManager,
                      VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
                      int                                  width,
                      int                                  height)
     : m_device(device)
     , m_rtxDataManager(rtxDataManager)
-    , m_resourceGroupManager(resourceGroupManager)
     , m_descLayoutCache(descLayoutCache)
 {
     m_resultImage.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
@@ -74,16 +71,14 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
     rtxShaderPaths.missShadowPath = "Shaders/Compiled/SimpleRayTracing.miss2.spv";
     rtxShaderPaths.rayHitPath     = "Shaders/Compiled/SimpleRayTracing.chit.spv";
     auto rayTracingHitGroup       = std::make_unique<VulkanUtils::VRayTracingEffect>(
-        device, rtxShaderPaths, "Hit group highlight", m_descLayoutCache,
-        m_resourceGroupManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::RayTracing));
+        device, rtxShaderPaths, "Hit group highlight", m_descLayoutCache);
 
     m_rtxEffect = std::move(rayTracingHitGroup);
-    m_rtxEffect->BuildEffect();
+    //m_rtxEffect->BuildEffect();
 
     m_accumulationEffect = std::make_unique<VulkanUtils::VRasterEffect>(
         m_device, "Accumulation of ray traced images effect", "Shaders/Compiled/RayTracingAccumultion.vert.spv",
-        "Shaders/Compiled/RayTracingAccumultion.frag.spv", m_descLayoutCache,
-        m_resourceGroupManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::PostProcessing));
+        "Shaders/Compiled/RayTracingAccumultion.frag.spv", m_descLayoutCache);
 
     m_accumulationEffect->SetColourOutputFormat(vk::Format::eR16G16B16A16Sfloat)
         .DisableStencil()
@@ -116,7 +111,7 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
         //cmdB.clearColorImage(m_accumulationResultImage->GetImage(), vk::ImageLayout::eGeneral, &clearColorVal,
                              //subresourceRanges.size(), subresourceRanges.data());
     }
-
+/**
     auto& descriptor   = std::get<VulkanUtils::RayTracingDescriptorSet>(m_rtxEffect->GetResrouceGroupStructVariant());
     descriptor.buffer1 = unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame];
     descriptor.buffer2 = unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame];

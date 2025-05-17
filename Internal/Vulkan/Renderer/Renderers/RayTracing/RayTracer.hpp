@@ -15,9 +15,7 @@ class VRasterEffect;
 namespace ApplicationCore {
 struct SceneData;
 }
-namespace VulkanUtils {
-class VResourceGroupManager;
-}
+
 namespace VulkanUtils {
 class VRayTracingEffect;
 }
@@ -42,9 +40,8 @@ class RayTracer
 {
   public:
     RayTracer(const VulkanCore::VDevice& device,
-              VulkanUtils::VResourceGroupManager& resourceGroupManager,
               VulkanUtils::VRayTracingDataManager& rtxDataManager,
-              VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
+              VulkanCore::VDescriptorLayoutCache&  descLayoutCache,
               int width,
               int height);
 
@@ -62,7 +59,6 @@ class RayTracer
   private:
     const VulkanCore::VDevice&           m_device;
     VulkanUtils::VRayTracingDataManager& m_rtxDataManager;
-    VulkanUtils::VResourceGroupManager& m_resourceGroupManager;
 
     std::unique_ptr<VulkanUtils::VRayTracingEffect> m_rtxEffect;
     std::unique_ptr<VulkanUtils::VRasterEffect> m_accumulationEffect;

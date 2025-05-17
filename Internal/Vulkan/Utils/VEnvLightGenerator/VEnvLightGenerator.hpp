@@ -50,7 +50,7 @@ namespace VulkanUtils {
 class VEnvLightGenerator
 {
   public:
-    VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache,  VulkanUtils::VResourceGroupManager& pushDescriptorManager);
+    VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache);
 
     const VulkanCore::VImage2& GetBRDFLut();
     VulkanCore::VImage2*       GetBRDFLutRaw();
@@ -65,7 +65,7 @@ class VEnvLightGenerator
 
     VulkanCore::VImage2* GetPrefilterMapRaw();
 
-    void Generate(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore);
+    void Generate(uint32_t m_currentFrame, std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore);
 
     void HDRToCubeMap(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore);
     void CubeMapToIrradiance(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore);
@@ -85,10 +85,10 @@ class VEnvLightGenerator
     std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_hdrCubeMaps;
     std::unique_ptr<VulkanCore::VImage2>                          m_dummyCubeMap;
     int                                                           m_currentHDR;
+    uint32_t m_currentFrame;
 
     const VulkanCore::VDevice& m_device;
     VulkanCore::VDescriptorLayoutCache& m_descLayoutChache;
-    VulkanUtils::VResourceGroupManager& m_pushDescriptorManager;
 
     std::unique_ptr<VulkanCore::VCommandBuffer> m_graphicsCmdBuffer;
     std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCmdBuffer;

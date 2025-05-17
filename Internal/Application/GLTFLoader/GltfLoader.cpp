@@ -220,7 +220,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
 
             vertices.clear();
             vertices.shrink_to_fit();
-            VulkanStructs::Bounds bounds = {};
+            VulkanStructs::VBounds bounds = {};
 
             MaterialPaths paths;
 

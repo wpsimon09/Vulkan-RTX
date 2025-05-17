@@ -281,7 +281,7 @@ inline std::vector<uint32_t> Indices_BB = {
     1, 5, 6, 1, 6, 2};
 
 
-}  // namespace ApplicationCore::MeshData
+}  // namespace ApplicationCore::VMeshData
 
 
 #endif  //MESHDATA_HPP

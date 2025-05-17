@@ -24,7 +24,7 @@ struct RenderContext;
 }
 
 namespace VulkanStructs {
-struct DrawCallData;
+struct VDrawCallData;
 }
 
 struct CameraUpdateInfo;

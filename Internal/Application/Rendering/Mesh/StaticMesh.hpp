@@ -31,7 +31,7 @@ class VertexArray;
 class StaticMesh
 {
   public:
-    explicit StaticMesh(VulkanStructs::MeshData& geometryData, std::shared_ptr<BaseMaterial> material, EMeshGeometryType geometryType = Custom);
+    explicit StaticMesh(VulkanStructs::VMeshData& geometryData, std::shared_ptr<BaseMaterial> material, EMeshGeometryType geometryType = Custom);
     StaticMesh(const ApplicationCore::StaticMesh& other);
 
     void ResetMaterial() { m_currentMaterial = m_originalMaterial; };
@@ -64,7 +64,7 @@ class StaticMesh
   public:
     const uint32_t                GetMeshIndexCount() const;
     std::shared_ptr<BaseMaterial> GetMaterial() const { return m_currentMaterial; };
-    VulkanStructs::MeshData*      GetMeshData();
+    VulkanStructs::VMeshData*      GetMeshData();
 
     const std::string& GetName() { return m_name; }
     const void         SetName(std::string& newName) { m_name = newName; }
@@ -76,7 +76,7 @@ class StaticMesh
   private:
     EMeshGeometryType m_geometryType;
 
-    VulkanStructs::MeshData       m_meshGeomtryData;
+    VulkanStructs::VMeshData       m_meshGeomtryData;
     std::shared_ptr<BaseMaterial> m_currentMaterial;
     std::shared_ptr<BaseMaterial> m_originalMaterial;
 

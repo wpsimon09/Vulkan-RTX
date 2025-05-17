@@ -10,6 +10,8 @@
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
+#include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Utils/LinearyTransformedCosinesValues.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
@@ -58,7 +60,6 @@ PBRMaterial::PBRMaterial(std::shared_ptr<VulkanUtils::VRasterEffect> materialEff
     }
 }
 
-void UpdateGPU(VulkanUtils::DescriptorSetTemplateVariant updateStruct) {}
 
 
 void PBRMaterial::ResetEffect()
@@ -66,40 +67,33 @@ void PBRMaterial::ResetEffect()
     m_materialEffect = m_initialEffect;
 }
 
-void PBRMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct)
+void PBRMaterial::UpdateGPUTextureData(EShaderBindingGroup updateStruct, int frame)
 {
-    std::visit(
-        [this](auto& descriptorTemplateStruct) {
-            auto& effectDstStruct = descriptorTemplateStruct.get();
-            using T               = std::decay_t<decltype(effectDstStruct)>;
 
-            if constexpr(std::is_same_v<T, VulkanUtils::BasicDescriptorSet>)
-            {
-            }
-            else if constexpr(std::is_same_v<T, VulkanUtils::Unlit>)
-            {
-                auto& unlitSingelTextureEffect = static_cast<VulkanUtils::Unlit&>(effectDstStruct);
-                unlitSingelTextureEffect.texture2D_1 =
-                    m_textures[ETextureType::Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-            }
-            else if constexpr(std::is_same_v<T, VulkanUtils::ForwardShadingDstSet>)
-            {
-                auto& forwardShadingDstSet = static_cast<VulkanUtils::ForwardShadingDstSet&>(effectDstStruct);
+    switch(updateStruct)
+    {
+        case EShaderBindingGroup::ForwardLit: {
+            m_materialEffect->WriteImage(
+                  frame, 0, 6, m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            m_materialEffect->WriteImage(
+                frame, 0, 7, m_textures[normal]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            m_materialEffect->WriteImage(
+                frame, 0, 8, m_textures[arm]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            m_materialEffect->WriteImage(
+                frame, 0, 9, m_textures[Emissive]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
-                forwardShadingDstSet.texture2D_1 =
-                    m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            break;
+        }
 
-                forwardShadingDstSet.texture2D_2 =
-                    m_textures[normal]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+        case EShaderBindingGroup::ForwardUnlit: {
+            m_materialEffect->WriteImage(
+                frame, 0, 3, m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
-                forwardShadingDstSet.texture2D_3 =
-                    m_textures[arm]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+            break;
+        }
+        default: break;;
+    }
 
-                forwardShadingDstSet.texture2D_4 =
-                    m_textures[Emissive]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-            }
-        },
-        updateStruct);
 }
 std::vector<std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTexture()
 {
@@ -124,7 +118,8 @@ std::vector<std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTexture()
 
     return result;
 }
-std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTextureMap() {
+std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTextureMap()
+{
     std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> result;
     result.reserve(m_textures.size());
     if(m_materialDescription.features.hasDiffuseTexture)

@@ -25,14 +25,12 @@
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
-#include "Vulkan/Utils/VResrouceGroup/VDescriptorSetStructs.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 
 namespace Renderer {
-SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height)
-    : m_pushDescriptorManager(pushDescriptorManager)
-    , m_device(device)
+SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device,  VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height)
+    : m_device(device)
 
 {
     Utils::Logger::LogInfo("Creating scene renderer");
@@ -46,7 +44,7 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VRe
     //=========================
     m_depthPrePassEffect = std::make_unique<VulkanUtils::VRasterEffect>(
         m_device, "Depth-PrePass effect", "Shaders/Compiled/DepthPrePass.vert.spv", "Shaders/Compiled/DepthPrePass.frag.spv", descLayoutCache,
-        m_pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
+        EShaderBindingGroup::ForwardLit);
     m_depthPrePassEffect->SetVertexInputMode(EVertexInput::PositionOnly).SetDepthOpLess();
 
     m_depthPrePassEffect->BuildEffect();
@@ -54,111 +52,29 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VRe
     Utils::Logger::LogSuccess("Scene renderer created !");
 }
 
-
-void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdBuffer,
-                                  int                                       currentFrameIndex,
-                                  int                                       objectIndex,
-                                  VulkanStructs::DrawCallData&              drawCall,
-                                  const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+void SceneRenderer::Render(int                                       currentFrameIndex,
+                           VulkanCore::VCommandBuffer&               cmdBuffer,
+                           const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                           VulkanUtils::RenderContext*               renderContext
+)
 {
-    switch(drawCall.effect->GetLayoutStructType())
+
+    m_renderContextPtr = renderContext;
+    //=====================================================
+    // RECORD COMMAND BUFFER
+    //=====================================================
+    assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
+
+    if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
     {
-        case VulkanUtils::EDescriptorLayoutStruct::Basic: {
-            auto& basicEffecResourceGroup =
-                std::get<VulkanUtils::BasicDescriptorSet>(drawCall.effect->GetResrouceGroupStructVariant());
-            basicEffecResourceGroup.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-            basicEffecResourceGroup.buffer2 =
-                uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
-
-            cmdBuffer.pushDescriptorSetWithTemplateKHR(drawCall.effect->GetUpdateTemplate(), drawCall.effect->GetPipelineLayout(),
-                                                       0, basicEffecResourceGroup, m_device.DispatchLoader);
-            break;
-        }
-        case VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture: {
-            auto& unlitSingleTextureResrouceGroup =
-                std::get<VulkanUtils::Unlit>(drawCall.effect->GetResrouceGroupStructVariant());
-            ;
-            unlitSingleTextureResrouceGroup.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-            unlitSingleTextureResrouceGroup.buffer2 =
-                uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
-
-            // cast might be required here
-            drawCall.material->UpdateGPUTextureData(unlitSingleTextureResrouceGroup);
-
-            if(drawCall.effect->GetName() == "Sky Box")
-            {
-                if(m_renderContextPtr->hdrCubeMap)
-                {
-                    unlitSingleTextureResrouceGroup.texture2D_1 =
-                        m_renderContextPtr->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
-                }
-                else
-                    unlitSingleTextureResrouceGroup.texture2D_1 =
-                        m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge);
-            }
-
-            cmdBuffer.pushDescriptorSetWithTemplateKHR(drawCall.effect->GetUpdateTemplate(), drawCall.effect->GetPipelineLayout(),
-                                                       0, unlitSingleTextureResrouceGroup, m_device.DispatchLoader);
-            break;
-        }
-        case VulkanUtils::EDescriptorLayoutStruct::ForwardShading: {
-            auto& forwardShadingResourceGroup =
-                std::get<VulkanUtils::ForwardShadingDstSet>(drawCall.effect->GetResrouceGroupStructVariant());
-            forwardShadingResourceGroup.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-            forwardShadingResourceGroup.buffer2 =
-                uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex];
-            ;
-            forwardShadingResourceGroup.buffer3 = uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex];
-
-            drawCall.material->UpdateGPUTextureData(forwardShadingResourceGroup);
-
-            forwardShadingResourceGroup.texture2D_5 =
-                MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-            forwardShadingResourceGroup.texture2D_6 =
-                MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-            if(m_renderContextPtr->irradianceMap)
-            {
-                forwardShadingResourceGroup.texture2D_7 =
-                    m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-            }
-            else
-            {
-                forwardShadingResourceGroup.texture2D_7 =
-                    m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                ;
-            }
-
-            if(m_renderContextPtr->prefilterMap)
-            {
-                forwardShadingResourceGroup.texture2D_8 =
-                    m_renderContextPtr->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
-            }
-            else
-            {
-                forwardShadingResourceGroup.texture2D_8 =
-                    m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                ;
-            }
-
-            if(m_renderContextPtr->brdfMap)
-            {
-                forwardShadingResourceGroup.texture2D_9 =
-                    m_renderContextPtr->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-            }
-            else
-            {
-                forwardShadingResourceGroup.texture2D_9 =
-                    m_renderContextPtr->dummyCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                ;
-            }
-            //forwardShadding.texture2D_7 = m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-
-            cmdBuffer.pushDescriptorSetWithTemplateKHR(drawCall.effect->GetUpdateTemplate(), drawCall.effect->GetPipelineLayout(),
-                                                       0, forwardShadingResourceGroup, m_device.DispatchLoader);
-            break;
-        }
+        DepthPrePass(currentFrameIndex,cmdBuffer, uniformBufferManager);
     }
+    DrawScene(currentFrameIndex,cmdBuffer, uniformBufferManager);
+
+
+    m_frameCount++;
 }
+
 
 void SceneRenderer::DepthPrePass(int currentFrameIndex,VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
@@ -174,7 +90,6 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex,VulkanCore::VCommandBuffe
     m_renderTargets->GetDepthAttachment().loadOp = vk::AttachmentLoadOp::eClear;
 
     renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
-
 
     m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
 
@@ -258,12 +173,16 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex,VulkanCore::VCommandBuffe
                 currentIndexBuffer = drawCall.second.indexData;
             }
 
-            auto& update = std::get<VulkanUtils::BasicDescriptorSet>(m_depthPrePassEffect->GetResrouceGroupStructVariant());
-            update.buffer1 = uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex];
-            update.buffer2 = uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.second.drawCallID)[currentFrameIndex];
 
-            cmdB.pushDescriptorSetWithTemplateKHR(m_depthPrePassEffect->GetUpdateTemplate(),
-                                                       m_depthPrePassEffect->GetPipelineLayout(), 0, update, m_device.DispatchLoader);
+            m_depthPrePassEffect->SetNumWrites(2, 0, 0);
+            m_depthPrePassEffect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+            m_depthPrePassEffect->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.second.drawCallID)[currentFrameIndex]);
+
+            m_depthPrePassEffect->ApplyWrites(currentFrameIndex);
+
+
+            // TODO: so wrong i will rewrite this to the descriptor indexing
+            m_depthPrePassEffect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
 
             cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
                                   drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
@@ -285,29 +204,6 @@ void SceneRenderer::DepthPrePass(int currentFrameIndex,VulkanCore::VCommandBuffe
     m_renderingStatistics.DrawCallCount = drawCallCount;
 }
 
-
-void SceneRenderer::Render(int                                       currentFrameIndex,
-                           VulkanCore::VCommandBuffer&               cmdBuffer,
-                           const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                           VulkanUtils::RenderContext*               renderContext
-)
-{
-
-    m_renderContextPtr = renderContext;
-    //=====================================================
-    // RECORD COMMAND BUFFER
-    //=====================================================
-    assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
-
-    if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
-    {
-        DepthPrePass(currentFrameIndex,cmdBuffer, uniformBufferManager);
-    }
-    DrawScene(currentFrameIndex,cmdBuffer, uniformBufferManager);
-
-
-    m_frameCount++;
-}
 
 void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
 {
@@ -389,7 +285,6 @@ void SceneRenderer::DrawScene(int currentFrameIndex,VulkanCore::VCommandBuffer& 
     scissors.extent.width  = m_width;
     scissors.extent.height = m_height;
 
-
     cmdB.setScissor(0, 1, &scissors);
 
     //=================================================
@@ -432,6 +327,8 @@ void SceneRenderer::DrawScene(int currentFrameIndex,VulkanCore::VCommandBuffer& 
 
         PushDataToGPU(cmdB, currentFrameIndex, drawCall.second.drawCallID, drawCall.second, uniformBufferManager);
 
+        drawCall.second.effect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
+
         cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
                               drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
                               drawCall.second.vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
@@ -447,6 +344,79 @@ void SceneRenderer::DrawScene(int currentFrameIndex,VulkanCore::VCommandBuffer& 
 
     m_renderingStatistics.DrawCallCount = drawCallCount;
 }
+
+void SceneRenderer::PushDataToGPU(const vk::CommandBuffer&                  cmdBuffer,
+                                  int                                       currentFrameIndex,
+                                  int                                       objectIndex,
+                                  VulkanStructs::VDrawCallData&              drawCall,
+                                  const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+{
+    switch(drawCall.effect->GetBindingGroup())
+    {
+        case EShaderBindingGroup::Debug: {
+            drawCall.effect->SetNumWrites(2,0,0);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex]);
+
+
+            break;
+        }
+
+        case EShaderBindingGroup::ForwardUnlit: {
+
+
+            drawCall.effect->SetNumWrites(4, 4, 0);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex]);
+
+            // cast might be required here
+            drawCall.material->UpdateGPUTextureData(drawCall.effect->GetBindingGroup(), currentFrameIndex);
+
+            break;
+        }
+        case EShaderBindingGroup::Skybox:{
+            drawCall.effect->SetNumWrites(1,1);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+            drawCall.effect->WriteImage(currentFrameIndex, 0, 3, m_renderContextPtr->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerClampToEdge));
+            break;
+        }
+        case EShaderBindingGroup::ForwardLit: {
+            // 20 images, cause i am not sure how many there might be in the future
+            drawCall.effect->SetNumWrites(4, 20, 0);
+
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectDescriptorBufferInfo(drawCall.drawCallID)[currentFrameIndex]);
+            drawCall.effect->WriteBuffer(currentFrameIndex, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex]);
+
+            drawCall.material->UpdateGPUTextureData(drawCall.effect->GetBindingGroup(), currentFrameIndex);
+
+            drawCall.effect->WriteImage(currentFrameIndex, 0, 10, MathUtils::LUT.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            drawCall.effect->WriteImage(currentFrameIndex, 0, 11, MathUtils::LUT.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+            // TODO: finish writing texture descripture
+            if(m_renderContextPtr->irradianceMap)
+            {
+                drawCall.effect->WriteImage(currentFrameIndex, 0, 12, m_renderContextPtr->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                ;
+            }
+
+            if(m_renderContextPtr->prefilterMap)
+            {
+                drawCall.effect->WriteImage(currentFrameIndex, 0, 13, m_renderContextPtr->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            }
+
+            if(m_renderContextPtr->brdfMap)
+            {
+                drawCall.effect->WriteImage(currentFrameIndex, 0, 14, m_renderContextPtr->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));;
+            }
+
+            break;
+        }
+
+    }
+    drawCall.effect->ApplyWrites(currentFrameIndex);
+}
+
 
 void SceneRenderer::Destroy()
 {

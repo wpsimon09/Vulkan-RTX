@@ -47,7 +47,7 @@ class VImage : public VulkanCore::VObject
                     std::optional<vk::ImageUsageFlags> imageUsage = std::nullopt,
                     vk::SampleCountFlagBits            samples    = vk::SampleCountFlagBits::e1);
 
-    explicit VImage(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData);
+    explicit VImage(const VulkanCore::VDevice& device, VulkanStructs::VImageData<uint32_t>& imageData);
 
     void Resize(uint32_t newWidth, uint32_t newHeight);
 
@@ -72,7 +72,7 @@ class VImage : public VulkanCore::VObject
     void SetIsLoaded(bool status) { m_isLoaded = status; }
 
     template <typename T>
-    void FillWithImageData(const VulkanStructs::ImageData<T>& imageData,
+    void FillWithImageData(const VulkanStructs::VImageData<T>& imageData,
                            bool                               transitionToShaderReadOnly = true,
                            bool                               destroyCurrentImage        = false);
 
@@ -153,7 +153,7 @@ class VImage : public VulkanCore::VObject
 };
 
 template <typename T>
-void VImage::FillWithImageData(const VulkanStructs::ImageData<T>& imageData, bool transitionToShaderReadOnly, bool destroyCurrentImage)
+void VImage::FillWithImageData(const VulkanStructs::VImageData<T>& imageData, bool transitionToShaderReadOnly, bool destroyCurrentImage)
 {
 
     if(!imageData.pixels)

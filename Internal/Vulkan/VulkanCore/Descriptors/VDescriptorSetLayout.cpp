@@ -2,7 +2,6 @@
 // Created by wpsimon09 on 29/10/24.
 //
 
-#include "VDescriptorSetLayout.hpp"
 
 #include <functional>
 
@@ -205,9 +204,7 @@ VDescriptorSetLayout::Builder& VDescriptorSetLayout::Builder::AddBinding(uint32_
     bindingInfo.descriptorCount   = descriptorCount;
     bindingInfo.stageFlags        = stage;
 
-
     m_descriptorBindings[binding] = bindingInfo;
-
 
     return *this;
 }

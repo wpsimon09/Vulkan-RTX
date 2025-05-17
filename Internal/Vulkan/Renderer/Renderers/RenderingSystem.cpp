@@ -9,7 +9,6 @@
 #include "Application/Utils/ApplicationUtils.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
-#include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "RayTracing/RayTracer.hpp"
@@ -39,12 +38,10 @@ namespace Renderer {
 RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         instance,
                                  const VulkanCore::VDevice&                device,
                                  const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                                 VulkanUtils::VResourceGroupManager&       pushDescriptorManager,
                                  VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
                                  VEditor::UIContext&                       uiContext)
     : m_device(device)
     , m_uniformBufferManager(uniformBufferManager)
-    , m_resrouceGroupManager(pushDescriptorManager)
     , m_renderContext()
     , m_uiContext(uiContext)
     , m_descLayoutCache(descLayoutCache)
@@ -76,7 +73,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     // Renderers creation
     //----------------------------------------------------------------------------------------------------------------------------
 
-    m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, m_resrouceGroupManager, descLayoutCache,
+    m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, descLayoutCache,
                                                                 GlobalVariables::RenderTargetResolutionWidth,
                                                                 GlobalVariables::RenderTargetResolutionHeight);
 
@@ -84,7 +81,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
 
     m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
 
-    m_envLightGenerator = std::make_unique<VulkanUtils::VEnvLightGenerator>(m_device, descLayoutCache,  pushDescriptorManager);
+    m_envLightGenerator = std::make_unique<VulkanUtils::VEnvLightGenerator>(m_device, descLayoutCache);
 
 
     //----------------------------------------------------------------------------------------------------------------------------
@@ -93,7 +90,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_rayTracingDataManager = std::make_unique<VulkanUtils::VRayTracingDataManager>(m_device);
 
     auto cam    = m_uiContext.GetClient().GetCamera();
-    m_rayTracer = std::make_unique<RayTracer>(m_device, m_resrouceGroupManager, *m_rayTracingDataManager, descLayoutCache, 1980, 1080);
+    m_rayTracer = std::make_unique<RayTracer>(m_device, *m_rayTracingDataManager, descLayoutCache, 1980, 1080);
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }
@@ -185,13 +182,13 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
     m_transferSemapohore.Reset();
 
     std::sort(m_renderContext.drawCalls.begin(), m_renderContext.drawCalls.end(),
-              [](std::pair<unsigned long, VulkanStructs::DrawCallData>& lhs,
-                 std::pair<unsigned long, VulkanStructs::DrawCallData>& rhs) { return lhs.first < rhs.first; });
+              [](std::pair<unsigned long, VulkanStructs::VDrawCallData>& lhs,
+                 std::pair<unsigned long, VulkanStructs::VDrawCallData>& rhs) { return lhs.first < rhs.first; });
 
     // generate new IBL maps if new one was selected
     if(sceneLightInfo.environmentLight != nullptr)
         if(sceneLightInfo.environmentLight->hdrImage->IsAvailable())
-            m_envLightGenerator->Generate(sceneLightInfo.environmentLight->hdrImage->GetHandle(),
+            m_envLightGenerator->Generate(m_frameCount, sceneLightInfo.environmentLight->hdrImage->GetHandle(),
                                           *m_renderingTimeLine[m_currentFrameIndex]);
     m_renderContext.hdrCubeMap    = m_envLightGenerator->GetCubeMapRaw();
     m_renderContext.irradianceMap = m_envLightGenerator->GetIrradianceMapRaw();

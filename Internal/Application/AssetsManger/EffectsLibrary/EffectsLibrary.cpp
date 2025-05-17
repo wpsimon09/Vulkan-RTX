@@ -12,17 +12,18 @@
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
-#include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 
 namespace ApplicationCore {
-EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, VulkanUtils::VResourceGroupManager& pushDescriptorManager)
-    :m_descLayoutCache(descLayoutCache)
+EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
+                               VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                               VulkanCore::VDescriptorLayoutCache& descLayoutCache)
+    : m_descLayoutCache(descLayoutCache)
 {
     auto frowardEffect = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv", "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
-        descLayoutCache, pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
+        descLayoutCache, EShaderBindingGroup::ForwardLit);
 
     frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
 
@@ -38,7 +39,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanCore::VD
     auto transparentEffect = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Forward lit transparent", "Shaders/Compiled/BasicTriangle.vert.spv",
         "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv", descLayoutCache,
-        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
+        EShaderBindingGroup::ForwardLit);
 
     transparentEffect->SetTopology(vk::PrimitiveTopology::eTriangleList).EnableAdditiveBlending().SetDepthOpLessEqual();
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
@@ -53,7 +54,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanCore::VD
 
     auto editorBillboards = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Editor billboards", "Shaders/Compiled/EditorBillboard.vert.spv", "Shaders/Compiled/EditorBilboard.frag.spv",
-        descLayoutCache, pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
+        descLayoutCache, EShaderBindingGroup::ForwardUnlit);
 
     editorBillboards->SetTopology(vk::PrimitiveTopology::eTriangleList).SetCullNone().SetVertexInputMode(EVertexInput::Position_UV)
         //.SetDepthOpLessEqual()
@@ -64,7 +65,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanCore::VD
 
     auto debugLine = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugLines.frag.spv",
-        descLayoutCache, pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
+        descLayoutCache, ForwardUnlit);
 
     debugLine->SetTopology(vk::PrimitiveTopology::eTriangleList)
         .SetCullNone()
@@ -79,7 +80,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanCore::VD
 
     auto outline = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Outline", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/Outliines.frag.spv",
-        descLayoutCache, pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
+        descLayoutCache, EShaderBindingGroup::Debug);
 
     outline
         //->SetC()
@@ -93,7 +94,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanCore::VD
 
     auto debugShapes = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugGeometry.frag.spv",
-        descLayoutCache, pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
+        descLayoutCache, EShaderBindingGroup::Debug);
 
     debugShapes->SetCullNone()
         .SetLineWidth(7)
@@ -111,8 +112,8 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanCore::VD
     //===============================================================================
 
     auto skybox = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv", "Shaders/Compiled/SkyBox.frag.spv",
-        descLayoutCache, pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
+        device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv", "Shaders/Compiled/SkyBox.frag.spv", descLayoutCache,
+        EShaderBindingGroup::Skybox);
 
 
     skybox->SetCullNone().SetVertexInputMode(EVertexInput::PositionOnly).SetDisableDepthWrite().SetDepthOpLessEqual().DisableStencil();
@@ -144,4 +145,43 @@ void EffectsLibrary::Destroy()
         effect.second->Destroy();
     }
 }
+
+void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager& uniformBufferManager)
+{
+    for(auto& effect : effects)
+    {
+        switch(effect.first)
+        {
+            case EEffectType::Outline:
+
+                break;
+            case EEffectType::ForwardShader:
+                // Handle ForwardShader effect
+                break;
+            case EEffectType::SkyBox:
+                // Handle SkyBox effect
+                break;
+            case EEffectType::DebugLine:
+                // Handle DebugLine effect
+                break;
+            case EEffectType::AlphaMask:
+                // Handle AlphaMask effect
+                break;
+            case EEffectType::AplhaBlend:
+                // Handle AlphaBlend effect
+                break;
+            case EEffectType::EditorBilboard:
+                // Handle EditorBilboard effect
+                break;
+            case EEffectType::RayTracing:
+                // Handle RayTracing effect
+                break;
+            default:
+                // Handle unknown effect type
+                break;
+        }
+    }
+}
+
+
 }  // namespace ApplicationCore

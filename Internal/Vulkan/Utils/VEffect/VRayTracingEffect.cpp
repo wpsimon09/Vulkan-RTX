@@ -4,24 +4,21 @@
 
 #include "VRayTracingEffect.hpp"
 
-#include "Vulkan/Utils/VResrouceGroup/VResrouceGroup.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 
 namespace VulkanUtils {
 VRayTracingEffect::VRayTracingEffect(const VulkanCore::VDevice&                          device,
                                      const VulkanCore::RTX::RTXShaderPaths&              shaderPaths,
                                      const std::string&                                  name,
-                                     VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                                     std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
-    : VEffect(device, name, descLayoutCache ,descriptorSet)
+                                     VulkanCore::VDescriptorLayoutCache& descLayoutCache)
+    : VEffect(device, name, descLayoutCache ,EShaderBindingGroup::RayTracing)
     , m_shaders(device, shaderPaths)
 {
     CreateLayouts(m_shaders.GetReflectionData());
-    m_rtPipeline =
-        std::make_unique<VulkanCore::RTX::VRayTracingPipeline>(device, m_shaders, descriptorSet->GetDescriptorSetLayout());
-    m_rtPipeline->Init();
+    //m_rtPipeline =
+       // std::make_unique<VulkanCore::RTX::VRayTracingPipeline>(device, m_shaders, descriptorSet->GetDescriptorSetLayout());
+   // m_rtPipeline->Init();
 
-    m_resourceGroup->CreateDstUpdateInfo(m_rtPipeline->GetPipelineLayout(), vk::PipelineBindPoint::eRayTracingKHR);
 }
 void VRayTracingEffect::BuildEffect()
 {
@@ -47,9 +44,11 @@ VulkanCore::RTX::VRayTracingPipeline& VRayTracingEffect::GetRTXPipeline() {
 void VRayTracingEffect::BindPipeline(const vk::CommandBuffer& cmdBuffer) {
     cmdBuffer.bindPipeline(vk::PipelineBindPoint::eRayTracingKHR, m_rtPipeline->m_rtPipelineHandle, m_device.DispatchLoader);   
 }
-void VRayTracingEffect::Destroy() {
+void VRayTracingEffect::Destroy()
+{
 
-    m_rtPipeline->Destroy();
+ //   m_rtPipeline->Destroy();
 }
+void VRayTracingEffect::BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) {}
 
 }  // namespace VulkanUtils

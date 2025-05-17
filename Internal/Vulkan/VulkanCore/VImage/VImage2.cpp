@@ -38,7 +38,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& inf
     GenerateImageView();
 }
 
-VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData)
+VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<uint32_t>& imageData)
     : m_device(device)
     , m_imageInfo{}
     , m_imageFlags{}
@@ -56,7 +56,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uin
     FillWithImageData(imageData, m_device.GetTransferOpsManager().GetCommandBuffer());
 }
 
-VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::ImageData<float>& imageData)
+VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<float>& imageData)
     : m_device(device)
     , m_imageInfo{}
     , m_imageFlags{}

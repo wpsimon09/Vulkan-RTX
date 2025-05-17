@@ -11,7 +11,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
-ApplicationCore::StaticMesh::StaticMesh(VulkanStructs::MeshData& geometryData, std::shared_ptr<BaseMaterial> material, EMeshGeometryType geometryType)
+ApplicationCore::StaticMesh::StaticMesh(VulkanStructs::VMeshData& geometryData, std::shared_ptr<BaseMaterial> material, EMeshGeometryType geometryType)
     : m_meshGeomtryData(geometryData)
 {
     m_geometryType    = geometryType;
@@ -37,7 +37,7 @@ const uint32_t ApplicationCore::StaticMesh::GetMeshIndexCount() const
     return static_cast<uint32_t>(m_meshGeomtryData.indexData.size / sizeof(uint32_t));
 }
 
-VulkanStructs::MeshData* ApplicationCore::StaticMesh::GetMeshData()
+VulkanStructs::VMeshData* ApplicationCore::StaticMesh::GetMeshData()
 {
     return &m_meshGeomtryData;
 }
