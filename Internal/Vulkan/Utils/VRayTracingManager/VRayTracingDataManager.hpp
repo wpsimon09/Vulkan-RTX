@@ -37,6 +37,7 @@ class VRayTracingDataManager {
     void InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs);
     void Destroy();
     const vk::AccelerationStructureKHR&  GetTLAS();
+    vk::AccelerationStructureKHR         GetTLASCpy();
 
   private:
     const VulkanCore::VDevice& m_device;

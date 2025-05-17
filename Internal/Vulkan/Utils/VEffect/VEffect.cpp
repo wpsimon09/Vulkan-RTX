@@ -102,7 +102,7 @@ void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::De
         write.pImageInfo = &m_imageInfos[m_imageInfos.size()-1];
     }
 
-void VEffect::WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR& asInfo)
+void VEffect::WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR asInfo)
 {
     assert(m_asInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
     assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");

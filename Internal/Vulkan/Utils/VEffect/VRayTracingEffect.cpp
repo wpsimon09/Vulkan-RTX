@@ -15,9 +15,9 @@ VRayTracingEffect::VRayTracingEffect(const VulkanCore::VDevice&                 
     , m_shaders(device, shaderPaths)
 {
     CreateLayouts(m_shaders.GetReflectionData());
-    //m_rtPipeline =
-       // std::make_unique<VulkanCore::RTX::VRayTracingPipeline>(device, m_shaders, descriptorSet->GetDescriptorSetLayout());
-   // m_rtPipeline->Init();
+    m_rtPipeline =
+        std::make_unique<VulkanCore::RTX::VRayTracingPipeline>(device, m_shaders, m_descriptorSetLayouts);
+    m_rtPipeline->Init();
 
 }
 void VRayTracingEffect::BuildEffect()
@@ -30,7 +30,7 @@ void VRayTracingEffect::BuildEffect()
 
     m_rtPipeline->CreateShaderBindingTable();
 
-   // m_shaders.DestroyShaderModules();
+   //m_shaders.DestroyShaderModules();
 }
 
 vk::PipelineLayout VRayTracingEffect::GetPipelineLayout()
@@ -46,8 +46,7 @@ void VRayTracingEffect::BindPipeline(const vk::CommandBuffer& cmdBuffer) {
 }
 void VRayTracingEffect::Destroy()
 {
-
- //   m_rtPipeline->Destroy();
+   m_rtPipeline->Destroy();
 }
 void VRayTracingEffect::BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) {}
 

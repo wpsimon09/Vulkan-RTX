@@ -34,7 +34,7 @@ class VRayTracingPipeline : public VObject
   public:
     VRayTracingPipeline(const VulkanCore::VDevice&              device,
                          VulkanCore::VRayTracingShaders&   rayTracingShaders,
-                        const VulkanCore::VDescriptorSetLayout& descSetLayout);
+                        const std::vector<vk::DescriptorSetLayout>&   descriptorSets);
     void                      Init();
     const vk::PipelineLayout& GetPipelineLayout();
 
@@ -112,7 +112,7 @@ class VRayTracingPipeline : public VObject
     // passed from costructor
     const VulkanCore::VDevice&              m_device;
     VulkanCore::VRayTracingShaders&   m_rayTracingShaders;
-    const VulkanCore::VDescriptorSetLayout& m_descSetLayout;
+    const std::vector<vk::DescriptorSetLayout>&   m_descriptorSets;
 
     //=======================
     // pipeline create info

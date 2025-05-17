@@ -12,10 +12,10 @@ namespace VulkanCore {
 namespace RTX {
 VRayTracingPipeline::VRayTracingPipeline(const VulkanCore::VDevice&              device,
 VulkanCore::VRayTracingShaders&   rayTracingShaders,
-                                         const VulkanCore::VDescriptorSetLayout& descSetLayout)
+                                         const std::vector<vk::DescriptorSetLayout>&   descriptorSets)
     : m_device(device)
     , m_rayTracingShaders(rayTracingShaders)
-    , m_descSetLayout(descSetLayout)
+    , m_descriptorSets(descriptorSets)
 {
 }
 
@@ -122,8 +122,8 @@ void VRayTracingPipeline::CreatePipelineLayout()
     Utils::Logger::LogSuccess("Creating pipeline layout...");
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 
-    pipelineLayoutCreateInfo.setLayoutCount = 1;
-    //pipelineLayoutCreateInfo.pSetLayouts    = &m_descSetLayout.GetLayout();
+    pipelineLayoutCreateInfo.setLayoutCount = m_descriptorSets.size();
+    pipelineLayoutCreateInfo.pSetLayouts    = m_descriptorSets.data();
 
     pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
     pipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;

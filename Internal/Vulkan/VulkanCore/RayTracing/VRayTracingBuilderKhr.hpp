@@ -46,6 +46,7 @@ class VRayTracingBuilderKHR
     vk::DeviceAddress GetInstanceDeviceAddress(uint32_t instance) const;
 
     const vk::AccelerationStructureKHR& GetTLAS() const;
+    vk::AccelerationStructureKHR GetNonConstTLAS() const;
 
     void Destroy();
     void Clear();
