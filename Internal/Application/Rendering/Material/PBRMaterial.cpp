@@ -68,35 +68,33 @@ void PBRMaterial::ResetEffect()
     m_materialEffect = m_initialEffect;
 }
 
-void PBRMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct, int frame)
+void PBRMaterial::UpdateGPUTextureData(EShaderBindingGroup updateStruct, int frame)
 {
-    std::visit(
-        [this, frame](auto& descriptorTemplateStruct) {
-            auto& effectDstStruct = descriptorTemplateStruct.get();
-            using T               = std::decay_t<decltype(effectDstStruct)>;
 
-            if constexpr(std::is_same_v<T, VulkanUtils::BasicDescriptorSet>)
-            {
-            }
-            else if constexpr(std::is_same_v<T, VulkanUtils::Unlit>)
-            {
-                m_materialEffect->WriteImage(
-                    frame, 0, 3, m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-            }
-            else if constexpr(std::is_same_v<T, VulkanUtils::ForwardShadingDstSet>)
-            {
+    switch(updateStruct)
+    {
+        case EShaderBindingGroup::ForwardLit: {
+            m_materialEffect->WriteImage(
+                  frame, 0, 6, m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            m_materialEffect->WriteImage(
+                frame, 0, 7, m_textures[normal]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            m_materialEffect->WriteImage(
+                frame, 0, 8, m_textures[arm]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            m_materialEffect->WriteImage(
+                frame, 0, 9, m_textures[Emissive]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
-                m_materialEffect->WriteImage(
-                    frame, 0, 5, m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-                m_materialEffect->WriteImage(
-                    frame, 0, 6, m_textures[normal]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-                m_materialEffect->WriteImage(
-                    frame, 0, 7, m_textures[arm]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-                m_materialEffect->WriteImage(
-                    frame, 0, 8, m_textures[Emissive]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-            }
-        },
-        updateStruct);
+            break;
+        }
+
+        case EShaderBindingGroup::ForwardUnlit: {
+            m_materialEffect->WriteImage(
+                frame, 0, 3, m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+            break;
+        }
+        default: break;;
+    }
+
 }
 std::vector<std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTexture()
 {

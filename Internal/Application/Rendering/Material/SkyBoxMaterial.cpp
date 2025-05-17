@@ -33,7 +33,7 @@ std::shared_ptr<ApplicationCore::VTextureAsset> SkyBoxMaterial::GetHDRTexture()
     ;
 }
 
-void SkyBoxMaterial::UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct, int frame)
+void SkyBoxMaterial::UpdateGPUTextureData(EShaderBindingGroup updateStruct, int frame)
 {
     // sky box is special case and pushing data of sky box material happens inside scene renderer directly,
     // TODO: this is extremly cluterred and shows that whole effect-material system deserves rewrite

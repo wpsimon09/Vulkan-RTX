@@ -226,8 +226,6 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp
         External/SPIRV-Reflect/spirv_reflect.h
         External/SPIRV-Reflect/spirv_reflect.cpp
-        Internal/Application/Rendering/Material/BillboardMaterial.cpp
-        Internal/Application/Rendering/Material/BillboardMaterial.hpp
 )
 
 

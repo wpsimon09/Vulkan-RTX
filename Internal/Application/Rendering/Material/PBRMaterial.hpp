@@ -2,8 +2,8 @@
 // Created by wpsimon09 on 26/11/24.
 //
 
-#ifndef MATERIAL_HPP
-#define MATERIAL_HPP
+#ifndef PBRMATERIAL_HPP
+#define PBRMATERIAL_HPP
 #include <array>
 #include <memory>
 #include <utility>
@@ -62,7 +62,7 @@ class PBRMaterial : public BaseMaterial
     MaterialPaths& GetMaterialPaths() { return m_materialPaths; }
 
     void ResetEffect();
-    void UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct, int frame = 0) override;
+    void UpdateGPUTextureData(EShaderBindingGroup updateStruct, int frame) override;
     std::vector<std::shared_ptr<VTextureAsset>> EnumarateTexture() override;
     std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> EnumarateTextureMap();
 

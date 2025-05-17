@@ -25,7 +25,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 {
     auto frowardEffect = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv", "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
-        descLayoutCache, pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
+        descLayoutCache, EShaderBindingGroup::ForwardLit);
 
     frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
 
@@ -41,7 +41,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
     auto transparentEffect = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Forward lit transparent", "Shaders/Compiled/BasicTriangle.vert.spv",
         "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv", descLayoutCache,
-        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
+        EShaderBindingGroup::ForwardLit);
 
     transparentEffect->SetTopology(vk::PrimitiveTopology::eTriangleList).EnableAdditiveBlending().SetDepthOpLessEqual();
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
@@ -56,7 +56,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     auto editorBillboards = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Editor billboards", "Shaders/Compiled/EditorBillboard.vert.spv", "Shaders/Compiled/EditorBilboard.frag.spv",
-        descLayoutCache, pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
+        descLayoutCache, EShaderBindingGroup::ForwardUnlit);
 
     editorBillboards->SetTopology(vk::PrimitiveTopology::eTriangleList).SetCullNone().SetVertexInputMode(EVertexInput::Position_UV)
         //.SetDepthOpLessEqual()
@@ -67,7 +67,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     auto debugLine = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugLines.frag.spv",
-        descLayoutCache, pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
+        descLayoutCache, ForwardUnlit);
 
     debugLine->SetTopology(vk::PrimitiveTopology::eTriangleList)
         .SetCullNone()
@@ -82,7 +82,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     auto outline = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Outline", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/Outliines.frag.spv",
-        descLayoutCache, pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
+        descLayoutCache, EShaderBindingGroup::Debug);
 
     outline
         //->SetC()
@@ -96,7 +96,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     auto debugShapes = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugGeometry.frag.spv",
-        descLayoutCache, pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
+        descLayoutCache, EShaderBindingGroup::Debug);
 
     debugShapes->SetCullNone()
         .SetLineWidth(7)
@@ -115,7 +115,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     auto skybox = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv", "Shaders/Compiled/SkyBox.frag.spv", descLayoutCache,
-        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
+        EShaderBindingGroup::Skybox);
 
 
     skybox->SetCullNone().SetVertexInputMode(EVertexInput::PositionOnly).SetDisableDepthWrite().SetDepthOpLessEqual().DisableStencil();

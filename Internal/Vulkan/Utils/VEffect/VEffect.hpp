@@ -24,19 +24,17 @@ class VEffect
     explicit VEffect(const VulkanCore::VDevice&                          device,
                      const std::string&                                  name,
                      VulkanCore::VDescriptorLayoutCache&                 descriptoSetLayoutCache,
-                     std::shared_ptr<VulkanUtils::VShaderResourceGroup>& descriptorSet);
+                     EShaderBindingGroup                                 bindingGroup = EShaderBindingGroup::ForwardUnlit);
 
   public:
     std::string&                  GetName();
-    DescriptorSetTemplateVariant& GetResrouceGroupStructVariant();
+    EShaderBindingGroup           GetBindingGroup();
     virtual void                  BuildEffect()                                    = 0;
     virtual vk::PipelineLayout    GetPipelineLayout()                              = 0;
     virtual void                  BindPipeline(const vk::CommandBuffer& cmdBuffer) = 0;
     virtual void                  Destroy()                                        = 0;
-    vk::DescriptorUpdateTemplate& GetUpdateTemplate();
     unsigned short                EvaluateRenderingOrder();
     int&                          GetID();
-    EDescriptorLayoutStruct       GetLayoutStructType();
     void                          CreateLayouts(const VulkanCore::ReflectionData& reflectionData);
     /**
      * Informs how many writes will be needed for each element in the descriptor sets
@@ -66,8 +64,8 @@ class VEffect
   protected:
     const VulkanCore::VDevice&                         m_device;
     std::string                                        m_name;
-    std::shared_ptr<VulkanUtils::VShaderResourceGroup> m_resourceGroup;
     int                                                m_ID;
+    EShaderBindingGroup                                m_bindingGroup;
 
     //========================================================================
     // Effect descriptor data

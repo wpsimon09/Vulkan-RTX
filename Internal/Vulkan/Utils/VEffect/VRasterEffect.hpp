@@ -30,21 +30,21 @@ class VDevice;
 
 namespace VulkanUtils {
 
-class VRasterEffect:public VEffect
+class VRasterEffect : public VEffect
 {
   public:
-    VRasterEffect(const VulkanCore::VDevice&                          device,
-            const std::string&                                  name,
-            const VulkanCore::VShader&                          shader,
-            VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-            std::shared_ptr<VulkanUtils::VShaderResourceGroup>& shaderResourceGroup);
+    VRasterEffect(const VulkanCore::VDevice&          device,
+                  const std::string&                  name,
+                  const VulkanCore::VShader&          shader,
+                  VulkanCore::VDescriptorLayoutCache& descLayoutCache,
+                  EShaderBindingGroup                 bindingGroup = EShaderBindingGroup::ForwardUnlit);
 
-    VRasterEffect(const VulkanCore::VDevice&                          device,
-            const std::string&                                  name,
-            const std::string&                                  vertex,
-            const std::string&                                  fragment,
-            VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-            std::shared_ptr<VulkanUtils::VShaderResourceGroup>& descriptorSet);
+    VRasterEffect(const VulkanCore::VDevice&          device,
+                  const std::string&                  name,
+                  const std::string&                  vertex,
+                  const std::string&                  fragment,
+                  VulkanCore::VDescriptorLayoutCache& descLayoutCache,
+                  EShaderBindingGroup                 bindingGroup = EShaderBindingGroup::ForwardUnlit);
 
     //=======================================
     // Effect building
@@ -79,12 +79,12 @@ class VRasterEffect:public VEffect
     vk::PipelineLayout GetPipelineLayout() override;
     void               BindPipeline(const vk::CommandBuffer& cmdBuffer) override;
     void               Destroy() override;
-    void               BindDescriptorSet(const vk::CommandBuffer &cmdBuffer, uint32_t frame, uint32_t set) override;
+    void               BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) override;
 
 
   private:
-    std::unique_ptr<VulkanCore::VGraphicsPipeline>     m_pipeline;
-    std::optional<VulkanCore::VShader>                 m_shader;
+    std::unique_ptr<VulkanCore::VGraphicsPipeline> m_pipeline;
+    std::optional<VulkanCore::VShader>             m_shader;
 
   private:
     friend bool operator==(const VRasterEffect& lhs, const VRasterEffect& rhs) { return lhs.m_ID == rhs.m_ID; }

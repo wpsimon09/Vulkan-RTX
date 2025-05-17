@@ -13,10 +13,10 @@ namespace VulkanUtils {
 VEffect::VEffect(const VulkanCore::VDevice&                          device,
                  const std::string&                                  name,
                  VulkanCore::VDescriptorLayoutCache&                 descriptoSetLayoutCache,
-                 std::shared_ptr<VulkanUtils::VShaderResourceGroup>& descriptorSet)
+                 EShaderBindingGroup                                 bindingGroup)
     : m_device(device)
     , m_name(name)
-    , m_resourceGroup(descriptorSet)
+    , m_bindingGroup(bindingGroup)
     , m_descriptorSetLayoutCache(descriptoSetLayoutCache)
 {
     m_ID = EffectIndexCounter++;
@@ -25,14 +25,8 @@ std::string& VEffect::GetName()
 {
     return m_name;
 }
-DescriptorSetTemplateVariant& VEffect::GetResrouceGroupStructVariant()
-{
-    return m_resourceGroup->GetResourceGroupStruct();
-}
-vk::DescriptorUpdateTemplate& VEffect::GetUpdateTemplate()
-{
-    return m_resourceGroup->GetUpdateTemplate();
-}
+EShaderBindingGroup           VEffect::GetBindingGroup() { return m_bindingGroup;}
+
 unsigned short VEffect::EvaluateRenderingOrder()
 {
     return 0;
@@ -41,10 +35,7 @@ int& VEffect::GetID()
 {
     return m_ID;
 }
-EDescriptorLayoutStruct VEffect::GetLayoutStructType()
-{
-    return m_resourceGroup->GetResourceGroupStrucutureType();
-}
+
 void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
 {
     m_reflectionData = &reflectionData;
@@ -90,7 +81,7 @@ void VEffect::SetNumWrites(uint32_t buffers, uint32_t images, uint32_t accels) {
 
 void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorBufferInfo bufferInfo)
 {
-    assert(m_bufferInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()")
+    assert(m_bufferInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
     assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
 
 
@@ -101,20 +92,20 @@ void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::De
     write.pBufferInfo = &m_bufferInfos[m_bufferInfos.size() - 1];
 }
 
-void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo imageInfo)
-{
-    assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()")
-    assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
-    auto& write = m_descriptorSets[set].writes[frame][binding];
-    assert(write.descriptorType == vk::DescriptorType::eCombinedImageSampler || write.descriptorType == vk::DescriptorType::eSampledImage || write.descriptorType == vk::DescriptorType::eStorageImage);
+    void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo imageInfo)
+    {
+        assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
+        assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
+        auto& write = m_descriptorSets[set].writes[frame][binding];
+        assert(write.descriptorType == vk::DescriptorType::eCombinedImageSampler || write.descriptorType == vk::DescriptorType::eSampledImage || write.descriptorType == vk::DescriptorType::eStorageImage);
 
-    m_imageInfos.push_back(imageInfo);
-    write.pImageInfo = &m_imageInfos[m_imageInfos.size()-1];
-}
+        m_imageInfos.push_back(imageInfo);
+        write.pImageInfo = &m_imageInfos[m_imageInfos.size()-1];
+    }
 
 void VEffect::WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR& asInfo)
 {
-    assert(m_asInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()")
+    assert(m_asInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
     assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
 
     auto& write = m_descriptorSets[set].writes[frame][binding];

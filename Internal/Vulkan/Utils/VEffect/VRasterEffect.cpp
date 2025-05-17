@@ -12,8 +12,8 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
                              const std::string&                                  name,
                              const VulkanCore::VShader&                          shader,
                              VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                             std::shared_ptr<VulkanUtils::VShaderResourceGroup>& shaderResourceGroup)
-    : VEffect(device, name, descLayoutCache, shaderResourceGroup)
+                             EShaderBindingGroup bindingGroup)
+    : VEffect(device, name, descLayoutCache, bindingGroup)
 {
     CreateLayouts(shader.GetReflectionData());
 
@@ -21,7 +21,6 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
     m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_descriptorSetLayouts);
     m_pipeline->Init();
 
-    m_resourceGroup->CreateDstUpdateInfo(m_pipeline->GetPipelineLayout());
 }
 
 VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                          device,
@@ -29,8 +28,8 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
                              const std::string&                                  vertex,
                              const std::string&                                  fragment,
                              VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                             std::shared_ptr<VulkanUtils::VShaderResourceGroup>& descriptorSet)
-    : VEffect(device, name, descLayoutCache, descriptorSet)
+                             EShaderBindingGroup bindingGroup)
+    : VEffect(device, name, descLayoutCache, bindingGroup)
     , m_shader(std::in_place, device, vertex, fragment)
 {
     if (m_shader.has_value())
@@ -40,8 +39,6 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
     m_pipeline =
         std::make_unique<VulkanCore::VGraphicsPipeline>(device, m_shader.value(), m_descriptorSetLayouts);
     m_pipeline->Init();
-
-    m_resourceGroup->CreateDstUpdateInfo(m_pipeline->GetPipelineLayout());
 }
 
 VRasterEffect& VRasterEffect::SetDisableDepthTest()

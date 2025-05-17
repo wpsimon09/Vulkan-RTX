@@ -17,9 +17,6 @@
 #include <map>
 
 
-namespace ApplicationCore {
-class BaseMaterial;
-}
 
 namespace VulkanUtils {
 class VRasterEffect;
@@ -188,6 +185,7 @@ struct VDrawCallData
     ApplicationCore::BaseMaterial*              material;
     std::shared_ptr<VulkanUtils::VRasterEffect> effect;
 
+    /**
     friend bool operator==(const VDrawCallData& lhs, const ObjectDataUniform& rhs)
     {
         if(auto* lhsPBRMat = dynamic_cast<ApplicationCore::PBRMaterial*>(lhs.material))
@@ -206,6 +204,7 @@ struct VDrawCallData
     }
 
     friend bool operator!=(const VDrawCallData& lhs, const ObjectDataUniform& rhs) { return !(lhs == rhs); }
+    */
 };
 
 /**

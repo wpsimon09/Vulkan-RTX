@@ -52,5 +52,14 @@ enum EVertexInput
     Empty
 };
 
+enum EShaderBindingGroup {
+    ForwardLit,
+    ForwardUnlit,
+    Debug,
+    NullBinding,
+    Skybox,
+    RayTracing
+};
+
 
 #endif  //GLOBALVULKANENUMS_HPP
