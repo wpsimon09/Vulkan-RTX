@@ -25,14 +25,12 @@
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
-#include "Vulkan/Utils/VResrouceGroup/VDescriptorSetStructs.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 
 namespace Renderer {
-SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height)
-    : m_pushDescriptorManager(pushDescriptorManager)
-    , m_device(device)
+SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device,  VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height)
+    : m_device(device)
 
 {
     Utils::Logger::LogInfo("Creating scene renderer");

@@ -50,7 +50,7 @@ namespace VulkanUtils {
 class VEnvLightGenerator
 {
   public:
-    VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache,  VulkanUtils::VResourceGroupManager& pushDescriptorManager);
+    VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache);
 
     const VulkanCore::VImage2& GetBRDFLut();
     VulkanCore::VImage2*       GetBRDFLutRaw();
@@ -89,7 +89,6 @@ class VEnvLightGenerator
 
     const VulkanCore::VDevice& m_device;
     VulkanCore::VDescriptorLayoutCache& m_descLayoutChache;
-    VulkanUtils::VResourceGroupManager& m_pushDescriptorManager;
 
     std::unique_ptr<VulkanCore::VCommandBuffer> m_graphicsCmdBuffer;
     std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCmdBuffer;

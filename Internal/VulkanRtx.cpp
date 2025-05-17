@@ -29,7 +29,6 @@
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
-#include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Application/GLTFLoader/GltfLoader.hpp"
 #include "Application/GLTFExporter/GLTFExporter.hpp"
@@ -91,19 +90,17 @@ void Application::Init()
 
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 
-    m_pushDescriptorSetManager = std::make_unique<VulkanUtils::VResourceGroupManager>(*m_vulkanDevice);
-    m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice,*m_uniformBufferManager, *m_descriptorSetLayoutCache, *m_pushDescriptorSetManager);
+    m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice,*m_uniformBufferManager, *m_descriptorSetLayoutCache);
     auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_effectsLibrary);
     m_client->MountAssetsManger(std::move(assetManger));
     m_client->Init();
 
 
-    //m_renderer = std::make_unique<Renderer::VRenderer>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager, *m_resrouceGroupManager);
     m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
     m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager,
 
-                                                                    *m_pushDescriptorSetManager,*m_descriptorSetLayoutCache,  *m_uiContext );
+                                                                    *m_descriptorSetLayoutCache,  *m_uiContext );
 
 
     m_renderingSystem->Init();
@@ -221,7 +218,6 @@ Application::~Application()
         }
     }
     m_vulkanDevice->GetDevice().waitIdle();
-    m_pushDescriptorSetManager->Destroy();
     m_renderingSystem->Destroy();
     m_effectsLibrary->Destroy();
     m_client->Destroy();

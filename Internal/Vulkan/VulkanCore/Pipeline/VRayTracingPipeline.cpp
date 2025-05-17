@@ -6,7 +6,6 @@
 
 #include "Application/Utils/MathUtils.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
-#include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include "Vulkan/VulkanCore/Shader/VRayTracingShaders.hpp"
 
 namespace VulkanCore {
@@ -124,7 +123,7 @@ void VRayTracingPipeline::CreatePipelineLayout()
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 
     pipelineLayoutCreateInfo.setLayoutCount = 1;
-    pipelineLayoutCreateInfo.pSetLayouts    = &m_descSetLayout.GetLayout();
+    //pipelineLayoutCreateInfo.pSetLayouts    = &m_descSetLayout.GetLayout();
 
     pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
     pipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;

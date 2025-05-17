@@ -67,15 +67,11 @@ set(SOURCES
         Internal/Application/Rendering/Camera/Camera.cpp
         Internal/Application/Rendering/Camera/Camera.hpp
         Internal/Application/Structs/ApplicationStructs.hpp
-        Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.cpp
-        Internal/Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.cpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp
         Internal/Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniform.cpp
         Internal/Vulkan/Utils/VUniformBufferManager/VUniform.hpp
-        Internal/Vulkan/Utils/VResrouceGroup/VResourceGroupManager.cpp
-        Internal/Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp
         External/stb_image/stb_image.cpp
         External/stb_image/stb_image_write.cpp
         Internal/Vulkan/VulkanCore/Samplers/VSamplers.hpp
@@ -181,11 +177,8 @@ set(SOURCES
         Internal/Vulkan/Global/RenderingOptions.hpp
         Internal/Vulkan/Global/EngineOptions.hpp
         Internal/Editor/EditorOptions.hpp
-        Internal/Vulkan/Utils/VResrouceGroup/VDescriptorSetStructs.hpp
-        Internal/Vulkan/Utils/VResrouceGroup/VResrouceGroup.hpp
         Internal/Vulkan/Utils/VEffect/VRasterEffect.cpp
         Internal/Vulkan/Utils/VEffect/VRasterEffect.hpp
-        Internal/Vulkan/Utils/VResrouceGroup/VResrouceGroup.cpp
         Internal/Application/AssetsManger/EffectsLibrary/EffectsLibrary.cpp
         Internal/Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp
         Internal/Vulkan/Utils/VRenderingContext/VRenderingContext.cpp

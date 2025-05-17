@@ -4,7 +4,6 @@
 
 #include "VRayTracingEffect.hpp"
 
-#include "Vulkan/Utils/VResrouceGroup/VResrouceGroup.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 
 namespace VulkanUtils {

@@ -69,7 +69,6 @@ public:
     RenderingSystem(const VulkanCore::VulkanInstance&         instance,
                     const VulkanCore::VDevice&                device,
                     const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                    VulkanUtils::VResourceGroupManager&       pushDescriptorManager,
                     VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
                     VEditor::UIContext&                       uiContext);
 
@@ -86,7 +85,6 @@ private:
     // Core Vulkan references
     const VulkanCore::VDevice&                m_device;
     const VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
-    VulkanUtils::VResourceGroupManager&       m_resrouceGroupManager;
     VEditor::UIContext&                       m_uiContext;
 
     // Scene state

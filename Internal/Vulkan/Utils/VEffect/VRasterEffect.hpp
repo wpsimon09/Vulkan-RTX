@@ -9,10 +9,10 @@
 
 #include <variant>
 
-#include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 
 namespace VulkanCore {
+class VGraphicsPipeline;
 class VDescriptorLayoutCache;
 }
 namespace VulkanCore::RTX {
@@ -94,3 +94,4 @@ class VRasterEffect : public VEffect
 }  // namespace VulkanUtils
 
 #endif  //VRASTEREFFECT_HPP
+

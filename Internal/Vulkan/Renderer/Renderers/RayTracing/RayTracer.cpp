@@ -9,7 +9,6 @@
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
-#include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -20,14 +19,12 @@
 
 namespace Renderer {
 RayTracer::RayTracer(const VulkanCore::VDevice&           device,
-                     VulkanUtils::VResourceGroupManager&  resourceGroupManager,
                      VulkanUtils::VRayTracingDataManager& rtxDataManager,
                      VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
                      int                                  width,
                      int                                  height)
     : m_device(device)
     , m_rtxDataManager(rtxDataManager)
-    , m_resourceGroupManager(resourceGroupManager)
     , m_descLayoutCache(descLayoutCache)
 {
     m_resultImage.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);

@@ -5,7 +5,6 @@
 #ifndef BASEMATERIAL_HPP
 #define BASEMATERIAL_HPP
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
-#include "Vulkan/Utils/VResrouceGroup/VDescriptorSetStructs.hpp"
 #include <memory>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>

@@ -45,8 +45,7 @@ class EffectsLibrary
   public:
     EffectsLibrary(const VulkanCore::VDevice&          device,
                    VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                   VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                   VulkanUtils::VResourceGroupManager& pushDescriptorManager);
+                   VulkanCore::VDescriptorLayoutCache& descLayoutCache);
 
 
     std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;

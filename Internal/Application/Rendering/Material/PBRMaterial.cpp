@@ -60,7 +60,6 @@ PBRMaterial::PBRMaterial(std::shared_ptr<VulkanUtils::VRasterEffect> materialEff
     }
 }
 
-void UpdateGPU(VulkanUtils::DescriptorSetTemplateVariant updateStruct) {}
 
 
 void PBRMaterial::ResetEffect()

@@ -5,7 +5,6 @@
 #include "VEffect.hpp"
 
 #include "Application/Logger/Logger.hpp"
-#include "Vulkan/Utils/VResrouceGroup/VResrouceGroup.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 

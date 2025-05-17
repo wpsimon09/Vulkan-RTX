@@ -12,15 +12,13 @@
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
-#include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 
 namespace ApplicationCore {
 EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
                                VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                               VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                               VulkanUtils::VResourceGroupManager& pushDescriptorManager)
+                               VulkanCore::VDescriptorLayoutCache& descLayoutCache)
     : m_descLayoutCache(descLayoutCache)
 {
     auto frowardEffect = std::make_shared<VulkanUtils::VRasterEffect>(

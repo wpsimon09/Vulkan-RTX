@@ -42,7 +42,6 @@ namespace Renderer {
     class SceneRenderer {
     public:
         SceneRenderer(const VulkanCore::VDevice& device,
-                      VulkanUtils::VResourceGroupManager& pushDescriptorManager,
                       VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                       int width, int height);
 
@@ -78,7 +77,6 @@ namespace Renderer {
 
         // Vulkan context & managers
         const VulkanCore::VDevice& m_device;
-        VulkanUtils::VResourceGroupManager& m_pushDescriptorManager;
         VulkanUtils::RenderContext* m_renderContextPtr;
 
         // Rendering

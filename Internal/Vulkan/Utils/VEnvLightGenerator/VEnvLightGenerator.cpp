@@ -19,10 +19,8 @@
 
 
 VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice&          device,
-                                                    VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                                                    VulkanUtils::VResourceGroupManager& pushDescriptorManager)
+                                                    VulkanCore::VDescriptorLayoutCache& descLayoutCache)
     : m_device(device)
-    , m_pushDescriptorManager(pushDescriptorManager)
     , m_descLayoutChache(descLayoutCache)
 {
     auto meshData = m_device.GetMeshDataManager().AddMeshData(ApplicationCore::MeshData::cubeVertices,

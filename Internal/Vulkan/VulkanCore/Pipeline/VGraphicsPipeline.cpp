@@ -10,7 +10,6 @@
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
-#include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
 #include <vulkan/vulkan.hpp>
 
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
