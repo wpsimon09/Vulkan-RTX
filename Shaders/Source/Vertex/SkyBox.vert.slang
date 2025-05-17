@@ -31,48 +31,6 @@ struct GlobalData {
 ConstantBuffer<GlobalData> globalData;
 
 
-//=================================
-// MATERIAL STRUCTS
-//=================================
-struct MaterialConstantValues
-{
-    float roughness;
-    float metalness;
-    float ao;
-    float padding;
-
-    float4 diffuse;
-
-    float4 emissive_strength;
-}
-
-struct MaterialFeatures
-{
-    bool hasDiffuseTexture;
-    bool hasEmissiveTexture;
-    bool hasNormalTexture;
-    bool hasArmTexture;
-}
-
-struct Material
-{
-    MaterialConstantValues Values;
-    MaterialFeatures Features;
-};
-
-struct PermodelData {
-    column_major float4x4 modelMatrix;
-    column_major float4x4 normalMatrix;
-    float3 positionWorldSpace;
-    float padding;
-
-    Material material;
-};
-
-[[vk::binding(1,0)]]
-ConstantBuffer<PermodelData> permodelData;
-
-
 [shader("vertex")]
 VertexOutput vertexMain(VertexInput VAO) // VAO input{
 {
