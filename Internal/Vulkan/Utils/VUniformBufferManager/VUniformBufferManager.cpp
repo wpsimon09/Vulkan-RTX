@@ -63,7 +63,7 @@ std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2
 }
 vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetSceneBufferDescriptorInfo(int frameIndex) const
 {
-    vk::DescriptorBufferInfo descriptorBuffer{};
+    vk::DescriptorBufferInfo descriptorBuffer;
     descriptorBuffer.buffer = m_rtxMaterialDescriptions[frameIndex]->GetBuffer();
     descriptorBuffer.offset = 0;
     descriptorBuffer.range = vk::WholeSize;

@@ -69,8 +69,6 @@ class VUniformBufferManager
     // storage buffers containing all of the data for materials
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_rtxMaterialDescriptions;
 
-    std::unique_ptr<VulkanCore::VBuffer> m_objDescriptionBuffer;
-
     mutable int m_currentDrawCalls = 0;
 };
 }  // namespace VulkanUtils

@@ -188,7 +188,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
     // generate new IBL maps if new one was selected
     if(sceneLightInfo.environmentLight != nullptr)
         if(sceneLightInfo.environmentLight->hdrImage->IsAvailable())
-            m_envLightGenerator->Generate(m_frameCount, sceneLightInfo.environmentLight->hdrImage->GetHandle(),
+            m_envLightGenerator->Generate(m_currentFrameIndex, sceneLightInfo.environmentLight->hdrImage->GetHandle(),
                                           *m_renderingTimeLine[m_currentFrameIndex]);
     m_renderContext.hdrCubeMap    = m_envLightGenerator->GetCubeMapRaw();
     m_renderContext.irradianceMap = m_envLightGenerator->GetIrradianceMapRaw();

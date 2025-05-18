@@ -15,6 +15,7 @@ VRayTracingEffect::VRayTracingEffect(const VulkanCore::VDevice&                 
     , m_shaders(device, shaderPaths)
 {
     CreateLayouts(m_shaders.GetReflectionData());
+
     m_rtPipeline =
         std::make_unique<VulkanCore::RTX::VRayTracingPipeline>(device, m_shaders, m_descriptorSetLayouts);
     m_rtPipeline->Init();
