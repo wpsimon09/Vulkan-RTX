@@ -98,6 +98,6 @@ const vk::AccelerationStructureKHR& VRayTracingDataManager::GetTLAS()
 {
     return m_rayTracingBuilder->GetTLAS();
 }
-vk::AccelerationStructureKHR VRayTracingDataManager::GetTLASCpy() { return m_rayTracingBuilder->GetNonConstTLAS();}
+vk::AccelerationStructureKHR VRayTracingDataManager::GetTLASCpy() { return m_rayTracingBuilder->GetTLASCpy();}
 
 }  // namespace VulkanUtils

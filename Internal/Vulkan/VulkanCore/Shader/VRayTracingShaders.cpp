@@ -31,6 +31,40 @@ void VRayTracingShaders::DestroyShaderModules()
     }
     m_shaderModules.clear();
 }
+void VRayTracingShaders::ReOrderBinding() {
+    #warning "Using of this function will forcefully overwrited whatever bindings were reflected by SPRIV to the hardcoded ones here";
+
+    ReflectionData newReflectionData;
+    ReflecSetLayoutData newLayoutData;
+
+    newLayoutData.bindings.push_back({0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eAll});
+    newLayoutData.bindings.push_back({1, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eAll});
+    newLayoutData.bindings.push_back({2, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eAll});
+    newLayoutData.bindings.push_back({3, vk::DescriptorType::eAccelerationStructureKHR, 1, vk::ShaderStageFlagBits::eAll});
+    newLayoutData.bindings.push_back({4, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eAll});
+    newLayoutData.bindings.push_back({5, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eAll});
+    newLayoutData.bindings.push_back({6, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eAll});
+
+
+    newLayoutData.variableNames.push_back({"_globalData", vk::DescriptorType::eUniformBuffer});
+    newLayoutData.variableNames.push_back({"_lightInfo", vk::DescriptorType::eUniformBuffer});
+    newLayoutData.variableNames.push_back({"_objectInfo", vk::DescriptorType::eUniformBuffer});
+    newLayoutData.variableNames.push_back({"_tlas", vk::DescriptorType::eUniformBuffer});
+    newLayoutData.variableNames.push_back({"_resultImage", vk::DescriptorType::eUniformBuffer});
+    newLayoutData.variableNames.push_back({"_materialInfo", vk::DescriptorType::eUniformBuffer});
+    newLayoutData.variableNames.push_back({"_accumulationimage", vk::DescriptorType::eUniformBuffer});
+
+    newLayoutData.setNumber = 0;
+
+    newLayoutData.createInfo.bindingCount = newLayoutData.bindings.size();
+    newLayoutData.createInfo.pBindings = newLayoutData.bindings.data();
+    newLayoutData.createInfo.flags = {};
+
+    newReflectionData.descriptorSets[0] = std::move(newLayoutData);
+
+    m_reflectionData = std::move(newReflectionData);;
+
+}
 
 void VRayTracingShaders::CreateShaderModules(const RTX::RTXShaderPaths& shaders)
 {

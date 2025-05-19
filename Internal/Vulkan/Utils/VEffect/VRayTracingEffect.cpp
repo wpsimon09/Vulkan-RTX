@@ -14,6 +14,9 @@ VRayTracingEffect::VRayTracingEffect(const VulkanCore::VDevice&                 
     : VEffect(device, name, descLayoutCache ,EShaderBindingGroup::RayTracing)
     , m_shaders(device, shaderPaths)
 {
+    // highly experimental !
+    m_shaders.ReOrderBinding();
+
     CreateLayouts(m_shaders.GetReflectionData());
 
     m_rtPipeline =

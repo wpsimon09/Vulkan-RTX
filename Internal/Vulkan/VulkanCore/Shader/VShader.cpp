@@ -14,6 +14,7 @@ namespace VulkanCore {
 void ReflecSetLayoutData::Print() const {
     std::cout<<"-- Bindings in set -:\n";
     for (auto& binding: variableNames) {
+        std::cout<<"\t ";
         std::cout<<binding.first<<"\n";
     }
 }
@@ -76,7 +77,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
 
             newBindings.bindings[i_binding]      = binding;
             newBindings.variableNames[i_binding] = {std::to_string(i_binding) + ": " + reflBinding.name, binding.descriptorType};
-            newBindings.shaderStages[i_binding] = {std::to_string(i_binding) + ": " + reflBinding.name, binding.descriptorType};
+            //newBindings.shaderStages[i_binding] = {std::to_string(i_binding) + ": " + reflBinding.name, binding.descriptorType};
         }
 
         // set the descriptor set layout

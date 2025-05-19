@@ -237,6 +237,6 @@ const vk::AccelerationStructureKHR& VRayTracingBuilderKHR::GetTLAS() const
 {
     return m_tlas.as;
 }
-vk::AccelerationStructureKHR VRayTracingBuilderKHR::GetNonConstTLAS() const { return m_tlas.as;}
+vk::AccelerationStructureKHR VRayTracingBuilderKHR::GetTLASCpy() const { return m_tlas.as;}
 
 }  // namespace VulkanCore::RTX
