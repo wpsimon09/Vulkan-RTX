@@ -19,7 +19,7 @@ class VRayTracingShaders
   public:
     VRayTracingShaders(const VulkanCore::VDevice& device,const RTX::RTXShaderPaths& shaders);
 
-     vk::ShaderModule GetShaderModule(VulkanCore::RTX::ERayTracingStageIndices shaderType)  ;
+    vk::ShaderModule GetShaderModule(VulkanCore::RTX::ERayTracingStageIndices shaderType)  ;
     const ReflectionData& GetReflectionData();
 
     void DestroyShaderModules();

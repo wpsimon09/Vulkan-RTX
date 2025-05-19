@@ -18,6 +18,7 @@ struct ReflecSetLayoutData {
   uint32_t setNumber;
   vk::DescriptorSetLayoutCreateInfo createInfo;
   std::vector<vk::DescriptorSetLayoutBinding> bindings;
+  std::vector<std::pair<std::string, SpvReflectShaderStageFlagBits>> shaderStages;
   std::vector<std::pair<std::string, vk::DescriptorType>> variableNames;
   void Print() const;
 };
@@ -31,6 +32,7 @@ struct ReflectionData {
   void AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage);
   void Destroy();
 };
+
 
 class VShader : public VObject
 {
