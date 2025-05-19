@@ -26,7 +26,7 @@ class VRayTracingShaders
     /**
      * This method will forcfully
      */
-    void ReOrderBinding();
+    void ReOrderBinding(std::optional<ReflectionData> reflection_data);
   private:
     void CreateShaderModules(const RTX::RTXShaderPaths& shaders);
   private:
@@ -35,9 +35,6 @@ class VRayTracingShaders
 
     std::unordered_map<RTX::ERayTracingStageIndices, VkShaderModule> m_shaderModules;
     std::unordered_map<RTX::ERayTracingStageIndices, ReflectionData> m_reflectionModeules;
-
-    // used only in the case of ray tracing until I figure out better alternative !
-    std::vector<vk::DescriptorSetLayoutBinding> m_overWrittenDescriptorSetLayoutBindings;
 
 };
 

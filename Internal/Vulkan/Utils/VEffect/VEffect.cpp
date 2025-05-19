@@ -77,7 +77,10 @@ const VulkanCore::ReflectionData* VEffect::GetReflectionData() { return  m_refle
 void VEffect::SetNumWrites(uint32_t buffers, uint32_t images, uint32_t accels) {
     m_bufferInfos.reserve(buffers);
     m_imageInfos.reserve(images);
+
+    // we have to store both the copy of acceleration strucutre handle and a desc write to it
     m_asInfos.reserve(accels);
+    m_asWriteInfos.reserve(accels);
 }
 
 void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorBufferInfo bufferInfo)
@@ -112,12 +115,16 @@ void VEffect::WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t 
     auto& write = m_descriptorSets[set].writes[frame][binding];
     assert(m_descriptorSets[set].writes[frame][binding].descriptorType == vk::DescriptorType::eAccelerationStructureKHR);
 
+    m_asInfos.push_back(asInfo);
+
     vk::WriteDescriptorSetAccelerationStructureKHR asWrite;
     asWrite.accelerationStructureCount = 1;
-    asWrite.pAccelerationStructures    = &asInfo;
-    m_asInfos.push_back(asWrite);
+    asWrite.pAccelerationStructures    = &m_asInfos[m_asInfos.size()-1];
 
-    write.pNext = &m_asInfos[m_asInfos.size() - 1];
+
+    write.pNext = &m_asWriteInfos[m_asInfos.size() - 1];
+
+    m_asWriteInfos.push_back(asWrite);
 }
 
 
@@ -144,6 +151,9 @@ void VEffect::ApplyWrites(uint32_t frame)
 
     m_asInfos.clear();
     m_asInfos.shrink_to_fit();
+
+    m_asWriteInfos.clear();
+    m_asWriteInfos.shrink_to_fit();
 
 }
 

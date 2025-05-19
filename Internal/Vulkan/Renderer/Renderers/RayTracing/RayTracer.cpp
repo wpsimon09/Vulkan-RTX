@@ -105,21 +105,23 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                                                     vk::ImageLayout::eShaderReadOnlyOptimal, cmdB);
 
 
-    m_rtxEffect->SetNumWrites(10, 3, 4);
+    m_rtxEffect->SetNumWrites(4, 2, 1);
 
-    m_rtxEffect->WriteBuffer(0, 0, 0, unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
-    m_rtxEffect->WriteBuffer(0, 0, 1, unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
-    m_rtxEffect->WriteBuffer(0, 0, 2, m_rtxDataManager.GetObjDescriptionBufferInfo());
+    m_rtxEffect->WriteBuffer(currentFrame, 0, 0, unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+    m_rtxEffect->WriteBuffer(currentFrame, 0, 1, unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
+    m_rtxEffect->WriteBuffer(currentFrame, 0, 2, m_rtxDataManager.GetObjDescriptionBufferInfo());
 
-    m_rtxEffect->WriteAccelerationStrucutre(0, 0, 3, m_rtxDataManager.GetTLASCpy());
+    m_rtxEffect->WriteAccelerationStrucutre(currentFrame, 0, 3, m_rtxDataManager.GetTLAS());
 
-    m_rtxEffect->WriteImage(0, 0, 4, m_resultImage[currentFrame]->GetDescriptorImageInfo());
-    m_rtxEffect->WriteBuffer(0, 0, 5, unifromBufferManager.GetSceneBufferDescriptorInfo(currentFrame));
+    m_rtxEffect->WriteImage(currentFrame, 0, 4, m_resultImage[currentFrame]->GetDescriptorImageInfo());
+    m_rtxEffect->WriteBuffer(currentFrame, 0, 5, unifromBufferManager.GetSceneBufferDescriptorInfo(currentFrame));
 
-    m_rtxEffect->WriteImage(0, 0, 6, m_accumulationResultImage->GetDescriptorImageInfo());
+    m_rtxEffect->WriteImage(currentFrame, 0, 6, m_accumulationResultImage->GetDescriptorImageInfo());
+
+    // optional, print the reflection data
+    //m_rtxEffect->GetReflectionData()->Print();
 
     // update descriptor sets
-    m_rtxEffect->GetReflectionData()->Print();
     m_rtxEffect->ApplyWrites(currentFrame);
 
     // bind them

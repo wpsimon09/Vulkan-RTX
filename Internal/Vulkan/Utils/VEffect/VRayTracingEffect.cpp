@@ -15,7 +15,7 @@ VRayTracingEffect::VRayTracingEffect(const VulkanCore::VDevice&                 
     , m_shaders(device, shaderPaths)
 {
     // highly experimental !
-    m_shaders.ReOrderBinding();
+    m_shaders.ReOrderBinding(std::nullopt);
 
     CreateLayouts(m_shaders.GetReflectionData());
 

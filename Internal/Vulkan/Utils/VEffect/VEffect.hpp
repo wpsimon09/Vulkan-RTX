@@ -60,7 +60,8 @@ class VEffect
     //======================================
     std::vector<vk::DescriptorBufferInfo>                       m_bufferInfos;
     std::vector<vk::DescriptorImageInfo>                        m_imageInfos;
-    std::vector<vk::WriteDescriptorSetAccelerationStructureKHR> m_asInfos;
+    std::vector<vk::AccelerationStructureKHR>                   m_asInfos;
+    std::vector<vk::WriteDescriptorSetAccelerationStructureKHR> m_asWriteInfos;
 
   protected:
     const VulkanCore::VDevice& m_device;
@@ -77,7 +78,7 @@ class VEffect
      */
     std::vector<VulkanStructs::VDescriptorSet> m_descriptorSets;
     std::vector<vk::DescriptorSetLayout>       m_descriptorSetLayouts;
-    const VulkanCore::ReflectionData*                m_reflectionData;
+    const VulkanCore::ReflectionData*          m_reflectionData;
     VulkanCore::VDescriptorLayoutCache&        m_descriptorSetLayoutCache;
 };
 
