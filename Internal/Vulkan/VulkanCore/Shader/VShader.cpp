@@ -11,6 +11,23 @@
 
 namespace VulkanCore {
 
+void ReflecSetLayoutData::Print() const {
+    std::cout<<"- Bindings in set -:\n";
+    for (auto& binding: variableNames) {
+        std::cout<<binding.first<<"\n";
+    }
+    std::cout<<"==============================================\n";
+}
+void ReflectionData::Print() const  {
+    std::cout<<"======================= Reflection data ============================\n\n";
+
+    for (int i_set = 0; i_set<descriptorSets.size(); i_set++) {
+        std::cout<<" -- Set" + std::to_string(i_set)<<" -- \n";
+        descriptorSets.at(i_set).Print();
+        std::cout<<"====================================================================\n\n";
+
+    }
+}
 //=============================================
 // REFLECTION DATA
 //=============================================
@@ -59,7 +76,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
 
 
             newBindings.bindings[i_binding]      = binding;
-            newBindings.variableNames[i_binding] = {reflBinding.name, binding.descriptorType};
+            newBindings.variableNames[i_binding] = {std::to_string(i_binding) + ": " + reflBinding.name, binding.descriptorType};
         }
 
         // set the descriptor set layout
@@ -71,6 +88,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         // insert currently cerated bindings to the newly ones
         currentBindings.bindings.insert(currentBindings.bindings.end(), newBindings.bindings.begin(), newBindings.bindings.end());
         currentBindings.variableNames.insert(currentBindings.variableNames.end(), newBindings.variableNames.begin(), newBindings.variableNames.end());
+
         // TODO: allow update after bind bit here later
         currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
 

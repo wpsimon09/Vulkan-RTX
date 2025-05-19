@@ -105,19 +105,27 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                                                     vk::ImageLayout::eShaderReadOnlyOptimal, cmdB);
 
 
-    m_rtxEffect->SetNumWrites(10, 2, 1);
+    m_rtxEffect->SetNumWrites(10, 3, 4);
+
     m_rtxEffect->WriteBuffer(0, 0, 0, unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
     m_rtxEffect->WriteBuffer(0, 0, 1, unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
     m_rtxEffect->WriteBuffer(0, 0, 2, m_rtxDataManager.GetObjDescriptionBufferInfo());
+
     m_rtxEffect->WriteAccelerationStrucutre(0, 0, 3, m_rtxDataManager.GetTLASCpy());
+
     m_rtxEffect->WriteImage(0, 0, 4, m_resultImage[currentFrame]->GetDescriptorImageInfo());
     m_rtxEffect->WriteBuffer(0, 0, 5, unifromBufferManager.GetSceneBufferDescriptorInfo(currentFrame));
 
     m_rtxEffect->WriteImage(0, 0, 6, m_accumulationResultImage->GetDescriptorImageInfo());
 
+    // update descriptor sets
+    m_rtxEffect->GetReflectionData()->Print();
     m_rtxEffect->ApplyWrites(currentFrame);
+
+    // bind them
     m_rtxEffect->BindDescriptorSet(cmdB, currentFrame, 0);
 
+    // use them
     auto& p = m_rtxEffect->GetRTXPipeline();
     cmdB.traceRaysKHR(p.m_rGenRegion, p.m_rMissRegion, p.m_rHitRegion, p.m_rCallRegion,
                       m_resultImage[currentFrame]->GetImageInfo().width,

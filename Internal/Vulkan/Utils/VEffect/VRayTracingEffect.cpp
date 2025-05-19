@@ -49,6 +49,8 @@ void VRayTracingEffect::Destroy()
 {
    m_rtPipeline->Destroy();
 }
-void VRayTracingEffect::BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) {}
+void VRayTracingEffect::BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) {
+    cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eRayTracingKHR, m_rtPipeline->GetPipelineLayout(), set, m_descriptorSets.size(), &m_descriptorSets[set].sets[frame], 0, nullptr);
+}
 
 }  // namespace VulkanUtils

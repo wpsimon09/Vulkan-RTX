@@ -21,28 +21,29 @@ class VShaderResourceGroup;
 class VEffect
 {
   public:
-    explicit VEffect(const VulkanCore::VDevice&                          device,
-                     const std::string&                                  name,
-                     VulkanCore::VDescriptorLayoutCache&                 descriptoSetLayoutCache,
-                     EShaderBindingGroup                                 bindingGroup = EShaderBindingGroup::ForwardUnlit);
+    explicit VEffect(const VulkanCore::VDevice&          device,
+                     const std::string&                  name,
+                     VulkanCore::VDescriptorLayoutCache& descriptoSetLayoutCache,
+                     EShaderBindingGroup                 bindingGroup = EShaderBindingGroup::ForwardUnlit);
 
   public:
-    std::string&                  GetName();
-    EShaderBindingGroup           GetBindingGroup();
-    virtual void                  BuildEffect()                                    = 0;
-    virtual vk::PipelineLayout    GetPipelineLayout()                              = 0;
-    virtual void                  BindPipeline(const vk::CommandBuffer& cmdBuffer) = 0;
-    virtual void                  Destroy()                                        = 0;
-    unsigned short                EvaluateRenderingOrder();
-    int&                          GetID();
-    void                          CreateLayouts(const VulkanCore::ReflectionData& reflectionData);
+    std::string&                      GetName();
+    EShaderBindingGroup               GetBindingGroup();
+    virtual void                      BuildEffect()                                    = 0;
+    virtual vk::PipelineLayout        GetPipelineLayout()                              = 0;
+    virtual void                      BindPipeline(const vk::CommandBuffer& cmdBuffer) = 0;
+    virtual void                      Destroy()                                        = 0;
+    unsigned short                    EvaluateRenderingOrder();
+    int&                              GetID();
+    void                              CreateLayouts(const VulkanCore::ReflectionData& reflectionData);
+    const VulkanCore::ReflectionData* GetReflectionData();
     /**
      * Informs how many writes will be needed for each element in the descriptor sets
      * @param buffers number of buffers for writes
      * @param images number of images for writes
      * @param accels number of acceleration structures for writes
      */
-    void                          SetNumWrites(uint32_t buffers = 1, uint32_t images = 1 , uint32_t accels = 1);
+    void SetNumWrites(uint32_t buffers = 1, uint32_t images = 1, uint32_t accels = 1);
 
     //=====================================
     // DESCRIPTOR WRITES
@@ -57,15 +58,15 @@ class VEffect
     //======================================
     // COPY OF RESOURCES
     //======================================
-    std::vector<vk::DescriptorBufferInfo> m_bufferInfos;
-    std::vector<vk::DescriptorImageInfo> m_imageInfos;
+    std::vector<vk::DescriptorBufferInfo>                       m_bufferInfos;
+    std::vector<vk::DescriptorImageInfo>                        m_imageInfos;
     std::vector<vk::WriteDescriptorSetAccelerationStructureKHR> m_asInfos;
 
   protected:
-    const VulkanCore::VDevice&                         m_device;
-    std::string                                        m_name;
-    int                                                m_ID;
-    EShaderBindingGroup                                m_bindingGroup;
+    const VulkanCore::VDevice& m_device;
+    std::string                m_name;
+    int                        m_ID;
+    EShaderBindingGroup        m_bindingGroup;
 
     //========================================================================
     // Effect descriptor data
@@ -76,7 +77,7 @@ class VEffect
      */
     std::vector<VulkanStructs::VDescriptorSet> m_descriptorSets;
     std::vector<vk::DescriptorSetLayout>       m_descriptorSetLayouts;
-    const VulkanCore::ReflectionData*          m_reflectionData;
+    const VulkanCore::ReflectionData*                m_reflectionData;
     VulkanCore::VDescriptorLayoutCache&        m_descriptorSetLayoutCache;
 };
 

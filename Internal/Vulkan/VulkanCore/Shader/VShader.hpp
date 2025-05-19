@@ -19,12 +19,14 @@ struct ReflecSetLayoutData {
   vk::DescriptorSetLayoutCreateInfo createInfo;
   std::vector<vk::DescriptorSetLayoutBinding> bindings;
   std::vector<std::pair<std::string, vk::DescriptorType>> variableNames;
+  void Print() const;
 };
 
 struct ReflectionData {
   SpvReflectShaderModule moduleReflection;
   std::map<int , ReflecSetLayoutData> descriptorSets;
 
+  void Print() const ;
   void Init(const void* byteCode, size_t size);
   void AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage);
   void Destroy();

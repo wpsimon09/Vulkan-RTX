@@ -72,6 +72,8 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
 
     Utils::Logger::LogSuccess("Descriptor set layout created successfully");
 }
+const VulkanCore::ReflectionData* VEffect::GetReflectionData() { return  m_reflectionData;}
+
 void VEffect::SetNumWrites(uint32_t buffers, uint32_t images, uint32_t accels) {
     m_bufferInfos.reserve(buffers);
     m_imageInfos.reserve(images);
@@ -127,12 +129,12 @@ void VEffect::ApplyWrites(uint32_t frame)
     {
         for(auto& write : set.writes[frame])
         {
-            if (write.second.pBufferInfo != nullptr || write.second.pImageInfo != nullptr) {
+            if (write.second.pBufferInfo != nullptr || write.second.pImageInfo != nullptr || write.second.pNext != nullptr) {
                 writes.push_back(write.second);
             }
         }
-        m_device.GetDevice().updateDescriptorSets(writes.size(), writes.data(), 0, nullptr);
     }
+    m_device.GetDevice().updateDescriptorSets(writes.size(), writes.data(), 0, nullptr);
 
     m_bufferInfos.clear();
     m_bufferInfos.shrink_to_fit();
