@@ -69,6 +69,7 @@ public struct PBRMaterial : IMaterial
     public Sampler2D emissive_map;
     public float4 albedo;
     public float4 emission;
+    public float3 normal;
     public float metallness;
     public float roughness;
     public float ao;
@@ -113,6 +114,56 @@ public struct PBRMaterial : IMaterial
             brdf.emission = values.emissive_strength;
         }
 
+    
+
+        return brdf;
+    }
+}
+
+/**
+* Same as PBRMaterial, but to prepare it it indexes into the texture array
+* TODO: this will be main way of having textures in shaders in the future
+*/
+public struct PBRMaterialIndexed : PBRMaterial
+{
+
+    public CookTorrence_GGX Prepare(SurfaceGeometry geometry, Sampler2D Textures[]) {
+        CookTorrence_GGX brdf;
+        if (features.hasDiffuseTexture)
+        {
+            brdf.albedo = Textures[features.albedoTextureIdx].Sample(geometry.uv);
+            if (brdf.albedo.w < 1.0) {
+                discard;
+            }
+        }
+        else
+        {
+            brdf.albedo = values.diffuse;
+        }
+
+        if (features.hasArmTexture)
+        {
+            float3 armValues = Textures[features.armTextureIdx].Sample(geometry.uv).xyz;
+            brdf.ao = armValues.r;
+            brdf.roughness = armValues.g;
+            brdf.metallnes = armValues.b;
+        }
+        else
+        {
+            brdf.roughness = values.roughness;
+            brdf.metallnes = values.metalness;
+            brdf.ao = values.ao;
+        }
+
+        if (features.hasEmissiveTexture) {
+            float4 emissive = Textures[features.emissiveTextureIdx].Sample(geometry.uv);
+            brdf.emission = emissive;
+            if (brdf.emission.w == 0.0) {
+                brdf.emission.w = values.emissive_strength.w;
+            }
+        } else {
+            brdf.emission = values.emissive_strength;
+        }
         return brdf;
     }
 }

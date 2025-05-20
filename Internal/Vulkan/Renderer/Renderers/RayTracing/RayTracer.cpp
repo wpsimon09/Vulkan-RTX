@@ -127,7 +127,6 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     // bind them
     m_rtxEffect->BindDescriptorSet(cmdB, currentFrame, 0);
 
-    // TODO: shader stages are correct I just have to fill in the correct binding according to the reflection not according to the shader
     // use them
     auto& p = m_rtxEffect->GetRTXPipeline();
     cmdB.traceRaysKHR(p.m_rGenRegion, p.m_rMissRegion, p.m_rHitRegion, p.m_rCallRegion,

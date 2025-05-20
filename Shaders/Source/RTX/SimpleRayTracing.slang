@@ -166,16 +166,14 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 {
 
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
-    Material m = GetMaterial(InstanceID());
+    PBRMaterialIndexed m = GetMaterial(InstanceID(), g);
 
     //========================
     // direct light
     float3 L = _lightInfo.dirLight.direction.xyz;
     float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
 
-    float3 albedo = m.Values.diffuse.xyz; // float3(0.2, 0.2, 1.0);
-
-    float3 ambient = albedo * _lightInfo.info.y; // y is the ambient strengt
+    float3 albedo = m.albedo.xyz; // float3(0.2, 0.2, 1.0);
 
     RayPayloadShadow shadowPayLoad;
     shadowPayLoad.inShadow = true;
@@ -194,7 +192,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     if (!shadowPayLoad.inShadow) {
         float diff = max(dot(g.shadingNormal, L), 0.0);
 
-        payLoad.incomingLightColour += (diff * Le * albedo) + ambient;
+        payLoad.incomingLightColour += (diff * Le * albedo);
     }
 
     //==============================
@@ -206,15 +204,15 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     
     float3 specularDir = reflect(WorldRayDirection(), g.shadingNormal);
     
-    bool isSpecularRay = (1.0 - m.Values.roughness) >= RandomValue(payLoad.randomContext);
+    bool isSpecularRay = (1.0 - m.values.roughness) >= RandomValue(payLoad.randomContext);
     
-    payLoad.rayDirection = lerp(diffuseDir, specularDir,m.Values.metalness * (float)isSpecularRay );
+    payLoad.rayDirection = lerp(diffuseDir, specularDir,m.values.metalness * (float)isSpecularRay );
 
 
     // other direction
-    float3 emmittedLight = m.Values.emissive_strength.xyz * m.Values.emissive_strength.w;
+    float3 emmittedLight = m.values.emissive_strength.xyz * m.values.emissive_strength.w;
 
-    payLoad.rayColour *= m.Values.diffuse.xyz ;
+    payLoad.rayColour *= m.values.diffuse.xyz ;
     payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
     payLoad.hasHit = true;
 

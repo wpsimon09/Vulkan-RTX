@@ -8,6 +8,9 @@ StructuredBuffer<ObjDescription> descriptions;
 [[vk::binding(5, 0)]]
 StructuredBuffer<Material> materialValues;
 
+[[vk::binding(7, 0)]]
+Sampler2D textures[];
+
 public struct ObjDescription {
     public Vertex* vertexAddresses;
     public int* indexAddress;
@@ -56,11 +59,15 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     return g;
 }
 
-public Material GetMaterial(uint32_t instanceIndex) {
-    Material mat;
-    mat.Features = materialValues[instanceIndex].Features;
-    mat.Values = materialValues[instanceIndex].Values;
-    return mat;
+public PBRMaterialIndexed GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
+    PBRMaterialIndexed pbrMat;
+    pbrMat.features = materialValues[instanceIndex].Features;
+    pbrMat.values = materialValues[instanceIndex].Values;
+    
+    pbrMat.Prepare(g, textures);
+    
+
+    return pbrMat;
 }
 
 
