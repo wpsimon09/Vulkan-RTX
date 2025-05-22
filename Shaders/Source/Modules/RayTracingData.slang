@@ -9,7 +9,7 @@ StructuredBuffer<ObjDescription> descriptions;
 StructuredBuffer<Material> materialValues;
 
 [[vk::binding(7, 0)]]
-Sampler2D textures[];
+StructuredBuffer<Sampler2D> textures;
 
 public struct ObjDescription {
     public Vertex* vertexAddresses;
@@ -59,14 +59,16 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     return g;
 }
 
-public PBRMaterialIndexed GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
-    PBRMaterialIndexed pbrMat;
+public PBRMaterial GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
+    PBRMaterial pbrMat;
     pbrMat.features = materialValues[instanceIndex].Features;
     pbrMat.values = materialValues[instanceIndex].Values;
+    pbrMat.albedo_map = textures[pbrMat.features.albedoTextureIdx];
+    pbrMat.normal_map = textures[pbrMat.features.normalTextureIdx];
+    pbrMat.arm_map = textures[pbrMat.features.armTextureIdx];
+    pbrMat.emissive_map = textures[pbrMat.features.emissiveTextureIdx];
+    pbrMat.Prepare(g);
     
-    pbrMat.Prepare(g, textures);
-    
-
     return pbrMat;
 }
 

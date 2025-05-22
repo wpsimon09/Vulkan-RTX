@@ -166,7 +166,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 {
 
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
-    PBRMaterialIndexed m = GetMaterial(InstanceID(), g);
+    PBRMaterial m = GetMaterial(InstanceID(), g);
 
     //========================
     // direct light

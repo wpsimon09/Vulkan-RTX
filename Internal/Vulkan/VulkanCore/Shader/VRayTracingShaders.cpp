@@ -53,6 +53,7 @@ void VRayTracingShaders::ReOrderBinding(std::optional<ReflectionData> reflection
         newLayoutData.bindings.push_back({4, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eAll});
         newLayoutData.bindings.push_back({5, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eAll});
         newLayoutData.bindings.push_back({6, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eAll});
+        newLayoutData.bindings.push_back({7, vk::DescriptorType::eCombinedImageSampler, 2000, vk::ShaderStageFlagBits::eAll});
 
         newLayoutData.bindings.shrink_to_fit();
 
@@ -64,6 +65,7 @@ void VRayTracingShaders::ReOrderBinding(std::optional<ReflectionData> reflection
         newLayoutData.variableNames.push_back({"_resultImage", vk::DescriptorType::eUniformBuffer});
         newLayoutData.variableNames.push_back({"_materialInfo", vk::DescriptorType::eUniformBuffer});
         newLayoutData.variableNames.push_back({"_accumulationimage", vk::DescriptorType::eUniformBuffer});
+        newLayoutData.variableNames.push_back({"_textures", vk::DescriptorType::eCombinedImageSampler});
 
         newLayoutData.setNumber = 0;
 
