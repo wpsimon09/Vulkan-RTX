@@ -90,9 +90,10 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         currentBindings.bindings.insert(currentBindings.bindings.end(), newBindings.bindings.begin(), newBindings.bindings.end());
         currentBindings.variableNames.insert(currentBindings.variableNames.end(), newBindings.variableNames.begin(), newBindings.variableNames.end());
 
-        // TODO: allow update after bind bit here later
         currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
 
+        vk::DescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo = {};
+        bindingFlagsInfo.bindingCount = newBindings.bindings.size();
 
         //descriptorSets[i_set].createInfo.flags = vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR;
 ;

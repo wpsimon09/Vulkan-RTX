@@ -284,7 +284,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             hdrToCubeMapEffect.Destroy();
             for(auto& hdrPushBlock : hdrPushBlocks)
             {
-                hdrPushBlock->Destory();
+            //    hdrPushBlock->Destory();
             }
             //            hdrPushBlock.Destory();
             Utils::Logger::LogSuccess("HDR Cube map generated");

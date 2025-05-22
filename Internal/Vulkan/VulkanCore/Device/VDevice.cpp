@@ -177,6 +177,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
         queueCreateInfos.push_back(queueCreateInfo);
     }
 
+
     vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
     dynamicRenderingFeatures.dynamicRendering = true;
 
@@ -188,6 +189,15 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     physicalDeviceVulkan12Features.timelineSemaphore   = true;
     physicalDeviceVulkan12Features.bufferDeviceAddress = true;
     physicalDeviceVulkan12Features.hostQueryReset = true;
+
+    //descriptor indexing feature
+    physicalDeviceVulkan12Features.descriptorIndexing = true;
+    physicalDeviceVulkan12Features.shaderSampledImageArrayNonUniformIndexing = true;
+    physicalDeviceVulkan12Features.runtimeDescriptorArray = true;
+    physicalDeviceVulkan12Features.descriptorBindingVariableDescriptorCount = true;
+    physicalDeviceVulkan12Features.descriptorBindingPartiallyBound = true;
+    physicalDeviceVulkan12Features.descriptorBindingUpdateUnusedWhilePending = true;
+
 
     // used in fore frame captures....
     if(GlobalState::ValidationLayersEnabled)

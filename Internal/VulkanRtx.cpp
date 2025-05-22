@@ -121,6 +121,7 @@ void Application::Init()
     auto inputs =m_client->GetScene().GetBLASInputs();
     m_renderingSystem->GetRayTracingManager().InitAs(inputs);
 
+    m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU();
 }
 
 void Application::MainLoop()
