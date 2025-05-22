@@ -92,13 +92,19 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
 
         currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
 
-        vk::DescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo = {};
-        bindingFlagsInfo.bindingCount = newBindings.bindings.size();
+        descriptorSets[i_set].descriptorFlags = {
+                vk::DescriptorBindingFlagBits::ePartiallyBound,
+                vk::DescriptorBindingFlagBits::eUpdateAfterBind,
+        };
 
-        //descriptorSets[i_set].createInfo.flags = vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR;
+        descriptorSets[i_set].bindingFlagsInfo.bindingCount = descriptorSets[i_set].descriptorFlags.size();
+        descriptorSets[i_set].bindingFlagsInfo.pBindingFlags = descriptorSets[i_set].descriptorFlags.data();
+
+        descriptorSets[i_set].createInfo.flags = vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool;
+        descriptorSets[i_set].createInfo.pNext = &descriptorSets[i_set].bindingFlagsInfo;
 ;
 
-        descriptorSets[i_set].createInfo.pBindings = currentBindings.bindings.data();
+
         descriptorSets[i_set].createInfo.pBindings = currentBindings.bindings.data();
     }
 }

@@ -273,6 +273,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
 
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,
                                                               vk::PipelineStageFlagBits::eTransfer};
+            // waiting for value 2 because value 2 is signal by create resource command
             m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
                                              envGenerationSemaphore.GetSemaphoreSubmitInfo(2, 4), waitStages.data());
 
