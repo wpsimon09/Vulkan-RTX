@@ -41,7 +41,6 @@ struct ReflectionData {
 
 };
 
-
 class VShader : public VObject
 {
 

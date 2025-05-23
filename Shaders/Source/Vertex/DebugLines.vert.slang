@@ -22,7 +22,7 @@ struct GlobalData {
     float padding2;
     float2 screenSize;
 };
-
+    
 [[vk::binding(0,0)]]
 ConstantBuffer<GlobalData> globalData;
 

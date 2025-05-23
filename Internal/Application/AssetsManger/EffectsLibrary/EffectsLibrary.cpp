@@ -59,6 +59,9 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
     editorBillboards->SetTopology(vk::PrimitiveTopology::eTriangleList).SetCullNone().SetVertexInputMode(EVertexInput::Position_UV)
         //.SetDepthOpLessEqual()
         ;
+
+
+
     effects[EEffectType::EditorBilboard] = std::move(editorBillboards);
 
     //==============================================================================
