@@ -231,6 +231,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     hdrPushBlocks[i]->GetUBOStruct().viewProj = m_camptureViews[face];
                     hdrPushBlocks[i]->UpdateGPUBuffer(0);
 
+                    // TODO: dont update it every frame and instead update only once and render                                                                                                                                                                                                                                                              buffer
                     hdrToCubeMapEffect.SetNumWrites(1, 1, 0);
                     hdrToCubeMapEffect.WriteBuffer(m_currentFrame, 0, 0, hdrPushBlocks[i]->GetDescriptorBufferInfos()[0]);
                     hdrToCubeMapEffect.WriteImage(m_currentFrame, 0, 1,
@@ -285,9 +286,9 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             hdrToCubeMapEffect.Destroy();
             for(auto& hdrPushBlock : hdrPushBlocks)
             {
-            //    hdrPushBlock->Destory();
+                hdrPushBlock->Destory();
             }
-            //            hdrPushBlock.Destory();
+
             Utils::Logger::LogSuccess("HDR Cube map generated");
         }
     }

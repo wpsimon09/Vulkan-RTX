@@ -47,7 +47,6 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
     result = spvReflectEnumerateDescriptorSets(&moduleReflection, &count, sets.data());
     assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to retrieve binding handles ");
 
-
     // go through each descriptor set
     for(size_t i_set = 0; i_set < sets.size(); i_set++)
     {
@@ -58,6 +57,8 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         const SpvReflectDescriptorSet& reflSet = *(sets[i_set]);
         newBindings.bindings.resize(reflSet.binding_count);
         newBindings.variableNames.resize(reflSet.binding_count);
+        descriptorSets[i_set].descriptorFlags.resize(reflSet.binding_count);
+
 
         for(uint32_t i_binding = 0; i_binding < reflSet.binding_count; i_binding++)
         {
@@ -71,9 +72,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
                 binding.descriptorCount *= reflBinding.array.dims[i_dim];
             }
 
-            // TODO: add correct stage to the binding instead of used eAll
             binding.stageFlags = vk::ShaderStageFlagBits::eAll;
-
 
             newBindings.bindings[i_binding]      = binding;
             newBindings.variableNames[i_binding] = {std::to_string(i_binding) + ": " + reflBinding.name, binding.descriptorType};
@@ -92,16 +91,18 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
 
         currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
 
-        descriptorSets[i_set].descriptorFlags = {
-                vk::DescriptorBindingFlagBits::ePartiallyBound,
-                vk::DescriptorBindingFlagBits::eUpdateAfterBind,
-        };
+        //=============================================
+        // vk::DescriptorSetLayoutBindingFlagsCreateInfo
+        currentBindings.descriptorFlags = std::vector<vk::DescriptorBindingFlags>(currentBindings.bindings.size(),
+            vk::DescriptorBindingFlagBits::eUpdateAfterBind | vk::DescriptorBindingFlagBits::ePartiallyBound);
 
-        descriptorSets[i_set].bindingFlagsInfo.bindingCount = descriptorSets[i_set].descriptorFlags.size();
-        descriptorSets[i_set].bindingFlagsInfo.pBindingFlags = descriptorSets[i_set].descriptorFlags.data();
+        currentBindings.bindingFlagsInfo.bindingCount = currentBindings.descriptorFlags.size();
+        currentBindings.bindingFlagsInfo.pBindingFlags = currentBindings.descriptorFlags.data();
 
-        descriptorSets[i_set].createInfo.flags = vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool;
-        descriptorSets[i_set].createInfo.pNext = &descriptorSets[i_set].bindingFlagsInfo;
+        //============================================
+        // vk::DescriptorSetLayoutCreateInfo
+        currentBindings.createInfo.flags = vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool;
+        currentBindings.createInfo.pNext = &descriptorSets[i_set].bindingFlagsInfo;
 ;
 
 

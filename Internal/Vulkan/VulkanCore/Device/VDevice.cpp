@@ -197,6 +197,8 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     physicalDeviceVulkan12Features.descriptorBindingVariableDescriptorCount = true;
     physicalDeviceVulkan12Features.descriptorBindingPartiallyBound = true;
     physicalDeviceVulkan12Features.descriptorBindingUpdateUnusedWhilePending = true;
+    physicalDeviceVulkan12Features.descriptorBindingSampledImageUpdateAfterBind = true;
+    physicalDeviceVulkan12Features.descriptorBindingUniformBufferUpdateAfterBind = true;
 
 
     // used in fore frame captures....
