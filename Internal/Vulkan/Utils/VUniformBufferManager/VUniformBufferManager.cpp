@@ -25,6 +25,7 @@
 
 #define MAX_UBO_COUNT 1000
 #define MATERIAL_BUFFER_SIZE 16'777'216
+#define PER_OBJECT_BUFFER_SIZE 5'242'880
 
 VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDevice& device)
     : m_device(device)
@@ -64,7 +65,7 @@ std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2
 vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetSceneBufferDescriptorInfo(int frameIndex) const
 {
     vk::DescriptorBufferInfo descriptorBuffer;
-    descriptorBuffer.buffer = m_rtxMaterialDescriptions[frameIndex]->GetBuffer();
+    descriptorBuffer.buffer = m_sceneMaterials[frameIndex]->GetBuffer();
     descriptorBuffer.offset = 0;
     descriptorBuffer.range = vk::WholeSize;
 
@@ -90,25 +91,25 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
     int  i         = 0;
     bool reloadAll = m_currentDrawCalls != drawCalls.size();
 
+    //TODO: do not allocate new vector every time here instead allocate one that can fit at least 50% of the required buffer objects
+    std::vector<PerObjectData> perObjectData (drawCalls.size());
+
     for(auto& drawCall : drawCalls)
     {
         drawCall.second.drawCallID = i;
 
-        //if (drawCall.second != m_perObjectUniform[i]->GetUBOStruct() || reloadAll)
-        {
-            m_perObjectUniform[i]->GetUBOStruct().model    = drawCall.second.modelMatrix;
-            m_perObjectUniform[i]->GetUBOStruct().position = drawCall.second.position;
+        perObjectData[i].model = drawCall.second.modelMatrix;
+        perObjectData[i].normalMatrix = glm::transpose(glm::inverse(drawCall.second.modelMatrix));
+        perObjectData[i].position = glm::vec4(drawCall.second.position,1.0);
+        perObjectData[i].materialIndex =  drawCall.second.materialIndex;
 
-            if(auto mat = dynamic_cast<ApplicationCore::PBRMaterial*>(drawCall.second.material))
-            {
-                m_perObjectUniform[i]->GetUBOStruct().material.features = mat->GetMaterialDescription().features;
-                m_perObjectUniform[i]->GetUBOStruct().material.values   = mat->GetMaterialDescription().values;
-            }
 
-            m_perObjectUniform[i]->UpdateGPUBuffer(frameIndex);
-        }
+
+
         i++;
     }
+
+    m_perObjectData[frameIndex]->Update(perObjectData);
 
     m_currentDrawCalls = drawCalls.size();
 }
@@ -169,7 +170,7 @@ void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, con
     for(int i = 0; i < sceneData.pbrMaterials.size(); i++) {
         materials[i] = *sceneData.pbrMaterials[i];
     }
-    m_rtxMaterialDescriptions[frameIndex]->Update(materials);
+    m_sceneMaterials[frameIndex]->Update(materials);
 }
 
 
@@ -183,7 +184,7 @@ void VulkanUtils::VUniformBufferManager::Destroy() const
         ubo->Destory();
     }
 
-    for (auto& ssbo : m_rtxMaterialDescriptions) {
+    for (auto& ssbo : m_sceneMaterials) {
         ssbo->Destroy();
     }
 
@@ -198,7 +199,7 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for per object data");
 
     m_perObjectUniform.resize(MAX_UBO_COUNT);
-    m_rtxMaterialDescriptions.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_sceneMaterials.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
 
     for(int i = 0; i < MAX_UBO_COUNT; i++)
     {
@@ -207,18 +208,20 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
         //m_rayTracingMaterials[i] = (std::make_unique<VUniform<PBRMaterialDescription>>(m_device));
     }
 
-    m_rtxMaterialDescriptions.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_sceneMaterials.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_perObjectData.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
-        m_rtxMaterialDescriptions[i] = std::make_unique<VulkanCore::VShaderStorageBuffer>(m_device, MATERIAL_BUFFER_SIZE);
-        m_rtxMaterialDescriptions[i]->Allocate();
+        m_sceneMaterials[i] = std::make_unique<VulkanCore::VShaderStorageBuffer>(m_device, MATERIAL_BUFFER_SIZE);
+        m_sceneMaterials[i]->Allocate();
+
+        m_perObjectData[i] = std::make_unique<VulkanCore::VShaderStorageBuffer>(m_device, PER_OBJECT_BUFFER_SIZE);
+        m_perObjectData[i]->Allocate();
     }
 
     //assert(m_objectDataUniforms.size() == MAX_UBO_COUNT && "Failed to allocate 20 buffers");
     GlobalState::EnableLogging();
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for each of the mesh");
 
-
-    // allocate per Frame uniform buffers
     m_perFrameUniform = std::make_unique<VUniform<GlobalUniform>>(m_device);
 
     m_lightUniform = std::make_unique<VUniform<LightUniforms>>(m_device);

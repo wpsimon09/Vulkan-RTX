@@ -39,6 +39,18 @@ struct ObjectDataUniform
     PBRMaterialDescription material;
 };
 
+struct PerObjectData {
+    glm::mat4              model{};
+    glm::mat4              normalMatrix{};
+    glm::vec4              position{};
+
+    uint                   materialIndex{0};
+
+    uint                   padding1{0};
+    uint                   padding2{0};
+    uint                   padding3{0};
+};
+
 struct PointLightGPU
 {
     glm::vec4 colour;           // w is intensity

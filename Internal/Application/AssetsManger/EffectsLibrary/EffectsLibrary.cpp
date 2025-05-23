@@ -32,7 +32,12 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
         frowardEffect->SetDisableDepthWrite();
     }
 
+    for (int i =0 ;i <GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+
+    }
+
     effects[EEffectType::ForwardShader] = std::move(frowardEffect);
+
 
     //==============================================================================
 
