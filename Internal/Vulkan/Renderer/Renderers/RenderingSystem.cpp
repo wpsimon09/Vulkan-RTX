@@ -100,7 +100,6 @@ void RenderingSystem::Init()
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetRenderedImage(i), i);
-        //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_envLightGenerator->GetBRDFLut(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_rayTracer->GetRenderedImage(i), i);
     }
 }
@@ -231,8 +230,9 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
                                                          m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive()};
 
     std::vector<vk::PipelineStageFlags> waitStages = {
-        vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
-        vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eNone
+        vk::PipelineStageFlagBits::eTransfer | vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
+        vk::PipelineStageFlagBits::eTransfer | vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
+
         // Transfer wait stage
     };
 
