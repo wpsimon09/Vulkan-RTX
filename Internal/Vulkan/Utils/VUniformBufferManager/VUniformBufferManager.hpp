@@ -41,8 +41,9 @@ class VUniformBufferManager
     const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;  // per frame in flight
     const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
-    std::vector<vk::DescriptorImageInfo>  GetAll2DTextureDescriptorImageInfo(const ApplicationCore::SceneData& sceneData) const;  // per object per frame in flight
-    vk::DescriptorBufferInfo GetSceneBufferDescriptorInfo(int frameIndex) const;
+    vk::DescriptorBufferInfo GetPerObjectBuffer(int currentFrame);
+    std::vector<vk::DescriptorImageInfo> GetAll2DTextureDescriptorImageInfo(const ApplicationCore::SceneData& sceneData) const;  // per object per frame in flight
+    vk::DescriptorBufferInfo GetMaterialDescriptionBuffer(int frameIndex) const;
 
     void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
 
@@ -60,8 +61,8 @@ class VUniformBufferManager
   private:
     const VulkanCore::VDevice& m_device;
 
-    std::unique_ptr<VUniform<LightUniforms>>                               m_lightUniform;
-    std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>>                  m_perFrameUniform;
+    std::unique_ptr<VUniform<LightUniforms>>              m_lightUniform;
+    std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>> m_perFrameUniform;
 
     std::vector<std::unique_ptr<VulkanUtils::VUniform<ObjectDataUniform>>> m_perObjectUniform;
 

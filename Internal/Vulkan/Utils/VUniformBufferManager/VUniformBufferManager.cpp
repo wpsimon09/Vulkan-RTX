@@ -51,6 +51,14 @@ const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager:
     // returns 2 buffer descriptor info for each frame in flight
     return m_perObjectUniform[meshIndex]->GetDescriptorBufferInfos();
 }
+
+vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPerObjectBuffer(int currentFrame) {
+    vk::DescriptorBufferInfo bufferInfo;
+    bufferInfo.buffer = m_perObjectData[currentFrame]->GetBuffer();
+    bufferInfo.offset = 0;
+    bufferInfo.range = sizeof(PerObjectData);
+}
+
 std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2DTextureDescriptorImageInfo(
     const ApplicationCore::SceneData& sceneData) const
 {
@@ -62,7 +70,7 @@ std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2
     }
     return result;
 }
-vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetSceneBufferDescriptorInfo(int frameIndex) const
+vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetMaterialDescriptionBuffer(int frameIndex) const
 {
     vk::DescriptorBufferInfo descriptorBuffer;
     descriptorBuffer.buffer = m_sceneMaterials[frameIndex]->GetBuffer();
@@ -102,9 +110,6 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
         perObjectData[i].normalMatrix = glm::transpose(glm::inverse(drawCall.second.modelMatrix));
         perObjectData[i].position = glm::vec4(drawCall.second.position,1.0);
         perObjectData[i].materialIndex =  drawCall.second.materialIndex;
-
-
-
 
         i++;
     }

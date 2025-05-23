@@ -114,7 +114,7 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     m_rtxEffect->WriteAccelerationStrucutre(currentFrame, 0, 3, m_rtxDataManager.GetTLAS());
 
     m_rtxEffect->WriteImage(currentFrame, 0, 4, m_resultImage[currentFrame]->GetDescriptorImageInfo());
-    m_rtxEffect->WriteBuffer(currentFrame, 0, 5, unifromBufferManager.GetSceneBufferDescriptorInfo(currentFrame));
+    m_rtxEffect->WriteBuffer(currentFrame, 0, 5, unifromBufferManager.GetMaterialDescriptionBuffer(currentFrame));
 
     m_rtxEffect->WriteImage(currentFrame, 0, 6, m_accumulationResultImage->GetDescriptorImageInfo());
 

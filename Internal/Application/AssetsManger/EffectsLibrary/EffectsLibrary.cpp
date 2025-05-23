@@ -12,6 +12,7 @@
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
+#include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 
@@ -33,6 +34,21 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
     }
 
     for (int i =0 ;i <GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+
+        frowardEffect->SetNumWrites(4,4,0);
+        //===================================
+        // camera projection view matrix etc.
+        frowardEffect->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+        //===================================
+        // std::vector<PerObjectData> SSBO.
+        frowardEffect->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+
+        //===================================
+        // material
+        frowardEffect->WriteBuffer(i, 2, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i)));
+
+
 
     }
 
