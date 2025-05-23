@@ -22,7 +22,7 @@ struct GlobalData {
     float padding2;
     float2 screenSize;
 };
-    
+
 [[vk::binding(0,0)]]
 ConstantBuffer<GlobalData> globalData;
 
@@ -34,7 +34,7 @@ struct PermodelData {
     float padding;
 };
 
-[[vk::binding(1,0)]]
+[[vk::binding(1, 0)]]
 ConstantBuffer<PermodelData> perModelData ; 
 
 [shader("vertex")]

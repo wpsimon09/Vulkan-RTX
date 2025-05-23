@@ -38,7 +38,7 @@ struct PermodelData {
     float3 positionWorldSpace;
 };
 
-[[vk::binding(1,0)]]
+[[vk::binding(1, 0)]]
 ConstantBuffer<PermodelData> perModelData ;
 
 [shader("vertex")]

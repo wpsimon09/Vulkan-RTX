@@ -70,7 +70,7 @@ struct FragmentShaderIn {
     Material material : OUT_MATERIAL;
 };
 
-[[vk::binding(1,0)]]
+[[vk::binding(1, 0)]]
 ConstantBuffer<PermodelData> perModelData ; 
 
 [shader("vertex")]
