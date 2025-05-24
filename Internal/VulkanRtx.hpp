@@ -20,6 +20,7 @@ class EffectsLibrary;
 }
 
 namespace VulkanUtils {
+class VRayTracingDataManager;
 class VTransferOperationsManager;
 }
 
@@ -85,6 +86,7 @@ private:
   std::unique_ptr<class Renderer::RenderingSystem>              m_renderingSystem;
   std::unique_ptr<class VulkanCore::VDescriptorLayoutCache>     m_descriptorSetLayoutCache;
   std::unique_ptr<class ApplicationCore::EffectsLibrary>        m_effectsLibrary;
+  std::unique_ptr<class VulkanUtils::VRayTracingDataManager>    m_rayTracingDataManager;
 
   // debu
   bool m_buildAS = true;;

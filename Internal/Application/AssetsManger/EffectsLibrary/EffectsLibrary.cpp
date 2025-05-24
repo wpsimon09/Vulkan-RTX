@@ -15,10 +15,12 @@
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
+#include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
 
 namespace ApplicationCore {
 EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
                                VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                               VulkanUtils::VRayTracingDataManager& rtxDataManager,
                                VulkanCore::VDescriptorLayoutCache& descLayoutCache)
     : m_descLayoutCache(descLayoutCache)
 {
@@ -144,7 +146,19 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     effects[EEffectType::SkyBox] = std::move(skybox);
 
+    //===============================================================================
+    auto depthPrePass = std::make_shared<VulkanUtils::VRasterEffect>(device, "Depth-PrePass effect",
+                                                                        "Shaders/Compiled/DepthPrePass.vert.spv",
+                                                                        "Shaders/Compiled/DepthPrePass.frag.spv",
+                                                                        descLayoutCache, EShaderBindingGroup::ForwardUnlit);
+    depthPrePass->SetVertexInputMode(EVertexInput::PositionOnly).SetDepthOpLess();
+
+    depthPrePass->BuildEffect();
+
+    effects[EEffectType::DepthPrePass] = std::move(depthPrePass);
+
     BuildAllEffects();
+    ConfigureDescriptorWrites(uniformBufferManager);
 }
 
 std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type)
@@ -168,99 +182,152 @@ void EffectsLibrary::Destroy()
         effect.second->Destroy();
     }
 }
-
-void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager& uniformBufferManager)
+void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       renderingContext,
+                                          const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     for(auto& effect : effects)
     {
         auto& e = effect.second;
+
         //=========================
         // for each frame in flight
-        for (int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+        for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
 
-            switch(effect.first)
+
+            switch(e->GetBindingGroup())
             {
-                case EEffectType::Outline:
-                    e->SetNumWrites(2, 0, 0);
 
-                    //========================
-                    // global data
-                    e->WriteBuffer(0, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+                case EShaderBindingGroup::ForwardLit: {
 
-                    //========================
-                    // global data
-                    e->WriteBuffer(0, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
-
+                    e->SetNumWrites(0, 1200, 0);
+                    e->WriteImageArray(i, 0, 4, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
                     break;
-
-                case EEffectType::DebugLine:
-                    e->SetNumWrites(2, 0, 0);
-
-                    //========================
-                    // global data
-                    e->WriteBuffer(0, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
-
-                    //========================
-                    // global data
-                    e->WriteBuffer(0, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
-                    break;
-
-                case EEffectType::ForwardShader:
+                }
+                case EShaderBindingGroup::RayTracing:{
 
                     e->SetNumWrites(4, 4, 0);
-                    //===================================
-                    // camera projection view matrix etc.
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
-
-                    //===================================
-                    // std::vector<PerObjectData> SSBO.
-                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
-
-                    //===================================
-                    // materials
-                    e->WriteBuffer(i, 2, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
 
                     break;
-                case EEffectType::SkyBox:
-                    e->SetNumWrites(1,0);
+                }
+                case EShaderBindingGroup::ForwardUnlit:{
+                    e->SetNumWrites(4, 4, 0);
+                    //===================================
+
+                }
+
+                case EShaderBindingGroup::Skybox: {
                     //====================================
                     // global data
+                    e->SetNumWrites(1, 0);
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
-
-
                     break;
-                case EEffectType::AplhaBlend:
-                    e->SetNumWrites(4, 4, 0);
-                    //===================================
-                    // camera projection view matrix etc.
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+                }
 
-                    //===================================
-                    // std::vector<PerObjectData> SSBO.
-                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+                default: {
+                    throw std::runtime_error("Unsupported bindinggroup !");
+                    break;
+                }
 
-                    //===================================
-                    // materials
-                    e->WriteBuffer(i, 2, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
-
-                   break;
-                case EEffectType::EditorBilboard:
-                    // Handle EditorBilboard effect
-                    break;
-                case EEffectType::RayTracing:
-                    // Handle RayTracing effect
-                    break;
-                default:
-                    // Handle unknown effect type
-                    break;
             }
 
             //===================================
             // apply writes
             e->ApplyWrites(i);
         }
+    }
+}
 
+void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager& uniformBufferManager)
+{
+    for(auto& effect : effects)
+    {
+        auto& e = effect.second;
 
+        //=========================
+        // for each frame in flight
+        for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
+
+            switch(e->GetBindingGroup())
+            {
+                case EShaderBindingGroup::Debug: {
+
+                    e->SetNumWrites(2, 0, 0);
+
+                    //========================
+                    // global data
+                    e->WriteBuffer(0, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    //========================
+                    // global data
+                    e->WriteBuffer(0, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+
+                    break;
+                }
+
+                case EShaderBindingGroup::ForwardLit: {
+
+                    e->SetNumWrites(4, 4, 0);
+                    //===================================
+                    // camera projection view matrix etc.
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    //===================================
+                    // std::vector<PerObjectData> SSBO.
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+
+                    //===================================
+                    // materials
+                    e->WriteBuffer(i, 2, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+
+                    //===================================
+                    // lighting information
+                    e->WriteBuffer(i, 2, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+
+                    break;
+                }
+                case EShaderBindingGroup::RayTracing:{
+
+                    e->SetNumWrites(4, 4, 0);
+
+                    break;
+                }
+                case EShaderBindingGroup::ForwardUnlit:{
+                    e->SetNumWrites(4, 4, 0);
+                    //===================================
+                    // camera projection view matrix etc.
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    //===================================
+                    // std::vector<PerObjectData> SSBO.
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+
+                    //===================================
+                    // materials
+                    e->WriteBuffer(i, 2, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+
+                }
+
+                case EShaderBindingGroup::Skybox: {
+                    e->SetNumWrites(1, 0);
+                    //====================================
+                    // global data
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+                    break;
+                }
+
+                default: {
+                    throw std::runtime_error("Unsupported bindinggroup !");
+                    break;
+                }
+
+            }
+
+            //===================================
+            // apply writes
+            e->ApplyWrites(i);
+        }
     }
 }
 

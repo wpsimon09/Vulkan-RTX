@@ -61,12 +61,11 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPerObjectBuffer(
     return bufferInfo;
 }
 
-std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2DTextureDescriptorImageInfo(
-    const ApplicationCore::SceneData& sceneData) const
+std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2DTextureDescriptorImageInfo() const
 {
     std::vector<vk::DescriptorImageInfo> result;
-    result.reserve(sceneData.textures.size());
-    for(auto& texture : sceneData.textures)
+    result.reserve(m_sceneTextures.size());
+    for(auto& texture : m_sceneTextures)
     {
         result.emplace_back(texture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     }
@@ -171,13 +170,14 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, 
     m_lightUniform->UpdateGPUBuffer(frameIndex);
 }
 
-void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData) const
+void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData)
 {
     std::vector<PBRMaterialDescription> materials(sceneData.pbrMaterials.size());
     for(int i = 0; i < sceneData.pbrMaterials.size(); i++) {
         materials[i] = *sceneData.pbrMaterials[i];
     }
     m_sceneMaterials[frameIndex]->Update(materials);
+    m_sceneTextures = sceneData.textures;
 }
 
 

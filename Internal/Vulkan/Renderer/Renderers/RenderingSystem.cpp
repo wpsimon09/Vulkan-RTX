@@ -4,6 +4,7 @@
 
 #include "RenderingSystem.hpp"
 
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Lightning/LightStructs.hpp"
 #include "Application/Utils/ApplicationUtils.hpp"
@@ -37,7 +38,9 @@
 namespace Renderer {
 RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         instance,
                                  const VulkanCore::VDevice&                device,
-                                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                                 VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
+                                  VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                                 ApplicationCore::EffectsLibrary&          effectsLybrary,
                                  VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
                                  VEditor::UIContext&                       uiContext)
     : m_device(device)
@@ -46,6 +49,8 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     , m_uiContext(uiContext)
     , m_descLayoutCache(descLayoutCache)
     , m_transferSemapohore(device.GetTransferOpsManager().GetTransferSemaphore())
+    , m_effectsLibrary(&effectsLybrary)
+
 {
 
     //---------------------------------------------------------------------------------------------------------------------------
@@ -73,7 +78,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     // Renderers creation
     //----------------------------------------------------------------------------------------------------------------------------
 
-    m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, descLayoutCache,
+    m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, effectsLybrary, descLayoutCache,
                                                                 GlobalVariables::RenderTargetResolutionWidth,
                                                                 GlobalVariables::RenderTargetResolutionHeight);
 
@@ -84,13 +89,8 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_envLightGenerator = std::make_unique<VulkanUtils::VEnvLightGenerator>(m_device, descLayoutCache);
 
 
-    //----------------------------------------------------------------------------------------------------------------------------
-    // Ray tracing initialization
-    //----------------------------------------------------------------------------------------------------------------------------
-    m_rayTracingDataManager = std::make_unique<VulkanUtils::VRayTracingDataManager>(m_device);
-
     auto cam    = m_uiContext.GetClient().GetCamera();
-    m_rayTracer = std::make_unique<RayTracer>(m_device, *m_rayTracingDataManager, descLayoutCache, 1980, 1080);
+    m_rayTracer = std::make_unique<RayTracer>(m_device, rayTracingDataManager, descLayoutCache, 1980, 1080);
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }
@@ -104,7 +104,8 @@ void RenderingSystem::Init()
     }
 }
 
-void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
+void RenderingSystem::Render(
+                             LightStructs::SceneLightInfo& sceneLightInfo,
                              ApplicationCore::SceneData&   sceneData,
                              GlobalUniform&                globalUniformUpdateInfo,
                              SceneUpdateFlags&             sceneUpdateFlags)
@@ -176,6 +177,8 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
     m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
     m_uniformBufferManager.UpdateSceneDataInfo(m_currentFrameIndex, sceneData);
 
+
+
     m_device.GetTransferOpsManager().UpdateGPU();
     m_transferSemapohore.CpuWaitIdle(2);
     m_transferSemapohore.Reset();
@@ -195,6 +198,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
     m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
 
+    m_effectsLibrary->UpdatePerFrameWrites(&m_renderContext, m_uniformBufferManager);
 
     //============================================================
     // start recording command buffer that will render the scene
@@ -279,7 +283,6 @@ void RenderingSystem::Update()
 
 void RenderingSystem::Destroy()
 {
-    m_rayTracingDataManager->Destroy();
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_imageAvailableSemaphores[i]->Destroy();

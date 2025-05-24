@@ -68,7 +68,9 @@ class RenderingSystem
 public:
     RenderingSystem(const VulkanCore::VulkanInstance&         instance,
                     const VulkanCore::VDevice&                device,
-                    const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                    VulkanUtils::VRayTracingDataManager& m_rayTracingDataManager,
+                     VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                    ApplicationCore::EffectsLibrary&          effectsLybrary,
                     VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
                     VEditor::UIContext&                       uiContext);
 
@@ -79,12 +81,12 @@ public:
 
     SceneRenderer&                         GetSceneRenderer() { return *m_sceneRenderer; };
     VulkanUtils::RenderContext*            GetRenderContext() { return &m_renderContext; }
-    VulkanUtils::VRayTracingDataManager&   GetRayTracingManager() { return *m_rayTracingDataManager; };
 
 private:
     // Core Vulkan references
     const VulkanCore::VDevice&                m_device;
-    const VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
+     VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
+    ApplicationCore::EffectsLibrary*          m_effectsLibrary;
     VEditor::UIContext&                       m_uiContext;
 
     // Scene state
@@ -109,8 +111,6 @@ private:
     std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>>            m_renderingTimeLine;
     VulkanCore::VTimelineSemaphore&                                           m_transferSemapohore;
 
-    // Ray Tracing
-    std::unique_ptr<VulkanUtils::VRayTracingDataManager> m_rayTracingDataManager;
 
     // Render context
     VulkanUtils::RenderContext m_renderContext;

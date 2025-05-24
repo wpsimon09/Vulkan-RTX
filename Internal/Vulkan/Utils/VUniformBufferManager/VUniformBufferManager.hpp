@@ -41,8 +41,9 @@ class VUniformBufferManager
     const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;  // per frame in flight
     const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
+    const std::vector<vk::DescriptorImageInfo>&  SceneTextures();
     vk::DescriptorBufferInfo GetPerObjectBuffer(int currentFrame);
-    std::vector<vk::DescriptorImageInfo> GetAll2DTextureDescriptorImageInfo(const ApplicationCore::SceneData& sceneData) const;  // per object per frame in flight
+    std::vector<vk::DescriptorImageInfo> GetAll2DTextureDescriptorImageInfo() const;  // per object per frame in flight
     vk::DescriptorBufferInfo GetMaterialDescriptionBuffer(int frameIndex) const;
 
     void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
@@ -51,7 +52,7 @@ class VUniformBufferManager
 
     void UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const;
 
-    void UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData) const;
+    void UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData) ;
 
     void Destroy() const;
 
@@ -70,6 +71,7 @@ class VUniformBufferManager
     // storage buffers containing all of the data for materials
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_sceneMaterials;
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_perObjectData;
+    std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>               m_sceneTextures;
 
     mutable int m_currentDrawCalls = 0;
 };

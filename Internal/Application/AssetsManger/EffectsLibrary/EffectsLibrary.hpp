@@ -10,7 +10,12 @@
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 
 
+namespace VulkanStructs {
+struct RenderContext;
+}
 namespace VulkanUtils {
+struct RenderContext;
+class VRayTracingDataManager;
 class VEffect;
 }
 namespace VulkanUtils {
@@ -37,7 +42,8 @@ enum class EEffectType : std::uint8_t
     AlphaMask,
     AplhaBlend,
     EditorBilboard,
-    RayTracing
+    RayTracing,
+    DepthPrePass
 };
 
 class EffectsLibrary
@@ -45,6 +51,7 @@ class EffectsLibrary
   public:
     EffectsLibrary(const VulkanCore::VDevice&          device,
                    VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                   VulkanUtils::VRayTracingDataManager& rtxDataManager,
                    VulkanCore::VDescriptorLayoutCache& descLayoutCache);
 
 
@@ -56,6 +63,8 @@ class EffectsLibrary
 
     void BuildAllEffects();
     void Destroy();
+
+    void UpdatePerFrameWrites(VulkanUtils::RenderContext* renderingContext,const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
   private:
     void ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager& uniformBufferManager);

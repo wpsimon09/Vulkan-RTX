@@ -50,6 +50,7 @@ class VEffect
     //=====================================
     void WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorBufferInfo bufferInfo);
     void WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo imageInfo);
+    void WriteImageArray(uint32_t frame, uint32_t set,uint32_t binding, const  std::vector<vk::DescriptorImageInfo>& imageInfos);
     void WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR asInfo);
     void ApplyWrites(uint32_t frame);
 

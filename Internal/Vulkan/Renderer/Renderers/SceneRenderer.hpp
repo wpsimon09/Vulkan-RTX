@@ -42,6 +42,7 @@ namespace Renderer {
     class SceneRenderer {
     public:
         SceneRenderer(const VulkanCore::VDevice& device,
+                      ApplicationCore::EffectsLibrary& effectsLibrary,
                       VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                       int width, int height);
 
@@ -81,7 +82,7 @@ namespace Renderer {
 
         // Rendering
         std::unique_ptr<Renderer::RenderTarget> m_renderTargets;
-        std::unique_ptr<VulkanUtils::VRasterEffect> m_depthPrePassEffect;
+        std::shared_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
 
         VulkanStructs::VRenderingStatistics m_renderingStatistics;
 
