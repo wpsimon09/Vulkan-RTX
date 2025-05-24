@@ -153,7 +153,6 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
                                                                         descLayoutCache, EShaderBindingGroup::ForwardUnlit);
     depthPrePass->SetVertexInputMode(EVertexInput::PositionOnly).SetDepthOpLess();
 
-    depthPrePass->BuildEffect();
 
     effects[EEffectType::DepthPrePass] = std::move(depthPrePass);
 
@@ -169,9 +168,12 @@ std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type
 
 void EffectsLibrary::BuildAllEffects()
 {
+    std::cout<<"======== Effect reflections =========\n\n\n";
     for(auto& effect : effects)
     {
+        std::cout<<effect.second->GetName() <<" | ------------------------\n";
         effect.second->BuildEffect();
+        effect.second->GetReflectionData()->Print();
     }
 }
 
@@ -268,7 +270,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
                 case EShaderBindingGroup::ForwardLit: {
 
-                    e->SetNumWrites(4, 4, 0);
+                    e->SetNumWrites(7, 4, 0);
                     //===================================
                     // camera projection view matrix etc.
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);

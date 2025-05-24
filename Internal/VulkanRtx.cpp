@@ -91,7 +91,6 @@ void Application::Init()
 
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 
-    m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
     m_rayTracingDataManager = std::make_unique<VulkanUtils::VRayTracingDataManager>(*m_vulkanDevice);
 
@@ -106,6 +105,7 @@ void Application::Init()
     m_client->MountAssetsManger(std::move(assetManger));
     m_client->Init();
 
+    m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
 
     m_renderingSystem->Init();

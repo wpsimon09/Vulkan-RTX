@@ -19,7 +19,7 @@ void ReflecSetLayoutData::Print() const {
     }
 }
 void ReflectionData::Print() const  {
-    std::cout<<"======================= Reflection data ============================\n\n";
+    std::cout<<"======================= Reflection data ============================\n";
 
     for (int i_set = 0; i_set<descriptorSets.size(); i_set++) {
         std::cout<<"- Set" + std::to_string(i_set)<<" -- \n";
