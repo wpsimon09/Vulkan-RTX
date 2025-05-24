@@ -26,13 +26,17 @@ struct ReflecSetLayoutData {
 
   std::vector<vk::DescriptorBindingFlags> descriptorFlags;
 
+
   void Print() const;
 
 };
 
 struct ReflectionData {
   SpvReflectShaderModule moduleReflection;
-  std::map<int , ReflecSetLayoutData> descriptorSets;
+  std::unordered_map<int , ReflecSetLayoutData> descriptorSets;
+
+  int bindingCount = 0;
+
 
   void Print() const ;
   void Init(const void* byteCode, size_t size);

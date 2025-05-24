@@ -32,6 +32,7 @@ void ReflectionData::Print() const  {
 // REFLECTION DATA
 //=============================================
 void ReflectionData::Init(const void* byteCode, size_t size) {}
+
 void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage)
 {
     auto result = spvReflectCreateShaderModule(size, byteCode, &moduleReflection);
@@ -55,7 +56,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         newBindings.bindings.resize(sets.size());
         // go through each binding in set the set
         const SpvReflectDescriptorSet& reflSet = *(sets[i_set]);
-        newBindings.bindings.resize(reflSet.binding_count);
+        newBindings.bindings.reserve(reflSet.binding_count);
         newBindings.variableNames.resize(reflSet.binding_count);
         descriptorSets[i_set].descriptorFlags.resize(reflSet.binding_count);
 
@@ -74,8 +75,8 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
 
             binding.stageFlags = vk::ShaderStageFlagBits::eAll;
 
-            newBindings.bindings[i_binding]      = binding;
-            newBindings.variableNames[i_binding] = {std::to_string(i_binding) + ": " + reflBinding.name, binding.descriptorType};
+            newBindings.bindings.push_back( binding);
+            newBindings.variableNames.push_back({std::to_string(binding.binding) + ": " + reflBinding.name, binding.descriptorType});
             //newBindings.shaderStages[i_binding] = {std::to_string(i_binding) + ": " + reflBinding.name, binding.descriptorType};
         }
 
