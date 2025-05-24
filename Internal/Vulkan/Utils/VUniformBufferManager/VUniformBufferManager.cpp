@@ -57,6 +57,8 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPerObjectBuffer(
     bufferInfo.buffer = m_perObjectData[currentFrame]->GetBuffer();
     bufferInfo.offset = 0;
     bufferInfo.range = sizeof(PerObjectData);
+
+    return bufferInfo;
 }
 
 std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2DTextureDescriptorImageInfo(
@@ -114,7 +116,7 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
         i++;
     }
 
-    m_perObjectData[frameIndex]->Update(perObjectData);
+
 
     m_currentDrawCalls = drawCalls.size();
 }

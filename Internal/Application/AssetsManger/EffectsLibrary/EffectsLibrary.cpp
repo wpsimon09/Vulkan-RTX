@@ -22,9 +22,10 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
                                VulkanCore::VDescriptorLayoutCache& descLayoutCache)
     : m_descLayoutCache(descLayoutCache)
 {
-    auto frowardEffect = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv", "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
-        descLayoutCache, EShaderBindingGroup::ForwardLit);
+    auto frowardEffect =
+        std::make_shared<VulkanUtils::VRasterEffect>(device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv",
+                                                     "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
+                                                     descLayoutCache, EShaderBindingGroup::ForwardLit);
 
     frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
 
@@ -33,24 +34,6 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
         frowardEffect->SetDisableDepthWrite();
     }
 
-    for (int i =0 ;i <GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
-
-        frowardEffect->SetNumWrites(4,4,0);
-        //===================================
-        // camera projection view matrix etc.
-        frowardEffect->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
-
-        //===================================
-        // std::vector<PerObjectData> SSBO.
-        frowardEffect->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
-
-        //===================================
-        // material
-        frowardEffect->WriteBuffer(i, 2, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i)));
-
-
-
-    }
 
     effects[EEffectType::ForwardShader] = std::move(frowardEffect);
 
@@ -59,8 +42,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     auto transparentEffect = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Forward lit transparent", "Shaders/Compiled/BasicTriangle.vert.spv",
-        "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv", descLayoutCache,
-        EShaderBindingGroup::ForwardLit);
+        "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv", descLayoutCache, EShaderBindingGroup::ForwardLit);
 
     transparentEffect->SetTopology(vk::PrimitiveTopology::eTriangleList).EnableAdditiveBlending().SetDepthOpLessEqual();
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
@@ -68,28 +50,27 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
         transparentEffect->SetDisableDepthWrite();
     }
 
-
     effects[EEffectType::AplhaBlend] = std::move(transparentEffect);
 
     //==============================================================================
 
-    auto editorBillboards = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Editor billboards", "Shaders/Compiled/EditorBillboard.vert.spv", "Shaders/Compiled/EditorBilboard.frag.spv",
-        descLayoutCache, EShaderBindingGroup::ForwardUnlit);
+    auto editorBillboards =
+        std::make_shared<VulkanUtils::VRasterEffect>(device, "Editor billboards", "Shaders/Compiled/EditorBillboard.vert.spv",
+                                                     "Shaders/Compiled/EditorBilboard.frag.spv", descLayoutCache,
+                                                     EShaderBindingGroup::ForwardUnlit);
 
     editorBillboards->SetTopology(vk::PrimitiveTopology::eTriangleList).SetCullNone().SetVertexInputMode(EVertexInput::Position_UV)
         //.SetDepthOpLessEqual()
         ;
 
 
-
     effects[EEffectType::EditorBilboard] = std::move(editorBillboards);
 
     //==============================================================================
 
-    auto debugLine = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugLines.frag.spv",
-        descLayoutCache, ForwardUnlit);
+    auto debugLine =
+        std::make_shared<VulkanUtils::VRasterEffect>(device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv",
+                                                     "Shaders/Compiled/DebugLines.frag.spv", descLayoutCache, ForwardUnlit);
 
     debugLine->SetTopology(vk::PrimitiveTopology::eTriangleList)
         .SetCullNone()
@@ -98,13 +79,30 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
         .SetVertexInputMode(EVertexInput::PositionOnly)
         .SetDepthOpLessEqual();
 
+
+    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+    {
+
+        debugLine->SetNumWrites(2, 0, 0);
+
+        //========================
+        // global data
+        debugLine->WriteBuffer(0, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+        //========================
+        // global data
+        debugLine->WriteBuffer(0, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+
+        debugLine->ApplyWrites(i);
+    }
+
     effects[EEffectType::DebugLine] = std::move(debugLine);
 
     //==============================================================================
 
-    auto outline = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Outline", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/Outliines.frag.spv",
-        descLayoutCache, EShaderBindingGroup::Debug);
+    auto outline = std::make_shared<VulkanUtils::VRasterEffect>(device, "Outline", "Shaders/Compiled/DebugLines.vert.spv",
+                                                                "Shaders/Compiled/Outliines.frag.spv", descLayoutCache,
+                                                                EShaderBindingGroup::Debug);
 
     outline
         //->SetC()
@@ -112,13 +110,14 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
         .SetVertexInputMode(EVertexInput::PositionOnly)
         .SetDepthOpAllways();
 
+
     effects[EEffectType::Outline] = std::move(outline);
 
     //===============================================================================
 
-    auto debugShapes = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugGeometry.frag.spv",
-        descLayoutCache, EShaderBindingGroup::Debug);
+    auto debugShapes = std::make_shared<VulkanUtils::VRasterEffect>(device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv",
+                                                                    "Shaders/Compiled/DebugGeometry.frag.spv",
+                                                                    descLayoutCache, EShaderBindingGroup::Debug);
 
     debugShapes->SetCullNone()
         .SetLineWidth(7)
@@ -135,9 +134,9 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     //===============================================================================
 
-    auto skybox = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv", "Shaders/Compiled/SkyBox.frag.spv", descLayoutCache,
-        EShaderBindingGroup::Skybox);
+    auto skybox = std::make_shared<VulkanUtils::VRasterEffect>(device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv",
+                                                               "Shaders/Compiled/SkyBox.frag.spv", descLayoutCache,
+                                                               EShaderBindingGroup::Skybox);
 
 
     skybox->SetCullNone().SetVertexInputMode(EVertexInput::PositionOnly).SetDisableDepthWrite().SetDepthOpLessEqual().DisableStencil();
@@ -174,36 +173,94 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 {
     for(auto& effect : effects)
     {
-        switch(effect.first)
-        {
-            case EEffectType::Outline:
+        auto& e = effect.second;
+        //=========================
+        // for each frame in flight
+        for (int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
 
-                break;
-            case EEffectType::ForwardShader:
-                // Handle ForwardShader effect
-                break;
-            case EEffectType::SkyBox:
-                // Handle SkyBox effect
-                break;
-            case EEffectType::DebugLine:
-                // Handle DebugLine effect
-                break;
-            case EEffectType::AlphaMask:
-                // Handle AlphaMask effect
-                break;
-            case EEffectType::AplhaBlend:
-                // Handle AlphaBlend effect
-                break;
-            case EEffectType::EditorBilboard:
-                // Handle EditorBilboard effect
-                break;
-            case EEffectType::RayTracing:
-                // Handle RayTracing effect
-                break;
-            default:
-                // Handle unknown effect type
-                break;
+            switch(effect.first)
+            {
+                case EEffectType::Outline:
+                    e->SetNumWrites(2, 0, 0);
+
+                    //========================
+                    // global data
+                    e->WriteBuffer(0, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    //========================
+                    // global data
+                    e->WriteBuffer(0, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+
+                    break;
+
+                case EEffectType::DebugLine:
+                    e->SetNumWrites(2, 0, 0);
+
+                    //========================
+                    // global data
+                    e->WriteBuffer(0, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    //========================
+                    // global data
+                    e->WriteBuffer(0, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+                    break;
+
+                case EEffectType::ForwardShader:
+
+                    e->SetNumWrites(4, 4, 0);
+                    //===================================
+                    // camera projection view matrix etc.
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    //===================================
+                    // std::vector<PerObjectData> SSBO.
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+
+                    //===================================
+                    // materials
+                    e->WriteBuffer(i, 2, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+
+                    break;
+                case EEffectType::SkyBox:
+                    e->SetNumWrites(1,0);
+                    //====================================
+                    // global data
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+
+                    break;
+                case EEffectType::AplhaBlend:
+                    e->SetNumWrites(4, 4, 0);
+                    //===================================
+                    // camera projection view matrix etc.
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    //===================================
+                    // std::vector<PerObjectData> SSBO.
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+
+                    //===================================
+                    // materials
+                    e->WriteBuffer(i, 2, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+
+                   break;
+                case EEffectType::EditorBilboard:
+                    // Handle EditorBilboard effect
+                    break;
+                case EEffectType::RayTracing:
+                    // Handle RayTracing effect
+                    break;
+                default:
+                    // Handle unknown effect type
+                    break;
+            }
+
+            //===================================
+            // apply writes
+            e->ApplyWrites(i);
         }
+
+
     }
 }
 
