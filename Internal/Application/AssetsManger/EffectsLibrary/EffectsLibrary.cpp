@@ -146,10 +146,10 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
     rtxShaderPaths.missPath       = "Shaders/Compiled/SimpleRayTracing.miss.spv";
     rtxShaderPaths.missShadowPath = "Shaders/Compiled/SimpleRayTracing.miss2.spv";
     rtxShaderPaths.rayHitPath     = "Shaders/Compiled/SimpleRayTracing.chit.spv";
-    auto rayTracingEffect =
-        std::make_shared<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Ray tracing ", m_descLayoutCache);
+    //auto rayTracingEffect =
+      //  std::make_shared<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Ray tracing ", m_descLayoutCache);
 
-    effects[EEffectType::RayTracing] = std::move(rayTracingEffect);
+    //effects[EEffectType::RayTracing] = std::move(rayTracingEffect);
 
 
 

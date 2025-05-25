@@ -18,13 +18,13 @@ ConstantBuffer<LightInfo> _lightInfo;
 [[vk::binding(1, 1)]]
 Sampler2D textures[];
 
-[[vk::binding(1, 2)]]
+[[vk::binding(2, 1)]]
 ConstantBuffer<SamplerCube> IrradianceMap;
 
-[[vk::binding(1, 3)]]
+[[vk::binding(3, 1)]]
 ConstantBuffer<SamplerCube> PrefilterMap;
 
-[[vk::binding(1, 4)]]
+[[vk::binding(4, 1)]]
 ConstantBuffer<Sampler2D> BRDF_Lut;
 
 [shader("pixel")]
