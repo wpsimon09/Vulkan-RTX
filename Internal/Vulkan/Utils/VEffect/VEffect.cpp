@@ -24,8 +24,14 @@ std::string& VEffect::GetName()
 {
     return m_name;
 }
-EShaderBindingGroup           VEffect::GetBindingGroup() { return m_bindingGroup;}
+EShaderBindingGroup VEffect::GetBindingGroup()
+{
+    return m_bindingGroup;
+}
 
+vk::StridedDeviceAddressRegionKHR VEffect::GetShaderBindingTableEntry(VulkanCore::RTX::ERayTracingStageIndices) {
+    throw std::runtime_error("This effect does not support ray tracing ensure that effect you are using is being used for ray tracing");
+}
 unsigned short VEffect::EvaluateRenderingOrder()
 {
     return 0;

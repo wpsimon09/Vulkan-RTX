@@ -19,6 +19,7 @@ namespace VulkanUtils {
 class VRayTracingEffect : public VEffect
 {
   public:
+    vk::StridedDeviceAddressRegionKHR GetShaderBindingTableEntry(VulkanCore::RTX::ERayTracingStageIndices) override;
     VRayTracingEffect(const VulkanCore::VDevice&             device,
                       const VulkanCore::RTX::RTXShaderPaths& shaderPaths,
                       const std::string&                     name,

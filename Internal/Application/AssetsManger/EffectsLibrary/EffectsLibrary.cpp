@@ -156,6 +156,19 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     effects[EEffectType::DepthPrePass] = std::move(depthPrePass);
 
+    //===============================================================================
+    VulkanCore::RTX::RTXShaderPaths rtxShaderPaths;
+    rtxShaderPaths.rayGenPath     = "Shaders/Compiled/SimpleRayTracing.rgen.spv";
+    rtxShaderPaths.missPath       = "Shaders/Compiled/SimpleRayTracing.miss.spv";
+    rtxShaderPaths.missShadowPath = "Shaders/Compiled/SimpleRayTracing.miss2.spv";
+    rtxShaderPaths.rayHitPath     = "Shaders/Compiled/SimpleRayTracing.chit.spv";
+    auto rayTracingEffect =
+        std::make_shared<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Hit group highlight", m_descLayoutCache);
+
+    effects[EEffectType::RayTracing] = std::move(rayTracingEffect);
+
+
+
     BuildAllEffects();
     ConfigureDescriptorWrites(uniformBufferManager);
 }

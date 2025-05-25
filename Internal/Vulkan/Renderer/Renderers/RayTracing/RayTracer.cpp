@@ -4,6 +4,7 @@
 
 #include "RayTracer.hpp"
 
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
@@ -19,13 +20,12 @@
 
 namespace Renderer {
 RayTracer::RayTracer(const VulkanCore::VDevice&           device,
+                     ApplicationCore::EffectsLibrary&     effectsLibrary,
                      VulkanUtils::VRayTracingDataManager& rtxDataManager,
-                     VulkanCore::VDescriptorLayoutCache&  descLayoutCache,
                      int                                  width,
                      int                                  height)
     : m_device(device)
     , m_rtxDataManager(rtxDataManager)
-    , m_descLayoutCache(descLayoutCache)
 {
     m_resultImage.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
@@ -64,18 +64,11 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                     vk::ImageLayout::eUndefined, cmdBuffer);
 
-    VulkanCore::RTX::RTXShaderPaths rtxShaderPaths;
-    rtxShaderPaths.rayGenPath     = "Shaders/Compiled/SimpleRayTracing.rgen.spv";
-    rtxShaderPaths.missPath       = "Shaders/Compiled/SimpleRayTracing.miss.spv";
-    rtxShaderPaths.missShadowPath = "Shaders/Compiled/SimpleRayTracing.miss2.spv";
-    rtxShaderPaths.rayHitPath     = "Shaders/Compiled/SimpleRayTracing.chit.spv";
-    auto rayTracingEffect =
-        std::make_unique<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Hit group highlight", m_descLayoutCache);
 
-    m_rtxEffect = std::move(rayTracingEffect);
-    m_rtxEffect->BuildEffect();
+    m_rtxEffect = effectsLibrary.effects[ApplicationCore::EEffectType::RayTracing];
 
-    m_accumulationEffect =
+    // TODO: make this for gamma correction, tone mapping, exposure etc...
+    /*m_accumulationEffect =
         std::make_unique<VulkanUtils::VRasterEffect>(m_device, "Accumulation of ray traced images effect",
                                                      "Shaders/Compiled/RayTracingAccumultion.vert.spv",
                                                      "Shaders/Compiled/RayTracingAccumultion.frag.spv", m_descLayoutCache);
@@ -86,7 +79,7 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
         .SetCullNone()
         .SetNullVertexBinding()
         .SetPiplineNoMultiSampling();
-    m_accumulationEffect->BuildEffect();
+    m_accumulationEffect->BuildEffect();*/
 }
 
 void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
@@ -128,8 +121,12 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     m_rtxEffect->BindDescriptorSet(cmdB, currentFrame, 0);
 
     // use them
-    auto& p = m_rtxEffect->GetRTXPipeline();
-    cmdB.traceRaysKHR(p.m_rGenRegion, p.m_rMissRegion, p.m_rHitRegion, p.m_rCallRegion,
+
+    //VulkanCore::RTX::ERayTracingStageIndices::RayGen etc, will go here instead of the p, the effect class is implemntign this
+    cmdB.traceRaysKHR(m_rtxEffect->GetShaderBindingTableEntry(VulkanCore::RTX::RayGen),
+                      m_rtxEffect->GetShaderBindingTableEntry(VulkanCore::RTX::Miss),
+                      m_rtxEffect->GetShaderBindingTableEntry(VulkanCore::RTX::ClosestHit),
+                      m_rtxEffect->GetShaderBindingTableEntry(VulkanCore::RTX::Callable),
                       m_resultImage[currentFrame]->GetImageInfo().width,
                       m_resultImage[currentFrame]->GetImageInfo().height, 1, m_device.DispatchLoader);
 

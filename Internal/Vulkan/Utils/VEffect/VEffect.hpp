@@ -5,6 +5,7 @@
 #ifndef VEFFECT_HPP
 #define VEFFECT_HPP
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
+#include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
 
 namespace VulkanCore {
 struct ReflectionData;
@@ -32,7 +33,8 @@ class VEffect
     virtual void                      BuildEffect()                                    = 0;
     virtual vk::PipelineLayout        GetPipelineLayout()                              = 0;
     virtual void                      BindPipeline(const vk::CommandBuffer& cmdBuffer) = 0;
-    virtual void                      Destroy()                                        = 0;
+    virtual void                      Destroy() = 0;
+    virtual vk::StridedDeviceAddressRegionKHR GetShaderBindingTableEntry(VulkanCore::RTX::ERayTracingStageIndices);
     unsigned short                    EvaluateRenderingOrder();
     int&                              GetID();
     void                              CreateLayouts(const VulkanCore::ReflectionData& reflectionData);
