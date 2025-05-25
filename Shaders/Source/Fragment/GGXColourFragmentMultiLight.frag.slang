@@ -18,6 +18,15 @@ ConstantBuffer<LightInfo> _lightInfo;
 [[vk::binding(1, 1)]]
 Sampler2D textures[];
 
+[[vk::binding(1, 2)]]
+ConstantBuffer<SamplerCube> IrradianceMap;
+
+[[vk::binding(1, 3)]]
+ConstantBuffer<SamplerCube> PrefilterMap;
+
+[[vk::binding(1, 4)]]
+ConstantBuffer<Sampler2D> BRDF_Lut;
+
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn)
     : SV_Target
@@ -51,6 +60,9 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     ambientLight.aoIntensity = _lightInfo.info.y;
     ambientLight.roughness = brdf_.roughness;
     ambientLight.applyIBL = bool(_lightInfo.info.x);
+    ambientLight.IrradianceMap = IrradianceMap;
+    ambientLight.PrefilterMap = PrefilterMap;
+    ambientLight.BRDF_Lut = BRDF_Lut;
 
     LightPair<LightArray<AreaLight, 4>, AmbientLight> AreaAndAmbient;
     AreaAndAmbient.first = _lightInfo.areaLights;

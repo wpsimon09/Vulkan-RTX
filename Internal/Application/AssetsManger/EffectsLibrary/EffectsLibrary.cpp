@@ -147,7 +147,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
     rtxShaderPaths.missShadowPath = "Shaders/Compiled/SimpleRayTracing.miss2.spv";
     rtxShaderPaths.rayHitPath     = "Shaders/Compiled/SimpleRayTracing.chit.spv";
     auto rayTracingEffect =
-        std::make_shared<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Hit group highlight", m_descLayoutCache);
+        std::make_shared<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Ray tracing ", m_descLayoutCache);
 
     effects[EEffectType::RayTracing] = std::move(rayTracingEffect);
 
@@ -256,11 +256,11 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
                     //========================
                     // global data
-                    e->WriteBuffer(0, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
 
                     //========================
-                    // global data
-                    e->WriteBuffer(0, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+                    // per model data
+                    e->WriteBuffer(i, 1, 0, uniformBufferManager.GetPerObjectBuffer(i));
 
                     break;
                 }
@@ -269,42 +269,45 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
                     e->SetNumWrites(7, 4, 0);
                     //===================================
-                    // camera projection view matrix etc.
+                    // global data
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
 
                     //===================================
-                    // std::vector<PerObjectData> SSBO.
-                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
-
-                    //===================================
                     // materials
-                    e->WriteBuffer(i, 2, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetMaterialDescriptionBuffer(i));
 
                     //===================================
                     // lighting information
-                    e->WriteBuffer(i, 2, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+                    e->WriteBuffer(i, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+
+                    //===================================
+                    // std::vector<PerObjectData> SSBO.
+                    e->WriteBuffer(i, 1, 0, uniformBufferManager.GetPerObjectBuffer(i));
 
                     break;
                 }
                 case EShaderBindingGroup::RayTracing:{
 
-                    e->SetNumWrites(4, 4, 0);
 
                     break;
                 }
                 case EShaderBindingGroup::ForwardUnlit:{
-                    e->SetNumWrites(4, 4, 0);
+                    e->SetNumWrites(7, 4, 0);
                     //===================================
-                    // camera projection view matrix etc.
+                    // global data
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
 
                     //===================================
-                    // std::vector<PerObjectData> SSBO.
-                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+                    // materials
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetMaterialDescriptionBuffer(i));
 
                     //===================================
-                    // materials
-                    e->WriteBuffer(i, 2, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+                    // lighting information
+                    e->WriteBuffer(i, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+
+                    //===================================
+                    // std::vector<PerObjectData> SSBO.
+                    e->WriteBuffer(i, 1, 0, uniformBufferManager.GetPerObjectBuffer(i));
 
                 }
 

@@ -3,14 +3,6 @@ module Light;
 import Material;
 import Surface;
 
-[[vk::binding(12, 0)]]
-ConstantBuffer<SamplerCube> IrradianceMap;
-
-[[vk::binding(13, 0)]]
-ConstantBuffer<SamplerCube> PrefilterMap;
-
-[[vk::binding(14, 0)]]
-ConstantBuffer<Sampler2D> BRDF_Lut;
 
 public struct LightInfo {
      public DirectionalLight dirLight;
@@ -58,10 +50,12 @@ public struct AreaLight : ILightEnv {
     public bool TwoSided;
     public float2 padding;
     public float4 points[4];
+    Sampler2D LTC;
+    Sampler2D LTC_Inverse;
 
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         if (isInuse) {
-            return (intensity.xyz * intensity.w).xyz * brdf.EvaluateByLTC(normalize(wo), g.position, g.normal, points, TwoSided);
+            return (intensity.xyz * intensity.w).xyz * brdf.EvaluateByLTC(normalize(wo), g.position, g.normal, points, TwoSided, LTC, LTC_Inverse);
             //return 0.f;
         } else {
             return 0.f;
@@ -96,7 +90,13 @@ public struct AmbientLight : ILightEnv {
     public float3 albedo;
     public bool applyIBL;
     public float roughness;
-    
+
+    public SamplerCube IrradianceMap;
+
+    public SamplerCube PrefilterMap;
+
+    public Sampler2D BRDF_Lut;
+
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         if (applyIBL) { // passed from application based on if the env is nullptr or not 
             float3 kS = brdf.FresnellShlickRoughness(max(dot(g.normal, wo), 0.0));

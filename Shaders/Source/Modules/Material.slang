@@ -5,13 +5,6 @@ import Surface;
 #define PI 3.14159265359
 
 
-[[vk::binding(10, 0)]]
-ConstantBuffer<Sampler2D> LTC;
-
-[[vk::binding(11, 0)]]
-ConstantBuffer<Sampler2D> LTC_Inverse;
-
-
 
 public struct MaterialConstantValues
 {
@@ -140,7 +133,7 @@ public interface IBRDF
      * N  -         normalVector;
      * float3 -     result colour
      */
-    float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided);
+    float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided, Sampler2D LTC,Sampler2D LTC_Inverse);
 }
 
 public struct CookTorrence_GGX : IBRDF
@@ -236,7 +229,7 @@ public struct CookTorrence_GGX : IBRDF
         return colour;
     }
 
-    public float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided) {
+    public float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided, Sampler2D LTC, Sampler2D LTC_Inverse) {
 
         const float LUT_SIZE = 64.0; // ltc_texture size
         const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
@@ -267,8 +260,8 @@ public struct CookTorrence_GGX : IBRDF
         identity[1] = float3(0.0, 1.0, 0.0);
         identity[2] = float3(0.0, 0.0, 1.0);
 
-        float3 specular = CalculateAreaLightLo(normalize(wo),  P, normalize(N), MinV, points, twoSided);
-        float3 diffuse = CalculateAreaLightLo(normalize(wo), P, normalize(N), identity, points, twoSided);
+        float3 specular = CalculateAreaLightLo(normalize(wo), P, normalize(N), MinV, points, twoSided, LTC, LTC_Inverse);
+        float3 diffuse = CalculateAreaLightLo(normalize(wo), P, normalize(N), identity, points, twoSided, LTC, LTC_Inverse);
 
         specular *= albedo.xyz * t2.x + (1.0f - albedo.xyz) * t2.y;
 
@@ -317,7 +310,9 @@ public float3 IntegrateEdgeVec(float3 v1, float3 v2) {
     return cross(v1, v2) * theta_sintheta;
 }
 
-public float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4 points[4], bool twoSided) {
+public float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV, float4 points[4], bool twoSided, Sampler2D LTC, Sampler2D LTC_Inverse
+
+) {
     const float LUT_SIZE = 64.0; // ltc_texture size
     const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
     const float LUT_BIAS = 0.5 / LUT_SIZE;

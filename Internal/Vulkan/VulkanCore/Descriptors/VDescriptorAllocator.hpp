@@ -28,7 +28,7 @@ class VDescriptorAllocator : public VulkanCore::VObject
         std::vector<std::pair<vk::DescriptorType, float>> sizes = {{vk::DescriptorType::eSampler, 0.5f},
                                                                    {vk::DescriptorType::eCombinedImageSampler, 4.f},
                                                                    {vk::DescriptorType::eSampledImage, 4.f},
-                                                                   {vk::DescriptorType::eSampledImage, 1.f},
+                                                                   {vk::DescriptorType::eStorageImage, 1.f},
                                                                    {vk::DescriptorType::eUniformTexelBuffer, 1.f},
                                                                    {vk::DescriptorType::eStorageTexelBuffer, 1.f},
                                                                    {vk::DescriptorType::eUniformBuffer, 2.f},

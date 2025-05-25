@@ -17,7 +17,7 @@ void ReflecSetLayoutData::Print() const
     for(auto& binding : variableNames)
     {
         std::cout << "\t ";
-        std::cout << binding.first << "\n";
+        std::cout << binding.first << + " := type =: " + VulkanUtils::DescriptorTypeToString(binding.second) +  "\n";
     }
 }
 void ReflectionData::Print() const
@@ -57,13 +57,12 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
     {
 
         ReflecSetLayoutData newBindings;
-        newBindings.bindings.resize(sets.size());
 
         //============================================
         // get binding information
         const SpvReflectDescriptorSet& reflSet = *(sets[i_set]);
         newBindings.bindings.reserve(reflSet.binding_count);
-        newBindings.variableNames.resize(reflSet.binding_count);
+        newBindings.variableNames.reserve(reflSet.binding_count);
         descriptorSets[i_set].descriptorFlags.resize(reflSet.binding_count);
 
         //===========================================
@@ -75,14 +74,13 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
             binding.binding = reflBinding.binding;
             if(reflBinding.name == "perObjectData")
             {
-                binding.descriptorType = vk::DescriptorType::eUniformBufferDynamic;
+                binding.descriptorType = vk::DescriptorType::eStorageBufferDynamic;
             }
             else
             {
                 binding.descriptorType = static_cast<vk::DescriptorType>(reflBinding.descriptor_type);
             }
             binding.descriptorCount = 1;
-            binding.stageFlags      = vk::ShaderStageFlagBits::eAll;
 
             //================================
             // gets dimmensions of the array
@@ -90,9 +88,11 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
             for(uint32_t i_dim = 0; i_dim < dims; ++i_dim)
                 binding.descriptorCount *= reflBinding.array.dims[i_dim];
 
+            binding.stageFlags      = vk::ShaderStageFlagBits::eAllGraphics;
+
 
             newBindings.bindings.push_back(binding);
-            newBindings.variableNames.push_back({std::to_string(binding.binding) + ": " + reflBinding.name, binding.descriptorType});
+            newBindings.variableNames.emplace_back(std::to_string(binding.binding) + ": " + reflBinding.name, binding.descriptorType);
         }
 
         // set the descriptor set layout

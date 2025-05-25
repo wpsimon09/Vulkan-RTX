@@ -7,7 +7,7 @@ struct FragmentShaderIn
 
 };
 
-[[vk::binding(0, )]]
+[[vk::binding(1, 1)]]
 Sampler2D textures[];
 
 [shader("pixel")]
