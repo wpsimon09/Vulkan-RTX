@@ -12,6 +12,13 @@ ConstantBuffer<SamplerCube> PrefilterMap;
 [[vk::binding(14, 0)]]
 ConstantBuffer<Sampler2D> BRDF_Lut;
 
+public struct LightInfo {
+     public DirectionalLight dirLight;
+     // PointLight[10] pointLigths;
+     public LightArray<PointLight, 20> pointLights;
+     public LightArray<AreaLight, 4> areaLights;
+     public float4 info;
+}
 
 // B - brdf equation
 public interface ILightEnv {

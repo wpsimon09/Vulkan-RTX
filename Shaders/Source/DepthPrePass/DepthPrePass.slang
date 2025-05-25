@@ -1,3 +1,5 @@
+import Material;
+
 struct VertexInput {
     float3 inPosition :POSITION ;
 };
@@ -24,34 +26,6 @@ struct GlobalData {
 [[vk::binding(0,0)]]
 ConstantBuffer<GlobalData> globalData;
 
-//=================================
-// MATERIAL STRUCTS
-//=================================
-struct MaterialConstantValues
-{
-    float roughness;
-    float metalness;
-    float ao;
-    float padding;
-
-    float4 diffuse;
-
-    float4 emissive_strength;
-}
-
-struct MaterialFeatures
-{
-    bool hasDiffuseTexture;
-    bool hasEmissiveTexture;
-    bool hasNormalTexture;
-    bool hasArmTexture;
-}
-
-struct Material
-{
-    MaterialConstantValues Values;
-    MaterialFeatures Features;
-};
 
 struct PermodelData {
     column_major float4x4 modelMatrix;
@@ -70,7 +44,7 @@ struct FragmentShaderIn {
     Material material : OUT_MATERIAL;
 };
 
-[[vk::binding(1, 0)]]
+[[vk::binding(0, 1)]]
 ConstantBuffer<PermodelData> perModelData ; 
 
 [shader("vertex")]

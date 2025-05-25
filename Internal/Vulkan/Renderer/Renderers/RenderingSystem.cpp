@@ -90,7 +90,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
 
 
     auto cam    = m_uiContext.GetClient().GetCamera();
-    m_rayTracer = std::make_unique<RayTracer>(m_device, rayTracingDataManager, descLayoutCache, 1980, 1080);
+    m_rayTracer = std::make_unique<RayTracer>(m_device, effectsLybrary, rayTracingDataManager , 1980, 1080);
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }

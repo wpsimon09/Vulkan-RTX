@@ -82,22 +82,6 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
         .SetDepthOpLessEqual();
 
 
-    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-
-        debugLine->SetNumWrites(2, 0, 0);
-
-        //========================
-        // global data
-        debugLine->WriteBuffer(0, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
-
-        //========================
-        // global data
-        debugLine->WriteBuffer(0, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
-
-        debugLine->ApplyWrites(i);
-    }
-
     effects[EEffectType::DebugLine] = std::move(debugLine);
 
     //==============================================================================

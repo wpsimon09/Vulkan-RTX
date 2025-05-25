@@ -113,8 +113,6 @@ public struct PBRMaterial : IMaterial
             brdf.emission = values.emissive_strength;
         }
 
-    
-
         return brdf;
     }
 }

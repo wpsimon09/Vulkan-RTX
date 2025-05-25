@@ -11,21 +11,24 @@
 
 namespace VulkanCore {
 
-void ReflecSetLayoutData::Print() const {
-    std::cout<<"-- Bindings in set -:\n";
-    for (auto& binding: variableNames) {
-        std::cout<<"\t ";
-        std::cout<<binding.first<<"\n";
+void ReflecSetLayoutData::Print() const
+{
+    std::cout << "-- Bindings in set -:\n";
+    for(auto& binding : variableNames)
+    {
+        std::cout << "\t ";
+        std::cout << binding.first << "\n";
     }
 }
-void ReflectionData::Print() const  {
-    std::cout<<"======================= Reflection data ============================\n";
+void ReflectionData::Print() const
+{
+    std::cout << "======================= Reflection data ============================\n";
 
-    for (int i_set = 0; i_set<descriptorSets.size(); i_set++) {
-        std::cout<<"- Set" + std::to_string(i_set)<<" -- \n";
+    for(int i_set = 0; i_set < descriptorSets.size(); i_set++)
+    {
+        std::cout << "- Set" + std::to_string(i_set) << " -- \n";
         descriptorSets.at(i_set).Print();
-        std::cout<<"====================================================================\n\n";
-
+        std::cout << "====================================================================\n\n";
     }
 }
 //=============================================
@@ -48,36 +51,48 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
     result = spvReflectEnumerateDescriptorSets(&moduleReflection, &count, sets.data());
     assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to retrieve binding handles ");
 
+    //=================================
     // go through each descriptor set
     for(size_t i_set = 0; i_set < sets.size(); i_set++)
     {
 
         ReflecSetLayoutData newBindings;
         newBindings.bindings.resize(sets.size());
-        // go through each binding in set the set
+
+        //============================================
+        // get binding information
         const SpvReflectDescriptorSet& reflSet = *(sets[i_set]);
         newBindings.bindings.reserve(reflSet.binding_count);
         newBindings.variableNames.resize(reflSet.binding_count);
         descriptorSets[i_set].descriptorFlags.resize(reflSet.binding_count);
 
-
+        //===========================================
+        // go through each binding in descriptor set
         for(uint32_t i_binding = 0; i_binding < reflSet.binding_count; i_binding++)
         {
             const SpvReflectDescriptorBinding reflBinding = *(reflSet.bindings[i_binding]);
             vk::DescriptorSetLayoutBinding    binding;
-            binding.binding         = reflBinding.binding;
-            binding.descriptorType  = static_cast<vk::DescriptorType>(reflBinding.descriptor_type);
-            binding.descriptorCount = 1;
-            for(uint32_t i_dim = 0; i_dim < reflBinding.array.dims_count; ++i_dim)
+            binding.binding = reflBinding.binding;
+            if(reflBinding.name == "perObjectData")
             {
-                binding.descriptorCount *= reflBinding.array.dims[i_dim];
+                binding.descriptorType = vk::DescriptorType::eUniformBufferDynamic;
             }
+            else
+            {
+                binding.descriptorType = static_cast<vk::DescriptorType>(reflBinding.descriptor_type);
+            }
+            binding.descriptorCount = 1;
+            binding.stageFlags      = vk::ShaderStageFlagBits::eAll;
 
-            binding.stageFlags = vk::ShaderStageFlagBits::eAll;
+            //================================
+            // gets dimmensions of the array
+            auto dims = reflBinding.array.dims_count;
+            for(uint32_t i_dim = 0; i_dim < dims; ++i_dim)
+                binding.descriptorCount *= reflBinding.array.dims[i_dim];
 
-            newBindings.bindings.push_back( binding);
+
+            newBindings.bindings.push_back(binding);
             newBindings.variableNames.push_back({std::to_string(binding.binding) + ": " + reflBinding.name, binding.descriptorType});
-            //newBindings.shaderStages[i_binding] = {std::to_string(i_binding) + ": " + reflBinding.name, binding.descriptorType};
         }
 
         // set the descriptor set layout
@@ -87,24 +102,27 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         auto& currentBindings = descriptorSets[i_set];
 
         // insert currently cerated bindings to the newly ones
-        currentBindings.bindings.insert(currentBindings.bindings.end(), newBindings.bindings.begin(), newBindings.bindings.end());
-        currentBindings.variableNames.insert(currentBindings.variableNames.end(), newBindings.variableNames.begin(), newBindings.variableNames.end());
+        currentBindings.bindings.insert(currentBindings.bindings.end(), newBindings.bindings.begin(),
+                                        newBindings.bindings.end());
+        currentBindings.variableNames.insert(currentBindings.variableNames.end(), newBindings.variableNames.begin(),
+                                             newBindings.variableNames.end());
 
         currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
 
         //=============================================
         // vk::DescriptorSetLayoutBindingFlagsCreateInfo
-        currentBindings.descriptorFlags = std::vector<vk::DescriptorBindingFlags>(currentBindings.bindings.size(),
-        vk::DescriptorBindingFlagBits::eUpdateAfterBind | vk::DescriptorBindingFlagBits::ePartiallyBound);
+        currentBindings.descriptorFlags = std::vector<vk::DescriptorBindingFlags>(
+            currentBindings.bindings.size(),
+            vk::DescriptorBindingFlagBits::eUpdateAfterBind | vk::DescriptorBindingFlagBits::ePartiallyBound);
 
-        currentBindings.bindingFlagsInfo.bindingCount = currentBindings.descriptorFlags.size();
+        currentBindings.bindingFlagsInfo.bindingCount  = currentBindings.descriptorFlags.size();
         currentBindings.bindingFlagsInfo.pBindingFlags = currentBindings.descriptorFlags.data();
 
         //============================================
         // vk::DescriptorSetLayoutCreateInfo
         currentBindings.createInfo.flags = vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool;
         currentBindings.createInfo.pNext = &descriptorSets[i_set].bindingFlagsInfo;
-;
+        ;
 
 
         descriptorSets[i_set].createInfo.pBindings = currentBindings.bindings.data();

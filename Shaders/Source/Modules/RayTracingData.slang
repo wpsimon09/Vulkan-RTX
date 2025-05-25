@@ -29,9 +29,6 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     ObjDescription object = descriptions[instanceIndex];
     Material mat = materialValues[instanceIndex];
 
-    // Vertex *vertexBuffer = (Vertex *)(object.vertexAddresses); // Cast to Vertex pointer
-    // int *indexBuffer = (int *)(object.indexAddress);        // Cast to int pointer (assuming indices are integers)
-
     // //=================================================
     // // for each vertex there is one index that can
     // // be used to look up the correct vertex in the array

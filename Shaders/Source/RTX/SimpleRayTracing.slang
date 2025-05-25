@@ -4,34 +4,12 @@ import RayTracingData;
 import Material;
 import Surface;
 import RandomValues;
-
-struct GlobalData {
-    column_major float4x4 projection;
-    column_major float4x4 view;
-    float4x4 inverseView;
-    float4x4 invProjection;
-
-    float4 lightPosition;
-    float4 cameraPostiion;
-    float4 viewParams; // xy- camera plane width and height,z - nerPlane, w - focal length
-
-    float raysPerPixel;
-    float reccursionDepth;
-    float2 screenSize;
-    float currentFrame;
-};
+import Core;
 
 // global data for the ray tracing 
 [[vk::binding(0, 0)]]
-ConstantBuffer<GlobalData> globalData;
+ConstantBuffer<GlobalDataRTX> globalData;
 
-struct LightInfo {
-    DirectionalLight dirLight;
-    // PointLight[10] pointLigths;
-    LightArray<PointLight, 20> pointLights;
-    LightArray<AreaLight, 4> areaLights;
-    float4 info;
-}
 
 // light light in scene information
 [[vk::binding(1, 0)]]

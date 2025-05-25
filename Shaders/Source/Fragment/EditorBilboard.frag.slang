@@ -1,17 +1,22 @@
+import Material;
+
 struct FragmentShaderIn
 {
     float2 uv : OUT_UV;
+    Material mat : OUT_MAT;
+
 };
 
-[[vk::binding(3, 0)]]
-ConstantBuffer<Sampler2D> _albedoMap;
+[[vk::binding(0, )]]
+Sampler2D textures[];
 
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn)
     : SV_Target
 {
 
-    float4 bilboardTexture = _albedoMap.Sample(fsIn.uv);
+
+    float4 bilboardTexture = textures[fsIn.mat.Features.albedoTextureIdx].Sample(fsIn.uv);
     if (bilboardTexture.w < 1.0) {
         discard;
     }

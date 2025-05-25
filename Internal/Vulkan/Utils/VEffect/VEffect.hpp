@@ -80,8 +80,11 @@ class VEffect
      * There can be multiple descriptor sets per pipeline therefore this is an array
      */
     std::vector<VulkanStructs::VDescriptorSet> m_descriptorSets;
+    // each set has a descriptor set laytou, for conviniece it is copied to this vector
     std::vector<vk::DescriptorSetLayout>       m_descriptorSetLayouts;
+    // raw pointer to reflection data from spir-v
     const VulkanCore::ReflectionData*          m_reflectionData;
+
     VulkanCore::VDescriptorLayoutCache&        m_descriptorSetLayoutCache;
 };
 
