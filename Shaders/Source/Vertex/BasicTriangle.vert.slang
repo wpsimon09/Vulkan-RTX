@@ -31,7 +31,7 @@ struct FragmentShaderIn {
 };
 
 [[vk::binding(0,1)]]
-ConstantBuffer<PermodelData> perObjectData ; 
+ParameterBlock<PermodelData> perObjectData ; 
 
 [shader("vertex")]
 VertexOutput vertexMain(VertexInput VAO) // VAO input{

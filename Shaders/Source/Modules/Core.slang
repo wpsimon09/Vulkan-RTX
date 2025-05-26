@@ -48,3 +48,8 @@ public struct PermodelData {
     public uint padding3;
 };
 
+//=====================================
+// push constant passed every frame 
+public struct PerObjectPushConstatn {
+    public uint perObjectDataIndex;
+}

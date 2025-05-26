@@ -86,5 +86,9 @@ struct RTXObjDescription {
     vk::DeviceAddress indexAddresss;
 };
 
+struct PerObjectPushConstant {
+    uint32_t objectID;
+};
+
 
 #endif  //UNIFROMDEFINITION_HPP
