@@ -19,7 +19,8 @@
 
 VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice&              device,
                                                  const VulkanCore::VShader&              shaders,
-                                                 const std::vector<vk::DescriptorSetLayout>&   descriptorSets)
+                                                 const std::vector<vk::DescriptorSetLayout>&   descriptorSets,
+                                                 const std::vector<vk::PushConstantRange>&   pushConstants)
     : VObject()
     , m_shaders(shaders)
     , m_device(device)

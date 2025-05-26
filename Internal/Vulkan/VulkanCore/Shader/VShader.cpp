@@ -35,14 +35,24 @@ void ReflecSetLayoutData::Print() const
 }
 void ReflectionData::Print() const
 {
+    std::cout << "====================================================================\n";
     std::cout << "======================= Reflection data ============================\n";
+    std::cout << "====================================================================\n";
 
+    if (!pushConstantName.empty()) {
+        std::cout << "Push constant: " +pushConstantName << "\n";
+    }
     for(int i_set = 0; i_set < descriptorSets.size(); i_set++)
     {
         std::cout << "- Set" + std::to_string(i_set) << " -- \n";
         descriptorSets.at(i_set).Print();
         std::cout << "====================================================================\n\n";
     }
+
+    std::cout << "====================================================================\n";
+    std::cout << "====================================================================\n";
+    std::cout << "====================================================================\n";
+
 }
 //=============================================
 // REFLECTION DATA
@@ -67,7 +77,28 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
     //=================================
     // push constants
     uint32_t pcCount = 0;
-    spvReflectEnumeratePushConstantBlocks()
+    result = spvReflectEnumeratePushConstantBlocks(&moduleReflection, &pcCount, nullptr);
+    assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to enumerate push constant blocks ");
+
+    std::vector<SpvReflectBlockVariable*> pushConstants;
+    if (pcCount > 0) {
+        pushConstants.resize(pcCount);
+        result = spvReflectEnumeratePushConstantBlocks(&moduleReflection, &pcCount, pushConstants.data());
+        assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to retrieve push constant blocks ");
+
+        for (int i = 0; i < pcCount; i++) {
+
+            pushConstantName = pushConstants[i]->name;
+            pushConstant.offset = pushConstants[i]->offset;
+            pushConstant.size = pushConstants[i]->size;
+
+            // TODO: for now I will only allow for push constants ot be in vertex shader
+            pushConstant.stageFlags = vk::ShaderStageFlagBits::eVertex;
+        }
+
+
+    }
+
 
     //=================================
     // go through each descriptor set
