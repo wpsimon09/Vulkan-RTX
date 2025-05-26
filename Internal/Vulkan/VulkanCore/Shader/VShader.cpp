@@ -65,6 +65,11 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
     assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to retrieve binding handles ");
 
     //=================================
+    // push constants
+    uint32_t pcCount = 0;
+    spvReflectEnumeratePushConstantBlocks()
+
+    //=================================
     // go through each descriptor set
     for(size_t i_set = 0; i_set < sets.size(); i_set++)
     {
@@ -85,14 +90,8 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
             const SpvReflectDescriptorBinding reflBinding = *(reflSet.bindings[i_binding]);
             vk::DescriptorSetLayoutBinding    binding;
             binding.binding = reflBinding.binding;
-            if(reflBinding.name == "perObjectData")
-            {
-                binding.descriptorType = vk::DescriptorType::eStorageBufferDynamic;
-            }
-            else
-            {
-                binding.descriptorType = static_cast<vk::DescriptorType>(reflBinding.descriptor_type);
-            }
+            binding.descriptorType = static_cast<vk::DescriptorType>(reflBinding.descriptor_type);
+
             binding.descriptorCount = 1;
 
             //================================

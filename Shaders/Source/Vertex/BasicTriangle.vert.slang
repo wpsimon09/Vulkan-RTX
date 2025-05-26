@@ -13,7 +13,6 @@ struct VertexOutput {
     float4 sv_position : SV_Position;
 }
 
-
 [[vk::binding(0, 0)]]
 ConstantBuffer<GlobalData> globalData;
 
@@ -21,6 +20,11 @@ ConstantBuffer<GlobalData> globalData;
 [[vk::binding(1, 0)]]
 StructuredBuffer<Material> materialValues;
 
+[[vk::binding(0,1)]]
+StructuredBuffer<PermodelData> perObjectData ;
+
+[[vk::push_constant]] 
+PerObjectPushConstatn perObjectPC;   
 
 struct FragmentShaderIn {
     float3 normal : OUT_NORMAL;
@@ -30,8 +34,6 @@ struct FragmentShaderIn {
     Material material : OUT_MATERIAL;
 };
 
-[[vk::binding(0,1)]]
-ParameterBlock<PermodelData> perObjectData ; 
 
 [shader("vertex")]
 VertexOutput vertexMain(VertexInput VAO) // VAO input{
@@ -41,8 +43,8 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
     float3 normal = VAO.inNormal;
     float2 uv = VAO.inUV;
 
-    float3 FragmentWorldPos = mul(perObjectData.modelMatrix, float4(vertexPos, 1.0)).xyz;
-    float3 NormalWorldPos = mul(transpose(inverse(perObjectData.modelMatrix)), float4(normal, 1.0)).xyz;
+    float3 FragmentWorldPos = mul(perObjectData[perObjectPC.perObjectDataIndex].modelMatrix, float4(vertexPos, 1.0)).xyz;
+    float3 NormalWorldPos = mul(transpose(inverse(perObjectData[perObjectPC.perObjectDataIndex].modelMatrix)), float4(normal, 1.0)).xyz;
 
     VertexOutput out;
     out.vertexData.cameraPos = globalData.cameraPostiion.xyz;
@@ -52,7 +54,7 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
 
     float4x4 viewProj = mul(globalData.view, globalData.projection);
     out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
-    out.vertexData.material = materialValues[perObjectData.materialIndex];
+    out.vertexData.material = materialValues[perObjectData[perObjectPC.perObjectDataIndex].materialIndex];
 
     return out;
 }

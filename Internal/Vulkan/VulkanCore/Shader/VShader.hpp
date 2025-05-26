@@ -34,6 +34,7 @@ struct ReflecSetLayoutData {
 struct ReflectionData {
   SpvReflectShaderModule moduleReflection;
   std::unordered_map<int , ReflecSetLayoutData> descriptorSets;
+  std::vector<SpvReflectBlockVariable> pushConstants;
 
   int bindingCount = 0;
 

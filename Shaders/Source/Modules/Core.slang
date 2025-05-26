@@ -48,8 +48,9 @@ public struct PermodelData {
     public uint padding3;
 };
 
-//=====================================
+//=================================================
 // push constant passed every frame 
+// used to index material buffer per object buffer
 public struct PerObjectPushConstatn {
     public uint perObjectDataIndex;
 }

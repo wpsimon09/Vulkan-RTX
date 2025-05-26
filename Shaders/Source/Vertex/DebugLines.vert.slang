@@ -13,7 +13,10 @@ struct VertexOutput {
 ConstantBuffer<GlobalData> globalData;
 
 [[vk::binding(0, 1)]]
-ConstantBuffer<PermodelData> perModelData; 
+StructuredBuffer<PermodelData> perModelData;
+
+[[vk::push_constant]]
+PerObjectPushConstatn perObjectPC;
 
 [shader("vertex")]
 VertexOutput vertexMain(VertexInput VAO) // VAO input{
@@ -21,7 +24,7 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
     // sotre for later
     float3 vertexPos = VAO.inPosition;
 
-    float3 FragmentWorldPos = mul(perModelData.modelMatrix, float4(vertexPos, 1.0)).xyz;
+    float3 FragmentWorldPos = mul(perModelData[perObjectPC.perObjectDataIndex].modelMatrix, float4(vertexPos, 1.0)).xyz;
 
     VertexOutput out;
 
