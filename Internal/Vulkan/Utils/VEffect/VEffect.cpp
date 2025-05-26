@@ -45,7 +45,8 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
 {
     m_reflectionData = &reflectionData;
 
-    m_descriptorSets.reserve(reflectionData.descriptorSets.size());
+    m_descriptorSets.resize(reflectionData.descriptorSets.size());
+    m_descriptorSetLayouts.resize(reflectionData.descriptorSets.size());
 
     for(auto& set : reflectionData.descriptorSets)
     {
@@ -54,7 +55,7 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
         newSet.layout = m_descriptorSetLayoutCache.CreateDescriptorSetLayout(&set.second.createInfo);
 
         // copy the layout for pieline creation
-        m_descriptorSetLayouts.push_back(newSet.layout);
+        m_descriptorSetLayouts[set.first] = newSet.layout;
         newSet.sets.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
@@ -73,7 +74,7 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
                 newSet.writes[i][binding.binding] = write;
             }
         }
-        m_descriptorSets.push_back(newSet);
+        m_descriptorSets[set.first] =  newSet;
     }
 
     Utils::Logger::LogSuccess("Descriptor set layout created successfully");

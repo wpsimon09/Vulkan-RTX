@@ -91,7 +91,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
             binding.stageFlags      = vk::ShaderStageFlagBits::eAllGraphics;
 
 
-            newBindings.bindings.push_back(binding);
+            newBindings.bindings.emplace_back(binding);
             newBindings.variableNames.emplace_back(std::to_string(binding.binding) + ": " + reflBinding.name, binding.descriptorType);
         }
 
@@ -104,6 +104,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         // insert currently cerated bindings to the newly ones
         currentBindings.bindings.insert(currentBindings.bindings.end(), newBindings.bindings.begin(),
                                         newBindings.bindings.end());
+
         currentBindings.variableNames.insert(currentBindings.variableNames.end(), newBindings.variableNames.begin(),
                                              newBindings.variableNames.end());
 

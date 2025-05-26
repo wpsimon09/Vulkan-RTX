@@ -169,8 +169,8 @@ void EffectsLibrary::BuildAllEffects()
     for(auto& effect : effects)
     {
         std::cout<<effect.second->GetName() <<" | ------------------------\n";
-        effect.second->BuildEffect();
         effect.second->GetReflectionData()->Print();
+        effect.second->BuildEffect();
     }
 }
 
