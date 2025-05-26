@@ -14,10 +14,23 @@ namespace VulkanCore {
 void ReflecSetLayoutData::Print() const
 {
     std::cout << "-- Bindings in set -:\n";
+    int i_binding = 0;
     for(auto& binding : variableNames)
     {
         std::cout << "\t ";
-        std::cout << binding.first << + " := type =: " + VulkanUtils::DescriptorTypeToString(binding.second) +  "\n";
+
+        if(bindings[i_binding].descriptorCount > 1)
+        {
+            std::cout << binding.first + " := type =: " + VulkanUtils::DescriptorTypeToString(binding.second) + " [ "
+                             + std::to_string(bindings[i_binding].descriptorCount) + "]\n";
+        }
+        else
+        {
+            std::cout << binding.first << +" := type =: " + VulkanUtils::DescriptorTypeToString(binding.second) + "\n";
+        }
+
+
+        i_binding++;
     }
 }
 void ReflectionData::Print() const
@@ -85,10 +98,30 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
             //================================
             // gets dimmensions of the array
             auto dims = reflBinding.array.dims_count;
-            for(uint32_t i_dim = 0; i_dim < dims; ++i_dim)
-                binding.descriptorCount *= reflBinding.array.dims[i_dim];
 
-            binding.stageFlags      = vk::ShaderStageFlagBits::eAllGraphics;
+            //================================
+            // if dimensions are 0 this means we have array with arbitary size
+            // e.g. Sampler2D textures[];
+            if(dims == 1 && reflBinding.array.dims[0] == 0)
+            {
+                switch(binding.descriptorType)
+                {
+
+                    case vk::DescriptorType::eCombinedImageSampler:
+                        binding.descriptorCount = 1000;
+                        break;
+                    default:
+                        binding.descriptorCount = 1;
+                        break;
+                }
+            }
+            else
+            {
+                for(uint32_t i_dim = 0; i_dim < dims; ++i_dim)
+                    binding.descriptorCount *= reflBinding.array.dims[i_dim];
+            }
+
+            binding.stageFlags = vk::ShaderStageFlagBits::eAllGraphics;
 
 
             newBindings.bindings.emplace_back(binding);
@@ -113,8 +146,8 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         //=============================================
         // vk::DescriptorSetLayoutBindingFlagsCreateInfo
         currentBindings.descriptorFlags = std::vector<vk::DescriptorBindingFlags>(
-            currentBindings.bindings.size(),
-            vk::DescriptorBindingFlagBits::eUpdateAfterBind | vk::DescriptorBindingFlagBits::ePartiallyBound);
+            currentBindings.bindings.size(), vk::DescriptorBindingFlagBits::eUpdateAfterBind | vk::DescriptorBindingFlagBits::ePartiallyBound
+                                                 | vk::DescriptorBindingFlagBits::eVariableDescriptorCount);
 
         currentBindings.bindingFlagsInfo.bindingCount  = currentBindings.descriptorFlags.size();
         currentBindings.bindingFlagsInfo.pBindingFlags = currentBindings.descriptorFlags.data();
