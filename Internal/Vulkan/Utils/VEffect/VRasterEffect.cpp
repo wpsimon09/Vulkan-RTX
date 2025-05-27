@@ -18,7 +18,7 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
     CreateLayouts(shader.GetReflectionData());
 
 
-    m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_descriptorSetLayouts);
+    m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_descriptorSetLayouts, m_reflectionData->PCs);
     m_pipeline->Init();
 
 }
@@ -37,7 +37,7 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
     else throw std::runtime_error("Failed to retrieve reflection data from compiled SPIRV-Shader");
 
     m_pipeline =
-        std::make_unique<VulkanCore::VGraphicsPipeline>(device, m_shader.value(), m_descriptorSetLayouts);
+        std::make_unique<VulkanCore::VGraphicsPipeline>(device, m_shader.value(), m_descriptorSetLayouts, m_reflectionData->PCs);
     m_pipeline->Init();
 }
 

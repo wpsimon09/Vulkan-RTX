@@ -17,14 +17,15 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 
-VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice&              device,
-                                                 const VulkanCore::VShader&              shaders,
-                                                 const std::vector<vk::DescriptorSetLayout>&   descriptorSets,
+VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice&                  device,
+                                                 const VulkanCore::VShader&                  shaders,
+                                                 const std::vector<vk::DescriptorSetLayout>& descriptorSets,
                                                  const std::vector<vk::PushConstantRange>&   pushConstants)
     : VObject()
     , m_shaders(shaders)
     , m_device(device)
     , m_descriptorSets(descriptorSets)
+    , m_pushConstantRanges(pushConstants)
 {
     m_outputFormats.resize(1);
     m_outputFormats[0] = vk::Format::eR8G8B8A8Unorm;
@@ -252,8 +253,9 @@ void VulkanCore::VGraphicsPipeline::CreatePipelineLayout()
     pipelineLayoutCreateInfo.setLayoutCount = m_descriptorSets.size();
     pipelineLayoutCreateInfo.pSetLayouts    = m_descriptorSets.data();
 
-    pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-    pipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
+    pipelineLayoutCreateInfo.pushConstantRangeCount = m_pushConstantRanges.size();
+    pipelineLayoutCreateInfo.pPushConstantRanges    = m_pushConstantRanges.data();
+
     assert(m_device.GetDevice().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout) == vk::Result::eSuccess);
     Utils::Logger::LogSuccess("Pipeline layout created !");
 }

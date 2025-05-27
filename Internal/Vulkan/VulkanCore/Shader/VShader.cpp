@@ -86,14 +86,15 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         result = spvReflectEnumeratePushConstantBlocks(&moduleReflection, &pcCount, pushConstants.data());
         assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to retrieve push constant blocks ");
 
+        PCs.resize(pcCount);
         for (int i = 0; i < pcCount; i++) {
 
             pushConstantName = pushConstants[i]->name;
-            pushConstant.offset = pushConstants[i]->offset;
-            pushConstant.size = pushConstants[i]->size;
+            PCs[i].offset = pushConstants[i]->offset;
+            PCs[i].size   = pushConstants[i]->size;
 
             // TODO: for now I will only allow for push constants ot be in vertex shader
-            pushConstant.stageFlags = vk::ShaderStageFlagBits::eVertex;
+            PCs[i].stageFlags = vk::ShaderStageFlagBits::eVertex;
         }
 
 
@@ -105,13 +106,13 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
     for(size_t i_set = 0; i_set < sets.size(); i_set++)
     {
 
-        ReflecSetLayoutData newBindings;
+        ReflecSetLayoutData newSetLayout;
 
         //============================================
         // get binding information
         const SpvReflectDescriptorSet& reflSet = *(sets[i_set]);
-        newBindings.bindings.reserve(reflSet.binding_count);
-        newBindings.variableNames.reserve(reflSet.binding_count);
+        newSetLayout.bindings.reserve(reflSet.binding_count);
+        newSetLayout.variableNames.reserve(reflSet.binding_count);
         descriptorSets[i_set].descriptorFlags.resize(reflSet.binding_count);
 
         //===========================================
@@ -154,8 +155,8 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
             binding.stageFlags = vk::ShaderStageFlagBits::eAllGraphics;
 
 
-            newBindings.bindings.emplace_back(binding);
-            newBindings.variableNames.emplace_back(std::to_string(binding.binding) + ": " + reflBinding.name, binding.descriptorType);
+            newSetLayout.bindings.emplace_back(binding);
+            newSetLayout.variableNames.emplace_back(std::to_string(binding.binding) + ": " + reflBinding.name, binding.descriptorType);
         }
 
         // set the descriptor set layout
@@ -165,11 +166,11 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         auto& currentBindings = descriptorSets[i_set];
 
         // insert currently cerated bindings to the newly ones
-        currentBindings.bindings.insert(currentBindings.bindings.end(), newBindings.bindings.begin(),
-                                        newBindings.bindings.end());
+        currentBindings.bindings.insert(currentBindings.bindings.end(), newSetLayout.bindings.begin(),
+                                        newSetLayout.bindings.end());
 
-        currentBindings.variableNames.insert(currentBindings.variableNames.end(), newBindings.variableNames.begin(),
-                                             newBindings.variableNames.end());
+        currentBindings.variableNames.insert(currentBindings.variableNames.end(), newSetLayout.variableNames.begin(),
+                                             newSetLayout.variableNames.end());
 
         currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
 

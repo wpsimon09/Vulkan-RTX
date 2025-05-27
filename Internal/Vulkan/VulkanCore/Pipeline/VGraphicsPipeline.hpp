@@ -71,7 +71,7 @@ class VGraphicsPipeline : public VObject
     const VulkanCore::VShader&              m_shaders;
     const VulkanCore::VDevice&              m_device;
     const std::vector<vk::DescriptorSetLayout>&   m_descriptorSets;
-    const std::vector<vk::PushConstantRange>& m_pushConstantRanges;
+    const std::vector<vk::PushConstantRange>&     m_pushConstantRanges;
 
     // pipeline handler
     vk::Pipeline      m_pipeline;
