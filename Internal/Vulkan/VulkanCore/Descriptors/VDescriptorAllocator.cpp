@@ -55,6 +55,7 @@ bool VDescriptorAllocator::Allocate(vk::DescriptorSet* set, vk::DescriptorSetLay
         m_usedPools.push_back(m_currentPool);
     }
 
+
     vk::DescriptorSetAllocateInfo allocInfo = {};
     allocInfo.pSetLayouts                   = &dLayout;
     allocInfo.descriptorPool                = m_currentPool;
@@ -107,6 +108,10 @@ void VDescriptorLayoutCache::Destroy()
 
 vk::DescriptorSetLayout VDescriptorLayoutCache::CreateDescriptorSetLayout(const vk::DescriptorSetLayoutCreateInfo* info )
 {
+
+
+
+    assert(info->bindingCount > 0);
     DescriptorSetLayoutInfo layoutInfo;
     layoutInfo.bindings.reserve(info->bindingCount);
 
@@ -117,7 +122,9 @@ vk::DescriptorSetLayout VDescriptorLayoutCache::CreateDescriptorSetLayout(const 
     // copy bindings from the bindings to classes member variable
     for(int i = 0; i < info->bindingCount; i++)
     {
+        assert(info->pBindings[i].descriptorCount > 0);
         layoutInfo.bindings.push_back(info->pBindings[i]);
+
         if(info->pBindings[i].binding > lastBinding)
         {
             lastBinding = info->pBindings[i].binding;
@@ -151,6 +158,7 @@ vk::DescriptorSetLayout VDescriptorLayoutCache::CreateDescriptorSetLayout(const 
         m_layoutCache[layoutInfo] = layout;
         return layout;
     }
+
 }
 
 bool VDescriptorLayoutCache::DescriptorSetLayoutInfo::operator==(const DescriptorSetLayoutInfo& other) const
@@ -183,8 +191,7 @@ bool VDescriptorLayoutCache::DescriptorSetLayoutInfo::operator==(const Descripto
         return true;
     }
 }
-size_t VDescriptorLayoutCache::DescriptorSetLayoutInfo::hash() const
-{
+size_t VDescriptorLayoutCache::DescriptorSetLayoutInfo::hash() const {
     using std::hash;
     using std::size_t;
 
@@ -200,7 +207,6 @@ size_t VDescriptorLayoutCache::DescriptorSetLayoutInfo::hash() const
 
     return result;
 }
-
 
 //======================================================================================================
 //======================================================================================================

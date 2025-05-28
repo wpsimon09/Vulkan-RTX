@@ -27,6 +27,8 @@ struct ReflecSetLayoutData {
   std::vector<vk::DescriptorBindingFlags> descriptorFlags;
 
 
+  vk::DescriptorSet setHandle;
+
   void Print() const;
 
 };
@@ -36,6 +38,7 @@ struct ReflectionData {
   std::map<int , ReflecSetLayoutData> descriptorSets;
   std::vector<vk::PushConstantRange> PCs;
   std::string pushConstantName;
+
 
   int bindingCount = 0;
 

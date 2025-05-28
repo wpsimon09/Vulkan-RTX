@@ -158,6 +158,9 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
                     binding.descriptorCount *= reflBinding.array.dims[i_dim];
             }
 
+
+            assert(binding.descriptorCount > 0 && "descriptor count must be 0 ");
+
             binding.stageFlags = vk::ShaderStageFlagBits::eAllGraphics;
 
 
@@ -178,13 +181,12 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         currentBindings.variableNames.insert(currentBindings.variableNames.end(), newSetLayout.variableNames.begin(),
                                              newSetLayout.variableNames.end());
 
-        currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
 
         //=============================================
         // vk::DescriptorSetLayoutBindingFlagsCreateInfo
         currentBindings.descriptorFlags = std::vector<vk::DescriptorBindingFlags>(
             currentBindings.bindings.size(), vk::DescriptorBindingFlagBits::eUpdateAfterBind | vk::DescriptorBindingFlagBits::ePartiallyBound
-                                                 | vk::DescriptorBindingFlagBits::eVariableDescriptorCount);
+                                                 );
 
         currentBindings.bindingFlagsInfo.bindingCount  = currentBindings.descriptorFlags.size();
         currentBindings.bindingFlagsInfo.pBindingFlags = currentBindings.descriptorFlags.data();
@@ -196,7 +198,8 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         ;
 
 
-        descriptorSets[setIndex].createInfo.pBindings = currentBindings.bindings.data();
+        currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
+        currentBindings.createInfo.pBindings = currentBindings.bindings.data();
     }
 }
 

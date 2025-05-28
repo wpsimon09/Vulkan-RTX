@@ -76,7 +76,9 @@ class VDescriptorLayoutCache : public VObject
         size_t hash() const;
     };
 
+
   private:
+    void ValidateCreateInfo(const vk::DescriptorSetLayoutCreateInfo* info);
     struct DescriptorLayoutHash
     {
         std::size_t operator()(const DescriptorSetLayoutInfo& k) const { return k.hash(); }

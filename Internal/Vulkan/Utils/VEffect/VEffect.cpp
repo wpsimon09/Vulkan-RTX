@@ -50,16 +50,16 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
 
     for(auto& set : reflectionData.descriptorSets)
     {
-        VulkanStructs::VDescriptorSet newSet;
+        VulkanStructs::VDescriptorSet reflectedSet;
 
-        newSet.layout = m_descriptorSetLayoutCache.CreateDescriptorSetLayout(&set.second.createInfo);
+        reflectedSet.layout = m_descriptorSetLayoutCache.CreateDescriptorSetLayout(&set.second.createInfo);
 
         // copy the layout for pieline creation
-        m_descriptorSetLayouts[set.second.setNumber] = newSet.layout;
-        newSet.sets.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        m_descriptorSetLayouts[set.second.setNumber] = reflectedSet.layout;
+        reflectedSet.sets.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
-            m_device.GetDescriptorAllocator().Allocate(&newSet.sets[i], newSet.layout);
+            m_device.GetDescriptorAllocator().Allocate(&reflectedSet.sets[i], reflectedSet.layout);
 
 
             // create writes
@@ -68,13 +68,14 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
                 vk::WriteDescriptorSet write;
                 write.descriptorCount = binding.descriptorCount;
                 write.descriptorType  = binding.descriptorType;
-                write.dstSet          = newSet.sets[i];  // 1 set for the frame
+                write.dstSet          = reflectedSet.sets[i];  // 1 set for the frame
                 write.dstBinding      = binding.binding;
 
-                newSet.writes[i][binding.binding] = write;
+                reflectedSet.writes[i][binding.binding] = write;
             }
         }
-        m_descriptorSets[set.second.setNumber] =  newSet;
+        m_descriptorSets[set.second.setNumber] =  reflectedSet;
+
     }
 
     Utils::Logger::LogSuccess("Descriptor set layout created successfully");
@@ -156,6 +157,7 @@ void VEffect::ApplyWrites(uint32_t frame)
     {
         for(auto& write : set.writes[frame])
         {
+            assert(write.second.descriptorCount > 0 && "Descriptor write must have descriptorCount > 0");
             if (write.second.pBufferInfo != nullptr || write.second.pImageInfo != nullptr || write.second.pNext != nullptr) {
                 writes.push_back(write.second);
             }
