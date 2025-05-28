@@ -101,6 +101,8 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
     }
 
 
+    //descriptorSets.reserve(sets.size());
+
     //=================================
     // go through each descriptor set
     for(size_t i_set = 0; i_set < sets.size(); i_set++)

@@ -33,7 +33,7 @@ struct ReflecSetLayoutData {
 
 struct ReflectionData {
   SpvReflectShaderModule moduleReflection;
-  std::unordered_map<int , ReflecSetLayoutData> descriptorSets;
+  std::map<int , ReflecSetLayoutData> descriptorSets;
   std::vector<vk::PushConstantRange> PCs;
   std::string pushConstantName;
 
