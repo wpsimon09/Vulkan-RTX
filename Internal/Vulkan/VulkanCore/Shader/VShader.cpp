@@ -105,17 +105,21 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
 
     //=================================
     // go through each descriptor set
-    for(size_t i_set = 0; i_set < sets.size(); i_set++)
+    for(auto& set: sets)
     {
 
         ReflecSetLayoutData newSetLayout;
 
+        uint32_t setIndex = set->set;
+
         //============================================
         // get binding information
-        const SpvReflectDescriptorSet& reflSet = *(sets[i_set]);
+        const SpvReflectDescriptorSet& reflSet = *(set);
         newSetLayout.bindings.reserve(reflSet.binding_count);
         newSetLayout.variableNames.reserve(reflSet.binding_count);
-        descriptorSets[i_set].descriptorFlags.resize(reflSet.binding_count);
+        descriptorSets[setIndex].descriptorFlags.resize(reflSet.binding_count);
+
+
 
         //===========================================
         // go through each binding in descriptor set
@@ -162,10 +166,10 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         }
 
         // set the descriptor set layout
-        descriptorSets[i_set].setNumber = i_set;
+        descriptorSets[setIndex].setNumber = setIndex;
 
         // take the current bindings from the descriptor set
-        auto& currentBindings = descriptorSets[i_set];
+        auto& currentBindings = descriptorSets[setIndex];
 
         // insert currently cerated bindings to the newly ones
         currentBindings.bindings.insert(currentBindings.bindings.end(), newSetLayout.bindings.begin(),
@@ -188,11 +192,11 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         //============================================
         // vk::DescriptorSetLayoutCreateInfo
         currentBindings.createInfo.flags = vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool;
-        currentBindings.createInfo.pNext = &descriptorSets[i_set].bindingFlagsInfo;
+        currentBindings.createInfo.pNext = &descriptorSets[setIndex].bindingFlagsInfo;
         ;
 
 
-        descriptorSets[i_set].createInfo.pBindings = currentBindings.bindings.data();
+        descriptorSets[setIndex].createInfo.pBindings = currentBindings.bindings.data();
     }
 }
 

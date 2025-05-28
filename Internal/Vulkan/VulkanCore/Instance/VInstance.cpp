@@ -45,9 +45,9 @@ VkBool32 VulkanCore::VulkanInstance::debugMessageFunc(VkDebugUtilsMessageSeverit
                                                       void*)
 {
     std::ostringstream message;
-    //if(messageSeverity == static_cast<VkDebugUtilsMessageTypeFlagsEXT>(vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning))
+    if(messageSeverity == static_cast<VkDebugUtilsMessageTypeFlagsEXT>(vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning))
     {
-    //    return vk::False;
+        return vk::False;
     }
     message << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)) << ": "
             << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes)) << ":\n";

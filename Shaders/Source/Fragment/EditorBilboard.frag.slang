@@ -15,7 +15,6 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     : SV_Target
 {
 
-
     float4 bilboardTexture = textures[fsIn.mat.Features.albedoTextureIdx].Sample(fsIn.uv);
     if (bilboardTexture.w < 1.0) {
         discard;
