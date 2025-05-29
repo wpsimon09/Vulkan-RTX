@@ -284,9 +284,9 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
         auto& material = drawCall.second.material;
         if(drawCall.second.effect != currentEffect)
         {
+            currentEffect = drawCall.second.effect;
             drawCall.second.effect->BindPipeline(cmdB);
             currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
-            currentEffect = drawCall.second.effect;
         }
 
         if(drawCall.second.selected)
