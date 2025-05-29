@@ -134,7 +134,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
     auto depthPrePass = std::make_shared<VulkanUtils::VRasterEffect>(device, "Depth-PrePass effect",
                                                                         "Shaders/Compiled/DepthPrePass.vert.spv",
                                                                         "Shaders/Compiled/DepthPrePass.frag.spv",
-                                                                        descLayoutCache, EShaderBindingGroup::ForwardUnlit);
+                                                                        descLayoutCache, EShaderBindingGroup::ForwardUnlitNoMaterial);
     depthPrePass->SetVertexInputMode(EVertexInput::PositionOnly).SetDepthOpLess();
 
 
@@ -193,7 +193,6 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
         for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
 
-
             switch(e->GetBindingGroup())
             {
 
@@ -214,6 +213,9 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
                     //===================================
 
                 }
+                case EShaderBindingGroup::ForwardUnlitNoMaterial:{
+                    break;
+                }
 
                 case EShaderBindingGroup::Skybox: {
                     //====================================
@@ -224,7 +226,7 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
                 }
 
                 default: {
-                    throw std::runtime_error("Unsupported bindinggroup !");
+                   // throw std::runtime_error("Unsupported bindinggroup !");
                     break;
                 }
 
@@ -291,6 +293,19 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
                     break;
                 }
+            case EShaderBindingGroup::ForwardUnlitNoMaterial:{
+                    e->SetNumWrites(2, 0, 0);
+
+                    //===================================
+                    // global data
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    //===================================
+                    // std::vector<PerObjectData> SSBO.
+                    e->WriteBuffer(i, 1, 0, uniformBufferManager.GetPerObjectBuffer(i));
+
+                    break;
+                }
                 case EShaderBindingGroup::ForwardUnlit:{
                     e->SetNumWrites(7, 4, 0);
                     //===================================
@@ -300,10 +315,6 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
                     //===================================
                     // materials
                     e->WriteBuffer(i, 0, 1, uniformBufferManager.GetMaterialDescriptionBuffer(i));
-
-                    //===================================
-                    // lighting information
-                    e->WriteBuffer(i, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
 
                     //===================================
                     // std::vector<PerObjectData> SSBO.

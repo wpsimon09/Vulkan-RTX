@@ -96,16 +96,17 @@ void Application::Init()
 
     m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice,*m_uniformBufferManager,*m_rayTracingDataManager, *m_descriptorSetLayoutCache);
 
-    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance,*m_vulkanDevice,*m_rayTracingDataManager,  *m_uniformBufferManager, *m_effectsLibrary,
 
-                                                                    *m_descriptorSetLayoutCache,  *m_uiContext );
 
 
     auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_effectsLibrary);
     m_client->MountAssetsManger(std::move(assetManger));
     m_client->Init();
-
     m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
+
+    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance,*m_vulkanDevice,*m_rayTracingDataManager,  *m_uniformBufferManager, *m_effectsLibrary,
+
+                                                                    *m_descriptorSetLayoutCache,  *m_uiContext );
 
 
     m_renderingSystem->Init();

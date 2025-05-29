@@ -55,6 +55,7 @@ enum EVertexInput
 enum EShaderBindingGroup {
     ForwardLit,
     ForwardUnlit,
+    ForwardUnlitNoMaterial,
     Debug,
     NullBinding,
     Skybox,
