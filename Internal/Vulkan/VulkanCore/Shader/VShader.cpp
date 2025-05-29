@@ -119,8 +119,6 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         newSetLayout.variableNames.reserve(reflSet.binding_count);
         descriptorSets[setIndex].descriptorFlags.resize(reflSet.binding_count);
 
-
-
         //===========================================
         // go through each binding in descriptor set
         for(uint32_t i_binding = 0; i_binding < reflSet.binding_count; i_binding++)

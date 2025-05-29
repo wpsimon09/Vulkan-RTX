@@ -60,6 +60,8 @@ void SceneRenderer::Render(int                                       currentFram
     //=====================================================
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
 
+    // descriptor set 0 is allways the samme
+    renderContext->drawCalls[0].second.effect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0 );
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
     {
         DepthPrePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
@@ -90,6 +92,8 @@ void SceneRenderer::DepthPrePass(int                                       curre
 
     m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
 
+    m_depthPrePassEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
+    m_depthPrePassEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 1);
 
     //==============================================
     // START RENDER PASS
@@ -171,8 +175,6 @@ void SceneRenderer::DepthPrePass(int                                       curre
             }
 
             PushDrawCallId(cmdB, drawCall.second);
-
-            m_depthPrePassEffect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
 
             cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
                              drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
@@ -275,11 +277,16 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
     // RECORD OPAQUE DRAW CALLS
     //=================================================
     currentEffect->BindPipeline(cmdB);
+
+    currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
+    currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 1);
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
         auto& material = drawCall.second.material;
         if(drawCall.second.effect != currentEffect)
         {
+            currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
+            currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 1);
             drawCall.second.effect->BindPipeline(cmdB);
             currentEffect = drawCall.second.effect;
         }
@@ -311,7 +318,6 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
 
         PushDrawCallId(cmdB, drawCall.second);
 
-        drawCall.second.effect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
 
         cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
                          drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
