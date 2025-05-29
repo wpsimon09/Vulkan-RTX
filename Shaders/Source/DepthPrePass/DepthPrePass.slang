@@ -1,5 +1,6 @@
 import Core;
 import Material;
+#include "ShaderBindingGroups/ForwardUnlitNoMaterials.slang"
 
 struct VertexInput {
     float3 inPosition :POSITION ;
@@ -9,16 +10,10 @@ struct VertexOutput {
     float4 sv_position : SV_Position;
 }
 
-//=======================================
-// forward-lit no material binding group
-[[vk::binding(0,0)]]
-ConstantBuffer<GlobalData> globalData;
 
-[[vk::binding(1, 0)]]
-StructuredBuffer<PermodelData> perModelData ;
 
 [[vk::push_constant]]
-uint perObjectIndex;
+PerObjectPushConstatn perObjectPC;
 
 
 [shader("vertex")]
@@ -27,7 +22,7 @@ VertexOutput vertexMain(VertexInput VAO)
     // sotre for later
     float3 vertexPos = VAO.inPosition;
 
-    float3 FragmentWorldPos = mul(perModelData[perObjectIndex].modelMatrix, float4(vertexPos, 1.0)).xyz;
+    float3 FragmentWorldPos = mul(perModelData[perObjectPC.perObjectDataIndex].modelMatrix, float4(vertexPos, 1.0)).xyz;
 
     VertexOutput out;
     

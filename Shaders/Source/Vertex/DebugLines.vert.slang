@@ -11,7 +11,6 @@ struct VertexOutput {
 }
 
 
-
 [[vk::push_constant]]
 PerObjectPushConstatn perObjectPC;
 

@@ -279,15 +279,13 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
     currentEffect->BindPipeline(cmdB);
 
     currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
-    currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 1);
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
         auto& material = drawCall.second.material;
         if(drawCall.second.effect != currentEffect)
         {
-            currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
-            currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 1);
             drawCall.second.effect->BindPipeline(cmdB);
+            currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
             currentEffect = drawCall.second.effect;
         }
 

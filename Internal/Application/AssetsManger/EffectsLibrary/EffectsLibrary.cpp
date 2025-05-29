@@ -262,7 +262,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
                     //========================
                     // per model data
-                    e->WriteBuffer(i, 1, 0, uniformBufferManager.GetPerObjectBuffer(i));
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
 
                     break;
                 }
@@ -276,33 +276,20 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
                     //===================================
                     // materials
-                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
 
                     //===================================
                     // lighting information
-                    e->WriteBuffer(i, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+                    e->WriteBuffer(i, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
 
                     //===================================
                     // std::vector<PerObjectData> SSBO.
-                    e->WriteBuffer(i, 1, 0, uniformBufferManager.GetPerObjectBuffer(i));
+                    e->WriteBuffer(i, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
 
                     break;
                 }
                 case EShaderBindingGroup::RayTracing:{
 
-
-                    break;
-                }
-            case EShaderBindingGroup::ForwardUnlitNoMaterial:{
-                    e->SetNumWrites(2, 0, 0);
-
-                    //===================================
-                    // global data
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
-
-                    //===================================
-                    // std::vector<PerObjectData> SSBO.
-                    e->WriteBuffer(i, 1, 0, uniformBufferManager.GetPerObjectBuffer(i));
 
                     break;
                 }
@@ -314,16 +301,16 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
                     //===================================
                     // materials
-                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
 
                     //===================================
                     // std::vector<PerObjectData> SSBO.
-                    e->WriteBuffer(i, 1, 0, uniformBufferManager.GetPerObjectBuffer(i));
-
+                    e->WriteBuffer(i, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
                 }
 
                 case EShaderBindingGroup::Skybox: {
                     e->SetNumWrites(1, 0);
+
                     //====================================
                     // global data
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
