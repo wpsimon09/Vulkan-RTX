@@ -1,6 +1,5 @@
 import Utils;
-import Core;
-import Material;
+#include "ShaderBindingGroups/ForwardUnlit.slang"
 
 struct VertexInput {
     float3 inPosition :POSITION ;
@@ -19,19 +18,8 @@ struct VertexOutput {
 }
 
 [[vk_push_constant]]
-PerObjectPushConstatn perObjectPushConstant;
-
-[[vk::binding(0, 0)]]
-ConstantBuffer<GlobalData> globalData;
-
-[[vk::binding(1, 0)]]
-StructuredBuffer<Material> materials;
-
-[[vk::binding(0, 1)]]
-StructuredBuffer<PermodelData> perModelData ;
-
-[[vk::push_constant]]
 PerObjectPushConstatn perObjectPC;
+
 
 [shader("vertex")]
 VertexOutput vertexMain(VertexInput VAO) // VAO input{

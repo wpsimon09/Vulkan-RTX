@@ -1,4 +1,5 @@
 import Material;
+#include "ShaderBindingGroups/ForwardUnlit.slang"
 
 struct FragmentShaderIn
 {
@@ -6,9 +7,6 @@ struct FragmentShaderIn
     Material mat : OUT_MAT;
 
 };
-
-[[vk::binding(1, 1)]]
-Sampler2D textures[];
 
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn)

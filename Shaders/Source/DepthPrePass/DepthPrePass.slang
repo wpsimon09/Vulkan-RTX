@@ -9,12 +9,12 @@ struct VertexOutput {
     float4 sv_position : SV_Position;
 }
 
-
+//=======================================
+// forward-lit no material binding group
 [[vk::binding(0,0)]]
 ConstantBuffer<GlobalData> globalData;
 
-
-[[vk::binding(0, 1)]]
+[[vk::binding(1, 0)]]
 StructuredBuffer<PermodelData> perModelData ;
 
 [[vk::push_constant]]

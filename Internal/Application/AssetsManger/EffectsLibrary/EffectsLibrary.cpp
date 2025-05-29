@@ -72,7 +72,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     auto debugLine =
         std::make_shared<VulkanUtils::VRasterEffect>(device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv",
-                                                     "Shaders/Compiled/DebugLines.frag.spv", descLayoutCache, ForwardUnlit);
+                                                     "Shaders/Compiled/DebugLines.frag.spv", descLayoutCache, ForwardUnlitNoMaterial);
 
     debugLine->SetTopology(vk::PrimitiveTopology::eTriangleList)
         .SetCullNone()
@@ -88,7 +88,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     auto outline = std::make_shared<VulkanUtils::VRasterEffect>(device, "Outline", "Shaders/Compiled/DebugLines.vert.spv",
                                                                 "Shaders/Compiled/Outliines.frag.spv", descLayoutCache,
-                                                                EShaderBindingGroup::Debug);
+                                                                EShaderBindingGroup::ForwardUnlitNoMaterial);
 
     outline
         //->SetC()
@@ -103,7 +103,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     auto debugShapes = std::make_shared<VulkanUtils::VRasterEffect>(device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv",
                                                                     "Shaders/Compiled/DebugGeometry.frag.spv",
-                                                                    descLayoutCache, EShaderBindingGroup::Debug);
+                                                                    descLayoutCache, EShaderBindingGroup::ForwardUnlitNoMaterial);
 
     debugShapes->SetCullNone()
         .SetLineWidth(7)
@@ -252,7 +252,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
             switch(e->GetBindingGroup())
             {
-                case EShaderBindingGroup::Debug: {
+            case EShaderBindingGroup::ForwardUnlitNoMaterial: {
 
                     e->SetNumWrites(2, 0, 0);
 

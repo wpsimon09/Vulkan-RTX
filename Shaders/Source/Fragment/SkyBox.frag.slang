@@ -1,9 +1,10 @@
+#include "ShaderBindingGroups/SkyBox.slang"
+
+
 struct FragmentShaderIn {
     float3 localPos : OUT_LOCAL_POS;
 };
 
-[[vk::binding(3, 0)]]
-ConstantBuffer<SamplerCube> _skyBoxHDR;
 
 const float2 invAtan = float2(0.1591, 0.3183);
 

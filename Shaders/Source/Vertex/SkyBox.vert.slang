@@ -1,4 +1,5 @@
 import Core;
+#include "ShaderBindingGroups/SkyBox.slang"
 
 struct VertexInput {
     float3 inPosition :POSITION ;
@@ -14,8 +15,6 @@ struct VertexOutput {
     float4 sv_position : SV_Position;
 }
 
-[[vk::binding(0,0)]]
-ConstantBuffer<GlobalData> globalData;
 
 [shader("vertex")]
 VertexOutput vertexMain(VertexInput VAO) // VAO input{

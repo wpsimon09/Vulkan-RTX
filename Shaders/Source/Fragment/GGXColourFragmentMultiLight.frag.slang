@@ -2,6 +2,8 @@ import Material;
 import Light;
 import Surface;
 
+#include "ShaderBindingGroups/ForwardLit.slang"
+
 struct FragmentShaderIn
 {
     float3 normal : OUT_NORMAL; 
@@ -11,21 +13,6 @@ struct FragmentShaderIn
     Material material : OUT_MATERIAL;
 };
 
-
-[[vk::binding(2, 0)]]
-ConstantBuffer<LightInfo> _lightInfo;
-
-[[vk::binding(1, 1)]]
-Sampler2D textures[];
-
-[[vk::binding(2, 1)]]
-ConstantBuffer<SamplerCube> IrradianceMap;
-
-[[vk::binding(3, 1)]]
-ConstantBuffer<SamplerCube> PrefilterMap;
-
-[[vk::binding(4, 1)]]
-ConstantBuffer<Sampler2D> BRDF_Lut;
 
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn)
