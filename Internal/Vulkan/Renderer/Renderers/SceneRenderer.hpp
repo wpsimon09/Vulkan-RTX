@@ -69,13 +69,9 @@ namespace Renderer {
 
         void CreateRenderTargets(VulkanCore::VSwapChain* swapChain);
 
-    private:
-        void PushDataToGPU(const vk::CommandBuffer& cmdBuffer,
-                           int currentFrameIndex,
-                           int objectIndex,
-                           VulkanStructs::VDrawCallData& drawCall,
-                           const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+        void PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall );
 
+    private:
         // Vulkan context & managers
         const VulkanCore::VDevice& m_device;
         VulkanUtils::RenderContext* m_renderContextPtr;

@@ -105,7 +105,6 @@ void Application::Init()
     m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
     m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance,*m_vulkanDevice,*m_rayTracingDataManager,  *m_uniformBufferManager, *m_effectsLibrary,
-
                                                                     *m_descriptorSetLayoutCache,  *m_uiContext );
 
 
