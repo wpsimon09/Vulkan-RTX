@@ -2,6 +2,8 @@ import Material;
 import Light;
 import Surface;
 
+#include "ShaderBindingGroups/ForwardLit.slang"
+
 struct FragmentShaderIn
 {
     float3 normal : OUT_NORMAL; 
@@ -11,28 +13,6 @@ struct FragmentShaderIn
     Material material : OUT_MATERIAL;
 };
 
-struct LightInfo {
-    DirectionalLight dirLight;
-    // PointLight[10] pointLigths;
-    LightArray<PointLight, 20> pointLights;
-    LightArray<AreaLight, 4> areaLights;
-    float4 info;
-}
-
-[[vk::binding(2, 0)]]
-ConstantBuffer<LightInfo> _lightInfo;
-
-[[vk::binding(6, 0)]]
-ConstantBuffer<Sampler2D> _albedoMap;
-
-[[vk::binding(7, 0)]]
-ConstantBuffer<Sampler2D> _normalMap;
-
-[[vk::binding(8, 0)]]
-ConstantBuffer<Sampler2D> _armMap;
-
-[[vk::binding(9, 0)]]
-ConstantBuffer<Sampler2D> _emissiveMap;
 
 [shader("pixel")]
 float4 fragmentMain(FragmentShaderIn fsIn)
@@ -47,14 +27,14 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     PBRMaterial material;
     material.features = fsIn.material.Features;
     material.values = fsIn.material.Values;
-    material.albedo_map = _albedoMap;
-    material.arm_map = _armMap;
-    material.normal_map = _normalMap;
-    material.emissive_map = _emissiveMap;
+    material.albedo_map = textures[fsIn.material.Features.albedoTextureIdx];
+    material.arm_map = textures[fsIn.material.Features.armTextureIdx];
+    material.normal_map = textures[fsIn.material.Features.normalTextureIdx];
+    material.emissive_map = textures[fsIn.material.Features.emissiveTextureIdx];
     let brdf_ = material.Prepare(g);
 
     if (material.features.hasNormalTexture) {
-        g.normal = normalize(SampleNormalMap(_normalMap, fsIn.uv, fsIn.normal, fsIn.fragPos));
+        g.normal = normalize(SampleNormalMap(material.normal_map, fsIn.uv, fsIn.normal, fsIn.fragPos));
     }
 
     LightPair<LightPair<DirectionalLight, LightArray<PointLight, 20>>, LightPair<LightArray<AreaLight,4>,AmbientLight>> lightingEnv;
@@ -67,6 +47,9 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     ambientLight.aoIntensity = _lightInfo.info.y;
     ambientLight.roughness = brdf_.roughness;
     ambientLight.applyIBL = bool(_lightInfo.info.x);
+    ambientLight.IrradianceMap = IrradianceMap;
+    ambientLight.PrefilterMap = PrefilterMap;
+    ambientLight.BRDF_Lut = BRDF_Lut;
 
     LightPair<LightArray<AreaLight, 4>, AmbientLight> AreaAndAmbient;
     AreaAndAmbient.first = _lightInfo.areaLights;
@@ -77,10 +60,17 @@ float4 fragmentMain(FragmentShaderIn fsIn)
 
     //CookTorrence_GGX brdf;
     float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
-   
-    float3 finalColor = lightingEnv.illuminate(g, brdf_, V);
 
-     return float4(finalColor, brdf_.albedo.w);
-    //return float4(g.normal, 1.0);
+    float3 finalColor = lightingEnv.illuminate(g, brdf_, V);
+    if (_lightInfo.info.x == 0) {
+
+        return float4(finalColor, brdf_.albedo.w);
+    } else {
+
+        return float4(0.2, 0.2, 1.0, 1.0);
+    }
+
+
+     //return float4(g.normal, 1.0);
 }
 

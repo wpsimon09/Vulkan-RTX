@@ -112,6 +112,8 @@ vk::DescriptorPool CreatePool(const VulkanCore::VDevice& devic, const VulkanCore
 
 void WriteMaterialToDescriptorSet(ApplicationCore::BaseMaterial* mat, VEffect& effect);
 
+std::string DescriptorTypeToString(vk::DescriptorType descriptorType);
+
 }  // namespace VulkanUtils
 
 #endif  //VGENERALUTILS_HPP

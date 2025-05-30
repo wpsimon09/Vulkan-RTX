@@ -184,6 +184,7 @@ struct VDrawCallData
 
     ApplicationCore::BaseMaterial*              material;
     std::shared_ptr<VulkanUtils::VRasterEffect> effect;
+    int                                         materialIndex;
 
     /**
     friend bool operator==(const VDrawCallData& lhs, const ObjectDataUniform& rhs)

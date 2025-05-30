@@ -27,8 +27,6 @@ void RenderingOptions::Render()
 
     if (ImGui::Button("Rebuild AS")) {
         auto input = m_scene.GetBLASInputs();
-
-        m_renderingSystem->GetRayTracingManager().InitAs(input);
     }
 
     ImGui::Checkbox("RTX ", &m_renderingSystem->m_isRayTracing);

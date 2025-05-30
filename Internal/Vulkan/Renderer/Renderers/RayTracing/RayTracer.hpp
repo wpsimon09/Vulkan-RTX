@@ -8,6 +8,12 @@
 #include <vector>
 
 
+namespace VulkanUtils {
+class VEffect;
+}
+namespace ApplicationCore {
+class EffectsLibrary;
+}
 struct SceneUpdateFlags;
 namespace VulkanUtils {
 class VRasterEffect;
@@ -40,8 +46,8 @@ class RayTracer
 {
   public:
     RayTracer(const VulkanCore::VDevice& device,
+              ApplicationCore::EffectsLibrary& effectsLibrary,
               VulkanUtils::VRayTracingDataManager& rtxDataManager,
-              VulkanCore::VDescriptorLayoutCache&  descLayoutCache,
               int width,
               int height);
 
@@ -60,13 +66,11 @@ class RayTracer
     const VulkanCore::VDevice&           m_device;
     VulkanUtils::VRayTracingDataManager& m_rtxDataManager;
 
-    std::unique_ptr<VulkanUtils::VRayTracingEffect> m_rtxEffect;
+    std::shared_ptr<VulkanUtils::VEffect> m_rtxEffect;
     std::unique_ptr<VulkanUtils::VRasterEffect> m_accumulationEffect;
 
     std::vector<std::unique_ptr<VulkanCore::VImage2>> m_resultImage;
     std::unique_ptr<VulkanCore::VImage2>              m_accumulationResultImage;
-
-    VulkanCore::VDescriptorLayoutCache&       m_descLayoutCache;
 
 };
 

@@ -17,22 +17,38 @@ namespace VulkanCore {
 struct ReflecSetLayoutData {
   uint32_t setNumber;
   vk::DescriptorSetLayoutCreateInfo createInfo;
+  // used to store descriptor flags (like : update after bind_bit, allow partially bound etc...)
+  vk::DescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo ;
+
   std::vector<vk::DescriptorSetLayoutBinding> bindings;
   std::vector<std::pair<std::string, SpvReflectShaderStageFlagBits>> shaderStages;
   std::vector<std::pair<std::string, vk::DescriptorType>> variableNames;
+
+  std::vector<vk::DescriptorBindingFlags> descriptorFlags;
+
+
+  vk::DescriptorSet setHandle;
+
   void Print() const;
+
 };
 
 struct ReflectionData {
   SpvReflectShaderModule moduleReflection;
   std::map<int , ReflecSetLayoutData> descriptorSets;
+  std::vector<vk::PushConstantRange> PCs;
+  std::string pushConstantName;
+
+
+  int bindingCount = 0;
+
 
   void Print() const ;
   void Init(const void* byteCode, size_t size);
   void AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage);
   void Destroy();
-};
 
+};
 
 class VShader : public VObject
 {

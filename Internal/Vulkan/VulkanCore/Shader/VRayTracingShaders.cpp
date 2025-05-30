@@ -53,17 +53,19 @@ void VRayTracingShaders::ReOrderBinding(std::optional<ReflectionData> reflection
         newLayoutData.bindings.push_back({4, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eAll});
         newLayoutData.bindings.push_back({5, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eAll});
         newLayoutData.bindings.push_back({6, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eAll});
+        newLayoutData.bindings.push_back({7, vk::DescriptorType::eCombinedImageSampler, 2000, vk::ShaderStageFlagBits::eAll});
 
         newLayoutData.bindings.shrink_to_fit();
 
 
-        newLayoutData.variableNames.push_back({"_globalData", vk::DescriptorType::eUniformBuffer});
-        newLayoutData.variableNames.push_back({"_lightInfo", vk::DescriptorType::eUniformBuffer});
-        newLayoutData.variableNames.push_back({"_objectInfo", vk::DescriptorType::eUniformBuffer});
-        newLayoutData.variableNames.push_back({"_tlas", vk::DescriptorType::eUniformBuffer});
-        newLayoutData.variableNames.push_back({"_resultImage", vk::DescriptorType::eUniformBuffer});
-        newLayoutData.variableNames.push_back({"_materialInfo", vk::DescriptorType::eUniformBuffer});
-        newLayoutData.variableNames.push_back({"_accumulationimage", vk::DescriptorType::eUniformBuffer});
+        newLayoutData.variableNames.push_back({"0:_globalData", vk::DescriptorType::eUniformBuffer});
+        newLayoutData.variableNames.push_back({"1:_lightInfo", vk::DescriptorType::eUniformBuffer});
+        newLayoutData.variableNames.push_back({"2:_objectInfo", vk::DescriptorType::eStorageBuffer});
+        newLayoutData.variableNames.push_back({"3:_tlas", vk::DescriptorType::eAccelerationStructureNV});
+        newLayoutData.variableNames.push_back({"4:_resultImage", vk::DescriptorType::eStorageImage});
+        newLayoutData.variableNames.push_back({"5:_materialInfo", vk::DescriptorType::eStorageBuffer});
+        newLayoutData.variableNames.push_back({"6:_accumulationimage", vk::DescriptorType::eStorageImage});
+        newLayoutData.variableNames.push_back({"7:_textures", vk::DescriptorType::eCombinedImageSampler});
 
         newLayoutData.setNumber = 0;
 

@@ -6,9 +6,9 @@
     
     static const float PI = 3.14159265359;
 
-    [[vk::binding(0, 0)]] ConstantBuffer<HDRToCubeMapPushData> pushData;
+    [[vk::push_constant]] HDRToCubeMapPushData pushData;
 
-    [[vk::binding(1, 0)]] ConstantBuffer<SamplerCube> hdrCubeMap;
+    [[vk::binding(0, 0)]] ConstantBuffer<SamplerCube> hdrCubeMap;
 
     struct VertexInput 
     {

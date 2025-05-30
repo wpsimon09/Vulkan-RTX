@@ -24,8 +24,14 @@ std::string& VEffect::GetName()
 {
     return m_name;
 }
-EShaderBindingGroup           VEffect::GetBindingGroup() { return m_bindingGroup;}
+EShaderBindingGroup VEffect::GetBindingGroup()
+{
+    return m_bindingGroup;
+}
 
+vk::StridedDeviceAddressRegionKHR VEffect::GetShaderBindingTableEntry(VulkanCore::RTX::ERayTracingStageIndices) {
+    throw std::runtime_error("This effect does not support ray tracing ensure that effect you are using is being used for ray tracing");
+}
 unsigned short VEffect::EvaluateRenderingOrder()
 {
     return 0;
@@ -39,20 +45,21 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
 {
     m_reflectionData = &reflectionData;
 
-    m_descriptorSets.reserve(reflectionData.descriptorSets.size());
+    m_descriptorSets.resize(reflectionData.descriptorSets.size());
+    m_descriptorSetLayouts.resize(reflectionData.descriptorSets.size());
 
     for(auto& set : reflectionData.descriptorSets)
     {
-        VulkanStructs::VDescriptorSet newSet;
+        VulkanStructs::VDescriptorSet reflectedSet;
 
-        newSet.layout = m_descriptorSetLayoutCache.CreateDescriptorSetLayout(&set.second.createInfo);
+        reflectedSet.layout = m_descriptorSetLayoutCache.CreateDescriptorSetLayout(&set.second.createInfo);
 
         // copy the layout for pieline creation
-        m_descriptorSetLayouts.push_back(newSet.layout);
-        newSet.sets.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+        m_descriptorSetLayouts[set.second.setNumber] = reflectedSet.layout;
+        reflectedSet.sets.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {
-            m_device.GetDescriptorAllocator().Allocate(&newSet.sets[i], newSet.layout);
+            m_device.GetDescriptorAllocator().Allocate(&reflectedSet.sets[i], reflectedSet.layout);
 
 
             // create writes
@@ -61,13 +68,14 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
                 vk::WriteDescriptorSet write;
                 write.descriptorCount = binding.descriptorCount;
                 write.descriptorType  = binding.descriptorType;
-                write.dstSet          = newSet.sets[i];  // 1 set for the frame
+                write.dstSet          = reflectedSet.sets[i];  // 1 set for the frame
                 write.dstBinding      = binding.binding;
 
-                newSet.writes[i][binding.binding] = write;
+                reflectedSet.writes[i][binding.binding] = write;
             }
         }
-        m_descriptorSets.push_back(newSet);
+        m_descriptorSets[set.second.setNumber] =  reflectedSet;
+
     }
 
     Utils::Logger::LogSuccess("Descriptor set layout created successfully");
@@ -97,15 +105,28 @@ void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::De
 }
 
     void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo imageInfo)
-    {
-        assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
-        assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
-        auto& write = m_descriptorSets[set].writes[frame][binding];
-        assert(write.descriptorType == vk::DescriptorType::eCombinedImageSampler || write.descriptorType == vk::DescriptorType::eSampledImage || write.descriptorType == vk::DescriptorType::eStorageImage);
+{
+    assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
+    assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
+    auto& write = m_descriptorSets[set].writes[frame][binding];
+    assert(write.descriptorType == vk::DescriptorType::eCombinedImageSampler || write.descriptorType == vk::DescriptorType::eSampledImage
+           || write.descriptorType == vk::DescriptorType::eStorageImage);
 
-        m_imageInfos.push_back(imageInfo);
-        write.pImageInfo = &m_imageInfos[m_imageInfos.size()-1];
-    }
+    m_imageInfos.push_back(imageInfo);
+    write.pImageInfo = &m_imageInfos[m_imageInfos.size() - 1];
+}
+void VEffect::WriteImageArray(uint32_t frame, uint32_t set,uint32_t binding, const std::vector<vk::DescriptorImageInfo>& imageInfos) {
+    assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
+    assert(m_imageInfos.capacity() >= imageInfos.capacity() && "Image array you are trying to write is too small for this set, adjust SetNumWrites accrodingly");
+    assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
+    auto& write = m_descriptorSets[set].writes[frame][binding];
+    assert(write.descriptorType == vk::DescriptorType::eCombinedImageSampler || write.descriptorType == vk::DescriptorType::eSampledImage
+           || write.descriptorType == vk::DescriptorType::eStorageImage);
+
+    m_imageInfos.insert(m_imageInfos.end(), imageInfos.begin(), imageInfos.end());
+    write.pImageInfo      = m_imageInfos.data();
+    write.descriptorCount = imageInfos.size();
+}
 
 void VEffect::WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR asInfo)
 {
@@ -136,8 +157,12 @@ void VEffect::ApplyWrites(uint32_t frame)
     {
         for(auto& write : set.writes[frame])
         {
-            if (write.second.pBufferInfo != nullptr || write.second.pImageInfo != nullptr || write.second.pNext != nullptr) {
+            if(write.second.pBufferInfo != nullptr || write.second.pImageInfo != nullptr || write.second.pNext != nullptr)
+            {
                 writes.push_back(write.second);
+                write.second.pBufferInfo = nullptr;
+                write.second.pImageInfo  = nullptr;
+                write.second.pNext       = nullptr;
             }
         }
     }
@@ -154,9 +179,12 @@ void VEffect::ApplyWrites(uint32_t frame)
 
     m_asWriteInfos.clear();
     m_asWriteInfos.shrink_to_fit();
-
 }
-
+void VEffect::CmdPushConstant(const vk::CommandBuffer& commandBuffer, const vk::PushConstantsInfo& info) {
+    if (m_reflectionData->PCs.size() > 0) {
+        commandBuffer.pushConstants2(info);
+    }
+}
 
 
 }  // namespace VulkanUtils

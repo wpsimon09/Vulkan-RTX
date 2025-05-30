@@ -5,6 +5,7 @@
 #ifndef VEFFECT_HPP
 #define VEFFECT_HPP
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
+#include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
 
 namespace VulkanCore {
 struct ReflectionData;
@@ -32,7 +33,8 @@ class VEffect
     virtual void                      BuildEffect()                                    = 0;
     virtual vk::PipelineLayout        GetPipelineLayout()                              = 0;
     virtual void                      BindPipeline(const vk::CommandBuffer& cmdBuffer) = 0;
-    virtual void                      Destroy()                                        = 0;
+    virtual void                      Destroy() = 0;
+    virtual vk::StridedDeviceAddressRegionKHR GetShaderBindingTableEntry(VulkanCore::RTX::ERayTracingStageIndices);
     unsigned short                    EvaluateRenderingOrder();
     int&                              GetID();
     void                              CreateLayouts(const VulkanCore::ReflectionData& reflectionData);
@@ -50,10 +52,13 @@ class VEffect
     //=====================================
     void WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorBufferInfo bufferInfo);
     void WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo imageInfo);
+    void WriteImageArray(uint32_t frame, uint32_t set,uint32_t binding, const  std::vector<vk::DescriptorImageInfo>& imageInfos);
     void WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR asInfo);
     void ApplyWrites(uint32_t frame);
 
     virtual void BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) = 0;
+
+    void CmdPushConstant(const vk::CommandBuffer& commandBuffer, const vk::PushConstantsInfo& info);
 
     //======================================
     // COPY OF RESOURCES
@@ -77,8 +82,11 @@ class VEffect
      * There can be multiple descriptor sets per pipeline therefore this is an array
      */
     std::vector<VulkanStructs::VDescriptorSet> m_descriptorSets;
+    // each set has a descriptor set laytou, for conviniece it is copied to this vector
     std::vector<vk::DescriptorSetLayout>       m_descriptorSetLayouts;
+    // raw pointer to reflection data from spir-v
     const VulkanCore::ReflectionData*          m_reflectionData;
+
     VulkanCore::VDescriptorLayoutCache&        m_descriptorSetLayoutCache;
 };
 

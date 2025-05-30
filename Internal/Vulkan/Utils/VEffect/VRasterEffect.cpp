@@ -18,7 +18,7 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
     CreateLayouts(shader.GetReflectionData());
 
 
-    m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_descriptorSetLayouts);
+    m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_descriptorSetLayouts, m_reflectionData->PCs);
     m_pipeline->Init();
 
 }
@@ -37,7 +37,7 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                         
     else throw std::runtime_error("Failed to retrieve reflection data from compiled SPIRV-Shader");
 
     m_pipeline =
-        std::make_unique<VulkanCore::VGraphicsPipeline>(device, m_shader.value(), m_descriptorSetLayouts);
+        std::make_unique<VulkanCore::VGraphicsPipeline>(device, m_shader.value(), m_descriptorSetLayouts, m_reflectionData->PCs);
     m_pipeline->Init();
 }
 
@@ -218,7 +218,10 @@ void VRasterEffect::Destroy()
     m_pipeline->Destroy();
 }
 void VRasterEffect::BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) {
-    cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipeline->GetPipelineLayout(), set, m_descriptorSets.size(), &m_descriptorSets[set].sets[frame], 0, nullptr);
+
+    for (int i = 0; i < m_descriptorSets.size(); ++i) {
+        cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipeline->GetPipelineLayout(), i, 1, &m_descriptorSets[i].sets[frame], 0, nullptr);
+    }
 }
 
 }  // namespace VulkanUtils

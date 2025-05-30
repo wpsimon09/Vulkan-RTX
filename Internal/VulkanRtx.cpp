@@ -88,18 +88,23 @@ void Application::Init()
 
     m_descriptorSetLayoutCache = std::make_unique<VulkanCore::VDescriptorLayoutCache>(*m_vulkanDevice);
 
+
     m_uniformBufferManager = std::make_unique<VulkanUtils::VUniformBufferManager>(*m_vulkanDevice);
 
-    m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice,*m_uniformBufferManager, *m_descriptorSetLayoutCache);
+
+    m_rayTracingDataManager = std::make_unique<VulkanUtils::VRayTracingDataManager>(*m_vulkanDevice);
+
+    m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice,*m_uniformBufferManager,*m_rayTracingDataManager, *m_descriptorSetLayoutCache);
+
+
+
+
     auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_effectsLibrary);
     m_client->MountAssetsManger(std::move(assetManger));
     m_client->Init();
-
-
     m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
-    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_uniformBufferManager,
-
+    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance,*m_vulkanDevice,*m_rayTracingDataManager,  *m_uniformBufferManager, *m_effectsLibrary,
                                                                     *m_descriptorSetLayoutCache,  *m_uiContext );
 
 
@@ -119,8 +124,9 @@ void Application::Init()
     m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU(true);
     m_client->GetScene().Update();
     auto inputs =m_client->GetScene().GetBLASInputs();
-    m_renderingSystem->GetRayTracingManager().InitAs(inputs);
+    m_rayTracingDataManager->InitAs(inputs);
 
+    m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU();
 }
 
 void Application::MainLoop()
@@ -172,14 +178,15 @@ void Application::Update()
 
     if (m_client->GetScene().GetSceneUpdateFlags().updateAs) {
         auto blasInput = m_client->GetScene().GetBLASInputs();
-        m_renderingSystem->GetRayTracingManager().UpdateAS(blasInput);
+        m_rayTracingDataManager->UpdateAS(blasInput);
         Utils::Logger::LogInfo("Updating AS");
     }
 
     if (m_client->GetScene().GetSceneUpdateFlags().rebuildAs
         ) {
         auto blasInpu = m_client->GetScene().GetBLASInputs();
-        m_renderingSystem->GetRayTracingManager().InitAs(blasInpu);
+        // implicity destroys all used resources, so no cleanup of previous resources is needed
+        m_rayTracingDataManager->InitAs(blasInpu);
         Utils::Logger::LogInfo("Rebuilding AS");
     }
 

@@ -8,6 +8,9 @@ StructuredBuffer<ObjDescription> descriptions;
 [[vk::binding(5, 0)]]
 StructuredBuffer<Material> materialValues;
 
+[[vk::binding(7, 0)]]
+DescriptorHandle<Sampler2D> textures[];
+
 public struct ObjDescription {
     public Vertex* vertexAddresses;
     public int* indexAddress;
@@ -25,9 +28,6 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
 
     ObjDescription object = descriptions[instanceIndex];
     Material mat = materialValues[instanceIndex];
-
-    // Vertex *vertexBuffer = (Vertex *)(object.vertexAddresses); // Cast to Vertex pointer
-    // int *indexBuffer = (int *)(object.indexAddress);        // Cast to int pointer (assuming indices are integers)
 
     // //=================================================
     // // for each vertex there is one index that can
@@ -56,11 +56,17 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     return g;
 }
 
-public Material GetMaterial(uint32_t instanceIndex) {
-    Material mat;
-    mat.Features = materialValues[instanceIndex].Features;
-    mat.Values = materialValues[instanceIndex].Values;
-    return mat;
+public PBRMaterial GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
+    PBRMaterial pbrMat;
+    pbrMat.features = materialValues[instanceIndex].Features;
+    pbrMat.values = materialValues[instanceIndex].Values;
+    pbrMat.albedo_map = textures[pbrMat.features.albedoTextureIdx];
+    pbrMat.normal_map = textures[pbrMat.features.normalTextureIdx];
+    pbrMat.arm_map = textures[pbrMat.features.armTextureIdx];
+    pbrMat.emissive_map = textures[pbrMat.features.emissiveTextureIdx];
+    pbrMat.Prepare(g);
+
+    return pbrMat;
 }
 
 

@@ -4,6 +4,7 @@
 
 #include "RenderingSystem.hpp"
 
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Lightning/LightStructs.hpp"
 #include "Application/Utils/ApplicationUtils.hpp"
@@ -37,7 +38,9 @@
 namespace Renderer {
 RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         instance,
                                  const VulkanCore::VDevice&                device,
-                                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                                 VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
+                                  VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                                 ApplicationCore::EffectsLibrary&          effectsLybrary,
                                  VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
                                  VEditor::UIContext&                       uiContext)
     : m_device(device)
@@ -46,6 +49,8 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     , m_uiContext(uiContext)
     , m_descLayoutCache(descLayoutCache)
     , m_transferSemapohore(device.GetTransferOpsManager().GetTransferSemaphore())
+    , m_effectsLibrary(&effectsLybrary)
+
 {
 
     //---------------------------------------------------------------------------------------------------------------------------
@@ -59,21 +64,23 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_renderingTimeLine.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_imageAvailableSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_renderingCommandBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-    m_ableToPresentSemaphore.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_ableToPresentSemaphore[i]   = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_renderingTimeLine[i]        = std::make_unique<VulkanCore::VTimelineSemaphore>(m_device, 8);
         m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_renderingCommandBuffers[i]  = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_renderingCommandPool);
     }
+    m_ableToPresentSemaphore.resize(m_swapChain->GetImageCount());
+
+    for (int i = 0; i < m_swapChain->GetImageCount(); i++)
+        m_ableToPresentSemaphore[i]   = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
 
     //----------------------------------------------------------------------------------------------------------------------------
     // Renderers creation
     //----------------------------------------------------------------------------------------------------------------------------
 
-    m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, descLayoutCache,
+    m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, effectsLybrary, descLayoutCache,
                                                                 GlobalVariables::RenderTargetResolutionWidth,
                                                                 GlobalVariables::RenderTargetResolutionHeight);
 
@@ -84,13 +91,8 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_envLightGenerator = std::make_unique<VulkanUtils::VEnvLightGenerator>(m_device, descLayoutCache);
 
 
-    //----------------------------------------------------------------------------------------------------------------------------
-    // Ray tracing initialization
-    //----------------------------------------------------------------------------------------------------------------------------
-    m_rayTracingDataManager = std::make_unique<VulkanUtils::VRayTracingDataManager>(m_device);
-
     auto cam    = m_uiContext.GetClient().GetCamera();
-    m_rayTracer = std::make_unique<RayTracer>(m_device, *m_rayTracingDataManager, descLayoutCache, 1980, 1080);
+    m_rayTracer = std::make_unique<RayTracer>(m_device, effectsLybrary, rayTracingDataManager , 1980, 1080);
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }
@@ -100,12 +102,12 @@ void RenderingSystem::Init()
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetRenderedImage(i), i);
-        //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_envLightGenerator->GetBRDFLut(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_rayTracer->GetRenderedImage(i), i);
     }
 }
 
-void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
+void RenderingSystem::Render(
+                             LightStructs::SceneLightInfo& sceneLightInfo,
                              ApplicationCore::SceneData&   sceneData,
                              GlobalUniform&                globalUniformUpdateInfo,
                              SceneUpdateFlags&             sceneUpdateFlags)
@@ -177,6 +179,8 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
     m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
     m_uniformBufferManager.UpdateSceneDataInfo(m_currentFrameIndex, sceneData);
 
+
+
     m_device.GetTransferOpsManager().UpdateGPU();
     m_transferSemapohore.CpuWaitIdle(2);
     m_transferSemapohore.Reset();
@@ -196,6 +200,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
     m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
 
+    m_effectsLibrary->UpdatePerFrameWrites(&m_renderContext, m_uniformBufferManager);
 
     //============================================================
     // start recording command buffer that will render the scene
@@ -228,11 +233,12 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
     const std::vector<vk::Semaphore> waitSemaphores   = {m_transferSemapohore.GetSemaphore(),
                                                          m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
     const std::vector<vk::Semaphore> signalSemaphores = {m_renderingTimeLine[m_currentFrameIndex]->GetSemaphore(),
-                                                         m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive()};
+                                                         m_ableToPresentSemaphore[m_currentImageIndex]->GetSyncPrimitive()};
 
     std::vector<vk::PipelineStageFlags> waitStages = {
-        vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
-        vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eNone
+        vk::PipelineStageFlagBits::eTransfer | vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
+        vk::PipelineStageFlagBits::eTransfer | vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
+
         // Transfer wait stage
     };
 
@@ -266,7 +272,7 @@ void RenderingSystem::Render(LightStructs::SceneLightInfo& sceneLightInfo,
     assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 
     m_uiRenderer->Present(m_currentImageIndex, *m_renderingTimeLine[m_currentFrameIndex],
-                          m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive());
+                          m_ableToPresentSemaphore[m_currentImageIndex]->GetSyncPrimitive());
 
     m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
 }
@@ -279,12 +285,13 @@ void RenderingSystem::Update()
 
 void RenderingSystem::Destroy()
 {
-    m_rayTracingDataManager->Destroy();
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_imageAvailableSemaphores[i]->Destroy();
-        m_ableToPresentSemaphore[i]->Destroy();
         m_renderingTimeLine[i]->Destroy();
+    }
+    for (int i = 0; i < m_swapChain->GetImageCount(); i++) {
+        m_ableToPresentSemaphore[i]->Destroy();
     }
     m_sceneRenderer->Destroy();
     m_uiRenderer->Destroy();

@@ -3,9 +3,9 @@
         float4x4 projectionView;
     };
 
-    [[vk::binding(0, 0)]] ConstantBuffer<HDRToCubeMapPushData> pushData;
+    [[vk::push_constant]] HDRToCubeMapPushData pushData;
 
-    [[vk::binding(1, 0)]] ConstantBuffer<Sampler2D> hdrMap;
+    [[vk::binding(0, 0)]] ConstantBuffer<Sampler2D> hdrMap;
 
     struct VertexInput 
     {

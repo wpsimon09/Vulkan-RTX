@@ -32,6 +32,11 @@ class VUniform
     std::vector<vk::DescriptorBufferInfo>             m_bufferInfo;
 };
 
+template <typename>
+class VUniformDynamic {
+
+};
+
 template <typename T>
 VUniform<T>::VUniform(const VulkanCore::VDevice& device, bool oneTime, bool makeDeviceAddress)
 {

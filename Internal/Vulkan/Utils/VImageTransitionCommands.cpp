@@ -159,7 +159,7 @@ void VulkanUtils::EvaluateBarrierMasks(vk::ImageLayout targetLayout, vk::ImageLa
         barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentRead;
 
         srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-        dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput ;
     }
     else if(currentLayout == vk::ImageLayout::eUndefined && targetLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
     {
@@ -195,7 +195,7 @@ void VulkanUtils::EvaluateBarrierMasks(vk::ImageLayout targetLayout, vk::ImageLa
     }
     else if(currentLayout == vk::ImageLayout::ePresentSrcKHR && targetLayout == vk::ImageLayout::eColorAttachmentOptimal)
     {
-        barrier.srcAccessMask = {};
+        barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
         barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
 
         srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;

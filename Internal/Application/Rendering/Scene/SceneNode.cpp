@@ -272,6 +272,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         data.position = m_transformation->GetPosition();
         data.bounds   = &m_mesh->GetMeshData()->bounds;
         data.material = m_mesh->m_currentMaterial.get();
+        data.modelMatrix = m_materialIdx;
 
         if(m_sceneNodeMetaData.IsSelected)
             data.selected = true;
