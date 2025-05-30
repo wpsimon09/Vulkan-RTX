@@ -16,6 +16,8 @@
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore {
 EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
@@ -146,10 +148,10 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
     rtxShaderPaths.missPath       = "Shaders/Compiled/SimpleRayTracing.miss.spv";
     rtxShaderPaths.missShadowPath = "Shaders/Compiled/SimpleRayTracing.miss2.spv";
     rtxShaderPaths.rayHitPath     = "Shaders/Compiled/SimpleRayTracing.chit.spv";
-    //auto rayTracingEffect =
-      //  std::make_shared<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Ray tracing ", m_descLayoutCache);
+    auto rayTracingEffect =
+        std::make_shared<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Ray tracing ", m_descLayoutCache);
 
-    //effects[EEffectType::RayTracing] = std::move(rayTracingEffect);
+    effects[EEffectType::RayTracing] = std::move(rayTracingEffect);
 
 
 
@@ -199,7 +201,15 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
                 case EShaderBindingGroup::ForwardLit: {
 
                     e->SetNumWrites(0, 1200, 0);
-                    e->WriteImageArray(i, 0, 4, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
+                    e->WriteImageArray(i, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
+
+                    if (renderingContext->irradianceMap) {
+                        e->WriteImage(i, 1, 2,  renderingContext->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
+                    }if (renderingContext->prefilterMap) {
+                        e->WriteImage(i, 1, 3,  renderingContext->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
+                    }if (renderingContext->irradianceMap) {
+                        e->WriteImage(i, 1, 4,  renderingContext->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    }
                     break;
                 }
                 case EShaderBindingGroup::RayTracing:{
@@ -209,8 +219,8 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
                     break;
                 }
                 case EShaderBindingGroup::ForwardUnlit:{
-                    e->SetNumWrites(4, 4, 0);
-                    //===================================
+                    e->SetNumWrites(0, 1200, 0);
+                    e->WriteImageArray(i, 1, 0, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
 
                 }
                 case EShaderBindingGroup::ForwardUnlitNoMaterial:{
@@ -220,8 +230,10 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
                 case EShaderBindingGroup::Skybox: {
                     //====================================
                     // global data
-                    e->SetNumWrites(1, 0);
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+                    e->SetNumWrites(0, 1);
+                    if (renderingContext->hdrCubeMap) {
+                        e->WriteImage(i, 1, 0, renderingContext->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    }
                     break;
                 }
 

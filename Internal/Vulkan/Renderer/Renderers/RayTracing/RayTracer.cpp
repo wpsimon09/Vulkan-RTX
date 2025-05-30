@@ -203,8 +203,7 @@ VulkanCore::VImage2& RayTracer::GetRenderedImage(int currentFrameIndex)
 
 void RayTracer::Destroy()
 {
-    m_rtxEffect->Destroy();
-    m_accumulationEffect->Destroy();
+    m_rtxDataManager.Destroy();
     for(auto& i : m_resultImage)
     {
         i->Destroy();

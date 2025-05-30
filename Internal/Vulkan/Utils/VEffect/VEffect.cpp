@@ -157,9 +157,12 @@ void VEffect::ApplyWrites(uint32_t frame)
     {
         for(auto& write : set.writes[frame])
         {
-            assert(write.second.descriptorCount > 0 && "Descriptor write must have descriptorCount > 0");
             if (write.second.pBufferInfo != nullptr || write.second.pImageInfo != nullptr || write.second.pNext != nullptr) {
                 writes.push_back(write.second);
+                write.second.pBufferInfo = nullptr;
+                write.second.pImageInfo = nullptr;
+                write.second.pNext = nullptr;
+
             }
         }
     }
