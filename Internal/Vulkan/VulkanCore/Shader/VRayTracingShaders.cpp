@@ -53,7 +53,7 @@ void VRayTracingShaders::ReOrderBinding(std::optional<ReflectionData> reflection
         newLayoutData.bindings.push_back({4, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eAll});
         newLayoutData.bindings.push_back({5, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eAll});
         newLayoutData.bindings.push_back({6, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eAll});
-        newLayoutData.bindings.push_back({7, vk::DescriptorType::eCombinedImageSampler, 2000, vk::ShaderStageFlagBits::eAll});
+        newLayoutData.bindings.push_back({7, vk::DescriptorType::eCombinedImageSampler, 1300, vk::ShaderStageFlagBits::eAll});
 
         newLayoutData.bindings.shrink_to_fit();
 

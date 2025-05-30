@@ -98,7 +98,7 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                                                     vk::ImageLayout::eShaderReadOnlyOptimal, cmdB);
 
 
-    m_rtxEffect->SetNumWrites(4, 2, 1);
+    m_rtxEffect->SetNumWrites(4, 10, 1);
 
     m_rtxEffect->WriteBuffer(currentFrame, 0, 0, unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
     m_rtxEffect->WriteBuffer(currentFrame, 0, 1, unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
@@ -115,6 +115,11 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     //m_rtxEffect->GetReflectionData()->Print();
 
     // update descriptor sets
+    m_rtxEffect->ApplyWrites(currentFrame);
+
+    m_rtxEffect->SetNumWrites(0, 1200, 0);
+    m_rtxEffect->WriteImageArray(currentFrame, 0, 7, unifromBufferManager.GetAll2DTextureDescriptorImageInfo());
+
     m_rtxEffect->ApplyWrites(currentFrame);
 
     // bind them

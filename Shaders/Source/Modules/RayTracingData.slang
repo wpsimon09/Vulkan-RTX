@@ -9,7 +9,7 @@ StructuredBuffer<ObjDescription> descriptions;
 StructuredBuffer<Material> materialValues;
 
 [[vk::binding(7, 0)]]
-DescriptorHandle<Sampler2D> textures[];
+Sampler2D textures[];
 
 public struct ObjDescription {
     public Vertex* vertexAddresses;

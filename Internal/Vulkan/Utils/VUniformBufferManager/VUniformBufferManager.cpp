@@ -60,6 +60,7 @@ std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2
     result.reserve(m_sceneTextures.size());
     for(auto& texture : m_sceneTextures)
     {
+        assert(texture->GetHandle()->GetImageInfo().isStorage == false && "Image can not be storage buffer" );
         result.emplace_back(texture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     }
     return result;
