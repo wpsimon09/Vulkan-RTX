@@ -30,7 +30,6 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
         std::make_shared<VulkanUtils::VRasterEffect>(device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv",
                                                      "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
                                                      descLayoutCache, EShaderBindingGroup::ForwardLit);
-
     frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
 
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)

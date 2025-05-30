@@ -107,12 +107,14 @@ void RenderingSystem::Init()
 }
 
 void RenderingSystem::Render(
+                             bool resizeSwapChain,
                              LightStructs::SceneLightInfo& sceneLightInfo,
                              ApplicationCore::SceneData&   sceneData,
                              GlobalUniform&                globalUniformUpdateInfo,
                              SceneUpdateFlags&             sceneUpdateFlags)
 {
     m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
+
 
     m_sceneLightInfo = &sceneLightInfo;
 
@@ -122,18 +124,25 @@ void RenderingSystem::Render(
     auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
                                                                 *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
 
-    switch(imageIndex.first)
+    if (resizeSwapChain) {
+        imageIndex.first = vk::Result::eErrorOutOfDateKHR;
+    }
+        switch(imageIndex.first)
     {
         case vk::Result::eSuccess: {
             m_currentImageIndex = imageIndex.second;
             Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
             break;
         }
-        case vk::Result::eErrorOutOfDateKHR: {
+        case vk::Result::eErrorOutOfDateKHR : {
 
             m_swapChain->RecreateSwapChain();
 
             m_uiRenderer->GetRenderTarget().HandleSwapChainResize(*m_swapChain);
+
+            // to silent validation layers i will recreate the semaphore
+            m_ableToPresentSemaphore[m_currentImageIndex]->Destroy();
+            m_ableToPresentSemaphore[m_currentImageIndex] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
 
             m_renderingTimeLine[m_currentFrameIndex]->Reset();
             m_renderingTimeLine[m_currentFrameIndex]->CpuSignal(8);
@@ -149,6 +158,8 @@ void RenderingSystem::Render(
         default:
             break;
     }
+
+
 
 
     m_renderingTimeLine[m_currentFrameIndex]->Reset();

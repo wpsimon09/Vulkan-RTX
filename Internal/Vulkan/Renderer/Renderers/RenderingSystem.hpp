@@ -75,7 +75,7 @@ public:
                     VEditor::UIContext&                       uiContext);
 
     void Init();
-    void Render(LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalUniform& globalUniformUpdateInfo, SceneUpdateFlags& sceneUpdateFlags);
+    void Render(bool resizeSwapChain, LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalUniform& globalUniformUpdateInfo, SceneUpdateFlags& sceneUpdateFlags);
     void Update();
     void Destroy();
 
