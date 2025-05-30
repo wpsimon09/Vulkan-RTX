@@ -172,8 +172,8 @@ struct VDrawCallData
 
     mutable int drawCallID = 0;
 
-    glm::mat4 modelMatrix;
-    glm::vec3 position;
+    glm::mat4 modelMatrix {};
+    glm::vec3 position {};
 
     float depth = -1.0f;
 
@@ -184,7 +184,7 @@ struct VDrawCallData
 
     ApplicationCore::BaseMaterial*              material;
     std::shared_ptr<VulkanUtils::VRasterEffect> effect;
-    int                                         materialIndex;
+    int                                         materialIndex = 0;
 
     /**
     friend bool operator==(const VDrawCallData& lhs, const ObjectDataUniform& rhs)

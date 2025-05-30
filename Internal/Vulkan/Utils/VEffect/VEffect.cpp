@@ -142,10 +142,10 @@ void VEffect::WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t 
     asWrite.accelerationStructureCount = 1;
     asWrite.pAccelerationStructures    = &m_asInfos[m_asInfos.size()-1];
 
+    m_asWriteInfos.push_back(asWrite);
 
     write.pNext = &m_asWriteInfos[m_asInfos.size() - 1];
 
-    m_asWriteInfos.push_back(asWrite);
 }
 
 

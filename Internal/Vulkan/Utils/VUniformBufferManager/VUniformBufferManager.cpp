@@ -45,13 +45,6 @@ const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager:
     return m_lightUniform->GetDescriptorBufferInfos();
 }
 
-
-const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::GetPerObjectDescriptorBufferInfo(int meshIndex) const
-{
-    // returns 2 buffer descriptor info for each frame in flight
-    return m_perObjectUniform[meshIndex]->GetDescriptorBufferInfos();
-}
-
 vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPerObjectBuffer(int currentFrame) {
     vk::DescriptorBufferInfo bufferInfo;
     bufferInfo.buffer = m_perObjectData[currentFrame]->GetBuffer();
@@ -116,6 +109,7 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
     }
 
 
+    m_perObjectData[frameIndex]->Update(perObjectData);
 
     m_currentDrawCalls = drawCalls.size();
 }
@@ -186,10 +180,7 @@ void VulkanUtils::VUniformBufferManager::Destroy() const
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager and all its data...");
     m_perFrameUniform->Destory();
     m_lightUniform->Destory();
-    for(auto& ubo : m_perObjectUniform)
-    {
-        ubo->Destory();
-    }
+
 
     for (auto& ssbo : m_sceneMaterials) {
         ssbo->Destroy();
@@ -209,18 +200,9 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     GlobalState::DisableLogging();
     Utils::Logger::LogSuccess("Allocated 100 uniform buffers for per object data");
 
-    m_perObjectUniform.resize(MAX_UBO_COUNT);
-    m_sceneMaterials.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-
-    for(int i = 0; i < MAX_UBO_COUNT; i++)
-    {
-        m_perObjectUniform[i] = (std::make_unique<VUniform<ObjectDataUniform>>(m_device));
-
-        //m_rayTracingMaterials[i] = (std::make_unique<VUniform<PBRMaterialDescription>>(m_device));
-    }
-
     m_sceneMaterials.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_perObjectData.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+
     for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
         m_sceneMaterials[i] = std::make_unique<VulkanCore::VShaderStorageBuffer>(m_device, MATERIAL_BUFFER_SIZE);
         m_sceneMaterials[i]->Allocate();

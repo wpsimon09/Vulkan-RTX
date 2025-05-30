@@ -106,6 +106,7 @@ void RenderingOptions::RenderDrawCallListWidndow(Renderer::RenderingSystem* rend
             ImGui::Text("Instance Count: %u", drawCall.second.instanceCount);
             ImGui::Text("Vertex buffer ID: %i", drawCall.second.vertexData->BufferID);
             ImGui::Text("Index  buffer ID: %i", drawCall.second.indexData->BufferID);
+            ImGui::Text("Material ID: %i", drawCall.second.materialIndex);
 
             ImGui::SeparatorText("Appearance info");
 

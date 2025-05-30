@@ -155,7 +155,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
 
     BuildAllEffects();
-    ConfigureDescriptorWrites(uniformBufferManager);
+    ConfigureDescriptorWrites(uniformBufferManager, rtxDataManager);
 }
 
 std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type)
@@ -213,8 +213,6 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
                 }
                 case EShaderBindingGroup::RayTracing:{
 
-                    e->SetNumWrites(4, 4, 0);
-
                     break;
                 }
                 case EShaderBindingGroup::ForwardUnlit:{
@@ -250,7 +248,7 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
     }
 }
 
-void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager& uniformBufferManager)
+void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager)
 {
     for(auto& effect : effects)
     {
@@ -300,6 +298,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
                     break;
                 }
                 case EShaderBindingGroup::RayTracing:{
+
 
 
                     break;

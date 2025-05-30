@@ -62,10 +62,9 @@ class VUniformBufferManager
   private:
     const VulkanCore::VDevice& m_device;
 
+    // TODO: this will be storage buffer
     std::unique_ptr<VUniform<LightUniforms>>              m_lightUniform;
     std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>> m_perFrameUniform;
-
-    std::vector<std::unique_ptr<VulkanUtils::VUniform<ObjectDataUniform>>> m_perObjectUniform;
 
     //=======================================================
     // storage buffers containing all of the data for materials

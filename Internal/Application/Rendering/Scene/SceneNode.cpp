@@ -274,6 +274,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         data.material = m_mesh->m_currentMaterial.get();
         data.modelMatrix = m_materialIdx;
 
+
         if(m_sceneNodeMetaData.IsSelected)
             data.selected = true;
         renderingContext->AddDrawCall(data);
@@ -286,6 +287,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
             data.modelMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(1.0f + GlobalVariables::RenderingOptions::OutlineWidth));
             renderingContext->AddDrawCall(data);
         }
+        data.materialIndex = m_materialIdx;
 
         //=====================================================
         // BOUNDING VOLUME STUFF
