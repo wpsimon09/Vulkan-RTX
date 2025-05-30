@@ -186,26 +186,6 @@ struct VDrawCallData
     std::shared_ptr<VulkanUtils::VRasterEffect> effect;
     int                                         materialIndex = 0;
 
-    /**
-    friend bool operator==(const VDrawCallData& lhs, const ObjectDataUniform& rhs)
-    {
-        if(auto* lhsPBRMat = dynamic_cast<ApplicationCore::PBRMaterial*>(lhs.material))
-        {
-            auto& lhsMatDescription = lhsPBRMat->GetMaterialDescription();
-            auto& rhsMatDescription = rhs.material;
-
-            return lhsMatDescription.features == rhsMatDescription.features
-                   && lhsMatDescription.values == rhsMatDescription.values && lhs.modelMatrix == rhs.model
-                   && lhs.position == rhs.position;
-        }
-        else
-        {
-            return lhs.modelMatrix == rhs.model && lhs.position == rhs.position;
-        }
-    }
-
-    friend bool operator!=(const VDrawCallData& lhs, const ObjectDataUniform& rhs) { return !(lhs == rhs); }
-    */
 };
 
 /**

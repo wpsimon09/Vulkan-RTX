@@ -58,7 +58,6 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
 
     int i                   = 0;
     int shaderHitGroupIndex = 0;
-    // for now every instance will be every BLAS, i will have to later redo how scene is describing the
     for(auto& instance : blasInputs)
     {
 

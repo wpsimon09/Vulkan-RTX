@@ -245,6 +245,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
 
         VulkanStructs::VDrawCallData data;
         data.firstIndex = 1;
+        data.materialIndex = m_materialIdx;
 
         data.indexCount = m_mesh->GetMeshIndexCount();
         // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
@@ -287,7 +288,6 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
             data.modelMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(1.0f + GlobalVariables::RenderingOptions::OutlineWidth));
             renderingContext->AddDrawCall(data);
         }
-        data.materialIndex = m_materialIdx;
 
         //=====================================================
         // BOUNDING VOLUME STUFF

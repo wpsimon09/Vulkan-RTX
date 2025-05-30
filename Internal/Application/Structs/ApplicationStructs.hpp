@@ -126,7 +126,6 @@ struct SceneUpdateFlags {
     bool resetAccumulation = true;
 
     void Reset() {
-        rebuildAs = false;
         updateAs = false;
         resetAccumulation = false;
     }

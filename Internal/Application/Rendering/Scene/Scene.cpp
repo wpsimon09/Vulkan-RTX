@@ -27,7 +27,6 @@ namespace ApplicationCore {
 
 void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
 {
-    if (node->IsLight()) return;
     if(node->HasMesh())
     {
         auto& mesh = node->GetMesh();
@@ -45,18 +44,15 @@ void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
                 textures.emplace_back(tex.second);
                 auto& material = m->GetMaterialDescription().features;
                 switch (tex.first) {
-                case ETextureType::Diffues: material.albedoTextureIdx = textures.size(); break;
-                case ETextureType::normal: material.normalTextureIdx = textures.size(); break;
-                case ETextureType::arm: material.armTextureIdx = textures.size(); break;
-                case ETextureType::Emissive: material.emissiveTextureIdx = textures.size(); break;
-
+                case ETextureType::Diffues: material.albedoTextureIdx = textures.size() - 1; break;
+                case ETextureType::normal: material.normalTextureIdx = textures.size() - 1; break;
+                case ETextureType::arm: material.armTextureIdx = textures.size() - 1; break;
+                case ETextureType::Emissive: material.emissiveTextureIdx = textures.size() - 1; break;
                 }
                 i++;
             }
 
             pbrMaterials.emplace_back(&m->GetMaterialDescription());
-
-            auto matTextures = m->EnumarateTexture();
         }
     }
     nodes.emplace_back(node);
@@ -87,10 +83,10 @@ void SceneData::RemoveEntry(const ApplicationCore::SceneNode& node) {
 
 void SceneData::IndexNode(std::shared_ptr<ApplicationCore::SceneNode>& node) {
     if (node->HasMesh()) {
-        node->m_meshIdx = meshes.size();
-        node->m_materialIdx = pbrMaterials.size();
+        node->m_meshIdx = meshes.size()-1;
+        node->m_materialIdx = pbrMaterials.size()-1;
     }
-    node->m_nodeIndex = nodes.size();
+    node->m_nodeIndex = nodes.size() -1 ;
 }
 
 Scene::Scene(AssetsManager& assetsManager, Camera& camera)

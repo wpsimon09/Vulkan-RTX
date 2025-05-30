@@ -176,18 +176,24 @@ void Application::Update()
     m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
     m_editor->Update();
 
-    if (m_client->GetScene().GetSceneUpdateFlags().updateAs) {
-        auto blasInput = m_client->GetScene().GetBLASInputs();
-        m_rayTracingDataManager->UpdateAS(blasInput);
-        Utils::Logger::LogInfo("Updating AS");
-    }
-
     if (m_client->GetScene().GetSceneUpdateFlags().rebuildAs
         ) {
         auto blasInpu = m_client->GetScene().GetBLASInputs();
         // implicity destroys all used resources, so no cleanup of previous resources is needed
         m_rayTracingDataManager->InitAs(blasInpu);
         Utils::Logger::LogInfo("Rebuilding AS");
+
+        // TODO: this is hacky fix and not according to the standart
+        // this happens because i am reseting the rebuildAS because it is being flagged in Render() and Update() is before render
+        m_client->GetScene().GetSceneUpdateFlags().rebuildAs = false;
+
+    }
+
+    if (m_client->GetScene().GetSceneUpdateFlags().updateAs) {
+        auto blasInput = m_client->GetScene().GetBLASInputs();
+        m_rayTracingDataManager->UpdateAS(blasInput);
+        Utils::Logger::LogInfo("Updating AS");
+
     }
 
 }
@@ -211,6 +217,7 @@ void Application::PostRender()
 {
     m_vulkanDevice->GetTransferOpsManager().ClearResources();
     m_client->GetScene().Reset();
+
 }
 
 Application::~Application()

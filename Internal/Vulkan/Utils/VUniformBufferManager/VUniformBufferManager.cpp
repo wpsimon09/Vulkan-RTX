@@ -91,7 +91,6 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
 {
     assert(drawCalls.size() < MAX_UBO_COUNT && "Draw calls are bigger than allocated uniform buffers on GPU");
     int  i         = 0;
-    bool reloadAll = m_currentDrawCalls != drawCalls.size();
 
     //TODO: do not allocate new vector every time here instead allocate one that can fit at least 50% of the required buffer objects
     std::vector<PerObjectData> perObjectData (drawCalls.size());
