@@ -195,6 +195,10 @@ void VulkanUtils::VUniformBufferManager::Destroy() const
         ssbo->Destroy();
     }
 
+    for (auto& perObjectUbo : m_perObjectData) {
+        perObjectUbo->Destroy();
+    }
+
     Utils::Logger::LogInfoVerboseOnly("Uniform buffer manager destroyed");
 }
 
