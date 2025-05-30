@@ -68,5 +68,3 @@ public PBRMaterial GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
 
     return pbrMat;
 }
-
-
