@@ -64,15 +64,17 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_renderingTimeLine.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_imageAvailableSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_renderingCommandBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-    m_ableToPresentSemaphore.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_ableToPresentSemaphore[i]   = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_renderingTimeLine[i]        = std::make_unique<VulkanCore::VTimelineSemaphore>(m_device, 8);
         m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_renderingCommandBuffers[i]  = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_renderingCommandPool);
     }
+    m_ableToPresentSemaphore.resize(m_swapChain->GetImageCount());
+
+    for (int i = 0; i < m_swapChain->GetImageCount(); i++)
+        m_ableToPresentSemaphore[i]   = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
 
     //----------------------------------------------------------------------------------------------------------------------------
     // Renderers creation
@@ -231,7 +233,7 @@ void RenderingSystem::Render(
     const std::vector<vk::Semaphore> waitSemaphores   = {m_transferSemapohore.GetSemaphore(),
                                                          m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
     const std::vector<vk::Semaphore> signalSemaphores = {m_renderingTimeLine[m_currentFrameIndex]->GetSemaphore(),
-                                                         m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive()};
+                                                         m_ableToPresentSemaphore[m_currentImageIndex]->GetSyncPrimitive()};
 
     std::vector<vk::PipelineStageFlags> waitStages = {
         vk::PipelineStageFlagBits::eTransfer | vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
@@ -270,7 +272,7 @@ void RenderingSystem::Render(
     assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 
     m_uiRenderer->Present(m_currentImageIndex, *m_renderingTimeLine[m_currentFrameIndex],
-                          m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive());
+                          m_ableToPresentSemaphore[m_currentImageIndex]->GetSyncPrimitive());
 
     m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
 }
@@ -286,8 +288,10 @@ void RenderingSystem::Destroy()
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_imageAvailableSemaphores[i]->Destroy();
-        m_ableToPresentSemaphore[i]->Destroy();
         m_renderingTimeLine[i]->Destroy();
+    }
+    for (int i = 0; i < m_swapChain->GetImageCount(); i++) {
+        m_ableToPresentSemaphore[i]->Destroy();
     }
     m_sceneRenderer->Destroy();
     m_uiRenderer->Destroy();

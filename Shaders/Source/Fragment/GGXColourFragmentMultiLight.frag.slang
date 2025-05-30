@@ -60,10 +60,17 @@ float4 fragmentMain(FragmentShaderIn fsIn)
 
     //CookTorrence_GGX brdf;
     float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
-   
-    float3 finalColor = lightingEnv.illuminate(g, brdf_, V);
 
-     return float4(finalColor, brdf_.albedo.w);
-    //return float4(g.normal, 1.0);
+    float3 finalColor = lightingEnv.illuminate(g, brdf_, V);
+    if (_lightInfo.info.x == 0) {
+
+        return float4(finalColor, brdf_.albedo.w);
+    } else {
+
+        return float4(0.2, 0.2, 1.0, 1.0);
+    }
+
+
+     //return float4(g.normal, 1.0);
 }
 
