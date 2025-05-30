@@ -58,6 +58,8 @@ class VEffect
 
     virtual void BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) = 0;
 
+    void CmdPushConstant(const vk::CommandBuffer& commandBuffer, const vk::PushConstantsInfo& info);
+
     //======================================
     // COPY OF RESOURCES
     //======================================

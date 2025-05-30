@@ -352,7 +352,7 @@ void SceneRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStr
     pcInfo.pValues = &pc;
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex;
 
-    cmdBuffer.pushConstants2(pcInfo);
+    drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
 }
 
 void SceneRenderer::Destroy()

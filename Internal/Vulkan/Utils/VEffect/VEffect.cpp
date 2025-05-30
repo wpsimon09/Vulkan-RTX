@@ -157,12 +157,12 @@ void VEffect::ApplyWrites(uint32_t frame)
     {
         for(auto& write : set.writes[frame])
         {
-            if (write.second.pBufferInfo != nullptr || write.second.pImageInfo != nullptr || write.second.pNext != nullptr) {
+            if(write.second.pBufferInfo != nullptr || write.second.pImageInfo != nullptr || write.second.pNext != nullptr)
+            {
                 writes.push_back(write.second);
                 write.second.pBufferInfo = nullptr;
-                write.second.pImageInfo = nullptr;
-                write.second.pNext = nullptr;
-
+                write.second.pImageInfo  = nullptr;
+                write.second.pNext       = nullptr;
             }
         }
     }
@@ -179,9 +179,12 @@ void VEffect::ApplyWrites(uint32_t frame)
 
     m_asWriteInfos.clear();
     m_asWriteInfos.shrink_to_fit();
-
 }
-
+void VEffect::CmdPushConstant(const vk::CommandBuffer& commandBuffer, const vk::PushConstantsInfo& info) {
+    if (m_reflectionData->PCs.size() > 0) {
+        commandBuffer.pushConstants2(info);
+    }
+}
 
 
 }  // namespace VulkanUtils
