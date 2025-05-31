@@ -5,6 +5,7 @@
 #include "VulkanRtx.hpp"
 #include <GLFW/glfw3.h>
 #include <chrono>
+#include <exception>
 
 // Application Headers
 #include "Application/Logger/Logger.hpp"
@@ -226,9 +227,13 @@ Application::~Application()
 
     if(!GlobalVariables::hasSessionBeenSaved)
     {
-        for(const auto& entry : std::filesystem::directory_iterator(GlobalVariables::textureFolder))
-        {
-            std::filesystem::remove_all(entry.path());
+        try{
+                for(const auto& entry : std::filesystem::directory_iterator(GlobalVariables::textureFolder))
+                {
+                    std::filesystem::remove_all(entry.path());
+                }
+        }catch(std::exception& e){
+
         }
     }
     m_vulkanDevice->GetDevice().waitIdle();

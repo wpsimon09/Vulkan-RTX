@@ -19,6 +19,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
+#define SIZE_16MB 16777216
 
 namespace VulkanCore {
 MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device)
@@ -324,7 +325,7 @@ void MeshDatatManager::CreateNewVertexBuffers(bool createForBoundingBox)
     m_vertexBuffers.reserve(GlobalVariables::EngineOptions::VertexBufferChunkSize);
     Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
     VulkanStructs::VGPUBufferInfo newVertexBuffer{};
-    newVertexBuffer.size       = GlobalVariables::EngineOptions::VertexBufferChunkSize;
+    newVertexBuffer.size       = GlobalVariables::EngineOptions::VertexBufferChunkSize > 0 ? GlobalVariables::EngineOptions::VertexBufferChunkSize : SIZE_16MB ;
     newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst
                                  | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
                                     | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR;
@@ -341,7 +342,7 @@ void MeshDatatManager::CreateNewVertexBuffers(bool createForBoundingBox)
     if(createForBoundingBox)
     {
         VulkanStructs::VGPUBufferInfo newBBVertexBuffer{};
-        newBBVertexBuffer.size       = GlobalVariables::EngineOptions::VertexBufferChunkSize;
+        newBBVertexBuffer.size       = newVertexBuffer.size;
         newBBVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst
                                        | vk::BufferUsageFlagBits::eTransferSrc;
         ;
@@ -361,7 +362,7 @@ void MeshDatatManager::CreateNewIndexBuffers()
     m_indexBuffers.reserve(GlobalVariables::EngineOptions::IndexBufferChunkSize);
     Utils::Logger::LogInfo("Allocating NEW 16MB IndexBuffer");
     VulkanStructs::VGPUBufferInfo newIndexBuffer{};
-    newIndexBuffer.size       = GlobalVariables::EngineOptions::IndexBufferChunkSize;
+    newIndexBuffer.size       = GlobalVariables::EngineOptions::IndexBufferChunkSize > 0 ?  GlobalVariables::EngineOptions::IndexBufferChunkSize : SIZE_16MB;
     newIndexBuffer.usageFlags = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst
                                 | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
                                    | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR ;
