@@ -23,8 +23,7 @@
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 
 
-#define MAX_UBO_COUNT 1000
-#define MATERIAL_BUFFER_SIZE 16'777'216
+#define MATERIAL_BUFFER_SIZE 5'242'880
 #define PER_OBJECT_BUFFER_SIZE 5'242'880
 
 VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDevice& device)
@@ -90,7 +89,6 @@ void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameInde
 void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameIndex,
                                                                     std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls) const
 {
-    assert(drawCalls.size() < MAX_UBO_COUNT && "Draw calls are bigger than allocated uniform buffers on GPU");
     int  i         = 0;
 
     //TODO: do not allocate new vector every time here instead allocate one that can fit at least 50% of the required buffer objects
