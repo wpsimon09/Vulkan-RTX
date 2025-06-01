@@ -5,6 +5,7 @@
 #include "VulkanRtx.hpp"
 #include <GLFW/glfw3.h>
 #include <chrono>
+#include <exception>
 
 // Application Headers
 #include "Application/Logger/Logger.hpp"
@@ -115,7 +116,12 @@ void Application::Init()
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     ApplicationCore::ImportOptions importOptions{};
 
-    m_client->GetGLTFLoader().LoadGLTFScene(m_client->GetScene(),"cache/scene.gltf", importOptions);
+    if (std::filesystem::exists("cache/scene.gltf")) {
+        m_client->GetGLTFLoader().LoadGLTFScene(m_client->GetScene(),"cache/scene.gltf", importOptions);
+    }else {
+        // build default scene
+        m_client->GetScene().AddCubeToScene();
+    }
 
     m_editor = std::make_unique<VEditor::Editor>(*m_uiContext);
 
@@ -179,6 +185,8 @@ void Application::Update()
     if (m_client->GetScene().GetSceneUpdateFlags().rebuildAs
         ) {
         auto blasInpu = m_client->GetScene().GetBLASInputs();
+        if (blasInpu.empty()) return;
+
         // implicity destroys all used resources, so no cleanup of previous resources is needed
         m_rayTracingDataManager->InitAs(blasInpu);
         Utils::Logger::LogInfo("Rebuilding AS");
@@ -191,6 +199,7 @@ void Application::Update()
 
     if (m_client->GetScene().GetSceneUpdateFlags().updateAs) {
         auto blasInput = m_client->GetScene().GetBLASInputs();
+        if (blasInput.empty()) return;
         m_rayTracingDataManager->UpdateAS(blasInput);
         Utils::Logger::LogInfo("Updating AS");
 
@@ -226,9 +235,13 @@ Application::~Application()
 
     if(!GlobalVariables::hasSessionBeenSaved)
     {
-        for(const auto& entry : std::filesystem::directory_iterator(GlobalVariables::textureFolder))
-        {
-            std::filesystem::remove_all(entry.path());
+        try{
+            for(const auto& entry : std::filesystem::directory_iterator(GlobalVariables::textureFolder))
+            {
+                std::filesystem::remove_all(entry.path());
+            }
+        }catch(std::exception& e){
+
         }
     }
     m_vulkanDevice->GetDevice().waitIdle();

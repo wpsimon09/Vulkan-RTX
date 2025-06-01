@@ -61,7 +61,7 @@ void SceneRenderer::Render(int                                       currentFram
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
 
     // descriptor set 0 is allways the samme
-    renderContext->drawCalls[0].second.effect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0 );
+
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
     {
         DepthPrePass(currentFrameIndex, cmdBuffer, uniformBufferManager);

@@ -38,6 +38,7 @@ vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo() {
 
 void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
 {
+    if(blasInputs.empty()) return;
     m_instances.clear();
     m_instances.shrink_to_fit();
     m_blasInputs.clear();
@@ -88,8 +89,9 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
 void VRayTracingDataManager::Destroy()
 {
 
-    m_objDescriptionBuffer->DestroyStagingBuffer();
-    m_objDescriptionBuffer->Destroy();
+    if (m_objDescriptionBuffer) {
+        m_objDescriptionBuffer->DestroyStagingBuffer();
+    }
     m_rayTracingBuilder->Destroy();
 }
 

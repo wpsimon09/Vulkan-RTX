@@ -43,18 +43,69 @@ sudo dnf install -y glfw glfw-devel
 sudo zypper install glfw-devel
 
 ```
+### 3. Download GLM
 
-### 3. Build the project
+**On windows**
+- [downald link](https://sourceforge.net/projects/glm.mirror/)
+
+**On Linux**
+```bash
+# On Ubuntu/Debian:
+sudo apt update && sudo apt install -y libglm-dev
+
+# On Arch Linux:
+sudo pacman -S glm --noconfirm
+
+# On Fedora (Red Hat-based distros):
+sudo dnf install -y glm-devel
+
+# On openSUSE:
+sudo zypper install glm-devel
+
+```
+
+### 4. Build the project
 
 ```sh
-cd Vulkan-RTX ## navigate to repo
-mkdir build ## create build directory
-mkdir cache ## create cache directory, TODO: this will be part of the build script
-cd build ## go to the build directory
-cmake .. ## write build files
-cmake --build .
+sh build.sh ## default is debug
+
+## in debug mode (explicitly)
+sh build.sh debug
+
+## in release mode (app wont work in release mode now)
+sh build.sh release
 ```
 ---
+
+## Compiling shaders
+
+Note that you must have python installed verify this by running 
+
+```
+python --help
+```
+
+Shaders are compiled using the `slangc` compiler, which can be downloaded from [here](https://github.com/shader-slang/slang/releases).
+
+> Shaders are already precompiled, so you don't need to do this. Only recompile them when you change the shaders.
+
+To get started, navigate to the `Shaders` directory:
+
+```bash
+cd Shaders
+```
+Then, open `compileSlang.py` and change the variable `SLANGC_PATH` to point to the `slangc` executable.
+
+*Example:*  
+`SLANGC_PATH = "/home/user/SDKs/slang/bin/slangc"`
+
+Once done, use Python to compile the shaders from the `Shaders` directory:
+```bash
+## assuming you are in the Shaders directory
+python compileSlang.py --verbose
+```
+ 
+
 
 ## Little showcase
 
