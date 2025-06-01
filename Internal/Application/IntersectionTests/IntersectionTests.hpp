@@ -8,7 +8,7 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 
 namespace ApplicationCore {
-bool AABBRayIntersection(Ray& r, VulkanStructs::Bounds* b);
+bool AABBRayIntersection(Ray& r, VulkanStructs::VBounds* b);
 }
 
 #endif  //INTERSECTIONTESTS_HPP

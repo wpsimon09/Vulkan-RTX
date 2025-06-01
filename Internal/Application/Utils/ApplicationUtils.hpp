@@ -10,13 +10,13 @@
 #include "Application/Enums/ClientEnums.hpp"
 
 namespace VulkanStructs {
-struct Bounds;
+struct VBounds;
 }
 namespace ApplicationCore {
 struct Vertex;
 
 
-VulkanStructs::Bounds CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices);
+VulkanStructs::VBounds CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices);
 }  // namespace ApplicationCore
 
 template <typename T, typename Compare, typename Swap>

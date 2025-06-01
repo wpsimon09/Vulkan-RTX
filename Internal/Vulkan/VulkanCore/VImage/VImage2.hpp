@@ -34,6 +34,8 @@ struct VImage2CreateInfo
     vk::SampleCountFlagBits samples    = vk::SampleCountFlagBits::e1;
     vk::ImageLayout         layout     = vk::ImageLayout::eUndefined;
 
+    std::string imageAllocationName = "Image allocation name not set !";
+
     bool isStorage = false;
 
     void SetImageLayout(vk::ImageLayout newLayout) { layout = newLayout; }
@@ -67,12 +69,12 @@ class VImage2 : public VulkanCore::VObject
   public:
     explicit VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& info);
     explicit VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& createInfo, vk::Image swapChainImage);
-    explicit VImage2(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData);
-    explicit VImage2(const VulkanCore::VDevice& device, VulkanStructs::ImageData<float>& imageData);
+    explicit VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<uint32_t>& imageData);
+    explicit VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<float>& imageData);
 
     void Resize(uint32_t newWidth, uint32_t newHeight);
     template <typename T>
-    void FillWithImageData(const VulkanStructs::ImageData<T>& imageData,
+    void FillWithImageData(const VulkanStructs::VImageData<T>& imageData,
                            VulkanCore::VCommandBuffer&        cmdBuffer,
                            bool                               transitionToShaderReadOnly = true,
                            bool                               destroyCurrentImage        = false);
@@ -119,7 +121,7 @@ class VImage2 : public VulkanCore::VObject
 };
 
 template <typename T>
-void VImage2::FillWithImageData(const VulkanStructs::ImageData<T>& imageData,
+void VImage2::FillWithImageData(const VulkanStructs::VImageData<T>& imageData,
                                 VulkanCore::VCommandBuffer&        cmdBuffer,
                                 bool                               transitionToShaderReadOnly,
                                 bool                               destroyCurrentImage)

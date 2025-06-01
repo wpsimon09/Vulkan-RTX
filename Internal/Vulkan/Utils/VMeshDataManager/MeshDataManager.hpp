@@ -37,7 +37,7 @@ class MeshDatatManager : public VObject
   public:
     explicit MeshDatatManager(const VulkanCore::VDevice& device);
 
-    VulkanStructs::MeshData AddMeshData(std::vector<ApplicationCore::Vertex>& vertices, std::vector<uint32_t>& indices);
+    VulkanStructs::VMeshData AddMeshData(std::vector<ApplicationCore::Vertex>& vertices, std::vector<uint32_t>& indices);
 
     /**
          * Sends every staging buffer to the GPU in a batch
@@ -47,9 +47,9 @@ class MeshDatatManager : public VObject
 
     void Destroy() override;
 
-    std::vector<ApplicationCore::Vertex>                     ReadBack(VulkanStructs::GPUSubBufferInfo& bufferInfo);
-    std::vector<VulkanStructs::ReadBackBufferInfo<uint32_t>> ReadBackIndexBuffers();
-    std::vector<VulkanStructs::ReadBackBufferInfo<ApplicationCore::Vertex>> ReadBackVertexBuffer();
+    std::vector<ApplicationCore::Vertex>                     ReadBack(VulkanStructs::VGPUSubBufferInfo& bufferInfo);
+    std::vector<VulkanStructs::VReadBackBufferInfo<uint32_t>> ReadBackIndexBuffers();
+    std::vector<VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex>> ReadBackVertexBuffer();
 
     ~MeshDatatManager() = default;
 
@@ -64,25 +64,25 @@ class MeshDatatManager : public VObject
     //==================================
     // VERTEX BUFFER
     //==================================
-    VulkanStructs::GPUBufferInfo*             m_currentVertexBuffer;
-    std::vector<VulkanStructs::GPUBufferInfo> m_vertexBuffers;
+    VulkanStructs::VGPUBufferInfo*             m_currentVertexBuffer;
+    std::vector<VulkanStructs::VGPUBufferInfo> m_vertexBuffers;
 
     //==================================
     // INDEX BUFFER
     //==================================
-    VulkanStructs::GPUBufferInfo*             m_currentIndexBuffer;
-    std::vector<VulkanStructs::GPUBufferInfo> m_indexBuffers;
+    VulkanStructs::VGPUBufferInfo*             m_currentIndexBuffer;
+    std::vector<VulkanStructs::VGPUBufferInfo> m_indexBuffers;
 
     //==================================
     // BOUNDING BOX VERTEX BUFFER
     //==================================
-    VulkanStructs::GPUBufferInfo*             m_currentVertexBuffer_BB;
-    std::vector<VulkanStructs::GPUBufferInfo> m_vertexBuffers_BB;  // to visualize bounding box
+    VulkanStructs::VGPUBufferInfo*             m_currentVertexBuffer_BB;
+    std::vector<VulkanStructs::VGPUBufferInfo> m_vertexBuffers_BB;  // to visualize bounding box
 
     //=========================================
     // BOUNDING BOX INDEX - is allways the same
     //========================================
-    VulkanStructs::GPUBufferInfo m_indexBuffer_BB;  // to visualize bounding box
+    VulkanStructs::VGPUBufferInfo m_indexBuffer_BB;  // to visualize bounding box
 
 
     //===========================================
@@ -96,10 +96,10 @@ class MeshDatatManager : public VObject
     //=========================================================================================
     // FUNCTIONS THAT GENERATES STRUCTS THAT DEFINE OFFSET AND SIZE OF THE SUB - BUFFER
     //=========================================================================================
-    VulkanStructs::GPUSubBufferInfo GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices);
-    VulkanStructs::GPUSubBufferInfo GenerateVertexBuffer_BB(VulkanStructs::Bounds& bounds);
+    VulkanStructs::VGPUSubBufferInfo GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices);
+    VulkanStructs::VGPUSubBufferInfo GenerateVertexBuffer_BB(VulkanStructs::VBounds& bounds);
 
-    VulkanStructs::GPUSubBufferInfo          GenerateIndexBuffer(const std::vector<uint32_t>& indices);
+    VulkanStructs::VGPUSubBufferInfo          GenerateIndexBuffer(const std::vector<uint32_t>& indices);
     VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
 
     //==============================================
@@ -110,7 +110,7 @@ class MeshDatatManager : public VObject
     void SelectMostSuitableBuffer(EBufferType bufferType, vk::DeviceSize subAllocationSize);
 
     // HELPER FUNCTION THAT IS CALLED FROM CreateNewIndexBuffer
-    void CreateBuffer(VulkanStructs::GPUBufferInfo& allocationInfo) const;
+    void CreateBuffer(VulkanStructs::VGPUBufferInfo& allocationInfo) const;
 };
 
 }  // namespace VulkanCore

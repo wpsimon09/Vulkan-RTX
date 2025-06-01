@@ -35,7 +35,7 @@ void SkyBoxNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanU
     if(!m_showBackground)
         return;
 
-    VulkanStructs::DrawCallData data;
+    VulkanStructs::VDrawCallData data;
     data.firstIndex = 1;
 
     data.indexCount = m_mesh->GetMeshIndexCount();

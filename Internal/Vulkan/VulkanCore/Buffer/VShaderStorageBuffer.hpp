@@ -26,7 +26,7 @@ class VShaderStorageBuffer : public VObject
 
     void Allocate();
 
-    const vk::Buffer& GetBuffer() const;
+    vk::Buffer GetBuffer() const;
 
     /**
      * Sends data to the GPU and checks if the handle is still capable of fitting in withint the buffer,

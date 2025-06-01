@@ -7,8 +7,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "Vulkan/VulkanCore/Descriptors/VDescriptorSetLayout.hpp"
-
 namespace VulkanCore {
 class VImage2;
 class VCommandBuffer;

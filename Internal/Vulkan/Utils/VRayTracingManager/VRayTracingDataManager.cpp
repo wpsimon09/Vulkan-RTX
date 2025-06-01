@@ -38,12 +38,17 @@ vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo() {
 
 void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
 {
+    if(blasInputs.empty()) return;
     m_instances.clear();
     m_instances.shrink_to_fit();
     m_blasInputs.clear();
     m_blasInputs.shrink_to_fit();
     m_rtxObjectDescriptions.clear();
     m_rtxObjectDescriptions.shrink_to_fit();
+    if (m_objDescriptionBuffer) {
+        m_objDescriptionBuffer->DestroyStagingBuffer();
+        m_objDescriptionBuffer->Destroy();
+    }
     m_rayTracingBuilder->Clear();
     m_rayTracingBuilder->BuildBLAS(blasInputs, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
                                                    | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
@@ -54,7 +59,6 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
 
     int i                   = 0;
     int shaderHitGroupIndex = 0;
-    // for now every instance will be every BLAS, i will have to later redo how scene is describing the
     for(auto& instance : blasInputs)
     {
 
@@ -81,15 +85,20 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
         vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer);
 
 }
+
 void VRayTracingDataManager::Destroy()
 {
-    m_objDescriptionBuffer->DestroyStagingBuffer();
-    m_objDescriptionBuffer->Destroy();
+
+    if (m_objDescriptionBuffer) {
+        m_objDescriptionBuffer->DestroyStagingBuffer();
+    }
     m_rayTracingBuilder->Destroy();
 }
+
 const vk::AccelerationStructureKHR& VRayTracingDataManager::GetTLAS()
 {
     return m_rayTracingBuilder->GetTLAS();
 }
+vk::AccelerationStructureKHR VRayTracingDataManager::GetTLASCpy() { return m_rayTracingBuilder->GetTLASCpy();}
 
 }  // namespace VulkanUtils

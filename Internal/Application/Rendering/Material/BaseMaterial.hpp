@@ -4,7 +4,7 @@
 
 #ifndef BASEMATERIAL_HPP
 #define BASEMATERIAL_HPP
-#include "Vulkan/Utils/VResrouceGroup/VDescriptorSetStructs.hpp"
+#include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include <memory>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>
@@ -37,7 +37,7 @@ class BaseMaterial
     std::shared_ptr<VulkanUtils::VRasterEffect>& GetEffect();
     void                                   ResetEffect();
     void                                   SetMaterialname(std::string newName);
-    virtual void UpdateGPUTextureData(VulkanUtils::DescriptorSetTemplateVariantRef updateStruct) = 0;
+    virtual void UpdateGPUTextureData(EShaderBindingGroup bindingGroup, int frame) = 0;
     virtual std::vector<std::shared_ptr<VTextureAsset>> EnumarateTexture()= 0;
   protected:
     bool                                  m_transparent = false;

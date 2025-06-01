@@ -20,7 +20,7 @@ struct PBRMaterialNoTexture;
 struct PBRMaterialFeaturees;
 
 namespace VulkanStructs {
-struct DrawCallData;
+struct VDrawCallData;
 }
 
 struct GlobalUniform;
@@ -41,16 +41,18 @@ class VUniformBufferManager
     const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;  // per frame in flight
     const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
-    std::vector<vk::DescriptorImageInfo>  GetAll2DTextureDescriptorImageInfo(const ApplicationCore::SceneData& sceneData) const;  // per object per frame in flight
-    vk::DescriptorBufferInfo GetSceneBufferDescriptorInfo(int frameIndex) const;
+    const std::vector<vk::DescriptorImageInfo>&  SceneTextures();
+    vk::DescriptorBufferInfo GetPerObjectBuffer(int currentFrame);
+    std::vector<vk::DescriptorImageInfo> GetAll2DTextureDescriptorImageInfo() const;  // per object per frame in flight
+    vk::DescriptorBufferInfo GetMaterialDescriptionBuffer(int frameIndex) const;
 
     void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
 
-    void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& drawCalls) const;
+    void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls) const;
 
     void UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const;
 
-    void UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData) const;
+    void UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData) ;
 
     void Destroy() const;
 
@@ -60,16 +62,15 @@ class VUniformBufferManager
   private:
     const VulkanCore::VDevice& m_device;
 
-    std::unique_ptr<VUniform<LightUniforms>>                               m_lightUniform;
-    std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>>                  m_perFrameUniform;
-
-    std::vector<std::unique_ptr<VulkanUtils::VUniform<ObjectDataUniform>>> m_perObjectUniform;
+    // TODO: this will be storage buffer
+    std::unique_ptr<VUniform<LightUniforms>>              m_lightUniform;
+    std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>> m_perFrameUniform;
 
     //=======================================================
     // storage buffers containing all of the data for materials
-    std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_rtxMaterialDescriptions;
-
-    std::unique_ptr<VulkanCore::VBuffer> m_objDescriptionBuffer;
+    std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_sceneMaterials;
+    std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_perObjectData;
+    std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>               m_sceneTextures;
 
     mutable int m_currentDrawCalls = 0;
 };

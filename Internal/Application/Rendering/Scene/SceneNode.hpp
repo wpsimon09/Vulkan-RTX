@@ -18,7 +18,7 @@ struct RenderContext;
 }
 
 namespace VulkanStructs {
-struct DrawCallData;
+struct VDrawCallData;
 struct RenderContext;
 }  // namespace VulkanStructs
 
@@ -145,6 +145,7 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
     std::vector<int> m_childrenIdx;
     int              m_meshIdx     = -1;
     int              m_materialIdx = -1;
+    int              m_nodeIndex   = -1;
 
     SceneNodeMetaData m_sceneNodeMetaData;
 

@@ -8,6 +8,12 @@
 #include <vector>
 
 
+namespace VulkanUtils {
+class VEffect;
+}
+namespace ApplicationCore {
+class EffectsLibrary;
+}
 struct SceneUpdateFlags;
 namespace VulkanUtils {
 class VRasterEffect;
@@ -15,9 +21,7 @@ class VRasterEffect;
 namespace ApplicationCore {
 struct SceneData;
 }
-namespace VulkanUtils {
-class VResourceGroupManager;
-}
+
 namespace VulkanUtils {
 class VRayTracingEffect;
 }
@@ -28,6 +32,7 @@ namespace VulkanUtils {
 class VUniformBufferManager;
 }
 namespace VulkanCore {
+class VDescriptorLayoutCache;
 class VTimelineSemaphore;
 class VCommandBuffer;
 class VImage2;
@@ -41,7 +46,7 @@ class RayTracer
 {
   public:
     RayTracer(const VulkanCore::VDevice& device,
-              VulkanUtils::VResourceGroupManager& resourceGroupManager,
+              ApplicationCore::EffectsLibrary& effectsLibrary,
               VulkanUtils::VRayTracingDataManager& rtxDataManager,
               int width,
               int height);
@@ -60,13 +65,13 @@ class RayTracer
   private:
     const VulkanCore::VDevice&           m_device;
     VulkanUtils::VRayTracingDataManager& m_rtxDataManager;
-    VulkanUtils::VResourceGroupManager& m_resourceGroupManager;
 
-    std::unique_ptr<VulkanUtils::VRayTracingEffect> m_rtxEffect;
+    std::shared_ptr<VulkanUtils::VEffect> m_rtxEffect;
     std::unique_ptr<VulkanUtils::VRasterEffect> m_accumulationEffect;
 
     std::vector<std::unique_ptr<VulkanCore::VImage2>> m_resultImage;
     std::unique_ptr<VulkanCore::VImage2>              m_accumulationResultImage;
+
 };
 
 }  // namespace Renderer

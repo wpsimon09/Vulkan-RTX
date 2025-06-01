@@ -18,9 +18,10 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 
-VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager)
+VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice&          device,
+                                                    VulkanCore::VDescriptorLayoutCache& descLayoutCache)
     : m_device(device)
-    , m_pushDescriptorManager(pushDescriptorManager)
+    , m_descLayoutChache(descLayoutCache)
 {
     auto meshData = m_device.GetMeshDataManager().AddMeshData(ApplicationCore::MeshData::cubeVertices,
                                                               ApplicationCore::MeshData::cubeIndices);
@@ -109,8 +110,11 @@ VulkanCore::VImage2* VulkanUtils::VEnvLightGenerator::GetPrefilterMapRaw()
     return m_prefilterMaps[m_currentHDR].get();
 }
 
-void VulkanUtils::VEnvLightGenerator::Generate(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore)
+void VulkanUtils::VEnvLightGenerator::Generate(uint32_t                             currentFrame,
+                                               std::shared_ptr<VulkanCore::VImage2> envMap,
+                                               VulkanCore::VTimelineSemaphore&      renderingSemaphore)
 {
+    m_currentFrame = currentFrame;
 
     if(!envMap)
     {
@@ -182,8 +186,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
         //=============================================================
         {
             VRasterEffect hdrToCubeMapEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/HDRToCubeMap.vert.spv",
-                                             "Shaders/Compiled/HDRToCubeMap.frag.spv",
-                                             m_pushDescriptorManager.GetResourceGroup(EDescriptorLayoutStruct::UnlitSingleTexture));
+                                             "Shaders/Compiled/HDRToCubeMap.frag.spv", m_descLayoutChache);
             hdrToCubeMapEffect.DisableStencil()
                 .SetDisableDepthTest()
                 .SetCullNone()
@@ -198,7 +201,8 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             struct PushBlock
             {
                 glm::mat4 viewProj;
-            };
+            }viewProjPushBlock;
+
 
             // ======================= where we will render and copy to different arrray layers
             vk::RenderingAttachmentInfo renderAttachentInfo;
@@ -208,14 +212,14 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             renderAttachentInfo.loadOp           = vk::AttachmentLoadOp::eClear;
             renderAttachentInfo.storeOp          = vk::AttachmentStoreOp::eStore;
 
-            std::vector<std::unique_ptr<VUniform<PushBlock>>> hdrPushBlocks(6 * mipLevels);
-            for(auto& hdrPushBlock : hdrPushBlocks)
-            {
-                hdrPushBlock = std::make_unique<VUniform<PushBlock>>(m_device, true);
-            }
 
             int          i = 0;
             vk::Viewport viewport{0, 0, (float)hdrCubeMapCI.width, (float)hdrCubeMapCI.height, 0.0f, 1.0f};
+
+            hdrToCubeMapEffect.SetNumWrites(0, 1, 0);
+            hdrToCubeMapEffect.WriteImage(m_currentFrame, 0, 0,
+                                          envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            hdrToCubeMapEffect.ApplyWrites(m_currentFrame);
 
             for(int mip = 0; mip < mipLevels; mip++)
             {
@@ -223,14 +227,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                 for(int face = 0; face < 6; face++)
                 {
 
-                    // create projection * view matrix that will be send to the  shader
-                    hdrPushBlocks[i]->GetUBOStruct().viewProj = m_camptureViews[face];
-                    hdrPushBlocks[i]->UpdateGPUBuffer(0);
-
-                    auto& updateStuct       = std::get<Unlit>(hdrToCubeMapEffect.GetResrouceGroupStructVariant());
-                    updateStuct.buffer1     = hdrPushBlocks[i]->GetDescriptorBufferInfos()[0];
-                    updateStuct.texture2D_1 = envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-                    updateStuct.texture2D_2 = envMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+                    viewProjPushBlock.viewProj = m_camptureViews[face];
 
                     //================= configure rendering
                     viewport.width  = static_cast<float>(dimensions * std::pow(0.5f, mip));
@@ -238,9 +235,17 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     // ================ update data
                     hdrToCubeMapEffect.BindPipeline(cmdBuffer);
 
-                    cmdBuffer.pushDescriptorSetWithTemplateKHR(hdrToCubeMapEffect.GetUpdateTemplate(),
-                                                               hdrToCubeMapEffect.GetPipelineLayout(), 0, updateStuct,
-                                                               m_device.DispatchLoader);
+
+                    hdrToCubeMapEffect.BindDescriptorSet(cmdBuffer, m_currentFrame, 0);
+
+                    vk::PushConstantsInfo pcInfo;
+                    pcInfo.layout = hdrToCubeMapEffect.GetPipelineLayout();
+                    pcInfo.offset = 0;
+                    pcInfo.size = sizeof(PushBlock);
+                    pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex ;
+                    pcInfo.pValues = &viewProjPushBlock;
+
+                    cmdBuffer.pushConstants2(pcInfo);
 
                     RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
 
@@ -269,19 +274,18 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
 
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,
                                                               vk::PipelineStageFlagBits::eTransfer};
+            // waiting for value 2 because value 2 is signal by create resource command
             m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
                                              envGenerationSemaphore.GetSemaphoreSubmitInfo(2, 4), waitStages.data());
 
             envGenerationSemaphore.CpuWaitIdle(4);
 
             envGenerationSemaphore.Reset();
+            envGenerationSemaphore.Destroy();
             renderTarget->Destroy();
             hdrToCubeMapEffect.Destroy();
-            for(auto& hdrPushBlock : hdrPushBlocks)
-            {
-                hdrPushBlock->Destory();
-            }
-            //            hdrPushBlock.Destory();
+
+
             Utils::Logger::LogSuccess("HDR Cube map generated");
         }
     }
@@ -328,8 +332,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         {
             VRasterEffect cubeMapToIrradianceEffect(
                 m_device, "HDR Image to cube map", "Shaders/Compiled/IrradianceMapImportanceSample.vert.spv",
-                "Shaders/Compiled/IrradianceMapImportanceSample.frag.spv",
-                m_pushDescriptorManager.GetResourceGroup(EDescriptorLayoutStruct::UnlitSingleTexture));
+                "Shaders/Compiled/IrradianceMapImportanceSample.frag.spv", m_descLayoutChache);
             cubeMapToIrradianceEffect.DisableStencil()
                 .SetDisableDepthTest()
                 .SetCullNone()
@@ -338,13 +341,12 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
                 .SetColourOutputFormat(vk::Format::eR16G16B16A16Sfloat)
                 .SetVertexInputMode(EVertexInput::PositionOnly);
 
-
             cubeMapToIrradianceEffect.BuildEffect();
 
             struct PushBlock
             {
                 glm::mat4 viewProj;
-            };
+            }viewProjPushBlock;
 
             // ======================= where we will render and copy to different arrray layers
             vk::RenderingAttachmentInfo renderAttachentInfo;
@@ -354,28 +356,34 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
             renderAttachentInfo.loadOp           = vk::AttachmentLoadOp::eClear;
             renderAttachentInfo.storeOp          = vk::AttachmentStoreOp::eStore;
 
-            std::array<std::unique_ptr<VUniform<PushBlock>>, 6> hdrPushBlocks;
-            for(auto& hdrPushBlock : hdrPushBlocks)
-            {
-                hdrPushBlock = std::make_unique<VUniform<PushBlock>>(m_device, true);
-            }
+
+            cubeMapToIrradianceEffect.SetNumWrites(0, 1);
+            cubeMapToIrradianceEffect.WriteImage(
+                m_currentFrame, 0, 0, m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
+
+            cubeMapToIrradianceEffect.ApplyWrites(m_currentFrame);
+
+
             for(int face = 0; face < 6; face++)
             {
                 // ================ update data
                 // create projection * view matrix that will be send to the  shader
-                hdrPushBlocks[face]->GetUBOStruct().viewProj = m_camptureViews[face];
-                hdrPushBlocks[face]->UpdateGPUBuffer(0);
-
-                auto& updateStuct   = std::get<Unlit>(cubeMapToIrradianceEffect.GetResrouceGroupStructVariant());
-                updateStuct.buffer1 = hdrPushBlocks[face]->GetDescriptorBufferInfos()[0];
-                updateStuct.texture2D_1 =
-                    m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
 
                 cubeMapToIrradianceEffect.BindPipeline(cmdBuffer);
 
-                cmdBuffer.pushDescriptorSetWithTemplateKHR(cubeMapToIrradianceEffect.GetUpdateTemplate(),
-                                                           cubeMapToIrradianceEffect.GetPipelineLayout(), 0,
-                                                           updateStuct, m_device.DispatchLoader);
+                viewProjPushBlock.viewProj = m_camptureViews[face];
+
+                vk::PushConstantsInfo pcInfo;
+                pcInfo.layout = cubeMapToIrradianceEffect.GetPipelineLayout();
+                pcInfo.offset = 0;
+                pcInfo.size = sizeof(PushBlock);
+                pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex ;
+                pcInfo.pValues = &viewProjPushBlock;
+
+                cmdBuffer.pushConstants2(pcInfo);
+
+
+                cubeMapToIrradianceEffect.BindDescriptorSet(cmdBuffer, m_currentFrame, 0);
 
                 //================== configure vieew port and scissors
                 vk::Viewport viewport{0,    0,   (float)irradianceCubeMapCI.width, (float)irradianceCubeMapCI.height,
@@ -412,13 +420,11 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
             envGenerationSemaphore.CpuWaitIdle(4);
 
             envGenerationSemaphore.Reset();
+            envGenerationSemaphore.Destroy();
             renderTarget->Destroy();
 
             cubeMapToIrradianceEffect.Destroy();
-            for(auto& hdrPushBlock : hdrPushBlocks)
-            {
-                hdrPushBlock->Destory();
-            }
+
             //            hdrPushBlock.Destory();
             Utils::Logger::LogSuccess("Irradiance map generated");
         }
@@ -466,8 +472,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     //=============================================================
     {
         VRasterEffect hdrToPrefilterEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/Prefilter.vert.spv",
-                                           "Shaders/Compiled/Prefilter.frag.spv",
-                                           m_pushDescriptorManager.GetResourceGroup(EDescriptorLayoutStruct::UnlitSingleTexture));
+                                           "Shaders/Compiled/Prefilter.frag.spv", m_descLayoutChache);
         hdrToPrefilterEffect.DisableStencil()
             .SetDisableDepthTest()
             .SetCullNone()
@@ -483,7 +488,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         {
             glm::mat4 viewProj;
             glm::vec4 params;  //x - roughness, yzw - padding
-        };
+        }pushBlock;
 
         // ======================= where we will render and copy to different arrray layers
         vk::RenderingAttachmentInfo renderAttachentInfo;
@@ -503,29 +508,40 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         vk::Rect2D   scissors{{0, 0}, {(uint32_t)preffilterMapCI.width, (uint32_t)preffilterMapCI.height}};
 
         int i = 0;
+
+        hdrToPrefilterEffect.SetNumWrites(0,1,0);
+        hdrToPrefilterEffect.WriteImage(m_currentFrame, 0, 0,
+                                        m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
+
+        hdrToPrefilterEffect.ApplyWrites(m_currentFrame);
+
+
         for(int mipLevel = 0; mipLevel < mipLevels; mipLevel++)
         {
             for(int face = 0; face < 6; face++)
             {
+
+                hdrToPrefilterEffect.BindPipeline(cmdBuffer);
+
+                hdrToPrefilterEffect.BindDescriptorSet(cmdBuffer, m_currentFrame, 0);
+
                 // ================ update data
                 // create projection * view matrix that will be send to the  shader
-                hdrPushBlocks[i]->GetUBOStruct().viewProj = m_camptureViews[face];
-                hdrPushBlocks[i]->GetUBOStruct().params.x = (float)mipLevel / float(mipLevels - 1);
-                hdrPushBlocks[i]->UpdateGPUBuffer(0);
+                pushBlock.viewProj = m_camptureViews[face];
+                pushBlock.params.x = (float)mipLevel / float(mipLevels - 1);
+
 
                 viewport.width  = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
                 viewport.height = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
 
-                auto& updateStuct   = std::get<Unlit>(hdrToPrefilterEffect.GetResrouceGroupStructVariant());
-                updateStuct.buffer1 = hdrPushBlocks[i]->GetDescriptorBufferInfos()[0];
-                updateStuct.texture2D_1 =
-                    m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips);
+                vk::PushConstantsInfo pcInfo;
+                pcInfo.layout = hdrToPrefilterEffect.GetPipelineLayout();
+                pcInfo.offset = 0;
+                pcInfo.size = sizeof(PushBlock);
+                pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex ;
+                pcInfo.pValues = &pushBlock;
 
-                hdrToPrefilterEffect.BindPipeline(cmdBuffer);
-                cmdBuffer.pushDescriptorSetWithTemplateKHR(hdrToPrefilterEffect.GetUpdateTemplate(),
-                                                           hdrToPrefilterEffect.GetPipelineLayout(), 0, updateStuct,
-                                                           m_device.DispatchLoader);
-
+                cmdBuffer.pushConstants2(pcInfo);
 
                 RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
 
@@ -557,6 +573,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         envGenerationSemaphore.CpuWaitIdle(4);
 
         envGenerationSemaphore.Reset();
+        envGenerationSemaphore.Destroy();
         renderTarget->Destroy();
         for(auto& hdrPushBlock : hdrPushBlocks)
         {
@@ -612,7 +629,7 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
 
     //Create Effect that generates BRDF
     VRasterEffect brdfEffect(m_device, "BRDF Effect", "Shaders/Compiled/BRDFLut.vert.spv", "Shaders/Compiled/BRDFLut.frag.spv",
-                             m_pushDescriptorManager.GetResourceGroup(EDescriptorLayoutStruct::Empty));
+                             m_descLayoutChache);
     brdfEffect.SetColourOutputFormat(brdfCI.format)
         .DisableStencil()
         .SetDisableDepthTest()

@@ -79,7 +79,9 @@ void VShaderStorageBuffer::Allocate()
     bufferAdressInfo.buffer = m_buffer.buffer;
     m_deviceAddress         = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
 }
-const vk::Buffer& VShaderStorageBuffer::GetBuffer() const { return m_buffer.buffer;}
+ vk::Buffer VShaderStorageBuffer::GetBuffer() const {
+    return m_buffer.buffer;
+}
 
 void VShaderStorageBuffer::Resize(vk::DeviceSize newSize)
 {

@@ -244,6 +244,7 @@ void VulkanUtils::CopyBuffers(const vk::CommandBuffer& commandBuffer,
 {
     Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
 
+    if (size <= 0 ) return;
 
     vk::BufferCopy bufferCopy{};
     bufferCopy.srcOffset = srcOffset;
@@ -511,12 +512,12 @@ vk::DeviceSize VulkanUtils::GetVulkanFormatSize(vk::Format format)
     }
 }
 
-VulkanStructs::StagingBufferInfo VulkanUtils::CreateStagingBuffer(const VulkanCore::VDevice& m_device, vk::DeviceSize size)
+VulkanStructs::VStagingBufferInfo VulkanUtils::CreateStagingBuffer(const VulkanCore::VDevice& m_device, vk::DeviceSize size)
 {
 
     std::string allocationNme = "Allocation of staging buffer for vertex, index or image ";
 
-    VulkanStructs::StagingBufferInfo staginBufferInfo = {};
+    VulkanStructs::VStagingBufferInfo staginBufferInfo = {};
     staginBufferInfo.size                             = size;
 
     VkBufferCreateInfo stagingBufferCreateInfo = {};
@@ -552,7 +553,7 @@ VulkanStructs::StagingBufferInfo VulkanUtils::CreateStagingBuffer(const VulkanCo
     return staginBufferInfo;
 }
 
-bool VulkanUtils::IsInViewFrustum(VulkanStructs::Bounds* bounds, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection)
+bool VulkanUtils::IsInViewFrustum(VulkanStructs::VBounds* bounds, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection)
 {
 
     glm::mat4 mvpMatrix = projection * view * model;
@@ -666,10 +667,59 @@ vk::ShaderModule VulkanUtils::CreateShaderModule(const VulkanCore::VDevice& devi
     Utils::Logger::LogInfoVerboseOnly("Created shader module");
     return module;
 }
-void VulkanUtils::Check(vk::Result result, vk::Result expectedResult) {
-    if (GlobalState::InDebugMode) {
+void VulkanUtils::Check(vk::Result result, vk::Result expectedResult)
+{
+    if(GlobalState::InDebugMode)
+    {
         assert(result == expectedResult);
-    }else {
-        if (result != expectedResult) throw std::runtime_error("Failed to create vulkan resource");
+    }
+    else
+    {
+        if(result != expectedResult)
+            throw std::runtime_error("Result of the vulknan operation vas VK_FALSE which means that something went wrong, try restarting the application ");
     }
 }
+
+vk::DescriptorPool VulkanUtils::CreatePool(const VulkanCore::VDevice&                         devic,
+                                           const VulkanCore::VDescriptorAllocator::PoolSizes& poolSizes,
+                                           int                                                count,
+                                           vk::DescriptorPoolCreateFlags                      flags)
+{
+    std::vector<vk::DescriptorPoolSize> sizes;
+    sizes.reserve(poolSizes.sizes.size());
+
+    for(auto& sz : poolSizes.sizes)
+    {
+        sizes.push_back({sz.first, uint32_t(sz.second * count)});
+    }
+
+    vk::DescriptorPoolCreateInfo poolCI;
+    poolCI.flags         = flags;
+    poolCI.maxSets       = count;
+    poolCI.poolSizeCount = uint32_t(sizes.size());
+    poolCI.pPoolSizes    = sizes.data();
+
+    vk::DescriptorPool descriptorPool = devic.GetDevice().createDescriptorPool(poolCI, nullptr);
+
+    return descriptorPool;
+}
+std::string VulkanUtils::DescriptorTypeToString(vk::DescriptorType descriptorType) {
+        switch (descriptorType) {
+        case vk::DescriptorType::eSampler: return "eSampler";
+        case vk::DescriptorType::eCombinedImageSampler: return "eCombinedImageSampler";
+        case vk::DescriptorType::eSampledImage: return "eSampledImage";
+        case vk::DescriptorType::eStorageImage: return "eStorageImage";
+        case vk::DescriptorType::eUniformTexelBuffer: return "eUniformTexelBuffer";
+        case vk::DescriptorType::eStorageTexelBuffer: return "eStorageTexelBuffer";
+        case vk::DescriptorType::eUniformBuffer: return "eUniformBuffer";
+        case vk::DescriptorType::eStorageBuffer: return "eStorageBuffer";
+        case vk::DescriptorType::eUniformBufferDynamic: return "eUniformBufferDynamic";
+        case vk::DescriptorType::eStorageBufferDynamic: return "eStorageBufferDynamic";
+        case vk::DescriptorType::eInputAttachment: return "eInputAttachment";
+        case vk::DescriptorType::eInlineUniformBlock: return "eInlineUniformBlock";
+        case vk::DescriptorType::eAccelerationStructureKHR: return "eAccelerationStructureKHR";
+        case vk::DescriptorType::eAccelerationStructureNV: return "eAccelerationStructureNV";
+        default: return "Unknown";
+        }
+}
+

@@ -175,7 +175,7 @@ class AssetsManager
     // Texture Management
     //=========================
     std::unordered_map<std::string, std::shared_ptr<VulkanCore::VImage>> m_textures;  // Main thread access only
-    std::unordered_map<std::string, std::future<VulkanStructs::ImageData<>>> m_texturesToLoad;  // Loading thread access only
+    std::unordered_map<std::string, std::future<VulkanStructs::VImageData<>>> m_texturesToLoad;  // Loading thread access only
 
     //=========================
     // Mesh Management
@@ -200,7 +200,7 @@ class AssetsManager
     std::shared_ptr<VulkanCore::VImage2>                           m_dummyImage;
     std::shared_ptr<ApplicationCore::PBRMaterial>                  m_dummyMaterial;
     std::unordered_map<EEditorIcon, std::shared_ptr<PBRMaterial>>  m_editorIconsMaterials;
-    std::unordered_map<EMeshGeometryType, VulkanStructs::MeshData> m_preloadedMeshes;
+    std::unordered_map<EMeshGeometryType, VulkanStructs::VMeshData> m_preloadedMeshes;
 
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures2;
 

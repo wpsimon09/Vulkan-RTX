@@ -10,7 +10,12 @@
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 
 
+namespace VulkanStructs {
+struct RenderContext;
+}
 namespace VulkanUtils {
+struct RenderContext;
+class VRayTracingDataManager;
 class VEffect;
 }
 namespace VulkanUtils {
@@ -37,15 +42,20 @@ enum class EEffectType : std::uint8_t
     AlphaMask,
     AplhaBlend,
     EditorBilboard,
-    RayTracing
+    RayTracing,
+    DepthPrePass
 };
 
 class EffectsLibrary
 {
   public:
-    EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager);
-    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;
+    EffectsLibrary(const VulkanCore::VDevice&          device,
+                   VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                   VulkanUtils::VRayTracingDataManager& rtxDataManager,
+                   VulkanCore::VDescriptorLayoutCache& descLayoutCache);
 
+
+    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;
     std::shared_ptr<VulkanUtils::VEffect> GetEffect(EEffectType type);
 
     template <typename T>
@@ -53,12 +63,19 @@ class EffectsLibrary
 
     void BuildAllEffects();
     void Destroy();
+
+    void UpdatePerFrameWrites(VulkanUtils::RenderContext* renderingContext,const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+
+  private:
+    void ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager);
+
+    VulkanCore::VDescriptorLayoutCache& m_descLayoutCache;
 };
 template <typename T>
 std::shared_ptr<T> EffectsLibrary::GetEffect(EEffectType type)
 {
-  assert(effects.contains(type));
-  return std::dynamic_pointer_cast<T>(effects[type]);
+    assert(effects.contains(type));
+    return std::dynamic_pointer_cast<T>(effects[type]);
 }
 
 }  // namespace ApplicationCore

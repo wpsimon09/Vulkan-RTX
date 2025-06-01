@@ -46,7 +46,7 @@ void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vul
             }
         }
 
-        VulkanStructs::DrawCallData data;
+        VulkanStructs::VDrawCallData data;
         data.firstIndex = 1;
 
         data.indexCount = m_mesh->GetMeshIndexCount();

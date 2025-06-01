@@ -35,6 +35,7 @@ class VSwapChain : public VObject
     const vk::Extent2D&           GetExtent() const { return m_extent; };
     const vk::PresentModeKHR&     GetPresentMode() const { return m_presentMode; };
     const std::vector<vk::Image>& GetSwapChainImages() const { return m_swapChainImages; };
+    const uint32_t                GetImageCount() const { return m_swapChainImages.size(); };
 
   private:
     vk::SurfaceFormatKHR m_format;

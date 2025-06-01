@@ -19,8 +19,8 @@ namespace MathUtils {
 inline constexpr std::string LTC_InverseString = "LTC_Inverse";
 inline constexpr std::string LTC_String        = "LTC";
 
-inline VulkanStructs::ImageData<float> LTC_ImageData;
-inline VulkanStructs::ImageData<float> LTCInverse_ImageData;
+inline VulkanStructs::VImageData<float> LTC_ImageData;
+inline VulkanStructs::VImageData<float> LTCInverse_ImageData;
 
 class LookUpTalbes
 {

@@ -79,7 +79,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice&         device,
     {
         AllocateImage(0);
         m_isDepthBuffer                         = false;
-        VulkanStructs::ImageData dummyImageData = {};
+        VulkanStructs::VImageData dummyImageData = {};
         dummyImageData.channels                 = 4;
         dummyImageData.height                   = 1;
         dummyImageData.widht                    = 1;
@@ -104,7 +104,7 @@ VulkanCore::VImage::VImage(const VulkanCore::VDevice&         device,
     }
 }
 
-VulkanCore::VImage::VImage(const VulkanCore::VDevice& device, VulkanStructs::ImageData<uint32_t>& imageData)
+VulkanCore::VImage::VImage(const VulkanCore::VDevice& device, VulkanStructs::VImageData<uint32_t>& imageData)
     : m_device(device)
     , m_mipLevels(1)
     , m_format(vk::Format::eR8G8B8A8Unorm)
@@ -258,6 +258,7 @@ void VulkanCore::VImage::CopyFromBufferToImage()
 
     assert(m_transferCommandBuffer->GetIsRecording()
            && "Command buffer that will copy buffer to image is not recording, enable it using BeginRecording method");
+
     m_transferCommandBuffer->GetCommandBuffer().copyBufferToImage(m_stagingBufferWithPixelData->GetStagingBuffer(), m_imageVK,
                                                                   vk::ImageLayout::eTransferDstOptimal, 1, &region);
 }

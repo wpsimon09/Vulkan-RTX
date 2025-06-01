@@ -18,6 +18,7 @@
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
 
 VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::PhysicalDevice&         physicalDevice,
                                                               const VulkanCore::VulkanInstance& instance)
@@ -133,7 +134,9 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance)
     RetreiveDepthFormat();
 
     m_transferOpsManager = std::make_unique<VulkanUtils::VTransferOperationsManager>(*this);
+    m_transferOpsManager->StartRecording();
     m_meshDataManager    = std::make_unique<MeshDatatManager>(*this);
+    m_descriptorAllocator = std::make_unique<VulkanCore::VDescriptorAllocator>(*this);
 }
 
 VulkanCore::VCommandPool& VulkanCore::VDevice::GetTransferCommandPool() const
@@ -174,6 +177,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
         queueCreateInfos.push_back(queueCreateInfo);
     }
 
+
     vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
     dynamicRenderingFeatures.dynamicRendering = true;
 
@@ -185,6 +189,18 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     physicalDeviceVulkan12Features.timelineSemaphore   = true;
     physicalDeviceVulkan12Features.bufferDeviceAddress = true;
     physicalDeviceVulkan12Features.hostQueryReset = true;
+
+    //descriptor indexing feature
+    physicalDeviceVulkan12Features.descriptorIndexing = true;
+    physicalDeviceVulkan12Features.shaderSampledImageArrayNonUniformIndexing = true;
+    physicalDeviceVulkan12Features.runtimeDescriptorArray = true;
+    physicalDeviceVulkan12Features.descriptorBindingVariableDescriptorCount = true;
+    physicalDeviceVulkan12Features.descriptorBindingPartiallyBound = true;
+    physicalDeviceVulkan12Features.descriptorBindingUpdateUnusedWhilePending = true;
+    physicalDeviceVulkan12Features.descriptorBindingSampledImageUpdateAfterBind = true;
+    physicalDeviceVulkan12Features.descriptorBindingStorageBufferUpdateAfterBind = true;
+    physicalDeviceVulkan12Features.descriptorBindingUniformBufferUpdateAfterBind = true;
+
 
     // used in fore frame captures....
     if(GlobalState::ValidationLayersEnabled)
@@ -393,12 +409,12 @@ void VulkanCore::VDevice::Destroy()
 {
     m_meshDataManager->Destroy();
     m_transferOpsManager->Destroy();
-    vmaDestroyAllocator(m_vmaAllocator);
     for(int i = 0; i < m_transferCommandPool.size(); i++)
     {
         m_transferCommandPool[i]->Destroy();
     }
     m_transferCommandPoolForSingleThread->Destroy();
+    vmaDestroyAllocator(m_vmaAllocator);
     m_device.destroy();
     Utils::Logger::LogInfoVerboseOnly("Logical device destroyed");
 }

@@ -12,11 +12,15 @@
 #include "Editor/Views/Index.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
+namespace VulkanCore {
+class VDescriptorLayoutCache;
+}
 namespace ApplicationCore {
 class EffectsLibrary;
 }
 
 namespace VulkanUtils {
+class VRayTracingDataManager;
 class VTransferOperationsManager;
 }
 
@@ -33,7 +37,6 @@ class RenderingSystem;
 }
 
 namespace VulkanUtils {
-class VResourceGroupManager;
 class VUniformBufferManager;
 }  // namespace VulkanUtils
 
@@ -75,14 +78,15 @@ private:
   std::unique_ptr<class Client> m_client;
 
   std::unique_ptr<class WindowManager>                          m_windowManager;
-  std::unique_ptr<class VulkanUtils::VResourceGroupManager>     m_pushDescriptorSetManager;
   std::unique_ptr<class VulkanUtils::VUniformBufferManager>     m_uniformBufferManager;
   std::unique_ptr<class VulkanCore::VulkanInstance>             m_vulkanInstance;
   std::unique_ptr<class VulkanCore::VDevice>                    m_vulkanDevice;
   std::unique_ptr<class VEditor::UIContext>                     m_uiContext;
   std::unique_ptr<class VEditor::Editor>                        m_editor;
   std::unique_ptr<class Renderer::RenderingSystem>              m_renderingSystem;
+  std::unique_ptr<class VulkanCore::VDescriptorLayoutCache>     m_descriptorSetLayoutCache;
   std::unique_ptr<class ApplicationCore::EffectsLibrary>        m_effectsLibrary;
+  std::unique_ptr<class VulkanUtils::VRayTracingDataManager>    m_rayTracingDataManager;
 
   // debu
   bool m_buildAS = true;;

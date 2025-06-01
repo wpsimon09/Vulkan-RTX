@@ -5,7 +5,7 @@
 
 #include "Application/Logger/Logger.hpp"
 
-bool ApplicationCore::AABBRayIntersection(Ray& r, VulkanStructs::Bounds* b)
+bool ApplicationCore::AABBRayIntersection(Ray& r, VulkanStructs::VBounds* b)
 {
     float tmin = 0.001;
     float tmax = r.length;

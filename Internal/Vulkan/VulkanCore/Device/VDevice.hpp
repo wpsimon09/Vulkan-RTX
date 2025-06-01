@@ -14,6 +14,9 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
+namespace VulkanCore {
+class VDescriptorAllocator;
+}
 namespace VulkanUtils {
 class VTransferOperationsManager;
 }
@@ -65,7 +68,8 @@ class VDevice : public VObject
     const vk::Format&                        GetDepthFormat() const { return m_depthFormat; }
     const vk::SampleCountFlagBits            GetSampleCount() const { return m_sampleCount; }
     VmaTotalStatistics&                      GetDeviceStatistics() { return m_vmaStatistics; }
-    VulkanUtils::VTransferOperationsManager& GetTransferOpsManager() const { return *m_transferOpsManager; }
+    VulkanUtils::VTransferOperationsManager& GetTransferOpsManager() const  { return *m_transferOpsManager;  }
+    VulkanCore::VDescriptorAllocator&        GetDescriptorAllocator() const { return *m_descriptorAllocator; }
     //----------------------------------------------------------------------------------------
 
     void UpdateSampleCount();
@@ -97,6 +101,7 @@ class VDevice : public VObject
     std::unique_ptr<VulkanCore::VCommandPool>                m_transferCommandPoolForSingleThread;
     std::unique_ptr<VulkanUtils::VTransferOperationsManager> m_transferOpsManager;
     std::unique_ptr<MeshDatatManager>                        m_meshDataManager;
+    std::unique_ptr<VulkanCore::VDescriptorAllocator>        m_descriptorAllocator;
 
     VQueueFamilyIndices m_queueFamilyIndices;
 

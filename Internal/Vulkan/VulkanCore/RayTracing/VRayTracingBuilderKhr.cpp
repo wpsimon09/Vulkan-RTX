@@ -107,6 +107,7 @@ vk:
     } while(!finished);
 
     blasScratchBuffer.Destroy();
+    blasBuilder.Destroy();
     scratchAdresses.clear();
 }
 void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructureInstanceKHR>& instances,
@@ -125,7 +126,7 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
                                           vk::BufferUsageFlagBits::eShaderDeviceAddress
                                               | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR);
 
-    VulkanUtils::PlaceAccelerationStructureMemoryBarrier(m_cmdBuffer->GetCommandBuffer(), vk::AccessFlagBits::eTransferWrite,
+    VulkanUtils::PlaceAccelerationStructureMemoryBarrier(m_cmdBuffer->GetCommandBuffer(), vk::AccessFlagBits::eAccelerationStructureReadKHR,
                                                          vk::AccessFlagBits::eAccelerationStructureWriteKHR);
     // acctuall creating of the TLAS
     VulkanCore::VBuffer scratchBuffer(m_device);
@@ -138,8 +139,8 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
 
     buffer.DestroyStagingBuffer();
     buffer.Destroy();
-    m_asBuildSemaphore.Reset();
     scratchBuffer.Destroy();
+    m_asBuildSemaphore.Reset();
 
 }
 
@@ -160,6 +161,7 @@ void VRayTracingBuilderKHR::Destroy()
     }
     m_tlas.Destroy(m_device);
     m_cmdPool->Destroy();
+    m_asBuildSemaphore.Destroy();
 }
 void VRayTracingBuilderKHR::Clear() {
     for(auto blas : m_blas)
@@ -231,8 +233,10 @@ void VRayTracingBuilderKHR::CmdCreteTlas(const vk::CommandBuffer&               
     }
 }
 
-const vk::AccelerationStructureKHR& VRayTracingBuilderKHR::GetTLAS() const{
+const vk::AccelerationStructureKHR& VRayTracingBuilderKHR::GetTLAS() const
+{
     return m_tlas.as;
 }
+vk::AccelerationStructureKHR VRayTracingBuilderKHR::GetTLASCpy() const { return m_tlas.as;}
 
 }  // namespace VulkanCore::RTX

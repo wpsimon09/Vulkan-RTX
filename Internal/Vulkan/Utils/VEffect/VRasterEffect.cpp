@@ -9,32 +9,36 @@
 
 namespace VulkanUtils {
 VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                          device,
-                 const std::string&                                  name,
-                 const VulkanCore::VShader&                          shader,
-                 std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& shaderResourceGroup)
-    : VEffect(device, name, shaderResourceGroup)
+                             const std::string&                                  name,
+                             const VulkanCore::VShader&                          shader,
+                             VulkanCore::VDescriptorLayoutCache& descLayoutCache,
+                             EShaderBindingGroup bindingGroup)
+    : VEffect(device, name, descLayoutCache, bindingGroup)
 {
-    m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_resourceGroup->GetDescriptorSetLayout());
-    m_pipeline->Init();
+    CreateLayouts(shader.GetReflectionData());
 
-    m_resourceGroup->CreateDstUpdateInfo(m_pipeline->GetPipelineLayout());
+
+    m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, shader, m_descriptorSetLayouts, m_reflectionData->PCs);
+    m_pipeline->Init();
 
 }
 
 VRasterEffect::VRasterEffect(const VulkanCore::VDevice&                          device,
-                 const std::string&                                  name,
-                 const std::string&                                  vertex,
-                 const std::string&                                  fragment,
-                 std::shared_ptr<VulkanUtils::VShaderResrouceGroup>& descriptorSet)
-    : VEffect(device, name, descriptorSet)
+                             const std::string&                                  name,
+                             const std::string&                                  vertex,
+                             const std::string&                                  fragment,
+                             VulkanCore::VDescriptorLayoutCache& descLayoutCache,
+                             EShaderBindingGroup bindingGroup)
+    : VEffect(device, name, descLayoutCache, bindingGroup)
     , m_shader(std::in_place, device, vertex, fragment)
 {
+    if (m_shader.has_value())
+        CreateLayouts(m_shader.value().GetReflectionData());
+    else throw std::runtime_error("Failed to retrieve reflection data from compiled SPIRV-Shader");
+
     m_pipeline =
-        std::make_unique<VulkanCore::VGraphicsPipeline>(device, m_shader.value(), m_resourceGroup->GetDescriptorSetLayout());
+        std::make_unique<VulkanCore::VGraphicsPipeline>(device, m_shader.value(), m_descriptorSetLayouts, m_reflectionData->PCs);
     m_pipeline->Init();
-
-    m_resourceGroup->CreateDstUpdateInfo(m_pipeline->GetPipelineLayout());
-
 }
 
 VRasterEffect& VRasterEffect::SetDisableDepthTest()
@@ -212,6 +216,12 @@ void VRasterEffect::BindPipeline(const vk::CommandBuffer& cmdBuffer)
 void VRasterEffect::Destroy()
 {
     m_pipeline->Destroy();
+}
+void VRasterEffect::BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) {
+
+    for (int i = 0; i < m_descriptorSets.size(); ++i) {
+        cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipeline->GetPipelineLayout(), i, 1, &m_descriptorSets[i].sets[frame], 0, nullptr);
+    }
 }
 
 }  // namespace VulkanUtils

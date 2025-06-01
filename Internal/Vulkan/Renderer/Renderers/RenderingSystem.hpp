@@ -19,6 +19,9 @@
 #include "Vulkan/VulkanCore/Synchronization/VSyncPrimitive.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
+namespace VulkanCore {
+class VDescriptorLayoutCache;
+}
 namespace ApplicationCore {
 struct SceneData;
 }
@@ -65,24 +68,25 @@ class RenderingSystem
 public:
     RenderingSystem(const VulkanCore::VulkanInstance&         instance,
                     const VulkanCore::VDevice&                device,
-                    const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                    VulkanUtils::VResourceGroupManager&       pushDescriptorManager,
+                    VulkanUtils::VRayTracingDataManager& m_rayTracingDataManager,
+                     VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                    ApplicationCore::EffectsLibrary&          effectsLybrary,
+                    VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
                     VEditor::UIContext&                       uiContext);
 
     void Init();
-    void Render(LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalUniform& globalUniformUpdateInfo, SceneUpdateFlags& sceneUpdateFlags);
+    void Render(bool resizeSwapChain, LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalUniform& globalUniformUpdateInfo, SceneUpdateFlags& sceneUpdateFlags);
     void Update();
     void Destroy();
 
     SceneRenderer&                         GetSceneRenderer() { return *m_sceneRenderer; };
     VulkanUtils::RenderContext*            GetRenderContext() { return &m_renderContext; }
-    VulkanUtils::VRayTracingDataManager&   GetRayTracingManager() { return *m_rayTracingDataManager; };
 
 private:
     // Core Vulkan references
     const VulkanCore::VDevice&                m_device;
-    const VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
-    VulkanUtils::VResourceGroupManager&       m_resrouceGroupManager;
+     VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
+    ApplicationCore::EffectsLibrary*          m_effectsLibrary;
     VEditor::UIContext&                       m_uiContext;
 
     // Scene state
@@ -107,8 +111,6 @@ private:
     std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>>            m_renderingTimeLine;
     VulkanCore::VTimelineSemaphore&                                           m_transferSemapohore;
 
-    // Ray Tracing
-    std::unique_ptr<VulkanUtils::VRayTracingDataManager> m_rayTracingDataManager;
 
     // Render context
     VulkanUtils::RenderContext m_renderContext;
@@ -119,6 +121,8 @@ private:
     uint64_t m_frameCount = 0;
     uint64_t m_accumulatedFramesCount = 0;
     bool     m_isRayTracing = false;
+
+    VulkanCore::VDescriptorLayoutCache& m_descLayoutCache;
 
     // Editor Integration
     friend class VEditor::RenderingOptions;

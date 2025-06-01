@@ -8,30 +8,30 @@
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 
-bool VulkanUtils::RenderContext::CompareByDeptDesc(const VulkanStructs::DrawCallData& DrawCallA,
-                                                   const VulkanStructs::DrawCallData& DrawCallB)
+bool VulkanUtils::RenderContext::CompareByDeptDesc(const VulkanStructs::VDrawCallData& DrawCallA,
+                                                   const VulkanStructs::VDrawCallData& DrawCallB)
 {
 
     return DrawCallA.depth > DrawCallB.depth;
 }
 
-bool VulkanUtils::RenderContext::CompareByDeptAsc(const VulkanStructs::DrawCallData& DrawCallA,
-                                                  const VulkanStructs::DrawCallData& DrawCallB)
+bool VulkanUtils::RenderContext::CompareByDeptAsc(const VulkanStructs::VDrawCallData& DrawCallA,
+                                                  const VulkanStructs::VDrawCallData& DrawCallB)
 {
     return DrawCallA.depth < DrawCallB.depth;
 }
 
-void VulkanUtils::RenderContext::GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& outDrawCalls)
+void VulkanUtils::RenderContext::GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& outDrawCalls)
 {
     outDrawCalls = drawCalls;
 }
 
-std::vector<std::pair<unsigned long, VulkanStructs::DrawCallData>>& VulkanUtils::RenderContext::GetAllDrawCall()
+std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& VulkanUtils::RenderContext::GetAllDrawCall()
 {
     return drawCalls;
 }
 
-void VulkanUtils::RenderContext::AddDrawCall(VulkanStructs::DrawCallData& DrawCall)
+void VulkanUtils::RenderContext::AddDrawCall(VulkanStructs::VDrawCallData& DrawCall)
 {
     drawCalls.emplace_back(GenerateDrawKey(DrawCall), DrawCall);
 }
@@ -41,7 +41,7 @@ void VulkanUtils::RenderContext::ResetAllDrawCalls()
     drawCalls.clear();
 }
 
-unsigned long VulkanUtils::RenderContext::GenerateDrawKey(VulkanStructs::DrawCallData& drawCall)
+unsigned long VulkanUtils::RenderContext::GenerateDrawKey(VulkanStructs::VDrawCallData& drawCall)
 {
     unsigned long key = 0;
 

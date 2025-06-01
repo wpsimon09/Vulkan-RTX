@@ -74,7 +74,7 @@ std::shared_ptr<StaticMesh> AssetsManager::GetDefaultMesh(EMeshGeometryType geom
     }
     // load them otherwise
 
-    VulkanStructs::MeshData data;
+    VulkanStructs::VMeshData data;
     switch(geometryType)
     {
         case Plane: {

@@ -121,6 +121,7 @@ enum ERayTracingStageIndices {
     ClosestHit,
     // TODO: insert new shaders in this exact spot
     ShaderGroupCount, // holds count of all indices
+    Callable
 };
 
 }  // namespace VulkanCore::RTX

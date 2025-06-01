@@ -35,7 +35,8 @@ class VGraphicsPipeline : public VObject
   public:
     VGraphicsPipeline(const VulkanCore::VDevice&              device,
                       const VulkanCore::VShader&              shaders,
-                      const VulkanCore::VDescriptorSetLayout& descriptorLayout);
+                      const std::vector<vk::DescriptorSetLayout>&   descriptorSets,
+                      const std::vector<vk::PushConstantRange>&   pushConstants);
 
     /**
          * Fills in all structs required to create pipeline. Structs can be modified with setters
@@ -69,7 +70,8 @@ class VGraphicsPipeline : public VObject
   private:
     const VulkanCore::VShader&              m_shaders;
     const VulkanCore::VDevice&              m_device;
-    const VulkanCore::VDescriptorSetLayout& m_descriptorSetLayout;
+    const std::vector<vk::DescriptorSetLayout>&   m_descriptorSets;
+    const std::vector<vk::PushConstantRange>&     m_pushConstantRanges;
 
     // pipeline handler
     vk::Pipeline      m_pipeline;

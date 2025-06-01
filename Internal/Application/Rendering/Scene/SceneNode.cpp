@@ -210,7 +210,7 @@ void SceneNode::Update(SceneUpdateFlags& sceneUpdateFlags)
     }
 
     if (sceneUpdateFlags.updateAs != true) {
-         if (m_transformation->HasChanged() && !IsLight())     { sceneUpdateFlags.updateAs = true; }
+         if (m_transformation->HasChanged() && !IsLight())     {sceneUpdateFlags.resetAccumulation = true;  sceneUpdateFlags.updateAs = true; }
     }
     if (sceneUpdateFlags.resetAccumulation != true) {
          // in case only light node has changed do not reset the As but only accumulation instead
@@ -243,8 +243,9 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         //=====================================================
         ;
 
-        VulkanStructs::DrawCallData data;
+        VulkanStructs::VDrawCallData data;
         data.firstIndex = 1;
+        data.materialIndex = m_materialIdx;
 
         data.indexCount = m_mesh->GetMeshIndexCount();
         // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
@@ -272,6 +273,8 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         data.position = m_transformation->GetPosition();
         data.bounds   = &m_mesh->GetMeshData()->bounds;
         data.material = m_mesh->m_currentMaterial.get();
+        data.modelMatrix = m_materialIdx;
+
 
         if(m_sceneNodeMetaData.IsSelected)
             data.selected = true;

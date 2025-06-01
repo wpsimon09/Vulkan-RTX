@@ -31,7 +31,7 @@ ApplicationCore::Transformations::Transformations(glm::vec3 position, glm::vec3 
     , m_scale(scale)
 {
     m_isDirty  = false;
-    m_rotation = glm::eulerAngles(m_rotationQuat);
+    m_rotation = glm::eulerAngles(rotations);
 }
 
 glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix()
@@ -41,7 +41,7 @@ glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix()
     m_rotationQuat   = glm::quat(glm::radians(m_rotation));
     m_rotationMatrix = glm::mat4_cast(m_rotationQuat);
 
-    //compute model matrix from rotation, position and scle
+    //compute model matrix from rotation, position and scale
     return glm::translate(glm::mat4(1.f), m_position) * m_rotationMatrix * glm::scale(glm::mat4(1.0f), m_scale);
 }
 

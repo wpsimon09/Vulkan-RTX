@@ -12,17 +12,24 @@
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
-#include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
+#include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
+#include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore {
-EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::VResourceGroupManager& pushDescriptorManager)
+EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
+                               VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                               VulkanUtils::VRayTracingDataManager& rtxDataManager,
+                               VulkanCore::VDescriptorLayoutCache& descLayoutCache)
+    : m_descLayoutCache(descLayoutCache)
 {
-    auto frowardEffect = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv", "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
-        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
-
+    auto frowardEffect =
+        std::make_shared<VulkanUtils::VRasterEffect>(device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv",
+                                                     "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
+                                                     descLayoutCache, EShaderBindingGroup::ForwardLit);
     frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
 
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
@@ -30,14 +37,15 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
         frowardEffect->SetDisableDepthWrite();
     }
 
+
     effects[EEffectType::ForwardShader] = std::move(frowardEffect);
+
 
     //==============================================================================
 
     auto transparentEffect = std::make_shared<VulkanUtils::VRasterEffect>(
         device, "Forward lit transparent", "Shaders/Compiled/BasicTriangle.vert.spv",
-        "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
-        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::ForwardShading));
+        "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv", descLayoutCache, EShaderBindingGroup::ForwardLit);
 
     transparentEffect->SetTopology(vk::PrimitiveTopology::eTriangleList).EnableAdditiveBlending().SetDepthOpLessEqual();
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
@@ -45,25 +53,27 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
         transparentEffect->SetDisableDepthWrite();
     }
 
-
     effects[EEffectType::AplhaBlend] = std::move(transparentEffect);
 
     //==============================================================================
 
-    auto editorBillboards = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Editor billboards", "Shaders/Compiled/EditorBillboard.vert.spv", "Shaders/Compiled/EditorBilboard.frag.spv",
-        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
+    auto editorBillboards =
+        std::make_shared<VulkanUtils::VRasterEffect>(device, "Editor billboards", "Shaders/Compiled/EditorBillboard.vert.spv",
+                                                     "Shaders/Compiled/EditorBilboard.frag.spv", descLayoutCache,
+                                                     EShaderBindingGroup::ForwardUnlit);
 
     editorBillboards->SetTopology(vk::PrimitiveTopology::eTriangleList).SetCullNone().SetVertexInputMode(EVertexInput::Position_UV)
         //.SetDepthOpLessEqual()
         ;
+
+
     effects[EEffectType::EditorBilboard] = std::move(editorBillboards);
 
     //==============================================================================
 
-    auto debugLine = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugLines.frag.spv",
-        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
+    auto debugLine =
+        std::make_shared<VulkanUtils::VRasterEffect>(device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv",
+                                                     "Shaders/Compiled/DebugLines.frag.spv", descLayoutCache, ForwardUnlitNoMaterial);
 
     debugLine->SetTopology(vk::PrimitiveTopology::eTriangleList)
         .SetCullNone()
@@ -72,13 +82,14 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
         .SetVertexInputMode(EVertexInput::PositionOnly)
         .SetDepthOpLessEqual();
 
+
     effects[EEffectType::DebugLine] = std::move(debugLine);
 
     //==============================================================================
 
-    auto outline = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Outline", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/Outliines.frag.spv",
-        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
+    auto outline = std::make_shared<VulkanUtils::VRasterEffect>(device, "Outline", "Shaders/Compiled/DebugLines.vert.spv",
+                                                                "Shaders/Compiled/Outliines.frag.spv", descLayoutCache,
+                                                                EShaderBindingGroup::ForwardUnlitNoMaterial);
 
     outline
         //->SetC()
@@ -86,13 +97,14 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
         .SetVertexInputMode(EVertexInput::PositionOnly)
         .SetDepthOpAllways();
 
+
     effects[EEffectType::Outline] = std::move(outline);
 
     //===============================================================================
 
-    auto debugShapes = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv", "Shaders/Compiled/DebugGeometry.frag.spv",
-        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::Basic));
+    auto debugShapes = std::make_shared<VulkanUtils::VRasterEffect>(device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv",
+                                                                    "Shaders/Compiled/DebugGeometry.frag.spv",
+                                                                    descLayoutCache, EShaderBindingGroup::ForwardUnlitNoMaterial);
 
     debugShapes->SetCullNone()
         .SetLineWidth(7)
@@ -109,9 +121,9 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     //===============================================================================
 
-    auto skybox = std::make_shared<VulkanUtils::VRasterEffect>(
-        device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv", "Shaders/Compiled/SkyBox.frag.spv",
-        pushDescriptorManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::UnlitSingleTexture));
+    auto skybox = std::make_shared<VulkanUtils::VRasterEffect>(device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv",
+                                                               "Shaders/Compiled/SkyBox.frag.spv", descLayoutCache,
+                                                               EShaderBindingGroup::Skybox);
 
 
     skybox->SetCullNone().SetVertexInputMode(EVertexInput::PositionOnly).SetDisableDepthWrite().SetDepthOpLessEqual().DisableStencil();
@@ -119,7 +131,31 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice& device, VulkanUtils::V
 
     effects[EEffectType::SkyBox] = std::move(skybox);
 
+    //===============================================================================
+    auto depthPrePass = std::make_shared<VulkanUtils::VRasterEffect>(device, "Depth-PrePass effect",
+                                                                        "Shaders/Compiled/DepthPrePass.vert.spv",
+                                                                        "Shaders/Compiled/DepthPrePass.frag.spv",
+                                                                        descLayoutCache, EShaderBindingGroup::ForwardUnlitNoMaterial);
+    depthPrePass->SetVertexInputMode(EVertexInput::PositionOnly).SetDepthOpLess();
+
+
+    effects[EEffectType::DepthPrePass] = std::move(depthPrePass);
+
+    //===============================================================================
+    VulkanCore::RTX::RTXShaderPaths rtxShaderPaths;
+    rtxShaderPaths.rayGenPath     = "Shaders/Compiled/SimpleRayTracing.rgen.spv";
+    rtxShaderPaths.missPath       = "Shaders/Compiled/SimpleRayTracing.miss.spv";
+    rtxShaderPaths.missShadowPath = "Shaders/Compiled/SimpleRayTracing.miss2.spv";
+    rtxShaderPaths.rayHitPath     = "Shaders/Compiled/SimpleRayTracing.chit.spv";
+    auto rayTracingEffect =
+        std::make_shared<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Ray tracing ", m_descLayoutCache);
+
+    effects[EEffectType::RayTracing] = std::move(rayTracingEffect);
+
+
+
     BuildAllEffects();
+    ConfigureDescriptorWrites(uniformBufferManager, rtxDataManager);
 }
 
 std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type)
@@ -130,8 +166,11 @@ std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type
 
 void EffectsLibrary::BuildAllEffects()
 {
+    std::cout<<"======== Effect reflections =========\n\n\n";
     for(auto& effect : effects)
     {
+        std::cout<<effect.second->GetName() <<" | ------------------------\n";
+        effect.second->GetReflectionData()->Print();
         effect.second->BuildEffect();
     }
 }
@@ -143,4 +182,164 @@ void EffectsLibrary::Destroy()
         effect.second->Destroy();
     }
 }
+void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       renderingContext,
+                                          const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+{
+    for(auto& effect : effects)
+    {
+        auto& e = effect.second;
+
+        //=========================
+        // for each frame in flight
+        for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
+
+            switch(e->GetBindingGroup())
+            {
+
+                case EShaderBindingGroup::ForwardLit: {
+
+                    e->SetNumWrites(0, 1200, 0);
+                    e->WriteImageArray(i, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
+
+                    if (renderingContext->irradianceMap) {
+                        e->WriteImage(i, 1, 2,  renderingContext->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
+                    }if (renderingContext->prefilterMap) {
+                        e->WriteImage(i, 1, 3,  renderingContext->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
+                    }if (renderingContext->irradianceMap) {
+                        e->WriteImage(i, 1, 4,  renderingContext->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    }
+                    break;
+                }
+                case EShaderBindingGroup::RayTracing:{
+
+                    break;
+                }
+                case EShaderBindingGroup::ForwardUnlit:{
+                    e->SetNumWrites(0, 1200, 0);
+                    e->WriteImageArray(i, 1, 0, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
+
+                }
+                case EShaderBindingGroup::ForwardUnlitNoMaterial:{
+                    break;
+                }
+
+                case EShaderBindingGroup::Skybox: {
+                    //====================================
+                    // global data
+                    e->SetNumWrites(0, 1);
+                    if (renderingContext->hdrCubeMap) {
+                        e->WriteImage(i, 1, 0, renderingContext->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    }
+                    break;
+                }
+
+                default: {
+                   // throw std::runtime_error("Unsupported bindinggroup !");
+                    break;
+                }
+
+            }
+
+            //===================================
+            // apply writes
+            e->ApplyWrites(i);
+        }
+    }
+}
+
+void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager)
+{
+    for(auto& effect : effects)
+    {
+        auto& e = effect.second;
+
+        //=========================
+        // for each frame in flight
+        for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        {
+
+            switch(e->GetBindingGroup())
+            {
+            case EShaderBindingGroup::ForwardUnlitNoMaterial: {
+
+                    e->SetNumWrites(2, 0, 0);
+
+                    //========================
+                    // global data
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    //========================
+                    // per model data
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+
+                    break;
+                }
+
+                case EShaderBindingGroup::ForwardLit: {
+
+                    e->SetNumWrites(7, 4, 0);
+                    //===================================
+                    // global data
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    //===================================
+                    // materials
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+
+                    //===================================
+                    // lighting information
+                    e->WriteBuffer(i, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+
+                    //===================================
+                    // std::vector<PerObjectData> SSBO.
+                    e->WriteBuffer(i, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+
+                    break;
+                }
+                case EShaderBindingGroup::RayTracing:{
+
+
+
+                    break;
+                }
+                case EShaderBindingGroup::ForwardUnlit:{
+                    e->SetNumWrites(7, 4, 0);
+                    //===================================
+                    // global data
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    //===================================
+                    // materials
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+
+                    //===================================
+                    // std::vector<PerObjectData> SSBO.
+                    e->WriteBuffer(i, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+                }
+
+                case EShaderBindingGroup::Skybox: {
+                    e->SetNumWrites(1, 0);
+
+                    //====================================
+                    // global data
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+                    break;
+                }
+
+                default: {
+                    throw std::runtime_error("Unsupported bindinggroup !");
+                    break;
+                }
+
+            }
+
+            //===================================
+            // apply writes
+            e->ApplyWrites(i);
+        }
+    }
+}
+
+
 }  // namespace ApplicationCore

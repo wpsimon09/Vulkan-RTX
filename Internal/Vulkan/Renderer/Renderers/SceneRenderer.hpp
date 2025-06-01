@@ -42,7 +42,8 @@ namespace Renderer {
     class SceneRenderer {
     public:
         SceneRenderer(const VulkanCore::VDevice& device,
-                      VulkanUtils::VResourceGroupManager& pushDescriptorManager,
+                      ApplicationCore::EffectsLibrary& effectsLibrary,
+                      VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                       int width, int height);
 
         void Render(int currentFrameIndex,
@@ -68,23 +69,18 @@ namespace Renderer {
 
         void CreateRenderTargets(VulkanCore::VSwapChain* swapChain);
 
-    private:
-        void PushDataToGPU(const vk::CommandBuffer& cmdBuffer,
-                           int currentFrameIndex,
-                           int objectIndex,
-                           VulkanStructs::DrawCallData& drawCall,
-                           const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+        void PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall );
 
+    private:
         // Vulkan context & managers
         const VulkanCore::VDevice& m_device;
-        VulkanUtils::VResourceGroupManager& m_pushDescriptorManager;
         VulkanUtils::RenderContext* m_renderContextPtr;
 
         // Rendering
         std::unique_ptr<Renderer::RenderTarget> m_renderTargets;
-        std::unique_ptr<VulkanUtils::VRasterEffect> m_depthPrePassEffect;
+        std::shared_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
 
-        VulkanStructs::RenderingStatistics m_renderingStatistics;
+        VulkanStructs::VRenderingStatistics m_renderingStatistics;
 
         // Config / state
         bool m_depthPrePass = true;

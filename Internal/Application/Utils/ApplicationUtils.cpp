@@ -4,7 +4,7 @@
 #include "Application/VertexArray/VertexArray.hpp"
 
 namespace ApplicationCore {
-VulkanStructs::Bounds CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices)
+VulkanStructs::VBounds CalculateBounds(const std::vector<ApplicationCore::Vertex>& vertices)
 {
     //========================
     // CALCULATE BOUNDING BOX
@@ -17,7 +17,7 @@ VulkanStructs::Bounds CalculateBounds(const std::vector<ApplicationCore::Vertex>
         minPos = glm::min(minPos, i.position);
         maxPos = glm::max(maxPos, i.position);
     }
-    VulkanStructs::Bounds bounds = {};
+    VulkanStructs::VBounds bounds = {};
     bounds.origin                = (maxPos + minPos) / 2.f;
     bounds.extents               = (maxPos - minPos) / 2.f;
     bounds.max                   = maxPos;

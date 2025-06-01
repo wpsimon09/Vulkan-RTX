@@ -23,7 +23,7 @@ class VGraphicsPipeline;
 class VBuffer : public VObject
 {
   public:
-    explicit VBuffer(const VulkanCore::VDevice& device, const std::string& name = "");
+    explicit VBuffer(const VulkanCore::VDevice& device, const std::string& name = "Unspecified");
 
     const vk::Buffer&    GetBuffer() const { return m_bufferVK; }
     const vk::Buffer&    GetStagingBuffer() const { return m_stagingBufferVK; }
@@ -147,7 +147,6 @@ void VBuffer::CreateBufferAndPutDataOnDevice(const vk::CommandBuffer& commandBuf
     VulkanUtils::CopyBuffers(commandBuffer, m_stagingBufferVMA, m_bufferVMA, data.size() * sizeof(T));
 }
 
-
-}  // namespace VulkanCore
+}
 
 #endif  //VVERTEXBUFFER_HPP

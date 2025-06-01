@@ -4,12 +4,12 @@
 
 #include "RayTracer.hpp"
 
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
-#include "Vulkan/Utils/VResrouceGroup/VResourceGroupManager.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -20,13 +20,12 @@
 
 namespace Renderer {
 RayTracer::RayTracer(const VulkanCore::VDevice&           device,
-                     VulkanUtils::VResourceGroupManager&  resourceGroupManager,
+                     ApplicationCore::EffectsLibrary&     effectsLibrary,
                      VulkanUtils::VRayTracingDataManager& rtxDataManager,
                      int                                  width,
                      int                                  height)
     : m_device(device)
     , m_rtxDataManager(rtxDataManager)
-    , m_resourceGroupManager(resourceGroupManager)
 {
     m_resultImage.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
@@ -35,12 +34,13 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
     {
 
         VulkanCore::VImage2CreateInfo imageCI;
-        imageCI.width      = width;
-        imageCI.height     = height;
-        imageCI.imageUsage = vk::ImageUsageFlagBits::eStorage;
-        imageCI.layout     = vk::ImageLayout::eGeneral;
-        imageCI.format     = vk::Format::eR32G32B32A32Sfloat;
-        imageCI.isStorage  = true;
+        imageCI.width               = width;
+        imageCI.height              = height;
+        imageCI.imageUsage          = vk::ImageUsageFlagBits::eStorage;
+        imageCI.layout              = vk::ImageLayout::eGeneral;
+        imageCI.format              = vk::Format::eR32G32B32A32Sfloat;
+        imageCI.isStorage           = true;
+        imageCI.imageAllocationName = "Ray tracing result image";
 
         m_resultImage[i] = std::make_unique<VulkanCore::VImage2>(device, imageCI);
 
@@ -50,12 +50,13 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
     }
 
     VulkanCore::VImage2CreateInfo imageCI;
-    imageCI.width      = width;
-    imageCI.height     = height;
-    imageCI.imageUsage = vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled;
-    imageCI.layout     = vk::ImageLayout::eGeneral;
-    imageCI.format     = vk::Format::eR32G32B32A32Sfloat;
-    imageCI.isStorage  = true;
+    imageCI.width               = width;
+    imageCI.height              = height;
+    imageCI.imageUsage          = vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled;
+    imageCI.layout              = vk::ImageLayout::eGeneral;
+    imageCI.format              = vk::Format::eR32G32B32A32Sfloat;
+    imageCI.isStorage           = true;
+    imageCI.imageAllocationName = "Ray tracing accumulation image";
 
 
     m_accumulationResultImage = std::make_unique<VulkanCore::VImage2>(device, imageCI);
@@ -64,22 +65,13 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
                                                     vk::ImageLayout::eUndefined, cmdBuffer);
 
 
-    VulkanCore::RTX::RTXShaderPaths rtxShaderPaths;
-    rtxShaderPaths.rayGenPath     = "Shaders/Compiled/SimpleRayTracing.rgen.spv";
-    rtxShaderPaths.missPath       = "Shaders/Compiled/SimpleRayTracing.miss.spv";
-    rtxShaderPaths.missShadowPath = "Shaders/Compiled/SimpleRayTracing.miss2.spv";
-    rtxShaderPaths.rayHitPath     = "Shaders/Compiled/SimpleRayTracing.chit.spv";
-    auto rayTracingHitGroup       = std::make_unique<VulkanUtils::VRayTracingEffect>(
-        device, rtxShaderPaths, "Hit group highlight",
-        m_resourceGroupManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::RayTracing));
+    m_rtxEffect = effectsLibrary.effects[ApplicationCore::EEffectType::RayTracing];
 
-    m_rtxEffect = std::move(rayTracingHitGroup);
-    m_rtxEffect->BuildEffect();
-
-    m_accumulationEffect = std::make_unique<VulkanUtils::VRasterEffect>(
-        m_device, "Accumulation of ray traced images effect", "Shaders/Compiled/RayTracingAccumultion.vert.spv",
-        "Shaders/Compiled/RayTracingAccumultion.frag.spv",
-        m_resourceGroupManager.GetResourceGroup(VulkanUtils::EDescriptorLayoutStruct::PostProcessing));
+    // TODO: make this for gamma correction, tone mapping, exposure etc...
+    /*m_accumulationEffect =
+        std::make_unique<VulkanUtils::VRasterEffect>(m_device, "Accumulation of ray traced images effect",
+                                                     "Shaders/Compiled/RayTracingAccumultion.vert.spv",
+                                                     "Shaders/Compiled/RayTracingAccumultion.frag.spv", m_descLayoutCache);
 
     m_accumulationEffect->SetColourOutputFormat(vk::Format::eR16G16B16A16Sfloat)
         .DisableStencil()
@@ -87,7 +79,7 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
         .SetCullNone()
         .SetNullVertexBinding()
         .SetPiplineNoMultiSampling();
-    m_accumulationEffect->BuildEffect();
+    m_accumulationEffect->BuildEffect();*/
 }
 
 void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
@@ -105,30 +97,41 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_accumulationResultImage, vk::ImageLayout::eGeneral,
                                                     vk::ImageLayout::eShaderReadOnlyOptimal, cmdB);
 
-    if(sceneUpdateFlags.resetAccumulation)
-    {
-        vk::ClearColorValue                    clearColorVal{0.0f, 0.0f, 0.0f, 1.0f};
-        std::vector<vk::ImageSubresourceRange> subresourceRanges{m_accumulationResultImage->GetSubresrouceRange()};
-        //cmdB.clearColorImage(m_accumulationResultImage->GetImage(), vk::ImageLayout::eGeneral, &clearColorVal,
-                             //subresourceRanges.size(), subresourceRanges.data());
-    }
 
-    auto& descriptor   = std::get<VulkanUtils::RayTracingDescriptorSet>(m_rtxEffect->GetResrouceGroupStructVariant());
-    descriptor.buffer1 = unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame];
-    descriptor.buffer2 = unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame];
-    descriptor.buffer3 = m_rtxDataManager.GetObjDescriptionBufferInfo();
-    descriptor.buffer4 = unifromBufferManager.GetSceneBufferDescriptorInfo(currentFrame);
+    m_rtxEffect->SetNumWrites(4, 10, 1);
 
-    descriptor.storage2D_1 = m_resultImage[currentFrame]->GetDescriptorImageInfo();
-    descriptor.storage2D_2 = m_accumulationResultImage->GetDescriptorImageInfo();
+    m_rtxEffect->WriteBuffer(currentFrame, 0, 0, unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+    m_rtxEffect->WriteBuffer(currentFrame, 0, 1, unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
+    m_rtxEffect->WriteBuffer(currentFrame, 0, 2, m_rtxDataManager.GetObjDescriptionBufferInfo());
 
-    descriptor.tlas = m_rtxDataManager.GetTLAS();
+    m_rtxEffect->WriteAccelerationStrucutre(currentFrame, 0, 3, m_rtxDataManager.GetTLAS());
 
-    cmdB.pushDescriptorSetWithTemplateKHR(m_rtxEffect->GetUpdateTemplate(), m_rtxEffect->GetPipelineLayout(), 0,
-                                          descriptor, m_device.DispatchLoader);
+    m_rtxEffect->WriteImage(currentFrame, 0, 4, m_resultImage[currentFrame]->GetDescriptorImageInfo());
+    m_rtxEffect->WriteBuffer(currentFrame, 0, 5, unifromBufferManager.GetMaterialDescriptionBuffer(currentFrame));
 
-    auto& p = m_rtxEffect->GetRTXPipeline();
-    cmdB.traceRaysKHR(p.m_rGenRegion, p.m_rMissRegion, p.m_rHitRegion, p.m_rCallRegion,
+    m_rtxEffect->WriteImage(currentFrame, 0, 6, m_accumulationResultImage->GetDescriptorImageInfo());
+
+    // optional, print the reflection data
+    //m_rtxEffect->GetReflectionData()->Print();
+
+    // update descriptor sets
+    m_rtxEffect->ApplyWrites(currentFrame);
+
+    m_rtxEffect->SetNumWrites(0, 1200, 0);
+    m_rtxEffect->WriteImageArray(currentFrame, 0, 7, unifromBufferManager.GetAll2DTextureDescriptorImageInfo());
+
+    m_rtxEffect->ApplyWrites(currentFrame);
+
+    // bind them
+    m_rtxEffect->BindDescriptorSet(cmdB, currentFrame, 0);
+
+    // use them
+
+    //VulkanCore::RTX::ERayTracingStageIndices::RayGen etc, will go here instead of the p, the effect class is implemntign this
+    cmdB.traceRaysKHR(m_rtxEffect->GetShaderBindingTableEntry(VulkanCore::RTX::RayGen),
+                      m_rtxEffect->GetShaderBindingTableEntry(VulkanCore::RTX::Miss),
+                      m_rtxEffect->GetShaderBindingTableEntry(VulkanCore::RTX::ClosestHit),
+                      m_rtxEffect->GetShaderBindingTableEntry(VulkanCore::RTX::Callable),
                       m_resultImage[currentFrame]->GetImageInfo().width,
                       m_resultImage[currentFrame]->GetImageInfo().height, 1, m_device.DispatchLoader);
 
@@ -137,7 +140,7 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
 
     //======================================
     // Accumulate the the samples
-    // TODO: i stupidly thought that i need to accumulate in separate rendre pass, remove this later
+    // TODO: i stupidly thought that i need to accumulate in separate rendre pass, remove this later or use it for tone mapping and exposure
     //======================================
 
     /**
@@ -205,10 +208,11 @@ VulkanCore::VImage2& RayTracer::GetRenderedImage(int currentFrameIndex)
 
 void RayTracer::Destroy()
 {
-    m_rtxEffect->Destroy();
+    m_rtxDataManager.Destroy();
     for(auto& i : m_resultImage)
     {
         i->Destroy();
     }
+    m_accumulationResultImage->Destroy();
 }
 }  // namespace Renderer

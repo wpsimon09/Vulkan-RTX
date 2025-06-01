@@ -60,7 +60,7 @@ class VTextureAsset : public VAsset<VulkanCore::VImage2>
     std::optional<std::filesystem::path> m_originalPathToTexture;
     std::optional<TextureBufferInfo>     m_textureBufferInfo;
 
-    std::variant<std::future<VulkanStructs::ImageData<>>, std::future<VulkanStructs::ImageData<float>>> m_imageFormat;
+    std::variant<std::future<VulkanStructs::VImageData<>>, std::future<VulkanStructs::VImageData<float>>> m_imageFormat;
 
     VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
 };

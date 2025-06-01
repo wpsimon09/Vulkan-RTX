@@ -2,7 +2,6 @@
 // Created by wpsimon09 on 29/10/24.
 //
 
-#include "VDescriptorSetLayout.hpp"
 
 #include <functional>
 
@@ -126,7 +125,6 @@ VDescriptorSetLayout::VDescriptorSetLayout(const VulkanCore::VDevice& device, co
                         .AddBinding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
                         // light data
                         .AddBinding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
-
                         //Extre buffer
                         .AddBinding(3, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
                         // Material features
@@ -206,9 +204,7 @@ VDescriptorSetLayout::Builder& VDescriptorSetLayout::Builder::AddBinding(uint32_
     bindingInfo.descriptorCount   = descriptorCount;
     bindingInfo.stageFlags        = stage;
 
-
     m_descriptorBindings[binding] = bindingInfo;
-
 
     return *this;
 }
