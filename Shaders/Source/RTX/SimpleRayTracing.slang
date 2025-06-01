@@ -92,10 +92,14 @@ void rayGenMain() {
 
     for (int i = 0; i < globalData.raysPerPixel; i++) {
         float3 rayRadiacne = float3(0.0);
-        for (; payload.depth < globalData.reccursionDepth && payload.hasHit; payload.depth++) {
+        payload.incomingLightColour = float3(0.0);
+        for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
 
             TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
             rayRadiacne += payload.incomingLightColour;
+            
+            if (!payload.hasHit)
+                break;
             
             ray.Origin = payload.rayOrigin;
             ray.Direction = payload.rayDirection;
@@ -129,7 +133,7 @@ void missMain(inout RayPayLoad payload) {
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 200.0) * _lightInfo.dirLight.intensity.w;
 
     //payload.incomingLightColour = float3(0.f);
-    payload.incomingLightColour += lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1) ;
+    payload.incomingLightColour += lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1) * payload.rayColour ;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
