@@ -43,16 +43,37 @@ sudo dnf install -y glfw glfw-devel
 sudo zypper install glfw-devel
 
 ```
+### 3. Download GLM
 
-### 3. Build the project
+**On windows**
+- [downald link](https://sourceforge.net/projects/glm.mirror/)
+
+**On Linux**
+```bash
+# On Ubuntu/Debian:
+sudo apt update && sudo apt install -y libglm-dev
+
+# On Arch Linux:
+sudo pacman -S glm --noconfirm
+
+# On Fedora (Red Hat-based distros):
+sudo dnf install -y glm-devel
+
+# On openSUSE:
+sudo zypper install glm-devel
+
+```
+
+### 4. Build the project
 
 ```sh
-cd Vulkan-RTX ## navigate to repo
-mkdir build ## create build directory
-mkdir cache ## create cache directory, TODO: this will be part of the build script
-cd build ## go to the build directory
-cmake .. ## write build files
-cmake --build .
+sh build.sh ## default is debug
+
+## in debug mode (explicitly)
+sh build.sh debug
+
+## in release mode (app wont work in release mode now)
+sh build.sh release
 ```
 ---
 
