@@ -258,6 +258,7 @@ void VulkanCore::VImage::CopyFromBufferToImage()
 
     assert(m_transferCommandBuffer->GetIsRecording()
            && "Command buffer that will copy buffer to image is not recording, enable it using BeginRecording method");
+
     m_transferCommandBuffer->GetCommandBuffer().copyBufferToImage(m_stagingBufferWithPixelData->GetStagingBuffer(), m_imageVK,
                                                                   vk::ImageLayout::eTransferDstOptimal, 1, &region);
 }

@@ -244,6 +244,7 @@ void VulkanUtils::CopyBuffers(const vk::CommandBuffer& commandBuffer,
 {
     Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
 
+    if (size <= 0 ) return;
 
     vk::BufferCopy bufferCopy{};
     bufferCopy.srcOffset = srcOffset;
