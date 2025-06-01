@@ -77,6 +77,36 @@ sh build.sh release
 ```
 ---
 
+## Compiling shaders
+
+Note that you must have python installed verify this by running 
+
+```
+python --help
+```
+
+Shaders are compiled using the `slangc` compiler, which can be downloaded from [here](https://github.com/shader-slang/slang/releases).
+
+> Shaders are already precompiled, so you don't need to do this. Only recompile them when you change the shaders.
+
+To get started, navigate to the `Shaders` directory:
+
+```bash
+cd Shaders
+```
+Then, open `compileSlang.py` and change the variable `SLANGC_PATH` to point to the `slangc` executable.
+
+*Example:*  
+`SLANGC_PATH = "/home/user/SDKs/slang/bin/slangc"`
+
+Once done, use Python to compile the shaders from the `Shaders` directory:
+```bash
+## assuming you are in the Shaders directory
+python compileSlang.py --verbose
+```
+ 
+
+
 ## Little showcase
 
 ### Editor
