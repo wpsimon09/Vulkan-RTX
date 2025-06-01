@@ -48,6 +48,7 @@ void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
                 case ETextureType::normal: material.normalTextureIdx = textures.size() - 1; break;
                 case ETextureType::arm: material.armTextureIdx = textures.size() - 1; break;
                 case ETextureType::Emissive: material.emissiveTextureIdx = textures.size() - 1; break;
+
                 }
                 i++;
             }

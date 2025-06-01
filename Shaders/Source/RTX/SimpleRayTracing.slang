@@ -151,7 +151,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     float3 L = _lightInfo.dirLight.direction.xyz;
     float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
 
-    float3 albedo = m.albedo.xyz; // float3(0.2, 0.2, 1.0);
+    float3 albedo = m.values.diffuse.xyz; // float3(0.2, 0.2, 1.0);
 
     RayPayloadShadow shadowPayLoad;
     shadowPayLoad.inShadow = true;
@@ -170,7 +170,10 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     if (!shadowPayLoad.inShadow) {
         float diff = max(dot(g.shadingNormal, L), 0.0);
 
-        payLoad.incomingLightColour += (diff * Le * albedo);
+        float3 directLightContribution = diff * Le * albedo; 
+        payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
+    }else{
+        payLoad.incomingLightColour += payLoad.rayColour * 0.6;
     }
 
     //==============================
