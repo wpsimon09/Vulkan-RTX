@@ -85,14 +85,14 @@ void rayGenMain() {
 
     RayPayLoad payload;
     payload.incomingLightColour = float3(0.0);
-    payload.rayColour = float3(1.0);
     payload.hasHit = true;
     payload.randomContext = pixelIndex;
     payload.depth = 0;
-
+    payload.rayColour = float3(1.0);
+    
     for (int i = 0; i < globalData.raysPerPixel; i++) {
-        float3 rayRadiacne = float3(0.0);
         payload.incomingLightColour = float3(0.0);
+        float3 rayRadiacne = float3(0.0);
         for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
 
             TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
@@ -107,6 +107,7 @@ void rayGenMain() {
         totalRadiance += rayRadiacne;
     }
 
+    
     float weight = max(1.0 / (globalData.currentFrame + 1), 0);
 
     // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
@@ -130,10 +131,10 @@ void missMain(inout RayPayLoad payload) {
     float groundToSkyT = smoothstep(-0.01, 0, ray_d.y);
 
     float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
-    float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 200.0) * _lightInfo.dirLight.intensity.w;
+    float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 64.0) * _lightInfo.dirLight.intensity.w;
 
     //payload.incomingLightColour = float3(0.f);
-    payload.incomingLightColour += lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1) * payload.rayColour ;
+    payload.incomingLightColour += (lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1)) * payload.rayColour ;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
@@ -175,9 +176,10 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         float diff = max(dot(g.shadingNormal, L), 0.0);
 
         float3 directLightContribution = diff * Le * albedo; 
-        payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
+        //payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
     }else{
-        payLoad.incomingLightColour += payLoad.rayColour * 0.6;
+        //payLoad.incomingLightColour += payLoad.rayColour * albedo;
+
     }
 
     //==============================
@@ -193,14 +195,11 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     
     payLoad.rayDirection = lerp(diffuseDir, specularDir,m.values.metalness * (float)isSpecularRay );
 
-
     // other direction
     float3 emmittedLight = m.values.emissive_strength.xyz * m.values.emissive_strength.w;
 
-    payLoad.rayColour *= m.values.diffuse.xyz ;
     payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
+    payLoad.rayColour *= m.values.diffuse.xyz ;
     payLoad.hasHit = true;
-
-    
 
 }
