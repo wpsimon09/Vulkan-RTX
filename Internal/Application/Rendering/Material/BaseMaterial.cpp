@@ -32,5 +32,8 @@ void BaseMaterial::SetMaterialname(std::string newName)
 {
     m_materialName = newName;
 }
+uint32_t BaseMaterial::GetSceneIndex() { return m_sceneIndex; }
+
+void     BaseMaterial::SetSceneIndex(uint32_t newIndex) {m_sceneIndex = newIndex;}
 
 }  // namespace ApplicationCore

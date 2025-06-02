@@ -62,7 +62,6 @@ class PBRMaterial : public BaseMaterial
     MaterialPaths& GetMaterialPaths() { return m_materialPaths; }
 
     void ResetEffect();
-    void UpdateGPUTextureData(EShaderBindingGroup updateStruct, int frame) override;
     std::vector<std::shared_ptr<VTextureAsset>> EnumarateTexture() override;
     std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> EnumarateTextureMap();
 

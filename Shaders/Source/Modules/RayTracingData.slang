@@ -27,7 +27,6 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     const float3 barycentricCoords = float3(1.0f - baricentric.x - baricentric.y, baricentric.x, baricentric.y);
 
     ObjDescription object = descriptions[instanceIndex];
-    Material mat = materialValues[instanceIndex];
 
     // //=================================================
     // // for each vertex there is one index that can

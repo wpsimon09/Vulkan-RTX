@@ -26,7 +26,6 @@ void                     VRayTracingDataManager::UpdateAS(std::vector<VulkanCore
     }
     m_rayTracingBuilder->BuildTLAS(m_instances, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate, true);
 
-
 }
 
 vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo() {

@@ -32,17 +32,15 @@ void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
         auto& mesh = node->GetMesh();
         //===================
         // for now only PBR materials will be supported
-        if (auto m = dynamic_cast<PBRMaterial*>(mesh->GetMaterial().get())) {
+        if (auto mat = dynamic_cast<PBRMaterial*>(mesh->GetMaterial().get())) {
             meshes.emplace_back(mesh);
-
             // retrieve texture and what type of the texture it is
-            auto materialTextures = m->EnumarateTextureMap();
+            auto materialTextures = mat->EnumarateTextureMap();
             int i = textures.size();
             for (auto& tex : materialTextures) {
-
                 // assign indexes to the material struct so that we know what array it can access
                 textures.emplace_back(tex.second);
-                auto& material = m->GetMaterialDescription().features;
+                auto& material = mat->GetMaterialDescription().features;
                 switch (tex.first) {
                 case ETextureType::Diffues: material.albedoTextureIdx = textures.size() - 1; break;
                 case ETextureType::normal: material.normalTextureIdx = textures.size() - 1; break;
@@ -53,7 +51,8 @@ void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
                 i++;
             }
 
-            pbrMaterials.emplace_back(&m->GetMaterialDescription());
+            pbrMaterials.emplace_back(&mat->GetMaterialDescription());
+            mat->SetSceneIndex(pbrMaterials.size() - 1);
         }
     }
     nodes.emplace_back(node);
@@ -187,7 +186,7 @@ std::vector<VulkanCore::RTX::BLASInput> Scene::GetBLASInputs()
     std::vector<VulkanCore::RTX::BLASInput> inputs;
     for(auto& m : m_sceneData.nodes)
     {
-        if(m->HasMesh() && m->GetSceneNodeMetaData().VisibleInRayTracing && !m->IsLight())
+        if(m->HasMesh() && m->GetSceneNodeMetaData().VisibleInRayTracing)
         {
             auto& mesh = m->GetMesh();
             mesh->SetModelMatrix(m->m_transformation->GetModelMatrix());

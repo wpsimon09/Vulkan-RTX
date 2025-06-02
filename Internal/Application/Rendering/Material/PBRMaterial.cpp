@@ -67,34 +67,6 @@ void PBRMaterial::ResetEffect()
     m_materialEffect = m_initialEffect;
 }
 
-void PBRMaterial::UpdateGPUTextureData(EShaderBindingGroup updateStruct, int frame)
-{
-
-    switch(updateStruct)
-    {
-        case EShaderBindingGroup::ForwardLit: {
-            m_materialEffect->WriteImage(
-                  frame, 0, 6, m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-            m_materialEffect->WriteImage(
-                frame, 0, 7, m_textures[normal]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-            m_materialEffect->WriteImage(
-                frame, 0, 8, m_textures[arm]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-            m_materialEffect->WriteImage(
-                frame, 0, 9, m_textures[Emissive]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-            break;
-        }
-
-        case EShaderBindingGroup::ForwardUnlit: {
-            m_materialEffect->WriteImage(
-                frame, 0, 3, m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-            break;
-        }
-        default: break;;
-    }
-
-}
 std::vector<std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTexture()
 {
     std::vector<std::shared_ptr<VTextureAsset>> result;

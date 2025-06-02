@@ -46,7 +46,6 @@ namespace ApplicationCore {
 struct SceneData {
   std::vector<std::shared_ptr<ApplicationCore::StaticMesh>> meshes;
   std::vector<PBRMaterialDescription*> pbrMaterials;
-  std::vector<PBRMaterialDescription*> pbrMaterialsForRayTracing;
   std::vector<std::shared_ptr<SceneNode>> nodes;
   std::vector<std::shared_ptr<VTextureAsset>> textures;
 

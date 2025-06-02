@@ -22,6 +22,7 @@ struct BLASInput
     vk::BuildAccelerationStructureFlagsKHR                  flags{0};
     glm::mat4                                               transform;
     uint32_t                                                meshIndex;
+    uint32_t                                                materialIndex;
     RTXObjDescription                                       objDescription; // for passing normals and other data to the shaders
 };
 
