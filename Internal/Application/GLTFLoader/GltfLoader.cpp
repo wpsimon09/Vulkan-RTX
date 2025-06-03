@@ -105,10 +105,10 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
                 std::shared_ptr<PBRMaterial> material = std::make_shared<ApplicationCore::PBRMaterial>(
                     m_assetsManager.GetAllRasterEffects()[EEffectType::ForwardShader], paths, m_assetsManager);
                 material->SetSavable(true);
-                material->GetMaterialDescription().values.diffuse.x = m.pbrData.baseColorFactor.x();
-                material->GetMaterialDescription().values.diffuse.y = m.pbrData.baseColorFactor.y();
-                material->GetMaterialDescription().values.diffuse.z = m.pbrData.baseColorFactor.z();
-                material->GetMaterialDescription().values.diffuse.a = m.pbrData.baseColorFactor.w();
+                material->GetMaterialDescription().values.albedo.x = m.pbrData.baseColorFactor.x();
+                material->GetMaterialDescription().values.albedo.y = m.pbrData.baseColorFactor.y();
+                material->GetMaterialDescription().values.albedo.z = m.pbrData.baseColorFactor.z();
+                material->GetMaterialDescription().values.albedo.a = m.pbrData.baseColorFactor.w();
 
                 material->GetMaterialDescription().values.emissive_strength.x = m.emissiveFactor.x();
                 material->GetMaterialDescription().values.emissive_strength.y = m.emissiveFactor.y();
@@ -139,11 +139,11 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
                     {
                         material->GetTexture(ETextureType::Diffues) = m_textures[textureIndex];
                         material->GetMaterialPaths().DiffuseMapPath = m_textures[textureIndex]->GetAssetPath();
-                        material->GetMaterialDescription().features.hasDiffuseTexture = true;
+                        material->GetMaterialDescription().features.hasAlbedoTexture = true;
                     }
                     else
                     {
-                        material->GetMaterialDescription().features.hasDiffuseTexture = false;
+                        material->GetMaterialDescription().features.hasAlbedoTexture = false;
                     }
                 }
                 if(m.emissiveTexture.has_value())

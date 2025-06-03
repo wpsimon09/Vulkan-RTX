@@ -213,8 +213,8 @@ void ApplicationCore::GLTFExporter::ParseMaterial(fastgltf::Asset& asset, Assets
 
         material.name      = mat->GetMaterialName();
         material.alphaMode = mat->IsTransparent() ? fastgltf::AlphaMode::Blend : fastgltf::AlphaMode::Opaque;
-        material.pbrData.baseColorFactor = fastgltf::math::vec<float, 4>(matValues.diffuse.x, matValues.diffuse.y,
-                                                                         matValues.diffuse.z, matValues.diffuse.w);
+        material.pbrData.baseColorFactor = fastgltf::math::vec<float, 4>(matValues.albedo.x, matValues.albedo.y,
+                                                                         matValues.albedo.z, matValues.albedo.w);
         material.pbrData.metallicFactor  = matValues.metalness;
         material.pbrData.roughnessFactor = matValues.roughness;
         material.emissiveFactor.x()      = matValues.emissive_strength.x;

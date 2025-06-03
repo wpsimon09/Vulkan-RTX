@@ -176,7 +176,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         float diff = max(dot(g.shadingNormal, L), 0.0);
 
         float3 directLightContribution = diff * Le * albedo; 
-        //payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
+        payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
     }else{
         //payLoad.incomingLightColour += payLoad.rayColour * albedo;
 

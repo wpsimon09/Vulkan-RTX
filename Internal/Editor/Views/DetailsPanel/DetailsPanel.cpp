@@ -300,9 +300,9 @@ void DetailsPanel::RenderPBRMaterialDetails(ApplicationCore::PBRMaterial* materi
         // ALBEDO
         //===============
         ImGui::SeparatorText("Albedo");
-        ImGui::Checkbox("Use texture##a", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasDiffuseTexture));
+        ImGui::Checkbox("Use texture##a", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasAlbedoTexture));
         ImGui::Checkbox("Is transparent", &material->IsTransparent());
-        if(material->GetMaterialDescription().features.hasDiffuseTexture)
+        if(material->GetMaterialDescription().features.hasAlbedoTexture)
         {
         }
         else
@@ -312,12 +312,12 @@ void DetailsPanel::RenderPBRMaterialDetails(ApplicationCore::PBRMaterial* materi
 
             if(material->IsTransparent())
             {
-                ImGui::ColorEdit4("Albedo", &material->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
+                ImGui::ColorEdit4("Albedo", &material->GetMaterialDescription().values.albedo.x, ImGuiColorEditFlags_NoInputs);
             }
             else
             {
-                material->GetMaterialDescription().values.diffuse.w = 1.0f;
-                ImGui::ColorEdit3("Albedo", &material->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
+                material->GetMaterialDescription().values.albedo.w = 1.0f;
+                ImGui::ColorEdit3("Albedo", &material->GetMaterialDescription().values.albedo.x, ImGuiColorEditFlags_NoInputs);
             }
         }
 

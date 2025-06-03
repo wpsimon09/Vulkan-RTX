@@ -27,7 +27,7 @@ PBRMaterial::PBRMaterial(std::shared_ptr<VulkanUtils::VRasterEffect> materialEff
     if(!materialPaths.DiffuseMapPath.empty())
     {
         assets_manager.GetTexture(m_textures[ETextureType::Diffues], m_materialPaths.DiffuseMapPath, m_materialPaths.saveToDisk);
-        m_materialDescription.features.hasDiffuseTexture = true;
+        m_materialDescription.features.hasAlbedoTexture = true;
     }
     else
         assets_manager.GetDummyTexture(m_textures[ETextureType::Diffues]);
@@ -71,7 +71,7 @@ std::vector<std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTexture()
 {
     std::vector<std::shared_ptr<VTextureAsset>> result;
     result.reserve(m_textures.size());
-    if(m_materialDescription.features.hasDiffuseTexture)
+    if(m_materialDescription.features.hasAlbedoTexture)
     {
         result.emplace_back(m_textures[Diffues]);
     }
@@ -94,7 +94,7 @@ std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> PBRMaterial::En
 {
     std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> result;
     result.reserve(m_textures.size());
-    if(m_materialDescription.features.hasDiffuseTexture)
+    if(m_materialDescription.features.hasAlbedoTexture)
     {
         result[Diffues] = m_textures[Diffues];
     }

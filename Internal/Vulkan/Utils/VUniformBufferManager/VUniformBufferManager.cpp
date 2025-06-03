@@ -211,7 +211,7 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
 
     //assert(m_objectDataUniforms.size() == MAX_UBO_COUNT && "Failed to allocate 20 buffers");
     GlobalState::EnableLogging();
-    Utils::Logger::LogSuccess("Allocated 100 uniform buffers for each of the mesh");
+    Utils::Logger::LogSuccess("Allocated uniform and storage buffers");
 
     m_perFrameUniform = std::make_unique<VUniform<GlobalUniform>>(m_device);
 
