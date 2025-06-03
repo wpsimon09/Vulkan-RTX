@@ -149,14 +149,14 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 {
 
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
-    PBRMaterial m = GetMaterial(InstanceID(), g);
+    CookTorrence_GGX m = GetMaterial(InstanceID(), g);
 
     //========================
     // direct light
     float3 L = _lightInfo.dirLight.direction.xyz;
     float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
 
-    float3 albedo = m.values.diffuse.xyz; // float3(0.2, 0.2, 1.0);
+    float3 albedo = m.albedo.xyz; // float3(0.2, 0.2, 1.0);
 
     RayPayloadShadow shadowPayLoad;
     shadowPayLoad.inShadow = true;
@@ -175,10 +175,10 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     if (!shadowPayLoad.inShadow) {
         float diff = max(dot(g.shadingNormal, L), 0.0);
 
+
         float3 directLightContribution = diff * Le * albedo; 
         payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
     }else{
-        //payLoad.incomingLightColour += payLoad.rayColour * albedo;
 
     }
 
@@ -191,15 +191,15 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     
     float3 specularDir = reflect(WorldRayDirection(), g.shadingNormal);
     
-    bool isSpecularRay = (1.0 - m.values.roughness) >= RandomValue(payLoad.randomContext);
+    bool isSpecularRay = (1.0 - m.roughness) >= RandomValue(payLoad.randomContext);
     
-    payLoad.rayDirection = lerp(diffuseDir, specularDir,m.values.metalness * (float)isSpecularRay );
+    payLoad.rayDirection = lerp(diffuseDir, specularDir,m.metallnes * (float)isSpecularRay );
 
     // other direction
-    float3 emmittedLight = m.values.emissive_strength.xyz * m.values.emissive_strength.w;
+    float3 emmittedLight = m.emission.xyz * m.emission.w;
 
     payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
-    payLoad.rayColour *= m.values.diffuse.xyz ;
+    payLoad.rayColour *= m.albedo.xyz ;
     payLoad.hasHit = true;
 
 }

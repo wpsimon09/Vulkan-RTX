@@ -48,7 +48,7 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPerObjectBuffer(
     vk::DescriptorBufferInfo bufferInfo;
     bufferInfo.buffer = m_perObjectData[currentFrame]->GetBuffer();
     bufferInfo.offset = 0;
-    bufferInfo.range = sizeof(PerObjectData);
+    bufferInfo.range = vk::WholeSize;
 
     return bufferInfo;
 }
