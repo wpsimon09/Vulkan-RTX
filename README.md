@@ -116,6 +116,7 @@ python compileSlang.py --verbose
 
 ![image](https://github.com/user-attachments/assets/d00f9703-44d1-4e87-aad9-2bf362cd7e9e)
 
+![image](https://github.com/user-attachments/assets/2d217da5-5d04-482b-b938-9b436d28d078)
 
 ## Early version of path tracing 
 
