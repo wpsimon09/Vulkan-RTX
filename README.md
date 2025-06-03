@@ -104,19 +104,14 @@ Once done, use Python to compile the shaders from the `Shaders` directory:
 ## assuming you are in the Shaders directory
 python compileSlang.py --verbose
 ```
- 
-
 
 ## Little showcase
 
-### Editor
+![image](https://github.com/user-attachments/assets/69a1ac89-3466-49b0-b9ef-e5a453318cb1 )
 
-![image](https://github.com/user-attachments/assets/69a1ac89-3466-49b0-b9ef-e5a453318cb1)
+![Screenshot From 2025-06-03 10-31-22](https://github.com/user-attachments/assets/6d313d62-2d93-40f8-beb5-18aadbd71e1f )
 
-
-![image](https://github.com/user-attachments/assets/d00f9703-44d1-4e87-aad9-2bf362cd7e9e)
-
-![image](https://github.com/user-attachments/assets/2d217da5-5d04-482b-b938-9b436d28d078)
+![image](https://github.com/user-attachments/assets/2d217da5-5d04-482b-b938-9b436d28d078 )
 
 ## Early version of path tracing 
 
