@@ -151,6 +151,8 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
     CookTorrence_GGX m = GetMaterial(InstanceID(), g);
 
+    
+
     //========================
     // direct light
     float3 L = _lightInfo.dirLight.direction.xyz;
@@ -175,7 +177,10 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     if (!shadowPayLoad.inShadow) {
         float diff = max(dot(g.shadingNormal, L), 0.0);
 
+        float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
 
+        float3 diffuseLight = m.Evaluate(V, L, m.normal);
+        
         float3 directLightContribution = diff * Le * albedo; 
         payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
     }else{

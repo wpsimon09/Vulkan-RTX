@@ -82,6 +82,12 @@ public struct PBRMaterial : IMaterial
             brdf.albedo = values.diffuse;
         }
 
+        if(features.hasNormalTexture){
+            brdf.normal = SampleNormalMap(normal_map, geometry.uv,geometry.shadingNormal, geometry.shadingPosition);
+        }else{
+            brdf.normal = geometry.normal;
+        }
+
         if (features.hasArmTexture)
         {
             float3 armValues = arm_map.Sample(geometry.uv).rgb;
@@ -148,6 +154,8 @@ public struct CookTorrence_GGX : IBRDF
     public float ao;
 
     public float4 emission;
+
+    public float3 normal;
 
     float DistributionGGX(float3 N, float3 H)
     {
