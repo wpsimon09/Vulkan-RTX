@@ -199,7 +199,7 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
 
                 case EShaderBindingGroup::ForwardLit: {
 
-                    e->SetNumWrites(0, 1200, 0);
+                    e->SetNumWrites(0, 4200, 0);
                     e->WriteImageArray(i, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
 
                     if (renderingContext->irradianceMap) {
@@ -216,7 +216,7 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
                     break;
                 }
                 case EShaderBindingGroup::ForwardUnlit:{
-                    e->SetNumWrites(0, 1200, 0);
+                    e->SetNumWrites(0, 3200, 0);
                     e->WriteImageArray(i, 1, 0, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
 
                 }

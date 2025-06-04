@@ -18,7 +18,7 @@ class UIContext;
 class Client;
 
 namespace GlobalVariables {
-inline const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+inline const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation" };
 
 inline const std::vector<const char*> instanceLevelExtensions = {
     static_cast<const char*>(VK_EXT_DEBUG_UTILS_EXTENSION_NAME),

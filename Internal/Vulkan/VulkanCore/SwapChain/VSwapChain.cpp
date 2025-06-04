@@ -109,15 +109,15 @@ void VulkanCore::VSwapChain::CreateSwapChain()
     vk::SwapchainCreateInfoKHR swapChainCreateInfo;
     swapChainCreateInfo.surface          = m_instance.GetSurface();
     swapChainCreateInfo.minImageCount    = minImageCount;
-    swapChainCreateInfo.imageFormat      = m_format.format;
-    swapChainCreateInfo.imageColorSpace  = m_format.colorSpace;
+    swapChainCreateInfo.imageFormat      = m_format.format; // vk::Format::eR16G16B16A16Sfloat
+    swapChainCreateInfo.imageColorSpace  = m_format.colorSpace; //vk::ColorSpaceKHR::eSrgbNonLinear
     swapChainCreateInfo.imageExtent      = m_extent;
     swapChainCreateInfo.presentMode      = m_presentMode;
     swapChainCreateInfo.imageArrayLayers = 1;
     swapChainCreateInfo.imageUsage       = vk::ImageUsageFlagBits::eColorAttachment;
-    swapChainCreateInfo.preTransform     = capabilites.currentTransform;
+    swapChainCreateInfo.preTransform     = capabilites.currentTransform; //vk:SurfaceTransformFlagBitsKHR::eldentity
     swapChainCreateInfo.compositeAlpha   = vk::CompositeAlphaFlagBitsKHR::eOpaque;
-    swapChainCreateInfo.presentMode      = m_presentMode;
+    swapChainCreateInfo.presentMode      = m_presentMode; // fifo
     swapChainCreateInfo.clipped          = VK_TRUE;
     swapChainCreateInfo.oldSwapchain     = VK_NULL_HANDLE;
 
@@ -137,7 +137,7 @@ void VulkanCore::VSwapChain::CreateSwapChain()
     }
 
     m_swapChain = m_device.GetDevice().createSwapchainKHR(swapChainCreateInfo, nullptr);
-    assert(m_swapChain != VK_NULL_HANDLE);
+    assert(m_swapChain != VK_NULL_HANDLE); // assertion triggered
     Utils::Logger::LogSuccess("Swap chain created");
 }
 

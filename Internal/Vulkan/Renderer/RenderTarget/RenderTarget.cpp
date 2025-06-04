@@ -85,7 +85,7 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
         //==========================
         // CREATE MSAA ATTACHMENT
         //==========================
-        colourAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransientAttachment;
+        colourAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
         colourAttachmentCreateInfo.samples = m_device.GetSampleCount();
         m_msaaAttachments[i].second = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachmentCreateInfo);
 
