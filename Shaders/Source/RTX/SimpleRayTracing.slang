@@ -107,7 +107,7 @@ void rayGenMain() {
         totalRadiance += rayRadiacne;
     }
 
-    
+
     float weight = max(1.0 / (globalData.currentFrame + 1), 0);
 
     // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
@@ -116,7 +116,7 @@ void rayGenMain() {
     // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
     float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
 
-    _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0) ;
+    _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
 }
 
 [[shader("miss")]]
@@ -173,15 +173,12 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
         TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
     }
-
+    
+    float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
     if (!shadowPayLoad.inShadow) {
-        float diff = max(dot(g.shadingNormal, L), 0.0);
 
-        float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
-
-        float3 diffuseLight = m.Evaluate(V, L, m.normal);
+        float3 directLightContribution = Le * m.Evaluate(V, L, m.normal);
         
-        float3 directLightContribution = diff * Le * albedo; 
         payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
     }else{
 

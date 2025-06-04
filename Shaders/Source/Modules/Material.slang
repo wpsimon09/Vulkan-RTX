@@ -79,7 +79,7 @@ public struct PBRMaterial : IMaterial
         }
         else
         {
-            brdf.albedo = values.diffuse;
+            brdf.albedo = values.diffuse ;
         }
 
         if(features.hasNormalTexture){
@@ -232,7 +232,7 @@ public struct CookTorrence_GGX : IBRDF
 
         float3 colour =  (kd * albedo.xyz / PI + specular) * NdotL;
 
-        colour += (this.emission.xyz * this.emission.w);
+        //colour += (this.emission.xyz * this.emission.w);
 
         return colour;
     }

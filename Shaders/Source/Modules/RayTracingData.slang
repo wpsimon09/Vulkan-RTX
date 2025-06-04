@@ -1,6 +1,7 @@
 module RayTracingData;
 import Surface;
 import Material;
+import Utils;
 
 [[vk::binding(2, 0)]]
 StructuredBuffer<ObjDescription> descriptions;

@@ -35,8 +35,8 @@ struct VertexOutput {
         float3 normal = VAO.inNormal;
         float2 uv = VAO.inUV;
 
-        float3 FragmentWorldPos = mul(perObjectData[perObjectPC.perObjectDataIndex].modelMatrix, float4(vertexPos, 1.0)).xyz;
-        float3 NormalWorldPos = mul(transpose(inverse(perObjectData[perObjectPC.perObjectDataIndex].modelMatrix)), float4(normal, 1.0)).xyz;
+        float3 FragmentWorldPos = mul(float4(vertexPos, 1.0) , perObjectData[perObjectPC.perObjectDataIndex].modelMatrix).xyz;
+        float3 NormalWorldPos = mul( float4(normal, 1.0) , perObjectData[perObjectPC.perObjectDataIndex].normalMatrix).xyz;
 
         VertexOutput out;
         out.vertexData.cameraPos = globalData.cameraPostiion.xyz;

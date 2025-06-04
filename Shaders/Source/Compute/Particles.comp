@@ -4,13 +4,13 @@
 layout(std140, binding = 0) uniform ParameterUBO{
     float deltaTime;
     float offset;
-    vec3 RayDirection;
+    float3 RayDirection;
 }ubo;
 
 //same as in c++ side
 struct Particle{
-    vec3 position;
-    vec3 velocity;
+    float3 position;
+    float3 velocity;
     vec4 color;
 };
 

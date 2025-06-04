@@ -68,7 +68,6 @@ void SceneRenderer::Render(int                                       currentFram
     }
     DrawScene(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
-
     m_frameCount++;
 }
 
