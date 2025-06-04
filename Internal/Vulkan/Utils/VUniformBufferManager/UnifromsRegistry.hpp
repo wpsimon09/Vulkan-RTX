@@ -39,16 +39,12 @@ struct ObjectDataUniform
     PBRMaterialDescription material;
 };
 
-struct PerObjectData {
+struct alignas(16) PerObjectData  {
     glm::mat4              model{};
     glm::mat4              normalMatrix{};
     glm::vec4              position{};
+    int                    materialIndex = 0;
 
-    uint                   materialIndex{0};
-
-    uint                   padding1{0};
-    uint                   padding2{0};
-    uint                   padding3{0};
 };
 
 struct PointLightGPU

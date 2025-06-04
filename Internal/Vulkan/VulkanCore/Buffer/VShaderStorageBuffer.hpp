@@ -41,6 +41,8 @@ class VShaderStorageBuffer : public VObject
      */
     void Resize(vk::DeviceSize newSize);
 
+    vk::DeviceSize GetAllocatedSize() const;
+
     void Destroy() override;
 
     vk::DeviceSize  GetCurrentSize() const ;

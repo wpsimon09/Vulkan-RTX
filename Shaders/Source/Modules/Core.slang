@@ -40,12 +40,7 @@ public struct PermodelData {
     public float4x4 modelMatrix;
     public float4x4 normalMatrix;
     public float4 positionWorldSpace;
-
-    public uint materialIndex ;
-
-    public uint padding2;
-    public uint padding1;
-    public uint padding3;
+    public int materialIndex ;
 };
 
 //=================================================

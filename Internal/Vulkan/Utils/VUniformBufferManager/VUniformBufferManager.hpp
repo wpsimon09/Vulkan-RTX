@@ -70,7 +70,7 @@ class VUniformBufferManager
     // storage buffers containing all of the data for materials
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_sceneMaterials;
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_perObjectData;
-    std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>               m_sceneTextures;
+    std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>   m_sceneTextures;
 
     mutable int m_currentDrawCalls = 0;
 };

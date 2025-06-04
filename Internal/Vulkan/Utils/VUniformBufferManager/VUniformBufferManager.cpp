@@ -48,7 +48,7 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPerObjectBuffer(
     vk::DescriptorBufferInfo bufferInfo;
     bufferInfo.buffer = m_perObjectData[currentFrame]->GetBuffer();
     bufferInfo.offset = 0;
-    bufferInfo.range = vk::WholeSize;
+    bufferInfo.range = m_perObjectData[currentFrame]->GetAllocatedSize();
 
     return bufferInfo;
 }
@@ -91,6 +91,8 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
 {
     int  i         = 0;
 
+    if (drawCalls.empty()) return;
+
     //TODO: do not allocate new vector every time here instead allocate one that can fit at least 50% of the required buffer objects
     std::vector<PerObjectData> perObjectData (drawCalls.size());
 
@@ -105,7 +107,6 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
 
         i++;
     }
-
 
     m_perObjectData[frameIndex]->Update(perObjectData);
 
