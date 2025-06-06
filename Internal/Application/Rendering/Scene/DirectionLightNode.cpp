@@ -72,7 +72,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
             data.vertexData = &m_visualisationMesh->GetMeshData()->vertexData;
             data.indexData  = &m_visualisationMesh->GetMeshData()->indexData;
             data.indexCount = m_visualisationMesh->GetMeshIndexCount();
-            renderingContext->AddDrawCall(data);
+           // renderingContext->AddDrawCall(data);
         }
     }
 }
