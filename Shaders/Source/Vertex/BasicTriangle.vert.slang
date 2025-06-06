@@ -7,6 +7,7 @@ struct VertexInput {
     float3 inPosition :POSITION ;
     float3 inNormal : NORMAL;
     float2 inUV : UV;
+
 };
 
 struct VertexOutput {
@@ -46,7 +47,7 @@ struct VertexOutput {
 
         float4x4 viewProj = mul(globalData.view, globalData.projection);
         out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
-        out.vertexData.material = materialValues[perObjectData[perObjectPC.perObjectDataIndex].materialIndex];
+        out.vertexData.material = materialValues[perObjectData[perObjectPC.perObjectDataIndex].indexes.x];
 
         return out;
     }

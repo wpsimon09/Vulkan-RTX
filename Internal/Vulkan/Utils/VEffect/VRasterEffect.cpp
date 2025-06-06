@@ -193,7 +193,6 @@ VRasterEffect& VRasterEffect::SetDepthOpAllways()
 
 void VRasterEffect::BuildEffect()
 {
-
     auto pipelines = m_device.GetDevice().createGraphicsPipelines(nullptr, m_pipeline->GetGraphicsPipelineCreateInfoStruct());
     assert(pipelines.result == vk::Result::eSuccess);
     for(auto& p : pipelines.value)
@@ -219,7 +218,7 @@ void VRasterEffect::Destroy()
 }
 void VRasterEffect::BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) {
 
-    for (int i = 0; i < m_descriptorSets.size(); ++i) {
+    for (int i = 0; i < m_descriptorSets.size(); i++) {
         cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipeline->GetPipelineLayout(), i, 1, &m_descriptorSets[i].sets[frame], 0, nullptr);
     }
 }

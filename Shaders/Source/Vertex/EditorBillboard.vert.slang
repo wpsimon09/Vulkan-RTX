@@ -38,7 +38,7 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
 
     VertexOutput out;
     out.vertexData.uv = VAO.inUV;
-    out.vertexData.mat = materials[perModelData[perObjectPC.perObjectDataIndex].materialIndex];
+    out.vertexData.mat = materials[perModelData[perObjectPC.perObjectDataIndex].indexes.x];
     
     float4x4 viewProj = mul(globalData.view, globalData.projection);
     out.sv_position = mul(viewProj, float4(vertexPosWorldSpace, 1.0));

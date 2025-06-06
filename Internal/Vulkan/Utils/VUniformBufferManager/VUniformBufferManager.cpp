@@ -103,7 +103,7 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
         perObjectData[i].model = drawCall.second.modelMatrix;
         perObjectData[i].normalMatrix = glm::transpose(glm::inverse(drawCall.second.modelMatrix));
         perObjectData[i].position = glm::vec4(drawCall.second.position,1.0);
-        perObjectData[i].materialIndex =  drawCall.second.materialIndex;
+        perObjectData[i].indexes.x =  drawCall.second.materialIndex;
 
         i++;
     }

@@ -43,7 +43,7 @@ struct alignas(16) PerObjectData  {
     glm::mat4              model{};
     glm::mat4              normalMatrix{};
     glm::vec4              position{};
-    int                    materialIndex = 0;
+    glm::uvec4              indexes{}; // x - material index,
 
 };
 

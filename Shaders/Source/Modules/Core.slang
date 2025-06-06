@@ -37,10 +37,11 @@ public struct GlobalDataRTX {
 };
 
 public struct PermodelData {
-    public float4x4 modelMatrix;
-    public float4x4 normalMatrix;
+    row_major public float4x4 modelMatrix;
+    row_major public float4x4 normalMatrix;
     public float4 positionWorldSpace;
-    public int materialIndex ;
+    public uint4 indexes; // x - material index;
+    
 };
 
 //=================================================

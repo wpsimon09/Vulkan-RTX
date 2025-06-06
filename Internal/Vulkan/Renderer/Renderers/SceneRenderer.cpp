@@ -92,7 +92,6 @@ void SceneRenderer::DepthPrePass(int                                       curre
     m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
 
     m_depthPrePassEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
-    m_depthPrePassEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 1);
 
     //==============================================
     // START RENDER PASS
@@ -276,8 +275,8 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
     // RECORD OPAQUE DRAW CALLS
     //=================================================
     currentEffect->BindPipeline(cmdB);
+    //currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
 
-    currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
         auto& material = drawCall.second.material;
@@ -285,13 +284,14 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
         {
             currentEffect = drawCall.second.effect;
             drawCall.second.effect->BindPipeline(cmdB);
-            currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
+            //currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
         }
 
         if(drawCall.second.selected)
             cmdB.setStencilTestEnable(true);
         else
             cmdB.setStencilTestEnable(false);
+
         //================================================================================================
         // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
         //================================================================================================
@@ -312,6 +312,8 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
             cmdB.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
             currentIndexBuffer = drawCall.second.indexData;
         }
+
+        drawCall.second.effect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
 
         PushDrawCallId(cmdB, drawCall.second);
 
@@ -341,7 +343,7 @@ void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
 
 void SceneRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall) {
 
-    PerObjectPushConstant pc;
+    PerObjectPushConstant pc{};
     pc.objectID = drawCall.drawCallID;
 
     vk::PushConstantsInfo pcInfo;
