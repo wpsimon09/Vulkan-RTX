@@ -113,13 +113,5 @@ python compileSlang.py --verbose
 
 ![image](https://github.com/user-attachments/assets/2d217da5-5d04-482b-b938-9b436d28d078 )
 
-## Early version of path tracing 
-
-### RTX OFF
-![image](https://github.com/user-attachments/assets/5ce4636b-7d55-448c-9a10-c18c1e0944d1)
-
-
-### RTX ON
-![image](https://github.com/user-attachments/assets/3f7a2fc2-b993-499d-bbe8-eb2047063820)
-
+![image](https://github.com/user-attachments/assets/9040d57c-21aa-4724-823d-94efa3da0827)
 
