@@ -25,6 +25,9 @@
 
 namespace ApplicationCore {
 
+
+
+
 void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
 {
     if(node->HasMesh())
@@ -104,11 +107,16 @@ void SceneData::IndexNode(std::shared_ptr<ApplicationCore::SceneNode>& node) {
     node->m_nodeIndex = nodes.size() -1 ;
 }
 
+
+//=============================================================================
+// SCENE WITH POINTERS
+//=============================================================================
 Scene::Scene(AssetsManager& assetsManager, Camera& camera)
     : m_assetsManager(assetsManager)
     , m_sceneStatistics()
     , m_camera(camera)
 {
+
 }
 
 void Scene::Init()
@@ -116,7 +124,10 @@ void Scene::Init()
     m_root = std::make_shared<SceneNode>();
     m_root->SetName("Root-Node");
 
+    m_sceneData.AddEntry(m_root);
+
     BuildDefaultScene();
+
 }
 
 void Scene::Update()

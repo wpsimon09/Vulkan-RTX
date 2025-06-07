@@ -703,23 +703,47 @@ vk::DescriptorPool VulkanUtils::CreatePool(const VulkanCore::VDevice&           
 
     return descriptorPool;
 }
-std::string VulkanUtils::DescriptorTypeToString(vk::DescriptorType descriptorType) {
-        switch (descriptorType) {
-        case vk::DescriptorType::eSampler: return "eSampler";
-        case vk::DescriptorType::eCombinedImageSampler: return "eCombinedImageSampler";
-        case vk::DescriptorType::eSampledImage: return "eSampledImage";
-        case vk::DescriptorType::eStorageImage: return "eStorageImage";
-        case vk::DescriptorType::eUniformTexelBuffer: return "eUniformTexelBuffer";
-        case vk::DescriptorType::eStorageTexelBuffer: return "eStorageTexelBuffer";
-        case vk::DescriptorType::eUniformBuffer: return "eUniformBuffer";
-        case vk::DescriptorType::eStorageBuffer: return "eStorageBuffer";
-        case vk::DescriptorType::eUniformBufferDynamic: return "eUniformBufferDynamic";
-        case vk::DescriptorType::eStorageBufferDynamic: return "eStorageBufferDynamic";
-        case vk::DescriptorType::eInputAttachment: return "eInputAttachment";
-        case vk::DescriptorType::eInlineUniformBlock: return "eInlineUniformBlock";
-        case vk::DescriptorType::eAccelerationStructureKHR: return "eAccelerationStructureKHR";
-        case vk::DescriptorType::eAccelerationStructureNV: return "eAccelerationStructureNV";
-        default: return "Unknown";
-        }
+std::string VulkanUtils::DescriptorTypeToString(vk::DescriptorType descriptorType)
+{
+    switch(descriptorType)
+    {
+        case vk::DescriptorType::eSampler:
+            return "eSampler";
+        case vk::DescriptorType::eCombinedImageSampler:
+            return "eCombinedImageSampler";
+        case vk::DescriptorType::eSampledImage:
+            return "eSampledImage";
+        case vk::DescriptorType::eStorageImage:
+            return "eStorageImage";
+        case vk::DescriptorType::eUniformTexelBuffer:
+            return "eUniformTexelBuffer";
+        case vk::DescriptorType::eStorageTexelBuffer:
+            return "eStorageTexelBuffer";
+        case vk::DescriptorType::eUniformBuffer:
+            return "eUniformBuffer";
+        case vk::DescriptorType::eStorageBuffer:
+            return "eStorageBuffer";
+        case vk::DescriptorType::eUniformBufferDynamic:
+            return "eUniformBufferDynamic";
+        case vk::DescriptorType::eStorageBufferDynamic:
+            return "eStorageBufferDynamic";
+        case vk::DescriptorType::eInputAttachment:
+            return "eInputAttachment";
+        case vk::DescriptorType::eInlineUniformBlock:
+            return "eInlineUniformBlock";
+        case vk::DescriptorType::eAccelerationStructureKHR:
+            return "eAccelerationStructureKHR";
+        case vk::DescriptorType::eAccelerationStructureNV:
+            return "eAccelerationStructureNV";
+        default:
+            return "Unknown";
+    }
+}
+bool VulkanUtils::RelaxedAssert(bool condition, std::string msg) {
+    if (condition != true) {
+        Utils::Logger::LogError(msg);
+        std::cout<<msg << std::endl;
+        return false;
+    }return true;
 }
 

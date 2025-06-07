@@ -324,6 +324,7 @@ void DetailsPanel::RenderPBRMaterialDetails(ApplicationCore::PBRMaterial* materi
         //=================
         // NORMAL texture
         //=================
+        ImGui::SeparatorText("Normal");
         ImGui::Checkbox("Use normal texture", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasNormalTexture));
 
         //==============

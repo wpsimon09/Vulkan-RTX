@@ -94,7 +94,8 @@ void VEffect::SetNumWrites(uint32_t buffers, uint32_t images, uint32_t accels) {
 void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorBufferInfo bufferInfo)
 {
     assert(m_bufferInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
-    assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
+    if (!RelaxedAssert(m_descriptorSets[set].writes[frame].contains(binding) , "there is no such binding in the given descirptor set"))
+        return;
 
 
     auto& write = m_descriptorSets[set].writes[frame][binding];
@@ -107,7 +108,9 @@ void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::De
     void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo imageInfo)
 {
     assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
-    assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
+    if (!RelaxedAssert(m_descriptorSets[set].writes[frame].contains(binding) , "there is no such binding in the given descirptor set"))
+        return;
+
     auto& write = m_descriptorSets[set].writes[frame][binding];
     assert(write.descriptorType == vk::DescriptorType::eCombinedImageSampler || write.descriptorType == vk::DescriptorType::eSampledImage
            || write.descriptorType == vk::DescriptorType::eStorageImage);
@@ -119,6 +122,7 @@ void VEffect::WriteImageArray(uint32_t frame, uint32_t set,uint32_t binding, con
     assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
     assert(m_imageInfos.capacity() >= imageInfos.capacity() && "Image array you are trying to write is too small for this set, adjust SetNumWrites accrodingly");
     assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
+
     auto& write = m_descriptorSets[set].writes[frame][binding];
     assert(write.descriptorType == vk::DescriptorType::eCombinedImageSampler || write.descriptorType == vk::DescriptorType::eSampledImage
            || write.descriptorType == vk::DescriptorType::eStorageImage);
@@ -131,7 +135,9 @@ void VEffect::WriteImageArray(uint32_t frame, uint32_t set,uint32_t binding, con
 void VEffect::WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR asInfo)
 {
     assert(m_asInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
-    assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descirptor set");
+
+    if (!RelaxedAssert(m_descriptorSets[set].writes[frame].contains(binding) , "there is no such binding in the given descirptor set"))
+        return;
 
     auto& write = m_descriptorSets[set].writes[frame][binding];
     assert(m_descriptorSets[set].writes[frame][binding].descriptorType == vk::DescriptorType::eAccelerationStructureKHR);
