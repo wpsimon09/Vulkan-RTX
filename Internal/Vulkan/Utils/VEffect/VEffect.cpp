@@ -198,9 +198,9 @@ void VEffect::ApplyWrites(uint32_t frame)
 }
 void VEffect::CmdPushConstant(const vk::CommandBuffer& commandBuffer, const vk::PushConstantsInfo& info)
 {
-    if(m_reflectionData->PCs.size() > 0)
+    if(!m_reflectionData->PCs.empty())
     {
-        commandBuffer.pushConstants2(info);
+        commandBuffer.pushConstants(info.layout, info.stageFlags, info.offset, info.size, info.pValues);
     }
 }
 

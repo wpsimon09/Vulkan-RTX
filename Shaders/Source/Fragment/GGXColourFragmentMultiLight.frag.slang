@@ -10,7 +10,7 @@ struct FragmentShaderIn
     float3 cameraPos : OUT_CAM_POS;
     float3 fragPos : OUT_FRAG_POS;
     float2 uv : OUT_UV;
-    Material material : OUT_MATERIAL;
+    int materialIdx : OUT_MATERIAL;
 };
 
 
@@ -23,14 +23,15 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     g.normal = normalize(fsIn.normal);
     g.uv = fsIn.uv;
 
-    
+    Material mat = materialValues[fsIn.materialIdx];
+
     PBRMaterial material;
-    material.features = fsIn.material.Features;
-    material.values = fsIn.material.Values;
-    material.albedo_map = textures[fsIn.material.Features.albedoTextureIdx];
-    material.arm_map = textures[fsIn.material.Features.armTextureIdx];
-    material.normal_map = textures[fsIn.material.Features.normalTextureIdx];
-    material.emissive_map = textures[fsIn.material.Features.emissiveTextureIdx];
+    material.features = mat.Features;
+    material.values = mat.Values;
+    material.albedo_map = textures[mat.Features.albedoTextureIdx];
+    material.arm_map = textures[mat.Features.armTextureIdx];
+    material.normal_map = textures[mat.Features.normalTextureIdx];
+    material.emissive_map = textures[mat.Features.emissiveTextureIdx];
     let brdf_ = material.Prepare(g);
 
     if (material.features.hasNormalTexture) {

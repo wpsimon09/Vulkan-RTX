@@ -218,7 +218,7 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
                 case EShaderBindingGroup::ForwardUnlit:{
                     e->SetNumWrites(0, 3200, 0);
                     e->WriteImageArray(i, 1, 0, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
-
+                    break;
                 }
                 case EShaderBindingGroup::ForwardUnlitNoMaterial:{
                     break;

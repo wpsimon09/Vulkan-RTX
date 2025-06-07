@@ -4,7 +4,7 @@ import Material;
 struct FragmentShaderIn
 {
     float2 uv : OUT_UV;
-    Material mat : OUT_MAT;
+    int materialIndex : OUT_MAT;
 
 };
 
@@ -13,7 +13,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     : SV_Target
 {
 
-    float4 bilboardTexture = textures[fsIn.mat.Features.albedoTextureIdx].Sample(fsIn.uv);
+    float4 bilboardTexture = textures[materials[fsIn.materialIndex].Features.albedoTextureIdx].Sample(fsIn.uv);
     if (bilboardTexture.w < 1.0) {
         discard;
     }

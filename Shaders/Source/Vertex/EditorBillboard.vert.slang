@@ -8,7 +8,7 @@ struct VertexInput {
 
 struct FragmentShaderIn {
     float2 uv : OUT_UV;
-    Material mat : OUT_MAT;
+    int mat : OUT_MAT;
 };
 
 struct VertexOutput {
@@ -38,7 +38,7 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
 
     VertexOutput out;
     out.vertexData.uv = VAO.inUV;
-    out.vertexData.mat = materials[perModelData[perObjectPC.perObjectDataIndex.x].indexes.x];
+    out.vertexData.mat = perModelData[perObjectPC.perObjectDataIndex.x].indexes.x;
     
     float4x4 viewProj = mul(globalData.view, globalData.projection);
     out.sv_position = mul(viewProj, float4(vertexPosWorldSpace, 1.0));

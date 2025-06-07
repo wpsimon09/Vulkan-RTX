@@ -48,7 +48,7 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPerObjectBuffer(
     vk::DescriptorBufferInfo bufferInfo;
     bufferInfo.buffer = m_perObjectData[currentFrame]->GetBuffer();
     bufferInfo.offset = 0;
-    bufferInfo.range = m_perObjectData[currentFrame]->GetAllocatedSize();
+    bufferInfo.range = m_perObjectData[currentFrame]->GetCurrentSize();
 
     return bufferInfo;
 }
@@ -69,7 +69,7 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetMaterialDescript
     vk::DescriptorBufferInfo descriptorBuffer;
     descriptorBuffer.buffer = m_sceneMaterials[frameIndex]->GetBuffer();
     descriptorBuffer.offset = 0;
-    descriptorBuffer.range = vk::WholeSize;
+    descriptorBuffer.range = m_sceneMaterials[frameIndex]->GetCurrentSize();
 
     return  descriptorBuffer;
 }
@@ -79,7 +79,7 @@ void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameInde
 {
     m_perFrameUniform->GetUBOStruct() = perFrameData;
     auto view                         = perFrameData.view;
-    auto projection                         = perFrameData.proj;
+    auto projection                   = perFrameData.proj;
     m_perFrameUniform->GetUBOStruct().inverseView = glm::inverse(view);
     m_perFrameUniform->GetUBOStruct().inverseProj = glm::inverse(projection);
 

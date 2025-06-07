@@ -24,7 +24,7 @@ struct VertexOutput {
         float3 cameraPos : OUT_CAM_POS;
         float3 fragPos : OUT_FRAG_POS;
         float2 uv : OUT_UV;
-        Material material : OUT_MATERIAL;
+        int materialIndex : OUT_MATERIAL;
     };
 
 
@@ -39,15 +39,16 @@ struct VertexOutput {
         float3 FragmentWorldPos =mul( perObjectPC.modelMatrix,  float4(vertexPos, 1.0)).xyz;
         float3 NormalWorldPos = mul(transpose(inverse(perObjectPC.modelMatrix)), float4(normal.xyz, 1.0)).xyz;//mul( float4(normal, 1.0) , perObjectData[perObjectPC.perObjectDataIndex].normalMatrix).xyz;
 
+
         VertexOutput out;
         out.vertexData.cameraPos = globalData.cameraPostiion.xyz;
         out.vertexData.fragPos = FragmentWorldPos;
         out.vertexData.normal = NormalWorldPos;
         out.vertexData.uv = uv;
+        out.vertexData.materialIndex = perObjectData[perObjectPC.perObjectDataIndex.x].indexes.x;
 
         float4x4 viewProj = mul(globalData.view, globalData.projection);
         out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
-        out.vertexData.material = materialValues[perObjectData[perObjectPC.perObjectDataIndex.x].indexes.x];
 
         return out;
     }
