@@ -37,7 +37,7 @@ struct ReflectionData {
   SpvReflectShaderModule moduleReflection;
   std::map<int , ReflecSetLayoutData> descriptorSets;
   std::vector<vk::PushConstantRange> PCs;
-  std::string pushConstantName;
+  std::vector<std::string> pushConstantNames;
 
 
   int bindingCount = 0;

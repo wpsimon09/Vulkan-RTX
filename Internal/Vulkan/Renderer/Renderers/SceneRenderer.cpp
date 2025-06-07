@@ -342,9 +342,9 @@ void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
 
 
 void SceneRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall) {
-
     PerObjectPushConstant pc{};
-    pc.objectID = drawCall.drawCallID;
+    pc.indexes.x = drawCall.drawCallID;
+    pc.modelMatrix = drawCall.modelMatrix;
 
     vk::PushConstantsInfo pcInfo;
     pcInfo.layout = drawCall.effect->GetPipelineLayout();

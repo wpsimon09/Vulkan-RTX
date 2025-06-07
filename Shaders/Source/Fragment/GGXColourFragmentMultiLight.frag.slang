@@ -65,8 +65,6 @@ float4 fragmentMain(FragmentShaderIn fsIn)
 
     return float4(finalColor, brdf_.albedo.w);
 
-
-
-     //return float4(g.normal, 1.0);
+    //return float4(g.normal, 1.0);
 }
 

@@ -316,6 +316,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
                     //===================================
                     // std::vector<PerObjectData> SSBO.
                     e->WriteBuffer(i, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+                    break;
                 }
 
                 case EShaderBindingGroup::Skybox: {

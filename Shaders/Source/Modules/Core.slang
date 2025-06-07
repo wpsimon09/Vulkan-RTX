@@ -37,8 +37,8 @@ public struct GlobalDataRTX {
 };
 
 public struct PermodelData {
-    row_major public float4x4 modelMatrix;
-    row_major public float4x4 normalMatrix;
+    public float4x4 modelMatrix;
+    public float4x4 normalMatrix;
     public float4 positionWorldSpace;
     public uint4 indexes; // x - material index;
     
@@ -48,5 +48,6 @@ public struct PermodelData {
 // push constant passed every frame 
 // used to index material buffer per object buffer
 public struct PerObjectPushConstatn {
-    public uint perObjectDataIndex;
+    public int4 perObjectDataIndex; //x- index to the the material yzw - other indexes
+    public column_major float4x4 modelMatrix;
 }

@@ -83,7 +83,8 @@ struct RTXObjDescription {
 };
 
 struct PerObjectPushConstant {
-    uint32_t objectID;
+    glm::ivec4 indexes    {}; // x - object index, yzw - padding for now in future can be other indexes
+    glm::mat4 modelMatrix {};
 };
 
 

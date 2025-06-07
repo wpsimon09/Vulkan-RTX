@@ -20,7 +20,7 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
     // sotre for later
     float3 vertexPos = VAO.inPosition;
 
-    float3 FragmentWorldPos = mul(perModelData[perObjectPC.perObjectDataIndex].modelMatrix, float4(vertexPos, 1.0)).xyz;
+    float3 FragmentWorldPos = mul(perObjectPC.modelMatrix, float4(vertexPos, 1.0)).xyz;
 
     VertexOutput out;
 

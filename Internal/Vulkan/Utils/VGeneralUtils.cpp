@@ -742,7 +742,6 @@ std::string VulkanUtils::DescriptorTypeToString(vk::DescriptorType descriptorTyp
 bool VulkanUtils::RelaxedAssert(bool condition, std::string msg) {
     if (condition != true) {
         Utils::Logger::LogError(msg);
-        std::cout<<msg << std::endl;
         return false;
     }return true;
 }
