@@ -134,7 +134,7 @@ void Scene::Update()
 {
     if(!m_staticMeshes.empty())
     {
-        return m_staticMeshes.clear();
+     //   return m_staticMeshes.clear();
     }
     m_root->Update(m_sceneUpdateFlags);
 }
