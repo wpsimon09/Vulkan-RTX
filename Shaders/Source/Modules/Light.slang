@@ -2,6 +2,7 @@ module Light;
 
 import Material;
 import Surface;
+import Utils;
 
 
 public struct LightInfo {
@@ -14,7 +15,7 @@ public struct LightInfo {
 
 // B - brdf equation
 public interface ILightEnv {
-    float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo);
+    float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo, RaytracingAccelerationStructure sceneAccelerationStrucuture);
 }
 
 public struct DirectionalLight : ILightEnv {
@@ -22,7 +23,19 @@ public struct DirectionalLight : ILightEnv {
     public float4 intensity;
 
 
-    public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
+
+    public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo, RaytracingAccelerationStructure sceneAccelerationStrucuture) {
+
+        RayDesc ray = InitRay(g.shadingPosition, direction.xyz, 10000);
+        RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> rayQuery;
+        rayQuery.TraceRayInline(sceneAccelerationStrucuture, RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH, 0xFF,ray );
+
+        rayQuery.Proceed();
+
+        // we have a hit which means that fragment is in shadow
+        if(rayQuery.CommittedStatus() == COMMITTED_TRIANGLE_HIT){
+            return brdf.EvaluateForShadow() ;
+        }
         return (intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g.normal);
     }
 }
@@ -32,7 +45,8 @@ public struct PointLight : ILightEnv {
     public float4 position;
     public float4 CLQU_Parameters; //constant, linear ,quadratic, inuse
 
-    public float3 illuminate<B:IBRDF>(SurfaceGeometry  g, B brdf, float3 wo){
+
+    public float3 illuminate<B:IBRDF>(SurfaceGeometry  g, B brdf, float3 wo, RaytracingAccelerationStructure sceneAccelerationStrucuture){
         float3 delta = position.xyz - g.position;
         float distance = length(delta);
         float3 direction = normalize(delta);
@@ -53,7 +67,8 @@ public struct AreaLight : ILightEnv {
     Sampler2D LTC;
     Sampler2D LTC_Inverse;
 
-    public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
+
+    public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo, RaytracingAccelerationStructure sceneAccelerationStrucuture) {
         if (isInuse) {
             return (intensity.xyz * intensity.w).xyz * brdf.EvaluateByLTC(normalize(wo), g.position, g.normal, points, TwoSided, LTC, LTC_Inverse);
             //return 0.f;
@@ -67,12 +82,14 @@ public struct AreaLight : ILightEnv {
 // L - light type
 public struct LightArray<L : ILightEnv, let N : int> : ILightEnv {
     public L lights[N];
+    public RaytracingAccelerationStructure sceneAccelerationStrucuture;
+
     
 
-    public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
+    public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo, RaytracingAccelerationStructure sceneAccelerationStrucuture) {
         float3 sum = 0;
         for (int ii = 0; ii < N; ++ii) {
-            sum += lights[ii].illuminate(g, brdf, wo);
+            sum += lights[ii].illuminate(g, brdf, wo, sceneAccelerationStrucuture);
         }
         return sum;
     }
@@ -80,12 +97,14 @@ public struct LightArray<L : ILightEnv, let N : int> : ILightEnv {
 
 // Empty light enviroment
 public struct EmptyLightEnv : ILightEnv {
-    public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
+
+    public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo, RaytracingAccelerationStructure sceneAccelerationStrucuture) {
         return 0;
     }
 }
 
 public struct AmbientLight : ILightEnv {
+    
     public float aoIntensity;
     public float3 albedo;
     public bool applyIBL;
@@ -97,7 +116,7 @@ public struct AmbientLight : ILightEnv {
 
     public Sampler2D BRDF_Lut;
 
-    public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
+    public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo, RaytracingAccelerationStructure sceneAccelerationStrucuture) {
         if (applyIBL) { // passed from application based on if the env is nullptr or not 
             float3 kS = brdf.FresnellShlickRoughness(max(dot(g.normal, wo), 0.0));
             float3 kD = float3(1.0) - kS;
@@ -126,8 +145,11 @@ public struct LightPair<T : ILightEnv, U : ILightEnv> : ILightEnv {
     public T first;
     public U second;
 
-    public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
-        return first.illuminate(g, brdf, wo) + second.illuminate(g, brdf, wo);
+    bool firstInShaow = false;
+    bool secondInShadow = false;
+
+    public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo, RaytracingAccelerationStructure sceneAccelerationStrucuture) {
+        return first.illuminate(g, brdf, wo, sceneAccelerationStrucuture) + second.illuminate(g, brdf, wo, sceneAccelerationStrucuture);
     }
 }
 

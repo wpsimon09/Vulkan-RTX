@@ -78,3 +78,14 @@ public float3 uncharted2_filmic(float3 v)
     float3 white_scale = float3(1.0f) / uncharted2_tonemap_partial(W);
     return curr * white_scale;
 }
+
+public RayDesc InitRay(float3 origin, float3 direction, float tMax)
+{
+    RayDesc rayDescription;
+    rayDescription.Origin = origin;
+    rayDescription.Direction = direction;
+    rayDescription.TMax = tMax;
+    rayDescription.TMin = 0.01;
+
+    return rayDescription;
+}

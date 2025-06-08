@@ -155,7 +155,6 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
 
     BuildAllEffects();
-    ConfigureDescriptorWrites(uniformBufferManager, rtxDataManager);
 }
 
 std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type)
@@ -278,7 +277,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
                 case EShaderBindingGroup::ForwardLit: {
 
-                    e->SetNumWrites(7, 4, 0);
+                    e->SetNumWrites(7, 4, 1);
                     //===================================
                     // global data
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
@@ -294,6 +293,10 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
                     //===================================
                     // std::vector<PerObjectData> SSBO.
                     e->WriteBuffer(i, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+
+                    //===================================
+                    // for ray query we need acceleration strucutre
+                    e->WriteAccelerationStrucutre(i, 0, 4, rayTracingDataManager.GetTLAS());
 
                     break;
                 }

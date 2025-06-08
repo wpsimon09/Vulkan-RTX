@@ -134,6 +134,11 @@ public interface IBRDF
     float3 Evaluate(float3 wo, float3 wi, float3 N);
 
     /**
+    * Returns colour in case gemetry is ins shadow
+    */
+    float3 EvaluateForShadow();
+
+    /**
      * wo -         incoming view direction
      * wi -         incoming light direction
      * N  -         normalVector;
@@ -278,7 +283,12 @@ public struct CookTorrence_GGX : IBRDF
         colour += (this.emission.xyz * this.emission.w);
 
         return colour;
-    } 
+    }
+    
+    public float3 EvaluateForShadow(){
+        return albedo.xyz * 0.4;
+    }
+
 }
 
 

@@ -20,6 +20,8 @@ float4 fragmentMain(FragmentShaderIn fsIn)
 {
    SurfaceGeometry g;
     g.position = fsIn.fragPos;
+    g.shadingPosition = fsIn.fragPos;
+    g.shadingNormal = normalize(fsIn.normal);
     g.normal = normalize(fsIn.normal);
     g.uv = fsIn.uv;
 
@@ -43,6 +45,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     DirAndPoint.first = _lightInfo.dirLight;
     DirAndPoint.second = _lightInfo.pointLights;
 
+
     AmbientLight ambientLight;
     ambientLight.albedo = brdf_.albedo.xyz;
     ambientLight.aoIntensity = _lightInfo.info.y;
@@ -62,7 +65,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     //CookTorrence_GGX brdf;
     float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
 
-    float3 finalColor = lightingEnv.illuminate(g, brdf_, V);
+    float3 finalColor = lightingEnv.illuminate(g, brdf_, V, _tlas);
 
     return float4(finalColor, brdf_.albedo.w);
 

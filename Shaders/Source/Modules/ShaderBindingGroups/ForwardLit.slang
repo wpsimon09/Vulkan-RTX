@@ -18,6 +18,9 @@ StructuredBuffer<Material> materialValues;
 [[vk::binding(3, 0)]]
 ConstantBuffer<LightInfo> _lightInfo;
 
+[[vk::binding(4,0)]]
+RaytracingAccelerationStructure _tlas;
+
 //========================
 // set 1
 

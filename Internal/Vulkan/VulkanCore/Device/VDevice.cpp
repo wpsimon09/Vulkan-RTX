@@ -219,9 +219,13 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     GpuAccelerationStrucutreFeatures.accelerationStructure                              = true;
     GpuAccelerationStrucutreFeatures.pNext = &physicalDeviceVulkan12Features;
 
+    vk::PhysicalDeviceRayQueryFeaturesKHR GpuRayQueryFeatures = {};
+    GpuRayQueryFeatures.rayQuery = true;
+    GpuRayQueryFeatures.pNext = &GpuAccelerationStrucutreFeatures;
+
     vk::PhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingPipelineFeatures = {};
     rayTracingPipelineFeatures.rayTracingPipeline                              = true;
-    rayTracingPipelineFeatures.pNext                                           = &GpuAccelerationStrucutreFeatures;
+    rayTracingPipelineFeatures.pNext                                           = &GpuRayQueryFeatures;
 
 
     vk::PhysicalDeviceFeatures deviceFeatures{};
