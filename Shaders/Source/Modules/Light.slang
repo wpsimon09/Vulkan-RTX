@@ -26,17 +26,11 @@ public struct DirectionalLight : ILightEnv {
 
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo, RaytracingAccelerationStructure sceneAccelerationStrucuture) {
 
-        RayDesc ray = InitRay(g.shadingPosition, direction.xyz, 10000);
-        RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> rayQuery;
-        rayQuery.TraceRayInline(sceneAccelerationStrucuture, RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH, 0xFF,ray );
-
-        rayQuery.Proceed();
-
-        // we have a hit which means that fragment is in shadow
-        if(rayQuery.CommittedStatus() == COMMITTED_TRIANGLE_HIT){
+        if(IntersectsP(InitRay(g.shadingPosition, direction.xyz, 10000), sceneAccelerationStrucuture)){
             return brdf.EvaluateForShadow() ;
         }
         return (intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g.normal);
+
     }
 }
 
@@ -47,14 +41,20 @@ public struct PointLight : ILightEnv {
 
 
     public float3 illuminate<B:IBRDF>(SurfaceGeometry  g, B brdf, float3 wo, RaytracingAccelerationStructure sceneAccelerationStrucuture){
-        float3 delta = position.xyz - g.position;
+        if(position.w != 1) return 0.f;
+        float3 delta = position.xyz - g.shadingPosition;
         float distance = length(delta);
         float3 direction = normalize(delta);
 
+        //if(IntersectsP(InitRay(g.shadingPosition, direction, 10000), sceneAccelerationStrucuture)){
+            float  attentuation = 1.0f / (CLQU_Parameters.x + (CLQU_Parameters.y * distance) + (CLQU_Parameters.z * (distance * distance)));
+            float3 illuminance = (intensity.xyz * intensity.w).xyz;
+            return illuminance * attentuation * brdf.Evaluate(wo, direction, g.normal);
+        //}else{
+           //
+            return brdf.EvaluateForShadow();
+        //}
         
-        float  attentuation = 1.0f / (CLQU_Parameters.x + (CLQU_Parameters.y * distance) + (CLQU_Parameters.z * (distance * distance)));
-        float3 illuminance = (intensity.xyz * intensity.w).xyz;
-        return position.w == 1 ? illuminance * attentuation * brdf.Evaluate(wo, direction, g.normal) : 0.f;
     }
 }
 

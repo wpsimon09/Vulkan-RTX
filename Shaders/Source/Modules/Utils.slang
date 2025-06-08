@@ -89,3 +89,13 @@ public RayDesc InitRay(float3 origin, float3 direction, float tMax)
 
     return rayDescription;
 }
+
+public bool IntersectsP(RayDesc ray, RaytracingAccelerationStructure as){
+    RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> rayQuery;
+    rayQuery.TraceRayInline(as, RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH, 0xFF,ray );
+
+    rayQuery.Proceed();
+
+    return (rayQuery.CommittedStatus() == COMMITTED_TRIANGLE_HIT);
+     
+}
