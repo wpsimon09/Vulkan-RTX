@@ -67,18 +67,25 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
     //=============================
     // CONFIGURE RT SHADOW MAP PASS
     //=============================
+
     m_rtxShadowPassEffect = effectsLibrary.effects[ApplicationCore::EEffectType::RTShadowPass];
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
 
+        // IMPORTANT: Depth attachment is  transitioned to shader read only optimal during creation
         m_rtxShadowPassEffect->SetNumWrites(0, 1, 0);
         m_rtxShadowPassEffect->WriteImage(i, 0, 3, m_renderTargets->GetDepthDescriptorInfo(i));
         m_rtxShadowPassEffect->ApplyWrites(i);
     }
 
+    //==================================================================================
+    // IMPORTANT: We have to transition depth attachment back to depth color attachment
+    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetDepthImage(1), vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                    vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                    m_device.GetTransferOpsManager().GetCommandBuffer());
 
-    //==================================
-    // Transition to shader read optimal
+    //=============================================
+    // Transition shadow map to shader read optimal
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined,
                                                     m_device.GetTransferOpsManager().GetCommandBuffer());
 
@@ -223,9 +230,12 @@ void SceneRenderer::DepthPrePass(int                                       curre
 
 
     VulkanUtils::PlaceImageMemoryBarrier(
-        m_renderTargets->GetDepthImage(currentFrameIndex), cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
-        vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::PipelineStageFlagBits::eEarlyFragmentTests,
-        vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+        m_renderTargets->GetDepthImage(currentFrameIndex), cmdBuffer,
+        vk::ImageLayout::eDepthStencilAttachmentOptimal,
+        vk::ImageLayout::eDepthStencilAttachmentOptimal,
+        vk::PipelineStageFlagBits::eEarlyFragmentTests,
+        vk::PipelineStageFlagBits::eEarlyFragmentTests,
+        vk::AccessFlagBits::eDepthStencilAttachmentWrite,
         vk::AccessFlagBits::eDepthStencilAttachmentRead);
 
     m_renderingStatistics.DrawCallCount = drawCallCount;
@@ -239,16 +249,21 @@ void SceneRenderer::ShadowMapPass(int                                       curr
 
     //=========================================================================
     // Transition shadow map from shader read only optimal to render attachment
-
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eColorAttachmentOptimal,
                                                     vk::ImageLayout::eShaderReadOnlyOptimal, cmdBuffer);
 
+    //=============================================================
+    // Trasition depth from render attachemnt to shader read only
+    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetDepthImage(0), vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                vk::ImageLayout::eDepthStencilAttachmentOptimal, cmdBuffer);
+
+
     vk::RenderingAttachmentInfo shadowMapAttachmentInfo{};
     shadowMapAttachmentInfo.clearValue.color = vk::ClearColorValue{0.0f, 0.0f, 0.0f, 1.0f};
-    shadowMapAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
-    shadowMapAttachmentInfo.imageView   = m_shadowMap->GetImageView();
-    shadowMapAttachmentInfo.loadOp      = vk::AttachmentLoadOp::eClear;
-    shadowMapAttachmentInfo.storeOp     = vk::AttachmentStoreOp::eStore;
+    shadowMapAttachmentInfo.imageLayout      = vk::ImageLayout::eColorAttachmentOptimal;
+    shadowMapAttachmentInfo.imageView        = m_shadowMap->GetImageView();
+    shadowMapAttachmentInfo.loadOp           = vk::AttachmentLoadOp::eClear;
+    shadowMapAttachmentInfo.storeOp          = vk::AttachmentStoreOp::eStore;
 
     std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {shadowMapAttachmentInfo};
 
@@ -282,6 +297,13 @@ void SceneRenderer::ShadowMapPass(int                                       curr
 
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                     vk::ImageLayout::eColorAttachmentOptimal, cmdB);
+
+
+    //=============================================================
+    // Trasition depth from render attachemnt to shader read only
+    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetDepthImage(0), vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                vk::ImageLayout::eShaderReadOnlyOptimal, cmdBuffer);
+
 }
 
 

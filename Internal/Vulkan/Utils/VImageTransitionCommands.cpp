@@ -229,6 +229,21 @@ void VulkanUtils::EvaluateBarrierMasks(vk::ImageLayout targetLayout, vk::ImageLa
         srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
         dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput; // or eFragmentShader depending on usage
     }
+    else if (currentLayout == vk::ImageLayout::eShaderReadOnlyOptimal && targetLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
+        barrier.srcAccessMask = vk::AccessFlagBits::eShaderRead;
+        barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
+        dstStageFlags = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+
+    }
+    else if (currentLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal && targetLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
+        barrier.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eLateFragmentTests;
+        dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
+    }
     else
     {
         std::string currentLayoutStr = ImageLayoutToString(currentLayout);

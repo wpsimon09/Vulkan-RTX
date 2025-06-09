@@ -43,7 +43,7 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
     depthAttachmentCreateInfo.mipLevels  = 1;
     depthAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eDepth;
     depthAttachmentCreateInfo.samples    = m_device.GetSampleCount();
-    depthAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    depthAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
 
     m_depthAttachment.second = std::make_unique<VulkanCore::VImage2>(m_device, depthAttachmentCreateInfo);
 
@@ -124,7 +124,7 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
     }
     // TRANSITION EVERYTHING FROM UNDEFINED LAYOUT TO COLOUR ATTACHMENT
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_depthAttachment.second, vk::ImageLayout::eDepthStencilAttachmentOptimal,
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_depthAttachment.second, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                     vk::ImageLayout::eUndefined,
                                                     cmdBuffer.GetCommandBuffer());
 

@@ -19,5 +19,6 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
-    return float4(_depthTexture.Sample(fsIn.uv).xyz, 1.0);
+    float depth = _depthTexture.Sample(fsIn.uv).x;
+    return float4(float3(depth), 1.0);
 }
