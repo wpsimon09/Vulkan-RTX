@@ -87,6 +87,8 @@ const VulkanCore::ReflectionData* VEffect::GetReflectionData()
 
 void VEffect::SetNumWrites(uint32_t buffers, uint32_t images, uint32_t accels)
 {
+    if (m_descriptorSets.empty()) return;
+
     m_bufferInfos.reserve(buffers);
     m_imageInfos.reserve(images);
 
@@ -97,6 +99,8 @@ void VEffect::SetNumWrites(uint32_t buffers, uint32_t images, uint32_t accels)
 
 void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorBufferInfo bufferInfo)
 {
+    if (m_descriptorSets.empty()) return;
+
     assert(m_bufferInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
     if(!RelaxedAssert(m_descriptorSets[set].writes[frame].contains(binding),
     "there is no such binding in the given descirptor set" + std::to_string(set)
@@ -113,6 +117,8 @@ void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::De
 
 void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo imageInfo)
 {
+    if (m_descriptorSets.empty()) return;
+
     assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
     if(!RelaxedAssert(m_descriptorSets[set].writes[frame].contains(binding),
                       "there is no such binding in the given descriptor set: " + std::to_string(set)
@@ -128,6 +134,8 @@ void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::Des
 }
 void VEffect::WriteImageArray(uint32_t frame, uint32_t set, uint32_t binding, const std::vector<vk::DescriptorImageInfo>& imageInfos)
 {
+    if (m_descriptorSets.empty()) return;
+
     assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
     assert(m_imageInfos.capacity() >= imageInfos.capacity()
            && "Image array you are trying to write is too small for this set, adjust SetNumWrites accordingly");
@@ -144,6 +152,8 @@ void VEffect::WriteImageArray(uint32_t frame, uint32_t set, uint32_t binding, co
 
 void VEffect::WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR asInfo)
 {
+    if (m_descriptorSets.empty()) return;
+
     assert(m_asInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
 
     if(!RelaxedAssert(m_descriptorSets[set].writes[frame].contains(binding), "there is no such binding in the given descirptor set" + std::to_string(set)

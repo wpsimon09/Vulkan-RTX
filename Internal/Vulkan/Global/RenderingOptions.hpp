@@ -12,7 +12,7 @@ inline float OutlineWidth          = 0.1;
 inline bool  PreformDepthPrePass   = true;
 inline int   MaxRecursionDepth     = 1;
 inline int   RaysPerPixel          = 2;
-inline bool         PreformShadowPass = false;
+inline bool         PreformShadowPass = true;
 }  // namespace GlobalVariables::RenderingOptions
 
 #endif  //RENDERINGOPTIONS_HPP

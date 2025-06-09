@@ -157,6 +157,10 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
                                                                      "Shaders/Compiled/RTShadowPass.vert.spv",
                                                                      "Shaders/Compiled/RTShadowPass.frag.spv", descLayoutCache,
                                                                      EShaderBindingGroup::ForwardUnlitNoMaterial);
+    rtShadowPass->SetDisableDepthTest();
+    rtShadowPass->SetColourOutputFormat(vk::Format::eR8Unorm);
+    rtShadowPass->SetVertexInputMode(EVertexInput::Empty);
+    rtShadowPass->SetPiplineNoMultiSampling();
 
     effects[EEffectType::RTShadowPass] = std::move(rtShadowPass);
 

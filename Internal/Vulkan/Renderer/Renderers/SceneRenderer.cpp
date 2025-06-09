@@ -52,7 +52,10 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
     shadowMapCi.height              = height;
     shadowMapCi.width               = width;
     shadowMapCi.imageAllocationName = "Screen-Space Shadow Map";
+    shadowMapCi.samples = vk::SampleCountFlagBits::e1;
+    shadowMapCi.imageUsage          = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
     shadowMapCi.layout              = vk::ImageLayout::eShaderReadOnlyOptimal;
+    shadowMapCi.format = vk::Format::eR8Unorm;
     m_shadowMap                     = std::make_unique<VulkanCore::VImage2>(m_device, shadowMapCi);
 
 
@@ -72,6 +75,7 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
         m_rtxShadowPassEffect->WriteImage(i, 0, 3, m_renderTargets->GetDepthDescriptorInfo(i));
         m_rtxShadowPassEffect->ApplyWrites(i);
     }
+
 
     //==================================
     // Transition to shader read optimal
@@ -96,14 +100,10 @@ void SceneRenderer::Render(int                                       currentFram
 
     // descriptor set 0 is allways the samme
 
-    if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
-    {
-        DepthPrePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
-    }
-    if(GlobalVariables::RenderingOptions::PreformShadowPass)
-    {
-        ShadowMapPass(cmdBuffer, uniformBufferManager);
-    }
+    DepthPrePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
+    VulkanUtils::PlacePipelineBarrier(cmdBuffer, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eColorAttachmentOutput);
+    ShadowMapPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
+
     DrawScene(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
     m_frameCount++;

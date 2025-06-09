@@ -18,6 +18,6 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 }
 
 [shader("fragment")]
-float4 fragmentMain(VertexOut fsIn) :SV_Target {
-    return float4(fsIn.uv, 0.0, 1.0);
+uint fragmentMain(VertexOut fsIn) :SV_Target {
+    return 1;
 }
