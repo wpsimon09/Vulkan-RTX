@@ -52,10 +52,10 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
     shadowMapCi.height              = height;
     shadowMapCi.width               = width;
     shadowMapCi.imageAllocationName = "Screen-Space Shadow Map";
-    shadowMapCi.samples = vk::SampleCountFlagBits::e1;
+    shadowMapCi.samples             = vk::SampleCountFlagBits::e1;
     shadowMapCi.imageUsage          = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
     shadowMapCi.layout              = vk::ImageLayout::eShaderReadOnlyOptimal;
-    shadowMapCi.format = vk::Format::eR8Unorm;
+    shadowMapCi.format              = vk::Format::eR16G16B16A16Sfloat;
     m_shadowMap                     = std::make_unique<VulkanCore::VImage2>(m_device, shadowMapCi);
 
 
@@ -101,7 +101,7 @@ void SceneRenderer::Render(int                                       currentFram
     // descriptor set 0 is allways the samme
 
     DepthPrePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
-    VulkanUtils::PlacePipelineBarrier(cmdBuffer, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eColorAttachmentOutput);
+
     ShadowMapPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
     DrawScene(currentFrameIndex, cmdBuffer, uniformBufferManager);
@@ -231,7 +231,9 @@ void SceneRenderer::DepthPrePass(int                                       curre
     m_renderingStatistics.DrawCallCount = drawCallCount;
 }
 
-void SceneRenderer::ShadowMapPass(int currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+void SceneRenderer::ShadowMapPass(int                                       currentFrameIndex,
+                                  VulkanCore::VCommandBuffer&               cmdBuffer,
+                                  const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording ! ");
 
@@ -242,7 +244,7 @@ void SceneRenderer::ShadowMapPass(int currentFrameIndex, VulkanCore::VCommandBuf
                                                     vk::ImageLayout::eShaderReadOnlyOptimal, cmdBuffer);
 
     vk::RenderingAttachmentInfo shadowMapAttachmentInfo{};
-    shadowMapAttachmentInfo.clearValue  = vk::ClearValue{};
+    shadowMapAttachmentInfo.clearValue.color = vk::ClearColorValue{0.0f, 0.0f, 0.0f, 1.0f};
     shadowMapAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
     shadowMapAttachmentInfo.imageView   = m_shadowMap->GetImageView();
     shadowMapAttachmentInfo.loadOp      = vk::AttachmentLoadOp::eClear;
@@ -266,18 +268,20 @@ void SceneRenderer::ShadowMapPass(int currentFrameIndex, VulkanCore::VCommandBuf
         0, 0, (float)renderingInfo.renderArea.extent.width, (float)renderingInfo.renderArea.extent.height, 0.0f, 1.0f};
     cmdB.setViewport(0, 1, &viewport);
 
-    vk::Rect2D scissors{{0, 0}, {(uint32_t)renderingInfo.renderArea.extent.width, (uint32_t)renderingInfo.renderArea.extent.height}};
+    vk::Rect2D scissors{{0, 0},
+                        {(uint32_t)renderingInfo.renderArea.extent.width, (uint32_t)renderingInfo.renderArea.extent.height}};
     cmdB.setScissor(0, 1, &scissors);
     cmdB.setStencilTestEnable(false);
 
     m_rtxShadowPassEffect->BindPipeline(cmdB);
     m_rtxShadowPassEffect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
 
-    cmdB.draw(3,1,0,0);
+    cmdB.draw(3, 1, 0, 0);
 
     cmdB.endRendering();
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eShaderReadOnlyOptimal,vk::ImageLayout::eColorAttachmentOptimal, cmdB);
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                    vk::ImageLayout::eColorAttachmentOptimal, cmdB);
 }
 
 
