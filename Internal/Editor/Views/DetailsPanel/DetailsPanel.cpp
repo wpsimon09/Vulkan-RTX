@@ -188,7 +188,7 @@ void DetailsPanel::RenderDirectionLightUI()
     ImGui::SeparatorText("General light settings");
     ImGui::SetNextItemWidth(600.0f);
     ImGui::ColorEdit3("LightColour", &DirLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
-
+    ImGui::SliderFloat("Sun radius", &DirLightNode->GetLightStruct().sunRadius, 0.1f, 20.0f);
     ImGui::DragFloat("Intensity", &DirLightNode->GetLightStruct().colour.w);
 }
 

@@ -45,10 +45,20 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, ApplicationCore:
     // CONFIGURE DEPTH PASS EFFECT
     //=========================
     m_depthPrePassEffect = effectsLibrary.effects[ApplicationCore::EEffectType::DepthPrePass];
+
+    //=============================
+    // CONFIGURE RT SHADOW MAP PASS
+    //=============================
+    m_rtxShadowPassEffect = effectsLibrary.effects[ApplicationCore::EEffectType::RTShadowPass];
+    m_rtxShadowPassEffect->SetNumWrites(0, 1, 0);
+    for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
+        m_rtxShadowPassEffect->WriteImage(i, 0, 3, m_renderTargets->GetDepthImage(i) )
+    }
+
     Utils::Logger::LogSuccess("Scene renderer created !");
 }
 
-void SceneRenderer::Render(int                                       currentFrameIndex,
+void SceneRenderer::Render(int                                     currentFrameIndex,
                            VulkanCore::VCommandBuffer&               cmdBuffer,
                            const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                            VulkanUtils::RenderContext*               renderContext)
@@ -191,6 +201,11 @@ void SceneRenderer::DepthPrePass(int                                       curre
         vk::AccessFlagBits::eDepthStencilAttachmentRead);
 
     m_renderingStatistics.DrawCallCount = drawCallCount;
+}
+
+void SceneRenderer::ShadowMapPass(VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+{
+
 }
 
 

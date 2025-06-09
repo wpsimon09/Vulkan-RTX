@@ -1,4 +1,5 @@
 module RandomValues;
+import Utils;
 
 #define PI 3.14159265359
 
@@ -50,4 +51,26 @@ public uint tea(in uint val0, in uint val1)
     }
 
     return v0;
+}
+
+public float3 GetConeSample(inout uint randSeed, float3 direction, float coneAngle) {
+    float cosAngle = cos(coneAngle);
+
+    // Generate poits on the spherical cap around the north pole [1].
+    // [1] See https://math.stackexchange.com/a/205589/81266
+    float z = RandomValue(randSeed) * (1.0f - cosAngle) + cosAngle;
+    float phi = RandomValue(randSeed) * 2.0f * PI;
+
+    float x = sqrt(1.0f - z * z) * cos(phi);
+    float y = sqrt(1.0f - z * z) * sin(phi);
+    float3 north = float3(0.f, 0.f, 1.f);
+
+    // Find the rotation axis `u` and rotation angle `rot` [1]
+    float3 axis = normalize(cross(north, normalize(direction)));
+    float angle = acos(dot(normalize(direction), north));
+
+    // Convert rotation axis and angle to 3x3 rotation matrix [2]
+    float3x3 R = angleAxis3x3(angle, axis);
+
+    return mul(R, float3(x, y, z));
 }

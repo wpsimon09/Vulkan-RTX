@@ -3,6 +3,7 @@ module Light;
 import Material;
 import Surface;
 import Utils;
+import RandomValues;
 
 
 public struct LightInfo {
@@ -19,12 +20,30 @@ public interface ILightEnv {
 }
 
 public struct DirectionalLight : ILightEnv {
-    public float4 direction;
+    public float4 direction; //xyz - direction, w- sun radius
     public float4 intensity;
 
 
 
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo, RaytracingAccelerationStructure sceneAccelerationStrucuture) {
+
+        float lightRadius = direction.w;
+        float3 lightPosition = g.shadingPosition + 1000.0 * (-direction.xyz);
+        //=======================
+        // Soft shadow calculation
+        float3 Lperp = cross(direction.xyz, float3(0,1,0)); //perpendicular to the world normal
+        
+
+        if(all(Lperp == 0.0f)) {Lperp.x = 1.0;}
+
+        //================================================
+        // get the vecor from light center to light edge
+        float3 toLightEdge = normalize((lightPosition + Lperp * lightRadius) - g.shadingPosition);
+
+        //==================================================
+        // Angle between L and toLightEdge used for sampling
+        float coneAngle = acos(dot(direction.xyz, toLightEdge)) * 2.0f ; // multiply since we only have half angle 
+    
 
         if(IntersectsP(InitRay(g.shadingPosition, direction.xyz, 10000), sceneAccelerationStrucuture)){
             return brdf.EvaluateForShadow() ;

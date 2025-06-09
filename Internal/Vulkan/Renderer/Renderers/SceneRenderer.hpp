@@ -67,6 +67,10 @@ namespace Renderer {
                           VulkanCore::VCommandBuffer& cmdBuffer,
                           const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
+        void ShadowMapPass(VulkanCore::VCommandBuffer& cmdBuffer,
+                          const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+
+
         void CreateRenderTargets(VulkanCore::VSwapChain* swapChain);
 
         void PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall );
@@ -79,7 +83,7 @@ namespace Renderer {
         // Rendering
         std::unique_ptr<Renderer::RenderTarget> m_renderTargets;
         std::shared_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
-
+        std::shared_ptr<VulkanUtils::VEffect> m_rtxShadowPassEffect;
         VulkanStructs::VRenderingStatistics m_renderingStatistics;
 
         // Config / state

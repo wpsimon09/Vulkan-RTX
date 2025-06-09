@@ -20,10 +20,10 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore {
-EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
-                               VulkanUtils::VUniformBufferManager& uniformBufferManager,
+EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
+                               VulkanUtils::VUniformBufferManager&  uniformBufferManager,
                                VulkanUtils::VRayTracingDataManager& rtxDataManager,
-                               VulkanCore::VDescriptorLayoutCache& descLayoutCache)
+                               VulkanCore::VDescriptorLayoutCache&  descLayoutCache)
     : m_descLayoutCache(descLayoutCache)
 {
     auto frowardEffect =
@@ -71,9 +71,9 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     //==============================================================================
 
-    auto debugLine =
-        std::make_shared<VulkanUtils::VRasterEffect>(device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv",
-                                                     "Shaders/Compiled/DebugLines.frag.spv", descLayoutCache, ForwardUnlitNoMaterial);
+    auto debugLine = std::make_shared<VulkanUtils::VRasterEffect>(device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv",
+                                                                  "Shaders/Compiled/DebugLines.frag.spv",
+                                                                  descLayoutCache, ForwardUnlitNoMaterial);
 
     debugLine->SetTopology(vk::PrimitiveTopology::eTriangleList)
         .SetCullNone()
@@ -103,8 +103,8 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
     //===============================================================================
 
     auto debugShapes = std::make_shared<VulkanUtils::VRasterEffect>(device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv",
-                                                                    "Shaders/Compiled/DebugGeometry.frag.spv",
-                                                                    descLayoutCache, EShaderBindingGroup::ForwardUnlitNoMaterial);
+                                                                    "Shaders/Compiled/DebugGeometry.frag.spv", descLayoutCache,
+                                                                    EShaderBindingGroup::ForwardUnlitNoMaterial);
 
     debugShapes->SetCullNone()
         .SetLineWidth(7)
@@ -132,10 +132,10 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
     effects[EEffectType::SkyBox] = std::move(skybox);
 
     //===============================================================================
-    auto depthPrePass = std::make_shared<VulkanUtils::VRasterEffect>(device, "Depth-PrePass effect",
-                                                                        "Shaders/Compiled/DepthPrePass.vert.spv",
-                                                                        "Shaders/Compiled/DepthPrePass.frag.spv",
-                                                                        descLayoutCache, EShaderBindingGroup::ForwardUnlitNoMaterial);
+    auto depthPrePass =
+        std::make_shared<VulkanUtils::VRasterEffect>(device, "Depth-PrePass effect", "Shaders/Compiled/DepthPrePass.vert.spv",
+                                                     "Shaders/Compiled/DepthPrePass.frag.spv", descLayoutCache,
+                                                     EShaderBindingGroup::ForwardUnlitNoMaterial);
     depthPrePass->SetVertexInputMode(EVertexInput::PositionOnly).SetDepthOpLess();
 
 
@@ -152,7 +152,13 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&          device,
 
     effects[EEffectType::RayTracing] = std::move(rayTracingEffect);
 
+    //===============================================================================
+    auto rtShadowPass = std::make_shared<VulkanUtils::VRasterEffect>(device, "Ray traced shadow map effect",
+                                                                     "Shaders/Compiled/RTShadowPass.vert.spv",
+                                                                     "Shaders/Compiled/RTShadowPass.frag.spv", descLayoutCache,
+                                                                     EShaderBindingGroup::ForwardUnlitNoMaterial);
 
+    effects[EEffectType::RTShadowPass] = std::move(rtShadowPass);
 
     BuildAllEffects();
 }
@@ -165,10 +171,10 @@ std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type
 
 void EffectsLibrary::BuildAllEffects()
 {
-    std::cout<<"======== Effect reflections =========\n\n\n";
+    std::cout << "======== Effect reflections =========\n\n\n";
     for(auto& effect : effects)
     {
-        std::cout<<effect.second->GetName() <<" | ------------------------\n";
+        std::cout << effect.second->GetName() << " | ------------------------\n";
         effect.second->GetReflectionData()->Print();
         effect.second->BuildEffect();
     }
@@ -181,7 +187,7 @@ void EffectsLibrary::Destroy()
         effect.second->Destroy();
     }
 }
-void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       renderingContext,
+void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*               renderingContext,
                                           const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     for(auto& effect : effects)
@@ -201,25 +207,30 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
                     e->SetNumWrites(0, 4200, 0);
                     e->WriteImageArray(i, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
 
-                    if (renderingContext->irradianceMap) {
-                        e->WriteImage(i, 1, 2,  renderingContext->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
-                    }if (renderingContext->prefilterMap) {
-                        e->WriteImage(i, 1, 3,  renderingContext->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
-                    }if (renderingContext->irradianceMap) {
-                        e->WriteImage(i, 1, 4,  renderingContext->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    if(renderingContext->irradianceMap)
+                    {
+                        e->WriteImage(i, 1, 2, renderingContext->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
+                    }
+                    if(renderingContext->prefilterMap)
+                    {
+                        e->WriteImage(i, 1, 3, renderingContext->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
+                    }
+                    if(renderingContext->irradianceMap)
+                    {
+                        e->WriteImage(i, 1, 4, renderingContext->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                     }
                     break;
                 }
-                case EShaderBindingGroup::RayTracing:{
+                case EShaderBindingGroup::RayTracing: {
 
                     break;
                 }
-                case EShaderBindingGroup::ForwardUnlit:{
+                case EShaderBindingGroup::ForwardUnlit: {
                     e->SetNumWrites(0, 3200, 0);
                     e->WriteImageArray(i, 1, 0, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
                     break;
                 }
-                case EShaderBindingGroup::ForwardUnlitNoMaterial:{
+                case EShaderBindingGroup::ForwardUnlitNoMaterial: {
                     break;
                 }
 
@@ -227,17 +238,17 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
                     //====================================
                     // global data
                     e->SetNumWrites(0, 1);
-                    if (renderingContext->hdrCubeMap) {
+                    if(renderingContext->hdrCubeMap)
+                    {
                         e->WriteImage(i, 1, 0, renderingContext->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                     }
                     break;
                 }
 
                 default: {
-                   // throw std::runtime_error("Unsupported bindinggroup !");
+                    // throw std::runtime_error("Unsupported bindinggroup !");
                     break;
                 }
-
             }
 
             //===================================
@@ -247,7 +258,8 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*       rend
     }
 }
 
-void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager)
+void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+                                               VulkanUtils::VRayTracingDataManager& rayTracingDataManager)
 {
     for(auto& effect : effects)
     {
@@ -260,9 +272,9 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
             switch(e->GetBindingGroup())
             {
-            case EShaderBindingGroup::ForwardUnlitNoMaterial: {
+                case EShaderBindingGroup::ForwardUnlitNoMaterial: {
 
-                    e->SetNumWrites(2, 0, 0);
+                    e->SetNumWrites(3, 0, 1);
 
                     //========================
                     // global data
@@ -300,13 +312,10 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
                     break;
                 }
-                case EShaderBindingGroup::RayTracing:{
-
-
-
+                case EShaderBindingGroup::RayTracing: {
                     break;
                 }
-                case EShaderBindingGroup::ForwardUnlit:{
+                case EShaderBindingGroup::ForwardUnlit: {
                     e->SetNumWrites(7, 4, 0);
                     //===================================
                     // global data
@@ -319,6 +328,24 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
                     //===================================
                     // std::vector<PerObjectData> SSBO.
                     e->WriteBuffer(i, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+                    break;
+                }
+                case EShaderBindingGroup::ShadowRT:{
+                    e->SetNumWrites(3, 2, 1);
+
+                    //==================================
+                    // global data
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    //===================================
+                    // ligth buffer
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+
+                    //===================================
+                    // acceleration structure for shadows
+                    e->WriteAccelerationStrucutre(i, 0, 2, rayTracingDataManager.GetTLAS());
+
+
                     break;
                 }
 
@@ -335,7 +362,6 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
                     throw std::runtime_error("Unsupported bindinggroup !");
                     break;
                 }
-
             }
 
             //===================================

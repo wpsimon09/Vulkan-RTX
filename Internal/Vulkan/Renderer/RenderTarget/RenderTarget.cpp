@@ -12,6 +12,7 @@
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -200,6 +201,9 @@ vk::ImageView RenderTarget::GetDepthImageView() const
 vk::ImageView RenderTarget::GetResolveImageView(int currentFrame) const
 {
     return m_colourAttachments[currentFrame].second->GetImageView();
+}
+vk::DescriptorImageInfo RenderTarget::GetDepthDescriptorInfo(int currentFrame) const {
+    return m_depthAttachment.second->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 }
 
 vk::RenderingAttachmentInfo& RenderTarget::GetColourAttachmentOneSample(int currentFrame)

@@ -43,7 +43,8 @@ enum class EEffectType : std::uint8_t
     AplhaBlend,
     EditorBilboard,
     RayTracing,
-    DepthPrePass
+    DepthPrePass,
+    RTShadowPass
 };
 
 class EffectsLibrary

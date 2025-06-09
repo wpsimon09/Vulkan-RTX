@@ -59,7 +59,8 @@ enum EShaderBindingGroup {
     Debug,
     NullBinding,
     Skybox,
-    RayTracing
+    RayTracing,
+    ShadowRT,
 };
 
 
