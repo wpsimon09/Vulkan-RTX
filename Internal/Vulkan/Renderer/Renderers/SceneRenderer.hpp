@@ -67,7 +67,8 @@ namespace Renderer {
                           VulkanCore::VCommandBuffer& cmdBuffer,
                           const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-        void ShadowMapPass(VulkanCore::VCommandBuffer& cmdBuffer,
+        void ShadowMapPass(int currentFrameIndex,
+                          VulkanCore::VCommandBuffer& cmdBuffer,
                           const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
 
@@ -82,6 +83,8 @@ namespace Renderer {
 
         // Rendering
         std::unique_ptr<Renderer::RenderTarget> m_renderTargets;
+        std::unique_ptr<VulkanCore::VImage2> m_shadowMap;
+
         std::shared_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
         std::shared_ptr<VulkanUtils::VEffect> m_rtxShadowPassEffect;
         VulkanStructs::VRenderingStatistics m_renderingStatistics;

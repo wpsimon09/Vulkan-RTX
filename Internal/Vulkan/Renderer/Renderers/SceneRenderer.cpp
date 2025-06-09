@@ -31,7 +31,11 @@
 
 
 namespace Renderer {
-SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary,  VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height)
+SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
+                             ApplicationCore::EffectsLibrary&    effectsLibrary,
+                             VulkanCore::VDescriptorLayoutCache& descLayoutCache,
+                             int                                 width,
+                             int                                 height)
     : m_device(device)
 
 {
@@ -40,6 +44,17 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, ApplicationCore:
     m_width  = width;
     m_height = height;
     SceneRenderer::CreateRenderTargets(nullptr);
+
+    //==========================
+    // CREATE SHADOW MAP
+    //==========================
+    VulkanCore::VImage2CreateInfo shadowMapCi;
+    shadowMapCi.height              = height;
+    shadowMapCi.width               = width;
+    shadowMapCi.imageAllocationName = "Screen-Space Shadow Map";
+    shadowMapCi.layout              = vk::ImageLayout::eShaderReadOnlyOptimal;
+    m_shadowMap                     = std::make_unique<VulkanCore::VImage2>(m_device, shadowMapCi);
+
 
     //=========================
     // CONFIGURE DEPTH PASS EFFECT
@@ -50,15 +65,24 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice& device, ApplicationCore:
     // CONFIGURE RT SHADOW MAP PASS
     //=============================
     m_rtxShadowPassEffect = effectsLibrary.effects[ApplicationCore::EEffectType::RTShadowPass];
-    m_rtxShadowPassEffect->SetNumWrites(0, 1, 0);
-    for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
-        m_rtxShadowPassEffect->WriteImage(i, 0, 3, m_renderTargets->GetDepthImage(i) )
+    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+    {
+
+        m_rtxShadowPassEffect->SetNumWrites(0, 1, 0);
+        m_rtxShadowPassEffect->WriteImage(i, 0, 3, m_renderTargets->GetDepthDescriptorInfo(i));
+        m_rtxShadowPassEffect->ApplyWrites(i);
     }
+
+    //==================================
+    // Transition to shader read optimal
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined,
+                                                    m_device.GetTransferOpsManager().GetCommandBuffer());
+
 
     Utils::Logger::LogSuccess("Scene renderer created !");
 }
 
-void SceneRenderer::Render(int                                     currentFrameIndex,
+void SceneRenderer::Render(int                                       currentFrameIndex,
                            VulkanCore::VCommandBuffer&               cmdBuffer,
                            const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                            VulkanUtils::RenderContext*               renderContext)
@@ -75,6 +99,10 @@ void SceneRenderer::Render(int                                     currentFrameI
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
     {
         DepthPrePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
+    }
+    if(GlobalVariables::RenderingOptions::PreformShadowPass)
+    {
+        ShadowMapPass(cmdBuffer, uniformBufferManager);
     }
     DrawScene(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
@@ -203,9 +231,53 @@ void SceneRenderer::DepthPrePass(int                                       curre
     m_renderingStatistics.DrawCallCount = drawCallCount;
 }
 
-void SceneRenderer::ShadowMapPass(VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+void SceneRenderer::ShadowMapPass(int currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
+    assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording ! ");
 
+    //=========================================================================
+    // Transition shadow map from shader read only optimal to render attachment
+
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eColorAttachmentOptimal,
+                                                    vk::ImageLayout::eShaderReadOnlyOptimal, cmdBuffer);
+
+    vk::RenderingAttachmentInfo shadowMapAttachmentInfo{};
+    shadowMapAttachmentInfo.clearValue  = vk::ClearValue{};
+    shadowMapAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    shadowMapAttachmentInfo.imageView   = m_shadowMap->GetImageView();
+    shadowMapAttachmentInfo.loadOp      = vk::AttachmentLoadOp::eClear;
+    shadowMapAttachmentInfo.storeOp     = vk::AttachmentStoreOp::eStore;
+
+    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {shadowMapAttachmentInfo};
+
+    vk::RenderingInfo renderingInfo{};
+    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
+    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
+    renderingInfo.layerCount           = 1;
+    renderingInfo.colorAttachmentCount = renderingOutputs.size();
+    renderingInfo.pColorAttachments    = renderingOutputs.data();
+    renderingInfo.pDepthAttachment     = nullptr;
+
+    auto& cmdB = cmdBuffer.GetCommandBuffer();
+
+    cmdB.beginRendering(&renderingInfo);
+
+    vk::Viewport viewport{
+        0, 0, (float)renderingInfo.renderArea.extent.width, (float)renderingInfo.renderArea.extent.height, 0.0f, 1.0f};
+    cmdB.setViewport(0, 1, &viewport);
+
+    vk::Rect2D scissors{{0, 0}, {(uint32_t)renderingInfo.renderArea.extent.width, (uint32_t)renderingInfo.renderArea.extent.height}};
+    cmdB.setScissor(0, 1, &scissors);
+    cmdB.setStencilTestEnable(false);
+
+    m_rtxShadowPassEffect->BindPipeline(cmdB);
+    m_rtxShadowPassEffect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
+
+    cmdB.draw(3,1,0,0);
+
+    cmdB.endRendering();
+
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eShaderReadOnlyOptimal,vk::ImageLayout::eColorAttachmentOptimal, cmdB);
 }
 
 
@@ -227,9 +299,9 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
     renderingInfo.layerCount           = 1;
     renderingInfo.colorAttachmentCount = colourAttachments.size();
     renderingInfo.pColorAttachments    = colourAttachments.data();
-    renderingInfo.pDepthAttachment     = &m_renderTargets->GetDepthAttachment();
 
     m_renderTargets->GetDepthAttachment().loadOp = vk::AttachmentLoadOp::eLoad;
+    renderingInfo.pDepthAttachment               = &m_renderTargets->GetDepthAttachment();
     renderingInfo.pStencilAttachment             = &m_renderTargets->GetDepthAttachment();
 
     //==============================================
@@ -356,16 +428,17 @@ void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
 }
 
 
-void SceneRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall) {
+void SceneRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall)
+{
     PerObjectPushConstant pc{};
-    pc.indexes.x = drawCall.drawCallID;
+    pc.indexes.x   = drawCall.drawCallID;
     pc.modelMatrix = drawCall.modelMatrix;
 
     vk::PushConstantsInfo pcInfo;
-    pcInfo.layout = drawCall.effect->GetPipelineLayout();
-    pcInfo.size = sizeof(PerObjectPushConstant);
-    pcInfo.offset = 0;
-    pcInfo.pValues = &pc;
+    pcInfo.layout     = drawCall.effect->GetPipelineLayout();
+    pcInfo.size       = sizeof(PerObjectPushConstant);
+    pcInfo.offset     = 0;
+    pcInfo.pValues    = &pc;
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex;
 
     drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
@@ -375,5 +448,6 @@ void SceneRenderer::Destroy()
 {
     m_renderTargets->Destroy();
     m_depthPrePassEffect->Destroy();
+    m_shadowMap->Destroy();
 }
 }  // namespace Renderer
