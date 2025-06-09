@@ -1,5 +1,6 @@
 import Core;
 import Material;
+import Utils;
 #include "ShaderBindingGroups/RTShadow.slang"
 
 struct VertexOut {
@@ -20,5 +21,10 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float depth = _depthTexture.Sample(fsIn.uv).x;
-    return float4(float3(depth), 1.0);
+    float3 worldSpacePos = WorldPosFromDepth(depth, fsIn.uv, globalData.invProjection, globalData.inverseView);
+
+    bool inShadow = false;
+    inShadow = IntersectsP(InitRay(worldSpacePos, _lightInfo.dirLight.direction.xyz, 1000), _tlas);
+
+    return float4(worldSpacePos, 1.0);
 }

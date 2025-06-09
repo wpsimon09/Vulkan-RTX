@@ -115,3 +115,15 @@ public float3x3 angleAxis3x3(float angle, float3 axis){
         t * x * z - s * y,  t * y * z + s * x,  t * z * z + c
     );
 }
+
+public float3 WorldPosFromDepth(float depth,float2 uv, float4x4 inverseProj, float4x4 inverseView){
+    float z = depth * 2.0 - 1.0;
+    float4 clipSpacePos = float4(uv * 2.0 - 1.0, z, 1.0);
+    float4 viewSpacePos = mul( inverseProj, clipSpacePos);
+    
+    viewSpacePos /= viewSpacePos.w;
+
+    float4 worldSpacePosition = mul( inverseView , viewSpacePos);
+
+    return worldSpacePosition.xyz;
+}
