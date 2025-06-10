@@ -42,3 +42,88 @@ public float4x4 inverse(float4x4 m) {
 
     return ret;
 }
+
+
+// TONE MAPPING FUNCTIONS BY 
+// https://64.github.io/tonemapping/
+public float3 tone_map_aces_approx(float3 v)
+{
+    v *= 0.6f;
+    float a = 2.51f;
+    float b = 0.03f;
+    float c = 2.43f;
+    float d = 0.59f;
+    float e = 0.14f;
+    return clamp((v*(a*v+b))/(v*(c*v+d)+e), 0.0f, 1.0f);
+}
+
+
+float3 uncharted2_tonemap_partial(float3 x)
+{
+    float A = 0.15f;
+    float B = 0.50f;
+    float C = 0.10f;
+    float D = 0.20f;
+    float E = 0.02f;
+    float F = 0.30f;
+    return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
+}
+
+public float3 uncharted2_filmic(float3 v)
+{
+    float exposure_bias = 2.0f;
+    float3 curr = uncharted2_tonemap_partial(v * exposure_bias);
+
+    float3 W = float3(11.2f);
+    float3 white_scale = float3(1.0f) / uncharted2_tonemap_partial(W);
+    return curr * white_scale;
+}
+
+public RayDesc InitRay(float3 origin, float3 direction, float tMax)
+{
+    RayDesc rayDescription;
+    rayDescription.Origin = origin;
+    rayDescription.Direction = direction;
+    rayDescription.TMax = tMax;
+    rayDescription.TMin = 0.01;
+
+    return rayDescription;
+}
+
+public bool IntersectsP(RayDesc ray, RaytracingAccelerationStructure as){
+    RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> rayQuery;
+    rayQuery.TraceRayInline(as, RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH, 0xFF,ray );
+
+    rayQuery.Proceed();
+
+    return (rayQuery.CommittedStatus() == COMMITTED_TRIANGLE_HIT);
+     
+}
+
+public float3x3 angleAxis3x3(float angle, float3 axis){
+    float c, s;
+    sincos(angle, s, c); // returns cosine and sine of the angle to the s and c
+
+    float t = 1 - c;
+    float x = axis.x;
+    float y = axis.y;
+    float z = axis.z;
+
+    return float3x3(
+        t * x * x + c,      t * x * y - s * z,  t * x * z + s * y,
+        t * x * y + s * z,  t * y * y + c,      t * y * z - s * x,
+        t * x * z - s * y,  t * y * z + s * x,  t * z * z + c
+    );
+}
+
+public float3 WorldPosFromDepth(float depth,float2 uv, float4x4 inverseProj, float4x4 inverseView){
+    float z = depth;
+    float4 clipSpacePos = float4(uv * 2.0 - 1.0, z, 1.0);
+    float4 viewSpacePos = mul( inverseProj, clipSpacePos);
+    
+    viewSpacePos /= viewSpacePos.w;
+
+    float4 worldSpacePosition = mul(  inverseView, viewSpacePos  );
+
+    return worldSpacePosition.xyz;
+}

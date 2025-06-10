@@ -85,23 +85,28 @@ void rayGenMain() {
 
     RayPayLoad payload;
     payload.incomingLightColour = float3(0.0);
-    payload.rayColour = float3(1.0);
     payload.hasHit = true;
     payload.randomContext = pixelIndex;
     payload.depth = 0;
-
+    payload.rayColour = float3(1.0);
+    
     for (int i = 0; i < globalData.raysPerPixel; i++) {
+        payload.incomingLightColour = float3(0.0);
         float3 rayRadiacne = float3(0.0);
-        for (; payload.depth < globalData.reccursionDepth && payload.hasHit; payload.depth++) {
+        for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
 
             TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
             rayRadiacne += payload.incomingLightColour;
+            
+            if (!payload.hasHit)
+                break;
             
             ray.Origin = payload.rayOrigin;
             ray.Direction = payload.rayDirection;
         }
         totalRadiance += rayRadiacne;
     }
+
 
     float weight = max(1.0 / (globalData.currentFrame + 1), 0);
 
@@ -111,7 +116,7 @@ void rayGenMain() {
     // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
     float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
 
-    _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0) ;
+    _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
 }
 
 [[shader("miss")]]
@@ -126,10 +131,10 @@ void missMain(inout RayPayLoad payload) {
     float groundToSkyT = smoothstep(-0.01, 0, ray_d.y);
 
     float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
-    float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 200.0) * _lightInfo.dirLight.intensity.w;
+    float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 64.0) * _lightInfo.dirLight.intensity.w;
 
     //payload.incomingLightColour = float3(0.f);
-    payload.incomingLightColour += lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1) ;
+    payload.incomingLightColour += (lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1)) * payload.rayColour ;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
@@ -144,7 +149,9 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 {
 
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
-    PBRMaterial m = GetMaterial(InstanceID(), g);
+    CookTorrence_GGX m = GetMaterial(InstanceID(), g);
+
+    
 
     //========================
     // direct light
@@ -166,11 +173,15 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
         TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
     }
-
+    
+    float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
     if (!shadowPayLoad.inShadow) {
-        float diff = max(dot(g.shadingNormal, L), 0.0);
 
-        payLoad.incomingLightColour += (diff * Le * albedo);
+        float3 directLightContribution = Le * m.Evaluate(V, L, m.normal);
+        
+        payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
+    }else{
+
     }
 
     //==============================
@@ -182,18 +193,15 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     
     float3 specularDir = reflect(WorldRayDirection(), g.shadingNormal);
     
-    bool isSpecularRay = (1.0 - m.values.roughness) >= RandomValue(payLoad.randomContext);
+    bool isSpecularRay = (1.0 - m.roughness) >= RandomValue(payLoad.randomContext);
     
-    payLoad.rayDirection = lerp(diffuseDir, specularDir,m.values.metalness * (float)isSpecularRay );
-
+    payLoad.rayDirection = lerp(diffuseDir, specularDir,m.metallnes * (float)isSpecularRay );
 
     // other direction
-    float3 emmittedLight = m.values.emissive_strength.xyz * m.values.emissive_strength.w;
+    float3 emmittedLight = m.emission.xyz * m.emission.w;
 
-    payLoad.rayColour *= m.values.diffuse.xyz ;
     payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
+    payLoad.rayColour *= m.albedo.xyz ;
     payLoad.hasHit = true;
-
-    
 
 }

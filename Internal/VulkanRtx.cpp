@@ -133,6 +133,8 @@ void Application::Init()
     m_rayTracingDataManager->InitAs(inputs);
 
     m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU();
+
+    m_effectsLibrary->ConfigureDescriptorWrites(*m_uniformBufferManager, *m_rayTracingDataManager);
 }
 
 void Application::MainLoop()

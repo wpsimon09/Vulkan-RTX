@@ -111,6 +111,8 @@ struct DirectionalLight
 
     mutable glm::vec3 direction;
 
+    float sunRadius = 1.0f;
+
     void Reset()
     {
         colour    = glm::vec4(0.f);

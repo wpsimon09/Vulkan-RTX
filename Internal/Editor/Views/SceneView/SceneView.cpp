@@ -322,7 +322,7 @@ void SceneView::RenderSceneDataView()
                 std::string treeNodeLabel = ICON_FA_CIRCLE_HALF_STROKE  " Material##"+ std::to_string(i);
                 if(ImGui::TreeNodeEx(treeNodeLabel.c_str()))
                 {
-                    ImGui::Text("Diffuse index %i", m->features.albedoTextureIdx);
+                    ImGui::Text("Diffuse index %i", m->features.albedo);
                     ImGui::Text("Normal index %i", m->features.normalTextureIdx);
                     ImGui::Text("Arm index %i", m->features.armTextureIdx);
                     ImGui::Text("Emissive %i", m->features.emissiveTextureIdx);
@@ -331,10 +331,10 @@ void SceneView::RenderSceneDataView()
 
                     ImGui::Text("Diffuce val") ; ImGui::SameLine() ;
                     ImVec4 col;
-                    col.x = m->values.diffuse.x;
-                    col.y = m->values.diffuse.y;
-                    col.z = m->values.diffuse.z;
-                    col.w = m->values.diffuse.w;
+                    col.x = m->values.albedo.x;
+                    col.y = m->values.albedo.y;
+                    col.z = m->values.albedo.z;
+                    col.w = m->values.albedo.w;
                     ImGui::ColorButton("Diffuce colour", col, ImGuiColorEditFlags_NoInputs);
 
                     ImGui::Text("Roughness %f", m->values.roughness);

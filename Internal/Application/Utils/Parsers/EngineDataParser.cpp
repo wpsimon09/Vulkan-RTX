@@ -55,6 +55,7 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
     //=========================================
     EngineConfig["Rendering"].set({{"Frustrum culling", std::to_string(GlobalVariables::RenderingOptions::EnableFrustrumCulling)},
                                    {"Depth-PrePass", std::to_string(GlobalVariables::RenderingOptions::PreformDepthPrePass)},
+                                   {"ShadowMapPass", std::to_string(GlobalVariables::RenderingOptions::PreformShadowPass)},
                                    {"MSAAEnabled", std::to_string(GlobalState::MSAA)},
                                    {"MSAASamples", std::to_string(GlobalVariables::RenderingOptions::MSAASamples)},
                                    {"OutlineWidth", std::to_string(GlobalVariables::RenderingOptions::OutlineWidth)},
@@ -161,6 +162,9 @@ void ApplicationCore::LoadConfig()
         if(EngineConfig["Rendering"].has("Depth-PrePass"))
             GlobalVariables::RenderingOptions::PreformDepthPrePass =
                 static_cast<bool>(std::stoi(EngineConfig["Rendering"]["Depth-PrePass"]));
+        if(EngineConfig["Rendering"].has("ShadowMapPass"))
+            GlobalVariables::RenderingOptions::PreformDepthPrePass =
+                static_cast<bool>(std::stoi(EngineConfig["Rendering"]["ShadowMapPass"]));
         if(EngineConfig["Rendering"].has("Max recursion"))
             GlobalVariables::RenderingOptions::MaxRecursionDepth = (std::stoi(EngineConfig["Rendering"]["Max recursion"]));
         if(EngineConfig["Rendering"].has("Rays per pixel"))

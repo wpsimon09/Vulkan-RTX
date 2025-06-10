@@ -16,14 +16,14 @@ struct PBRMaterialNoTexture
     float ao{0.2f};
     float padding{0.0f};
 
-    glm::vec4 diffuse{0.2f, 0.9f, 0.4f, 1.0f};
+    glm::vec4 albedo{0.2f, 0.9f, 0.4f, 1.0f};
 
     glm::vec4 emissive_strength{0.0f, 0.0f, 0.0f, 0.0f};
 
     friend bool operator==(const PBRMaterialNoTexture& lhs, const PBRMaterialNoTexture& rhs)
     {
         return lhs.roughness == rhs.roughness && lhs.metalness == rhs.metalness && lhs.ao == rhs.ao
-               && lhs.padding == rhs.padding && lhs.diffuse == rhs.diffuse && lhs.emissive_strength == rhs.emissive_strength;
+               && lhs.padding == rhs.padding && lhs.albedo == rhs.albedo && lhs.emissive_strength == rhs.emissive_strength;
     }
 
     friend bool operator!=(const PBRMaterialNoTexture& lhs, const PBRMaterialNoTexture& rhs) { return !(lhs == rhs); }
@@ -32,7 +32,7 @@ struct PBRMaterialNoTexture
 struct PBRMaterialFeaturees
 {
 
-    int hasDiffuseTexture{false};
+    int hasAlbedoTexture{false};
     int hasEmissiveTexture{false};
     int hasNormalTexture{false};
     int hasArmTexture{false};
@@ -40,14 +40,14 @@ struct PBRMaterialFeaturees
 
     //===========================================================
     // indexes to the texture array in scene data for ray tracing
-    int albedoTextureIdx = -1;
+    int albedo = -1;
     int armTextureIdx = -1;
     int emissiveTextureIdx = -1;
     int normalTextureIdx = - 1;
 
     friend bool operator==(const PBRMaterialFeaturees& lhs, const PBRMaterialFeaturees& rhs)
     {
-        return lhs.hasDiffuseTexture == rhs.hasDiffuseTexture && lhs.hasEmissiveTexture == rhs.hasEmissiveTexture
+        return lhs.hasAlbedoTexture == rhs.hasAlbedoTexture && lhs.hasEmissiveTexture == rhs.hasEmissiveTexture
                && lhs.hasNormalTexture == rhs.hasNormalTexture && lhs.hasArmTexture == rhs.hasArmTexture;
     }
 

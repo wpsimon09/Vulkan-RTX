@@ -219,6 +219,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp
         External/SPIRV-Reflect/spirv_reflect.h
         External/SPIRV-Reflect/spirv_reflect.cpp
+        External/ImGuiSpectrum/imgui_spectrum.cpp
+        External/ImGuiSpectrum/imgui_spectrum.h
 )
 
 

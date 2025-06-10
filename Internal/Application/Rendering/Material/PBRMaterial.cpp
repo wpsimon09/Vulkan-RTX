@@ -27,7 +27,7 @@ PBRMaterial::PBRMaterial(std::shared_ptr<VulkanUtils::VRasterEffect> materialEff
     if(!materialPaths.DiffuseMapPath.empty())
     {
         assets_manager.GetTexture(m_textures[ETextureType::Diffues], m_materialPaths.DiffuseMapPath, m_materialPaths.saveToDisk);
-        m_materialDescription.features.hasDiffuseTexture = true;
+        m_materialDescription.features.hasAlbedoTexture = true;
     }
     else
         assets_manager.GetDummyTexture(m_textures[ETextureType::Diffues]);
@@ -67,39 +67,11 @@ void PBRMaterial::ResetEffect()
     m_materialEffect = m_initialEffect;
 }
 
-void PBRMaterial::UpdateGPUTextureData(EShaderBindingGroup updateStruct, int frame)
-{
-
-    switch(updateStruct)
-    {
-        case EShaderBindingGroup::ForwardLit: {
-            m_materialEffect->WriteImage(
-                  frame, 0, 6, m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-            m_materialEffect->WriteImage(
-                frame, 0, 7, m_textures[normal]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-            m_materialEffect->WriteImage(
-                frame, 0, 8, m_textures[arm]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-            m_materialEffect->WriteImage(
-                frame, 0, 9, m_textures[Emissive]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-            break;
-        }
-
-        case EShaderBindingGroup::ForwardUnlit: {
-            m_materialEffect->WriteImage(
-                frame, 0, 3, m_textures[Diffues]->GetHandleByRef().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-            break;
-        }
-        default: break;;
-    }
-
-}
 std::vector<std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTexture()
 {
     std::vector<std::shared_ptr<VTextureAsset>> result;
     result.reserve(m_textures.size());
-    if(m_materialDescription.features.hasDiffuseTexture)
+    if(m_materialDescription.features.hasAlbedoTexture)
     {
         result.emplace_back(m_textures[Diffues]);
     }
@@ -122,7 +94,7 @@ std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> PBRMaterial::En
 {
     std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> result;
     result.reserve(m_textures.size());
-    if(m_materialDescription.features.hasDiffuseTexture)
+    if(m_materialDescription.features.hasAlbedoTexture)
     {
         result[Diffues] = m_textures[Diffues];
     }

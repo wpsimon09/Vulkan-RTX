@@ -114,6 +114,8 @@ void WriteMaterialToDescriptorSet(ApplicationCore::BaseMaterial* mat, VEffect& e
 
 std::string DescriptorTypeToString(vk::DescriptorType descriptorType);
 
+bool RelaxedAssert(bool condition, std::string msg);
+
 }  // namespace VulkanUtils
 
 #endif  //VGENERALUTILS_HPP

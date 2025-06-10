@@ -12,6 +12,7 @@
 #include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -42,7 +43,7 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
     depthAttachmentCreateInfo.mipLevels  = 1;
     depthAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eDepth;
     depthAttachmentCreateInfo.samples    = m_device.GetSampleCount();
-    depthAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    depthAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
 
     m_depthAttachment.second = std::make_unique<VulkanCore::VImage2>(m_device, depthAttachmentCreateInfo);
 
@@ -85,7 +86,7 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
         //==========================
         // CREATE MSAA ATTACHMENT
         //==========================
-        colourAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransientAttachment;
+        colourAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
         colourAttachmentCreateInfo.samples = m_device.GetSampleCount();
         m_msaaAttachments[i].second = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachmentCreateInfo);
 
@@ -123,7 +124,7 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
     }
     // TRANSITION EVERYTHING FROM UNDEFINED LAYOUT TO COLOUR ATTACHMENT
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_depthAttachment.second, vk::ImageLayout::eDepthStencilAttachmentOptimal,
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_depthAttachment.second, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                     vk::ImageLayout::eUndefined,
                                                     cmdBuffer.GetCommandBuffer());
 
@@ -200,6 +201,9 @@ vk::ImageView RenderTarget::GetDepthImageView() const
 vk::ImageView RenderTarget::GetResolveImageView(int currentFrame) const
 {
     return m_colourAttachments[currentFrame].second->GetImageView();
+}
+vk::DescriptorImageInfo RenderTarget::GetDepthDescriptorInfo(int currentFrame) const {
+    return m_depthAttachment.second->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 }
 
 vk::RenderingAttachmentInfo& RenderTarget::GetColourAttachmentOneSample(int currentFrame)

@@ -188,7 +188,7 @@ void DetailsPanel::RenderDirectionLightUI()
     ImGui::SeparatorText("General light settings");
     ImGui::SetNextItemWidth(600.0f);
     ImGui::ColorEdit3("LightColour", &DirLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
-
+    ImGui::SliderFloat("Sun radius", &DirLightNode->GetLightStruct().sunRadius, 0.1f, 20.0f);
     ImGui::DragFloat("Intensity", &DirLightNode->GetLightStruct().colour.w);
 }
 
@@ -300,9 +300,9 @@ void DetailsPanel::RenderPBRMaterialDetails(ApplicationCore::PBRMaterial* materi
         // ALBEDO
         //===============
         ImGui::SeparatorText("Albedo");
-        ImGui::Checkbox("Use texture##a", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasDiffuseTexture));
+        ImGui::Checkbox("Use texture##a", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasAlbedoTexture));
         ImGui::Checkbox("Is transparent", &material->IsTransparent());
-        if(material->GetMaterialDescription().features.hasDiffuseTexture)
+        if(material->GetMaterialDescription().features.hasAlbedoTexture)
         {
         }
         else
@@ -312,14 +312,20 @@ void DetailsPanel::RenderPBRMaterialDetails(ApplicationCore::PBRMaterial* materi
 
             if(material->IsTransparent())
             {
-                ImGui::ColorEdit4("Albedo", &material->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
+                ImGui::ColorEdit4("Albedo", &material->GetMaterialDescription().values.albedo.x, ImGuiColorEditFlags_NoInputs);
             }
             else
             {
-                material->GetMaterialDescription().values.diffuse.w = 1.0f;
-                ImGui::ColorEdit3("Albedo", &material->GetMaterialDescription().values.diffuse.x, ImGuiColorEditFlags_NoInputs);
+                material->GetMaterialDescription().values.albedo.w = 1.0f;
+                ImGui::ColorEdit3("Albedo", &material->GetMaterialDescription().values.albedo.x, ImGuiColorEditFlags_NoInputs);
             }
         }
+
+        //=================
+        // NORMAL texture
+        //=================
+        ImGui::SeparatorText("Normal");
+        ImGui::Checkbox("Use normal texture", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasNormalTexture));
 
         //==============
         // ARM

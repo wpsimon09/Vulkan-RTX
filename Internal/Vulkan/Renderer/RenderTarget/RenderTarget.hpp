@@ -41,6 +41,7 @@ class RenderTarget
     vk::ImageView GetColourImageView(int currentFrame) const;
     vk::ImageView GetDepthImageView() const;
     vk::ImageView GetResolveImageView(int currentFrame) const;
+    vk::DescriptorImageInfo GetDepthDescriptorInfo(int currentFrame) const;
 
     vk::RenderingAttachmentInfo& GetColourAttachmentOneSample(int currentFrame);
 

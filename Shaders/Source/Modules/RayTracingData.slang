@@ -1,6 +1,7 @@
 module RayTracingData;
 import Surface;
 import Material;
+import Utils;
 
 [[vk::binding(2, 0)]]
 StructuredBuffer<ObjDescription> descriptions;
@@ -27,7 +28,6 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     const float3 barycentricCoords = float3(1.0f - baricentric.x - baricentric.y, baricentric.x, baricentric.y);
 
     ObjDescription object = descriptions[instanceIndex];
-    Material mat = materialValues[instanceIndex];
 
     // //=================================================
     // // for each vertex there is one index that can
@@ -51,12 +51,13 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     g.position = pos;
     g.shadingPosition = mul(ObjectToWorld(), float4(pos, 1.0)).xyz;
 
-    float2 uv = v1.uv * baricentric.x + v2.uv * baricentric.y;
+    float2 uv = v1.uv.xy * barycentricCoords.x + v2.uv.xy * barycentricCoords.y + v3.uv.xy * barycentricCoords.z;
+    g.uv = uv;
 
     return g;
 }
 
-public PBRMaterial GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
+public CookTorrence_GGX GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
     PBRMaterial pbrMat;
     pbrMat.features = materialValues[instanceIndex].Features;
     pbrMat.values = materialValues[instanceIndex].Values;
@@ -64,7 +65,7 @@ public PBRMaterial GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
     pbrMat.normal_map = textures[pbrMat.features.normalTextureIdx];
     pbrMat.arm_map = textures[pbrMat.features.armTextureIdx];
     pbrMat.emissive_map = textures[pbrMat.features.emissiveTextureIdx];
-    pbrMat.Prepare(g);
+    
 
-    return pbrMat;
+    return pbrMat.Prepare(g);
 }

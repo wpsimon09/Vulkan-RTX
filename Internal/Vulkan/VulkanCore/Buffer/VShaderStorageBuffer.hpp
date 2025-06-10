@@ -41,6 +41,8 @@ class VShaderStorageBuffer : public VObject
      */
     void Resize(vk::DeviceSize newSize);
 
+    vk::DeviceSize GetAllocatedSize() const;
+
     void Destroy() override;
 
     vk::DeviceSize  GetCurrentSize() const ;
@@ -74,6 +76,24 @@ void VShaderStorageBuffer::Update(const std::vector<T>& data)
 
     VulkanUtils::CopyBuffers(m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(),
                              m_stagingBuffer.buffer, m_buffer.buffer, updateSize, 0);
+
+    vk::BufferMemoryBarrier barrier{};
+    barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+    barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+    barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
+    barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
+    barrier.buffer = m_buffer.buffer;
+    barrier.offset = 0;
+    barrier.size = updateSize;
+
+    m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer().pipelineBarrier(
+      vk::PipelineStageFlagBits::eTransfer,
+      vk::PipelineStageFlagBits::eVertexShader | vk::PipelineStageFlagBits::eFragmentShader,
+      vk::DependencyFlags{},
+      0, nullptr,
+      1, &barrier,
+      0, nullptr
+    );
 
 }
 

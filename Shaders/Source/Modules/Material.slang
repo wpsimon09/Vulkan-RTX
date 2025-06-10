@@ -79,7 +79,13 @@ public struct PBRMaterial : IMaterial
         }
         else
         {
-            brdf.albedo = values.diffuse;
+            brdf.albedo = values.diffuse ;
+        }
+
+        if(features.hasNormalTexture){
+            brdf.normal = SampleNormalMap(normal_map, geometry.uv,geometry.shadingNormal, geometry.shadingPosition);
+        }else{
+            brdf.normal = geometry.normal;
         }
 
         if (features.hasArmTexture)
@@ -128,6 +134,11 @@ public interface IBRDF
     float3 Evaluate(float3 wo, float3 wi, float3 N);
 
     /**
+    * Returns colour in case gemetry is ins shadow
+    */
+    float3 EvaluateForShadow();
+
+    /**
      * wo -         incoming view direction
      * wi -         incoming light direction
      * N  -         normalVector;
@@ -148,6 +159,8 @@ public struct CookTorrence_GGX : IBRDF
     public float ao;
 
     public float4 emission;
+
+    public float3 normal;
 
     float DistributionGGX(float3 N, float3 H)
     {
@@ -224,7 +237,7 @@ public struct CookTorrence_GGX : IBRDF
 
         float3 colour =  (kd * albedo.xyz / PI + specular) * NdotL;
 
-        colour += (this.emission.xyz * this.emission.w);
+        //colour += (this.emission.xyz * this.emission.w);
 
         return colour;
     }
@@ -270,7 +283,12 @@ public struct CookTorrence_GGX : IBRDF
         colour += (this.emission.xyz * this.emission.w);
 
         return colour;
-    } 
+    }
+    
+    public float3 EvaluateForShadow(){
+        return albedo.xyz * 0.4;
+    }
+
 }
 
 

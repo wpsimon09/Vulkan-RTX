@@ -48,7 +48,7 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPerObjectBuffer(
     vk::DescriptorBufferInfo bufferInfo;
     bufferInfo.buffer = m_perObjectData[currentFrame]->GetBuffer();
     bufferInfo.offset = 0;
-    bufferInfo.range = sizeof(PerObjectData);
+    bufferInfo.range = m_perObjectData[currentFrame]->GetAllocatedSize();
 
     return bufferInfo;
 }
@@ -69,7 +69,7 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetMaterialDescript
     vk::DescriptorBufferInfo descriptorBuffer;
     descriptorBuffer.buffer = m_sceneMaterials[frameIndex]->GetBuffer();
     descriptorBuffer.offset = 0;
-    descriptorBuffer.range = vk::WholeSize;
+    descriptorBuffer.range = m_sceneMaterials[frameIndex]->GetAllocatedSize();
 
     return  descriptorBuffer;
 }
@@ -79,7 +79,7 @@ void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameInde
 {
     m_perFrameUniform->GetUBOStruct() = perFrameData;
     auto view                         = perFrameData.view;
-    auto projection                         = perFrameData.proj;
+    auto projection                   = perFrameData.proj;
     m_perFrameUniform->GetUBOStruct().inverseView = glm::inverse(view);
     m_perFrameUniform->GetUBOStruct().inverseProj = glm::inverse(projection);
 
@@ -91,6 +91,8 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
 {
     int  i         = 0;
 
+    if (drawCalls.empty()) return;
+
     //TODO: do not allocate new vector every time here instead allocate one that can fit at least 50% of the required buffer objects
     std::vector<PerObjectData> perObjectData (drawCalls.size());
 
@@ -101,11 +103,10 @@ void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameInd
         perObjectData[i].model = drawCall.second.modelMatrix;
         perObjectData[i].normalMatrix = glm::transpose(glm::inverse(drawCall.second.modelMatrix));
         perObjectData[i].position = glm::vec4(drawCall.second.position,1.0);
-        perObjectData[i].materialIndex =  drawCall.second.materialIndex;
+        perObjectData[i].indexes.x =  drawCall.second.materialIndex;
 
         i++;
     }
-
 
     m_perObjectData[frameIndex]->Update(perObjectData);
 
@@ -119,7 +120,7 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, 
     {
         m_lightUniform->GetUBOStruct().directionalLight.colour = sceneLightInfo.DirectionalLightInfo->colour;
         m_lightUniform->GetUBOStruct().directionalLight.direction =
-            glm::vec4(sceneLightInfo.DirectionalLightInfo->direction, 1.0f);
+            glm::vec4(sceneLightInfo.DirectionalLightInfo->direction, sceneLightInfo.DirectionalLightInfo->sunRadius);
     }
 
 
@@ -211,7 +212,7 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
 
     //assert(m_objectDataUniforms.size() == MAX_UBO_COUNT && "Failed to allocate 20 buffers");
     GlobalState::EnableLogging();
-    Utils::Logger::LogSuccess("Allocated 100 uniform buffers for each of the mesh");
+    Utils::Logger::LogSuccess("Allocated uniform and storage buffers");
 
     m_perFrameUniform = std::make_unique<VUniform<GlobalUniform>>(m_device);
 

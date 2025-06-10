@@ -207,15 +207,25 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     {
         physicalDeviceVulkan12Features.bufferDeviceAddressCaptureReplay = true;
     }
-    physicalDeviceVulkan12Features.pNext = &dynamicRenderingUnUsedAttachemnts;
+
+    vk::PhysicalDeviceVulkan11Features oneOneFeatures;
+
+    oneOneFeatures.shaderDrawParameters = true;
+    oneOneFeatures.pNext = &dynamicRenderingUnUsedAttachemnts;
+
+    physicalDeviceVulkan12Features.pNext = oneOneFeatures;
 
     vk::PhysicalDeviceAccelerationStructureFeaturesKHR GpuAccelerationStrucutreFeatures = {};
     GpuAccelerationStrucutreFeatures.accelerationStructure                              = true;
     GpuAccelerationStrucutreFeatures.pNext = &physicalDeviceVulkan12Features;
 
+    vk::PhysicalDeviceRayQueryFeaturesKHR GpuRayQueryFeatures = {};
+    GpuRayQueryFeatures.rayQuery = true;
+    GpuRayQueryFeatures.pNext = &GpuAccelerationStrucutreFeatures;
+
     vk::PhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingPipelineFeatures = {};
     rayTracingPipelineFeatures.rayTracingPipeline                              = true;
-    rayTracingPipelineFeatures.pNext                                           = &GpuAccelerationStrucutreFeatures;
+    rayTracingPipelineFeatures.pNext                                           = &GpuRayQueryFeatures;
 
 
     vk::PhysicalDeviceFeatures deviceFeatures{};

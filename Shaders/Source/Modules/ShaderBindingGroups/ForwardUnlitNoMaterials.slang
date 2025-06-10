@@ -1,5 +1,6 @@
 module SBG_ForwardLitNoMaterials;
 
+import Light;
 import Core;
 
 //=================================

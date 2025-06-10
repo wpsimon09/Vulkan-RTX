@@ -39,8 +39,10 @@ void ReflectionData::Print() const
     std::cout << "======================= Reflection data ============================\n";
     std::cout << "====================================================================\n";
 
-    if (!pushConstantName.empty()) {
-        std::cout << "Push constant: " +pushConstantName << "\n";
+    if (!pushConstantNames.empty()) {
+        for (int i = 0; i<pushConstantNames.size(); i++) {
+            std::cout << "Push constant: " + pushConstantNames[i] + "size: " + std::to_string(this->PCs[i].size) << "\n";
+        }
     }
     for(int i_set = 0; i_set < descriptorSets.size(); i_set++)
     {
@@ -87,9 +89,10 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to retrieve push constant blocks ");
 
         PCs.resize(pcCount);
+        pushConstantNames.resize(pcCount);
         for (int i = 0; i < pcCount; i++) {
 
-            pushConstantName = pushConstants[i]->name;
+            pushConstantNames[i] = pushConstants[i]->name;
             PCs[i].offset = pushConstants[i]->offset;
             PCs[i].size   = pushConstants[i]->size;
 

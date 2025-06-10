@@ -53,6 +53,7 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshI
     input.asBuildOffSetInfo.emplace_back(asBuildOffsetInfo);
     input.transform = matrix;;
     input.meshIndex = meshIndex;
+    input.materialIndex = mesh->GetMaterial()->GetSceneIndex();
 
     //=============================================================================================
     // I have to sent normal and index data to the shader with descriptor and i can do it by

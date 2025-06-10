@@ -39,16 +39,12 @@ struct ObjectDataUniform
     PBRMaterialDescription material;
 };
 
-struct PerObjectData {
+struct alignas(16) PerObjectData  {
     glm::mat4              model{};
     glm::mat4              normalMatrix{};
     glm::vec4              position{};
+    glm::uvec4              indexes{}; // x - material index,
 
-    uint                   materialIndex{0};
-
-    uint                   padding1{0};
-    uint                   padding2{0};
-    uint                   padding3{0};
 };
 
 struct PointLightGPU
@@ -87,7 +83,8 @@ struct RTXObjDescription {
 };
 
 struct PerObjectPushConstant {
-    uint32_t objectID;
+    glm::ivec4 indexes    {}; // x - object index, yzw - padding for now in future can be other indexes
+    glm::mat4 modelMatrix {};
 };
 
 

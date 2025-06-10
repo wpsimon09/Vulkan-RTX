@@ -43,7 +43,8 @@ enum class EEffectType : std::uint8_t
     AplhaBlend,
     EditorBilboard,
     RayTracing,
-    DepthPrePass
+    DepthPrePass,
+    RTShadowPass
 };
 
 class EffectsLibrary
@@ -66,8 +67,8 @@ class EffectsLibrary
 
     void UpdatePerFrameWrites(VulkanUtils::RenderContext* renderingContext,const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-  private:
     void ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager);
+  private:
 
     VulkanCore::VDescriptorLayoutCache& m_descLayoutCache;
 };

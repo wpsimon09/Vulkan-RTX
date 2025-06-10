@@ -100,7 +100,7 @@ def main():
     parser = argparse.ArgumentParser(description="Slang Shader Compiler")
     parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
     parser.add_argument('--stage', choices=[
-        "vertex", "fragment", "compute", "env", "depth","postprocessing", "raytracing", "all"
+        "vertex", "fragment", "compute", "env", "depth","postprocessing", "raytracing","rtshadows", "all"
     ], default="all", help='Which stage to compile') 
     args = parser.parse_args()
 
@@ -138,6 +138,10 @@ def main():
     if args.stage == "raytracing" or args.stage == "all":
         print("== Ray tracing ==")
         compile_ray_tracing_shaders("Source/RTX", args.verbose)
+    
+    if args.stage == "rtshadows" or args.stage == "all":
+        print("== RT Shadow generation ==") 
+        compile_boundled_shaders("Source/RTShadowPass", args.verbose)
 
 
 if __name__ == "__main__":

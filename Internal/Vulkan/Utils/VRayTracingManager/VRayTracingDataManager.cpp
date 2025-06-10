@@ -26,7 +26,6 @@ void                     VRayTracingDataManager::UpdateAS(std::vector<VulkanCore
     }
     m_rayTracingBuilder->BuildTLAS(m_instances, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate, true);
 
-
 }
 
 vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo() {
@@ -79,7 +78,7 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
 
     //===============================================
     // create buffer that holds vertex data adresses
-    m_objDescriptionBuffer = std::make_unique<VulkanCore::VBuffer>(m_device, "All vertex and index data");
+    m_objDescriptionBuffer = std::make_unique<VulkanCore::VBuffer>(m_device, "All vertex and index data for RTX");
     m_objDescriptionBuffer->CreateBufferAndPutDataOnDevice(
         m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(), m_rtxObjectDescriptions,
         vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer);
@@ -88,10 +87,8 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
 
 void VRayTracingDataManager::Destroy()
 {
-
-    if (m_objDescriptionBuffer) {
-        m_objDescriptionBuffer->DestroyStagingBuffer();
-    }
+    m_objDescriptionBuffer->DestroyStagingBuffer();
+    m_objDescriptionBuffer->Destroy();
     m_rayTracingBuilder->Destroy();
 }
 

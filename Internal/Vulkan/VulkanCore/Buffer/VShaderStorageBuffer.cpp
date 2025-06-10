@@ -87,6 +87,9 @@ void VShaderStorageBuffer::Resize(vk::DeviceSize newSize)
 {
     assert(0 == 1 && "Not implemented yet !");
 }
+
+vk::DeviceSize VShaderStorageBuffer::GetAllocatedSize() const {return m_bufferSize; };
+
 void VShaderStorageBuffer::Destroy()
 {
     vmaUnmapMemory(m_device.GetAllocator(), m_stagingBuffer.allocation);
