@@ -99,14 +99,8 @@ void VEffect::SetNumWrites(uint32_t buffers, uint32_t images, uint32_t accels)
 
 void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorBufferInfo bufferInfo)
 {
-    if (m_descriptorSets.empty()) return;
 
-    assert(m_bufferInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
-    if(!RelaxedAssert(m_descriptorSets[set].writes[frame].contains(binding),
-    "there is no such binding in the given descirptor set" + std::to_string(set)
-                      + " binding: " + std::to_string(binding)))
-        return;
-
+    if (!IsWriteValid(frame, set, binding)) return;
 
     auto& write = m_descriptorSets[set].writes[frame][binding];
     assert(write.descriptorType == vk::DescriptorType::eUniformBuffer || write.descriptorType == vk::DescriptorType::eStorageBuffer);
@@ -117,13 +111,9 @@ void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::De
 
 void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo imageInfo)
 {
-    if (m_descriptorSets.empty()) return;
-
     assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
-    if(!RelaxedAssert(m_descriptorSets[set].writes[frame].contains(binding),
-                      "there is no such binding in the given descriptor set: " + std::to_string(set)
-                          + " binding: " + std::to_string(binding)))
-        return;
+
+    if (!IsWriteValid(frame, set , binding)) return;
 
     auto& write = m_descriptorSets[set].writes[frame][binding];
     assert(write.descriptorType == vk::DescriptorType::eCombinedImageSampler || write.descriptorType == vk::DescriptorType::eSampledImage
@@ -134,12 +124,11 @@ void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::Des
 }
 void VEffect::WriteImageArray(uint32_t frame, uint32_t set, uint32_t binding, const std::vector<vk::DescriptorImageInfo>& imageInfos)
 {
-    if (m_descriptorSets.empty()) return;
-
     assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
     assert(m_imageInfos.capacity() >= imageInfos.capacity()
            && "Image array you are trying to write is too small for this set, adjust SetNumWrites accordingly");
-    assert(m_descriptorSets[set].writes[frame].contains(binding) && "there is no such binding in the given descriptor set");
+
+    if (!IsWriteValid(frame, set, binding)) return;
 
     auto& write = m_descriptorSets[set].writes[frame][binding];
     assert(write.descriptorType == vk::DescriptorType::eCombinedImageSampler || write.descriptorType == vk::DescriptorType::eSampledImage
@@ -152,13 +141,9 @@ void VEffect::WriteImageArray(uint32_t frame, uint32_t set, uint32_t binding, co
 
 void VEffect::WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR asInfo)
 {
-    if (m_descriptorSets.empty()) return;
 
     assert(m_asInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
-
-    if(!RelaxedAssert(m_descriptorSets[set].writes[frame].contains(binding), "there is no such binding in the given descirptor set" + std::to_string(set)
-                          + " binding: " + std::to_string(binding)))
-        return;
+    if (!IsWriteValid(frame, set, binding)) return;
 
     auto& write = m_descriptorSets[set].writes[frame][binding];
     assert(m_descriptorSets[set].writes[frame][binding].descriptorType == vk::DescriptorType::eAccelerationStructureKHR);
@@ -212,6 +197,31 @@ void VEffect::CmdPushConstant(const vk::CommandBuffer& commandBuffer, const vk::
     {
         commandBuffer.pushConstants(info.layout, info.stageFlags, info.offset, info.size, info.pValues);
     }
+}
+bool VEffect::IsWriteValid(uint32_t frame, uint32_t set, uint32_t binding) {
+    if (m_descriptorSets.empty()) {
+        Utils::Logger::LogError("There are not descriptor sets in Effect: " + m_name);
+      //  return false;
+    }
+    if (m_descriptorSets.size() < set) {
+        Utils::Logger::LogError("Set: " +std::to_string(set) + "is smaller then number of sets in Effect: " + m_name);
+    //    return false;
+    };
+    if (m_descriptorSets[set].writes.empty()) {
+        Utils::Logger::LogError("Set: " +std::to_string(set) + "writes are empty in Effect: " + m_name);
+        //return false;
+    };
+    if (m_descriptorSets[set].writes.size() < binding) {
+        //Utils::Logger::LogError("There is no write in the Set: "+ std::to_string(set)+ " for binding " + std::to_string(binding) + "in Effect: " + m_name);
+      //  return false;
+    };
+
+    if(!RelaxedAssert(m_descriptorSets[set].writes[frame].contains(binding),
+    "there is no such binding in the given descirptor Set \t" + std::to_string(set)
+                      + " Binding: \t " + std::to_string(binding) + " in Effect: " + m_name))
+        return false;
+
+    return true;
 }
 
 

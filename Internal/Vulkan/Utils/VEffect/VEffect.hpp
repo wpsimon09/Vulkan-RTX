@@ -67,6 +67,8 @@ class VEffect
     std::vector<vk::DescriptorImageInfo>                        m_imageInfos;
     std::vector<vk::AccelerationStructureKHR>                   m_asInfos;
     std::vector<vk::WriteDescriptorSetAccelerationStructureKHR> m_asWriteInfos;
+  private:
+    bool IsWriteValid(uint32_t frame, uint32_t set, uint32_t binding);
 
   protected:
     const VulkanCore::VDevice& m_device;
