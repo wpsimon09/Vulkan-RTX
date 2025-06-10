@@ -156,7 +156,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     auto rtShadowPass = std::make_shared<VulkanUtils::VRasterEffect>(device, "Ray traced shadow map effect",
                                                                      "Shaders/Compiled/RTShadowPass.vert.spv",
                                                                      "Shaders/Compiled/RTShadowPass.frag.spv", descLayoutCache,
-                                                                     EShaderBindingGroup::ForwardUnlitNoMaterial);
+                                                                     EShaderBindingGroup::ShadowRT);
     rtShadowPass->SetDisableDepthTest()
         .DisableStencil()
         .SetCullNone()

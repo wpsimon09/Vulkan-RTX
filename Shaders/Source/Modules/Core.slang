@@ -23,8 +23,8 @@ public struct GlobalData {
 public struct GlobalDataRTX {
     public column_major float4x4 projection;
     public column_major float4x4 view;
-    public float4x4 inverseView;
-    public float4x4 invProjection;
+    public column_major float4x4 inverseView;
+    public column_major float4x4 invProjection;
 
     public float4 lightPosition;
     public float4 cameraPostiion;

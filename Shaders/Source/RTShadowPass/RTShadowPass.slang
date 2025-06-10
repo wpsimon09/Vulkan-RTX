@@ -24,7 +24,12 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float3 worldSpacePos = WorldPosFromDepth(depth, fsIn.uv, globalData.invProjection, globalData.inverseView);
 
     bool inShadow = false;
-    inShadow = IntersectsP(InitRay(worldSpacePos, _lightInfo.dirLight.direction.xyz, 1000), _tlas);
+    inShadow = IntersectsP(InitRay(worldSpacePos, normalize(_lightInfo.dirLight.direction.xyz), 1000), _tlas);
 
-    return float4(worldSpacePos, 1.0);
+    if(inShadow){
+        return float4(1.0, 0.0, 0.0, 1.0);
+    }else{
+        return float4(0.0, 0.0, 0.0, 1.0);
+    }
+
 }

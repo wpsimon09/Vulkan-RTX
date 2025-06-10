@@ -53,7 +53,7 @@ namespace Renderer {
 
         VulkanCore::VImage2& GetRenderedImage(int currentFrame)
         {
-            return m_renderTargets->GetColourImage(currentFrame); //*m_shadowMap;
+            return *m_shadowMap; //m_renderTargets->GetColourImage(currentFrame); //*m_shadowMap;
         };
 
         void Destroy();
