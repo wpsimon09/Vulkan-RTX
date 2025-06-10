@@ -247,6 +247,8 @@ void SceneRenderer::ShadowMapPass(int                                       curr
 {
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording ! ");
 
+    VulkanUtils::PlacePipelineBarrier(cmdBuffer, vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::PipelineStageFlagBits::eFragmentShader);
+
     //=========================================================================
     // Transition shadow map from shader read only optimal to render attachment
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eColorAttachmentOptimal,
