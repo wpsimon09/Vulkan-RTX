@@ -131,7 +131,7 @@ void SceneRenderer::DepthPrePass(int                                       curre
     // TRANSITION RESOLVE IMAGE
     VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetResovedDepthImage(), vk::ImageLayout::eDepthStencilAttachmentOptimal,
                                                     vk::ImageLayout::eDepthStencilReadOnlyOptimal, cmdBuffer);
-
+    m_renderTargets->GetDepthAttachment().resolveMode = vk::ResolveModeFlagBitsKHR::eMin;
     renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
 
     m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
@@ -264,6 +264,7 @@ void SceneRenderer::ShadowMapPass(int                                       curr
     shadowMapAttachmentInfo.imageView        = m_shadowMap->GetImageView();
     shadowMapAttachmentInfo.loadOp           = vk::AttachmentLoadOp::eClear;
     shadowMapAttachmentInfo.storeOp          = vk::AttachmentStoreOp::eStore;
+
 
     std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {shadowMapAttachmentInfo};
 

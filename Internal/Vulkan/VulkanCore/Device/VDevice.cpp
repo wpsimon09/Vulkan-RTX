@@ -85,8 +85,10 @@ vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice()
 
                 vk::PhysicalDeviceRayTracingPipelinePropertiesKHR    rayTracingPipelineProperties{};
                 vk::PhysicalDeviceAccelerationStructurePropertiesKHR accelerationStructureProperties{};
+                vk::PhysicalDeviceDepthStencilResolveProperties physicalDeviceDepthStencilResolveProperties{};
                 accelerationStructureProperties.pNext = &rayTracingPipelineProperties;
-                physicalDeviceProperties.pNext        = &accelerationStructureProperties;
+                physicalDeviceDepthStencilResolveProperties.pNext = &accelerationStructureProperties;
+                physicalDeviceProperties.pNext        = &physicalDeviceDepthStencilResolveProperties;
 
                 //GlobalVariables::GlobalStructs::GpuProperties.pNext = &rayTracingPipelineProperties;
 
@@ -96,6 +98,7 @@ vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice()
                 GlobalVariables::GlobalStructs::GpuProperties                = physicalDeviceProperties;
                 GlobalVariables::GlobalStructs::RayTracingPipelineProperties = rayTracingPipelineProperties;
                 GlobalVariables::GlobalStructs::AccelerationStructProperties = accelerationStructureProperties;
+                GlobalVariables::GlobalStructs::DepthStencilResolveProperties = physicalDeviceDepthStencilResolveProperties;
 
                 return physicalDevice;
             }
@@ -200,6 +203,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     physicalDeviceVulkan12Features.descriptorBindingSampledImageUpdateAfterBind = true;
     physicalDeviceVulkan12Features.descriptorBindingStorageBufferUpdateAfterBind = true;
     physicalDeviceVulkan12Features.descriptorBindingUniformBufferUpdateAfterBind = true;
+
 
 
     // used in fore frame captures....

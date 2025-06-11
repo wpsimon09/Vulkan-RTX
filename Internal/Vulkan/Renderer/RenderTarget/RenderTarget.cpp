@@ -36,24 +36,23 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
     //==========================
     // CREATE DEPTH ATTACHMENT
     //==========================
-    VulkanCore::VImage2CreateInfo depthAttachmentCreateInfo;
-    depthAttachmentCreateInfo.format     = m_device.GetDepthFormat();
-    depthAttachmentCreateInfo.height     = m_height;
-    depthAttachmentCreateInfo.width      = m_width;
-    depthAttachmentCreateInfo.mipLevels  = 1;
-    depthAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eDepth;
-    depthAttachmentCreateInfo.samples    = m_device.GetSampleCount();
-    depthAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
+    VulkanCore::VImage2CreateInfo depthImageCreateInfo;
+    depthImageCreateInfo.format     = m_device.GetDepthFormat();
+    depthImageCreateInfo.height     = m_height;
+    depthImageCreateInfo.width      = m_width;
+    depthImageCreateInfo.mipLevels  = 1;
+    depthImageCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eDepth;
+    depthImageCreateInfo.samples    = m_device.GetSampleCount();
+    depthImageCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
 
-    m_depthAttachment.second = std::make_unique<VulkanCore::VImage2>(m_device, depthAttachmentCreateInfo);
+    m_depthAttachment.second = std::make_unique<VulkanCore::VImage2>(m_device, depthImageCreateInfo);
 
     //===================================================
     // Create resolved depth image to read from in shader
     //===================================================
-    depthAttachmentCreateInfo.imageUsage |= vk::ImageUsageFlagBits::eTransientAttachment;
-    depthAttachmentCreateInfo.samples = vk::SampleCountFlagBits::e1;
+    depthImageCreateInfo.samples = vk::SampleCountFlagBits::e1;
 
-    m_resolvedDepthAttachment = std::make_unique<VulkanCore::VImage2>(m_device, depthAttachmentCreateInfo);
+    m_resolvedDepthAttachment = std::make_unique<VulkanCore::VImage2>(m_device, depthImageCreateInfo);
 
     auto& depthAttachmentInfo                           = m_depthAttachment.first;
     depthAttachmentInfo.imageView                       = m_depthAttachment.second->GetImageView();
@@ -82,6 +81,7 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
         colourAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eColor;
         colourAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled
                                                 | vk::ImageUsageFlagBits::eInputAttachment;
+
         m_colourAttachments[i].second = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachmentCreateInfo);
 
         auto& colourAttachmentInfo       = m_colourAttachments[i].first;

@@ -20,7 +20,8 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
-    float depth = _depthTexture.Sample<Texture2D, false, true, >(fsIn.uv).x;
+    float depth = _depthTexture.Sample(fsIn.uv).x;
+    
     float depthLinear = LinearizeDepth(depth, globalData.viewParams.z, globalData.viewParams.w);
     float3 worldSpacePos = WorldPosFromDepth(depth, fsIn.uv, globalData.invProjection, globalData.inverseView);
 

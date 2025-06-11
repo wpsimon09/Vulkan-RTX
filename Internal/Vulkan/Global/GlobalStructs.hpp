@@ -53,10 +53,11 @@ inline DesiredDeviceFeatures secondaryDeviceFeatures = {.deviceType = vk::Physic
 
 };
 
-inline vk::PhysicalDeviceProperties2                        GpuProperties                = {};
-inline vk::PhysicalDeviceMemoryProperties2                  GpuMemoryProperties          = {};
-inline vk::PhysicalDeviceAccelerationStructurePropertiesKHR AccelerationStructProperties = {};
-inline vk::PhysicalDeviceRayTracingPipelinePropertiesKHR    RayTracingPipelineProperties = {};
+inline vk::PhysicalDeviceProperties2                        GpuProperties                 = {};
+inline vk::PhysicalDeviceMemoryProperties2                  GpuMemoryProperties           = {};
+inline vk::PhysicalDeviceAccelerationStructurePropertiesKHR AccelerationStructProperties  = {};
+inline vk::PhysicalDeviceRayTracingPipelinePropertiesKHR    RayTracingPipelineProperties  = {};
+inline vk::PhysicalDeviceDepthStencilResolveProperties      DepthStencilResolveProperties = {};
 
 }  // namespace GlobalVariables::GlobalStructs
 
