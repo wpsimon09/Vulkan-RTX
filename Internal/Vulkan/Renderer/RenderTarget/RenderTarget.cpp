@@ -50,6 +50,7 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
     //===================================================
     // Create resolved depth image to read from in shader
     //===================================================
+    depthAttachmentCreateInfo.imageUsage |= vk::ImageUsageFlagBits::eTransientAttachment;
     depthAttachmentCreateInfo.samples = vk::SampleCountFlagBits::e1;
 
     m_resolvedDepthAttachment = std::make_unique<VulkanCore::VImage2>(m_device, depthAttachmentCreateInfo);
@@ -59,12 +60,11 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
     depthAttachmentInfo.imageLayout                     = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     depthAttachmentInfo.loadOp                          = vk::AttachmentLoadOp::eClear;
     depthAttachmentInfo.storeOp                         = vk::AttachmentStoreOp::eStore;
-    depthAttachmentInfo.resolveMode                     = vk::ResolveModeFlagBits::eNone;
     depthAttachmentInfo.clearValue.depthStencil.depth   = 1.0f;
     depthAttachmentInfo.clearValue.depthStencil.stencil = 0.0f;
     depthAttachmentInfo.resolveImageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     depthAttachmentInfo.resolveImageView = m_resolvedDepthAttachment->GetImageView();
-    depthAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eAverage;
+    depthAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eMin;
 
 
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
@@ -136,10 +136,6 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
                                                     vk::ImageLayout::eUndefined,
                                                     cmdBuffer.GetCommandBuffer());
 
-    //std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
-    //cmdBuffer.EndAndFlush(m_device.GetGraphicsQueue(), transitionTargetLayoutSempahore.GetSemaphore(), transitionTargetLayoutSempahore.GetSemaphoreSubmitInfo(0, 2) , waitStages.data() );
-
-    //transitionTargetLayoutSempahore.CpuWaitIdle(2);
 
     Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
     // m_device.GetTransferOpsManager().UpdateGPUWaitCPU(true);
@@ -188,6 +184,7 @@ void RenderTarget::Destroy()
             m_msaaAttachments[i].second->Destroy();
     }
     m_depthAttachment.second->Destroy();
+    m_resolvedDepthAttachment->Destroy();
 
     Utils::Logger::LogSuccess("Render target destroyed");
 }
@@ -209,7 +206,7 @@ vk::ImageView RenderTarget::GetResolveImageView(int currentFrame) const
     return m_colourAttachments[currentFrame].second->GetImageView();
 }
 vk::DescriptorImageInfo RenderTarget::GetDepthDescriptorInfo(int currentFrame) const {
-    return m_depthAttachment.second->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+    return m_resolvedDepthAttachment->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 }
 
 vk::RenderingAttachmentInfo& RenderTarget::GetColourAttachmentOneSample(int currentFrame)
@@ -316,6 +313,5 @@ void RenderTarget::CreateRenderTargetForSwapChain(const VulkanCore::VSwapChain& 
     Utils::Logger::LogSuccess("Render target for swap chain created, contains:" + std::to_string(swapChainImages.size())
                               + "Swap chain images and 1 depth buffer");
 
-    // TODO: apply this to the rendering and to the pipeline creation process, optionally i can use shader objects instead of shader modules to specify descriptor layouts....
 }
 }  // namespace Renderer

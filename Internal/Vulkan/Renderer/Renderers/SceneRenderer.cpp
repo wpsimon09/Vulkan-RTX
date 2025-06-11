@@ -78,11 +78,6 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
         m_rtxShadowPassEffect->ApplyWrites(i);
     }
 
-    //==================================================================================
-    // IMPORTANT: We have to transition depth attachment back to depth color attachment
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetDepthImage(1), vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                    vk::ImageLayout::eDepthStencilReadOnlyOptimal,
-                                                    m_device.GetTransferOpsManager().GetCommandBuffer());
 
     //=============================================
     // Transition shadow map to shader read optimal
@@ -302,12 +297,6 @@ void SceneRenderer::ShadowMapPass(int                                       curr
 
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                     vk::ImageLayout::eColorAttachmentOptimal, cmdB);
-
-
-    //=============================================================
-    // Trasition depth from render attachemnt to shader read only
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetResovedDepthImage(), vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                    vk::ImageLayout::eDepthStencilReadOnlyOptimal, cmdBuffer);
 }
 
 
