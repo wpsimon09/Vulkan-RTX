@@ -81,7 +81,7 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
     //==================================================================================
     // IMPORTANT: We have to transition depth attachment back to depth color attachment
     VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetDepthImage(1), vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                    vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                    vk::ImageLayout::eDepthStencilReadOnlyOptimal,
                                                     m_device.GetTransferOpsManager().GetCommandBuffer());
 
     //=============================================
@@ -131,6 +131,11 @@ void SceneRenderer::DepthPrePass(int                                       curre
     renderingInfo.colorAttachmentCount           = 0;
     renderingInfo.pColorAttachments              = nullptr;
     m_renderTargets->GetDepthAttachment().loadOp = vk::AttachmentLoadOp::eClear;
+
+    //===========================
+    // TRANSITION RESOLVE IMAGE
+    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetResovedDepthImage(), vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                    vk::ImageLayout::eDepthStencilReadOnlyOptimal, cmdBuffer);
 
     renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
 
@@ -230,12 +235,9 @@ void SceneRenderer::DepthPrePass(int                                       curre
 
 
     VulkanUtils::PlaceImageMemoryBarrier(
-        m_renderTargets->GetDepthImage(currentFrameIndex), cmdBuffer,
-        vk::ImageLayout::eDepthStencilAttachmentOptimal,
-        vk::ImageLayout::eDepthStencilAttachmentOptimal,
-        vk::PipelineStageFlagBits::eEarlyFragmentTests,
-        vk::PipelineStageFlagBits::eEarlyFragmentTests,
-        vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+        m_renderTargets->GetDepthImage(currentFrameIndex), cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
+        vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::PipelineStageFlagBits::eEarlyFragmentTests,
+        vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::AccessFlagBits::eDepthStencilAttachmentWrite,
         vk::AccessFlagBits::eDepthStencilAttachmentRead);
 
     m_renderingStatistics.DrawCallCount = drawCallCount;
@@ -247,7 +249,8 @@ void SceneRenderer::ShadowMapPass(int                                       curr
 {
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording ! ");
 
-    VulkanUtils::PlacePipelineBarrier(cmdBuffer, vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::PipelineStageFlagBits::eFragmentShader);
+    VulkanUtils::PlacePipelineBarrier(cmdBuffer, vk::PipelineStageFlagBits::eEarlyFragmentTests,
+                                      vk::PipelineStageFlagBits::eFragmentShader);
 
     //=========================================================================
     // Transition shadow map from shader read only optimal to render attachment
@@ -256,8 +259,8 @@ void SceneRenderer::ShadowMapPass(int                                       curr
 
     //=============================================================
     // Trasition depth from render attachemnt to shader read only
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetDepthImage(0), vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                vk::ImageLayout::eDepthStencilAttachmentOptimal, cmdBuffer);
+    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetResovedDepthImage(), vk::ImageLayout::eDepthStencilReadOnlyOptimal,
+                                                    vk::ImageLayout::eDepthStencilAttachmentOptimal, cmdBuffer);
 
 
     vk::RenderingAttachmentInfo shadowMapAttachmentInfo{};
@@ -303,9 +306,8 @@ void SceneRenderer::ShadowMapPass(int                                       curr
 
     //=============================================================
     // Trasition depth from render attachemnt to shader read only
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetDepthImage(0), vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                vk::ImageLayout::eShaderReadOnlyOptimal, cmdBuffer);
-
+    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetResovedDepthImage(), vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                    vk::ImageLayout::eDepthStencilReadOnlyOptimal, cmdBuffer);
 }
 
 

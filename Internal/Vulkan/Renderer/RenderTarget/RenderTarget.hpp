@@ -56,6 +56,7 @@ class RenderTarget
 
     VulkanCore::VImage2& GetColourImage(int currentFrame) const;
     VulkanCore::VImage2& GetDepthImage(int currentFrame) const;
+    VulkanCore::VImage2& GetResovedDepthImage() const;
     VulkanCore::VImage2& GetColourAttachmentMultiSampled(int currentFrame) const;
 
     ~RenderTarget() = default;
@@ -63,6 +64,7 @@ class RenderTarget
   private:
     std::vector<std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage2>>> m_colourAttachments;  // for internal engine use
     std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage2>> m_depthAttachment;  // for internal engine use
+    std::unique_ptr<VulkanCore::VImage2> m_resolvedDepthAttachment;  // for internal engine use
     std::vector<std::pair<vk::RenderingAttachmentInfo, std::unique_ptr<VulkanCore::VImage2>>> m_msaaAttachments;  // for internal engine use
 
   private:

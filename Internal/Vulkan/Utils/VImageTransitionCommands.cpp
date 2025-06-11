@@ -229,7 +229,7 @@ void VulkanUtils::EvaluateBarrierMasks(vk::ImageLayout targetLayout, vk::ImageLa
         srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
         dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput; // or eFragmentShader depending on usage
     }
-    else if (currentLayout == vk::ImageLayout::eShaderReadOnlyOptimal && targetLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
+    else if (currentLayout == vk::ImageLayout::eDepthStencilReadOnlyOptimal && targetLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
         barrier.srcAccessMask = vk::AccessFlagBits::eShaderRead;
         barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead ;
 
@@ -237,7 +237,15 @@ void VulkanUtils::EvaluateBarrierMasks(vk::ImageLayout targetLayout, vk::ImageLa
         dstStageFlags = vk::PipelineStageFlagBits::eEarlyFragmentTests;
 
     }
-    else if (currentLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal && targetLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
+    else if (currentLayout == vk::ImageLayout::eUndefined && targetLayout == vk::ImageLayout::eDepthStencilReadOnlyOptimal) {
+        barrier.srcAccessMask = vk::AccessFlagBits::eNone;
+        barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead ;
+
+        srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+        dstStageFlags = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+
+    }
+    else if (currentLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal && targetLayout == vk::ImageLayout::eDepthStencilReadOnlyOptimal) {
         barrier.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead |
                                   vk::AccessFlagBits::eDepthStencilAttachmentWrite;
         barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;

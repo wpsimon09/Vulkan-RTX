@@ -47,6 +47,13 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
 
     m_depthAttachment.second = std::make_unique<VulkanCore::VImage2>(m_device, depthAttachmentCreateInfo);
 
+    //===================================================
+    // Create resolved depth image to read from in shader
+    //===================================================
+    depthAttachmentCreateInfo.samples = vk::SampleCountFlagBits::e1;
+
+    m_resolvedDepthAttachment = std::make_unique<VulkanCore::VImage2>(m_device, depthAttachmentCreateInfo);
+
     auto& depthAttachmentInfo                           = m_depthAttachment.first;
     depthAttachmentInfo.imageView                       = m_depthAttachment.second->GetImageView();
     depthAttachmentInfo.imageLayout                     = vk::ImageLayout::eDepthStencilAttachmentOptimal;
@@ -55,6 +62,9 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
     depthAttachmentInfo.resolveMode                     = vk::ResolveModeFlagBits::eNone;
     depthAttachmentInfo.clearValue.depthStencil.depth   = 1.0f;
     depthAttachmentInfo.clearValue.depthStencil.stencil = 0.0f;
+    depthAttachmentInfo.resolveImageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+    depthAttachmentInfo.resolveImageView = m_resolvedDepthAttachment->GetImageView();
+    depthAttachmentInfo.resolveMode = vk::ResolveModeFlagBits::eAverage;
 
 
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
@@ -101,12 +111,6 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
         msaaAttachmentInfo.storeOp = vk::AttachmentStoreOp::eDontCare;
     }
 
-    /**
-     * TODO: this is so wrong, it should take transfer ops manager command buffer instead of creating it here
-     */
-    VulkanCore::VTimelineSemaphore transitionTargetLayoutSempahore(m_device);
-    VulkanCore::VCommandPool cmdPool(device, EQueueFamilyIndexType::Graphics);
-    //VulkanCore::VCommandBuffer cmdBuffer(m_device, cmdPool);
 
 
     auto& cmdBuffer  = m_device.GetTransferOpsManager().GetCommandBuffer();;
@@ -124,7 +128,11 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
     }
     // TRANSITION EVERYTHING FROM UNDEFINED LAYOUT TO COLOUR ATTACHMENT
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_depthAttachment.second, vk::ImageLayout::eShaderReadOnlyOptimal,
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_depthAttachment.second, vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                    vk::ImageLayout::eUndefined,
+                                                    cmdBuffer.GetCommandBuffer());
+
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_resolvedDepthAttachment, vk::ImageLayout::eDepthStencilReadOnlyOptimal,
                                                     vk::ImageLayout::eUndefined,
                                                     cmdBuffer.GetCommandBuffer());
 
@@ -133,8 +141,6 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
 
     //transitionTargetLayoutSempahore.CpuWaitIdle(2);
 
-    transitionTargetLayoutSempahore.Destroy();
-    cmdPool.Destroy();
     Utils::Logger::LogSuccess("Render target created, Contains 2 colour buffers and 1 depth buffer");
     // m_device.GetTransferOpsManager().UpdateGPUWaitCPU(true);
 }
@@ -230,6 +236,7 @@ VulkanCore::VImage2& RenderTarget::GetDepthImage(int currentFrame) const
 {
     return *m_depthAttachment.second;
 }
+VulkanCore::VImage2& RenderTarget::GetResovedDepthImage() const { return *m_resolvedDepthAttachment;}
 
 VulkanCore::VImage2& RenderTarget::GetColourAttachmentMultiSampled(int currentFrame) const
 {
@@ -257,7 +264,7 @@ void RenderTarget::CreateRenderTargetForSwapChain(const VulkanCore::VSwapChain& 
     depthAttachmentCreateInfo.width      = swapChainExtent.width;
     depthAttachmentCreateInfo.mipLevels  = 1;
     depthAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil;
-    depthAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    depthAttachmentCreateInfo.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment ;
 
     m_depthAttachment.second = std::make_unique<VulkanCore::VImage2>(m_device, depthAttachmentCreateInfo);
 
