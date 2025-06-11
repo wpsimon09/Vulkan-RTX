@@ -21,15 +21,12 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float depth = _depthTexture.Sample(fsIn.uv).x;
+    float depthLinear = LinearizeDepth(depth, globalData.viewParams.z, globalData.viewParams.w);
     float3 worldSpacePos = WorldPosFromDepth(depth, fsIn.uv, globalData.invProjection, globalData.inverseView);
 
     bool inShadow = false;
     inShadow = IntersectsP(InitRay(worldSpacePos, normalize(_lightInfo.dirLight.direction.xyz), 1000), _tlas);
 
-    if(inShadow){
-        return float4(1.0, 0.0, 0.0, 1.0);
-    }else{
-        return float4(0.0, 0.0, 0.0, 1.0);
-    }
+    return float4(fsIn.uv, 1.0, 1.0);
 
 }

@@ -50,7 +50,9 @@ class Camera
         return glm::inverse(glm::lookAt(this->m_position, m_center, this->m_worldUp));
     }
 
-    glm::vec2 GetScreenSize() const { return m_screenSize; };
+    glm::vec2 GetScreenSize() const { return m_screenSize; }
+
+    glm::mat4 GetinverseProjectionMatrix() const { return glm::inverse(m_projection); };
 
     glm::vec3 GetPosition() const { return this->m_position; };
 
@@ -70,7 +72,7 @@ class Camera
     float& GetFocalLength() { return this->m_focalLength; }
 
     float& GetMaxReccursion() { return this->m_maxReccursion; }
-  
+
     void SetPosition(glm::vec3& newPosition);
 
     void Update(CameraUpdateInfo& cameraUpdateInfo, SceneUpdateFlags& sceneUpdateFlags);
@@ -88,9 +90,9 @@ class Camera
     float m_polarAngle;
     float m_FOV = 65.0f;
     float m_aspect;
-    float m_speed = 3.3f;
-    float m_focalLength = 0.35f; // focal lenght is in CM
-    float m_maxReccursion = 10; // max ray reccrusion from the camera
+    float m_speed         = 3.3f;
+    float m_focalLength   = 0.35f;  // focal lenght is in CM
+    float m_maxReccursion = 10;     // max ray reccrusion from the camera
 
     glm::vec3 m_position;
     glm::vec3 m_center;
@@ -105,7 +107,7 @@ class Camera
     float m_nearPlane;
 
     CameraUpdateInfo m_previusUpdateInfo;
-    bool m_hasChanged = true;
+    bool             m_hasChanged = true;
 };
 
 }  // namespace ApplicationCore

@@ -95,9 +95,9 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData.proj        = m_camera->GetProjectionMatrix();
     m_globalRenderingData.view        = m_camera->GetViewMatrix();
     m_globalRenderingData.inverseView = m_camera->GetInverseViewMatrix();
+    m_globalRenderingData.inverseProj = m_camera->GetinverseProjectionMatrix();
     m_globalRenderingData.screenSize  = m_camera->GetScreenSize();
-    m_globalRenderingData.viewParams = glm::vec4(m_camera->GetCameraPlaneWidthAndHeight(), m_camera->GetNearPlane(), 1.0f);
-    m_globalRenderingData.viewParams.w   = m_camera->GetFocalLength();
+    m_globalRenderingData.viewParams = glm::vec4(m_camera->GetCameraPlaneWidthAndHeight(), m_camera->GetNearPlane(), m_camera->GetFarPlane());
     m_globalRenderingData.reccursionDepth = GlobalVariables::RenderingOptions::MaxRecursionDepth;
     m_globalRenderingData.raysPerPixel = GlobalVariables::RenderingOptions::RaysPerPixel;
     m_globalRenderingData.playerPosition = glm::vec4(m_camera->GetPosition(), 1.0f);

@@ -127,3 +127,8 @@ public float3 WorldPosFromDepth(float depth,float2 uv, float4x4 inverseProj, flo
 
     return worldSpacePosition.xyz;
 }
+
+public float LinearizeDepth(float d,float zNear,float zFar)
+{
+    return  zNear * zFar / (zFar - d * (zFar - zNear));
+}

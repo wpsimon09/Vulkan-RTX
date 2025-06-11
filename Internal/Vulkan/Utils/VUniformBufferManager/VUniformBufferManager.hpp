@@ -64,6 +64,7 @@ class VUniformBufferManager
 
     // TODO: this will be storage buffer
     std::unique_ptr<VUniform<LightUniforms>>              m_lightUniform;
+
     std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>> m_perFrameUniform;
 
     //=======================================================
