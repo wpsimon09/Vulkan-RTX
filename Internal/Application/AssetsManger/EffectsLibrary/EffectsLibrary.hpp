@@ -24,6 +24,7 @@ class VResourceGroupManager;
 }  // namespace VulkanUtils
 
 namespace Renderer {
+class SceneRenderer;
 class RenderingSystem;
 }
 

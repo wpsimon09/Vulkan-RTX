@@ -30,7 +30,7 @@ struct VertexOutput {
 
 
     [shader("vertex")]
-    VertexOutput vertexMain(VertexInput VAO) // VAO input{
+    VertexOutput vertexMain(VertexInput VAO, float2 fragCorrd: SV_Position) // VAO input{
     {
         // sotre for later
         float3 vertexPos = VAO.inPosition;
@@ -47,6 +47,7 @@ struct VertexOutput {
         out.vertexData.normal = NormalWorldPos;
         out.vertexData.uv = uv;
         out.vertexData.materialIndex = perObjectData[perObjectPC.perObjectDataIndex.x].indexes.x;
+        out.vertexData.screenSpaceUv = fragCorrd / globalData.screenSize;
 
         float4x4 viewProj = mul(globalData.view, globalData.projection);
         out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));

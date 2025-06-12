@@ -317,6 +317,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::SceneRenderer&   
                     //===================================
                     // for ray query we need acceleration strucutre
                     e->WriteImage(i, 0, 4, sceneRenderer.GetShadowMap());
+
                     break;
                 }
                 case EShaderBindingGroup::RayTracing: {

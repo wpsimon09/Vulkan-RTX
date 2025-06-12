@@ -66,7 +66,12 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     //CookTorrence_GGX brdf;
     float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
 
-    float3 finalColor = lightingEnv.illuminate(g, brdf_, V);
+    float3 finalColor;
+    if(_shadowMapScreenSpace.Sample(fsIn.screenSpaceUv).x == 1.0){
+        finalColor = lightingEnv.illuminate(g, brdf_, V);
+    }else{
+        finalColor = brdf_.albedo.xyz * 0.8;
+    }
 
     return float4(finalColor, brdf_.albedo.w);
 
