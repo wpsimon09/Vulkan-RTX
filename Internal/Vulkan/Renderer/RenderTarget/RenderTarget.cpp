@@ -184,7 +184,9 @@ void RenderTarget::Destroy()
             m_msaaAttachments[i].second->Destroy();
     }
     m_depthAttachment.second->Destroy();
-    m_resolvedDepthAttachment->Destroy();
+    if (m_resolvedDepthAttachment) {
+        m_resolvedDepthAttachment->Destroy();
+    }
 
     Utils::Logger::LogSuccess("Render target destroyed");
 }

@@ -59,9 +59,6 @@ namespace Renderer {
         void Destroy();
 
     protected:
-        void DrawScene(int currentFrameIndex,
-                       VulkanCore::VCommandBuffer& cmdBuffer,
-                       const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
         void DepthPrePass(int currentFrameIndex,
                           VulkanCore::VCommandBuffer& cmdBuffer,
@@ -70,6 +67,10 @@ namespace Renderer {
         void ShadowMapPass(int currentFrameIndex,
                           VulkanCore::VCommandBuffer& cmdBuffer,
                           const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+
+        void DrawScene(int currentFrameIndex,
+                       VulkanCore::VCommandBuffer& cmdBuffer,
+                       const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
 
         void CreateRenderTargets(VulkanCore::VSwapChain* swapChain);
