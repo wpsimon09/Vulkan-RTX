@@ -102,8 +102,6 @@ set(SOURCES
         Internal/Vulkan/Renderer/Renderers/RenderingSystem.hpp
         Internal/Vulkan/Renderer/RenderTarget/RenderTarget.cpp
         Internal/Vulkan/Renderer/RenderTarget/RenderTarget.hpp
-        Internal/Vulkan/Renderer/Renderers/BaseRenderer.cpp
-        Internal/Vulkan/Renderer/Renderers/BaseRenderer.hpp
         Internal/Editor/UIContext/ViewPortContext.hpp
         Internal/Editor/Editor.cpp
         Internal/Editor/Editor.hpp
@@ -221,6 +219,7 @@ set(SOURCES
         External/SPIRV-Reflect/spirv_reflect.cpp
         External/ImGuiSpectrum/imgui_spectrum.cpp
         External/ImGuiSpectrum/imgui_spectrum.h
+
 )
 
 

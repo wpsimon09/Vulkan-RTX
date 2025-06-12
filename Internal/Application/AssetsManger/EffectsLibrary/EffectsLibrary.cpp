@@ -155,8 +155,8 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     //===============================================================================
     auto rtShadowPass = std::make_shared<VulkanUtils::VRasterEffect>(device, "Ray traced shadow map effect",
                                                                      "Shaders/Compiled/RTShadowPass.vert.spv",
-                                                                     "Shaders/Compiled/RTShadowPass.frag.spv", descLayoutCache,
-                                                                     EShaderBindingGroup::ShadowRT);
+                                                                     "Shaders/Compiled/RTShadowPass.frag.spv",
+                                                                     descLayoutCache, EShaderBindingGroup::ShadowRT);
     rtShadowPass->SetDisableDepthTest()
         .DisableStencil()
         .SetCullNone()
@@ -193,7 +193,8 @@ void EffectsLibrary::Destroy()
         effect.second->Destroy();
     }
 }
-void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*               renderingContext,
+void EffectsLibrary::UpdatePerFrameWrites(const Renderer::SceneRenderer&            sceneRenderer,
+                                          VulkanUtils::RenderContext*               renderingContext,
                                           const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     for(auto& effect : effects)
@@ -264,7 +265,8 @@ void EffectsLibrary::UpdatePerFrameWrites(VulkanUtils::RenderContext*           
     }
 }
 
-void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::SceneRenderer&       sceneRenderer,
+                                               VulkanUtils::VUniformBufferManager&  uniformBufferManager,
                                                VulkanUtils::VRayTracingDataManager& rayTracingDataManager)
 {
     for(auto& effect : effects)
@@ -295,7 +297,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
                 case EShaderBindingGroup::ForwardLit: {
 
-                    e->SetNumWrites(7, 4, 1);
+                    e->SetNumWrites(7, 5, 0);
                     //===================================
                     // global data
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
@@ -314,8 +316,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
 
                     //===================================
                     // for ray query we need acceleration strucutre
-                    e->WriteAccelerationStrucutre(i, 0, 4, rayTracingDataManager.GetTLAS());
-
+                    e->WriteImage(i, 0, 4, sceneRenderer.GetShadowMap());
                     break;
                 }
                 case EShaderBindingGroup::RayTracing: {
@@ -336,7 +337,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(VulkanUtils::VUniformBufferManage
                     e->WriteBuffer(i, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
                     break;
                 }
-                case EShaderBindingGroup::ShadowRT:{
+                case EShaderBindingGroup::ShadowRT: {
                     e->SetNumWrites(3, 2, 1);
 
                     //==================================

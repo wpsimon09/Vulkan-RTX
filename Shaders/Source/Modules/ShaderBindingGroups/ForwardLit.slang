@@ -19,7 +19,7 @@ StructuredBuffer<Material> materialValues;
 ConstantBuffer<LightInfo> _lightInfo;
 
 [[vk::binding(4,0)]]
-RaytracingAccelerationStructure _tlas;
+Sampler2D _shadowMapScreenSpace;
 
 //========================
 // set 1

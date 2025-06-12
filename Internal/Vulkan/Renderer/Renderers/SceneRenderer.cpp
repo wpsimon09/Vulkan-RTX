@@ -102,11 +102,19 @@ void SceneRenderer::Render(int                                       currentFram
 
     // descriptor set 0 is allways the samme
 
+    //============================
+    // generates depth buffer
     DepthPrePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
+    //===========================
+    // generates shadow mapp in  screen space
     ShadowMapPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
+    //============================
+    // uses forward renderer to render the scene
     DrawScene(currentFrameIndex, cmdBuffer, uniformBufferManager);
+
+    //============================
 
     m_frameCount++;
 }
@@ -463,6 +471,11 @@ void SceneRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStr
 
     drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
 }
+
+vk::DescriptorImageInfo SceneRenderer::GetShadowMap() const {
+    return m_shadowMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+}
+
 
 void SceneRenderer::Destroy()
 {

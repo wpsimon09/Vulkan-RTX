@@ -30,5 +30,5 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     bool inShadow = false;
     inShadow = IntersectsP(InitRay(worldSpacePos, normalize(_lightInfo.dirLight.direction.xyz), 1000), _tlas);
     
-    return float4(float3(inShadow), 1.0);
+    return float4(float3(inShadow ? 0.5 : 1.0), 1.0);
 }

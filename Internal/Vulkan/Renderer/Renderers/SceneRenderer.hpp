@@ -10,9 +10,9 @@
 #include <vector>
 
 // Project headers
-#include "BaseRenderer.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
+#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 
 // Forward declarations
 namespace VEditor {
@@ -20,7 +20,8 @@ namespace VEditor {
 }
 
 namespace VulkanCore {
-    class VDevice;
+class VImage2;
+class VDevice;
     class VPipelineManager;
     class VTimelineSemaphore;
     class VCommandBuffer;
@@ -53,8 +54,10 @@ namespace Renderer {
 
         VulkanCore::VImage2& GetRenderedImage(int currentFrame)
         {
-            return *m_shadowMap; //m_renderTargets->GetColourImage(currentFrame); //*m_shadowMap;
-        };
+            return m_renderTargets->GetColourImage(currentFrame);  //*m_shadowMap;
+        }
+
+        vk::DescriptorImageInfo GetShadowMap() const;
 
         void Destroy();
 

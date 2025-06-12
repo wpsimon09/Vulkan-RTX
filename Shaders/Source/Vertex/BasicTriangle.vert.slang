@@ -25,6 +25,7 @@ struct VertexOutput {
         float3 fragPos : OUT_FRAG_POS;
         float2 uv : OUT_UV;
         int materialIndex : OUT_MATERIAL;
+        float2 screenSpaceUv: OUT_SS_UV;
     };
 
 

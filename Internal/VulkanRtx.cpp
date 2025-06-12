@@ -67,8 +67,9 @@
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
+#include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
 
-Application::Application() {}
+Application::Application() = default;
 
 void Application::Init()
 {
@@ -134,7 +135,7 @@ void Application::Init()
 
     m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU();
 
-    m_effectsLibrary->ConfigureDescriptorWrites(*m_uniformBufferManager, *m_rayTracingDataManager);
+    m_effectsLibrary->ConfigureDescriptorWrites(m_renderingSystem->GetSceneRenderer(), *m_uniformBufferManager, *m_rayTracingDataManager);
 }
 
 void Application::MainLoop()

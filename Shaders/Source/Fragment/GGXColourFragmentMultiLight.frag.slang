@@ -11,6 +11,7 @@ struct FragmentShaderIn
     float3 fragPos : OUT_FRAG_POS;
     float2 uv : OUT_UV;
     int materialIdx : OUT_MATERIAL;
+    float2 screenSpaceUv: OUT_SS_UV;
 };
 
 
@@ -65,7 +66,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     //CookTorrence_GGX brdf;
     float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
 
-    float3 finalColor = lightingEnv.illuminate(g, brdf_, V, _tlas);
+    float3 finalColor = lightingEnv.illuminate(g, brdf_, V);
 
     return float4(finalColor, brdf_.albedo.w);
 

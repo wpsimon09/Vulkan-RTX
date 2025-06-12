@@ -13,6 +13,7 @@
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "RayTracing/RayTracer.hpp"
+#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
@@ -211,7 +212,7 @@ void RenderingSystem::Render(
     m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
 
-    m_effectsLibrary->UpdatePerFrameWrites(&m_renderContext, m_uniformBufferManager);
+    m_effectsLibrary->UpdatePerFrameWrites( *m_sceneRenderer,  &m_renderContext, m_uniformBufferManager);
 
     //============================================================
     // start recording command buffer that will render the scene
