@@ -7,7 +7,6 @@ struct VertexInput {
     float3 inPosition :POSITION ;
     float3 inNormal : NORMAL;
     float2 inUV : UV;
-
 };
 
 struct VertexOutput {
@@ -25,12 +24,12 @@ struct VertexOutput {
         float3 fragPos : OUT_FRAG_POS;
         float2 uv : OUT_UV;
         int materialIndex : OUT_MATERIAL;
-        float2 screenSpaceUv: OUT_SS_UV;
+        float2 screenSpaceUV: OUT_SCREEN_UV;
     };
 
 
     [shader("vertex")]
-    VertexOutput vertexMain(VertexInput VAO, float2 fragCorrd: SV_Position) // VAO input{
+    VertexOutput vertexMain(VertexInput VAO) // VAO input{
     {
         // sotre for later
         float3 vertexPos = VAO.inPosition;
@@ -39,18 +38,19 @@ struct VertexOutput {
 
         float3 FragmentWorldPos =mul( perObjectPC.modelMatrix,  float4(vertexPos, 1.0)).xyz;
         float3 NormalWorldPos = mul(transpose(inverse(perObjectPC.modelMatrix)), float4(normal.xyz, 1.0)).xyz;//mul( float4(normal, 1.0) , perObjectData[perObjectPC.perObjectDataIndex].normalMatrix).xyz;
-
-
+        
+        float4x4 viewProj = mul(globalData.view, globalData.projection);
+        
         VertexOutput out;
+        out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
+        
+
         out.vertexData.cameraPos = globalData.cameraPostiion.xyz;
         out.vertexData.fragPos = FragmentWorldPos;
         out.vertexData.normal = NormalWorldPos;
         out.vertexData.uv = uv;
         out.vertexData.materialIndex = perObjectData[perObjectPC.perObjectDataIndex.x].indexes.x;
-        out.vertexData.screenSpaceUv = fragCorrd / globalData.screenSize;
-
-        float4x4 viewProj = mul(globalData.view, globalData.projection);
-        out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
+        out.vertexData.screenSpaceUV = out.sv_position.xy / globalData.screenSize;
 
         return out;
     }

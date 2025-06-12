@@ -231,10 +231,14 @@ void VulkanUtils::EvaluateBarrierMasks(vk::ImageLayout targetLayout, vk::ImageLa
     }
     else if (currentLayout == vk::ImageLayout::eDepthStencilReadOnlyOptimal && targetLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
         barrier.srcAccessMask = vk::AccessFlagBits::eShaderRead;
-        barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead ;
+        barrier.dstAccessMask =
+            vk::AccessFlagBits::eDepthStencilAttachmentWrite |
+            vk::AccessFlagBits::eColorAttachmentWrite;
 
         srcStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
-        dstStageFlags = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+        dstStageFlags =
+            vk::PipelineStageFlagBits::eLateFragmentTests |
+            vk::PipelineStageFlagBits::eColorAttachmentOutput;
 
     }
     else if (currentLayout == vk::ImageLayout::eUndefined && targetLayout == vk::ImageLayout::eDepthStencilReadOnlyOptimal) {
@@ -246,12 +250,18 @@ void VulkanUtils::EvaluateBarrierMasks(vk::ImageLayout targetLayout, vk::ImageLa
 
     }
     else if (currentLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal && targetLayout == vk::ImageLayout::eDepthStencilReadOnlyOptimal) {
-        barrier.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead |
-                                  vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+        barrier.srcAccessMask =
+        vk::AccessFlagBits::eDepthStencilAttachmentRead |
+        vk::AccessFlagBits::eDepthStencilAttachmentWrite |
+        vk::AccessFlagBits::eColorAttachmentWrite;   // <-- include color attachment write for resolve
+
         barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 
-        srcStageFlags = vk::PipelineStageFlagBits::eEarlyFragmentTests |
-                           vk::PipelineStageFlagBits::eLateFragmentTests;
+        srcStageFlags =
+            vk::PipelineStageFlagBits::eEarlyFragmentTests |
+            vk::PipelineStageFlagBits::eLateFragmentTests |
+            vk::PipelineStageFlagBits::eColorAttachmentOutput;  // <-- include color attachment output stage
+
         dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
     }
     else
