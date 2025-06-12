@@ -50,7 +50,6 @@ struct VertexOutput {
         out.vertexData.normal = NormalWorldPos;
         out.vertexData.uv = uv;
         out.vertexData.materialIndex = perObjectData[perObjectPC.perObjectDataIndex.x].indexes.x;
-        out.vertexData.screenSpaceUV = out.sv_position.xy / globalData.screenSize;
-
+        out.vertexData.screenSpaceUV = globalData.screenSize;
         return out;
     }

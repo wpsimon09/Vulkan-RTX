@@ -201,11 +201,11 @@ void VEffect::CmdPushConstant(const vk::CommandBuffer& commandBuffer, const vk::
 bool VEffect::IsWriteValid(uint32_t frame, uint32_t set, uint32_t binding) {
     if (m_descriptorSets.empty()) {
         Utils::Logger::LogError("There are not descriptor sets in Effect: " + m_name);
-      //  return false;
+         //eturn false;
     }
-    if (m_descriptorSets.size() < set) {
-        Utils::Logger::LogError("Set: " +std::to_string(set) + "is smaller then number of sets in Effect: " + m_name);
-    //    return false;
+    if (m_descriptorSets.size() >= set) {
+        //Utils::Logger::LogError("Set: " +std::to_string(set) + "is smaller then number of sets in Effect: " + m_name);
+        //return false;
     };
     if (m_descriptorSets[set].writes.empty()) {
         Utils::Logger::LogError("Set: " +std::to_string(set) + "writes are empty in Effect: " + m_name);

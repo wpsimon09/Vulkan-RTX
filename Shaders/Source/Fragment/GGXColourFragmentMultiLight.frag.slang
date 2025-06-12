@@ -14,19 +14,23 @@ struct FragmentShaderIn
     float2 screenSpaceUV: OUT_SCREEN_UV;
 };
 
+struct VertexOutput {
+    FragmentShaderIn vertexData : DATA;
+    float4 sv_position : SV_Position;
+}
 
 [shader("pixel")]
-float4 fragmentMain(FragmentShaderIn fsIn)
+float4 fragmentMain(VertexOutput fsIn)
     : SV_Target
 {
    SurfaceGeometry g;
-    g.position = fsIn.fragPos;
-    g.shadingPosition = fsIn.fragPos;
-    g.shadingNormal = normalize(fsIn.normal);
-    g.normal = normalize(fsIn.normal);
-    g.uv = fsIn.uv;
+    g.position = fsIn.vertexData.fragPos;
+    g.shadingPosition = fsIn.vertexData.fragPos;
+    g.shadingNormal = normalize(fsIn.vertexData.normal);
+    g.normal = normalize(fsIn.vertexData.normal);
+    g.uv = fsIn.vertexData.uv;
 
-    Material mat = materialValues[fsIn.materialIdx];
+    Material mat = materialValues[fsIn.vertexData.materialIdx];
 
     PBRMaterial material;
     material.features = mat.Features;
@@ -38,7 +42,7 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     let brdf_ = material.Prepare(g);
 
     if (material.features.hasNormalTexture) {
-        g.normal = normalize(SampleNormalMap(material.normal_map, fsIn.uv, fsIn.normal, fsIn.fragPos));
+        g.normal = normalize(SampleNormalMap(material.normal_map, fsIn.vertexData.uv, fsIn.vertexData.normal, fsIn.vertexData.fragPos));
     }
 
     LightPair<LightPair<DirectionalLight, LightArray<PointLight, 20>>, LightPair<LightArray<AreaLight,4>,AmbientLight>> lightingEnv;
@@ -64,17 +68,15 @@ float4 fragmentMain(FragmentShaderIn fsIn)
     lightingEnv.second = AreaAndAmbient;
 
     //CookTorrence_GGX brdf;
-    float3 V = normalize(fsIn.cameraPos - fsIn.fragPos);
+    float3 V = normalize(fsIn.vertexData.cameraPos - fsIn.vertexData.fragPos);
 
     float3 finalColor;
-    if(_shadowMapScreenSpace.Sample(fsIn.screenSpaceUV).x == 1.0){
+    if(_shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).x == 1.0){
         finalColor = lightingEnv.illuminate(g, brdf_, V);
     }else{
         finalColor = brdf_.albedo.xyz * 0.8;
     }
 
-    return float4(finalColor, brdf_.albedo.w);
-
-    //return float4(g.normal, 1.0);
+    return float4(finalColor, 1);
 }
 
