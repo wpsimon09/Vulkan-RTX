@@ -3,9 +3,9 @@ module SBG_PostProcessing;
 import Core;
 
 [[vk::binding(0, 0)]]
-ConstantBuffer<GlobalData> globalData;
+ConstantBuffer<PostProcessingParameters> postProcessingParameters;
 
-[[vk::binding(1, 0)]]
+[[vk::binding(0, 1)]]
 Sampler2D _inputTexture_Render;
 
 

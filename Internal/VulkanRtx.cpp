@@ -96,9 +96,8 @@ void Application::Init()
 
     m_rayTracingDataManager = std::make_unique<VulkanUtils::VRayTracingDataManager>(*m_vulkanDevice);
 
-    m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice,*m_uniformBufferManager,*m_rayTracingDataManager, *m_descriptorSetLayoutCache);
-
-
+    m_effectsLibrary = std::make_unique<ApplicationCore::EffectsLibrary>(*m_vulkanDevice, *m_uniformBufferManager,
+                                                                         *m_rayTracingDataManager, *m_descriptorSetLayoutCache);
 
 
     auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_effectsLibrary);
@@ -106,8 +105,9 @@ void Application::Init()
     m_client->Init();
     m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
-    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance,*m_vulkanDevice,*m_rayTracingDataManager,  *m_uniformBufferManager, *m_effectsLibrary,
-                                                                    *m_descriptorSetLayoutCache,  *m_uiContext );
+    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_rayTracingDataManager,
+                                                                    *m_uniformBufferManager, *m_effectsLibrary,
+                                                                    *m_descriptorSetLayoutCache, *m_uiContext);
 
 
     m_renderingSystem->Init();
@@ -117,9 +117,12 @@ void Application::Init()
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
     ApplicationCore::ImportOptions importOptions{};
 
-    if (std::filesystem::exists("cache/scene.gltf")) {
-        m_client->GetGLTFLoader().LoadGLTFScene(m_client->GetScene(),"cache/scene.gltf", importOptions);
-    }else {
+    if(std::filesystem::exists("cache/scene.gltf"))
+    {
+        m_client->GetGLTFLoader().LoadGLTFScene(m_client->GetScene(), "cache/scene.gltf", importOptions);
+    }
+    else
+    {
         // build default scene
         m_client->GetScene().AddCubeToScene();
     }
@@ -130,7 +133,7 @@ void Application::Init()
 
     m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU(true);
     m_client->GetScene().Update();
-    auto inputs =m_client->GetScene().GetBLASInputs();
+    auto inputs = m_client->GetScene().GetBLASInputs();
     m_rayTracingDataManager->InitAs(inputs);
 
     m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU();
@@ -185,10 +188,11 @@ void Application::Update()
     m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
     m_editor->Update();
 
-    if (m_client->GetScene().GetSceneUpdateFlags().rebuildAs
-        ) {
+    if(m_client->GetScene().GetSceneUpdateFlags().rebuildAs)
+    {
         auto blasInpu = m_client->GetScene().GetBLASInputs();
-        if (blasInpu.empty()) return;
+        if(blasInpu.empty())
+            return;
 
         // implicity destroys all used resources, so no cleanup of previous resources is needed
         m_rayTracingDataManager->InitAs(blasInpu);
@@ -197,17 +201,16 @@ void Application::Update()
         // TODO: this is hacky fix and not according to the standart
         // this happens because i am reseting the rebuildAS because it is being flagged in Render() and Update() is before render
         m_client->GetScene().GetSceneUpdateFlags().rebuildAs = false;
-
     }
 
-    if (m_client->GetScene().GetSceneUpdateFlags().updateAs) {
+    if(m_client->GetScene().GetSceneUpdateFlags().updateAs)
+    {
         auto blasInput = m_client->GetScene().GetBLASInputs();
-        if (blasInput.empty()) return;
+        if(blasInput.empty())
+            return;
         m_rayTracingDataManager->UpdateAS(blasInput);
         Utils::Logger::LogInfo("Updating AS");
-
     }
-
 }
 
 void Application::Render()
@@ -220,7 +223,9 @@ void Application::Render()
 
     m_editor->Render();
 
-    m_renderingSystem->Render(m_windowManager->GetHasResized(),  m_client->GetScene().GetSceneLightInfo(),m_client->GetScene().GetSceneData(), m_client->GetGlobalDataUpdateInformation(), m_client->GetScene().GetSceneUpdateFlags());
+    m_renderingSystem->Render(m_windowManager->GetHasResized(), m_client->GetScene().GetSceneLightInfo(),
+                              m_client->GetScene().GetSceneData(), m_client->GetGlobalDataUpdateInformation(),
+                              m_client->GetPostProcessingParameters(), m_client->GetScene().GetSceneUpdateFlags());
 
     m_renderingSystem->Update();
 }
@@ -229,7 +234,6 @@ void Application::PostRender()
 {
     m_vulkanDevice->GetTransferOpsManager().ClearResources();
     m_client->GetScene().Reset();
-
 }
 
 Application::~Application()
@@ -238,13 +242,15 @@ Application::~Application()
 
     if(!GlobalVariables::hasSessionBeenSaved)
     {
-        try{
+        try
+        {
             for(const auto& entry : std::filesystem::directory_iterator(GlobalVariables::textureFolder))
             {
                 std::filesystem::remove_all(entry.path());
             }
-        }catch(std::exception& e){
-
+        }
+        catch(std::exception& e)
+        {
         }
     }
     m_vulkanDevice->GetDevice().waitIdle();

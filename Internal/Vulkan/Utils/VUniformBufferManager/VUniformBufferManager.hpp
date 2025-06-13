@@ -39,6 +39,7 @@ class VUniformBufferManager
     VUniformBufferManager(const VulkanCore::VDevice& device);
 
     const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;  // per frame in flight
+    const vk::DescriptorBufferInfo GetPostProcessingBufferDescriptorInfo(int frameIndex) const;
     const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
     const std::vector<vk::DescriptorImageInfo>&  SceneTextures();
@@ -46,7 +47,7 @@ class VUniformBufferManager
     std::vector<vk::DescriptorImageInfo> GetAll2DTextureDescriptorImageInfo() const;  // per object per frame in flight
     vk::DescriptorBufferInfo GetMaterialDescriptionBuffer(int frameIndex) const;
 
-    void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const;
+    void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData, PostProcessingParameters& postProcessingParameters) const;
 
     void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls) const;
 
@@ -66,6 +67,7 @@ class VUniformBufferManager
     std::unique_ptr<VUniform<LightUniforms>>              m_lightUniform;
 
     std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>> m_perFrameUniform;
+    std::unique_ptr<VulkanUtils::VUniform<PostProcessingParameters>> m_postProcessingParameters;
 
     //=======================================================
     // storage buffers containing all of the data for materials

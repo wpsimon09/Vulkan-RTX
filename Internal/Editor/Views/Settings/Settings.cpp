@@ -183,5 +183,9 @@ void Settings::RenderRenderingSettings()
 
     ImGui::SliderInt("Reccursion depth", &GlobalVariables::RenderingOptions::MaxRecursionDepth, 1, 20);
     ImGui::SliderInt("Rays per pixel", &GlobalVariables::RenderingOptions::RaysPerPixel, 1, 20);
+
+    ImGui::SeparatorText("Tone mapping settings");
+    ImGui::DragFloat("Exposure", &m_client.GetPostProcessingParameters().toneMapping.x, 0.01, 0.01, 1.0);
+
 }
 }  // namespace VEditor

@@ -38,6 +38,10 @@ const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager:
 {
     return m_perFrameUniform->GetDescriptorBufferInfos();
 }
+const vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPostProcessingBufferDescriptorInfo(int frameIndex) const
+{
+    return m_postProcessingParameters->GetDescriptorBufferInfos()[frameIndex];
+}
 
 const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::GetLightBufferDescriptorInfo() const
 {
@@ -75,10 +79,13 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetMaterialDescript
 }
 
 
-void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData) const
+void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData, PostProcessingParameters& postProcessingParameters) const
 {
     m_perFrameUniform->GetUBOStruct() = perFrameData;
     m_perFrameUniform->UpdateGPUBuffer(frameIndex);
+
+    m_postProcessingParameters->GetUBOStruct() = postProcessingParameters;
+    m_postProcessingParameters->UpdateGPUBuffer(frameIndex);
 }
 
 void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameIndex,
@@ -174,6 +181,7 @@ void VulkanUtils::VUniformBufferManager::Destroy() const
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager and all its data...");
     m_perFrameUniform->Destory();
     m_lightUniform->Destory();
+    m_postProcessingParameters->Destory();
 
 
     for (auto& ssbo : m_sceneMaterials) {
@@ -210,6 +218,8 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     Utils::Logger::LogSuccess("Allocated uniform and storage buffers");
 
     m_perFrameUniform = std::make_unique<VUniform<GlobalUniform>>(m_device);
+
+    m_postProcessingParameters = std::make_unique<VUniform<PostProcessingParameters>>(m_device);
 
     m_lightUniform = std::make_unique<VUniform<LightUniforms>>(m_device);
 }

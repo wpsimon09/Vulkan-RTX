@@ -87,8 +87,8 @@ struct PerObjectPushConstant {
     glm::mat4 modelMatrix {};
 };
 
-struct PostProcessingData {
-    glm::vec4 parameters; // x- exposure, yzw - padding
+struct PostProcessingParameters {
+    glm::vec4 toneMapping {1.0, 2.2, 0.0, 0.0}; // x- exposure, y - gamma_correction, zw - padding
 };
 
 

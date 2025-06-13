@@ -20,5 +20,13 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
-    return float4(float3(1.0) - float3(_inputTexture_Render.Sample(fsIn.uv).xyz), 1.0);
+
+    float3 hdrColor = _inputTexture_Render.Sample(fsIn.uv).xyz;
+
+    float3 mapped = float3(1.0) - exp(-hdrColor * postProcessingParameters.toneMapping.x);
+
+    // gamma correction
+    mapped = pow(mapped, float3(1.0/postProcessingParameters.toneMapping.y));
+
+    return float4(mapped, 1.0);
 }

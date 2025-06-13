@@ -51,3 +51,9 @@ public struct PerObjectPushConstatn {
     public int4 perObjectDataIndex; //x- index to the the material yzw - other indexes
     public column_major float4x4 modelMatrix;
 }
+
+//===============================================
+// parameters to controll tone mapping 
+public struct PostProcessingParameters{
+    public float4 toneMapping; // x - exposure, y - gamma correction, zw - padding
+}

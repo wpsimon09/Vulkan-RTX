@@ -38,13 +38,13 @@
 
 
 namespace Renderer {
-RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         instance,
-                                 const VulkanCore::VDevice&                device,
+RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
+                                 const VulkanCore::VDevice&           device,
                                  VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
-                                  VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                                 ApplicationCore::EffectsLibrary&          effectsLybrary,
-                                 VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
-                                 VEditor::UIContext&                       uiContext)
+                                 VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+                                 ApplicationCore::EffectsLibrary&     effectsLybrary,
+                                 VulkanCore::VDescriptorLayoutCache&  descLayoutCache,
+                                 VEditor::UIContext&                  uiContext)
     : m_device(device)
     , m_uniformBufferManager(uniformBufferManager)
     , m_renderContext()
@@ -75,8 +75,8 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     }
     m_ableToPresentSemaphore.resize(m_swapChain->GetImageCount());
 
-    for (int i = 0; i < m_swapChain->GetImageCount(); i++)
-        m_ableToPresentSemaphore[i]   = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+    for(int i = 0; i < m_swapChain->GetImageCount(); i++)
+        m_ableToPresentSemaphore[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
 
     //----------------------------------------------------------------------------------------------------------------------------
     // Renderers creation
@@ -86,7 +86,9 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
                                                                 GlobalVariables::RenderTargetResolutionWidth,
                                                                 GlobalVariables::RenderTargetResolutionHeight);
 
-    m_postProcessingSystem = std::make_unique<Renderer::PostProcessingSystem>(m_device, effectsLybrary, uniformBufferManager, GlobalVariables::RenderTargetResolutionWidth, GlobalVariables::RenderTargetResolutionHeight );
+    m_postProcessingSystem = std::make_unique<Renderer::PostProcessingSystem>(m_device, effectsLybrary, uniformBufferManager,
+                                                                              GlobalVariables::RenderTargetResolutionWidth,
+                                                                              GlobalVariables::RenderTargetResolutionHeight);
 
 
     m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, *m_swapChain, uiContext);
@@ -97,7 +99,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
 
 
     auto cam    = m_uiContext.GetClient().GetCamera();
-    m_rayTracer = std::make_unique<RayTracer>(m_device, effectsLybrary, rayTracingDataManager , 1980, 1080);
+    m_rayTracer = std::make_unique<RayTracer>(m_device, effectsLybrary, rayTracingDataManager, 1980, 1080);
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }
@@ -111,11 +113,11 @@ void RenderingSystem::Init()
     }
 }
 
-void RenderingSystem::Render(
-                             bool resizeSwapChain,
+void RenderingSystem::Render(bool                          resizeSwapChain,
                              LightStructs::SceneLightInfo& sceneLightInfo,
                              ApplicationCore::SceneData&   sceneData,
                              GlobalUniform&                globalUniformUpdateInfo,
+                             PostProcessingParameters&     postProcessingParameters,
                              SceneUpdateFlags&             sceneUpdateFlags)
 {
     m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
@@ -129,17 +131,18 @@ void RenderingSystem::Render(
     auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
                                                                 *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
 
-    if (resizeSwapChain) {
+    if(resizeSwapChain)
+    {
         imageIndex.first = vk::Result::eErrorOutOfDateKHR;
     }
-        switch(imageIndex.first)
+    switch(imageIndex.first)
     {
         case vk::Result::eSuccess: {
             m_currentImageIndex = imageIndex.second;
             Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
             break;
         }
-        case vk::Result::eErrorOutOfDateKHR : {
+        case vk::Result::eErrorOutOfDateKHR: {
 
             m_swapChain->RecreateSwapChain();
 
@@ -165,8 +168,6 @@ void RenderingSystem::Render(
     }
 
 
-
-
     m_renderingTimeLine[m_currentFrameIndex]->Reset();
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
     m_frameCount++;
@@ -190,11 +191,10 @@ void RenderingSystem::Render(
         globalUniformUpdateInfo.numberOfFrames = m_frameCount;
     }
 
-    m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo);
+    m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo, postProcessingParameters);
     m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
     m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
     m_uniformBufferManager.UpdateSceneDataInfo(m_currentFrameIndex, sceneData);
-
 
 
     m_device.GetTransferOpsManager().UpdateGPU();
@@ -216,7 +216,7 @@ void RenderingSystem::Render(
     m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
 
-    m_effectsLibrary->UpdatePerFrameWrites( *m_sceneRenderer,  &m_renderContext,m_postProcessingContext, m_uniformBufferManager);
+    m_effectsLibrary->UpdatePerFrameWrites(*m_sceneRenderer, &m_renderContext, m_postProcessingContext, m_uniformBufferManager);
 
     //============================================================
     // start recording command buffer that will render the scene
@@ -311,7 +311,8 @@ void RenderingSystem::Destroy()
         m_imageAvailableSemaphores[i]->Destroy();
         m_renderingTimeLine[i]->Destroy();
     }
-    for (int i = 0; i < m_swapChain->GetImageCount(); i++) {
+    for(int i = 0; i < m_swapChain->GetImageCount(); i++)
+    {
         m_ableToPresentSemaphore[i]->Destroy();
     }
     m_postProcessingSystem->Destroy();
@@ -321,7 +322,6 @@ void RenderingSystem::Destroy()
     m_envLightGenerator->Destroy();
     m_rayTracer->Destroy();
     m_renderingCommandPool->Destroy();
-
 }
 
 

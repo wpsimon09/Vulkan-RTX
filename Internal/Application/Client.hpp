@@ -58,6 +58,8 @@ class Client
     ApplicationCore::GLTFLoader&   GetGLTFLoader() const { return *m_gltfLoader; };
     ApplicationCore::GLTFExporter& GetGLTFExporter() const { return *m_gltfExporter; };
 
+    PostProcessingParameters&      GetPostProcessingParameters() {return m_postProcessingParameters;}
+
     void Update();
     void UpdateCamera(CameraUpdateInfo& cameraUpdateInfo);
     void UpdateClient(ClientUpdateInfo& lightUpdateInfo);
@@ -76,6 +78,7 @@ class Client
     std::unique_ptr<ApplicationCore::GLTFExporter>                  m_gltfExporter;
 
     GlobalUniform m_globalRenderingData;
+    PostProcessingParameters m_postProcessingParameters;
     bool          m_isRTXOn = false;
 };
 
