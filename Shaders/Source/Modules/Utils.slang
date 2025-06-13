@@ -69,9 +69,31 @@ float3 uncharted2_tonemap_partial(float3 x)
     return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
 }
 
-public float3 uncharted2_filmic(float3 v)
+float3 tonemap_aces(const float3 rgb) {
+    // sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT
+    const float3x3 IN = float3x3(
+      0.59719, 0.07600, 0.02840,
+      0.35458, 0.90834, 0.13383,
+      0.04823, 0.01566, 0.83777);
+
+    // ODT_SAT => XYZ => D60_2_D65 => sRGB
+    const float3x3 OUT = float3x3(
+      1.60475, -0.10208, -0.00327,
+      -0.53108,  1.10813, -0.07276,
+      -0.07367, -0.00605,  1.07602);
+
+    float3 col = mul(IN , rgb);
+
+    const float3 a = col * (col + 0.0245786f) - 0.000090537f;
+    const float3 b = col * (0.983729f * col + 0.4329510f) + 0.238081f;
+    col = a / b;
+
+    return clamp(mul(OUT , col), 0., 1.);
+}
+
+public float3 uncharted2_filmic(float3 v, float exposure)
 {
-    float exposure_bias = 2.0f;
+    float exposure_bias = exposure + 1.0;
     float3 curr = uncharted2_tonemap_partial(v * exposure_bias);
 
     float3 W = float3(11.2f);
