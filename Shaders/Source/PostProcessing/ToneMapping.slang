@@ -24,11 +24,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float3 hdrColor = _inputTexture_Render.Sample(fsIn.uv).xyz;
 
 
-
-    float3 mapped = tone_map_aces_approx(hdrColor * postProcessingParameters.toneMapping.x); //float3(1.0) - exp(-hdrColor * postProcessingParameters.toneMapping.x);
-
-    // gamma correction
-    //mapped = pow(mapped, float3(1.0/postProcessingParameters.toneMapping.y));
+    float3 mapped = tonemap_aces(hdrColor * postProcessingParameters.toneMapping.x); //float3(1.0) - exp(-hdrColor * postProcessingParameters.toneMapping.x);
 
     return float4(mapped, 1.0);
 }

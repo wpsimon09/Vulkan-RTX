@@ -60,6 +60,8 @@ void ApplicationCore::SaveConfig(Client& client, VEditor::UIContext& uiContext)
                                    {"MSAASamples", std::to_string(GlobalVariables::RenderingOptions::MSAASamples)},
                                    {"OutlineWidth", std::to_string(GlobalVariables::RenderingOptions::OutlineWidth)},
                                    {"Max recursion", std::to_string(GlobalVariables::RenderingOptions::MaxRecursionDepth)},
+                                   {"Exposure", std::to_string(client.GetPostProcessingParameters().toneMapping.x)},
+                                   {"Gamma", std::to_string(client.GetPostProcessingParameters().toneMapping.y)},
                                    {"Rays per pixel", std::to_string(GlobalVariables::RenderingOptions::RaysPerPixel)}});
     ;
 
@@ -116,6 +118,10 @@ void ApplicationCore::LoadClientSideConfig(Client& client, VEditor::UIContext& u
         if(EngineConfig["Camera"].has("Focal plane"))
             cam.GetFocalLength() = (std::stof(EngineConfig["Camera"]["Focal plane"]));
 
+        if(EngineConfig["Rendering"].has("Exposure"))
+            client.GetPostProcessingParameters().toneMapping.x = (std::stof(EngineConfig["Rendering"]["Exposure"]));
+        if(EngineConfig["Rendering"].has("Gamma"))
+            client.GetPostProcessingParameters().toneMapping.y = (std::stof(EngineConfig["Rendering"]["Gamma"]));
         cam.Recalculate();
     }
 }

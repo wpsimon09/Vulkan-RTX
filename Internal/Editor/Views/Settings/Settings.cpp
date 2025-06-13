@@ -185,7 +185,7 @@ void Settings::RenderRenderingSettings()
     ImGui::SliderInt("Rays per pixel", &GlobalVariables::RenderingOptions::RaysPerPixel, 1, 20);
 
     ImGui::SeparatorText("Tone mapping settings");
-    ImGui::DragFloat("Exposure", &m_client.GetPostProcessingParameters().toneMapping.x, 0.01, 0.01, 1.0);
+    ImGui::DragFloat("Exposure", &m_client.GetPostProcessingParameters().toneMapping.x, 0.01, 0.01, 10.0);
     ImGui::DragFloat("Gamma", &m_client.GetPostProcessingParameters().toneMapping.y, 0.1, 0.01, 20.0);
 
 }
