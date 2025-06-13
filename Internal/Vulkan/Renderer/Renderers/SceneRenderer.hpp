@@ -54,14 +54,15 @@ namespace Renderer {
 
         VulkanCore::VImage2& GetRenderedImage(int currentFrame)
         {
-            return m_renderTargets->GetColourImage(currentFrame);  //*m_shadowMap;
+            return m_renderTargets->GetColourImage(currentFrame); //*m_finalRender[currentFrame]; //*m_shadowMap;
         }
 
         vk::DescriptorImageInfo GetShadowMap() const;
+        vk::DescriptorImageInfo GetRenderedImageConst(int frame) const;
 
         void Destroy();
 
-    protected:
+      protected:
 
         void DepthPrePass(int currentFrameIndex,
                           VulkanCore::VCommandBuffer& cmdBuffer,
@@ -75,6 +76,9 @@ namespace Renderer {
                        VulkanCore::VCommandBuffer& cmdBuffer,
                        const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
+        void ToneMapScene(int currentFrameIndex,
+                       VulkanCore::VCommandBuffer& cmdBuffer,
+                       const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
         void CreateRenderTargets(VulkanCore::VSwapChain* swapChain);
 
@@ -89,8 +93,11 @@ namespace Renderer {
         std::unique_ptr<Renderer::RenderTarget> m_renderTargets;
         std::unique_ptr<VulkanCore::VImage2> m_shadowMap;
 
+        std::vector<std::unique_ptr<VulkanCore::VImage2>> m_finalRender;
+
         std::shared_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
         std::shared_ptr<VulkanUtils::VEffect> m_rtxShadowPassEffect;
+        std::shared_ptr<VulkanUtils::VEffect> m_toneMapPassEffect;
         VulkanStructs::VRenderingStatistics m_renderingStatistics;
 
         // Config / state

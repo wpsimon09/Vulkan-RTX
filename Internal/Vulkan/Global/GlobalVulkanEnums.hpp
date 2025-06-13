@@ -61,6 +61,7 @@ enum EShaderBindingGroup {
     Skybox,
     RayTracing,
     ShadowRT,
+    ToneMap,
 };
 
 

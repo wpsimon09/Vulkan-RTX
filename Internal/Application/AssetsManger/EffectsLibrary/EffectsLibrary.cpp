@@ -166,6 +166,20 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     effects[EEffectType::RTShadowPass] = std::move(rtShadowPass);
 
+    //===============================================================================
+    auto toneMappingPass = std::make_shared<VulkanUtils::VRasterEffect>(device, "Ray traced shadow map effect",
+                                                                     "Shaders/Compiled/ToneMapping.vert.spv",
+                                                                     "Shaders/Compiled/ToneMapping.frag.spv",
+                                                                     descLayoutCache, EShaderBindingGroup::ToneMap);
+    toneMappingPass->SetDisableDepthTest()
+        .DisableStencil()
+        .SetCullNone()
+        .SetNullVertexBinding()
+        .SetColourOutputFormat(vk::Format::eR8G8B8A8Srgb)
+        .SetPiplineNoMultiSampling();
+
+    effects[EEffectType::ToneMappingPass] = std::move(toneMappingPass);
+
     BuildAllEffects();
 }
 
@@ -238,6 +252,9 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::SceneRenderer&        
                     break;
                 }
                 case EShaderBindingGroup::ForwardUnlitNoMaterial: {
+                    break;
+                }
+                case EShaderBindingGroup::ToneMap:{
                     break;
                 }
 
@@ -364,6 +381,13 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::SceneRenderer&   
                     // global data
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
                     break;
+                }
+                case EShaderBindingGroup::ToneMap:{
+                        e->SetNumWrites(1, 2, 0);
+
+                        e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+                        e->WriteImage(i, 0, 1, sceneRenderer.GetRenderedImageConst(i));
+                        break;
                 }
 
                 default: {

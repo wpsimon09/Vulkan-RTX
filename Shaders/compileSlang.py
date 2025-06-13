@@ -142,6 +142,7 @@ def main():
     if args.stage == "rtshadows" or args.stage == "all":
         print("== RT Shadow generation ==") 
         compile_boundled_shaders("Source/RTShadowPass", args.verbose)
+  
 
 
 if __name__ == "__main__":

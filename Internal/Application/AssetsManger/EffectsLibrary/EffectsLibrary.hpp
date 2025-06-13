@@ -45,7 +45,8 @@ enum class EEffectType : std::uint8_t
     EditorBilboard,
     RayTracing,
     DepthPrePass,
-    RTShadowPass
+    RTShadowPass,
+    ToneMappingPass
 };
 
 class EffectsLibrary
