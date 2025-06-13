@@ -186,6 +186,7 @@ void Settings::RenderRenderingSettings()
 
     ImGui::SeparatorText("Tone mapping settings");
     ImGui::DragFloat("Exposure", &m_client.GetPostProcessingParameters().toneMapping.x, 0.01, 0.01, 1.0);
+    ImGui::DragFloat("Gamma", &m_client.GetPostProcessingParameters().toneMapping.y, 0.1, 0.01, 20.0);
 
 }
 }  // namespace VEditor
