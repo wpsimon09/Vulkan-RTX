@@ -17,7 +17,9 @@
 #include <map>
 
 
-
+namespace VulkanCore {
+class VImage2;
+}
 namespace VulkanUtils {
 class VRasterEffect;
 }
@@ -201,6 +203,11 @@ struct VDescriptorSet
     vk::DescriptorSetLayout        layout; // set layout
     std::map<uint32_t, std::map<int, vk::WriteDescriptorSet>> writes;  // writes are per frame in flight, map key is the frame and
                                                                      // value is the vector of writes, second map is for binding/write relations
+};
+
+
+struct PostProcessingContext {
+    VulkanCore::VImage2* sceneRender;
 };
 
 

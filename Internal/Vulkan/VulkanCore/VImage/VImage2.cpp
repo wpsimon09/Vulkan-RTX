@@ -196,15 +196,15 @@ vk::DescriptorImageInfo VImage2::GetDescriptorImageInfo()
     imageInfo.sampler     = nullptr;
     return imageInfo;
 }
-vk::ImageSubresourceRange VImage2::GetSubresrouceRange() {
+vk::ImageSubresourceRange VImage2::GetSubresrouceRange()
+{
     vk::ImageSubresourceRange sub;
-    sub.aspectMask = GetImageFlags().IsDepthBuffer ?
-                                                  vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil :
-                                                  vk::ImageAspectFlagBits::eColor;
-    sub.baseMipLevel = 0;
-    sub.levelCount = m_imageInfo.mipLevels;
+    sub.aspectMask = GetImageFlags().IsDepthBuffer ? vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil :
+                                                     vk::ImageAspectFlagBits::eColor;
+    sub.baseMipLevel   = 0;
+    sub.levelCount     = m_imageInfo.mipLevels;
     sub.baseArrayLayer = 0;
-    sub.layerCount = m_imageInfo.arrayLayers;
+    sub.layerCount     = m_imageInfo.arrayLayers;
 
     return sub;
 }

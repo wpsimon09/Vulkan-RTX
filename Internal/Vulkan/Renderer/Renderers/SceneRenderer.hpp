@@ -76,10 +76,6 @@ namespace Renderer {
                        VulkanCore::VCommandBuffer& cmdBuffer,
                        const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-        void ToneMapScene(int currentFrameIndex,
-                       VulkanCore::VCommandBuffer& cmdBuffer,
-                       const VulkanUtils::VUniformBufferManager& uniformBufferManager);
-
         void CreateRenderTargets(VulkanCore::VSwapChain* swapChain);
 
         void PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall );
@@ -93,11 +89,9 @@ namespace Renderer {
         std::unique_ptr<Renderer::RenderTarget> m_renderTargets;
         std::unique_ptr<VulkanCore::VImage2> m_shadowMap;
 
-        std::vector<std::unique_ptr<VulkanCore::VImage2>> m_finalRender;
-
         std::shared_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
         std::shared_ptr<VulkanUtils::VEffect> m_rtxShadowPassEffect;
-        std::shared_ptr<VulkanUtils::VEffect> m_toneMapPassEffect;
+
         VulkanStructs::VRenderingStatistics m_renderingStatistics;
 
         // Config / state

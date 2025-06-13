@@ -219,6 +219,8 @@ set(SOURCES
         External/SPIRV-Reflect/spirv_reflect.cpp
         External/ImGuiSpectrum/imgui_spectrum.cpp
         External/ImGuiSpectrum/imgui_spectrum.h
+        Internal/Vulkan/Renderer/Renderers/PostProcessingSystem.cpp
+        Internal/Vulkan/Renderer/Renderers/PostProcessingSystem.h
 
 )
 

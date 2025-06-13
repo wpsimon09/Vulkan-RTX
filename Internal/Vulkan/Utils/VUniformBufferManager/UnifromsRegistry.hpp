@@ -87,5 +87,9 @@ struct PerObjectPushConstant {
     glm::mat4 modelMatrix {};
 };
 
+struct PostProcessingData {
+    glm::vec4 parameters; // x- exposure, yzw - padding
+};
+
 
 #endif  //UNIFROMDEFINITION_HPP

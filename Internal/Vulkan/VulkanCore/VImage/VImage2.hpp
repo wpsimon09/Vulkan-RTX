@@ -75,22 +75,23 @@ class VImage2 : public VulkanCore::VObject
     void Resize(uint32_t newWidth, uint32_t newHeight);
     template <typename T>
     void FillWithImageData(const VulkanStructs::VImageData<T>& imageData,
-                           VulkanCore::VCommandBuffer&        cmdBuffer,
-                           bool                               transitionToShaderReadOnly = true,
-                           bool                               destroyCurrentImage        = false);
+                           VulkanCore::VCommandBuffer&         cmdBuffer,
+                           bool                                transitionToShaderReadOnly = true,
+                           bool                                destroyCurrentImage        = false);
     void Destroy() override;
 
-    VImage2CreateInfo&       GetImageInfo();
-    const VImage2CreateInfo& GetImageInfoConstRef() const;
-    const VImage2Flags&      GetImageFlags() const;
-    vk::Image                GetImage() const;
-    const vk::Image&         GetImageRef() const;
-    vk::ImageView            GetImageView() const;
-    vk::DescriptorImageInfo  GetDescriptorImageInfo(vk::Sampler& sampler);
-    vk::DescriptorImageInfo  GetDescriptorImageInfo();
+    VImage2CreateInfo&        GetImageInfo();
+    const VImage2CreateInfo&  GetImageInfoConstRef() const;
+    const VImage2Flags&       GetImageFlags() const;
+    vk::Image                 GetImage() const;
+    const vk::Image&          GetImageRef() const;
+    vk::ImageView             GetImageView() const;
+    vk::DescriptorImageInfo   GetDescriptorImageInfo(vk::Sampler& sampler);
+    vk::DescriptorImageInfo   GetDescriptorImageInfo();
     vk::ImageSubresourceRange GetSubresrouceRange();
 
-    vk::DeviceSize GetImageSizeBytes();
+                   vk::DeviceSize
+                   GetImageSizeBytes();
     VmaAllocation& GetImageAllocation();
 
     VmaAllocation        GetImageStagingBufferMemAllocation();
@@ -122,9 +123,9 @@ class VImage2 : public VulkanCore::VObject
 
 template <typename T>
 void VImage2::FillWithImageData(const VulkanStructs::VImageData<T>& imageData,
-                                VulkanCore::VCommandBuffer&        cmdBuffer,
-                                bool                               transitionToShaderReadOnly,
-                                bool                               destroyCurrentImage)
+                                VulkanCore::VCommandBuffer&         cmdBuffer,
+                                bool                                transitionToShaderReadOnly,
+                                bool                                destroyCurrentImage)
 {
 
     if(!imageData.pixels)
