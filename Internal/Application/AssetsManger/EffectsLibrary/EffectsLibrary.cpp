@@ -209,6 +209,7 @@ void EffectsLibrary::Destroy()
 }
 void EffectsLibrary::UpdatePerFrameWrites(const Renderer::SceneRenderer&            sceneRenderer,
                                           VulkanUtils::RenderContext*               renderingContext,
+                                          VulkanStructs::PostProcessingContext&     postProcessingContext,
                                           const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     for(auto& effect : effects)
@@ -255,6 +256,8 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::SceneRenderer&        
                     break;
                 }
                 case EShaderBindingGroup::ToneMap:{
+                    e->SetNumWrites(0, 1, 0);
+                    e->WriteImage(i, 1, 0, postProcessingContext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                     break;
                 }
 

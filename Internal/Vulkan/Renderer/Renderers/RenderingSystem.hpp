@@ -49,7 +49,8 @@ namespace VulkanCore::RTX {
 }
 
 namespace Renderer {
-    class RayTracer;
+class PostProcessingSystem;
+class RayTracer;
     class SceneRenderer;
     class UserInterfaceRenderer;
 }
@@ -94,6 +95,7 @@ private:
 
     // Renderers
     std::unique_ptr<Renderer::SceneRenderer>         m_sceneRenderer;
+    std::unique_ptr<Renderer::PostProcessingSystem>  m_postProcessingSystem;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
     std::unique_ptr<Renderer::RayTracer>             m_rayTracer;
 
@@ -114,6 +116,7 @@ private:
 
     // Render context
     VulkanUtils::RenderContext m_renderContext;
+    VulkanStructs::PostProcessingContext m_postProcessingContext;
 
     // State
     uint32_t m_currentImageIndex = 0;

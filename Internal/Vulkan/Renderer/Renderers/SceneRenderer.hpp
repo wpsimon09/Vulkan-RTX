@@ -52,10 +52,7 @@ namespace Renderer {
                     const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                     VulkanUtils::RenderContext* renderContext);
 
-        VulkanCore::VImage2& GetRenderedImage(int currentFrame)
-        {
-            return m_renderTargets->GetColourImage(currentFrame); //*m_finalRender[currentFrame]; //*m_shadowMap;
-        }
+        VulkanCore::VImage2& GetRenderedImage(int currentFrame);
 
         vk::DescriptorImageInfo GetShadowMap() const;
         vk::DescriptorImageInfo GetRenderedImageConst(int frame) const;

@@ -67,7 +67,7 @@ class EffectsLibrary
     void BuildAllEffects();
     void Destroy();
 
-    void UpdatePerFrameWrites(const Renderer::SceneRenderer& sceneRenderer,  VulkanUtils::RenderContext* renderingContext,const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+    void UpdatePerFrameWrites(const Renderer::SceneRenderer& sceneRenderer,  VulkanUtils::RenderContext* renderingContext, VulkanStructs::PostProcessingContext& postProcessingContext, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
     void ConfigureDescriptorWrites(const Renderer::SceneRenderer& sceneRenderer, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager);
   private:

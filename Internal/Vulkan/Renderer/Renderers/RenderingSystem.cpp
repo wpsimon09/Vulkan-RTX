@@ -4,6 +4,7 @@
 
 #include "RenderingSystem.hpp"
 
+#include "PostProcessingSystem.h"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Lightning/LightStructs.hpp"
@@ -84,6 +85,9 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&         insta
     m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, effectsLybrary, descLayoutCache,
                                                                 GlobalVariables::RenderTargetResolutionWidth,
                                                                 GlobalVariables::RenderTargetResolutionHeight);
+
+    m_postProcessingSystem = std::make_unique<Renderer::PostProcessingSystem>(m_device, effectsLybrary, uniformBufferManager, GlobalVariables::RenderTargetResolutionWidth, GlobalVariables::RenderTargetResolutionHeight );
+
 
     m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, *m_swapChain, uiContext);
 
@@ -223,6 +227,7 @@ void RenderingSystem::Render(
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex],
                                 m_uniformBufferManager, &m_renderContext);
+        m_postProcessingContext.sceneRender = &m_sceneRenderer->GetRenderedImage(m_currentFrameIndex);
     }
     else
     {
@@ -230,7 +235,10 @@ void RenderingSystem::Render(
         m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex], sceneUpdateFlags,
                                m_uniformBufferManager, m_currentFrameIndex);
         m_accumulatedFramesCount++;
+
+        m_postProcessingContext.sceneRender = &m_rayTracer->GetRenderedImage(m_currentFrameIndex);
     }
+
 
     // render UI to the swap chain image
     m_uiRenderer->Render(m_currentFrameIndex, m_currentImageIndex, *m_renderingCommandBuffers[m_currentFrameIndex]);

@@ -121,7 +121,6 @@ void SceneRenderer::Render(int                                       currentFram
     m_frameCount++;
 }
 
-
 void SceneRenderer::DepthPrePass(int                                       currentFrameIndex,
                                  VulkanCore::VCommandBuffer&               cmdBuffer,
                                  const VulkanUtils::VUniformBufferManager& uniformBufferManager)
@@ -472,6 +471,10 @@ void SceneRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStr
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex;
 
     drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
+}
+
+VulkanCore::VImage2& SceneRenderer::GetRenderedImage(int currentFrame) {
+    return m_renderTargets->GetColourImage(currentFrame); //*m_finalRender[currentFrame]; //*m_shadowMap;
 }
 
 vk::DescriptorImageInfo SceneRenderer::GetShadowMap() const
