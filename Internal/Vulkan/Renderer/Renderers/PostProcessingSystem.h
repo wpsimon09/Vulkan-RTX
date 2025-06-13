@@ -18,7 +18,7 @@ public:
   PostProcessingSystem(const VulkanCore::VDevice& device,ApplicationCore::EffectsLibrary& effectsLibrary,  VulkanUtils::VUniformBufferManager& uniformBufferManager, int width, int height);
 
   void Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer,VulkanStructs::PostProcessingContext& postProcessingContext);
-  VulkanCore::VImage2& GetRenderedResult();
+  VulkanCore::VImage2& GetRenderedResult(int frameIndex);
 
   void Destroy();
 

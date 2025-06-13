@@ -257,7 +257,9 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::SceneRenderer&        
                 }
                 case EShaderBindingGroup::ToneMap:{
                     e->SetNumWrites(0, 1, 0);
-                    //e->WriteImage(i, 1, 0, postProcessingContext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    if (postProcessingContext.sceneRender) {
+                        e->WriteImage(i, 0, 1, postProcessingContext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    }
                     break;
                 }
 

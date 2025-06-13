@@ -55,6 +55,7 @@ void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& co
 {
     ToneMapping(frameIndex, commandBuffer, postProcessingContext);
 }
+VulkanCore::VImage2& PostProcessingSystem::GetRenderedResult(int frameIndex) {return *m_toneMapResult[frameIndex];}
 
 void PostProcessingSystem::ToneMapping(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext) {
     //=================================================================

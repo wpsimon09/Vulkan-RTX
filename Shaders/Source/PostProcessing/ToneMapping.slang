@@ -20,5 +20,5 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
-    return float4(_inputTexture_Render.Sample(fsIn.uv));
+    return float4(float3(1.0) - float3(_inputTexture_Render.Sample(fsIn.uv).xyz), 1.0);
 }
