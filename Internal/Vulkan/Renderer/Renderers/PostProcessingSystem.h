@@ -20,6 +20,8 @@ public:
   void Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer,VulkanStructs::PostProcessingContext& postProcessingContext);
   VulkanCore::VImage2& GetRenderedResult();
 
+  void Destroy();
+
 private:
   void ToneMapping(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer);
 

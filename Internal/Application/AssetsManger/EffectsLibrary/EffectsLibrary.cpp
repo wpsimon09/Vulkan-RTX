@@ -167,7 +167,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     effects[EEffectType::RTShadowPass] = std::move(rtShadowPass);
 
     //===============================================================================
-    auto toneMappingPass = std::make_shared<VulkanUtils::VRasterEffect>(device, "Ray traced shadow map effect",
+    auto toneMappingPass = std::make_shared<VulkanUtils::VRasterEffect>(device, "Tone map effect ",
                                                                      "Shaders/Compiled/ToneMapping.vert.spv",
                                                                      "Shaders/Compiled/ToneMapping.frag.spv",
                                                                      descLayoutCache, EShaderBindingGroup::ToneMap);
@@ -257,7 +257,7 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::SceneRenderer&        
                 }
                 case EShaderBindingGroup::ToneMap:{
                     e->SetNumWrites(0, 1, 0);
-                    e->WriteImage(i, 1, 0, postProcessingContext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    //e->WriteImage(i, 1, 0, postProcessingContext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                     break;
                 }
 
@@ -388,8 +388,8 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::SceneRenderer&   
                 case EShaderBindingGroup::ToneMap:{
                         e->SetNumWrites(1, 2, 0);
 
-                        e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
-                        e->WriteImage(i, 0, 1, sceneRenderer.GetRenderedImageConst(i));
+                        //e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+                        //e->WriteImage(i, 0, 1, sceneRenderer.GetRenderedImageConst(i));
                         break;
                 }
 

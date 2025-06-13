@@ -216,7 +216,7 @@ void RenderingSystem::Render(
     m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
 
-    m_effectsLibrary->UpdatePerFrameWrites( *m_sceneRenderer,  &m_renderContext, m_uniformBufferManager);
+    m_effectsLibrary->UpdatePerFrameWrites( *m_sceneRenderer,  &m_renderContext,m_postProcessingContext, m_uniformBufferManager);
 
     //============================================================
     // start recording command buffer that will render the scene
@@ -313,6 +313,7 @@ void RenderingSystem::Destroy()
     for (int i = 0; i < m_swapChain->GetImageCount(); i++) {
         m_ableToPresentSemaphore[i]->Destroy();
     }
+    m_postProcessingSystem->Destroy();
     m_sceneRenderer->Destroy();
     m_uiRenderer->Destroy();
     m_swapChain->Destroy();

@@ -39,13 +39,21 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
     toneMapOutputCi.layout              = vk::ImageLayout::eShaderReadOnlyOptimal;
     toneMapOutputCi.format              = vk::Format::eR8G8B8A8Srgb;
 
-    for (int i = 0; i<GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+    m_toneMapResult.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+    {
 
-      m_toneMapResult[i] = std::make_unique<VulkanCore::VImage2>(device, toneMapOutputCi);
-      VulkanUtils::RecordImageTransitionLayoutCommand(*m_toneMapResult[i], vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined, m_device.GetTransferOpsManager().GetCommandBuffer());
-
+        m_toneMapResult[i] = std::make_unique<VulkanCore::VImage2>(device, toneMapOutputCi);
+        VulkanUtils::RecordImageTransitionLayoutCommand(*m_toneMapResult[i], vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                        vk::ImageLayout::eUndefined,
+                                                        m_device.GetTransferOpsManager().GetCommandBuffer());
     }
 
     Utils::Logger::LogInfo("Post processing system created");
+}
+void PostProcessingSystem::Destroy() {
+    for (int i = 0; i< GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+        m_toneMapResult[i]->Destroy();
+    }
 }
 }  // namespace Renderer

@@ -262,7 +262,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         else if(m_mesh->m_currentMaterial->IsTransparent())
         {
             data.inDepthPrePass = false;
-            data.effect         = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::AplhaBlend);
+            data.effect         = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::ForwardShader);
         }
         else
         {

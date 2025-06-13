@@ -68,7 +68,7 @@
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
 #include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
-
+#include "Vulkan/Renderer/Renderers/PostProcessingSystem.h"
 Application::Application() = default;
 
 void Application::Init()
