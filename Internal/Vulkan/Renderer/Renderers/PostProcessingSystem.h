@@ -23,7 +23,7 @@ public:
   void Destroy();
 
 private:
-  void ToneMapping(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer);
+  void ToneMapping(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
 
 private:
 
