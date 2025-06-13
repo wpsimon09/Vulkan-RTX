@@ -4,11 +4,15 @@ Simple Vulkan physically based render that can render meshes in classic rasteris
 
 ## Used technology
 
-- _Rendering API_ - Vulkan (`vulkan.hpp`)
-- _Shading Language_ - Slang
+- _Rendering API_ - [Vulkan](https://www.vulkan.org/) (`vulkan.hpp`)
+- _Shading Language_ - [Slang](https://shader-slang.org/)
 - _Language_ - C++
-- _Math_ - glm  
-- _Dear::ImGui_ - User interface
+- _Math_ - [glm](https://github.com/g-truc/glm)  
+- _User interface_ - [Dear ImGui](https://github.com/ocornut/imgui)
+- _.glTF parsing_ - [fastgltf](https://github.com/spnda/fastgltf)
+- _.ini parsing_ - [mINI](https://github.com/metayeti/mINI)
+- _SPIR-V Reflection_ - [SPIRV-Reflect](https://github.com/KhronosGroup/SPIRV-Reflect)
+
 
 ## Build
 
@@ -104,6 +108,17 @@ Once done, use Python to compile the shaders from the `Shaders` directory:
 ## assuming you are in the Shaders directory
 python compileSlang.py --verbose
 ```
+
+## Features:
+- model loading
+- scene exporting (to glTF)
+- forward renderer
+- area light with LTC
+- ray traced pixel perfect shadows 
+- hardware ray tracing
+- image based lighting
+- Aces tone mapping 
+
 
 ## Little showcase
 
