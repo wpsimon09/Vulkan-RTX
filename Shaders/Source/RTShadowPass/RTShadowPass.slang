@@ -41,10 +41,20 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     
     uint randomSeed = tea(pixelID, 0);
 
-    float3 rayDirectionInCone = RandomConeDirection(randomSeed, direction.xyz, coneAngle);
-
-    bool inShadow = false;
-    inShadow = IntersectsP(InitRay(worldSpacePos, normalize(rayDirectionInCone), 1000), _tlas);
     
-    return float4(float3(inShadow ? 0.5 : 1.0), 1.0);
+    
+    float raysPerPixel = 20;
+    float shadowFactor = 0.0;
+
+    for(int i = 0; i <raysPerPixel; i++){
+        float3 rayDirectionInCone = RandomConeDirection(randomSeed, direction.xyz, coneAngle);
+        bool inShadow = false;
+        inShadow = IntersectsP(InitRay(worldSpacePos, normalize(rayDirectionInCone), 1000), _tlas);        
+
+        shadowFactor += inShadow ? 1.0 : 0.0;
+    }
+
+    float percentage = (shadowFactor / raysPerPixel);
+
+    return float4(float3(1.0 - percentage), 1.0);
 }

@@ -31,7 +31,6 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
                                                      "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
                                                      descLayoutCache, EShaderBindingGroup::ForwardLit);
     frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
-
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
     {
         frowardEffect->SetDisableDepthWrite();
@@ -48,6 +47,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
         "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv", descLayoutCache, EShaderBindingGroup::ForwardLit);
 
     transparentEffect->SetTopology(vk::PrimitiveTopology::eTriangleList).EnableAdditiveBlending().SetDepthOpLessEqual();
+
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
     {
         transparentEffect->SetDisableDepthWrite();
@@ -175,7 +175,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
         .DisableStencil()
         .SetCullNone()
         .SetNullVertexBinding()
-        .SetColourOutputFormat(vk::Format::eR8G8B8A8Srgb)
+        //.SetColourOutputFormat(vk::Format::eR8G8B8A8Srgb)
         .SetPiplineNoMultiSampling();
 
     effects[EEffectType::ToneMappingPass] = std::move(toneMappingPass);

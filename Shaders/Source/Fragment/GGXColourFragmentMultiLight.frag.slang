@@ -71,8 +71,9 @@ float4 fragmentMain(VertexOutput fsIn)
     float3 V = normalize(fsIn.vertexData.cameraPos - fsIn.vertexData.fragPos);
 
     float3 finalColor;
-    if(_shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).x > 0.7){
-        finalColor = lightingEnv.illuminate(g, brdf_, V);
+    float shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).x;
+    if( shadowFactor > 0.1){
+        finalColor = lightingEnv.illuminate(g, brdf_, V) * shadowFactor;
     }else{
         finalColor = ambientLight.illuminate(g, brdf_,V ) * 0.5;
     }

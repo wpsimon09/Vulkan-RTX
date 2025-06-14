@@ -28,7 +28,7 @@ VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice&     
     , m_pushConstantRanges(pushConstants)
 {
     m_outputFormats.resize(1);
-    m_outputFormats[0] = vk::Format::eR8G8B8A8Unorm;
+    m_outputFormats[0] = vk::Format::eR16G16B16A16Sfloat;
 }
 
 

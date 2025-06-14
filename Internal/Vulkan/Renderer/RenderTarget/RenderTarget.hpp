@@ -30,7 +30,7 @@ namespace Renderer {
 class RenderTarget
 {
   public:
-    RenderTarget(const VulkanCore::VDevice& device, int width, int height, vk::Format colourFormat = vk::Format::eR8G8B8A8Unorm);
+    RenderTarget(const VulkanCore::VDevice& device, int width, int height, vk::Format colourFormat = vk::Format::eR16G16B16A16Sfloat);
     RenderTarget(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain);
 
     void HandleResize(int newWidth, int newHeight);

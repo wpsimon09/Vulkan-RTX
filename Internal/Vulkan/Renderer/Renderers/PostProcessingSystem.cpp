@@ -37,7 +37,7 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
     toneMapOutputCi.samples             = vk::SampleCountFlagBits::e1;
     toneMapOutputCi.imageUsage          = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
     toneMapOutputCi.layout              = vk::ImageLayout::eShaderReadOnlyOptimal;
-    toneMapOutputCi.format              = vk::Format::eR8G8B8A8Srgb;
+    toneMapOutputCi.format              = vk::Format::eR16G16B16A16Sfloat;
 
     m_toneMapResult.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
