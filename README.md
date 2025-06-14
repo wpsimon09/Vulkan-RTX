@@ -115,7 +115,7 @@ python compileSlang.py --verbose
 - Forward Renderer  
 - Area Light With LTC  
 - Ray Traced Pixel Perfect Shadows  
-- Hardware Ray Tracing  
+- Real time path tracing
 - Image Based Lighting  
 - ACES Tone Mapping  
 - Scene Editor With Gizmos  
