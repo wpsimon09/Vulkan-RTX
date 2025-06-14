@@ -26,15 +26,15 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
     out.vertexData.localPos = vertexPos;
     
     column_major float4x4 rotView;
-    rotView[0] = float4(globalData.projection[0].xyz, 0.0);
-    rotView[1] = float4(globalData.projection[1].xyz, 0.0);
-    rotView[2] = float4(globalData.projection[2].xyz, 0.0);
+    rotView[0] = float4(globalData.view[0].xyz, 0.0);
+    rotView[1] = float4(globalData.view[1].xyz, 0.0);
+    rotView[2] = float4(globalData.view[2].xyz, 0.0);
     rotView[3] = float4(0.0, 0.0, 0.0, 1.0);
     
     
     //float4x4 proj = globalData.projection;
 
-    column_major float4x4 viewProj = mul(globalData.view, rotView);
+    column_major float4x4 viewProj = mul(globalData.projection, rotView);
     float4 pos = mul(viewProj, float4(VAO.inPosition, 1.0));
     out.sv_position = pos.xyww;
 

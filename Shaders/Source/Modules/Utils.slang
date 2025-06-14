@@ -154,3 +154,30 @@ public float LinearizeDepth(float d,float zNear,float zFar)
 {
     return  zNear * zFar / (zFar - d * (zFar - zNear));
 }
+
+/*
+* Returns angle of the calcualted cone 
+* r - radius
+* o - oriding
+* d - direction
+*/
+public float CalculateConeAngle(float r, float3 o, float3 d){
+    float3 lightPosition = o + 1000.0 * (-d);
+
+    //=======================
+    // Soft shadow calculation
+    float3 Lperp = cross(d, float3(0,1,0)); //perpendicular to the world normal
+
+
+    if(all(Lperp == 0.0f)) {Lperp.x = 1.0;}
+
+    //================================================
+    // get the vecor from light center to light edge
+    float3 toLightEdge = normalize((lightPosition + Lperp * r) - o);
+
+    //==================================================
+    // Angle between L and toLightEdge used for sampling
+    float coneAngle = acos(dot(d, toLightEdge)) * 2.0f ; // multiply by 2 since we only have half angle 
+
+    return coneAngle;
+}

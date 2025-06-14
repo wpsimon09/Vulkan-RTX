@@ -1,6 +1,8 @@
 import Core;
 import Material;
 import Utils;
+import RandomValues;
+
 #include "ShaderBindingGroups/RTShadow.slang"
 
 struct VertexOut {
@@ -27,6 +29,18 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
     float normalized = saturate((depthLinear- globalData.viewParams.z) / (globalData.viewParams.w - globalData.viewParams.z));
     
+    float4 direction = _lightInfo.dirLight.direction;
+
+    float coneAngle = CalculateConeAngle(direction.w, worldSpacePos, direction.xyz);
+
+    //========================
+    // initialize randomness
+    uint2 pixelCoord = uint2(fsIn.uv * globalData.screenSize);
+
+    uint pixelID = pixelCoord.x + pixelCoord.y * globalData.screenSize.x;
+
+    float randomSeed = tea(pixelID, (uint)globalData.currentFrame);
+
     bool inShadow = false;
     inShadow = IntersectsP(InitRay(worldSpacePos, normalize(_lightInfo.dirLight.direction.xyz), 1000), _tlas);
     

@@ -39,7 +39,7 @@ struct VertexOutput {
         float3 FragmentWorldPos =mul( perObjectPC.modelMatrix,  float4(vertexPos, 1.0)).xyz;
         float3 NormalWorldPos = mul(transpose(inverse(perObjectPC.modelMatrix)), float4(normal.xyz, 1.0)).xyz;//mul( float4(normal, 1.0) , perObjectData[perObjectPC.perObjectDataIndex].normalMatrix).xyz;
         
-        float4x4 viewProj = mul(globalData.view, globalData.projection);
+        float4x4 viewProj = mul(globalData.projection, globalData.view);
         
         VertexOutput out;
         out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
