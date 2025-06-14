@@ -23,7 +23,7 @@ VertexOutput vertexMain(VertexInput VAO)
 
     VertexOutput out;
     
-    float4x4 viewProj = mul(globalData.view, globalData.projection);
+    float4x4 viewProj = mul(globalData.projection, globalData.view);
     out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
 
     return out;
