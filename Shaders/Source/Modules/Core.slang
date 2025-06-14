@@ -4,25 +4,8 @@
 module Core;
 
 public struct GlobalData {
-    public column_major float4x4 projection;
     public column_major float4x4 view;
-    public float4x4 inverseView;
-    public float4x4 invProjection;
-
-    public float4 lightPosition;
-    public float4 cameraPostiion;
-    public float4 viewParams;
-
-    public float useEnvLighting;
-    public float padding2;
-    public float2 screenSize;
-};
-
-//===============================================================
-// same as global data but with meanigfull names for ray tracing 
-public struct GlobalDataRTX {
     public column_major float4x4 projection;
-    public column_major float4x4 view;
     public column_major float4x4 inverseView;
     public column_major float4x4 invProjection;
 
@@ -33,6 +16,26 @@ public struct GlobalDataRTX {
     public float raysPerPixel;
     public float reccursionDepth;
     public float2 screenSize;
+
+    public float currentFrame;
+};
+
+//===============================================================
+// same as global data but with meanigfull names for ray tracing 
+public struct GlobalDataRTX {
+    public column_major float4x4 view;
+    public column_major float4x4 projection;
+    public column_major float4x4 inverseView;
+    public column_major float4x4 invProjection;
+
+    public float4 lightPosition;
+    public float4 cameraPostiion;
+    public float4 viewParams; // xy- camera plane width and height,z - nerPlane, w - focal length
+
+    public float raysPerPixel;
+    public float reccursionDepth;
+    public float2 screenSize;
+
     public float currentFrame;
 };
 

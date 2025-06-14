@@ -21,8 +21,9 @@ struct GlobalUniform
     glm::mat4 inverseProj;
 
     glm::vec4 lightPosition = glm::vec4(2.0f, 400.0f, 2.0f, 1.0f);
-    glm::vec4 playerPosition;
+    glm::vec4 cameraPosition;
     glm::vec4 viewParams;
+
     float     raysPerPixel;
     float     reccursionDepth;
     glm::vec2 screenSize;
