@@ -110,14 +110,19 @@ python compileSlang.py --verbose
 ```
 
 ## Features:
-- model loading
-- scene exporting (to glTF)
-- forward renderer
-- area light with LTC
-- ray traced pixel perfect shadows 
-- hardware ray tracing
-- image based lighting
-- Aces tone mapping 
+- Model Loading  
+- Scene Exporting (To glTF)  
+- Forward Renderer  
+- Area Light With LTC  
+- Ray Traced Pixel Perfect Shadows  
+- Hardware Ray Tracing  
+- Image Based Lighting  
+- ACES Tone Mapping  
+- Scene Editor With Gizmos  
+- Real Time Material Customisation
+- Multy threaded lazy texture loading
+
+
 
 
 ## Little showcase
