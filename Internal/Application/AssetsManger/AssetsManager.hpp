@@ -202,6 +202,8 @@ class AssetsManager
     std::unordered_map<EEditorIcon, std::shared_ptr<PBRMaterial>>  m_editorIconsMaterials;
     std::unordered_map<EMeshGeometryType, VulkanStructs::VMeshData> m_preloadedMeshes;
 
+    std::unique_ptr<VTextureAsset> m_blueNoiseTextureArray;
+
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures2;
 
     std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>> m_texturesToSync;

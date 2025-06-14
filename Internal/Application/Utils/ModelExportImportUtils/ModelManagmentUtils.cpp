@@ -155,6 +155,10 @@ VulkanStructs::VImageData<float> LoadHDRImage(const std::string& path, bool save
 
     return imageData;
 }
+std::vector<VulkanStructs::VImageData<>> LoadTextureArray(const std::string& path, bool saveToDisk) {
+
+
+}
 
 void SaveImageAsPNG(int width, int height, int channels, const std::string& path, const std::vector<std::byte>& data)
 {
