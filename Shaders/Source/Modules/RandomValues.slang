@@ -53,7 +53,7 @@ public uint tea(in uint val0, in uint val1)
     return v0;
 }
 
-public float3 GetConeSample(inout uint randSeed, float3 direction, float coneAngle) {
+public float3 RandomConeDirection(inout uint randSeed, float3 direction, float coneAngle) {
     float cosAngle = cos(coneAngle);
 
     // Generate poits on the spherical cap around the north pole [1].

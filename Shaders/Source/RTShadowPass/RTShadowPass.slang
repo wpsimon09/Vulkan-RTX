@@ -38,11 +38,13 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     uint2 pixelCoord = uint2(fsIn.uv * globalData.screenSize);
 
     uint pixelID = pixelCoord.x + pixelCoord.y * globalData.screenSize.x;
+    
+    uint randomSeed = tea(pixelID, 0);
 
-    float randomSeed = tea(pixelID, (uint)globalData.currentFrame);
+    float3 rayDirectionInCone = RandomConeDirection(randomSeed, direction.xyz, coneAngle);
 
     bool inShadow = false;
-    inShadow = IntersectsP(InitRay(worldSpacePos, normalize(_lightInfo.dirLight.direction.xyz), 1000), _tlas);
+    inShadow = IntersectsP(InitRay(worldSpacePos, normalize(rayDirectionInCone), 1000), _tlas);
     
     return float4(float3(inShadow ? 0.5 : 1.0), 1.0);
 }

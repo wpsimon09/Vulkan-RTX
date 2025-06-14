@@ -70,7 +70,8 @@ void rayGenMain() {
     float2 pixelCoord = inUv * globalData.screenSize;
     uint pixelIndex = threadIdx.y * launchSize.x + threadIdx.x;
 
-    pixelIndex += (uint)globalData.currentFrame * 719393;
+    uint randomSeed = tea(pixelIndex, (uint)globalData.currentFrame);
+
     // pixel position on view plane 
     float4 target = mul(globalData.invProjection, float4(d.x, d.y, 1.0, 1.0));
 
@@ -86,7 +87,7 @@ void rayGenMain() {
     RayPayLoad payload;
     payload.incomingLightColour = float3(0.0);
     payload.hasHit = true;
-    payload.randomContext = pixelIndex;
+    payload.randomContext = randomSeed;
     payload.depth = 0;
     payload.rayColour = float3(1.0);
     
