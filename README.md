@@ -121,8 +121,7 @@ python compileSlang.py --verbose
 - Scene Editor With Gizmos  
 - Real Time Material Customisation
 - Multy threaded lazy texture loading
-
-
+- Bindless descritptors for material textures
 
 
 ## Little showcase
