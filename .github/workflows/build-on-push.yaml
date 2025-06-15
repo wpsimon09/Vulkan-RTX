@@ -7,8 +7,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+
       - name: Check out repository code
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Notify repository has been cloned
         run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
