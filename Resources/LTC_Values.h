@@ -1,43 +1,9 @@
 //
-// Created by wpsimon09 on 08/02/25.
+// Created by wpsimon09 on 15/06/25.
 //
 
-#ifndef LINEARYTRANSFORMEDCOSINESVALUES_HPP
-#define LINEARYTRANSFORMEDCOSINESVALUES_HPP
-#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
-#include "Vulkan/Global/VulkanStructs.hpp"
-#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
-
-namespace VulkanCore {
-class VImage2;
-}
-
-namespace MathUtils {
-// LTC1 is the inverse M
-// LTC2 is for (GGX norm, fresnel, 0(unused), sphere for horizon-clipping)
-
-inline constexpr std::string LTC_InverseString = "LTC_Inverse";
-inline constexpr std::string LTC_String        = "LTC";
-
-inline VulkanStructs::VImageData<float> LTC_ImageData;
-inline VulkanStructs::VImageData<float> LTCInverse_ImageData;
-
-class LookUpTalbes
-{
-  public:
-    std::shared_ptr<ApplicationCore::VTextureAsset> LTC;
-    std::shared_ptr<ApplicationCore::VTextureAsset> LTCInverse;
-
-    void ClearLoopUpTables()
-    {
-        LTC->Destroy();
-        LTCInverse->Destroy();
-    }
-};
-
-inline LookUpTalbes LUT;
-
-void InitLTC();
+#ifndef LTC_VALUES_H
+#define LTC_VALUES_H
 
 inline float LTC_Inverse[] = {
     1,
@@ -17795,6 +17761,5 @@ inline float LTC[] = {
     0.932326, 0.0513851,   0, 0.952381,    0.932274, 0.0498936,   0, 0.968254,    0.93222,  0.0484975,   0, 0.984127,
     0.932164, 0.0471899,   0, 1,
 };
-}  // namespace MathUtils
 
-#endif  //LINEARYTRANSFORMEDCOSINESVALUES_HPP
+#endif //LTC_VALUES_H

@@ -135,8 +135,8 @@ set(SOURCES
         Internal/Application/Rendering/Scene/PointLightNode.hpp
         Internal/Application/Rendering/Scene/Base/LightNode.cpp
         Internal/Application/Rendering/Scene/Base/LightNode.hpp
-        Internal/Application/Utils/LinearyTransformedCosinesValues.hpp
-        Internal/Application/Utils/LinearyTransformedCosinesValues.cpp
+        Internal/Application/Utils/LookUpTables.hpp
+        Internal/Application/Utils/LookUpTables.cpp
         Internal/Application/Rendering/Scene/AreaLightNode.cpp
         Internal/Application/Rendering/Scene/AreaLightNode.hpp
         Internal/Application/GLTFExporter/GLTFExporter.hpp
@@ -221,6 +221,7 @@ set(SOURCES
         External/ImGuiSpectrum/imgui_spectrum.h
         Internal/Vulkan/Renderer/Renderers/PostProcessingSystem.cpp
         Internal/Vulkan/Renderer/Renderers/PostProcessingSystem.h
+        Resources/LTC_Values.h
 
 )
 
@@ -260,6 +261,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
         ${CMAKE_SOURCE_DIR}/Internal/
         ${CMAKE_SOURCE_DIR}/External/
         ${CMAKE_SOURCE_DIR}/External/IconFontCppHeaders
+        ${CMAKE_SOURCE_DIR}/Resources/
 )
 
 

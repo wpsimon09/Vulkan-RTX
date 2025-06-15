@@ -10,6 +10,8 @@
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 
+#include <future>
+
 namespace ApplicationCore {
 VulkanStructs::VImageData<> LoadImage(const std::string& path, bool saveToDisk)
 {
@@ -128,7 +130,7 @@ VulkanStructs::VImageData<float> LoadHDRImage(const std::string& path, bool save
     imageData.fileName   = GlobalVariables::textureFolder / imageName;
     imageData.sourceType = EImageSource::File;
     imageData.format     = vk::Format::eR32G32B32A32Sfloat;
-    auto folder          = GlobalVariables::textureFolder.string();
+    auto folder    = GlobalVariables::textureFolder.string();
 
     if(saveToDisk)
     {
@@ -155,9 +157,37 @@ VulkanStructs::VImageData<float> LoadHDRImage(const std::string& path, bool save
 
     return imageData;
 }
-std::vector<VulkanStructs::VImageData<>> LoadTextureArray(const std::string& path,int count, bool saveToDisk) {
+std::vector<VulkanStructs::VImageData<float>> LoadTextureArray(const std::string& folderName, bool saveToDisk) {
+    std::filesystem::path textureFolder = std::filesystem::path(folderName);
+    std::vector<std::future<VulkanStructs::VImageData<float>>> futures;
 
+    for (const auto& entry : std::filesystem::directory_iterator(textureFolder)) {
+        if (std::filesystem::is_regular_file(entry.status())) {
+            futures.push_back(std::async(std::launch::async, [entry, saveToDisk, folderName]() {
+                VulkanStructs::VImageData<float> imageData{};
+
+                imageData.pixels = reinterpret_cast<float*>(
+                    stbi_loadf(entry.path().c_str(), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
+                imageData.channels   = 4;
+                auto imageName       = entry.path().string().substr(entry.path().string().rfind("/") + 1);
+                imageData.fileName   = entry.path();
+                imageData.sourceType = EImageSource::File;
+                imageData.format     = vk::Format::eR32G32B32A32Sfloat;
+                auto folder    = GlobalVariables::textureFolder.string();
+                return imageData;  // Replace with your actual image loader
+            }));
+        }
+    }
+
+    std::vector<VulkanStructs::VImageData<float>> imageDataArray;
+    for (auto& fut : futures) {
+        imageDataArray.push_back(fut.get());
+    }
+
+    return imageDataArray;
 }
+
+
 
 void SaveImageAsPNG(int width, int height, int channels, const std::string& path, const std::vector<std::byte>& data)
 {

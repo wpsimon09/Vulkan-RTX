@@ -18,7 +18,7 @@
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
-#include "Application/Utils/LinearyTransformedCosinesValues.hpp"
+#include "Application/Utils/LookUpTables.hpp"
 #include "Application/Utils/MathUtils.hpp"
 #include "Application/Utils/ModelExportImportUtils/ModelManagmentUtils.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
@@ -344,6 +344,8 @@ void AssetsManager::
     m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
     MathUtils::LUT.LTCInverse = std::make_shared<VTextureAsset>(m_device, std::move(ltcTexture));
 
+    ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, )
+    MathUtils::LUT.BlueNoise = std::make_shared<VulkanCore::VImage2>()
 
     Sync();
 }

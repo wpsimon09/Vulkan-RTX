@@ -148,12 +148,12 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
 
             m_uiRenderer->GetRenderTarget().HandleSwapChainResize(*m_swapChain);
 
+            m_renderingTimeLine[m_currentFrameIndex]->Reset();
+            m_renderingTimeLine[m_currentFrameIndex]->CpuSignal(8);
             // to silent validation layers i will recreate the semaphore
             m_ableToPresentSemaphore[m_currentImageIndex]->Destroy();
             m_ableToPresentSemaphore[m_currentImageIndex] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
 
-            m_renderingTimeLine[m_currentFrameIndex]->Reset();
-            m_renderingTimeLine[m_currentFrameIndex]->CpuSignal(8);
 
             return;
         }
@@ -197,9 +197,8 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     m_uniformBufferManager.UpdateSceneDataInfo(m_currentFrameIndex, sceneData);
 
 
-    m_device.GetTransferOpsManager().UpdateGPU();
-    m_transferSemapohore.CpuWaitIdle(2);
-    m_transferSemapohore.Reset();
+    m_device.GetTransferOpsManager().UpdateGPUWaitCPU();
+
 
     std::sort(m_renderContext.drawCalls.begin(), m_renderContext.drawCalls.end(),
               [](std::pair<unsigned long, VulkanStructs::VDrawCallData>& lhs,

@@ -73,6 +73,25 @@ VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<fl
     GenerateImageView();
     FillWithImageData<float>(imageData, device.GetTransferOpsManager().GetCommandBuffer());
 }
+VImage2::VImage2(const VulkanCore::VDevice& device, std::vector<VulkanStructs::VImageData<float>>& imageDataArray)
+    : m_device(device)
+    , m_imageInfo{}
+    , m_imageFlags{}{
+    //==============================================
+    // this constructor will create the image array
+    if (VulkanUtils::RelaxedAssert(!imageDataArray.empty(), "Image data are empty ! ")) {
+        auto& firstImage = imageDataArray[0]; // every image in the data array must be same except for the data wihin it, thus it is safe to take first image to populate the create info struct
+        m_imageInfo.width = firstImage.widht;
+        m_imageInfo.height = firstImage.height;
+        m_imageInfo.arrayLayers = imageDataArray.size();
+        m_imageInfo.channels = firstImage.channels;
+        m_imageInfo.format = firstImage.format;
+    }
+
+    AllocateImage();
+    GenerateImageView();
+    FillWithImageData(imageDataArray, device.GetTransferOpsManager().GetCommandBuffer());
+}
 
 void VImage2::Resize(uint32_t newWidth, uint32_t newHeight)
 {

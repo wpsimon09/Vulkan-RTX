@@ -43,6 +43,7 @@ void PlacePipelineBarrier(const VulkanCore::VCommandBuffer& cmdBuffer, vk::Pipel
  */
 void PlaceAccelerationStructureMemoryBarrier(const vk::CommandBuffer& cmdBuffer, vk::AccessFlags src, vk::AccessFlags dst);
 
+void PlaceBufferMemoryBarrier(const vk::CommandBuffer& cmdBuffer, const vk::Buffer& buffer,  vk::AccessFlags src, vk::PipelineStageFlags piplineSrc, vk::AccessFlags dst, vk::PipelineStageFlags pipelineDst);
 
 }  // namespace VulkanUtils
 

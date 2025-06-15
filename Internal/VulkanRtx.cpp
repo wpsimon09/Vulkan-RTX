@@ -52,7 +52,7 @@
 // Im gui entry
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/GLTFLoader/LoadSceneLights.hpp"
-#include "Application/Utils/LinearyTransformedCosinesValues.hpp"
+#include "Application/Utils/LookUpTables.hpp"
 #include "Application/Utils/MathUtils.hpp"
 #include "Application/Utils/Parsers/EngineDataParser.hpp"
 #include "Editor/Editor.hpp"
@@ -86,7 +86,7 @@ void Application::Init()
     m_vulkanDevice->GetTransferOpsManager().StartRecording();
 
     VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
-    MathUtils::InitLTC();
+    MathUtils::InitLookUpTables();
 
     m_descriptorSetLayoutCache = std::make_unique<VulkanCore::VDescriptorLayoutCache>(*m_vulkanDevice);
 
