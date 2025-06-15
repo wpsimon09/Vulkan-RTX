@@ -41,9 +41,9 @@ class LookUpTalbes
     }
 };
 
-inline LookUpTalbes LUT;
+inline LookUpTalbes LookUpTables;
 
-void InitLookUpTables();
+void InitLookUpTables(const VulkanCore::VDevice& device);
 }  // namespace MathUtils
 
 #endif  //LOOKUPTABLES_HPP

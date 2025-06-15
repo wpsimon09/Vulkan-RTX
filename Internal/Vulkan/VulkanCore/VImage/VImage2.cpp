@@ -84,6 +84,8 @@ VImage2::VImage2(const VulkanCore::VDevice& device, std::vector<VulkanStructs::V
         m_imageInfo.width = firstImage.widht;
         m_imageInfo.height = firstImage.height;
         m_imageInfo.arrayLayers = imageDataArray.size();
+        m_imageFlags.IsCubeMap = false;
+        m_imageFlags.IsSwapChainImage = false;
         m_imageInfo.channels = firstImage.channels;
         m_imageInfo.format = firstImage.format;
     }
@@ -130,7 +132,7 @@ void VImage2::AllocateImage()
     imageInfo.usage         = static_cast<VkImageUsageFlags>(m_imageInfo.imageUsage);
     imageInfo.sharingMode   = static_cast<VkSharingMode>(vk::SharingMode::eExclusive);
     imageInfo.samples       = static_cast<VkSampleCountFlagBits>(m_imageInfo.samples);
-    m_imageSizeBytes = m_imageInfo.width * m_imageInfo.height * VulkanUtils::GetVulkanFormatSize(m_imageInfo.format);
+    m_imageSizeBytes = m_imageInfo.width * m_imageInfo.height * VulkanUtils::GetVulkanFormatSize(m_imageInfo.format) * m_imageInfo.arrayLayers;
 
     // create vma allocation
     VmaAllocationCreateInfo imageAllocationInfo = {};

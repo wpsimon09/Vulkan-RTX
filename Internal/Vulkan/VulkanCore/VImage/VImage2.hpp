@@ -82,9 +82,9 @@ class VImage2 : public VulkanCore::VObject
 
     template <typename T>
     void FillWithImageData(const std::vector<VulkanStructs::VImageData<T>>& imageData,
-                           VulkanCore::VCommandBuffer&         cmdBuffer,
-                           bool                                transitionToShaderReadOnly = true,
-                           bool                                destroyCurrentImage        = false);
+                           VulkanCore::VCommandBuffer&                      cmdBuffer,
+                           bool                                             transitionToShaderReadOnly = true,
+                           bool                                             destroyCurrentImage        = false);
 
     void Destroy() override;
 
@@ -98,8 +98,7 @@ class VImage2 : public VulkanCore::VObject
     vk::DescriptorImageInfo   GetDescriptorImageInfo();
     vk::ImageSubresourceRange GetSubresrouceRange();
 
-                   vk::DeviceSize
-                   GetImageSizeBytes();
+    vk::DeviceSize GetImageSizeBytes();
     VmaAllocation& GetImageAllocation();
 
     VmaAllocation        GetImageStagingBufferMemAllocation();
@@ -207,69 +206,77 @@ void VImage2::FillWithImageData(const VulkanStructs::VImageData<T>& imageData,
 
 template <typename T>
 void VImage2::FillWithImageData(const std::vector<VulkanStructs::VImageData<T>>& imageData,
-                                VulkanCore::VCommandBuffer&         cmdBuffer,
-                                bool                                transitionToShaderReadOnly,
-                                bool                                destroyCurrentImage)
+                                VulkanCore::VCommandBuffer&                      cmdBuffer,
+                                bool                                             transitionToShaderReadOnly,
+                                bool                                             destroyCurrentImage)
 {
+    //===================================
+    // accumulate size for staging buffer
+    vk::DeviceSize offset {0};
+    std::vector<vk::BufferImageCopy> copyRegions(imageData.size());
 
-    if(!imageData.pixels)
+    m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE ARRAY STAGING BUFFER ==>");
+    m_stagingBufferWithPixelData->CreateHostVisibleBuffer(m_imageSizeBytes);
+
+    auto mappedStaginBuffer = m_stagingBufferWithPixelData->MapStagingBuffer();
+
+    for(int layer = 0; layer < imageData.size(); layer++)
     {
-        Utils::Logger::LogError("Image pixel data are corrupted ! ");
-        return;
+        if(!imageData[layer].pixels)
+        {
+            Utils::Logger::LogError("Image pixel data are corrupted ! ");
+            return;
+        }
+
+
+        // copy pixel data to the staging buffer
+        assert(cmdBuffer.GetIsRecording()
+               && "Command buffer is not recording any commands, before using it make sure it is in recording state  !");
+
+        Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
+
+        memcpy(mappedStaginBuffer + offset, imageData[layer].pixels, imageData[layer].GetSize());
+
+        Utils::Logger::LogInfoVerboseOnly("Image data copied");
+
+        vk::BufferImageCopy region = {};
+        region.bufferOffset        = offset;
+
+        region.imageSubresource.aspectMask     = vk::ImageAspectFlagBits::eColor;
+        region.imageSubresource.mipLevel       = 0;
+        region.imageSubresource.baseArrayLayer = layer;
+        region.imageSubresource.layerCount     = 1;
+
+        region.imageOffset.x = 0;
+        region.imageOffset.y = 0;
+        region.imageOffset.z = 0;
+
+        region.imageExtent.width  = m_imageInfo.width;
+        region.imageExtent.height = m_imageInfo.height;
+        region.imageExtent.depth  = m_imageInfo.depth;
+
+        copyRegions[layer] = region;
+
+        offset += imageData[layer].GetSize();
+
+
+        // this should be safe, since data are in staging
+        imageData[layer].Clear();
     }
-
-    if(destroyCurrentImage)
-    {
-        Resize(imageData.widht, imageData.height);
-    }
-    //m_imageInfo.P = imageData.fileName;
-    // copy pixel data to the staging buffer
-
-    assert(cmdBuffer.GetIsRecording()
-           && "Command buffer is not recording any commands, before using it make sure it is in recording state  !");
-
-    Utils::Logger::LogInfoVerboseOnly("Copying image data to staging buffer");
-
-    m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE STAGING BUFFER ==>");
-    m_stagingBufferWithPixelData->CreateHostVisibleBuffer(imageData.GetSize());
-
-    memcpy(m_stagingBufferWithPixelData->MapStagingBuffer(), imageData.pixels, imageData.GetSize());
     m_stagingBufferWithPixelData->UnMapStagingBuffer();
-
-    Utils::Logger::LogInfoVerboseOnly("Image data copied");
 
     // transition image to the transfer dst optimal layout so that data can be copied to it
     VulkanUtils::RecordImageTransitionLayoutCommand(*this, vk::ImageLayout::eTransferDstOptimal,
                                                     vk::ImageLayout::eUndefined, cmdBuffer);
-    //TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-
-    vk::BufferImageCopy region = {};
-    region.bufferOffset        = 0;
-    region.bufferRowLength     = 0;
-    region.bufferImageHeight   = 0;
-
-    region.imageSubresource.aspectMask     = vk::ImageAspectFlagBits::eColor;
-    region.imageSubresource.mipLevel       = 0;
-    region.imageSubresource.baseArrayLayer = 0;
-    region.imageSubresource.layerCount     = 1;
-
-    region.imageOffset.x = 0;
-    region.imageOffset.y = 0;
-    region.imageOffset.z = 0;
-
-    region.imageExtent.width  = m_imageInfo.width;
-    region.imageExtent.height = m_imageInfo.height;
-    region.imageExtent.depth  = m_imageInfo.depth;
 
     cmdBuffer.GetCommandBuffer().copyBufferToImage(m_stagingBufferWithPixelData->GetStagingBuffer(), m_imageVK,
-                                                   vk::ImageLayout::eTransferDstOptimal, 1, &region);
+                                                   vk::ImageLayout::eTransferDstOptimal, copyRegions.size(), copyRegions.data());
+
 
     Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is true, executing transition...");
+
     VulkanUtils::RecordImageTransitionLayoutCommand(*this, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                     vk::ImageLayout::eTransferDstOptimal, cmdBuffer);
-
-    // this should be safe, since data are in staging
-    imageData.Clear();
 }
 
 }  // namespace VulkanCore

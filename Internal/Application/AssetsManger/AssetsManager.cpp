@@ -333,19 +333,6 @@ void AssetsManager::
     mat->SetMaterialname("Area light editor billboard");
     m_editorIconsMaterials[EEditorIcon::AreaLight] = mat;
 
-    //=======================================
-    // LTC TEXTURES
-    //=======================================
-    auto ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, MathUtils::LTC_ImageData);
-    m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
-    MathUtils::LUT.LTC = std::make_shared<VTextureAsset>(m_device, std::move(ltcTexture));
-
-    ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, MathUtils::LTCInverse_ImageData);
-    m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
-    MathUtils::LUT.LTCInverse = std::make_shared<VTextureAsset>(m_device, std::move(ltcTexture));
-
-    ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, )
-    MathUtils::LUT.BlueNoise = std::make_shared<VulkanCore::VImage2>()
 
     Sync();
 }
@@ -368,6 +355,7 @@ std::vector<TextureBufferView> AssetsManager::ReadBackAllTextures(std::vector<st
             textureView.size              = texture.second->GetHandle()->GetImageSizeBytes();
             textureView.textureAsset      = texture.second.get();
             views.emplace_back(textureView);
+
         }
     }
 

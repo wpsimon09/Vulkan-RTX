@@ -86,7 +86,7 @@ void Application::Init()
     m_vulkanDevice->GetTransferOpsManager().StartRecording();
 
     VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
-    MathUtils::InitLookUpTables();
+    MathUtils::InitLookUpTables(*m_vulkanDevice);
 
     m_descriptorSetLayoutCache = std::make_unique<VulkanCore::VDescriptorLayoutCache>(*m_vulkanDevice);
 
@@ -260,7 +260,7 @@ Application::~Application()
     m_uniformBufferManager->Destroy();
     VulkanCore::VSamplers::DestroyAllSamplers(*m_vulkanDevice);
     m_uiContext->Destroy();
-    MathUtils::LUT.ClearLoopUpTables();
+    MathUtils::LookUpTables.ClearLoopUpTables();
 
     m_vulkanDevice->Destroy();
 }
