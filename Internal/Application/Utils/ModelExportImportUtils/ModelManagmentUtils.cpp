@@ -155,8 +155,7 @@ VulkanStructs::VImageData<float> LoadHDRImage(const std::string& path, bool save
 
     return imageData;
 }
-std::vector<VulkanStructs::VImageData<>> LoadTextureArray(const std::string& path, bool saveToDisk) {
-
+std::vector<VulkanStructs::VImageData<>> LoadTextureArray(const std::string& path,int count, bool saveToDisk) {
 
 }
 

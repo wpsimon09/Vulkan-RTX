@@ -1,0 +1,19 @@
+name: Build
+run-name: ${{ github.actor }} is being build.
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - name: Installing GLFW
+      - run: sudo apt install -y libglfw3 libglfw3-dev
+      - name: Installing glm
+      - run: sudo apt install -y libglm-dev
+      - name: Installing vulkan tools
+      - run: sudo apt install -y vulkan-tools
+      - run: sudo apt install -y libvulkan-dev
+      - name: building
+      - run: sh build.sh
