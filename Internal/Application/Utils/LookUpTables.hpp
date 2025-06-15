@@ -18,7 +18,7 @@ namespace MathUtils {
 
 inline constexpr std::string LTC_InverseString = "LTC_Inverse";
 inline constexpr std::string LTC_String        = "LTC";
-inline constexpr std::string BlueNoiseString   = "BlueNoise";
+inline constexpr std::string BlueNoiseString   = "BlueNoise64";
 
 inline VulkanStructs::VImageData<float> LTC_ImageData;
 inline VulkanStructs::VImageData<float> LTCInverse_ImageData;
@@ -31,13 +31,13 @@ class LookUpTalbes
     /*
      *Texture array
      */
-    std::shared_ptr<ApplicationCore::VTextureAsset> BlueNoise;
+    std::shared_ptr<ApplicationCore::VTextureAsset> BlueNoise64;
 
     void ClearLoopUpTables()
     {
         LTC->Destroy();
         LTCInverse->Destroy();
-        BlueNoise->Destroy();
+        BlueNoise64->Destroy();
     }
 };
 

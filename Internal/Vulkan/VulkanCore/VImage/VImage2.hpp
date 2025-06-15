@@ -124,6 +124,7 @@ class VImage2 : public VulkanCore::VObject
   private:
     void AllocateImage();
     void GenerateImageView();
+    vk::ImageViewType EvaluateImageViewType();
     bool IsDepth(vk::Format& format);
     bool IsCube;
 };
