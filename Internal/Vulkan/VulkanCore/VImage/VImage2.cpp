@@ -170,13 +170,10 @@ vk::ImageViewType VImage2::EvaluateImageViewType()
 {
     if(m_imageFlags.IsCubeMap)
     {
-        if(m_imageInfo.arrayLayers > 1)
-        {
-            return vk::ImageViewType::eCubeArray;
-        }
         return vk::ImageViewType::eCube;
     }
-    if(m_imageInfo.arrayLayers > 1)
+
+    if(m_imageInfo.arrayLayers > 1 && !m_imageFlags.IsCubeMap)
     {
         return vk::ImageViewType::e2DArray;
     }
