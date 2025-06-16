@@ -1,7 +1,7 @@
 module RandomValues;
 import Utils;
 
-#define PI 3.14159265359
+public float PI = 3.14159265359;
 
 public float RandomValue(inout uint state) {
     state = state * 747796405 + 2891336453;

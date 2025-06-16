@@ -4,6 +4,8 @@
 
 #include "EffectsLibrary.hpp"
 
+#include "Application/Utils/LookUpTables.hpp"
+
 #include <memory>
 
 #include "Vulkan/Global/RenderingOptions.hpp"
@@ -362,7 +364,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::SceneRenderer&   
                     break;
                 }
                 case EShaderBindingGroup::ShadowRT: {
-                    e->SetNumWrites(3, 2, 1);
+                    e->SetNumWrites(3, 4, 1);
 
                     //==================================
                     // global data
@@ -376,6 +378,11 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::SceneRenderer&   
                     // acceleration structure for shadows
                     e->WriteAccelerationStrucutre(i, 0, 2, rayTracingDataManager.GetTLAS());
 
+                    // depth texture is written in scene renderer constructror
+
+                    //===================================
+                    // blue noise texture
+                    e->WriteImage(i, 0, 4, MathUtils::LookUpTables.BlueNoise64->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                     break;
                 }
