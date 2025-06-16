@@ -36,7 +36,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float sinTheta = sin(theta);
 
 
-    float raysPerPixel = 2;
+    float raysPerPixel = 4;
     float shadowFactor = 0.0;
 
     float2 diskPoint;
@@ -53,15 +53,14 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
         diskPoint *= direction.w;
 
-        float3 shadowRayDir = normalize(direction.xyz + diskPoint.x * lightTangent + diskPoint.y * lightBitangent);
+        float3 shadowRayDir = normalize(direction.xyz + samplePos.x * lightTangent + samplePos.y * lightBitangent);
 
         bool inShadow = false;
         inShadow = IntersectsP(InitRay(worldSpacePos, shadowRayDir, 1000), _tlas);        
 
-        shadowFactor += inShadow ? 1.0 : 0.0;
+        shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }
 
-    float percentage = (shadowFactor / raysPerPixel);
 
-    return float4(max(float3(1.0 - percentage), 0.01), 1.0);
+    return float4(float3(shadowFactor), 1.0);
 }
