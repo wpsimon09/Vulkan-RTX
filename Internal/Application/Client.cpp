@@ -21,7 +21,7 @@
 #include "Rendering/Scene/Scene.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
-
+#include "AssetsManger/Utils/VTextureAsset.hpp"
 
 Client::Client()
     : m_globalRenderingData()

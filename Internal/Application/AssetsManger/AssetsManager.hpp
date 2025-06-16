@@ -18,6 +18,7 @@
 #include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 
+
 namespace VulkanUtils {
 class VEffect;
 }

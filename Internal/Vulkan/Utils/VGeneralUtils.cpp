@@ -739,6 +739,13 @@ std::string VulkanUtils::DescriptorTypeToString(vk::DescriptorType descriptorTyp
             return "Unknown";
     }
 }
+
+/**
+ * Assert that does not kill the program but only prints out error message
+ * @param condition condition for the assert
+ * @param msg message ot be displayed
+ * @return false if normal assert would be hit, return ture if condition is true
+ */
 bool VulkanUtils::RelaxedAssert(bool condition, std::string msg) {
     if (condition != true) {
         Utils::Logger::LogError(msg);

@@ -1,0 +1,33 @@
+name: Build
+run-name: ${{ github.actor }} is building the project
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Notify repository has been cloned
+        run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+
+      - name: Install GLFW
+        run: |
+          sudo apt update
+          sudo apt install -y libglfw3 libglfw3-dev
+
+      - name: Install GLM
+        run: sudo apt install -y libglm-dev
+
+      - name: Install Vulkan tools
+        run: |
+          sudo apt install -y vulkan-tools
+          sudo apt install -y libvulkan-dev
+
+      - name: Build project
+        run: sh build.sh

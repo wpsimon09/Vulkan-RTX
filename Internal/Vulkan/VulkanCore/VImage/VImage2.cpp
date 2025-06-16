@@ -23,7 +23,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& inf
 
     AllocateImage();
     GenerateImageView();
-    m_imageFlags.IsStorage = info.isStorage;
+    m_imageFlags.IsStorage     = info.isStorage;
     m_imageFlags.IsDepthBuffer = IsDepth(m_imageInfo.format);
 }
 
@@ -73,6 +73,29 @@ VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<fl
     GenerateImageView();
     FillWithImageData<float>(imageData, device.GetTransferOpsManager().GetCommandBuffer());
 }
+VImage2::VImage2(const VulkanCore::VDevice& device, std::vector<VulkanStructs::VImageData<float>>& imageDataArray)
+    : m_device(device)
+    , m_imageInfo{}
+    , m_imageFlags{}
+{
+    //==============================================
+    // this constructor will create the image array
+    if(VulkanUtils::RelaxedAssert(!imageDataArray.empty(), "Image data are empty ! "))
+    {
+        auto& firstImage = imageDataArray[0];  // every image in the data array must be same except for the data wihin it, thus it is safe to take first image to populate the create info struct
+        m_imageInfo.width             = firstImage.widht;
+        m_imageInfo.height            = firstImage.height;
+        m_imageInfo.arrayLayers       = imageDataArray.size();
+        m_imageFlags.IsCubeMap        = false;
+        m_imageFlags.IsSwapChainImage = false;
+        m_imageInfo.channels          = firstImage.channels;
+        m_imageInfo.format            = firstImage.format;
+    }
+
+    AllocateImage();
+    GenerateImageView();
+    FillWithImageData(imageDataArray, device.GetTransferOpsManager().GetCommandBuffer());
+}
 
 void VImage2::Resize(uint32_t newWidth, uint32_t newHeight)
 {
@@ -111,7 +134,8 @@ void VImage2::AllocateImage()
     imageInfo.usage         = static_cast<VkImageUsageFlags>(m_imageInfo.imageUsage);
     imageInfo.sharingMode   = static_cast<VkSharingMode>(vk::SharingMode::eExclusive);
     imageInfo.samples       = static_cast<VkSampleCountFlagBits>(m_imageInfo.samples);
-    m_imageSizeBytes = m_imageInfo.width * m_imageInfo.height * VulkanUtils::GetVulkanFormatSize(m_imageInfo.format);
+    m_imageSizeBytes = m_imageInfo.width * m_imageInfo.height * VulkanUtils::GetVulkanFormatSize(m_imageInfo.format)
+                       * m_imageInfo.arrayLayers;
 
     // create vma allocation
     VmaAllocationCreateInfo imageAllocationInfo = {};
@@ -128,10 +152,10 @@ void VImage2::AllocateImage()
 void VImage2::GenerateImageView()
 {
     vk::ImageViewCreateInfo createInfo{};
-    createInfo.image                       = m_imageVK;
-    createInfo.format                      = m_imageInfo.format;
-    createInfo.viewType                    = m_imageFlags.IsCubeMap ? vk::ImageViewType::eCube : vk::ImageViewType::e2D;
-    createInfo.subresourceRange.aspectMask = m_imageInfo.aspecFlags;
+    createInfo.image  = m_imageVK;
+    createInfo.format = m_imageInfo.format;
+    createInfo.viewType = EvaluateImageViewType();
+    createInfo.subresourceRange.aspectMask     = m_imageInfo.aspecFlags;
     createInfo.subresourceRange.baseMipLevel   = 0;
     createInfo.subresourceRange.levelCount     = m_imageInfo.mipLevels;
     createInfo.subresourceRange.baseArrayLayer = 0;
@@ -141,6 +165,21 @@ void VImage2::GenerateImageView()
     assert(m_imageView);
     Utils::Logger::LogInfoVerboseOnly("2D Image view created");
 }
+
+vk::ImageViewType VImage2::EvaluateImageViewType()
+{
+    if(m_imageFlags.IsCubeMap)
+    {
+        return vk::ImageViewType::eCube;
+    }
+
+    if(m_imageInfo.arrayLayers > 1 && !m_imageFlags.IsCubeMap)
+    {
+        return vk::ImageViewType::e2DArray;
+    }
+    return vk::ImageViewType::e2D;
+}
+
 
 bool VImage2::IsDepth(vk::Format& format)
 {
@@ -182,7 +221,7 @@ vk::ImageView VImage2::GetImageView() const
 vk::DescriptorImageInfo VImage2::GetDescriptorImageInfo(vk::Sampler& sampler)
 {
     vk::DescriptorImageInfo imageInfo{};
-        imageInfo.imageLayout = m_imageInfo.layout;
+    imageInfo.imageLayout = m_imageInfo.layout;
     imageInfo.imageView   = m_imageView;
     imageInfo.sampler     = sampler;
     return imageInfo;

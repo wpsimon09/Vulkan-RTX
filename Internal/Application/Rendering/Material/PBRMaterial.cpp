@@ -12,7 +12,7 @@
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
-#include "Application/Utils/LinearyTransformedCosinesValues.hpp"
+#include "Application/Utils/LookUpTables.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"

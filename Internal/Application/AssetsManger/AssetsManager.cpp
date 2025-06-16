@@ -18,7 +18,7 @@
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
-#include "Application/Utils/LinearyTransformedCosinesValues.hpp"
+#include "Application/Utils/LookUpTables.hpp"
 #include "Application/Utils/MathUtils.hpp"
 #include "Application/Utils/ModelExportImportUtils/ModelManagmentUtils.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
@@ -333,17 +333,6 @@ void AssetsManager::
     mat->SetMaterialname("Area light editor billboard");
     m_editorIconsMaterials[EEditorIcon::AreaLight] = mat;
 
-    //=======================================
-    // LTC TEXTURES
-    //=======================================
-    auto ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, MathUtils::LTC_ImageData);
-    m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
-    MathUtils::LUT.LTC = std::make_shared<VTextureAsset>(m_device, std::move(ltcTexture));
-
-    ltcTexture = std::make_shared<VulkanCore::VImage2>(m_device, MathUtils::LTCInverse_ImageData);
-    m_transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
-    MathUtils::LUT.LTCInverse = std::make_shared<VTextureAsset>(m_device, std::move(ltcTexture));
-
 
     Sync();
 }
@@ -366,6 +355,7 @@ std::vector<TextureBufferView> AssetsManager::ReadBackAllTextures(std::vector<st
             textureView.size              = texture.second->GetHandle()->GetImageSizeBytes();
             textureView.textureAsset      = texture.second.get();
             views.emplace_back(textureView);
+
         }
     }
 
