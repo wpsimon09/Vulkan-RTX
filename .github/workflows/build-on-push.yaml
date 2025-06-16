@@ -7,6 +7,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.1
 
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -23,11 +25,6 @@ jobs:
 
       - name: Install GLM
         run: sudo apt install -y libglm-dev
-
-      - name: Install Vulkan tools
-        run: |
-          sudo apt install -y vulkan-tools
-          sudo apt install -y libvulkan-dev
 
       - name: Build project
         run: sh build.sh
