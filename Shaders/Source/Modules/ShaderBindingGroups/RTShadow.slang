@@ -20,7 +20,7 @@ Sampler2D _depthTexture;
 [[vk::binding(4,0)]]
 Sampler2DArray _blueNoiseTextureArray;
 
-float2 BlueNoiseInDisk[64] = float2[64](
+public static const float2 BlueNoiseInDisk[64] = float2[64](
     float2(0.478712,0.875764),
     float2(-0.337956,-0.793959),
     float2(-0.955259,-0.028164),
@@ -87,4 +87,4 @@ float2 BlueNoiseInDisk[64] = float2[64](
     float2(-0.210004,0.519896) 
 );
 
-float goldenRatioConjugate = 0.61803398875f;
+public static const float goldenRatioConjugate = 0.61803398875f;
