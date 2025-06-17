@@ -22,21 +22,24 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
+    
     float depth = _depthTexture.Sample(fsIn.uv).x;
     float3 worldSpacePos = WorldPosFromDepth(depth, fsIn.uv, globalData.invProjection, globalData.inverseView);
     
     float4 direction = _lightInfo.dirLight.direction;
 
     // blue noise is used to rate the disk of sample positions to get how much it should rotate 
-    float blueNoise = _blueNoiseTextureArray.Sample(float3(fsIn.uv, 1)).x; // float3 for sample since .z is array level
-    blueNoise = fract(blueNoise );
+    float blueNoise = _blueNoiseTextureArray.Sample(float3(fsIn.uv, 0)).x; // float3 for sample since .z is array level
+    //blueNoise = fract(blueNoise + goldenRatioConjugate * float(globalData.currentFrame) );
+
+    blueNoise = fract(blueNoise);
 
     float theta = blueNoise * 2.0 * float.getPi();
     float cosTheta = cos(theta);
     float sinTheta = sin(theta);
 
 
-    float raysPerPixel = 2;
+    float raysPerPixel = 10;
     float shadowFactor = 0.0;
 
     float2 diskPoint;
@@ -44,7 +47,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float3 lightTangent = normalize(cross(direction.xyz , float3(0.0, 1.0, 0.0)));
     float3 lightBitangent = normalize(cross(lightTangent, direction.xyz));
     
-    for(int i = 0; i < raysPerPixel; ++i){
+    for(int i = 0; i < _lightInfo.dirLight.shadowRays; ++i){
         float2 samplePos = BlueNoiseInDisk[i];
 
         // rotate the disk randomly, based on the blue noise texture

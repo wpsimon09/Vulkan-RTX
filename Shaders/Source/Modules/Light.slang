@@ -22,8 +22,8 @@ public interface ILightEnv {
 public struct DirectionalLight : ILightEnv {
     public float4 direction; //xyz - direction, w- sun radius
     public float4 intensity;
-
-
+    public float shadowRays;
+    public float3 padding;
 
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         return (intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g.normal);
