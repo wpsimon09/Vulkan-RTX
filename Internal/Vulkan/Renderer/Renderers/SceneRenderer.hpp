@@ -53,8 +53,9 @@ namespace Renderer {
                     VulkanUtils::RenderContext* renderContext);
 
         VulkanCore::VImage2& GetRenderedImage(int currentFrame);
+        VulkanCore::VImage2& GetShadowMapImage();
 
-        vk::DescriptorImageInfo GetShadowMap() const;
+        vk::DescriptorImageInfo GetShadowMapDescInfo() const;
         vk::DescriptorImageInfo GetRenderedImageConst(int frame) const;
 
         void Destroy();

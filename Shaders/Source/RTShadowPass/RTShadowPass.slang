@@ -28,15 +28,15 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float4 direction = _lightInfo.dirLight.direction;
 
     // blue noise is used to rate the disk of sample positions to get how much it should rotate 
-    float blueNoise = _blueNoiseTextureArray.Sample(float3(fsIn.uv, 1.0)).x; // float3 for sample since .z is array level
-    blueNoise = fract(blueNoise + goldenRatioConjugate * float(globalData.currentFrame));
+    float blueNoise = _blueNoiseTextureArray.Sample(float3(fsIn.uv, globalData.currentFrame % 64), float2(13.0, 4)).x; // float3 for sample since .z is array level
+    blueNoise = fract(blueNoise + goldenRatioConjugate);
 
     float theta = blueNoise * 2.0 * PI;
     float cosTheta = cos(theta);
     float sinTheta = sin(theta);
 
 
-    float raysPerPixel = 4;
+    float raysPerPixel = 2;
     float shadowFactor = 0.0;
 
     float2 diskPoint;
@@ -44,7 +44,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float3 lightTangent = normalize(cross(direction.xyz , float3(0.0, 1.0, 0.0)));
     float3 lightBitangent = normalize(cross(lightTangent, direction.xyz));
     
-    for(int i = 0; i <raysPerPixel; i++){
+    for(int i = 0; i < raysPerPixel; ++i){
         float2 samplePos = BlueNoiseInDisk[i];
 
         // rotate the disk randomly, based on the blue noise texture
@@ -53,7 +53,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
         diskPoint *= direction.w;
 
-        float3 shadowRayDir = normalize(direction.xyz + samplePos.x * lightTangent + samplePos.y * lightBitangent);
+        float3 shadowRayDir = normalize(direction.xyz + diskPoint.x * lightTangent + diskPoint.y * lightBitangent);
 
         bool inShadow = false;
         inShadow = IntersectsP(InitRay(worldSpacePos, shadowRayDir, 1000), _tlas);        

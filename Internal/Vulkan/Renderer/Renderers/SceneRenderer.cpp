@@ -60,7 +60,7 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
 
 
     //TODO: Render targets no longer need to create per frame in flight images, just one intermediate is enought
-    // this however needs to be here per frame in flight
+    // this however needs  be here per frame in flight
 
 
     //=========================
@@ -473,11 +473,15 @@ void SceneRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStr
     drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
 }
 
-VulkanCore::VImage2& SceneRenderer::GetRenderedImage(int currentFrame) {
-    return m_renderTargets->GetColourImage(currentFrame); //*m_finalRender[currentFrame]; //*m_shadowMap;
+VulkanCore::VImage2& SceneRenderer::GetRenderedImage(int currentFrame)
+{
+    return m_renderTargets->GetColourImage(currentFrame);  //*m_finalRender[currentFrame]; //*m_shadowMap;
+}
+VulkanCore::VImage2& SceneRenderer::GetShadowMapImage() {
+    return *m_shadowMap;
 }
 
-vk::DescriptorImageInfo SceneRenderer::GetShadowMap() const
+vk::DescriptorImageInfo SceneRenderer::GetShadowMapDescInfo() const
 {
     return m_shadowMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 }

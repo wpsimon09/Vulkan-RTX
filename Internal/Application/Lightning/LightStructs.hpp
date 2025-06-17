@@ -111,7 +111,7 @@ struct DirectionalLight
 
     mutable glm::vec3 direction;
 
-    float sunRadius = 1.0f;
+    float sunRadius = 0.2f;
 
     void Reset()
     {
