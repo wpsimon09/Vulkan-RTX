@@ -55,10 +55,12 @@ struct PointLightGPU
     glm::vec4 CLQU_Parameters;  // x- constant, y - linear, z-quadratic, w - in use
 };
 
-struct DirectionalLightGPU
+struct alignas(16) DirectionalLightGPU
 {
     glm::vec4 direction;
     glm::vec4 colour;  // w is intensity
+    float shadowRays {6};
+    glm::vec3 padding;
 };
 
 struct AreaLightGPU
@@ -75,7 +77,7 @@ struct LightUniforms
     DirectionalLightGPU           directionalLight;
     std::array<PointLightGPU, 20> pointLight;
     std::array<AreaLightGPU, 4>   areaLights;
-    glm::vec4                     info;  // x - use env, y - ambient strength,zw - padding
+    glm::vec4                     info;  // x - use env, y - ambient strength,w - padding
 };
 
 struct RTXObjDescription {

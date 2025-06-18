@@ -29,7 +29,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float4 direction = _lightInfo.dirLight.direction;
 
     // blue noise is used to rate the disk of sample positions to get how much it should rotate 
-    float blueNoise = _blueNoiseTextureArray.Sample(float3(fsIn.uv, 0)).x; // float3 for sample since .z is array level
+    float blueNoise = _blueNoiseTextureArray.Sample(fsIn.uv).x; // float3 for sample since .z is array level
     //blueNoise = fract(blueNoise + goldenRatioConjugate * float(globalData.currentFrame) );
 
     blueNoise = fract(blueNoise);

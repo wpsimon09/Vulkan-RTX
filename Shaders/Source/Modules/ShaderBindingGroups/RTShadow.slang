@@ -18,7 +18,7 @@ RaytracingAccelerationStructure _tlas;
 Sampler2D _depthTexture;
 
 [[vk::binding(4,0)]]
-Sampler2DArray _blueNoiseTextureArray;
+Sampler2D _blueNoiseTextureArray;
 
 public static const float2 BlueNoiseInDisk[64] = float2[64](
     float2(0.478712,0.875764),

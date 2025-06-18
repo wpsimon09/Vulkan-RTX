@@ -190,6 +190,7 @@ void DetailsPanel::RenderDirectionLightUI()
     ImGui::ColorEdit3("LightColour", &DirLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
     ImGui::SliderFloat("Sun radius", &DirLightNode->GetLightStruct().sunRadius, 0.001f, 0.2);
     ImGui::DragFloat("Intensity", &DirLightNode->GetLightStruct().colour.w);
+    ImGui::SliderInt("Shadow rays", &DirLightNode->GetLightStruct().shadowRaysPerPixel, 1, 64);
 }
 
 void DetailsPanel::RenderPointLightUI()

@@ -55,7 +55,7 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
     shadowMapCi.samples             = vk::SampleCountFlagBits::e1;
     shadowMapCi.imageUsage          = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
     shadowMapCi.layout              = vk::ImageLayout::eShaderReadOnlyOptimal;
-    shadowMapCi.format              = vk::Format::eR16G16B16A16Sfloat;
+    shadowMapCi.format              = vk::Format::eR16Sfloat;
     m_shadowMap                     = std::make_unique<VulkanCore::VImage2>(m_device, shadowMapCi);
 
 
@@ -330,8 +330,10 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
     renderingInfo.pColorAttachments    = colourAttachments.data();
 
     m_renderTargets->GetDepthAttachment().loadOp = vk::AttachmentLoadOp::eLoad;
+    m_renderTargets->GetDepthAttachment().resolveMode = vk::ResolveModeFlagBits::eNone;
     renderingInfo.pDepthAttachment               = &m_renderTargets->GetDepthAttachment();
     renderingInfo.pStencilAttachment             = &m_renderTargets->GetDepthAttachment();
+
 
     //==============================================
     // START RENDER PASS

@@ -113,6 +113,8 @@ struct DirectionalLight
 
     float sunRadius = 0.2f;
 
+    int shadowRaysPerPixel {6};
+
     void Reset()
     {
         colour    = glm::vec4(0.f);

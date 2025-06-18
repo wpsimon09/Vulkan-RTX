@@ -123,6 +123,7 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, 
         m_lightUniform->GetUBOStruct().directionalLight.colour = sceneLightInfo.DirectionalLightInfo->colour;
         m_lightUniform->GetUBOStruct().directionalLight.direction =
             glm::vec4(sceneLightInfo.DirectionalLightInfo->direction, sceneLightInfo.DirectionalLightInfo->sunRadius);
+        m_lightUniform->GetUBOStruct().directionalLight.shadowRays = sceneLightInfo.DirectionalLightInfo->shadowRaysPerPixel;
     }
 
 
