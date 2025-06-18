@@ -7,6 +7,7 @@
 #include "VCommandPool.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {
@@ -109,18 +110,20 @@ void VCommandBuffer::EndAndFlush(const vk::Queue&               queue,
     submit.pCommandBuffers    = &m_commandBuffer;
 
     submit.pWaitDstStageMask = pWaitStages;
-    assert(queue.submit(1, &submit, nullptr) == vk::Result::eSuccess);
+    VulkanUtils::Check(queue.submit(1, &submit, nullptr) , vk::Result::eSuccess);
 }
-void VCommandBuffer::EndAndFlush2(const vk::Queue& queue, vk::SemaphoreSignalInfo* semaphoreSignalInfo, vk::PipelineStageFlags* pWaitStages)
+void VCommandBuffer::EndAndFlush2(const vk::Queue& queue,const vk::SemaphoreSubmitInfo& pSignalSemaphores,const vk::SemaphoreSubmitInfo& pWaitSemaphores)
 {
     EndRecording();
 
     vk::SubmitInfo2 submitInfo;
     submitInfo.commandBufferInfoCount = 1;
     submitInfo.pCommandBufferInfos    = &m_cmdBufferSubmitInfo;
-    submitInfo.pSignalSemaphoreInfos = semaphoreSignalInfo;
+    submitInfo.pSignalSemaphoreInfos = &pSignalSemaphores;
+    submitInfo.pWaitSemaphoreInfos = &pWaitSemaphores;
 
 
+    VulkanUtils::Check(queue.submit2(1, &submitInfo, nullptr), vk::Result::eSuccess);
 
 }
 

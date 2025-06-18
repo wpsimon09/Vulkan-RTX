@@ -85,7 +85,7 @@ vk:
             finished = blasBuilder.CmdCreateParallelBlas(*m_cmdBuffer, asBuildData, m_blas, scratchAdresses, hintMaxBudget);
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
             m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
-                                     m_asBuildSemaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
+                                     m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
             m_asBuildSemaphore.CpuWaitIdle(2);
         }
         // compact the BLAS right away
@@ -97,7 +97,7 @@ vk:
 
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
             m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
-                                     m_asBuildSemaphore.GetSemaphoreSubmitInfo(2, 4), waitStages.data());
+                                     m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), waitStages.data());
             m_asBuildSemaphore.CpuWaitIdle(4);
 
             blasBuilder.DestroyNonCompactedBlas();
@@ -138,7 +138,7 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
     CmdCreteTlas(m_cmdBuffer->GetCommandBuffer(), instances.size(), buffer.GetBufferAdress(), scratchBuffer, flags, update, motion);
     std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
     m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
-                             m_asBuildSemaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
+                             m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
 
     m_asBuildSemaphore.CpuWaitIdle(2);
 

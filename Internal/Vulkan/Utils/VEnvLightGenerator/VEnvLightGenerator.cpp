@@ -276,7 +276,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                                                               vk::PipelineStageFlagBits::eTransfer};
             // waiting for value 2 because value 2 is signal by create resource command
             m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
-                                             envGenerationSemaphore.GetSemaphoreSubmitInfo(2, 4), waitStages.data());
+                                             envGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), waitStages.data());
 
             envGenerationSemaphore.CpuWaitIdle(4);
 
@@ -415,7 +415,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,
                                                               vk::PipelineStageFlagBits::eTransfer};
             m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
-                                             envGenerationSemaphore.GetSemaphoreSubmitInfo(2, 4), waitStages.data());
+                                             envGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), waitStages.data());
 
             envGenerationSemaphore.CpuWaitIdle(4);
 
@@ -568,7 +568,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,
                                                           vk::PipelineStageFlagBits::eTransfer};
         m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
-                                         envGenerationSemaphore.GetSemaphoreSubmitInfo(2, 4), waitStages.data());
+                                         envGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), waitStages.data());
 
         envGenerationSemaphore.CpuWaitIdle(4);
 
@@ -612,7 +612,7 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
     };
 
     m_transferCmdBuffer->EndAndFlush(m_device.GetTransferQueue(), brdfGenerationSemaphore.GetSemaphore(),
-                                     brdfGenerationSemaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
+                                     brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
 
     //==========================================================================
     // PREPARE FOR RENDERING
@@ -676,7 +676,7 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
         vk::PipelineStageFlagBits::eColorAttachmentOutput,
     };
     m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), brdfGenerationSemaphore.GetSemaphore(),
-                                     brdfGenerationSemaphore.GetSemaphoreSubmitInfo(2, 4), renderWaitStages.data());
+                                     brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), renderWaitStages.data());
 
     brdfGenerationSemaphore.CpuWaitIdle(4);
 
@@ -693,7 +693,7 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLut()
     };
 
     m_transferCmdBuffer->EndAndFlush(m_device.GetTransferQueue(), brdfGenerationSemaphore.GetSemaphore(),
-                                     brdfGenerationSemaphore.GetSemaphoreSubmitInfo(4, 6), waitStages.data());
+                                     brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(4, 6), waitStages.data());
 
     brdfGenerationSemaphore.CpuWaitIdle(6);
 
@@ -798,7 +798,7 @@ void VulkanUtils::VEnvLightGenerator::CreateResources(const vk::CommandBuffer&  
     //================ Transfer HDR cube map to be in transfer DST optimal
     std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
     m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), semaphore.GetSemaphore(),
-                                     semaphore.GetSemaphoreSubmitInfo(0, 2), waitStages.data());
+                                     semaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
     semaphore.CpuWaitIdle(2);
     m_graphicsCmdBuffer->BeginRecording();
 }

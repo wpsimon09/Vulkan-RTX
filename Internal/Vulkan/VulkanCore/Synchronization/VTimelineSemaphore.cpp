@@ -24,7 +24,7 @@ VTimelineSemaphore::VTimelineSemaphore(const VulkanCore::VDevice& device, uint64
     m_semaphore = m_device.GetDevice().createSemaphore(semaphoreInfo);
 }
 
-vk::TimelineSemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreSubmitInfo(uint64_t waitValue, uint64_t signalValue)
+vk::TimelineSemaphoreSubmitInfo VTimelineSemaphore::GetTimeLineSemaphoreSubmitInfo(uint64_t waitValue, uint64_t signalValue)
 {
     assert(waitValue < signalValue && "Wait value must be smaller than signal value");
     m_waitHistory.emplace_back(m_offset + waitValue);
@@ -39,6 +39,30 @@ vk::TimelineSemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreSubmitInfo(uint6
     submitInfo.signalSemaphoreValueCount = 1;
     submitInfo.pSignalSemaphoreValues    = &m_currentSignal;
     return submitInfo;
+}
+vk::SemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreWaitSubmitInfo(uint64_t waitValue, vk::PipelineStageFlags2& waitStages) {
+    m_waitHistory.emplace_back(m_offset + waitValue);
+
+    m_currentWait   = m_offset + waitValue;
+
+    vk::SemaphoreSubmitInfo waitSubmitInfo{};
+    waitSubmitInfo.semaphore = m_semaphore;
+    waitSubmitInfo.value = m_currentWait;
+    waitSubmitInfo.stageMask = waitStages;
+
+    return waitSubmitInfo;
+}
+
+vk::SemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreSignalSubmitInfo(uint64_t signalValue, vk::PipelineStageFlags2& signalStages) {
+
+    m_currentSignal = m_offset + signalValue;
+
+    vk::SemaphoreSubmitInfo signalSubmitInfo{};
+    signalSubmitInfo.semaphore = m_semaphore;
+    signalSubmitInfo.value = m_currentSignal;
+    signalSubmitInfo.stageMask = signalStages;
+
+    return signalSubmitInfo;
 }
 
 void VTimelineSemaphore::CpuSignal(uint64_t signalValue)

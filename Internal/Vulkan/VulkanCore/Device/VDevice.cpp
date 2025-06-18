@@ -204,8 +204,6 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     physicalDeviceVulkan12Features.descriptorBindingStorageBufferUpdateAfterBind = true;
     physicalDeviceVulkan12Features.descriptorBindingUniformBufferUpdateAfterBind = true;
 
-
-
     // used in fore frame captures....
     if(GlobalState::ValidationLayersEnabled)
     {
@@ -232,11 +230,15 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     rayTracingPipelineFeatures.pNext                                           = &GpuRayQueryFeatures;
 
 
+    vk::PhysicalDeviceSynchronization2Features synchronization2Features{};
+    synchronization2Features.synchronization2 = true;
+    synchronization2Features.pNext = rayTracingPipelineFeatures;
+
+
     vk::PhysicalDeviceFeatures deviceFeatures{};
     deviceFeatures.fillModeNonSolid  = true;
     deviceFeatures.samplerAnisotropy = true;
     deviceFeatures.wideLines         = true;
-
 
     //create the logical device
     vk::DeviceCreateInfo deviceCreateInfo{};
@@ -260,7 +262,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     {
         deviceCreateInfo.enabledLayerCount = 0;
     }
-    deviceCreateInfo.pNext = &rayTracingPipelineFeatures;
+    deviceCreateInfo.pNext = &synchronization2Features;
 
     m_device = m_physicalDevice.createDevice(deviceCreateInfo);
     assert(m_device);

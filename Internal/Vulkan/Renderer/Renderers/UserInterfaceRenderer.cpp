@@ -91,7 +91,7 @@ void UserInterfaceRenderer::Present(uint32_t                        swapChainIma
     // PRESENT TO SCREEN
     //===========================
     vk::PresentInfoKHR presentInfo;
-    //auto next = renderingTimeLine.GetSemaphoreSubmitInfo(4, 8);
+    //auto next = renderingTimeLine.GetTimeLineSemaphoreSubmitInfo(4, 8);
     //presentInfo.pNext = &next;
 
     presentInfo.waitSemaphoreCount = 1;
