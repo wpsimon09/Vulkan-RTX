@@ -36,16 +36,19 @@ uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyPropertie
      * transfer queue has no idea about shader stages and stuff like this. I will most likely create class similuar to VTransferOpsManager that will hanlde purely initial image layout transitions and
      * during rendering I will have like BeginFrame function that will return command buffer that can be recorded. This command buffer will also be used for image layout transitionss
      ***/
-    for (uint32_t i = 0; i < queueFamilyProperties.size(); ++i) {
+    for(uint32_t i = 0; i < queueFamilyProperties.size(); ++i)
+    {
         const auto& queueFamily = queueFamilyProperties[i];
 
-        switch (queueType) {
-        case vk::QueueFlagBits::eGraphics:
-            if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) {
-                return i;
-            }
-            break;
-        /**
+        switch(queueType)
+        {
+            case vk::QueueFlagBits::eGraphics:
+                if(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
+                {
+                    return i;
+                }
+                break;
+            /**
         case vk::QueueFlagBits::eTransfer:
             // Prefer a dedicated transfer queue (not also graphics or compute)
                 if ((queueFamily.queueFlags & vk::QueueFlagBits::eTransfer) &&
@@ -55,23 +58,25 @@ uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyPropertie
                     }
             break;
         */
-        case vk::QueueFlagBits::eCompute:
-            // Prefer a dedicated compute queue (not also graphics)
-                if ((queueFamily.queueFlags & vk::QueueFlagBits::eCompute) &&
-                    !(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)) {
+            case vk::QueueFlagBits::eCompute:
+                // Prefer a dedicated compute queue (not also graphics)
+                if((queueFamily.queueFlags & vk::QueueFlagBits::eCompute) && !(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics))
+                {
                     return i;
-                    }
-            break;
+                }
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
     }
 
     // Fallback: Try to find any queue that supports the requested type, even if not dedicated
-    for (uint32_t i = 0; i < queueFamilyProperties.size(); ++i) {
+    for(uint32_t i = 0; i < queueFamilyProperties.size(); ++i)
+    {
         const auto& queueFamily = queueFamilyProperties[i];
-        if (queueFamily.queueFlags & queueType) {
+        if(queueFamily.queueFlags & queueType)
+        {
             return i;
         }
     }
@@ -85,11 +90,7 @@ uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyPropertie
     auto queueFamilyIndex = static_cast<uint32_t>(std::distance(queueFamilyProperties.begin(), graphicsQueueFamilyProperty));
     Utils::Logger::LogInfoVerboseOnly("Found graphics queue family at index: " + std::to_string(queueFamilyIndex));
     return queueFamilyIndex;
-    }
-
-
-
-
+}
 
 
 vk::ImageView VulkanUtils::GenerateImageView(const vk::Device&    logicalDevice,
@@ -244,7 +245,8 @@ void VulkanUtils::CopyBuffers(const vk::CommandBuffer& commandBuffer,
 {
     Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
 
-    if (size <= 0 ) return;
+    if(size <= 0)
+        return;
 
     vk::BufferCopy bufferCopy{};
     bufferCopy.srcOffset = srcOffset;
@@ -419,6 +421,14 @@ vk::DeviceSize VulkanUtils::GetVulkanFormatSize(vk::Format format)
 {
     switch(format)
     {
+        case vk::Format::eR64Sfloat:
+            return 8;
+        case vk::Format::eR64G64Sfloat:
+            return 16;
+        case vk::Format::eR64G64B64Sfloat:
+            return 24;
+        case vk::Format::eR64G64B64A64Sfloat:
+            return 32;
         case vk::Format::eR8Unorm:
         case vk::Format::eR8Snorm:
         case vk::Format::eR8Uint:
@@ -518,7 +528,7 @@ VulkanStructs::VStagingBufferInfo VulkanUtils::CreateStagingBuffer(const VulkanC
     std::string allocationNme = "Allocation of staging buffer for vertex, index or image ";
 
     VulkanStructs::VStagingBufferInfo staginBufferInfo = {};
-    staginBufferInfo.size                             = size;
+    staginBufferInfo.size                              = size;
 
     VkBufferCreateInfo stagingBufferCreateInfo = {};
     stagingBufferCreateInfo.sType              = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -746,10 +756,12 @@ std::string VulkanUtils::DescriptorTypeToString(vk::DescriptorType descriptorTyp
  * @param msg message ot be displayed
  * @return false if normal assert would be hit, return ture if condition is true
  */
-bool VulkanUtils::RelaxedAssert(bool condition, std::string msg) {
-    if (condition != true) {
+bool VulkanUtils::RelaxedAssert(bool condition, std::string msg)
+{
+    if(condition != true)
+    {
         Utils::Logger::LogError(msg);
         return false;
-    }return true;
+    }
+    return true;
 }
-

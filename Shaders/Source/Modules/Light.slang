@@ -129,7 +129,7 @@ public struct AmbientLight : ILightEnv {
             float2 envBrdf = BRDF_Lut.Sample(float2(max(dot(g.normal, wo), 0.0f), roughness)).xy;
             float3 spec = prefilteredColor * (kS * envBrdf.x + envBrdf.y);
             
-            return (kD * diffuse + spec) * aoIntensity;
+            return (kD * diffuse + spec) * 0.2;
         } else {
             return albedo * 0.7;
         }

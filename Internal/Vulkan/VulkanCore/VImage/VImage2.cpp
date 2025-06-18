@@ -141,8 +141,8 @@ void VImage2::AllocateImage()
     VmaAllocationCreateInfo imageAllocationInfo = {};
     imageAllocationInfo.usage                   = VMA_MEMORY_USAGE_AUTO;
     imageAllocationInfo.flags                   = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
-    assert(vmaCreateImage(m_device.GetAllocator(), &imageInfo, &imageAllocationInfo, &m_imageVMA, &m_imageAllocation, nullptr)
-           == VK_SUCCESS);
+    VulkanUtils::Check(static_cast<vk::Result>(vmaCreateImage(m_device.GetAllocator(), &imageInfo, &imageAllocationInfo, &m_imageVMA, &m_imageAllocation, nullptr))
+           ,static_cast<vk::Result>(VK_SUCCESS));
 
     vmaSetAllocationName(m_device.GetAllocator(), m_imageAllocation, m_imageInfo.imageAllocationName.c_str());
 

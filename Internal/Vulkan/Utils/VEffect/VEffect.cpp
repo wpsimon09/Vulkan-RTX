@@ -62,7 +62,6 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
         {
             m_device.GetDescriptorAllocator().Allocate(&reflectedSet.sets[i], reflectedSet.layout);
 
-
             // create writes
             for(auto& binding : set.second.bindings)
             {
