@@ -38,15 +38,15 @@ void VTransferOperationsManager::UpdateGPU()
     if(m_hasPandingWork)
     {
         vk::PipelineStageFlags2 waitStages =
-            vk::PipelineStageFlagBits2::eVertexInput  | vk::PipelineStageFlagBits2::eTransfer | vk::PipelineStageFlagBits2::eFragmentShader |
-            vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eCopy;
+            vk::PipelineStageFlagBits2::eVertexInput | vk::PipelineStageFlagBits2::eFragmentShader |
+            vk::PipelineStageFlagBits2::eEarlyFragmentTests ;
 
-        vk::PipelineStageFlags2 signalStages = {};
+        vk::PipelineStageFlags2 signalStages = vk::PipelineStageFlagBits2::eTransfer | vk::PipelineStageFlagBits2::eCopy;
 
         auto waitSubmit = m_transferTimeline->GetSemaphoreWaitSubmitInfo(0, waitStages);
         auto signalSubmit = m_transferTimeline->GetSemaphoreSignalSubmitInfo(2, signalStages) ;
 
-        m_commandBuffer->EndAndFlush2(m_device.GetTransferQueue(), waitSubmit,signalSubmit);
+        m_commandBuffer->EndAndFlush2(m_device.GetTransferQueue(), signalSubmit, waitSubmit);
 
         m_hasPandingWork = false;
     }

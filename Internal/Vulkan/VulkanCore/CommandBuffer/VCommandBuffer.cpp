@@ -119,11 +119,14 @@ void VCommandBuffer::EndAndFlush2(const vk::Queue& queue,const vk::SemaphoreSubm
     vk::SubmitInfo2 submitInfo;
     submitInfo.commandBufferInfoCount = 1;
     submitInfo.pCommandBufferInfos    = &m_cmdBufferSubmitInfo;
-    submitInfo.pSignalSemaphoreInfos = &pSignalSemaphores;
+    submitInfo.signalSemaphoreInfoCount = 1;
     submitInfo.pWaitSemaphoreInfos = &pWaitSemaphores;
+    submitInfo.waitSemaphoreInfoCount = 1;
+    submitInfo.pSignalSemaphoreInfos = &pSignalSemaphores;
 
+    auto queueResult = queue.submit2(1, &submitInfo, nullptr);
 
-    VulkanUtils::Check(queue.submit2(1, &submitInfo, nullptr), vk::Result::eSuccess);
+    VulkanUtils::Check(queueResult);
 
 }
 
