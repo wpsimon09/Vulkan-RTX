@@ -191,6 +191,7 @@ void DetailsPanel::RenderDirectionLightUI()
     ImGui::SliderFloat("Sun radius", &DirLightNode->GetLightStruct().sunRadius, 0.001f, 0.2);
     ImGui::DragFloat("Intensity", &DirLightNode->GetLightStruct().colour.w);
     ImGui::SliderInt("Shadow rays", &DirLightNode->GetLightStruct().shadowRaysPerPixel, 1, 64);
+    ImGui::SliderFloat("Shadow bias", &DirLightNode->GetLightStruct().shadowBias, 0.0001f, 1.0);
 }
 
 void DetailsPanel::RenderPointLightUI()

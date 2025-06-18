@@ -60,7 +60,8 @@ struct alignas(16) DirectionalLightGPU
     glm::vec4 direction;
     glm::vec4 colour;  // w is intensity
     float shadowRays {6};
-    glm::vec3 padding;
+    float shadowBias {0.01};
+    glm::vec2 padding;;
 };
 
 struct AreaLightGPU

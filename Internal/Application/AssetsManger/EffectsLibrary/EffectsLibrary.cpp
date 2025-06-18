@@ -162,7 +162,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
         .DisableStencil()
         .SetCullNone()
         .SetNullVertexBinding()
-        .SetColourOutputFormat(vk::Format::eR16Sfloat)
+        .SetColourOutputFormat(vk::Format::eR32Sfloat)
         .SetPiplineNoMultiSampling();
 
     effects[EEffectType::RTShadowPass] = std::move(rtShadowPass);
@@ -192,10 +192,10 @@ std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type
 
 void EffectsLibrary::BuildAllEffects()
 {
-    std::cout << "======== Effect reflections =========\n\n\n";
+    std::cout << "======== Effect reflections =========\n";
     for(auto& effect : effects)
     {
-        std::cout << effect.second->GetName() << " | ------------------------\n";
+        std::cout << "------------------ |" << effect.second->GetName() << " | ------------------------\n";
         effect.second->GetReflectionData()->Print();
         effect.second->BuildEffect();
     }

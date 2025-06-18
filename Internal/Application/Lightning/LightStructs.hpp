@@ -115,6 +115,8 @@ struct DirectionalLight
 
     int shadowRaysPerPixel {6};
 
+    float shadowBias {0.1};
+
     void Reset()
     {
         colour    = glm::vec4(0.f);

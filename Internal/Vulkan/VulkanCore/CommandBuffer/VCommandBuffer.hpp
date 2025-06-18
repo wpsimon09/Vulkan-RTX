@@ -28,15 +28,19 @@ class VCommandBuffer : public VObject
     void EndAndFlush(const vk::Queue& queue);
     void EndAndFlush(const vk::Queue& queue, const vk::Fence& fence);
     void EndAndFlush(const vk::Queue& queue, vk::Semaphore& timeline, VkTimelineSemaphoreSubmitInfo& timelineInfo, vk::PipelineStageFlags* pWaitStages);
+    void EndAndFlush2(const vk::Queue& queue, vk::SemaphoreSignalInfo* pSemaphoreSignalInfo, vk::PipelineStageFlags* pWaitStages);
 
     void EndAndFlush(const vk::Queue&                     queue,
                      std::vector<vk::Semaphore>&          waitSemaphores,
                      std::vector<vk::PipelineStageFlags>& waitStages,
                      std::vector<vk::Semaphore>&          signalSemaphores);
 
+    vk::CommandBufferSubmitInfo GetCommandBufferInfo();
+
     ~VCommandBuffer() = default;
 
   private:
+    vk::CommandBufferSubmitInfo     m_cmdBufferSubmitInfo;
     const VulkanCore::VDevice&      m_device;
     const VulkanCore::VCommandPool& m_commandPool;
     bool                            m_isCurrentlyRecording;

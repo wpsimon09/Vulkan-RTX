@@ -59,7 +59,12 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
         float3 shadowRayDir = normalize(direction.xyz + diskPoint.x * lightTangent + diskPoint.y * lightBitangent);
 
         bool inShadow = false;
-        inShadow = IntersectsP(InitRay(worldSpacePos, shadowRayDir, 1000), _tlas);        
+
+        float3 dx = ddx(worldSpacePos);
+        float3 dy = ddy(worldSpacePos);
+        float3 normal = normalize(cross(dx, dy));
+    
+        inShadow = IntersectsP(InitRay(worldSpacePos + normal * _lightInfo.dirLight.shadowBias, shadowRayDir, 1000), _tlas);        
 
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }

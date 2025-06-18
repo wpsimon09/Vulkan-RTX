@@ -27,6 +27,10 @@ VCommandBuffer::VCommandBuffer(const VulkanCore::VDevice& device, const VulkanCo
     Utils::Logger::LogSuccess(isPrimary ? "Creating PRIMARY " :
                                           "Created SECONDARY" + std::string("which can be used which ")
                                               + device.GetQueueFamilyString(commandPool.GetQueueFamily().first) + " queue");
+
+    m_cmdBufferSubmitInfo.commandBuffer  = m_commandBuffer;
+    m_cmdBufferSubmitInfo.deviceMask = 0;
+
 }
 
 void VCommandBuffer::Destroy()
@@ -90,6 +94,8 @@ void VCommandBuffer::EndAndFlush(const vk::Queue&               queue,
                                  vk::PipelineStageFlags*        pWaitStages)
 {
     EndRecording();
+
+
     vk::SubmitInfo submit;
     submit.pNext = &timelineInfo;
 
@@ -104,6 +110,18 @@ void VCommandBuffer::EndAndFlush(const vk::Queue&               queue,
 
     submit.pWaitDstStageMask = pWaitStages;
     assert(queue.submit(1, &submit, nullptr) == vk::Result::eSuccess);
+}
+void VCommandBuffer::EndAndFlush2(const vk::Queue& queue, vk::SemaphoreSignalInfo* semaphoreSignalInfo, vk::PipelineStageFlags* pWaitStages)
+{
+    EndRecording();
+
+    vk::SubmitInfo2 submitInfo;
+    submitInfo.commandBufferInfoCount = 1;
+    submitInfo.pCommandBufferInfos    = &m_cmdBufferSubmitInfo;
+    submitInfo.pSignalSemaphoreInfos = semaphoreSignalInfo;
+
+
+
 }
 
 
@@ -125,4 +143,5 @@ void VCommandBuffer::EndAndFlush(const vk::Queue&                     queue,
     submitInfo.pSignalSemaphores    = signalSemaphores.data();
     assert(queue.submit(1, &submitInfo, VK_NULL_HANDLE) == vk::Result::eSuccess);
 }
+
 }  // namespace VulkanCore

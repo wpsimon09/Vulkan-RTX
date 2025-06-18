@@ -55,7 +55,7 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
     shadowMapCi.samples             = vk::SampleCountFlagBits::e1;
     shadowMapCi.imageUsage          = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
     shadowMapCi.layout              = vk::ImageLayout::eShaderReadOnlyOptimal;
-    shadowMapCi.format              = vk::Format::eR16Sfloat;
+    shadowMapCi.format              = vk::Format::eR32Sfloat;
     m_shadowMap                     = std::make_unique<VulkanCore::VImage2>(m_device, shadowMapCi);
 
 

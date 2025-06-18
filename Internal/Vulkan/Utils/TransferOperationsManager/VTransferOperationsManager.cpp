@@ -37,9 +37,9 @@ void VTransferOperationsManager::UpdateGPU()
 {
     if(m_hasPandingWork)
     {
-        std::vector<vk::PipelineStageFlags> waitStages = {
-            vk::PipelineStageFlagBits::eVertexInput, vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader,
-            vk::PipelineStageFlagBits::eEarlyFragmentTests
+        std::vector<vk::PipelineStageFlags2> waitStages = {
+            vk::PipelineStageFlagBits2::eVertexInput  ,vk::PipelineStageFlagBits2::eTransfer, vk::PipelineStageFlagBits2::eFragmentShader,
+            vk::PipelineStageFlagBits2::eEarlyFragmentTests, vk::PipelineStageFlagBits2::eCopy
         };
         m_commandBuffer->EndAndFlush(m_device.GetTransferQueue(), m_transferTimeline->GetSemaphore(),
                                      m_transferTimeline->GetSemaphoreSubmitInfo(0, 2), waitStages.data());
