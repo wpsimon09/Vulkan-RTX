@@ -35,13 +35,21 @@ void ApplicationCore::RenderAndUseGizmo(std::shared_ptr<ApplicationCore::SceneNo
                 break;
         }
 
-        ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(proj), ImGuizmo::currentOperation, ImGuizmo::WORLD,
+
+        ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(proj), ImGuizmo::currentOperation, ImGuizmo::CURRENT_MODE,
                              glm::value_ptr(model), 0, &snap);
 
         if(model != m_selectedSceneNode->m_transformation->GetModelMatrix())
         {
+            glm::mat4 parentTransform = m_selectedSceneNode->GetParent()
+                                        ? m_selectedSceneNode->GetParent()->m_transformation->GetModelMatrix()
+                                        : glm::mat4(1.0f);
+
+            glm::mat4 newModel = glm::inverse(parentTransform) * model;
+
+
             glm::vec3 t, r, s;
-            ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(t), glm::value_ptr(r), glm::value_ptr(s));
+            ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(newModel), glm::value_ptr(t), glm::value_ptr(r), glm::value_ptr(s));
 
             if(ImGuizmo::currentOperation == ImGuizmo::OPERATION::TRANSLATE)
             {

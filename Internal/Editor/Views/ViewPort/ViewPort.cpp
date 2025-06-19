@@ -124,6 +124,7 @@ void VEditor::ViewPort::Render()
     else
     {
         //enable gltf input
+
         m_windowManager.DisableMovementCapture();
     }
 
@@ -164,36 +165,35 @@ void VEditor::ViewPort::RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSiz
 
     ImGui::SetCursorScreenPos({imageOrigin.x, imageOrigin.y});
 
-    if(ImGui::Button(ICON_FA_UP_DOWN_LEFT_RIGHT))
-    {
+    if(ImGui::Button(ICON_FA_UP_DOWN_LEFT_RIGHT)) {
         ImGuizmo::currentOperation = ImGuizmo::TRANSLATE;
-        ImGui::SameLine();
-        if(ImGui::Button(ICON_FA_ARROW_DOWN "##down1"))
-        {
-            ImGui::SliderInt("Snapping##1", &ImGuizmo::SNAP_TRANSLATE, 0, 20);
-        }
     }
+    ImGui::SetItemTooltip("Translate");
 
-
-    if(ImGui::Button(ICON_FA_ROTATE))
-    {
+    if(ImGui::Button(ICON_FA_ROTATE)) {
         ImGuizmo::currentOperation = ImGuizmo::ROTATE;
-        ImGui::SameLine();
-        if(ImGui::Button(ICON_FA_ARROW_DOWN "##down2"))
-        {
-            ImGui::SliderInt("Snapping##2", &ImGuizmo::SNAP_ROTATE, 0, 20);
-        }
     }
-
+    ImGui::SetItemTooltip("Rotate");
 
     if(ImGui::Button(ICON_FA_EXPAND))
     {
         ImGuizmo::currentOperation = ImGuizmo::SCALE;
-        ImGui::SameLine();
-        if(ImGui::Button(ICON_FA_ARROW_DOWN "##down3"))
-        {
-            ImGui::SliderInt("Snapping##3", &ImGuizmo::SNAP_SNAP_SCALE, 0, 20);
+    }
+    ImGui::SetItemTooltip("Scale");
+
+
+
+    if (ImGuizmo::CURRENT_MODE == ImGuizmo::WORLD) {
+        if (ImGui::Button(ICON_FA_EARTH_EUROPE)) {
+            ImGuizmo::CURRENT_MODE = ImGuizmo::LOCAL;
         }
+        ImGui::SetItemTooltip("World space");
+    }
+    if (ImGuizmo::CURRENT_MODE == ImGuizmo::LOCAL) {
+        if (ImGui::Button(ICON_FA_ARROW_UP_RIGHT_FROM_SQUARE)) {
+            ImGuizmo::CURRENT_MODE = ImGuizmo::WORLD;
+        }
+        ImGui::SetItemTooltip("Local space ");
     }
     ImGui::PopStyleColor(3);
 

@@ -28,7 +28,7 @@ class WindowManager
     }
     bool              GetHasResizedStatus() const { return m_hasResized; }
     void              EnableMovementCapture() { m_captureMovement = true; }
-    void              DisableMovementCapture() { m_captureMovement = false; }
+    void              DisableMovementCapture() {m_cameraMovement.Reset(); m_captureMovement = false; }
     ClientUpdateInfo& GetLightMovement()
     {
         m_isDirty = false;

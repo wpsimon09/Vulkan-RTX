@@ -224,6 +224,7 @@ namespace IMGUIZMO_NAMESPACE
       LOCAL,
       WORLD
    };
+   inline IMGUI_API MODE CURRENT_MODE = WORLD;
 
    IMGUI_API bool Manipulate(const float* view, const float* projection, OPERATION operation, MODE mode, float* matrix, float* deltaMatrix = NULL, const float* snap = NULL, const float* localBounds = NULL, const float* boundsSnap = NULL);
    //
