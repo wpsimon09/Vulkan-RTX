@@ -31,7 +31,7 @@ ApplicationCore::Transformations::Transformations(glm::vec3 position, glm::vec3 
     , m_scale(scale)
 {
     m_isDirty  = false;
-    m_rotation = glm::eulerAngles(rotations);
+    m_rotation = glm::degrees(glm::eulerAngles(rotations));
 }
 
 glm::mat4 ApplicationCore::Transformations::ComputeLocalModelMatrix()

@@ -114,8 +114,16 @@ void DetailsPanel::RenderTransformationsPanel()
                 m_selectedSceneNode->m_transformation->SetRotations(glm::vec3(0.0f));
             }
             ImGui::SameLine();
+
             ImGui::DragFloat3(ICON_FA_ARROWS_ROTATE " Rotation",
                               &m_selectedSceneNode->m_transformation->GetRotations().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
+
+            if (ImGui::BeginItemTooltip()) {
+                auto& quat = m_selectedSceneNode->m_transformation->GetRotationsQuat();
+                ImGui::Text("Quat: w: %f,x: %f,y: %f,z: %f", quat.w, quat.x, quat.y, quat.z );
+                ImGui::EndTooltip();
+
+            }
         }
 
         ImGui::TreePop();

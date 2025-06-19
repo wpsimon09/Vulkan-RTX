@@ -368,8 +368,6 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
 
             newNode->SetName(std::string(std::string(node.name) + "##" + VulkanUtils::random_string(4)));
 
-            newNode->Update(scene.GetSceneUpdateFlags());
-
             m_nodes.push_back(newNode);
         });
     }
@@ -404,6 +402,8 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
     {
        scene.AddNode(sceneNode);
     }
+
+    scene.Update();
 
     GlobalState::EnableLogging();
     Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");
