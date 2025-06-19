@@ -123,8 +123,8 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, 
         m_lightUniform->GetUBOStruct().directionalLight.colour = sceneLightInfo.DirectionalLightInfo->colour;
         m_lightUniform->GetUBOStruct().directionalLight.direction =
             glm::vec4(sceneLightInfo.DirectionalLightInfo->direction, sceneLightInfo.DirectionalLightInfo->sunRadius);
-        m_lightUniform->GetUBOStruct().directionalLight.shadowRays = sceneLightInfo.DirectionalLightInfo->shadowRaysPerPixel;
-        m_lightUniform->GetUBOStruct().directionalLight.shadowBias = sceneLightInfo.DirectionalLightInfo->shadowBias;
+        m_lightUniform->GetUBOStruct().directionalLight.parameters.x = sceneLightInfo.DirectionalLightInfo->shadowRaysPerPixel;
+        m_lightUniform->GetUBOStruct().directionalLight.parameters.y = sceneLightInfo.DirectionalLightInfo->shadowBias;
     }
 
 
@@ -161,8 +161,8 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, 
     }
     else
     {
-        m_lightUniform->GetUBOStruct().info.y = sceneLightInfo.ambientStrenght;
         m_lightUniform->GetUBOStruct().info.x = static_cast<int>(false);
+        m_lightUniform->GetUBOStruct().info.y = sceneLightInfo.ambientStrenght;
     }
     m_lightUniform->UpdateGPUBuffer(frameIndex);
 }

@@ -40,7 +40,7 @@ struct ObjectDataUniform
     PBRMaterialDescription material;
 };
 
-struct alignas(16) PerObjectData  {
+struct  PerObjectData  {
     glm::mat4              model{};
     glm::mat4              normalMatrix{};
     glm::vec4              position{};
@@ -59,9 +59,7 @@ struct DirectionalLightGPU
 {
     glm::vec4 direction;
     glm::vec4 colour;  // w is intensity
-    float shadowRays {6};
-    float shadowBias {0.01};
-    glm::vec2 padding;;
+    glm::vec4 parameters; // x - shadow rays, y - shadow bias ,zw - unused
 };
 
 struct AreaLightGPU

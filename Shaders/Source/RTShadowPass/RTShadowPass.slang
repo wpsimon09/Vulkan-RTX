@@ -59,8 +59,11 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
     float3 lightTangent = normalize(cross(direction.xyz , float3(0.0, 1.0, 0.0)));
     float3 lightBitangent = normalize(cross(lightTangent, direction.xyz));
-    
-    for(int i = 0; i < _lightInfo.dirLight.shadowRays; ++i){
+
+    float nShadowRays = _lightInfo.dirLight.parameters.x;
+    float shadowBias = _lightInfo.dirLight.parameters.y;
+
+    for(int i = 0; i < nShadowRays; ++i){
         float2 samplePos = BlueNoiseInDisk[i];
 
         // rotate the disk randomly, based on the blue noise texture

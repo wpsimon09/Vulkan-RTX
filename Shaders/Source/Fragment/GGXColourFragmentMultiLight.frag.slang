@@ -75,7 +75,7 @@ float4 fragmentMain(VertexOutput fsIn)
     if( shadowFactor > 0.1){
         finalColor = lightingEnv.illuminate(g, brdf_, V) * shadowFactor;
     }else{
-        finalColor = ambientLight.illuminate(g, brdf_,V ) * 0.5;
+        finalColor = ambientLight.illuminate(g, brdf_,V );
     }
 
     return float4(finalColor, 1);

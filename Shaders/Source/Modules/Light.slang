@@ -22,9 +22,7 @@ public interface ILightEnv {
 public struct DirectionalLight : ILightEnv {
     public float4 direction; //xyz - direction, w- sun radius
     public float4 intensity;
-    public float shadowRays;
-    public float shadowBias;
-    public float2 padding;
+    public float4 parameters; //x - shadow rays, y -shadow bias, zw- padding
 
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         return (intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g.normal);
@@ -129,7 +127,7 @@ public struct AmbientLight : ILightEnv {
             float2 envBrdf = BRDF_Lut.Sample(float2(max(dot(g.normal, wo), 0.0f), roughness)).xy;
             float3 spec = prefilteredColor * (kS * envBrdf.x + envBrdf.y);
             
-            return (kD * diffuse + spec) * 0.2;
+            return (kD * diffuse + spec) * aoIntensity;
         } else {
             return albedo * 0.7;
         }
