@@ -59,10 +59,6 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
     m_shadowMap                     = std::make_unique<VulkanCore::VImage2>(m_device, shadowMapCi);
 
 
-    //TODO: Render targets no longer need to create per frame in flight images, just one intermediate is enought
-    // this however needs  be here per frame in flight
-
-
     //=========================
     // CONFIGURE DEPTH PASS EFFECT
     //=========================
@@ -144,7 +140,6 @@ void SceneRenderer::DepthPrePass(int                                       curre
     renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
 
     m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
-
     m_depthPrePassEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
 
     //==============================================
@@ -198,10 +193,8 @@ void SceneRenderer::DepthPrePass(int                                       curre
     //=================================================
     // RECORD OPAQUE DRAW CALLS
     //=================================================
-    cmdB.setStencilTestEnable(true);
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
-
         if(drawCall.second.inDepthPrePass)
         {
 
@@ -224,6 +217,12 @@ void SceneRenderer::DepthPrePass(int                                       curre
                 indexBufferOffset = 0;
                 cmdB.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
                 currentIndexBuffer = drawCall.second.indexData;
+            }
+
+            if (drawCall.second.selected) {
+                cmdB.setStencilTestEnable(true);
+            }else {
+                cmdB.setStencilTestEnable(false);
             }
 
             PushDrawCallId(cmdB, drawCall.second);
@@ -251,6 +250,7 @@ void SceneRenderer::ShadowMapPass(int                                       curr
                                   VulkanCore::VCommandBuffer&               cmdBuffer,
                                   const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
+
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording ! ");
 
     VulkanUtils::PlacePipelineBarrier(cmdBuffer, vk::PipelineStageFlagBits::eEarlyFragmentTests,
@@ -366,7 +366,6 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
 
     cmdB.bindVertexBuffers(0, {currentVertexBuffer->buffer}, {0});
     cmdB.bindIndexBuffer(currentIndexBuffer->buffer, 0, vk::IndexType::eUint32);
-
     //============================================
     // CONFIGURE VIEW PORT
     //===============================================
@@ -393,7 +392,7 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
     // RECORD OPAQUE DRAW CALLS
     //=================================================
     currentEffect->BindPipeline(cmdB);
-    //currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
+    currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
 
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
@@ -402,7 +401,7 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
         {
             currentEffect = drawCall.second.effect;
             drawCall.second.effect->BindPipeline(cmdB);
-            //currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
+            currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
         }
 
         if(drawCall.second.selected)
@@ -431,7 +430,6 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
             currentIndexBuffer = drawCall.second.indexData;
         }
 
-        drawCall.second.effect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
 
         PushDrawCallId(cmdB, drawCall.second);
 

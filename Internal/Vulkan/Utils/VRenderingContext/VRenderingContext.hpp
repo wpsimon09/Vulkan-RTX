@@ -47,6 +47,7 @@ struct RenderContext
     VulkanCore::VImage2* brdfMap       = nullptr;
     VulkanCore::VImage2* dummyCubeMap  = nullptr;
 
+    bool hasSceneChanged = false;
 
     void GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& outDrawCalls);
     std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& GetAllDrawCall();

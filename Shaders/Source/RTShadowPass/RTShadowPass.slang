@@ -76,7 +76,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
         bool inShadow = false;
     
-        inShadow = IntersectsP(InitRay(worldSpacePos, shadowRayDir, 1000), _tlas);        
+        inShadow = IntersectsP(InitRay(worldSpacePos +normalize(N_approx) * shadowBias, shadowRayDir, 10000), _tlas);        
 
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }

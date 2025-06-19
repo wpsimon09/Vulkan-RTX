@@ -122,6 +122,8 @@ void UIContext::Initialize(const VulkanCore::VSwapChain& swapChain)
 
     ImGui_ImplVulkan_Init(&imGuiVkInitInfo);
 
+    ImGuizmo::GetStyle().RotationLineThickness = 3;
+
     Utils::Logger::LogSuccess("ImGui successfully initialized");
 }
 
@@ -129,7 +131,6 @@ void UIContext::BeginRender()
 {
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplVulkan_NewFrame();
-    //ImGuizmo::Manipulate(m_client.GetCamera().GetViewMatrix(), m_client.GetCamera().GetViewMatrix(), ImGuizmo::TRANSLATE  )
 
     ImGui::NewFrame();
     ImGui::PushFont(m_editorFont);

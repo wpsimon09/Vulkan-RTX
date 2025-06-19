@@ -176,6 +176,7 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     {
         // reset the accumulation
         m_accumulatedFramesCount = 0;
+        m_renderContext.hasSceneChanged = true;
     }
 
     // ==== check if it is possible ot use env light
@@ -295,6 +296,8 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
                           m_ableToPresentSemaphore[m_currentImageIndex]->GetSyncPrimitive());
 
     m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
+
+    m_renderContext.hasSceneChanged = false;
 }
 
 void RenderingSystem::Update()

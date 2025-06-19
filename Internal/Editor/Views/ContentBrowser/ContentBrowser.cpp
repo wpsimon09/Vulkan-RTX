@@ -85,8 +85,7 @@ void ContentBrowser::RenderModels()
                 for(auto& node : model.second)
                 {
                     auto subNode = std::make_shared<ApplicationCore::SceneNode>(*node);
-                    //TODO: redo content browsers
-                    //newNode->AddChild(m_scene.GetSceneData(),std::move(subNode));
+
                 }
                 m_scene.AddNode(std::move(newNode));
             }

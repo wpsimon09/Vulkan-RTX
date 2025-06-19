@@ -202,7 +202,7 @@ void DetailsPanel::RenderDirectionLightUI()
     ImGui::SeparatorText("Shadow");
 
     ImGui::SliderInt("Shadow rays", &DirLightNode->GetLightStruct().shadowRaysPerPixel, 1, 64);
-    ImGui::SliderFloat("Shadow bias", &DirLightNode->GetLightStruct().shadowBias, 0.01f, 4.0);
+    ImGui::SliderFloat("Shadow bias", &DirLightNode->GetLightStruct().shadowBias, 0.0001f, 0.1);
 }
 
 void DetailsPanel::RenderPointLightUI()
