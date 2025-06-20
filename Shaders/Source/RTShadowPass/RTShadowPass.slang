@@ -23,7 +23,7 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
     
-    float32_t depth = _depthTexture.Sample(fsIn.uv).x;
+    double depth = _depthTexture.Sample(fsIn.uv).x;
     
     float linearizeDepth = LinearizeDepth(depth, globalData.viewParams.z, globalData.viewParams.w);
 
@@ -31,7 +31,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     
     float depthPx = _depthTexture.Sample(fsIn.uv, int2(1,0)).x;
     float depthPy = _depthTexture.Sample(fsIn.uv, int2(0,1)).x;
-    float3 worldSpacePos = WorldPosFromDepth(depth, fsIn.uv, globalData.invProjection, globalData.inverseView);
+    double3 worldSpacePos = WorldPosFromDepth(depth, fsIn.uv, globalData.invProjection, globalData.inverseView);
     
     // get neighbouring positions in world space 
     float3 px = WorldPosFromDepth(depthPx, fsIn.uv, globalData.invProjection, globalData.inverseView);

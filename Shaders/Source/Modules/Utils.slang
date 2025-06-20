@@ -138,15 +138,15 @@ public float3x3 angleAxis3x3(float angle, float3 axis){
     );
 }
 
-public float3 WorldPosFromDepth(float depth, float2 uv, float4x4 inverseProj, float4x4 inverseView) {
-    float4 clipSpacePos = float4(uv * 2.0 - 1.0, depth, 1.0);
-    float4 viewSpacePos = mul(inverseProj, clipSpacePos);
+public double3 WorldPosFromDepth(double depth, float2 uv, float4x4 inverseProj, float4x4 inverseView) {
+    double4 clipSpacePos = double4(uv * 2.0 - 1.0, depth, 1.0);
+    double4 viewSpacePos = mul(inverseProj, clipSpacePos);
     viewSpacePos /= viewSpacePos.w;
-    float4 worldSpacePos = mul(inverseView, viewSpacePos);
+    double4 worldSpacePos = mul(inverseView, viewSpacePos);
     return worldSpacePos.xyz;
 }
 
-public float3 WorldPosFromLinearDepth(float32_t depth,float2 uv, float4x4 inverseProj, float4x4 inverseView){
+public float3 WorldPosFromLinearDepth(float depth,float2 uv, float4x4 inverseProj, float4x4 inverseView){
    float z = depth;
     float4 clipSpacePos = float4(uv * 2.0 - 1.0, 1.0, 1.0);
     float4 viewRay = mul( inverseProj, clipSpacePos);
