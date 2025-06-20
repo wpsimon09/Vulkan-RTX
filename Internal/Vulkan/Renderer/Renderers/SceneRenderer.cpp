@@ -8,6 +8,7 @@
 
 #include <sys/wait.h>
 #include <Vulkan/Utils/VIimageTransitionCommands.hpp>
+#include <vulkan/vulkan_structs.hpp>
 
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
@@ -19,6 +20,7 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
+#include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
@@ -58,6 +60,21 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
     shadowMapCi.format              = vk::Format::eR32G32B32A32Sfloat;
     m_shadowMap                     = std::make_unique<VulkanCore::VImage2>(m_device, shadowMapCi);
 
+    //============================
+    // Create position buffer
+    //============================
+    VulkanCore::VImage2CreateInfo positionBufferCI;
+    positionBufferCI.height = height;
+    positionBufferCI.width = width;
+    positionBufferCI.imageAllocationName = "World position buffer";
+    positionBufferCI.samples = vk::SampleCountFlagBits::e1;
+
+    RenderTarget2CreatInfo testCi;
+    testCi.multiSampled = true;
+    testCi.heigh = m_height;
+    testCi.width = m_width;
+
+    Renderer::RenderTarget2 test(m_device,testCi);
 
     //=========================
     // CONFIGURE DEPTH PASS EFFECT
@@ -73,6 +90,8 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
     {
         // IMPORTANT: Depth attachment is  transitioned to shader read only optimal during creation
         m_rtxShadowPassEffect->SetNumWrites(0, 1, 0);
+
+        //TODO: write position buffer generated during depth pre-pass
         m_rtxShadowPassEffect->WriteImage(i, 0, 3, m_renderTargets->GetDepthDescriptorInfo(i));
         m_rtxShadowPassEffect->ApplyWrites(i);
 
@@ -122,7 +141,6 @@ void SceneRenderer::DepthPrePass(int                                       curre
                                  const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     int drawCallCount = 0;
-
 
     vk::RenderingInfo renderingInfo;
     renderingInfo.renderArea.offset              = vk::Offset2D(0, 0);

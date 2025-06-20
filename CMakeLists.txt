@@ -222,6 +222,8 @@ set(SOURCES
         Internal/Vulkan/Renderer/Renderers/PostProcessingSystem.cpp
         Internal/Vulkan/Renderer/Renderers/PostProcessingSystem.h
         Resources/LTC_Values.h
+        Internal/Vulkan/Renderer/RenderTarget/RenderTarget2.cpp
+        Internal/Vulkan/Renderer/RenderTarget/RenderTarget2.h
 
 )
 

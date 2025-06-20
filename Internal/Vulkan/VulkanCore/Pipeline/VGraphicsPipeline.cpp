@@ -11,6 +11,7 @@
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_core.h>
 
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
@@ -50,7 +51,9 @@ void VulkanCore::VGraphicsPipeline::Init()
 
 void VulkanCore::VGraphicsPipeline::Destroy()
 {
-    m_device.GetDevice().destroyPipelineLayout(m_pipelineLayout);
+    if(m_pipelineLayout){
+        m_device.GetDevice().destroyPipelineLayout(m_pipelineLayout);
+    }
     m_device.GetDevice().destroyPipeline(m_pipeline);
 }
 

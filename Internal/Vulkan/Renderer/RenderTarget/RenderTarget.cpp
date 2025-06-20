@@ -33,7 +33,7 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
     m_colourAttachments.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_msaaAttachments.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
 
-    //==========================
+     //==========================
     // CREATE DEPTH ATTACHMENT
     //==========================
     VulkanCore::VImage2CreateInfo depthImageCreateInfo;
@@ -88,7 +88,7 @@ RenderTarget::RenderTarget(const VulkanCore::VDevice& device, int width, int hei
         colourAttachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
         colourAttachmentInfo.imageView   = m_colourAttachments[i].second->GetImageView();
         colourAttachmentInfo.loadOp      = vk::AttachmentLoadOp::eClear;
-        depthAttachmentInfo.resolveMode  = vk::ResolveModeFlagBits::eNone;
+        colourAttachmentInfo.resolveMode  = vk::ResolveModeFlagBits::eNone;
         colourAttachmentInfo.storeOp     = vk::AttachmentStoreOp::eStore;
         colourAttachmentInfo.clearValue.color.setFloat32({0.2f, 0.2f, 0.2f, 1.f});
 

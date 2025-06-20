@@ -86,6 +86,7 @@ namespace Renderer {
         // Rendering
         std::unique_ptr<Renderer::RenderTarget> m_renderTargets;
         std::unique_ptr<VulkanCore::VImage2> m_shadowMap;
+        std::unique_ptr<VulkanCore::VImage2> m_positionBuffer;
 
         std::shared_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
         std::shared_ptr<VulkanUtils::VEffect> m_rtxShadowPassEffect;
