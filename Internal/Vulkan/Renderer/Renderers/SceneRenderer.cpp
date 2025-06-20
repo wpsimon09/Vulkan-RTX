@@ -55,7 +55,7 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
     shadowMapCi.samples             = vk::SampleCountFlagBits::e1;
     shadowMapCi.imageUsage          = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
     shadowMapCi.layout              = vk::ImageLayout::eShaderReadOnlyOptimal;
-    shadowMapCi.format              = vk::Format::eR32Sfloat;
+    shadowMapCi.format              = vk::Format::eR32G32B32A32Sfloat;
     m_shadowMap                     = std::make_unique<VulkanCore::VImage2>(m_device, shadowMapCi);
 
 
@@ -138,6 +138,7 @@ void SceneRenderer::DepthPrePass(int                                       curre
                                                     vk::ImageLayout::eDepthStencilReadOnlyOptimal, cmdBuffer);
     m_renderTargets->GetDepthAttachment().resolveMode = vk::ResolveModeFlagBitsKHR::eMin;
     renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
+    renderingInfo.pStencilAttachment = &m_renderTargets->GetDepthAttachment();
 
     m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_depthPrePassEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);

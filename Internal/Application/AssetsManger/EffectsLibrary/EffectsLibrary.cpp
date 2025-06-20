@@ -162,7 +162,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
         .DisableStencil()
         .SetCullNone()
         .SetNullVertexBinding()
-        .SetColourOutputFormat(vk::Format::eR32Sfloat)
+        .SetColourOutputFormat(vk::Format::eR32G32B32A32Sfloat)
         .SetPiplineNoMultiSampling();
 
     effects[EEffectType::RTShadowPass] = std::move(rtShadowPass);
@@ -258,7 +258,7 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::SceneRenderer&        
                 }
                 case EShaderBindingGroup::ToneMap: {
                     e->SetNumWrites(0, 1, 0);
-                    if(postProcessingContext.sceneRender)
+                    if(postProcessingContext.sceneRender != nullptr)
                     {
                         e->WriteImage(i, 1, 0, postProcessingContext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                     }

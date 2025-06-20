@@ -23,7 +23,12 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
     
-    float depth = _depthTexture.Sample(fsIn.uv).x;
+    float32_t depth = _depthTexture.Sample(fsIn.uv).x;
+    
+    float linearizeDepth = LinearizeDepth(depth, globalData.viewParams.z, globalData.viewParams.w);
+
+    //if(depth == 1.0) {return float4(1.0);}
+    
     float depthPx = _depthTexture.Sample(fsIn.uv, int2(1,0)).x;
     float depthPy = _depthTexture.Sample(fsIn.uv, int2(0,1)).x;
     float3 worldSpacePos = WorldPosFromDepth(depth, fsIn.uv, globalData.invProjection, globalData.inverseView);
@@ -76,11 +81,11 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
         bool inShadow = false;
     
-        inShadow = IntersectsP(InitRay(worldSpacePos +normalize(N_approx) * shadowBias, shadowRayDir, 10000), _tlas);        
+        inShadow = IntersectsP(InitRay(worldSpacePos , shadowRayDir, 10000), _tlas);        
 
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }
 
 
-    return float4(float3(shadowFactor), 1.0);
+    return float4(float3(max(shadowFactor, 0.1)), 1.0);
 }

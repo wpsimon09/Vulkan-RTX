@@ -17,6 +17,8 @@ inline vk::Sampler SamplerClampToEdge;
 
 inline vk::Sampler SamplerCube;
 
+inline vk::Sampler SamplerDepth;
+
 inline vk::Sampler Sampler5Mips;
 inline vk::Sampler Sampler10Mips;
 inline vk::Sampler Sampler20Mips;

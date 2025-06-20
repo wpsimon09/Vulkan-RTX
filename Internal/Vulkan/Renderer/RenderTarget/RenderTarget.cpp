@@ -208,7 +208,7 @@ vk::ImageView RenderTarget::GetResolveImageView(int currentFrame) const
     return m_colourAttachments[currentFrame].second->GetImageView();
 }
 vk::DescriptorImageInfo RenderTarget::GetDepthDescriptorInfo(int currentFrame) const {
-    return m_resolvedDepthAttachment->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+    return m_resolvedDepthAttachment->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth);
 }
 
 vk::RenderingAttachmentInfo& RenderTarget::GetColourAttachmentOneSample(int currentFrame)
