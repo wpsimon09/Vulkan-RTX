@@ -87,5 +87,5 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     }
 
 
-    return float4(float3(max(shadowFactor, 0.1)), 1.0);
+    return float4(N_approx, 1.0);
 }
