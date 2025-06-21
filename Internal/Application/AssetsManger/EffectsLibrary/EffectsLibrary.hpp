@@ -24,7 +24,7 @@ class VResourceGroupManager;
 }  // namespace VulkanUtils
 
 namespace Renderer {
-class SceneRenderer;
+class ForwardRenderer;
 class RenderingSystem;
 }
 
@@ -67,9 +67,9 @@ class EffectsLibrary
     void BuildAllEffects();
     void Destroy();
 
-    void UpdatePerFrameWrites(const Renderer::SceneRenderer& sceneRenderer,  VulkanUtils::RenderContext* renderingContext, VulkanStructs::PostProcessingContext& postProcessingContext, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+    void UpdatePerFrameWrites(const Renderer::ForwardRenderer& sceneRenderer,  VulkanUtils::RenderContext* renderingContext, VulkanStructs::PostProcessingContext& postProcessingContext, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-    void ConfigureDescriptorWrites(const Renderer::SceneRenderer& sceneRenderer, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager);
+    void ConfigureDescriptorWrites(const Renderer::ForwardRenderer& sceneRenderer, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager);
   private:
 
     VulkanCore::VDescriptorLayoutCache& m_descLayoutCache;

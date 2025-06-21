@@ -15,11 +15,12 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "RayTracing/RayTracer.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
+#include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
-#include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
+#include "Vulkan/Renderer/Renderers/ForwardRenderer.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
@@ -82,7 +83,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
     // Renderers creation
     //----------------------------------------------------------------------------------------------------------------------------
 
-    m_sceneRenderer = std::make_unique<Renderer::SceneRenderer>(m_device, effectsLybrary, descLayoutCache,
+    m_sceneRenderer = std::make_unique<Renderer::ForwardRenderer>(m_device, effectsLybrary, descLayoutCache,
                                                                 GlobalVariables::RenderTargetResolutionWidth,
                                                                 GlobalVariables::RenderTargetResolutionHeight);
 
@@ -100,6 +101,10 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
 
     auto cam    = m_uiContext.GetClient().GetCamera();
     m_rayTracer = std::make_unique<RayTracer>(m_device, effectsLybrary, rayTracingDataManager, 1980, 1080);
+
+
+
+
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }

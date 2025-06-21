@@ -10,7 +10,7 @@
 
 #include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
-#include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
+#include "Vulkan/Renderer/Renderers/ForwardRenderer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
@@ -208,7 +208,7 @@ void EffectsLibrary::Destroy()
         effect.second->Destroy();
     }
 }
-void EffectsLibrary::UpdatePerFrameWrites(const Renderer::SceneRenderer&            sceneRenderer,
+void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&            sceneRenderer,
                                           VulkanUtils::RenderContext*               renderingContext,
                                           VulkanStructs::PostProcessingContext&     postProcessingContext,
                                           const VulkanUtils::VUniformBufferManager& uniformBufferManager)
@@ -289,7 +289,7 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::SceneRenderer&        
     }
 }
 
-void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::SceneRenderer&       sceneRenderer,
+void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer&       sceneRenderer,
                                                VulkanUtils::VUniformBufferManager&  uniformBufferManager,
                                                VulkanUtils::VRayTracingDataManager& rayTracingDataManager)
 {

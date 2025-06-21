@@ -45,7 +45,7 @@
 // Application Entry
 #include "VulkanRtx.hpp"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
-#include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
+#include "Vulkan/Renderer/Renderers/ForwardRenderer.hpp"
 #include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
 
 
@@ -67,8 +67,10 @@
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
-#include "Vulkan/Renderer/Renderers/SceneRenderer.hpp"
+#include "Vulkan/Renderer/Renderers/ForwardRenderer.hpp"
+#include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Renderer/Renderers/PostProcessingSystem.h"
+
 Application::Application() = default;
 
 void Application::Init()

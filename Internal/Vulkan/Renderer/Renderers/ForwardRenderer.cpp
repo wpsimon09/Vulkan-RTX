@@ -2,7 +2,7 @@
 // Created by wpsimon09 on 21/12/24.
 //
 
-#include "SceneRenderer.hpp"
+#include "ForwardRenderer.hpp"
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 
@@ -33,7 +33,7 @@
 
 
 namespace Renderer {
-SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
+ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
                              ApplicationCore::EffectsLibrary&    effectsLibrary,
                              VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                              int                                 width,
@@ -45,7 +45,7 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
 
     m_width  = width;
     m_height = height;
-    SceneRenderer::CreateRenderTargets(nullptr);
+    ForwardRenderer::CreateRenderTargets(nullptr);
 
     //==========================
     // CREATE SHADOW MAP
@@ -74,8 +74,6 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
     testCi.heigh = m_height;
     testCi.width = m_width;
 
-    Renderer::RenderTarget2 test(m_device,testCi);
-
     //=========================
     // CONFIGURE DEPTH PASS EFFECT
     //=========================
@@ -102,12 +100,30 @@ SceneRenderer::SceneRenderer(const VulkanCore::VDevice&          device,
     // Transition shadow map to shader read optimal
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined,
                                                     m_device.GetTransferOpsManager().GetCommandBuffer());
+  //======================
+  // CREATE RENDER TARGETS
+  //======================
+
+  //=============
+  //depth prepass
+  Renderer::RenderTarget2CreatInfo depthPrepassOutputCI{
+      width,
+       height,
+      true,
+      true,
+      vk::Format::eD32SfloatS8Uint,
+      vk::ImageLayout::eDepthStencilAttachmentOptimal,
+      vk::ResolveModeFlagBits::eNone,
+  };
+
+  m_depthPrePassOutput = std::make_unique<Renderer::RenderTarget2>(m_device,depthPrepassOutputCI);
+
 
 
     Utils::Logger::LogSuccess("Scene renderer created !");
 }
 
-void SceneRenderer::Render(int                                       currentFrameIndex,
+void ForwardRenderer::Render(int                                       currentFrameIndex,
                            VulkanCore::VCommandBuffer&               cmdBuffer,
                            const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                            VulkanUtils::RenderContext*               renderContext)
@@ -136,7 +152,7 @@ void SceneRenderer::Render(int                                       currentFram
     m_frameCount++;
 }
 
-void SceneRenderer::DepthPrePass(int                                       currentFrameIndex,
+void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
                                  VulkanCore::VCommandBuffer&               cmdBuffer,
                                  const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
@@ -265,7 +281,7 @@ void SceneRenderer::DepthPrePass(int                                       curre
     m_renderingStatistics.DrawCallCount = drawCallCount;
 }
 
-void SceneRenderer::ShadowMapPass(int                                       currentFrameIndex,
+void ForwardRenderer::ShadowMapPass(int                                       currentFrameIndex,
                                   VulkanCore::VCommandBuffer&               cmdBuffer,
                                   const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
@@ -329,7 +345,7 @@ void SceneRenderer::ShadowMapPass(int                                       curr
 }
 
 
-void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+void ForwardRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
 
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
@@ -470,13 +486,13 @@ void SceneRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer&
 }
 
 
-void SceneRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
+void ForwardRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
 {
     m_renderTargets = std::make_unique<Renderer::RenderTarget>(m_device, m_width, m_height);
 }
 
 
-void SceneRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall)
+void ForwardRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall)
 {
     PerObjectPushConstant pc{};
     pc.indexes.x   = drawCall.drawCallID;
@@ -492,24 +508,24 @@ void SceneRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStr
     drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
 }
 
-VulkanCore::VImage2& SceneRenderer::GetRenderedImage(int currentFrame)
+VulkanCore::VImage2& ForwardRenderer::GetRenderedImage(int currentFrame)
 {
     return m_renderTargets->GetColourImage(currentFrame);  //*m_finalRender[currentFrame]; //*m_shadowMap;
 }
-VulkanCore::VImage2& SceneRenderer::GetShadowMapImage() {
+VulkanCore::VImage2& ForwardRenderer::GetShadowMapImage() {
     return *m_shadowMap;
 }
 
-vk::DescriptorImageInfo SceneRenderer::GetShadowMapDescInfo() const
+vk::DescriptorImageInfo ForwardRenderer::GetShadowMapDescInfo() const
 {
     return m_shadowMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 }
-vk::DescriptorImageInfo SceneRenderer::GetRenderedImageConst(int frame) const {
+vk::DescriptorImageInfo ForwardRenderer::GetRenderedImageConst(int frame) const {
     return m_renderTargets->GetColourImage(frame).GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 }
 
 
-void SceneRenderer::Destroy()
+void ForwardRenderer::Destroy()
 {
     m_renderTargets->Destroy();
     m_depthPrePassEffect->Destroy();

@@ -11,7 +11,7 @@ class VImage2;
 class VDevice;
 }
 namespace Renderer {
-class SceneRenderer;
+class ForwardRenderer;
 
 class PostProcessingSystem {
 public:

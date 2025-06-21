@@ -8,7 +8,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace Renderer {
-RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2CreatInfo& createInfo): m_device(device) {
+RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2CreatInfo& createInfo): m_device(device), m_renderTargetInfo(createInfo) {
 
   //==================================================
   // Creat main attachment image
@@ -21,11 +21,12 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
   attachemtImageCI.mipLevels  = 1;
   attachemtImageCI.aspecFlags = createInfo.isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
   if (createInfo.isDepth) {
+    attachemtImageCI.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
+  }else {
     attachemtImageCI.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled
                                             | vk::ImageUsageFlagBits::eInputAttachment;
-  }else {
-    attachemtImageCI.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
   }
+
   m_multisampledAttachment = std::make_unique<VulkanCore::VImage2>(m_device, attachemtImageCI);
 
 

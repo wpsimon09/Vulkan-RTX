@@ -2,8 +2,8 @@
 // Created by wpsimon09 on 21/12/24.
 //
 
-#ifndef SCENERENDERER_HPP
-#define SCENERENDERER_HPP
+#ifndef FORWARDRENDERER_HPP
+#define FORWARDRENDERER_HPP
 
 // Standard library
 #include <memory>
@@ -14,6 +14,9 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 
+namespace Renderer {
+class RenderTarget2;
+}
 // Forward declarations
 namespace VEditor {
     class RenderingOptions;
@@ -40,9 +43,9 @@ namespace VulkanUtils {
 namespace Renderer {
     class RenderTarget;
 
-    class SceneRenderer {
+    class ForwardRenderer {
     public:
-        SceneRenderer(const VulkanCore::VDevice& device,
+        ForwardRenderer(const VulkanCore::VDevice& device,
                       ApplicationCore::EffectsLibrary& effectsLibrary,
                       VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                       int width, int height);
@@ -91,6 +94,26 @@ namespace Renderer {
         std::shared_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
         std::shared_ptr<VulkanUtils::VEffect> m_rtxShadowPassEffect;
 
+        /**
+         * Contains depth
+         */
+        std::unique_ptr<Renderer::RenderTarget2> m_depthPrePassOutput;
+
+        /**
+         *Contains world space position of the geometry
+         */
+        std::unique_ptr<Renderer::RenderTarget2> m_positionBufferOutput;
+
+        /**
+         * Contains screen space shadow map
+         */
+        std::unique_ptr<Renderer::RenderTarget2> m_shadowPassOutput;
+
+        /**
+         * Contains final shading of the scene
+         */
+        std::unique_ptr<Renderer::RenderTarget2> m_lightingPassOutput;
+
         VulkanStructs::VRenderingStatistics m_renderingStatistics;
 
         // Config / state
@@ -105,4 +128,4 @@ namespace Renderer {
 
 }  // namespace Renderer
 
-#endif  // SCENERENDERER_HPP
+#endif  // FORWARDRENDERER_HPP
