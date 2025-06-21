@@ -169,6 +169,7 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     renderingInfo.pColorAttachments              = nullptr;
     m_renderTargets->GetDepthAttachment().loadOp = vk::AttachmentLoadOp::eClear;
 
+
     //===========================
     // TRANSITION RESOLVE IMAGE
     VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetResovedDepthImage(), vk::ImageLayout::eDepthStencilAttachmentOptimal,
