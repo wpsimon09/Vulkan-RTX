@@ -86,6 +86,8 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         vk::ResolveModeFlagBits::eAverage,
     };
 
+    m_positionBufferOutput = std::make_unique<Renderer::RenderTarget2>(m_device, positionBufferCI);
+
     //==================
     // Shadow map
     Renderer::RenderTarget2CreatInfo shadowMapCI{
@@ -99,6 +101,20 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     };
 
     m_shadowPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI);
+
+    //==================
+    // Lightning pass
+    Renderer::RenderTarget2CreatInfo lightPassCI{
+        width,
+        height,
+        true,
+        false,
+        vk::Format::eR16G16B16A16Sfloat,
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::ResolveModeFlagBits::eAverage,
+    };
+
+    m_lightingPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, lightPassCI);
 
 
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
