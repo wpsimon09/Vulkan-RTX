@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "Vulkan/Global/RenderingOptions.hpp"
+#include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
 #include "Vulkan/Renderer/Renderers/ForwardRenderer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
@@ -340,7 +341,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 
                     //===================================
                     // for ray query we need acceleration strucutre
-                    e->WriteImage(i, 0, 4, sceneRenderer.GetShadowMapDescInfo());
+                    e->WriteImage(i, 0, 4, sceneRenderer.GetShadowMapOutput().GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                     break;
                 }

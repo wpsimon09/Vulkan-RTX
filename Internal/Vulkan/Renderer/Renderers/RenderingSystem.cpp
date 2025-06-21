@@ -233,7 +233,7 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex],
                                 m_uniformBufferManager, &m_renderContext);
-        m_postProcessingContext.sceneRender = &m_sceneRenderer->GetRenderedImage(m_currentFrameIndex);
+        m_postProcessingContext.sceneRender = &m_sceneRenderer->GetLightPassOutput().GetResolvedImage();
     }
     else
     {

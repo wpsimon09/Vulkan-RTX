@@ -82,29 +82,35 @@ vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfo(vk::ImageLayou
     return attachmentInfo;
 }
 
-VulkanCore::VImage2& RenderTarget2::GetPrimaryImage()
+VulkanCore::VImage2& RenderTarget2::GetPrimaryImage() const
 {
     return *m_primaryAttachment;
 }
-VulkanCore::VImage2& RenderTarget2::GetResolvedImage()
+VulkanCore::VImage2& RenderTarget2::GetResolvedImage() const
 {
     return *m_resolvedAttachment;
 }
 
-vk::ImageView RenderTarget2::GetPrimaryImageView()
+vk::ImageView RenderTarget2::GetPrimaryImageView() const
 {
     return m_primaryAttachment->GetImageView();
 }
-vk::ImageView RenderTarget2::GetResolvedImageView()
+vk::ImageView RenderTarget2::GetResolvedImageView() const
 {
     return m_resolvedAttachment->GetImageView();
 }
-void RenderTarget2::TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout)
+void RenderTarget2::TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout) const
 {
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_primaryAttachment, targetLayout, oldLayout, cmdBuffer);
-    if (m_resolvedAttachment) {
+    if(m_resolvedAttachment)
+    {
         VulkanUtils::RecordImageTransitionLayoutCommand(*m_resolvedAttachment, targetLayout, oldLayout, cmdBuffer);
     }
+}
+void RenderTarget2::Destroy() {
+    m_primaryAttachment->Destroy();
+    if (m_resolvedAttachment)
+        m_resolvedAttachment->Destroy();
 }
 
 }  // namespace Renderer

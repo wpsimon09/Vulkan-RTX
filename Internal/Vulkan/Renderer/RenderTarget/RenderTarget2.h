@@ -29,13 +29,13 @@ class RenderTarget2
 
     vk::RenderingAttachmentInfo GenerateAttachmentInfo(vk::ImageLayout layout, vk::AttachmentLoadOp loadOp, vk::AttachmentStoreOp storeOp);
 
-    VulkanCore::VImage2& GetPrimaryImage();
-    VulkanCore::VImage2& GetResolvedImage();
+    VulkanCore::VImage2& GetPrimaryImage() const;
+    VulkanCore::VImage2& GetResolvedImage() const;
 
-    vk::ImageView GetPrimaryImageView();
-    vk::ImageView GetResolvedImageView();
+    vk::ImageView GetPrimaryImageView() const;
+    vk::ImageView GetResolvedImageView() const;
 
-    void TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout);
+    void TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout) const;
 
     void Destroy();
 

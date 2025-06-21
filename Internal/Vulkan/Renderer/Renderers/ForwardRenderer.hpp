@@ -55,10 +55,10 @@ namespace Renderer {
                     const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                     VulkanUtils::RenderContext* renderContext);
 
-        Renderer::RenderTarget2& GetDepthPrePassOutput();
-        Renderer::RenderTarget2& GetPositionBufferOutput();
-        Renderer::RenderTarget2& GetShadowMapOutput();
-        Renderer::RenderTarget2& GetLightPassOutput();
+        Renderer::RenderTarget2& GetDepthPrePassOutput() const;
+        Renderer::RenderTarget2& GetPositionBufferOutput() const;
+        Renderer::RenderTarget2& GetShadowMapOutput() const;
+        Renderer::RenderTarget2& GetLightPassOutput() const;
 
         void Destroy();
 

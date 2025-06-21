@@ -147,10 +147,22 @@ void ForwardRenderer::Render(int                                       currentFr
 
     m_frameCount++;
 }
-Renderer::RenderTarget2& ForwardRenderer::GetDepthPrePassOutput() { return *m_depthPrePassOutput;}
-Renderer::RenderTarget2& ForwardRenderer::GetPositionBufferOutput() {return *m_positionBufferOutput;}
-Renderer::RenderTarget2& ForwardRenderer::GetShadowMapOutput() {return *m_shadowPassOutput;}
-Renderer::RenderTarget2& ForwardRenderer::GetLightPassOutput() {return *m_lightingPassOutput;}
+Renderer::RenderTarget2& ForwardRenderer::GetDepthPrePassOutput() const
+{
+    return *m_depthPrePassOutput;
+}
+Renderer::RenderTarget2& ForwardRenderer::GetPositionBufferOutput() const
+{
+    return *m_positionBufferOutput;
+}
+Renderer::RenderTarget2& ForwardRenderer::GetShadowMapOutput() const
+{
+    return *m_shadowPassOutput;
+}
+Renderer::RenderTarget2& ForwardRenderer::GetLightPassOutput() const
+{
+    return *m_lightingPassOutput;
+}
 
 void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
                                    VulkanCore::VCommandBuffer&               cmdBuffer,
@@ -509,7 +521,6 @@ void ForwardRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanS
 
     drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
 }
-
 
 
 void ForwardRenderer::Destroy()
