@@ -55,11 +55,10 @@ namespace Renderer {
                     const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                     VulkanUtils::RenderContext* renderContext);
 
-        VulkanCore::VImage2& GetRenderedImage(int currentFrame);
-        VulkanCore::VImage2& GetShadowMapImage();
-
-        vk::DescriptorImageInfo GetShadowMapDescInfo() const;
-        vk::DescriptorImageInfo GetRenderedImageConst(int frame) const;
+        Renderer::RenderTarget2& GetDepthPrePassOutput();
+        Renderer::RenderTarget2& GetPositionBufferOutput();
+        Renderer::RenderTarget2& GetShadowMapOutput();
+        Renderer::RenderTarget2& GetLightPassOutput();
 
         void Destroy();
 
@@ -87,10 +86,6 @@ namespace Renderer {
         VulkanUtils::RenderContext* m_renderContextPtr;
 
         // Rendering
-        std::unique_ptr<Renderer::RenderTarget> m_renderTargets;
-        std::unique_ptr<VulkanCore::VImage2> m_shadowMap;
-        std::unique_ptr<VulkanCore::VImage2> m_positionBuffer;
-
         std::shared_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
         std::shared_ptr<VulkanUtils::VEffect> m_rtxShadowPassEffect;
 

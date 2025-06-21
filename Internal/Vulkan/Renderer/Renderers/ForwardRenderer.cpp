@@ -45,25 +45,6 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_width  = width;
     m_height = height;
-    ForwardRenderer::CreateRenderTargets(nullptr);
-
-    //==========================
-    // CREATE SHADOW MAP
-    //==========================
-    VulkanCore::VImage2CreateInfo shadowMapCi;
-    shadowMapCi.height              = height;
-    shadowMapCi.width               = width;
-    shadowMapCi.imageAllocationName = "Screen-Space Shadow Map";
-    shadowMapCi.samples             = vk::SampleCountFlagBits::e1;
-    shadowMapCi.imageUsage          = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
-    shadowMapCi.layout              = vk::ImageLayout::eShaderReadOnlyOptimal;
-    shadowMapCi.format              = vk::Format::eR32G32B32A32Sfloat;
-    m_shadowMap                     = std::make_unique<VulkanCore::VImage2>(m_device, shadowMapCi);
-
-    RenderTarget2CreatInfo testCi;
-    testCi.multiSampled = true;
-    testCi.heigh        = m_height;
-    testCi.width        = m_width;
 
     //=========================
     // CONFIGURE DEPTH PASS EFFECT
@@ -75,24 +56,9 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     //=============================
     m_rtxShadowPassEffect = effectsLibrary.effects[ApplicationCore::EEffectType::RTShadowPass];
 
-    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        // IMPORTANT: Depth attachment is  transitioned to shader read only optimal during creation
-        m_rtxShadowPassEffect->SetNumWrites(0, 1, 0);
-
-        //TODO: write position buffer generated during depth pre-pass
-        m_rtxShadowPassEffect->WriteImage(i, 0, 3, m_renderTargets->GetDepthDescriptorInfo(i));
-        m_rtxShadowPassEffect->ApplyWrites(i);
-    }
-
-
-    //=============================================
-    // Transition shadow map to shader read optimal
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined,
-                                                    m_device.GetTransferOpsManager().GetCommandBuffer());
-    //======================
-    // CREATE RENDER TARGETS
-    //======================
+    //===========================================
+    //===== CREATE RENDER TARGETS
+    //===========================================
 
     //=============
     //depth prepass
@@ -119,6 +85,33 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         vk::ImageLayout::eShaderReadOnlyOptimal,
         vk::ResolveModeFlagBits::eAverage,
     };
+
+    //==================
+    // Shadow map
+    Renderer::RenderTarget2CreatInfo shadowMapCI{
+        width,
+        height,
+        false,
+        false,
+        vk::Format::eR32Sfloat,
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::ResolveModeFlagBits::eNone,
+    };
+
+    m_shadowPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI);
+
+
+    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        // IMPORTANT: Depth attachment is  transitioned to shader read only optimal during creation
+        m_rtxShadowPassEffect->SetNumWrites(0, 1, 0);
+
+        //TODO: write position buffer generated during depth pre-pass
+        m_rtxShadowPassEffect->WriteImage(
+            i, 0, 3, m_positionBufferOutput->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+        m_rtxShadowPassEffect->ApplyWrites(i);
+    }
+
 
     m_positionBufferOutput = std::make_unique<Renderer::RenderTarget2>(m_device, positionBufferCI);
 
@@ -154,6 +147,10 @@ void ForwardRenderer::Render(int                                       currentFr
 
     m_frameCount++;
 }
+Renderer::RenderTarget2& ForwardRenderer::GetDepthPrePassOutput() { return *m_depthPrePassOutput;}
+Renderer::RenderTarget2& ForwardRenderer::GetPositionBufferOutput() {return *m_positionBufferOutput;}
+Renderer::RenderTarget2& ForwardRenderer::GetShadowMapOutput() {return *m_shadowPassOutput;}
+Renderer::RenderTarget2& ForwardRenderer::GetLightPassOutput() {return *m_lightingPassOutput;}
 
 void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
                                    VulkanCore::VCommandBuffer&               cmdBuffer,
@@ -161,31 +158,27 @@ void ForwardRenderer::DepthPrePass(int                                       cur
 {
     int drawCallCount = 0;
 
-    vk::RenderingInfo renderingInfo;
-    renderingInfo.renderArea.offset              = vk::Offset2D(0, 0);
-    renderingInfo.renderArea.extent              = vk::Extent2D(m_width, m_height);
-    renderingInfo.layerCount                     = 1;
-    renderingInfo.colorAttachmentCount           = 0;
-    renderingInfo.pColorAttachments              = nullptr;
-    m_renderTargets->GetDepthAttachment().loadOp = vk::AttachmentLoadOp::eClear;
+    std::vector<vk::RenderingAttachmentInfo> depthPrePassColourAttachments = {m_positionBufferOutput->GenerateAttachmentInfo(
+        vk::ImageLayout::eShaderReadOnlyOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
-
-    //===========================
-    // TRANSITION RESOLVE IMAGE
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetResovedDepthImage(), vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                    vk::ImageLayout::eDepthStencilReadOnlyOptimal, cmdBuffer);
-
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_positionBufferOutput->GetResolvedImage(), vk::ImageLayout::eColorAttachmentOptimal,
-                                                    vk::ImageLayout::eShaderReadOnlyOptimal, cmdBuffer);
-
-
-    auto depthAttachment =
+    auto depthPrePassDepthAttachment =
         m_depthPrePassOutput->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
                                                      vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
 
+    vk::RenderingInfo renderingInfo;
+    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
+    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
+    renderingInfo.layerCount           = 1;
+    renderingInfo.colorAttachmentCount = depthPrePassColourAttachments.size();
+    renderingInfo.pColorAttachments    = depthPrePassColourAttachments.data();
+    renderingInfo.pDepthAttachment     = &depthPrePassDepthAttachment;
+    renderingInfo.pStencilAttachment   = &depthPrePassDepthAttachment;
 
-    renderingInfo.pDepthAttachment   = &m_renderTargets->GetDepthAttachment();
-    renderingInfo.pStencilAttachment = &m_renderTargets->GetDepthAttachment();
+    //===========================
+    // TRANSITION POSITION BUFFER
+    m_positionBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                                  vk::ImageLayout::eShaderReadOnlyOptimal);
+
 
     m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_depthPrePassEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
@@ -289,7 +282,7 @@ void ForwardRenderer::DepthPrePass(int                                       cur
 
 
     VulkanUtils::PlaceImageMemoryBarrier(
-        m_renderTargets->GetDepthImage(currentFrameIndex), cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
+        m_depthPrePassOutput->GetPrimaryImage(), cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
         vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::PipelineStageFlagBits::eEarlyFragmentTests,
         vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::AccessFlagBits::eDepthStencilAttachmentWrite,
         vk::AccessFlagBits::eDepthStencilAttachmentRead);
@@ -309,24 +302,12 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
 
     //=========================================================================
     // Transition shadow map from shader read only optimal to render attachment
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eColorAttachmentOptimal,
-                                                    vk::ImageLayout::eShaderReadOnlyOptimal, cmdBuffer);
-
-    //=============================================================
-    // Trasition depth from render attachemnt to shader read only
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetResovedDepthImage(), vk::ImageLayout::eDepthStencilReadOnlyOptimal,
-                                                    vk::ImageLayout::eDepthStencilAttachmentOptimal, cmdBuffer);
+    m_shadowPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                              vk::ImageLayout::eShaderReadOnlyOptimal);
 
 
-    vk::RenderingAttachmentInfo shadowMapAttachmentInfo{};
-    shadowMapAttachmentInfo.clearValue.color = vk::ClearColorValue{0.0f, 0.0f, 0.0f, 1.0f};
-    shadowMapAttachmentInfo.imageLayout      = vk::ImageLayout::eColorAttachmentOptimal;
-    shadowMapAttachmentInfo.imageView        = m_shadowMap->GetImageView();
-    shadowMapAttachmentInfo.loadOp           = vk::AttachmentLoadOp::eClear;
-    shadowMapAttachmentInfo.storeOp          = vk::AttachmentStoreOp::eStore;
-
-
-    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {shadowMapAttachmentInfo};
+    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_shadowPassOutput->GenerateAttachmentInfo(
+        vk::ImageLayout::eShaderReadOnlyOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     vk::RenderingInfo renderingInfo{};
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
@@ -356,9 +337,9 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
 
     cmdB.endRendering();
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                    vk::ImageLayout::eColorAttachmentOptimal, cmdB);
-}
+    m_shadowPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                              vk::ImageLayout::eColorAttachmentOptimal);
+}  // namespace Renderer
 
 
 void ForwardRenderer::DrawScene(int                                       currentFrameIndex,
@@ -372,8 +353,13 @@ void ForwardRenderer::DrawScene(int                                       curren
     // CREATE RENDER PASS INFO
     //==============================================
     std::vector<vk::RenderingAttachmentInfo> colourAttachments = {
-        m_renderTargets->GetColourAttachmentMultiSampled(currentFrameIndex),
+        m_lightingPassOutput->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
+                                                     vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
     };
+
+    auto depthAttachment =
+        m_depthPrePassOutput->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                     vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eDontCare);
 
     vk::RenderingInfo renderingInfo;
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
@@ -382,10 +368,8 @@ void ForwardRenderer::DrawScene(int                                       curren
     renderingInfo.colorAttachmentCount = colourAttachments.size();
     renderingInfo.pColorAttachments    = colourAttachments.data();
 
-    m_renderTargets->GetDepthAttachment().loadOp      = vk::AttachmentLoadOp::eLoad;
-    m_renderTargets->GetDepthAttachment().resolveMode = vk::ResolveModeFlagBits::eNone;
-    renderingInfo.pDepthAttachment                    = &m_renderTargets->GetDepthAttachment();
-    renderingInfo.pStencilAttachment                  = &m_renderTargets->GetDepthAttachment();
+    renderingInfo.pDepthAttachment   = &depthAttachment;
+    renderingInfo.pStencilAttachment = &depthAttachment;
 
 
     //==============================================
@@ -393,9 +377,10 @@ void ForwardRenderer::DrawScene(int                                       curren
     //==============================================
     auto& cmdB = cmdBuffer.GetCommandBuffer();
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex),
-                                                    vk::ImageLayout::eColorAttachmentOptimal,
-                                                    vk::ImageLayout::eShaderReadOnlyOptimal, cmdBuffer);
+
+    m_lightingPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                                vk::ImageLayout::eShaderReadOnlyOptimal);
+
 
     cmdB.beginRendering(&renderingInfo);
 
@@ -496,9 +481,8 @@ void ForwardRenderer::DrawScene(int                                       curren
 
     cmdB.endRendering();
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetColourImage(currentFrameIndex),
-                                                    vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                    vk::ImageLayout::eColorAttachmentOptimal, cmdBuffer);
+    m_lightingPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                vk::ImageLayout::eColorAttachmentOptimal);
 
     m_renderingStatistics.DrawCallCount = drawCallCount;
 }
@@ -506,7 +490,7 @@ void ForwardRenderer::DrawScene(int                                       curren
 
 void ForwardRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
 {
-    m_renderTargets = std::make_unique<Renderer::RenderTarget>(m_device, m_width, m_height);
+    //m_renderTargets = std::make_unique<Renderer::RenderTarget>(m_device, m_width, m_height);
 }
 
 
@@ -526,29 +510,14 @@ void ForwardRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanS
     drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
 }
 
-VulkanCore::VImage2& ForwardRenderer::GetRenderedImage(int currentFrame)
-{
-    return m_renderTargets->GetColourImage(currentFrame);  //*m_finalRender[currentFrame]; //*m_shadowMap;
-}
-VulkanCore::VImage2& ForwardRenderer::GetShadowMapImage()
-{
-    return *m_shadowMap;
-}
-
-vk::DescriptorImageInfo ForwardRenderer::GetShadowMapDescInfo() const
-{
-    return m_shadowMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-}
-vk::DescriptorImageInfo ForwardRenderer::GetRenderedImageConst(int frame) const
-{
-    return m_renderTargets->GetColourImage(frame).GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-}
 
 
 void ForwardRenderer::Destroy()
 {
-    m_renderTargets->Destroy();
-    m_depthPrePassEffect->Destroy();
-    m_shadowMap->Destroy();
+    //m_renderTargets->Destroy();
+    m_depthPrePassOutput->Destroy();
+    m_shadowPassOutput->Destroy();
+    m_lightingPassOutput->Destroy();
+    //m_shadowMap->Destroy();
 }
 }  // namespace Renderer
