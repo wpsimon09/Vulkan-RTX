@@ -34,10 +34,10 @@
 
 namespace Renderer {
 ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
-                             ApplicationCore::EffectsLibrary&    effectsLibrary,
-                             VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                             int                                 width,
-                             int                                 height)
+                                 ApplicationCore::EffectsLibrary&    effectsLibrary,
+                                 VulkanCore::VDescriptorLayoutCache& descLayoutCache,
+                                 int                                 width,
+                                 int                                 height)
     : m_device(device)
 
 {
@@ -60,19 +60,10 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     shadowMapCi.format              = vk::Format::eR32G32B32A32Sfloat;
     m_shadowMap                     = std::make_unique<VulkanCore::VImage2>(m_device, shadowMapCi);
 
-    //============================
-    // Create position buffer
-    //============================
-    VulkanCore::VImage2CreateInfo positionBufferCI;
-    positionBufferCI.height = height;
-    positionBufferCI.width = width;
-    positionBufferCI.imageAllocationName = "World position buffer";
-    positionBufferCI.samples = vk::SampleCountFlagBits::e1;
-
     RenderTarget2CreatInfo testCi;
     testCi.multiSampled = true;
-    testCi.heigh = m_height;
-    testCi.width = m_width;
+    testCi.heigh        = m_height;
+    testCi.width        = m_width;
 
     //=========================
     // CONFIGURE DEPTH PASS EFFECT
@@ -92,7 +83,6 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         //TODO: write position buffer generated during depth pre-pass
         m_rtxShadowPassEffect->WriteImage(i, 0, 3, m_renderTargets->GetDepthDescriptorInfo(i));
         m_rtxShadowPassEffect->ApplyWrites(i);
-
     }
 
 
@@ -100,33 +90,46 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     // Transition shadow map to shader read optimal
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_shadowMap, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined,
                                                     m_device.GetTransferOpsManager().GetCommandBuffer());
-  //======================
-  // CREATE RENDER TARGETS
-  //======================
+    //======================
+    // CREATE RENDER TARGETS
+    //======================
 
-  //=============
-  //depth prepass
-  Renderer::RenderTarget2CreatInfo depthPrepassOutputCI{
-      width,
-       height,
-      true,
-      true,
-      vk::Format::eD32SfloatS8Uint,
-      vk::ImageLayout::eDepthStencilAttachmentOptimal,
-      vk::ResolveModeFlagBits::eNone,
-  };
+    //=============
+    //depth prepass
+    Renderer::RenderTarget2CreatInfo depthPrepassOutputCI{
+        width,
+        height,
+        true,
+        true,
+        vk::Format::eD32SfloatS8Uint,
+        vk::ImageLayout::eDepthStencilAttachmentOptimal,
+        vk::ResolveModeFlagBits::eNone,
+    };
 
-  m_depthPrePassOutput = std::make_unique<Renderer::RenderTarget2>(m_device,depthPrepassOutputCI);
+    m_depthPrePassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, depthPrepassOutputCI);
 
+    //=================
+    // position buffer
+    Renderer::RenderTarget2CreatInfo positionBufferCI{
+        width,
+        height,
+        true,
+        false,
+        vk::Format::eR16G16B16A16Sfloat,
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::ResolveModeFlagBits::eAverage,
+    };
+
+    m_positionBufferOutput = std::make_unique<Renderer::RenderTarget2>(m_device, positionBufferCI);
 
 
     Utils::Logger::LogSuccess("Scene renderer created !");
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,
-                           VulkanCore::VCommandBuffer&               cmdBuffer,
-                           const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                           VulkanUtils::RenderContext*               renderContext)
+                             VulkanCore::VCommandBuffer&               cmdBuffer,
+                             const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                             VulkanUtils::RenderContext*               renderContext)
 {
 
     m_renderContextPtr = renderContext;
@@ -153,8 +156,8 @@ void ForwardRenderer::Render(int                                       currentFr
 }
 
 void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
-                                 VulkanCore::VCommandBuffer&               cmdBuffer,
-                                 const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+                                   VulkanCore::VCommandBuffer&               cmdBuffer,
+                                   const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     int drawCallCount = 0;
 
@@ -170,8 +173,17 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     // TRANSITION RESOLVE IMAGE
     VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets->GetResovedDepthImage(), vk::ImageLayout::eDepthStencilAttachmentOptimal,
                                                     vk::ImageLayout::eDepthStencilReadOnlyOptimal, cmdBuffer);
-    m_renderTargets->GetDepthAttachment().resolveMode = vk::ResolveModeFlagBitsKHR::eMin;
-    renderingInfo.pDepthAttachment = &m_renderTargets->GetDepthAttachment();
+
+    VulkanUtils::RecordImageTransitionLayoutCommand(m_positionBufferOutput->GetResolvedImage(), vk::ImageLayout::eColorAttachmentOptimal,
+                                                    vk::ImageLayout::eShaderReadOnlyOptimal, cmdBuffer);
+
+
+    auto depthAttachment =
+        m_depthPrePassOutput->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                     vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
+
+
+    renderingInfo.pDepthAttachment   = &m_renderTargets->GetDepthAttachment();
     renderingInfo.pStencilAttachment = &m_renderTargets->GetDepthAttachment();
 
     m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
@@ -254,9 +266,12 @@ void ForwardRenderer::DepthPrePass(int                                       cur
                 currentIndexBuffer = drawCall.second.indexData;
             }
 
-            if (drawCall.second.selected) {
+            if(drawCall.second.selected)
+            {
                 cmdB.setStencilTestEnable(true);
-            }else {
+            }
+            else
+            {
                 cmdB.setStencilTestEnable(false);
             }
 
@@ -282,8 +297,8 @@ void ForwardRenderer::DepthPrePass(int                                       cur
 }
 
 void ForwardRenderer::ShadowMapPass(int                                       currentFrameIndex,
-                                  VulkanCore::VCommandBuffer&               cmdBuffer,
-                                  const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+                                    VulkanCore::VCommandBuffer&               cmdBuffer,
+                                    const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
 
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording ! ");
@@ -345,7 +360,9 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
 }
 
 
-void ForwardRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+void ForwardRenderer::DrawScene(int                                       currentFrameIndex,
+                                VulkanCore::VCommandBuffer&               cmdBuffer,
+                                const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
 
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
@@ -364,10 +381,10 @@ void ForwardRenderer::DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffe
     renderingInfo.colorAttachmentCount = colourAttachments.size();
     renderingInfo.pColorAttachments    = colourAttachments.data();
 
-    m_renderTargets->GetDepthAttachment().loadOp = vk::AttachmentLoadOp::eLoad;
+    m_renderTargets->GetDepthAttachment().loadOp      = vk::AttachmentLoadOp::eLoad;
     m_renderTargets->GetDepthAttachment().resolveMode = vk::ResolveModeFlagBits::eNone;
-    renderingInfo.pDepthAttachment               = &m_renderTargets->GetDepthAttachment();
-    renderingInfo.pStencilAttachment             = &m_renderTargets->GetDepthAttachment();
+    renderingInfo.pDepthAttachment                    = &m_renderTargets->GetDepthAttachment();
+    renderingInfo.pStencilAttachment                  = &m_renderTargets->GetDepthAttachment();
 
 
     //==============================================
@@ -512,7 +529,8 @@ VulkanCore::VImage2& ForwardRenderer::GetRenderedImage(int currentFrame)
 {
     return m_renderTargets->GetColourImage(currentFrame);  //*m_finalRender[currentFrame]; //*m_shadowMap;
 }
-VulkanCore::VImage2& ForwardRenderer::GetShadowMapImage() {
+VulkanCore::VImage2& ForwardRenderer::GetShadowMapImage()
+{
     return *m_shadowMap;
 }
 
@@ -520,7 +538,8 @@ vk::DescriptorImageInfo ForwardRenderer::GetShadowMapDescInfo() const
 {
     return m_shadowMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 }
-vk::DescriptorImageInfo ForwardRenderer::GetRenderedImageConst(int frame) const {
+vk::DescriptorImageInfo ForwardRenderer::GetRenderedImageConst(int frame) const
+{
     return m_renderTargets->GetColourImage(frame).GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 }
 

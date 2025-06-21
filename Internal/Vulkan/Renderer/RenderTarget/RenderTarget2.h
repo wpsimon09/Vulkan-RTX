@@ -27,13 +27,23 @@ class RenderTarget2
     RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2CreatInfo& createInfo);
     RenderTarget2(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain);
 
-    void Destro();
+    vk::RenderingAttachmentInfo GenerateAttachmentInfo(vk::ImageLayout layout, vk::AttachmentLoadOp loadOp, vk::AttachmentStoreOp storeOp);
+
+    VulkanCore::VImage2& GetPrimaryImage();
+    VulkanCore::VImage2& GetResolvedImage();
+
+    vk::ImageView GetPrimaryImageView();
+    vk::ImageView GetResolvedImageView();
+
+    void TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout);
+
+    void Destroy();
 
   private:
     const VulkanCore::VDevice& m_device;
 
     vk::RenderingAttachmentInfo          m_renderingAttachmentInfo;
-    std::unique_ptr<VulkanCore::VImage2> m_multisampledAttachment;
+    std::unique_ptr<VulkanCore::VImage2> m_primaryAttachment;
     std::unique_ptr<VulkanCore::VImage2> m_resolvedAttachment;
 
     RenderTarget2CreatInfo m_renderTargetInfo;
