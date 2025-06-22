@@ -50,6 +50,7 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     //=================================================
     if(createInfo.multiSampled && createInfo.resolveMode != vk::ResolveModeFlagBits::eNone)
     {
+        attachemtImageCI.samples = vk::SampleCountFlagBits::e1;
         m_resolvedAttachment = std::make_unique<VulkanCore::VImage2>(m_device, attachemtImageCI);
 
         //===================================
@@ -61,11 +62,11 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
 }
 vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfo(vk::ImageLayout layout, vk::AttachmentLoadOp loadOp, vk::AttachmentStoreOp storeOp)
 {
-    bool                        shouldResolve = m_renderingAttachmentInfo.resolveMode != vk::ResolveModeFlagBits::eNone;
+    bool                        shouldResolve = m_renderTargetInfo.resolveMode != vk::ResolveModeFlagBits::eNone;
     vk::RenderingAttachmentInfo attachmentInfo;
     attachmentInfo.imageView   = m_primaryAttachment->GetImageView();
     attachmentInfo.imageLayout = layout;
-    attachmentInfo.resolveMode = m_renderingAttachmentInfo.resolveMode;
+    attachmentInfo.resolveMode = m_renderTargetInfo.resolveMode;
 
     if(shouldResolve && m_resolvedAttachment != nullptr)
     {
