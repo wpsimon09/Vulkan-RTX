@@ -116,7 +116,6 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_lightingPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, lightPassCI);
 
-
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         // IMPORTANT: Depth attachment is  transitioned to shader read only optimal during creation
@@ -124,12 +123,11 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
         //TODO: write position buffer generated during depth pre-pass
         m_rtxShadowPassEffect->WriteImage(
-            i, 0, 3, m_positionBufferOutput->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            i, 0, 3, m_positionBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
         m_rtxShadowPassEffect->ApplyWrites(i);
     }
 
 
-    m_positionBufferOutput = std::make_unique<Renderer::RenderTarget2>(m_device, positionBufferCI);
 
 
     Utils::Logger::LogSuccess("Scene renderer created !");
