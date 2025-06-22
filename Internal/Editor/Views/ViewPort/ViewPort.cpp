@@ -17,12 +17,13 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 
 
-VEditor::ViewPort::ViewPort(ViewPortContext& rasterViewportContext,ViewPortContext& rayTracedViewPortContext,bool &isRayTracing,  ApplicationCore::Scene& scene, WindowManager& windowManager)
+VEditor::ViewPort::ViewPort(std::unordered_map<ViewPortType, ViewPortContext>&viewPorts,ViewPortContext& rasterViewportContext,ViewPortContext& rayTracedViewPortContext,bool &isRayTracing,  ApplicationCore::Scene& scene, WindowManager& windowManager)
     : m_rasterViewPortContext(rasterViewportContext)
     , m_rayTracedViewPortContext(rayTracedViewPortContext)
     , m_isRayTracing(isRayTracing)
     , m_scene(scene)
     , m_windowManager(windowManager)
+    , m_viewPorts(viewPorts)
 {
     m_previousHeight = rasterViewportContext.height;
     m_previousWidth  = rasterViewportContext.width;
@@ -165,12 +166,14 @@ void VEditor::ViewPort::RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSiz
 
     ImGui::SetCursorScreenPos({imageOrigin.x, imageOrigin.y});
 
-    if(ImGui::Button(ICON_FA_UP_DOWN_LEFT_RIGHT)) {
+    if(ImGui::Button(ICON_FA_UP_DOWN_LEFT_RIGHT))
+    {
         ImGuizmo::currentOperation = ImGuizmo::TRANSLATE;
     }
     ImGui::SetItemTooltip("Translate");
 
-    if(ImGui::Button(ICON_FA_ROTATE)) {
+    if(ImGui::Button(ICON_FA_ROTATE))
+    {
         ImGuizmo::currentOperation = ImGuizmo::ROTATE;
     }
     ImGui::SetItemTooltip("Rotate");
@@ -182,15 +185,18 @@ void VEditor::ViewPort::RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSiz
     ImGui::SetItemTooltip("Scale");
 
 
-
-    if (ImGuizmo::CURRENT_MODE == ImGuizmo::WORLD) {
-        if (ImGui::Button(ICON_FA_EARTH_EUROPE)) {
+    if(ImGuizmo::CURRENT_MODE == ImGuizmo::WORLD)
+    {
+        if(ImGui::Button(ICON_FA_EARTH_EUROPE))
+        {
             ImGuizmo::CURRENT_MODE = ImGuizmo::LOCAL;
         }
         ImGui::SetItemTooltip("World space");
     }
-    if (ImGuizmo::CURRENT_MODE == ImGuizmo::LOCAL) {
-        if (ImGui::Button(ICON_FA_ARROW_UP_RIGHT_FROM_SQUARE)) {
+    if(ImGuizmo::CURRENT_MODE == ImGuizmo::LOCAL)
+    {
+        if(ImGui::Button(ICON_FA_ARROW_UP_RIGHT_FROM_SQUARE))
+        {
             ImGuizmo::CURRENT_MODE = ImGuizmo::WORLD;
         }
         ImGui::SetItemTooltip("Local space ");
@@ -198,9 +204,12 @@ void VEditor::ViewPort::RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSiz
     ImGui::PopStyleColor(3);
 
     auto view = m_scene.GetCamera().GetViewMatrix();
-        ImGuizmo::ViewManipulate(glm::value_ptr(view), 10, ImVec2(imageSize.x - 100, imageSize.y), ImVec2(100.f, 100.f), 32);
+    ImGuizmo::ViewManipulate(glm::value_ptr(view), 10, ImVec2(imageSize.x - 100, imageSize.y), ImVec2(100.f, 100.f), 32);
     auto newCamPos = glm::vec3(glm::inverse(view)[3]);
     m_scene.GetCamera().SetPosition(newCamPos);
+}
+void VEditor::ViewPort::RenderViewPortSelection() {
+
 }
 
 glm::vec2 VEditor::ViewPort::GetMousePositionInViewPort(ImVec2& ImageWidth)

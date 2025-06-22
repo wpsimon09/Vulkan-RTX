@@ -54,17 +54,13 @@ void UIContext::Initialize(const VulkanCore::VSwapChain& swapChain)
 
     // if i want to have more images like view port material view, i should put it here
     vk::DescriptorPoolSize poolSizes[] = {
-        {vk::DescriptorType::eCombinedImageSampler, 1},
-        {vk::DescriptorType::eCombinedImageSampler, 1},
-        {vk::DescriptorType::eCombinedImageSampler, 1},
-        {vk::DescriptorType::eCombinedImageSampler, 1},
-        {vk::DescriptorType::eCombinedImageSampler, 1},
-        {vk::DescriptorType::eCombinedImageSampler, 200},  // for material texture images
+        {vk::DescriptorType::eCombinedImageSampler, 200},// for material texture images
+        // for material texture images
     };
 
     vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo{};
     descriptorPoolCreateInfo.flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-    descriptorPoolCreateInfo.maxSets       = 7;
+    descriptorPoolCreateInfo.maxSets       = 200;
     descriptorPoolCreateInfo.poolSizeCount = static_cast<uint32_t>(IM_ARRAYSIZE(poolSizes));
     descriptorPoolCreateInfo.pPoolSizes    = poolSizes;
     m_imguiDescriptorPool                  = m_device.GetDevice().createDescriptorPool(descriptorPoolCreateInfo);
