@@ -42,6 +42,10 @@ UIContext::UIContext(const VulkanCore::VDevice& device, const VulkanCore::Vulkan
 
     m_viewports[ViewPortType::eMain]          = {.camera = &m_client.GetCamera()};
     m_viewports[ViewPortType::eMainRayTracer] = {.camera = &m_client.GetCamera()};
+    m_viewports[ViewPortType::ePositionBuffer] = {.camera = &m_client.GetCamera()};
+    m_viewports[ViewPortType::eShadowMap] = {.camera = &m_client.GetCamera()};
+
+
 }
 
 void UIContext::Initialize(const VulkanCore::VSwapChain& swapChain)
@@ -55,7 +59,7 @@ void UIContext::Initialize(const VulkanCore::VSwapChain& swapChain)
         {vk::DescriptorType::eCombinedImageSampler, 1},
         {vk::DescriptorType::eCombinedImageSampler, 1},
         {vk::DescriptorType::eCombinedImageSampler, 1},
-        {vk::DescriptorType::eCombinedImageSampler, 4},  // for material texture images
+        {vk::DescriptorType::eCombinedImageSampler, 200},  // for material texture images
     };
 
     vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo{};

@@ -116,6 +116,8 @@ void RenderingSystem::Init()
         m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
         //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
+        m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer).SetImage(m_sceneRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetShadowMapOutput().GetPrimaryImage(), i);
     }
 }
 
