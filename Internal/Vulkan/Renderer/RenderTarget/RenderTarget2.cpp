@@ -20,6 +20,7 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     attachemtImageCI.format    = createInfo.format;
     attachemtImageCI.height    = createInfo.heigh;
     attachemtImageCI.width     = createInfo.width;
+    attachemtImageCI.layout    = createInfo.initialLayout;
     attachemtImageCI.samples   = createInfo.multiSampled ? m_device.GetSampleCount() : vk::SampleCountFlagBits::e1;
     attachemtImageCI.mipLevels = 1;
     attachemtImageCI.aspecFlags = createInfo.isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
@@ -50,7 +51,8 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     //=================================================
     if(createInfo.multiSampled && createInfo.resolveMode != vk::ResolveModeFlagBits::eNone)
     {
-        m_resolvedAttachment = std::make_unique<VulkanCore::VImage2>(m_device, attachemtImageCI);
+        attachemtImageCI.samples = vk::SampleCountFlagBits::e1;
+        m_resolvedAttachment     = std::make_unique<VulkanCore::VImage2>(m_device, attachemtImageCI);
 
         //===================================
         // transition to specified layout
@@ -61,11 +63,11 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
 }
 vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfo(vk::ImageLayout layout, vk::AttachmentLoadOp loadOp, vk::AttachmentStoreOp storeOp)
 {
-    bool                        shouldResolve = m_renderingAttachmentInfo.resolveMode != vk::ResolveModeFlagBits::eNone;
+    bool                        shouldResolve = m_renderTargetInfo.resolveMode != vk::ResolveModeFlagBits::eNone;
     vk::RenderingAttachmentInfo attachmentInfo;
     attachmentInfo.imageView   = m_primaryAttachment->GetImageView();
     attachmentInfo.imageLayout = layout;
-    attachmentInfo.resolveMode = m_renderingAttachmentInfo.resolveMode;
+    attachmentInfo.resolveMode = m_renderTargetInfo.resolveMode;
 
     if(shouldResolve && m_resolvedAttachment != nullptr)
     {
@@ -82,29 +84,36 @@ vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfo(vk::ImageLayou
     return attachmentInfo;
 }
 
-VulkanCore::VImage2& RenderTarget2::GetPrimaryImage()
+VulkanCore::VImage2& RenderTarget2::GetPrimaryImage() const
 {
     return *m_primaryAttachment;
 }
-VulkanCore::VImage2& RenderTarget2::GetResolvedImage()
+VulkanCore::VImage2& RenderTarget2::GetResolvedImage() const
 {
     return *m_resolvedAttachment;
 }
 
-vk::ImageView RenderTarget2::GetPrimaryImageView()
+vk::ImageView RenderTarget2::GetPrimaryImageView() const
 {
     return m_primaryAttachment->GetImageView();
 }
-vk::ImageView RenderTarget2::GetResolvedImageView()
+vk::ImageView RenderTarget2::GetResolvedImageView() const
 {
     return m_resolvedAttachment->GetImageView();
 }
-void RenderTarget2::TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout)
+void RenderTarget2::TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout) const
 {
     VulkanUtils::RecordImageTransitionLayoutCommand(*m_primaryAttachment, targetLayout, oldLayout, cmdBuffer);
-    if (m_resolvedAttachment) {
+    if(m_resolvedAttachment)
+    {
         VulkanUtils::RecordImageTransitionLayoutCommand(*m_resolvedAttachment, targetLayout, oldLayout, cmdBuffer);
     }
+}
+void RenderTarget2::Destroy()
+{
+    m_primaryAttachment->Destroy();
+    if(m_resolvedAttachment)
+        m_resolvedAttachment->Destroy();
 }
 
 }  // namespace Renderer

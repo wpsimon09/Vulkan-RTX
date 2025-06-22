@@ -114,7 +114,7 @@ void RenderingSystem::Init()
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
-        //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetShadowMapImage(), i);
+        //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
     }
 }
@@ -233,7 +233,7 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex],
                                 m_uniformBufferManager, &m_renderContext);
-        m_postProcessingContext.sceneRender = &m_sceneRenderer->GetRenderedImage(m_currentFrameIndex);
+        m_postProcessingContext.sceneRender = &m_sceneRenderer->GetLightPassOutput().GetResolvedImage();
     }
     else
     {
