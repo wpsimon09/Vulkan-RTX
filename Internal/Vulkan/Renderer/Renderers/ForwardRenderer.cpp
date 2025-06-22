@@ -187,7 +187,7 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     int drawCallCount = 0;
 
     std::vector<vk::RenderingAttachmentInfo> depthPrePassColourAttachments = {m_positionBufferOutput->GenerateAttachmentInfo(
-        vk::ImageLayout::eShaderReadOnlyOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
+        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     auto depthPrePassDepthAttachment =
         m_depthPrePassOutput->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
@@ -335,7 +335,7 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
 
 
     std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_shadowPassOutput->GenerateAttachmentInfo(
-        vk::ImageLayout::eShaderReadOnlyOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
+        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     vk::RenderingInfo renderingInfo{};
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
