@@ -17,7 +17,9 @@ enum class ViewPortType
 {
     eMain,
     eMainRayTracer,
-    eMaterial
+    eMaterial,
+    eShadowMap,
+    ePositionBuffer,
 };
 
 struct ViewPortContext

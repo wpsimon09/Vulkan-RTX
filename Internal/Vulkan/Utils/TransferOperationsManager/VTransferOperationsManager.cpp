@@ -39,7 +39,7 @@ void VTransferOperationsManager::UpdateGPU()
     {
         vk::PipelineStageFlags2 waitStages =
             vk::PipelineStageFlagBits2::eVertexInput | vk::PipelineStageFlagBits2::eFragmentShader |
-            vk::PipelineStageFlagBits2::eEarlyFragmentTests ;
+            vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eCopy ;
 
         vk::PipelineStageFlags2 signalStages = vk::PipelineStageFlagBits2::eTransfer | vk::PipelineStageFlagBits2::eCopy;
 
