@@ -15,7 +15,7 @@ ConstantBuffer<LightInfo> _lightInfo;
 RaytracingAccelerationStructure _tlas;
 
 [[vk::binding(3, 0)]]
-Sampler2D _depthTexture;
+Sampler2D _positionTexture;
 
 [[vk::binding(4,0)]]
 Sampler2D _blueNoiseTextureArray;

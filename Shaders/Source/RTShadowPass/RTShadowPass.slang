@@ -22,20 +22,12 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
-    
-    double depth = _depthTexture.Sample(fsIn.uv).x;
-    
-    float linearizeDepth = LinearizeDepth(depth, globalData.viewParams.z, globalData.viewParams.w);
 
-    //if(depth == 1.0) {return float4(1.0);}
-    
-    float depthPx = _depthTexture.Sample(fsIn.uv, int2(1,0)).x;
-    float depthPy = _depthTexture.Sample(fsIn.uv, int2(0,1)).x;
-    double3 worldSpacePos = WorldPosFromDepth(depth, fsIn.uv, globalData.invProjection, globalData.inverseView);
+    float3 worldSpacePos = _positionTexture.Sample(fsIn.uv).xyz;
     
     // get neighbouring positions in world space 
-    float3 px = WorldPosFromDepth(depthPx, fsIn.uv, globalData.invProjection, globalData.inverseView);
-    float3 py = WorldPosFromDepth(depthPy, fsIn.uv, globalData.invProjection, globalData.inverseView);
+    float3 px = _positionTexture.Sample(fsIn.uv, int2(1, 0)).xyz;
+    float3 py = _positionTexture.Sample(fsIn.uv, int2(0, 1)).xyz;
 
     // calcualte tangent of the world plane 
     float3 Tx = normalize(px - worldSpacePos);

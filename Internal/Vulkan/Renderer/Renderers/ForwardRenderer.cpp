@@ -308,6 +308,7 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     }
     cmdB.endRendering();
 
+    m_positionBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal);
 
     VulkanUtils::PlaceImageMemoryBarrier(
         m_depthPrePassOutput->GetPrimaryImage(), cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,

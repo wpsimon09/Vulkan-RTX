@@ -20,6 +20,7 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     attachemtImageCI.format    = createInfo.format;
     attachemtImageCI.height    = createInfo.heigh;
     attachemtImageCI.width     = createInfo.width;
+    attachemtImageCI.layout    = createInfo.initialLayout;
     attachemtImageCI.samples   = createInfo.multiSampled ? m_device.GetSampleCount() : vk::SampleCountFlagBits::e1;
     attachemtImageCI.mipLevels = 1;
     attachemtImageCI.aspecFlags = createInfo.isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
@@ -51,7 +52,7 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     if(createInfo.multiSampled && createInfo.resolveMode != vk::ResolveModeFlagBits::eNone)
     {
         attachemtImageCI.samples = vk::SampleCountFlagBits::e1;
-        m_resolvedAttachment = std::make_unique<VulkanCore::VImage2>(m_device, attachemtImageCI);
+        m_resolvedAttachment     = std::make_unique<VulkanCore::VImage2>(m_device, attachemtImageCI);
 
         //===================================
         // transition to specified layout
@@ -108,9 +109,10 @@ void RenderTarget2::TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer,
         VulkanUtils::RecordImageTransitionLayoutCommand(*m_resolvedAttachment, targetLayout, oldLayout, cmdBuffer);
     }
 }
-void RenderTarget2::Destroy() {
+void RenderTarget2::Destroy()
+{
     m_primaryAttachment->Destroy();
-    if (m_resolvedAttachment)
+    if(m_resolvedAttachment)
         m_resolvedAttachment->Destroy();
 }
 
