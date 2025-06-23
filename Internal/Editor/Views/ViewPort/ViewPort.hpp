@@ -44,7 +44,7 @@ class ViewPort : public IUserInterfaceElement
     ViewPortContext&        m_rayTracedViewPortContext;
     std::unordered_map<ViewPortType, ViewPortContext>& m_viewPorts;
 
-    ViewPortType m_selectedViewPort;
+    ViewPortType m_selectedViewPort = ViewPortType::eMain;
     std::vector<const char*> m_viewPortOptions = {
          ICON_FA_BOLT_LIGHTNING "  Lit",
          ICON_FA_OBJECT_GROUP " Shadow",

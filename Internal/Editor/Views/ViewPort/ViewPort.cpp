@@ -217,8 +217,13 @@ void VEditor::ViewPort::RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSiz
 }
 void VEditor::ViewPort::RenderViewPortSelection() {
     if (ImGui::BeginPopup("ViewPortPopup")) {
+        int i = 0;
         for (auto viewPort: m_viewPortOptions) {
-            ImGui::Selectable(viewPort);
+            if (ImGui::Selectable(viewPort, static_cast<ViewPortType>(i) == m_selectedViewPort)) {
+                m_selectedViewPort  = static_cast<ViewPortType>(i);
+            }
+
+            i++;
         }
         ImGui::EndPopup();
     }
