@@ -30,7 +30,7 @@ Editor::Editor(UIContext& uiContext)
     auto index = std::make_unique<VEditor::Index>(uiContext.m_windowManager.GetWindowWidth(),
                                                   uiContext.m_windowManager.GetWindowHeight());
 
-    auto viewPort = std::make_unique<ViewPort>(uiContext.m_viewports[ViewPortType::eMain],
+    auto viewPort = std::make_unique<ViewPort>(uiContext.GetViewPorts(),uiContext.m_viewports[ViewPortType::eMain],
                                                uiContext.m_viewports[ViewPortType::eMainRayTracer],
                                                uiContext.m_isRayTracing,
                                                m_uiContext.m_client.GetScene(), m_uiContext.m_windowManager);

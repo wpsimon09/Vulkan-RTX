@@ -4,6 +4,10 @@
 
 #ifndef VIEWPORT_HPP
 #define VIEWPORT_HPP
+#include "IconsFontAwesome6.h"
+#include "Editor/UIContext/ViewPortContext.hpp"
+
+
 #include <glm/vec2.hpp>
 
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
@@ -21,7 +25,7 @@ namespace VEditor {
 class ViewPort : public IUserInterfaceElement
 {
   public:
-    explicit ViewPort(ViewPortContext& rasterViewportContext,ViewPortContext& rayTracedViewPortContext, bool &isRayTracing, ApplicationCore::Scene& scene, WindowManager& windowManager);
+    explicit ViewPort(std::unordered_map<ViewPortType, ViewPortContext>&viewPorts, ViewPortContext& rasterViewportContext,ViewPortContext& rayTracedViewPortContext, bool &isRayTracing, ApplicationCore::Scene& scene, WindowManager& windowManager);
 
     virtual void Render() override;
 
@@ -32,10 +36,20 @@ class ViewPort : public IUserInterfaceElement
   private:
     void RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSize);
 
+    void RenderViewPortSelection();
+
     ApplicationCore::Scene& m_scene;
     WindowManager&          m_windowManager;
     ViewPortContext&        m_rasterViewPortContext;
     ViewPortContext&        m_rayTracedViewPortContext;
+    std::unordered_map<ViewPortType, ViewPortContext>& m_viewPorts;
+
+    ViewPortType m_selectedViewPort = ViewPortType::eMain;
+    std::vector<const char*> m_viewPortOptions = {
+         ICON_FA_BOLT_LIGHTNING "  Lit",
+         ICON_FA_OBJECT_GROUP " Shadow",
+         ICON_FA_ARROW_DOWN_UP_LOCK " Position"
+    };
 
     float m_previousWidth;
     float m_previousHeight;
