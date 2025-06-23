@@ -16532,7 +16532,7 @@ VMA_CALL_PRE void VMA_CALL_POST vmaDestroyImage(
 
     if(image != VK_NULL_HANDLE)
     {
-        (*allocator->GetVulkanFunctions().vkDestroyImage)(allocator->m_hDevice, image, allocator->GetAllocationCallbacks());
+                            (*allocator->GetVulkanFunctions().vkDestroyImage)(allocator->m_hDevice, image, allocator->GetAllocationCallbacks());
     }
     if(allocation != VK_NULL_HANDLE)
     {

@@ -544,7 +544,7 @@ void ForwardRenderer::Destroy()
     m_depthPrePassOutput->Destroy();
     m_visibilityBuffer->Destroy();
     m_lightingPassOutput->Destroy();
-    
+    m_positionBufferOutput->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer

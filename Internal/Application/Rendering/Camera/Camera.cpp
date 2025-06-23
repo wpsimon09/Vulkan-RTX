@@ -180,7 +180,6 @@ void ApplicationCore::Camera::Update(CameraUpdateInfo& cameraUpdateInfo, SceneUp
     }
     if (m_hasChanged) {sceneUpdateFlags.resetAccumulation = true;}
 
-
     cameraUpdateInfo.Reset();
     m_hasChanged = false;
 }

@@ -118,6 +118,6 @@ void RenderTarget2::Destroy()
 }
 
 
-RenderTarget2::~RenderTarget2() { Destroy();}
+RenderTarget2::~RenderTarget2() { }
 
 }  // namespace Renderer
