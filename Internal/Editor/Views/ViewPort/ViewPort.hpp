@@ -4,6 +4,7 @@
 
 #ifndef VIEWPORT_HPP
 #define VIEWPORT_HPP
+#include "IconsFontAwesome6.h"
 #include "Editor/UIContext/ViewPortContext.hpp"
 
 
@@ -43,7 +44,12 @@ class ViewPort : public IUserInterfaceElement
     ViewPortContext&        m_rayTracedViewPortContext;
     std::unordered_map<ViewPortType, ViewPortContext>& m_viewPorts;
 
-
+    ViewPortType m_selectedViewPort;
+    std::vector<const char*> m_viewPortOptions = {
+         ICON_FA_BOLT_LIGHTNING "  Lit",
+         ICON_FA_OBJECT_GROUP " Shadow",
+         ICON_FA_ARROW_DOWN_UP_LOCK " Position"
+    };
 
     float m_previousWidth;
     float m_previousHeight;

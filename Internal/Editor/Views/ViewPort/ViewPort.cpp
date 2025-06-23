@@ -45,6 +45,13 @@ void VEditor::ViewPort::Render()
     {
         ImGui::OpenPopup("AddPopUp");
     }
+
+    if (ImGui::MenuItem(ICON_FA_CAMERA " View port")) {
+        ImGui::OpenPopup("ViewPortPopup");
+    }
+
+    RenderViewPortSelection();
+
     if(ImGui::BeginPopup("AddPopUp"))
     {
         if(ImGui::BeginMenu(ICON_FA_SHAPES " Meshes"))
@@ -209,7 +216,12 @@ void VEditor::ViewPort::RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSiz
     m_scene.GetCamera().SetPosition(newCamPos);
 }
 void VEditor::ViewPort::RenderViewPortSelection() {
-
+    if (ImGui::BeginPopup("ViewPortPopup")) {
+        for (auto viewPort: m_viewPortOptions) {
+            ImGui::Selectable(viewPort);
+        }
+        ImGui::EndPopup();
+    }
 }
 
 glm::vec2 VEditor::ViewPort::GetMousePositionInViewPort(ImVec2& ImageWidth)
