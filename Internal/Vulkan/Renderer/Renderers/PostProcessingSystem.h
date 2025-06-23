@@ -6,6 +6,9 @@
 #define POSTPROCESSINGSYSTEM_H
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 
+namespace Renderer {
+class RenderTarget2;
+}
 namespace VulkanCore {
 class VImage2;
 class VDevice;
@@ -27,8 +30,9 @@ private:
 
 private:
 
-  std::vector<std::unique_ptr<VulkanCore::VImage2>> m_toneMapResult;
   std::shared_ptr<VulkanUtils::VEffect> m_toneMappingEffect;
+
+  std::unique_ptr<RenderTarget2> m_toneMapOutput;
 
   const VulkanCore::VDevice& m_device;
   VulkanUtils::VUniformBufferManager& m_uniformBufferManager;

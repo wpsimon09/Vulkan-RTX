@@ -5,6 +5,7 @@
 #include "PostProcessingSystem.h"
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
+#include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
@@ -30,49 +31,43 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
     //====================================
     // Create tone mapping result image
     //===================================
-    VulkanCore::VImage2CreateInfo toneMapOutputCi;
-    toneMapOutputCi.height              = height;
-    toneMapOutputCi.width               = width;
-    toneMapOutputCi.imageAllocationName = "Final render";
-    toneMapOutputCi.samples             = vk::SampleCountFlagBits::e1;
-    toneMapOutputCi.imageUsage          = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
-    toneMapOutputCi.layout              = vk::ImageLayout::eShaderReadOnlyOptimal;
-    toneMapOutputCi.format              = vk::Format::eR16G16B16A16Sfloat;
+    Renderer::RenderTarget2CreatInfo toneMapOutputCI{
+        width,
+        height,
+        false,
+        false,
+        vk::Format::eR16G16B16A16Sfloat,
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::ResolveModeFlagBits::eNone,
+    };
 
-    m_toneMapResult.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-    {
+    m_toneMapOutput = std::make_unique<Renderer::RenderTarget2>(m_device, toneMapOutputCI);
 
-        m_toneMapResult[i] = std::make_unique<VulkanCore::VImage2>(device, toneMapOutputCi);
-        VulkanUtils::RecordImageTransitionLayoutCommand(*m_toneMapResult[i], vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                        vk::ImageLayout::eUndefined,
-                                                        m_device.GetTransferOpsManager().GetCommandBuffer());
-    }
 
     Utils::Logger::LogInfo("Post processing system created");
 }
+
 void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext)
 {
     ToneMapping(frameIndex, commandBuffer, postProcessingContext);
 }
-VulkanCore::VImage2& PostProcessingSystem::GetRenderedResult(int frameIndex) {return *m_toneMapResult[frameIndex];}
 
-void PostProcessingSystem::ToneMapping(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext) {
+VulkanCore::VImage2& PostProcessingSystem::GetRenderedResult(int frameIndex)
+{
+    return m_toneMapOutput->GetPrimaryImage();
+}
+
+void PostProcessingSystem::ToneMapping(int                                   currentIndex,
+                                       VulkanCore::VCommandBuffer&           commandBuffer,
+                                       VulkanStructs::PostProcessingContext& postProcessingContext)
+{
     //=================================================================
     // Transition tone mapping output to the output attachment optimal
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_toneMapResult[currentIndex], vk::ImageLayout::eColorAttachmentOptimal,
-                                                    vk::ImageLayout::eShaderReadOnlyOptimal, commandBuffer.GetCommandBuffer());
+    m_toneMapOutput->TransitionAttachments(commandBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                           vk::ImageLayout::eShaderReadOnlyOptimal);
 
-
-    vk::RenderingAttachmentInfo toneMapAttachmentInfo{};
-    toneMapAttachmentInfo.clearValue.color = vk::ClearColorValue{0.0f, 0.0f, 0.0f, 1.0f};
-    toneMapAttachmentInfo.imageLayout      = vk::ImageLayout::eColorAttachmentOptimal;
-    toneMapAttachmentInfo.imageView        = m_toneMapResult[currentIndex]->GetImageView();
-    toneMapAttachmentInfo.loadOp           = vk::AttachmentLoadOp::eClear;
-    toneMapAttachmentInfo.storeOp          = vk::AttachmentStoreOp::eStore;
-
-
-    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {toneMapAttachmentInfo};
+    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_toneMapOutput->GenerateAttachmentInfo(
+        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     vk::RenderingInfo renderingInfo{};
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
@@ -102,17 +97,14 @@ void PostProcessingSystem::ToneMapping(int currentIndex, VulkanCore::VCommandBuf
 
     cmdB.endRendering();
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_toneMapResult[currentIndex], vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                    vk::ImageLayout::eColorAttachmentOptimal, cmdB);
+    m_toneMapOutput->TransitionAttachments(commandBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                           vk::ImageLayout::eColorAttachmentOptimal);
 
 }
 
 void PostProcessingSystem::Destroy()
 {
-    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        m_toneMapResult[i]->Destroy();
-    }
+    m_toneMapOutput->Destroy();
 }
 
 }  // namespace Renderer

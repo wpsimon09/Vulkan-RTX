@@ -224,7 +224,9 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
 
-    m_effectsLibrary->UpdatePerFrameWrites(*m_sceneRenderer, &m_renderContext, m_postProcessingContext, m_uniformBufferManager);
+    if (m_frameCount > 2) {
+        m_effectsLibrary->UpdatePerFrameWrites(*m_sceneRenderer, &m_renderContext, m_postProcessingContext, m_uniformBufferManager);
+    }
 
     //============================================================
     // start recording command buffer that will render the scene
@@ -235,7 +237,9 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
         // render scene
         m_sceneRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex],
                                 m_uniformBufferManager, &m_renderContext);
+
         m_postProcessingContext.sceneRender = &m_sceneRenderer->GetLightPassOutput().GetResolvedImage();
+        m_postProcessingContext.shadowMap = &m_sceneRenderer->GetShadowMapOutput().GetPrimaryImage();
     }
     else
     {
