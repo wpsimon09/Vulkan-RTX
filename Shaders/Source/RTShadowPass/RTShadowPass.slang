@@ -79,5 +79,5 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     }
 
 
-    return float4(float3(clamp(shadowFactor,0.1, 1.0)), 1.0);
+    return float4(float3(shadowFactor), 1.0);
 }

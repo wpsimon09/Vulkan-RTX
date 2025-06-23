@@ -4,6 +4,7 @@
 
 #include "RenderTarget2.h"
 
+#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
@@ -115,5 +116,8 @@ void RenderTarget2::Destroy()
     if(m_resolvedAttachment)
         m_resolvedAttachment->Destroy();
 }
+
+
+RenderTarget2::~RenderTarget2() { Destroy();}
 
 }  // namespace Renderer

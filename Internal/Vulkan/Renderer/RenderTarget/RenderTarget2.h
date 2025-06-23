@@ -39,6 +39,8 @@ class RenderTarget2
 
     void Destroy();
 
+    ~RenderTarget2();
+
   private:
     const VulkanCore::VDevice& m_device;
 

@@ -67,9 +67,9 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         height,
         true,
         true,
-        vk::Format::eD32SfloatS8Uint,
+        m_device.GetDepthFormat(),
         vk::ImageLayout::eDepthStencilAttachmentOptimal,
-        vk::ResolveModeFlagBits::eNone,
+        vk::ResolveModeFlagBits::eMin,
     };
 
     m_depthPrePassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, depthPrepassOutputCI);
@@ -100,7 +100,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         vk::ResolveModeFlagBits::eNone,
     };
 
-    m_shadowPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI);
+    m_visibilityBuffer = std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI);
 
     //==================
     // Lightning pass
@@ -171,7 +171,7 @@ Renderer::RenderTarget2& ForwardRenderer::GetPositionBufferOutput() const
 }
 Renderer::RenderTarget2& ForwardRenderer::GetShadowMapOutput() const
 {
-    return *m_shadowPassOutput;
+    return *m_visibilityBuffer;
 }
 Renderer::RenderTarget2& ForwardRenderer::GetLightPassOutput() const
 {
@@ -329,11 +329,11 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
 
     //=========================================================================
     // Transition shadow map from shader read only optimal to render attachment
-    m_shadowPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+    m_visibilityBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
                                               vk::ImageLayout::eShaderReadOnlyOptimal);
 
 
-    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_shadowPassOutput->GenerateAttachmentInfo(
+    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_visibilityBuffer->GenerateAttachmentInfo(
         vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     vk::RenderingInfo renderingInfo{};
@@ -364,7 +364,7 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
 
     cmdB.endRendering();
 
-    m_shadowPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+    m_visibilityBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                               vk::ImageLayout::eColorAttachmentOptimal);
 }  // namespace Renderer
 
@@ -542,8 +542,9 @@ void ForwardRenderer::Destroy()
 {
     //m_renderTargets->Destroy();
     m_depthPrePassOutput->Destroy();
-    m_shadowPassOutput->Destroy();
+    m_visibilityBuffer->Destroy();
     m_lightingPassOutput->Destroy();
+    
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer

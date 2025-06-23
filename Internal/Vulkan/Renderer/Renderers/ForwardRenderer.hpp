@@ -102,7 +102,7 @@ namespace Renderer {
         /**
          * Contains screen space shadow map
          */
-        std::unique_ptr<Renderer::RenderTarget2> m_shadowPassOutput;
+        std::unique_ptr<Renderer::RenderTarget2> m_visibilityBuffer;
 
         /**
          * Contains final shading of the scene
