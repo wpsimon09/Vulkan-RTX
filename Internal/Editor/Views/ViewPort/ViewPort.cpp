@@ -106,9 +106,9 @@ void VEditor::ViewPort::Render()
 
 
     if (m_isRayTracing) {
-        ImGui::Image((ImTextureID)m_rayTracedViewPortContext.GetImageDs(), imageSize);
+        ImGui::Image((ImTextureID)m_viewPorts[ViewPortType::eMainRayTracer].GetImageDs(), imageSize);
     }else {
-        ImGui::Image((ImTextureID)m_rasterViewPortContext.GetImageDs(), imageSize);
+        ImGui::Image((ImTextureID)m_viewPorts[m_selectedViewPort].GetImageDs(), imageSize);
     }
     ImGuizmo::SetRect(m_gizmoRectOriginX, m_gizmoRectOriginY, imageSize.x, imageSize.y);
 
