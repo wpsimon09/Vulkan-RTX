@@ -43,18 +43,19 @@ namespace ApplicationCore {
 /**
  * Strurct that contains flat lists of scene data used to indexing in shaders and buffers
  */
-struct SceneData {
-  std::vector<std::shared_ptr<ApplicationCore::StaticMesh>> meshes;
-  std::vector<PBRMaterialDescription*> pbrMaterials;
-  std::vector<std::shared_ptr<SceneNode>> nodes;
-  std::vector<std::shared_ptr<VTextureAsset>> textures;
+struct SceneData
+{
+    std::vector<std::shared_ptr<ApplicationCore::StaticMesh>> meshes;
+    std::vector<PBRMaterialDescription*>                      pbrMaterials;
+    std::vector<std::shared_ptr<SceneNode>>                   nodes;
+    std::vector<std::shared_ptr<VTextureAsset>>               textures;
 
-  void AddEntry( std::shared_ptr<ApplicationCore::SceneNode>& node);
-  bool CheckIndexValidity(size_t arraySize , size_t index);
-  void RemoveEntry(const ApplicationCore::SceneNode& node);
-private:
-  void IndexNode(std::shared_ptr<ApplicationCore::SceneNode>& node);
+    void AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node);
+    bool CheckIndexValidity(size_t arraySize, size_t index);
+    void RemoveEntry(const ApplicationCore::SceneNode& node);
 
+  private:
+    void IndexNode(std::shared_ptr<ApplicationCore::SceneNode>& node);
 };
 
 
@@ -68,8 +69,8 @@ class Scene
     void Update();
     void Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> sceneNode);
     void Reset();
-    void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove) ;
-    void AddNode(std::shared_ptr<SceneNode> sceneNode) ;
+    void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove);
+    void AddNode(std::shared_ptr<SceneNode> sceneNode);
     void EnumarateMeshes(std::vector<std::shared_ptr<SceneNode>>& outMeshes, std::shared_ptr<SceneNode> sceneNode);
     std::vector<VulkanCore::RTX::BLASInput> GetBLASInputs();
     AssetsManager&                          GetAssetsManager() const { return m_assetsManager; };
@@ -81,7 +82,8 @@ class Scene
 
     void AddCubeToScene();
     void AddSphereToScene();
-    void AddPlaneToScene() ;
+    void AddPlaneToScene();
+    void AddFogVolume();
 
     void AddSkyBox(LightStructs::EnvLight* envLight = nullptr);
     void AddDirectionalLight(LightStructs::DirectionalLight* directionalLightInfo = nullptr);
@@ -97,7 +99,7 @@ class Scene
     SceneUpdateFlags& GetSceneUpdateFlags();
 
     const SceneData& GetSceneDataConst() const { return m_sceneData; }
-    SceneData& GetSceneData() {return m_sceneData;}
+    SceneData&       GetSceneData() { return m_sceneData; }
 
     LightStructs::SceneLightInfo& GetSceneLightInfo() { return m_sceneLightInfo; }
 

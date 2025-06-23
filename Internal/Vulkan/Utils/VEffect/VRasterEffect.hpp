@@ -72,6 +72,7 @@ class VRasterEffect : public VEffect
     VRasterEffect& DissableFragmentWrite();
     VRasterEffect& SetDepthOpLess();
     VRasterEffect& SetDepthOpAllways();
+    VRasterEffect& EnableAlphaBlending();
 
 
     //=======================================

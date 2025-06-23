@@ -135,7 +135,7 @@ struct VGPUBufferInfo
     VkBuffer             bufferVMA;
     VmaAllocation        allocationVMA;
 
-    int ID;
+    int            ID;
     vk::DeviceSize GetAvailableSize() const { return (currentOffset >= size) ? 0 : (size - currentOffset); }
     bool           WillNewBufferFit(vk::DeviceSize size) const { return size <= GetAvailableSize(); }
 };
@@ -171,23 +171,22 @@ struct VDrawCallData
     VGPUSubBufferInfo* indexData  = nullptr;
     VBounds*           bounds     = nullptr;
 
-
     mutable int drawCallID = 0;
 
-    glm::mat4 modelMatrix {};
-    glm::vec3 position {};
+    glm::mat4 modelMatrix{};
+    glm::vec3 position{};
 
     float depth = -1.0f;
 
     unsigned long key = 0;
 
-    bool inDepthPrePass = true;
-    bool selected       = false;
+    bool inDepthPrePass       = true;
+    bool selected             = false;
+    bool postProcessingEffect = false;
 
     ApplicationCore::BaseMaterial*              material;
     std::shared_ptr<VulkanUtils::VRasterEffect> effect;
     int                                         materialIndex = 0;
-
 };
 
 /**
@@ -199,14 +198,15 @@ struct VDrawCallData
  */
 struct VDescriptorSet
 {
-    std::vector<vk::DescriptorSet> sets;  // per frame in flight
-    vk::DescriptorSetLayout        layout; // set layout
+    std::vector<vk::DescriptorSet> sets;                               // per frame in flight
+    vk::DescriptorSetLayout        layout;                             // set layout
     std::map<uint32_t, std::map<int, vk::WriteDescriptorSet>> writes;  // writes are per frame in flight, map key is the frame and
-                                                                     // value is the vector of writes, second map is for binding/write relations
+        // value is the vector of writes, second map is for binding/write relations
 };
 
 
-struct PostProcessingContext {
+struct PostProcessingContext
+{
     VulkanCore::VImage2* sceneRender;
     VulkanCore::VImage2* shadowMap;
 };

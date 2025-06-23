@@ -187,6 +187,7 @@ class VGraphicsPipeline : public VObject
     void EnableBlendingAdditive();
     void EnableBlendingAlpha();
 
+
   private:
     friend VulkanUtils::VRasterEffect;
 };

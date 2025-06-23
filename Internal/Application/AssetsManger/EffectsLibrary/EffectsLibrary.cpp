@@ -182,6 +182,20 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     effects[EEffectType::ToneMappingPass] = std::move(toneMappingPass);
 
+    //================================================================================
+    auto fog = std::make_shared<VulkanUtils::VRasterEffect>(device, "Tone map effect ", "Shaders/Compiled/ToneMapping.vert.spv",
+                                                     "Shaders/Compiled/ToneMapping.frag.spv", descLayoutCache,
+                                                     EShaderBindingGroup::FogBinding);
+
+    fog->SetDisableDepthTest()
+        .EnableAlphaBlending()
+        .SetNullVertexBinding()
+        .SetPiplineNoMultiSampling();
+
+    effects[EEffectType::FogVolume] = std::move(fog);
+
+    //================================================================================
+
     BuildAllEffects();
 }
 

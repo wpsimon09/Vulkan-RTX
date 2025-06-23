@@ -46,7 +46,8 @@ enum class EEffectType : std::uint8_t
     RayTracing,
     DepthPrePass,
     RTShadowPass,
-    ToneMappingPass
+    ToneMappingPass,
+    FogVolume
 };
 
 class EffectsLibrary

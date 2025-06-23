@@ -71,6 +71,14 @@ void VEditor::ViewPort::Render()
 
             ImGui::EndMenu();
         }
+        if(ImGui::BeginMenu(ICON_FA_WAND_MAGIC_SPARKLES " Effects"))
+        {
+            if(ImGui::Selectable(ICON_FA_SMOG " Fog volume"))
+            {
+                m_scene.AddFogVolume();
+            }
+            ImGui::EndMenu();
+        }
 
         if(ImGui::BeginMenu(ICON_FA_SUN " Lights"))
         {
@@ -90,6 +98,7 @@ void VEditor::ViewPort::Render()
             {
                 m_scene.AddSkyBox();
             }
+
             ImGui::EndMenu();
         }
 

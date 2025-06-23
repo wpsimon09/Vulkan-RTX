@@ -62,6 +62,8 @@ enum EShaderBindingGroup {
     RayTracing,
     ShadowRT,
     ToneMap,
+    PostProcessing,
+    FogBinding,
 };
 
 

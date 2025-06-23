@@ -8,6 +8,7 @@
 
 #include "AreaLightNode.hpp"
 #include "DirectionLightNode.hpp"
+#include "FogVolumeNode.hpp"
 #include "PointLightNode.hpp"
 #include "SceneNode.hpp"
 #include "SkyBoxNode.hpp"
@@ -258,6 +259,12 @@ void Scene::AddPlaneToScene()
 
     auto node = std::make_shared<SceneNode>(obj);
     node->SetName("Plane ##" + VulkanUtils::random_string(5));
+    AddNode(node);
+}
+
+void Scene::AddFogVolume() {
+    auto node = std::make_shared<FogVolumeNode>();
+    node->SetName("Fog ##" + VulkanUtils::random_string(5));
     AddNode(node);
 }
 

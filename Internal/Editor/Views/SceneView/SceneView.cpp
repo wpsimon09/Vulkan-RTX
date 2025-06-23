@@ -269,6 +269,11 @@ std::string SceneView::GenerateNodeLabel(std::shared_ptr<ApplicationCore::SceneN
             nodeLabel = std::string(ICON_FA_SQUARE) + "  " + std::string(sceneNode->GetName());
             break;
         }
+        case FogVolume: {
+            nodeLabel = std::string(ICON_FA_SMOG) + "  " + std::string(sceneNode->GetName());
+            break;
+        }
+
         default: {
             nodeLabel = std::string(ICON_FA_QUESTION "Unknown scene node");
             break;

@@ -224,6 +224,8 @@ set(SOURCES
         Resources/LTC_Values.h
         Internal/Vulkan/Renderer/RenderTarget/RenderTarget2.cpp
         Internal/Vulkan/Renderer/RenderTarget/RenderTarget2.h
+        Internal/Application/Rendering/Scene/FogVolumeNode.cpp
+        Internal/Application/Rendering/Scene/FogVolumeNode.hpp
 
 )
 
