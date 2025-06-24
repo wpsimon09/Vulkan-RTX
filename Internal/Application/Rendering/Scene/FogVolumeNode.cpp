@@ -4,6 +4,7 @@
 
 #include "FogVolumeNode.hpp"
 
+#include "Scene.hpp"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
@@ -24,12 +25,27 @@ void FogVolumeNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
 {
     VulkanStructs::VDrawCallData drawCall;
     drawCall.postProcessingEffect = true;
-    drawCall.vertexData = &m_mesh->GetMeshData()->vertexData;
-    drawCall.indexData  = &m_mesh->GetMeshData()->indexData;
-    drawCall.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::FogVolume);
+    drawCall.vertexData           = &m_mesh->GetMeshData()->vertexData;
+    drawCall.indexData            = &m_mesh->GetMeshData()->indexData;
+    drawCall.effect               = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::FogVolume);
 
-    if (m_sceneNodeMetaData.IsVisible) {
+    if(m_sceneNodeMetaData.IsVisible)
+    {
         renderingContext->AddDrawCall(drawCall);
     }
+}
+FogVolumeParameters& FogVolumeNode::GetParameters() {return m_parameters;}
+
+void FogVolumeNode::ProcessNodeRemove()
+{
+    SceneNode::ProcessNodeRemove();
+}
+void FogVolumeNode::ProcessNodeRemove(SceneData& sceneData)
+{
+    sceneData.fogVolumeParameters = nullptr;
+}
+void FogVolumeNode::ProcessNodeRemove(const SceneNode& node, SceneData& sceneData)
+{
+    //SceneNode::ProcessNodeRemove(node, sceneData);
 }
 } // ApplicationCore

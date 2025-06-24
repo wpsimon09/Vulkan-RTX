@@ -31,6 +31,12 @@ namespace ApplicationCore {
 
 void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
 {
+    if (node->GetSceneNodeMetaData().IsVolumeNode) {
+        if (auto volumeNode = dynamic_cast<FogVolumeNode*>(node.get())) {
+            fogVolumeParameters = &volumeNode->GetParameters();
+            return;
+        }
+    }
     if(node->HasMesh())
     {
         auto& mesh = node->GetMesh();

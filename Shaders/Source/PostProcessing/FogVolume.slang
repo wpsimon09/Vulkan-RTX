@@ -11,7 +11,8 @@ Sampler2D _inputTexture_ShadowMap;
 [[vk::binding(2, 0)]]
 Sampler2D _inputTexture_Depth;
 
-
+[[vk::binding(0, 1)]]
+ConstantBuffer<FogVolumeParameters> _fogVolumeParametres;
 
 struct VertexOut {
     float4 pos : SV_Position;
@@ -38,6 +39,6 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     if (shadowFactor > 0.1) {
         return float4(1.0, 0.0, 0.0, 0.6);
     } else {
-        return float4(0.0, 1.0, 0.0, 1.0);
+        return float4(0.0, 1.0, 0.0, _fogVolumeParametres.density);
     }
 }

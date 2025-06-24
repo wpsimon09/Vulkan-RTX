@@ -80,7 +80,11 @@ struct LightUniforms
 };
 
 struct FogVolumeParameters {
-    glm::vec4 fogInfo; // x- density, y - ray distance, z  - number of ray steps
+    float density;
+    float rayDistance;
+    float raySteps;
+    float paddding;
+
 };
 
 struct RTXObjDescription {

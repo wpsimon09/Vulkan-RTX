@@ -80,9 +80,7 @@ void SceneNode::AddChild(SceneData& sceneData,  std::shared_ptr<SceneNode>& chil
         m_children.emplace_back(child);
         child->m_parent                  = this;
         m_sceneNodeMetaData.IsParentNode = true;
-        if (!child->IsVolumeNode()) {
-            sceneData.AddEntry(child);
-        }
+        sceneData.AddEntry(child);
     }
     else
     {
@@ -193,7 +191,7 @@ void SceneNode::ProcessNodeRemove(SceneData& sceneData)
 }
 
 void SceneNode::ProcessNodeRemove(const SceneNode& node, SceneData& sceneData) {
-    sceneData.RemoveEntry(node);
+        sceneData.RemoveEntry(node);
     for(auto& child : node.m_children)
     {
         ProcessNodeRemove(*child, sceneData);

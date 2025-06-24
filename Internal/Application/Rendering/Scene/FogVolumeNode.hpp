@@ -8,20 +8,24 @@
 
 namespace ApplicationCore {
 
-class FogVolumeNode: public SceneNode {
+class FogVolumeNode : public SceneNode
+{
 
-public:
-  explicit FogVolumeNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh);
+  public:
+    explicit FogVolumeNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh);
 
-  void Update(SceneUpdateFlags& sceneUpdateFlags) override;
-  void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
+    void Update(SceneUpdateFlags& sceneUpdateFlags) override;
+    void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
 
     FogVolumeParameters& GetParameters();
+    void                 ProcessNodeRemove() override;
+    void                 ProcessNodeRemove(SceneData& sceneData) override;
+    void                 ProcessNodeRemove(const SceneNode& node, SceneData& sceneData) override;
 
   private:
     FogVolumeParameters m_parameters;
 };
 
-} // ApplicationCore
+}  // namespace ApplicationCore
 
-#endif //FOGVOLUME_HPP
+#endif  //FOGVOLUME_HPP

@@ -53,6 +53,7 @@ class DetailsPanel : public IUserInterfaceElement
     void RenderTransformationsPanel();
     void RenderMaterialEditorPanel();
     void RenderMeshOnlyUI();
+    void RenderFogVolumeNodeUI();
     void RenderDirectionLightUI();
     void RenderPointLightUI();
     void RenderAreaLightUI();

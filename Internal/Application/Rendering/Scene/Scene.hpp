@@ -49,7 +49,7 @@ struct SceneData
     std::vector<PBRMaterialDescription*>                      pbrMaterials;
     std::vector<std::shared_ptr<SceneNode>>                   nodes;
     std::vector<std::shared_ptr<VTextureAsset>>               textures;
-
+    FogVolumeParameters*                                      fogVolumeParameters = nullptr;
 
     void AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node);
     bool CheckIndexValidity(size_t arraySize, size_t index);
