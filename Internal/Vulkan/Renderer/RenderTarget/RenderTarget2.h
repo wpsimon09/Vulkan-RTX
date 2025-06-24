@@ -28,6 +28,7 @@ class RenderTarget2
     RenderTarget2(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain);
 
     vk::RenderingAttachmentInfo GenerateAttachmentInfo(vk::ImageLayout layout, vk::AttachmentLoadOp loadOp, vk::AttachmentStoreOp storeOp);
+    vk::RenderingAttachmentInfo GenerateAttachmentInfoFromResolvedImage(vk::ImageLayout layout, vk::AttachmentLoadOp loadOp, vk::AttachmentStoreOp storeOp);
 
     VulkanCore::VImage2& GetPrimaryImage() const;
     VulkanCore::VImage2& GetResolvedImage() const;

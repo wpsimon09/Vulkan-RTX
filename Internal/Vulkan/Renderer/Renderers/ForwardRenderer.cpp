@@ -158,6 +158,14 @@ void ForwardRenderer::Render(int                                       currentFr
     // uses forward renderer to render the scene
     DrawScene(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
+    //==================================
+    // render the fog if it is in scene
+    if (m_postProcessingFogVolumeDrawCall) {
+        PostProcessingFogPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
+    }
+
+
+
     m_frameCount++;
 }
 Renderer::RenderTarget2& ForwardRenderer::GetDepthPrePassOutput() const
@@ -461,7 +469,10 @@ void ForwardRenderer::DrawScene(int                                       curren
 
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
-        if (drawCall.second.postProcessingEffect) { continue; }
+        if(drawCall.second.postProcessingEffect)
+        {
+            continue;
+        }
         auto& material = drawCall.second.material;
         if(drawCall.second.effect != currentEffect)
         {
@@ -509,10 +520,57 @@ void ForwardRenderer::DrawScene(int                                       curren
 
     cmdB.endRendering();
 
+
+
     m_lightingPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                 vk::ImageLayout::eColorAttachmentOptimal);
 
     m_renderingStatistics.DrawCallCount = drawCallCount;
+}
+void ForwardRenderer::PostProcessingFogPass(int                                       currentFrameIndex,
+                                            VulkanCore::VCommandBuffer&               cmdBuffer,
+                                            const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+{
+    // this might not be the best thing to do but for now it should suffice
+    m_lightingPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                                vk::ImageLayout::eShaderReadOnlyOptimal);
+
+
+    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_lightingPassOutput->GenerateAttachmentInfoFromResolvedImage(
+        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore)};
+
+    vk::RenderingInfo renderingInfo{};
+    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
+    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
+    renderingInfo.layerCount           = 1;
+    renderingInfo.colorAttachmentCount = renderingOutputs.size();
+    renderingInfo.pColorAttachments    = renderingOutputs.data();
+    renderingInfo.pDepthAttachment     = nullptr;
+
+    auto& cmdB = cmdBuffer.GetCommandBuffer();
+
+    cmdB.beginRendering(&renderingInfo);
+
+    vk::Viewport viewport{
+        0, 0, (float)renderingInfo.renderArea.extent.width, (float)renderingInfo.renderArea.extent.height, 0.0f, 1.0f};
+    cmdB.setViewport(0, 1, &viewport);
+
+    vk::Rect2D scissors{{0, 0},
+                        {(uint32_t)renderingInfo.renderArea.extent.width, (uint32_t)renderingInfo.renderArea.extent.height}};
+    cmdB.setScissor(0, 1, &scissors);
+    cmdB.setStencilTestEnable(false);
+
+    m_postProcessingFogVolumeDrawCall->effect->BindPipeline(cmdB);
+    m_postProcessingFogVolumeDrawCall->effect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
+
+    cmdB.draw(3, 1, 0, 0);
+
+    cmdB.endRendering();
+
+    m_lightingPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                              vk::ImageLayout::eColorAttachmentOptimal);
+
+    m_postProcessingFogVolumeDrawCall = nullptr;
 }
 
 

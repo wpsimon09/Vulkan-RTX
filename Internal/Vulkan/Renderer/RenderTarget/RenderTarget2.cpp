@@ -84,6 +84,25 @@ vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfo(vk::ImageLayou
 
     return attachmentInfo;
 }
+vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfoFromResolvedImage(vk::ImageLayout       layout,
+                                                                                   vk::AttachmentLoadOp  loadOp,
+                                                                                   vk::AttachmentStoreOp storeOp)
+{
+    if (m_resolvedAttachment == nullptr) throw std::runtime_error("This attachemtn does not have resovled output ! ");
+
+    vk::RenderingAttachmentInfo attachmentInfo;
+    attachmentInfo.imageView   = m_resolvedAttachment->GetImageView();
+    attachmentInfo.imageLayout = layout;
+    attachmentInfo.resolveMode = vk::ResolveModeFlagBits::eNone;
+    attachmentInfo.loadOp                          = loadOp;
+    attachmentInfo.storeOp                         = storeOp;
+    attachmentInfo.clearValue.color                = {0.0f, 0.0f, 0.0f, 1.0f};
+    attachmentInfo.clearValue.depthStencil.depth   = 1.0f;
+    attachmentInfo.clearValue.depthStencil.stencil = 0.0f;
+
+    return attachmentInfo;
+
+}
 
 VulkanCore::VImage2& RenderTarget2::GetPrimaryImage() const
 {
