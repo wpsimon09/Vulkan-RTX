@@ -270,6 +270,10 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     //=================================================
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
+        if (drawCall.second.postProcessingEffect) {
+            m_postProcessingFogVolumeDrawCall = &drawCall.second;
+            continue;
+        }
         if(drawCall.second.inDepthPrePass)
         {
 

@@ -99,6 +99,7 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
     bool  HasMesh() const { return m_sceneNodeMetaData.HasMesh; }
     float GetDistanceFromCamera(glm::vec3 cameraPosition);
     bool  IsLight() const;
+    bool  IsVolumeNode() const;
 
     //=========================
     // Accessors

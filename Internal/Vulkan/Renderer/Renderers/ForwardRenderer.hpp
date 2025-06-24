@@ -73,7 +73,7 @@ class ForwardRenderer
 
     void PostProcessingFogPass(int                                       currentFrameIndex,
                                VulkanCore::VCommandBuffer&               cmdBuffer,
-                               const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+                               const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
         void PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall);
 
@@ -115,7 +115,7 @@ class ForwardRenderer
     uint32_t m_width        = 0;
     uint32_t m_height       = 0;
 
-    VulkanStructs::VDrawCallData* m_postProcessingFogVolumeDrawCall;
+    VulkanStructs::VDrawCallData* m_postProcessingFogVolumeDrawCall = nullptr;
 
     // Editor integration
     friend class VEditor::RenderingOptions;

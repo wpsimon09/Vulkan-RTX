@@ -500,10 +500,11 @@ void ApplicationCore::GLTFExporter::Clear()
     m_nodeCounter = 0;
 }
 
-bool ApplicationCore::GLTFExporter::IsNodeValid(const std::shared_ptr<SceneNode>& sceneNode)
-{
+bool ApplicationCore::GLTFExporter::IsNodeValid(const std::shared_ptr<SceneNode>& sceneNode) {
     return (sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::AreaLightNode
             && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::DirectionalLightNode
             && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::PointLightNode
-            && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::SkyBoxNode && sceneNode->GetName() != "Root-Node");
+            && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::SkyBoxNode
+            && sceneNode->GetName() != "Root-Node"
+            && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::FogVolume);
 }

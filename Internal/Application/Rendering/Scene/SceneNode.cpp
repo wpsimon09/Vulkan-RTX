@@ -80,7 +80,9 @@ void SceneNode::AddChild(SceneData& sceneData,  std::shared_ptr<SceneNode>& chil
         m_children.emplace_back(child);
         child->m_parent                  = this;
         m_sceneNodeMetaData.IsParentNode = true;
-        sceneData.AddEntry(child);
+        if (!child->IsVolumeNode()) {
+            sceneData.AddEntry(child);
+        }
     }
     else
     {
@@ -95,7 +97,9 @@ void SceneNode::AddChild(SceneData& sceneData, std::shared_ptr<StaticMesh> child
         auto newNode      = std::make_shared<SceneNode>(child);
         newNode->m_parent = this;
         m_children.emplace_back(newNode);
-        m_sceneNodeMetaData.IsParentNode = true;
+        if (!newNode->IsVolumeNode()) {
+            m_sceneNodeMetaData.IsParentNode = true;
+        }
 
     }
     else
@@ -161,6 +165,7 @@ bool SceneNode::IsLight() const
            || m_sceneNodeMetaData.nodeType == ENodeType::PointLightNode || m_sceneNodeMetaData.nodeType == ENodeType::SpotLightNode
            || m_sceneNodeMetaData.nodeType == ENodeType::AreaLightNode || m_sceneNodeMetaData.nodeType == ENodeType::SkyBoxNode;
 }
+bool SceneNode::IsVolumeNode() const {return m_sceneNodeMetaData.IsVolumeNode;}
 
 SceneNode* SceneNode::GetParent()
 {
@@ -209,11 +214,11 @@ void SceneNode::Update(SceneUpdateFlags& sceneUpdateFlags)
     }
 
     if (sceneUpdateFlags.updateAs != true) {
-         if (m_transformation->HasChanged() && !IsLight())     {sceneUpdateFlags.resetAccumulation = true;  sceneUpdateFlags.updateAs = true; }
+         if (m_transformation->HasChanged() && !IsLight() && !IsVolumeNode())     {sceneUpdateFlags.resetAccumulation = true;  sceneUpdateFlags.updateAs = true; }
     }
     if (sceneUpdateFlags.resetAccumulation != true) {
          // in case only light node has changed do not reset the As but only accumulation instead
-        if (m_transformation->HasChanged() && IsLight()) { sceneUpdateFlags.resetAccumulation = true; }
+        if (m_transformation->HasChanged() && IsLight() && !IsVolumeNode()) { sceneUpdateFlags.resetAccumulation = true; }
     }
 
     for(auto& child : m_children)

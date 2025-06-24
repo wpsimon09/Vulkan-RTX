@@ -189,6 +189,7 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
 
 void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode)
 {
+
     m_root->AddChild(m_sceneData, sceneNode);
     m_sceneUpdateFlags.resetAccumulation = true;
     m_sceneUpdateFlags.rebuildAs = true;
