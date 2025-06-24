@@ -16,10 +16,10 @@ public:
   void Update(SceneUpdateFlags& sceneUpdateFlags) override;
   void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
 
-    m_fogVolumeParameters& GetParameters();
+    FogVolumeParameters& GetParameters();
 
   private:
-    m_fogVolumeParameters m_parameters;
+    FogVolumeParameters m_parameters;
 };
 
 } // ApplicationCore

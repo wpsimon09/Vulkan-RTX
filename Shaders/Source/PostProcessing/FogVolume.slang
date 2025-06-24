@@ -1,7 +1,17 @@
 import Core;
 import Material;
 import Utils;
-#include "ShaderBindingGroups/PostProcessing.slang"
+
+[[vk::binding(0, 0)]]
+ConstantBuffer<GlobalData> _globalData;
+
+[[vk::binding(1, 0)]]
+Sampler2D _inputTexture_ShadowMap;
+
+[[vk::binding(2, 0)]]
+Sampler2D _inputTexture_Depth;
+
+
 
 struct VertexOut {
     float4 pos : SV_Position;
@@ -19,6 +29,15 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 }
 
 [shader("fragment")]
-float4 fragmentMain(VertexOut fsIn) :SV_Target {
-    return float4(float3(1.0, 0.4, 0.4), 1);
+float4 fragmentMain(VertexOut fsIn) : SV_Target {
+
+    float depth = _inputTexture_Depth.Sample(fsIn.uv).x;
+    float linearDepht = LinearizeDepth(depth, _globalData.viewParams.z, _globalData.viewParams.w);
+
+    float shadowFactor = _inputTexture_ShadowMap.Sample(fsIn.uv).x;
+    if (shadowFactor > 0.1) {
+        return float4(1.0, 0.0, 0.0, 0.6);
+    } else {
+        return float4(0.0, 1.0, 0.0, 1.0);
+    }
 }

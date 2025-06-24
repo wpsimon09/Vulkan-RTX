@@ -190,6 +190,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     fog->SetDisableDepthTest()
         .EnableAlphaBlending()
         .SetNullVertexBinding()
+        .SetCullNone()
         .SetPiplineNoMultiSampling();
 
     effects[EEffectType::FogVolume] = std::move(fog);
@@ -417,6 +418,9 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                     break;
                 }
                 case EShaderBindingGroup::FogBinding: {
+                    e->SetNumWrites(0,4,0);
+                    e->WriteImage(i, 0, 0, sceneRenderer.GetShadowMapOutput().GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    e->WriteImage(i, 0, 1, sceneRenderer.GetDepthPrePassOutput().GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
                     break;
                 }
 

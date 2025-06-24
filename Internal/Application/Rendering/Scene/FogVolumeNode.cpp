@@ -28,6 +28,8 @@ void FogVolumeNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
     drawCall.indexData  = &m_mesh->GetMeshData()->indexData;
     drawCall.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::FogVolume);
 
-    renderingContext->AddDrawCall(drawCall);
+    if (m_sceneNodeMetaData.IsVisible) {
+        renderingContext->AddDrawCall(drawCall);
+    }
 }
 } // ApplicationCore

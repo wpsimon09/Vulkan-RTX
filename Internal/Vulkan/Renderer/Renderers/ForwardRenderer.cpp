@@ -68,7 +68,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         true,
         true,
         m_device.GetDepthFormat(),
-        vk::ImageLayout::eDepthStencilAttachmentOptimal,
+        vk::ImageLayout::eDepthStencilReadOnlyOptimal,
         vk::ResolveModeFlagBits::eMin,
     };
 
@@ -190,6 +190,11 @@ void ForwardRenderer::DepthPrePass(int                                       cur
                                    const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     int drawCallCount = 0;
+
+
+    m_depthPrePassOutput->TransitionAttachments(cmdBuffer,vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::ImageLayout::eDepthStencilReadOnlyOptimal
+                                                );
+
 
     std::vector<vk::RenderingAttachmentInfo> depthPrePassColourAttachments = {m_positionBufferOutput->GenerateAttachmentInfo(
         vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
@@ -398,7 +403,7 @@ void ForwardRenderer::DrawScene(int                                       curren
 
     auto depthAttachment =
         m_depthPrePassOutput->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                     vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eDontCare);
+                                                     vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);
 
     vk::RenderingInfo renderingInfo;
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
@@ -528,6 +533,9 @@ void ForwardRenderer::DrawScene(int                                       curren
 
     m_lightingPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                 vk::ImageLayout::eColorAttachmentOptimal);
+
+    m_depthPrePassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilReadOnlyOptimal,
+                                                vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
     m_renderingStatistics.DrawCallCount = drawCallCount;
 }
