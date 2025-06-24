@@ -142,7 +142,7 @@ void Scene::Update()
 
 void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> sceneNode)
 {
-    if(sceneNode->HasMesh())
+    if(sceneNode->HasMesh() || sceneNode->GetSceneNodeMetaData().IsVolumeNode)
     {
         sceneNode->Render(m_assetsManager.GetEffectsLibrary(), ctx);
     }
@@ -263,7 +263,8 @@ void Scene::AddPlaneToScene()
 }
 
 void Scene::AddFogVolume() {
-    auto node = std::make_shared<FogVolumeNode>();
+    auto obj = m_assetsManager.GetDefaultMesh(PostProcessQuad);
+    auto node = std::make_shared<FogVolumeNode>(obj);
     node->SetName("Fog ##" + VulkanUtils::random_string(5));
     AddNode(node);
 }

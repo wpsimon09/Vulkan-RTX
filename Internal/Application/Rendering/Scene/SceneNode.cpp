@@ -181,7 +181,6 @@ std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildrenByWrapper()
     {
         result.emplace_back(std::ref(*child));
     }
-
     return result;
 }
 void SceneNode::ProcessNodeRemove(SceneData& sceneData)

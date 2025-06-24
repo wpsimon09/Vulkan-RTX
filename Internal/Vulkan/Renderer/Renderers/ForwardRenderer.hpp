@@ -76,8 +76,6 @@ namespace Renderer {
                        VulkanCore::VCommandBuffer& cmdBuffer,
                        const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-        void CreateRenderTargets(VulkanCore::VSwapChain* swapChain);
-
         void PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall );
 
     private:
@@ -111,11 +109,14 @@ namespace Renderer {
 
         VulkanStructs::VRenderingStatistics m_renderingStatistics;
 
+
         // Config / state
         bool m_depthPrePass = true;
         uint64_t m_frameCount = 0;
         uint32_t m_width = 0;
         uint32_t m_height = 0;
+
+        VulkanStructs::VDrawCallData* m_postProcessingFogVolumeDrawCall;
 
         // Editor integration
         friend class VEditor::RenderingOptions;

@@ -121,7 +121,6 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         // IMPORTANT: Depth attachment is  transitioned to shader read only optimal during creation
         m_rtxShadowPassEffect->SetNumWrites(0, 1, 0);
 
-        //TODO: write position buffer generated during depth pre-pass
         m_rtxShadowPassEffect->WriteImage(
             i, 0, 3, m_positionBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
         m_rtxShadowPassEffect->ApplyWrites(i);
@@ -227,6 +226,7 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     //=================================================
     // INITIAL CONFIG
     //=================================================
+
     auto currentVertexBuffer = m_renderContextPtr->drawCalls.begin()->second.vertexData;
     auto currentIndexBuffer  = m_renderContextPtr->drawCalls.begin()->second.indexData;
 
@@ -461,6 +461,7 @@ void ForwardRenderer::DrawScene(int                                       curren
 
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
+        if (drawCall.second.postProcessingEffect) { continue; }
         auto& material = drawCall.second.material;
         if(drawCall.second.effect != currentEffect)
         {
@@ -512,12 +513,6 @@ void ForwardRenderer::DrawScene(int                                       curren
                                                 vk::ImageLayout::eColorAttachmentOptimal);
 
     m_renderingStatistics.DrawCallCount = drawCallCount;
-}
-
-
-void ForwardRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
-{
-    //m_renderTargets = std::make_unique<Renderer::RenderTarget>(m_device, m_width, m_height);
 }
 
 

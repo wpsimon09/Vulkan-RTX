@@ -5,10 +5,11 @@
 #include "FogVolumeNode.hpp"
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
+#include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 namespace ApplicationCore {
-FogVolumeNode::FogVolumeNode(): SceneNode() {
+FogVolumeNode::FogVolumeNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh): SceneNode(mesh) {
     m_sceneNodeMetaData.nodeType = ENodeType::FogVolume;
     m_sceneNodeMetaData.FrustumCull = false;
     m_sceneNodeMetaData.IsVolumeNode = true;
@@ -23,6 +24,8 @@ void FogVolumeNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
 {
     VulkanStructs::VDrawCallData drawCall;
     drawCall.postProcessingEffect = true;
+    drawCall.vertexData = &m_mesh->GetMeshData()->vertexData;
+    drawCall.indexData  = &m_mesh->GetMeshData()->indexData;
     drawCall.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::FogVolume);
 
     renderingContext->AddDrawCall(drawCall);

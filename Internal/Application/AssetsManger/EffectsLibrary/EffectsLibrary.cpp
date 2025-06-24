@@ -416,6 +416,9 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                     //e->WriteImage(i, 0, 1, sceneRenderer.GetRenderedImageConst(i));
                     break;
                 }
+                case EShaderBindingGroup::FogBinding: {
+                    break;
+                }
 
                 default: {
                     throw std::runtime_error("Unsupported bindinggroup !");
