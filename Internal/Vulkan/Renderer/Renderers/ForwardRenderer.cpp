@@ -128,6 +128,8 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         vk::ResolveModeFlagBits::eNone,
     };
 
+    m_fogPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI);
+
 
 
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
@@ -563,12 +565,12 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
                                             const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     // this might not be the best thing to do but for now it should suffice
-    m_lightingPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+    m_fogPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
                                                 vk::ImageLayout::eShaderReadOnlyOptimal);
 
 
-    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_lightingPassOutput->GenerateAttachmentInfoFromResolvedImage(
-        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore)};
+    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_fogPassOutput->GenerateAttachmentInfo(
+        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     vk::RenderingInfo renderingInfo{};
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
@@ -598,12 +600,12 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
 
     cmdB.endRendering();
 
-    m_lightingPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+    m_fogPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                               vk::ImageLayout::eColorAttachmentOptimal);
 
     m_postProcessingFogVolumeDrawCall = nullptr;
 
-    m_forwardRendererOutput = &m_fogPassOutputImage->GetPrimaryImage();
+    m_forwardRendererOutput = &m_fogPassOutput->GetPrimaryImage();
 
 }
 

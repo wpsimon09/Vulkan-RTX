@@ -111,7 +111,7 @@ class ForwardRenderer
     /**
      * Contains the fog pass if any is required
      */
-    std::unique_ptr<Renderer::RenderTarget2> m_fogPassOutputImage;
+    std::unique_ptr<Renderer::RenderTarget2> m_fogPassOutput;
 
     VulkanCore::VImage2* m_forwardRendererOutput;
 

@@ -14,6 +14,9 @@ Sampler2D _inputTexture_WorldPosition;
 [[vk::binding(3, 0)]]
 Sampler2D _inputTexture_BlueNoise;
 
+[[vk::binding(4, 0)]]
+Sampler2D _inputTexture_SceneColour;
+
 [[vk::binding(0, 1)]]
 ConstantBuffer<FogVolumeParameters> _fogVolumeParametres;
 
@@ -60,5 +63,6 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
         accumulatedFog += GetFogDensity(samplePos) * stepSize;
     }
 
-    return float4(float3(accumulatedFog, 1.0, 0.6), 1.0);
+    float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
+    return float4(pixelColour * float3(accumulatedFog, 0.0, 0.0), 1.0);
 }

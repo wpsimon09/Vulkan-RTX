@@ -418,13 +418,14 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                     break;
                 }
                 case EShaderBindingGroup::FogBinding: {
-                    e->SetNumWrites(2,4,0);
+                    e->SetNumWrites(2,5,0);
 
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
 
                     e->WriteImage(i, 0, 1, sceneRenderer.GetShadowMapOutput().GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                     e->WriteImage(i, 0, 2, sceneRenderer.GetPositionBufferOutput().GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
                     e->WriteImage(i, 0, 3, MathUtils::LookUpTables.BlueNoise64->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    e->WriteImage(i, 0, 4, sceneRenderer.GetLightPassOutput().GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                     e->WriteBuffer(i, 1, 0, uniformBufferManager.GetFogVolumParametersBufferDescriptorInfo(i));
                     break;
