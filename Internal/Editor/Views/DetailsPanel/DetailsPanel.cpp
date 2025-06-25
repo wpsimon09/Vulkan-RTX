@@ -402,7 +402,10 @@ void DetailsPanel::RenderSkyBoxMaterialDetails(ApplicationCore::SkyBoxMaterial* 
 
 void DetailsPanel::RenderFogVolumeNodeUI() {
     if (auto fogNode = dynamic_cast<ApplicationCore::FogVolumeNode*>(m_selectedSceneNode.get())) {
-        ImGui::SliderFloat("Density",&fogNode->GetParameters().density, 0.1, 1.0);
+        ImGui::SliderFloat("Density",&fogNode->GetParameters().density, 0.1, 20.0);
+        ImGui::SliderFloat("Ray distance",&fogNode->GetParameters().rayDistance, 1.0, 900.0);
+        ImGui::SliderFloat("Ray steps",&fogNode->GetParameters().raySteps, 0.1, 20.0);
+        ImGui::SliderFloat("Height fall off",&fogNode->GetParameters().heightFallOff, 0.1, 20.0);
     }
 }
 

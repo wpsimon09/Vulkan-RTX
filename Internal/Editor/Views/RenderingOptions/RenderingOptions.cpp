@@ -37,7 +37,7 @@ void RenderingOptions::Render()
         ImGui::Checkbox("Wire frame mode", &m_renderingSystem->m_renderContext.WireFrameRendering);
 
         ImGui::SeparatorText("Draw calls");
-        ImGui::Text("Total draw call count: %i", m_renderingSystem->m_sceneRenderer->m_renderingStatistics.DrawCallCount);
+        ImGui::Text("Total draw call count: %i", m_renderingSystem->m_forwardRenderer->m_renderingStatistics.DrawCallCount);
         if(ImGui::Button("Show window with all draw calls"))
         {
             m_openDrawCallListWindow = true;

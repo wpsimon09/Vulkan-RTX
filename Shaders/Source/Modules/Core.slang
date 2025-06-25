@@ -67,5 +67,5 @@ public struct FogVolumeParameters {
     public float density;
     public float rayDistance;
     public float raySteps;
-    public float paddding;
+    public float heightFallOff;
 }

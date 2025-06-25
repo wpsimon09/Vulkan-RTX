@@ -57,6 +57,8 @@ class ForwardRenderer
                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                 VulkanUtils::RenderContext*               renderContext);
 
+
+    VulkanCore::VImage2*     GetForwardRendererResult() const;
     Renderer::RenderTarget2& GetDepthPrePassOutput() const;
     Renderer::RenderTarget2& GetPositionBufferOutput() const;
     Renderer::RenderTarget2& GetShadowMapOutput() const;
@@ -102,9 +104,16 @@ class ForwardRenderer
     std::unique_ptr<Renderer::RenderTarget2> m_visibilityBuffer;
 
     /**
-         * Contains final shading of the scene
-         */
+    * Contains final shading of the scene
+    */
     std::unique_ptr<Renderer::RenderTarget2> m_lightingPassOutput;
+
+    /**
+     * Contains the fog pass if any is required
+     */
+    std::unique_ptr<Renderer::RenderTarget2> m_fogPassOutputImage;
+
+    VulkanCore::VImage2* m_forwardRendererOutput;
 
     VulkanStructs::VRenderingStatistics m_renderingStatistics;
 

@@ -165,6 +165,10 @@ public float LinearizeDepth(float d,float zNear,float zFar)
     return  zNear * zFar / (zFar - d * (zFar - zNear));
 }
 
+public float LengthSquared(float3 vector) {
+    return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z;
+}
+
 /*
 * Returns angle of the calcualted cone 
 * r - radius

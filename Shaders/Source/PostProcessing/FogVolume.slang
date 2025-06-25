@@ -9,7 +9,10 @@ ConstantBuffer<GlobalData> _globalData;
 Sampler2D _inputTexture_ShadowMap;
 
 [[vk::binding(2, 0)]]
-Sampler2D _inputTexture_Depth;
+Sampler2D _inputTexture_WorldPosition;
+
+[[vk::binding(3, 0)]]
+Sampler2D _inputTexture_BlueNoise;
 
 [[vk::binding(0, 1)]]
 ConstantBuffer<FogVolumeParameters> _fogVolumeParametres;
@@ -29,19 +32,33 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     return output;
 }
 
+float GetFogDensity(float3 pos) {
+    float heightFactor = exp(-pos.y * _fogVolumeParametres.heightFallOff);
+    float noise = _inputTexture_BlueNoise.Sample(pos.xz * 0.1).r;
+    return _fogVolumeParametres.density;
+}
+
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) : SV_Target {
 
     float fogMin = 0.1;
     float fogMax = 1.0;
 
-    float depth = _inputTexture_Depth.Sample(fsIn.uv).x;
-    float linearDepht = LinearizeDepth(depth, _globalData.viewParams.z, _globalData.viewParams.w);
+    float3 worldPos = _inputTexture_WorldPosition.Sample(fsIn.uv).xyz;
+    RayDesc ray;
+    ray.Direction = normalize(worldPos - _globalData.cameraPostiion.xyz);
+    ray.Origin = _globalData.cameraPostiion.xyz;
+    ray.TMin = 0.001;
+    ray.TMax = distance(worldPos ,_globalData.cameraPostiion.xyz);
 
-    float shadowFactor = _inputTexture_ShadowMap.Sample(fsIn.uv).x;
-    if (shadowFactor < 1.0) {
-        return float4(1.0, 0.0, 0.0, _fogVolumeParametres.density);
-    } else {
-        return float4(0.0, 1.0, 0.0, 1.0);
+    float accumulatedFog = 0.0f;
+    float stepSize = ray.TMax / _fogVolumeParametres.raySteps;
+    float3 rayStep = ray.Direction * stepSize;
+
+    for (int i = 0; i < _fogVolumeParametres.raySteps; i++) {
+        float3 samplePos = ray.Origin + i * rayStep;
+        accumulatedFog += GetFogDensity(samplePos) * stepSize;
     }
+
+    return float4(float3(accumulatedFog, 1.0, 0.6), 1.0);
 }

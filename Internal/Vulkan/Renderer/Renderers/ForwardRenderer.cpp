@@ -116,6 +116,20 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_lightingPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, lightPassCI);
 
+    //==================
+    // Fog pass output
+    Renderer::RenderTarget2CreatInfo fogPassOutputCI{
+        width,
+        height,
+        false,
+        false,
+        vk::Format::eR16G16B16A16Sfloat,
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::ResolveModeFlagBits::eNone,
+    };
+
+
+
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         // IMPORTANT: Depth attachment is  transitioned to shader read only optimal during creation
@@ -160,14 +174,16 @@ void ForwardRenderer::Render(int                                       currentFr
 
     //==================================
     // render the fog if it is in scene
-    if (m_postProcessingFogVolumeDrawCall) {
+    if(m_postProcessingFogVolumeDrawCall)
+    {
         PostProcessingFogPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
     }
 
 
-
     m_frameCount++;
 }
+VulkanCore::VImage2* ForwardRenderer::GetForwardRendererResult() const { return m_forwardRendererOutput; }
+
 Renderer::RenderTarget2& ForwardRenderer::GetDepthPrePassOutput() const
 {
     return *m_depthPrePassOutput;
@@ -524,6 +540,9 @@ void ForwardRenderer::DrawScene(int                                       curren
                          drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
                          drawCall.second.vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
 
+
+        m_forwardRendererOutput = &m_lightingPassOutput->GetResolvedImage();
+
         drawCallCount++;
     }
 
@@ -583,6 +602,9 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
                                               vk::ImageLayout::eColorAttachmentOptimal);
 
     m_postProcessingFogVolumeDrawCall = nullptr;
+
+    m_forwardRendererOutput = &m_fogPassOutputImage->GetPrimaryImage();
+
 }
 
 
