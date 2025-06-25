@@ -306,6 +306,7 @@ void VulkanCore::VGraphicsPipeline::SetStencilState(vk::StencilOpState& stencilS
 {
     m_depthStencil.back  = stencilState;
     m_depthStencil.front = m_depthStencil.back;
+
 }
 
 void VulkanCore::VGraphicsPipeline::EnableBlendingAdditive()

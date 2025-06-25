@@ -32,13 +32,16 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) : SV_Target {
 
+    float fogMin = 0.1;
+    float fogMax = 1.0;
+
     float depth = _inputTexture_Depth.Sample(fsIn.uv).x;
     float linearDepht = LinearizeDepth(depth, _globalData.viewParams.z, _globalData.viewParams.w);
 
     float shadowFactor = _inputTexture_ShadowMap.Sample(fsIn.uv).x;
-    if (shadowFactor > 0.1) {
-        return float4(1.0, 0.0, 0.0, 0.6);
+    if (shadowFactor < 1.0) {
+        return float4(1.0, 0.0, 0.0, _fogVolumeParametres.density);
     } else {
-        return float4(0.0, 1.0, 0.0, _fogVolumeParametres.density);
+        return float4(0.0, 1.0, 0.0, 1.0);
     }
 }
