@@ -190,6 +190,10 @@ VRasterEffect& VRasterEffect::SetDepthOpAllways()
     m_pipeline->m_depthStencil.depthCompareOp = vk::CompareOp::eAlways;
     return *this;
 }
+VRasterEffect& VRasterEffect::EnableAlphaBlending() {
+    m_pipeline->EnableBlendingAlpha();
+    return *this;
+}
 
 void VRasterEffect::BuildEffect()
 {

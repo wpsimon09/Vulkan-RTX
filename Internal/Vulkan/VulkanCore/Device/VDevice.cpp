@@ -144,6 +144,11 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance)
 
 VulkanCore::VCommandPool& VulkanCore::VDevice::GetTransferCommandPool() const
 {
+
+    VkInstanceCreateInfo createInfo = {};
+    vk::InstanceCreateInfo createInfo2;
+    createInfo = static_cast<VkInstanceCreateInfo>(createInfo2);
+
     // loop through every command pool and return the first one that is not in use
     for(int i = 0; i < m_transferCommandPool.size(); i++)
     {

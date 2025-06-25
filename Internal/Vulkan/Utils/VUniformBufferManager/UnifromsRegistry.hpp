@@ -79,6 +79,13 @@ struct LightUniforms
     glm::vec4                     info;  // x - use env, y - ambient strength,w - padding
 };
 
+struct FogVolumeParameters {
+    float density {15.0};
+    float rayDistance {900.0f};
+    float raySteps {4};
+    float heightFallOff {1};
+};
+
 struct RTXObjDescription {
     vk::DeviceAddress vertexAddress;
     vk::DeviceAddress indexAddresss;

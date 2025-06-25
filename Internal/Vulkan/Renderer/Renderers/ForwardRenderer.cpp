@@ -68,7 +68,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         true,
         true,
         m_device.GetDepthFormat(),
-        vk::ImageLayout::eDepthStencilAttachmentOptimal,
+        vk::ImageLayout::eDepthStencilReadOnlyOptimal,
         vk::ResolveModeFlagBits::eMin,
     };
 
@@ -116,12 +116,27 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_lightingPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, lightPassCI);
 
+    //==================
+    // Fog pass output
+    Renderer::RenderTarget2CreatInfo fogPassOutputCI{
+        width,
+        height,
+        false,
+        false,
+        vk::Format::eR16G16B16A16Sfloat,
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::ResolveModeFlagBits::eNone,
+    };
+
+    m_fogPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI);
+
+
+
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         // IMPORTANT: Depth attachment is  transitioned to shader read only optimal during creation
         m_rtxShadowPassEffect->SetNumWrites(0, 1, 0);
 
-        //TODO: write position buffer generated during depth pre-pass
         m_rtxShadowPassEffect->WriteImage(
             i, 0, 3, m_positionBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
         m_rtxShadowPassEffect->ApplyWrites(i);
@@ -159,8 +174,18 @@ void ForwardRenderer::Render(int                                       currentFr
     // uses forward renderer to render the scene
     DrawScene(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
+    //==================================
+    // render the fog if it is in scene
+    if(m_postProcessingFogVolumeDrawCall)
+    {
+        PostProcessingFogPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
+    }
+
+
     m_frameCount++;
 }
+VulkanCore::VImage2* ForwardRenderer::GetForwardRendererResult() const { return m_forwardRendererOutput; }
+
 Renderer::RenderTarget2& ForwardRenderer::GetDepthPrePassOutput() const
 {
     return *m_depthPrePassOutput;
@@ -183,6 +208,11 @@ void ForwardRenderer::DepthPrePass(int                                       cur
                                    const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     int drawCallCount = 0;
+
+
+    m_depthPrePassOutput->TransitionAttachments(cmdBuffer,vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::ImageLayout::eDepthStencilReadOnlyOptimal
+                                                );
+
 
     std::vector<vk::RenderingAttachmentInfo> depthPrePassColourAttachments = {m_positionBufferOutput->GenerateAttachmentInfo(
         vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
@@ -227,6 +257,7 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     //=================================================
     // INITIAL CONFIG
     //=================================================
+
     auto currentVertexBuffer = m_renderContextPtr->drawCalls.begin()->second.vertexData;
     auto currentIndexBuffer  = m_renderContextPtr->drawCalls.begin()->second.indexData;
 
@@ -262,6 +293,10 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     //=================================================
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
+        if (drawCall.second.postProcessingEffect) {
+            m_postProcessingFogVolumeDrawCall = &drawCall.second;
+            continue;
+        }
         if(drawCall.second.inDepthPrePass)
         {
 
@@ -386,7 +421,7 @@ void ForwardRenderer::DrawScene(int                                       curren
 
     auto depthAttachment =
         m_depthPrePassOutput->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                     vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eDontCare);
+                                                     vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);
 
     vk::RenderingInfo renderingInfo;
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
@@ -461,6 +496,10 @@ void ForwardRenderer::DrawScene(int                                       curren
 
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
+        if(drawCall.second.postProcessingEffect)
+        {
+            continue;
+        }
         auto& material = drawCall.second.material;
         if(drawCall.second.effect != currentEffect)
         {
@@ -503,21 +542,71 @@ void ForwardRenderer::DrawScene(int                                       curren
                          drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
                          drawCall.second.vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
 
+
+        m_forwardRendererOutput = &m_lightingPassOutput->GetResolvedImage();
+
         drawCallCount++;
     }
 
     cmdB.endRendering();
 
+
+
     m_lightingPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                 vk::ImageLayout::eColorAttachmentOptimal);
 
+    m_depthPrePassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilReadOnlyOptimal,
+                                                vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
     m_renderingStatistics.DrawCallCount = drawCallCount;
 }
-
-
-void ForwardRenderer::CreateRenderTargets(VulkanCore::VSwapChain* swapChain)
+void ForwardRenderer::PostProcessingFogPass(int                                       currentFrameIndex,
+                                            VulkanCore::VCommandBuffer&               cmdBuffer,
+                                            const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
-    //m_renderTargets = std::make_unique<Renderer::RenderTarget>(m_device, m_width, m_height);
+    // this might not be the best thing to do but for now it should suffice
+    m_fogPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                                vk::ImageLayout::eShaderReadOnlyOptimal);
+
+
+    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_fogPassOutput->GenerateAttachmentInfo(
+        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
+
+    vk::RenderingInfo renderingInfo{};
+    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
+    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
+    renderingInfo.layerCount           = 1;
+    renderingInfo.colorAttachmentCount = renderingOutputs.size();
+    renderingInfo.pColorAttachments    = renderingOutputs.data();
+    renderingInfo.pDepthAttachment     = nullptr;
+
+    auto& cmdB = cmdBuffer.GetCommandBuffer();
+
+    cmdB.beginRendering(&renderingInfo);
+
+    vk::Viewport viewport{
+        0, 0, (float)renderingInfo.renderArea.extent.width, (float)renderingInfo.renderArea.extent.height, 0.0f, 1.0f};
+    cmdB.setViewport(0, 1, &viewport);
+
+    vk::Rect2D scissors{{0, 0},
+                        {(uint32_t)renderingInfo.renderArea.extent.width, (uint32_t)renderingInfo.renderArea.extent.height}};
+    cmdB.setScissor(0, 1, &scissors);
+    cmdB.setStencilTestEnable(false);
+
+    m_postProcessingFogVolumeDrawCall->effect->BindPipeline(cmdB);
+    m_postProcessingFogVolumeDrawCall->effect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
+
+    cmdB.draw(3, 1, 0, 0);
+
+    cmdB.endRendering();
+
+    m_fogPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                              vk::ImageLayout::eColorAttachmentOptimal);
+
+    m_postProcessingFogVolumeDrawCall = nullptr;
+
+    m_forwardRendererOutput = &m_fogPassOutput->GetPrimaryImage();
+
 }
 
 

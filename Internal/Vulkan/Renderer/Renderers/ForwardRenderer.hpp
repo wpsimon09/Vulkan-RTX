@@ -19,107 +19,116 @@ class RenderTarget2;
 }
 // Forward declarations
 namespace VEditor {
-    class RenderingOptions;
+class RenderingOptions;
 }
 
 namespace VulkanCore {
 class VImage2;
 class VDevice;
-    class VPipelineManager;
-    class VTimelineSemaphore;
-    class VCommandBuffer;
-    class VCommandPool;
-    class VSwapChain;
-}
+class VPipelineManager;
+class VTimelineSemaphore;
+class VCommandBuffer;
+class VCommandPool;
+class VSwapChain;
+}  // namespace VulkanCore
 
 namespace VulkanUtils {
-    struct RenderContext;
-    class VResourceGroupManager;
-    class UIContext;
-    class VRasterEffect;
-    class VUniformBufferManager;
-}
+struct RenderContext;
+class VResourceGroupManager;
+class UIContext;
+class VRasterEffect;
+class VUniformBufferManager;
+}  // namespace VulkanUtils
 
 namespace Renderer {
-    class RenderTarget;
+class RenderTarget;
 
-    class ForwardRenderer {
-    public:
-        ForwardRenderer(const VulkanCore::VDevice& device,
-                      ApplicationCore::EffectsLibrary& effectsLibrary,
-                      VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                      int width, int height);
+class ForwardRenderer
+{
+  public:
+    ForwardRenderer(const VulkanCore::VDevice&          device,
+                    ApplicationCore::EffectsLibrary&    effectsLibrary,
+                    VulkanCore::VDescriptorLayoutCache& descLayoutCache,
+                    int                                 width,
+                    int                                 height);
 
-        void Render(int currentFrameIndex,
-                    VulkanCore::VCommandBuffer& cmdBuffer,
-                    const VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                    VulkanUtils::RenderContext* renderContext);
+    void Render(int                                       currentFrameIndex,
+                VulkanCore::VCommandBuffer&               cmdBuffer,
+                const VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                VulkanUtils::RenderContext*               renderContext);
 
-        Renderer::RenderTarget2& GetDepthPrePassOutput() const;
-        Renderer::RenderTarget2& GetPositionBufferOutput() const;
-        Renderer::RenderTarget2& GetShadowMapOutput() const;
-        Renderer::RenderTarget2& GetLightPassOutput() const;
 
-        void Destroy();
+    VulkanCore::VImage2*     GetForwardRendererResult() const;
+    Renderer::RenderTarget2& GetDepthPrePassOutput() const;
+    Renderer::RenderTarget2& GetPositionBufferOutput() const;
+    Renderer::RenderTarget2& GetShadowMapOutput() const;
+    Renderer::RenderTarget2& GetLightPassOutput() const;
 
-      protected:
+    void Destroy();
 
-        void DepthPrePass(int currentFrameIndex,
-                          VulkanCore::VCommandBuffer& cmdBuffer,
-                          const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+  protected:
+    void DepthPrePass(int currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-        void ShadowMapPass(int currentFrameIndex,
-                          VulkanCore::VCommandBuffer& cmdBuffer,
-                          const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+    void ShadowMapPass(int currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-        void DrawScene(int currentFrameIndex,
-                       VulkanCore::VCommandBuffer& cmdBuffer,
-                       const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+    void DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-        void CreateRenderTargets(VulkanCore::VSwapChain* swapChain);
+    void PostProcessingFogPass(int                                       currentFrameIndex,
+                               VulkanCore::VCommandBuffer&               cmdBuffer,
+                               const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-        void PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall );
+        void PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall);
 
-    private:
-        // Vulkan context & managers
-        const VulkanCore::VDevice& m_device;
-        VulkanUtils::RenderContext* m_renderContextPtr;
+  private:
+    // Vulkan context & managers
+    const VulkanCore::VDevice&  m_device;
+    VulkanUtils::RenderContext* m_renderContextPtr;
 
-        // Rendering
-        std::shared_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
-        std::shared_ptr<VulkanUtils::VEffect> m_rtxShadowPassEffect;
+    // Rendering
+    std::shared_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
+    std::shared_ptr<VulkanUtils::VEffect> m_rtxShadowPassEffect;
 
-        /**
+    /**
          * Contains depth
          */
-        std::unique_ptr<Renderer::RenderTarget2> m_depthPrePassOutput;
+    std::unique_ptr<Renderer::RenderTarget2> m_depthPrePassOutput;
 
-        /**
+    /**
          *Contains world space position of the geometry
          */
-        std::unique_ptr<Renderer::RenderTarget2> m_positionBufferOutput;
+    std::unique_ptr<Renderer::RenderTarget2> m_positionBufferOutput;
 
-        /**
+    /**
          * Contains screen space shadow map
          */
-        std::unique_ptr<Renderer::RenderTarget2> m_visibilityBuffer;
+    std::unique_ptr<Renderer::RenderTarget2> m_visibilityBuffer;
 
-        /**
-         * Contains final shading of the scene
-         */
-        std::unique_ptr<Renderer::RenderTarget2> m_lightingPassOutput;
+    /**
+    * Contains final shading of the scene
+    */
+    std::unique_ptr<Renderer::RenderTarget2> m_lightingPassOutput;
 
-        VulkanStructs::VRenderingStatistics m_renderingStatistics;
+    /**
+     * Contains the fog pass if any is required
+     */
+    std::unique_ptr<Renderer::RenderTarget2> m_fogPassOutput;
 
-        // Config / state
-        bool m_depthPrePass = true;
-        uint64_t m_frameCount = 0;
-        uint32_t m_width = 0;
-        uint32_t m_height = 0;
+    VulkanCore::VImage2* m_forwardRendererOutput;
 
-        // Editor integration
-        friend class VEditor::RenderingOptions;
-    };
+    VulkanStructs::VRenderingStatistics m_renderingStatistics;
+
+
+    // Config / state
+    bool     m_depthPrePass = true;
+    uint64_t m_frameCount   = 0;
+    uint32_t m_width        = 0;
+    uint32_t m_height       = 0;
+
+    VulkanStructs::VDrawCallData* m_postProcessingFogVolumeDrawCall = nullptr;
+
+    // Editor integration
+    friend class VEditor::RenderingOptions;
+};
 
 }  // namespace Renderer
 

@@ -14,6 +14,7 @@
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/AreaLightNode.hpp"
 #include "Application/Rendering/Scene/DirectionLightNode.hpp"
+#include "Application/Rendering/Scene/FogVolumeNode.hpp"
 #include "Application/Rendering/Scene/PointLightNode.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 #include "Application/Rendering/Scene/SkyBoxNode.hpp"
@@ -60,6 +61,11 @@ void DetailsPanel::Render()
         if(m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::SkyBoxNode)
         {
             RenderEnvLightUI();
+        }
+
+        if(m_selectedSceneNode->GetSceneNodeMetaData().nodeType == ENodeType::FogVolume)
+        {
+            RenderFogVolumeNodeUI();
         }
     }
 
@@ -188,6 +194,7 @@ void DetailsPanel::RenderMeshOnlyUI()
         ImGui::TreePop();
     }
 }
+
 
 void DetailsPanel::RenderDirectionLightUI()
 {
@@ -392,4 +399,14 @@ void DetailsPanel::RenderSkyBoxMaterialDetails(ApplicationCore::SkyBoxMaterial* 
         ImGui::EndCombo();
     }
 }
+
+void DetailsPanel::RenderFogVolumeNodeUI() {
+    if (auto fogNode = dynamic_cast<ApplicationCore::FogVolumeNode*>(m_selectedSceneNode.get())) {
+        ImGui::SliderFloat("Density",&fogNode->GetParameters().density, 0.1, 20.0);
+        ImGui::SliderFloat("Ray distance",&fogNode->GetParameters().rayDistance, 1.0, 900.0);
+        ImGui::SliderFloat("Ray steps",&fogNode->GetParameters().raySteps, 0.1, 20.0);
+        ImGui::SliderFloat("Height fall off",&fogNode->GetParameters().heightFallOff, 0.1, 20.0);
+    }
+}
+
 }  // namespace VEditor

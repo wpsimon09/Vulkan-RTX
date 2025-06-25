@@ -275,25 +275,26 @@ void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
 
 void VulkanCore::VGraphicsPipeline::EnableBlendingAlpha()
 {
-    m_colorBlendAttachmentState.blendEnable    = vk::True;
-    m_colorBlendAttachmentState.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
-                                                 | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    m_colorBlendAttachmentState.blendEnable = vk::True;
+    m_colorBlendAttachmentState.colorWriteMask =
+        vk::ColorComponentFlagBits::eR |
+        vk::ColorComponentFlagBits::eG |
+        vk::ColorComponentFlagBits::eB |
+        vk::ColorComponentFlagBits::eA;
+
     m_colorBlendAttachmentState.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
     m_colorBlendAttachmentState.dstColorBlendFactor = vk::BlendFactor::eOne;
     m_colorBlendAttachmentState.colorBlendOp        = vk::BlendOp::eAdd;
+
     m_colorBlendAttachmentState.srcAlphaBlendFactor = vk::BlendFactor::eOne;
     m_colorBlendAttachmentState.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    m_colorBlendAttachmentState.alphaBlendOp        = vk::BlendOp::eAdd;
 
     m_colorBlendState.logicOpEnable     = vk::False;
-    m_colorBlendState.logicOp           = vk::LogicOp::eCopy;
     m_colorBlendState.attachmentCount   = 1;
     m_colorBlendState.pAttachments      = &m_colorBlendAttachmentState;
-    m_colorBlendState.blendConstants[0] = 0.0f;
-    m_colorBlendState.blendConstants[1] = 0.0f;
-    m_colorBlendState.blendConstants[2] = 0.0f;
-    m_colorBlendState.blendConstants[3] = 0.0f;
 
-    m_depthStencil.depthWriteEnable = vk::False;
+
 }
 
 void VulkanCore::VGraphicsPipeline::SetColourOutputFormat(vk::Format format)
@@ -305,6 +306,7 @@ void VulkanCore::VGraphicsPipeline::SetStencilState(vk::StencilOpState& stencilS
 {
     m_depthStencil.back  = stencilState;
     m_depthStencil.front = m_depthStencil.back;
+
 }
 
 void VulkanCore::VGraphicsPipeline::EnableBlendingAdditive()

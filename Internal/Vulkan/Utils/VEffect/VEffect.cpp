@@ -56,7 +56,7 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
         reflectedSet.layout = m_descriptorSetLayoutCache.CreateDescriptorSetLayout(&set.second.createInfo);
 
         // copy the layout for pieline creation
-        m_descriptorSetLayouts[set.second.setNumber] = reflectedSet.layout;
+            m_descriptorSetLayouts[set.second.setNumber] = reflectedSet.layout;
         reflectedSet.sets.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
         for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
         {

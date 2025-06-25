@@ -37,7 +37,7 @@ void RenderingOptions::Render()
         ImGui::Checkbox("Wire frame mode", &m_renderingSystem->m_renderContext.WireFrameRendering);
 
         ImGui::SeparatorText("Draw calls");
-        ImGui::Text("Total draw call count: %i", m_renderingSystem->m_sceneRenderer->m_renderingStatistics.DrawCallCount);
+        ImGui::Text("Total draw call count: %i", m_renderingSystem->m_forwardRenderer->m_renderingStatistics.DrawCallCount);
         if(ImGui::Button("Show window with all draw calls"))
         {
             m_openDrawCallListWindow = true;
@@ -99,33 +99,38 @@ void RenderingOptions::RenderDrawCallListWidndow(Renderer::RenderingSystem* rend
 
             ImGui::TableSetColumnIndex(1);
 
-            ImGui::SeparatorText("Buffer info");
+            if (!drawCall.second.postProcessingEffect) {
 
-            ImGui::Text("Index Count: %u", drawCall.second.indexCount);
-            ImGui::Text("First Index: %u", drawCall.second.firstIndex);
-            ImGui::Text("Instance Count: %u", drawCall.second.instanceCount);
-            ImGui::Text("Vertex buffer ID: %i", drawCall.second.vertexData->BufferID);
-            ImGui::Text("Index  buffer ID: %i", drawCall.second.indexData->BufferID);
-            ImGui::Text("Material ID: %i", drawCall.second.materialIndex);
+                ImGui::SeparatorText("Buffer info");
+                ImGui::Text("Index Count: %u", drawCall.second.indexCount);
+                ImGui::Text("First Index: %u", drawCall.second.firstIndex);
+                ImGui::Text("Instance Count: %u", drawCall.second.instanceCount);
+                ImGui::Text("Vertex buffer ID: %i", drawCall.second.vertexData->BufferID);
+                ImGui::Text("Index  buffer ID: %i", drawCall.second.indexData->BufferID);
+                ImGui::Text("Material ID: %i", drawCall.second.materialIndex);
 
-            ImGui::SeparatorText("Appearance info");
+                ImGui::SeparatorText("Appearance info");
 
-            // Print material name (if exists)
-            if(drawCall.second.material)
-            {
-                ImGui::Text("Material: %s", drawCall.second.material->GetMaterialName().c_str());
+                // Print material name (if exists)
+                if(drawCall.second.material)
+                {
+                    ImGui::Text("Material: %s", drawCall.second.material->GetMaterialName().c_str());
+                }
+
+                // Print effect name (if exists)
+                if(drawCall.second.effect)
+                {
+                    ImGui::Text("Effect: %s", drawCall.second.effect->GetName().c_str());
+                    ImGui::Text("Effect ID: %i", drawCall.second.effect->GetID());
+                }
+
+                // Print position
+                ImGui::Text("Position: (%.2f, %.2f, %.2f)", drawCall.second.position.x, drawCall.second.position.y,
+                            drawCall.second.position.z);
             }
-
-            // Print effect name (if exists)
-            if(drawCall.second.effect)
-            {
-                ImGui::Text("Effect: %s", drawCall.second.effect->GetName().c_str());
-                ImGui::Text("Effect ID: %i", drawCall.second.effect->GetID());
+            else {
+                ImGui::Text("Post processing volume draw call");
             }
-
-            // Print position
-            ImGui::Text("Position: (%.2f, %.2f, %.2f)", drawCall.second.position.x, drawCall.second.position.y,
-                        drawCall.second.position.z);
         }
         ImGui::EndTable();
     }

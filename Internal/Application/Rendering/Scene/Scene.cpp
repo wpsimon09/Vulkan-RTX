@@ -8,6 +8,7 @@
 
 #include "AreaLightNode.hpp"
 #include "DirectionLightNode.hpp"
+#include "FogVolumeNode.hpp"
 #include "PointLightNode.hpp"
 #include "SceneNode.hpp"
 #include "SkyBoxNode.hpp"
@@ -30,6 +31,12 @@ namespace ApplicationCore {
 
 void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
 {
+    if (node->GetSceneNodeMetaData().IsVolumeNode) {
+        if (auto volumeNode = dynamic_cast<FogVolumeNode*>(node.get())) {
+            fogVolumeParameters = &volumeNode->GetParameters();
+            return;
+        }
+    }
     if(node->HasMesh())
     {
         auto& mesh = node->GetMesh();
@@ -141,7 +148,7 @@ void Scene::Update()
 
 void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> sceneNode)
 {
-    if(sceneNode->HasMesh())
+    if(sceneNode->HasMesh() || sceneNode->GetSceneNodeMetaData().IsVolumeNode)
     {
         sceneNode->Render(m_assetsManager.GetEffectsLibrary(), ctx);
     }
@@ -188,6 +195,7 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
 
 void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode)
 {
+
     m_root->AddChild(m_sceneData, sceneNode);
     m_sceneUpdateFlags.resetAccumulation = true;
     m_sceneUpdateFlags.rebuildAs = true;
@@ -258,6 +266,13 @@ void Scene::AddPlaneToScene()
 
     auto node = std::make_shared<SceneNode>(obj);
     node->SetName("Plane ##" + VulkanUtils::random_string(5));
+    AddNode(node);
+}
+
+void Scene::AddFogVolume() {
+    auto obj = m_assetsManager.GetDefaultMesh(PostProcessQuad);
+    auto node = std::make_shared<FogVolumeNode>(obj);
+    node->SetName("Fog ##" + VulkanUtils::random_string(5));
     AddNode(node);
 }
 

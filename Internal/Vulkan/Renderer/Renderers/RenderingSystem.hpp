@@ -80,7 +80,7 @@ public:
     void Update();
     void Destroy();
 
-    ForwardRenderer&                         GetSceneRenderer() { return *m_sceneRenderer; };
+    ForwardRenderer&                         GetSceneRenderer() { return *m_forwardRenderer; };
     VulkanUtils::RenderContext*            GetRenderContext() { return &m_renderContext; }
 
 private:
@@ -94,7 +94,7 @@ private:
     LightStructs::SceneLightInfo* m_sceneLightInfo = nullptr;
 
     // Renderers
-    std::unique_ptr<Renderer::ForwardRenderer>       m_sceneRenderer;
+    std::unique_ptr<Renderer::ForwardRenderer>       m_forwardRenderer;
     std::unique_ptr<Renderer::PostProcessingSystem>  m_postProcessingSystem;
     std::unique_ptr<Renderer::UserInterfaceRenderer> m_uiRenderer;
     std::unique_ptr<Renderer::RayTracer>             m_rayTracer;

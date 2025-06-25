@@ -83,7 +83,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
     // Renderers creation
     //----------------------------------------------------------------------------------------------------------------------------
 
-    m_sceneRenderer = std::make_unique<Renderer::ForwardRenderer>(m_device, effectsLybrary, descLayoutCache,
+    m_forwardRenderer = std::make_unique<Renderer::ForwardRenderer>(m_device, effectsLybrary, descLayoutCache,
                                                                 GlobalVariables::RenderTargetResolutionWidth,
                                                                 GlobalVariables::RenderTargetResolutionHeight);
 
@@ -114,10 +114,10 @@ void RenderingSystem::Init()
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
-        //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_sceneRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
+        //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
-        m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer).SetImage(m_sceneRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
-        m_uiContext.GetViewPortContext(ViewPortType::eShadowMap).SetImage(m_sceneRenderer->GetShadowMapOutput().GetPrimaryImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer).SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::eShadowMap).SetImage(m_forwardRenderer->GetShadowMapOutput().GetPrimaryImage(), i);
     }
 }
 
@@ -225,7 +225,7 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
 
     if (m_frameCount > 2) {
-        m_effectsLibrary->UpdatePerFrameWrites(*m_sceneRenderer, &m_renderContext, m_postProcessingContext, m_uniformBufferManager);
+        m_effectsLibrary->UpdatePerFrameWrites(*m_forwardRenderer, &m_renderContext, m_postProcessingContext, m_uniformBufferManager);
     }
 
     //============================================================
@@ -235,11 +235,11 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     if(!m_uiContext.m_isRayTracing)
     {
         // render scene
-        m_sceneRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex],
+        m_forwardRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex],
                                 m_uniformBufferManager, &m_renderContext);
 
-        m_postProcessingContext.sceneRender = &m_sceneRenderer->GetLightPassOutput().GetResolvedImage();
-        m_postProcessingContext.shadowMap = &m_sceneRenderer->GetShadowMapOutput().GetPrimaryImage();
+        m_postProcessingContext.sceneRender = m_forwardRenderer->GetForwardRendererResult();
+        m_postProcessingContext.shadowMap = &m_forwardRenderer->GetShadowMapOutput().GetPrimaryImage();
     }
     else
     {
@@ -330,7 +330,7 @@ void RenderingSystem::Destroy()
         m_ableToPresentSemaphore[i]->Destroy();
     }
     m_postProcessingSystem->Destroy();
-    m_sceneRenderer->Destroy();
+    m_forwardRenderer->Destroy();
     m_uiRenderer->Destroy();
     m_swapChain->Destroy();
     m_envLightGenerator->Destroy();
