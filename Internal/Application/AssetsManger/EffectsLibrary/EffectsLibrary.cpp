@@ -423,11 +423,12 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
 
                     e->WriteImage(i, 0, 1, sceneRenderer.GetShadowMapOutput().GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-                    e->WriteImage(i, 0, 2, sceneRenderer.GetPositionBufferOutput().GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
+                    e->WriteImage(i, 0, 2, sceneRenderer.GetPositionBufferOutput().GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
                     e->WriteImage(i, 0, 3, MathUtils::LookUpTables.BlueNoise64->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                     e->WriteImage(i, 0, 4, sceneRenderer.GetLightPassOutput().GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                     e->WriteBuffer(i, 1, 0, uniformBufferManager.GetFogVolumParametersBufferDescriptorInfo(i));
+                    e->WriteBuffer(i, 1, 1, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
                     break;
                 }
 

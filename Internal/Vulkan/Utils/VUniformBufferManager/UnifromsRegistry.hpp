@@ -80,8 +80,8 @@ struct LightUniforms
 };
 
 struct FogVolumeParameters {
-    float density {15.0};
-    float rayDistance {900.0f};
+    float sigma_a {0.2};
+    float sigma_s {0.4};
     float raySteps {4};
     float heightFallOff {1};
 };

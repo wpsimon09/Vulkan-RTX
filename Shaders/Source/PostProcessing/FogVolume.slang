@@ -1,6 +1,7 @@
 import Core;
 import Material;
 import Utils;
+import Light;
 
 [[vk::binding(0, 0)]]
 ConstantBuffer<GlobalData> _globalData;
@@ -20,6 +21,9 @@ Sampler2D _inputTexture_SceneColour;
 [[vk::binding(0, 1)]]
 ConstantBuffer<FogVolumeParameters> _fogVolumeParametres;
 
+[[vk::binding(1, 1)]]
+ConstantBuffer<LightInfo> _light;
+
 struct VertexOut {
     float4 pos : SV_Position;
     float2 uv : TEXCOORDS;
@@ -35,34 +39,28 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     return output;
 }
 
-float GetFogDensity(float3 pos) {
-    float heightFactor = exp(-pos.y * _fogVolumeParametres.heightFallOff);
-    float noise = _inputTexture_BlueNoise.Sample(pos.xz * 0.1).r;
-    return _fogVolumeParametres.density;
+float3 fogDensity(float3 bg, float t, float3 v, float3 sunDir) {
+    float sigma_t = _fogVolumeParametres.sigma_t(); // get the scattering coeficient 
+    float fogAmmount  = 1.0 - exp(-t * sigma_t); // beer`s law Transmitance = exp(-distance_in_volume * coeficient)
+
+    float sunAmmount = max(dot(normalize(v), normalize(sunDir)), 0.0);
+    
+    float3 fogColour = lerp(float3(0.5, 0.6, 0.7), _light.dirLight.intensity.xyz, pow(sunAmmount, _light.dirLight.intensity.w));
+
+    float3 finalColour = bg * exp(-t * sigma_t)  + fogColour* (1.0 - exp(-t * sigma_t));
+
+    return lerp(bg, finalColour, fogAmmount);
 }
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) : SV_Target {
 
-    float fogMin = 0.1;
-    float fogMax = 1.0;
-
     float3 worldPos = _inputTexture_WorldPosition.Sample(fsIn.uv).xyz;
-    RayDesc ray;
-    ray.Direction = normalize(worldPos - _globalData.cameraPostiion.xyz);
-    ray.Origin = _globalData.cameraPostiion.xyz;
-    ray.TMin = 0.001;
-    ray.TMax = distance(worldPos ,_globalData.cameraPostiion.xyz);
+    float3 V = worldPos - _globalData.cameraPostiion.xyz;
+    float t = distance(worldPos, _globalData.cameraPostiion.xyz);
+    float3 bg = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
+    
 
-    float accumulatedFog = 0.0f;
-    float stepSize = ray.TMax / _fogVolumeParametres.raySteps;
-    float3 rayStep = ray.Direction * stepSize;
 
-    for (int i = 0; i < _fogVolumeParametres.raySteps; i++) {
-        float3 samplePos = ray.Origin + i * rayStep;
-        accumulatedFog += GetFogDensity(samplePos) * stepSize;
-    }
-
-    float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
-    return float4(pixelColour * float3(accumulatedFog, 0.0, 0.0), 1.0);
+    return float4(fogDensity(bg, t, V, _light.dirLight.direction.xyz), 1.0);
 }

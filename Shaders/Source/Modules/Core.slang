@@ -64,8 +64,10 @@ public struct PostProcessingParameters{
 //================================================
 // parameters for fog rendering
 public struct FogVolumeParameters {
-    public float density;
-    public float rayDistance;
+    public float sigma_a; //absorption
+    public float sigma_s; //scattering
     public float raySteps;
     public float heightFallOff;
+
+    public float sigma_t() {return sigma_a + sigma_s;}
 }
