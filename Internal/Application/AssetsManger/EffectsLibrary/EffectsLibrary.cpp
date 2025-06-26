@@ -188,7 +188,6 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
                                                      EShaderBindingGroup::FogBinding);
 
     fog->SetDisableDepthTest()
-        .EnableAlphaBlending()
         .SetNullVertexBinding()
         .SetCullNone()
         .SetPiplineNoMultiSampling();

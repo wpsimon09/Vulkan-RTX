@@ -58,5 +58,9 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
 
     float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
     
-    return float4( (float3(T)  ), 1.0);
+    if(_inputTexture_ShadowMap.Sample(fsIn.uv).x < 1.0){
+        return float4(  T * pixelColour, 1.0);
+    }else{
+        return float4(pixelColour,1.0);
+    }
 }
