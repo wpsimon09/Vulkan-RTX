@@ -68,4 +68,5 @@ public struct FogVolumeParameters {
     public float rayDistance;
     public float raySteps;
     public float heightFallOff;
+    public float4 fogColour;
 }

@@ -402,6 +402,7 @@ void DetailsPanel::RenderSkyBoxMaterialDetails(ApplicationCore::SkyBoxMaterial* 
 
 void DetailsPanel::RenderFogVolumeNodeUI() {
     if (auto fogNode = dynamic_cast<ApplicationCore::FogVolumeNode*>(m_selectedSceneNode.get())) {
+        ImGui::ColorEdit3("Fog colour", &fogNode->GetParameters().fogColour.x, ImGuiColorEditFlags_NoInputs);
         ImGui::SliderFloat("Absorption",&fogNode->GetParameters().absorption, 0.001, 1.0);
         ImGui::SliderFloat("Ray distance",&fogNode->GetParameters().rayDistance, 1.0, 900.0);
         ImGui::SliderFloat("Ray steps",&fogNode->GetParameters().raySteps, 0.1, 20.0);

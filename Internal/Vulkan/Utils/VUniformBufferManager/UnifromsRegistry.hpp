@@ -80,10 +80,11 @@ struct LightUniforms
 };
 
 struct FogVolumeParameters {
-    float absorption {15.0};
+    float absorption {0.1};
     float rayDistance {900.0f};
     float raySteps {4};
     float heightFallOff {1};
+    glm::vec4 fogColour {0.0f};
 };
 
 struct RTXObjDescription {

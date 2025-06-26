@@ -40,11 +40,7 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) : SV_Target {
 
-    float fogMin = 0.1;
-    float fogMax = 1.0;
-
     float3 worldPos = _inputTexture_WorldPosition.Sample(fsIn.uv).xyz;
-    float3 fogColour = float3(0.2, 0.2, 0.2);
 
     RayDesc ray;
     ray.Direction = normalize(worldPos - _globalData.cameraPostiion.xyz);
@@ -58,9 +54,8 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
 
     float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
     
-    if(_inputTexture_ShadowMap.Sample(fsIn.uv).x < 1.0){
-        return float4(  T * pixelColour, 1.0);
-    }else{
-        return float4(pixelColour,1.0);
-    }
+    float3 finalColour =  T * pixelColour + (1 - T) * _fogVolumeParametres.fogColour.xyz;
+
+    return float4( finalColour, 1.0);
+
 }
