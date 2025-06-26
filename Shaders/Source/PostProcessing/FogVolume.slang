@@ -35,11 +35,7 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     return output;
 }
 
-float GetFogDensity(float3 pos) {
-    float heightFactor = exp(-pos.y * _fogVolumeParametres.heightFallOff);
-    float noise = _inputTexture_BlueNoise.Sample(pos.xz * 0.1).r;
-    return _fogVolumeParametres.density;
-}
+
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) : SV_Target {
@@ -48,21 +44,19 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     float fogMax = 1.0;
 
     float3 worldPos = _inputTexture_WorldPosition.Sample(fsIn.uv).xyz;
+    float3 fogColour = float3(0.2, 0.2, 0.2);
+
     RayDesc ray;
     ray.Direction = normalize(worldPos - _globalData.cameraPostiion.xyz);
     ray.Origin = _globalData.cameraPostiion.xyz;
     ray.TMin = 0.001;
     ray.TMax = distance(worldPos ,_globalData.cameraPostiion.xyz);
 
-    float accumulatedFog = 0.0f;
-    float stepSize = ray.TMax / _fogVolumeParametres.raySteps;
-    float3 rayStep = ray.Direction * stepSize;
+    // calculate transmission using beers law
+    float T = exp(-ray.TMax * _fogVolumeParametres.absorption);
 
-    for (int i = 0; i < _fogVolumeParametres.raySteps; i++) {
-        float3 samplePos = ray.Origin + i * rayStep;
-        accumulatedFog += GetFogDensity(samplePos) * stepSize;
-    }
 
     float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
-    return float4(pixelColour * float3(accumulatedFog, 0.0, 0.0), 1.0);
+    
+    return float4( (float3(T)  ), 1.0);
 }
