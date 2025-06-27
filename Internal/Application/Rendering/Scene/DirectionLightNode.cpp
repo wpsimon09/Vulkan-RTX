@@ -16,7 +16,7 @@ DirectionLightNode::DirectionLightNode(LightStructs::SceneLightInfo&   sceneLigh
     m_sceneNodeMetaData.nodeType        = ENodeType::DirectionalLightNode;
     sceneLightInfo.DirectionalLightInfo = &m_lightStruct;
     m_transformation->SetPosition(m_lightStruct.direction);
-    m_transformation->SetScale(100.0f);
+    m_transformation->SetScale(1.0f);
 }
 
 

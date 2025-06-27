@@ -40,9 +40,24 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     return output;
 }
 
-float3 ApproximateFog(float T, float3 pixelColour){
+float3 ApproximateFog(RayDesc ray,float T,float shadow, float3 pixelColour){
     
-    float3 finalColour =  T * pixelColour + (1 - T) * _fogVolumeParametres.fogColour.xyz;
+    float sunAmmount = max(dot(ray.Direction, normalize(_light.dirLight.direction.xyz)), 0.0);
+
+    float3  fogColor  = lerp( _fogVolumeParametres.fogColour.xyz, // blue
+                           _light.dirLight.intensity.xyz, // yellow
+                           pow(sunAmmount,8) );
+
+    
+    
+    float3 finalColour;
+    if(shadow > 0.1){
+        finalColour = pixelColour;
+    }else{
+
+        finalColour =  T * pixelColour + (1 - T) * fogColor;
+    }
+    
 
     return finalColour;
 }
@@ -64,12 +79,13 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     // calculate transmission using beers law
     float T = exp(-ray.TMax * _fogVolumeParametres.absorption);
     
+    float shadow = _inputTexture_ShadowMap.Sample(fsIn.uv).x;
 
     float3 finalColour;
     if(_fogVolumeParametres.rayMarched){ // ray march fog 
         finalColour = float3(0.5, 0.0, 0.5);
     }else{
-        finalColour = ApproximateFog(T, pixelColour);
+        finalColour = ApproximateFog(ray, T, shadow, pixelColour);
     }
 
     return float4( finalColour, 1.0);
