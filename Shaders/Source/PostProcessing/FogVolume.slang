@@ -42,7 +42,7 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
 float3 ApproximateFog(RayDesc ray,float T,float shadow, float3 pixelColour){
     
-    float sunAmmount = max(dot(ray.Direction, normalize(_light.dirLight.direction.xyz)), 0.0);
+    float sunAmmount = max(dot(ray.Direction, -normalize(_light.dirLight.direction.xyz)), 0.0);
 
     float3  fogColor  = lerp( _fogVolumeParametres.fogColour.xyz, // blue
                            _light.dirLight.intensity.xyz, // yellow
