@@ -163,7 +163,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
         .DisableStencil()
         .SetCullNone()
         .SetNullVertexBinding()
-        .SetColourOutputFormat(vk::Format::eR32Sfloat)
+        .SetColourOutputFormat(vk::Format::eR16G16Sfloat)
         .SetPiplineNoMultiSampling();
 
     effects[EEffectType::RTShadowPass] = std::move(rtShadowPass);

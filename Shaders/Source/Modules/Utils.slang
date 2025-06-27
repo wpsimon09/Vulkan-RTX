@@ -112,14 +112,19 @@ public RayDesc InitRay(float3 origin, float3 direction, float tMax)
     return rayDescription;
 }
 
-public bool IntersectsP(RayDesc ray, RaytracingAccelerationStructure as){
+public bool IntersectsP(RayDesc ray, RaytracingAccelerationStructure as, out float tHit){
     RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> rayQuery;
-    rayQuery.TraceRayInline(as, RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH, 0xFF,ray );
+    rayQuery.TraceRayInline(as, RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH, 0xFF, ray);
 
     rayQuery.Proceed();
 
-    return (rayQuery.CommittedStatus() == COMMITTED_TRIANGLE_HIT);
-     
+    if(rayQuery.CommittedStatus() == COMMITTED_TRIANGLE_HIT){
+        tHit = rayQuery.CommittedRayT();
+        return true;
+    }
+    tHit = 200;
+    return false;
+    
 }
 
 public float3x3 angleAxis3x3(float angle, float3 axis){

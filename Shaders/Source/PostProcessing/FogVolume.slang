@@ -19,7 +19,7 @@ Sampler2D _inputTexture_BlueNoise;
 Sampler2D _inputTexture_SceneColour;
 
 [[vk::binding(5, 0)]]
-ConstantBuffer<LightInfo> _light; ;
+ConstantBuffer<LightInfo> _light;
 
 
 [[vk::binding(0, 1)]]
@@ -40,26 +40,54 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     return output;
 }
 
-float3 ApproximateFog(RayDesc ray,float T,float shadow, float3 pixelColour){
+float3 ApproximateFog(RayDesc ray,float T, float T_light ,float shadow, float3 pixelColour){
     
     float sunAmmount = max(dot(ray.Direction, -normalize(_light.dirLight.direction.xyz)), 0.0);
+
+
 
     float3  fogColor  = lerp( _fogVolumeParametres.fogColour.xyz, // blue
                            _light.dirLight.intensity.xyz, // yellow
                            pow(sunAmmount,8) );
-
+    
+    
     
     
     float3 finalColour;
-    if(shadow > 0.1){
-        finalColour = pixelColour;
-    }else{
-
-        finalColour =  T * pixelColour + (1 - T) * fogColor;
-    }
-    
+   
+    finalColour =  T * pixelColour + (1 - T_light) * fogColor;
+ 
 
     return finalColour;
+}
+
+float3 Li_x(float t, float stepSize, float3 col ) { 
+
+    return (exp(-t * _fogVolumeParametres.sigma_s) * col) * stepSize; 
+}
+
+float3 RayMarchFog(RayDesc ray,float lightT, float3 pixelColour){
+
+    float stepSize = ray.TMax / _fogVolumeParametres.raySteps; // dx
+    float numSteps = _fogVolumeParametres.raySteps;
+    float perStepAttentution = exp(-stepSize * _fogVolumeParametres.sigma_a);
+    float T = 1.0; // fog is fully transisive at the begining 
+
+    float3 Li = 0.0; // there is no light at the begining of the sample 
+    // march the ray
+    for(int i = 0; i < numSteps; i++){
+        // calculate sample position in the world
+        float samplePosition = ray.TMax - stepSize * (i + 0.5);
+        
+        // backward ray marching first
+        T *= perStepAttentution;
+        
+        Li += Li_x(lightT, stepSize, pixelColour);
+
+        Li *= perStepAttentution;
+    }
+
+    return pixelColour * T + Li;
 }
 
 
@@ -72,20 +100,26 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     ray.Direction = normalize(worldPos - _globalData.cameraPostiion.xyz);
     ray.Origin = _globalData.cameraPostiion.xyz;
     ray.TMin = 0.001;
-    ray.TMax = distance(worldPos ,_globalData.cameraPostiion.xyz);
+    // get the disnatnce that the ray will travel
+    ray.TMax = min(distance(worldPos ,_globalData.cameraPostiion.xyz), _fogVolumeParametres.rayDistance);
 
-    float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
-
-    // calculate transmission using beers law
-    float T = exp(-ray.TMax * _fogVolumeParametres.absorption);
     
-    float shadow = _inputTexture_ShadowMap.Sample(fsIn.uv).x;
+    // calculate transmission using beers law
+    float T = exp(-ray.TMax * _fogVolumeParametres.sigma_a);
+    float2 shadow_t_light = _inputTexture_ShadowMap.Sample(fsIn.uv).xy;
 
+    float T_light = exp(-shadow_t_light.y * _fogVolumeParametres.sigma_s);
+    
+    float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
+    
+    
     float3 finalColour;
     if(_fogVolumeParametres.rayMarched){ // ray march fog 
-        finalColour = float3(0.5, 0.0, 0.5);
+        finalColour = RayMarchFog(ray,shadow_t_light.y, pixelColour);
     }else{
-        finalColour = ApproximateFog(ray, T, shadow, pixelColour);
+        //====================
+        // approximate fog 
+        finalColour = ApproximateFog(ray, T, shadow_t_light.x, shadow_t_light.y, pixelColour);
     }
 
     return float4( finalColour, 1.0);

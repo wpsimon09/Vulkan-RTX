@@ -95,7 +95,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         height,
         false,
         false,
-        vk::Format::eR32Sfloat,
+        vk::Format::eR16G16Sfloat,
         vk::ImageLayout::eShaderReadOnlyOptimal,
         vk::ResolveModeFlagBits::eNone,
     };

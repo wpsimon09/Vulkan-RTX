@@ -79,14 +79,17 @@ struct LightUniforms
     glm::vec4                     info;  // x - use env, y - ambient strength,w - padding
 };
 
-struct FogVolumeParameters {
-    float absorption {0.1};
+struct FogVolumeParameters{
+    float sigma_a {0.1};
+    float sigma_s {0.1};
     float rayDistance {900.0f};
     float raySteps {4};
-    float heightFallOff {1};
+
     glm::vec4 fogColour {0.0f};
+
+    float heightFallOff {1};
     int rayMarched = false;
-    int padding[3];
+    int padding[2];
 };
 
 struct RTXObjDescription {

@@ -64,11 +64,22 @@ public struct PostProcessingParameters{
 //================================================
 // parameters for fog rendering
 public struct FogVolumeParameters {
-    public float absorption;
+    public float sigma_a; // absortpion coeficient
+    public float sigma_s; // scattering coeficient
     public float rayDistance;
     public float raySteps;
-    public float heightFallOff;
+
+    
     public float4 fogColour;
+    
+    public float heightFallOff;
     public bool rayMarched;
-    public int3 padding;
+    public int2 padding;
+}
+
+//==========================
+// Ray hit struct for the ray query
+public struct HitInfo{
+    bool hit = false;
+    float t = -1.0;
 }

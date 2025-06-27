@@ -60,8 +60,13 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float nShadowRays = _lightInfo.dirLight.parameters.x;
     float shadowBias = _lightInfo.dirLight.parameters.y;
 
+
+    float disatnceTraveled = 0;
+
     for(int i = 0; i < nShadowRays; ++i){
         float2 samplePos = BlueNoiseInDisk[i];
+
+        float tHit = 0;
 
         // rotate the disk randomly, based on the blue noise texture
         diskPoint.x = samplePos.x * cosTheta - samplePos.y * sinTheta;
@@ -73,11 +78,17 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
         bool inShadow = false;
     
-        inShadow = IntersectsP(InitRay(worldSpacePos , shadowRayDir, 10000), _tlas);        
+    
+        inShadow = IntersectsP(InitRay(worldSpacePos , shadowRayDir, 10000), _tlas, tHit);   
+    
+        disatnceTraveled += tHit;
+        
 
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }
 
+    disatnceTraveled /= nShadowRays;
 
-    return float4(float3(shadowFactor), 1.0);
+
+    return float4(shadowFactor, disatnceTraveled, 0, 1.0);
 }

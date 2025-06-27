@@ -404,7 +404,13 @@ void DetailsPanel::RenderFogVolumeNodeUI() {
     if (auto fogNode = dynamic_cast<ApplicationCore::FogVolumeNode*>(m_selectedSceneNode.get())) {
         ImGui::ColorEdit3("Fog colour", &fogNode->GetParameters().fogColour.x, ImGuiColorEditFlags_NoInputs);
         ImGui::Checkbox("Ray marched fog", reinterpret_cast<bool*>(&fogNode->GetParameters().rayMarched));
-        ImGui::SliderFloat("Absorption",&fogNode->GetParameters().absorption, 0.001, 1.0);
+
+        ImGui::SetItemTooltip("How indirect light travels through the volume ");
+        ImGui::SliderFloat("Absorption",&fogNode->GetParameters().sigma_a, 0.001, 1.0);
+
+        ImGui::SetItemTooltip("How direct light scatters in the fog volume ");
+        ImGui::SliderFloat("Scattering",&fogNode->GetParameters().sigma_s, 0.001, 1.0);
+
         ImGui::SliderFloat("Ray distance",&fogNode->GetParameters().rayDistance, 1.0, 900.0);
         ImGui::SliderFloat("Ray steps",&fogNode->GetParameters().raySteps, 0.1, 20.0);
         ImGui::SliderFloat("Height fall off",&fogNode->GetParameters().heightFallOff, 0.1, 20.0);
