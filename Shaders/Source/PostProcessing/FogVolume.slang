@@ -1,6 +1,7 @@
 import Core;
 import Material;
 import Utils;
+import Light;
 
 [[vk::binding(0, 0)]]
 ConstantBuffer<GlobalData> _globalData;
@@ -16,6 +17,10 @@ Sampler2D _inputTexture_BlueNoise;
 
 [[vk::binding(4, 0)]]
 Sampler2D _inputTexture_SceneColour;
+
+[[vk::binding(5, 0)]]
+ConstantBuffer<LightInfo> _light; ;
+
 
 [[vk::binding(0, 1)]]
 ConstantBuffer<FogVolumeParameters> _fogVolumeParametres;
@@ -35,6 +40,12 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     return output;
 }
 
+float3 ApproximateFog(float T, float3 pixelColour){
+    
+    float3 finalColour =  T * pixelColour + (1 - T) * _fogVolumeParametres.fogColour.xyz;
+
+    return finalColour;
+}
 
 
 [shader("fragment")]
@@ -48,13 +59,18 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     ray.TMin = 0.001;
     ray.TMax = distance(worldPos ,_globalData.cameraPostiion.xyz);
 
+    float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
+
     // calculate transmission using beers law
     float T = exp(-ray.TMax * _fogVolumeParametres.absorption);
-
-
-    float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
     
-    float3 finalColour =  T * pixelColour + (1 - T) * _fogVolumeParametres.fogColour.xyz;
+
+    float3 finalColour;
+    if(_fogVolumeParametres.rayMarched){ // ray march fog 
+        finalColour = float3(0.5, 0.0, 0.5);
+    }else{
+        finalColour = ApproximateFog(T, pixelColour);
+    }
 
     return float4( finalColour, 1.0);
 

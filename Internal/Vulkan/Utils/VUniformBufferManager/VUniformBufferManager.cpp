@@ -187,7 +187,6 @@ void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, con
     m_sceneTextures = sceneData.textures;
 }
 
-
 void VulkanUtils::VUniformBufferManager::Destroy() const
 {
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager and all its data...");

@@ -85,6 +85,8 @@ struct FogVolumeParameters {
     float raySteps {4};
     float heightFallOff {1};
     glm::vec4 fogColour {0.0f};
+    int rayMarched = false;
+    int padding[3];
 };
 
 struct RTXObjDescription {
