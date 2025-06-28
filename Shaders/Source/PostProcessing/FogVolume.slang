@@ -61,7 +61,7 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, f
 
 float3 Li_x(float t, float stepSize, float3 col ) { 
 
-    return (exp(-t * _fogVolumeParametres.sigma_s) * col) * stepSize; 
+    return exp(-t * _fogVolumeParametres.sigma_a) * col * stepSize; 
 }
 
 float3 RayMarchFog(RayDesc ray,float2 screenSize, float lightT, float3 pixelColour){
@@ -71,27 +71,29 @@ float3 RayMarchFog(RayDesc ray,float2 screenSize, float lightT, float3 pixelColo
     float perStepAttentution = exp(-stepSize * _fogVolumeParametres.sigma_a);
     float T = 1.0; // fog is fully transisive at the begining 
 
-    float3 Li = 0.0; // there is no light at the begining of the sample 
+    float3 Result = 0.0; // there is no light at the begining of the sample 
     // march the ray
     for(int i = 0; i < numSteps; i++){
         // calculate sample position in the world
         float rayT = ray.TMax - stepSize * (i + 0.5);
         
+        // get the sample position 
         float3 samplePos = ray.Origin + rayT * ray.Direction;
         
-        float lightTravelDistance;
-
-        IntersectsP(InitRay(samplePos, _light.dirLight.direction.xyz, 1000), _tlas, lightTravelDistance);
-
-        // backward ray marching first
         T *= perStepAttentution;
-        
-        Li += Li_x(lightTravelDistance, stepSize, _light.dirLight.intensity.xyz);
 
-        Li *= perStepAttentution;
+        float lightTravelDistance;
+        if(IntersectsP(InitRay(samplePos, _light.dirLight.direction.xyz, 4000), _tlas, lightTravelDistance)){
+            
+            // backward ray marching first
+            Result += Li_x(lightTravelDistance, stepSize, _light.dirLight.intensity.xyz);
+        }
+
+
+        Result *= perStepAttentution;
     }
 
-    return pixelColour * T + Li;
+    return pixelColour * T + Result + (1 - T) * _fogVolumeParametres.fogColour.xyz;
 }
 
 
