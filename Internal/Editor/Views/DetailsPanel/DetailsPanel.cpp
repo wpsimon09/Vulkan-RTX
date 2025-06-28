@@ -412,7 +412,7 @@ void DetailsPanel::RenderFogVolumeNodeUI() {
         ImGui::SliderFloat("Scattering",&fogNode->GetParameters().sigma_s, 0.001, 1.0);
 
         ImGui::SliderFloat("Ray distance",&fogNode->GetParameters().rayDistance, 1.0, 900.0);
-        ImGui::SliderFloat("Ray steps",&fogNode->GetParameters().raySteps, 0.1, 20.0);
+        ImGui::SliderFloat("Ray steps", &fogNode->GetParameters().raySteps, 1, 100.0);
         ImGui::SliderFloat("Height fall off",&fogNode->GetParameters().heightFallOff, 0.1, 20.0);
     }
 }

@@ -83,7 +83,7 @@ struct FogVolumeParameters{
     float sigma_a {0.1};
     float sigma_s {0.1};
     float rayDistance {900.0f};
-    float raySteps {4};
+    float raySteps {4.0};
 
     glm::vec4 fogColour {0.0f};
 

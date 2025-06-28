@@ -50,10 +50,10 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, f
 
     float3  fogColor  = _fogVolumeParametres.fogColour.xyz;
         
-    float3 volumetricLight = T * T_light * _fogVolumeParametres.sigma_s * _light.dirLight.intensity.xyz ;
+    float3 volumetricLight = T * T_light * _light.dirLight.intensity.xyz ;
     
-    float3 finalColour;
-    finalColour =  T_light * pixelColour + volumetricLight + (1 - T) * fogColor;
+    float3 finalColour = pixelColour * T + volumetricLight;
+    //finalColour =  T_light * pixelColour + volumetricLight + (1 - T) * fogColor;
  
 
     return finalColour;
@@ -61,36 +61,37 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, f
 
 float3 Li_x(float t, float stepSize, float3 col ) { 
 
-    return exp(-t * _fogVolumeParametres.sigma_a) * col * stepSize; 
+    return exp(-t * (_fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s)) * col * stepSize; 
 }
 
 float3 RayMarchFog(RayDesc ray,float2 screenSize, float lightT, float3 pixelColour){
 
     float stepSize = ray.TMax / _fogVolumeParametres.raySteps; // dx
     float numSteps = _fogVolumeParametres.raySteps;
-    float perStepAttentution = exp(-stepSize * _fogVolumeParametres.sigma_a);
-    float T = 1.0; // fog is fully transisive at the begining 
-
+    
+    float sigma_t = _fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s;
+    float perStepAttentution = exp(-stepSize * sigma_t);
+    
     float3 Result = 0.0; // there is no light at the begining of the sample 
+    float T = 1.0; // fog is fully transisive at the begining 
     // march the ray
-    for(int i = 0; i < numSteps; i++){
+    for(int i = 0; i < numSteps ; i++){
         // calculate sample position in the world
-        float rayT = ray.TMax - stepSize * (i + 0.5);
+        float rayT = ray.TMin + stepSize * (i + 0.5);
         
         // get the sample position 
         float3 samplePos = ray.Origin + rayT * ray.Direction;
         
-        T *= perStepAttentution;
-
         float lightTravelDistance;
-        if(IntersectsP(InitRay(samplePos, _light.dirLight.direction.xyz, 4000), _tlas, lightTravelDistance)){
-            
-            // backward ray marching first
-            Result += Li_x(lightTravelDistance, stepSize, _light.dirLight.intensity.xyz);
-        }
+        
+        T *= perStepAttentution;
+        
+        IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz),500), _tlas, lightTravelDistance);
 
+        Result += Li_x(lightTravelDistance, stepSize, _light.dirLight.intensity.xyz) * T;
+        //}
+        
 
-        Result *= perStepAttentution;
     }
 
     return pixelColour * T + Result + (1 - T) * _fogVolumeParametres.fogColour.xyz;
@@ -113,13 +114,15 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     
     
     // calculate transmission using beers law
-    float T = exp(-ray.TMax * _fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a);
+    float T = exp(-ray.TMax * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));
     float T_light = exp(-shadow_t_light.y * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));
     float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
     
     
     float3 finalColour;
-    if(_fogVolumeParametres.rayMarched){ // ray march fog 
+    if(_fogVolumeParametres.rayMarched){ 
+        //=====================
+        // ray marched fog 
         finalColour = RayMarchFog(ray, fsIn.screenSize, shadow_t_light.y, pixelColour);
     }else{
         //====================
