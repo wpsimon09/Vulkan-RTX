@@ -21,6 +21,9 @@ Sampler2D _inputTexture_SceneColour;
 [[vk::binding(5, 0)]]
 ConstantBuffer<LightInfo> _light;
 
+[[vk::binding(6, 0)]]
+RaytracingAccelerationStructure _tlas;
+
 
 [[vk::binding(0, 1)]]
 ConstantBuffer<FogVolumeParameters> _fogVolumeParametres;
@@ -41,20 +44,16 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     return output;
 }
 
-float3 ApproximateFog(RayDesc ray,float T, float T_light ,float shadow, float3 pixelColour){
+float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, float shadow){
     
     float sunAmmount = max(dot(ray.Direction, normalize(_light.dirLight.direction.xyz)), 0.0);
 
-
-
-    float3  fogColor  = lerp( _fogVolumeParametres.fogColour.xyz, // blue
-                           _light.dirLight.intensity.xyz, // yellow
-                           pow(sunAmmount,4) );
+    float3  fogColor  = _fogVolumeParametres.fogColour.xyz;
+        
+    float3 volumetricLight = T * T_light * _fogVolumeParametres.sigma_s * _light.dirLight.intensity.xyz ;
     
-    float3 volumetricLight = T_light * _light.dirLight.intensity.xyz ;
-
     float3 finalColour;
-    finalColour =  T * pixelColour + volumetricLight + (1 - T) * fogColor;
+    finalColour =  T_light * pixelColour + volumetricLight + (1 - T) * fogColor;
  
 
     return finalColour;
@@ -80,15 +79,9 @@ float3 RayMarchFog(RayDesc ray,float2 screenSize, float lightT, float3 pixelColo
         
         float3 samplePos = ray.Origin + rayT * ray.Direction;
         
-        //===================================
-        // transfer sample pos to screen space 
-        float4x4 viewProj = mul(_globalData.projection, _globalData.view);
-        float4 samplePosClip = mul(viewProj, float4(samplePos, 1.0));
-        float3 samplePosNDC = samplePosClip.xyz / samplePosClip.w;
-        float2 shadowMapUV = samplePosNDC.xy * 0.5 + 0.5;
+        float lightTravelDistance;
 
-
-        float lightTravelDistance = _inputTexture_ShadowMap.Sample(shadowMapUV).y;
+        IntersectsP(InitRay(samplePos, _light.dirLight.direction.xyz, 1000), _tlas, lightTravelDistance);
 
         // backward ray marching first
         T *= perStepAttentution;
@@ -114,22 +107,22 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     // get the disnatnce that the ray will travel
     ray.TMax = min(distance(worldPos ,_globalData.cameraPostiion.xyz), _fogVolumeParametres.rayDistance);
     
-    // calculate transmission using beers law
-    float T = exp(-ray.TMax * _fogVolumeParametres.sigma_a);
     float2 shadow_t_light = _inputTexture_ShadowMap.Sample(fsIn.uv).xy;
-
-    float T_light = exp(-shadow_t_light.y * _fogVolumeParametres.sigma_s);
     
+    
+    // calculate transmission using beers law
+    float T = exp(-ray.TMax * _fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a);
+    float T_light = exp(-shadow_t_light.y * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));
     float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
     
     
     float3 finalColour;
     if(_fogVolumeParametres.rayMarched){ // ray march fog 
-        finalColour = RayMarchFog(ray,fsIn.screenSize, shadow_t_light.y, pixelColour);
+        finalColour = RayMarchFog(ray, fsIn.screenSize, shadow_t_light.y, pixelColour);
     }else{
         //====================
         // approximate fog 
-        finalColour = ApproximateFog(ray, T, shadow_t_light.x, shadow_t_light.y, pixelColour);
+        finalColour = ApproximateFog(ray, T, T_light, pixelColour, shadow_t_light.x);
     }
 
     return float4( finalColour, 1.0);
