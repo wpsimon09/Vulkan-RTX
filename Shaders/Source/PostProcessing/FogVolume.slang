@@ -42,20 +42,18 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
 float3 ApproximateFog(RayDesc ray,float T, float T_light ,float shadow, float3 pixelColour){
     
-    float sunAmmount = max(dot(ray.Direction, -normalize(_light.dirLight.direction.xyz)), 0.0);
+    float sunAmmount = max(dot(ray.Direction, normalize(_light.dirLight.direction.xyz)), 0.0);
 
 
 
     float3  fogColor  = lerp( _fogVolumeParametres.fogColour.xyz, // blue
                            _light.dirLight.intensity.xyz, // yellow
-                           pow(sunAmmount,8) );
+                           pow(sunAmmount,4) );
     
-    
-    
-    
+    float3 volumetricLight = T_light * _light.dirLight.intensity.xyz ;
+
     float3 finalColour;
-   
-    finalColour =  T * pixelColour + (1 - T_light) * fogColor;
+    finalColour =  T * pixelColour + volumetricLight + (1 - T) * fogColor;
  
 
     return finalColour;
@@ -82,7 +80,7 @@ float3 RayMarchFog(RayDesc ray,float lightT, float3 pixelColour){
         // backward ray marching first
         T *= perStepAttentution;
         
-        Li += Li_x(lightT, stepSize, pixelColour);
+        Li += Li_x(lightT, stepSize, _light.dirLight.intensity.xyz);
 
         Li *= perStepAttentution;
     }

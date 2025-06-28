@@ -122,7 +122,7 @@ public bool IntersectsP(RayDesc ray, RaytracingAccelerationStructure as, out flo
         tHit = rayQuery.CommittedRayT();
         return true;
     }
-    tHit = 200;
+    tHit = ray.TMax;
     return false;
     
 }
