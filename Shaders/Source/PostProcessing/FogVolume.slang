@@ -28,6 +28,7 @@ ConstantBuffer<FogVolumeParameters> _fogVolumeParametres;
 struct VertexOut {
     float4 pos : SV_Position;
     float2 uv : TEXCOORDS;
+    float2 screenSize : SCREEN_SIZE;
 };
 
 [shader("vertex")]
@@ -36,7 +37,7 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     VertexOut output;
     output.uv = float2((VertexIndex << 1) & 2, VertexIndex & 2);
     output.pos = float4(output.uv * 2.0f - 1.0f, 0.0f, 1.0f);
-
+    output.screenSize = _globalData.screenSize; 
     return output;
 }
 
@@ -64,7 +65,7 @@ float3 Li_x(float t, float stepSize, float3 col ) {
     return (exp(-t * _fogVolumeParametres.sigma_s) * col) * stepSize; 
 }
 
-float3 RayMarchFog(RayDesc ray,float lightT, float3 pixelColour){
+float3 RayMarchFog(RayDesc ray,float2 screenSize, float lightT, float3 pixelColour){
 
     float stepSize = ray.TMax / _fogVolumeParametres.raySteps; // dx
     float numSteps = _fogVolumeParametres.raySteps;
@@ -75,12 +76,24 @@ float3 RayMarchFog(RayDesc ray,float lightT, float3 pixelColour){
     // march the ray
     for(int i = 0; i < numSteps; i++){
         // calculate sample position in the world
-        float samplePosition = ray.TMax - stepSize * (i + 0.5);
+        float rayT = ray.TMax - stepSize * (i + 0.5);
         
+        float3 samplePos = ray.Origin + rayT * ray.Direction;
+        
+        //===================================
+        // transfer sample pos to screen space 
+        float4x4 viewProj = mul(_globalData.projection, _globalData.view);
+        float4 samplePosClip = mul(viewProj, float4(samplePos, 1.0));
+        float3 samplePosNDC = samplePosClip.xyz / samplePosClip.w;
+        float2 shadowMapUV = samplePosNDC.xy * 0.5 + 0.5;
+
+
+        float lightTravelDistance = _inputTexture_ShadowMap.Sample(shadowMapUV).y;
+
         // backward ray marching first
         T *= perStepAttentution;
         
-        Li += Li_x(lightT, stepSize, _light.dirLight.intensity.xyz);
+        Li += Li_x(lightTravelDistance, stepSize, _light.dirLight.intensity.xyz);
 
         Li *= perStepAttentution;
     }
@@ -100,7 +113,6 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     ray.TMin = 0.001;
     // get the disnatnce that the ray will travel
     ray.TMax = min(distance(worldPos ,_globalData.cameraPostiion.xyz), _fogVolumeParametres.rayDistance);
-
     
     // calculate transmission using beers law
     float T = exp(-ray.TMax * _fogVolumeParametres.sigma_a);
@@ -113,7 +125,7 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     
     float3 finalColour;
     if(_fogVolumeParametres.rayMarched){ // ray march fog 
-        finalColour = RayMarchFog(ray,shadow_t_light.y, pixelColour);
+        finalColour = RayMarchFog(ray,fsIn.screenSize, shadow_t_light.y, pixelColour);
     }else{
         //====================
         // approximate fog 
