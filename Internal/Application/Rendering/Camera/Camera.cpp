@@ -144,7 +144,6 @@ glm::vec3 ApplicationCore::Camera::Deproject(glm::vec2 point)
 glm::vec2 ApplicationCore::Camera::GetCameraPlaneWidthAndHeight() const
 {
     // projection plane width and height
-
     float planeHeight = m_nearPlane * glm::tan(glm::radians(m_FOV * 0.5f)) * 2;
     float planeWidth  = planeHeight * m_aspect;
 

@@ -406,10 +406,13 @@ void DetailsPanel::RenderFogVolumeNodeUI() {
         ImGui::Checkbox("Ray marched fog", reinterpret_cast<bool*>(&fogNode->GetParameters().rayMarched));
 
         ImGui::SetItemTooltip("How indirect light travels through the volume ");
-        ImGui::SliderFloat("Absorption",&fogNode->GetParameters().sigma_a, 0.001, 1.0);
+        ImGui::SliderFloat("Absorption",&fogNode->GetParameters().sigma_a, 0.001, 2.0);
 
         ImGui::SetItemTooltip("How direct light scatters in the fog volume ");
-        ImGui::SliderFloat("Scattering",&fogNode->GetParameters().sigma_s, 0.001, 1.0);
+        ImGui::SliderFloat("Scattering",&fogNode->GetParameters().sigma_s, 0.001, 2.0);
+
+        ImGui::SetItemTooltip("G term for the phase function");
+        ImGui::SliderFloat("Asymmetry",&fogNode->GetParameters().asymmetryFactor, -1.0, 1.0);
 
         ImGui::SliderFloat("Ray distance",&fogNode->GetParameters().rayDistance, 1.0, 900.0);
         ImGui::SliderFloat("Ray steps", &fogNode->GetParameters().raySteps, 1, 100.0);

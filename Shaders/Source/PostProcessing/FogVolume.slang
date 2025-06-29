@@ -55,7 +55,6 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, f
     float3 finalColour = pixelColour * T + volumetricLight;
     //finalColour =  T_light * pixelColour + volumetricLight + (1 - T) * fogColor;
  
-
     return finalColour;
 }
 
@@ -85,7 +84,7 @@ float3 RayMarchFog(RayDesc ray,float2 screenSize,  float3 pixelColour){
     // march the ray
     for(int i = 0; i < numSteps ; i++){
         // calculate sample position in the world
-        float rayT = ray.TMin + stepSize * (i + 0.5);
+        float rayT = ray.TMin + stepSize * (float(i) + 0.5);
         
         // get the sample position 
         float3 samplePos = ray.Origin + rayT * ray.Direction;
@@ -94,20 +93,40 @@ float3 RayMarchFog(RayDesc ray,float2 screenSize,  float3 pixelColour){
         
         T *= perStepAttentution;
         
-        IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz),500), _tlas, lightTravelDistance);
+        IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz),ray.TMax), _tlas, lightTravelDistance);
 
         float cos_theta = dot(ray.Direction ,_light.dirLight.direction.xyz);
         Result += T * Li_x(lightTravelDistance, cos_theta, stepSize, _light.dirLight.intensity.xyz) ;
 
     }
 
-    return pixelColour * T + Result + (1 - T) * _fogVolumeParametres.fogColour.xyz;
+    return (pixelColour * T) + Result + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
 }
+
+float3 RayMarchFog2(RayDesc ray,float2 screenSize,  float3 pixelColour){
+    float3 fogColorLit = _fogVolumeParametres.fogColour.xyz;
+    float3 fogColorUnlit = float3(0.0f);
+    float3 fogLitPercent = 0.0f;
+
+    for(int i = 0; i < _fogVolumeParametres.raySteps; i++){
+        float3 samplePos = ray.Origin + ray.Direction * float(i + 0.5);
+        float lightTravelDistance;
+        bool hit = IntersectsP(InitRay(samplePos, _light.dirLight.direction.xyz, ray.TMax), _tlas, lightTravelDistance);
+        fogLitPercent = lerp(fogLitPercent,float(hit), 1.0 / float(i+1));
+    }
+
+    float3 fogColor = lerp(fogColorLit, fogColorUnlit, fogLitPercent);
+    float absorb = exp(- ray.TMax * _fogVolumeParametres.sigma_a);
+    return lerp(fogColor, pixelColour, absorb);
+
+}
+
 
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) : SV_Target {
 
+    
     float3 worldPos = _inputTexture_WorldPosition.Sample(fsIn.uv).xyz;
 
     RayDesc ray;
@@ -124,12 +143,13 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     float T_light = exp(-shadow_t_light.y * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));
     float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
     
-    
     float3 finalColour;
     if(_fogVolumeParametres.rayMarched){ 
         //=====================
         // ray marched fog 
-        finalColour = RayMarchFog(ray, fsIn.screenSize, pixelColour);
+        //finalColour = RayMarchFog(ray, fsIn.screenSize, pixelColour);
+        finalColour = RayMarchFog2(ray, fsIn.screenSize, pixelColour);
+
     }else{
         //====================
         // approximate fog 

@@ -89,7 +89,8 @@ struct FogVolumeParameters{
 
     float heightFallOff {1};
     int rayMarched = false;
-    int padding[2];
+    float asymmetryFactor = {0.0f};
+    int padding;
 };
 
 struct RTXObjDescription {
