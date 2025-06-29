@@ -74,7 +74,8 @@ public struct FogVolumeParameters {
     
     public float heightFallOff;
     public bool rayMarched;
-    public int2 padding;
+    public float asymetryFactor; // G - for the phase function
+    float padding;
 }
 
 //==========================

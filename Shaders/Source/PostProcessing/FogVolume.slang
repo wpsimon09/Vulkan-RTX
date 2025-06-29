@@ -59,12 +59,20 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, f
     return finalColour;
 }
 
-float3 Li_x(float t, float stepSize, float3 col ) { 
+// Physically based rendering, 11.2
+float Henyey_GreensteinPhaseFunction(float g, float cosTheta){
+    float Inv4Pi  = 1 / 4 * float.getPi();
 
-    return exp(-t * (_fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s)) * col * stepSize; 
+    float denom = 1 + g * g + 2 * g * cosTheta;
+    return Inv4Pi * (1 - g * g) / (denom * sqrt(denom));
 }
 
-float3 RayMarchFog(RayDesc ray,float2 screenSize, float lightT, float3 pixelColour){
+float3 Li_x(float t, float cosTheta,  float stepSize, float3 col ) { 
+
+    return exp(-t * (_fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s)) * _fogVolumeParametres.sigma_s * Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cosTheta) * col * stepSize; 
+}
+
+float3 RayMarchFog(RayDesc ray,float2 screenSize,  float3 pixelColour){
 
     float stepSize = ray.TMax / _fogVolumeParametres.raySteps; // dx
     float numSteps = _fogVolumeParametres.raySteps;
@@ -88,9 +96,8 @@ float3 RayMarchFog(RayDesc ray,float2 screenSize, float lightT, float3 pixelColo
         
         IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz),500), _tlas, lightTravelDistance);
 
-        Result += Li_x(lightTravelDistance, stepSize, _light.dirLight.intensity.xyz) * T;
-        //}
-        
+        float cos_theta = dot(ray.Direction ,_light.dirLight.direction.xyz);
+        Result += T * Li_x(lightTravelDistance, cos_theta, stepSize, _light.dirLight.intensity.xyz) ;
 
     }
 
@@ -112,7 +119,6 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     
     float2 shadow_t_light = _inputTexture_ShadowMap.Sample(fsIn.uv).xy;
     
-    
     // calculate transmission using beers law
     float T = exp(-ray.TMax * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));
     float T_light = exp(-shadow_t_light.y * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));
@@ -123,7 +129,7 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     if(_fogVolumeParametres.rayMarched){ 
         //=====================
         // ray marched fog 
-        finalColour = RayMarchFog(ray, fsIn.screenSize, shadow_t_light.y, pixelColour);
+        finalColour = RayMarchFog(ray, fsIn.screenSize, pixelColour);
     }else{
         //====================
         // approximate fog 
