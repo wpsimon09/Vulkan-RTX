@@ -68,7 +68,10 @@ float Henyey_GreensteinPhaseFunction(float g, float cosTheta){
 
 float3 Li_x(float t, float cosTheta,  float stepSize, float3 col ) { 
 
-    return exp(-t * (_fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s)) * _fogVolumeParametres.sigma_s * Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cosTheta) * col * stepSize; 
+    float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cosTheta);
+    float T_light = exp(-t * (_fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s));
+
+    return col * T_light * _fogVolumeParametres.sigma_s * p * stepSize;
 }
 
 float3 RayMarchFog(RayDesc ray,float blueNoise, float2 screenSize,  float3 pixelColour){
@@ -116,9 +119,9 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     RayDesc ray;
     ray.Direction = normalize(worldPos - _globalData.cameraPostiion.xyz);
     ray.Origin = _globalData.cameraPostiion.xyz;
-    ray.TMin = 0.0;
+    ray.TMin = 0.001;
     // get the disnatnce that the ray will travel
-    ray.TMax =  _fogVolumeParametres.rayDistance;
+    ray.TMax = min(distance(worldPos ,_globalData.cameraPostiion.xyz), _fogVolumeParametres.rayDistance);
     
     float2 shadow_t_light = _inputTexture_ShadowMap.Sample(fsIn.uv).xy;
     
