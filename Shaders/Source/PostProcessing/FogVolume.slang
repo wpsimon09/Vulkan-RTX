@@ -13,7 +13,7 @@ Sampler2D _inputTexture_ShadowMap;
 Sampler2D _inputTexture_WorldPosition;
 
 [[vk::binding(3, 0)]]
-Sampler2D _inputTexture_BlueNoise;
+Sampler2DArray _inputTexture_BlueNoise;
 
 [[vk::binding(4, 0)]]
 Sampler2D _inputTexture_SceneColour;
@@ -62,7 +62,7 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, f
 float Henyey_GreensteinPhaseFunction(float g, float cosTheta){
     float Inv4Pi  = 1 / 4 * float.getPi();
 
-    float denom = 1 + g * g + 2 * g * cosTheta;
+    float denom = 1 + g * g - 2 * g * cosTheta;
     return Inv4Pi * (1 - g * g) / (denom * sqrt(denom));
 }
 
@@ -71,7 +71,7 @@ float3 Li_x(float t, float cosTheta,  float stepSize, float3 col ) {
     return exp(-t * (_fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s)) * _fogVolumeParametres.sigma_s * Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cosTheta) * col * stepSize; 
 }
 
-float3 RayMarchFog(RayDesc ray,float2 screenSize,  float3 pixelColour){
+float3 RayMarchFog(RayDesc ray,float blueNoise, float2 screenSize,  float3 pixelColour){
 
     float stepSize = ray.TMax / _fogVolumeParametres.raySteps; // dx
     float numSteps = _fogVolumeParametres.raySteps;
@@ -84,7 +84,7 @@ float3 RayMarchFog(RayDesc ray,float2 screenSize,  float3 pixelColour){
     // march the ray
     for(int i = 0; i < numSteps ; i++){
         // calculate sample position in the world
-        float rayT = ray.TMin + stepSize * (float(i) + 0.5);
+        float rayT = ray.TMin + stepSize * (float(i) + blueNoise);
         
         // get the sample position 
         float3 samplePos = ray.Origin + rayT * ray.Direction;
@@ -103,23 +103,7 @@ float3 RayMarchFog(RayDesc ray,float2 screenSize,  float3 pixelColour){
     return (pixelColour * T) + Result + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
 }
 
-float3 RayMarchFog2(RayDesc ray,float2 screenSize,  float3 pixelColour){
-    float3 fogColorLit = _fogVolumeParametres.fogColour.xyz;
-    float3 fogColorUnlit = float3(0.0f);
-    float3 fogLitPercent = 0.0f;
 
-    for(int i = 0; i < _fogVolumeParametres.raySteps; i++){
-        float3 samplePos = ray.Origin + ray.Direction * float(i + 0.5);
-        float lightTravelDistance;
-        bool hit = IntersectsP(InitRay(samplePos, _light.dirLight.direction.xyz, ray.TMax), _tlas, lightTravelDistance);
-        fogLitPercent = lerp(fogLitPercent,float(hit), 1.0 / float(i+1));
-    }
-
-    float3 fogColor = lerp(fogColorLit, fogColorUnlit, fogLitPercent);
-    float absorb = exp(- ray.TMax * _fogVolumeParametres.sigma_a);
-    return lerp(fogColor, pixelColour, absorb);
-
-}
 
 
 
@@ -132,9 +116,9 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     RayDesc ray;
     ray.Direction = normalize(worldPos - _globalData.cameraPostiion.xyz);
     ray.Origin = _globalData.cameraPostiion.xyz;
-    ray.TMin = 0.001;
+    ray.TMin = 0.0;
     // get the disnatnce that the ray will travel
-    ray.TMax = min(distance(worldPos ,_globalData.cameraPostiion.xyz), _fogVolumeParametres.rayDistance);
+    ray.TMax =  _fogVolumeParametres.rayDistance;
     
     float2 shadow_t_light = _inputTexture_ShadowMap.Sample(fsIn.uv).xy;
     
@@ -143,12 +127,16 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     float T_light = exp(-shadow_t_light.y * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));
     float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
     
+    // get the blue noise
+    float3 uvi = float3(fsIn.uv, _globalData.currentFrame % 64.0);
+    float blueNoise = _inputTexture_BlueNoise.Sample(uvi).x;
+
     float3 finalColour;
     if(_fogVolumeParametres.rayMarched){ 
         //=====================
         // ray marched fog 
         //finalColour = RayMarchFog(ray, fsIn.screenSize, pixelColour);
-        finalColour = RayMarchFog2(ray, fsIn.screenSize, pixelColour);
+        finalColour = RayMarchFog(ray, blueNoise, fsIn.screenSize, pixelColour);
 
     }else{
         //====================
@@ -159,3 +147,26 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     return float4( finalColour, 1.0);
 
 }
+
+
+
+/*
+* Other ray marching from the shader toy 
+float3 RayMarchFog2(RayDesc ray, float blueNoise,float2 screenSize,  float3 pixelColour){
+    float3 fogColorLit = _fogVolumeParametres.fogColour.xyz;
+    float3 fogColorUnlit = float3(0.0f);
+    float3 fogLitPercent = 0.0f;
+
+    for(int i = 0; i < _fogVolumeParametres.raySteps; i++){
+        float3 samplePos = ray.Origin + ray.Direction * float(i );
+        float lightTravelDistance;
+        bool hit = IntersectsP(InitRay(samplePos, _light.dirLight.direction.xyz, ray.TMax), _tlas, lightTravelDistance);
+        fogLitPercent = lerp(fogLitPercent,float(hit), 1.0 / float(i+1));
+    }
+
+    float3 fogColor = lerp(fogColorLit, fogColorUnlit, fogLitPercent);
+    float absorb = exp(- ray.TMax * _fogVolumeParametres.sigma_a);
+    return lerp(fogColor, pixelColour, absorb);
+
+}
+*/

@@ -33,5 +33,10 @@ void MathUtils::InitLookUpTables(const VulkanCore::VDevice& device)
     auto blueNoiseTextureData = ApplicationCore::LoadImage("Resources/BlueNoise/1024/LDR_RGBA_0.png");
     ltcTexture = std::make_shared<VulkanCore::VImage2>(device, blueNoiseTextureData );
     transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
+    LookUpTables.BlueNoise1024 = std::make_shared<ApplicationCore::VTextureAsset>(device, std::move(ltcTexture));
+
+    auto blueNoise64TextureData = ApplicationCore::LoadTextureArray("Resources/BlueNoise/64");
+    ltcTexture = std::make_shared<VulkanCore::VImage2>(device, blueNoise64TextureData);
+    transferOpsManager.DestroyBuffer(ltcTexture->GetImageStagingvBuffer(), true);
     LookUpTables.BlueNoise64 = std::make_shared<ApplicationCore::VTextureAsset>(device, std::move(ltcTexture));
 }

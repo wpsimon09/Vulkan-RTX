@@ -396,7 +396,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 
                     //===================================
                     // blue noise texture
-                    e->WriteImage(i, 0, 4, MathUtils::LookUpTables.BlueNoise64->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    e->WriteImage(i, 0, 4, MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                     break;
                 }
@@ -417,7 +417,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                     break;
                 }
                 case EShaderBindingGroup::FogBinding: {
-                    e->SetNumWrites(4,5,1);
+                    e->SetNumWrites(4,7,1);
 
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
 
