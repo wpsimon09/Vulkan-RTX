@@ -60,10 +60,10 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, f
 
 // Physically based rendering, 11.2
 float Henyey_GreensteinPhaseFunction(float g, float cosTheta){
-    float Inv4Pi  = 1 / 4 * float.getPi();
+    float Inv4Pi  = 1.0 / (4.0 * float.getPi());
 
-    float denom = 1 + g * g - 2 * g * cosTheta;
-    return Inv4Pi * (1 - g * g) / (denom * sqrt(denom));
+    float denom = 1.0 + g * g - 2.0 * g * cosTheta;
+    return Inv4Pi * (1.0 - g * g) / (denom * sqrt(denom));
 }
 
 float3 Li_x(float t, float cosTheta,  float stepSize, float3 col ) { 
@@ -85,6 +85,7 @@ float3 RayMarchFog(RayDesc ray,float blueNoise, float2 screenSize,  float3 pixel
     float3 Result = 0.0; // there is no light at the begining of the sample 
     float T = 1.0; // fog is fully transisive at the begining 
     // march the ray
+    float cos_theta = dot(normalize(ray.Direction) ,normalize(_light.dirLight.direction.xyz));
     for(int i = 0; i < numSteps ; i++){
         // calculate sample position in the world
         float rayT = ray.TMin + stepSize * (float(i) + blueNoise);
@@ -92,15 +93,15 @@ float3 RayMarchFog(RayDesc ray,float blueNoise, float2 screenSize,  float3 pixel
         // get the sample position 
         float3 samplePos = ray.Origin + rayT * ray.Direction;
         
-        float lightTravelDistance;
+        float lightTravelDistance = 2000;
         
         T *= perStepAttentution;
         
-        IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz),ray.TMax), _tlas, lightTravelDistance);
+        IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz), lightTravelDistance), _tlas, lightTravelDistance);
 
-        float cos_theta = dot(ray.Direction ,_light.dirLight.direction.xyz);
-        Result += T * Li_x(lightTravelDistance, cos_theta, stepSize, _light.dirLight.intensity.xyz) ;
+        Result += T * Li_x(lightTravelDistance, cos_theta, stepSize, _light.dirLight.intensity.xyz)  ;
 
+        if(T < 0.01){break;}
     }
 
     return (pixelColour * T) + Result + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
@@ -131,7 +132,7 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
     
     // get the blue noise
-    float3 uvi = float3(fsIn.uv, _globalData.currentFrame % 64.0);
+    float3 uvi = float3(fsIn.uv, _globalData.currentFrame % 64.0); // uv corrdintates + i - index to the texture array based on the frame 
     float blueNoise = _inputTexture_BlueNoise.Sample(uvi).x;
 
     float3 finalColour;
