@@ -97,10 +97,10 @@ float3 RayMarchFog(RayDesc ray,float blueNoise, float2 screenSize,  float3 pixel
         
         T *= perStepAttentution;
         
-        IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz), lightTravelDistance), _tlas, lightTravelDistance);
+        bool inShadow = IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz), lightTravelDistance), _tlas, lightTravelDistance);
 
-        Result += T * Li_x(lightTravelDistance, cos_theta, stepSize, _light.dirLight.intensity.xyz)  ;
-
+        Result += T * Li_x(inShadow ? lightTravelDistance : 20 , cos_theta, stepSize, _light.dirLight.intensity.xyz)  ;
+      
         if(T < 0.01){break;}
     }
 
