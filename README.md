@@ -115,14 +115,14 @@ python compileSlang.py --verbose
 - Forward Renderer  
 - Area Light With LTC  
 - Ray Traced Pixel Perfect Shadows  
-- Real time path tracing
+- Real time path tracing (with RT cores)
 - Image Based Lighting  
 - ACES Tone Mapping  
 - Scene Editor With Gizmos  
 - Real Time Material Customisation
 - Multy threaded lazy texture loading
 - Bindless descritptors for material textures
-
+- Large scale homogeneous participating media rendering
 
 ## Little showcase
 
