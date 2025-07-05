@@ -182,8 +182,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         //=============================================
         // vk::DescriptorSetLayoutBindingFlagsCreateInfo
         currentBindings.descriptorFlags = std::vector<vk::DescriptorBindingFlags>(
-            currentBindings.bindings.size(), vk::DescriptorBindingFlagBits::eUpdateAfterBind | vk::DescriptorBindingFlagBits::ePartiallyBound
-                                                 );
+            currentBindings.bindings.size());
 
         currentBindings.bindingFlagsInfo.bindingCount  = currentBindings.descriptorFlags.size();
         currentBindings.bindingFlagsInfo.pBindingFlags = currentBindings.descriptorFlags.data();

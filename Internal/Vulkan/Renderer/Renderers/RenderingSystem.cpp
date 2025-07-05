@@ -53,6 +53,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
     , m_descLayoutCache(descLayoutCache)
     , m_transferSemapohore(device.GetTransferOpsManager().GetTransferSemaphore())
     , m_effectsLibrary(&effectsLybrary)
+, m_rayTracingDataManager(rayTracingDataManager)
 
 {
 
@@ -225,7 +226,7 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
 
     if (m_frameCount > 2) {
-        m_effectsLibrary->UpdatePerFrameWrites(*m_forwardRenderer, &m_renderContext, m_postProcessingContext, m_uniformBufferManager);
+        m_effectsLibrary->UpdatePerFrameWrites(*m_forwardRenderer,m_rayTracingDataManager, &m_renderContext, m_postProcessingContext, m_uniformBufferManager);
     }
 
     //============================================================

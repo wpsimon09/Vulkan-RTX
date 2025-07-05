@@ -69,7 +69,7 @@ class RenderingSystem
 public:
     RenderingSystem(const VulkanCore::VulkanInstance&         instance,
                     const VulkanCore::VDevice&                device,
-                    VulkanUtils::VRayTracingDataManager& m_rayTracingDataManager,
+                    VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
                      VulkanUtils::VUniformBufferManager& uniformBufferManager,
                     ApplicationCore::EffectsLibrary&          effectsLybrary,
                     VulkanCore::VDescriptorLayoutCache&       descLayoutCache,
@@ -117,6 +117,7 @@ private:
     // Render context
     VulkanUtils::RenderContext m_renderContext;
     VulkanStructs::PostProcessingContext m_postProcessingContext;
+    VulkanUtils::VRayTracingDataManager& m_rayTracingDataManager;
 
     // State
     uint32_t m_currentImageIndex = 0;

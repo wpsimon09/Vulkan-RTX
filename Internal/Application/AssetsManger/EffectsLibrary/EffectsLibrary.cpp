@@ -184,13 +184,10 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     //================================================================================
     auto fog = std::make_shared<VulkanUtils::VRasterEffect>(device, "Fog volume post processing", "Shaders/Compiled/FogVolume.vert.spv",
-                                                     "Shaders/Compiled/FogVolume.frag.spv", descLayoutCache,
-                                                     EShaderBindingGroup::FogBinding);
+                                                            "Shaders/Compiled/FogVolume.frag.spv", descLayoutCache,
+                                                            EShaderBindingGroup::FogBinding);
 
-    fog->SetDisableDepthTest()
-        .SetNullVertexBinding()
-        .SetCullNone()
-        .SetPiplineNoMultiSampling();
+    fog->SetDisableDepthTest().SetNullVertexBinding().SetCullNone().SetPiplineNoMultiSampling();
 
     effects[EEffectType::FogVolume] = std::move(fog);
 
@@ -223,7 +220,8 @@ void EffectsLibrary::Destroy()
         effect.second->Destroy();
     }
 }
-void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&            sceneRenderer,
+void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&          sceneRenderer,
+                                          VulkanUtils::VRayTracingDataManager&      rayTracingDataManager,
                                           VulkanUtils::RenderContext*               renderingContext,
                                           VulkanStructs::PostProcessingContext&     postProcessingContext,
                                           const VulkanUtils::VUniformBufferManager& uniformBufferManager)
@@ -290,6 +288,16 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&      
                     }
                     break;
                 }
+                case EShaderBindingGroup::ShadowRT: {
+                    e->SetNumWrites(0, 0, 1);
+                    e->WriteAccelerationStrucutre(i, 0, 2, rayTracingDataManager.GetTLAS());
+                    break;
+                }
+                case EShaderBindingGroup::FogBinding: {
+                    e->SetNumWrites(0, 0, 1);
+                    e->WriteAccelerationStrucutre(i, 0, 6, rayTracingDataManager.GetTLAS());
+                    break;
+                }
 
                 default: {
                     // throw std::runtime_error("Unsupported bindinggroup !");
@@ -304,7 +312,7 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&      
     }
 }
 
-void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer&       sceneRenderer,
+void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer&     sceneRenderer,
                                                VulkanUtils::VUniformBufferManager&  uniformBufferManager,
                                                VulkanUtils::VRayTracingDataManager& rayTracingDataManager)
 {
@@ -355,7 +363,9 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 
                     //===================================
                     // for ray query we need acceleration strucutre
-                    e->WriteImage(i, 0, 4, sceneRenderer.GetShadowMapOutput().GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    e->WriteImage(i, 0, 4,
+                                  sceneRenderer.GetShadowMapOutput().GetPrimaryImage().GetDescriptorImageInfo(
+                                      VulkanCore::VSamplers::Sampler2D));
 
                     break;
                 }
@@ -396,7 +406,9 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 
                     //===================================
                     // blue noise texture
-                    e->WriteImage(i, 0, 4, MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    e->WriteImage(i, 0, 4,
+                                  MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
+                                      VulkanCore::VSamplers::Sampler2D));
 
                     break;
                 }
@@ -417,14 +429,22 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                     break;
                 }
                 case EShaderBindingGroup::FogBinding: {
-                    e->SetNumWrites(4,7,1);
+                    e->SetNumWrites(4, 7, 2);
 
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
 
-                    e->WriteImage(i, 0, 1, sceneRenderer.GetShadowMapOutput().GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-                    e->WriteImage(i, 0, 2, sceneRenderer.GetPositionBufferOutput().GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
-                    e->WriteImage(i, 0, 3, MathUtils::LookUpTables.BlueNoise64->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-                    e->WriteImage(i, 0, 4, sceneRenderer.GetLightPassOutput().GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                    e->WriteImage(i, 0, 1,
+                                  sceneRenderer.GetShadowMapOutput().GetPrimaryImage().GetDescriptorImageInfo(
+                                      VulkanCore::VSamplers::Sampler2D));
+                    e->WriteImage(i, 0, 2,
+                                  sceneRenderer.GetPositionBufferOutput().GetResolvedImage().GetDescriptorImageInfo(
+                                      VulkanCore::VSamplers::SamplerDepth));
+                    e->WriteImage(i, 0, 3,
+                                  MathUtils::LookUpTables.BlueNoise64->GetHandle()->GetDescriptorImageInfo(
+                                      VulkanCore::VSamplers::Sampler2D));
+                    e->WriteImage(i, 0, 4,
+                                  sceneRenderer.GetLightPassOutput().GetResolvedImage().GetDescriptorImageInfo(
+                                      VulkanCore::VSamplers::Sampler2D));
 
                     e->WriteBuffer(i, 0, 5, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
 
@@ -435,7 +455,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                 }
 
                 default: {
-                    throw std::runtime_error("Unsupported bindinggroup !");
+                    throw std::runtime_error("Unsupported binding group !");
                     break;
                 }
             }

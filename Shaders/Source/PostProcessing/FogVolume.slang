@@ -24,7 +24,6 @@ ConstantBuffer<LightInfo> _light;
 [[vk::binding(6, 0)]]
 RaytracingAccelerationStructure _tlas;
 
-
 [[vk::binding(0, 1)]]
 ConstantBuffer<FogVolumeParameters> _fogVolumeParametres;
 
@@ -78,12 +77,12 @@ float Henyey_GreensteinPhaseFunction(float g, float cosTheta){
 * stepSize - size of the step (dx) in the integra 
 * I - light intensity 
 **/
-float3 Li_x(float t, float p, bool v, float stepSize, float3 I ) { 
+float3 Li_x(float t, float v, float stepSize, float3 I ) { 
 
-    float betaS = _fogVolumeParametres.sigma_s;
+    float betaS = _fogVolumeParametres.sigma_s; // scatering coeficient 
     float T = exp(-t);
 
-    return T * betaS * float(v) * I * stepSize;
+    return T * betaS * v * I * stepSize;
 }
 
 
@@ -105,13 +104,14 @@ float3 RayMarchFog(RayDesc ray, float blueNoise, float3 pixelColour)
     for (int i = 0; i < numSteps; i++)
     {
         float rayT = ray.TMin + stepSize * (float(i) + blueNoise);
-        float3 samplePos = ray.Origin + rayT * ray.Direction;
-        float lightTravelDistance = 20000;
+        float3 samplePos = ray.Origin + ray.Direction * rayT;
+        float lightTravelDistance = 4000;
         
         T *= perStepAttentution;
-        bool V = IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz), lightTravelDistance), _tlas, lightTravelDistance);
+        bool hit = IntersectsP(InitRay(samplePos , normalize(_light.dirLight.direction.xyz), 4000), _tlas, lightTravelDistance);
+        float V = hit ? 0.0 : 1.0;
 
-        Result += Li_x(lightTravelDistance, p, V ? 1.0 : 0.0, stepSize, I);
+        Result += Li_x(lightTravelDistance, V, stepSize, I);
     }
     
     return (pixelColour * T) + (p * Result) + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
@@ -129,7 +129,7 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     RayDesc ray;
     ray.Direction = normalize(worldPos - _globalData.cameraPostiion.xyz);
     ray.Origin = _globalData.cameraPostiion.xyz;
-    ray.TMin = 0.001;
+    ray.TMin = 0;
     // get the disnatnce that the ray will travel
     ray.TMax = min(distance(worldPos ,_globalData.cameraPostiion.xyz), _fogVolumeParametres.rayDistance);
     

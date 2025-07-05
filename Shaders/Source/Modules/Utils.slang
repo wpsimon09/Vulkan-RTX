@@ -107,7 +107,7 @@ public RayDesc InitRay(float3 origin, float3 direction, float tMax)
     rayDescription.Origin = origin;
     rayDescription.Direction = direction;
     rayDescription.TMax = tMax;
-    rayDescription.TMin = 0.0001;
+    rayDescription.TMin = 0;
 
     return rayDescription;
 }

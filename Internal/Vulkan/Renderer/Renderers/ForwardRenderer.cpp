@@ -139,6 +139,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
         m_rtxShadowPassEffect->WriteImage(
             i, 0, 3, m_positionBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
         m_rtxShadowPassEffect->ApplyWrites(i);
     }
 

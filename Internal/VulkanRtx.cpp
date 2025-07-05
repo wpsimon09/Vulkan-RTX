@@ -217,8 +217,6 @@ void Application::Update()
 
 void Application::Render()
 {
-
-
     m_client->GetAssetsManager().Sync();
 
     m_client->Render(m_renderingSystem->GetRenderContext());
