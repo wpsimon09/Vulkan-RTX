@@ -49,10 +49,13 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, f
     float sunAmmount = max(dot(ray.Direction, normalize(_light.dirLight.direction.xyz)), 0.0);
 
     float3  fogColor  = _fogVolumeParametres.fogColour.xyz;
-        
-    float3 volumetricLight = T * T_light * _light.dirLight.intensity.xyz ;
-    
-    float3 finalColour = pixelColour * T + volumetricLight;
+
+    // phase function
+    float cos_theta = dot(normalize(ray.Direction) ,normalize(_light.dirLight.direction.xyz));
+    float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
+
+    float3 finalColour = pixelColour * T + (1-T) * fogColor  ;
+
     //finalColour =  T_light * pixelColour + volumetricLight + (1 - T) * fogColor;
  
     return finalColour;
@@ -82,10 +85,10 @@ float3 RayMarchFog(RayDesc ray,float blueNoise, float2 screenSize,  float3 pixel
     float sigma_t = _fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s;
     float perStepAttentution = exp(-stepSize * sigma_t);
     
+    float cos_theta = dot(normalize(ray.Direction) ,normalize(_light.dirLight.direction.xyz));
     float3 Result = 0.0; // there is no light at the begining of the sample 
     float T = 1.0; // fog is fully transisive at the begining 
     // march the ray
-    float cos_theta = dot(normalize(ray.Direction) ,normalize(_light.dirLight.direction.xyz));
     for(int i = 0; i < numSteps ; i++){
         // calculate sample position in the world
         float rayT = ray.TMin + stepSize * (float(i) + blueNoise);
@@ -99,12 +102,14 @@ float3 RayMarchFog(RayDesc ray,float blueNoise, float2 screenSize,  float3 pixel
         
         bool inShadow = IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz), lightTravelDistance), _tlas, lightTravelDistance);
 
-        Result += T * Li_x(inShadow ? lightTravelDistance : 20 , cos_theta, stepSize, _light.dirLight.intensity.xyz)  ;
+        // evaluate in-scattering
+        Result += T * Li_x(lightTravelDistance, cos_theta, stepSize, _light.dirLight.intensity.xyz) * (float)inShadow;
       
-        if(T < 0.01){break;}
+        //if(T < 0.01){break;}
     }
 
-    return (pixelColour * T) + Result + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
+    float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
+    return (pixelColour * T + pixelColour * p ) + Result + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
 }
 
 
