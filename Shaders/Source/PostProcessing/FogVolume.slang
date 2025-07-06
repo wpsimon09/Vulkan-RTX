@@ -52,8 +52,13 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, f
     // phase function
     float cos_theta = dot(normalize(ray.Direction) ,normalize(_light.dirLight.direction.xyz));
     float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
+    float3 E_sun = _light.dirLight.intensity.xyz * _light.dirLight.intensity.w;
+    float beta_S = _fogVolumeParametres.sigma_s;
 
-    float3 finalColour = pixelColour * p * T + (1-T) * fogColor ;
+    // analitical solution of the inscattering integral by Hoffman and Preetham
+    float3 in_scattering =  (E_sun * p) / beta_S * (1-exp(-beta_S * ray.TMax)); 
+
+    float3 finalColour = pixelColour  * T + in_scattering + (1-T) * fogColor ;
 
     //finalColour =  T_light * pixelColour + volumetricLight + (1 - T) * fogColor;
  
@@ -100,28 +105,40 @@ float3 RayMarchFog(RayDesc ray, float blueNoise, float3 pixelColour)
     float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
     float3 I = _light.dirLight.intensity.xyz * _light.dirLight.intensity.w;
     
+
+    float numHits = 0;
+    float distance = 0;
     // Integrate the in-scattering
     for (int i = 0; i < numSteps; i++)
     {
         float rayT = ray.TMin + stepSize * (float(i) + blueNoise);
         float3 samplePos = ray.Origin + ray.Direction * rayT;
-        float lightTravelDistance = 4000;
-        
+        float lightTravelDistance;
+        bool hit = IntersectsP(InitRay(samplePos , normalize(_light.dirLight.direction.xyz), 4000), _tlas, lightTravelDistance);
+        float V = hit ? 0.0 : 1.0; // visibility term
+        numHits += float(hit);
+        distance += lightTravelDistance;
         T *= perStepAttentution;
         
-        //Result += Li_x(lightTravelDistance, V, stepSize, I);
+        Result += Li_x(lightTravelDistance, V, stepSize, I);
     }
 
-    
-    //return (pixelColour * T) + (p * Result) + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
+    return (pixelColour * T) + (p * Result) + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
+    //return float3(numHits / numSteps, distance / numSteps ,0.0 );
+/**    
     float rayT = ray.TMin + stepSize * (float(_fogVolumeParametres.raySteps) + blueNoise);
     float3 samplePos = ray.Origin + ray.Direction * rayT;
-    RayDesc r = InitRay(samPplePos , normalize(_light.dirLight.direction.xyz), 40);
-    float lightTravelDistance = 40;
-    bool hit = IntersectsP(InitRay(samplePos , normalize(_light.dirLight.direction.xyz), 40), _tlas, lightTravelDistance);
+    RayDesc r = InitRay(samplePos , normalize(_light.dirLight.direction.xyz), 4000);
+    float x;
+    bool hit = IntersectsP(InitRay(samplePos , normalize(_light.dirLight.direction.xyz), 400), _tlas,x);
+
+    // if light can reach sample point that it is 1.0 other wise 0
     float V = hit ? 0.0 : 1.0; // visibility term
 
+    float lightTravelDistance = 40;
     return float3(V, 0.0, 0.0);
+   **/ 
+
 
 }
 
@@ -173,7 +190,7 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
 * Other ray marching from the shader toy 
 float3 RayMarchFog2(RayDesc ray, float blueNoise,float2 screenSize,  float3 pixelColour){
     float3 fogColorLit = _fogVolumeParametres.fogColour.xyz;
-    float3 fogColorUnlit = float3(0.0f);
+    float3 fogColorUnlit = float3(0.0f);    
     float3 fogLitPercent = 0.0f;
 
     for(int i = 0; i < _fogVolumeParametres.raySteps; i++){
