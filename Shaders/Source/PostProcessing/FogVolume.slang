@@ -84,10 +84,10 @@ float Henyey_GreensteinPhaseFunction(float g, float cosTheta){
 **/
 float3 Li_x(float t, float v, float stepSize, float3 I ) { 
 
-    float betaS = _fogVolumeParametres.sigma_s; // scattering coeficient 
-    float T = exp(-t);
+    float betaS = _fogVolumeParametres.sigma_s * _fogVolumeParametres.sigma_a; // scattering coeficient 
+    float T = exp(-betaS * t);
 
-    return T * betaS * v * I * stepSize;
+    return T * v * I * stepSize;
 }
 
 
@@ -100,7 +100,7 @@ float3 RayMarchFog(RayDesc ray, float blueNoise, float3 pixelColour)
     float perStepAttentution = exp(-stepSize * sigma_t);
     
     float cos_theta = dot(normalize(ray.Direction), normalize(_light.dirLight.direction.xyz));
-    float3 Result = 0.0;
+    float3 In_Scattering = 0.0;
     float T = 1.0;
     float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
     float3 I = _light.dirLight.intensity.xyz * _light.dirLight.intensity.w;
@@ -119,11 +119,14 @@ float3 RayMarchFog(RayDesc ray, float blueNoise, float3 pixelColour)
         numHits += float(hit);
         distance += lightTravelDistance;
         T *= perStepAttentution;
+
+        In_Scattering += Li_x(lightTravelDistance, V, stepSize, I);
         
-        Result += Li_x(lightTravelDistance, V, stepSize, I);
     }
 
-    return (pixelColour * T) + (p * Result) + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
+    return (pixelColour * T) + ( p * In_Scattering) + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
+    //return  p * In_Scattering;
+    
     //return float3(numHits / numSteps, distance / numSteps ,0.0 );
 /**    
     float rayT = ray.TMin + stepSize * (float(_fogVolumeParametres.raySteps) + blueNoise);
