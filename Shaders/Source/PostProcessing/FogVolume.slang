@@ -53,7 +53,7 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, f
     float cos_theta = dot(normalize(ray.Direction) ,normalize(_light.dirLight.direction.xyz));
     float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
 
-    float3 finalColour = pixelColour * T + (1-T) * fogColor + p ;
+    float3 finalColour = pixelColour * p * T + (1-T) * fogColor ;
 
     //finalColour =  T_light * pixelColour + volumetricLight + (1 - T) * fogColor;
  
@@ -79,7 +79,7 @@ float Henyey_GreensteinPhaseFunction(float g, float cosTheta){
 **/
 float3 Li_x(float t, float v, float stepSize, float3 I ) { 
 
-    float betaS = _fogVolumeParametres.sigma_s; // scatering coeficient 
+    float betaS = _fogVolumeParametres.sigma_s; // scattering coeficient 
     float T = exp(-t);
 
     return T * betaS * v * I * stepSize;
@@ -108,16 +108,22 @@ float3 RayMarchFog(RayDesc ray, float blueNoise, float3 pixelColour)
         float lightTravelDistance = 4000;
         
         T *= perStepAttentution;
-        bool hit = IntersectsP(InitRay(samplePos , normalize(_light.dirLight.direction.xyz), 4000), _tlas, lightTravelDistance);
-        float V = hit ? 0.0 : 1.0;
-
-        Result += Li_x(lightTravelDistance, V, stepSize, I);
+        
+        //Result += Li_x(lightTravelDistance, V, stepSize, I);
     }
+
     
-    return (pixelColour * T) + (p * Result) + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
+    //return (pixelColour * T) + (p * Result) + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
+    float rayT = ray.TMin + stepSize * (float(_fogVolumeParametres.raySteps) + blueNoise);
+    float3 samplePos = ray.Origin + ray.Direction * rayT;
+    RayDesc r = InitRay(samPplePos , normalize(_light.dirLight.direction.xyz), 40);
+    float lightTravelDistance = 40;
+    bool hit = IntersectsP(InitRay(samplePos , normalize(_light.dirLight.direction.xyz), 40), _tlas, lightTravelDistance);
+    float V = hit ? 0.0 : 1.0; // visibility term
+
+    return float3(V, 0.0, 0.0);
+
 }
-
-
 
 
 [shader("fragment")]
@@ -129,7 +135,7 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     RayDesc ray;
     ray.Direction = normalize(worldPos - _globalData.cameraPostiion.xyz);
     ray.Origin = _globalData.cameraPostiion.xyz;
-    ray.TMin = 0;
+    ray.TMin = 0.001;
     // get the disnatnce that the ray will travel
     ray.TMax = min(distance(worldPos ,_globalData.cameraPostiion.xyz), _fogVolumeParametres.rayDistance);
     
