@@ -13,7 +13,7 @@ Sampler2D _inputTexture_ShadowMap;
 Sampler2D _inputTexture_WorldPosition;
 
 [[vk::binding(3, 0)]]
-Sampler2DArray _inputTexture_BlueNoise;
+Sampler2D _inputTexture_BlueNoise;
 
 [[vk::binding(4, 0)]]
 Sampler2D _inputTexture_SceneColour;
@@ -145,12 +145,11 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     
     // calculate transmission using beers law
     float T = exp(-ray.TMax * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));
-    float T_light = exp(-shadow_t_light.y * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));
     float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
+
+    float T_light = exp(-shadow_t_light.y * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));
     
-    // get the blue noise
-    float3 uvi = float3(fsIn.uv, _globalData.currentFrame % 64.0); // uv corrdintates + i - index to the texture array based on the frame 
-    float blueNoise = _inputTexture_BlueNoise.Sample(uvi).x;
+    float blueNoise = _inputTexture_BlueNoise.Sample(fsIn.uv).x ;
 
     float3 finalColour;
     if(_fogVolumeParametres.rayMarched){ 

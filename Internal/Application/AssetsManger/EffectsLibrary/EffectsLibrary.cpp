@@ -440,7 +440,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                                   sceneRenderer.GetPositionBufferOutput().GetResolvedImage().GetDescriptorImageInfo(
                                       VulkanCore::VSamplers::SamplerDepth));
                     e->WriteImage(i, 0, 3,
-                                  MathUtils::LookUpTables.BlueNoise64->GetHandle()->GetDescriptorImageInfo(
+                                  MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
                                       VulkanCore::VSamplers::Sampler2D));
                     e->WriteImage(i, 0, 4,
                                   sceneRenderer.GetLightPassOutput().GetResolvedImage().GetDescriptorImageInfo(
