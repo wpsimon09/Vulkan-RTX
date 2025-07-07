@@ -474,8 +474,6 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                 MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
                     VulkanCore::VSamplers::Sampler2D));
 
-                    // binding 2 is writteing in post processing renderer
-
                     e->WriteBuffer(i, 0, 3,uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
 
                     break;

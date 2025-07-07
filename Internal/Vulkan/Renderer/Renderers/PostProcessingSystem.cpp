@@ -5,9 +5,12 @@
 #include "PostProcessingSystem.h"
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
+#include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
+#include <memory>
 
 namespace Renderer {
 
@@ -44,12 +47,43 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
     m_toneMapOutput = std::make_unique<Renderer::RenderTarget2>(m_device, toneMapOutputCI);
 
 
+    //=========================
+    // Get lens flare effect
+    //=========================
+    m_lensFlareEffect = effectsLibrary.GetEffect(ApplicationCore::EEffectType::LensFlare);
+
+    //======================================
+    // Write tone mapped scene to descriptor
+    //======================================
+    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+    {
+
+        m_lensFlareEffect->SetNumWrites(0, 1, 0);
+        m_lensFlareEffect->WriteImage(i, 0, 2, m_toneMapOutput->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+        m_lensFlareEffect->ApplyWrites(i);
+    }
+
+    //===============================
+    // Create lens flare result image
+    //===============================
+    RenderTarget2CreatInfo lensFlareOutputCI{
+        width,
+        height,
+        false,
+        false,
+        vk::Format::eR16G16B16A16Sfloat,
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::ResolveModeFlagBits::eNone,
+    };
+
+    m_lensFlareOutput = std::make_unique<Renderer::RenderTarget2>(m_device, lensFlareOutputCI);
+
     Utils::Logger::LogInfo("Post processing system created");
 }
 
 void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext)
 {
-    // Lens flare will go here 
+    // Lens flare will go here
 
     ToneMapping(frameIndex, commandBuffer, postProcessingContext);
 }
@@ -102,7 +136,6 @@ void PostProcessingSystem::ToneMapping(int                                   cur
 
     m_toneMapOutput->TransitionAttachments(commandBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                            vk::ImageLayout::eColorAttachmentOptimal);
-
 }
 
 void PostProcessingSystem::Destroy()
