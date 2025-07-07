@@ -193,6 +193,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     //================================================================================
 
+
     BuildAllEffects();
 }
 

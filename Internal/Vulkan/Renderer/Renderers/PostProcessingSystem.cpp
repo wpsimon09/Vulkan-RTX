@@ -49,6 +49,8 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
 
 void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext)
 {
+    // Lens flare will go here 
+
     ToneMapping(frameIndex, commandBuffer, postProcessingContext);
 }
 
@@ -56,6 +58,7 @@ VulkanCore::VImage2& PostProcessingSystem::GetRenderedResult(int frameIndex)
 {
     return m_toneMapOutput->GetPrimaryImage();
 }
+
 
 void PostProcessingSystem::ToneMapping(int                                   currentIndex,
                                        VulkanCore::VCommandBuffer&           commandBuffer,

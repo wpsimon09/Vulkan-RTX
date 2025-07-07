@@ -4,6 +4,7 @@
 
 #ifndef POSTPROCESSINGSYSTEM_H
 #define POSTPROCESSINGSYSTEM_H
+#include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 
 namespace Renderer {
@@ -31,8 +32,10 @@ private:
 private:
 
   std::shared_ptr<VulkanUtils::VEffect> m_toneMappingEffect;
-
   std::unique_ptr<RenderTarget2> m_toneMapOutput;
+  
+  std::shared_ptr<VulkanUtils::VEffect> m_lensFlareEffect;
+  std::unique_ptr<RenderTarget2> m_lensFlareOutput;
 
   const VulkanCore::VDevice& m_device;
   VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
