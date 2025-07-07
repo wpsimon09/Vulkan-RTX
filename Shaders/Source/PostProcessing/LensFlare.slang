@@ -35,23 +35,28 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
     float4x4 viewProj = mul(_globalData.projection, _globalData.view);
 
-    float4 sunClipSacpe = mul(_globalData.view, sunPosWorld);
-    
+    float4 sunClipSacpe = mul(viewProj, float4(sunPosWorld.xyz, 1.0));
+
+    float3 sunNdc = sunClipSacpe.xyz / sunClipSacpe.w;
+
+    float2 sunUv = sunNdc.xy * 0.5 + 0.5;
+
+    output.sunPosition = sunUv;
 
     return output;
 }
 
-float noise_float(float t, float2 texResolution)
+float noise_float(float t)
 {
-	return _inputTexture_BlueNoise.Sample(float2(t,0.0)/texResolution).x;
+	return _inputTexture_BlueNoise.Sample(float2(t,0.0)/_globalData.screenSize.xy).x;
 }
 
-float noise_float2(float2 t, float2 texResolution)
+float noise_float2(float2 t)
 {
-	return _inputTexture_BlueNoise.Sample(t/texResolution).x;
+	return _inputTexture_BlueNoise.Sample(t/_globalData.screenSize.xy).x;
 }
 
-float3 LensFlare(float2 uv, float2 pos, float2 texResolution){
+float3 LensFlare(float2 uv, float2 pos){
     float2 main = uv - pos;
     float2 uvd = uv * (length(uv));
 
@@ -59,7 +64,7 @@ float3 LensFlare(float2 uv, float2 pos, float2 texResolution){
     float dist = length(main);
     dist = pow(dist, 0.1);
 
-    float n = noise_float2(float2(ang * 16.0, dist * 32.0), texResolution);
+    float n = noise_float2(float2(ang * 16.0, dist * 32.0));
 
     //=========================
     // each F represents different ghost with different screen space offset
@@ -111,9 +116,13 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     float2 uv = fsIn.uv;
     float2 resolution = 1.0 / _globalData.screenSize;
 
-    
-    
-    return float4( finalColour, 1.0);
+    float4 previousColour = _inputTexture_RenderedImage.Sample(uv);
+    float3 col = previousColour.xyz;
 
+    col += float3(1.4,1.2,1.0) * LensFlare(uv, fsIn.sunPosition);
+    col -= noise_float2(fsIn.pos.xy) * 0.015;
+    col = cc(col, 0.5, 0.1);
+    
+    return float4( col, 1.0);
 }
 

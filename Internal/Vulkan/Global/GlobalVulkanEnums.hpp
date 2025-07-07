@@ -64,6 +64,7 @@ enum EShaderBindingGroup {
     ToneMap,
     PostProcessing,
     FogBinding,
+    LensFlareBinding
 };
 
 

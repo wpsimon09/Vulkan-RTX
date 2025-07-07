@@ -8,6 +8,7 @@
 
 #include <memory>
 
+#include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
@@ -193,6 +194,16 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     //================================================================================
 
+    auto lensFlare = std::make_shared<VulkanUtils::VRasterEffect>(device, "Lens flare post processing effect",
+                                                                  "Shaders/Compiled/LensFlare.vert.spv",
+                                                                  "Shaders/Compiled/LensFlare.frag.spv",
+                                                                  descLayoutCache, EShaderBindingGroup::LensFlareBinding);
+
+    lensFlare->SetDisableDepthTest().SetNullVertexBinding().SetCullNone().SetPiplineNoMultiSampling();
+
+    effects[EEffectType::LensFlare] = std::move(lensFlare);
+
+    //================================================================================
 
     BuildAllEffects();
 }
@@ -452,6 +463,21 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                     e->WriteAccelerationStrucutre(i, 0, 6, rayTracingDataManager.GetTLAS());
 
                     e->WriteBuffer(i, 1, 0, uniformBufferManager.GetFogVolumParametersBufferDescriptorInfo(i));
+                    break;
+                }
+                case EShaderBindingGroup::LensFlareBinding:{
+                    e->SetNumWrites(2, 2, 0);
+
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+
+                    e->WriteImage(i, 0, 1,
+                MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
+                    VulkanCore::VSamplers::Sampler2D));
+
+                    // binding 2 is writteing in post processing renderer
+
+                    e->WriteBuffer(i, 0, 3,uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+
                     break;
                 }
 
