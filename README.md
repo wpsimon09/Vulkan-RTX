@@ -126,6 +126,8 @@ python compileSlang.py --verbose
 
 ## Little showcase
 
+![image](https://github.com/user-attachments/assets/d88487ab-d982-46c5-a416-7423ff58c4d0)
+
 ![image](https://github.com/user-attachments/assets/69a1ac89-3466-49b0-b9ef-e5a453318cb1 )
 
 ![Screenshot From 2025-06-03 10-31-22](https://github.com/user-attachments/assets/6d313d62-2d93-40f8-beb5-18aadbd71e1f )
