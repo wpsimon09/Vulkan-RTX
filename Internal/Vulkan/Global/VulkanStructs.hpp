@@ -209,7 +209,7 @@ struct PostProcessingContext
 {
     VulkanCore::VImage2* sceneRender;
     VulkanCore::VImage2* shadowMap;
-    bool                 lensFlareEffect = false;
+    bool                 lensFlareEffect = true;
 };
 
 

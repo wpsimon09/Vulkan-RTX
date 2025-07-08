@@ -53,17 +53,6 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
     //=========================
     m_lensFlareEffect = effectsLibrary.GetEffect(ApplicationCore::EEffectType::LensFlare);
 
-    //======================================
-    // Write tone mapped scene to descriptor
-    //======================================
-    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-
-        m_lensFlareEffect->SetNumWrites(0, 1, 0);
-        m_lensFlareEffect->WriteImage(i, 0, 2, m_toneMapOutput->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-        m_lensFlareEffect->ApplyWrites(i);
-    }
-
     //===============================
     // Create lens flare result image
     //===============================

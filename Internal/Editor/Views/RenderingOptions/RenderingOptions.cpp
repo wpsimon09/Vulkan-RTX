@@ -50,6 +50,7 @@ void RenderingOptions::Render()
         }
         ImGui::Checkbox("Lens flare", &m_renderingSystem->m_postProcessingContext.lensFlareEffect);
 
+
         ImGui::Text("Number of frames: %lu", m_renderingSystem->m_frameCount);
         ImGui::Text("Accumulated frames: %iu", m_renderingSystem->m_accumulatedFramesCount);
 

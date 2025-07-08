@@ -181,12 +181,31 @@ void Settings::RenderRenderingSettings()
 
     ImGui::SliderFloat("Outline width", &GlobalVariables::RenderingOptions::OutlineWidth, 0.01f, 1.f);
 
-    ImGui::SliderInt("Reccursion depth", &GlobalVariables::RenderingOptions::MaxRecursionDepth, 1, 20);
-    ImGui::SliderInt("Rays per pixel", &GlobalVariables::RenderingOptions::RaysPerPixel, 1, 20);
+    if(ImGui::TreeNode("Ray tracing"))
+    {
+        ImGui::SliderInt("Reccursion depth", &GlobalVariables::RenderingOptions::MaxRecursionDepth, 1, 20);
+        ImGui::SliderInt("Rays per pixel", &GlobalVariables::RenderingOptions::RaysPerPixel, 1, 20);
 
-    ImGui::SeparatorText("Tone mapping settings");
-    ImGui::DragFloat("Exposure", &m_client.GetPostProcessingParameters().toneMapping.x, 0.01, 0.01, 10.0);
-    ImGui::DragFloat("Gamma", &m_client.GetPostProcessingParameters().toneMapping.y, 0.1, 0.01, 20.0);
+        ImGui::TreePop();
+    }
 
+    if(ImGui::TreeNode("Tone mapping options"))
+    {
+        ImGui::DragFloat("Exposure", &m_client.GetPostProcessingParameters().toneMapping.x, 0.01, 0.01, 10.0);
+        ImGui::DragFloat("Gamma", &m_client.GetPostProcessingParameters().toneMapping.y, 0.1, 0.01, 20.0);
+
+        ImGui::TreePop();
+    }
+
+
+    if(ImGui::TreeNode("Lens flare"))
+    {
+        ImGui::SliderFloat("Strength", &m_client.GetPostProcessingParameters().lensFlareStrength, 0.1f, 100.0f);
+        ImGui::SliderFloat("F1 Strength:", &m_client.GetPostProcessingParameters().f1Strength, 0.1f, 100.0f);
+        ImGui::SliderFloat("F2 Strength:", &m_client.GetPostProcessingParameters().f2Strength, 0.1f, 100.0f);
+        ImGui::SliderFloat("F3 Strength:", &m_client.GetPostProcessingParameters().f3Strength, 0.1f, 100.0f);
+
+        ImGui::TreePop();
+    }
 }
 }  // namespace VEditor

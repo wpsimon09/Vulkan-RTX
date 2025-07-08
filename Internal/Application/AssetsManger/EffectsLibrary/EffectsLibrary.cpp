@@ -463,7 +463,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                     break;
                 }
                 case EShaderBindingGroup::LensFlareBinding: {
-                    e->SetNumWrites(2, 2, 0);
+                    e->SetNumWrites(3, 2, 0);
 
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
 
@@ -472,7 +472,9 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                                   MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
                                       VulkanCore::VSamplers::Sampler2D));
 
-                    e->WriteBuffer(i, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+                    e->WriteBuffer(i, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+
+                    e->WriteBuffer(i, 0, 3, uniformBufferManager.GetPostProcessingBufferDescriptorInfo(i));
 
                     break;
                 }

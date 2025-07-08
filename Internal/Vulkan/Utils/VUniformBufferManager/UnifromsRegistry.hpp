@@ -27,8 +27,8 @@ struct GlobalUniform
     float     raysPerPixel;
     float     reccursionDepth;
     glm::vec2 screenSize;
-    float numberOfFrames;
-    float padding1, padding2, padding3;
+    float     numberOfFrames;
+    float     padding1, padding2, padding3;
 };
 
 struct ObjectDataUniform
@@ -40,12 +40,12 @@ struct ObjectDataUniform
     PBRMaterialDescription material;
 };
 
-struct  PerObjectData  {
-    glm::mat4              model{};
-    glm::mat4              normalMatrix{};
-    glm::vec4              position{};
-    glm::uvec4              indexes{}; // x - material index,
-
+struct PerObjectData
+{
+    glm::mat4  model{};
+    glm::mat4  normalMatrix{};
+    glm::vec4  position{};
+    glm::uvec4 indexes{};  // x - material index,
 };
 
 struct PointLightGPU
@@ -58,8 +58,8 @@ struct PointLightGPU
 struct DirectionalLightGPU
 {
     glm::vec4 direction;
-    glm::vec4 colour;  // w is intensity
-    glm::vec4 parameters; // x - shadow rays, y - shadow bias ,zw - unused
+    glm::vec4 colour;      // w is intensity
+    glm::vec4 parameters;  // x - shadow rays, y - shadow bias ,zw - unused
 };
 
 struct AreaLightGPU
@@ -79,32 +79,40 @@ struct LightUniforms
     glm::vec4                     info;  // x - use env, y - ambient strength,w - padding
 };
 
-struct FogVolumeParameters{
-    float sigma_a {0.1};
-    float sigma_s {0.1};
-    float rayDistance {900.0f};
-    float raySteps {4.0};
+struct FogVolumeParameters
+{
+    float sigma_a{0.1};
+    float sigma_s{0.1};
+    float rayDistance{900.0f};
+    float raySteps{4.0};
 
-    glm::vec4 fogColour {0.0f};
+    glm::vec4 fogColour{0.0f};
 
-    float heightFallOff {1};
-    int rayMarched = false;
+    float heightFallOff{1};
+    int   rayMarched      = false;
     float asymmetryFactor = {0.0f};
-    int padding;
+    int   padding;
 };
 
-struct RTXObjDescription {
+struct RTXObjDescription
+{
     vk::DeviceAddress vertexAddress;
     vk::DeviceAddress indexAddresss;
 };
 
-struct PerObjectPushConstant {
-    glm::ivec4 indexes    {}; // x - object index, yzw - padding for now in future can be other indexes
-    glm::mat4 modelMatrix {};
+struct PerObjectPushConstant
+{
+    glm::ivec4 indexes{};  // x - object index, yzw - padding for now in future can be other indexes
+    glm::mat4  modelMatrix{};
 };
 
-struct PostProcessingParameters {
-    glm::vec4 toneMapping {1.0, 2.2, 0.0, 0.0}; // x- exposure, y - gamma_correction, zw - padding
+struct PostProcessingParameters
+{
+    glm::vec4 toneMapping{1.0, 2.2, 0.0, 0.0};  // x- exposure, y - gamma_correction, zw - padding
+    float     lensFlareStrength = 2.0f;
+    float     f1Strength        = 2.0f;
+    float     f2Strength        = 2.0f;
+    float     f3Strength        = 1.0f;
 };
 
 
