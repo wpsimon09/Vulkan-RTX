@@ -6,6 +6,7 @@
 
 #include "Application/Utils/LookUpTables.hpp"
 
+#include <cstddef>
 #include <memory>
 
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
@@ -196,8 +197,8 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     auto lensFlare = std::make_shared<VulkanUtils::VRasterEffect>(device, "Lens flare post processing effect",
                                                                   "Shaders/Compiled/LensFlare.vert.spv",
-                                                                  "Shaders/Compiled/LensFlare.frag.spv",
-                                                                  descLayoutCache, EShaderBindingGroup::LensFlareBinding);
+                                                                  "Shaders/Compiled/LensFlare.frag.spv", descLayoutCache,
+                                                                  EShaderBindingGroup::LensFlareBinding);
 
     lensFlare->SetDisableDepthTest().SetNullVertexBinding().SetCullNone().SetPiplineNoMultiSampling();
 
@@ -282,13 +283,8 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&      
                     break;
                 }
                 case EShaderBindingGroup::ToneMap: {
-                    e->SetNumWrites(0, 1, 0);
-                    if(postProcessingContext.sceneRender != nullptr)
-                    {
-                        e->WriteImage(i, 1, 0, postProcessingContext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-                    }
-                    break;
                 }
+
 
                 case EShaderBindingGroup::Skybox: {
                     //====================================
@@ -465,16 +461,17 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                     e->WriteBuffer(i, 1, 0, uniformBufferManager.GetFogVolumParametersBufferDescriptorInfo(i));
                     break;
                 }
-                case EShaderBindingGroup::LensFlareBinding:{
+                case EShaderBindingGroup::LensFlareBinding: {
                     e->SetNumWrites(2, 2, 0);
 
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
 
-                    e->WriteImage(i, 0, 1,
-                MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
-                    VulkanCore::VSamplers::Sampler2D));
 
-                    e->WriteBuffer(i, 0, 3,uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+                    e->WriteImage(i, 0, 1,
+                                  MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
+                                      VulkanCore::VSamplers::Sampler2D));
+
+                    e->WriteBuffer(i, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
 
                     break;
                 }

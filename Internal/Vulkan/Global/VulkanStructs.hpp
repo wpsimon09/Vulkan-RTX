@@ -201,7 +201,7 @@ struct VDescriptorSet
     std::vector<vk::DescriptorSet> sets;                               // per frame in flight
     vk::DescriptorSetLayout        layout;                             // set layout
     std::map<uint32_t, std::map<int, vk::WriteDescriptorSet>> writes;  // writes are per frame in flight, map key is the frame and
-        // value is the vector of writes, second map is for binding/write relations
+    // value is the vector of writes, second map is for binding/write relations
 };
 
 
@@ -209,6 +209,7 @@ struct PostProcessingContext
 {
     VulkanCore::VImage2* sceneRender;
     VulkanCore::VImage2* shadowMap;
+    bool                 lensFlareEffect = false;
 };
 
 

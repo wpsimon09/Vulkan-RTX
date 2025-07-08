@@ -53,7 +53,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
     , m_descLayoutCache(descLayoutCache)
     , m_transferSemapohore(device.GetTransferOpsManager().GetTransferSemaphore())
     , m_effectsLibrary(&effectsLybrary)
-, m_rayTracingDataManager(rayTracingDataManager)
+    , m_rayTracingDataManager(rayTracingDataManager)
 
 {
 
@@ -85,8 +85,8 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
     //----------------------------------------------------------------------------------------------------------------------------
 
     m_forwardRenderer = std::make_unique<Renderer::ForwardRenderer>(m_device, effectsLybrary, descLayoutCache,
-                                                                GlobalVariables::RenderTargetResolutionWidth,
-                                                                GlobalVariables::RenderTargetResolutionHeight);
+                                                                    GlobalVariables::RenderTargetResolutionWidth,
+                                                                    GlobalVariables::RenderTargetResolutionHeight);
 
     m_postProcessingSystem = std::make_unique<Renderer::PostProcessingSystem>(m_device, effectsLybrary, uniformBufferManager,
                                                                               GlobalVariables::RenderTargetResolutionWidth,
@@ -104,9 +104,6 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
     m_rayTracer = std::make_unique<RayTracer>(m_device, effectsLybrary, rayTracingDataManager, 1980, 1080);
 
 
-
-
-
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }
 
@@ -117,7 +114,8 @@ void RenderingSystem::Init()
         m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
         //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
-        m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer).SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
+            .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eShadowMap).SetImage(m_forwardRenderer->GetShadowMapOutput().GetPrimaryImage(), i);
     }
 }
@@ -184,7 +182,7 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     if(sceneUpdateFlags.resetAccumulation)
     {
         // reset the accumulation
-        m_accumulatedFramesCount = 0;
+        m_accumulatedFramesCount        = 0;
         m_renderContext.hasSceneChanged = true;
     }
 
@@ -225,8 +223,11 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
 
-    if (m_frameCount > 2) {
-        m_effectsLibrary->UpdatePerFrameWrites(*m_forwardRenderer,m_rayTracingDataManager, &m_renderContext, m_postProcessingContext, m_uniformBufferManager);
+    if(m_frameCount > 2)
+    {
+        m_postProcessingSystem->Update(m_currentFrameIndex, m_postProcessingContext);
+        m_effectsLibrary->UpdatePerFrameWrites(*m_forwardRenderer, m_rayTracingDataManager, &m_renderContext,
+                                               m_postProcessingContext, m_uniformBufferManager);
     }
 
     //============================================================
@@ -237,10 +238,10 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     {
         // render scene
         m_forwardRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex],
-                                m_uniformBufferManager, &m_renderContext);
+                                  m_uniformBufferManager, &m_renderContext);
 
         m_postProcessingContext.sceneRender = m_forwardRenderer->GetForwardRendererResult();
-        m_postProcessingContext.shadowMap = &m_forwardRenderer->GetShadowMapOutput().GetPrimaryImage();
+        m_postProcessingContext.shadowMap   = &m_forwardRenderer->GetShadowMapOutput().GetPrimaryImage();
     }
     else
     {

@@ -9,12 +9,12 @@ ConstantBuffer<GlobalData> _globalData;
 [[vk::binding(1, 0)]]
 Sampler2D _inputTexture_BlueNoise;
 
-[[vk::binding(2, 0)]]
-Sampler2D _inputTexture_RenderedImage;
 
 [[vk::binding(3, 0)]]
 ConstantBuffer<LightInfo> _light;
 
+[[vk::binding(0, 1)]]
+Sampler2D _inputTexture_RenderedImage;
 
 struct VertexOut {
     float4 pos : SV_Position;

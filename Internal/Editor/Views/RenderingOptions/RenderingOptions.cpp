@@ -15,7 +15,8 @@
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
 
 namespace VEditor {
-RenderingOptions::RenderingOptions(ApplicationCore::Scene& scene,Renderer::RenderingSystem* renderingSystem):m_scene(scene)
+RenderingOptions::RenderingOptions(ApplicationCore::Scene& scene, Renderer::RenderingSystem* renderingSystem)
+    : m_scene(scene)
 {
     m_renderingSystem = renderingSystem;
 }
@@ -25,7 +26,8 @@ void RenderingOptions::Render()
 {
     ImGui::Begin(ICON_FA_BOOK_JOURNAL_WHILLS " Rendering options", &m_isOpen);
 
-    if (ImGui::Button("Rebuild AS")) {
+    if(ImGui::Button("Rebuild AS"))
+    {
         auto input = m_scene.GetBLASInputs();
     }
 
@@ -46,6 +48,7 @@ void RenderingOptions::Render()
         {
             m_openLightInfoLigt = true;
         }
+        ImGui::Checkbox("Lens flare", &m_renderingSystem->m_postProcessingContext.lensFlareEffect);
 
         ImGui::Text("Number of frames: %lu", m_renderingSystem->m_frameCount);
         ImGui::Text("Accumulated frames: %iu", m_renderingSystem->m_accumulatedFramesCount);
@@ -99,7 +102,8 @@ void RenderingOptions::RenderDrawCallListWidndow(Renderer::RenderingSystem* rend
 
             ImGui::TableSetColumnIndex(1);
 
-            if (!drawCall.second.postProcessingEffect) {
+            if(!drawCall.second.postProcessingEffect)
+            {
 
                 ImGui::SeparatorText("Buffer info");
                 ImGui::Text("Index Count: %u", drawCall.second.indexCount);
@@ -128,7 +132,8 @@ void RenderingOptions::RenderDrawCallListWidndow(Renderer::RenderingSystem* rend
                 ImGui::Text("Position: (%.2f, %.2f, %.2f)", drawCall.second.position.x, drawCall.second.position.y,
                             drawCall.second.position.z);
             }
-            else {
+            else
+            {
                 ImGui::Text("Post processing volume draw call");
             }
         }
@@ -156,6 +161,5 @@ void RenderingOptions::RenderLightInfoWindow(Renderer::RenderingSystem* renderin
     }
 
     ImGui::End();
-
 }
 }  // namespace VEditor

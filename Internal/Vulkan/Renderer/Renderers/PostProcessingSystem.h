@@ -4,6 +4,7 @@
 
 #ifndef POSTPROCESSINGSYSTEM_H
 #define POSTPROCESSINGSYSTEM_H
+#include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 
@@ -13,37 +14,45 @@ class RenderTarget2;
 namespace VulkanCore {
 class VImage2;
 class VDevice;
-}
+}  // namespace VulkanCore
 namespace Renderer {
 class ForwardRenderer;
 
-class PostProcessingSystem {
-public:
-  PostProcessingSystem(const VulkanCore::VDevice& device,ApplicationCore::EffectsLibrary& effectsLibrary,  VulkanUtils::VUniformBufferManager& uniformBufferManager, int width, int height);
+class PostProcessingSystem
+{
+  public:
+    PostProcessingSystem(const VulkanCore::VDevice&          device,
+                         ApplicationCore::EffectsLibrary&    effectsLibrary,
+                         VulkanUtils::VUniformBufferManager& uniformBufferManager,
+                         int                                 width,
+                         int                                 height);
 
-  void Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer,VulkanStructs::PostProcessingContext& postProcessingContext);
-  VulkanCore::VImage2& GetRenderedResult(int frameIndex);
+    void Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
+    VulkanCore::VImage2& GetRenderedResult(int frameIndex);
 
-  void Destroy();
+    void Update(int frameIndex, VulkanStructs::PostProcessingContext& postProcessingCotext);
 
-private:
-  void ToneMapping(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
+    void Destroy();
 
-private:
+  private:
+    void ToneMapping(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
+    void LensFlare(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
 
-  std::shared_ptr<VulkanUtils::VEffect> m_toneMappingEffect;
-  std::unique_ptr<RenderTarget2> m_toneMapOutput;
-  
-  std::shared_ptr<VulkanUtils::VEffect> m_lensFlareEffect;
-  std::unique_ptr<RenderTarget2> m_lensFlareOutput;
+  private:
+    std::shared_ptr<VulkanUtils::VEffect> m_toneMappingEffect;
+    std::unique_ptr<RenderTarget2>        m_toneMapOutput;
 
-  const VulkanCore::VDevice& m_device;
-  VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
+    std::shared_ptr<VulkanUtils::VEffect> m_lensFlareEffect;
+    std::unique_ptr<RenderTarget2>        m_lensFlareOutput;
 
-  int m_width, m_height;
+    const VulkanCore::VDevice&          m_device;
+    VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
 
+    VulkanCore::VImage2* m_finalRender = nullptr;
+
+    int m_width, m_height;
 };
 
-} // Renderer
+}  // namespace Renderer
 
-#endif //POSTPROCESSINGSYSTEM_H
+#endif  //POSTPROCESSINGSYSTEM_H
