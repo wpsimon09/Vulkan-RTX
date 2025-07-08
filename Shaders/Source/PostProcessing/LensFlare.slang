@@ -96,7 +96,7 @@ float3 LensFlare(float2 uv, float2 pos){
 	float3 c = float3(.0);
 	
 	c.r+=f2+f4+f5+f6; c.g+=f22+f42+f52+f62; c.b+=f23+f43+f53+f63;
-	c = c*1.3 - float3(length(uvd)*.05);
+	c = c*4.0 - float3(length(uvd)*.05);
 	
 	// Do not need an artificial sun
 	//c+=float3(f0);
