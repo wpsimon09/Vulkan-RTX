@@ -104,6 +104,7 @@ void PostProcessingSystem::Update(int frameIndex, VulkanStructs::PostProcessingC
     }
 
     m_toneMappingEffect->SetNumWrites(0, 1, 0);
+
     if(postProcessingCotext.lensFlareEffect)
     {
         m_toneMappingEffect->WriteImage(
@@ -213,6 +214,7 @@ void PostProcessingSystem::LensFlare(int                                   curre
 void PostProcessingSystem::Destroy()
 {
     m_toneMapOutput->Destroy();
+    m_lensFlareOutput->Destroy();
 }
 
 }  // namespace Renderer

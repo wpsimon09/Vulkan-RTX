@@ -283,6 +283,7 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&      
                     break;
                 }
                 case EShaderBindingGroup::ToneMap: {
+                    break;
                 }
 
 
