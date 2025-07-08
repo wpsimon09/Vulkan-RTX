@@ -22,7 +22,7 @@ struct VertexOut {
     float4 pos : SV_Position;
     float2 uv : TEXCOORDS;
     float2 screenSize : SCREEN_SIZE;
-    float2 sunPosition : SUN_POS_VIEW_SPACE;
+    nointerpolation float2 sunPosition : SUN_POS_VIEW_SPACE;
 };
 
 [shader("vertex")]
@@ -46,7 +46,7 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
                   abs(sunNdc.y) <= 1.0 && 
                   abs(sunNdc.z) <= 1.0;
 
-    float2 sunUv = sunNdc.xy * 0.5 + 0.5;
+    float2 sunUv = float2(sunNdc.x, -sunNdc.y) * 0.5 + 0.5;
 
 
     output.sunPosition = sunUv;
@@ -96,15 +96,15 @@ float3 LensFlare(float2 uv, float2 pos){
 	
 	float2 uvx = lerp(uv,uvd,-0.5);
 	
-	float f4 = max(0.01-pow(length(uvx+0.4*pos),2.4),.0)*6.0;
-	float f42 = max(0.01-pow(length(uvx+0.45*pos),2.4),.0)*5.0;
-	float f43 = max(0.01-pow(length(uvx+0.5*pos),2.4),.0)*3.0;
+	float f4 = max(0.01-pow(length(uvx+0.4*pos),2.4),.0) * _postProcessParameters.f2Strength;
+	float f42 = max(0.01-pow(length(uvx+0.45*pos),2.4),.0)* (5.0 + _postProcessParameters.f2Strength);
+	float f43 = max(0.01-pow(length(uvx+0.5*pos),2.4),.0)* (3.0 + _postProcessParameters.f2Strength);
 	
 	uvx = lerp(uv,uvd,-.4);
 	
-	float f5 = max(0.01-pow(length(uvx+0.2*pos),5.5),.0)*2.0;
-	float f52 = max(0.01-pow(length(uvx+0.4*pos),5.5),.0)*2.0;
-	float f53 = max(0.01-pow(length(uvx+0.6*pos),5.5),.0)*2.0;
+	float f5 = max(0.01-pow(length(uvx+0.2*pos),5.5),.0) * _postProcessParameters.f3Strength;
+	float f52 = max(0.01-pow(length(uvx+0.4*pos),5.5),.0)*_postProcessParameters.f3Strength;
+	float f53 = max(0.01-pow(length(uvx+0.6*pos),5.5),.0)*_postProcessParameters.f3Strength;
 	
 	uvx = lerp(uv,uvd,-0.5);
 	
@@ -118,7 +118,7 @@ float3 LensFlare(float2 uv, float2 pos){
 	c = c*_postProcessParameters.lensFlareStrength - float3(length(uvd)*.05);
 	
 	// Do not need an artificial sun
-	//c+=float3(f0);
+	//c+=float3(f0) * (_light.dirLight.intensity.xyz * _light.dirLight.intensity.w) ;
 	
 	return c;
 }
@@ -143,7 +143,7 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     float sunFalloff = 1.0 - smoothstep(0.9, 1.5, length(sunDist)); // fade out after screen edges
 
 
-    col += float3(1.4,1.2,1.0) * LensFlare(uv, fsIn.sunPosition) * sunFalloff;
+    col += float3(1.4,1.2,1.0) * LensFlare(uv, fsIn.sunPosition) ;
     col -= noise_float2(fsIn.pos.xy) * 0.015;
     col = cc(col, 0.5, 0.1);
     
