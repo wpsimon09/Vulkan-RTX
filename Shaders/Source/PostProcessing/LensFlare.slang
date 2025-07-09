@@ -33,7 +33,7 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     output.pos = float4(output.uv * 2.0f - 1.0f, 0.0f, 1.0f);
     output.screenSize = _globalData.screenSize; 
 
-    float4 sunPosWorld = _globalData.cameraPostiion - normalize(-_light.dirLight.direction) * 1.0f;
+    float4 sunPosWorld = _globalData.cameraPostiion - normalize(_light.dirLight.direction) * 1.0f;
 
     float4x4 viewProj = mul(_globalData.projection, _globalData.view);
 

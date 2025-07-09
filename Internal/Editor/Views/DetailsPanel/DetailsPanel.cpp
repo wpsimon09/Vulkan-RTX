@@ -124,11 +124,11 @@ void DetailsPanel::RenderTransformationsPanel()
             ImGui::DragFloat3(ICON_FA_ARROWS_ROTATE " Rotation",
                               &m_selectedSceneNode->m_transformation->GetRotations().x, 0.5f, -FLT_MAX, +FLT_MAX, "%.3f");
 
-            if (ImGui::BeginItemTooltip()) {
+            if(ImGui::BeginItemTooltip())
+            {
                 auto& quat = m_selectedSceneNode->m_transformation->GetRotationsQuat();
-                ImGui::Text("Quat: w: %f,x: %f,y: %f,z: %f", quat.w, quat.x, quat.y, quat.z );
+                ImGui::Text("Quat: w: %f,x: %f,y: %f,z: %f", quat.w, quat.x, quat.y, quat.z);
                 ImGui::EndTooltip();
-
             }
         }
 
@@ -174,7 +174,8 @@ void DetailsPanel::RenderMaterialEditorPanel()
                 auto label = ICON_FA_WAND_MAGIC_SPARKLES " " + effect.second->GetName();
                 if(ImGui::Selectable(label.c_str(), effect.second == m_selectedSceneNode->GetMesh()->GetMaterial()->GetEffect()))
                 {
-                    m_selectedSceneNode->GetMesh()->GetMaterial()->ChangeEffect(std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(effect.second));
+                    m_selectedSceneNode->GetMesh()->GetMaterial()->ChangeEffect(
+                        std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(effect.second));
                 }
             }
             ImGui::EndCombo();
@@ -400,23 +401,26 @@ void DetailsPanel::RenderSkyBoxMaterialDetails(ApplicationCore::SkyBoxMaterial* 
     }
 }
 
-void DetailsPanel::RenderFogVolumeNodeUI() {
-    if (auto fogNode = dynamic_cast<ApplicationCore::FogVolumeNode*>(m_selectedSceneNode.get())) {
+void DetailsPanel::RenderFogVolumeNodeUI()
+{
+    if(auto fogNode = dynamic_cast<ApplicationCore::FogVolumeNode*>(m_selectedSceneNode.get()))
+    {
         ImGui::ColorEdit3("Fog colour", &fogNode->GetParameters().fogColour.x, ImGuiColorEditFlags_NoInputs);
         ImGui::Checkbox("Ray marched fog", reinterpret_cast<bool*>(&fogNode->GetParameters().rayMarched));
 
         ImGui::SetItemTooltip("How indirect light travels through the volume ");
-        ImGui::SliderFloat("Absorption",&fogNode->GetParameters().sigma_a, 0.001, 0.1);
+        ImGui::SliderFloat("Absorption", &fogNode->GetParameters().sigma_a, 0.001, 1.0);
 
         ImGui::SetItemTooltip("How direct light scatters in the fog volume ");
-        ImGui::SliderFloat("Scattering",&fogNode->GetParameters().sigma_s, 0.001, 0.1);
+        ImGui::SliderFloat("Scattering", &fogNode->GetParameters().sigma_s, 0.001, 1.0);
 
         ImGui::SetItemTooltip("G term for the phase function");
-        ImGui::SliderFloat("Asymmetry",&fogNode->GetParameters().asymmetryFactor, -1.0, 1.0);
+        ImGui::SliderFloat("Asymmetry", &fogNode->GetParameters().asymmetryFactor, -1.0, 1.0);
 
-        ImGui::SliderFloat("Ray distance",&fogNode->GetParameters().rayDistance, 1.0, 900.0);
+        ImGui::SliderFloat("Ray distance", &fogNode->GetParameters().rayDistance, 1.0, 900.0);
         ImGui::SliderFloat("Ray steps", &fogNode->GetParameters().raySteps, 1, 100.0);
-        ImGui::SliderFloat("Height fall off",&fogNode->GetParameters().heightFallOff, 0.1, 20.0);
+        ImGui::SliderFloat("Height fall off", &fogNode->GetParameters().heightFallOff, 0.001, 1.0);
+        ImGui::SliderFloat("Fog height", &fogNode->GetParameters().fogHeight, 1.0f, 100.0f);
     }
 }
 
