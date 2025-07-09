@@ -12,6 +12,7 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Application/Lightning/LightStructs.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
+#include "Application/Rendering/Scene/SceneData.hpp"
 #include "fastgltf/types.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"

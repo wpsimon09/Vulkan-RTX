@@ -58,7 +58,7 @@ SceneNode::SceneNode(SceneData& sceneData, SceneNode& other)
 
     for(auto& child : other.m_children)
     {
-       // AddChild(sceneData, std::make_shared<SceneNode>(*child));
+        // AddChild(sceneData, std::make_shared<SceneNode>(*child));
     }
 }
 
@@ -73,7 +73,7 @@ SceneNode::SceneNode()
     // `scene node` node type is defautl
 }
 
-void SceneNode::AddChild(SceneData& sceneData,  std::shared_ptr<SceneNode>& child)
+void SceneNode::AddChild(SceneData& sceneData, std::shared_ptr<SceneNode>& child)
 {
     if(child != nullptr)
     {
@@ -95,10 +95,10 @@ void SceneNode::AddChild(SceneData& sceneData, std::shared_ptr<StaticMesh> child
         auto newNode      = std::make_shared<SceneNode>(child);
         newNode->m_parent = this;
         m_children.emplace_back(newNode);
-        if (!newNode->IsVolumeNode()) {
+        if(!newNode->IsVolumeNode())
+        {
             m_sceneNodeMetaData.IsParentNode = true;
         }
-
     }
     else
     {
@@ -163,13 +163,17 @@ bool SceneNode::IsLight() const
            || m_sceneNodeMetaData.nodeType == ENodeType::PointLightNode || m_sceneNodeMetaData.nodeType == ENodeType::SpotLightNode
            || m_sceneNodeMetaData.nodeType == ENodeType::AreaLightNode || m_sceneNodeMetaData.nodeType == ENodeType::SkyBoxNode;
 }
-bool SceneNode::IsVolumeNode() const {return m_sceneNodeMetaData.IsVolumeNode;}
+bool SceneNode::IsVolumeNode() const
+{
+    return m_sceneNodeMetaData.IsVolumeNode;
+}
 
 SceneNode* SceneNode::GetParent()
 {
     return m_parent;
 }
-void SceneNode::SetVisibility(bool isVisible) {
+void SceneNode::SetVisibility(bool isVisible)
+{
     m_sceneNodeMetaData.IsVisible = isVisible;
     for(auto& child : m_children)
     {
@@ -186,18 +190,15 @@ std::vector<std::reference_wrapper<SceneNode>> SceneNode::GetChildrenByWrapper()
     }
     return result;
 }
-void SceneNode::ProcessNodeRemove(SceneData& sceneData)
-{
-}
+void SceneNode::ProcessNodeRemove(SceneData& sceneData) {}
 
-void SceneNode::ProcessNodeRemove(const SceneNode& node, SceneData& sceneData) {
-        sceneData.RemoveEntry(node);
+void SceneNode::ProcessNodeRemove(const SceneNode& node, SceneData& sceneData)
+{
+    sceneData.RemoveEntry(node);
     for(auto& child : node.m_children)
     {
         ProcessNodeRemove(*child, sceneData);
     }
-
-
 }
 
 void SceneNode::Update(SceneUpdateFlags& sceneUpdateFlags)
@@ -211,12 +212,21 @@ void SceneNode::Update(SceneUpdateFlags& sceneUpdateFlags)
         m_transformation->ComputeModelMatrix();
     }
 
-    if (sceneUpdateFlags.updateAs != true) {
-         if (m_transformation->HasChanged() && !IsLight() && !IsVolumeNode())     {sceneUpdateFlags.resetAccumulation = true;  sceneUpdateFlags.updateAs = true; }
+    if(sceneUpdateFlags.updateAs != true)
+    {
+        if(m_transformation->HasChanged() && !IsLight() && !IsVolumeNode())
+        {
+            sceneUpdateFlags.resetAccumulation = true;
+            sceneUpdateFlags.updateAs          = true;
+        }
     }
-    if (sceneUpdateFlags.resetAccumulation != true) {
-         // in case only light node has changed do not reset the As but only accumulation instead
-        if (m_transformation->HasChanged() && IsLight() && !IsVolumeNode()) { sceneUpdateFlags.resetAccumulation = true; }
+    if(sceneUpdateFlags.resetAccumulation != true)
+    {
+        // in case only light node has changed do not reset the As but only accumulation instead
+        if(m_transformation->HasChanged() && IsLight() && !IsVolumeNode())
+        {
+            sceneUpdateFlags.resetAccumulation = true;
+        }
     }
 
     for(auto& child : m_children)
@@ -246,7 +256,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         ;
 
         VulkanStructs::VDrawCallData data;
-        data.firstIndex = 1;
+        data.firstIndex    = 1;
         data.materialIndex = m_materialIdx;
 
         data.indexCount = m_mesh->GetMeshIndexCount();

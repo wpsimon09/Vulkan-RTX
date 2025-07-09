@@ -226,6 +226,7 @@ set(SOURCES
         Internal/Vulkan/Renderer/RenderTarget/RenderTarget2.h
         Internal/Application/Rendering/Scene/FogVolumeNode.cpp
         Internal/Application/Rendering/Scene/FogVolumeNode.hpp
+        Internal/Application/Rendering/Scene/SceneData.cpp
 
 )
 

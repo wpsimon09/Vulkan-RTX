@@ -26,95 +26,6 @@
 
 namespace ApplicationCore {
 
-
-
-
-void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
-{
-    if (node->GetSceneNodeMetaData().IsVolumeNode) {
-        if (auto volumeNode = dynamic_cast<FogVolumeNode*>(node.get())) {
-            fogVolumeParameters = &volumeNode->GetParameters();
-            return;
-        }
-    }
-    if(node->HasMesh())
-    {
-        auto& mesh = node->GetMesh();
-        //===================
-        // for now only PBR materials will be supported
-        if(auto mat = dynamic_cast<PBRMaterial*>(mesh->GetMaterial().get()))
-        {
-            meshes.emplace_back(mesh);
-            // retrieve texture and what type of the texture it is
-            auto materialTextures = mat->EnumarateTextureMap();
-            int  i                = textures.size();
-            for(auto& tex : materialTextures)
-            {
-                // assign indexes to the material struct so that we know what array it can access
-                textures.emplace_back(tex.second);
-                auto& material = mat->GetMaterialDescription().features;
-                switch(tex.first)
-                {
-                    case ETextureType::Diffues:
-                        material.albedo = textures.size() - 1;
-                        break;
-                    case ETextureType::normal:
-                        material.normalTextureIdx = textures.size() - 1;
-                        break;
-                    case ETextureType::arm:
-                        material.armTextureIdx = textures.size() - 1;
-                        break;
-                    case ETextureType::Emissive:
-                        material.emissiveTextureIdx = textures.size() - 1;
-                        break;
-                }
-                i++;
-            }
-
-            pbrMaterials.emplace_back(&mat->GetMaterialDescription());
-            mat->SetSceneIndex(pbrMaterials.size() - 1);
-        }
-    }
-    nodes.emplace_back(node);
-    IndexNode(node);
-}
-bool SceneData::CheckIndexValidity(size_t arraySize, size_t index) {return index < arraySize;}
-
-void SceneData::RemoveEntry(const ApplicationCore::SceneNode& node) {
-    if (node.HasMesh()) {
-        try {
-            meshes.erase(meshes.begin() + node.m_meshIdx);
-
-            auto m = pbrMaterials[node.m_materialIdx];
-
-            if (m->features.hasAlbedoTexture && CheckIndexValidity(textures.size(),m->features.albedo)) { textures.erase(textures.begin() + m->features.albedo); }
-            if (m->features.hasArmTexture && CheckIndexValidity(textures.size(),m->features.armTextureIdx)) { textures.erase(textures.begin() + m->features.armTextureIdx); }
-            if (m->features.hasEmissiveTexture && CheckIndexValidity(textures.size(),m->features.emissiveTextureIdx)) { textures.erase(textures.begin() + m->features.emissiveTextureIdx); }
-            if (m->features.hasNormalTexture && CheckIndexValidity(textures.size(),m->features.normalTextureIdx)) { textures.erase(textures.begin() + m->features.normalTextureIdx); }
-
-            pbrMaterials.erase(pbrMaterials.begin() + node.m_materialIdx);
-
-
-        }catch (std::exception& e) {
-            Utils::Logger::LogError("Failed to remove the node from the description, exceptions:" + *e.what());
-        }
-    }
-
-    nodes.erase(nodes.begin()  + node.m_nodeIndex);
-
-    // reindex the scene
-    for (auto& scene_node: nodes){ IndexNode(scene_node);}
-}
-
-void SceneData::IndexNode(std::shared_ptr<ApplicationCore::SceneNode>& node) {
-    if (node->HasMesh()) {
-        node->m_meshIdx = meshes.size()-1;
-        node->m_materialIdx = pbrMaterials.size()-1;
-    }
-    node->m_nodeIndex = nodes.size() -1 ;
-}
-
-
 //=============================================================================
 // SCENE WITH POINTERS
 //=============================================================================
@@ -123,7 +34,6 @@ Scene::Scene(AssetsManager& assetsManager, Camera& camera)
     , m_sceneStatistics()
     , m_camera(camera)
 {
-
 }
 
 void Scene::Init()
@@ -134,14 +44,13 @@ void Scene::Init()
     m_sceneData.AddEntry(m_root);
 
     BuildDefaultScene();
-
 }
 
 void Scene::Update()
 {
     if(!m_staticMeshes.empty())
     {
-     //   return m_staticMeshes.clear();
+        //   return m_staticMeshes.clear();
     }
     m_root->Update(m_sceneUpdateFlags);
 }
@@ -198,9 +107,8 @@ void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode)
 
     m_root->AddChild(m_sceneData, sceneNode);
     m_sceneUpdateFlags.resetAccumulation = true;
-    m_sceneUpdateFlags.rebuildAs = true;
-    m_sceneUpdateFlags.updateAs = false;
-
+    m_sceneUpdateFlags.rebuildAs         = true;
+    m_sceneUpdateFlags.updateAs          = false;
 }
 
 void Scene::EnumarateMeshes(std::vector<std::shared_ptr<SceneNode>>& outMeshes, std::shared_ptr<SceneNode> sceneNode)
@@ -269,8 +177,9 @@ void Scene::AddPlaneToScene()
     AddNode(node);
 }
 
-void Scene::AddFogVolume() {
-    auto obj = m_assetsManager.GetDefaultMesh(PostProcessQuad);
+void Scene::AddFogVolume()
+{
+    auto obj  = m_assetsManager.GetDefaultMesh(PostProcessQuad);
     auto node = std::make_shared<FogVolumeNode>(obj);
     node->SetName("Fog ##" + VulkanUtils::random_string(5));
     AddNode(node);
@@ -390,6 +299,9 @@ void Scene::PreformRayCast(glm::vec2 mousePosition)
         Utils::Logger::LogErrorClient("Mouse is outside NDC");
     }
 }
-SceneUpdateFlags & Scene::GetSceneUpdateFlags(){ return m_sceneUpdateFlags;}
+SceneUpdateFlags& Scene::GetSceneUpdateFlags()
+{
+    return m_sceneUpdateFlags;
+}
 
 }  // namespace ApplicationCore
