@@ -7,6 +7,7 @@
 
 #include <glm/glm.hpp>
 
+#include "Application/Rendering/Material/MaterialStructs.hpp"
 #include "vulkan/vulkan.hpp"
 
 namespace VulkanCore {
@@ -91,7 +92,7 @@ struct FogVolumeParameters
     float heightFallOff{1};
     int   rayMarched      = false;
     float asymmetryFactor = {0.0f};
-    int   padding;
+    float fogHeight       = {1.0f};
 };
 
 struct RTXObjDescription

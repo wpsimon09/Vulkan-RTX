@@ -43,7 +43,7 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     return output;
 }
 
-float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, float shadow){
+float3 ApproximateFog(RayDesc ray,float T, float T_light ,float worldY, float3 pixelColour){
     
     float sunAmmount = max(dot(ray.Direction, normalize(_light.dirLight.direction.xyz)), 0.0);
 
@@ -55,8 +55,12 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light , float3 pixelColour, f
     float3 E_sun = _light.dirLight.intensity.xyz * _light.dirLight.intensity.w;
     float beta_S = _fogVolumeParametres.sigma_s;
 
+    float heightFactor = exp(-_fogVolumeParametres.heightFallOff * (worldY - _fogVolumeParametres.fogHeight));
+
     // analitical solution of the inscattering integral by Hoffman and Preetham
-    float3 in_scattering =  (E_sun * p) / beta_S * (1-exp(-beta_S * ray.TMax)); 
+    float3 in_scattering =  (E_sun * p) / beta_S * (1-exp(-beta_S * ray.TMax)) * heightFactor; 
+
+    T = exp(-beta_S * heightFactor * ray.TMax);
 
     float3 finalColour = pixelColour  * T + in_scattering + (1-T) * fogColor ;
 
@@ -161,7 +165,7 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     }else{
         //====================
         // approximate fog 
-        finalColour = ApproximateFog(ray, T, T_light, pixelColour, shadow_t_light.x);
+        finalColour = ApproximateFog(ray, T, T_light,worldPos.y, pixelColour);
     }
 
     return float4( finalColour, 1.0);
