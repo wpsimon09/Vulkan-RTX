@@ -76,7 +76,9 @@ void Scene::Reset()
 
 void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove)
 {
-    auto& children = parent->GetChildrenByRef();
+    m_sceneData.Reset();
+    auto& children               = parent->GetChildrenByRef();
+    m_sceneUpdateFlags.rebuildAs = true;
     for(auto it = children.begin(); it != children.end();)
     {
         if(*it == nodeToRemove)
@@ -98,9 +100,20 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
         }
     }
 
+    ReindexSceneData(m_root);
+
     Utils::Logger::LogErrorClient("Node not found");
 }
 
+void Scene::ReindexSceneData(std::shared_ptr<SceneNode>& node)
+{
+    m_sceneData.AddEntry(node);
+
+    for(auto& ch : node->GetChildrenByRef())
+    {
+        ReindexSceneData(ch);
+    }
+}
 
 void Scene::AddNode(std::shared_ptr<SceneNode> sceneNode)
 {

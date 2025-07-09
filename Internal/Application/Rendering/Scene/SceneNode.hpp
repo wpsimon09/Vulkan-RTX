@@ -150,7 +150,7 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
 
     SceneNodeMetaData m_sceneNodeMetaData;
 
-private:
+  private:
     friend SceneData;
 };
 

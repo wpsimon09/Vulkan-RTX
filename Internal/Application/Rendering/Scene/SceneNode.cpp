@@ -194,7 +194,6 @@ void SceneNode::ProcessNodeRemove(SceneData& sceneData) {}
 
 void SceneNode::ProcessNodeRemove(const SceneNode& node, SceneData& sceneData)
 {
-    sceneData.RemoveEntry(node);
     for(auto& child : node.m_children)
     {
         ProcessNodeRemove(*child, sceneData);

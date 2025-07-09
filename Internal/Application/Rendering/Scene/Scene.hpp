@@ -94,6 +94,7 @@ class Scene
     SceneStatistics m_sceneStatistics;
 
     void RebuildSceneData();
+    void ReindexSceneData(std::shared_ptr<SceneNode>& node);
 
   private:
     Camera&                          m_camera;
