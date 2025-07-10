@@ -120,7 +120,6 @@ float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
         float3 samplePos = ray.Origin + ray.Direction * rayT;
         
         float heightDensity = EvaluateHeightDensity(samplePos);
-        if(heightDensity > 1.0) {return pixelColour;}
         
         float sigma_t = (_fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s) * heightDensity;
         float perStepAttenuation = exp(-stepSize * sigma_t);
@@ -139,7 +138,7 @@ float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
         
     }
 
-    return pixelColour * T + In_Scattering + (1-T * _fogVolumeParametres.fogColour.xyz);
+    return pixelColour * T + In_Scattering + ( _fogVolumeParametres.fogColour.xyz);
 }
 
 
