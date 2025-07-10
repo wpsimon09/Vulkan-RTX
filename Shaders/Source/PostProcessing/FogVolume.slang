@@ -105,29 +105,23 @@ float3 RayMarchFog(RayDesc ray, float blueNoise, float3 pixelColour)
     float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
     float3 I = _light.dirLight.intensity.xyz * _light.dirLight.intensity.w;
     
-
-    float numHits = 0;
-    float distance = 0;
     // Integrate the in-scattering
     for (int i = 0; i < numSteps; i++)
     {
         float rayT = ray.TMin + stepSize * (float(i) + blueNoise);
         float3 samplePos = ray.Origin + ray.Direction * rayT;
         float lightTravelDistance;
-        bool hit = IntersectsP(InitRay(samplePos , normalize(_light.dirLight.direction.xyz), 4000), _tlas, lightTravelDistance);
+        bool hit = IntersectsP(InitRay(samplePos , -normalize(_light.dirLight.direction.xyz), 4000), _tlas, lightTravelDistance);
         float V = hit ? 0.0 : 1.0; // visibility term
-        numHits += float(hit);
-        distance += lightTravelDistance;
         
         // In scattering integral
-        
         In_Scattering += T * p * _fogVolumeParametres.sigma_s * V * I * stepSize;;
         
         T *= perStepAttentution;
         
     }
 
-    return (pixelColour * T) + ( In_Scattering) + ((1 - T) * _fogVolumeParametres.fogColour.xyz);
+    return pixelColour * T + In_Scattering + _fogVolumeParametres.fogColour.xyz;
 }
 
 
