@@ -63,8 +63,6 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light ,float worldY, float3 p
     T = exp(-beta_S * heightFactor * ray.TMax);
 
     float3 finalColour = pixelColour  * T + in_scattering + (1-T) * fogColor ;
-
-    //finalColour =  T_light * pixelColour + volumetricLight + (1 - T) * fogColor;
  
     return finalColour;
 }
@@ -90,38 +88,58 @@ float3 Li_x(float t, float v, float stepSize, float3 I ) {
     return  _fogVolumeParametres.sigma_s * v * I * stepSize;
 }
 
+float EvaluateHeightDensity(float3 world){
+    float baseFog = _fogVolumeParametres.fogHeight;
+    float fogFallOff = _fogVolumeParametres.heightFallOff;
 
-float3 RayMarchFog(RayDesc ray, float blueNoise, float3 pixelColour)
+    float density = exp(-max(0, world.y - baseFog) * fogFallOff); // exponentially decrease fog 
+    
+    return density;
+}
+
+
+float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelColour)
 {
     float stepSize = ray.TMax / _fogVolumeParametres.raySteps;
     float numSteps = _fogVolumeParametres.raySteps;
     
-    float sigma_t = _fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s;
+    float heightDensity = EvaluateHeightDensity(worldPos);
+    float sigma_t = _fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s * heightDensity;
     float perStepAttentution = exp(-stepSize * sigma_t);
     
-    float cos_theta = dot(normalize(ray.Direction), -normalize(_light.dirLight.direction.xyz));
+    
     float3 In_Scattering = 0.0;
     float T = 1.0;
-    float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
     float3 I = _light.dirLight.intensity.xyz * _light.dirLight.intensity.w;
+    
     
     // Integrate the in-scattering
     for (int i = 0; i < numSteps; i++)
     {
         float rayT = ray.TMin + stepSize * (float(i) + blueNoise);
         float3 samplePos = ray.Origin + ray.Direction * rayT;
+        
+        float heightDensity = EvaluateHeightDensity(samplePos);
+        if(heightDensity > 1.0) {return pixelColour;}
+        
+        float sigma_t = (_fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s) * heightDensity;
+        float perStepAttenuation = exp(-stepSize * sigma_t);
+
         float lightTravelDistance;
-        bool hit = IntersectsP(InitRay(samplePos , -normalize(_light.dirLight.direction.xyz), 4000), _tlas, lightTravelDistance);
-        float V = hit ? 0.0 : 1.0; // visibility term
-        
-        // In scattering integral
-        In_Scattering += T * p * _fogVolumeParametres.sigma_s * V * I * stepSize;;
-        
-        T *= perStepAttentution;
+        bool hit = IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz), 4000), _tlas, lightTravelDistance);
+        float v = hit ? 0.0 : 1.0;
+
+        float3 V = normalize(samplePos - _globalData.cameraPostiion.xyz );
+        float cos_theta = dot(V, normalize(_light.dirLight.direction.xyz));
+        float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
+
+        In_Scattering += T * p * _fogVolumeParametres.sigma_s * v * I * stepSize * heightDensity;
+
+        T *= perStepAttenuation;
         
     }
 
-    return pixelColour * T + In_Scattering + _fogVolumeParametres.fogColour.xyz;
+    return pixelColour * T + In_Scattering + (1-T * _fogVolumeParametres.fogColour.xyz);
 }
 
 
@@ -136,7 +154,7 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     ray.Origin = _globalData.cameraPostiion.xyz;
     ray.TMin = 0.001;
     // get the disnatnce that the ray will travel
-    ray.TMax = min(distance(worldPos ,_globalData.cameraPostiion.xyz), _fogVolumeParametres.rayDistance);
+    ray.TMax = min(distance(worldPos ,_globalData.cameraPostiion.xyz), 10000);
     
     float2 shadow_t_light = _inputTexture_ShadowMap.Sample(fsIn.uv).xy;
     
@@ -153,7 +171,7 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
         //=====================
         // ray marched fog 
         //finalColour = RayMarchFog(ray, fsIn.screenSize, pixelColour);
-        finalColour = RayMarchFog(ray, blueNoise, pixelColour);
+        finalColour = RayMarchFog(ray,worldPos, blueNoise, pixelColour);
 
     }else{
         //====================
