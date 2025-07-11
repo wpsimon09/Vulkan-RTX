@@ -102,16 +102,13 @@ float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
 {
     float stepSize = ray.TMax / _fogVolumeParametres.raySteps;
     float numSteps = _fogVolumeParametres.raySteps;
-    
-    float heightDensity = EvaluateHeightDensity(worldPos);
-    float sigma_t = _fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s * heightDensity;
-    float perStepAttentution = exp(-stepSize * sigma_t);
-    
+        
     
     float3 In_Scattering = 0.0;
     float T = 1.0;
     float3 I = _light.dirLight.intensity.xyz * _light.dirLight.intensity.w;
     
+    float density = (_fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s) * _fogVolumeParametres.fogColour.w; // w - is density of volume 
     
     // Integrate the in-scattering
     for (int i = 0; i < numSteps; i++)
@@ -119,10 +116,9 @@ float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
         float rayT = ray.TMin + stepSize * (float(i) + blueNoise);
         float3 samplePos = ray.Origin + ray.Direction * rayT;
         
-        float heightDensity = EvaluateHeightDensity(samplePos);
-        if(heightDensity > 1.0) {return pixelColour;}
+        float heightAttentuation = EvaluateHeightDensity(samplePos);
         
-        float sigma_t = (_fogVolumeParametres.sigma_a + _fogVolumeParametres.sigma_s) * heightDensity;
+        float sigma_t = density * heightAttentuation;
         float perStepAttenuation = exp(-stepSize * sigma_t);
 
         float lightTravelDistance;
@@ -133,13 +129,13 @@ float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
         float cos_theta = dot(V, normalize(_light.dirLight.direction.xyz));
         float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
 
-        In_Scattering += T * p * _fogVolumeParametres.sigma_s * v * I * stepSize * heightDensity;
+        In_Scattering += T * p * _fogVolumeParametres.sigma_s * v * I * stepSize * _fogVolumeParametres.fogColour.xyz ;
 
         T *= perStepAttenuation;
         
     }
 
-    return pixelColour * T + In_Scattering + (1-T * _fogVolumeParametres.fogColour.xyz);
+    return pixelColour * T + In_Scattering ;
 }
 
 
