@@ -82,8 +82,8 @@ struct LightUniforms
 
 struct FogVolumeParameters
 {
-    float sigma_a{0.001};  // not alterable through slider
-    float sigma_s{0.001};  // not alterable through slider
+    float sigma_a{0.0001};  // not alterable through slider
+    float sigma_s{0.0001};  // not alterable through slider
     float rayDistance{900.0f};
     float raySteps{4.0};
 

@@ -19,7 +19,6 @@ namespace VulkanUtils {
 class VRayTracingEffect : public VEffect
 {
   public:
-    vk::StridedDeviceAddressRegionKHR GetShaderBindingTableEntry(VulkanCore::RTX::ERayTracingStageIndices) override;
     VRayTracingEffect(const VulkanCore::VDevice&             device,
                       const VulkanCore::RTX::RTXShaderPaths& shaderPaths,
                       const std::string&                     name,
@@ -31,6 +30,7 @@ class VRayTracingEffect : public VEffect
     void                                  Destroy() override;
     void BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) override;
 
+    vk::StridedDeviceAddressRegionKHR GetShaderBindingTableEntry(VulkanCore::RTX::ERayTracingStageIndices) override;
 
   private:
     std::unique_ptr<VulkanCore::RTX::VRayTracingPipeline> m_rtPipeline;

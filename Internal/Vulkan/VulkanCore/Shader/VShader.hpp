@@ -14,50 +14,48 @@
 
 namespace VulkanCore {
 
-struct ReflecSetLayoutData {
-  uint32_t setNumber;
-  vk::DescriptorSetLayoutCreateInfo createInfo;
-  // used to store descriptor flags (like : update after bind_bit, allow partially bound etc...)
-  vk::DescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo ;
+struct ReflecSetLayoutData
+{
+    uint32_t                          setNumber;
+    vk::DescriptorSetLayoutCreateInfo createInfo;
+    // used to store descriptor flags (like : update after bind_bit, allow partially bound etc...)
+    vk::DescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo;
 
-  std::vector<vk::DescriptorSetLayoutBinding> bindings;
-  std::vector<std::pair<std::string, SpvReflectShaderStageFlagBits>> shaderStages;
-  std::vector<std::pair<std::string, vk::DescriptorType>> variableNames;
+    std::vector<vk::DescriptorSetLayoutBinding>                        bindings;
+    std::vector<std::pair<std::string, SpvReflectShaderStageFlagBits>> shaderStages;
+    std::vector<std::pair<std::string, vk::DescriptorType>>            variableNames;
 
-  std::vector<vk::DescriptorBindingFlags> descriptorFlags;
+    std::vector<vk::DescriptorBindingFlags> descriptorFlags;
 
 
-  vk::DescriptorSet setHandle;
+    vk::DescriptorSet setHandle;
 
-  void Print() const;
-
+    void Print() const;
 };
 
-struct ReflectionData {
-  SpvReflectShaderModule moduleReflection;
-  std::map<int , ReflecSetLayoutData> descriptorSets;
-  std::vector<vk::PushConstantRange> PCs;
-  std::vector<std::string> pushConstantNames;
+struct ReflectionData
+{
+    SpvReflectShaderModule             moduleReflection;
+    std::map<int, ReflecSetLayoutData> descriptorSets;
+    std::vector<vk::PushConstantRange> PCs;
+    std::vector<std::string>           pushConstantNames;
 
 
-  int bindingCount = 0;
+    int bindingCount = 0;
 
 
-  void Print() const ;
-  void Init(const void* byteCode, size_t size);
-  void AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage);
-  void Destroy();
-
+    void Print() const;
+    void Init(const void* byteCode, size_t size);
+    void AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage);
+    void Destroy();
 };
 
 class VShader : public VObject
 {
 
   public:
-    VShader(const VulkanCore::VDevice& device,
-            const std::string&         vertexSource,
-            const std::string&         fragmentSource,
-            const std::string&         computeSource = "");
+    VShader(const VulkanCore::VDevice& device, const std::string& vertexSource, const std::string& fragmentSource);
+    VShader(const VulkanCore::VDevice& device, const std::string& computeShaderSource);
     void                    DestroyExistingShaderModules();
     const vk::ShaderModule& GetShaderModule(GlobalVariables::SHADER_TYPE shaderType) const;
     const ReflectionData&   GetReflectionData() const;
@@ -68,11 +66,10 @@ class VShader : public VObject
   private:
     const VulkanCore::VDevice& m_device;
 
-    ReflectionData                m_fragmentReflection;
-    ReflectionData                m_vertexReflection;
+    ReflectionData m_fragmentReflection;
+    ReflectionData m_vertexReflection;
 
-    ReflectionData                m_shaderReeflection;
-
+    ReflectionData m_shaderReeflection;
 
 
     std::optional<ReflectionData> m_computeReflection;

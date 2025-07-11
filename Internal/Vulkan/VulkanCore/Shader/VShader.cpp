@@ -37,8 +37,10 @@ void ReflectionData::Print() const
 {
     std::cout << "======================= Reflection data ============================\n";
 
-    if (!pushConstantNames.empty()) {
-        for (int i = 0; i<pushConstantNames.size(); i++) {
+    if(!pushConstantNames.empty())
+    {
+        for(int i = 0; i < pushConstantNames.size(); i++)
+        {
             std::cout << "Push constant: " + pushConstantNames[i] + "size: " + std::to_string(this->PCs[i].size) << "\n";
         }
     }
@@ -50,7 +52,6 @@ void ReflectionData::Print() const
     }
 
     std::cout << "====================================================================\n";
-
 }
 //=============================================
 // REFLECTION DATA
@@ -75,28 +76,28 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
     //=================================
     // push constants
     uint32_t pcCount = 0;
-    result = spvReflectEnumeratePushConstantBlocks(&moduleReflection, &pcCount, nullptr);
+    result           = spvReflectEnumeratePushConstantBlocks(&moduleReflection, &pcCount, nullptr);
     assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to enumerate push constant blocks ");
 
     std::vector<SpvReflectBlockVariable*> pushConstants;
-    if (pcCount > 0) {
+    if(pcCount > 0)
+    {
         pushConstants.resize(pcCount);
         result = spvReflectEnumeratePushConstantBlocks(&moduleReflection, &pcCount, pushConstants.data());
         assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to retrieve push constant blocks ");
 
         PCs.resize(pcCount);
         pushConstantNames.resize(pcCount);
-        for (int i = 0; i < pcCount; i++) {
+        for(int i = 0; i < pcCount; i++)
+        {
 
             pushConstantNames[i] = pushConstants[i]->name;
-            PCs[i].offset = pushConstants[i]->offset;
-            PCs[i].size   = pushConstants[i]->size;
+            PCs[i].offset        = pushConstants[i]->offset;
+            PCs[i].size          = pushConstants[i]->size;
 
             // TODO: for now I will only allow for push constants ot be in vertex shader
             PCs[i].stageFlags = vk::ShaderStageFlagBits::eVertex;
         }
-
-
     }
 
 
@@ -104,7 +105,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
 
     //=================================
     // go through each descriptor set
-    for(auto& set: sets)
+    for(auto& set : sets)
     {
 
         ReflecSetLayoutData newSetLayout;
@@ -124,7 +125,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         {
             const SpvReflectDescriptorBinding reflBinding = *(reflSet.bindings[i_binding]);
             vk::DescriptorSetLayoutBinding    binding;
-            binding.binding = reflBinding.binding;
+            binding.binding        = reflBinding.binding;
             binding.descriptorType = static_cast<vk::DescriptorType>(reflBinding.descriptor_type);
 
             binding.descriptorCount = 1;
@@ -181,8 +182,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
 
         //=============================================
         // vk::DescriptorSetLayoutBindingFlagsCreateInfo
-        currentBindings.descriptorFlags = std::vector<vk::DescriptorBindingFlags>(
-            currentBindings.bindings.size());
+        currentBindings.descriptorFlags = std::vector<vk::DescriptorBindingFlags>(currentBindings.bindings.size());
 
         currentBindings.bindingFlagsInfo.bindingCount  = currentBindings.descriptorFlags.size();
         currentBindings.bindingFlagsInfo.pBindingFlags = currentBindings.descriptorFlags.data();
@@ -195,7 +195,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
 
 
         currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
-        currentBindings.createInfo.pBindings = currentBindings.bindings.data();
+        currentBindings.createInfo.pBindings    = currentBindings.bindings.data();
     }
 }
 
@@ -208,17 +208,25 @@ void ReflectionData::Destroy()
 //=============================================
 // SHADER ABSTRACTION
 //=============================================
-VShader::VShader(const VulkanCore::VDevice& device, const std::string& vertexSource, const std::string& fragmentSource, const std::string& computeSource)
+VShader::VShader(const VulkanCore::VDevice& device, const std::string& vertexSource, const std::string& fragmentSource)
     : m_device(device)
 {
     m_vertexSource   = vertexSource;
     m_fragmentSource = fragmentSource;
-    if(computeSource != "")
-    {
-        m_computeSource = computeSource;
-    }
 
     CreateShaderModules();
+}
+
+VShader::VShader(const VulkanCore::VDevice& device, const std::string& computeShaderSource)
+    : m_device(device)
+{
+    m_vertexSource   = "";
+    m_fragmentSource = "";
+    m_computeSource  = computeShaderSource;
+
+    auto computeSPRIV     = VulkanUtils::ReadSPIRVShader(m_computeSource.value());
+    m_computeShaderModule = VulkanUtils::CreateShaderModule(m_device, computeSPRIV);
+    m_shaderReeflection.AddShader(m_computeSource.value().data(), computeSPRIV.size() * sizeof(char));
 }
 
 void VShader::DestroyExistingShaderModules()
@@ -282,17 +290,6 @@ void VShader::CreateShaderModules()
     // result = spvReflectEnumerateInputVariables(&m_vertexReflection, &varCount, nullptr);
 
     // assert(result == SPV_REFLECT_RESULT_SUCCESS);
-
-
-    if(m_computeSource.has_value())
-    {
-        auto computeSPRIV     = VulkanUtils::ReadSPIRVShader(m_computeSource.value());
-        m_computeShaderModule = VulkanUtils::CreateShaderModule(m_device, computeSPRIV);
-        m_computeReflection->Init(m_computeSource.value().data(), computeSPRIV.size() * sizeof(char));
-    }
-    else
-        Utils::Logger::LogInfoVerboseOnly("Compute shader was not specified");
-
     Utils::Logger::LogSuccess("Shader modules created !");
 }
 }  // namespace VulkanCore

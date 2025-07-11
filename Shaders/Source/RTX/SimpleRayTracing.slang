@@ -15,12 +15,6 @@ ConstantBuffer<GlobalDataRTX> globalData;
 [[vk::binding(1, 0)]]
 ConstantBuffer<LightInfo> _lightInfo;
 
-/**
-    TODO: once i have all data in single array this descriptor set will contain everything, textures, materials and per object data, objects
-    cann access this information via custom index specified in the acceleration strucutre construction
-*/
-
-
 // top level acceleration structure
 [[vk::binding(3, 0)]]
 RaytracingAccelerationStructure _TLAS;
@@ -135,7 +129,7 @@ void missMain(inout RayPayLoad payload) {
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 64.0) * _lightInfo.dirLight.intensity.w;
 
     //payload.incomingLightColour = float3(0.f);
-    payload.incomingLightColour += (lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1)) * payload.rayColour ;
+    payload.incomingLightColour += (lerp(GroundColor,   skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1)) * payload.rayColour ;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
