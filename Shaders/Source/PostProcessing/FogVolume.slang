@@ -118,7 +118,7 @@ float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
         
         float heightAttentuation = EvaluateHeightDensity(samplePos);
         
-        float sigma_t = density;// * heightAttentuation;
+        float sigma_t = density * heightAttentuation;
         float perStepAttenuation = exp(-stepSize * sigma_t);
 
         float lightTravelDistance;
@@ -129,7 +129,7 @@ float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
         float cos_theta = dot(V, normalize(_light.dirLight.direction.xyz));
         float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
 
-        In_Scattering += T * p * _fogVolumeParametres.sigma_s * v * I * stepSize * _fogVolumeParametres.fogColour.xyz ;
+        In_Scattering += T * p * _fogVolumeParametres.sigma_s * v * I * stepSize * heightAttentuation * _fogVolumeParametres.fogColour.xyz ;
 
         T *= perStepAttenuation;
         
