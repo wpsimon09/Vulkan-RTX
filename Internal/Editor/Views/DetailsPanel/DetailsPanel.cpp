@@ -408,19 +408,24 @@ void DetailsPanel::RenderFogVolumeNodeUI()
         ImGui::ColorEdit3("Fog colour", &fogNode->GetParameters().fogColour.x, ImGuiColorEditFlags_NoInputs);
         ImGui::Checkbox("Ray marched fog", reinterpret_cast<bool*>(&fogNode->GetParameters().rayMarched));
 
-        ImGui::SetItemTooltip("How indirect light travels through the volume ");
-        ImGui::DragFloat("Absorption", &fogNode->GetParameters().sigma_a, 0.01, 0.0);
-
-        ImGui::SetItemTooltip("How direct light scatters in the fog volume ");
-        ImGui::DragFloat("Scattering", &fogNode->GetParameters().sigma_s, 0.01, 0.0);
+        ImGui::SetItemTooltip("Density of the volume");
+        ImGui::DragFloat("Density", &fogNode->GetParameters().fogColour.w, 0.2, 0.0);
 
         ImGui::SetItemTooltip("G term for the phase function");
         ImGui::SliderFloat("Asymmetry", &fogNode->GetParameters().asymmetryFactor, -1.0, 1.0);
 
         ImGui::SliderFloat("Ray distance", &fogNode->GetParameters().rayDistance, 1.0, 900.0);
+
         ImGui::DragFloat("Ray steps", &fogNode->GetParameters().raySteps, 1, 0.0);
-        ImGui::SliderFloat("Height fall off", &fogNode->GetParameters().heightFallOff, 0.001, 1.0);
+        ImGui::DragFloat("Height fall off", &fogNode->GetParameters().heightFallOff, 0.001, 0.0);
         ImGui::DragFloat("Fog height", &fogNode->GetParameters().fogHeight, 1.0f, 0.0f);
+
+        if(ImGui::TreeNode("Advanced"))
+        {
+            ImGui::SliderFloat("Absorption coeficient", &fogNode->GetParameters().sigma_a, 0.001, 0.01);
+            ImGui::SliderFloat("Scattering coeficient", &fogNode->GetParameters().sigma_s, 0.001, 0.01);
+            ImGui::TreePop();
+        }
     }
 }
 

@@ -118,7 +118,7 @@ float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
         
         float heightAttentuation = EvaluateHeightDensity(samplePos);
         
-        float sigma_t = density * heightAttentuation;
+        float sigma_t = density;// * heightAttentuation;
         float perStepAttenuation = exp(-stepSize * sigma_t);
 
         float lightTravelDistance;
@@ -135,7 +135,7 @@ float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
         
     }
 
-    return pixelColour * T + In_Scattering ;
+    return pixelColour * T + In_Scattering + (1-T);
 }
 
 
