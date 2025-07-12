@@ -168,7 +168,7 @@ def main():
 
     if args.stage in ("compute", "all"):
         console.print("[bold cyan]== Compute Shaders ==[/bold cyan]")
-        compile_shaders(".comp", "Source/Compute", ".spv", [
+        compile_shaders(".slang", "Source/Compute", ".spv", [
             "-matrix-layout-column-major", "-I", "Source/Modules"
         ], args.verbose, args.skip_unchanged)
 
