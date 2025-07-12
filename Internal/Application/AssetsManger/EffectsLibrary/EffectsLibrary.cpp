@@ -14,6 +14,7 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
 #include "Vulkan/Renderer/Renderers/ForwardRenderer.hpp"
+#include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
@@ -23,6 +24,7 @@
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
+#include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 
 namespace ApplicationCore {
 EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
@@ -205,6 +207,15 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     effects[EEffectType::LensFlare] = std::move(lensFlare);
 
     //================================================================================
+
+    auto computeTest = std::make_shared<VulkanUtils::VComputeEffect>(device, "Edge detection test", "Shaders/Compiled/Test.spv",
+                                                                     descLayoutCache, EShaderBindingGroup::ComputePostProecess);
+
+
+    effects[EEffectType::ComputePostProcess] = std::move(computeTest);
+
+    //================================================================================
+
 
     BuildAllEffects();
 }
@@ -475,6 +486,13 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                     e->WriteBuffer(i, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
 
                     e->WriteBuffer(i, 0, 3, uniformBufferManager.GetPostProcessingBufferDescriptorInfo(i));
+
+                    break;
+                }
+                case EShaderBindingGroup::ComputePostProecess: {
+                    //e->SetNumWrites(0, 2, 0);
+
+                    //e->WriteImage(i, 0, 0,sceneRenderer.GetForwardRendererResult())
 
                     break;
                 }

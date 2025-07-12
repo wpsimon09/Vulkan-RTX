@@ -26,6 +26,8 @@ class VComputeEffect : public VulkanUtils::VEffect
     void               Destroy() override;
     void               BindDescriptorSet(const vk::CommandBuffer& cmdBuffer, uint32_t frame, uint32_t set) override;
 
+    ~VComputeEffect() = default;
+
   private:
     // since compute pipeline is much much simpler to set up i will not ceate dedicated calss for it
     vk::Pipeline        m_computePipeline;

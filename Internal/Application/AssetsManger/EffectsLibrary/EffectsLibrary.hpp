@@ -17,7 +17,7 @@ namespace VulkanUtils {
 struct RenderContext;
 class VRayTracingDataManager;
 class VEffect;
-}
+}  // namespace VulkanUtils
 namespace VulkanUtils {
 class VRasterEffect;
 class VResourceGroupManager;
@@ -26,7 +26,7 @@ class VResourceGroupManager;
 namespace Renderer {
 class ForwardRenderer;
 class RenderingSystem;
-}
+}  // namespace Renderer
 
 namespace VulkanCore {
 class VDevice;
@@ -48,20 +48,21 @@ enum class EEffectType : std::uint8_t
     RTShadowPass,
     ToneMappingPass,
     FogVolume,
-    LensFlare
+    LensFlare,
+    ComputePostProcess,
 };
 
 class EffectsLibrary
 {
   public:
-    EffectsLibrary(const VulkanCore::VDevice&          device,
-                   VulkanUtils::VUniformBufferManager& uniformBufferManager,
+    EffectsLibrary(const VulkanCore::VDevice&           device,
+                   VulkanUtils::VUniformBufferManager&  uniformBufferManager,
                    VulkanUtils::VRayTracingDataManager& rtxDataManager,
-                   VulkanCore::VDescriptorLayoutCache& descLayoutCache);
+                   VulkanCore::VDescriptorLayoutCache&  descLayoutCache);
 
 
     std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> effects;
-    std::shared_ptr<VulkanUtils::VEffect> GetEffect(EEffectType type);
+    std::shared_ptr<VulkanUtils::VEffect>                        GetEffect(EEffectType type);
 
     template <typename T>
     std::shared_ptr<T> GetEffect(EEffectType type);
@@ -69,11 +70,17 @@ class EffectsLibrary
     void BuildAllEffects();
     void Destroy();
 
-    void UpdatePerFrameWrites(const Renderer::ForwardRenderer& sceneRenderer,VulkanUtils::VRayTracingDataManager& rayTracingDataManager,  VulkanUtils::RenderContext* renderingContext, VulkanStructs::PostProcessingContext& postProcessingContext, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+    void UpdatePerFrameWrites(const Renderer::ForwardRenderer&          sceneRenderer,
+                              VulkanUtils::VRayTracingDataManager&      rayTracingDataManager,
+                              VulkanUtils::RenderContext*               renderingContext,
+                              VulkanStructs::PostProcessingContext&     postProcessingContext,
+                              const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-    void ConfigureDescriptorWrites(const Renderer::ForwardRenderer& sceneRenderer, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager);
+    void ConfigureDescriptorWrites(const Renderer::ForwardRenderer&     sceneRenderer,
+                                   VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+                                   VulkanUtils::VRayTracingDataManager& rayTracingDataManager);
+
   private:
-
     VulkanCore::VDescriptorLayoutCache& m_descLayoutCache;
 };
 template <typename T>

@@ -225,6 +225,8 @@ set(SOURCES
         Internal/Application/Rendering/Scene/FogVolumeNode.cpp
         Internal/Application/Rendering/Scene/FogVolumeNode.hpp
         Internal/Application/Rendering/Scene/SceneData.cpp
+        Internal/Vulkan/Utils/VEffect/VComputeEffect.hpp
+        Internal/Vulkan/Utils/VEffect/VComputeEffect.cpp
 
 )
 
