@@ -422,8 +422,8 @@ void DetailsPanel::RenderFogVolumeNodeUI()
 
         if(ImGui::TreeNode("Advanced"))
         {
-            ImGui::SliderFloat("Absorption coeficient", &fogNode->GetParameters().sigma_a, 0.001, 0.01);
-            ImGui::SliderFloat("Scattering coeficient", &fogNode->GetParameters().sigma_s, 0.001, 0.01);
+            ImGui::SliderFloat("Absorption coeficient", &fogNode->GetParameters().sigma_a, 0.00001, 0.001, "%.5f");
+            ImGui::SliderFloat("Scattering coeficient", &fogNode->GetParameters().sigma_s, 0.00001, 0.001, "%.5f");
             ImGui::TreePop();
         }
     }

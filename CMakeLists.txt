@@ -118,8 +118,6 @@ set(SOURCES
         Internal/Editor/Views/MenuBar.hpp
         Internal/Vulkan/Utils/VMeshDataManager/MeshDataManager.cpp
         Internal/Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp
-        Internal/Vulkan/Utils/VFactories.hpp
-        Internal/Vulkan/Utils/VFactories.cpp
         Internal/Editor/Views/Console/Console.cpp
         Internal/Editor/Views/Console/Console.hpp
         Internal/Application/IntersectionTests/IntersectionTests.hpp
@@ -227,6 +225,8 @@ set(SOURCES
         Internal/Application/Rendering/Scene/FogVolumeNode.cpp
         Internal/Application/Rendering/Scene/FogVolumeNode.hpp
         Internal/Application/Rendering/Scene/SceneData.cpp
+        Internal/Vulkan/Utils/VEffect/VComputeEffect.hpp
+        Internal/Vulkan/Utils/VEffect/VComputeEffect.cpp
 
 )
 

@@ -52,7 +52,8 @@ enum EVertexInput
     Empty
 };
 
-enum EShaderBindingGroup {
+enum EShaderBindingGroup
+{
     ForwardLit,
     ForwardUnlit,
     ForwardUnlitNoMaterial,
@@ -64,7 +65,8 @@ enum EShaderBindingGroup {
     ToneMap,
     PostProcessing,
     FogBinding,
-    LensFlareBinding
+    LensFlareBinding,
+    ComputePostProecess,
 };
 
 

@@ -18,7 +18,6 @@
 #include "Application/VertexArray/VertexArray.hpp"
 #include "fastgltf/tools.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
-#include "Vulkan/Utils/VFactories.hpp"
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
@@ -38,7 +37,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
 {
     const auto& model = m_assetsManager.GetModel(gltfPath.string());
     if(!model.empty())
-        return ;
+        return;
 
     // temp data
     std::shared_ptr<SceneNode>              m_rootNode;
@@ -207,7 +206,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
         //==============================================================
         if(importOptions.importOnlyMaterials)
         {
-            return ;
+            return;
         }
         // temporal data that will hold everything
         std::vector<uint32_t> indices;
@@ -353,12 +352,8 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
             const auto* transform = std::get_if<fastgltf::TRS>(&node.transform);
 
 
-            glm::quat rotation(
-                transform->rotation.w(),
-                transform->rotation.x(),
-                transform->rotation.y(),
-                transform->rotation.z()
-            );
+            glm::quat rotation(transform->rotation.w(), transform->rotation.x(), transform->rotation.y(),
+                               transform->rotation.z());
 
             Transformations transformations(
                 glm::vec3(transform->translation.x(), transform->translation.y(), transform->translation.z()),
@@ -400,7 +395,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
 
     for(auto& sceneNode : m_topNodes)
     {
-       scene.AddNode(sceneNode);
+        scene.AddNode(sceneNode);
     }
 
     scene.Update();
