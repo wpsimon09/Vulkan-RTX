@@ -7,7 +7,7 @@ VComputeEffect::VComputeEffect(const VulkanCore::VDevice&          device,
                                VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                                EShaderBindingGroup                 bindingGroup)
     : VEffect(device, name, descLayoutCache, bindingGroup)
-    , m_computeShader(std::in_place, device, computeShaderPath);
+    , m_computeShader(device, computeShaderPath)
 {
 }
 

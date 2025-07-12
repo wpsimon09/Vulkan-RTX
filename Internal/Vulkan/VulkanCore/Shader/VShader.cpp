@@ -5,6 +5,7 @@
 #include "VShader.hpp"
 
 #include <fstream>
+#include <vulkan/vulkan_enums.hpp>
 
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
@@ -226,7 +227,7 @@ VShader::VShader(const VulkanCore::VDevice& device, const std::string& computeSh
 
     auto computeSPRIV     = VulkanUtils::ReadSPIRVShader(m_computeSource.value());
     m_computeShaderModule = VulkanUtils::CreateShaderModule(m_device, computeSPRIV);
-    m_shaderReeflection.AddShader(m_computeSource.value().data(), computeSPRIV.size() * sizeof(char));
+    m_shaderReeflection.AddShader(computeSPRIV.data(), computeSPRIV.size() * sizeof(char), vk::ShaderStageFlagBits::eCompute);
 }
 
 void VShader::DestroyExistingShaderModules()
