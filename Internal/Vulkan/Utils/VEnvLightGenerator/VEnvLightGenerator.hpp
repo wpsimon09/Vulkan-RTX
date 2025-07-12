@@ -9,6 +9,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace VulkanCore {
@@ -85,9 +86,9 @@ class VEnvLightGenerator
     std::unordered_map<int, std::unique_ptr<VulkanCore::VImage2>> m_hdrCubeMaps;
     std::unique_ptr<VulkanCore::VImage2>                          m_dummyCubeMap;
     int                                                           m_currentHDR;
-    uint32_t m_currentFrame;
+    uint32_t                                                      m_currentFrame;
 
-    const VulkanCore::VDevice& m_device;
+    const VulkanCore::VDevice&          m_device;
     VulkanCore::VDescriptorLayoutCache& m_descLayoutChache;
 
     std::unique_ptr<VulkanCore::VCommandBuffer> m_graphicsCmdBuffer;
@@ -100,6 +101,10 @@ class VEnvLightGenerator
 
     std::vector<glm::mat4> m_camptureViews;
 
+    std::unique_ptr<VulkanUtils::VRasterEffect> m_hdrToIrradianceEffect;
+    std::unique_ptr<VulkanUtils::VRasterEffect> m_prefilterEffect;
+    std::unique_ptr<VulkanUtils::VRasterEffect> m_hdrToCubeMapEffect;
+
     void RenderToCubeMap(const vk::CommandBuffer& cmdBuffer, vk::Viewport& viewport, vk::RenderingAttachmentInfo& attachment);
 
     void CopyResukt(const vk::CommandBuffer& cmdBuffer, const vk::Image& src, const vk::Image& dst, int w, int h, int m = 0, int f = 0);
@@ -109,7 +114,6 @@ class VEnvLightGenerator
                          std::unique_ptr<VulkanCore::VImage2>& renderTarget,
                          VulkanCore::VImage2CreateInfo&        createInfo,
                          VulkanCore::VTimelineSemaphore&       semaphore);
-
 };
 }  // namespace VulkanUtils
 
