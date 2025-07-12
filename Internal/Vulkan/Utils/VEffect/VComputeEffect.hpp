@@ -29,6 +29,7 @@ class VComputeEffect : public VulkanUtils::VEffect
   private:
     // since compute pipeline is much much simpler to set up i will not ceate dedicated calss for it
     vk::Pipeline        m_computePipeline;
+    vk::PipelineLayout  m_computePipelienLayout;
     VulkanCore::VShader m_computeShader;
 };
 }  // namespace VulkanUtils
