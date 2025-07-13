@@ -208,14 +208,6 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     //================================================================================
 
-    auto computeTest = std::make_shared<VulkanUtils::VComputeEffect>(device, "Edge detection test", "Shaders/Compiled/Test.spv",
-                                                                     descLayoutCache, EShaderBindingGroup::ComputePostProecess);
-
-
-    effects[EEffectType::ComputePostProcess] = std::move(computeTest);
-
-    //================================================================================
-
 
     BuildAllEffects();
 }

@@ -11,6 +11,7 @@
 #include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
+#include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
@@ -104,7 +105,9 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
     //==============================================
 
 
-    GenerateBRDFLut();
+    //GenerateBRDFLut();
+
+    GenerateBRDFLutCompute();
 
     const vk::Format format     = vk::Format::eR16G16B16A16Sfloat;
     const uint32_t   dimensions = 512;
@@ -827,17 +830,18 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLutCompute()
     // CREATE INFO FOR BRDF LOOK UP IMAGE
     //=======================================================
     VulkanCore::VImage2CreateInfo brdfCI;  // CI -create info
-    brdfCI.channels = 2;
-    brdfCI.format   = vk::Format::eR16G16Sfloat;
-    brdfCI.width    = 512;
-    brdfCI.height   = 512;
-    brdfCI.layout   = vk::ImageLayout::eGeneral;
+    brdfCI.channels  = 2;
+    brdfCI.format    = vk::Format::eR16G16Sfloat;
+    brdfCI.width     = 512;
+    brdfCI.height    = 512;
+    brdfCI.layout    = vk::ImageLayout::eGeneral;
+    brdfCI.isStorage = true;
     brdfCI.imageUsage |= vk::ImageUsageFlagBits::eStorage;
     m_brdfLut = std::make_unique<VulkanCore::VImage2>(m_device, brdfCI);
 
     m_graphicsCmdBuffer->BeginRecording();
 
-    RecordImageTransitionLayoutCommand(*m_brdfLut, vk::ImageLayout::eGeneral, vk::ImageLayout::eUndefined, *m_transferCmdBuffer);
+    RecordImageTransitionLayoutCommand(*m_brdfLut, vk::ImageLayout::eGeneral, vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
 
     std::vector<vk::PipelineStageFlags> waitStages = {
         vk::PipelineStageFlagBits::eTopOfPipe,
@@ -855,16 +859,28 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLutCompute()
 
     brdfCompute.BuildEffect();
 
+    brdfCompute.GetReflectionData()->Print();
+
+    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+    {
+
+        brdfCompute.SetNumWrites(0, 1, 0);
+        brdfCompute.WriteImage(i, 0, 0, m_brdfLut->GetDescriptorImageInfo());
+        brdfCompute.ApplyWrites(i);
+    }
+
     //=============================================
     // RECORD COMMAND BUFFER
     //=============================================
     cmdBuffer.BeginRecording();
 
     brdfCompute.BindPipeline(cmdBuffer.GetCommandBuffer());
-
+    brdfCompute.BindDescriptorSet(cmdBuffer.GetCommandBuffer(), 0, 0);
     //=========================================
     // DISPATCH COMPUTE WORK
     //=========================================
+    cmdBuffer.GetCommandBuffer().dispatch(m_brdfLut->GetImageInfo().width / 16, m_brdfLut->GetImageInfo().width / 16, 1);
+
     std::vector<vk::PipelineStageFlags> renderWaitStages = {
         vk::PipelineStageFlagBits::eColorAttachmentOutput,
     };
@@ -874,23 +890,24 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLutCompute()
     brdfGenerationSemaphore.CpuWaitIdle(4);
 
     //=========================================
-    // TRANSITION TO SHADER READ ONLY
+    // TRANSITION FROM GENERAL TO READ ONLY
     //=========================================
-    m_transferCmdBuffer->BeginRecording();
+    m_graphicsCmdBuffer->BeginRecording();
 
-    RecordImageTransitionLayoutCommand(*m_brdfLut, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                       vk::ImageLayout::eColorAttachmentOptimal, *m_transferCmdBuffer);
+    RecordImageTransitionLayoutCommand(*m_brdfLut, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
+                                       *m_graphicsCmdBuffer);
 
     std::vector<vk::PipelineStageFlags> waitStagesToShaderReadOnly = {
-        vk::PipelineStageFlagBits::eColorAttachmentOutput,
+        vk::PipelineStageFlagBits::eNone,
     };
 
-    m_transferCmdBuffer->EndAndFlush(m_device.GetTransferQueue(), brdfGenerationSemaphore.GetSemaphore(),
+    m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), brdfGenerationSemaphore.GetSemaphore(),
                                      brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(4, 6), waitStages.data());
 
     brdfGenerationSemaphore.CpuWaitIdle(6);
 
     brdfGenerationSemaphore.Destroy();
+
 
     //brdfEffect.Destroy();
 }

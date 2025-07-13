@@ -160,7 +160,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
 
             assert(binding.descriptorCount > 0 && "descriptor count must be 0 ");
 
-            binding.stageFlags = vk::ShaderStageFlagBits::eAllGraphics;
+            binding.stageFlags = vk::ShaderStageFlagBits::eAll;
 
 
             newSetLayout.bindings.emplace_back(binding);

@@ -88,6 +88,7 @@ void VTimelineSemaphore::CpuWaitIdle(uint64_t waitValue)
     waitInfo.pSemaphores    = &m_semaphore;
     waitInfo.pValues        = &m_currentWait;
 
+    //assert(m_device.GetDevice().waitSemaphores(waitInfo, UINT64_MAX) == vk::Result::eSuccess);
     while(m_device.GetDevice().waitSemaphores(waitInfo, UINT64_MAX) == vk::Result::eTimeout)
         ;
 }

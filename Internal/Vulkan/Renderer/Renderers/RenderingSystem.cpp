@@ -4,6 +4,7 @@
 
 #include "RenderingSystem.hpp"
 
+#include "Editor/UIContext/ViewPortContext.hpp"
 #include "PostProcessingSystem.h"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
@@ -117,6 +118,7 @@ void RenderingSystem::Init()
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
             .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eShadowMap).SetImage(m_forwardRenderer->GetShadowMapOutput().GetPrimaryImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer).SetImage(m_envLightGenerator->GetBRDFLut(), i);
     }
 }
 
