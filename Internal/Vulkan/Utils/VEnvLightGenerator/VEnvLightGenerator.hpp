@@ -76,6 +76,7 @@ class VEnvLightGenerator
 
   private:
     void GenerateBRDFLut();
+    void GenerateBRDFLutCompute();
 
   private:
     std::unique_ptr<VulkanCore::VImage2> m_brdfLut;
@@ -96,6 +97,7 @@ class VEnvLightGenerator
 
     std::unique_ptr<VulkanCore::VCommandPool> m_graphicsCmdPool;
     std::unique_ptr<VulkanCore::VCommandPool> m_transferCmdPool;
+
 
     std::unique_ptr<ApplicationCore::StaticMesh> m_cube;
 

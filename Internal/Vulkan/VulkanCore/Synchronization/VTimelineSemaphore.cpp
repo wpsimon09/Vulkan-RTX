@@ -40,26 +40,28 @@ vk::TimelineSemaphoreSubmitInfo VTimelineSemaphore::GetTimeLineSemaphoreSubmitIn
     submitInfo.pSignalSemaphoreValues    = &m_currentSignal;
     return submitInfo;
 }
-vk::SemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreWaitSubmitInfo(uint64_t waitValue, vk::PipelineStageFlags2& waitStages) {
+vk::SemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreWaitSubmitInfo(uint64_t waitValue, vk::PipelineStageFlags2& waitStages)
+{
     m_waitHistory.emplace_back(m_offset + waitValue);
 
-    m_currentWait   = m_offset + waitValue;
+    m_currentWait = m_offset + waitValue;
 
     vk::SemaphoreSubmitInfo waitSubmitInfo{};
     waitSubmitInfo.semaphore = m_semaphore;
-    waitSubmitInfo.value = m_currentWait;
+    waitSubmitInfo.value     = m_currentWait;
     waitSubmitInfo.stageMask = waitStages;
 
     return waitSubmitInfo;
 }
 
-vk::SemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreSignalSubmitInfo(uint64_t signalValue, vk::PipelineStageFlags2& signalStages) {
+vk::SemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreSignalSubmitInfo(uint64_t signalValue, vk::PipelineStageFlags2& signalStages)
+{
 
     m_currentSignal = m_offset + signalValue;
 
     vk::SemaphoreSubmitInfo signalSubmitInfo{};
     signalSubmitInfo.semaphore = m_semaphore;
-    signalSubmitInfo.value = m_currentSignal;
+    signalSubmitInfo.value     = m_currentSignal;
     signalSubmitInfo.stageMask = signalStages;
 
     return signalSubmitInfo;
@@ -86,7 +88,8 @@ void VTimelineSemaphore::CpuWaitIdle(uint64_t waitValue)
     waitInfo.pSemaphores    = &m_semaphore;
     waitInfo.pValues        = &m_currentWait;
 
-    assert(m_device.GetDevice().waitSemaphores(waitInfo, UINT64_MAX) == vk::Result::eSuccess);
+    while(m_device.GetDevice().waitSemaphores(waitInfo, UINT64_MAX) == vk::Result::eTimeout)
+        ;
 }
 
 void VTimelineSemaphore::SetWaitAndSignal(uint64_t waitValue, uint64_t signalValue)

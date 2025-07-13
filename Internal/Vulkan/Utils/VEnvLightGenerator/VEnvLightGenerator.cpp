@@ -6,10 +6,14 @@
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <vulkan/vulkan_enums.hpp>
 
 #include "Application/Rendering/Mesh/MeshData.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
+#include "Vulkan/Global/GlobalVulkanEnums.hpp"
+#include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniform.hpp"
@@ -29,6 +33,7 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
 
     m_graphicsCmdPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     m_transferCmdPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Transfer);
+
 
     m_graphicsCmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_graphicsCmdPool);
     m_transferCmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_transferCmdPool);
@@ -77,6 +82,24 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
         .SetVertexInputMode(EVertexInput::PositionOnly);
 
     m_hdrToIrradianceEffect->BuildEffect();
+
+    //------------------------------------------------
+
+    m_prefilterEffect = std::make_unique<VRasterEffect>(m_device, "HDR Image to cube map", "Shaders/Compiled/Prefilter.vert.spv",
+                                                        "Shaders/Compiled/Prefilter.frag.spv", m_descLayoutChache);
+    m_prefilterEffect->DisableStencil()
+        .SetDisableDepthTest()
+        .SetCullNone()
+        .SetNullVertexBinding()
+        .SetPiplineNoMultiSampling()
+        .SetColourOutputFormat(vk::Format::eR16G16B16A16Sfloat)
+        .SetVertexInputMode(EVertexInput::PositionOnly);
+
+
+    m_prefilterEffect->BuildEffect();
+
+    //------------------------------------------------
+
 
     //==============================================
 
@@ -472,18 +495,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     // - copies offcreen buffer the one of the face of cube
     //=============================================================
     {
-        VRasterEffect hdrToPrefilterEffect(m_device, "HDR Image to cube map", "Shaders/Compiled/Prefilter.vert.spv",
-                                           "Shaders/Compiled/Prefilter.frag.spv", m_descLayoutChache);
-        hdrToPrefilterEffect.DisableStencil()
-            .SetDisableDepthTest()
-            .SetCullNone()
-            .SetNullVertexBinding()
-            .SetPiplineNoMultiSampling()
-            .SetColourOutputFormat(vk::Format::eR16G16B16A16Sfloat)
-            .SetVertexInputMode(EVertexInput::PositionOnly);
 
-
-        hdrToPrefilterEffect.BuildEffect();
 
         struct PushBlock
         {
@@ -510,11 +522,11 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
 
         int i = 0;
 
-        hdrToPrefilterEffect.SetNumWrites(0, 1, 0);
-        hdrToPrefilterEffect.WriteImage(m_currentFrame, 0, 0,
-                                        m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
+        m_prefilterEffect->SetNumWrites(0, 1, 0);
+        m_prefilterEffect->WriteImage(m_currentFrame, 0, 0,
+                                      m_hdrCubeMaps[envMap->GetID()]->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
 
-        hdrToPrefilterEffect.ApplyWrites(m_currentFrame);
+        m_prefilterEffect->ApplyWrites(m_currentFrame);
 
 
         for(int mipLevel = 0; mipLevel < mipLevels; mipLevel++)
@@ -522,9 +534,9 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
             for(int face = 0; face < 6; face++)
             {
 
-                hdrToPrefilterEffect.BindPipeline(cmdBuffer);
+                m_prefilterEffect->BindPipeline(cmdBuffer);
 
-                hdrToPrefilterEffect.BindDescriptorSet(cmdBuffer, m_currentFrame, 0);
+                m_prefilterEffect->BindDescriptorSet(cmdBuffer, m_currentFrame, 0);
 
                 // ================ update data
                 // create projection * view matrix that will be send to the  shader
@@ -536,7 +548,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
                 viewport.height = static_cast<float>(dimensions * std::pow(0.5f, mipLevel));
 
                 vk::PushConstantsInfo pcInfo;
-                pcInfo.layout     = hdrToPrefilterEffect.GetPipelineLayout();
+                pcInfo.layout     = m_prefilterEffect->GetPipelineLayout();
                 pcInfo.offset     = 0;
                 pcInfo.size       = sizeof(PushBlock);
                 pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex;
@@ -580,7 +592,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         {
             hdrPushBlock->Destory();
         }
-        hdrToPrefilterEffect.Destroy();
+
         //            hdrPushBlock.Destory();
         Utils::Logger::LogSuccess("Prefilterred generated");
     }
@@ -804,6 +816,85 @@ void VulkanUtils::VEnvLightGenerator::CreateResources(const vk::CommandBuffer&  
     m_graphicsCmdBuffer->BeginRecording();
 }
 
+void VulkanUtils::VEnvLightGenerator::GenerateBRDFLutCompute()
+{
+    VulkanCore::VCommandPool   computePool(m_device, EQueueFamilyIndexType::Compute);
+    VulkanCore::VCommandBuffer cmdBuffer(m_device, computePool);
+
+
+    VulkanCore::VTimelineSemaphore brdfGenerationSemaphore(m_device);
+    //=======================================================
+    // CREATE INFO FOR BRDF LOOK UP IMAGE
+    //=======================================================
+    VulkanCore::VImage2CreateInfo brdfCI;  // CI -create info
+    brdfCI.channels = 2;
+    brdfCI.format   = vk::Format::eR16G16Sfloat;
+    brdfCI.width    = 512;
+    brdfCI.height   = 512;
+    brdfCI.layout   = vk::ImageLayout::eGeneral;
+    brdfCI.imageUsage |= vk::ImageUsageFlagBits::eStorage;
+    m_brdfLut = std::make_unique<VulkanCore::VImage2>(m_device, brdfCI);
+
+    m_graphicsCmdBuffer->BeginRecording();
+
+    RecordImageTransitionLayoutCommand(*m_brdfLut, vk::ImageLayout::eGeneral, vk::ImageLayout::eUndefined, *m_transferCmdBuffer);
+
+    std::vector<vk::PipelineStageFlags> waitStages = {
+        vk::PipelineStageFlagBits::eTopOfPipe,
+    };
+
+    m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), brdfGenerationSemaphore.GetSemaphore(),
+                                     brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
+
+    //==========================================================================
+    // PREPARE FOR RENDERING
+    //==========================================================================
+    //Create Effect that generates BRDF
+    VComputeEffect brdfCompute(m_device, "BRDF Lut compute", "Shaders/Compiled/BRDFLut.spv", m_descLayoutChache,
+                               EShaderBindingGroup::ComputePostProecess);
+
+    brdfCompute.BuildEffect();
+
+    //=============================================
+    // RECORD COMMAND BUFFER
+    //=============================================
+    cmdBuffer.BeginRecording();
+
+    brdfCompute.BindPipeline(cmdBuffer.GetCommandBuffer());
+
+    //=========================================
+    // DISPATCH COMPUTE WORK
+    //=========================================
+    std::vector<vk::PipelineStageFlags> renderWaitStages = {
+        vk::PipelineStageFlagBits::eColorAttachmentOutput,
+    };
+    cmdBuffer.EndAndFlush(m_device.GetComputeQueue(), brdfGenerationSemaphore.GetSemaphore(),
+                          brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), renderWaitStages.data());
+
+    brdfGenerationSemaphore.CpuWaitIdle(4);
+
+    //=========================================
+    // TRANSITION TO SHADER READ ONLY
+    //=========================================
+    m_transferCmdBuffer->BeginRecording();
+
+    RecordImageTransitionLayoutCommand(*m_brdfLut, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                       vk::ImageLayout::eColorAttachmentOptimal, *m_transferCmdBuffer);
+
+    std::vector<vk::PipelineStageFlags> waitStagesToShaderReadOnly = {
+        vk::PipelineStageFlagBits::eColorAttachmentOutput,
+    };
+
+    m_transferCmdBuffer->EndAndFlush(m_device.GetTransferQueue(), brdfGenerationSemaphore.GetSemaphore(),
+                                     brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(4, 6), waitStages.data());
+
+    brdfGenerationSemaphore.CpuWaitIdle(6);
+
+    brdfGenerationSemaphore.Destroy();
+
+    //brdfEffect.Destroy();
+}
+
 
 void VulkanUtils::VEnvLightGenerator::Destroy()
 {
@@ -813,6 +904,7 @@ void VulkanUtils::VEnvLightGenerator::Destroy()
     m_dummyCubeMap->Destroy();
     m_hdrToIrradianceEffect->Destroy();
     m_hdrToCubeMapEffect->Destroy();
+    m_prefilterEffect->Destroy();
     m_device.GetTransferOpsManager().ClearResources();
     for(auto& cubeMap : m_hdrCubeMaps)
     {
