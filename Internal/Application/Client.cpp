@@ -12,6 +12,7 @@
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/GLTFLoader/GltfLoader.hpp"
 #include "Application/GLTFExporter/GLTFExporter.hpp"
+#include "ApplicationState/ApplicationState.hpp"
 #include "Rendering/Camera/Camera.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include <cassert>
@@ -26,6 +27,7 @@
 Client::Client()
     : m_globalRenderingData()
 {
+    m_applicationState = std::make_unique<ApplicationCore::ApplicationState>();
 }
 
 void Client::Init()

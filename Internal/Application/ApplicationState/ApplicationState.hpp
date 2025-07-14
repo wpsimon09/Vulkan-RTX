@@ -26,6 +26,21 @@ class ApplicationState
 
     void Reset();
 
+    LightStructs::SceneLightInfo&  GetSceneLightInfo();
+    void                           pSetSceneLightInfo(LightStructs::SceneLightInfo* pSceneLight);
+
+    SceneData&                    GetSceneData();
+    void                           pSetSceneData(SceneData* pSceneData);
+
+    SceneUpdateFlags&                GetSceneUpdateFlags();
+    void                           pSetSceneUpdateFlags(SceneUpdateFlags* sceneUpdateFlags);
+
+    GlobalRenderingInfo&          GetGlobalRenderingInfo();
+    void                           pSetGlobalRenderingInfo(GlobalRenderingInfo* m_global_rendering_info);
+
+    bool&                          IsWindowResized();
+    void                           SetIsWindowResized(bool windowResized);
+
   private:
     LightStructs::SceneLightInfo* m_sceneLight          = nullptr;
     SceneData*                    m_sceneData           = nullptr;

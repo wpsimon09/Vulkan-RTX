@@ -16,6 +16,9 @@
 
 
 namespace ApplicationCore {
+class ApplicationState;
+}
+namespace ApplicationCore {
 class GLTFLoader;
 }
 
@@ -76,6 +79,7 @@ class Client
     std::unique_ptr<ApplicationCore::Scene>                         m_scene;
     std::unique_ptr<ApplicationCore::GLTFLoader>                    m_gltfLoader;
     std::unique_ptr<ApplicationCore::GLTFExporter>                  m_gltfExporter;
+    std::unique_ptr<ApplicationCore::ApplicationState>              m_applicationState;
 
     GlobalRenderingInfo m_globalRenderingData;
     PostProcessingParameters m_postProcessingParameters;

@@ -29,8 +29,9 @@ namespace ApplicationCore {
 //=============================================================================
 // SCENE WITH POINTERS
 //=============================================================================
-Scene::Scene(AssetsManager& assetsManager, Camera& camera)
-    : m_assetsManager(assetsManager)
+Scene::Scene(ApplicationState& applicationState, AssetsManager& assetsManager, Camera& camera)
+    : m_applicationState(applicationState)
+    ,m_assetsManager(assetsManager)
     , m_sceneStatistics()
     , m_camera(camera)
 {

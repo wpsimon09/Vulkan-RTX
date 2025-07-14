@@ -22,6 +22,7 @@ struct BLASInput;
 }  // namespace VulkanCore
 
 namespace ApplicationCore {
+class ApplicationState;
 class SkyBoxMaterial;
 }
 
@@ -48,7 +49,7 @@ class Scene
 {
 
   public:
-    Scene(AssetsManager& assetsManager, Camera& camera);
+    Scene(ApplicationState& applicationState, AssetsManager& assetsManager, Camera& camera);
 
     void Init();
     void Update();
@@ -114,6 +115,8 @@ class Scene
     SceneData m_sceneData;
 
     SceneUpdateFlags m_sceneUpdateFlags{};
+
+    ApplicationState& m_applicationState;
 };
 
 
