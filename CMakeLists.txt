@@ -227,6 +227,10 @@ set(SOURCES
         Internal/Application/Rendering/Scene/SceneData.cpp
         Internal/Vulkan/Utils/VEffect/VComputeEffect.hpp
         Internal/Vulkan/Utils/VEffect/VComputeEffect.cpp
+        Internal/Application/ApplicationState/ApplicationState.cpp
+        Internal/Application/ApplicationState/ApplicationState.hpp
+        Internal/Application/ApplicationState/ApplicationState.cpp
+        Internal/Application/ApplicationState/ApplicationState.hpp
 
 )
 

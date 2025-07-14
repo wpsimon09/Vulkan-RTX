@@ -125,7 +125,7 @@ void RenderingSystem::Init()
 void RenderingSystem::Render(bool                          resizeSwapChain,
                              LightStructs::SceneLightInfo& sceneLightInfo,
                              ApplicationCore::SceneData&   sceneData,
-                             GlobalUniform&                globalUniformUpdateInfo,
+                             GlobalRenderingInfo&                globalUniformUpdateInfo,
                              PostProcessingParameters&     postProcessingParameters,
                              SceneUpdateFlags&             sceneUpdateFlags)
 {

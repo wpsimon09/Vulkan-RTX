@@ -60,7 +60,7 @@ namespace VEditor {
     class UIContext;
 }
 
-struct GlobalUniform;
+struct GlobalRenderingInfo;
 
 namespace Renderer {
 
@@ -76,7 +76,7 @@ public:
                     VEditor::UIContext&                       uiContext);
 
     void Init();
-    void Render(bool resizeSwapChain, LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalUniform& globalUniformUpdateInfo, PostProcessingParameters& postProcessingParameters, SceneUpdateFlags& sceneUpdateFlags);
+    void Render(bool resizeSwapChain, LightStructs::SceneLightInfo& sceneLightInfo,ApplicationCore::SceneData& sceneData, GlobalRenderingInfo& globalUniformUpdateInfo, PostProcessingParameters& postProcessingParameters, SceneUpdateFlags& sceneUpdateFlags);
     void Update();
     void Destroy();
 

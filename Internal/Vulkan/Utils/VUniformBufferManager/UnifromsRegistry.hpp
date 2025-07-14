@@ -14,7 +14,7 @@ namespace VulkanCore {
 class VBuffer;
 }
 
-struct GlobalUniform
+struct GlobalRenderingInfo
 {
     glm::mat4 view;
     glm::mat4 proj;

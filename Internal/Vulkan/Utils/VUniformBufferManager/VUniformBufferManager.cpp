@@ -84,7 +84,7 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetMaterialDescript
 }
 
 
-void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData, PostProcessingParameters& postProcessingParameters) const
+void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameIndex, GlobalRenderingInfo& perFrameData, PostProcessingParameters& postProcessingParameters) const
 {
     m_perFrameUniform->GetUBOStruct() = perFrameData;
     m_perFrameUniform->UpdateGPUBuffer(frameIndex);
@@ -229,7 +229,7 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     GlobalState::EnableLogging();
     Utils::Logger::LogSuccess("Allocated uniform and storage buffers");
 
-    m_perFrameUniform = std::make_unique<VUniform<GlobalUniform>>(m_device);
+    m_perFrameUniform = std::make_unique<VUniform<GlobalRenderingInfo>>(m_device);
 
     m_fogVolumeParameters = std::make_unique<VUniform<FogVolumeParameters>>(m_device);
 

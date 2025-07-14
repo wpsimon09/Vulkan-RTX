@@ -23,7 +23,7 @@ namespace VulkanStructs {
 struct VDrawCallData;
 }
 
-struct GlobalUniform;
+struct GlobalRenderingInfo;
 struct LightUniforms;
 
 namespace LightStructs {
@@ -48,7 +48,7 @@ class VUniformBufferManager
     std::vector<vk::DescriptorImageInfo> GetAll2DTextureDescriptorImageInfo() const;  // per object per frame in flight
     vk::DescriptorBufferInfo GetMaterialDescriptionBuffer(int frameIndex) const;
 
-    void UpdatePerFrameUniformData(int frameIndex, GlobalUniform& perFrameData, PostProcessingParameters& postProcessingParameters) const;
+    void UpdatePerFrameUniformData(int frameIndex, GlobalRenderingInfo& perFrameData, PostProcessingParameters& postProcessingParameters) const;
 
     void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls) const;
 
@@ -67,7 +67,7 @@ class VUniformBufferManager
     // TODO: this will be storage buffer
     std::unique_ptr<VUniform<LightUniforms>>              m_lightUniform;
 
-    std::unique_ptr<VulkanUtils::VUniform<GlobalUniform>> m_perFrameUniform;
+    std::unique_ptr<VulkanUtils::VUniform<GlobalRenderingInfo>> m_perFrameUniform;
     std::unique_ptr<VulkanUtils::VUniform<PostProcessingParameters>> m_postProcessingParameters;
     std::unique_ptr<VulkanUtils::VUniform<FogVolumeParameters>> m_fogVolumeParameters;
 
