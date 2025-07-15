@@ -8,6 +8,7 @@
 namespace ApplicationCore {
 ApplicationState::ApplicationState() {}
 
+
 void ApplicationState::Update() {}
 
 void ApplicationState::Reset()

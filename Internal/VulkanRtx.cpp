@@ -214,6 +214,8 @@ void Application::Update()
         m_rayTracingDataManager->UpdateAS(blasInput);
         Utils::Logger::LogInfo("Updating AS");
     }
+
+    m_client->GetApplicationState().SetIsWindowResized(m_windowManager->GetHasResized());
 }
 
 void Application::Render()
@@ -224,9 +226,7 @@ void Application::Render()
 
     m_editor->Render();
 
-    m_renderingSystem->Render(m_windowManager->GetHasResized(), m_client->GetScene().GetSceneLightInfo(),
-                              m_client->GetScene().GetSceneData(), m_client->GetGlobalDataUpdateInformation(),
-                              m_client->GetPostProcessingParameters(), m_client->GetScene().GetSceneUpdateFlags());
+    m_renderingSystem->Render(m_client->GetApplicationState());
 
     m_renderingSystem->Update();
 }
@@ -235,6 +235,7 @@ void Application::PostRender()
 {
     m_vulkanDevice->GetTransferOpsManager().ClearResources();
     m_client->GetScene().Reset();
+    m_client->GetApplicationState().Reset();
 }
 
 Application::~Application()

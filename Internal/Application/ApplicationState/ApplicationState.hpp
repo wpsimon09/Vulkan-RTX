@@ -46,7 +46,7 @@ class ApplicationState
     void  SetIsWindowResized(bool windowResized);
 
   private:
-    LightStructs::SceneLightInfo* m_sPceneLight              = nullptr;
+    LightStructs::SceneLightInfo* m_sceneLight               = nullptr;
     SceneData*                    m_sceneData                = nullptr;
     SceneUpdateFlags*             m_sceneUpdateFlags         = nullptr;
     GlobalRenderingInfo*          m_globalRenderingInfo      = nullptr;

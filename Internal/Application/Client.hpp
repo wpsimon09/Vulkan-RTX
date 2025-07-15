@@ -55,13 +55,15 @@ class Client
 
     ApplicationCore::AssetsManager& GetAssetsManager() const { return *m_assetsManager; }
 
-    GlobalRenderingInfo&          GetGlobalDataUpdateInformation() { return m_globalRenderingData; }
+    GlobalRenderingInfo&    GetGlobalDataUpdateInformation() { return m_globalRenderingData; }
     ApplicationCore::Scene& GetScene() const { return *m_scene; };
     ;
     ApplicationCore::GLTFLoader&   GetGLTFLoader() const { return *m_gltfLoader; };
     ApplicationCore::GLTFExporter& GetGLTFExporter() const { return *m_gltfExporter; };
 
-    PostProcessingParameters&      GetPostProcessingParameters() {return m_postProcessingParameters;}
+    ApplicationCore::ApplicationState& GetApplicationState() { return *m_applicationState; }
+
+    PostProcessingParameters& GetPostProcessingParameters() { return m_postProcessingParameters; }
 
     void Update();
     void UpdateCamera(CameraUpdateInfo& cameraUpdateInfo);
@@ -81,9 +83,9 @@ class Client
     std::unique_ptr<ApplicationCore::GLTFExporter>                  m_gltfExporter;
     std::unique_ptr<ApplicationCore::ApplicationState>              m_applicationState;
 
-    GlobalRenderingInfo m_globalRenderingData;
+    GlobalRenderingInfo      m_globalRenderingData;
     PostProcessingParameters m_postProcessingParameters;
-    bool          m_isRTXOn = false;
+    bool                     m_isRTXOn = false;
 };
 
 
