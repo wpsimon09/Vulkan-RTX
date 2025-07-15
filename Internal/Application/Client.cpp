@@ -23,6 +23,7 @@
 #include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "AssetsManger/Utils/VTextureAsset.hpp"
+#include "ApplicationState/ApplicationState.hpp"
 
 Client::Client()
     : m_globalRenderingData()
@@ -39,7 +40,7 @@ void Client::Init()
     m_camera = std::make_unique<ApplicationCore::Camera>();
     Utils::Logger::LogSuccessClient("Camera creatd");
 
-    m_scene = std::make_unique<ApplicationCore::Scene>(*m_assetsManager, *m_camera);
+    m_scene = std::make_unique<ApplicationCore::Scene>(*m_applicationState, *m_assetsManager, *m_camera);
     m_scene->Init();
 
     ApplicationCore::LoadSceneLights(*m_scene, GlobalVariables::lightInfoPath);

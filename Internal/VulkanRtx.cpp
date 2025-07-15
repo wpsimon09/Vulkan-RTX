@@ -70,6 +70,7 @@
 #include "Vulkan/Renderer/Renderers/ForwardRenderer.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Renderer/Renderers/PostProcessingSystem.h"
+#include "Application/ApplicationState/ApplicationState.hpp"
 
 Application::Application() = default;
 

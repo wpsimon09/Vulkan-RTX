@@ -36,7 +36,7 @@ class ApplicationState
     void                           pSetSceneUpdateFlags(SceneUpdateFlags* sceneUpdateFlags);
 
     GlobalRenderingInfo&          GetGlobalRenderingInfo();
-    void                           pSetGlobalRenderingInfo(GlobalRenderingInfo* m_global_rendering_info);
+    void                           pSetGlobalRenderingInfo(GlobalRenderingInfo* pGlobalRenderingInfo);
 
     bool&                          IsWindowResized();
     void                           SetIsWindowResized(bool windowResized);

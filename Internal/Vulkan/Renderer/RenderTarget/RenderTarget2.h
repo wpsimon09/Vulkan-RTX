@@ -10,15 +10,15 @@ namespace Renderer {
 
 struct RenderTarget2CreatInfo
 {
-    int                   width;
-    int                   heigh;
+    int width;
+    int heigh;
 
-    bool                  multiSampled{false};
-    bool                  isDepth{false};
+    bool multiSampled{false};
+    bool isDepth{false};
 
-    vk::Format            format{vk::Format::eR16G16B16A16Sfloat};
-    vk::ImageLayout       initialLayout {vk::ImageLayout::eShaderReadOnlyOptimal};
-    vk::ResolveModeFlagBits  resolveMode{vk::ResolveModeFlagBits::eAverage};
+    vk::Format              format{vk::Format::eR16G16B16A16Sfloat};
+    vk::ImageLayout         initialLayout{vk::ImageLayout::eShaderReadOnlyOptimal};
+    vk::ResolveModeFlagBits resolveMode{vk::ResolveModeFlagBits::eAverage};
 };
 
 class RenderTarget2
@@ -28,7 +28,9 @@ class RenderTarget2
     RenderTarget2(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain);
 
     vk::RenderingAttachmentInfo GenerateAttachmentInfo(vk::ImageLayout layout, vk::AttachmentLoadOp loadOp, vk::AttachmentStoreOp storeOp);
-    vk::RenderingAttachmentInfo GenerateAttachmentInfoFromResolvedImage(vk::ImageLayout layout, vk::AttachmentLoadOp loadOp, vk::AttachmentStoreOp storeOp);
+    vk::RenderingAttachmentInfo GenerateAttachmentInfoFromResolvedImage(vk::ImageLayout       layout,
+                                                                        vk::AttachmentLoadOp  loadOp,
+                                                                        vk::AttachmentStoreOp storeOp);
 
     VulkanCore::VImage2& GetPrimaryImage() const;
     VulkanCore::VImage2& GetResolvedImage() const;
