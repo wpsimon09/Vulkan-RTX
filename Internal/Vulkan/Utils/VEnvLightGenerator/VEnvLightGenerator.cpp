@@ -364,7 +364,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
 
         //=============================================================
         // START RENDERING
-        // - renders hdr map to the offscreen buffer a
+        // - renders hdr map to the offscreen buffer
         // - copies offcreen buffer the one of the face of cube
         //=============================================================
         {

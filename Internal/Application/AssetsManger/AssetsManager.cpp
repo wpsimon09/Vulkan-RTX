@@ -228,11 +228,13 @@ std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> AssetsManager::GetE
 {
     return m_effectsLibrary.effects;
 }
-std::map<EEffectType, std::shared_ptr<VulkanUtils::VRasterEffect>> AssetsManager::GetAllRasterEffects() const {
+std::map<EEffectType, std::shared_ptr<VulkanUtils::VRasterEffect>> AssetsManager::GetAllRasterEffects() const
+{
     std::map<EEffectType, std::shared_ptr<VulkanUtils::VRasterEffect>> collectedEffects;
-    for (auto& effect :m_effectsLibrary.effects) {
-        if (auto e = std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(effect.second))
-        collectedEffects[effect.first] = e;
+    for(auto& effect : m_effectsLibrary.effects)
+    {
+        if(auto e = std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(effect.second))
+            collectedEffects[effect.first] = e;
     }
     return collectedEffects;
 }
@@ -308,28 +310,28 @@ void AssetsManager::
     m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device, m_dummyImage);
 
     MaterialPaths paths{};
-    m_dummyMaterial =
-        std::make_shared<ApplicationCore::PBRMaterial>(m_effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::ForwardShader), paths, *this);
+    m_dummyMaterial = std::make_shared<ApplicationCore::PBRMaterial>(
+        m_effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::ForwardShader), paths, *this);
 
     MaterialPaths directionalLightBillboard{};
     directionalLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-directional.png";
-    auto mat = std::make_shared<ApplicationCore::PBRMaterial>(m_effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard),
-                                                              directionalLightBillboard, *this);
+    auto mat                                 = std::make_shared<ApplicationCore::PBRMaterial>(
+        m_effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard), directionalLightBillboard, *this);
     mat->SetMaterialname("Directional light editor billboard");
     m_editorIconsMaterials[EEditorIcon::DirectionalLight] = mat;
 
     MaterialPaths pointLightBillboard{};
     pointLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-point.png";
 
-    mat = std::make_shared<ApplicationCore::PBRMaterial>(m_effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard),
-                                                         pointLightBillboard, *this);
+    mat = std::make_shared<ApplicationCore::PBRMaterial>(
+        m_effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard), pointLightBillboard, *this);
     mat->SetMaterialname("Point light editor billboard");
     m_editorIconsMaterials[EEditorIcon::PointLight] = mat;
 
     MaterialPaths areaLightBillboard{};
     areaLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-area.png";
-    mat = std::make_shared<ApplicationCore::PBRMaterial>(m_effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard),
-                                                         areaLightBillboard, *this);
+    mat                               = std::make_shared<ApplicationCore::PBRMaterial>(
+        m_effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard), areaLightBillboard, *this);
     mat->SetMaterialname("Area light editor billboard");
     m_editorIconsMaterials[EEditorIcon::AreaLight] = mat;
 
@@ -355,7 +357,6 @@ std::vector<TextureBufferView> AssetsManager::ReadBackAllTextures(std::vector<st
             textureView.size              = texture.second->GetHandle()->GetImageSizeBytes();
             textureView.textureAsset      = texture.second.get();
             views.emplace_back(textureView);
-
         }
     }
 
