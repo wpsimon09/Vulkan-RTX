@@ -4,6 +4,7 @@
 
 #include "RenderingSystem.hpp"
 
+#include "Application/ApplicationState/ApplicationState.hpp"
 #include "Editor/UIContext/ViewPortContext.hpp"
 #include "PostProcessingSystem.h"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
@@ -122,17 +123,12 @@ void RenderingSystem::Init()
     }
 }
 
-void RenderingSystem::Render(bool                          resizeSwapChain,
-                             LightStructs::SceneLightInfo& sceneLightInfo,
-                             ApplicationCore::SceneData&   sceneData,
-                             GlobalRenderingInfo&                globalUniformUpdateInfo,
-                             PostProcessingParameters&     postProcessingParameters,
-                             SceneUpdateFlags&             sceneUpdateFlags)
+void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState)
 {
     m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
 
 
-    m_sceneLightInfo = &sceneLightInfo;
+    m_sceneLightInfo = &applicationState.GetSceneLightInfo();
 
     //=================================================
     // GET SWAP IMAGE INDEX
@@ -140,7 +136,7 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
                                                                 *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
 
-    if(resizeSwapChain)
+    if(applicationState.IsWindowResized())
     {
         imageIndex.first = vk::Result::eErrorOutOfDateKHR;
     }
@@ -181,7 +177,7 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
     m_frameCount++;
 
-    if(sceneUpdateFlags.resetAccumulation)
+    if(applicationState.GetSceneUpdateFlags().resetAccumulation)
     {
         // reset the accumulation
         m_accumulatedFramesCount        = 0;
@@ -191,20 +187,23 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     // ==== check if it is possible ot use env light
     if(m_isRayTracing)
     {
-        globalUniformUpdateInfo.screenSize.x = m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().width;
-        globalUniformUpdateInfo.screenSize.y = m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().height;
+        applicationState.GetGlobalRenderingInfo().screenSize.x =
+            m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().width;
+        applicationState.GetGlobalRenderingInfo().screenSize.y =
+            m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().height;
         // will cause to multiply by 0 thus clear the colour
-        globalUniformUpdateInfo.numberOfFrames = m_accumulatedFramesCount;
+        applicationState.GetGlobalRenderingInfo().numberOfFrames = m_accumulatedFramesCount;
     }
     else
     {
-        globalUniformUpdateInfo.numberOfFrames = m_frameCount;
+        applicationState.GetGlobalRenderingInfo().numberOfFrames = m_frameCount;
     }
 
-    m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, globalUniformUpdateInfo, postProcessingParameters);
-    m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, sceneLightInfo);
+    m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, applicationState.GetGlobalRenderingInfo(),
+                                                     applicationState.GetPostProcessingParameters());
+    m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, applicationState.GetSceneLightInfo());
     m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
-    m_uniformBufferManager.UpdateSceneDataInfo(m_currentFrameIndex, sceneData);
+    m_uniformBufferManager.UpdateSceneDataInfo(m_currentFrameIndex, applicationState.GetSceneData());
 
 
     m_device.GetTransferOpsManager().UpdateGPUWaitCPU();
@@ -215,9 +214,9 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
                  std::pair<unsigned long, VulkanStructs::VDrawCallData>& rhs) { return lhs.first < rhs.first; });
 
     // generate new IBL maps if new one was selected
-    if(sceneLightInfo.environmentLight != nullptr)
-        if(sceneLightInfo.environmentLight->hdrImage->IsAvailable())
-            m_envLightGenerator->Generate(m_currentFrameIndex, sceneLightInfo.environmentLight->hdrImage->GetHandle(),
+    if(m_sceneLightInfo->environmentLight != nullptr)
+        if(m_sceneLightInfo->environmentLight->hdrImage->IsAvailable())
+            m_envLightGenerator->Generate(m_currentFrameIndex, m_sceneLightInfo->environmentLight->hdrImage->GetHandle(),
                                           *m_renderingTimeLine[m_currentFrameIndex]);
     m_renderContext.hdrCubeMap    = m_envLightGenerator->GetCubeMapRaw();
     m_renderContext.irradianceMap = m_envLightGenerator->GetIrradianceMapRaw();
@@ -248,8 +247,7 @@ void RenderingSystem::Render(bool                          resizeSwapChain,
     else
     {
         // path trace the scene
-        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex], sceneUpdateFlags,
-                               m_uniformBufferManager, m_currentFrameIndex);
+        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex], m_uniformBufferManager, m_currentFrameIndex);
         m_accumulatedFramesCount++;
 
         m_postProcessingContext.sceneRender = &m_rayTracer->GetRenderedImage(m_currentFrameIndex);

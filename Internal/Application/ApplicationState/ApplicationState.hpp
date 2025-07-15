@@ -6,6 +6,7 @@
 #define APPLICATIONSTATE_HPP
 
 
+#include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 struct GlobalRenderingInfo;
 struct SceneUpdateFlags;
 namespace LightStructs {
@@ -26,27 +27,31 @@ class ApplicationState
 
     void Reset();
 
-    LightStructs::SceneLightInfo&  GetSceneLightInfo();
-    void                           pSetSceneLightInfo(LightStructs::SceneLightInfo* pSceneLight);
+    LightStructs::SceneLightInfo& GetSceneLightInfo();
+    void                          pSetSceneLightInfo(LightStructs::SceneLightInfo* pSceneLight);
 
-    SceneData&                    GetSceneData();
-    void                           pSetSceneData(SceneData* pSceneData);
+    SceneData& GetSceneData();
+    void       pSetSceneData(SceneData* pSceneData);
 
-    SceneUpdateFlags&                GetSceneUpdateFlags();
-    void                           pSetSceneUpdateFlags(SceneUpdateFlags* sceneUpdateFlags);
+    SceneUpdateFlags& GetSceneUpdateFlags();
+    void              pSetSceneUpdateFlags(SceneUpdateFlags* sceneUpdateFlags);
 
-    GlobalRenderingInfo&          GetGlobalRenderingInfo();
-    void                           pSetGlobalRenderingInfo(GlobalRenderingInfo* pGlobalRenderingInfo);
+    GlobalRenderingInfo& GetGlobalRenderingInfo();
+    void                 pSetGlobalRenderingInfo(GlobalRenderingInfo* pGlobalRenderingInfo);
 
-    bool&                          IsWindowResized();
-    void                           SetIsWindowResized(bool windowResized);
+    PostProcessingParameters& GetPostProcessingParameters();
+    void                      pSetPostProcessingParameters(PostProcessingParameters* pPostProcessingParameters);
+
+    bool& IsWindowResized();
+    void  SetIsWindowResized(bool windowResized);
 
   private:
-    LightStructs::SceneLightInfo* m_sceneLight          = nullptr;
-    SceneData*                    m_sceneData           = nullptr;
-    SceneUpdateFlags*             m_sceneUpdateFlags    = nullptr;
-    GlobalRenderingInfo*          m_globalRenderingInfo = nullptr;
-    bool                          m_windowResized       = false;
+    LightStructs::SceneLightInfo* m_sceneLight               = nullptr;
+    SceneData*                    m_sceneData                = nullptr;
+    SceneUpdateFlags*             m_sceneUpdateFlags         = nullptr;
+    GlobalRenderingInfo*          m_globalRenderingInfo      = nullptr;
+    PostProcessingParameters*     m_postProcessingParameters = nullptr;
+    bool                          m_windowResized            = false;
 };
 
 }  // namespace ApplicationCore

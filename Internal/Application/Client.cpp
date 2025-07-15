@@ -29,6 +29,9 @@ Client::Client()
     : m_globalRenderingData()
 {
     m_applicationState = std::make_unique<ApplicationCore::ApplicationState>();
+
+    m_applicationState->pSetGlobalRenderingInfo(&m_globalRenderingData);
+    m_applicationState->pSetPostProcessingParameters(&m_postProcessingParameters);
 }
 
 void Client::Init()
@@ -99,12 +102,12 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData.view        = m_camera->GetViewMatrix();
     m_globalRenderingData.inverseView = m_camera->GetInverseViewMatrix();
     m_globalRenderingData.inverseProj = m_camera->GetinverseProjectionMatrix();
-    m_globalRenderingData.screenSize  = {GlobalVariables::RenderTargetResolutionWidth, GlobalVariables::RenderTargetResolutionHeight};
-    m_globalRenderingData.viewParams = glm::vec4(m_camera->GetCameraPlaneWidthAndHeight(), m_camera->GetNearPlane(), m_camera->GetFarPlane());
+    m_globalRenderingData.screenSize = {GlobalVariables::RenderTargetResolutionWidth, GlobalVariables::RenderTargetResolutionHeight};
+    m_globalRenderingData.viewParams =
+        glm::vec4(m_camera->GetCameraPlaneWidthAndHeight(), m_camera->GetNearPlane(), m_camera->GetFarPlane());
     m_globalRenderingData.reccursionDepth = GlobalVariables::RenderingOptions::MaxRecursionDepth;
-    m_globalRenderingData.raysPerPixel = GlobalVariables::RenderingOptions::RaysPerPixel;
-    m_globalRenderingData.cameraPosition = glm::vec4(m_camera->GetPosition(), 1.0f);
-
+    m_globalRenderingData.raysPerPixel    = GlobalVariables::RenderingOptions::RaysPerPixel;
+    m_globalRenderingData.cameraPosition  = glm::vec4(m_camera->GetPosition(), 1.0f);
 }
 
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)
