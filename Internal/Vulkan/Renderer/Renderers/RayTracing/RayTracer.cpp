@@ -83,7 +83,6 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
 }
 
 void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
-                          const SceneUpdateFlags&                   sceneUpdateFlags,
                           const VulkanUtils::VUniformBufferManager& unifromBufferManager,
                           int                                       currentFrame)
 {

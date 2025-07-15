@@ -23,6 +23,7 @@
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
+#include "Application/ApplicationState/ApplicationState.hpp"
 
 namespace ApplicationCore {
 
@@ -31,10 +32,13 @@ namespace ApplicationCore {
 //=============================================================================
 Scene::Scene(ApplicationState& applicationState, AssetsManager& assetsManager, Camera& camera)
     : m_applicationState(applicationState)
-    ,m_assetsManager(assetsManager)
+    , m_assetsManager(assetsManager)
     , m_sceneStatistics()
     , m_camera(camera)
 {
+    m_applicationState.pSetSceneLightInfo(&m_sceneLightInfo);
+    m_applicationState.pSetSceneData(&m_sceneData);
+    m_applicationState.pSetSceneUpdateFlags(&m_sceneUpdateFlags);
 }
 
 void Scene::Init()
