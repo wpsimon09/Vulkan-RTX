@@ -74,7 +74,6 @@ public struct PBRMaterial : IMaterial
         if (features.hasDiffuseTexture)
         {
             brdf.albedo = albedo_map.Sample(geometry.uv);
-            
         }
         else
         {
