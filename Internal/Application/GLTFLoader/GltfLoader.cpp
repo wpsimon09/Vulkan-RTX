@@ -304,7 +304,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
                     if(tangents != p.attributes.end())
                     {
                         auto& tangentAccessor = gltf.accessors[tangents->accessorIndex];
-                        fastgltf::iterateAccessorWithIndex<glm::vec3>(gltf, tangentAccessor, [&](glm::vec3 t, size_t index) {
+                        fastgltf::iterateAccessorWithIndex<glm::vec4>(gltf, tangentAccessor, [&](glm::vec4 t, size_t index) {
                             vertices[initialIndex + index].tangent = t;
                         });
                     }

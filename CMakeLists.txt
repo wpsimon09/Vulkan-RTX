@@ -231,6 +231,8 @@ set(SOURCES
         Internal/Application/ApplicationState/ApplicationState.hpp
         Internal/Application/ApplicationState/ApplicationState.cpp
         Internal/Application/ApplicationState/ApplicationState.hpp
+        External/MikkTSpace/mikktspace.h
+        External/MikkTSpace/mikktspace.c
 
 )
 

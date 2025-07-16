@@ -127,7 +127,7 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
     switch(vertexInput)
     {
         case Full: {
-            attributeDescription.resize(3);  // enum specifies the number
+            attributeDescription.resize(4);  // enum specifies the number
 
             // FOR POSITION
             attributeDescription[0].binding  = 0;
@@ -150,7 +150,7 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
             // TANGENTS
             attributeDescription[3].binding  = 0;
             attributeDescription[3].location = 3;
-            attributeDescription[3].format   = vk::Format::eR32G32B32Sfloat;
+            attributeDescription[3].format   = vk::Format::eR32G32B32A32Sfloat;
             attributeDescription[3].offset   = offsetof(ApplicationCore::Vertex, tangent);
 
             break;

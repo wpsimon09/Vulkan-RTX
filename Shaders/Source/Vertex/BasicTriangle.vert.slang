@@ -7,6 +7,7 @@ struct VertexInput {
     float3 inPosition :POSITION ;
     float3 inNormal : NORMAL;
     float2 inUV : UV;
+    float4 inTangent : TANGENT;
 };
 
 struct VertexOutput {
@@ -25,6 +26,7 @@ struct VertexOutput {
         float2 uv : OUT_UV;
         int materialIndex : OUT_MATERIAL;
         float2 screenSpaceUV: OUT_SCREEN_UV;
+        float3x3 TBN : OUT_TBN;
     };
 
 
@@ -44,6 +46,8 @@ struct VertexOutput {
         VertexOutput out;
         out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
         
+
+
 
         out.vertexData.cameraPos = globalData.cameraPostiion.xyz;
         out.vertexData.fragPos = FragmentWorldPos;

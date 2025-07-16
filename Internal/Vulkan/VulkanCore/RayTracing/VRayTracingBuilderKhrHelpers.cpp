@@ -12,7 +12,9 @@
 #include "Application/VertexArray/VertexArray.hpp"
 
 
-VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshIndex,std::shared_ptr<ApplicationCore::StaticMesh>& mesh, glm::mat4 matrix)
+VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshIndex,
+                                                                  std::shared_ptr<ApplicationCore::StaticMesh>& mesh,
+                                                                  glm::mat4                                     matrix)
 {
     // get the address of vertex buffer and indeex buffers
     vk::DeviceAddress vertexAddress = mesh->GetMeshData()->vertexData.bufferAddress;
@@ -22,13 +24,13 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshI
 
     vk::AccelerationStructureGeometryTrianglesDataKHR triangles;
     // vertices
-    triangles.vertexFormat             = vk::Format::eR32G32B32Sfloat;
+    triangles.vertexFormat             = vk::Format::eR32G32B32A32Sfloat;  // format of each vertex element
     triangles.vertexData.deviceAddress = vertexAddress + mesh->GetMeshData()->vertexData.offset;
     triangles.vertexStride             = sizeof(ApplicationCore::Vertex);
     triangles.maxVertex                = (mesh->GetMeshData()->vertexData.size / sizeof(ApplicationCore::Vertex)) - 1;
 
     // indices
-    triangles.indexData.deviceAddress = indexAddress  + mesh->GetMeshData()->indexData.offset;
+    triangles.indexData.deviceAddress = indexAddress + mesh->GetMeshData()->indexData.offset;
     triangles.indexType               = vk::IndexType::eUint32;
 
     // transform
@@ -51,8 +53,9 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshI
     BLASInput input;
     input.asGeometry.emplace_back(asGeometry);
     input.asBuildOffSetInfo.emplace_back(asBuildOffsetInfo);
-    input.transform = matrix;;
-    input.meshIndex = meshIndex;
+    input.transform = matrix;
+    ;
+    input.meshIndex     = meshIndex;
     input.materialIndex = mesh->GetMaterial()->GetSceneIndex();
 
     //=============================================================================================
@@ -61,7 +64,7 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshI
     // the custom index ID in the shader
     input.objDescription.indexAddresss = triangles.indexData.deviceAddress;
     input.objDescription.vertexAddress = triangles.vertexData.deviceAddress;
-  
+
     return input;
 }
 
@@ -91,8 +94,8 @@ VulkanCore::RTX::AccelKHR VulkanCore::RTX::AllocateAccelerationStructure(const V
 
 vk::TransformMatrixKHR VulkanCore::RTX::GlmToMatrix4KHR(glm::mat4& m)
 {
-  glm::mat4            temp = glm::transpose(m);
-  VkTransformMatrixKHR out_matrix;
-  memcpy(&out_matrix, &temp, sizeof(VkTransformMatrixKHR));
-  return out_matrix;
+    glm::mat4            temp = glm::transpose(m);
+    VkTransformMatrixKHR out_matrix;
+    memcpy(&out_matrix, &temp, sizeof(VkTransformMatrixKHR));
+    return out_matrix;
 }
