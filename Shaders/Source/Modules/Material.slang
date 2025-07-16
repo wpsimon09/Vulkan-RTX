@@ -48,7 +48,7 @@ public interface IMaterial
 {
     associatedtype BRDF : IBRDF;
 
-    BRDF Prepare(SurfaceGeometry geometry);
+    BRDF Prepare(SurfaceGeometry geometry, float3x3 TBN);
 }
 
 public struct PBRMaterial : IMaterial
@@ -68,14 +68,13 @@ public struct PBRMaterial : IMaterial
     public float ao;
     public typedef CookTorrence_GGX BRDF;
     
-    public CookTorrence_GGX Prepare(SurfaceGeometry geometry)
+    public CookTorrence_GGX Prepare(SurfaceGeometry geometry, float3x3 TBN)
     {
         CookTorrence_GGX brdf;
         if (features.hasDiffuseTexture)
         {
             brdf.albedo = albedo_map.Sample(geometry.uv);
-            if (brdf.albedo.w < 1.0) {
-            }
+            
         }
         else
         {
@@ -83,9 +82,9 @@ public struct PBRMaterial : IMaterial
         }
 
         if(features.hasNormalTexture){
-            brdf.normal = SampleNormalMap(normal_map, geometry.uv,geometry.shadingNormal, geometry.shadingPosition);
+            brdf.normal = SampleNormalMap(normal_map, geometry.uv, TBN);
         }else{
-            brdf.normal = geometry.normal;
+            brdf.normal = geometry.shadingNormal;
         }
 
         if (features.hasArmTexture)
@@ -312,7 +311,12 @@ public float3 SampleNormalMap(Sampler2D normalMap, float2 UV, float3 N, float3 P
     float3 B = -normalize(cross(N, T));
     float3x3 TBN = float3x3(T, B, N);
 
-    return normalize(mul(tangentNormal, TBN));
+    return normalize(mul(TBN, tangentNormal));
+}
+
+public float3 SampleNormalMap(Sampler2D normalMap,float2 UV, float3x3 TBN){
+    float3 tangentNormal = normalMap.Sample(UV).xyz * 2.0 - 1.0;
+    return normalize(mul(TBN, tangentNormal));
 }
 
 public float3 IntegrateEdgeVec(float3 v1, float3 v2) {

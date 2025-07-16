@@ -7,6 +7,7 @@ struct VertexInput {
     float3 inPosition :POSITION ;
     float3 inNormal : NORMAL;
     float2 inUV : UV;
+    float4 inTangent : TANGENT;
 };
 
 struct VertexOutput {
@@ -25,6 +26,7 @@ struct VertexOutput {
         float2 uv : OUT_UV;
         int materialIndex : OUT_MATERIAL;
         float2 screenSpaceUV: OUT_SCREEN_UV;
+        float3x3 TBN : OUT_TBN;
     };
 
 
@@ -36,20 +38,23 @@ struct VertexOutput {
         float3 normal = VAO.inNormal;
         float2 uv = VAO.inUV;
 
+
+        float4x4 normalMatrix = transpose(inverse(perObjectPC.modelMatrix));
         float3 FragmentWorldPos =mul( perObjectPC.modelMatrix,  float4(vertexPos, 1.0)).xyz;
-        float3 NormalWorldPos = mul(transpose(inverse(perObjectPC.modelMatrix)), float4(normal.xyz, 1.0)).xyz;//mul( float4(normal, 1.0) , perObjectData[perObjectPC.perObjectDataIndex].normalMatrix).xyz;
+        float3 NormalWorldPos = mul(normalMatrix, float4(normal.xyz, 1.0)).xyz;//mul( float4(normal, 1.0) , perObjectData[perObjectPC.perObjectDataIndex].normalMatrix).xyz;
         
         float4x4 viewProj = mul(globalData.projection, globalData.view);
         
         VertexOutput out;
         out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
         
-
+        out.vertexData.TBN = CalculateTBN(VAO.inNormal, VAO.inTangent, float3x3(normalMatrix));
         out.vertexData.cameraPos = globalData.cameraPostiion.xyz;
         out.vertexData.fragPos = FragmentWorldPos;
         out.vertexData.normal = NormalWorldPos;
         out.vertexData.uv = uv;
         out.vertexData.materialIndex = perObjectData[perObjectPC.perObjectDataIndex.x].indexes.x;
         out.vertexData.screenSpaceUV = globalData.screenSize;
+
         return out;
     }

@@ -296,6 +296,23 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
                     }
                 }
 
+                //===========================================
+                // VERTEX TANGENTS
+                //===========================================
+                {
+                    auto tangents = p.findAttribute("TANGENT");
+                    if(tangents != p.attributes.end())
+                    {
+                        auto& tangentAccessor = gltf.accessors[tangents->accessorIndex];
+                        fastgltf::iterateAccessorWithIndex<glm::vec4>(gltf, tangentAccessor, [&](glm::vec4 t, size_t index) {
+                            vertices[initialIndex + index].tangent = t;
+                        });
+                    }
+                    else
+                    {
+                        Utils::Logger::LogErrorClient("Failed to find attribute 'TANGENT'");
+                    }
+                }
                 //=========================================
                 // TEXTURE COORDINATES
                 //=========================================

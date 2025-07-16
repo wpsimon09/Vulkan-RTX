@@ -1,7 +1,9 @@
 #include "GLTFExporter.hpp"
 #include "Application/Logger/Logger.hpp"
+#include "Application/VertexArray/VertexArray.hpp"
 #include "fastgltf/math.hpp"
 #include "fastgltf/types.hpp"
+#include <cstddef>
 #include <fastgltf/core.hpp>
 #include <Application/Rendering/Scene/Scene.hpp>
 #include <Application/Rendering/Scene/SceneNode.hpp>
@@ -213,8 +215,8 @@ void ApplicationCore::GLTFExporter::ParseMaterial(fastgltf::Asset& asset, Assets
 
         material.name      = mat->GetMaterialName();
         material.alphaMode = mat->IsTransparent() ? fastgltf::AlphaMode::Blend : fastgltf::AlphaMode::Opaque;
-        material.pbrData.baseColorFactor = fastgltf::math::vec<float, 4>(matValues.albedo.x, matValues.albedo.y,
-                                                                         matValues.albedo.z, matValues.albedo.w);
+        material.pbrData.baseColorFactor =
+            fastgltf::math::vec<float, 4>(matValues.albedo.x, matValues.albedo.y, matValues.albedo.z, matValues.albedo.w);
         material.pbrData.metallicFactor  = matValues.metalness;
         material.pbrData.roughnessFactor = matValues.roughness;
         material.emissiveFactor.x()      = matValues.emissive_strength.x;
@@ -299,8 +301,8 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset& asset, std::share
     std::pmr::vector<double> max{(double)mesh->GetMeshData()->bounds.max.x, (double)mesh->GetMeshData()->bounds.max.y,
                                  (double)mesh->GetMeshData()->bounds.max.z};
 
-    positionAccessor.min = std::move(min);
-    positionAccessor.max = std::move(max);
+    //ositionAccessor.min = std::move(min);
+    //positionAccessor.max = std::move(max);
     asset.accessors.push_back(std::move(positionAccessor));
 
 
@@ -330,6 +332,18 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset& asset, std::share
     asset.accessors.push_back(std::move(uvAccessor));
 
     //============================================
+    // TANGENT ACCESSOR
+    //============================================
+    fastgltf::Accessor tangentAccessor;
+    tangentAccessor.bufferViewIndex = asset.bufferViews.size() - 2;
+    tangentAccessor.byteOffset      = offsetof(Vertex, tangent);
+    tangentAccessor.count           = mesh->GetMeshData()->vertexData.size / sizeof(Vertex);
+    tangentAccessor.name            = "Tangent accessor";
+    tangentAccessor.type            = fastgltf::AccessorType::Vec4;
+    asset.accessors.push_back(std::move(tangentAccessor));
+
+
+    //============================================
     // IDICES ACCESSOR
     //============================================
     fastgltf::Accessor indicesAccessor;
@@ -345,9 +359,10 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset& asset, std::share
     fastgltf::Mesh      m;
     fastgltf::Primitive primitive;
     primitive.materialIndex   = m_materialToIndex[mesh->GetMaterial()];
-    primitive.attributes      = {{"POSITION", asset.accessors.size() - 4},
-                                 {"NORMAL", asset.accessors.size() - 3},
-                                 {"TEXCOORD_0", asset.accessors.size() - 2}};
+    primitive.attributes      = {{"POSITION", asset.accessors.size() - 5},
+                                 {"NORMAL", asset.accessors.size() - 4},
+                                 {"TEXCOORD_0", asset.accessors.size() - 3},
+                                 {"TANGENT", asset.accessors.size() - 2}};
     primitive.indicesAccessor = asset.accessors.size() - 1;
 
     m.name = mesh->GetName();
@@ -500,11 +515,11 @@ void ApplicationCore::GLTFExporter::Clear()
     m_nodeCounter = 0;
 }
 
-bool ApplicationCore::GLTFExporter::IsNodeValid(const std::shared_ptr<SceneNode>& sceneNode) {
+bool ApplicationCore::GLTFExporter::IsNodeValid(const std::shared_ptr<SceneNode>& sceneNode)
+{
     return (sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::AreaLightNode
             && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::DirectionalLightNode
             && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::PointLightNode
-            && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::SkyBoxNode
-            && sceneNode->GetName() != "Root-Node"
+            && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::SkyBoxNode && sceneNode->GetName() != "Root-Node"
             && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::FogVolume);
 }

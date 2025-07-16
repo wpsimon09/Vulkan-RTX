@@ -72,7 +72,7 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
     //-----------------------------------------------
 
     m_hdrToIrradianceEffect =
-        std::make_unique<VRasterEffect>(m_device, "HDR Image to cube map", "Shaders/Compiled/IrradianceMapImportanceSample.vert.spv",
+        std::make_unique<VRasterEffect>(m_device, "Irradiance map generation", "Shaders/Compiled/IrradianceMapImportanceSample.vert.spv",
                                         "Shaders/Compiled/IrradianceMapImportanceSample.frag.spv", m_descLayoutChache);
     m_hdrToIrradianceEffect->DisableStencil()
         .SetDisableDepthTest()
@@ -82,11 +82,13 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
         .SetColourOutputFormat(vk::Format::eR16G16B16A16Sfloat)
         .SetVertexInputMode(EVertexInput::PositionOnly);
 
+    m_hdrToIrradianceEffect->GetReflectionData()->Print();
+
     m_hdrToIrradianceEffect->BuildEffect();
 
     //------------------------------------------------
 
-    m_prefilterEffect = std::make_unique<VRasterEffect>(m_device, "HDR Image to cube map", "Shaders/Compiled/Prefilter.vert.spv",
+    m_prefilterEffect = std::make_unique<VRasterEffect>(m_device, "Prefilter map generation", "Shaders/Compiled/Prefilter.vert.spv",
                                                         "Shaders/Compiled/Prefilter.frag.spv", m_descLayoutChache);
     m_prefilterEffect->DisableStencil()
         .SetDisableDepthTest()
@@ -96,8 +98,10 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
         .SetColourOutputFormat(vk::Format::eR16G16B16A16Sfloat)
         .SetVertexInputMode(EVertexInput::PositionOnly);
 
+    m_prefilterEffect->GetReflectionData()->Print();
 
     m_prefilterEffect->BuildEffect();
+
 
     //------------------------------------------------
 
