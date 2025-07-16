@@ -46,7 +46,7 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     SurfaceGeometry g;
     float3 N = v1.norm * barycentricCoords.x + v2.norm * barycentricCoords.y + v3.norm * barycentricCoords.z;
     g.normal = N;
-    g.shadingNormal = normalize(mul(ObjectToWorld3x4(), float4(N,1.0)));
+    g.shadingNormal = mul(N, WorldToObject()).xyz;
 
     float3 pos = v1.pos * barycentricCoords.x + v2.pos * barycentricCoords.y + v3.pos * barycentricCoords.z;
     g.position = pos;
@@ -71,6 +71,8 @@ public CookTorrence_GGX GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
     pbrMat.normal_map = textures[pbrMat.features.normalTextureIdx];
     pbrMat.arm_map = textures[pbrMat.features.armTextureIdx];
     pbrMat.emissive_map = textures[pbrMat.features.emissiveTextureIdx];
+
+
 
     return pbrMat.Prepare(g, CalculateTBN(g.normal, g.tangent, ObjectToWorld3x4()));
 }
