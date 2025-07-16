@@ -359,9 +359,10 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset& asset, std::share
     fastgltf::Mesh      m;
     fastgltf::Primitive primitive;
     primitive.materialIndex   = m_materialToIndex[mesh->GetMaterial()];
-    primitive.attributes      = {{"POSITION", asset.accessors.size() - 4},
-                                 {"NORMAL", asset.accessors.size() - 3},
-                                 {"TEXCOORD_0", asset.accessors.size() - 2}};
+    primitive.attributes      = {{"POSITION", asset.accessors.size() - 5},
+                                 {"NORMAL", asset.accessors.size() - 4},
+                                 {"TEXCOORD_0", asset.accessors.size() - 3},
+                                 {"TANGENT", asset.accessors.size() - 2}};
     primitive.indicesAccessor = asset.accessors.size() - 1;
 
     m.name = mesh->GetName();

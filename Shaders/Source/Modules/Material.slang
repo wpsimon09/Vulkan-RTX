@@ -74,8 +74,7 @@ public struct PBRMaterial : IMaterial
         if (features.hasDiffuseTexture)
         {
             brdf.albedo = albedo_map.Sample(geometry.uv);
-            if (brdf.albedo.w < 1.0) {
-            }
+            
         }
         else
         {
@@ -83,9 +82,9 @@ public struct PBRMaterial : IMaterial
         }
 
         if(features.hasNormalTexture){
-            brdf.normal = SampleNormalMap(normal_map, geometry.uv,geometry.shadingNormal, geometry.shadingPosition);
+            brdf.normal = SampleNormalMap(normal_map, geometry.uv, TBN);
         }else{
-            brdf.normal = mul(TBN, geometry.normal);
+            brdf.normal = geometry.shadingNormal;
         }
 
         if (features.hasArmTexture)

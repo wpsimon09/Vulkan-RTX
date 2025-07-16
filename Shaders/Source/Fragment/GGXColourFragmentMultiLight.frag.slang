@@ -43,9 +43,6 @@ float4 fragmentMain(VertexOutput fsIn)
     material.emissive_map = textures[mat.Features.emissiveTextureIdx];
     let brdf_ = material.Prepare(g, fsIn.vertexData.TBN);
 
-    if (material.features.hasNormalTexture) {
-        g.normal = normalize(SampleNormalMap(material.normal_map, fsIn.vertexData.uv, fsIn.vertexData.normal, fsIn.vertexData.fragPos));
-    }
 
     LightPair<LightPair<DirectionalLight, LightArray<PointLight, 20>>, LightPair<LightArray<AreaLight,4>,AmbientLight>> lightingEnv;
     LightPair<DirectionalLight, LightArray<PointLight, 20>> DirAndPoint;
@@ -75,7 +72,9 @@ float4 fragmentMain(VertexOutput fsIn)
     float3 finalColor;
     float shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).x;
     
-    finalColor = (lightingEnv.illuminate(g, brdf_, V) * shadowFactor) + ambientLight.illuminate(g, brdf_, V);
+    finalColor = (lightingEnv.illuminate(g, brdf_, V) * shadowFactor )  + ambientLight.illuminate(g, brdf_, V);
+
+    finalColor.xyz += brdf_.emission.xyz;
 
     return float4(finalColor, 1);
 }
