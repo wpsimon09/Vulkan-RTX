@@ -19,6 +19,4 @@
 [submodule "External/MikkTSpace"]
 	path = External/MikkTSpace
 	url = https://github.com/mmikk/MikkTSpace.git
-[submodule "External/External/Mikk"]
-	path = External/External/Mikk
-	url = https://github.com/mmikk/MikkTSpace.git
+

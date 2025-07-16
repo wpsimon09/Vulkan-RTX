@@ -147,6 +147,12 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
             attributeDescription[2].format   = vk::Format::eR32G32Sfloat;
             attributeDescription[2].offset   = offsetof(ApplicationCore::Vertex, uv);
 
+            // TANGENTS
+            attributeDescription[3].binding  = 0;
+            attributeDescription[3].location = 3;
+            attributeDescription[3].format   = vk::Format::eR32G32B32Sfloat;
+            attributeDescription[3].offset   = offsetof(ApplicationCore::Vertex, tangent);
+
             break;
         }
         case Position_UV: {
