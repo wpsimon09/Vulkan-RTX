@@ -8,6 +8,8 @@
 #include <stb_image/stb_image.h>
 
 #include "Application/Logger/Logger.hpp"
+#include "Application/VertexArray/VertexArray.hpp"
+#include "MikkTSpace/mikktspace.h"
 #include "Vulkan/Global/GlobalVariables.hpp"
 
 #include <future>
@@ -130,7 +132,7 @@ VulkanStructs::VImageData<float> LoadHDRImage(const std::string& path, bool save
     imageData.fileName   = GlobalVariables::textureFolder / imageName;
     imageData.sourceType = EImageSource::File;
     imageData.format     = vk::Format::eR32G32B32A32Sfloat;
-    auto folder    = GlobalVariables::textureFolder.string();
+    auto folder          = GlobalVariables::textureFolder.string();
 
     if(saveToDisk)
     {
@@ -157,12 +159,15 @@ VulkanStructs::VImageData<float> LoadHDRImage(const std::string& path, bool save
 
     return imageData;
 }
-std::vector<VulkanStructs::VImageData<float>> LoadTextureArray(const std::string& folderName, bool saveToDisk) {
-    std::filesystem::path textureFolder = std::filesystem::path(folderName);
+std::vector<VulkanStructs::VImageData<float>> LoadTextureArray(const std::string& folderName, bool saveToDisk)
+{
+    std::filesystem::path                                      textureFolder = std::filesystem::path(folderName);
     std::vector<std::future<VulkanStructs::VImageData<float>>> futures;
 
-    for (const auto& entry : std::filesystem::directory_iterator(textureFolder)) {
-        if (std::filesystem::is_regular_file(entry.status())) {
+    for(const auto& entry : std::filesystem::directory_iterator(textureFolder))
+    {
+        if(std::filesystem::is_regular_file(entry.status()))
+        {
             futures.push_back(std::async(std::launch::async, [entry, saveToDisk, folderName]() {
                 VulkanStructs::VImageData<float> imageData{};
 
@@ -173,20 +178,20 @@ std::vector<VulkanStructs::VImageData<float>> LoadTextureArray(const std::string
                 imageData.fileName   = entry.path();
                 imageData.sourceType = EImageSource::File;
                 imageData.format     = vk::Format::eR32G32B32A32Sfloat;
-                auto folder    = GlobalVariables::textureFolder.string();
+                auto folder          = GlobalVariables::textureFolder.string();
                 return imageData;  // Replace with your actual image loader
             }));
         }
     }
 
     std::vector<VulkanStructs::VImageData<float>> imageDataArray;
-    for (auto& fut : futures) {
+    for(auto& fut : futures)
+    {
         imageDataArray.push_back(fut.get());
     }
 
     return imageDataArray;
 }
-
 
 
 void SaveImageAsPNG(int width, int height, int channels, const std::string& path, const std::vector<std::byte>& data)
@@ -239,4 +244,86 @@ glm::mat4 FastGLTFToGLMMat4(fastgltf::math::fmat4x4* matrix)
     memcpy(&newMatrix, matrix->data(), sizeof(fastgltf::math::fmat4x4));
     return newMatrix;
 }
+
+bool GeneratTangents(std::vector<ApplicationCore::Vertex>& vertices, std::vector<uint32_t>& indices)
+{
+    struct MikkData
+    {
+        std::vector<Vertex>&        vertices;
+        const std::vector<uint32_t> indices;
+    };
+
+    MikkData*            data = new MikkData{vertices, indices};
+    SMikkTSpaceInterface iface;
+
+    iface.m_getNumFaces = [](const SMikkTSpaceContext* ctx) -> int {
+        auto* data = static_cast<MikkData*>(ctx->m_pUserData);
+        return static_cast<int>(data->indices.size() / 3);
+    };
+
+    iface.m_getNumVerticesOfFace = [](const SMikkTSpaceContext*, int) -> int { return 3; };
+
+    iface.m_getPosition = [](const SMikkTSpaceContext* ctx, float out[3], int face, int vert) {
+        auto*            data  = static_cast<MikkData*>(ctx->m_pUserData);
+        int              index = data->indices[face * 3 + vert];
+        const glm::vec3& pos   = data->vertices[index].position;
+        out[0]                 = pos.x;
+        out[1]                 = pos.y;
+        out[2]                 = pos.z;
+    };
+
+    iface.m_getNormal = [](const SMikkTSpaceContext* ctx, float out[3], int face, int vert) {
+        auto*            data   = static_cast<MikkData*>(ctx->m_pUserData);
+        int              index  = data->indices[face * 3 + vert];
+        const glm::vec3& normal = data->vertices[index].normal;
+        out[0]                  = normal.x;
+        out[1]                  = normal.y;
+        out[2]                  = normal.z;
+    };
+
+    iface.m_getTexCoord = [](const SMikkTSpaceContext* ctx, float out[2], int face, int vert) {
+        auto*            data  = static_cast<MikkData*>(ctx->m_pUserData);
+        int              index = data->indices[face * 3 + vert];
+        const glm::vec2& uv    = data->vertices[index].uv;
+        out[0]                 = uv.x;
+        out[1]                 = uv.y;
+    };
+
+    iface.m_getNormal = [](const SMikkTSpaceContext* ctx, float out[3], int face, int vert) {
+        auto*            data   = static_cast<MikkData*>(ctx->m_pUserData);
+        int              index  = data->indices[face * 3 + vert];
+        const glm::vec3& normal = data->vertices[index].normal;
+        out[0]                  = normal.x;
+        out[1]                  = normal.y;
+        out[2]                  = normal.z;
+    };
+
+    iface.m_getTexCoord = [](const SMikkTSpaceContext* ctx, float out[2], int face, int vert) {
+        auto*            data  = static_cast<MikkData*>(ctx->m_pUserData);
+        int              index = data->indices[face * 3 + vert];
+        const glm::vec2& uv    = data->vertices[index].uv;
+        out[0]                 = uv.x;
+        out[1]                 = uv.y;
+    };
+
+    iface.m_setTSpaceBasic = [](const SMikkTSpaceContext* ctx, const float tangent[3], float sign, int face, int vert) {
+        auto* data = static_cast<MikkData*>(ctx->m_pUserData);
+        int index = data->indices[face * 3 + vert];
+
+        glm::vec3 tangentVec(tangent[0], tangent[1], tangent[2]);
+        data->vertices[index].tangent = glm::vec4(tangentVec, sign);
+    };
+
+    iface.m_setTSpace = nullptr;
+
+    SMikkTSpaceContext context{};
+    context.m_pInterface = &iface;
+    context.m_pUserData  = data;
+
+    bool result = genTangSpaceDefault(&context) != 0;
+    delete data;
+
+    return result;
+}
+
 }  // namespace ApplicationCore
