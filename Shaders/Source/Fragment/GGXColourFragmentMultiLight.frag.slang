@@ -12,6 +12,8 @@ struct FragmentShaderIn
     float2 uv : OUT_UV;
     int materialIdx : OUT_MATERIAL;
     float2 screenSpaceUV: OUT_SCREEN_UV;
+    float3x3 TBN : OUT_TBN;
+
 };
 
 struct VertexOutput {
@@ -39,7 +41,7 @@ float4 fragmentMain(VertexOutput fsIn)
     material.arm_map = textures[mat.Features.armTextureIdx];
     material.normal_map = textures[mat.Features.normalTextureIdx];
     material.emissive_map = textures[mat.Features.emissiveTextureIdx];
-    let brdf_ = material.Prepare(g);
+    let brdf_ = material.Prepare(g, fsIn.vertexData.TBN);
 
     if (material.features.hasNormalTexture) {
         g.normal = normalize(SampleNormalMap(material.normal_map, fsIn.vertexData.uv, fsIn.vertexData.normal, fsIn.vertexData.fragPos));

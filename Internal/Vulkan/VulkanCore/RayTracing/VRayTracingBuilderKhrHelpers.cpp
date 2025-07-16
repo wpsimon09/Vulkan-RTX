@@ -24,7 +24,7 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshI
 
     vk::AccelerationStructureGeometryTrianglesDataKHR triangles;
     // vertices
-    triangles.vertexFormat             = vk::Format::eR32G32B32A32Sfloat;  // format of each vertex element
+    triangles.vertexFormat             = vk::Format::eR32G32B32Sfloat;  // format of each vertex element
     triangles.vertexData.deviceAddress = vertexAddress + mesh->GetMeshData()->vertexData.offset;
     triangles.vertexStride             = sizeof(ApplicationCore::Vertex);
     triangles.maxVertex                = (mesh->GetMeshData()->vertexData.size / sizeof(ApplicationCore::Vertex)) - 1;
@@ -32,6 +32,7 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshI
     // indices
     triangles.indexData.deviceAddress = indexAddress + mesh->GetMeshData()->indexData.offset;
     triangles.indexType               = vk::IndexType::eUint32;
+
 
     // transform
     triangles.transformData = {};

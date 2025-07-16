@@ -46,9 +46,7 @@ struct VertexOutput {
         VertexOutput out;
         out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
         
-
-
-
+        out.vertexData.TBN = CalculateTBN(VAO.inNormal, VAO.inTangent, float3x3(transpose(inverse(perObjectPC.modelMatrix))));
         out.vertexData.cameraPos = globalData.cameraPostiion.xyz;
         out.vertexData.fragPos = FragmentWorldPos;
         out.vertexData.normal = NormalWorldPos;

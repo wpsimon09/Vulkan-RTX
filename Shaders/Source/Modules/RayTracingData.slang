@@ -21,6 +21,7 @@ public struct Vertex {
     public float3 pos;
     public float3 norm;
     public float2 uv;
+    public float4 tangent; 
 }
 
 public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric)
@@ -54,6 +55,11 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     float2 uv = v1.uv.xy * barycentricCoords.x + v2.uv.xy * barycentricCoords.y + v3.uv.xy * barycentricCoords.z;
     g.uv = uv;
 
+    float4 tangennt = float4(
+                    // interpolate tangent vector across the triangle 
+                     v1.tangent.xyz * barycentricCoords.x + v2.tangent.xyz * barycentricCoords.y + v3.tangent.xyz * barycentricCoords.z, 
+                     v1.tangent.w * v2.tangent.w * v3.tangent.w);  // should we flip the orientation of tangent vector ? 
+
     return g;
 }
 
@@ -65,7 +71,6 @@ public CookTorrence_GGX GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
     pbrMat.normal_map = textures[pbrMat.features.normalTextureIdx];
     pbrMat.arm_map = textures[pbrMat.features.armTextureIdx];
     pbrMat.emissive_map = textures[pbrMat.features.emissiveTextureIdx];
-    
 
-    return pbrMat.Prepare(g);
+    return pbrMat.Prepare(g, CalculateTBN(g.normal, g.tangent, ObjectToWorld3x4()));
 }
