@@ -46,7 +46,7 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     SurfaceGeometry g;
     float3 N = v1.norm * barycentricCoords.x + v2.norm * barycentricCoords.y + v3.norm * barycentricCoords.z;
     g.normal = N;
-    g.shadingNormal = mul(N, WorldToObject()).xyz;
+    g.shadingNormal = mul(ObjectToWorld(), float4(N, 0.0));
 
     float3 pos = v1.pos * barycentricCoords.x + v2.pos * barycentricCoords.y + v3.pos * barycentricCoords.z;
     g.position = pos;
@@ -57,8 +57,16 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
 
     float4 tangennt = float4(
                     // interpolate tangent vector across the triangle 
-                     v1.tangent.xyz * barycentricCoords.x + v2.tangent.xyz * barycentricCoords.y + v3.tangent.xyz * barycentricCoords.z, 
-                     v1.tangent.w * v2.tangent.w * v3.tangent.w);  // should we flip the orientation of tangent vector ? 
+                     v1.tangent.xyz * barycentricCoords.x + v2.tangent.xyz * barycentricCoords.y + v3.tangent.xyz * barycentricCoords.z ,1.0);  // should we flip the orientation of tangent vector ? 
+    
+    float handedness = v1.tangent.w * barycentricCoords.x +
+                   v2.tangent.w * barycentricCoords.y +
+                   v3.tangent.w * barycentricCoords.z;
+
+
+    tangennt.w = handedness;
+
+    g.tangent = tangennt;
 
     return g;
 }
@@ -72,7 +80,5 @@ public CookTorrence_GGX GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
     pbrMat.arm_map = textures[pbrMat.features.armTextureIdx];
     pbrMat.emissive_map = textures[pbrMat.features.emissiveTextureIdx];
 
-
-
-    return pbrMat.Prepare(g, CalculateTBN(g.normal, g.tangent, ObjectToWorld3x4()));
+    return pbrMat.Prepare(g, CalculateTBN(g.normal, g.tangent, ObjectToWorld()));
 }

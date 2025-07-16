@@ -214,7 +214,7 @@ public float3x3 CalculateTBN(float3 geomNormal, float4 tangnent, float3x3 normal
 public float3x3 CalculateTBN(float3 geomNormal, float4 tangnent, float3x4 normalM){
     float3 T = normalize(mul(normalM, float4(tangnent.xyz, 0.0)));
     float3 N = normalize(mul(normalM, float4(geomNormal, 0.0)));
-    float3 B = normalize(mul(normalM, float4(normalize(cross(N, T)), 0.0))) * tangnent.w;       
+    float3 B = normalize(normalM, float4(cross(N, T), 0.0)) * tangnent.w;       
 
     float3x3 TBN = float3x3(T, B, N);
     return TBN;

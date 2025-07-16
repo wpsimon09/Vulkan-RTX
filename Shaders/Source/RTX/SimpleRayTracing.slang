@@ -146,8 +146,6 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
     CookTorrence_GGX m = GetMaterial(InstanceID(), g);
 
-    
-
     //========================
     // direct light
     float3 L = _lightInfo.dirLight.direction.xyz;
