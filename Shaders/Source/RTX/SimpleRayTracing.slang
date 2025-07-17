@@ -10,7 +10,6 @@ import Core;
 [[vk::binding(0, 0)]]
 ConstantBuffer<GlobalDataRTX> globalData;
 
-
 // light light in scene information
 [[vk::binding(1, 0)]]
 ConstantBuffer<LightInfo> _lightInfo;
@@ -190,7 +189,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     
     bool isSpecularRay = (1.0 - m.roughness) >= RandomValue(payLoad.randomContext);
     
-    payLoad.rayDirection = lerp(diffuseDir, specularDir,m.metallnes * (float)isSpecularRay );
+    payLoad.rayDirection = lerp(diffuseDir, specularDir, m.metallnes * (float)isSpecularRay );
 
     // other direction
     float3 emmittedLight = m.emission.xyz * m.emission.w;

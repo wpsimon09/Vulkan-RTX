@@ -256,7 +256,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
 
         VulkanStructs::VDrawCallData data;
         data.firstIndex    = 1;
-        data.materialIndex = m_materialIdx;
+        data.materialIndex = m_mesh->GetMaterial()->GetSceneIndex();
 
         data.indexCount = m_mesh->GetMeshIndexCount();
         // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
