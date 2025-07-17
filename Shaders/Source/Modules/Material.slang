@@ -48,7 +48,7 @@ public interface IMaterial
 {
     associatedtype BRDF : IBRDF;
 
-    BRDF Prepare(SurfaceGeometry geometry, float3x3 TBN);
+    BRDF Prepare(SurfaceGeometry geometry);
 }
 
 public struct PBRMaterial : IMaterial
@@ -56,19 +56,22 @@ public struct PBRMaterial : IMaterial
 
     public MaterialFeatures features;
     public MaterialConstantValues values;
+    
     public Sampler2D albedo_map;
     public Sampler2D arm_map;
     public Sampler2D normal_map;
     public Sampler2D emissive_map;
+    
     public float4 albedo;
     public float4 emission;
-    public float3 normal;
+    
     public float metallness;
     public float roughness;
     public float ao;
+    
     public typedef CookTorrence_GGX BRDF;
     
-    public CookTorrence_GGX Prepare(SurfaceGeometry geometry, float3x3 TBN)
+    public CookTorrence_GGX Prepare(SurfaceGeometry geometry)
     {
         CookTorrence_GGX brdf;
         if (features.hasDiffuseTexture)
@@ -78,12 +81,6 @@ public struct PBRMaterial : IMaterial
         else
         {
             brdf.albedo = values.diffuse ;
-        }
-
-        if(features.hasNormalTexture){
-            brdf.normal = SampleNormalMap(normal_map, geometry.uv, TBN);
-        }else{
-            brdf.normal = geometry.shadingNormal;
         }
 
         if (features.hasArmTexture)
@@ -142,7 +139,7 @@ public interface IBRDF
      * N  -         normalVector;
      * float3 -     result colour
      */
-    float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided, Sampler2D LTC,Sampler2D LTC_Inverse);
+    float3 EvaluateByLTC(float3 wo, float3 N, float3 P,float4 points[4], bool twoSided, Sampler2D LTC,Sampler2D LTC_Inverse);
 }
 
 public struct CookTorrence_GGX : IBRDF
@@ -157,8 +154,6 @@ public struct CookTorrence_GGX : IBRDF
     public float ao;
 
     public float4 emission;
-
-    public float3 normal;
 
     float DistributionGGX(float3 N, float3 H)
     {
@@ -209,7 +204,7 @@ public struct CookTorrence_GGX : IBRDF
                         pow(1.0 - cosTheta, 5.0);
     }
 
-    public float3 Evaluate(float3 V, float3 L, float3 N)
+    public float3 Evaluate(float3 V, float3 L, float3  N)
     {
 
         float3 F0 = float3(0.04);
@@ -240,7 +235,7 @@ public struct CookTorrence_GGX : IBRDF
         return colour;
     }
 
-    public float3 EvaluateByLTC(float3 wo, float3 P, float3 N, float4 points[4], bool twoSided, Sampler2D LTC, Sampler2D LTC_Inverse) {
+    public float3 EvaluateByLTC(float3 wo,float3 N , float3 P, float4 points[4], bool twoSided, Sampler2D LTC, Sampler2D LTC_Inverse) {
 
         const float LUT_SIZE = 64.0; // ltc_texture size
         const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;

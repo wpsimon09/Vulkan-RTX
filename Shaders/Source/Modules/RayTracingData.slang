@@ -80,5 +80,9 @@ public CookTorrence_GGX GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
     pbrMat.arm_map = textures[pbrMat.features.armTextureIdx];
     pbrMat.emissive_map = textures[pbrMat.features.emissiveTextureIdx];
 
-    return pbrMat.Prepare(g, CalculateTBN(g.normal, g.tangent, ObjectToWorld()));
+    if(pbrMat.features.hasNormalTexture){
+        g.shadingNormal = SampleNormalMap(pbrMat.normal_map, g.uv,CalculateTBN(g.normal, g.tangent, ObjectToWorld()));
+    }
+
+    return pbrMat.Prepare(g);
 }

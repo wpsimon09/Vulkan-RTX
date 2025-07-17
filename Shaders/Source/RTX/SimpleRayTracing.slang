@@ -148,33 +148,35 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     //========================
     // direct light
-    float3 L = _lightInfo.dirLight.direction.xyz;
-    float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
+    if((bool)_lightInfo.dirLight.parameters.z){ // is light active
 
-    float3 albedo = m.albedo.xyz; // float3(0.2, 0.2, 1.0);
-
-    RayPayloadShadow shadowPayLoad;
-    shadowPayLoad.inShadow = true;
-
-    if (dot(g.shadingNormal, L) > 0.0) {
-        // trace the shadow rays
-        RayDesc shadowRay;
-        shadowRay.Direction = L;
-        shadowRay.Origin = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
-        shadowRay.TMax = 10000;
-        shadowRay.TMin = 0.01;
-
-        TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
-    }
-    
-    float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
-    if (!shadowPayLoad.inShadow) {
-
-        float3 directLightContribution = Le * m.Evaluate(V, L, m.normal);
+        float3 L = _lightInfo.dirLight.direction.xyz;
+        float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
         
-        payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
-    }else{
-
+        float3 albedo = m.albedo.xyz; // float3(0.2, 0.2, 1.0);
+        
+        RayPayloadShadow shadowPayLoad;
+        shadowPayLoad.inShadow = true;
+        
+        if (dot(g.shadingNormal, L) > 0.0) {
+            // trace the shadow rays
+            RayDesc shadowRay;
+            shadowRay.Direction = L;
+            shadowRay.Origin = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
+            shadowRay.TMax = 10000;
+            shadowRay.TMin = 0.01;
+            
+            TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
+        }
+        
+        
+        float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
+        if (!shadowPayLoad.inShadow) {
+            
+            float3 directLightContribution = Le * m.Evaluate(V, L, g.shadingNormal);
+            
+            payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
+        }
     }
 
     //==============================

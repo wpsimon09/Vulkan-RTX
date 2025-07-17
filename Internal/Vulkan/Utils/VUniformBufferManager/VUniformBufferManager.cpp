@@ -53,11 +53,12 @@ const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager:
     return m_lightUniform->GetDescriptorBufferInfos();
 }
 
-vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPerObjectBuffer(int currentFrame) {
+vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPerObjectBuffer(int currentFrame)
+{
     vk::DescriptorBufferInfo bufferInfo;
     bufferInfo.buffer = m_perObjectData[currentFrame]->GetBuffer();
     bufferInfo.offset = 0;
-    bufferInfo.range = m_perObjectData[currentFrame]->GetAllocatedSize();
+    bufferInfo.range  = m_perObjectData[currentFrame]->GetAllocatedSize();
 
     return bufferInfo;
 }
@@ -68,7 +69,7 @@ std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2
     result.reserve(m_sceneTextures.size());
     for(auto& texture : m_sceneTextures)
     {
-        assert(texture->GetHandle()->GetImageInfo().isStorage == false && "Image can not be storage buffer" );
+        assert(texture->GetHandle()->GetImageInfo().isStorage == false && "Image can not be storage buffer");
         result.emplace_back(texture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     }
     return result;
@@ -78,13 +79,15 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetMaterialDescript
     vk::DescriptorBufferInfo descriptorBuffer;
     descriptorBuffer.buffer = m_sceneMaterials[frameIndex]->GetBuffer();
     descriptorBuffer.offset = 0;
-    descriptorBuffer.range = m_sceneMaterials[frameIndex]->GetAllocatedSize();
+    descriptorBuffer.range  = m_sceneMaterials[frameIndex]->GetAllocatedSize();
 
-    return  descriptorBuffer;
+    return descriptorBuffer;
 }
 
 
-void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameIndex, GlobalRenderingInfo& perFrameData, PostProcessingParameters& postProcessingParameters) const
+void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int                  frameIndex,
+                                                                   GlobalRenderingInfo& perFrameData,
+                                                                   PostProcessingParameters& postProcessingParameters) const
 {
     m_perFrameUniform->GetUBOStruct() = perFrameData;
     m_perFrameUniform->UpdateGPUBuffer(frameIndex);
@@ -96,21 +99,22 @@ void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameInde
 void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameIndex,
                                                                     std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls) const
 {
-    int  i         = 0;
+    int i = 0;
 
-    if (drawCalls.empty()) return;
+    if(drawCalls.empty())
+        return;
 
     //TODO: do not allocate new vector every time here instead allocate one that can fit at least 50% of the required buffer objects
-    std::vector<PerObjectData> perObjectData (drawCalls.size());
+    std::vector<PerObjectData> perObjectData(drawCalls.size());
 
     for(auto& drawCall : drawCalls)
     {
         drawCall.second.drawCallID = i;
 
-        perObjectData[i].model = drawCall.second.modelMatrix;
+        perObjectData[i].model        = drawCall.second.modelMatrix;
         perObjectData[i].normalMatrix = glm::transpose(glm::inverse(drawCall.second.modelMatrix));
-        perObjectData[i].position = glm::vec4(drawCall.second.position,1.0);
-        perObjectData[i].indexes.x =  drawCall.second.materialIndex;
+        perObjectData[i].position     = glm::vec4(drawCall.second.position, 1.0);
+        perObjectData[i].indexes.x    = drawCall.second.materialIndex;
 
         i++;
     }
@@ -131,6 +135,7 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, 
 
         m_lightUniform->GetUBOStruct().directionalLight.parameters.x = sceneLightInfo.DirectionalLightInfo->shadowRaysPerPixel;
         m_lightUniform->GetUBOStruct().directionalLight.parameters.y = sceneLightInfo.DirectionalLightInfo->shadowBias;
+        m_lightUniform->GetUBOStruct().directionalLight.parameters.z = sceneLightInfo.DirectionalLightInfo->inUse;
     }
 
 
@@ -176,11 +181,13 @@ void VulkanUtils::VUniformBufferManager::UpdateLightUniformData(int frameIndex, 
 void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData)
 {
     std::vector<PBRMaterialDescription> materials(sceneData.pbrMaterials.size());
-    for(int i = 0; i < sceneData.pbrMaterials.size(); i++) {
+    for(int i = 0; i < sceneData.pbrMaterials.size(); i++)
+    {
         materials[i] = *sceneData.pbrMaterials[i];
     }
     m_sceneMaterials[frameIndex]->Update(materials);
-    if (sceneData.fogVolumeParameters) {
+    if(sceneData.fogVolumeParameters)
+    {
         m_fogVolumeParameters->GetUBOStruct() = *sceneData.fogVolumeParameters;
     }
 
@@ -196,11 +203,13 @@ void VulkanUtils::VUniformBufferManager::Destroy() const
     m_postProcessingParameters->Destory();
     m_fogVolumeParameters->Destory();
 
-    for (auto& ssbo : m_sceneMaterials) {
+    for(auto& ssbo : m_sceneMaterials)
+    {
         ssbo->Destroy();
     }
 
-    for (auto& perObjectUbo : m_perObjectData) {
+    for(auto& perObjectUbo : m_perObjectData)
+    {
         perObjectUbo->Destroy();
     }
 
@@ -217,7 +226,8 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     m_sceneMaterials.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_perObjectData.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
 
-    for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+    {
         m_sceneMaterials[i] = std::make_unique<VulkanCore::VShaderStorageBuffer>(m_device, MATERIAL_BUFFER_SIZE);
         m_sceneMaterials[i]->Allocate();
 
@@ -236,6 +246,4 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     m_postProcessingParameters = std::make_unique<VUniform<PostProcessingParameters>>(m_device);
 
     m_lightUniform = std::make_unique<VUniform<LightUniforms>>(m_device);
-
-
 }

@@ -62,7 +62,7 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light ,float worldY, float3 p
 
     T = exp(-beta_S * heightFactor * ray.TMax);
 
-    float3 finalColour = pixelColour  * T + in_scattering + (1-T) * fogColor ;
+    float3 finalColour = pixelColour  * T +  in_scattering  + (1-T) * fogColor ;
  
     return finalColour;
 }
@@ -121,15 +121,18 @@ float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
         float sigma_t = density * heightAttentuation;
         float perStepAttenuation = exp(-stepSize * sigma_t);
 
-        float lightTravelDistance;
-        bool hit = IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz), 4000), _tlas, lightTravelDistance);
-        float v = hit ? 0.0 : 1.0;
+        if((bool)_light.dirLight.parameters.z){
 
-        float3 V = normalize(samplePos - _globalData.cameraPostiion.xyz );
-        float cos_theta = dot(V, normalize(_light.dirLight.direction.xyz));
-        float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
-
-        In_Scattering += T * p * _fogVolumeParametres.sigma_s * v * I * stepSize * heightAttentuation * _fogVolumeParametres.fogColour.xyz ;
+            float lightTravelDistance;
+            bool hit = IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz), 4000), _tlas, lightTravelDistance);
+            float v = hit ? 0.0 : 1.0;
+    
+            float3 V = normalize(samplePos - _globalData.cameraPostiion.xyz );
+            float cos_theta = dot(V, normalize(_light.dirLight.direction.xyz));
+            float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
+    
+            In_Scattering += T * p * _fogVolumeParametres.sigma_s * v * I * stepSize * heightAttentuation * _fogVolumeParametres.fogColour.xyz ;
+        }
 
         T *= perStepAttenuation;
         

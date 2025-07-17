@@ -41,8 +41,12 @@ float4 fragmentMain(VertexOutput fsIn)
     material.arm_map = textures[mat.Features.armTextureIdx];
     material.normal_map = textures[mat.Features.normalTextureIdx];
     material.emissive_map = textures[mat.Features.emissiveTextureIdx];
-    let brdf_ = material.Prepare(g, fsIn.vertexData.TBN);
+    
+    let brdf_ = material.Prepare(g);
 
+    if(material.features.hasNormalTexture){
+        g.shadingNormal = SampleNormalMap(material.normal_map, g.uv, fsIn.vertexData.TBN);
+    }
 
     LightPair<LightPair<DirectionalLight, LightArray<PointLight, 20>>, LightPair<LightArray<AreaLight,4>,AmbientLight>> lightingEnv;
     LightPair<DirectionalLight, LightArray<PointLight, 20>> DirAndPoint;
@@ -77,5 +81,6 @@ float4 fragmentMain(VertexOutput fsIn)
     finalColor.xyz += brdf_.emission.xyz;
 
     return float4(finalColor, 1);
+    
 }
 

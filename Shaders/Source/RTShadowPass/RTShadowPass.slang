@@ -23,6 +23,10 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
+    if(!(bool)_lightInfo.dirLight.parameters.z){
+        return float4(1.0);
+    }
+
     float3 worldSpacePos = _positionTexture.Sample(fsIn.uv).xyz;
     
     // get neighbouring positions in world space 
@@ -83,8 +87,6 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
         disatnceTraveled += tHit;
 
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
-        
-        if(shadowFactor == 1.0) break;
     }
 
     disatnceTraveled /= nShadowRays;
