@@ -83,34 +83,38 @@ void rayGenMain() {
     payload.randomContext = randomSeed;
     payload.depth = 0;
     payload.rayColour = float3(1.0);
+
     
-    for (int i = 0; i < globalData.raysPerPixel; i++) {
-        payload.incomingLightColour = float3(0.0);
-        float3 rayRadiacne = float3(0.0);
-        for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
-
-            TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
-            rayRadiacne += payload.incomingLightColour;
-            
-            if (!payload.hasHit)
-                break;
-            
-            ray.Origin = payload.rayOrigin;
-            ray.Direction = payload.rayDirection;
+    //=========================
+    // Full shading is enabled 
+        for (int i = 0; i < globalData.raysPerPixel; i++) {
+            payload.incomingLightColour = float3(0.0);
+            float3 rayRadiacne = float3(0.0);
+            for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
+    
+                TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
+                rayRadiacne += payload.incomingLightColour;
+                
+                if (!payload.hasHit)
+                    break;
+                
+                ray.Origin = payload.rayOrigin;
+                ray.Direction = payload.rayDirection;
+            }
+            totalRadiance += rayRadiacne;
         }
-        totalRadiance += rayRadiacne;
-    }
+          float weight = max(1.0 / (globalData.currentFrame + 1), 0);
 
+        // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
+        _film[int2(threadIdx.xy)] = float4(totalRadiance / globalData.raysPerPixel, 1.0);
 
-    float weight = max(1.0 / (globalData.currentFrame + 1), 0);
+        // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
+        float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
 
-    // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
-    _film[int2(threadIdx.xy)] = float4(totalRadiance / globalData.raysPerPixel, 1.0);
-
-    // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
-    float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
-
-    _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
+        _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
+    
+ 
+  
 }
 
 [[shader("miss")]]
@@ -128,6 +132,7 @@ void missMain(inout RayPayLoad payload) {
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 64.0) * _lightInfo.dirLight.intensity.w;
 
     //payload.incomingLightColour = float3(0.f);
+    payload.normal = float3(0.0f);
     payload.incomingLightColour += (lerp(GroundColor,   skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1)) * payload.rayColour ;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
@@ -194,6 +199,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     // other direction
     float3 emmittedLight = m.emission.xyz * m.emission.w;
 
+    payLoad.normal = g.shadingNormal;
     payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
     payLoad.rayColour *= m.albedo.xyz ;
     payLoad.hasHit = true;

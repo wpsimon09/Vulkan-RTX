@@ -48,7 +48,7 @@ public struct GlobalDataRTX {
     public float2 screenSize;
 
     public float currentFrame;
-    ERenderOutput renderOutput;
+    public ERenderOutput renderOutput;
 };
 
 public struct PermodelData {
