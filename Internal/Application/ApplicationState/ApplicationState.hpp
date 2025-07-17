@@ -6,6 +6,7 @@
 #define APPLICATIONSTATE_HPP
 
 
+#include "Application/Enums/ClientEnums.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 struct GlobalRenderingInfo;
 struct SceneUpdateFlags;
@@ -44,6 +45,9 @@ class ApplicationState
 
     bool& IsWindowResized();
     void  SetIsWindowResized(bool windowResized);
+
+  public:
+    EDebugRendering m_rendererOutput = EDebugRendering::Lit;
 
   private:
     LightStructs::SceneLightInfo* m_sceneLight               = nullptr;

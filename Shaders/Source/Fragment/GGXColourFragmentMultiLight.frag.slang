@@ -41,7 +41,7 @@ float4 fragmentMain(VertexOutput fsIn)
     material.arm_map = textures[mat.Features.armTextureIdx];
     material.normal_map = textures[mat.Features.normalTextureIdx];
     material.emissive_map = textures[mat.Features.emissiveTextureIdx];
-    
+
     let brdf_ = material.Prepare(g);
 
     if(material.features.hasNormalTexture){
@@ -80,7 +80,26 @@ float4 fragmentMain(VertexOutput fsIn)
 
     finalColor.xyz += brdf_.emission.xyz;
 
-    return float4(finalColor, 1);
+    switch(globalData.renderOutput){
+        case ERenderOutput::FullLit :{
+            return float4(finalColor, 1);
+        }
+        case ERenderOutput::NormalVectors:{
+            return float4(g.shadingNormal, 1.0);
+        }
+        case ERenderOutput::LightOnly:{
+            return float4(finalColor,1.0);
+        };
+        case ERenderOutput::Albedo:{
+            return float4(brdf_.albedo.xyz, 1.0);
+        }
+        case ERenderOutput::Arm:{
+            return float4(brdf_.ao, brdf_.roughness, brdf_.metallnes, 1.0);
+        }
+        default: {
+            return float4(1.0);
+        }
+    }
     
 }
 

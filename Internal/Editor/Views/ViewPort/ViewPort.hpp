@@ -4,6 +4,7 @@
 
 #ifndef VIEWPORT_HPP
 #define VIEWPORT_HPP
+#include "Application/ApplicationState/ApplicationState.hpp"
 #include "IconsFontAwesome6.h"
 #include "Editor/UIContext/ViewPortContext.hpp"
 
@@ -25,7 +26,13 @@ namespace VEditor {
 class ViewPort : public IUserInterfaceElement
 {
   public:
-    explicit ViewPort(std::unordered_map<ViewPortType, ViewPortContext>&viewPorts, ViewPortContext& rasterViewportContext,ViewPortContext& rayTracedViewPortContext, bool &isRayTracing, ApplicationCore::Scene& scene, WindowManager& windowManager);
+    explicit ViewPort(std::unordered_map<ViewPortType, ViewPortContext>& viewPorts,
+                      ViewPortContext&                                   rasterViewportContext,
+                      ViewPortContext&                                   rayTracedViewPortContext,
+                      bool&                                              isRayTracing,
+                      ApplicationCore::Scene&                            scene,
+                      WindowManager&                                     windowManager,
+                      ApplicationCore::ApplicationState&                 applicationState);
 
     virtual void Render() override;
 
@@ -38,17 +45,20 @@ class ViewPort : public IUserInterfaceElement
 
     void RenderViewPortSelection();
 
-    ApplicationCore::Scene& m_scene;
-    WindowManager&          m_windowManager;
-    ViewPortContext&        m_rasterViewPortContext;
-    ViewPortContext&        m_rayTracedViewPortContext;
+    ApplicationCore::Scene&                            m_scene;
+    WindowManager&                                     m_windowManager;
+    ViewPortContext&                                   m_rasterViewPortContext;
+    ViewPortContext&                                   m_rayTracedViewPortContext;
     std::unordered_map<ViewPortType, ViewPortContext>& m_viewPorts;
 
-    ViewPortType m_selectedViewPort = ViewPortType::eMain;
-    std::vector<const char*> m_viewPortOptions = {
-         ICON_FA_BOLT_LIGHTNING "  Lit",
-         ICON_FA_OBJECT_GROUP " Shadow",
-         ICON_FA_ARROW_DOWN_UP_LOCK " Position"
+    ViewPortType             m_selectedViewPort = ViewPortType::eMain;
+    std::vector<const char*> m_viewPortOptions  = {ICON_FA_BOLT_LIGHTNING "  Lit", ICON_FA_OBJECT_GROUP " Shadow",
+                                                   ICON_FA_ARROW_DOWN_UP_LOCK " Position"};
+
+
+    std::vector<const char*> m_debugViews = {
+        ICON_FA_WAND_SPARKLES " Final render", ICON_FA_ARROW_UP " Normal",      ICON_FA_LIGHTBULB " Light only",
+        ICON_FA_PAINT_ROLLER " Albedo",        ICON_FA_MAGNIFYING_GLASS " ARM",
     };
 
     float m_previousWidth;
@@ -56,6 +66,8 @@ class ViewPort : public IUserInterfaceElement
     float m_gizmoRectOriginX;
     float m_gizmoRectOriginY;
     bool& m_isRayTracing;
+
+    ApplicationCore::ApplicationState& m_applicationSate;
 
     /**
          * Calculates position of mouse inside the view port window

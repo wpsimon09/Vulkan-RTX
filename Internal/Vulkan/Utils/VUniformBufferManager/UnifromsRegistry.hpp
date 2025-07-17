@@ -25,11 +25,11 @@ struct GlobalRenderingInfo
     glm::vec4 cameraPosition;
     glm::vec4 viewParams;
 
-    float     raysPerPixel;
-    float     reccursionDepth;
-    glm::vec2 screenSize;
-    float     numberOfFrames;
-    float     padding1, padding2, padding3;
+    float raysPerPixel;
+    float reccursionDepth;
+    alignas(8) glm::vec2 screenSize;
+    float numberOfFrames;
+    alignas(4) int rendererOutput;  // ClientEnums/EDebugRendering
 };
 
 struct ObjectDataUniform

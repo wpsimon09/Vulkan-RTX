@@ -10,6 +10,7 @@
 #include <IconFontCppHeaders/IconsFontAwesome6.h>
 #include <ImGuizmo/ImGuizmo.h>
 
+#include "Application/Enums/ClientEnums.hpp"
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/WindowManager/WindowManager.hpp"
@@ -17,13 +18,20 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 
 
-VEditor::ViewPort::ViewPort(std::unordered_map<ViewPortType, ViewPortContext>&viewPorts,ViewPortContext& rasterViewportContext,ViewPortContext& rayTracedViewPortContext,bool &isRayTracing,  ApplicationCore::Scene& scene, WindowManager& windowManager)
+VEditor::ViewPort::ViewPort(std::unordered_map<ViewPortType, ViewPortContext>& viewPorts,
+                            ViewPortContext&                                   rasterViewportContext,
+                            ViewPortContext&                                   rayTracedViewPortContext,
+                            bool&                                              isRayTracing,
+                            ApplicationCore::Scene&                            scene,
+                            WindowManager&                                     windowManager,
+                            ApplicationCore::ApplicationState&                 applicationState)
     : m_rasterViewPortContext(rasterViewportContext)
     , m_rayTracedViewPortContext(rayTracedViewPortContext)
     , m_isRayTracing(isRayTracing)
     , m_scene(scene)
     , m_windowManager(windowManager)
     , m_viewPorts(viewPorts)
+    , m_applicationSate(applicationState)
 {
     m_previousHeight = rasterViewportContext.height;
     m_previousWidth  = rasterViewportContext.width;
@@ -46,7 +54,8 @@ void VEditor::ViewPort::Render()
         ImGui::OpenPopup("AddPopUp");
     }
 
-    if (ImGui::MenuItem(ICON_FA_CAMERA " View port")) {
+    if(ImGui::MenuItem(ICON_FA_CAMERA " View port"))
+    {
         ImGui::OpenPopup("ViewPortPopup");
     }
 
@@ -114,9 +123,12 @@ void VEditor::ViewPort::Render()
     m_gizmoRectOriginY       = imageOrigin.y;
 
 
-    if (m_isRayTracing) {
+    if(m_isRayTracing)
+    {
         ImGui::Image((ImTextureID)m_viewPorts[ViewPortType::eMainRayTracer].GetImageDs(), imageSize);
-    }else {
+    }
+    else
+    {
         ImGui::Image((ImTextureID)m_viewPorts[m_selectedViewPort].GetImageDs(), imageSize);
     }
     ImGuizmo::SetRect(m_gizmoRectOriginX, m_gizmoRectOriginY, imageSize.x, imageSize.y);
@@ -170,7 +182,8 @@ void VEditor::ViewPort::Resize(int newWidth, int newHeight)
     ImGuizmo::SetRect(m_gizmoRectOriginX, m_gizmoRectOriginY, newWidth, newHeight);
     IUserInterfaceElement::Render();
 }
-void VEditor::ViewPort::SetViewPortContext(ViewPortContext& viewPortContext) {
+void VEditor::ViewPort::SetViewPortContext(ViewPortContext& viewPortContext)
+{
     m_rasterViewPortContext = viewPortContext;
 }
 
@@ -224,16 +237,33 @@ void VEditor::ViewPort::RenderGizmoActions(ImVec2& imageOrigin, ImVec2& imageSiz
     auto newCamPos = glm::vec3(glm::inverse(view)[3]);
     m_scene.GetCamera().SetPosition(newCamPos);
 }
-void VEditor::ViewPort::RenderViewPortSelection() {
-    if (ImGui::BeginPopup("ViewPortPopup")) {
+void VEditor::ViewPort::RenderViewPortSelection()
+{
+    if(ImGui::BeginPopup("ViewPortPopup"))
+    {
         int i = 0;
-        for (auto viewPort: m_viewPortOptions) {
-            if (ImGui::Selectable(viewPort, static_cast<ViewPortType>(i) == m_selectedViewPort)) {
-                m_selectedViewPort  = static_cast<ViewPortType>(i);
+        ImGui::SeparatorText("Buffers");
+        for(auto viewPort : m_viewPortOptions)
+        {
+            if(ImGui::Selectable(viewPort, static_cast<ViewPortType>(i) == m_selectedViewPort))
+            {
+                m_selectedViewPort = static_cast<ViewPortType>(i);
             }
 
             i++;
         }
+
+        ImGui::SeparatorText("Data");
+        int j = 0;
+        for(auto debuData : m_debugViews)
+        {
+            if(ImGui::Selectable(debuData, static_cast<EDebugRendering>(j) == m_applicationSate.m_rendererOutput))
+            {
+                m_applicationSate.m_rendererOutput = static_cast<EDebugRendering>(j);
+            }
+            j++;
+        }
+
         ImGui::EndPopup();
     }
 }

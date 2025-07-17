@@ -108,6 +108,7 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData.reccursionDepth = GlobalVariables::RenderingOptions::MaxRecursionDepth;
     m_globalRenderingData.raysPerPixel    = GlobalVariables::RenderingOptions::RaysPerPixel;
     m_globalRenderingData.cameraPosition  = glm::vec4(m_camera->GetPosition(), 1.0f);
+    m_globalRenderingData.rendererOutput  = m_applicationState->m_rendererOutput;
 }
 
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)

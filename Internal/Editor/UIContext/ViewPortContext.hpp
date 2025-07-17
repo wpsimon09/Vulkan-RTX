@@ -22,6 +22,7 @@ enum class ViewPortType
     eMainRayTracer,
 };
 
+
 struct ViewPortContext
 {
     int                              width  = 800;
@@ -29,7 +30,7 @@ struct ViewPortContext
     std::array<vk::DescriptorSet, 2> ds;
     int                              currentFrameInFlight = 0;
     ApplicationCore::Camera*         camera;
-    bool                                        hasResized;
+    bool                             hasResized;
     ;
 
     VkDescriptorSet GetImageDs() { return ds[currentFrameInFlight]; }
@@ -37,7 +38,7 @@ struct ViewPortContext
     void SetImage(const VulkanCore::VImage2& renderedScene, int frameIndex)
     {
         ds[frameIndex] = ImGui_ImplVulkan_AddTexture(VulkanCore::VSamplers::Sampler2D, renderedScene.GetImageView(),
-                                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
+                                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         //ds[frameIndex] = ImGui_ImplVulkan_AddTexture(VulkanCore::VSamplers::SamplerClampToEdge, renderedScene.GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     }
 };

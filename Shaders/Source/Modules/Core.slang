@@ -3,6 +3,14 @@
 // global data, per object data
 module Core;
 
+public enum ERenderOutput{
+    FullLit = 0,
+    NormalVectors,
+    LightOnly,
+    Albedo,
+    Arm
+};
+
 public struct GlobalData {
     public column_major float4x4 view;
     public column_major float4x4 projection;
@@ -18,7 +26,10 @@ public struct GlobalData {
     public float2 screenSize;
 
     public float currentFrame;
+    public ERenderOutput renderOutput; 
 };
+
+
 
 //===============================================================
 // same as global data but with meanigfull names for ray tracing 
@@ -37,6 +48,7 @@ public struct GlobalDataRTX {
     public float2 screenSize;
 
     public float currentFrame;
+    ERenderOutput renderOutput;
 };
 
 public struct PermodelData {

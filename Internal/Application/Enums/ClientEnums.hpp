@@ -91,4 +91,14 @@ enum ETheme
 };
 
 
+enum EDebugRendering
+{
+    Lit = 0,
+    NormalVectors,
+    LightOnly,
+    Albedo,
+    Arm
+};
+
+
 #endif  //CLIENTENUMS_HPP
