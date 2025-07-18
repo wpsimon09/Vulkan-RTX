@@ -42,7 +42,7 @@ struct TextureBufferView
     size_t                          offset;
     size_t                          size;
     int                             widht, height;
-    int                             materialIndex = -1;
+    int                             materialIndex = 0;
     std::string                     path;
     ApplicationCore::VTextureAsset* textureAsset;
 };
@@ -61,8 +61,8 @@ class PBRMaterial : public BaseMaterial
 
     MaterialPaths& GetMaterialPaths() { return m_materialPaths; }
 
-    void ResetEffect();
-    std::vector<std::shared_ptr<VTextureAsset>> EnumarateTexture() override;
+    void                                                             ResetEffect();
+    std::vector<std::shared_ptr<VTextureAsset>>                      EnumarateTexture() override;
     std::unordered_map<ETextureType, std::shared_ptr<VTextureAsset>> EnumarateTextureMap();
 
   private:

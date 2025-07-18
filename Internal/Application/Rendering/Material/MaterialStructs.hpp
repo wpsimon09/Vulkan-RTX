@@ -40,10 +40,10 @@ struct PBRMaterialFeaturees
 
     //===========================================================
     // indexes to the texture array in scene data for ray tracing
-    int albedo = -1;
-    int armTextureIdx = -1;
-    int emissiveTextureIdx = -1;
-    int normalTextureIdx = - 1;
+    int albedo             = 0;
+    int armTextureIdx      = 0;
+    int emissiveTextureIdx = 0;
+    int normalTextureIdx   = 0;
 
     friend bool operator==(const PBRMaterialFeaturees& lhs, const PBRMaterialFeaturees& rhs)
     {
@@ -87,8 +87,6 @@ struct PBRMaterialDescription
     }
     PBRMaterialNoTexture values;
     PBRMaterialFeaturees features;
-
-
 };
 
 struct SkyBoxMaterialDescription
