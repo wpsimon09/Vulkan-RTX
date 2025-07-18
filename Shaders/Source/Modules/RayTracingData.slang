@@ -42,13 +42,15 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     Vertex v2 = object.vertexAddresses[i2];
     Vertex v3 = object.vertexAddresses[i3];
 
-    let features = materialValues[instanceIndex].Features;
-    let values = materialValues[instanceIndex].Values;
+    //let features = materialValues[instanceIndex].Features;
+    //let values = materialValues[instanceIndex].Values;
     
     // Calculate normal using barycentric interpolation
     SurfaceGeometry g;
     float3 N = v1.norm * barycentricCoords.x + v2.norm * barycentricCoords.y + v3.norm * barycentricCoords.z;
     g.normal = N;
+    g.shadingNormal = mul(ObjectToWorld(), float4(N, 0.0));
+
     
     float3 pos = v1.pos * barycentricCoords.x + v2.pos * barycentricCoords.y + v3.pos * barycentricCoords.z;
     g.position = pos;
@@ -69,11 +71,11 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     tangennt.w = handedness;
     g.tangent = tangennt;
 
-    if(features.hasNormalTexture){
-        g.shadingNormal = SampleNormalMap(textures[features.normalTextureIdx], g.uv, CalculateTBN(g.normal, g.tangent, ObjectToWorld()));
-    }else{
-        g.shadingNormal = mul(ObjectToWorld(), float4(N, 0.0));
-    }
+    //if(features.hasNormalTexture){
+      //  g.shadingNormal = SampleNormalMap(textures[features.normalTextureIdx], g.uv, CalculateTBN(g.normal, g.tangent, ObjectToWorld()));
+    //}else{
+      //  g.shadingNormal = mul(ObjectToWorld(), float4(N, 0.0));
+    //}
     
     return g;
 }

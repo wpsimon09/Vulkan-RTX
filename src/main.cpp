@@ -7,17 +7,16 @@
 #include "Application/Logger/Logger.hpp"
 
 
-
 int main()
 {
-    Application application;
     try
     {
+        Application application;
         Utils::Logger::LogSuccess("Starting the application...");
         application.Run();
         Utils::Logger::LogInfo("Application is stopping...");
-
-    }catch(std::exception& e)
+    }
+    catch(std::exception& e)
     {
         Utils::Logger::LogError(e.what());
     }

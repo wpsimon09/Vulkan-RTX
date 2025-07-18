@@ -6,6 +6,7 @@
 #include "stb_image/stb_image.h"
 #include "stb_image/stb_image_write.h"
 
+#include <stdexcept>
 #include <thread>
 
 #include "Application/AssetsManger/AssetsManager.hpp"
@@ -25,6 +26,7 @@
 #include "Vulkan/Global/GlobalState.hpp"
 
 #include <fstream>
+#include <vulkan/vulkan_enums.hpp>
 
 uint32_t VulkanUtils::FindQueueFamily(const std::vector<vk::QueueFamilyProperties>& queueFamilyProperties, vk::QueueFlagBits queueType)
 {
@@ -687,6 +689,11 @@ void VulkanUtils::Check(vk::Result result, vk::Result expectedResult)
 {
     if(GlobalState::InDebugMode)
     {
+        if(result == vk::Result::eErrorDeviceLost)
+        {
+            Utils::Logger::LogError("Device was lost, shutting down the application....");
+            throw std::runtime_error("Device was lost !");
+        }
         assert(result == expectedResult);
     }
     else

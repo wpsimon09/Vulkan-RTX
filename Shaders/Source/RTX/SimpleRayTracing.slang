@@ -112,8 +112,6 @@ void rayGenMain() {
         float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
 
         _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
-    
- 
   
 }
 
@@ -152,36 +150,34 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     //========================
     // direct light
-    if((bool)_lightInfo.dirLight.parameters.z){ // is light active
-
-        float3 L = _lightInfo.dirLight.direction.xyz;
-        float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
+    float3 L = _lightInfo.dirLight.direction.xyz;
+    float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
+    
+    float3 albedo = m.albedo.xyz; // float3(0.2, 0.2, 1.0);
+    
+    RayPayloadShadow shadowPayLoad;
+    shadowPayLoad.inShadow = true;
+    
+    if (dot(g.shadingNormal, L) > 0.0) {
+        // trace the shadow rays
+        RayDesc shadowRay;
+        shadowRay.Direction = L;
+        shadowRay.Origin = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
+        shadowRay.TMax = 10000;
+        shadowRay.TMin = 0.01;
         
-        float3 albedo = m.albedo.xyz; // float3(0.2, 0.2, 1.0);
-        
-        RayPayloadShadow shadowPayLoad;
-        shadowPayLoad.inShadow = true;
-        
-        if (dot(g.shadingNormal, L) > 0.0) {
-            // trace the shadow rays
-            RayDesc shadowRay;
-            shadowRay.Direction = L;
-            shadowRay.Origin = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
-            shadowRay.TMax = 10000;
-            shadowRay.TMin = 0.01;
-            
-            TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
-        }
-        
-        
-        float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
-        if (!shadowPayLoad.inShadow) {
-            
-            float3 directLightContribution = Le * m.Evaluate(V, L, g.shadingNormal);
-            
-            payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
-        }
+        TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
     }
+    
+    
+    float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
+    if (!shadowPayLoad.inShadow) {
+        
+        float3 directLightContribution = Le * m.Evaluate(V, L, g.shadingNormal);
+        
+        payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
+    }
+
 
     //==============================
     // Path tracing 
