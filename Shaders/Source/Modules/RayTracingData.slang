@@ -72,9 +72,9 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     g.tangent = tangennt;
 
     if(features.hasNormalTexture){
-       g.shadingNormal = SampleNormalMap(textures[features.normalTextureIdx], g.uv, CalculateTBN(g.normal, g.tangent, (float3x3)ObjectToWorld()));
+        g.shadingNormal = normalize(SampleNormalMap(textures[features.normalTextureIdx], g.uv, CalculateTBN(g.normal, g.tangent, ObjectToWorld())));
     }else{
-        g.shadingNormal = mul(ObjectToWorld(), float4(N, 0.0));
+        g.shadingNormal = normalize(mul(ObjectToWorld(), float4(N, 0.0)));
     }
     
     return g;
