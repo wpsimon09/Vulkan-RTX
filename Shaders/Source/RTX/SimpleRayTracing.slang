@@ -68,13 +68,7 @@ void rayGenMain() {
     // pixel position on view plane 
     float4 target = mul(globalData.invProjection, float4(d.x, d.y, 1.0, 1.0));
 
-    RayDesc ray;
-    ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-    ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
-    //ray.Direction = normalize(worldSpaceDirection).xyz;
-    ray.TMin = 0.001f;
-    ray.TMax = 10000.0f;
-
+    
     float3 totalRadiance = 0.0f;
 
     RayPayLoad payload;
@@ -92,7 +86,14 @@ void rayGenMain() {
             payload.incomingLightColour = float3(0.0);
             float3 rayRadiacne = float3(0.0);
             for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
-    
+                //float jitter = RandomPointInCircle(randomSeed);
+
+                RayDesc ray;
+                ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
+                ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
+                ray.TMin = 0.001f;
+                ray.TMax = 10000.0f;
+
                 TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
                 rayRadiacne += payload.incomingLightColour;
                 
@@ -115,6 +116,13 @@ void rayGenMain() {
         _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
     }
     else{
+
+        RayDesc ray;
+        ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
+        ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
+        //ray.Direction = normalize(worldSpaceDirection).xyz;
+        ray.TMin = 0.001f;
+        ray.TMax = 10000.0f;
 
         TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
         _accumulationImage[int2(threadIdx.xy)] = float4(payload.normal,1.0);
@@ -194,7 +202,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     payLoad.rayOrigin = g.shadingPosition;
     
     float3 specularDir = reflect(WorldRayDirection(), g.shadingNormal);
-    
+
     bool isSpecularRay = (1.0 - m.roughness) >= RandomValue(payLoad.randomContext);
     
     payLoad.rayDirection = lerp(diffuseDir, specularDir, m.metallnes * (float)isSpecularRay );
@@ -204,7 +212,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     payLoad.normal = g.shadingNormal;
     payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
-    payLoad.rayColour *= m.albedo.xyz ;
+    payLoad.rayColour *= lerp(m.albedo.xyz, float3(1.0, 1.0, 1.0),  (float)isSpecularRay );
     payLoad.hasHit = true;
 
 }
