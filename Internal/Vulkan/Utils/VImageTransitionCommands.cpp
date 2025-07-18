@@ -6,6 +6,7 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
+#include <vulkan/vulkan_enums.hpp>
 
 void VulkanUtils::ApplyTransition(vk::ImageLayout             currentLayout,
                                   vk::ImageLayout             targetLayout,
@@ -243,7 +244,7 @@ void VulkanUtils::EvaluateBarrierMasks(vk::ImageLayout         targetLayout,
         barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eColorAttachmentWrite;
 
         srcStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
-        dstStageFlags = vk::PipelineStageFlagBits::eLateFragmentTests | vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        dstStageFlags = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eColorAttachmentOutput;
     }
     else if(currentLayout == vk::ImageLayout::eUndefined && targetLayout == vk::ImageLayout::eDepthStencilReadOnlyOptimal)
     {
