@@ -8,7 +8,7 @@ import Core;
 
 // global data for the ray tracing 
 [[vk::binding(0, 0)]]
-ConstantBuffer<GlobalDataRTX> globalData;
+ConstantBuffer<GlobalData> globalData;
 
 // light light in scene information
 [[vk::binding(1, 0)]]
@@ -84,9 +84,10 @@ void rayGenMain() {
     payload.depth = 0;
     payload.rayColour = float3(1.0);
 
-    
-    //=========================
-    // Full shading is enabled 
+    if((ERenderOutput)globalData.renderOutput != ERenderOutput::NormalVectors){
+
+        //=========================
+        // Full shading is enabled 
         for (int i = 0; i < globalData.raysPerPixel; i++) {
             payload.incomingLightColour = float3(0.0);
             float3 rayRadiacne = float3(0.0);
@@ -103,16 +104,22 @@ void rayGenMain() {
             }
             totalRadiance += rayRadiacne;
         }
-          float weight = max(1.0 / (globalData.currentFrame + 1), 0);
-
+            float weight = max(1.0 / (globalData.currentFrame + 1), 0);
+    
         // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
         _film[int2(threadIdx.xy)] = float4(totalRadiance / globalData.raysPerPixel, 1.0);
-
+    
         // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
         float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
-
+    
         _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
-  
+    }
+    else{
+
+        TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
+        _accumulationImage[int2(threadIdx.xy)] = float4(payload.normal,1.0);
+
+    }
 }
 
 [[shader("miss")]]
@@ -148,6 +155,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
     CookTorrence_GGX m = GetMaterial(InstanceID(), g);
 
+
     //========================
     // direct light
     float3 L = _lightInfo.dirLight.direction.xyz;
@@ -177,7 +185,6 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         
         payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
     }
-
 
     //==============================
     // Path tracing 
