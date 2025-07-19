@@ -136,7 +136,7 @@ https://github.com/user-attachments/assets/550c47df-4557-45c6-b38a-dce62449e8c7
 
 ![Screenshot From 2025-06-03 10-31-22](https://github.com/user-attachments/assets/6d313d62-2d93-40f8-beb5-18aadbd71e1f )
 
-<img width="2880" height="1750" alt="image" src="https://github.com/user-attachments/assets/fb2725ab-b884-4739-a07a-bb80872139cb" />
+<img width="2872" height="1578" alt="Screenshot From 2025-07-19 09-57-13" src="https://github.com/user-attachments/assets/f4e05019-79d5-4199-9ed2-0646f3e30fa0" />
 
 ![image](https://github.com/user-attachments/assets/2170c8a6-998f-45f5-91d7-6fdddd1c271a)
 
