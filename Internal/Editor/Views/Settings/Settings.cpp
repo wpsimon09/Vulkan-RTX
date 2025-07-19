@@ -118,7 +118,9 @@ void Settings::RenderApplicationSettings()
 
         ImGui::SliderFloat("FOV", &m_client.GetCamera().GetFOV(), 1, 360);
 
-        ImGui::SliderFloat("Focal length:", &m_client.GetCamera().GetFocalLength(), 0.f, 1.f);
+        ImGui::DragFloat("Focal length:", &m_client.GetCamera().GetFocalLength(), 0.2f);
+
+        ImGui::DragFloat("Defocuse strength", &m_client.GetCamera().GetDefocuseStrength(), 0.1f, 0.0);
 
         m_client.GetCamera().Recalculate();
 

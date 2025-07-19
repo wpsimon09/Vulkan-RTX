@@ -73,6 +73,8 @@ class Camera
 
     float& GetMaxReccursion() { return this->m_maxReccursion; }
 
+    float& GetDefocuseStrength() { return this->m_defocuseStrength; }
+
     void SetPosition(glm::vec3& newPosition);
 
     void Update(CameraUpdateInfo& cameraUpdateInfo, SceneUpdateFlags& sceneUpdateFlags);
@@ -90,9 +92,10 @@ class Camera
     float m_polarAngle;
     float m_FOV = 65.0f;
     float m_aspect;
-    float m_speed         = 3.3f;
-    float m_focalLength   = 0.35f;  // focal lenght is in CM
-    float m_maxReccursion = 10;     // max ray reccrusion from the camera
+    float m_defocuseStrength = 0.2f;
+    float m_speed            = 3.3f;
+    float m_focalLength      = 0.35f;  // focal lenght is in CM
+    float m_maxReccursion    = 10;     // max ray reccrusion from the camera
 
     glm::vec3 m_position;
     glm::vec3 m_center;

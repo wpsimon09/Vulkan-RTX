@@ -60,14 +60,12 @@ void rayGenMain() {
 
     float2 d = inUv * 2.0 - 1.0;
 
-    float2 pixelCoord = inUv * globalData.screenSize;
     uint pixelIndex = threadIdx.y * launchSize.x + threadIdx.x;
 
     uint randomSeed = tea(pixelIndex, (uint)globalData.currentFrame);
 
     // pixel position on view plane 
     float4 target = mul(globalData.invProjection, float4(d.x, d.y, 1.0, 1.0));
-
     
     float3 totalRadiance = 0.0f;
 
@@ -81,19 +79,44 @@ void rayGenMain() {
     float3 camRight = globalData.view._m00_m10_m20;
     float3 camUp = globalData.view._m01_m11_m21;
 
+    float aparatureSize = globalData.viewParams.x; // bigger apprature, bigger blur
+    float focalLenth = globalData.viewParams.y; // position of the focuse plane
+
     if((ERenderOutput)globalData.renderOutput != ERenderOutput::NormalVectors){
         
         //=========================
         // Full shading is enabled 
         for (int i = 0; i < globalData.raysPerPixel; i++) {
 
-            float2 jitter = RandomPointInCircle(randomSeed) * 1.2 / launchSize.x;
             
+            //========================================================================================c
+            // get initial jitter samples 
+            float2 jitter = RandomPointInCircle(randomSeed) * 0.2 / launchSize.x;
+            float2 deFocusJitter = RandomPointInCircle(randomSeed) * aparatureSize;
             float3 jitteredTarget = target.xyz + camRight * jitter.x + camUp * jitter.y;
+            
 
+            //========================================================================================c
+            // define ray origin in the camera space and translate it to the worlds space 
+            float3 rayOriginWS = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
+
+            //===========================================================================
+            // jitter the ray origin 
+            float3 jitteredRayOriginWS =rayOriginWS + camRight * deFocusJitter.x +  camUp * deFocusJitter.y; // offset the ray origin
+            
+            //======================================================
+            // calulate where the ray will shoot in the world space 
+            float3 rayDirecionWS = normalize(mul(globalData.inverseView, float4(target.xyz, 0.0))).xyz;
+            
+            //======================================================
+            // find the focal point, the point where objects are in focuse 
+            float3 focalPoint = rayOriginWS + rayDirecionWS * focalLenth;
+            
+            //======================================================
+            // descibbe ray
             RayDesc ray;
-            ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-            ray.Direction = normalize(mul(globalData.inverseView, float4(jitteredTarget.xyz, 0.0))).xyz;
+            ray.Origin = jitteredRayOriginWS;
+            ray.Direction = normalize(focalPoint - ray.Origin); // direction from jittered origin to the focal point 
             ray.TMin = 0.001f;
             ray.TMax = 10000.0f;
 
@@ -101,8 +124,6 @@ void rayGenMain() {
             payload.incomingLightColour = float3(0.0);
             float3 rayRadiacne = float3(0.0);
             for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
-                //float jitter = RandomPointInCircle(randomSeed);
-
 
                 TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
                 rayRadiacne += payload.incomingLightColour;

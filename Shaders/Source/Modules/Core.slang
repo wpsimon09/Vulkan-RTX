@@ -19,8 +19,7 @@ public struct GlobalData {
 
     public float4 lightPosition;
     public float4 cameraPostiion;
-    public float4 viewParams; // xy- camera plane width and height,z - nerPlane, w - focal length
-
+    public float4 viewParams; // x - defocuse strength, y - focal plane pos, z - nerPlane, w - far plane
     public float raysPerPixel;
     public float reccursionDepth;
     public float2 screenSize;
