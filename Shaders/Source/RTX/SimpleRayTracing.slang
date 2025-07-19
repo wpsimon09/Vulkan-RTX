@@ -78,21 +78,31 @@ void rayGenMain() {
     payload.depth = 0;
     payload.rayColour = float3(1.0);
 
-    if((ERenderOutput)globalData.renderOutput != ERenderOutput::NormalVectors){
+    float3 camRight = globalData.view._m00_m10_m20;
+    float3 camUp = globalData.view._m01_m11_m21;
 
+    if((ERenderOutput)globalData.renderOutput != ERenderOutput::NormalVectors){
+        
         //=========================
         // Full shading is enabled 
         for (int i = 0; i < globalData.raysPerPixel; i++) {
+
+            float2 jitter = RandomPointInCircle(randomSeed) * 1.2 / launchSize.x;
+            
+            float3 jitteredTarget = target.xyz + camRight * jitter.x + camUp * jitter.y;
+
+            RayDesc ray;
+            ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
+            ray.Direction = normalize(mul(globalData.inverseView, float4(jitteredTarget.xyz, 0.0))).xyz;
+            ray.TMin = 0.001f;
+            ray.TMax = 10000.0f;
+
+
             payload.incomingLightColour = float3(0.0);
             float3 rayRadiacne = float3(0.0);
             for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
                 //float jitter = RandomPointInCircle(randomSeed);
 
-                RayDesc ray;
-                ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-                ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
-                ray.TMin = 0.001f;
-                ray.TMax = 10000.0f;
 
                 TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
                 rayRadiacne += payload.incomingLightColour;
@@ -212,7 +222,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     payLoad.normal = g.shadingNormal;
     payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
-    payLoad.rayColour *= lerp(m.albedo.xyz, float3(1.0, 1.0, 1.0),  (float)isSpecularRay );
+    payLoad.rayColour *= m.albedo.xyz;
     payLoad.hasHit = true;
 
 }
