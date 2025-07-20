@@ -25,6 +25,7 @@
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
+#include "imgui_internal.h"
 
 namespace ApplicationCore {
 GLTFLoader::GLTFLoader(ApplicationCore::AssetsManager& assetsManager)
@@ -228,6 +229,8 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
                 m_assetsManager.GetAllRasterEffects()[EEffectType::ForwardShader], paths, m_assetsManager);
 
 
+            bool hasTangents = false;
+
             for(auto& p : m.primitives)
             {
                 if(!importOptions.importMaterials)
@@ -238,7 +241,6 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
                 {
                     mat = materials[p.materialIndex.value()];
                 }
-
 
                 size_t initialIndex = vertices.size();
 
@@ -304,6 +306,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
                     auto uv = p.findAttribute("TEXCOORD_0");
                     if(uv != p.attributes.end())
                     {
+                        hasTangents      = true;
                         auto& uvAccessor = gltf.accessors[uv->accessorIndex];
                         fastgltf::iterateAccessorWithIndex<glm::vec2>(gltf, uvAccessor, [&](glm::vec2 uv, size_t index) {
                             vertices[initialIndex + index].uv = uv;
@@ -311,176 +314,195 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
                     }
                     else
                     {
+                        hasTangents = false;
                         Utils::Logger::LogErrorClient("Failed to find attribute 'TEXTURE COORD'");
                     }
                 }
+                //===========================================
+                // VERTEX TANGENTS
+                //===========================================
+                {
+                    auto tangents = p.findAttribute("TANGENT");
+                    if(tangents != p.attributes.end())
+                    {
+                        auto& tangentAccessor = gltf.accessors[tangents->accessorIndex];
+
+                        fastgltf::iterateAccessorWithIndex<glm::vec4>(gltf, tangentAccessor, [&](glm::vec4 t, size_t index) {
+                            vertices[initialIndex + index].tangent = t;
+                        });
+                    }
+                    else
+                    {
+                        Utils::Logger::LogErrorClient("Failed to find attribute 'TANGENT'");
+                    }
+                }
+
+                // calculate the tangents and store them directily to the vertices provided
+                if(!hasTangents)
+                {
+                    Utils::Logger::LogInfo("No tangent vectors found, calculating them now !");
+                    auto result = ApplicationCore::GeneratTangents(vertices, indices);
+                    assert(result = true && "Failed to generate tangent vectors ! ");
+                }
+
+                // store vertex array to assets manager
+                auto meshData = m_assetsManager.GetBufferAllocator().AddMeshData(vertices, indices);
+
+                // create shared ptr to mesh
+                auto createdMehs                              = std::make_shared<StaticMesh>(meshData, mat);
+                createdMehs->GeteMeshInfo().numberOfTriangles = m.primitives.size();
+                createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(15));
+
+                // store the shared ptr to mesh
+                m_assetsManager.AddMesh(std::string(m.name), createdMehs);
+                m_meshes.push_back(createdMehs);
+
+
+                //m_rootNode->AddChild(createdMehs);
             }
 
-            // calculate the tangents and store them directily to the vertices provided
-            auto result = ApplicationCore::GeneratTangents(vertices, indices);
-            assert(result = true && "Failed to generate tangent vectors ! ");
+            m_assetsManager.GetBufferAllocator().UpdateGPU(VK_NULL_HANDLE);
 
-            // store vertex array to assets manager
-            auto meshData = m_assetsManager.GetBufferAllocator().AddMeshData(vertices, indices);
+            //=====================================
+            // LOAD NODES
+            //=====================================
+            std::shared_ptr<ApplicationCore::SceneNode> newNode;
+            fastgltf::iterateSceneNodes(gltf, 0, fastgltf::math::fmat4x4(), [&](fastgltf::Node& node, fastgltf::math::fmat4x4 matrix) {
+                if(node.meshIndex.has_value())
+                {
+                    newNode = std::make_shared<ApplicationCore::SceneNode>(m_meshes[node.meshIndex.value()]);
+                }
+                else
+                {
+                    newNode = std::make_shared<ApplicationCore::SceneNode>();
+                }
 
-            // create shared ptr to mesh
-            auto createdMehs                              = std::make_shared<StaticMesh>(meshData, mat);
-            createdMehs->GeteMeshInfo().numberOfTriangles = m.primitives.size();
-            createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(15));
-
-            // store the shared ptr to mesh
-            m_assetsManager.AddMesh(std::string(m.name), createdMehs);
-            m_meshes.push_back(createdMehs);
+                const auto* transform = std::get_if<fastgltf::TRS>(&node.transform);
 
 
-            //m_rootNode->AddChild(createdMehs);
+                glm::quat rotation(transform->rotation.w(), transform->rotation.x(), transform->rotation.y(),
+                                   transform->rotation.z());
+
+                Transformations transformations(
+                    glm::vec3(transform->translation.x(), transform->translation.y(), transform->translation.z()),
+                    glm::vec3(transform->scale.x(), transform->scale.y(), transform->scale.z()), rotation);
+
+                newNode->SetLocalTransform(transformations);
+
+                newNode->SetName(std::string(std::string(node.name) + "##" + VulkanUtils::random_string(4)));
+
+                m_nodes.push_back(newNode);
+            });
         }
 
-        m_assetsManager.GetBufferAllocator().UpdateGPU(VK_NULL_HANDLE);
-
-        //=====================================
-        // LOAD NODES
-        //=====================================
-        std::shared_ptr<ApplicationCore::SceneNode> newNode;
-        fastgltf::iterateSceneNodes(gltf, 0, fastgltf::math::fmat4x4(), [&](fastgltf::Node& node, fastgltf::math::fmat4x4 matrix) {
-            if(node.meshIndex.has_value())
-            {
-                newNode = std::make_shared<ApplicationCore::SceneNode>(m_meshes[node.meshIndex.value()]);
-            }
-            else
-            {
-                newNode = std::make_shared<ApplicationCore::SceneNode>();
-            }
-
-            const auto* transform = std::get_if<fastgltf::TRS>(&node.transform);
-
-
-            glm::quat rotation(transform->rotation.w(), transform->rotation.x(), transform->rotation.y(),
-                               transform->rotation.z());
-
-            Transformations transformations(
-                glm::vec3(transform->translation.x(), transform->translation.y(), transform->translation.z()),
-                glm::vec3(transform->scale.x(), transform->scale.y(), transform->scale.z()), rotation);
-
-            newNode->SetLocalTransform(transformations);
-
-            newNode->SetName(std::string(std::string(node.name) + "##" + VulkanUtils::random_string(4)));
-
-            m_nodes.push_back(newNode);
-        });
-    }
-
-    // construct the hierarchy
-    for(int i = 0; i < gltf.nodes.size(); i++)
-    {
-        std::shared_ptr<SceneNode> sceneNode = m_nodes[i];
-
-        for(auto c : gltf.nodes[i].children)
+        // construct the hierarchy
+        for(int i = 0; i < gltf.nodes.size(); i++)
         {
-            sceneNode->AddChild(scene.GetSceneData(), m_nodes[c]);
-        }
-    }
+            std::shared_ptr<SceneNode> sceneNode = m_nodes[i];
 
-    for(auto& m_node : m_nodes)
-    {
-        if(m_node->IsParent())
+            for(auto c : gltf.nodes[i].children)
+            {
+                sceneNode->AddChild(scene.GetSceneData(), m_nodes[c]);
+            }
+        }
+
+        for(auto& m_node : m_nodes)
         {
-            m_topNodes.push_back(m_node);
+            if(m_node->IsParent())
+            {
+                m_topNodes.push_back(m_node);
+            }
         }
+
+        for(auto& topNode : m_topNodes)
+        {
+            auto newScale = topNode->m_transformation->GetScale() * importOptions.uniformScale;
+            topNode->m_transformation->SetScale(newScale);
+            m_assetsManager.AddModel(gltfPath.string() + "/" + topNode->GetName(), topNode->GetChildrenByRef());
+        }
+
+        for(auto& sceneNode : m_topNodes)
+        {
+            scene.AddNode(sceneNode);
+        }
+
+        scene.Update();
+
+        GlobalState::EnableLogging();
+        Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");
     }
 
-    for(auto& topNode : m_topNodes)
+
+    void GLTFLoader::LoadImage(fastgltf::Asset & asset, std::string parentPath, fastgltf::Image & image,
+                               std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>> & imageStorage, bool saveToDisk) const
     {
-        auto newScale = topNode->m_transformation->GetScale() * importOptions.uniformScale;
-        topNode->m_transformation->SetScale(newScale);
-        m_assetsManager.AddModel(gltfPath.string() + "/" + topNode->GetName(), topNode->GetChildrenByRef());
+        std::visit(fastgltf::visitor{
+                       [](auto& arg) {},
+
+                       [&](fastgltf::sources::URI& filePath) {
+                           std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
+                           const std::string path(filePath.uri.path().begin(), filePath.uri.path().end());
+                           m_assetsManager.GetTexture(loadedTexture, parentPath + "/" + path, saveToDisk);
+                           imageStorage.emplace_back(loadedTexture);
+                       },
+
+                       [&](fastgltf::sources::Vector& vector) {
+                           std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
+                           const std::string                               textureID = VulkanUtils::random_string(4);
+                           TextureBufferInfo                               bufferInfo{};
+                           bufferInfo.data = vector.bytes.data();
+                           bufferInfo.size = vector.bytes.size();
+
+                           m_assetsManager.GetTexture(loadedTexture, textureID, bufferInfo, saveToDisk);
+                           imageStorage.emplace_back(loadedTexture);
+                       },
+
+                       [&](fastgltf::sources::BufferView& view) {
+                           auto& bufferView = asset.bufferViews[view.bufferViewIndex];
+                           auto& buffer     = asset.buffers[bufferView.bufferIndex];
+
+                           std::visit(fastgltf::visitor{
+                                          // We only care about VectorWithMime here, because we
+                                          // specify LoadExternalBuffers, meaning all buffers
+                                          // are already loaded into a vector.
+                                          [](auto& arg) {},
+                                          [&](fastgltf::sources::Vector& vector) {
+                                              std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
+                                              const std::string textureID = VulkanUtils::random_string(10);
+                                              TextureBufferInfo textureBufferInfo{};
+                                              textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
+                                              textureBufferInfo.size = vector.bytes.size();
+
+                                              if(image.name.empty())
+                                              {
+                                                  image.name = textureID;
+                                              }
+                                              auto name = std::string(image.name.c_str()) + ".png";
+
+                                              m_assetsManager.GetTexture(loadedTexture, name, textureBufferInfo, saveToDisk);
+                                              imageStorage.emplace_back(loadedTexture);
+                                          },
+                                          [&](fastgltf::sources::Array& vector) {
+                                              std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
+                                              const std::string textureID = VulkanUtils::random_string(10);
+                                              TextureBufferInfo textureBufferInfo{};
+                                              textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
+                                              textureBufferInfo.size = vector.bytes.size();
+
+                                              if(image.name.empty())
+                                              {
+                                                  image.name = textureID;
+                                              }
+                                              auto name                   = std::string(image.name.c_str()) + ".png";
+                                              textureBufferInfo.textureID = name;
+
+
+                                              m_assetsManager.GetTexture(loadedTexture, name, textureBufferInfo, saveToDisk);
+                                              imageStorage.emplace_back(loadedTexture);
+                                          }},
+                                      buffer.data);
+                       },
+                   },
+                   image.data);
     }
-
-    for(auto& sceneNode : m_topNodes)
-    {
-        scene.AddNode(sceneNode);
-    }
-
-    scene.Update();
-
-    GlobalState::EnableLogging();
-    Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");
-}
-
-
-void GLTFLoader::LoadImage(fastgltf::Asset&                                              asset,
-                           std::string                                                   parentPath,
-                           fastgltf::Image&                                              image,
-                           std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>& imageStorage,
-                           bool                                                          saveToDisk) const
-{
-    std::visit(fastgltf::visitor{
-                   [](auto& arg) {},
-
-                   [&](fastgltf::sources::URI& filePath) {
-                       std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
-                       const std::string path(filePath.uri.path().begin(), filePath.uri.path().end());
-                       m_assetsManager.GetTexture(loadedTexture, parentPath + "/" + path, saveToDisk);
-                       imageStorage.emplace_back(loadedTexture);
-                   },
-
-                   [&](fastgltf::sources::Vector& vector) {
-                       std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
-                       const std::string                               textureID = VulkanUtils::random_string(4);
-                       TextureBufferInfo                               bufferInfo{};
-                       bufferInfo.data = vector.bytes.data();
-                       bufferInfo.size = vector.bytes.size();
-
-                       m_assetsManager.GetTexture(loadedTexture, textureID, bufferInfo, saveToDisk);
-                       imageStorage.emplace_back(loadedTexture);
-                   },
-
-                   [&](fastgltf::sources::BufferView& view) {
-                       auto& bufferView = asset.bufferViews[view.bufferViewIndex];
-                       auto& buffer     = asset.buffers[bufferView.bufferIndex];
-
-                       std::visit(fastgltf::visitor{
-                                      // We only care about VectorWithMime here, because we
-                                      // specify LoadExternalBuffers, meaning all buffers
-                                      // are already loaded into a vector.
-                                      [](auto& arg) {},
-                                      [&](fastgltf::sources::Vector& vector) {
-                                          std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
-                                          const std::string textureID = VulkanUtils::random_string(10);
-                                          TextureBufferInfo textureBufferInfo{};
-                                          textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
-                                          textureBufferInfo.size = vector.bytes.size();
-
-                                          if(image.name.empty())
-                                          {
-                                              image.name = textureID;
-                                          }
-                                          auto name = std::string(image.name.c_str()) + ".png";
-
-                                          m_assetsManager.GetTexture(loadedTexture, name, textureBufferInfo, saveToDisk);
-                                          imageStorage.emplace_back(loadedTexture);
-                                      },
-                                      [&](fastgltf::sources::Array& vector) {
-                                          std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
-                                          const std::string textureID = VulkanUtils::random_string(10);
-                                          TextureBufferInfo textureBufferInfo{};
-                                          textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
-                                          textureBufferInfo.size = vector.bytes.size();
-
-                                          if(image.name.empty())
-                                          {
-                                              image.name = textureID;
-                                          }
-                                          auto name                   = std::string(image.name.c_str()) + ".png";
-                                          textureBufferInfo.textureID = name;
-
-
-                                          m_assetsManager.GetTexture(loadedTexture, name, textureBufferInfo, saveToDisk);
-                                          imageStorage.emplace_back(loadedTexture);
-                                      }},
-                                  buffer.data);
-                   },
-               },
-               image.data);
-}
 }  // namespace ApplicationCore
