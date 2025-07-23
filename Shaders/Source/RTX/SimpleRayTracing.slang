@@ -228,22 +228,39 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     //==============================
     // Path tracing 
 
-    // calculate next bounce direction of the ray 
-    float3 diffuseDir = normalize(g.shadingNormal + RandomHemisphereDirection(g.shadingNormal, payLoad.randomContext));
-    payLoad.rayOrigin = g.shadingPosition;
-    
-    float3 specularDir = reflect(WorldRayDirection(), g.shadingNormal);
+    float3 wo = -WorldRayDirection();
 
-    bool isSpecularRay = (1.0 - m.roughness) >= RandomValue(payLoad.randomContext);
-    
-    payLoad.rayDirection = lerp(diffuseDir, specularDir, m.metallnes * (float)isSpecularRay );
+
+    float3 F0 = lerp(float3(0.04), m.albedo.xyz, m.metallnes);
+    float3 Ks =  F0;
+    float3 Kd = (1.0 - Ks) * (1.0 - m.metallnes);
+
+    float p_specular = max(max(Ks.x, Ks.y), Ks.z);
+    bool sampleSpecular = RandomValue(payLoad.randomContext) < p_specular;
+
+    float PDF;
+    float3 wi;
+
+    if( sampleSpecular){
+        wi = m.SampleGGX_VND(wo, g, PDF,  payLoad.randomContext);
+        float3 f = m.EvaluateSpecular(wo, wi, g.shadingNormal);
+        payLoad.rayColour *= f / max(PDF, 1e-5);
+    }else{
+        wi = m.SampleLambertianDiffuse(wo, g, PDF,  payLoad.randomContext);
+        float3 f = m.EvaluateDiffuse(wo, wi, g.shadingNormal);
+        payLoad.rayColour *= f / max(PDF, 1e-5); 
+    }
+
+    // calculate next bounce direction of the ray 
+    payLoad.rayOrigin = g.shadingPosition;    
+    payLoad.rayDirection = wi;
+
 
     // other direction
     float3 emmittedLight = m.emission.xyz * m.emission.w;
-
     payLoad.normal = g.shadingNormal;
     payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
-    payLoad.rayColour *= m.albedo.xyz;
+    payLoad.rayColour *= m.Evaluate(wi, wo, g.shadingNormal);
     payLoad.hasHit = true;
 
 }

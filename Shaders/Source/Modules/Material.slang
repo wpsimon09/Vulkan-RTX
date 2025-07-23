@@ -130,9 +130,20 @@ public interface IBRDF
     float3 Evaluate(float3 wo, float3 wi, float3 N);
 
     /**
-    * Returns colour in case gemetry is ins shadow
-    */
-    float3 EvaluateForShadow();
+     * wo -         incoming view direction
+     * wi -         incoming light direction
+     * N  -         normalVector;
+     * float3 -     result colour
+     */
+    float3 EvaluateSpecular(float3 wo, float3 wi, float3 N);
+
+    /**
+     * wo -         incoming view direction
+     * wi -         incoming light direction
+     * N  -         normalVector;
+     * float3 -     result colour
+     */
+    float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N);
 
     /**
      * wo -         incoming view direction
@@ -298,6 +309,31 @@ public struct CookTorrence_GGX : IBRDF
 
         return wo_Worl;
     }
+
+    public float3 EvaluateSpecular(float3 wo, float3 wi, float3 N){
+        float3 F0 = float3(0.04);
+        F0 = lerp(F0, albedo.xyz, metallnes);
+        float3 H = normalize(wo + wi);
+
+        float NDF = DistributionGGX(N, H);
+        float G = GeometrySmith(N, wo, wi);
+        float3 F = FresnelShlick(max(dot(H, wo), 0.0), F0);
+
+        float3 numerator = NDF * G * F;
+
+        float denominator = 4.0 * max(dot(N, wo), 0.0) * max(dot(N, wi), 0.01);
+
+        float3 specular = numerator / (max(denominator, 0.001));
+
+        return specular;
+    }
+
+    public float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N){
+
+        float cosTheta = max(dot(N, wi), 0);
+        return 1/float.getPi() * albedo.xyz * cosTheta;
+    }
+
 
 
     public float3 EvaluateByLTC(float3 wo,float3 N , float3 P, float4 points[4], bool twoSided, Sampler2D LTC, Sampler2D LTC_Inverse) {
