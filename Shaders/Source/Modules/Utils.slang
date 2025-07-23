@@ -207,6 +207,6 @@ public float3x3 CalculateTBN(float3 geomNormal, float4 tangnent, float3x4 normal
     float3 N = normalize(mul(normalM, float4(geomNormal, 0.0)));
     float3 B = normalize(cross(N, T)) * tangnent.w;       
 
-    float3x3 TBN = transpose(float3x3(T, B, N));
+    float3x3 TBN = float3x3(T, B, N);
     return TBN;
 }

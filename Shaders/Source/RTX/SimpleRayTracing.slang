@@ -240,14 +240,18 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     float PDF;
     float3 wi;
+   
+    float3 emmittedLight = m.emission.xyz * m.emission.w;
+    payLoad.normal = g.shadingNormal;
+    payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
 
     if( sampleSpecular){
         wi = m.SampleGGX_VND(wo, g, PDF,  payLoad.randomContext);
-        float3 f = m.EvaluateSpecular(wo, wi, g.shadingNormal);
+        float3 f = m.EvaluateSpecular(V, wi, g.shadingNormal);
         payLoad.rayColour *= f / max(PDF, 1e-5);
     }else{
-        wi = m.SampleLambertianDiffuse(wo, g, PDF,  payLoad.randomContext);
-        float3 f = m.EvaluateDiffuse(wo, wi, g.shadingNormal);
+        wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);
+        float3 f = m.EvaluateDiffuse(V, wi, g.shadingNormal);
         payLoad.rayColour *= f / max(PDF, 1e-5); 
     }
 
@@ -257,10 +261,6 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
 
     // other direction
-    float3 emmittedLight = m.emission.xyz * m.emission.w;
-    payLoad.normal = g.shadingNormal;
-    payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
-    payLoad.rayColour *= m.Evaluate(wi, wo, g.shadingNormal);
     payLoad.hasHit = true;
 
 }

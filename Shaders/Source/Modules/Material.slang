@@ -301,11 +301,13 @@ public struct CookTorrence_GGX : IBRDF
         // halfway vector
         float3 H = normalize(wi + wo_Worl);
         
-        float NdotH = max(dot(g.shadingNormal,g.normal), 0.0);
-        float VdotH = max(dot(wi, H), 0.0);
+        float NdotH = max(dot(g.shadingNormal,H), 0.0);
+        float VdotH = max(dot(H, wi), 0.0);
 
-        float D = DistributionGGX(g.shadingNormal, H);
-        PDF = D * NdotH / (4.0 * VdotH + 1e-5);
+        float NdotWi = max(abs(dot(g.shadingNormal, wi)), 1e-5);
+        float G1 = GeometryShlickGGX(dot(g.shadingNormal, wi));
+        float D = DistributionGGX(g.shadingNormal , H);
+        PDF = D * G1 * abs(NdotH) / (4.0 * NdotWi);
 
         return wo_Worl;
     }
@@ -330,11 +332,19 @@ public struct CookTorrence_GGX : IBRDF
 
     public float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N){
 
-        float cosTheta = max(dot(N, wi), 0);
-        return 1/float.getPi() * albedo.xyz * cosTheta;
+        float cosTheta = max(dot(N, wo), 0);
+        return albedo.xyz * cosTheta;
     }
 
+    public float3 SampleLambertianDiffuse(float3 wi, SurfaceGeometry g ,out float PDF, inout uint randomContex){
 
+        float3 cosWeightedSampleDirection = RandomHemisphereDirection(g.shadingNormal, randomContex); 
+        float cosTheta = sign(dot(g.shadingNormal, cosWeightedSampleDirection));
+        
+        PDF =  cosTheta / float.getPi();
+        
+        return normalize(g.shadingNormal + cosWeightedSampleDirection);
+    }
 
     public float3 EvaluateByLTC(float3 wo,float3 N , float3 P, float4 points[4], bool twoSided, Sampler2D LTC, Sampler2D LTC_Inverse) {
 
@@ -378,17 +388,6 @@ public struct CookTorrence_GGX : IBRDF
 
         return colour;
     }
-
-    public float3 SampleLambertianDiffuse(float3 wi, SurfaceGeometry g ,out float PDF, inout uint randomContex){
-
-        float3 cosWeightedSampleDirection = RandomHemisphereDirection(g.shadingNormal, randomContex); 
-        float cosTheta = sign(dot(g.shadingNormal, cosWeightedSampleDirection));
-        
-        PDF =  cosTheta / float.getPi();
-        
-        return normalize(g.shadingNormal + cosWeightedSampleDirection);
-    }
-
 
     
     public float3 EvaluateForShadow(){
