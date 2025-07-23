@@ -143,12 +143,21 @@ public interface IBRDF
     float3 EvaluateByLTC(float3 wo, float3 N, float3 P,float4 points[4], bool twoSided, Sampler2D LTC,Sampler2D LTC_Inverse);
 
     /**
-    * wi - incident (view) direction in WORLD space
-    * Surface - surface that is being shaded 
-    * out PDF - probability density function of the returned sample 
-    * random context - random context for sample points u1 and u2 generations
+    * wi -             incident (view) direction in WORLD space
+    * g -              surface that is being shaded 
+    * out PDF -        probability density function of the returned sample
+    * randomContext - random context for sample points u1 and u2 generations
     */
-    float3 SampleGGX_VND(float3 wi, SurfaceGeometry g, ,out float PDF, inout uint randomContex);
+    float3 SampleGGX_VND(float3 wi, SurfaceGeometry g ,out float PDF, inout uint randomContex);
+
+    /**
+    * wi -             incident (view) direction in WORLD space
+    * g -              surface that is being shaded 
+    * out PDF -        probability density function of the returned sample
+    * randomContext - random context for sample points u1 and u2 generations
+    */
+    float3 SampleLambertianDiffuse(float3 wi, SurfaceGeometry g ,out float PDF, inout uint randomContex);
+
 }
 
 public struct CookTorrence_GGX : IBRDF
@@ -249,14 +258,15 @@ public struct CookTorrence_GGX : IBRDF
         float u1 = RandomValue(randomContex);
         float u2 = RandomValue(randomContex); 
 
-        // transform wi from world space to TBN
+        // transform wi from world space to TBN where sampling is preformed 
+        float3 wi_TBN = normalize(mul(g.iTBN, wi));
 
         float alpha = roughness * roughness;
         // transform view (incident direction) to hemisphere configuration
-        float3 wH = normalize(float3(alpha * wi.x, alpha * wi.y, wi.z));
+        float3 wH = normalize(float3(alpha * wi_TBN.x, alpha * wi_TBN.y, wi.z));
 
         // create orthonormal basis
-        float lensq = wH.x * wH.y + wH.x * wH.y;
+        float lensq = wH.x * wH.x + wH.y * wH.y;
         float3 T1 = lensq > 0 ? float3(-wH.y, wH.x, 0.0) * inverseSqrt(lensq) : float3(1, 0, 0);
         float3 T2 = cross(wH, T1);
 
@@ -268,8 +278,25 @@ public struct CookTorrence_GGX : IBRDF
         float s = 0.5 * (1.0 * wH.z);
         t2 = (1.0 - s) * sqrt(1.0 - t1 *t1) + s * t2;
 
+        // transform to the elipsoid configuration
         float3 Nh = t1*T1 + t2*T2 + sqrt(max(0.0, 1.0 - t1*t1 - t2*t2))*wH;
-        float3 Ne = normalize(float3(alpha * Nh.x, alpha * Nh.y, max(0.0, Nh.z)));    
+        float3 Ne = normalize(float3(alpha * Nh.x, alpha * Nh.y, max(0.0, Nh.z)));  
+        
+        // reflect the incident light direction and transorm to the world space where we do sahading 
+        float3 wo_TBN = reflect(-wi_TBN, Ne);
+        float3 wo_Worl = normalize(mul(g.TBN, wo_TBN));
+        
+        // calculate PDF 
+        // halfway vector
+        float3 H = normalize(wi + wo_Worl);
+        
+        float NdotH = max(dot(g.shadingNormal,g.normal), 0.0);
+        float VdotH = max(dot(wi, H), 0.0);
+
+        float D = DistributionGGX(g.shadingNormal, H);
+        PDF = D * NdotH / (4.0 * VdotH + 1e-5);
+
+        return wo_Worl;
     }
 
 
@@ -315,6 +342,17 @@ public struct CookTorrence_GGX : IBRDF
 
         return colour;
     }
+
+    public float3 SampleLambertianDiffuse(float3 wi, SurfaceGeometry g ,out float PDF, inout uint randomContex){
+
+        float3 cosWeightedSampleDirection = RandomHemisphereDirection(g.shadingNormal, randomContex); 
+        float cosTheta = sign(dot(g.shadingNormal, cosWeightedSampleDirection));
+        
+        PDF =  cosTheta / float.getPi();
+        
+        return normalize(g.shadingNormal + cosWeightedSampleDirection);
+    }
+
 
     
     public float3 EvaluateForShadow(){

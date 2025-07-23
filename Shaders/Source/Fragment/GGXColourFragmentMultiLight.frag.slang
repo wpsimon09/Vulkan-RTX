@@ -31,6 +31,8 @@ float4 fragmentMain(VertexOutput fsIn)
     g.shadingNormal = normalize(fsIn.vertexData.normal);
     g.normal = normalize(fsIn.vertexData.normal);
     g.uv = fsIn.vertexData.uv;
+    g.TBN = fsIn.vertexData.TBN;
+    g.iTBN = transpose(fsIn.vertexData.TBN);
 
     Material mat = materialValues[fsIn.vertexData.materialIdx];
 

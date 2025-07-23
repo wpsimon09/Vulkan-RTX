@@ -201,14 +201,6 @@ public float CalculateConeAngle(float r, float3 o, float3 d){
     return coneAngle;
 }
 
-public float3x3 CalculateTBN(float3 geomNormal, float4 tangnent, float3x3 normalM)
-{
-    float3 N = normalize(mul(normalM, geomNormal));
-    float3 T = normalize(mul(normalM, tangnent.xyz));
-    float3 B = normalize(cross(N, T));
-    float3x3 TBN = transpose(float3x3(T, B, N));
-    return TBN;
-}
 
 public float3x3 CalculateTBN(float3 geomNormal, float4 tangnent, float3x4 normalM){
     float3 T = normalize(mul(normalM, float4(tangnent.xyz, 0.0)));
