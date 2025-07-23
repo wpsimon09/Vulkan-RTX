@@ -256,7 +256,7 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&      
 
                 case EShaderBindingGroup::ForwardLit: {
 
-                    e->SetNumWrites(0, 4200, 0);
+                    e->SetNumWrites(0, 6200, 0);
                     e->WriteImageArray(i, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
 
                     if(renderingContext->irradianceMap)
@@ -278,7 +278,7 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&      
                     break;
                 }
                 case EShaderBindingGroup::ForwardUnlit: {
-                    e->SetNumWrites(0, 3200, 0);
+                    e->SetNumWrites(0, 5600, 0);
                     e->WriteImageArray(i, 1, 0, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
                     break;
                 }
