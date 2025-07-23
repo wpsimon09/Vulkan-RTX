@@ -2,6 +2,7 @@ module Material;
 
 import Utils;
 import Surface;
+import RandomValues;
 #define PI 3.14159265359
 
 
@@ -140,6 +141,14 @@ public interface IBRDF
      * float3 -     result colour
      */
     float3 EvaluateByLTC(float3 wo, float3 N, float3 P,float4 points[4], bool twoSided, Sampler2D LTC,Sampler2D LTC_Inverse);
+
+    /**
+    * wi - incident (view) direction in WORLD space
+    * Surface - surface that is being shaded 
+    * out PDF - probability density function of the returned sample 
+    * random context - random context for sample points u1 and u2 generations
+    */
+    float3 SampleGGX_VND(float3 wi, SurfaceGeometry g, ,out float PDF, inout uint randomContex);
 }
 
 public struct CookTorrence_GGX : IBRDF
@@ -235,6 +244,35 @@ public struct CookTorrence_GGX : IBRDF
         return colour;
     }
 
+    
+    public float3 SampleGGX_VND(float3 wi,  SurfaceGeometry g,out float PDF, inout uint randomContex){
+        float u1 = RandomValue(randomContex);
+        float u2 = RandomValue(randomContex); 
+
+        // transform wi from world space to TBN
+
+        float alpha = roughness * roughness;
+        // transform view (incident direction) to hemisphere configuration
+        float3 wH = normalize(float3(alpha * wi.x, alpha * wi.y, wi.z));
+
+        // create orthonormal basis
+        float lensq = wH.x * wH.y + wH.x * wH.y;
+        float3 T1 = lensq > 0 ? float3(-wH.y, wH.x, 0.0) * inverseSqrt(lensq) : float3(1, 0, 0);
+        float3 T2 = cross(wH, T1);
+
+        // parametrise the projected area 
+        float r = sqrt(u1);
+        float phi = 2.0 * float.getPi() * u2;
+        float t1 = r * cos(phi);
+        float t2 = r * sin(phi);
+        float s = 0.5 * (1.0 * wH.z);
+        t2 = (1.0 - s) * sqrt(1.0 - t1 *t1) + s * t2;
+
+        float3 Nh = t1*T1 + t2*T2 + sqrt(max(0.0, 1.0 - t1*t1 - t2*t2))*wH;
+        float3 Ne = normalize(float3(alpha * Nh.x, alpha * Nh.y, max(0.0, Nh.z)));    
+    }
+
+
     public float3 EvaluateByLTC(float3 wo,float3 N , float3 P, float4 points[4], bool twoSided, Sampler2D LTC, Sampler2D LTC_Inverse) {
 
         const float LUT_SIZE = 64.0; // ltc_texture size
@@ -277,6 +315,7 @@ public struct CookTorrence_GGX : IBRDF
 
         return colour;
     }
+
     
     public float3 EvaluateForShadow(){
         return albedo.xyz * 0.4;

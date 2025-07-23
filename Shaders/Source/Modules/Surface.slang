@@ -14,4 +14,7 @@ public struct SurfaceGeometry
     public float4 tangent;
     
     public float2 uv;
+
+    public float3x3 TBN;
+    public float3x3 iTBN;
 }
