@@ -297,7 +297,7 @@ public struct CookTorrence_GGX : IBRDF
 
         // Orthonormal basis around Vh 
         float lensq = Vh.x * Vh.x + Vh.y * Vh.y;
-        float3 T1 = lensq > 0.0 ? float3(-Vh.y, Vh.x, 0.0) * rsqrt(lensq) : float3(1.0, 0.0, 0.0);
+        float3 T1 = lensq > 0.0 ? float3(-Vh.y, Vh.x, 0.0) * inverseSqrt(lensq) : float3(1.0, 0.0, 0.0);
         float3 T2 = cross(Vh, T1);
 
         // Sample a point on projected hemisphere
