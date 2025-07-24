@@ -177,7 +177,7 @@ void missMain(inout RayPayLoad payload) {
 
     //payload.incomingLightColour = float3(0.f);
     payload.normal = float3(0.0f);
-    payload.incomingLightColour += (lerp(GroundColor,   skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1)) * payload.rayColour ;
+    payload.incomingLightColour += (lerp(GroundColor,   skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1)) * payload.rayColour;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
@@ -247,10 +247,10 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     if( sampleSpecular){
         wi = m.SampleGGX_VND(wo, g, PDF,  payLoad.randomContext);
         float3 f = m.EvaluateSpecular(wo, wi, g.shadingNormal);
-        payLoad.rayColour *= f ;
+        payLoad.rayColour *= f / (PDF * p_specular) ;
     }else{
         wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);
-        float3 f = m.EvaluateDiffuse(wo, wi, g.shadingNormal);
+        float3 f = m.EvaluateDiffuse(wo, wi, g.shadingNormal) / (PDF * (1.0 - p_specular));
         payLoad.rayColour *= f ; 
     }
     

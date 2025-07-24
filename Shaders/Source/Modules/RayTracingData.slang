@@ -71,7 +71,7 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     tangennt.w = handedness;
     g.tangent = tangennt;
 
-    g.TBN = CalculateTBN(g.normal, g.tangent, ObjectToWorld());
+    g.TBN = transpose(CalculateTBN(g.normal, g.tangent, ObjectToWorld()));
     g.iTBN = transpose((g.TBN));
 
     if(features.hasNormalTexture){

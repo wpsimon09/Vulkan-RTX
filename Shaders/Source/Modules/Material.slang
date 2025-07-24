@@ -154,7 +154,7 @@ public interface IBRDF
     float3 EvaluateByLTC(float3 wo, float3 N, float3 P,float4 points[4], bool twoSided, Sampler2D LTC,Sampler2D LTC_Inverse);
 
     /**
-    * wi -             incident (view) direction in WORLD space
+    * wo -             outgoing (view) direction in WORLD space
     * g -              surface that is being shaded 
     * out PDF -        probability density function of the returned sample
     * randomContext - random context for sample points u1 and u2 generations
@@ -162,12 +162,12 @@ public interface IBRDF
    float3 SampleGGX_VND(float3 wo, SurfaceGeometry g, out float PDF, inout uint randomContext);
    
    /**
-    * wi -             incident (view) direction in WORLD space
+    * wo -             outgoing (view) direction in WORLD space
     * g -              surface that is being shaded 
     * out PDF -        probability density function of the returned sample
     * randomContext - random context for sample points u1 and u2 generations
     */
-    float3 SampleLambertianDiffuse(float3 wi, SurfaceGeometry g ,out float PDF, inout uint randomContex);
+    float3 SampleLambertianDiffuse(float3 wo, SurfaceGeometry g ,out float PDF, inout uint randomContex);
 
 }
 
@@ -351,7 +351,7 @@ public struct CookTorrence_GGX : IBRDF
         return albedo.xyz * cosTheta;
     }
 
-    public float3 SampleLambertianDiffuse(float3 wi, SurfaceGeometry g ,out float PDF, inout uint randomContex){
+    public float3 SampleLambertianDiffuse(float3 wo, SurfaceGeometry g ,out float PDF, inout uint randomContex){
 
         float u1 = RandomValue(randomContex);
         float u2 = RandomValue(randomContex);
