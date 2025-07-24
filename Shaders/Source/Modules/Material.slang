@@ -353,12 +353,27 @@ public struct CookTorrence_GGX : IBRDF
 
     public float3 SampleLambertianDiffuse(float3 wi, SurfaceGeometry g ,out float PDF, inout uint randomContex){
 
-        float3 cosWeightedSampleDirection = RandomHemisphereDirection(g.shadingNormal, randomContex); 
-        float cosTheta = max(dot(g.shadingNormal, cosWeightedSampleDirection), 0.0);
-        
+        float u1 = RandomValue(randomContex);
+        float u2 = RandomValue(randomContex);
+
+        float r = sqrt(u1);
+        float theta = 2.0f * float.getPi() * u2;
+
+        float x = r * cos(theta);
+        float y = r * sin(theta);
+        float z = sqrt(1.0f - u1);  // this ensures cosine-weighting
+
+        // cosine weighted tangent hemisphere vector
+        float3 dir = float3(x, y, z);
+
+        // go from tangent space to the world space for cosine calculation
+        float3 dir_Ws = mul(g.TBN , dir);
+
+        float cosTheta = max(0.0, dot(g.shadingNormal, dir_Ws));
+
         PDF =  cosTheta / float.getPi();
         
-        return normalize(g.shadingNormal + cosWeightedSampleDirection);
+        return dir_Ws;
     }
 
     public float3 EvaluateByLTC(float3 wo,float3 N , float3 P, float4 points[4], bool twoSided, Sampler2D LTC, Sampler2D LTC_Inverse) {
