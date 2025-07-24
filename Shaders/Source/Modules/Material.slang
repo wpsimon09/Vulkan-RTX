@@ -159,9 +159,9 @@ public interface IBRDF
     * out PDF -        probability density function of the returned sample
     * randomContext - random context for sample points u1 and u2 generations
     */
-    float3 SampleGGX_VND(float3 wi, SurfaceGeometry g ,out float PDF, inout uint randomContex);
-
-    /**
+   float3 SampleGGX_VND(float3 wo, SurfaceGeometry g, out float PDF, inout uint randomContext);
+   
+   /**
     * wi -             incident (view) direction in WORLD space
     * g -              surface that is being shaded 
     * out PDF -        probability density function of the returned sample
@@ -199,7 +199,23 @@ public struct CookTorrence_GGX : IBRDF
         return num / denom;
     }
 
-    float GeometryShlickGGX(float NdotVorL)
+    float D_v(float3 wo, float3 N_i, SurfaceGeometry g){
+        float NiDotV = max(dot(N_i, wo), 0.0);
+        float NdotV  = max(dot(g.shadingNormal, wo), 0.0);
+        float G_1 = GometryShlickGGXHeitz(NdotV);
+        float D = DistributionGGX(g.shadingNormal, N_i);
+
+        return (G_1 * NiDotV * D) / max(NdotV ,1e-5);
+    }
+
+    float GometryShlickGGXHeitz(float NdotV){
+        float alpha = roughness * roughness;
+        float k = alpha * 0.5;
+        float denom = NdotV* (1.0 - k ) + k;
+        return NdotV / denom;
+    }
+
+    float GeometryShlickGGXUnreal(float NdotVorL)
     {
         float r = (roughness + 1.0);
         float k = (r * r) / 8;
@@ -212,10 +228,10 @@ public struct CookTorrence_GGX : IBRDF
     float GeometrySmith(float3 N, float3 V, float3 L)
     {
         float NdotV = max(dot(N, V), 0.0);
-        float ggx2 = GeometryShlickGGX(NdotV);
+        float ggx2 = GeometryShlickGGXUnreal(NdotV);
 
         float NdotL = max(dot(N, L), 0.0);
-        float ggx1 = GeometryShlickGGX(NdotL);
+        float ggx1 = GeometryShlickGGXUnreal(NdotL);
 
         return ggx1 * ggx2;
     }
@@ -265,51 +281,50 @@ public struct CookTorrence_GGX : IBRDF
     }
 
     
-    public float3 SampleGGX_VND(float3 wi,  SurfaceGeometry g,out float PDF, inout uint randomContex){
-        float u1 = RandomValue(randomContex);
-        float u2 = RandomValue(randomContex); 
+    public float3 SampleGGX_VND(float3 wo, SurfaceGeometry g, out float PDF, inout uint randomContext){       
+        //***********************************************************************************************************************************
+        // this is unintuitive but it physically correct, the wo is outgoing direciton which is the ray that hit the surface which normal
+        // we are trying tosample, wi is incident direction which is the ray that left the surface and is going somwhere in the scene
+        // in real world we would gather all rays coming from the scene to the eye but that would kill your computer 
+        //***********************************************************************************************************************************
 
-        // transform wi from world space to TBN where sampling is preformed 
-        float3 wi_TBN = normalize(mul(g.iTBN, wi));
+        // Transform outgoing/view direction from world to tangent space
+        float3 wo_T = normalize(mul(g.iTBN, wo)); // view direction in tangent space
 
+        // Compute stretched view direction (i only use issotropic case for now)
         float alpha = roughness * roughness;
-        // transform view (incident direction) to hemisphere configuration
-        float3 wH = normalize(float3(alpha * wi_TBN.x, alpha * wi_TBN.y, wi.z));
+        float3 Vh = normalize(float3(alpha * wo_T.x, alpha * wo_T.y, wo_T.z)); // stretched view
 
-        // create orthonormal basis
-        float lensq = wH.x * wH.x + wH.y * wH.y;
-        float3 T1 = lensq > 0 ? float3(-wH.y, wH.x, 0.0) * inverseSqrt(lensq) : float3(1, 0, 0);
-        float3 T2 = cross(wH, T1);
+        // Orthonormal basis around Vh 
+        float lensq = Vh.x * Vh.x + Vh.y * Vh.y;
+        float3 T1 = lensq > 0.0 ? float3(-Vh.y, Vh.x, 0.0) * rsqrt(lensq) : float3(1.0, 0.0, 0.0);
+        float3 T2 = cross(Vh, T1);
 
-        // parametrise the projected area 
+        // Sample a point on projected hemisphere
+        float u1 = RandomValue(randomContext);
+        float u2 = RandomValue(randomContext);
+
         float r = sqrt(u1);
-        float phi = 2.0 * float.getPi() * u2;
+        float phi = 2.0 * PI * u2;
         float t1 = r * cos(phi);
         float t2 = r * sin(phi);
-        float s = 0.5 * (1.0 * wH.z);
-        t2 = (1.0 - s) * sqrt(1.0 - t1 *t1) + s * t2;
+        float s = 0.5 * (1.0 + Vh.z);
+        t2 = (1.0 - s) * sqrt(1.0 - t1 * t1) + s * t2;
 
-        // transform to the elipsoid configuration
-        float3 Nh = t1*T1 + t2*T2 + sqrt(max(0.0, 1.0 - t1*t1 - t2*t2))*wH;
-        float3 Ne = normalize(float3(alpha * Nh.x, alpha * Nh.y, max(0.0, Nh.z)));  
-        
-        // reflect the incident light direction and transorm to the world space where we do sahading 
-        float3 wo_TBN = reflect(-wi_TBN, Ne);
-        float3 wo_Worl = normalize(mul(g.TBN, wo_TBN));
-        
-        // calculate PDF 
-        // halfway vector
-        float3 H = normalize(wi + wo_Worl);
-        
-        float NdotH = max(dot(g.shadingNormal,H), 0.0);
-        float VdotH = max(dot(H, wi), 0.0);
+        float3 Nh = t1 * T1 + t2 * T2 + sqrt(max(0.0, 1.0 - t1 * t1 - t2 * t2)) * Vh;
 
-        float NdotWi = max(abs(dot(g.shadingNormal, wi)), 1e-5);
-        float G1 = GeometryShlickGGX(dot(g.shadingNormal, wi));
-        float D = DistributionGGX(g.shadingNormal , H);
-        PDF = D * G1 * abs(NdotH) / (4.0 * NdotWi);
+        // Transform Nh back to the hemisphere configuration
+        float3 Ne = normalize(float3(alpha * Nh.x, alpha * Nh.y, max(0.0, Nh.z)));
 
-        return wo_Worl;
+        // Reflect view direction around sampled normal
+        float3 wi_T = reflect(-wo_T, Ne); // light direction in tangent space
+
+        // Transform sampled direction to world space
+        float3 wi = normalize(mul(g.TBN, wi_T));
+
+        PDF = D_v(wo, wi, g) / 4 * (dot(wo, wi));
+
+        return wi;
     }
 
     public float3 EvaluateSpecular(float3 wo, float3 wi, float3 N){
@@ -339,7 +354,7 @@ public struct CookTorrence_GGX : IBRDF
     public float3 SampleLambertianDiffuse(float3 wi, SurfaceGeometry g ,out float PDF, inout uint randomContex){
 
         float3 cosWeightedSampleDirection = RandomHemisphereDirection(g.shadingNormal, randomContex); 
-        float cosTheta = sign(dot(g.shadingNormal, cosWeightedSampleDirection));
+        float cosTheta = max(dot(g.shadingNormal, cosWeightedSampleDirection), 0.0);
         
         PDF =  cosTheta / float.getPi();
         

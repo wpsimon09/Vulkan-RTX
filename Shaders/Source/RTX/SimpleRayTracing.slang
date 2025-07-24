@@ -247,11 +247,11 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     if( sampleSpecular){
         wi = m.SampleGGX_VND(wo, g, PDF,  payLoad.randomContext);
-        float3 f = m.EvaluateSpecular(V, wi, g.shadingNormal);
+        float3 f = m.EvaluateSpecular(V, wi, g.shadingNormal) / PDF;
         payLoad.rayColour *= f ;
     }else{
         wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);
-        float3 f = m.EvaluateDiffuse(V, wi, g.shadingNormal);
+        float3 f = m.EvaluateDiffuse(V, wi, g.shadingNormal) / PDF;
         payLoad.rayColour *= f ; 
     }
 
