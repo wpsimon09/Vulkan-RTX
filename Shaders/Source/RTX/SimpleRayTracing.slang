@@ -36,6 +36,7 @@ struct RayPayLoad {
     float3 rayDirection;
     float3 rayOrigin;
 
+    float PDF;  
     uint depth;
     uint randomContext;
 
@@ -128,9 +129,9 @@ void rayGenMain() {
                 TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
                 rayRadiacne += payload.incomingLightColour;
                 
-                if (!payload.hasHit)
+                if (!payload.hasHit){
                     break;
-                
+                } 
                 ray.Origin = payload.rayOrigin;
                 ray.Direction = payload.rayDirection;
             }
@@ -164,7 +165,7 @@ void rayGenMain() {
 [[shader("miss")]]
 void missMain(inout RayPayLoad payload) {
     float3 SkyColorHorizon = float3(1.0, 1.0, 1.0);
-    float3 SkyColorZenith = float3(0.7, 0.7, 0.9);
+    float3 SkyColorZenith = float3(0.2, 0.2, 0.9);
     float3 GroundColor = float3(0.4, 0.4, 0.4);
 
     float3 ray_d = WorldRayDirection().xyz;
@@ -175,9 +176,8 @@ void missMain(inout RayPayLoad payload) {
     float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 64.0) * _lightInfo.dirLight.intensity.w;
 
-    //payload.incomingLightColour = float3(0.f);
     payload.normal = float3(0.0f);
-    payload.incomingLightColour += (lerp(GroundColor,   skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1)) * payload.rayColour;
+    payload.incomingLightColour += ( (lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1))) * payload.rayColour;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
@@ -222,7 +222,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         
         float3 directLightContribution = Le * m.Evaluate(V, L, g.shadingNormal);
         
-        payLoad.incomingLightColour += payLoad.rayColour * directLightContribution;
+        payLoad.incomingLightColour += directLightContribution* payLoad.rayColour;
     }
 
     //==============================
@@ -240,21 +240,20 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     float PDF;
     float3 wi;
+    float3 f = {};
+    
+    float3 emmittedLight = m.emission.xyz * m.emission.w;
+    payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
+    
     if( sampleSpecular){
         wi = m.SampleGGX_VND(wo, g, PDF,  payLoad.randomContext);
-        float3 f = m.EvaluateSpecular(wo, wi, g.shadingNormal);
-        payLoad.rayColour *= f  ;
+        f = m.EvaluateSpecular(wo, wi, g.shadingNormal);
     }else{
         wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);
-        float3 f = m.EvaluateDiffuse(wo, wi, g.shadingNormal) ;
-        payLoad.rayColour *= f ; 
+        f = m.EvaluateDiffuse(wo, wi, g.shadingNormal) ;
     }
-    
-    
-     float3 emmittedLight = m.emission.xyz * m.emission.w;
-     payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
-     
-    // calculate next bounce direction of the ray 
+
+    payLoad.rayColour += f;
     payLoad.normal = g.shadingNormal;
     payLoad.rayOrigin = g.shadingPosition;    
     payLoad.rayDirection = wi;

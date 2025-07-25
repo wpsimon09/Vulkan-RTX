@@ -128,10 +128,9 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
                                           vk::BufferUsageFlagBits::eShaderDeviceAddress
                                               | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR);
 
-    VulkanUtils::PlaceBufferMemoryBarrier(m_cmdBuffer->GetCommandBuffer(),
-                                          buffer.GetBuffer(),
-                                          vk::AccessFlagBits::eTransferWrite, vk::PipelineStageFlagBits::eTransfer,
-                                          vk::AccessFlagBits::eShaderRead, vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR);
+    VulkanUtils::PlaceBufferMemoryBarrier(m_cmdBuffer->GetCommandBuffer(), buffer.GetBuffer(), vk::AccessFlagBits::eTransferWrite,
+                                          vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eShaderRead,
+                                          vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR);
     // acctuall creating of the TLAS
     VulkanCore::VBuffer scratchBuffer(m_device);
 
