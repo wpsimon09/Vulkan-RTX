@@ -84,6 +84,6 @@ float2 BRDF(float NoV, float roughness)
 [[shader("compute")]]
 [numthreads(16, 16, 1)]
 void computeMain(uint3 threadID : SV_DispatchThreadID){
-    float2 brdf = BRDF(float(threadID.x) / 512.0, float(threadID.y) / 512.0);
+    float2 brdf = BRDF(float(threadID.x + 1) / 512.0, float(threadID.y + 1) / 512.0);
     _brdfMapOutput[threadID.xy].xy = brdf;
 }

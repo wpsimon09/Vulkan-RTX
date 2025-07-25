@@ -82,7 +82,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
         bool inShadow = false;
     
-        inShadow = IntersectsP(InitRay(worldSpacePos , shadowRayDir, 1000), _tlas, tHit);   
+        inShadow = IntersectsP(InitRay( worldSpacePos+0.00001 , shadowRayDir, 1000), _tlas, tHit);   
     
         disatnceTraveled += tHit;
 
@@ -92,5 +92,5 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     disatnceTraveled /= nShadowRays;
 
 
-    return float4(shadowFactor, disatnceTraveled, 0, 1.0);
+    return float4(shadowFactor, 0, 0, 1.0);
 }

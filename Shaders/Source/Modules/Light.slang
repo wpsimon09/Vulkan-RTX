@@ -118,7 +118,7 @@ public struct AmbientLight : ILightEnv {
             float3 diffuse = irradiance * albedo;
 
             float3 R = reflect(-wo, g.shadingNormal);
-            const float MAX_REFLECTION_LOD = 9.0;
+            const float MAX_REFLECTION_LOD = 6.0;
 
             float3 prefilteredColor = PrefilterMap.SampleLevel(R, roughness * MAX_REFLECTION_LOD).xyz;
 

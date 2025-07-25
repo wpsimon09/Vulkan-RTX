@@ -231,7 +231,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         
         float3 directLightContribution = Le * m.Evaluate(V, L, g.shadingNormal);
         
-        payLoad.incomingLightColour += directLightContribution * payLoad.rayColour  ;
+        payLoad.incomingLightColour += directLightContribution * payLoad.rayColour ;
     }
 
     //==============================
@@ -262,7 +262,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         f = m.EvaluateDiffuse(wo, wi, g.shadingNormal) ;
     }
 
-    payLoad.rayColour *= f;
+    payLoad.rayColour *= f ;
     payLoad.normal = g.shadingNormal;
     payLoad.rayOrigin = g.shadingPosition;    
     payLoad.rayDirection = wi;
