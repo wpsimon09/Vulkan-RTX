@@ -131,19 +131,16 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_fogPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI);
 
 
-
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         // IMPORTANT: Depth attachment is  transitioned to shader read only optimal during creation
         m_rtxShadowPassEffect->SetNumWrites(0, 1, 0);
 
         m_rtxShadowPassEffect->WriteImage(
-            i, 0, 3, m_positionBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            i, 0, 3, m_positionBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
         m_rtxShadowPassEffect->ApplyWrites(i);
     }
-
-
 
 
     Utils::Logger::LogSuccess("Scene renderer created !");
@@ -185,7 +182,10 @@ void ForwardRenderer::Render(int                                       currentFr
 
     m_frameCount++;
 }
-VulkanCore::VImage2* ForwardRenderer::GetForwardRendererResult() const { return m_forwardRendererOutput; }
+VulkanCore::VImage2* ForwardRenderer::GetForwardRendererResult() const
+{
+    return m_forwardRendererOutput;
+}
 
 Renderer::RenderTarget2& ForwardRenderer::GetDepthPrePassOutput() const
 {
@@ -211,8 +211,8 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     int drawCallCount = 0;
 
 
-    m_depthPrePassOutput->TransitionAttachments(cmdBuffer,vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::ImageLayout::eDepthStencilReadOnlyOptimal
-                                                );
+    m_depthPrePassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                vk::ImageLayout::eDepthStencilReadOnlyOptimal);
 
 
     std::vector<vk::RenderingAttachmentInfo> depthPrePassColourAttachments = {m_positionBufferOutput->GenerateAttachmentInfo(
@@ -294,7 +294,8 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     //=================================================
     for(auto& drawCall : m_renderContextPtr->drawCalls)
     {
-        if (drawCall.second.postProcessingEffect) {
+        if(drawCall.second.postProcessingEffect)
+        {
             m_postProcessingFogVolumeDrawCall = &drawCall.second;
             continue;
         }
@@ -342,7 +343,8 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     }
     cmdB.endRendering();
 
-    m_positionBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal);
+    m_positionBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                  vk::ImageLayout::eColorAttachmentOptimal);
 
     VulkanUtils::PlaceImageMemoryBarrier(
         m_depthPrePassOutput->GetPrimaryImage(), cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
@@ -552,7 +554,6 @@ void ForwardRenderer::DrawScene(int                                       curren
     cmdB.endRendering();
 
 
-
     m_lightingPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                 vk::ImageLayout::eColorAttachmentOptimal);
 
@@ -566,8 +567,7 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
                                             const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     // this might not be the best thing to do but for now it should suffice
-    m_fogPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                                vk::ImageLayout::eShaderReadOnlyOptimal);
+    m_fogPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
 
 
     std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_fogPassOutput->GenerateAttachmentInfo(
@@ -601,13 +601,11 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
 
     cmdB.endRendering();
 
-    m_fogPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                              vk::ImageLayout::eColorAttachmentOptimal);
+    m_fogPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal);
 
     m_postProcessingFogVolumeDrawCall = nullptr;
 
     m_forwardRendererOutput = &m_fogPassOutput->GetPrimaryImage();
-
 }
 
 

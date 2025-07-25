@@ -40,7 +40,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     //approximate normal for shadow bias
     float3 N_approx = cross(Tx, Ty);
 
-    float4 direction = _lightInfo.dirLight.direction;
+    float4 direction = normalize(_lightInfo.dirLight.direction);
 
     // blue noise is used to rate the disk of sample positions to get how much it should rotate 
     float blueNoise = _blueNoiseTextureArray.Sample(fsIn.uv).x; // float3 for sample since .z is array level
@@ -67,6 +67,13 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
     float disatnceTraveled = 0;
 
+
+    if(direction.w < 0.002){
+        float tHit;
+        bool inShadow = IntersectsP(InitRay( worldSpacePos, _lightInfo.dirLight.direction.xyz, 1000), _tlas, tHit);
+        
+        return float4((float)inShadow, 0.0, 0.0, 1.0);
+    }
     for(int i = 0; i < nShadowRays; ++i){
         float2 samplePos = BlueNoiseInDisk[i];
 
@@ -76,21 +83,22 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
         diskPoint.x = samplePos.x * cosTheta - samplePos.y * sinTheta;
         diskPoint.y = samplePos.x * sinTheta + samplePos.y * cosTheta;
 
+        // direction.w is sun radius 
         diskPoint *= direction.w;
 
-        float3 shadowRayDir = normalize(direction.xyz + diskPoint.x * lightTangent + diskPoint.y * lightBitangent);
+        float3 shadowRayDir = normalize(direction.xyz + (diskPoint.x * lightTangent + diskPoint.y * lightBitangent));
 
         bool inShadow = false;
     
-        inShadow = IntersectsP(InitRay( worldSpacePos+0.00001 , shadowRayDir, 1000), _tlas, tHit);   
+        inShadow = IntersectsP(InitRay( worldSpacePos, shadowRayDir, 1000), _tlas, tHit);   
     
         disatnceTraveled += tHit;
 
+        
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }
 
     disatnceTraveled /= nShadowRays;
-
 
     return float4(shadowFactor, 0, 0, 1.0);
 }

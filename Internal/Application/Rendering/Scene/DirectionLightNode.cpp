@@ -72,15 +72,15 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
             data.vertexData = &m_visualisationMesh->GetMeshData()->vertexData;
             data.indexData  = &m_visualisationMesh->GetMeshData()->indexData;
             data.indexCount = m_visualisationMesh->GetMeshIndexCount();
-           // renderingContext->AddDrawCall(data);
+            // renderingContext->AddDrawCall(data);
         }
     }
 }
 
 void DirectionLightNode::Update(SceneUpdateFlags& sceneUpdateFlags)
 {
-    m_lightStruct.direction = glm::vec3(m_transformation->GetRotationMatrix() * glm::vec4(glm::vec3(-1.0f, 0.0f, 0.0f), 0.0f));
-
+    m_lightStruct.direction =
+        glm::normalize(glm::vec3(m_transformation->GetRotationMatrix() * glm::vec4(glm::vec3(-1.0f, 0.0f, 0.0f), 0.0f)));
 
 
     m_lightStruct.inUse = m_sceneNodeMetaData.IsVisible;
