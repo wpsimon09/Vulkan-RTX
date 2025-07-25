@@ -70,18 +70,14 @@ void rayGenMain() {
     
     float3 totalRadiance = 0.0f;
 
-    RayPayLoad payload;
-    payload.incomingLightColour = float3(0.0);
-    payload.hasHit = true;
-    payload.randomContext = randomSeed;
-    payload.depth = 0;
-    payload.rayColour = float3(1.0);
 
     float3 camRight = globalData.view._m00_m10_m20;
     float3 camUp = globalData.view._m01_m11_m21;
 
     float aparatureSize = globalData.viewParams.x; // bigger apprature, bigger blur
     float focalLenth = globalData.viewParams.y; // position of the focuse plane
+
+    RayPayLoad payload;
 
     if((ERenderOutput)globalData.renderOutput != ERenderOutput::NormalVectors){
         
@@ -121,8 +117,14 @@ void rayGenMain() {
             ray.TMin = 0.001f;
             ray.TMax = 10000.0f;
 
-
+            // RESET PAY LOD FOR EACH RAY 
             payload.incomingLightColour = float3(0.0);
+            payload.hasHit = true;
+            payload.randomContext = randomSeed;
+            payload.depth = 0;
+            payload.rayColour = float3(1.0);
+            payload.incomingLightColour = float3(0.0);
+
             float3 rayRadiacne = float3(0.0);
             for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
 
@@ -149,6 +151,13 @@ void rayGenMain() {
     }
     else{
 
+        RayPayLoad payload;
+        payload.incomingLightColour = float3(0.0);
+        payload.hasHit = true;
+        payload.randomContext = randomSeed;
+        payload.depth = 0;
+        payload.rayColour = float3(1.0);
+
         RayDesc ray;
         ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
         ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
@@ -165,7 +174,7 @@ void rayGenMain() {
 [[shader("miss")]]
 void missMain(inout RayPayLoad payload) {
     float3 SkyColorHorizon = float3(1.0, 1.0, 1.0);
-    float3 SkyColorZenith = float3(0.2, 0.2, 0.9);
+    float3 SkyColorZenith = float3(0.7, 0.7, 0.9);
     float3 GroundColor = float3(0.4, 0.4, 0.4);
 
     float3 ray_d = WorldRayDirection().xyz;
@@ -177,7 +186,7 @@ void missMain(inout RayPayLoad payload) {
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 64.0) * _lightInfo.dirLight.intensity.w;
 
     payload.normal = float3(0.0f);
-    payload.incomingLightColour += ( (lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1))) * payload.rayColour;
+    payload.incomingLightColour += ((lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1))) * payload.rayColour;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
@@ -222,7 +231,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         
         float3 directLightContribution = Le * m.Evaluate(V, L, g.shadingNormal);
         
-        payLoad.incomingLightColour += directLightContribution* payLoad.rayColour;
+        payLoad.incomingLightColour += directLightContribution * payLoad.rayColour  ;
     }
 
     //==============================
@@ -253,7 +262,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         f = m.EvaluateDiffuse(wo, wi, g.shadingNormal) ;
     }
 
-    payLoad.rayColour += f;
+    payLoad.rayColour *= f;
     payLoad.normal = g.shadingNormal;
     payLoad.rayOrigin = g.shadingPosition;    
     payLoad.rayDirection = wi;
