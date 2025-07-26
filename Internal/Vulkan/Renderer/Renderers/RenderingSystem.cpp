@@ -20,6 +20,7 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
 #include "Vulkan/Renderer/Renderers/ForwardRenderer.hpp"
@@ -38,6 +39,7 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
+#include <vulkan/vulkan_enums.hpp>
 
 
 namespace Renderer {
@@ -119,7 +121,9 @@ void RenderingSystem::Init()
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
             .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eShadowMap).SetImage(m_forwardRenderer->GetShadowMapOutput().GetPrimaryImage(), i);
-        m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer).SetImage(m_envLightGenerator->GetBRDFLut(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
+            .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::eNormalBuffer).SetImage(m_forwardRenderer->GetNormalBufferOutput().GetPrimaryImage(), i);
     }
 }
 
@@ -129,7 +133,6 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
 
     m_sceneLightInfo = &applicationState.GetSceneLightInfo();
-
     //=================================================
     // GET SWAP IMAGE INDEX
     //=================================================

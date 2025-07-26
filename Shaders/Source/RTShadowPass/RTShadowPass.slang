@@ -69,10 +69,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
 
     if(direction.w < 0.002){
-        float tHit;
-        bool inShadow = IntersectsP(InitRay( worldSpacePos, _lightInfo.dirLight.direction.xyz, 1000), _tlas, tHit);
-        
-        return float4((float)inShadow, 0.0, 0.0, 1.0);
+       
     }
     for(int i = 0; i < nShadowRays; ++i){
         float2 samplePos = BlueNoiseInDisk[i];
@@ -98,7 +95,9 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }
 
-    disatnceTraveled /= nShadowRays;
+    float tHit;
+    bool inShadow = IntersectsP(InitRay( worldSpacePos, _lightInfo.dirLight.direction.xyz, 1000), _tlas, tHit);
+    
+    return float4((float)inShadow, 0.0, 0.0, 1.0);
 
-    return float4(shadowFactor, 0, 0, 1.0);
 }

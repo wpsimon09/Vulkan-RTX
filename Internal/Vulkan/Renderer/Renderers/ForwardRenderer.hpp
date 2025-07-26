@@ -63,6 +63,7 @@ class ForwardRenderer
     Renderer::RenderTarget2& GetPositionBufferOutput() const;
     Renderer::RenderTarget2& GetShadowMapOutput() const;
     Renderer::RenderTarget2& GetLightPassOutput() const;
+    Renderer::RenderTarget2& GetNormalBufferOutput() const;
 
     void Destroy();
 
@@ -77,7 +78,7 @@ class ForwardRenderer
                                VulkanCore::VCommandBuffer&               cmdBuffer,
                                const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-        void PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall);
+    void PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall);
 
   private:
     // Vulkan context & managers
@@ -97,6 +98,8 @@ class ForwardRenderer
          *Contains world space position of the geometry
          */
     std::unique_ptr<Renderer::RenderTarget2> m_positionBufferOutput;
+
+    std::unique_ptr<Renderer::RenderTarget2> m_normalBufferOutput;
 
     /**
          * Contains screen space shadow map

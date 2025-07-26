@@ -35,6 +35,9 @@ class RenderTarget2
     VulkanCore::VImage2& GetPrimaryImage() const;
     VulkanCore::VImage2& GetResolvedImage() const;
 
+    uint32_t GetWidth();
+    uint32_t GetHeight();
+
     vk::ImageView GetPrimaryImageView() const;
     vk::ImageView GetResolvedImageView() const;
 

@@ -88,12 +88,13 @@ vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfoFromResolvedIma
                                                                                    vk::AttachmentLoadOp  loadOp,
                                                                                    vk::AttachmentStoreOp storeOp)
 {
-    if (m_resolvedAttachment == nullptr) throw std::runtime_error("This attachemtn does not have resovled output ! ");
+    if(m_resolvedAttachment == nullptr)
+        throw std::runtime_error("This attachemtn does not have resovled output ! ");
 
     vk::RenderingAttachmentInfo attachmentInfo;
-    attachmentInfo.imageView   = m_resolvedAttachment->GetImageView();
-    attachmentInfo.imageLayout = layout;
-    attachmentInfo.resolveMode = vk::ResolveModeFlagBits::eNone;
+    attachmentInfo.imageView                       = m_resolvedAttachment->GetImageView();
+    attachmentInfo.imageLayout                     = layout;
+    attachmentInfo.resolveMode                     = vk::ResolveModeFlagBits::eNone;
     attachmentInfo.loadOp                          = loadOp;
     attachmentInfo.storeOp                         = storeOp;
     attachmentInfo.clearValue.color                = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -101,7 +102,6 @@ vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfoFromResolvedIma
     attachmentInfo.clearValue.depthStencil.stencil = 0.0f;
 
     return attachmentInfo;
-
 }
 
 VulkanCore::VImage2& RenderTarget2::GetPrimaryImage() const
@@ -111,6 +111,15 @@ VulkanCore::VImage2& RenderTarget2::GetPrimaryImage() const
 VulkanCore::VImage2& RenderTarget2::GetResolvedImage() const
 {
     return *m_resolvedAttachment;
+}
+
+uint32_t RenderTarget2::GetWidth()
+{
+    return m_renderTargetInfo.width;
+}
+uint32_t RenderTarget2::GetHeight()
+{
+    return m_renderTargetInfo.heigh;
 }
 
 vk::ImageView RenderTarget2::GetPrimaryImageView() const
@@ -137,6 +146,6 @@ void RenderTarget2::Destroy()
 }
 
 
-RenderTarget2::~RenderTarget2() { }
+RenderTarget2::~RenderTarget2() {}
 
 }  // namespace Renderer

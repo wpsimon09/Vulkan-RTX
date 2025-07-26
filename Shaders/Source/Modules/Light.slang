@@ -130,6 +130,20 @@ public struct AmbientLight : ILightEnv {
             return albedo * 0.7;
         }
     }
+
+
+    public float3 illuminateDiffuse<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo){
+        if (applyIBL) { // passed from application based on if the env is nullptr or not 
+            float3 kS = brdf.FresnellShlickRoughness(max(dot(g.shadingNormal, wo), 0.0));
+            float3 kD = float3(1.0) - kS;
+            float3 irradiance = IrradianceMap.Sample(g.shadingNormal.xyz).xyz;
+            float3 diffuse = irradiance * albedo;
+
+            return (kD * diffuse) * aoIntensity;
+        } else {
+            return albedo * 0.7;
+        }
+    }
 }
 
 // light pari allows us to create any light enviroment 

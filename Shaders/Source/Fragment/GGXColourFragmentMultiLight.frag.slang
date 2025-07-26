@@ -78,7 +78,13 @@ float4 fragmentMain(VertexOutput fsIn)
     float3 finalColor;
     float shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).x;
     
-    finalColor = (lightingEnv.illuminate(g, brdf_, V) * shadowFactor )  + ambientLight.illuminate(g, brdf_, V);
+    if(shadowFactor == 1.0){
+        // in shadow
+        finalColor = ambientLight.illuminateDiffuse(g, brdf_, V) * 0.5;
+    }else{
+        // lit
+        finalColor = (lightingEnv.illuminate(g, brdf_, V))  + ambientLight.illuminate(g, brdf_, V);
+    }
 
     finalColor.xyz += brdf_.emission.xyz;
 

@@ -142,7 +142,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
         std::make_shared<VulkanUtils::VRasterEffect>(device, "Depth-PrePass effect", "Shaders/Compiled/DepthPrePass.vert.spv",
                                                      "Shaders/Compiled/DepthPrePass.frag.spv", descLayoutCache,
                                                      EShaderBindingGroup::ForwardUnlitNoMaterial);
-    depthPrePass->SetVertexInputMode(EVertexInput::PositionOnly).SetDepthOpLess();
+    depthPrePass->SetVertexInputMode(EVertexInput::Position_Normal).SetDepthOpLess();
 
 
     effects[EEffectType::DepthPrePass] = std::move(depthPrePass);

@@ -20,6 +20,9 @@ Sampler2D _positionTexture;
 [[vk::binding(4,0)]]
 Sampler2D _blueNoiseTextureArray;
 
+[[vk::binding(5,0)]]
+Sampler2D _normalTexture;
+
 public static const float2 BlueNoiseInDisk[64] = float2[64](
     float2(0.478712,0.875764),
     float2(-0.337956,-0.793959),

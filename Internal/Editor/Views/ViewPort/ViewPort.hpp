@@ -53,7 +53,8 @@ class ViewPort : public IUserInterfaceElement
 
     ViewPortType             m_selectedViewPort = ViewPortType::eMain;
     std::vector<const char*> m_viewPortOptions  = {ICON_FA_BOLT_LIGHTNING "  Lit", ICON_FA_OBJECT_GROUP " Shadow",
-                                                   ICON_FA_ARROW_DOWN_UP_LOCK " Position"};
+                                                   ICON_FA_ARROW_DOWN_UP_LOCK " Position",
+                                                   ICON_FA_ARROW_UP_RIGHT_FROM_SQUARE "Normal buffer"};
 
 
     std::vector<const char*> m_debugViews = {

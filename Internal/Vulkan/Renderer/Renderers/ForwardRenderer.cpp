@@ -88,6 +88,9 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_positionBufferOutput = std::make_unique<Renderer::RenderTarget2>(m_device, positionBufferCI);
 
+    m_normalBufferOutput = std::make_unique<Renderer::RenderTarget2>(m_device, positionBufferCI);
+
+
     //==================
     // Shadow map
     Renderer::RenderTarget2CreatInfo shadowMapCI{
@@ -101,6 +104,10 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     };
 
     m_visibilityBuffer = std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI);
+
+    //==================
+    // Normal map
+
 
     //==================
     // Lightning pass
@@ -134,10 +141,13 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         // IMPORTANT: Depth attachment is  transitioned to shader read only optimal during creation
-        m_rtxShadowPassEffect->SetNumWrites(0, 1, 0);
+        m_rtxShadowPassEffect->SetNumWrites(0, 2, 0);
 
         m_rtxShadowPassEffect->WriteImage(
             i, 0, 3, m_positionBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
+
+        m_rtxShadowPassEffect->WriteImage(
+            i, 0, 5, m_normalBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
         m_rtxShadowPassEffect->ApplyWrites(i);
     }
@@ -204,6 +214,11 @@ Renderer::RenderTarget2& ForwardRenderer::GetLightPassOutput() const
     return *m_lightingPassOutput;
 }
 
+Renderer::RenderTarget2& ForwardRenderer::GetNormalBufferOutput() const
+{
+    return *m_normalBufferOutput;
+}
+
 void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
                                    VulkanCore::VCommandBuffer&               cmdBuffer,
                                    const VulkanUtils::VUniformBufferManager& uniformBufferManager)
@@ -215,8 +230,11 @@ void ForwardRenderer::DepthPrePass(int                                       cur
                                                 vk::ImageLayout::eDepthStencilReadOnlyOptimal);
 
 
-    std::vector<vk::RenderingAttachmentInfo> depthPrePassColourAttachments = {m_positionBufferOutput->GenerateAttachmentInfo(
-        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
+    std::vector<vk::RenderingAttachmentInfo> depthPrePassColourAttachments = {
+        m_positionBufferOutput->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
+                                                       vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
+        m_normalBufferOutput->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
+                                                     vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     auto depthPrePassDepthAttachment =
         m_depthPrePassOutput->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
@@ -236,6 +254,8 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     m_positionBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
                                                   vk::ImageLayout::eShaderReadOnlyOptimal);
 
+    m_normalBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                                vk::ImageLayout::eShaderReadOnlyOptimal);
 
     m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_depthPrePassEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
@@ -345,6 +365,9 @@ void ForwardRenderer::DepthPrePass(int                                       cur
 
     m_positionBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                   vk::ImageLayout::eColorAttachmentOptimal);
+
+    m_normalBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                vk::ImageLayout::eColorAttachmentOptimal);
 
     VulkanUtils::PlaceImageMemoryBarrier(
         m_depthPrePassOutput->GetPrimaryImage(), cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
@@ -634,6 +657,7 @@ void ForwardRenderer::Destroy()
     m_lightingPassOutput->Destroy();
     m_positionBufferOutput->Destroy();
     m_fogPassOutput->Destroy();
+    m_normalBufferOutput->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer

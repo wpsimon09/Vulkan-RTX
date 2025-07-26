@@ -20,6 +20,7 @@ enum class ViewPortType
     ePositionBuffer,
     eMaterial,
     eMainRayTracer,
+    eNormalBuffer
 };
 
 
