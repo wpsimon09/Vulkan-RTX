@@ -30,7 +30,10 @@ VertexOutput vertexMain(VertexInput VAO)
     float4x4 viewProj = mul(globalData.projection, globalData.view);
     out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
     out.worldPos = FragmentWorldPos;
-    out.worldNormal = mul(transpose((float3x3)inverse(perObjectPC.modelMatrix)), VAO.inNormal);
+
+    float4x4 normalMatrix = transpose(inverse(perObjectPC.modelMatrix));
+    float3 NormalWorldPos = mul(normalMatrix, float4(VAO.inNormal.xyz, 0.0)).xyz;
+    out.worldNormal = NormalWorldPos;
 
     return out;
 }
@@ -44,7 +47,7 @@ struct FragmentOut{
 FragmentOut fragmentMain(VertexOutput fsIn) {
     FragmentOut out;
 
-    out.position = float4(fsIn.worldPos, 1.0);
+    out.position = float4(fsIn.worldNormal, 1.0);
     out.normal = float4(fsIn.worldNormal, 1.0);
 
     return out;

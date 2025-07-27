@@ -165,6 +165,13 @@ VRasterEffect& VRasterEffect::SetPiplineNoMultiSampling()
     return *this;
 }
 
+VRasterEffect& VRasterEffect::AddColourAttachmentFormat(vk::Format format)
+{
+    m_pipeline->m_outputFormats.push_back(format);
+    return *this;
+}
+
+
 VRasterEffect& VRasterEffect::SetNullVertexBinding()
 {
     m_pipeline->m_vertexInputState.vertexAttributeDescriptionCount = 0;
@@ -173,6 +180,13 @@ VRasterEffect& VRasterEffect::SetNullVertexBinding()
     m_pipeline->m_vertexInputState.pVertexAttributeDescriptions    = nullptr;
     return *this;
 }
+
+VRasterEffect& VRasterEffect::SetColourOutputFormats(std::vector<vk::Format> format)
+{
+    m_pipeline->m_outputFormats = format;
+    return *this;
+}
+
 
 VRasterEffect& VRasterEffect::DissableFragmentWrite()
 {

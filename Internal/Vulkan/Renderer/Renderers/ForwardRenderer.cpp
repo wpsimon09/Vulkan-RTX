@@ -88,6 +88,8 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_positionBufferOutput = std::make_unique<Renderer::RenderTarget2>(m_device, positionBufferCI);
 
+    //==================
+    // Normal map
     m_normalBufferOutput = std::make_unique<Renderer::RenderTarget2>(m_device, positionBufferCI);
 
 
@@ -104,10 +106,6 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     };
 
     m_visibilityBuffer = std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI);
-
-    //==================
-    // Normal map
-
 
     //==================
     // Lightning pass
@@ -229,6 +227,13 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     m_depthPrePassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
                                                 vk::ImageLayout::eDepthStencilReadOnlyOptimal);
 
+    //===========================
+    // TRANSITION POSITION BUFFER
+    m_positionBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                                  vk::ImageLayout::eShaderReadOnlyOptimal);
+
+    m_normalBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                                vk::ImageLayout::eShaderReadOnlyOptimal);
 
     std::vector<vk::RenderingAttachmentInfo> depthPrePassColourAttachments = {
         m_positionBufferOutput->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
@@ -239,7 +244,7 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     auto depthPrePassDepthAttachment =
         m_depthPrePassOutput->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
                                                      vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
-
+    // 0d7
     vk::RenderingInfo renderingInfo;
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
     renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
@@ -249,13 +254,6 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     renderingInfo.pDepthAttachment     = &depthPrePassDepthAttachment;
     renderingInfo.pStencilAttachment   = &depthPrePassDepthAttachment;
 
-    //===========================
-    // TRANSITION POSITION BUFFER
-    m_positionBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                                  vk::ImageLayout::eShaderReadOnlyOptimal);
-
-    m_normalBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                                vk::ImageLayout::eShaderReadOnlyOptimal);
 
     m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_depthPrePassEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);

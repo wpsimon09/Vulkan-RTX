@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <vulkan/vulkan_enums.hpp>
 
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
@@ -144,6 +145,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
                                                      EShaderBindingGroup::ForwardUnlitNoMaterial);
     depthPrePass->SetVertexInputMode(EVertexInput::Position_Normal).SetDepthOpLess();
 
+    depthPrePass->AddColourAttachmentFormat(vk::Format::eR16G16B16A16Sfloat);
 
     effects[EEffectType::DepthPrePass] = std::move(depthPrePass);
 

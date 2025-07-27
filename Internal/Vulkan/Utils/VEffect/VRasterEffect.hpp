@@ -14,7 +14,7 @@
 namespace VulkanCore {
 class VGraphicsPipeline;
 class VDescriptorLayoutCache;
-}
+}  // namespace VulkanCore
 namespace VulkanCore::RTX {
 struct RTXShaderPaths;
 }
@@ -67,6 +67,8 @@ class VRasterEffect : public VEffect
     VRasterEffect& DisableStencil();
     VRasterEffect& SetDepthTestNever();
     VRasterEffect& SetColourOutputFormat(vk::Format format);
+    VRasterEffect& SetColourOutputFormats(std::vector<vk::Format> format);
+    VRasterEffect& AddColourAttachmentFormat(vk::Format format);
     VRasterEffect& SetPiplineNoMultiSampling();
     VRasterEffect& SetNullVertexBinding();
     VRasterEffect& DissableFragmentWrite();
@@ -95,4 +97,3 @@ class VRasterEffect : public VEffect
 }  // namespace VulkanUtils
 
 #endif  //VRASTEREFFECT_HPP
-

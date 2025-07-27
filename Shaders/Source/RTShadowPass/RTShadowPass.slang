@@ -67,10 +67,9 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
     float disatnceTraveled = 0;
 
+    float3 normal = _normalTexture.Sample(fsIn.uv).xyz;
 
-    if(direction.w < 0.002){
-       
-    }
+
     for(int i = 0; i < nShadowRays; ++i){
         float2 samplePos = BlueNoiseInDisk[i];
 
@@ -96,8 +95,9 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     }
 
     float tHit;
-    bool inShadow = IntersectsP(InitRay( worldSpacePos, _lightInfo.dirLight.direction.xyz, 1000), _tlas, tHit);
+    bool inShadow = IntersectsP(InitRay( worldSpacePos + normal * _lightInfo.dirLight.parameters.y , _lightInfo.dirLight.direction.xyz, 1000), _tlas, tHit);
     
+
     return float4((float)inShadow, 0.0, 0.0, 1.0);
 
 }
