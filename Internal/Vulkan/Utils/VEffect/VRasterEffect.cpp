@@ -168,6 +168,7 @@ VRasterEffect& VRasterEffect::SetPiplineNoMultiSampling()
 VRasterEffect& VRasterEffect::AddColourAttachmentFormat(vk::Format format)
 {
     m_pipeline->m_outputFormats.push_back(format);
+    m_pipeline->CreateRenderingInfo();
     return *this;
 }
 
