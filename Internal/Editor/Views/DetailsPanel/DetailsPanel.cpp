@@ -204,13 +204,13 @@ void DetailsPanel::RenderDirectionLightUI()
     ImGui::SeparatorText("General light settings");
     ImGui::SetNextItemWidth(600.0f);
     ImGui::ColorEdit3("LightColour", &DirLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);
-    ImGui::SliderFloat("Sun radius", &DirLightNode->GetLightStruct().sunRadius, 0.1, 180);
+    ImGui::SliderFloat("Sun radius", &DirLightNode->GetLightStruct().sunRadius, 0.01, 0.5);
     ImGui::DragFloat("Intensity", &DirLightNode->GetLightStruct().colour.w);
 
     ImGui::SeparatorText("Shadow");
 
     ImGui::SliderInt("Shadow rays", &DirLightNode->GetLightStruct().shadowRaysPerPixel, 1, 64);
-    ImGui::SliderFloat("Shadow bias", &DirLightNode->GetLightStruct().shadowBias, 0.0001f, 0.1);
+    ImGui::SliderFloat("Shadow bias", &DirLightNode->GetLightStruct().shadowBias, 0.0001f, 10.0);
 }
 
 void DetailsPanel::RenderPointLightUI()

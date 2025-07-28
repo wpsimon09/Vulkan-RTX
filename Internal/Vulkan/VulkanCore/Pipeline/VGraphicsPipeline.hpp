@@ -33,9 +33,9 @@ class VGraphicsPipeline : public VObject
 {
 
   public:
-    VGraphicsPipeline(const VulkanCore::VDevice&              device,
-                      const VulkanCore::VShader&              shaders,
-                      const std::vector<vk::DescriptorSetLayout>&   descriptorSets,
+    VGraphicsPipeline(const VulkanCore::VDevice&                  device,
+                      const VulkanCore::VShader&                  shaders,
+                      const std::vector<vk::DescriptorSetLayout>& descriptorSets,
                       const std::vector<vk::PushConstantRange>&   pushConstants);
 
     /**
@@ -68,10 +68,10 @@ class VGraphicsPipeline : public VObject
     void CreateRenderingInfo();
 
   private:
-    const VulkanCore::VShader&              m_shaders;
-    const VulkanCore::VDevice&              m_device;
-    const std::vector<vk::DescriptorSetLayout>&   m_descriptorSets;
-    const std::vector<vk::PushConstantRange>&     m_pushConstantRanges;
+    const VulkanCore::VShader&                  m_shaders;
+    const VulkanCore::VDevice&                  m_device;
+    const std::vector<vk::DescriptorSetLayout>& m_descriptorSets;
+    const std::vector<vk::PushConstantRange>&   m_pushConstantRanges;
 
     // pipeline handler
     vk::Pipeline      m_pipeline;

@@ -47,7 +47,7 @@ struct FragmentOut{
 FragmentOut fragmentMain(VertexOutput fsIn) {
     FragmentOut out;
 
-    out.position = float4(fsIn.worldNormal, 1.0);
+    out.position = float4(fsIn.worldPos, 1.0);
     out.normal = float4(fsIn.worldNormal, 1.0);
 
     return out;

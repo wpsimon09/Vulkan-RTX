@@ -32,7 +32,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     // get neighbouring positions in world space 
     float3 px = _positionTexture.Sample(fsIn.uv, int2(1, 0)).xyz;
     float3 py = _positionTexture.Sample(fsIn.uv, int2(0, 1)).xyz;
-
+    
     // calcualte tangent of the world plane 
     float3 Tx = normalize(px - worldSpacePos);
     float3 Ty = normalize(py - worldSpacePos);
@@ -66,10 +66,9 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
 
     float disatnceTraveled = 0;
-
+    
     float3 normal = _normalTexture.Sample(fsIn.uv).xyz;
-
-
+    
     for(int i = 0; i < nShadowRays; ++i){
         float2 samplePos = BlueNoiseInDisk[i];
 
@@ -86,7 +85,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
         bool inShadow = false;
     
-        inShadow = IntersectsP(InitRay( worldSpacePos, shadowRayDir, 1000), _tlas, tHit);   
+        inShadow = IntersectsP(InitRay( worldSpacePos + normalize(normal) * shadowBias, shadowRayDir, 1000), _tlas, tHit);   
     
         disatnceTraveled += tHit;
 
@@ -94,10 +93,6 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }
 
-    float tHit;
-    bool inShadow = IntersectsP(InitRay( worldSpacePos + normal * _lightInfo.dirLight.parameters.y , _lightInfo.dirLight.direction.xyz, 1000), _tlas, tHit);
-    
-
-    return float4((float)inShadow, 0.0, 0.0, 1.0);
+    return float4(float3(shadowFactor), 1.0);
 
 }

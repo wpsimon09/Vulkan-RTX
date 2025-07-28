@@ -275,6 +275,7 @@ void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
 
 void VulkanCore::VGraphicsPipeline::EnableBlendingAlpha()
 {
+
     m_colorBlendAttachmentState.blendEnable    = vk::True;
     m_colorBlendAttachmentState.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
                                                  | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
