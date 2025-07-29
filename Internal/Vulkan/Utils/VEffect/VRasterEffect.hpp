@@ -44,7 +44,8 @@ class VRasterEffect : public VEffect
                   const std::string&                  vertex,
                   const std::string&                  fragment,
                   VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                  EShaderBindingGroup                 bindingGroup = EShaderBindingGroup::ForwardUnlit);
+                  EShaderBindingGroup                 bindingGroup   = EShaderBindingGroup::ForwardUnlit,
+                  int                                 numAttachments = 1);
 
     //=======================================
     // Effect building
@@ -57,7 +58,7 @@ class VRasterEffect : public VEffect
     VRasterEffect& SetTopology(vk::PrimitiveTopology topology);
     VRasterEffect& SetPolygonLine();
     VRasterEffect& SetPolygonPoint();
-    VRasterEffect& EnableAdditiveBlending();
+    VRasterEffect& EnableAdditiveBlending(int numAttachments = 1);
     VRasterEffect& OutputHDR();
     VRasterEffect& SetDepthOpEqual();
     VRasterEffect& SetDepthOpLessEqual();
@@ -74,7 +75,7 @@ class VRasterEffect : public VEffect
     VRasterEffect& DissableFragmentWrite();
     VRasterEffect& SetDepthOpLess();
     VRasterEffect& SetDepthOpAllways();
-    VRasterEffect& EnableAlphaBlending();
+    VRasterEffect& EnableAlphaBlending(int numAttachments = 1);
 
 
     //=======================================

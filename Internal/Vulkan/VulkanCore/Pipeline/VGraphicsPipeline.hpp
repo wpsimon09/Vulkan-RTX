@@ -41,7 +41,7 @@ class VGraphicsPipeline : public VObject
     /**
          * Fills in all structs required to create pipeline. Structs can be modified with setters
          */
-    void       Init();
+    void       Init(int numberOfAttachemnt = 1);
     void       Destroy() override;
     const void RecordPipelineCommands(VulkanCore::VCommandBuffer& commandBuffer) const;
     const void AddCommand(const Command& command);
@@ -63,7 +63,7 @@ class VGraphicsPipeline : public VObject
     void CreateRasterizer();
     void CreateMultisampling();
     void CreateDepthStencil();
-    void CreateColorBlend();
+    void CreateColorBlend(int numAttachments);
     void CreatePipelineLayout();
     void CreateRenderingInfo();
 
@@ -89,23 +89,23 @@ class VGraphicsPipeline : public VObject
     std::vector<vk::Format> m_outputFormats;
 
   private:
-    std::array<vk::PipelineShaderStageCreateInfo, 2> m_shaderStages;
-    vk::VertexInputBindingDescription                m_vertexInputBindingDescription;
-    std::vector<vk::VertexInputAttributeDescription> m_vertexInputAttributeDescription;
-    vk::PipelineVertexInputStateCreateInfo           m_vertexInputState;
-    vk::PipelineInputAssemblyStateCreateInfo         m_inputAssembly;
-    vk::Viewport                                     m_viewport;
-    vk::Rect2D                                       m_scissor;
-    vk::PipelineViewportStateCreateInfo              m_viewportState;
-    vk::PipelineDynamicStateCreateInfo               m_dynamicStateInfo;
-    std::vector<vk::DynamicState>                    m_dynamicStates;
-    vk::PipelineRasterizationStateCreateInfo         m_rasterizer;
-    vk::PipelineMultisampleStateCreateInfo           m_multisampling;
-    vk::PipelineDepthStencilStateCreateInfo          m_depthStencil;
-    vk::PipelineColorBlendAttachmentState            m_colorBlendAttachmentState;
-    vk::PipelineColorBlendStateCreateInfo            m_colorBlendState;
-    vk::PipelineLayout                               m_pipelineLayout;
-    vk::PipelineRenderingCreateInfo                  m_renderingCreateInfo;
+    std::array<vk::PipelineShaderStageCreateInfo, 2>   m_shaderStages;
+    vk::VertexInputBindingDescription                  m_vertexInputBindingDescription;
+    std::vector<vk::VertexInputAttributeDescription>   m_vertexInputAttributeDescription;
+    vk::PipelineVertexInputStateCreateInfo             m_vertexInputState;
+    vk::PipelineInputAssemblyStateCreateInfo           m_inputAssembly;
+    vk::Viewport                                       m_viewport;
+    vk::Rect2D                                         m_scissor;
+    vk::PipelineViewportStateCreateInfo                m_viewportState;
+    vk::PipelineDynamicStateCreateInfo                 m_dynamicStateInfo;
+    std::vector<vk::DynamicState>                      m_dynamicStates;
+    vk::PipelineRasterizationStateCreateInfo           m_rasterizer;
+    vk::PipelineMultisampleStateCreateInfo             m_multisampling;
+    vk::PipelineDepthStencilStateCreateInfo            m_depthStencil;
+    std::vector<vk::PipelineColorBlendAttachmentState> m_colorBlendAttachmentState;
+    vk::PipelineColorBlendStateCreateInfo              m_colorBlendState;
+    vk::PipelineLayout                                 m_pipelineLayout;
+    vk::PipelineRenderingCreateInfo                    m_renderingCreateInfo;
 
   public:
     void SetCreatedPipeline(vk::Pipeline pipeline)
@@ -151,9 +151,12 @@ class VGraphicsPipeline : public VObject
         m_depthStencil = m_depth_stencil;
     }
 
-    void SetColorBlendAttachmentState(const vk::PipelineColorBlendAttachmentState& m_color_blend_attachment_state)
+    void SetColorBlendAttachmentState(int attachmentCount, const vk::PipelineColorBlendAttachmentState& m_color_blend_attachment_state)
     {
-        m_colorBlendAttachmentState = m_color_blend_attachment_state;
+        for(int i = 0; i < attachmentCount; i++)
+        {
+            m_colorBlendAttachmentState[i] = m_color_blend_attachment_state;
+        }
     }
 
     void SetColorBlendState(const vk::PipelineColorBlendStateCreateInfo& m_color_blend_state)
@@ -184,8 +187,8 @@ class VGraphicsPipeline : public VObject
     void SetStencilState(vk::StencilOpState& stencilState);
 
 
-    void EnableBlendingAdditive();
-    void EnableBlendingAlpha();
+    void EnableBlendingAdditive(int numAttachments);
+    void EnableBlendingAlpha(int numAttachments);
 
 
   private:

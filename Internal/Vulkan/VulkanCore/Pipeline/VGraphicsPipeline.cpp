@@ -32,7 +32,7 @@ VulkanCore::VGraphicsPipeline::VGraphicsPipeline(const VulkanCore::VDevice&     
 }
 
 
-void VulkanCore::VGraphicsPipeline::Init()
+void VulkanCore::VGraphicsPipeline::Init(int numberOfAttachemnt)
 {
 
     CreateShaderStages();
@@ -43,7 +43,7 @@ void VulkanCore::VGraphicsPipeline::Init()
     CreateRasterizer();
     CreateMultisampling();
     CreateDepthStencil();
-    CreateColorBlend();
+    CreateColorBlend(numberOfAttachemnt);
     CreatePipelineLayout();
     CreateRenderingInfo();
 }
@@ -221,27 +221,32 @@ void VulkanCore::VGraphicsPipeline::CreateDepthStencil()
     m_depthStencil.front             = m_depthStencil.back;
 }
 
-void VulkanCore::VGraphicsPipeline::CreateColorBlend()
+void VulkanCore::VGraphicsPipeline::CreateColorBlend(int numAttachments)
 {
     //--------------------
     // COLOUR BLENDING
     //--------------------
-    m_colorBlendAttachmentState.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
-                                                 | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-    m_colorBlendAttachmentState.blendEnable         = vk::False;
-    m_colorBlendAttachmentState.srcColorBlendFactor = vk::BlendFactor::eOne;
-    m_colorBlendAttachmentState.dstColorBlendFactor = vk::BlendFactor::eZero;
-    m_colorBlendAttachmentState.colorBlendOp        = vk::BlendOp::eAdd;
-    m_colorBlendAttachmentState.srcAlphaBlendFactor = vk::BlendFactor::eOne;
-    m_colorBlendAttachmentState.dstAlphaBlendFactor = vk::BlendFactor::eZero;
-    m_colorBlendAttachmentState.colorBlendOp        = vk::BlendOp::eAdd;
-    m_colorBlendAttachmentState.alphaBlendOp        = vk::BlendOp::eAdd;
+    m_colorBlendAttachmentState.resize(numAttachments);
+    for(int i = 0; i < numAttachments; i++)
+    {
+
+        m_colorBlendAttachmentState[i].colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
+                                                        | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+        m_colorBlendAttachmentState[i].blendEnable         = vk::False;
+        m_colorBlendAttachmentState[i].srcColorBlendFactor = vk::BlendFactor::eOne;
+        m_colorBlendAttachmentState[i].dstColorBlendFactor = vk::BlendFactor::eZero;
+        m_colorBlendAttachmentState[i].colorBlendOp        = vk::BlendOp::eAdd;
+        m_colorBlendAttachmentState[i].srcAlphaBlendFactor = vk::BlendFactor::eOne;
+        m_colorBlendAttachmentState[i].dstAlphaBlendFactor = vk::BlendFactor::eZero;
+        m_colorBlendAttachmentState[i].colorBlendOp        = vk::BlendOp::eAdd;
+        m_colorBlendAttachmentState[i].alphaBlendOp        = vk::BlendOp::eAdd;
+    }
 
     m_colorBlendState.logicOpEnable     = VK_FALSE;
     m_colorBlendState.logicOp           = vk::LogicOp::eCopy;
     m_colorBlendState.logicOpEnable     = vk::False;
-    m_colorBlendState.attachmentCount   = 1;
-    m_colorBlendState.pAttachments      = &m_colorBlendAttachmentState;
+    m_colorBlendState.attachmentCount   = m_colorBlendAttachmentState.size();
+    m_colorBlendState.pAttachments      = m_colorBlendAttachmentState.data();
     m_colorBlendState.blendConstants[0] = 0.0f;
     m_colorBlendState.blendConstants[1] = 0.0f;
     m_colorBlendState.blendConstants[2] = 0.0f;
@@ -273,24 +278,28 @@ void VulkanCore::VGraphicsPipeline::CreateRenderingInfo()
 }
 
 
-void VulkanCore::VGraphicsPipeline::EnableBlendingAlpha()
+void VulkanCore::VGraphicsPipeline::EnableBlendingAlpha(int numAttachments)
 {
+    m_colorBlendAttachmentState.resize(numAttachments);
 
-    m_colorBlendAttachmentState.blendEnable    = vk::True;
-    m_colorBlendAttachmentState.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
-                                                 | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    for(int i = 0; i < m_colorBlendAttachmentState.size(); i++)
+    {
+        m_colorBlendAttachmentState[i].blendEnable    = vk::True;
+        m_colorBlendAttachmentState[i].colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
+                                                        | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
 
-    m_colorBlendAttachmentState.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
-    m_colorBlendAttachmentState.dstColorBlendFactor = vk::BlendFactor::eOne;
-    m_colorBlendAttachmentState.colorBlendOp        = vk::BlendOp::eAdd;
+        m_colorBlendAttachmentState[i].srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+        m_colorBlendAttachmentState[i].dstColorBlendFactor = vk::BlendFactor::eOne;
+        m_colorBlendAttachmentState[i].colorBlendOp        = vk::BlendOp::eAdd;
 
-    m_colorBlendAttachmentState.srcAlphaBlendFactor = vk::BlendFactor::eOne;
-    m_colorBlendAttachmentState.dstAlphaBlendFactor = vk::BlendFactor::eZero;
-    m_colorBlendAttachmentState.alphaBlendOp        = vk::BlendOp::eAdd;
+        m_colorBlendAttachmentState[i].srcAlphaBlendFactor = vk::BlendFactor::eOne;
+        m_colorBlendAttachmentState[i].dstAlphaBlendFactor = vk::BlendFactor::eZero;
+        m_colorBlendAttachmentState[i].alphaBlendOp        = vk::BlendOp::eAdd;
+    }
 
     m_colorBlendState.logicOpEnable   = vk::False;
-    m_colorBlendState.attachmentCount = 1;
-    m_colorBlendState.pAttachments    = &m_colorBlendAttachmentState;
+    m_colorBlendState.attachmentCount = m_colorBlendAttachmentState.size();
+    m_colorBlendState.pAttachments    = m_colorBlendAttachmentState.data();
 }
 
 void VulkanCore::VGraphicsPipeline::SetColourOutputFormat(vk::Format format)
@@ -304,22 +313,26 @@ void VulkanCore::VGraphicsPipeline::SetStencilState(vk::StencilOpState& stencilS
     m_depthStencil.front = m_depthStencil.back;
 }
 
-void VulkanCore::VGraphicsPipeline::EnableBlendingAdditive()
+void VulkanCore::VGraphicsPipeline::EnableBlendingAdditive(int numAttachments)
 {
-    m_colorBlendAttachmentState.blendEnable    = vk::True;
-    m_colorBlendAttachmentState.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
-                                                 | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-    m_colorBlendAttachmentState.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
-    m_colorBlendAttachmentState.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
-    m_colorBlendAttachmentState.colorBlendOp        = vk::BlendOp::eAdd;
-    m_colorBlendAttachmentState.srcAlphaBlendFactor = vk::BlendFactor::eOne;
-    m_colorBlendAttachmentState.dstAlphaBlendFactor = vk::BlendFactor::eZero;
-    m_colorBlendAttachmentState.colorBlendOp        = vk::BlendOp::eAdd;
+    m_colorBlendAttachmentState.resize(numAttachments);
+    for(int i = 0; i < numAttachments; i++)
+    {
+        m_colorBlendAttachmentState[i].blendEnable    = vk::True;
+        m_colorBlendAttachmentState[i].colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
+                                                        | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+        m_colorBlendAttachmentState[i].srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+        m_colorBlendAttachmentState[i].dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+        m_colorBlendAttachmentState[i].colorBlendOp        = vk::BlendOp::eAdd;
+        m_colorBlendAttachmentState[i].srcAlphaBlendFactor = vk::BlendFactor::eOne;
+        m_colorBlendAttachmentState[i].dstAlphaBlendFactor = vk::BlendFactor::eZero;
+        m_colorBlendAttachmentState[i].colorBlendOp        = vk::BlendOp::eAdd;
+    }
 
     m_colorBlendState.logicOpEnable     = vk::False;
     m_colorBlendState.logicOp           = vk::LogicOp::eCopy;
-    m_colorBlendState.attachmentCount   = 1;
-    m_colorBlendState.pAttachments      = &m_colorBlendAttachmentState;
+    m_colorBlendState.attachmentCount   = m_colorBlendAttachmentState.size();
+    m_colorBlendState.pAttachments      = m_colorBlendAttachmentState.data();
     m_colorBlendState.blendConstants[0] = 0.0f;
     m_colorBlendState.blendConstants[1] = 0.0f;
     m_colorBlendState.blendConstants[2] = 0.0f;

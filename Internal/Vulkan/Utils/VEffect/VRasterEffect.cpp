@@ -28,7 +28,8 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&          device,
                              const std::string&                  vertex,
                              const std::string&                  fragment,
                              VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                             EShaderBindingGroup                 bindingGroup)
+                             EShaderBindingGroup                 bindingGroup,
+                             int                                 numAttachments)
     : VEffect(device, name, descLayoutCache, bindingGroup)
     , m_shader(std::in_place, device, vertex, fragment)
 {
@@ -39,7 +40,7 @@ VRasterEffect::VRasterEffect(const VulkanCore::VDevice&          device,
 
     m_pipeline = std::make_unique<VulkanCore::VGraphicsPipeline>(device, m_shader.value(), m_descriptorSetLayouts,
                                                                  m_reflectionData->PCs);
-    m_pipeline->Init();
+    m_pipeline->Init(numAttachments);
 }
 
 VRasterEffect& VRasterEffect::SetDisableDepthTest()
@@ -90,9 +91,9 @@ VRasterEffect& VRasterEffect::SetPolygonPoint()
     return *this;
 }
 
-VRasterEffect& VRasterEffect::EnableAdditiveBlending()
+VRasterEffect& VRasterEffect::EnableAdditiveBlending(int numAttachments)
 {
-    m_pipeline->EnableBlendingAdditive();
+    m_pipeline->EnableBlendingAdditive(numAttachments);
     return *this;
 }
 
@@ -206,9 +207,9 @@ VRasterEffect& VRasterEffect::SetDepthOpAllways()
     m_pipeline->m_depthStencil.depthCompareOp = vk::CompareOp::eAlways;
     return *this;
 }
-VRasterEffect& VRasterEffect::EnableAlphaBlending()
+VRasterEffect& VRasterEffect::EnableAlphaBlending(int numAttachments)
 {
-    m_pipeline->EnableBlendingAlpha();
+    m_pipeline->EnableBlendingAlpha(numAttachments);
     return *this;
 }
 
