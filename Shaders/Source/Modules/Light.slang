@@ -139,9 +139,9 @@ public struct AmbientLight : ILightEnv {
             float3 irradiance = IrradianceMap.Sample(g.shadingNormal.xyz).xyz;
             float3 diffuse = irradiance * albedo;
 
-            return (kD * diffuse) * aoIntensity;
+            return albedo * 0.4;
         } else {
-            return albedo * 0.7;
+            return albedo * 0.4;
         }
     }
 }
