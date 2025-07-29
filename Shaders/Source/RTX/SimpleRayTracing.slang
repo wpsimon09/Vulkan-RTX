@@ -137,7 +137,7 @@ void rayGenMain() {
                 ray.Origin = payload.rayOrigin;
                 ray.Direction = payload.rayDirection;
             }
-            totalRadiance += rayRadiacne;
+            totalRadiance += (1/globalData.reccursionDepth) * rayRadiacne;
         }
             float weight = max(1.0 / (globalData.currentFrame + 1), 0);
     
@@ -226,18 +226,17 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }
     
     
+    float3 wo = -WorldRayDirection();
     float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
     if (!shadowPayLoad.inShadow) {
         
-        float3 directLightContribution = Le * m.Evaluate(V, L, g.shadingNormal);
+        float3 directLightContribution = Le * m.Evaluate(wo, L, g.shadingNormal);
         
         payLoad.incomingLightColour += directLightContribution * payLoad.rayColour ;
     }
 
     //==============================
     // Path tracing 
-
-    float3 wo = -WorldRayDirection();
 
 
     float3 F0 = lerp(float3(0.04), m.albedo.xyz, m.metallnes);
