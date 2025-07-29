@@ -135,7 +135,7 @@ public interface IBRDF
      * N  -         normalVector;
      * float3 -     result colour
      */
-    float3 EvaluateSpecular(float3 wo, float3 wi, float3 N);
+    float3 EvaluateSpecular(float3 wo, float3 wi, float3 N, float PDF);
 
     /**
      * wo -         incoming view direction
@@ -143,7 +143,7 @@ public interface IBRDF
      * N  -         normalVector;
      * float3 -     result colour
      */
-    float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N);
+    float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N, float PDF);
 
     /**
      * wo -         incoming view direction
@@ -322,12 +322,12 @@ public struct CookTorrence_GGX : IBRDF
         // Transform sampled direction to world space
         float3 wi = normalize(mul(g.TBN, wi_T));
 
-        PDF = D_v(wo, wi, g) / 4 * (dot(wo, wi));
+        PDF = D_v(wo, wi, g) / (max(4 * (dot(wo, wi)), 1e-5));
 
         return wi;
     }
 
-    public float3 EvaluateSpecular(float3 wo, float3 wi, float3 N){
+    public float3 EvaluateSpecular(float3 wo, float3 wi, float3 N, float PDF ){
         float3 F0 = float3(0.04);
         F0 = lerp(F0, albedo.xyz, metallnes);
         float3 H = normalize(wo + wi);
@@ -345,7 +345,7 @@ public struct CookTorrence_GGX : IBRDF
         return specular;
     }
 
-    public float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N){
+    public float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N, float PDF){
 
         float cosTheta = max(dot(N, wo), 0);
         return albedo.xyz * cosTheta;
