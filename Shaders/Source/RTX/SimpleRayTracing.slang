@@ -55,7 +55,6 @@ void rayGenMain() {
     
     float3 totalRadiance = 0.0f;
 
-
     float3 camRight = globalData.view._m00_m10_m20;
     float3 camUp = globalData.view._m01_m11_m21;
 
@@ -64,92 +63,111 @@ void rayGenMain() {
 
     RayPayLoad payload;
 
-    if((ERenderOutput)globalData.renderOutput != ERenderOutput::NormalVectors){
+    switch((ERenderOutput)globalData.renderOutput){
+        case ERenderOutput::FullLit:{
+
+            //=========================
+            // Full shading is enabled 
+            for (int i = 0; i < globalData.raysPerPixel; i++) {
+    
+                
+                //========================================================================================c
+                // get initial jitter samples 
+                float2 jitter = RandomPointInCircle(randomSeed) * 0.2 / launchSize.x;
+                float2 deFocusJitter = RandomPointInCircle(randomSeed) * aparatureSize;
+                float3 jitteredTarget = target.xyz + camRight * jitter.x + camUp * jitter.y;
+                
+    
+                //========================================================================================c
+                // define ray origin in the camera space and translate it to the worlds space 
+                float3 rayOriginWS = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
+    
+                //===========================================================================
+                // jitter the ray origin 
+                float3 jitteredRayOriginWS =rayOriginWS + camRight * deFocusJitter.x +  camUp * deFocusJitter.y; // offset the ray origin
+                
+                //======================================================
+                // calulate where the ray will shoot in the world space 
+                float3 rayDirecionWS = normalize(mul(globalData.inverseView, float4(target.xyz, 0.0))).xyz;
+                
+                //======================================================
+                // find the focal point, the point where objects are in focuse 
+                float3 focalPoint = rayOriginWS + rayDirecionWS * focalLenth;
+                
+                //======================================================
+                // descibbe ray
+                RayDesc ray;
+                ray.Origin = jitteredRayOriginWS;
+                ray.Direction = normalize(focalPoint - ray.Origin); // direction from jittered origin to the focal point 
+                ray.TMin = 0.001f;
+                ray.TMax = 10000.0f;
+    
+                // RESET PAY LOAD FOR EACH RAY 
+                payload.incomingLightColour = float3(0.0);
+                payload.hasHit = true;
+                payload.randomContext = randomSeed;
+                payload.depth = 0;
+                payload.rayColour = float3(1.0);
+                payload.incomingLightColour = float3(0.0);
+    
+                float3 rayRadiacne = float3(0.0);
+                int numSamples = 1;
+                for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
+    
+                    TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
+                    rayRadiacne += payload.incomingLightColour;
+                    
+                    if (!payload.hasHit){
+                        break;
+                    } 
+                    numSamples++;
+                    ray.Origin = payload.rayOrigin;
+                    ray.Direction = payload.rayDirection;
+                }
+                totalRadiance += (1/(float)numSamples) * rayRadiacne;
+            }
+                float weight = max(1.0 / (globalData.currentFrame + 1), 0);
         
-        //=========================
-        // Full shading is enabled 
-        for (int i = 0; i < globalData.raysPerPixel; i++) {
+            // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
+            _film[int2(threadIdx.xy)] = float4(totalRadiance / globalData.raysPerPixel, 1.0);
+        
+            // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
+            float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
+        
+            _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
 
+            break;
+        }
+        case ERenderOutput::NormalVectors: {
             
-            //========================================================================================c
-            // get initial jitter samples 
-            float2 jitter = RandomPointInCircle(randomSeed) * 0.2 / launchSize.x;
-            float2 deFocusJitter = RandomPointInCircle(randomSeed) * aparatureSize;
-            float3 jitteredTarget = target.xyz + camRight * jitter.x + camUp * jitter.y;
             
-
-            //========================================================================================c
-            // define ray origin in the camera space and translate it to the worlds space 
-            float3 rayOriginWS = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-
-            //===========================================================================
-            // jitter the ray origin 
-            float3 jitteredRayOriginWS =rayOriginWS + camRight * deFocusJitter.x +  camUp * deFocusJitter.y; // offset the ray origin
-            
-            //======================================================
-            // calulate where the ray will shoot in the world space 
-            float3 rayDirecionWS = normalize(mul(globalData.inverseView, float4(target.xyz, 0.0))).xyz;
-            
-            //======================================================
-            // find the focal point, the point where objects are in focuse 
-            float3 focalPoint = rayOriginWS + rayDirecionWS * focalLenth;
-            
-            //======================================================
-            // descibbe ray
             RayDesc ray;
-            ray.Origin = jitteredRayOriginWS;
-            ray.Direction = normalize(focalPoint - ray.Origin); // direction from jittered origin to the focal point 
+            ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
+            ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
+            //ray.Direction = normalize(worldSpaceDirection).xyz;
             ray.TMin = 0.001f;
             ray.TMax = 10000.0f;
-
-            // RESET PAY LOD FOR EACH RAY 
-            payload.incomingLightColour = float3(0.0);
-            payload.hasHit = true;
-            payload.randomContext = randomSeed;
-            payload.depth = 0;
-            payload.rayColour = float3(1.0);
-            payload.incomingLightColour = float3(0.0);
-
-            float3 rayRadiacne = float3(0.0);
-            int numSamples = 1;
-            for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
-
-                TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
-                rayRadiacne += payload.incomingLightColour;
-                
-                if (!payload.hasHit){
-                    break;
-                } 
-                numSamples++;
-                ray.Origin = payload.rayOrigin;
-                ray.Direction = payload.rayDirection;
-            }
-            totalRadiance += (1/(float)numSamples) * rayRadiacne;
+            
+            let N = TraceSingleRay(ray, _TLAS, randomSeed).normal;
+            
+            _accumulationImage[int2(threadIdx.xy)] = float4(N, 1.0) ;
+            
+            break;
         }
-            float weight = max(1.0 / (globalData.currentFrame + 1), 0);
-    
-        // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
-        _film[int2(threadIdx.xy)] = float4(totalRadiance / globalData.raysPerPixel, 1.0);
-    
-        // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
-        float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
-    
-        _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
-    }
-    else {
-
-        
-        RayDesc ray;
-        ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-        ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
-        //ray.Direction = normalize(worldSpaceDirection).xyz;
-        ray.TMin = 0.001f;
-        ray.TMax = 10000.0f;
-
-        let N = TraceSingleRay(ray, _TLAS, randomSeed).normal;
-    
-        _accumulationImage[int2(threadIdx.xy)] = float4(N, 1.0) ;
-
+        case ERenderOutput::Albedo: {
+            RayDesc ray;
+            ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
+            ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
+            //ray.Direction = normalize(worldSpaceDirection).xyz;
+            ray.TMin = 0.001f;
+            ray.TMax = 10000.0f;
+            
+            let PDF = TraceSingleRay(ray, _TLAS, randomSeed).PDF;
+            
+            _accumulationImage[int2(threadIdx.xy)] = float4(float3(PDF), 1.0) ;
+            
+            break;
+        }
     }
 }
 

@@ -2,7 +2,7 @@ module RTXUtils;
 import Core;
 
 public RayPayLoad TraceSingleRay(RayDesc ray,RaytracingAccelerationStructure _tlas, inout uint u){
-    RayPayLoad payload;
+    RayPayLoad payload = {};
     payload.incomingLightColour = float3(0.0);
     payload.hasHit = true;
     payload.randomContext = u;

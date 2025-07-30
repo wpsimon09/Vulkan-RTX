@@ -8,7 +8,7 @@ public enum ERenderOutput{
     NormalVectors,
     LightOnly,
     Albedo,
-    Arm
+    Arm,
 };
 
 public struct GlobalData {
