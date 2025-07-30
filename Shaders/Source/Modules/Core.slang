@@ -99,3 +99,21 @@ public struct HitInfo{
     bool hit = false;
     float t = -1.0;
 }
+
+public struct RayPayLoad {
+    public float3 distance;
+    public float3 normal;
+    public float3 reflector;
+
+    public float3 incomingLightColour;
+    public float3 rayColour;
+
+    public float3 rayDirection;
+    public float3 rayOrigin;
+
+    public float PDF = 0;  
+    public uint depth;
+    public uint randomContext;
+
+    public bool hasHit;
+}

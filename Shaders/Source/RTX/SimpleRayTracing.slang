@@ -5,6 +5,7 @@ import Material;
 import Surface;
 import RandomValues;
 import Core;
+import RayTracingUtils;
 
 // global data for the ray tracing 
 [[vk::binding(0, 0)]]
@@ -25,23 +26,7 @@ ConstantBuffer<RWTexture2D> _film;
 [[vk::binding(6, 0)]]
 ConstantBuffer<RWTexture2D> _accumulationImage;
 
-struct RayPayLoad {
-    float3 distance;
-    float3 normal;
-    float3 reflector;
 
-    float3 incomingLightColour;
-    float3 rayColour;
-
-    float3 rayDirection;
-    float3 rayOrigin;
-
-    float PDF;  
-    uint depth;
-    uint randomContext;
-
-    bool hasHit;
-}
 
 struct RayPayloadShadow {
     bool inShadow;
@@ -126,6 +111,7 @@ void rayGenMain() {
             payload.incomingLightColour = float3(0.0);
 
             float3 rayRadiacne = float3(0.0);
+            int numSamples = 1;
             for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
 
                 TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
@@ -134,10 +120,11 @@ void rayGenMain() {
                 if (!payload.hasHit){
                     break;
                 } 
+                numSamples++;
                 ray.Origin = payload.rayOrigin;
                 ray.Direction = payload.rayDirection;
             }
-            totalRadiance += (1/globalData.reccursionDepth) * rayRadiacne;
+            totalRadiance += (1/(float)numSamples) * rayRadiacne;
         }
             float weight = max(1.0 / (globalData.currentFrame + 1), 0);
     
@@ -149,15 +136,9 @@ void rayGenMain() {
     
         _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
     }
-    else{
+    else {
 
-        RayPayLoad payload;
-        payload.incomingLightColour = float3(0.0);
-        payload.hasHit = true;
-        payload.randomContext = randomSeed;
-        payload.depth = 0;
-        payload.rayColour = float3(1.0);
-
+        
         RayDesc ray;
         ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
         ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
@@ -165,8 +146,9 @@ void rayGenMain() {
         ray.TMin = 0.001f;
         ray.TMax = 10000.0f;
 
-        TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
-        _accumulationImage[int2(threadIdx.xy)] = float4(payload.normal,1.0);
+        let N = TraceSingleRay(ray, _TLAS, randomSeed).normal;
+    
+        _accumulationImage[int2(threadIdx.xy)] = float4(N, 1.0) ;
 
     }
 }
@@ -265,6 +247,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     payLoad.normal = g.shadingNormal;
     payLoad.rayOrigin = g.shadingPosition;    
     payLoad.rayDirection = wi;
+    payLoad.PDF = PDF;
     
 
     // other direction
