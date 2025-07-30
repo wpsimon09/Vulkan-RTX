@@ -138,5 +138,5 @@ https://github.com/user-attachments/assets/550c47df-4557-45c6-b38a-dce62449e8c7
 
 <img width="2880" height="1620" alt="image" src="https://github.com/user-attachments/assets/66cfda6b-8572-41db-8da5-efa4a3ff78ec" />
 
-![image]<img width="2871" height="1545" alt="Screenshot From 2025-07-25 20-49-26" src="https://github.com/user-attachments/assets/fa6218d8-9176-4c48-8754-d363c81c0fa8" />
+<img width="2871" height="1545" alt="Screenshot From 2025-07-25 20-49-26" src="https://github.com/user-attachments/assets/fa6218d8-9176-4c48-8754-d363c81c0fa8" />
 
