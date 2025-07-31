@@ -33,6 +33,8 @@ public struct GlobalData {
     public float currentFrame;
     public ERenderOutput renderOutput; 
     public ERenderOutputRTX renderOutputRTX;
+
+    public bool accumulateFrames;
 };
 
 

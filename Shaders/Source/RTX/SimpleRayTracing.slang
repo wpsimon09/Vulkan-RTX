@@ -126,15 +126,20 @@ void rayGenMain() {
                 }
                 totalRadiance += (1/(float)numSamples) * rayRadiacne;
             }
-                float weight = max(1.0 / (globalData.currentFrame + 1), 0);
-        
+            
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
             _film[int2(threadIdx.xy)] = float4(totalRadiance / globalData.raysPerPixel, 1.0);
+            
+            if(globalData.accumulateFrames){
+                float weight = max(1.0 / (globalData.currentFrame + 1), 0);
+                // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
+                float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
+                _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
+            }
+            else{
+                _accumulationImage[int2(threadIdx.xy)] = float4(totalRadiance / globalData.raysPerPixel, 1.0);
+            }
         
-            // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
-            float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
-        
-            _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
 
             break;
         }
@@ -258,10 +263,14 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         f = m.EvaluateSpecular(wo, wi, g.shadingNormal, PDF);
     }else{
         wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);
-        f = m.EvaluateDiffuse(wo, wi, g.shadingNormal, PDF) ;
+        f = m.EvaluateDiffuse(wo, wi, g.shadingNormal, PDF); 
     }
 
-    payLoad.rayColour *= f ;
+    if(globalData.accumulateFrames){
+        payLoad.rayColour *= f ;
+    }else{
+        payLoad.rayColour *= f/PDF;
+    }
     payLoad.normal = g.shadingNormal;
     payLoad.rayOrigin = g.shadingPosition;    
     payLoad.rayDirection = wi;

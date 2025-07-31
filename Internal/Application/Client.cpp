@@ -110,6 +110,7 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData.cameraPosition    = glm::vec4(m_camera->GetPosition(), 1.0);
     m_globalRenderingData.rendererOutput    = m_applicationState->m_rendererOutput;
     m_globalRenderingData.rendererOutputRTX = m_applicationState->m_rtxRenderOutput;
+    m_globalRenderingData.accumulateFrames  = static_cast<bool>(m_applicationState->m_accumulateFrames);
 }
 
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)

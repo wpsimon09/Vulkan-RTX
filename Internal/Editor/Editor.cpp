@@ -42,7 +42,8 @@ Editor::Editor(UIContext& uiContext)
     auto sceneGraph = std::make_unique<SceneView>(uiContext.GetScene());
     index->m_uiChildren.emplace_back(std::move(sceneGraph));
 
-    auto renderingSystem = std::make_unique<RenderingOptions>(uiContext.GetScene(), uiContext.m_renderingSystem);
+    auto renderingSystem = std::make_unique<RenderingOptions>(uiContext.GetClient().GetApplicationState(),
+                                                              uiContext.GetScene(), uiContext.m_renderingSystem);
     index->m_uiChildren.emplace_back(std::move(renderingSystem));
 
     auto contentBrowser = std::make_unique<ContentBrowser>(uiContext.GetScene().GetAssetsManager(), uiContext.GetScene());

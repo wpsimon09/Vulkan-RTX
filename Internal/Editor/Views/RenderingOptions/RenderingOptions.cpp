@@ -7,6 +7,7 @@
 #include <IconsFontAwesome6.h>
 #include <imgui.h>
 
+#include "Application/ApplicationState/ApplicationState.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
@@ -15,8 +16,11 @@
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
 
 namespace VEditor {
-RenderingOptions::RenderingOptions(ApplicationCore::Scene& scene, Renderer::RenderingSystem* renderingSystem)
+RenderingOptions::RenderingOptions(ApplicationCore::ApplicationState& applicationState,
+                                   ApplicationCore::Scene&            scene,
+                                   Renderer::RenderingSystem*         renderingSystem)
     : m_scene(scene)
+    , m_applicationState(applicationState)
 {
     m_renderingSystem = renderingSystem;
 }
@@ -31,7 +35,13 @@ void RenderingOptions::Render()
         auto input = m_scene.GetBLASInputs();
     }
 
-    ImGui::Checkbox("RTX ", &m_renderingSystem->m_isRayTracing);
+    if(ImGui::TreeNode(ICON_FA_ARROWS_LEFT_RIGHT_TO_LINE "RTX"))
+    {
+
+        ImGui::Checkbox("RTX ", &m_renderingSystem->m_isRayTracing);
+        ImGui::Checkbox("Accumulate frames", &m_applicationState.m_accumulateFrames);
+        ImGui::TreePop();
+    }
     ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_renderContext.RenderBillboards);
 
     if(ImGui::TreeNode(ICON_FA_DRAW_POLYGON " Scene render"))
