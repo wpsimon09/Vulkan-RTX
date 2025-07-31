@@ -47,7 +47,8 @@ class ApplicationState
     void  SetIsWindowResized(bool windowResized);
 
   public:
-    EDebugRendering m_rendererOutput = EDebugRendering::Lit;
+    EDebugRendering    m_rendererOutput  = EDebugRendering::Lit;
+    EDebugRenderingRTX m_rtxRenderOutput = EDebugRenderingRTX::PathTraced;
 
   private:
     LightStructs::SceneLightInfo* m_sceneLight               = nullptr;

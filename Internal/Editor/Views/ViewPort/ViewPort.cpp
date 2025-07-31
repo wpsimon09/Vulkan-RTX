@@ -32,6 +32,7 @@ VEditor::ViewPort::ViewPort(std::unordered_map<ViewPortType, ViewPortContext>& v
     , m_windowManager(windowManager)
     , m_viewPorts(viewPorts)
     , m_applicationSate(applicationState)
+
 {
     m_previousHeight = rasterViewportContext.height;
     m_previousWidth  = rasterViewportContext.width;
@@ -254,7 +255,9 @@ void VEditor::ViewPort::RenderViewPortSelection()
         }
 
         ImGui::SeparatorText("Data");
+
         int j = 0;
+
         for(auto debuData : m_debugViews)
         {
             if(ImGui::Selectable(debuData, static_cast<EDebugRendering>(j) == m_applicationSate.m_rendererOutput))
@@ -263,6 +266,20 @@ void VEditor::ViewPort::RenderViewPortSelection()
             }
             j++;
         }
+
+
+        ImGui::SeparatorText("Ray tracing");
+
+        j = 0;
+        for(auto debugData : m_debugViewRayTracing)
+        {
+            if(ImGui::Selectable(debugData, static_cast<EDebugRenderingRTX>(j) == m_applicationSate.m_rtxRenderOutput))
+            {
+                m_applicationSate.m_rtxRenderOutput = static_cast<EDebugRenderingRTX>(j);
+            }
+            j++;
+        }
+
 
         ImGui::EndPopup();
     }

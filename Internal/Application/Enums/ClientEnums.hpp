@@ -97,7 +97,14 @@ enum EDebugRendering
     NormalVectors,
     LightOnly,
     Albedo,
-    Arm
+    Arm,
+};
+
+enum EDebugRenderingRTX
+{
+    PathTraced = 0,
+    Normals,
+    PDF
 };
 
 

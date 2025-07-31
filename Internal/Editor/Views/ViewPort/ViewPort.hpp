@@ -10,6 +10,7 @@
 
 
 #include <glm/vec2.hpp>
+#include <vector>
 
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
@@ -51,16 +52,22 @@ class ViewPort : public IUserInterfaceElement
     ViewPortContext&                                   m_rayTracedViewPortContext;
     std::unordered_map<ViewPortType, ViewPortContext>& m_viewPorts;
 
-    ViewPortType             m_selectedViewPort = ViewPortType::eMain;
-    std::vector<const char*> m_viewPortOptions  = {ICON_FA_BOLT_LIGHTNING "  Lit", ICON_FA_OBJECT_GROUP " Shadow",
-                                                   ICON_FA_ARROW_DOWN_UP_LOCK " Position",
-                                                   ICON_FA_ARROW_UP_RIGHT_FROM_SQUARE "Normal buffer"};
+    ViewPortType m_selectedViewPort = ViewPortType::eMain;
+
+    std::vector<const char*> m_viewPortOptions = {ICON_FA_BOLT_LIGHTNING "  Lit", ICON_FA_OBJECT_GROUP " Shadow",
+                                                  ICON_FA_ARROW_DOWN_UP_LOCK " Position",
+                                                  ICON_FA_ARROW_UP_RIGHT_FROM_SQUARE "Normal buffer"};
 
 
     std::vector<const char*> m_debugViews = {
         ICON_FA_WAND_SPARKLES " Final render", ICON_FA_ARROW_UP " Normal",      ICON_FA_LIGHTBULB " Light only",
         ICON_FA_PAINT_ROLLER " Albedo",        ICON_FA_MAGNIFYING_GLASS " ARM",
     };
+
+
+    std::vector<const char*> m_debugViewRayTracing = {ICON_FA_WAND_SPARKLES "Final render", ICON_FA_ARROW_UP "Normal",
+                                                      ICON_FA_DICE "PDF"};
+
 
     float m_previousWidth;
     float m_previousHeight;

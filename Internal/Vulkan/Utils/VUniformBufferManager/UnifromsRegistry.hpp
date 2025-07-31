@@ -30,6 +30,7 @@ struct GlobalRenderingInfo
     alignas(8) glm::vec2 screenSize;
     float numberOfFrames;
     alignas(4) int rendererOutput;  // ClientEnums/EDebugRendering
+    alignas(4) int rendererOutputRTX;
 };
 
 struct ObjectDataUniform

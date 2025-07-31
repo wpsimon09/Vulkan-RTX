@@ -11,6 +11,12 @@ public enum ERenderOutput{
     Arm,
 };
 
+public enum ERenderOutputRTX{
+    PathTraced = 0,
+    Normals,
+    PDF,
+}
+
 public struct GlobalData {
     public column_major float4x4 view;
     public column_major float4x4 projection;
@@ -26,6 +32,7 @@ public struct GlobalData {
 
     public float currentFrame;
     public ERenderOutput renderOutput; 
+    public ERenderOutputRTX renderOutputRTX;
 };
 
 

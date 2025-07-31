@@ -63,8 +63,8 @@ void rayGenMain() {
 
     RayPayLoad payload;
 
-    switch((ERenderOutput)globalData.renderOutput){
-        case ERenderOutput::FullLit:{
+    switch((ERenderOutputRTX)globalData.renderOutputRTX){
+        case ERenderOutputRTX::PathTraced:{
 
             //=========================
             // Full shading is enabled 
@@ -138,7 +138,7 @@ void rayGenMain() {
 
             break;
         }
-        case ERenderOutput::NormalVectors: {
+        case ERenderOutputRTX::Normals: {
             
             
             RayDesc ray;
@@ -154,7 +154,7 @@ void rayGenMain() {
             
             break;
         }
-        case ERenderOutput::Albedo: {
+        case ERenderOutputRTX::PDF: {
             RayDesc ray;
             ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
             ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
