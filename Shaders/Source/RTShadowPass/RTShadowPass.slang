@@ -55,6 +55,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
     float raysPerPixel = 10;
     float shadowFactor = 0.0;
+    float aoFactor = 0.0;
 
     float2 diskPoint;
 
@@ -64,12 +65,17 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float nShadowRays = _lightInfo.dirLight.parameters.x;
     float shadowBias = _lightInfo.dirLight.parameters.y;
 
+    uint2 pixelCoord = uint2(fsIn.uv * globalData.screenSize);
+
+    uint pixelID = fsIn.uv.x + pixelCoord.y * globalData.screenSize.x;
+
+    uint rng = tea(pixelID, 0);
 
     float disatnceTraveled = 0;
     
     float3 normal = _normalTexture.Sample(fsIn.uv).xyz;
     
-    for(int i = 0; i < nShadowRays; ++i){
+    for(int i = 0; i < 3; ++i){
         float2 samplePos = BlueNoiseInDisk[i];
 
         float tHit = 0;
@@ -93,6 +99,14 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }
 
-    return float4(float3(shadowFactor), 1.0);
+    for(int i = 0; i < 3; ++i){
+        float3 direction = RandomHemisphereDirection(normal, rng);
+        float tHit = 4;
+        bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.2, direction, tHit),_tlas, tHit);
+        
+        aoFactor = lerp(aoFactor, (occluded ? 0.0 : 1.0), 1.0/float(i+1)); 
+    }
+
+    return float4(shadowFactor, aoFactor, 0.0,  1.0);
 
 }

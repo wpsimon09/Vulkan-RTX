@@ -35,6 +35,7 @@ public struct GlobalData {
     public ERenderOutputRTX renderOutputRTX;
 
     public bool accumulateFrames;
+    //public bool aoOcclusion;
 };
 
 

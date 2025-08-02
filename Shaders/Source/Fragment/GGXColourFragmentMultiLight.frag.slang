@@ -76,17 +76,20 @@ float4 fragmentMain(VertexOutput fsIn)
     float3 V = normalize(fsIn.vertexData.cameraPos - fsIn.vertexData.fragPos);
 
     float3 finalColor;
-    float shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).x;
+    float2 shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).xy;
     
     // lit
-    if(shadowFactor == 0.0){
+    if(shadowFactor.x == 0.0){
         finalColor = ((ambientLight.illuminateDiffuse(g, brdf_, V)));
     }else{
 
-        finalColor = ((lightingEnv.illuminate(g, brdf_, V))  + ambientLight.illuminate(g, brdf_, V)) * shadowFactor;
+        finalColor = ((lightingEnv.illuminate(g, brdf_, V))  + ambientLight.illuminate(g, brdf_, V)) * shadowFactor.x;
     }
 
     finalColor.xyz += brdf_.emission.xyz;
+
+    // shadow factor.y is an ambient occlusion data 
+    finalColor.xyz *= shadowFactor.y;
 
     switch(globalData.renderOutput){
         case ERenderOutput::FullLit :{
