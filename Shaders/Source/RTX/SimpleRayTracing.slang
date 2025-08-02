@@ -34,13 +34,12 @@ struct RayPayloadShadow {
 
 [[shader("raygeneration")]]
 void rayGenMain() {
-
-    
     // this is the pixel ID
     uint2 threadIdx = DispatchRaysIndex().xy;
     uint2 launchSize = DispatchRaysDimensions().xy;
 
     const float2 pixelCenter = float2(threadIdx.xy) + float2(0.5, 0.5);
+    
     // get position on the screen inf 0, 1 interval
     const float2 inUv = pixelCenter / float2(launchSize);
 
@@ -132,8 +131,8 @@ void rayGenMain() {
             
             if(globalData.accumulateFrames){
                 float weight = max(1.0 / (globalData.currentFrame + 1), 0);
-                // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
                 float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
+                // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
                 _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
             }
             else{
@@ -237,7 +236,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         
         float3 directLightContribution = Le * m.Evaluate(wo, L, g.shadingNormal);
         
-        payLoad.incomingLightColour += directLightContribution * payLoad.rayColour ;
+        payLoad.incomingLightColour += directLightContribution ;
     }
 
     //==============================
@@ -267,7 +266,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }
 
     if(globalData.accumulateFrames){
-        payLoad.rayColour *= f ;
+        payLoad.rayColour *= f;
     }else{
         payLoad.rayColour *= f/PDF;
     }

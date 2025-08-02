@@ -35,11 +35,11 @@ void RenderingOptions::Render()
         auto input = m_scene.GetBLASInputs();
     }
 
-    if(ImGui::TreeNode(ICON_FA_ARROWS_LEFT_RIGHT_TO_LINE "RTX"))
+    if(ImGui::TreeNode(ICON_FA_ARROWS_LEFT_RIGHT_TO_LINE " RTX"))
     {
 
         ImGui::Checkbox("RTX ", &m_renderingSystem->m_isRayTracing);
-        ImGui::Checkbox("Accumulate frames", &m_applicationState.m_accumulateFrames);
+        ImGui::Checkbox("Accumulate frames ", &m_applicationState.m_accumulateFrames);
         ImGui::TreePop();
     }
     ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_renderContext.RenderBillboards);
