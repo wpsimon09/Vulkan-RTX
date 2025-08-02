@@ -32,6 +32,7 @@ struct GlobalRenderingInfo
     alignas(4) int rendererOutput;  // ClientEnums/EDebugRendering
     alignas(4) int rendererOutputRTX;
     alignas(4) int accumulateFrames = 1.0;
+    alignas(4) int aoOcclusion      = 1.0f;
 };
 
 struct ObjectDataUniform

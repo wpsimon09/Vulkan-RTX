@@ -99,14 +99,15 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }
 
-    for(int i = 0; i < 3; ++i){
-        float3 direction = RandomHemisphereDirection(normal, rng);
-        float tHit = 4;
-        bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.2, direction, tHit),_tlas, tHit);
-        
-        aoFactor = lerp(aoFactor, (occluded ? 0.0 : 1.0), 1.0/float(i+1)); 
+    if(globalData.aoOcclusion){
+        for(int i = 0; i < 3; ++i){
+            float3 direction = RandomHemisphereDirection(normal, rng);
+            float tHit = 4;
+            bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.2, direction, tHit),_tlas, tHit);
+            
+            aoFactor = lerp(aoFactor, (occluded ? 0.0 : 1.0), 1.0/float(i+1)); 
+        }
     }
 
-    return float4(shadowFactor, aoFactor, 0.0,  1.0);
-
+    return float4(shadowFactor, globalData.aoOcclusion ? aoFactor : 1.0 , 0.0,  1.0);
 }

@@ -111,6 +111,7 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData.rendererOutput    = m_applicationState->m_rendererOutput;
     m_globalRenderingData.rendererOutputRTX = m_applicationState->m_rtxRenderOutput;
     m_globalRenderingData.accumulateFrames  = static_cast<bool>(m_applicationState->m_accumulateFrames);
+    m_globalRenderingData.aoOcclusion       = static_cast<bool>(m_applicationState->m_ambientOcclusion);
 }
 
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)

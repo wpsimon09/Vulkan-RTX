@@ -37,11 +37,13 @@ void RenderingOptions::Render()
 
     if(ImGui::TreeNode(ICON_FA_ARROWS_LEFT_RIGHT_TO_LINE " RTX"))
     {
-
         ImGui::Checkbox("RTX ", &m_renderingSystem->m_isRayTracing);
         ImGui::Checkbox("Accumulate frames ", &m_applicationState.m_accumulateFrames);
+        ImGui::Checkbox("Ambient occlusion ", &m_applicationState.m_ambientOcclusion);
+
         ImGui::TreePop();
     }
+
     ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_renderContext.RenderBillboards);
 
     if(ImGui::TreeNode(ICON_FA_DRAW_POLYGON " Scene render"))
