@@ -100,9 +100,9 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     }
 
     if(globalData.aoOcclusion){
-        for(int i = 0; i < 3; ++i){
+        for(int i = 0; i < 4; ++i){
             float3 direction = RandomHemisphereDirection(normal, rng);
-            float tHit = 4;
+            float tHit = 200;
             bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.2, direction, tHit),_tlas, tHit);
             
             aoFactor = lerp(aoFactor, (occluded ? 0.0 : 1.0), 1.0/float(i+1)); 
