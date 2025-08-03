@@ -30,6 +30,17 @@ public float3 RandomHemisphereDirection(float3 normal, inout uint rngState)
     return dir * sign(dot(normal, dir));
 }
 
+public float3 SampleCosineWeightedHemisphere(float3 normal, inout uint rngState){
+    float2 xi;
+    xi.x = RandomValue(rngState);
+    xi.y = RandomValue(rngState);
+    
+    float phi = 2.0f * float.getPi() * xi.x;
+    float cosTheta = sqrt(1.0f - xi.y);
+    float sinTheta = sqrt(xi.y);
+    return float3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+}
+
 public float2 RandomPointInCircle(inout uint rngState) {
     float angle = RandomValue(rngState) + 2 * PI;
     float2 pointOnCircle = float2(cos(angle), sin(angle));

@@ -80,7 +80,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
     uint pixelID = fsIn.uv.x + pixelCoord.y * globalData.screenSize.x;
 
-    uint rng = tea(pixelID, 0);
+    uint rng = tea(pixelID, globalData.currentFrame);
 
     float disatnceTraveled = 0;
     
@@ -115,16 +115,16 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
         compute_default_basis(normal, x, y, z);
         for(int i = 0; i < 4; ++i){
 
-            float r1 = radinv2(rng);
+            float r1 = RandomValue(rng);
 
-            float r2 = radinv_fl(rng, 3);
+            float r2 = RandomValue(rng);
 
             float sq = sqrt(1.0 - r2);
 
             float3 direction = float3(cos(2 * PI * r1) * sq, sin(2 * PI * r1) * sq, sqrt(r2));
             direction      = direction.x * x + direction.y * y + direction.z * z;
 
-            rng++;
+        
 
             float tHit = 2;
             bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.3, direction, tHit),_tlas, tHit);
