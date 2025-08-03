@@ -20,6 +20,17 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     return output;
 }
 
+
+void compute_default_basis(const float3 normal, out float3 x, out float3 y, out float3 z)
+{
+  // ZAP's default coordinate system for compatibility
+  z              = normal;
+  const float yz = -z.y * z.z;
+  y = normalize(((abs(z.z) > 0.99999f) ? float3(-z.x * z.y, 1.0f - z.y * z.y, yz) : float3(-z.x * z.z, yz, 1.0f - z.z * z.z)));
+
+  x = cross(y, z);
+}
+
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
@@ -100,14 +111,34 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     }
 
     if(globalData.aoOcclusion){
+        float3 x, y, z;
+        compute_default_basis(normal, x, y, z);
         for(int i = 0; i < 4; ++i){
-            float3 direction = RandomHemisphereDirection(normal, rng);
-            float tHit = 200;
-            bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.2, direction, tHit),_tlas, tHit);
+
+            float r1 = radinv2(rng);
+
+            float r2 = radinv_fl(rng, 3);
+
+            float sq = sqrt(1.0 - r2);
+
+            float3 direction = float3(cos(2 * PI * r1) * sq, sin(2 * PI * r1) * sq, sqrt(r2));
+            direction      = direction.x * x + direction.y * y + direction.z * z;
+
+            rng++;
+
+            float tHit = 2000;
+            bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.3, direction, tHit),_tlas, tHit);
             
-            aoFactor = lerp(aoFactor, (occluded ? 0.0 : 1.0), 1.0/float(i+1)); 
+            aoFactor += occluded ? 1.0 : 0.0; 
         }
+
+        aoFactor = 1.0 - (aoFactor / 4);
+        aoFactor = clamp(aoFactor, 0, 1);
     }
+
+
+    //return float4(float3(aoFactor), 1.0);
+
 
     return float4(shadowFactor, globalData.aoOcclusion ? aoFactor : 1.0 , 0.0,  1.0);
 }

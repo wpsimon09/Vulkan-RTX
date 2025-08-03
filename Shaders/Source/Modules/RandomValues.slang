@@ -83,7 +83,7 @@ uint get_permTN2(uint prime_perm) { return prime_perm >> 16; }
 #define PRIME_PERM_COUNT 360
 // Embed prime numbers in the first 16 bits, and permutations in the last 16
 // bits
-uint prime_permTN2[PRIME_PERM_COUNT] = {
+static uint prime_permTN2[PRIME_PERM_COUNT] = {
     2 + (1 << 16),       3 + (1 << 16),       5 + (3 << 16),
     7 + (3 << 16),       11 + (4 << 16),      13 + (9 << 16),
     17 + (7 << 16),      19 + (5 << 16),      23 + (9 << 16),
@@ -207,7 +207,7 @@ uint prime_permTN2[PRIME_PERM_COUNT] = {
 };
 
 // Faure-Lemieux scrambled radical inverse
-float radinv_fl(uint n, uint dim) {
+public float radinv_fl(uint n, uint dim) {
   dim = dim % PRIME_PERM_COUNT;
   const uint p_p = prime_permTN2[dim];
 
@@ -228,6 +228,6 @@ float radinv_fl(uint n, uint dim) {
 }
 
 // Compute radical inverse of n to the base 2.
-float radinv2(uint n) {
-  return bit_cast<float, uint>((0x3F800000 | ((reversebits(n)) >> 9))) - 1.0f;
+public float radinv2(uint n) {
+     return asfloat((0x3F800000 | ((reversebits(n)) >> 9))) - 1.0f;
 }
