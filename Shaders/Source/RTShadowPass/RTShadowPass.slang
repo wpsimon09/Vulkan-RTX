@@ -126,9 +126,10 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
             rng++;
 
-            float tHit = 2000;
+            float tHit = 2;
             bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.3, direction, tHit),_tlas, tHit);
             
+            if(tHit == 2 ){ occluded = false;}
             aoFactor += occluded ? 1.0 : 0.0; 
         }
 

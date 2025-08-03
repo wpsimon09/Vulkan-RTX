@@ -16,6 +16,7 @@
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
+#include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
@@ -100,7 +101,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         height,
         false,
         false,
-        vk::Format::eR16G16Sfloat,
+        vk::Format::eR16G16B16A16Sfloat,
         vk::ImageLayout::eShaderReadOnlyOptimal,
         vk::ResolveModeFlagBits::eNone,
     };
@@ -244,7 +245,7 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     auto depthPrePassDepthAttachment =
         m_depthPrePassOutput->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
                                                      vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
-    // 0d7
+
     vk::RenderingInfo renderingInfo;
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
     renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
@@ -288,24 +289,7 @@ void ForwardRenderer::DepthPrePass(int                                       cur
     //============================================
     // CONFIGURE VIEW PORT
     //===============================================
-    vk::Viewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-
-    viewport.width  = static_cast<float>(m_width);
-    viewport.height = static_cast<float>(m_height);
-
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    cmdB.setViewport(0, 1, &viewport);
-
-    vk::Rect2D scissors{};
-    scissors.offset.x      = 0;
-    scissors.offset.y      = 0;
-    scissors.extent.width  = m_width;
-    scissors.extent.height = m_height;
-
-    cmdB.setScissor(0, 1, &scissors);
+    Renderer::ConfigureViewPort(cmdB, m_width, m_height);
 
     //=================================================
     // RECORD OPAQUE DRAW CALLS
@@ -407,13 +391,8 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
 
     cmdB.beginRendering(&renderingInfo);
 
-    vk::Viewport viewport{
-        0, 0, (float)renderingInfo.renderArea.extent.width, (float)renderingInfo.renderArea.extent.height, 0.0f, 1.0f};
-    cmdB.setViewport(0, 1, &viewport);
+    Renderer::ConfigureViewPort(cmdB, renderingInfo.renderArea.extent.width, renderingInfo.renderArea.extent.height);
 
-    vk::Rect2D scissors{{0, 0},
-                        {(uint32_t)renderingInfo.renderArea.extent.width, (uint32_t)renderingInfo.renderArea.extent.height}};
-    cmdB.setScissor(0, 1, &scissors);
     cmdB.setStencilTestEnable(false);
 
     m_rtxShadowPassEffect->BindPipeline(cmdB);
@@ -493,24 +472,7 @@ void ForwardRenderer::DrawScene(int                                       curren
     //============================================
     // CONFIGURE VIEW PORT
     //===============================================
-    vk::Viewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-
-    viewport.width  = static_cast<float>(m_width);
-    viewport.height = static_cast<float>(m_height);
-
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    cmdB.setViewport(0, 1, &viewport);
-
-    vk::Rect2D scissors{};
-    scissors.offset.x      = 0;
-    scissors.offset.y      = 0;
-    scissors.extent.width  = m_width;
-    scissors.extent.height = m_height;
-
-    cmdB.setScissor(0, 1, &scissors);
+    Renderer::ConfigureViewPort(cmdB, m_width, m_height);
 
     //=================================================
     // RECORD OPAQUE DRAW CALLS
@@ -606,13 +568,8 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
 
     cmdB.beginRendering(&renderingInfo);
 
-    vk::Viewport viewport{
-        0, 0, (float)renderingInfo.renderArea.extent.width, (float)renderingInfo.renderArea.extent.height, 0.0f, 1.0f};
-    cmdB.setViewport(0, 1, &viewport);
+    Renderer::ConfigureViewPort(cmdB, renderingInfo.renderArea.extent.width, renderingInfo.renderArea.extent.height);
 
-    vk::Rect2D scissors{{0, 0},
-                        {(uint32_t)renderingInfo.renderArea.extent.width, (uint32_t)renderingInfo.renderArea.extent.height}};
-    cmdB.setScissor(0, 1, &scissors);
     cmdB.setStencilTestEnable(false);
 
     m_postProcessingFogVolumeDrawCall->effect->BindPipeline(cmdB);

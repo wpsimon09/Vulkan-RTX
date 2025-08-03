@@ -233,7 +233,8 @@ set(SOURCES
         Internal/Application/ApplicationState/ApplicationState.hpp
         External/MikkTSpace/mikktspace.h
         External/MikkTSpace/mikktspace.c
-
+        Internal/Vulkan/Renderer/RenderingUtils.hpp
+        Internal/Vulkan/Renderer/RenderingUtils.cpp
 )
 
 
