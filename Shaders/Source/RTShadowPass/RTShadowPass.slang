@@ -86,7 +86,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     
     float3 normal = _normalTexture.Sample(fsIn.uv).xyz;
     
-    for(int i = 0; i < 3; ++i){
+    for(int i = 0; i < nShadowRays; ++i){
         float2 samplePos = BlueNoiseInDisk[i];
 
         float tHit = 0;
@@ -124,12 +124,12 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
             float3 direction = float3(cos(2 * PI * r1) * sq, sin(2 * PI * r1) * sq, sqrt(r2));
             direction      = direction.x * x + direction.y * y + direction.z * z;
 
-        
+            direction = SampleHemisphere(transpose(float3x3(x, y, z)), rng);
 
-            float tHit = 2;
-            bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.3, direction, tHit),_tlas, tHit);
+            float tHit = 3.0;
+            bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.2, direction, tHit),_tlas, tHit);
             
-            if(tHit == 2 ){ occluded = false;}
+            if(tHit == 3.0 ){ occluded = false;}
             aoFactor += occluded ? 1.0 : 0.0; 
         }
 

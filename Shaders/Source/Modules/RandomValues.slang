@@ -1,5 +1,6 @@
 module RandomValues;
 import Utils;
+import Surface;
 
 public static const float PI = 3.14159265359;
 
@@ -241,4 +242,25 @@ public float radinv_fl(uint n, uint dim) {
 // Compute radical inverse of n to the base 2.
 public float radinv2(uint n) {
      return asfloat((0x3F800000 | ((reversebits(n)) >> 9))) - 1.0f;
+}
+
+public float3 SampleHemisphere(float3x3 TBN, inout uint randomContext){
+
+        float u1 = RandomValue(randomContext);
+        float u2 = RandomValue(randomContext);
+
+        float r = sqrt(u1);
+        float theta = 2.0f * float.getPi() * u2;
+
+        float x = r * cos(theta);
+        float y = r * sin(theta);
+        float z = sqrt(1.0f - u1);  // this ensures cosine-weighting
+
+        // cosine weighted tangent hemisphere vector
+        float3 dir = float3(x, y, z);
+
+        // go from tangent space to the world space for cosine calculation
+        float3 dir_Ws = mul(TBN , dir);
+
+        return dir_Ws;
 }
