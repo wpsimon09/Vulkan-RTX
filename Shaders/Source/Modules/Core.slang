@@ -36,6 +36,7 @@ public struct GlobalData {
 
     public bool accumulateFrames;
     public bool aoOcclusion;
+    public float4 aoParameters;
 };
 
 

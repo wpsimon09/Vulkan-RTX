@@ -52,6 +52,7 @@ class ApplicationState
     bool               m_accumulateFrames = true;
     bool               m_ambientOcclusion = false;
 
+
   private:
     LightStructs::SceneLightInfo* m_sceneLight               = nullptr;
     SceneData*                    m_sceneData                = nullptr;

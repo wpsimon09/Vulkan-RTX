@@ -31,6 +31,18 @@ void compute_default_basis(const float3 normal, out float3 x, out float3 y, out 
   x = cross(y, z);
 }
 
+struct AoOcclusionParameters{
+    float radius;
+    float sampleCount;
+    float strenght;
+
+    __init(float4 params){
+        this.radius = params.x;
+        this.sampleCount = params.y;
+        this.strenght = params.z;
+    }
+}
+
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
     
@@ -105,9 +117,12 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     }
 
     if(globalData.aoOcclusion){
+
+        AoOcclusionParameters aoParams = AoOcclusionParameters(globalData.aoParameters);
+
         float3 x, y, z;
         compute_default_basis(normal, x, y, z);
-        for(int i = 0; i < 4; ++i){
+        for(int i = 0; i < aoParams.sampleCount; ++i){
 
             float r1 = RandomValue(rng);
 
@@ -120,35 +135,17 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
             aoDir = normalize(SampleHemisphere(transpose(float3x3(x, y, z)), rng));
 
-            float tHit = 3.0;
-            bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.2, aoDir, tHit),_tlas, tHit);
+            float tHit = aoParams.radius;
+            bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.1, aoDir, tHit),_tlas, tHit);
             
-            if(tHit == 3.0 ){ occluded = false;}
             aoFactor += occluded ? 1.0 : 0.0; 
 
 
         }
-
         
-        float r1 = RandomValue(rng);
-
-        float r2 = RandomValue(rng);
-
-        float sq = sqrt(1.0 - r2);
-
-        float3 direction = float3(cos(2 * PI * r1) * sq, sin(2 * PI * r1) * sq, sqrt(r2));
-        direction      = direction.x * x + direction.y * y + direction.z * z;
-
-        //direction = SampleHemisphere(transpose(float3x3(x, y, z)), rng);
-        
-        
-        aoFactor = 1.0 - (aoFactor / 4);
-        aoFactor = clamp(aoFactor, 0, 1);
-        
-        return float4(direction, 1.0);
+        aoFactor = 1.0 - (aoFactor / aoParams.sampleCount);
+        aoFactor = pow(clamp(aoFactor, 0, 1), aoParams.strenght);
     }
-
-
 
 
     return float4(shadowFactor, globalData.aoOcclusion ? aoFactor : 1.0 , 0.0,  1.0);

@@ -21,6 +21,7 @@
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
+#include "Application/ApplicationState/ApplicationState.hpp"
 
 namespace VEditor {
 Settings::Settings(Client& client, Editor* editor)
@@ -185,8 +186,18 @@ void Settings::RenderRenderingSettings()
 
     if(ImGui::TreeNode("Ray tracing"))
     {
+        auto& applicationState = m_client.GetApplicationState();
         ImGui::SliderInt("Reccursion depth", &GlobalVariables::RenderingOptions::MaxRecursionDepth, 1, 20);
         ImGui::SliderInt("Rays per pixel", &GlobalVariables::RenderingOptions::RaysPerPixel, 1, 20);
+
+        if(ImGui::TreeNode("RT Ambient occlusion"))
+        {
+            ImGui::DragFloat("Radius", &applicationState.GetGlobalRenderingInfo().aoOcclusionParameters.x, 0.2);
+            ImGui::DragFloat("Sample count ", &applicationState.GetGlobalRenderingInfo().aoOcclusionParameters.y, 1);
+            ImGui::DragFloat("Intensity ", &applicationState.GetGlobalRenderingInfo().aoOcclusionParameters.z, 1);
+
+            ImGui::TreePop();
+        }
 
         ImGui::TreePop();
     }

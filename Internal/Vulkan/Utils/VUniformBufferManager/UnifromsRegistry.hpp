@@ -33,6 +33,7 @@ struct GlobalRenderingInfo
     alignas(4) int rendererOutputRTX;
     alignas(4) int accumulateFrames = 1.0;
     alignas(4) int aoOcclusion      = 1.0f;
+    glm::vec4 aoOcclusionParameters;  // x - radius, y - intensity , z - strength, w - padding
 };
 
 struct ObjectDataUniform
