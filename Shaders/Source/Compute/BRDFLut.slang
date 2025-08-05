@@ -81,6 +81,8 @@ float2 BRDF(float NoV, float roughness)
     return LUT / float(NUM_SAMPLES);
 }
 
+
+
 [[shader("compute")]]
 [numthreads(16, 16, 1)]
 void computeMain(uint3 threadID : SV_DispatchThreadID){
