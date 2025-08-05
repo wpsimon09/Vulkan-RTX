@@ -13,6 +13,8 @@
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
+#include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
+#include "Vulkan/Utils/VEffect/VEffect.hpp"
 
 namespace Renderer {
 class RenderTarget2;
@@ -90,6 +92,11 @@ class ForwardRenderer
     std::shared_ptr<VulkanUtils::VEffect> m_rtxShadowPassEffect;
 
     /**
+    * Effect that will denoise the visiblity buffer  
+    */
+    std::unique_ptr<VulkanUtils::VComputeEffect> m_bilateralDenoiser;
+
+    /**
          * Contains depth
          */
     std::unique_ptr<Renderer::RenderTarget2> m_depthPrePassOutput;
@@ -115,6 +122,7 @@ class ForwardRenderer
      * Contains the fog pass if any is required
      */
     std::unique_ptr<Renderer::RenderTarget2> m_fogPassOutput;
+
 
     VulkanCore::VImage2* m_forwardRendererOutput;
 
