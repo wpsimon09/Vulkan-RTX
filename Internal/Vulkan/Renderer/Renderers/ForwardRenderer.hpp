@@ -80,6 +80,10 @@ class ForwardRenderer
                                VulkanCore::VCommandBuffer&               cmdBuffer,
                                const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
+    void DenoiseVisibility(int                                       currentFrameIndex,
+                           VulkanCore::VCommandBuffer&               cmdBuffer,
+                           const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+
     void PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall);
 
   private:
@@ -112,6 +116,10 @@ class ForwardRenderer
          * Contains screen space shadow map
          */
     std::unique_ptr<Renderer::RenderTarget2> m_visibilityBuffer;
+    /**
+    * denoised visiblity buffer
+     */
+    std::unique_ptr<VulkanCore::VImage2> m_visiblityBuffer_Denoised;
 
     /**
     * Contains final shading of the scene

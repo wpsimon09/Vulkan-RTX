@@ -30,7 +30,7 @@ float normpdf3(in float3 v, in float sigma)
 }
 
 float3 bilaterialFilter(uint3 threadID){
-    float3 c = _noisyImage.Sample(float(threadID.x + 1) / _filterParameters.width, float(threadID.y + 1) / _filterParameters.height).xyz;
+    float3 c = _noisyImage.Sample(float2(float(threadID.x + 1) / _filterParameters.width, ((float)threadID.y + 1.0) / (float)_filterParameters.height)).xyz;
 
     const int kSize = (MSize - 1) * 2;
     float kernel[MSize];

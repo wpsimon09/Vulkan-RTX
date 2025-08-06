@@ -6,8 +6,10 @@
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 
+#include <memory>
 #include <sys/wait.h>
 #include <Vulkan/Utils/VIimageTransitionCommands.hpp>
+#include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
@@ -17,6 +19,7 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
+#include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
@@ -57,6 +60,29 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     //=============================
     m_rtxShadowPassEffect = effectsLibrary.effects[ApplicationCore::EEffectType::RTShadowPass];
 
+    //=============================
+    // CONFIGURE BILATERIAL PASS
+    //=============================
+    m_bilateralDenoiser =
+        std::make_unique<VulkanUtils::VComputeEffect>(m_device, "BilaterialPass", "Shaders/Compiled/Bilaterial-Filter.spv",
+                                                      descLayoutCache, EShaderBindingGroup::ComputePostProecess);
+    m_bilateralDenoiser->BuildEffect();
+
+    m_bilateralDenoiser->GetReflectionData()->Print();
+
+    VulkanCore::VImage2CreateInfo m_visiblityBuffer_DenoisedCI;
+    m_visiblityBuffer_DenoisedCI.width     = m_width;
+    m_visiblityBuffer_DenoisedCI.height    = m_height;
+    m_visiblityBuffer_DenoisedCI.isStorage = true;
+    m_visiblityBuffer_DenoisedCI.format    = vk::Format::eR16G16B16A16Sfloat;
+    m_visiblityBuffer_DenoisedCI.layout    = vk::ImageLayout::eGeneral;
+    m_visiblityBuffer_DenoisedCI.imageUsage |= vk::ImageUsageFlagBits::eStorage;
+
+    m_visiblityBuffer_Denoised = std::make_unique<VulkanCore::VImage2>(m_device, m_visiblityBuffer_DenoisedCI);
+
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_visiblityBuffer_Denoised,
+                                                    vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined,
+                                                    m_device.GetTransferOpsManager().GetCommandBuffer());
     //===========================================
     //===== CREATE RENDER TARGETS
     //===========================================
@@ -149,6 +175,13 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
             i, 0, 5, m_normalBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
         m_rtxShadowPassEffect->ApplyWrites(i);
+
+        m_bilateralDenoiser->SetNumWrites(0, 2, 0);
+
+        m_bilateralDenoiser->WriteImage(
+            i, 0, 1, m_visibilityBuffer->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+        m_bilateralDenoiser->WriteImage(i, 0, 2, m_visiblityBuffer_Denoised->GetDescriptorImageInfo());
     }
 
 
@@ -404,7 +437,14 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
 
     m_visibilityBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                               vk::ImageLayout::eColorAttachmentOptimal);
-}  // namespace Renderer
+}
+
+
+void ForwardRenderer::DenoiseVisibility(int                                       currentFrameIndex,
+                                        VulkanCore::VCommandBuffer&               cmdBuffer,
+                                        const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+{
+}
 
 
 void ForwardRenderer::DrawScene(int                                       currentFrameIndex,

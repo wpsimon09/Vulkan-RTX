@@ -97,7 +97,7 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
             PCs[i].size          = pushConstants[i]->size;
 
             // TODO: for now I will only allow for push constants ot be in vertex shader
-            PCs[i].stageFlags = vk::ShaderStageFlagBits::eVertex;
+            PCs[i].stageFlags = vk::ShaderStageFlagBits::eAll;
         }
     }
 
