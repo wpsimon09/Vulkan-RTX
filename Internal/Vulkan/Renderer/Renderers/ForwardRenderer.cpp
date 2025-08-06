@@ -14,6 +14,7 @@
 
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
+#include "Application/Structs/ParameterStructs.hpp"
 #include "Application/Utils/LookUpTables.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
@@ -466,15 +467,19 @@ void ForwardRenderer::DenoiseVisibility(int                                     
     m_bilateralDenoiser->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_bilateralDenoiser->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
 
+    BilaterialFilterParameters pc = uniformBufferManager.GetApplicationState()->GetBilateralFilaterParameters();
+
+    pc.width  = m_visiblityBuffer_Denoised->GetImageInfo().width;
+    pc.height = m_visiblityBuffer_Denoised->GetImageInfo().height;
 
     vk::PushConstantsInfo pcInfo;
-    pcInfo.layout     = drawCall.effect->GetPipelineLayout();
-    pcInfo.size       = sizeof(PerObjectPushConstant);
+    pcInfo.layout     = m_bilateralDenoiser->GetPipelineLayout();
+    pcInfo.size       = sizeof(BilaterialFilterParameters);
     pcInfo.offset     = 0;
     pcInfo.pValues    = &pc;
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex;
 
-    drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
+    m_bilateralDenoiser->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
     cmdBuffer.GetCommandBuffer().dispatch(m_visiblityBuffer_Denoised->GetImageInfo().width / 32,
                                           m_visiblityBuffer_Denoised->GetImageInfo().width / 32, 1);

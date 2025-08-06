@@ -204,12 +204,9 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         applicationState.GetGlobalRenderingInfo().numberOfFrames = m_frameCount;
     }
 
-    m_uniformBufferManager.UpdatePerFrameUniformData(m_currentFrameIndex, applicationState.GetGlobalRenderingInfo(),
-                                                     applicationState.GetPostProcessingParameters());
-    m_uniformBufferManager.UpdateLightUniformData(m_currentFrameIndex, applicationState.GetSceneLightInfo());
-    m_uniformBufferManager.UpdatePerObjectUniformData(m_currentFrameIndex, m_renderContext.GetAllDrawCall());
-    m_uniformBufferManager.UpdateSceneDataInfo(m_currentFrameIndex, applicationState.GetSceneData());
-
+    //=====================================================================
+    // IMPORTANT: this sends all data accumulated over the frame to the GPU
+    m_uniformBufferManager.Update(m_currentFrameIndex, applicationState, m_renderContext.GetAllDrawCall());
 
     m_device.GetTransferOpsManager().UpdateGPUWaitCPU();
 

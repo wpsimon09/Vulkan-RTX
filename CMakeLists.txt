@@ -235,6 +235,7 @@ set(SOURCES
         External/MikkTSpace/mikktspace.c
         Internal/Vulkan/Renderer/RenderingUtils.hpp
         Internal/Vulkan/Renderer/RenderingUtils.cpp
+        Internal/Application/Structs/ParameterStructs.hpp
 )
 
 

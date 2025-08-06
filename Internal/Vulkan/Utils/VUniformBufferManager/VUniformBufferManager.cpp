@@ -248,12 +248,20 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     m_lightUniform = std::make_unique<VUniform<LightUniforms>>(m_device);
 }
 
-void VulkanUtils::VUniformBufferManager::SetApplicationSteate(ApplicationCore::ApplicationState* applicationState)
-{
-    m_applicationState = applicationState;
-}
 
-ApplicationCore::ApplicationState* VulkanUtils::VUniformBufferManager::GetApplicationState()
+ApplicationCore::ApplicationState* VulkanUtils::VUniformBufferManager::GetApplicationState() const
 {
     return m_applicationState;
+}
+
+void VulkanUtils::VUniformBufferManager::Update(int                                frameIndex,
+                                                ApplicationCore::ApplicationState& applicationState,
+                                                std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls)
+{
+    m_applicationState = &applicationState;
+
+    UpdatePerFrameUniformData(frameIndex, applicationState.GetGlobalRenderingInfo(), applicationState.GetPostProcessingParameters());
+    UpdateLightUniformData(frameIndex, applicationState.GetSceneLightInfo());
+    UpdatePerObjectUniformData(frameIndex, drawCalls);
+    UpdateSceneDataInfo(frameIndex, applicationState.GetSceneData());
 }

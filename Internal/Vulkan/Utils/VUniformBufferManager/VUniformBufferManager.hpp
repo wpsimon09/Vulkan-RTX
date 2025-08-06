@@ -50,6 +50,16 @@ class VUniformBufferManager
     std::vector<vk::DescriptorImageInfo> GetAll2DTextureDescriptorImageInfo() const;  // per object per frame in flight
     vk::DescriptorBufferInfo             GetMaterialDescriptionBuffer(int frameIndex) const;
 
+    void Update(int                                                                  frameIndex,
+                ApplicationCore::ApplicationState&                                   applicationState,
+                std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls);
+
+    //============================
+    ApplicationCore::ApplicationState* GetApplicationState() const;
+
+    void Destroy() const;
+
+  private:
     void UpdatePerFrameUniformData(int frameIndex, GlobalRenderingInfo& perFrameData, PostProcessingParameters& postProcessingParameters) const;
 
     void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls) const;
@@ -58,13 +68,7 @@ class VUniformBufferManager
 
     void UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData);
 
-    void Destroy() const;
 
-    //============================
-    void                               SetApplicationSteate(ApplicationCore::ApplicationState* applicationState);
-    ApplicationCore::ApplicationState* GetApplicationState();
-
-  private:
     void CreateUniforms();
 
   private:
