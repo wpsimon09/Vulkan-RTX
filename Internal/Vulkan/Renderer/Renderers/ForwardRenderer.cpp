@@ -81,8 +81,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_visiblityBuffer_Denoised = std::make_unique<VulkanCore::VImage2>(m_device, m_visiblityBuffer_DenoisedCI);
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_visiblityBuffer_Denoised,
-                                                    vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined,
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_visiblityBuffer_Denoised, vk::ImageLayout::eGeneral, vk::ImageLayout::eUndefined,
                                                     m_device.GetTransferOpsManager().GetCommandBuffer());
     //===========================================
     //===== CREATE RENDER TARGETS
@@ -180,7 +179,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         m_bilateralDenoiser->SetNumWrites(0, 2, 0);
 
         m_bilateralDenoiser->WriteImage(
-            i, 0, 1, m_visibilityBuffer->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            i, 0, 1, m_visibilityBuffer->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
         m_bilateralDenoiser->WriteImage(i, 0, 2, m_visiblityBuffer_Denoised->GetDescriptorImageInfo());
 
@@ -459,9 +458,9 @@ void ForwardRenderer::DenoiseVisibility(int                                     
     assert(cmdBuffer.GetIsRecording() && " Command buffer is not in recording state");
 
     VulkanUtils::PlaceImageMemoryBarrier(*m_visiblityBuffer_Denoised, cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                         vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eColorAttachmentOutput,
-                                         vk::PipelineStageFlagBits::eComputeShader, vk::AccessFlagBits::eColorAttachmentWrite,
-                                         vk::AccessFlagBits::eColorAttachmentRead);
+                                         vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eComputeShader,
+                                         vk::PipelineStageFlagBits::eComputeShader, vk::AccessFlagBits::eShaderRead,
+                                         vk::AccessFlagBits::eShaderWrite);
 
 
     m_bilateralDenoiser->BindPipeline(cmdBuffer.GetCommandBuffer());
@@ -477,7 +476,7 @@ void ForwardRenderer::DenoiseVisibility(int                                     
     pcInfo.size       = sizeof(BilaterialFilterParameters);
     pcInfo.offset     = 0;
     pcInfo.pValues    = &pc;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex;
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
 
     m_bilateralDenoiser->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
@@ -682,7 +681,7 @@ void ForwardRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanS
     pcInfo.size       = sizeof(PerObjectPushConstant);
     pcInfo.offset     = 0;
     pcInfo.pValues    = &pc;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex;
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
 
     drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
 }

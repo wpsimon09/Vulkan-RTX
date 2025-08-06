@@ -286,7 +286,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     pcInfo.layout     = m_hdrToCubeMapEffect->GetPipelineLayout();
                     pcInfo.offset     = 0;
                     pcInfo.size       = sizeof(PushBlock);
-                    pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex;
+                    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
                     pcInfo.pValues    = &viewProjPushBlock;
 
                     cmdBuffer.pushConstants2(pcInfo);
@@ -406,7 +406,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
                 pcInfo.layout     = m_hdrToIrradianceEffect->GetPipelineLayout();
                 pcInfo.offset     = 0;
                 pcInfo.size       = sizeof(PushBlock);
-                pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex;
+                pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
                 pcInfo.pValues    = &viewProjPushBlock;
 
                 cmdBuffer.pushConstants2(pcInfo);
@@ -554,7 +554,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
                 pcInfo.layout     = m_prefilterEffect->GetPipelineLayout();
                 pcInfo.offset     = 0;
                 pcInfo.size       = sizeof(PushBlock);
-                pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex;
+                pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
                 pcInfo.pValues    = &pushBlock;
 
                 cmdBuffer.pushConstants2(pcInfo);
