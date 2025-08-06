@@ -175,15 +175,6 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
             i, 0, 5, m_normalBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
         m_rtxShadowPassEffect->ApplyWrites(i);
-
-        m_bilateralDenoiser->SetNumWrites(0, 2, 0);
-
-        m_bilateralDenoiser->WriteImage(
-            i, 0, 1, m_visibilityBuffer->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-        m_bilateralDenoiser->WriteImage(i, 0, 2, m_visiblityBuffer_Denoised->GetDescriptorImageInfo());
-
-        m_bilateralDenoiser->ApplyWrites(i);
     }
 
 
@@ -462,6 +453,14 @@ void ForwardRenderer::DenoiseVisibility(int                                     
                                          vk::PipelineStageFlagBits::eComputeShader, vk::AccessFlagBits::eShaderRead,
                                          vk::AccessFlagBits::eShaderWrite);
 
+    m_bilateralDenoiser->SetNumWrites(0, 2, 0);
+
+    m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 1,
+                                    m_visibilityBuffer->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+    m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 2, m_visiblityBuffer_Denoised->GetDescriptorImageInfo());
+
+    m_bilateralDenoiser->ApplyWrites(currentFrameIndex);
 
     m_bilateralDenoiser->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_bilateralDenoiser->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
