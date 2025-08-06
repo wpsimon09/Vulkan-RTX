@@ -120,15 +120,16 @@ void RenderingSystem::Init()
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
             .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
-        m_uiContext.GetViewPortContext(ViewPortType::eShadowMap).SetImage(m_forwardRenderer->GetShadowMapOutput().GetPrimaryImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::eShadowMap).SetImage(m_forwardRenderer->GetDenoisedVisibilityBuffer(), i);
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
             .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
-        m_uiContext.GetViewPortContext(ViewPortType::eNormalBuffer).SetImage(m_forwardRenderer->GetNormalBufferOutput().GetResolvedImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::eNormalBuffer).SetImage(m_forwardRenderer->GetNormalBufferOutput().GetPrimaryImage(), i);
     }
 }
 
 void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState)
 {
+
     m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
 
 
@@ -179,6 +180,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     m_renderingTimeLine[m_currentFrameIndex]->Reset();
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
     m_frameCount++;
+
 
     if(applicationState.GetSceneUpdateFlags().resetAccumulation)
     {

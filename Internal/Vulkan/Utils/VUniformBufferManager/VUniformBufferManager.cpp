@@ -247,3 +247,13 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
 
     m_lightUniform = std::make_unique<VUniform<LightUniforms>>(m_device);
 }
+
+void VulkanUtils::VUniformBufferManager::SetApplicationSteate(ApplicationCore::ApplicationState* applicationState)
+{
+    m_applicationState = applicationState;
+}
+
+ApplicationCore::ApplicationState* VulkanUtils::VUniformBufferManager::GetApplicationState()
+{
+    return m_applicationState;
+}

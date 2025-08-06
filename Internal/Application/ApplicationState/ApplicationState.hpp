@@ -7,6 +7,7 @@
 
 
 #include "Application/Enums/ClientEnums.hpp"
+#include "Application/Structs/ParameterStructs.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 struct GlobalRenderingInfo;
 struct SceneUpdateFlags;
@@ -43,6 +44,8 @@ class ApplicationState
     PostProcessingParameters& GetPostProcessingParameters();
     void                      pSetPostProcessingParameters(PostProcessingParameters* pPostProcessingParameters);
 
+    BilaterialFilterParameters& GetBilateralFilaterParameters();
+
     bool& IsWindowResized();
     void  SetIsWindowResized(bool windowResized);
 
@@ -59,7 +62,8 @@ class ApplicationState
     SceneUpdateFlags*             m_sceneUpdateFlags         = nullptr;
     GlobalRenderingInfo*          m_globalRenderingInfo      = nullptr;
     PostProcessingParameters*     m_postProcessingParameters = nullptr;
-    bool                          m_windowResized            = false;
+    BilaterialFilterParameters    m_bilaterialFilaterParameters;
+    bool                          m_windowResized = false;
 };
 
 }  // namespace ApplicationCore

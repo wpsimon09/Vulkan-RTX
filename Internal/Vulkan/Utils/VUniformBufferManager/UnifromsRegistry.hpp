@@ -120,5 +120,13 @@ struct PostProcessingParameters
     float     f3Strength        = 1.0f;
 };
 
+struct BillateralFilterParameters
+{
+    float sigma  = 4.0f;
+    float BSigma = 0.9f;
+    float width;
+    float height;
+};
+
 
 #endif  //UNIFROMDEFINITION_HPP

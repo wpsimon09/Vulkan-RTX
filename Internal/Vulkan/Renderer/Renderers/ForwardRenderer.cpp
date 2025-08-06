@@ -182,6 +182,8 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
             i, 0, 1, m_visibilityBuffer->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
         m_bilateralDenoiser->WriteImage(i, 0, 2, m_visiblityBuffer_Denoised->GetDescriptorImageInfo());
+
+        m_bilateralDenoiser->ApplyWrites(i);
     }
 
 
@@ -209,6 +211,10 @@ void ForwardRenderer::Render(int                                       currentFr
     //===========================
     // generates shadow mapp in  screen space
     ShadowMapPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
+
+    //===========================
+    // denoise the shadow pass
+    DenoiseVisibility(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
     //============================
     // uses forward renderer to render the scene
@@ -249,6 +255,11 @@ Renderer::RenderTarget2& ForwardRenderer::GetLightPassOutput() const
 Renderer::RenderTarget2& ForwardRenderer::GetNormalBufferOutput() const
 {
     return *m_normalBufferOutput;
+}
+
+VulkanCore::VImage2& ForwardRenderer::GetDenoisedVisibilityBuffer() const
+{
+    return *m_visiblityBuffer_Denoised;
 }
 
 void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
@@ -444,6 +455,34 @@ void ForwardRenderer::DenoiseVisibility(int                                     
                                         VulkanCore::VCommandBuffer&               cmdBuffer,
                                         const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
+    assert(cmdBuffer.GetIsRecording() && " Command buffer is not in recording state");
+
+    VulkanUtils::PlaceImageMemoryBarrier(*m_visiblityBuffer_Denoised, cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                         vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eColorAttachmentOutput,
+                                         vk::PipelineStageFlagBits::eComputeShader, vk::AccessFlagBits::eColorAttachmentWrite,
+                                         vk::AccessFlagBits::eColorAttachmentRead);
+
+
+    m_bilateralDenoiser->BindPipeline(cmdBuffer.GetCommandBuffer());
+    m_bilateralDenoiser->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
+
+
+    vk::PushConstantsInfo pcInfo;
+    pcInfo.layout     = drawCall.effect->GetPipelineLayout();
+    pcInfo.size       = sizeof(PerObjectPushConstant);
+    pcInfo.offset     = 0;
+    pcInfo.pValues    = &pc;
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eVertex;
+
+    drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
+
+    cmdBuffer.GetCommandBuffer().dispatch(m_visiblityBuffer_Denoised->GetImageInfo().width / 32,
+                                          m_visiblityBuffer_Denoised->GetImageInfo().width / 32, 1);
+
+    VulkanUtils::PlaceImageMemoryBarrier(*m_visiblityBuffer_Denoised, cmdBuffer, vk::ImageLayout::eGeneral,
+                                         vk::ImageLayout::eShaderReadOnlyOptimal, vk::PipelineStageFlagBits::eComputeShader,
+                                         vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eShaderWrite,
+                                         vk::AccessFlagBits::eShaderRead);
 }
 
 
@@ -653,6 +692,7 @@ void ForwardRenderer::Destroy()
     m_positionBufferOutput->Destroy();
     m_fogPassOutput->Destroy();
     m_normalBufferOutput->Destroy();
+    m_visiblityBuffer_Denoised->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer

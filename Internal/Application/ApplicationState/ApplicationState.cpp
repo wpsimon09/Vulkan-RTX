@@ -6,8 +6,10 @@
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 
 namespace ApplicationCore {
-ApplicationState::ApplicationState() {}
-
+ApplicationState::ApplicationState()
+    : m_bilaterialFilaterParameters{}
+{
+}
 
 void ApplicationState::Update() {}
 
@@ -68,6 +70,10 @@ bool& ApplicationState::IsWindowResized()
 void ApplicationState::SetIsWindowResized(bool windowResized)
 {
     m_windowResized = windowResized;
+}
+BilaterialFilterParameters& ApplicationState::GetBilateralFilaterParameters()
+{
+    return m_bilaterialFilaterParameters;
 }
 
 }  // namespace ApplicationCore
