@@ -132,7 +132,8 @@ void VulkanUtils::EvaluateBarrierMasks(vk::ImageLayout         targetLayout,
         barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentWrite;
 
         srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-        dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader | vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        dstStageFlags = vk::PipelineStageFlagBits::eComputeShader | vk::PipelineStageFlagBits::eFragmentShader
+                        | vk::PipelineStageFlagBits::eColorAttachmentOutput;
     }
     else if(currentLayout == vk::ImageLayout::eShaderReadOnlyOptimal && targetLayout == vk::ImageLayout::eTransferSrcOptimal)
     {

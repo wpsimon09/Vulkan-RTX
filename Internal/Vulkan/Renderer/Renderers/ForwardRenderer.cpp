@@ -441,6 +441,8 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
                                               vk::ImageLayout::eColorAttachmentOptimal);
 }
 
+//==================================================================
+// De noiser pass, applies bilateral filter to the visibility buffer
 
 void ForwardRenderer::DenoiseVisibility(int                                       currentFrameIndex,
                                         VulkanCore::VCommandBuffer&               cmdBuffer,
@@ -449,9 +451,9 @@ void ForwardRenderer::DenoiseVisibility(int                                     
     assert(cmdBuffer.GetIsRecording() && " Command buffer is not in recording state");
 
     VulkanUtils::PlaceImageMemoryBarrier(*m_visiblityBuffer_Denoised, cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                         vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eComputeShader,
-                                         vk::PipelineStageFlagBits::eComputeShader, vk::AccessFlagBits::eShaderRead,
-                                         vk::AccessFlagBits::eShaderWrite);
+                                         vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eColorAttachmentOutput,
+                                         vk::PipelineStageFlagBits::eComputeShader,
+                                         vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead);
 
     m_bilateralDenoiser->SetNumWrites(0, 2, 0);
 
