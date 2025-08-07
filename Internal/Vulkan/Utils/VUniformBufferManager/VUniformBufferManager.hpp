@@ -6,6 +6,7 @@
 #define VUNIFORMBUFFERMANAGER_HPP
 #include <memory>
 
+#include "Application/ApplicationState/ApplicationState.hpp"
 #include "VUniform.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
@@ -38,38 +39,49 @@ class VUniformBufferManager
   public:
     VUniformBufferManager(const VulkanCore::VDevice& device);
 
+
     const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;  // per frame in flight
-    const vk::DescriptorBufferInfo GetPostProcessingBufferDescriptorInfo(int frameIndex) const;
-    const vk::DescriptorBufferInfo GetFogVolumParametersBufferDescriptorInfo(int frameIndex) const;
+    const vk::DescriptorBufferInfo               GetPostProcessingBufferDescriptorInfo(int frameIndex) const;
+    const vk::DescriptorBufferInfo               GetFogVolumParametersBufferDescriptorInfo(int frameIndex) const;
     const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
-    const std::vector<vk::DescriptorImageInfo>&  SceneTextures();
-    vk::DescriptorBufferInfo GetPerObjectBuffer(int currentFrame);
+    const std::vector<vk::DescriptorImageInfo>& SceneTextures();
+    vk::DescriptorBufferInfo                    GetPerObjectBuffer(int currentFrame);
     std::vector<vk::DescriptorImageInfo> GetAll2DTextureDescriptorImageInfo() const;  // per object per frame in flight
-    vk::DescriptorBufferInfo GetMaterialDescriptionBuffer(int frameIndex) const;
+    vk::DescriptorBufferInfo             GetMaterialDescriptionBuffer(int frameIndex) const;
 
+    void Update(int                                                                  frameIndex,
+                ApplicationCore::ApplicationState&                                   applicationState,
+                std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls);
+
+    //============================
+    ApplicationCore::ApplicationState* GetApplicationState() const;
+
+    void Destroy() const;
+
+  private:
     void UpdatePerFrameUniformData(int frameIndex, GlobalRenderingInfo& perFrameData, PostProcessingParameters& postProcessingParameters) const;
 
     void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls) const;
 
     void UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const;
 
-    void UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData) ;
+    void UpdateSceneDataInfo(int frameIndex, const ApplicationCore::SceneData& sceneData);
 
-    void Destroy() const;
 
-  private:
     void CreateUniforms();
 
   private:
     const VulkanCore::VDevice& m_device;
 
-    // TODO: this will be storage buffer
-    std::unique_ptr<VUniform<LightUniforms>>              m_lightUniform;
+    ApplicationCore::ApplicationState* m_applicationState;
 
-    std::unique_ptr<VulkanUtils::VUniform<GlobalRenderingInfo>> m_perFrameUniform;
+    // TODO: this will be storage buffer
+    std::unique_ptr<VUniform<LightUniforms>> m_lightUniform;
+
+    std::unique_ptr<VulkanUtils::VUniform<GlobalRenderingInfo>>      m_perFrameUniform;
     std::unique_ptr<VulkanUtils::VUniform<PostProcessingParameters>> m_postProcessingParameters;
-    std::unique_ptr<VulkanUtils::VUniform<FogVolumeParameters>> m_fogVolumeParameters;
+    std::unique_ptr<VulkanUtils::VUniform<FogVolumeParameters>>      m_fogVolumeParameters;
 
     //=======================================================
     // storage buffers containing all of the data for materials
