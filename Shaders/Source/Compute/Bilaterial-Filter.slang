@@ -52,7 +52,6 @@ float3 bilaterialFilter(uint3 threadID){
         for( int j =-kSize; j <= kSize; ++j){
             int2 samplePos = int2(threadID.xy) + int2(i, j);
             float2 uv = float2(samplePos) / float2(_filterParameters.width, _filterParameters.height);
-            uv = float2(uv.x, 1.0 - uv.y);
     
             cc = _noisyImage.Sample(uv).xyz;
             factor = normpdf3(cc-c, _filterParameters.BSigma) * bz * kernel[kSize + j] * kernel[kSize + 1];

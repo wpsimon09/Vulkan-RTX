@@ -453,7 +453,7 @@ void ForwardRenderer::DenoiseVisibility(int                                     
     VulkanUtils::PlaceImageMemoryBarrier(*m_visiblityBuffer_Denoised, cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                          vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eColorAttachmentOutput,
                                          vk::PipelineStageFlagBits::eComputeShader,
-                                         vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead);
+                                         vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderWrite);
 
     m_bilateralDenoiser->SetNumWrites(0, 2, 0);
 
