@@ -479,8 +479,8 @@ void ForwardRenderer::DenoiseVisibility(int                                     
 
     m_bilateralDenoiser->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-    cmdBuffer.GetCommandBuffer().dispatch(m_visiblityBuffer_Denoised->GetImageInfo().width / 32,
-                                          m_visiblityBuffer_Denoised->GetImageInfo().width / 32, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(m_visiblityBuffer_Denoised->GetImageInfo().width / 16,
+                                          m_visiblityBuffer_Denoised->GetImageInfo().height / 16, 1);
 
     VulkanUtils::PlaceImageMemoryBarrier(*m_visiblityBuffer_Denoised, cmdBuffer, vk::ImageLayout::eGeneral,
                                          vk::ImageLayout::eShaderReadOnlyOptimal, vk::PipelineStageFlagBits::eComputeShader,
