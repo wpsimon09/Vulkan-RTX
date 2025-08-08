@@ -13,9 +13,6 @@ RWTexture2D _denoisedImage;
 [[vk::binding(3, 0)]]
 Sampler2D _nomrmalMap;
 
-[[vk::binding(3, 0)]]
-Sampler2D _depthMap;
-
 
 struct FilterParameters{
    float sigma; // spatial factor 
@@ -37,10 +34,11 @@ float normpdf3(in float3 v, in float sigma)
 	return 0.39894*exp(-0.5*dot(v,v)/(sigma*sigma))/sigma;
 }
 
-float edge_stoping_weight (float center_depth, float sample_depth, float phi_z, float3 center_normal, float3 sampled_normal, float phi_normal){
-    const float wZ =  exp(-abs(center_depth - sample_depth) / phi_z);
+float edge_stoping_weight (float3 center_normal, float3 sampled_normal, float phi_normal){
+    // for depth similartiy those are the parameters: float center_depth, float sample_depth, float phi_z,
+    //const float wZ =  exp(-abs(center_depth - sample_depth) / phi_z);
     const float wNomral =  pow(clamp(dot(center_normal, sampled_normal), 0.0f, 1.0f), phi_normal);
-    const float w = wZ * wNomral;
+    const float w = wNomral; // * wZ;
 
     return w;
 }
@@ -51,7 +49,6 @@ float3 bilaterialFilter(uint3 threadID){
     float2 centerUV = float2(float(threadID.x + 1) / _filterParameters.width, ((float)threadID.y + 1.0) / (float)_filterParameters.height);
     float3 c = _noisyImage.Sample(centerUV).xyz;
     float3 n_c = _nomrmalMap.Sample(centerUV).xyz;
-    float d_c = LinearizeDepth(_depthMap.Sample(centerUV).x, _globalData.viewParams.z, _globalData.viewParams.w);
 
     const int kSize = (MSize - 1) / 2; // kernel size in one dimension
     float kernel[MSize];
@@ -70,7 +67,6 @@ float3 bilaterialFilter(uint3 threadID){
 
     float3 cc;
     float3 n_sample;
-    float d_sample;
     float factor;
 
     // read the image
@@ -89,8 +85,8 @@ float3 bilaterialFilter(uint3 threadID){
             // - how similuar the neightboring pixels are 
             // - based on normla vector simiularity and depth similuarity
             n_sample = normalize(_nomrmalMap.Sample(uv).xyz);
-            d_sample = LinearizeDepth(_depthMap.Sample(uv).x, _globalData.viewParams.z, _globalData.viewParams.w);
-            float rangeWeight =  edge_stoping_weight(d_c, d_sample, 1.0, n_c, n_sample, 32.0);
+            float rangeWeight =  edge_stoping_weight(n_c, n_sample, 32);
+
             factor = rangeWeight * spacialWeight;
             
             cc = _noisyImage.Sample(uv).xyz;
