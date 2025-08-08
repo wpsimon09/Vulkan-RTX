@@ -437,6 +437,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                     e->SetNumWrites(1, 2, 0);
 
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetPostProcessingBufferDescriptorInfo(i));
+
                     //e->WriteImage(i, 0, 1, sceneRenderer.GetRenderedImageConst(i));
                     break;
                 }

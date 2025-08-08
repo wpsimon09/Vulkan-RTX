@@ -20,7 +20,7 @@ struct FilterParameters{
    float width;
    float height;
 };
-static const int MSize = 20;
+static const int MSize = 15;
 
 [[vk::push_constant]]
 ConstantBuffer<FilterParameters> _filterParameters;
@@ -37,33 +37,32 @@ float normpdf3(in float3 v, in float sigma)
 float edge_stoping_weight (float3 center_normal, float3 sampled_normal, float phi_normal){
     // for depth similartiy those are the parameters: float center_depth, float sample_depth, float phi_z,
     //const float wZ =  exp(-abs(center_depth - sample_depth) / phi_z);
-    const float wNomral =  pow(clamp(dot(center_normal, sampled_normal), 0.0f, 1.0f), phi_normal);
-    const float w = wNomral; // * wZ;
 
-    return w;
+    float deltat = 1.0f - clamp(dot(center_normal, sampled_normal), 0.0 ,1.0);
+
+    const float wNomral =  normPDF(deltat, phi_normal);
+    return wNomral;
 }
 
 
 
 float3 bilaterialFilter(uint3 threadID){
-    float2 centerUV = float2(float(threadID.x + 1) / _filterParameters.width, ((float)threadID.y + 1.0) / (float)_filterParameters.height);
+    float2 centerUV = float2(float(threadID.x) / _filterParameters.width, ((float)threadID.y) / (float)_filterParameters.height);
     float3 c = _noisyImage.Sample(centerUV).xyz;
     float3 n_c = _nomrmalMap.Sample(centerUV).xyz;
 
     const int kSize = (MSize - 1) / 2; // kernel size in one dimension
-    float kernel[MSize];
-    float3 final_colour = float3(0.0);
-
-    float total_weight = 0.0;
-
-    // SPECIAL KERNEL
+    // SPACIAL KERNEL
     // - create create the  ID kernel, 
     // - it is onyl for the spacial part of the gaussian kernel since 
     // - bialteral is composed of two weights, special and range 
     // - 2 parts spacial and range 
-    for(int j = 0; j<= kSize; j++){
-        kernel[kSize + j] = kernel[kSize - j] = normPDF((float)j, _filterParameters.sigma);
-    }
+    const float kernel[MSize] = {
+        0.031225216, 0.033322271, 0.035206333, 0.036826804, 0.038138565, 0.039104044, 0.039695028, 0.039894000, 0.039695028, 0.039104044, 0.038138565, 0.036826804, 0.035206333, 0.033322271, 0.031225216    
+    };
+    
+    float3 final_colour = float3(0.0);
+    float total_weight = 0.0;
 
     float3 cc;
     float3 n_sample;
@@ -75,7 +74,7 @@ float3 bilaterialFilter(uint3 threadID){
             int2 samplePos = int2(threadID.xy) + int2(i, j);
             float2 uv = float2(samplePos) / float2(_filterParameters.width, _filterParameters.height);
     
-            
+    
             // SAMPLE THE PRECOMPUTED GAUSIANG WEIGHT KERNEL
             // - it stores how far away are neighboring pixels and their weight according to the normal istribution
             // - samples closer to the center affect the final result mmore  
@@ -85,9 +84,10 @@ float3 bilaterialFilter(uint3 threadID){
             // - how similuar the neightboring pixels are 
             // - based on normla vector simiularity and depth similuarity
             n_sample = normalize(_nomrmalMap.Sample(uv).xyz);
-            float rangeWeight =  edge_stoping_weight(n_c, n_sample, 32);
+            float rangeWeight =  edge_stoping_weight(n_c, n_sample, _filterParameters.BSigma);
 
-            factor = rangeWeight * spacialWeight;
+            //rangeWeight * 
+            factor = spacialWeight * rangeWeight;
             
             cc = _noisyImage.Sample(uv).xyz;
 
