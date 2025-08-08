@@ -31,17 +31,6 @@ void compute_default_basis(const float3 normal, out float3 x, out float3 y, out 
   x = cross(y, z);
 }
 
-struct AoOcclusionParameters{
-    float radius;
-    float sampleCount;
-    float strenght;
-
-    __init(float4 params){
-        this.radius = params.x;
-        this.sampleCount = params.y;
-        this.strenght = params.z;
-    }
-}
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
@@ -118,11 +107,10 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
     if(globalData.aoOcclusion){
 
-        AoOcclusionParameters aoParams = AoOcclusionParameters(globalData.aoParameters);
 
         float3 x, y, z;
         compute_default_basis(normal, x, y, z);
-        for(int i = 0; i < aoParams.sampleCount; ++i){
+        for(int i = 0; i < _aoParameters.sampleCount; ++i){
 
             float r1 = RandomValue(rng);
 
@@ -135,7 +123,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
             aoDir = normalize(SampleHemisphere(transpose(float3x3(x, y, z)), rng));
 
-            float tHit = aoParams.radius;
+            float tHit = _aoParameters.radius;
             bool occluded = IntersectsP(InitRay(worldSpacePos + normalize(normal) * 0.1, aoDir, tHit),_tlas, tHit);
             
             aoFactor += occluded ? 1.0 : 0.0; 
@@ -143,8 +131,8 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
 
         }
         
-        aoFactor = 1.0 - (aoFactor / aoParams.sampleCount);
-        aoFactor = pow(clamp(aoFactor, 0, 1), aoParams.strenght);
+        aoFactor = 1.0 - (aoFactor / _aoParameters.sampleCount);
+        aoFactor = pow(clamp(aoFactor, 0, 1), _aoParameters.strenght);
     }
 
 

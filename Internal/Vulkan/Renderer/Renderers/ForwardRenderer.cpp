@@ -433,6 +433,21 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
     m_rtxShadowPassEffect->BindPipeline(cmdB);
     m_rtxShadowPassEffect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
 
+    //===========================================
+    // ambient occlusion parrameters
+    AoOcclusionParameters pc;
+    pc = uniformBufferManager.GetApplicationState()->GetAoOcclusionParameters();
+
+    vk::PushConstantsInfo pcInfo;
+    pcInfo.layout     = m_bilateralDenoiser->GetPipelineLayout();
+    pcInfo.size       = sizeof(AoOcclusionParameters);
+    pcInfo.offset     = 0;
+    pcInfo.pValues    = &pc;
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+    m_bilateralDenoiser->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+
+
     cmdB.draw(3, 1, 0, 0);
 
     cmdB.endRendering();

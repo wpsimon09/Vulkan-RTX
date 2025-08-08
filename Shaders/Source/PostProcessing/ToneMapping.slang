@@ -20,10 +20,13 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
-
+    
     float3 hdrColor = _inputTexture_Render.Sample(fsIn.uv).xyz;
-
+    
+    if(_inputTexture_Depth.Sample(fsIn.uv).r == 1.0){
+        float3 mapped = aces_film(hdrColor); //float3(1.0) - exp(-hdrColor * postProcessingParameters.toneMapping.x);
+        return float4(mapped, 1.0);
+    }
     float3 mapped = aces_film(hdrColor * postProcessingParameters.toneMapping.x); //float3(1.0) - exp(-hdrColor * postProcessingParameters.toneMapping.x);
-
     return float4(mapped, 1.0);
 }

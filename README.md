@@ -89,7 +89,7 @@ Note that you must have python installed verify this by running
 python --help
 ```
 
-Shaders are compiled using the `slangc` compiler, which can be downloaded from [here](https://github.com/shader-slang/slang/releases).
+Shaders are compiled using t--no-skip-unchangedhe `slangc` compiler, which can be downloaded from [here](https://github.com/shader-slang/slang/releases).
 
 > Shaders are already precompiled, so you don't need to do this. Only recompile them when you change the shaders.
 
@@ -106,8 +106,10 @@ Then, open `compileSlang.py` and change the variable `SLANGC_PATH` to point to t
 Once done, use Python to compile the shaders from the `Shaders` directory:
 ```bash
 ## assuming you are in the Shaders directory
-python compileSlang.py --verbose
+python compileSlang.py --verbose --no-skip-unchanged
 ```
+
+The `--no-skip-unchanged` option forces all shaders to compile, even if they haven’t changed.
 
 ## Features:
 - Model Loading  

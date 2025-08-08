@@ -192,9 +192,9 @@ void Settings::RenderRenderingSettings()
 
         if(ImGui::TreeNode("RT Ambient occlusion"))
         {
-            ImGui::DragFloat("Radius", &applicationState.GetGlobalRenderingInfo().aoOcclusionParameters.x, 0.2);
-            ImGui::DragFloat("Sample count ", &applicationState.GetGlobalRenderingInfo().aoOcclusionParameters.y, 1);
-            ImGui::DragFloat("Intensity ", &applicationState.GetGlobalRenderingInfo().aoOcclusionParameters.z, 1);
+            ImGui::DragFloat("Radius", &applicationState.GetAoOcclusionParameters().radius, 0.2);
+            ImGui::DragFloat("Sample count ", &applicationState.GetAoOcclusionParameters().sampleCount, 1);
+            ImGui::DragFloat("Intensity ", &applicationState.GetAoOcclusionParameters().strenght, 1);
 
             ImGui::TreePop();
         }

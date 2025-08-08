@@ -45,6 +45,8 @@ class ApplicationState
     void                      pSetPostProcessingParameters(PostProcessingParameters* pPostProcessingParameters);
 
     BilaterialFilterParameters& GetBilateralFilaterParameters();
+    AoOcclusionParameters&      GetAoOcclusionParameters();
+    ToneMappingParameters&      GetToneMappingParameters();
 
     bool& IsWindowResized();
     void  SetIsWindowResized(bool windowResized);
@@ -57,13 +59,17 @@ class ApplicationState
 
 
   private:
-    LightStructs::SceneLightInfo* m_sceneLight               = nullptr;
-    SceneData*                    m_sceneData                = nullptr;
-    SceneUpdateFlags*             m_sceneUpdateFlags         = nullptr;
-    GlobalRenderingInfo*          m_globalRenderingInfo      = nullptr;
-    PostProcessingParameters*     m_postProcessingParameters = nullptr;
-    BilaterialFilterParameters    m_bilaterialFilaterParameters;
-    bool                          m_windowResized = false;
+    LightStructs::SceneLightInfo* m_sceneLight          = nullptr;
+    SceneData*                    m_sceneData           = nullptr;
+    SceneUpdateFlags*             m_sceneUpdateFlags    = nullptr;
+    GlobalRenderingInfo*          m_globalRenderingInfo = nullptr;
+
+    PostProcessingParameters*  m_postProcessingParameters = nullptr;
+    BilaterialFilterParameters m_bilaterialFilaterParameters;
+    AoOcclusionParameters      m_aoOcclusionParameters;
+    ToneMappingParameters      m_toneMappingParameters;
+
+    bool m_windowResized = false;
 };
 
 }  // namespace ApplicationCore

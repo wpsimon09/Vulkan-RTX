@@ -10,4 +10,28 @@ struct BilaterialFilterParameters
     float height;
 };
 
+struct AoOcclusionParameters
+{
+    float radius      = 1.0;
+    float sampleCount = 2.0;
+    float strenght    = 4.0;
+    float padding     = 0.0;
+};
+
+struct ToneMappingParameters
+{
+    float exposure;
+    float gamma;
+    float isRayTracing;
+    float padding;
+};
+
+struct LensFlareParameters
+{
+    float lensFlareStrength = 2.0f;
+    float f1Strength        = 2.0f;
+    float f2Strength        = 2.0f;
+    float f3Strength        = 1.0f;
+};
+
 #endif

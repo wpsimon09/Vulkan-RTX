@@ -438,7 +438,9 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 
                     e->WriteBuffer(i, 0, 0, uniformBufferManager.GetPostProcessingBufferDescriptorInfo(i));
 
-                    //e->WriteImage(i, 0, 1, sceneRenderer.GetRenderedImageConst(i));
+                    e->WriteImage(i, 0, 1,
+                                  sceneRenderer.GetDepthPrePassOutput().GetResolvedImage().GetDescriptorImageInfo(
+                                      VulkanCore::VSamplers::Sampler2D));
                     break;
                 }
                 case EShaderBindingGroup::FogBinding: {

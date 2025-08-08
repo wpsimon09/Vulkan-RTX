@@ -206,6 +206,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
     //=====================================================================
     // IMPORTANT: this sends all data accumulated over the frame to the GPU
+    applicationState.GetGlobalRenderingInfo().isRayTracing = static_cast<int>(m_isRayTracing);
     m_uniformBufferManager.Update(m_currentFrameIndex, applicationState, m_renderContext.GetAllDrawCall());
 
     m_device.GetTransferOpsManager().UpdateGPUWaitCPU();

@@ -3,11 +3,14 @@
 //
 
 #include "ApplicationState.hpp"
+#include "Application/Structs/ParameterStructs.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 
 namespace ApplicationCore {
 ApplicationState::ApplicationState()
     : m_bilaterialFilaterParameters{}
+    , m_aoOcclusionParameters{}
+    , m_toneMappingParameters{}
 {
 }
 
@@ -75,5 +78,16 @@ BilaterialFilterParameters& ApplicationState::GetBilateralFilaterParameters()
 {
     return m_bilaterialFilaterParameters;
 }
+
+AoOcclusionParameters& ApplicationState::GetAoOcclusionParameters()
+{
+    return m_aoOcclusionParameters;
+}
+
+ToneMappingParameters& ApplicationState::GetToneMappingParameters()
+{
+    return m_toneMappingParameters;
+}
+
 
 }  // namespace ApplicationCore

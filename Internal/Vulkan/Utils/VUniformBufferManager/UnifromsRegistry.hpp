@@ -33,7 +33,7 @@ struct GlobalRenderingInfo
     alignas(4) int rendererOutputRTX;
     alignas(4) int accumulateFrames = 1.0;
     alignas(4) int aoOcclusion      = 1.0f;
-    alignas(16) glm::vec4 aoOcclusionParameters = {1.0, 2.0, 2.0, 1.0};  // x - radius, y - samples , z - strength, w - padding
+    alignas(4) int isRayTracing     = 0.0;
 };
 
 struct ObjectDataUniform
@@ -118,14 +118,6 @@ struct PostProcessingParameters
     float     f1Strength        = 2.0f;
     float     f2Strength        = 2.0f;
     float     f3Strength        = 1.0f;
-};
-
-struct BillateralFilterParameters
-{
-    float sigma  = 4.0f;
-    float BSigma = 0.9f;
-    float width;
-    float height;
 };
 
 
