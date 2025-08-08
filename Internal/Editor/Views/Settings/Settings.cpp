@@ -201,9 +201,8 @@ void Settings::RenderRenderingSettings()
 
         if(ImGui::TreeNode("De-noising"))
         {
-            ImGui::DragFloat("Sigma", &applicationState.GetBilateralFilaterParameters().sigma);
-            ImGui::DragFloat("B Sigma", &applicationState.GetBilateralFilaterParameters().BSigma);
-
+            ImGui::SliderFloat("Sigma", &applicationState.GetBilateralFilaterParameters().sigma, 0.001, 1.0);
+            ImGui::SliderFloat("B Sigma", &applicationState.GetBilateralFilaterParameters().BSigma, 0.001, 1.0);
             ImGui::TreePop();
         }
 

@@ -455,12 +455,15 @@ void ForwardRenderer::DenoiseVisibility(int                                     
                                          vk::PipelineStageFlagBits::eComputeShader,
                                          vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderWrite);
 
-    m_bilateralDenoiser->SetNumWrites(0, 2, 0);
+    m_bilateralDenoiser->SetNumWrites(0, 3, 0);
 
     m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 1,
                                     m_visibilityBuffer->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
     m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 2, m_visiblityBuffer_Denoised->GetDescriptorImageInfo());
+
+    m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 3,
+                                    m_normalBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
     m_bilateralDenoiser->ApplyWrites(currentFrameIndex);
 
