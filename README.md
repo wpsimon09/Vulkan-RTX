@@ -131,8 +131,7 @@ python compileSlang.py --verbose
 
 https://github.com/user-attachments/assets/550c47df-4557-45c6-b38a-dce62449e8c7
 
-<img width="2880" height="1720" alt="image" src="https://github.com/user-attachments/assets/b409473d-349c-44b7-bbd2-dc7063b60430" />
-
+<img width="2868" height="1722" alt="image" src="https://github.com/user-attachments/assets/6fe78e8d-380b-430f-bb3e-dc0127fa6422" />
 
 ![image](https://github.com/user-attachments/assets/69a1ac89-3466-49b0-b9ef-e5a453318cb1 )
 
