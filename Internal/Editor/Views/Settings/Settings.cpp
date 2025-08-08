@@ -211,8 +211,9 @@ void Settings::RenderRenderingSettings()
 
     if(ImGui::TreeNode("Tone mapping options"))
     {
-        ImGui::DragFloat("Exposure", &m_client.GetPostProcessingParameters().toneMapping.x, 0.01, 0.01, 10.0);
-        ImGui::DragFloat("Gamma", &m_client.GetPostProcessingParameters().toneMapping.y, 0.1, 0.01, 20.0);
+        auto& applicationState = m_client.GetApplicationState();
+        ImGui::DragFloat("Exposure", &m_client.GetApplicationState().GetToneMappingParameters().exposure, 0.01, 0.01, 10.0);
+        ImGui::DragFloat("Gamma", &m_client.GetApplicationState().GetToneMappingParameters().gamma, 0.1, 0.01, 20.0);
 
         ImGui::TreePop();
     }
@@ -220,10 +221,12 @@ void Settings::RenderRenderingSettings()
 
     if(ImGui::TreeNode("Lens flare"))
     {
-        ImGui::SliderFloat("Strength", &m_client.GetPostProcessingParameters().lensFlareStrength, 0.1f, 100.0f);
-        ImGui::SliderFloat("F1 Strength:", &m_client.GetPostProcessingParameters().f1Strength, 0.1f, 100.0f);
-        ImGui::SliderFloat("F2 Strength:", &m_client.GetPostProcessingParameters().f2Strength, 0.1f, 100.0f);
-        ImGui::SliderFloat("F3 Strength:", &m_client.GetPostProcessingParameters().f3Strength, 0.1f, 100.0f);
+        auto& applicationState = m_client.GetApplicationState();
+
+        ImGui::SliderFloat("Strength", &applicationState.GetLensFlareParameters().lensFlareStrength, 0.1f, 100.0f);
+        ImGui::SliderFloat("F1 Strength:", &applicationState.GetLensFlareParameters().f1Strength, 0.1f, 100.0f);
+        ImGui::SliderFloat("F2 Strength:", &applicationState.GetLensFlareParameters().f2Strength, 0.1f, 100.0f);
+        ImGui::SliderFloat("F3 Strength:", &applicationState.GetLensFlareParameters().f3Strength, 0.1f, 100.0f);
 
         ImGui::TreePop();
     }

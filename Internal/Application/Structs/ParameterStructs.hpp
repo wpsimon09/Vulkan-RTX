@@ -20,10 +20,10 @@ struct AoOcclusionParameters
 
 struct ToneMappingParameters
 {
-    float exposure;
-    float gamma;
-    float isRayTracing;
-    float padding;
+    float exposure     = 1.0;
+    float gamma        = 1.0;
+    float isRayTracing = 0.0;
+    float padding      = 0.0;
 };
 
 struct LensFlareParameters

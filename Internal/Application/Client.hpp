@@ -63,7 +63,6 @@ class Client
 
     ApplicationCore::ApplicationState& GetApplicationState() { return *m_applicationState; }
 
-    PostProcessingParameters& GetPostProcessingParameters() { return m_postProcessingParameters; }
 
     void Update();
     void UpdateCamera(CameraUpdateInfo& cameraUpdateInfo);
@@ -83,9 +82,8 @@ class Client
     std::unique_ptr<ApplicationCore::GLTFExporter>                  m_gltfExporter;
     std::unique_ptr<ApplicationCore::ApplicationState>              m_applicationState;
 
-    GlobalRenderingInfo      m_globalRenderingData;
-    PostProcessingParameters m_postProcessingParameters;
-    bool                     m_isRTXOn = false;
+    GlobalRenderingInfo m_globalRenderingData;
+    bool                m_isRTXOn = false;
 };
 
 

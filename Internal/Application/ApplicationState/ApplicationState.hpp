@@ -18,7 +18,7 @@ namespace ApplicationCore {
 struct SceneData;
 
 /**
- * Class that holds data for renderer and potentially Editor with various information about current state of the non-rendering code
+ * Class that holds data for renderer and  Editor with various information about current state of the non-rendering code
  */
 class ApplicationState
 {
@@ -41,12 +41,10 @@ class ApplicationState
     GlobalRenderingInfo& GetGlobalRenderingInfo();
     void                 pSetGlobalRenderingInfo(GlobalRenderingInfo* pGlobalRenderingInfo);
 
-    PostProcessingParameters& GetPostProcessingParameters();
-    void                      pSetPostProcessingParameters(PostProcessingParameters* pPostProcessingParameters);
-
     BilaterialFilterParameters& GetBilateralFilaterParameters();
     AoOcclusionParameters&      GetAoOcclusionParameters();
     ToneMappingParameters&      GetToneMappingParameters();
+    LensFlareParameters&        GetLensFlareParameters();
 
     bool& IsWindowResized();
     void  SetIsWindowResized(bool windowResized);
@@ -59,15 +57,15 @@ class ApplicationState
 
 
   private:
-    LightStructs::SceneLightInfo* m_sceneLight          = nullptr;
-    SceneData*                    m_sceneData           = nullptr;
-    SceneUpdateFlags*             m_sceneUpdateFlags    = nullptr;
-    GlobalRenderingInfo*          m_globalRenderingInfo = nullptr;
+    LightStructs::SceneLightInfo* m_sceneLight          = nullptr;  // instantiated in Scene.hpp
+    SceneData*                    m_sceneData           = nullptr;  // instantiated in Scene.hpp
+    SceneUpdateFlags*             m_sceneUpdateFlags    = nullptr;  // instantiated in Scene.hpp
+    GlobalRenderingInfo*          m_globalRenderingInfo = nullptr;  // instantiated in Client.hpp
 
-    PostProcessingParameters*  m_postProcessingParameters = nullptr;
     BilaterialFilterParameters m_bilaterialFilaterParameters;
     AoOcclusionParameters      m_aoOcclusionParameters;
     ToneMappingParameters      m_toneMappingParameters;
+    LensFlareParameters        m_lensFlareParameters;
 
     bool m_windowResized = false;
 };

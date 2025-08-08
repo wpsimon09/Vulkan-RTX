@@ -3,6 +3,9 @@ import Material;
 import Utils;
 import Light;
 
+[[vk::push_constant]]
+LensFlareParameters _lensFlareParams;
+
 [[vk::binding(0, 0)]]
 ConstantBuffer<GlobalData> _globalData;
 
@@ -11,9 +14,6 @@ Sampler2D _inputTexture_BlueNoise;
 
 [[vk::binding(2, 0)]]
 ConstantBuffer<LightInfo> _light;
-
-[[vk::binding(3, 0)]]
-ConstantBuffer<PostProcessingParameters> _postProcessParameters;
 
 [[vk::binding(0, 1)]]
 Sampler2D _inputTexture_RenderedImage;
@@ -88,7 +88,7 @@ float3 LensFlare(float2 uv, float2 pos){
     //=========================
     // each F represents different ghost with different screen space offset
     // ghosts are calculated fron uv coordinates and are projection on the screen 
-    float f1 = max(0.01-pow(length(uv+1.2*pos),1.9),.0)*_postProcessParameters.f1Strength;
+    float f1 = max(0.01-pow(length(uv+1.2*pos),1.9),.0)*_lensFlareParams.f1Strength;
 
 	float f2 = max(1.0/(1.0+32.0*pow(length(uvd+0.8*pos),2.0)),.0)*00.25;
 	float f22 = max(1.0/(1.0+32.0*pow(length(uvd+0.85*pos),2.0)),.0)*00.23;
@@ -96,15 +96,15 @@ float3 LensFlare(float2 uv, float2 pos){
 	
 	float2 uvx = lerp(uv,uvd,-0.5);
 	
-	float f4 = max(0.01-pow(length(uvx+0.4*pos),2.4),.0) * _postProcessParameters.f2Strength;
-	float f42 = max(0.01-pow(length(uvx+0.45*pos),2.4),.0)* (5.0 + _postProcessParameters.f2Strength);
-	float f43 = max(0.01-pow(length(uvx+0.5*pos),2.4),.0)* (3.0 + _postProcessParameters.f2Strength);
+	float f4 = max(0.01-pow(length(uvx+0.4*pos),2.4),.0) * _lensFlareParams.f2Strength;
+	float f42 = max(0.01-pow(length(uvx+0.45*pos),2.4),.0)* (5.0 + _lensFlareParams.f2Strength);
+	float f43 = max(0.01-pow(length(uvx+0.5*pos),2.4),.0)* (3.0 + _lensFlareParams.f2Strength);
 	
 	uvx = lerp(uv,uvd,-.4);
 	
-	float f5 = max(0.01-pow(length(uvx+0.2*pos),5.5),.0) * _postProcessParameters.f3Strength;
-	float f52 = max(0.01-pow(length(uvx+0.4*pos),5.5),.0)*_postProcessParameters.f3Strength;
-	float f53 = max(0.01-pow(length(uvx+0.6*pos),5.5),.0)*_postProcessParameters.f3Strength;
+	float f5 = max(0.01-pow(length(uvx+0.2*pos),5.5),.0) * _lensFlareParams.f3Strength;
+	float f52 = max(0.01-pow(length(uvx+0.4*pos),5.5),.0)*_lensFlareParams.f3Strength;
+	float f53 = max(0.01-pow(length(uvx+0.6*pos),5.5),.0)*_lensFlareParams.f3Strength;
 	
 	uvx = lerp(uv,uvd,-0.5);
 	
@@ -115,7 +115,7 @@ float3 LensFlare(float2 uv, float2 pos){
 	float3 c = float3(.0);
 	
 	c.r+=f2+f4+f5+f6; c.g+=f22+f42+f52+f62; c.b+=f23+f43+f53+f63;
-	c = c*_postProcessParameters.lensFlareStrength - float3(length(uvd)*.05);
+	c = c*_lensFlareParams.lensFlareStrength - float3(length(uvd)*.05);
 	
 	// Do not need an artificial sun
 	//c+=float3(f0) * (_light.dirLight.intensity.xyz * _light.dirLight.intensity.w) ;

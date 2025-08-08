@@ -39,10 +39,7 @@ const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager:
 {
     return m_perFrameUniform->GetDescriptorBufferInfos();
 }
-const vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPostProcessingBufferDescriptorInfo(int frameIndex) const
-{
-    return m_postProcessingParameters->GetDescriptorBufferInfos()[frameIndex];
-}
+
 const vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetFogVolumParametersBufferDescriptorInfo(int frameIndex) const
 {
     return m_fogVolumeParameters->GetDescriptorBufferInfos()[frameIndex];
@@ -85,15 +82,10 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetMaterialDescript
 }
 
 
-void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int                  frameIndex,
-                                                                   GlobalRenderingInfo& perFrameData,
-                                                                   PostProcessingParameters& postProcessingParameters) const
+void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameIndex, GlobalRenderingInfo& perFrameData) const
 {
     m_perFrameUniform->GetUBOStruct() = perFrameData;
     m_perFrameUniform->UpdateGPUBuffer(frameIndex);
-
-    m_postProcessingParameters->GetUBOStruct() = postProcessingParameters;
-    m_postProcessingParameters->UpdateGPUBuffer(frameIndex);
 }
 
 void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameIndex,
@@ -200,7 +192,6 @@ void VulkanUtils::VUniformBufferManager::Destroy() const
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager and all its data...");
     m_perFrameUniform->Destory();
     m_lightUniform->Destory();
-    m_postProcessingParameters->Destory();
     m_fogVolumeParameters->Destory();
 
     for(auto& ssbo : m_sceneMaterials)
@@ -243,8 +234,6 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
 
     m_fogVolumeParameters = std::make_unique<VUniform<FogVolumeParameters>>(m_device);
 
-    m_postProcessingParameters = std::make_unique<VUniform<PostProcessingParameters>>(m_device);
-
     m_lightUniform = std::make_unique<VUniform<LightUniforms>>(m_device);
 }
 
@@ -260,7 +249,7 @@ void VulkanUtils::VUniformBufferManager::Update(int                             
 {
     m_applicationState = &applicationState;
 
-    UpdatePerFrameUniformData(frameIndex, applicationState.GetGlobalRenderingInfo(), applicationState.GetPostProcessingParameters());
+    UpdatePerFrameUniformData(frameIndex, applicationState.GetGlobalRenderingInfo());
     UpdateLightUniformData(frameIndex, applicationState.GetSceneLightInfo());
     UpdatePerObjectUniformData(frameIndex, drawCalls);
     UpdateSceneDataInfo(frameIndex, applicationState.GetSceneData());

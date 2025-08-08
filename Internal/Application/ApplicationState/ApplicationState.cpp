@@ -56,15 +56,6 @@ void ApplicationState::pSetGlobalRenderingInfo(GlobalRenderingInfo* pGlobalRende
     m_globalRenderingInfo = pGlobalRenderingInfo;
 }
 
-PostProcessingParameters& ApplicationState::GetPostProcessingParameters()
-{
-    return *m_postProcessingParameters;
-}
-
-void ApplicationState::pSetPostProcessingParameters(PostProcessingParameters* postProcessingParameters)
-{
-    m_postProcessingParameters = postProcessingParameters;
-}
 
 bool& ApplicationState::IsWindowResized()
 {
@@ -89,5 +80,9 @@ ToneMappingParameters& ApplicationState::GetToneMappingParameters()
     return m_toneMappingParameters;
 }
 
+LensFlareParameters& ApplicationState::GetLensFlareParameters()
+{
+    return m_lensFlareParameters;
+}
 
 }  // namespace ApplicationCore

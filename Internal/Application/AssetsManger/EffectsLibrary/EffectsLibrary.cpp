@@ -436,7 +436,6 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                 case EShaderBindingGroup::ToneMap: {
                     e->SetNumWrites(1, 2, 0);
 
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetPostProcessingBufferDescriptorInfo(i));
 
                     e->WriteImage(i, 0, 1,
                                   sceneRenderer.GetDepthPrePassOutput().GetResolvedImage().GetDescriptorImageInfo(
@@ -480,7 +479,6 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 
                     e->WriteBuffer(i, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
 
-                    e->WriteBuffer(i, 0, 3, uniformBufferManager.GetPostProcessingBufferDescriptorInfo(i));
 
                     break;
                 }

@@ -79,8 +79,15 @@ public struct PerObjectPushConstatn {
 
 //===============================================
 // parameters to controll tone mapping 
-public struct PostProcessingParameters{
-    public float4 toneMapping; // x - exposure, y - gamma correction, zw - padding
+public struct ToneMappingParameters{
+    public float exposure;
+    public float gamma;
+}
+
+//===============================================
+// parameters to controll lens flare effect
+public struct LensFlareParameters
+{
     public float     lensFlareStrength;
     public float     f1Strength       ;
     public float     f2Strength       ;
