@@ -148,5 +148,5 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     }
 
 
-    return float4(shadowFactor, globalData.aoOcclusion ? aoFactor : 1.0 , 0.0,  1.0);
+    return float4(shadowFactor , globalData.aoOcclusion ? aoFactor : 1.0 , 0.0,  1.0);
 }

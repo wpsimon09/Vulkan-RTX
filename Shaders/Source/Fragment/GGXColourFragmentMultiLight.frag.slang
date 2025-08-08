@@ -77,14 +77,10 @@ float4 fragmentMain(VertexOutput fsIn)
 
     float3 finalColor;
     float2 shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).xy;
-    
-    // lit
-    if(shadowFactor.x == 0.0){
-        finalColor = ((ambientLight.illuminateDiffuse(g, brdf_, V)));
-    }else{
 
-        finalColor = ((lightingEnv.illuminate(g, brdf_, V))  + ambientLight.illuminate(g, brdf_, V)) * shadowFactor.x;
-    }
+    finalColor = lerp(brdf_.albedo.xyz * 0.2, lightingEnv.illuminate(g, brdf_, V)  + ambientLight.illuminate(g, brdf_, V),   shadowFactor.x);
+
+    
 
     finalColor.xyz += brdf_.emission.xyz;
 

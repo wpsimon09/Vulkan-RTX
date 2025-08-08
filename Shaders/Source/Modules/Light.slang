@@ -137,9 +137,9 @@ public struct AmbientLight : ILightEnv {
             float3 kS = brdf.FresnellShlickRoughness(max(dot(g.shadingNormal, wo), 0.0));
             float3 kD = float3(1.0) - kS;
             float3 irradiance = IrradianceMap.Sample(g.shadingNormal.xyz).xyz;
-            float3 diffuse = irradiance * albedo;
+            float3 diffuse = irradiance * albedo ;
 
-            return albedo * 0.4;
+            return (diffuse * kD) * 0.1;
         } else {
             return albedo * 0.4;
         }

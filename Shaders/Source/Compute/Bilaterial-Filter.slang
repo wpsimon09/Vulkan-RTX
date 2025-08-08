@@ -20,7 +20,7 @@ struct FilterParameters{
    float width;
    float height;
 };
-static const int MSize = 15;
+static const int MSize = 9;
 
 [[vk::push_constant]]
 ConstantBuffer<FilterParameters> _filterParameters;
@@ -58,8 +58,10 @@ float3 bilaterialFilter(uint3 threadID){
     // - bialteral is composed of two weights, special and range 
     // - 2 parts spacial and range 
     const float kernel[MSize] = {
-        0.031225216, 0.033322271, 0.035206333, 0.036826804, 0.038138565, 0.039104044, 0.039695028, 0.039894000, 0.039695028, 0.039104044, 0.038138565, 0.036826804, 0.035206333, 0.033322271, 0.031225216    
+        0.031225216, 0.033322271, 0.035206333, 0.036826804, 0.038138565, 0.039104044, 0.039695028, 0.039894000, 0.039695028,    
+        // 0.039104044, 0.038138565, 0.036826804, 0.035206333, 0.033322271, 0.031225216
     };
+
     
     float3 final_colour = float3(0.0);
     float total_weight = 0.0;
