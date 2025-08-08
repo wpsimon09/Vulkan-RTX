@@ -4,8 +4,8 @@
 
 struct BilaterialFilterParameters
 {
-    float sigma  = 4.0f;
-    float BSigma = 0.9f;
+    float sigma  = 0.2f;
+    float BSigma = 1.0f;
     float width;
     float height;
 };
