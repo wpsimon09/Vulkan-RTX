@@ -1,4 +1,5 @@
 import Core;
+import Utils;
 
 [[vk::binding(0,0)]]
 ConstantBuffer<GlobalData> _globalData;
@@ -12,6 +13,9 @@ RWTexture2D _denoisedImage;
 [[vk::binding(3, 0)]]
 Sampler2D _nomrmalMap;
 
+[[vk::binding(3, 0)]]
+Sampler2D _depthMap;
+
 
 struct FilterParameters{
    float sigma; // spatial factor 
@@ -19,7 +23,7 @@ struct FilterParameters{
    float width;
    float height;
 };
-static const int MSize = 9;
+static const int MSize = 20;
 
 [[vk::push_constant]]
 ConstantBuffer<FilterParameters> _filterParameters;
@@ -33,26 +37,41 @@ float normpdf3(in float3 v, in float sigma)
 	return 0.39894*exp(-0.5*dot(v,v)/(sigma*sigma))/sigma;
 }
 
+float edge_stoping_weight (float center_depth, float sample_depth, float phi_z, float3 center_normal, float3 sampled_normal, float phi_normal){
+    const float wZ =  exp(-abs(center_depth - sample_depth) / phi_z);
+    const float wNomral =  pow(clamp(dot(center_normal, sampled_normal), 0.0f, 1.0f), phi_normal);
+    const float w = wZ * wNomral;
+
+    return w;
+}
+
+
+
 float3 bilaterialFilter(uint3 threadID){
     float2 centerUV = float2(float(threadID.x + 1) / _filterParameters.width, ((float)threadID.y + 1.0) / (float)_filterParameters.height);
     float3 c = _noisyImage.Sample(centerUV).xyz;
     float3 n_c = _nomrmalMap.Sample(centerUV).xyz;
+    float d_c = LinearizeDepth(_depthMap.Sample(centerUV).x, _globalData.viewParams.z, _globalData.viewParams.w);
 
-    const int kSize = (MSize - 1) / 2;
+    const int kSize = (MSize - 1) / 2; // kernel size in one dimension
     float kernel[MSize];
     float3 final_colour = float3(0.0);
 
-    float Z = 0.0;
+    float total_weight = 0.0;
 
-    // create create the ID kernel
+    // SPECIAL KERNEL
+    // - create create the  ID kernel, 
+    // - it is onyl for the spacial part of the gaussian kernel since 
+    // - bialteral is composed of two weights, special and range 
+    // - 2 parts spacial and range 
     for(int j = 0; j<= kSize; j++){
         kernel[kSize + j] = kernel[kSize - j] = normPDF((float)j, _filterParameters.sigma);
     }
 
     float3 cc;
     float3 n_sample;
+    float d_sample;
     float factor;
-    float bz = 1.0 / normPDF(0.0, _filterParameters.BSigma);
 
     // read the image
     for(int i= -kSize; i <= kSize; ++i){
@@ -60,25 +79,33 @@ float3 bilaterialFilter(uint3 threadID){
             int2 samplePos = int2(threadID.xy) + int2(i, j);
             float2 uv = float2(samplePos) / float2(_filterParameters.width, _filterParameters.height);
     
-            n_sample = normalize(_noisyImage.Sample(uv).xyz);
+            
+            // SAMPLE THE PRECOMPUTED GAUSIANG WEIGHT KERNEL
+            // - it stores how far away are neighboring pixels and their weight according to the normal istribution
+            // - samples closer to the center affect the final result mmore  
+            float spacialWeight = kernel[kSize + j] * kernel[kSize + i];
+            
+            // RANGE KERNEL
+            // - how similuar the neightboring pixels are 
+            // - based on normla vector simiularity and depth similuarity
+            n_sample = normalize(_nomrmalMap.Sample(uv).xyz);
+            d_sample = LinearizeDepth(_depthMap.Sample(uv).x, _globalData.viewParams.z, _globalData.viewParams.w);
+            float rangeWeight =  edge_stoping_weight(d_c, d_sample, 1.0, n_c, n_sample, 32.0);
+            factor = rangeWeight * spacialWeight;
+            
             cc = _noisyImage.Sample(uv).xyz;
 
-            float normalSimilarity = dot(n_c, n_sample);
-            float normalDiff = 1.0 - normalSimilarity;
-            float normalWeight = exp(-0.5 * (normalDiff * normalDiff)/ (_filterParameters.BSigma, _filterParameters.BSigma));
-            float spacialWeight = kernel[kSize + j] * kernel[kSize + i];
-
-            factor = normalWeight * spacialWeight;
-
-            Z+= factor;
             final_colour += factor * cc;
+            total_weight += factor;
 
         }
     }
 
-    return final_colour / Z;
+    return final_colour /  max(total_weight, 0.00001);
 
 }
+
+
 
 [[shader("compute")]]
 [numthreads(16, 16, 1)]
