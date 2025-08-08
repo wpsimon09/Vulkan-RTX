@@ -123,6 +123,8 @@ python compileSlang.py --verbose
 - Multy threaded lazy texture loading
 - Bindless descritptors for material textures
 - Large scale homogeneous participating media rendering
+- Ray traced AO
+- Bilateral filter denoiser
 
 ## Little showcase
 
