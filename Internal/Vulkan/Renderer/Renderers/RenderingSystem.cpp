@@ -229,6 +229,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
     if(m_frameCount > 2)
     {
+
         m_postProcessingSystem->Update(m_currentFrameIndex, m_postProcessingContext);
         m_effectsLibrary->UpdatePerFrameWrites(*m_forwardRenderer, m_rayTracingDataManager, &m_renderContext,
                                                m_postProcessingContext, m_uniformBufferManager);
@@ -238,6 +239,9 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     // start recording command buffer that will render the scene
     m_renderingCommandBuffers[m_currentFrameIndex]->BeginRecording();
 
+
+    m_postProcessingContext.toneMappingParameters = &m_uniformBufferManager.GetApplicationState()->GetToneMappingParameters();
+    m_postProcessingContext.lensFlareParameters = &m_uniformBufferManager.GetApplicationState()->GetLensFlareParameters();
     if(!m_uiContext.m_isRayTracing)
     {
         // render scene
@@ -246,6 +250,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
         m_postProcessingContext.sceneRender = m_forwardRenderer->GetForwardRendererResult();
         m_postProcessingContext.shadowMap   = &m_forwardRenderer->GetShadowMapOutput().GetPrimaryImage();
+        m_postProcessingContext.toneMappingParameters->isRayTracing = false;
     }
     else
     {
@@ -254,6 +259,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         m_accumulatedFramesCount++;
 
         m_postProcessingContext.sceneRender = &m_rayTracer->GetRenderedImage(m_currentFrameIndex);
+        m_postProcessingContext.toneMappingParameters->isRayTracing = true;
     }
 
     m_postProcessingSystem->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_postProcessingContext);

@@ -5,6 +5,7 @@
 #include "PostProcessingSystem.h"
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
+#include "Application/Structs/ParameterStructs.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
@@ -147,8 +148,22 @@ void PostProcessingSystem::ToneMapping(int                                   cur
     cmdB.setScissor(0, 1, &scissors);
     cmdB.setStencilTestEnable(false);
 
+
     m_toneMappingEffect->BindPipeline(cmdB);
     m_toneMappingEffect->BindDescriptorSet(cmdB, currentIndex, 0);
+
+    ToneMappingParameters pc;
+    pc = *postProcessingContext.toneMappingParameters;
+
+    vk::PushConstantsInfo pcInfo;
+    pcInfo.layout     = m_toneMappingEffect->GetPipelineLayout();
+    pcInfo.size       = sizeof(ToneMappingParameters);
+    pcInfo.offset     = 0;
+    pcInfo.pValues    = &pc;
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+    m_toneMappingEffect->CmdPushConstant(cmdB, pcInfo);
+
 
     cmdB.draw(3, 1, 0, 0);
 
@@ -191,6 +206,20 @@ void PostProcessingSystem::LensFlare(int                                   curre
 
     m_lensFlareEffect->BindPipeline(cmdB);
     m_lensFlareEffect->BindDescriptorSet(cmdB, currentIndex, 0);
+
+
+    LensFlareParameters pc;
+    pc = *postProcessingContext.lensFlareParameters;
+
+    vk::PushConstantsInfo pcInfo;
+    pcInfo.layout     = m_toneMappingEffect->GetPipelineLayout();
+    pcInfo.size       = sizeof(LensFlareParameters);
+    pcInfo.offset     = 0;
+    pcInfo.pValues    = &pc;
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+    m_lensFlareEffect->CmdPushConstant(cmdB, pcInfo);
+
 
     cmdB.draw(3, 1, 0, 0);
 

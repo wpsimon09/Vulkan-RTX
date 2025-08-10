@@ -111,14 +111,5 @@ struct PerObjectPushConstant
     glm::mat4  modelMatrix{};
 };
 
-struct PostProcessingParameters
-{
-    glm::vec4 toneMapping{1.0, 2.2, 0.0, 0.0};  // x- exposure, y - gamma_correction, zw - padding
-    float     lensFlareStrength = 2.0f;
-    float     f1Strength        = 2.0f;
-    float     f2Strength        = 2.0f;
-    float     f3Strength        = 1.0f;
-};
-
 
 #endif  //UNIFROMDEFINITION_HPP

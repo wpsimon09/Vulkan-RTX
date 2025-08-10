@@ -31,7 +31,6 @@ Client::Client()
     m_applicationState = std::make_unique<ApplicationCore::ApplicationState>();
 
     m_applicationState->pSetGlobalRenderingInfo(&m_globalRenderingData);
-    m_applicationState->pSetPostProcessingParameters(&m_postProcessingParameters);
 }
 
 void Client::Init()

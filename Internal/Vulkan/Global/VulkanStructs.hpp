@@ -13,7 +13,7 @@
 #include "glm/glm.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
-
+#include "Application/Structs/ParameterStructs.hpp"
 #include <map>
 
 
@@ -207,9 +207,12 @@ struct VDescriptorSet
 
 struct PostProcessingContext
 {
-    VulkanCore::VImage2* sceneRender;
-    VulkanCore::VImage2* shadowMap;
-    bool                 lensFlareEffect = false;
+    VulkanCore::VImage2*   sceneRender;
+    VulkanCore::VImage2*   shadowMap;
+    LensFlareParameters*   lensFlareParameters;
+    ToneMappingParameters* toneMappingParameters;
+
+    bool lensFlareEffect = false;
 };
 
 
