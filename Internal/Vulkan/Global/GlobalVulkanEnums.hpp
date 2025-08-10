@@ -67,6 +67,8 @@ enum EShaderBindingGroup
     FogBinding,
     LensFlareBinding,
     ComputePostProecess,
+    LuminanceHistrogram,
+    AverageLuminance
 };
 
 

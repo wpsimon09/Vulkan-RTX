@@ -5,6 +5,7 @@
 #ifndef POSTPROCESSINGSYSTEM_H
 #define POSTPROCESSINGSYSTEM_H
 #include "Vulkan/Global/VulkanStructs.hpp"
+#include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 
@@ -36,6 +37,10 @@ class PostProcessingSystem
 
   private:
     void ToneMapping(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
+    void ToneMappingAverageLuminance(int                                   currentIndex,
+                                     VulkanCore::VCommandBuffer&           commandBuffer,
+                                     VulkanStructs::PostProcessingContext& postProcessingContext);
+
     void LensFlare(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
 
   private:
@@ -44,6 +49,9 @@ class PostProcessingSystem
 
     std::shared_ptr<VulkanUtils::VEffect> m_lensFlareEffect;
     std::unique_ptr<RenderTarget2>        m_lensFlareOutput;
+
+    std::shared_ptr<VulkanUtils::VComputeEffect> m_luminanceHistrogram;
+
 
     const VulkanCore::VDevice&          m_device;
     VulkanUtils::VUniformBufferManager& m_uniformBufferManager;

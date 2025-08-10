@@ -87,6 +87,8 @@ class VUniformBufferManager
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_sceneMaterials;
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_perObjectData;
     std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>   m_sceneTextures;
+    std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_luminanceHistogram;
+
 
     mutable int m_currentDrawCalls = 0;
 };

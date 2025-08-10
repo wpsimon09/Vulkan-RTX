@@ -7,6 +7,7 @@
 #include <map>
 #include <memory>
 #include <glm/fwd.hpp>
+#include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 
 
@@ -50,6 +51,8 @@ enum class EEffectType : std::uint8_t
     FogVolume,
     LensFlare,
     ComputePostProcess,
+    LuminanceHistrogram,
+    AverageLuminance
 };
 
 class EffectsLibrary

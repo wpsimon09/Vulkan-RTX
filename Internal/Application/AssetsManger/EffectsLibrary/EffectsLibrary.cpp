@@ -209,7 +209,13 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     effects[EEffectType::LensFlare] = std::move(lensFlare);
 
     //================================================================================
+    auto luminanceHistrogram =
+        std::make_shared<VulkanUtils::VComputeEffect>(device, "Luminance histogram", "Shaders/Compiled/LuminanceHistrogram.spv",
+                                                      descLayoutCache, EShaderBindingGroup::LuminanceHistrogram);
 
+    effects[EEffectType::LuminanceHistrogram] = std::move(luminanceHistrogram);
+
+    //================================================================================
 
     BuildAllEffects();
 }

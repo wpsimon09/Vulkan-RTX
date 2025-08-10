@@ -229,10 +229,15 @@ void PostProcessingSystem::LensFlare(int                                   curre
                                              vk::ImageLayout::eColorAttachmentOptimal);
 }
 
+void ToneMappingAverageLuminance(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext)
+{
+}
+
 void PostProcessingSystem::Destroy()
 {
     m_toneMapOutput->Destroy();
     m_lensFlareOutput->Destroy();
 }
+
 
 }  // namespace Renderer
