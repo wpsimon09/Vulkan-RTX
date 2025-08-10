@@ -437,7 +437,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
                     e->SetNumWrites(1, 2, 0);
 
 
-                    e->WriteImage(i, 0, 1,
+                    e->WriteImage(i, 0, 0,
                                   sceneRenderer.GetDepthPrePassOutput().GetResolvedImage().GetDescriptorImageInfo(
                                       VulkanCore::VSamplers::Sampler2D));
                     break;

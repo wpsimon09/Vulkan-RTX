@@ -82,6 +82,7 @@ public struct PerObjectPushConstatn {
 public struct ToneMappingParameters{
     public float exposure;
     public float gamma;
+    public bool isRayTracing;
 }
 
 //===============================================

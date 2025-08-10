@@ -250,6 +250,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
         m_postProcessingContext.sceneRender = m_forwardRenderer->GetForwardRendererResult();
         m_postProcessingContext.shadowMap   = &m_forwardRenderer->GetShadowMapOutput().GetPrimaryImage();
+        m_postProcessingContext.toneMappingParameters->isRayTracing = false;
     }
     else
     {
@@ -258,6 +259,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         m_accumulatedFramesCount++;
 
         m_postProcessingContext.sceneRender = &m_rayTracer->GetRenderedImage(m_currentFrameIndex);
+        m_postProcessingContext.toneMappingParameters->isRayTracing = true;
     }
 
     m_postProcessingSystem->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_postProcessingContext);
