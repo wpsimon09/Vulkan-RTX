@@ -47,6 +47,7 @@ class VUniformBufferManager
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
     const std::vector<vk::DescriptorImageInfo>& SceneTextures();
     vk::DescriptorBufferInfo                    GetPerObjectBuffer(int currentFrame);
+    VulkanCore::VShaderStorageBuffer&           GetLuminanceHistogram(int currentFrame);
     std::vector<vk::DescriptorImageInfo> GetAll2DTextureDescriptorImageInfo() const;  // per object per frame in flight
     vk::DescriptorBufferInfo             GetMaterialDescriptionBuffer(int frameIndex) const;
 
@@ -86,8 +87,8 @@ class VUniformBufferManager
     // storage buffers containing all of the data for materials
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_sceneMaterials;
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_perObjectData;
-    std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>   m_sceneTextures;
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_luminanceHistogram;
+    std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>   m_sceneTextures;
 
 
     mutable int m_currentDrawCalls = 0;

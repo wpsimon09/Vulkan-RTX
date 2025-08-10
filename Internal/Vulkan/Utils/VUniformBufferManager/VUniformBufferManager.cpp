@@ -22,6 +22,8 @@
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 #include "Vulkan/VulkanCore/Buffer/VShaderStorageBuffer.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
+#include <cstdint>
+#include <memory>
 
 
 #define MATERIAL_BUFFER_SIZE 5'242'880
@@ -59,6 +61,12 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPerObjectBuffer(
 
     return bufferInfo;
 }
+
+VulkanCore::VShaderStorageBuffer& VulkanUtils::VUniformBufferManager::GetLuminanceHistogram(int currentFrame)
+{
+    return *m_luminanceHistogram[currentFrame];
+}
+
 
 std::vector<vk::DescriptorImageInfo> VulkanUtils::VUniformBufferManager::GetAll2DTextureDescriptorImageInfo() const
 {
@@ -194,6 +202,11 @@ void VulkanUtils::VUniformBufferManager::Destroy() const
     m_lightUniform->Destory();
     m_fogVolumeParameters->Destory();
 
+    for(auto& luminanceHistogram : m_luminanceHistogram)
+    {
+        luminanceHistogram->Destroy();
+    }
+
     for(auto& ssbo : m_sceneMaterials)
     {
         ssbo->Destroy();
@@ -216,6 +229,7 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
 
     m_sceneMaterials.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_perObjectData.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_luminanceHistogram.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
 
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
@@ -224,6 +238,9 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
 
         m_perObjectData[i] = std::make_unique<VulkanCore::VShaderStorageBuffer>(m_device, PER_OBJECT_BUFFER_SIZE);
         m_perObjectData[i]->Allocate();
+
+        m_luminanceHistogram[i] = std::make_unique<VulkanCore::VShaderStorageBuffer>(m_device, 256 * sizeof(uint32_t));
+        m_luminanceHistogram[i]->Allocate();
     }
 
     //assert(m_objectDataUniforms.size() == MAX_UBO_COUNT && "Failed to allocate 20 buffers");

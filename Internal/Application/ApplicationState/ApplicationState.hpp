@@ -41,10 +41,11 @@ class ApplicationState
     GlobalRenderingInfo& GetGlobalRenderingInfo();
     void                 pSetGlobalRenderingInfo(GlobalRenderingInfo* pGlobalRenderingInfo);
 
-    BilaterialFilterParameters& GetBilateralFilaterParameters();
-    AoOcclusionParameters&      GetAoOcclusionParameters();
-    ToneMappingParameters&      GetToneMappingParameters();
-    LensFlareParameters&        GetLensFlareParameters();
+    BilaterialFilterParameters&   GetBilateralFilaterParameters();
+    AoOcclusionParameters&        GetAoOcclusionParameters();
+    ToneMappingParameters&        GetToneMappingParameters();
+    LensFlareParameters&          GetLensFlareParameters();
+    LuminanceHistogramParameters& GetLuminanceHistogramParameters();
 
     bool& IsWindowResized();
     void  SetIsWindowResized(bool windowResized);
@@ -62,10 +63,11 @@ class ApplicationState
     SceneUpdateFlags*             m_sceneUpdateFlags    = nullptr;  // instantiated in Scene.hpp
     GlobalRenderingInfo*          m_globalRenderingInfo = nullptr;  // instantiated in Client.hpp
 
-    BilaterialFilterParameters m_bilaterialFilaterParameters;
-    AoOcclusionParameters      m_aoOcclusionParameters;
-    ToneMappingParameters      m_toneMappingParameters;
-    LensFlareParameters        m_lensFlareParameters;
+    BilaterialFilterParameters   m_bilaterialFilaterParameters;
+    AoOcclusionParameters        m_aoOcclusionParameters;
+    ToneMappingParameters        m_toneMappingParameters;
+    LensFlareParameters          m_lensFlareParameters;
+    LuminanceHistogramParameters m_luminanceHistrogramParameters;
 
     bool m_windowResized = false;
 };
