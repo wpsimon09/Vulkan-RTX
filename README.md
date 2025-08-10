@@ -109,7 +109,7 @@ Once done, use Python to compile the shaders from the `Shaders` directory:
 python compileSlang.py --verbose --no-skip-unchanged
 ```
 
-The `--no-skip-unchanged` option forces all shaders to compile, even if they haven’t changed. '--verbose' flag will print detailed messages about compilation process
+The `--no-skip-unchanged` option forces all shaders to compile, even if they haven’t changed. `--verbose` flag, will print detailed messages about compilation process
 
 ## Features:
 - Model Loading  
