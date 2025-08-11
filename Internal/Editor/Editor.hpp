@@ -4,6 +4,7 @@
 
 #ifndef EDITOR_HPP
 #define EDITOR_HPP
+#include <deque>
 #include <memory>
 #include <vector>
 #include <filesystem>
@@ -37,6 +38,7 @@ class Editor
     std::vector<std::unique_ptr<VEditor::IUserInterfaceElement>> m_uiElements;
     VmaTotalStatistics*                                          m_vmaStats;
     std::filesystem::path                                        m_filePath = "";
+    std::vector<float>                                           m_fps;
 
 
   private:

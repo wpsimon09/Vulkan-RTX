@@ -212,6 +212,25 @@ void Settings::RenderRenderingSettings()
     if(ImGui::TreeNode("Tone mapping options"))
     {
         auto& applicationState = m_client.GetApplicationState();
+
+        if(ImGui::TreeNode("Luminance"))
+        {
+            ImGui::SeparatorText("Histogram");
+
+            ImGui::SliderFloat("Minimal logaritmic luminance",
+                               &applicationState.GetLuminanceHistogramParameters().minLogLuminance, -15, 0);
+
+            ImGui::SliderFloat("Maximal logaritmic luminance",
+                               &applicationState.GetLuminanceHistogramParameters().maxLogLuminance, -5, 5);
+
+            ImGui::Text("Luminance range range: %f", applicationState.GetLuminanceHistogramParameters().CalculateLuminanceRange());
+            ImGui::Text("One over range: %f", applicationState.GetLuminanceHistogramParameters().oneOverLogLuminanceRange);
+
+            ImGui::SeparatorText("Average");
+
+            ImGui::TreePop();
+        }
+
         ImGui::DragFloat("Exposure", &m_client.GetApplicationState().GetToneMappingParameters().exposure, 0.01, 0.01, 10.0);
         ImGui::DragFloat("Gamma", &m_client.GetApplicationState().GetToneMappingParameters().gamma, 0.1, 0.01, 20.0);
 

@@ -34,4 +34,29 @@ struct LensFlareParameters
     float f3Strength        = 1.0f;
 };
 
+struct LuminanceHistogramParameters
+{
+    float width;
+    float height;
+    float minLogLuminance = -10;
+    float oneOverLogLuminanceRange;
+    float maxLogLuminance = 2.0;
+
+    float CalculateLuminanceRange()
+    {
+        float logRange           = maxLogLuminance - minLogLuminance;
+        oneOverLogLuminanceRange = 1.0 / logRange;
+        return logRange;
+    }
+};
+
+struct LuminanceHistogramAverageParameters
+{
+    float pixelCount;
+    float minLogLuminance;
+    float logLuminanceRange;
+    float timeDelta;
+    alignas(16) float tau;
+};
+
 #endif

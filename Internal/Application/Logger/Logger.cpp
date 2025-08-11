@@ -2,12 +2,16 @@
 #include "Vulkan/Global/GlobalState.hpp"
 #include <cstring>
 
-std::vector<Utils::LogEntry> Utils::Logger::m_logEntries;
+std::deque<Utils::LogEntry> Utils::Logger::m_logEntries;
 
 void Utils::Logger::AddLogEntry(const std::string& formattedMsg, ELogType type)
 {
     char* messageCopy = new char[formattedMsg.length() + 1];
     std::strcpy(messageCopy, formattedMsg.c_str());
+    if(m_logEntries.size() == 700)
+    {
+        m_logEntries.pop_front();
+    }
     m_logEntries.push_back({messageCopy, type});
 }
 

@@ -96,7 +96,6 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
             PCs[i].offset        = pushConstants[i]->offset;
             PCs[i].size          = pushConstants[i]->size;
 
-            // TODO: for now I will only allow for push constants ot be in vertex shader
             PCs[i].stageFlags = vk::ShaderStageFlagBits::eAll;
         }
     }
@@ -227,7 +226,7 @@ VShader::VShader(const VulkanCore::VDevice& device, const std::string& computeSh
 
     auto computeSPRIV     = VulkanUtils::ReadSPIRVShader(m_computeSource.value());
     m_computeShaderModule = VulkanUtils::CreateShaderModule(m_device, computeSPRIV);
-    m_shaderReeflection.AddShader(computeSPRIV.data(), computeSPRIV.size() * sizeof(char), vk::ShaderStageFlagBits::eCompute);
+    m_shaderReeflection.AddShader(computeSPRIV.data(), computeSPRIV.size() * sizeof(char), vk::ShaderStageFlagBits::eAll);
 }
 
 void VShader::DestroyExistingShaderModules()

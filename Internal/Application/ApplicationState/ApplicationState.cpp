@@ -11,6 +11,7 @@ ApplicationState::ApplicationState()
     : m_bilaterialFilaterParameters{}
     , m_aoOcclusionParameters{}
     , m_toneMappingParameters{}
+    , m_luminanceHistrogramParameters{}
 {
 }
 
@@ -84,5 +85,11 @@ LensFlareParameters& ApplicationState::GetLensFlareParameters()
 {
     return m_lensFlareParameters;
 }
+
+LuminanceHistogramParameters& ApplicationState::GetLuminanceHistogramParameters()
+{
+    return m_luminanceHistrogramParameters;
+}
+
 
 }  // namespace ApplicationCore
