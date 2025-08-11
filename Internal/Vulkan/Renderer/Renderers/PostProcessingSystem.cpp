@@ -200,7 +200,9 @@ void PostProcessingSystem::AutoExposure(int                                   cu
     float h = postProcessingContext.sceneRender->GetImageInfo().height;
 
     LuminanceHistogramParameters pc;
-    pc = *postProcessingContext.luminanceHistrogramParameters;
+    pc        = *postProcessingContext.luminanceHistrogramParameters;
+    pc.width  = w;
+    pc.height = h;
 
     vk::PushConstantsInfo pcInfo;
     pcInfo.layout = m_luminanceHistrogram->GetPipelineLayout();

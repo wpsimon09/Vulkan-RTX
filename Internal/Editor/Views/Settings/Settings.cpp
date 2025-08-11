@@ -224,6 +224,7 @@ void Settings::RenderRenderingSettings()
                                &applicationState.GetLuminanceHistogramParameters().maxLogLuminance, -5, 5);
 
             ImGui::Text("Luminance range range: %f", applicationState.GetLuminanceHistogramParameters().CalculateLuminanceRange());
+            ImGui::Text("One over range: %f", applicationState.GetLuminanceHistogramParameters().oneOverLogLuminanceRange);
 
             ImGui::SeparatorText("Average");
 

@@ -38,9 +38,9 @@ struct LuminanceHistogramParameters
 {
     float width;
     float height;
-    float minLogLuminance;
+    float minLogLuminance = -10;
     float oneOverLogLuminanceRange;
-    float maxLogLuminance;
+    float maxLogLuminance = 2.0;
 
     float CalculateLuminanceRange()
     {
