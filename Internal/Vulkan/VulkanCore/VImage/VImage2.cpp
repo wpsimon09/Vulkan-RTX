@@ -230,7 +230,7 @@ vk::DescriptorImageInfo VImage2::GetDescriptorImageInfo(vk::Sampler& sampler)
 vk::DescriptorImageInfo VImage2::GetDescriptorImageInfo()
 {
     vk::DescriptorImageInfo imageInfo{};
-    imageInfo.imageLayout = m_imageInfo.layout;
+    imageInfo.imageLayout = vk::ImageLayout::eGeneral;
     imageInfo.imageView   = m_imageView;
     imageInfo.sampler     = nullptr;
     return imageInfo;

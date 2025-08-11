@@ -9,6 +9,7 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/Utils/VIimageTransitionCommands.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include <memory>
@@ -81,7 +82,7 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
 void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext)
 {
 
-    // Lens flare will go here
+    AutoExposure(frameIndex, commandBuffer, postProcessingContext);
     if(postProcessingContext.lensFlareEffect)
     {
         LensFlare(frameIndex, commandBuffer, postProcessingContext);
@@ -95,7 +96,8 @@ void PostProcessingSystem::Update(int frameIndex, VulkanStructs::PostProcessingC
     if(postProcessingCotext.sceneRender != nullptr)
     {
         m_luminanceHistrogram->SetNumWrites(0, 1);
-        m_luminanceHistrogram->WriteImage(frameIndex, 0, 0, postProcessingCotext.sceneRender->GetDescriptorImageInfo());
+        m_luminanceHistrogram->WriteImage(
+            frameIndex, 0, 0, postProcessingCotext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
         m_luminanceHistrogram->ApplyWrites(frameIndex);
     }
 
@@ -191,6 +193,9 @@ void PostProcessingSystem::AutoExposure(int                                   cu
                                         VulkanCore::VCommandBuffer&           commandBuffer,
                                         VulkanStructs::PostProcessingContext& postProcessingContext)
 {
+    VulkanUtils::RecordImageTransitionLayoutCommand(*postProcessingContext.sceneRender, vk::ImageLayout::eGeneral,
+                                                    vk::ImageLayout::eShaderReadOnlyOptimal, commandBuffer.GetCommandBuffer());
+
     float w = postProcessingContext.sceneRender->GetImageInfo().width;
     float h = postProcessingContext.sceneRender->GetImageInfo().height;
 
@@ -198,13 +203,16 @@ void PostProcessingSystem::AutoExposure(int                                   cu
     pc = *postProcessingContext.luminanceHistrogramParameters;
 
     vk::PushConstantsInfo pcInfo;
-    pcInfo.layout     = m_luminanceHistrogram->GetPipelineLayout();
-    pcInfo.size       = sizeof(LuminanceHistogramParameters);
+    pcInfo.layout = m_luminanceHistrogram->GetPipelineLayout();
+    pcInfo.size = sizeof(LuminanceHistogramParameters) - sizeof(float);  // one parameter is not taken into the account
     pcInfo.offset     = 0;
     pcInfo.pValues    = &pc;
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
 
-    m_lensFlareEffect->CmdPushConstant(commandBuffer.GetCommandBuffer(), pcInfo);
+    m_luminanceHistrogram->BindPipeline(commandBuffer.GetCommandBuffer());
+    m_luminanceHistrogram->BindDescriptorSet(commandBuffer.GetCommandBuffer(), currentIndex, 0);
+    m_luminanceHistrogram->CmdPushConstant(commandBuffer.GetCommandBuffer(), pcInfo);
+
 
     commandBuffer.GetCommandBuffer().dispatch(w / 16, h / 16, 1);
 }
