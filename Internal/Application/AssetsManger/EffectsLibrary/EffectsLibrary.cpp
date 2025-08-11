@@ -28,6 +28,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Application/Structs/ParameterStructs.hpp"
+#include "Vulkan/VulkanCore/Buffer/VShaderStorageBuffer.hpp"
 
 namespace ApplicationCore {
 EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
@@ -497,11 +498,10 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 
                     break;
                 }
-                case EShaderBindingGroup::AverageLuminance: {
+                case EShaderBindingGroup::LuminanceHistrogram: {
                     e->SetNumWrites(1, 1);
 
-                    vk::DescriptorBufferInfo desc = {.buffer = uniformBufferManager.GetLuminanceHistogram(i)};
-                    e->WriteBuffer(i, 0, 0, std::move(desc));
+                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetLuminanceHistogram(i));
 
                     break;
                 }

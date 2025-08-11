@@ -29,6 +29,12 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
     Utils::Logger::LogInfo("Creating post processing system");
 
     //==================================
+    // Get luminance histogram effect
+    //==================================
+    m_luminanceHistrogram = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::LuminanceHistrogram);
+
+
+    //==================================
     // Get the tone mapping effect
     //==================================
     m_toneMappingEffect = effectsLibrary.GetEffect(ApplicationCore::EEffectType::ToneMappingPass);
@@ -74,6 +80,7 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
 
 void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext)
 {
+
     // Lens flare will go here
     if(postProcessingContext.lensFlareEffect)
     {
@@ -85,6 +92,13 @@ void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& co
 
 void PostProcessingSystem::Update(int frameIndex, VulkanStructs::PostProcessingContext& postProcessingCotext)
 {
+    if(postProcessingCotext.sceneRender != nullptr)
+    {
+        m_luminanceHistrogram->SetNumWrites(0, 1);
+        m_luminanceHistrogram->WriteImage(frameIndex, 0, 0, postProcessingCotext.sceneRender->GetDescriptorImageInfo());
+        m_luminanceHistrogram->ApplyWrites(frameIndex);
+    }
+
     if(postProcessingCotext.sceneRender != nullptr)
     {
         m_lensFlareEffect->SetNumWrites(0, 1, 0);
@@ -172,6 +186,29 @@ void PostProcessingSystem::ToneMapping(int                                   cur
     m_toneMapOutput->TransitionAttachments(commandBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                            vk::ImageLayout::eColorAttachmentOptimal);
 }
+
+void PostProcessingSystem::AutoExposure(int                                   currentIndex,
+                                        VulkanCore::VCommandBuffer&           commandBuffer,
+                                        VulkanStructs::PostProcessingContext& postProcessingContext)
+{
+    float w = postProcessingContext.sceneRender->GetImageInfo().width;
+    float h = postProcessingContext.sceneRender->GetImageInfo().height;
+
+    LuminanceHistogramParameters pc;
+    pc = *postProcessingContext.luminanceHistrogramParameters;
+
+    vk::PushConstantsInfo pcInfo;
+    pcInfo.layout     = m_luminanceHistrogram->GetPipelineLayout();
+    pcInfo.size       = sizeof(LuminanceHistogramParameters);
+    pcInfo.offset     = 0;
+    pcInfo.pValues    = &pc;
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+    m_lensFlareEffect->CmdPushConstant(commandBuffer.GetCommandBuffer(), pcInfo);
+
+    commandBuffer.GetCommandBuffer().dispatch(w / 16, h / 16, 1);
+}
+
 
 void PostProcessingSystem::LensFlare(int                                   currentIndex,
                                      VulkanCore::VCommandBuffer&           commandBuffer,

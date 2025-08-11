@@ -5,6 +5,7 @@
 #ifndef VUNIFORMBUFFERMANAGER_HPP
 #define VUNIFORMBUFFERMANAGER_HPP
 #include <memory>
+#include <vulkan/vulkan.hpp>
 
 #include "Application/ApplicationState/ApplicationState.hpp"
 #include "VUniform.hpp"
@@ -47,7 +48,7 @@ class VUniformBufferManager
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
     const std::vector<vk::DescriptorImageInfo>& SceneTextures();
     vk::DescriptorBufferInfo                    GetPerObjectBuffer(int currentFrame);
-    VulkanCore::VShaderStorageBuffer&           GetLuminanceHistogram(int currentFrame);
+    vk::DescriptorBufferInfo                    GetLuminanceHistogram(int currentFrame);
     std::vector<vk::DescriptorImageInfo> GetAll2DTextureDescriptorImageInfo() const;  // per object per frame in flight
     vk::DescriptorBufferInfo             GetMaterialDescriptionBuffer(int frameIndex) const;
 

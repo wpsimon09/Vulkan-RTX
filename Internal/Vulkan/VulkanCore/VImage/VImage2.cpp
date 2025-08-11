@@ -141,8 +141,9 @@ void VImage2::AllocateImage()
     VmaAllocationCreateInfo imageAllocationInfo = {};
     imageAllocationInfo.usage                   = VMA_MEMORY_USAGE_AUTO;
     imageAllocationInfo.flags                   = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
-    VulkanUtils::Check(static_cast<vk::Result>(vmaCreateImage(m_device.GetAllocator(), &imageInfo, &imageAllocationInfo, &m_imageVMA, &m_imageAllocation, nullptr))
-           ,static_cast<vk::Result>(VK_SUCCESS));
+    VulkanUtils::Check(static_cast<vk::Result>(vmaCreateImage(m_device.GetAllocator(), &imageInfo, &imageAllocationInfo,
+                                                              &m_imageVMA, &m_imageAllocation, nullptr)),
+                       static_cast<vk::Result>(VK_SUCCESS));
 
     vmaSetAllocationName(m_device.GetAllocator(), m_imageAllocation, m_imageInfo.imageAllocationName.c_str());
 
@@ -152,9 +153,9 @@ void VImage2::AllocateImage()
 void VImage2::GenerateImageView()
 {
     vk::ImageViewCreateInfo createInfo{};
-    createInfo.image  = m_imageVK;
-    createInfo.format = m_imageInfo.format;
-    createInfo.viewType = EvaluateImageViewType();
+    createInfo.image                           = m_imageVK;
+    createInfo.format                          = m_imageInfo.format;
+    createInfo.viewType                        = EvaluateImageViewType();
     createInfo.subresourceRange.aspectMask     = m_imageInfo.aspecFlags;
     createInfo.subresourceRange.baseMipLevel   = 0;
     createInfo.subresourceRange.levelCount     = m_imageInfo.mipLevels;
@@ -228,7 +229,6 @@ vk::DescriptorImageInfo VImage2::GetDescriptorImageInfo(vk::Sampler& sampler)
 }
 vk::DescriptorImageInfo VImage2::GetDescriptorImageInfo()
 {
-    assert(m_imageFlags.IsStorage && "This function is only available for storage images !");
     vk::DescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = m_imageInfo.layout;
     imageInfo.imageView   = m_imageView;

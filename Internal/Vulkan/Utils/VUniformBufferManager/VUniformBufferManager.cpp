@@ -24,6 +24,7 @@
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include <cstdint>
 #include <memory>
+#include <vulkan/vulkan_structs.hpp>
 
 
 #define MATERIAL_BUFFER_SIZE 5'242'880
@@ -62,9 +63,14 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetPerObjectBuffer(
     return bufferInfo;
 }
 
-VulkanCore::VShaderStorageBuffer& VulkanUtils::VUniformBufferManager::GetLuminanceHistogram(int currentFrame)
+vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetLuminanceHistogram(int currentFrame)
 {
-    return *m_luminanceHistogram[currentFrame];
+    vk::DescriptorBufferInfo bufferInfo;
+    bufferInfo.buffer = m_luminanceHistogram[currentFrame]->GetBuffer();
+    bufferInfo.offset = 0;
+    bufferInfo.range  = m_luminanceHistogram[currentFrame]->GetAllocatedSize();
+
+    return bufferInfo;
 }
 
 

@@ -242,7 +242,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
     m_postProcessingContext.toneMappingParameters = &m_uniformBufferManager.GetApplicationState()->GetToneMappingParameters();
     m_postProcessingContext.lensFlareParameters = &m_uniformBufferManager.GetApplicationState()->GetLensFlareParameters();
-    if(!m_uiContext.m_isRayTracing)
+    m_postProcessingContext.if(!m_uiContext.m_isRayTracing)
     {
         // render scene
         m_forwardRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex],
