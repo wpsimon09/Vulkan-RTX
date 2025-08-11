@@ -19,11 +19,6 @@ void Console::Render()
 {
     ImGui::Begin(ICON_FA_BOOK_OPEN " Console");
 
-    if(Utils::Logger::m_logEntries.size() > GlobalState::LogLimit)
-    {
-        Utils::Logger::m_logEntries.clear();
-    }
-
     if(Utils::Logger::m_logEntries.size() > m_previousNumberOfLogs)
         m_scrollToBottom = true;
 

@@ -6,6 +6,7 @@
 
 #include <IconsFontAwesome6.h>
 #include <imgui_internal.h>
+#include <vector>
 
 #include "Application/Client.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
@@ -19,12 +20,15 @@
 #include "Views/SceneView/SceneView.hpp"
 #include "Views/ViewPort/ViewPort.hpp"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
+#include "imgui.h"
 
 namespace VEditor {
 Editor::Editor(UIContext& uiContext)
     : m_uiContext(uiContext)
 {
+
     Utils::Logger::LogInfo("Initialization of visual editor");
+
     auto start = std::chrono::high_resolution_clock::now();
 
     auto index = std::make_unique<VEditor::Index>(uiContext.m_windowManager.GetWindowWidth(),
@@ -76,6 +80,12 @@ void Editor::Update()
 {
     if(m_uiContext.m_windowManager.GetHasResizedStatus())
     {
+        if(m_fps.size() == 50)
+        {
+            m_fps.erase(m_fps.begin());
+        }
+        m_fps.push_back(ImGui::GetIO().Framerate);
+
         for(auto& uiElement : m_uiElements)
         {
             uiElement->Resize(m_uiContext.m_windowManager.GetWindowWidth(), m_uiContext.m_windowManager.GetWindowWidth());
@@ -114,6 +124,7 @@ void Editor::RenderPreformanceOverlay() const
     bool isOpen = true;
     if(ImGui::Begin("Stat", &isOpen, window_flags))
     {
+
         ImGui::Text("Performance MS/FPS: (%.1f,%.1f)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::SeparatorText("GPU");
         ImGui::Text("GPU:");
@@ -139,13 +150,7 @@ void Editor::RenderPreformanceOverlay() const
             available *= (1024.0f * 1024.0f * 1024.0f);
             ImGui::Text("VRAM");
             ImGui::ProgressBar(used / available);
-
-            ImGui::SeparatorText("Draw stat");
-            {
-                auto& sceneStats = m_uiContext.GetScene().GetSceneStatistics();
-                //ImGui::Text("Draw calls %i",sceneStats.drawCalls);
-                ImGui::Text("Mesh count %i", sceneStats.numberOfMeshes);
-            }
+            ImGui::PlotLines("FPS", m_fps.data(), m_fps.size());
 
             ImGui::EndTooltip();
         }

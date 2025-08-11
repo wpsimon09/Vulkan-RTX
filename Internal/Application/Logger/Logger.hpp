@@ -2,6 +2,7 @@
 // Created by wpsimon09 on 22/09/24.
 //
 #pragma once
+#include <deque>
 #ifndef VLOGGER_HPP
 #define VLOGGER_HPP
 
@@ -46,8 +47,8 @@ class Logger
     ~Logger();
 
   private:
-    static void                  AddLogEntry(const std::string& formattedMsg, ELogType type);
-    static std::vector<LogEntry> m_logEntries;
+    static void                 AddLogEntry(const std::string& formattedMsg, ELogType type);
+    static std::deque<LogEntry> m_logEntries;
     friend VEditor::Console;
 };
 
