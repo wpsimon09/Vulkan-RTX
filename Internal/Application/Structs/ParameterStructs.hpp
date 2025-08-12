@@ -41,11 +41,12 @@ struct LuminanceHistogramParameters
     float minLogLuminance          = -10;
     float oneOverLogLuminanceRange = 0.0833;  // 2 - (-10) = 12; 1 / 12 = 0.0833
     float maxLogLuminance          = 2.0;
-
+    float logRange                 = 12;
     float CalculateLuminanceRange()
     {
         float logRange           = maxLogLuminance - minLogLuminance;
         oneOverLogLuminanceRange = 1.0 / logRange;
+        this->logRange           = logRange;
         return logRange;
     }
 };
@@ -56,7 +57,7 @@ struct LuminanceHistogramAverageParameters
     float minLogLuminance;
     float logLuminanceRange;
     float timeDelta;
-    alignas(16) float tau;
+    alignas(16) float tau = 1.0;
 };
 
 #endif

@@ -212,11 +212,13 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
     m_device.GetTransferOpsManager().UpdateGPUWaitCPU();
 
-
+    //=================================================
+    // sort the draw calls based on the state chagnes
     std::sort(m_renderContext.drawCalls.begin(), m_renderContext.drawCalls.end(),
               [](std::pair<unsigned long, VulkanStructs::VDrawCallData>& lhs,
                  std::pair<unsigned long, VulkanStructs::VDrawCallData>& rhs) { return lhs.first < rhs.first; });
 
+    //=================================================
     // generate new IBL maps if new one was selected
     if(m_sceneLightInfo->environmentLight != nullptr)
         if(m_sceneLightInfo->environmentLight->hdrImage->IsAvailable())
@@ -229,9 +231,10 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
     m_renderContext.deltaTime     = ImGui::GetIO().DeltaTime;
 
+    //==============================================================
+    // Update descriptor writes
     if(m_frameCount > 2)
     {
-
         m_postProcessingSystem->Update(m_currentFrameIndex, m_postProcessingContext);
         m_effectsLibrary->UpdatePerFrameWrites(*m_forwardRenderer, m_rayTracingDataManager, &m_renderContext,
                                                m_postProcessingContext, m_uniformBufferManager);
@@ -242,12 +245,18 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     m_renderingCommandBuffers[m_currentFrameIndex]->BeginRecording();
 
 
+    //==================================================
+    // Fill in different contexts with parameters
     m_postProcessingContext.toneMappingParameters = &m_uniformBufferManager.GetApplicationState()->GetToneMappingParameters();
     m_postProcessingContext.lensFlareParameters = &m_uniformBufferManager.GetApplicationState()->GetLensFlareParameters();
     m_postProcessingContext.luminanceHistrogramParameters =
         &m_uniformBufferManager.GetApplicationState()->GetLuminanceHistogramParameters();
-
+    m_postProcessingContext.luminanceAverageParameters =
+        &m_uniformBufferManager.GetApplicationState()->GetLuminanceAverageParameters();
     m_postProcessingContext.deltaTime = ImGui::GetIO().DeltaTime;
+
+    //===================================================
+    // ACTUAL RENDERING IS TRIGGERED HERE
     if(!m_uiContext.m_isRayTracing)
     {
         // render scene
@@ -268,9 +277,12 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         m_postProcessingContext.toneMappingParameters->isRayTracing = true;
     }
 
+    //========================================
+    // Post processing
     m_postProcessingSystem->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_postProcessingContext);
 
-    // render UI to the swap chain image
+    //==========================================
+    // UI Rendering
     m_uiRenderer->Render(m_currentFrameIndex, m_currentImageIndex, *m_renderingCommandBuffers[m_currentFrameIndex]);
 
     m_renderingCommandBuffers[m_currentFrameIndex]->EndRecording();

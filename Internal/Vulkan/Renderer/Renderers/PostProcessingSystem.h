@@ -52,6 +52,9 @@ class PostProcessingSystem
     std::shared_ptr<VulkanUtils::VEffect> m_lensFlareEffect;
     std::unique_ptr<RenderTarget2>        m_lensFlareOutput;
 
+    std::shared_ptr<VulkanUtils::VComputeEffect> m_averageLuminanceEffect;
+    std::unique_ptr<VulkanCore::VImage2>         m_averageLuminanceOutput;
+
     std::shared_ptr<VulkanUtils::VComputeEffect> m_luminanceHistrogram;
 
 

@@ -4,6 +4,7 @@
 
 #ifndef VIMAGE2_HPP
 #define VIMAGE2_HPP
+#include <cstdint>
 #include <glm/fwd.hpp>
 #include <vulkan/vulkan.hpp>
 #include <Vulkan/Utils/VIimageTransitionCommands.hpp>
@@ -97,6 +98,7 @@ class VImage2 : public VulkanCore::VObject
     vk::DescriptorImageInfo   GetDescriptorImageInfo(vk::Sampler& sampler);
     vk::DescriptorImageInfo   GetDescriptorImageInfo();
     vk::ImageSubresourceRange GetSubresrouceRange();
+    uint32_t                  GetPixelCount();
 
     vk::DeviceSize GetImageSizeBytes();
     VmaAllocation& GetImageAllocation();
@@ -122,11 +124,11 @@ class VImage2 : public VulkanCore::VObject
     std::unique_ptr<VulkanCore::VBuffer> m_stagingBufferWithPixelData;
 
   private:
-    void AllocateImage();
-    void GenerateImageView();
+    void              AllocateImage();
+    void              GenerateImageView();
     vk::ImageViewType EvaluateImageViewType();
-    bool IsDepth(vk::Format& format);
-    bool IsCube;
+    bool              IsDepth(vk::Format& format);
+    bool              IsCube;
 };
 
 //========================================================================================================================================
@@ -213,7 +215,7 @@ void VImage2::FillWithImageData(const std::vector<VulkanStructs::VImageData<T>>&
 {
     //===================================
     // accumulate size for staging buffer
-    vk::DeviceSize offset {0};
+    vk::DeviceSize                   offset{0};
     std::vector<vk::BufferImageCopy> copyRegions(imageData.size());
 
     m_stagingBufferWithPixelData = std::make_unique<VulkanCore::VBuffer>(m_device, "<== IMAGE ARRAY STAGING BUFFER ==>");

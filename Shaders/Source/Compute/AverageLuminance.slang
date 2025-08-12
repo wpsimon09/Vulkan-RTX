@@ -42,5 +42,6 @@ void computeMain(uint groupIndex : SV_GroupIndex){
         float luminanceLastFrame = LuminanceOutput[uint2(0, 0)].x;
         float adaptedLuminance = luminanceLastFrame + (weightedAverageLuminance - luminanceLastFrame) * (1 - exp(_luminanceAverageParams.timeDelta * _luminanceAverageParams.tau));
         LuminanceOutput[uint2(0, 0)] = adaptedLuminance;
+        
     }
 }   

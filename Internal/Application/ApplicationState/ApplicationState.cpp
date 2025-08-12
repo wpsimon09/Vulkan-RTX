@@ -91,5 +91,10 @@ LuminanceHistogramParameters& ApplicationState::GetLuminanceHistogramParameters(
     return m_luminanceHistrogramParameters;
 }
 
+LuminanceHistogramAverageParameters& ApplicationState::GetLuminanceAverageParameters()
+{
+    return m_luminanceAverageParameters;
+}
+
 
 }  // namespace ApplicationCore

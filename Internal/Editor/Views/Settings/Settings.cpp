@@ -223,10 +223,12 @@ void Settings::RenderRenderingSettings()
             ImGui::SliderFloat("Maximal logaritmic luminance",
                                &applicationState.GetLuminanceHistogramParameters().maxLogLuminance, -5, 5);
 
-            ImGui::Text("Luminance range range: %f", applicationState.GetLuminanceHistogramParameters().CalculateLuminanceRange());
+            float luminanceRange = applicationState.GetLuminanceHistogramParameters().CalculateLuminanceRange();
+            ImGui::Text("Luminance range: %f", luminanceRange);
             ImGui::Text("One over range: %f", applicationState.GetLuminanceHistogramParameters().oneOverLogLuminanceRange);
 
             ImGui::SeparatorText("Average");
+            ImGui::SliderFloat("Tau", &applicationState.GetLuminanceAverageParameters().tau, 0.0, 5.0);
 
             ImGui::TreePop();
         }

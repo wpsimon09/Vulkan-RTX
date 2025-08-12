@@ -8,6 +8,7 @@
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
+#include <cstdint>
 
 namespace VulkanCore {
 VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& info)
@@ -246,6 +247,11 @@ vk::ImageSubresourceRange VImage2::GetSubresrouceRange()
     sub.layerCount     = m_imageInfo.arrayLayers;
 
     return sub;
+}
+
+uint32_t VImage2::GetPixelCount()
+{
+    return m_imageInfo.width * m_imageInfo.height;
 }
 
 vk::DeviceSize VImage2::GetImageSizeBytes()
