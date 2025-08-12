@@ -257,11 +257,20 @@ void PostProcessingSystem::AutoExposure(int                                   cu
     pc2.minLogLuminance   = postProcessingContext.luminanceHistrogramParameters->minLogLuminance;
     pc2.timeDelta         = postProcessingContext.deltaTime;
 
-    pcInfo.layout = m_luminanceHistrogram->GetPipelineLayout();
-    pcInfo.size = sizeof(LuminanceHistogramParameters) - sizeof(float);  // one parameter is not taken into the account
+    pcInfo.layout     = m_luminanceHistrogram->GetPipelineLayout();
+    pcInfo.size       = sizeof(LuminanceHistogramAverageParameters);  // one parameter is not taken into the account
     pcInfo.offset     = 0;
-    pcInfo.pValues    = &pc;
+    pcInfo.pValues    = &pc2;
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+    m_averageLuminanceEffect->BindPipeline(commandBuffer.GetCommandBuffer());
+    m_averageLuminanceEffect->BindDescriptorSet(commandBuffer.GetCommandBuffer(), currentIndex, 0);
+    m_averageLuminanceEffect->CmdPushConstant(commandBuffer.GetCommandBuffer(), pcInfo);
+
+    commandBuffer.GetCommandBuffer().dispatch(1, 1, 1);
+
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_averageLuminanceOutput, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                    vk::ImageLayout::eGeneral, commandBuffer.GetCommandBuffer());
 }
 
 
