@@ -9,6 +9,7 @@
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VIimageTransitionCommands.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -34,6 +35,10 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
     //==================================
     m_luminanceHistrogram = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::LuminanceHistrogram);
 
+    //==================================
+    // Get average luminance effect
+    //==================================
+    m_averageLuminanceEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::AverageLuminance);
 
     //==================================
     // Get the tone mapping effect
@@ -76,6 +81,24 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
 
     m_lensFlareOutput = std::make_unique<Renderer::RenderTarget2>(m_device, lensFlareOutputCI);
 
+    //================================
+    // Create avg luminance output
+    //================================
+    VulkanCore::VImage2CreateInfo avgLuminanceOutCi;
+    avgLuminanceOutCi.width               = 1;
+    avgLuminanceOutCi.height              = 1;
+    avgLuminanceOutCi.format              = vk::Format::eR32Sfloat;
+    avgLuminanceOutCi.isStorage           = true;
+    avgLuminanceOutCi.layout              = vk::ImageLayout::eShaderReadOnlyOptimal;
+    avgLuminanceOutCi.channels            = 1;
+    avgLuminanceOutCi.imageAllocationName = "Average luminance";
+    avgLuminanceOutCi.imageUsage |= vk::ImageUsageFlagBits::eStorage;
+
+    m_averageLuminanceOutput = std::make_unique<VulkanCore::VImage2>(m_device, avgLuminanceOutCi);
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_averageLuminanceOutput, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                    vk::ImageLayout::eUndefined,
+                                                    m_device.GetTransferOpsManager().GetCommandBuffer());
+
     Utils::Logger::LogInfo("Post processing system created");
 }
 
@@ -99,6 +122,13 @@ void PostProcessingSystem::Update(int frameIndex, VulkanStructs::PostProcessingC
         m_luminanceHistrogram->WriteImage(
             frameIndex, 0, 0, postProcessingCotext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
         m_luminanceHistrogram->ApplyWrites(frameIndex);
+    }
+
+    if(postProcessingCotext.luminanceAverageParameters != nullptr)
+    {
+        m_averageLuminanceEffect->SetNumWrites(0, 1, 0);
+        m_averageLuminanceEffect->WriteImage(frameIndex, 0, 1, m_averageLuminanceOutput->GetDescriptorImageInfo());
+        m_averageLuminanceEffect->ApplyWrites(frameIndex);
     }
 
     if(postProcessingCotext.sceneRender != nullptr)
@@ -193,9 +223,6 @@ void PostProcessingSystem::AutoExposure(int                                   cu
                                         VulkanCore::VCommandBuffer&           commandBuffer,
                                         VulkanStructs::PostProcessingContext& postProcessingContext)
 {
-    VulkanUtils::RecordImageTransitionLayoutCommand(*postProcessingContext.sceneRender, vk::ImageLayout::eGeneral,
-                                                    vk::ImageLayout::eShaderReadOnlyOptimal, commandBuffer.GetCommandBuffer());
-
     float w = postProcessingContext.sceneRender->GetImageInfo().width;
     float h = postProcessingContext.sceneRender->GetImageInfo().height;
 
@@ -206,7 +233,7 @@ void PostProcessingSystem::AutoExposure(int                                   cu
 
     vk::PushConstantsInfo pcInfo;
     pcInfo.layout = m_luminanceHistrogram->GetPipelineLayout();
-    pcInfo.size = sizeof(LuminanceHistogramParameters) - sizeof(float);  // one parameter is not taken into the account
+    pcInfo.size = sizeof(LuminanceHistogramParameters) - 2 * sizeof(float);  // one parameter is not taken into the account
     pcInfo.offset     = 0;
     pcInfo.pValues    = &pc;
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
@@ -217,6 +244,33 @@ void PostProcessingSystem::AutoExposure(int                                   cu
 
 
     commandBuffer.GetCommandBuffer().dispatch(w / 16, h / 16, 1);
+
+    //=================================================
+    // Average luminance
+    //=================================================
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_averageLuminanceOutput, vk::ImageLayout::eGeneral,
+                                                    vk::ImageLayout::eShaderReadOnlyOptimal, commandBuffer.GetCommandBuffer());
+    LuminanceHistogramAverageParameters pc2;
+    pc2                   = *postProcessingContext.luminanceAverageParameters;
+    pc2.pixelCount        = postProcessingContext.sceneRender->GetPixelCount();
+    pc2.logLuminanceRange = postProcessingContext.luminanceHistrogramParameters->logRange;
+    pc2.minLogLuminance   = postProcessingContext.luminanceHistrogramParameters->minLogLuminance;
+    pc2.timeDelta         = postProcessingContext.deltaTime;
+
+    pcInfo.layout     = m_averageLuminanceEffect->GetPipelineLayout();
+    pcInfo.size       = sizeof(LuminanceHistogramAverageParameters);  // one parameter is not taken into the account
+    pcInfo.offset     = 0;
+    pcInfo.pValues    = &pc2;
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+    m_averageLuminanceEffect->BindPipeline(commandBuffer.GetCommandBuffer());
+    m_averageLuminanceEffect->BindDescriptorSet(commandBuffer.GetCommandBuffer(), currentIndex, 0);
+    m_averageLuminanceEffect->CmdPushConstant(commandBuffer.GetCommandBuffer(), pcInfo);
+
+    commandBuffer.GetCommandBuffer().dispatch(1, 1, 1);
+
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_averageLuminanceOutput, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                    vk::ImageLayout::eGeneral, commandBuffer.GetCommandBuffer());
 }
 
 
@@ -284,6 +338,7 @@ void PostProcessingSystem::Destroy()
 {
     m_toneMapOutput->Destroy();
     m_lensFlareOutput->Destroy();
+    m_averageLuminanceOutput->Destroy();
 }
 
 

@@ -207,13 +207,15 @@ struct VDescriptorSet
 
 struct PostProcessingContext
 {
-    VulkanCore::VImage2*          sceneRender;
-    VulkanCore::VImage2*          shadowMap;
-    LensFlareParameters*          lensFlareParameters;
-    ToneMappingParameters*        toneMappingParameters;
-    LuminanceHistogramParameters* luminanceHistrogramParameters;
+    VulkanCore::VImage2*                 sceneRender;
+    VulkanCore::VImage2*                 shadowMap;
+    LensFlareParameters*                 lensFlareParameters;
+    ToneMappingParameters*               toneMappingParameters;
+    LuminanceHistogramParameters*        luminanceHistrogramParameters;
+    LuminanceHistogramAverageParameters* luminanceAverageParameters;
 
-    bool lensFlareEffect = false;
+    float deltaTime       = 0.0;
+    bool  lensFlareEffect = false;
 };
 
 

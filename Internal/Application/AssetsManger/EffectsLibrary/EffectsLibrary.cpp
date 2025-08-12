@@ -219,6 +219,12 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     effects[EEffectType::LuminanceHistrogram] = std::move(luminanceHistrogram);
 
     //================================================================================
+    auto averageLuminance =
+        std::make_shared<VulkanUtils::VComputeEffect>(device, "Luminance average", "Shaders/Compiled/AverageLuminance.spv",
+                                                      descLayoutCache, EShaderBindingGroup::AverageLuminance);
+
+    effects[EEffectType::AverageLuminance] = std::move(averageLuminance);
+    //================================================================================
 
     BuildAllEffects();
 }
@@ -503,6 +509,11 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 
                     e->WriteBuffer(i, 0, 1, uniformBufferManager.GetLuminanceHistogram(i));
 
+                    break;
+                }
+                case EShaderBindingGroup::AverageLuminance: {
+                    e->SetNumWrites(1, 1);
+                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetLuminanceHistogram(i));
                     break;
                 }
 

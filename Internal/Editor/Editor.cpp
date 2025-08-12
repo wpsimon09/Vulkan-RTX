@@ -151,7 +151,7 @@ void Editor::RenderPreformanceOverlay() const
             ImGui::Text("VRAM");
             ImGui::ProgressBar(used / available);
             ImGui::PlotLines("FPS", m_fps.data(), m_fps.size());
-
+            ImGui::Text("Delta time %f", ImGui::GetIO().DeltaTime);
             ImGui::EndTooltip();
         }
 
