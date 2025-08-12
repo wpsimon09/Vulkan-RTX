@@ -257,7 +257,7 @@ void PostProcessingSystem::AutoExposure(int                                   cu
     pc2.minLogLuminance   = postProcessingContext.luminanceHistrogramParameters->minLogLuminance;
     pc2.timeDelta         = postProcessingContext.deltaTime;
 
-    pcInfo.layout     = m_luminanceHistrogram->GetPipelineLayout();
+    pcInfo.layout     = m_averageLuminanceEffect->GetPipelineLayout();
     pcInfo.size       = sizeof(LuminanceHistogramAverageParameters);  // one parameter is not taken into the account
     pcInfo.offset     = 0;
     pcInfo.pValues    = &pc2;

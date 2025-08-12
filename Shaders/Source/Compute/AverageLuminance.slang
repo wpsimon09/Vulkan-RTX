@@ -1,7 +1,7 @@
 static const uint NUM_HISTOGRMA_BINS = 256;
 
 struct LuminanceAverageParameters{
-    uint pixelCount;
+    float pixelCount;
     float minLogLuminance;
     float logLuminanceRange;
     float timeDelta;
