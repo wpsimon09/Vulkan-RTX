@@ -39,6 +39,7 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
+#include "imgui.h"
 #include <vulkan/vulkan_enums.hpp>
 
 
@@ -226,6 +227,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     m_renderContext.prefilterMap  = m_envLightGenerator->GetPrefilterMapRaw();
     m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
+    m_renderContext.deltaTime     = ImGui::GetIO().DeltaTime;
 
     if(m_frameCount > 2)
     {
@@ -244,6 +246,8 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     m_postProcessingContext.lensFlareParameters = &m_uniformBufferManager.GetApplicationState()->GetLensFlareParameters();
     m_postProcessingContext.luminanceHistrogramParameters =
         &m_uniformBufferManager.GetApplicationState()->GetLuminanceHistogramParameters();
+
+    m_postProcessingContext.deltaTime = ImGui::GetIO().DeltaTime;
     if(!m_uiContext.m_isRayTracing)
     {
         // render scene

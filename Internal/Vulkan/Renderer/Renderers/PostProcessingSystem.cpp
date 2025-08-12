@@ -193,9 +193,6 @@ void PostProcessingSystem::AutoExposure(int                                   cu
                                         VulkanCore::VCommandBuffer&           commandBuffer,
                                         VulkanStructs::PostProcessingContext& postProcessingContext)
 {
-    VulkanUtils::RecordImageTransitionLayoutCommand(*postProcessingContext.sceneRender, vk::ImageLayout::eGeneral,
-                                                    vk::ImageLayout::eShaderReadOnlyOptimal, commandBuffer.GetCommandBuffer());
-
     float w = postProcessingContext.sceneRender->GetImageInfo().width;
     float h = postProcessingContext.sceneRender->GetImageInfo().height;
 

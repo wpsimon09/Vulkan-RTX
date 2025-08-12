@@ -27,9 +27,10 @@ struct RenderContext
     glm::mat4 view{};
     glm::mat4 projection{};
 
-    bool RenderBillboards   = true;
-    bool RenderAABB         = false;
-    bool WireFrameRendering = false;
+    bool  RenderBillboards   = true;
+    bool  RenderAABB         = false;
+    bool  WireFrameRendering = false;
+    float deltaTime          = 0.0;
     // other flags
 
     std::shared_ptr<ApplicationCore::SkyBoxMaterial> SkyBox = nullptr;

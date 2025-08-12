@@ -213,7 +213,8 @@ struct PostProcessingContext
     ToneMappingParameters*        toneMappingParameters;
     LuminanceHistogramParameters* luminanceHistrogramParameters;
 
-    bool lensFlareEffect = false;
+    float deltaTime       = 0.0;
+    bool  lensFlareEffect = false;
 };
 
 

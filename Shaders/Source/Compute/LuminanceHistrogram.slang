@@ -13,10 +13,10 @@ struct LuminanceHistrogramParameters{
 LuminanceHistrogramParameters _luminanceHistrogramParams;
 
 [[vk::binding(0,0)]]
-Texture2D HDRTexture;
+readonly Texture2D HDRTexture;
 
 [[vk::binding(1,0)]]
-RWByteAddressBuffer LuminanceHistrogram;
+writeonly RWByteAddressBuffer LuminanceHistrogram;
 
 groupshared uint HistogramShared[NUM_HISTOGRMA_BINS];
 
@@ -27,11 +27,11 @@ float GetLuminance(float3 hdrColour){
 uint HDRToHistogramBin(float3 hdrColour){
     float luminance = GetLuminance(hdrColour);
 
-    if(luminance < 0.005){
+    if(luminance < 0.0005){
         return 0;
     }
 
-    float logLuminance = clamp((log2(luminance) - _luminanceHistrogramParams.minLogLuminance) * _luminanceHistrogramParams.oneOverLogLuminanceRange, 0.0, 1.0);
+    float logLuminance = saturate((log2(luminance) - _luminanceHistrogramParams.minLogLuminance) * _luminanceHistrogramParams.oneOverLogLuminanceRange);
     return (uint)(logLuminance * 254.0 + 1.0);
 }
 
@@ -39,7 +39,6 @@ uint HDRToHistogramBin(float3 hdrColour){
 [[numthreads(16, 16, 1)]]
 void computeMain(uint groupIndex : SV_GroupIndex, uint3 threadId : SV_DispatchThreadID){    
     HistogramShared[groupIndex] = 0;
-
     GroupMemoryBarrierWithGroupSync();
 
     if(threadId.x < _luminanceHistrogramParams.width && threadId.y < _luminanceHistrogramParams.height){
