@@ -57,7 +57,7 @@ struct LuminanceHistogramAverageParameters
     float minLogLuminance;
     float logLuminanceRange;
     float timeDelta;
-    float tau = 1.0;
+    float tau = 1.1;
 };
 
 #endif

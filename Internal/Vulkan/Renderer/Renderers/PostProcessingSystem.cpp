@@ -13,6 +13,7 @@
 #include "Vulkan/Utils/VIimageTransitionCommands.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
+#include <cstdint>
 #include <memory>
 #include <vulkan/vulkan_enums.hpp>
 
@@ -95,9 +96,15 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
     avgLuminanceOutCi.imageUsage |= vk::ImageUsageFlagBits::eStorage;
 
     m_averageLuminanceOutput = std::make_unique<VulkanCore::VImage2>(m_device, avgLuminanceOutCi);
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_averageLuminanceOutput, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                    vk::ImageLayout::eUndefined,
-                                                    m_device.GetTransferOpsManager().GetCommandBuffer());
+
+    VulkanStructs::VImageData<float> dummyImageData = {};
+    dummyImageData.channels                         = 4;
+    dummyImageData.height                           = 1;
+    dummyImageData.widht                            = 1;
+    float* dummyPixels                              = new float[]{0.0};
+    dummyImageData.pixels                           = dummyPixels;
+
+    m_averageLuminanceOutput->FillWithImageData<float>(dummyImageData, m_device.GetTransferOpsManager().GetCommandBuffer());
 
     Utils::Logger::LogInfo("Post processing system created");
 }
@@ -139,7 +146,7 @@ void PostProcessingSystem::Update(int frameIndex, VulkanStructs::PostProcessingC
         m_lensFlareEffect->ApplyWrites(frameIndex);
     }
 
-    m_toneMappingEffect->SetNumWrites(0, 1, 0);
+    m_toneMappingEffect->SetNumWrites(0, 2, 0);
 
     if(postProcessingCotext.lensFlareEffect)
     {
@@ -151,6 +158,8 @@ void PostProcessingSystem::Update(int frameIndex, VulkanStructs::PostProcessingC
         m_toneMappingEffect->WriteImage(frameIndex, 1, 0,
                                         postProcessingCotext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     }
+    m_toneMappingEffect->WriteImage(frameIndex, 1, 1, m_averageLuminanceOutput->GetDescriptorImageInfo());
+
     m_toneMappingEffect->ApplyWrites(frameIndex);
 }
 
