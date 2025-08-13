@@ -30,6 +30,8 @@ class Settings : public IUserInterfaceElement
 
     Client& m_client;
     Editor* m_editor;
+
+    std::vector<const char*> m_toneMappingCurves = {"Aces aproximated", "Uchimura", "Aces full"};
 };
 
 }  // namespace VEditor

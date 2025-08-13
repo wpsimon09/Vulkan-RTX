@@ -23,7 +23,7 @@ struct ToneMappingParameters
     float exposure     = 1.0;
     float gamma        = 1.0;
     float isRayTracing = 0.0;
-    float padding      = 0.0;
+    float curve        = 0.0;
 };
 
 struct LensFlareParameters

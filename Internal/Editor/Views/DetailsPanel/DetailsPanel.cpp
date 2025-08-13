@@ -241,7 +241,7 @@ void DetailsPanel::RenderEnvLightUI()
 {
     auto envLIght = dynamic_cast<ApplicationCore::SkyBoxNode*>(m_selectedSceneNode.get());
     ImGui::Checkbox("Show sky box", &envLIght->m_showBackground);
-    ImGui::SliderFloat("Ambient strength", &envLIght->GetLightStruct().ambientIntensity, 0.0f, 1.0f);
+    ImGui::DragFloat("Ambient strength", &envLIght->GetLightStruct().ambientIntensity, 0.5, 0.0f, 100.0f);
 }
 
 void DetailsPanel::RenderSceneNodeMetaDataToggles()

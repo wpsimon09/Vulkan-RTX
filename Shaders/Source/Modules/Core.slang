@@ -80,9 +80,10 @@ public struct PerObjectPushConstatn {
 //===============================================
 // parameters to controll tone mapping 
 public struct ToneMappingParameters{
-    public float exposure;
+    public float whitePoint;
     public float gamma;
     public bool isRayTracing;
+    public float curve;
 }
 
 //===============================================

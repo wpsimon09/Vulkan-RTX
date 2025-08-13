@@ -107,5 +107,12 @@ enum EDebugRenderingRTX
     PDF
 };
 
+enum EToneMappingCurve
+{
+    Aces_Approc = 0,
+    Uchimura,
+    Aces_Full
+};
+
 
 #endif  //CLIENTENUMS_HPP

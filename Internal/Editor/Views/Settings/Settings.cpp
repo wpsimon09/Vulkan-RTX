@@ -8,6 +8,7 @@
 #include <IconsFontAwesome6.h>
 #include <imgui.h>
 
+#include "Application/Enums/ClientEnums.hpp"
 #include "VulkanRtx.hpp"
 #include "Application/Client.hpp"
 #include "Application/Logger/Logger.hpp"
@@ -213,28 +214,43 @@ void Settings::RenderRenderingSettings()
     {
         auto& applicationState = m_client.GetApplicationState();
 
+        if(ImGui::BeginCombo("Tone mapping curve",
+                             m_toneMappingCurves[(EToneMappingCurve)applicationState.GetToneMappingParameters().curve]))
+        {
+            int j = 0;
+            for(auto& curve : m_toneMappingCurves)
+            {
+                if(ImGui::Selectable(m_toneMappingCurves[j],
+                                     (EToneMappingCurve)applicationState.GetToneMappingParameters().curve == (EToneMappingCurve)j))
+                {
+                    applicationState.GetToneMappingParameters().curve = (EToneMappingCurve)j;
+                }
+                j++;
+            }
+            ImGui::EndCombo();
+        }
+
         if(ImGui::TreeNode("Luminance"))
         {
             ImGui::SeparatorText("Histogram");
 
             ImGui::SliderFloat("Minimal logaritmic luminance",
-                               &applicationState.GetLuminanceHistogramParameters().minLogLuminance, -15, 0);
+                               &applicationState.GetLuminanceHistogramParameters().minLogLuminance, -25, 0);
 
             ImGui::SliderFloat("Maximal logaritmic luminance",
-                               &applicationState.GetLuminanceHistogramParameters().maxLogLuminance, -5, 5);
+                               &applicationState.GetLuminanceHistogramParameters().maxLogLuminance, -10, 5);
 
             float luminanceRange = applicationState.GetLuminanceHistogramParameters().CalculateLuminanceRange();
             ImGui::Text("Luminance range: %f", luminanceRange);
             ImGui::Text("One over range: %f", applicationState.GetLuminanceHistogramParameters().oneOverLogLuminanceRange);
 
             ImGui::SeparatorText("Average");
+
             ImGui::SliderFloat("Tau", &applicationState.GetLuminanceAverageParameters().tau, 0.0, 5.0);
+
 
             ImGui::TreePop();
         }
-
-        ImGui::DragFloat("Exposure", &m_client.GetApplicationState().GetToneMappingParameters().exposure, 0.01, 0.01, 10.0);
-        ImGui::DragFloat("Gamma", &m_client.GetApplicationState().GetToneMappingParameters().gamma, 0.1, 0.01, 20.0);
 
         ImGui::TreePop();
     }
