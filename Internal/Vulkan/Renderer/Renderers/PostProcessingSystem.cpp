@@ -139,7 +139,7 @@ void PostProcessingSystem::Update(int frameIndex, VulkanStructs::PostProcessingC
         m_lensFlareEffect->ApplyWrites(frameIndex);
     }
 
-    m_toneMappingEffect->SetNumWrites(0, 1, 0);
+    m_toneMappingEffect->SetNumWrites(0, 2, 0);
 
     if(postProcessingCotext.lensFlareEffect)
     {
@@ -151,6 +151,8 @@ void PostProcessingSystem::Update(int frameIndex, VulkanStructs::PostProcessingC
         m_toneMappingEffect->WriteImage(frameIndex, 1, 0,
                                         postProcessingCotext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     }
+    m_toneMappingEffect->WriteImage(frameIndex, 1, 1, m_averageLuminanceOutput->GetDescriptorImageInfo());
+
     m_toneMappingEffect->ApplyWrites(frameIndex);
 }
 

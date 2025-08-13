@@ -15,12 +15,12 @@ LuminanceAverageParameters _luminanceAverageParams;
 readonly ByteAddressBuffer _luminanceHistogram;
 
 [[vk::binding(1,0)]]
-writeonly RWTexture2D LuminanceOutput;
+RWTexture2D<float> LuminanceOutput;
 
 groupshared float HistogramShaderd[NUM_HISTOGRMA_BINS];
 
 [[shader("compute")]]   
-[[numthreads(16, 16, 1)]]
+[[numthreads(256, 1, 1)]]
 void computeMain(uint groupIndex : SV_GroupIndex){
     float countForThisBin = (float)_luminanceHistogram.Load(groupIndex * 4);
     HistogramShaderd[groupIndex] = countForThisBin * (float)groupIndex;
@@ -37,10 +37,16 @@ void computeMain(uint groupIndex : SV_GroupIndex){
     }
 
     if(groupIndex == 0){
+        // retrieve luminance from the last frame 
+        float luminanceLastFrame = LuminanceOutput[uint2(0, 0)];
+        
         float weightedLogAverage = (HistogramShaderd[0].x / max((float)_luminanceAverageParams.pixelCount - countForThisBin, 1.0)) - 1.0;
+        
+        // transfer histogram values to actual luminance
         float weightedAverageLuminance = exp2(((weightedLogAverage / 254.0) * _luminanceAverageParams.logLuminanceRange) + _luminanceAverageParams.minLogLuminance);
-        float luminanceLastFrame = LuminanceOutput[uint2(0, 0)].x;
-        float adaptedLuminance = luminanceLastFrame + (weightedAverageLuminance - luminanceLastFrame) * (1 - exp(_luminanceAverageParams.timeDelta * _luminanceAverageParams.tau));
+        
+        float adaptedLuminance = luminanceLastFrame + (weightedAverageLuminance - luminanceLastFrame) * (1 - exp(-_luminanceAverageParams.timeDelta * _luminanceAverageParams.tau));
+        
         LuminanceOutput[uint2(0, 0)] = adaptedLuminance;
         
     }
