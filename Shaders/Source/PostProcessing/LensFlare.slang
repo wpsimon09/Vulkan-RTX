@@ -51,6 +51,7 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 
     output.sunPosition = sunUv;
 
+
     //output.sunPosition = clamp(sunUv, 0.0, 1.0);
 
     return output;

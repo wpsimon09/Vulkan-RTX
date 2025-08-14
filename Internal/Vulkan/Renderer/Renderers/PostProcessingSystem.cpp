@@ -106,6 +106,7 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
 
     m_averageLuminanceOutput->FillWithImageData<float>(dummyImageData, m_device.GetTransferOpsManager().GetCommandBuffer());
 
+    m_device.GetTransferOpsManager().DestroyBuffer(m_averageLuminanceOutput->GetImageStagingvBuffer(), true);
 
     Utils::Logger::LogInfo("Post processing system created");
 }

@@ -235,10 +235,10 @@ void Settings::RenderRenderingSettings()
             ImGui::SeparatorText("Histogram");
 
             ImGui::SliderFloat("Minimal logaritmic luminance",
-                               &applicationState.GetLuminanceHistogramParameters().minLogLuminance, -25, 0);
+                               &applicationState.GetLuminanceHistogramParameters().minLogLuminance, -95, 0);
 
             ImGui::SliderFloat("Maximal logaritmic luminance",
-                               &applicationState.GetLuminanceHistogramParameters().maxLogLuminance, -10, 5);
+                               &applicationState.GetLuminanceHistogramParameters().maxLogLuminance, -50, 50);
 
             float luminanceRange = applicationState.GetLuminanceHistogramParameters().CalculateLuminanceRange();
             ImGui::Text("Luminance range: %f", luminanceRange);
