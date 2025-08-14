@@ -119,7 +119,8 @@ The `--no-skip-unchanged` option forces all shaders to compile, even if they hav
 - Ray Traced Pixel Perfect Shadows  
 - Real time path tracing (with RT cores)
 - Image Based Lighting  
-- ACES Tone Mapping  
+- Real time selectable Tone mapping curves
+- Automatic exposure  
 - Scene Editor With Gizmos  
 - Real Time Material Customisation
 - Multy threaded lazy texture loading
