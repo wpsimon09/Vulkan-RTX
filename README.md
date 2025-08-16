@@ -116,7 +116,7 @@ The `--no-skip-unchanged` option forces all shaders to compile, even if they hav
 - Scene Exporting (To glTF)  
 - Forward Renderer  
 - Area Light With LTC  
-- Ray Traced Pixel Perfect Shadows  
+- Ray Traced soft shadows  
 - Real time path tracing (with RT cores)
 - Image Based Lighting  
 - Real time selectable Tone mapping curves
