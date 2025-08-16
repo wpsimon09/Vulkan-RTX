@@ -24,6 +24,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
+#include "RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
@@ -39,6 +40,7 @@
 
 namespace Renderer {
 ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
+                                 VulkanUtils::RenderContext*         renderContext,
                                  ApplicationCore::EffectsLibrary&    effectsLibrary,
                                  VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                                  int                                 width,
@@ -162,21 +164,10 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_fogPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI);
 
+    m_renderContextPtr->normalMap = &m_normalBufferOutput->GetResolvedImage();
+    m_renderContextPtr->positionMap =&m_positionBufferOutput->GetResolvedImage();
 
-    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        // IMPORTANT: Depth attachment is  transitioned to shader read only optimal during creation
-        m_rtxShadowPassEffect->SetNumWrites(0, 2, 0);
-
-        m_rtxShadowPassEffect->WriteImage(
-            i, 0, 3, m_positionBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
-
-        m_rtxShadowPassEffect->WriteImage(
-            i, 0, 5, m_normalBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
-
-        m_rtxShadowPassEffect->ApplyWrites(i);
-    }
-
+    m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device, descLayoutCache, width, height);
 
     Utils::Logger::LogSuccess("Scene renderer created !");
 }
@@ -217,6 +208,7 @@ void ForwardRenderer::Render(int                                       currentFr
     {
         PostProcessingFogPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
     }
+
 
 
     m_frameCount++;

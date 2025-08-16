@@ -5,8 +5,10 @@
 #include "RenderPass.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 
+
+
 namespace Renderer {
-RenderPass::RenderPass(VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height)
+RenderPass::RenderPass(const VulkanCore::VDevice& device, int width, int height)
   : m_device(device), m_width(width), m_height(height)
 {
 

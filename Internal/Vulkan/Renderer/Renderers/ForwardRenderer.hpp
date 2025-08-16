@@ -15,13 +15,14 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
-
-namespace Renderer {
-class RenderTarget2;
-}
 // Forward declarations
 namespace VEditor {
 class RenderingOptions;
+}
+
+namespace Renderer {
+class RenderTarget2;
+class VisibilityBufferPass;
 }
 
 namespace VulkanCore {
@@ -49,6 +50,7 @@ class ForwardRenderer
 {
   public:
     ForwardRenderer(const VulkanCore::VDevice&          device,
+                    VulkanUtils::RenderContext*         renderContext,
                     ApplicationCore::EffectsLibrary&    effectsLibrary,
                     VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                     int                                 width,
@@ -145,6 +147,8 @@ class ForwardRenderer
     uint32_t m_height       = 0;
 
     VulkanStructs::VDrawCallData* m_postProcessingFogVolumeDrawCall = nullptr;
+
+    std::unique_ptr<Renderer::VisibilityBufferPass> m_visibilityBufferPass;
 
     // Editor integration
     friend class VEditor::RenderingOptions;

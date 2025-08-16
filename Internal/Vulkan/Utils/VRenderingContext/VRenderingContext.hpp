@@ -37,16 +37,16 @@ struct RenderContext
 
     std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>> drawCalls;
 
-    void ExtractDepthValues(glm::vec3& cameraPosition);
-
-    static bool CompareByDeptDesc(const VulkanStructs::VDrawCallData& DrawCallA, const VulkanStructs::VDrawCallData& DrawCallB);
-    static bool CompareByDeptAsc(const VulkanStructs::VDrawCallData& DrawCallA, const VulkanStructs::VDrawCallData& DrawCallB);
-
+    //===========================================
+    //
     VulkanCore::VImage2* hdrCubeMap    = nullptr;
     VulkanCore::VImage2* irradianceMap = nullptr;
     VulkanCore::VImage2* prefilterMap  = nullptr;
     VulkanCore::VImage2* brdfMap       = nullptr;
     VulkanCore::VImage2* dummyCubeMap  = nullptr;
+
+    VulkanCore::VImage2* normalMap     = nullptr;
+    VulkanCore::VImage2* positionMap   = nullptr;
 
     bool hasSceneChanged = false;
 

@@ -89,7 +89,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
     // Renderers creation
     //----------------------------------------------------------------------------------------------------------------------------
 
-    m_forwardRenderer = std::make_unique<Renderer::ForwardRenderer>(m_device, effectsLybrary, descLayoutCache,
+    m_forwardRenderer = std::make_unique<Renderer::ForwardRenderer>(m_device, &m_renderContext, effectsLybrary, descLayoutCache,
                                                                     GlobalVariables::RenderTargetResolutionWidth,
                                                                     GlobalVariables::RenderTargetResolutionHeight);
 

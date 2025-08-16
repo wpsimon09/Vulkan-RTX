@@ -11,10 +11,9 @@
 #include <vector>
 
 
-namespace VulkanStructs {
-struct RenderContext;
-}
 namespace VulkanUtils {
+struct RenderContext;
+class VRayTracingDataManager;
 class VUniformBufferManager;
 }
 namespace Renderer {
@@ -29,21 +28,20 @@ namespace Renderer {
 class RenderPass
 {
   public:
-    RenderPass(VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache,  int width, int height);
+    RenderPass(const VulkanCore::VDevice& device, int width, int height);
 
-    virtual void Init(VulkanUtils::VUniformBufferManager& uniformBufferManager)    = 0;
-    virtual void Update(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanStructs::RenderContext* renderContext = nullptr, VulkanStructs::PostProcessingContext* postProcessingContext = nullptr)  = 0;
-    virtual void Render(int currentFrame, VulkanStructs::RenderContext* renderContext )  = 0;
+    virtual void Init(VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager, VulkanUtils::RenderContext*         renderContext)    = 0;
+    virtual void Update(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager, VulkanUtils::RenderContext* renderContext, VulkanStructs::PostProcessingContext* postProcessingContext)  = 0;
+    virtual void Render(int currentFrame, VulkanUtils::RenderContext* renderContext )  = 0;
     virtual void Destroy();
 
     RenderTarget2& GetRenderTarget(int index = 0);
     VulkanCore::VImage2& GetResolvedResult(int index = 0);
     VulkanCore::VImage2& GetPrimaryResult(int index = 0);
 
-  private:
-    std::vector<Renderer::RenderTarget2> m_renderTargets;
-    VulkanCore::VDevice& m_device;
   protected:
+    const VulkanCore::VDevice& m_device;
+    std::vector<std::unique_ptr<Renderer::RenderTarget2>> m_renderTargets;
     int m_width, m_height;
 };
 

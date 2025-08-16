@@ -236,8 +236,8 @@ set(SOURCES
         Internal/Application/Structs/ParameterStructs.hpp
         Internal/Vulkan/Renderer/Renderers/RenderPass/RenderPass.cpp
         Internal/Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp
-        Internal/Vulkan/Renderer/Renderers/RenderPass/RTShadowMapPass.cpp
-        Internal/Vulkan/Renderer/Renderers/RenderPass/RTShadowMapPass.hpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.cpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp
 )
 
 
