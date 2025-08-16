@@ -23,7 +23,7 @@ class RenderingOptions;
 namespace Renderer {
 class RenderTarget2;
 class VisibilityBufferPass;
-}
+}  // namespace Renderer
 
 namespace VulkanCore {
 class VImage2;
@@ -36,6 +36,7 @@ class VSwapChain;
 }  // namespace VulkanCore
 
 namespace VulkanUtils {
+class VRayTracingDataManager;
 struct RenderContext;
 class VResourceGroupManager;
 class UIContext;
@@ -56,11 +57,15 @@ class ForwardRenderer
                     int                                 width,
                     int                                 height);
 
+    void Init(int                                  frameIndex,
+              VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+              VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
+              VulkanUtils::RenderContext*          renderContext);
+
     void Render(int                                       currentFrameIndex,
                 VulkanCore::VCommandBuffer&               cmdBuffer,
                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                 VulkanUtils::RenderContext*               renderContext);
-
 
     VulkanCore::VImage2*     GetForwardRendererResult() const;
     Renderer::RenderTarget2& GetDepthPrePassOutput() const;

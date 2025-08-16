@@ -71,6 +71,8 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Renderer/Renderers/PostProcessingSystem.h"
 #include "Application/ApplicationState/ApplicationState.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
+
 
 Application::Application() = default;
 

@@ -36,6 +36,7 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
 
 
 namespace Renderer {
@@ -169,7 +170,15 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device, descLayoutCache, width, height);
 
+
     Utils::Logger::LogSuccess("Scene renderer created !");
+}
+void ForwardRenderer::Init(int frameIndex,
+                            VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+                           VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
+                           VulkanUtils::RenderContext*          renderContext)
+{
+    m_visibilityBufferPass->Init(frameIndex ,uniformBufferManager, rayTracingDataManager, renderContext);
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,

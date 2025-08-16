@@ -15,7 +15,7 @@ RenderPass::RenderPass(const VulkanCore::VDevice& device, int width, int height)
 }
 void RenderPass::Destroy() {
   for (auto& renderTarget : m_renderTargets) {
-      renderTarget.Destroy();
+      renderTarget->Destroy();
   }
 }
 }  // namespace Renderer

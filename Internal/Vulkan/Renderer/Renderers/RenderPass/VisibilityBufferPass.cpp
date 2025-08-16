@@ -50,30 +50,29 @@ VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, Vu
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI));
 
 }
-void VisibilityBufferPass::Init(VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManager&  uniformBufferManager,
                            VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
                            VulkanUtils::RenderContext*          renderContext)
 {
-    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-    {
+
         m_rayTracedShadowEffect->SetNumWrites(3, 4, 1);
 
-        m_rayTracedShadowEffect->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+        m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[frameIndex]);
 
-        m_rayTracedShadowEffect->WriteBuffer(i, 0, 1, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+        m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 1, uniformBufferManager.GetLightBufferDescriptorInfo()[frameIndex]);
 
-        m_rayTracedShadowEffect->WriteAccelerationStrucutre(i, 0, 2, rayTracingDataManager.GetTLAS());
+        m_rayTracedShadowEffect->WriteAccelerationStrucutre(frameIndex, 0, 2, rayTracingDataManager.GetTLAS());
 
-        m_rayTracedShadowEffect->WriteImage(i, 0, 3, renderContext->normalMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
+        m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 3, renderContext->normalMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
         m_rayTracedShadowEffect->WriteImage(
-            i, 0, 4, MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            frameIndex, 0, 4, MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
-        m_rayTracedShadowEffect->WriteImage(i, 0, 5, renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
+        m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 5, renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
 
-        m_rayTracedShadowEffect->ApplyWrites(i);
-    }
+        m_rayTracedShadowEffect->ApplyWrites(frameIndex);
+
 }
 
 void VisibilityBufferPass::Update(int                                   currentFrame,
