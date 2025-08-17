@@ -62,6 +62,14 @@ class ForwardRenderer
               VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
               VulkanUtils::RenderContext*          renderContext);
 
+  void Update(int                                   currentFrame,
+                           VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                           VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
+                           VulkanUtils::RenderContext*           renderContext,
+                           VulkanStructs::PostProcessingContext* postProcessingContext) {
+
+    }
+
     void Render(int                                       currentFrameIndex,
                 VulkanCore::VCommandBuffer&               cmdBuffer,
                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,

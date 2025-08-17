@@ -20,6 +20,7 @@ namespace Renderer {
 class RenderTarget2;
 }
 namespace VulkanCore {
+class VCommandBuffer;
 class VImage2;
 class VDevice;
 }
@@ -32,7 +33,7 @@ class RenderPass
 
     virtual void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager, VulkanUtils::RenderContext*         renderContext)    = 0;
     virtual void Update(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::VRayTracingDataManager& rayTracingDataManager, VulkanUtils::RenderContext* renderContext, VulkanStructs::PostProcessingContext* postProcessingContext)  = 0;
-    virtual void Render(int currentFrame,const vk::CommandBuffer& cmdBuffer,  VulkanUtils::RenderContext* renderContext )  = 0;
+    virtual void Render(int currentFrame,VulkanCore::VCommandBuffer& cmdBuffer,  VulkanUtils::RenderContext* renderContext )  = 0;
     virtual void Destroy();
 
     RenderTarget2& GetRenderTarget(int index = 0);

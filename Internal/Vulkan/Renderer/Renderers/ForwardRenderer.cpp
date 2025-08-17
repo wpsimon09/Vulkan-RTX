@@ -237,7 +237,7 @@ Renderer::RenderTarget2& ForwardRenderer::GetPositionBufferOutput() const
 }
 Renderer::RenderTarget2& ForwardRenderer::GetShadowMapOutput() const
 {
-    return *m_visibilityBuffer;
+    return m_visibilityBufferPass->GetRenderTarget();
 }
 Renderer::RenderTarget2& ForwardRenderer::GetLightPassOutput() const
 {
@@ -402,59 +402,7 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
 {
 
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording ! ");
-
-    VulkanUtils::PlacePipelineBarrier(cmdBuffer, vk::PipelineStageFlagBits::eEarlyFragmentTests,
-                                      vk::PipelineStageFlagBits::eFragmentShader);
-
-    //=========================================================================
-    // Transition shadow map from shader read only optimal to render attachment
-    m_visibilityBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                              vk::ImageLayout::eShaderReadOnlyOptimal);
-
-
-    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_visibilityBuffer->GenerateAttachmentInfo(
-        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
-
-    vk::RenderingInfo renderingInfo{};
-    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
-    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
-    renderingInfo.layerCount           = 1;
-    renderingInfo.colorAttachmentCount = renderingOutputs.size();
-    renderingInfo.pColorAttachments    = renderingOutputs.data();
-    renderingInfo.pDepthAttachment     = nullptr;
-
-    auto& cmdB = cmdBuffer.GetCommandBuffer();
-
-    cmdB.beginRendering(&renderingInfo);
-
-    Renderer::ConfigureViewPort(cmdB, renderingInfo.renderArea.extent.width, renderingInfo.renderArea.extent.height);
-
-    cmdB.setStencilTestEnable(false);
-
-    m_rtxShadowPassEffect->BindPipeline(cmdB);
-    m_rtxShadowPassEffect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
-
-    //===========================================
-    // ambient occlusion parrameters
-    AoOcclusionParameters pc;
-    pc = uniformBufferManager.GetApplicationState()->GetAoOcclusionParameters();
-
-    vk::PushConstantsInfo pcInfo;
-    pcInfo.layout     = m_bilateralDenoiser->GetPipelineLayout();
-    pcInfo.size       = sizeof(AoOcclusionParameters);
-    pcInfo.offset     = 0;
-    pcInfo.pValues    = &pc;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
-
-    m_bilateralDenoiser->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
-
-
-    cmdB.draw(3, 1, 0, 0);
-
-    cmdB.endRendering();
-
-    m_visibilityBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                              vk::ImageLayout::eColorAttachmentOptimal);
+    m_visibilityBufferPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
 }
 
 //==================================================================
@@ -719,6 +667,7 @@ void ForwardRenderer::Destroy()
     m_fogPassOutput->Destroy();
     m_normalBufferOutput->Destroy();
     m_visiblityBuffer_Denoised->Destroy();
+    m_visibilityBufferPass->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer
