@@ -46,7 +46,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
                                  VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                                  int                                 width,
                                  int                                 height)
-    : m_device(device)
+    : m_device(device), m_renderContextPtr(renderContext)
 
 {
     Utils::Logger::LogInfo("Creating scene renderer");

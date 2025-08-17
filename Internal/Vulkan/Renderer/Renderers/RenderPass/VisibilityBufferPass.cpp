@@ -81,9 +81,10 @@ void VisibilityBufferPass::Update(int                                   currentF
                              VulkanUtils::RenderContext*           renderContext,
                              VulkanStructs::PostProcessingContext* postProcessingContext)
 {
+    // for stuff that is changing every frame
 }
 
-void VisibilityBufferPass::Render(int currentFrame, VulkanUtils::RenderContext* renderContext) {
+void VisibilityBufferPass::Render(int currentFrame, const vk::CommandBuffer& cmdBuffer,  VulkanUtils::RenderContext* renderContext) {
 
 }
 

@@ -28,7 +28,7 @@ class VisibilityBufferPass : public Renderer::RenderPass
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext ) override;
 
-    void Render(int currentFrame, VulkanUtils::RenderContext* renderContext) override;
+    void Render(int currentFrame, const vk::CommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
 
 
   private:
