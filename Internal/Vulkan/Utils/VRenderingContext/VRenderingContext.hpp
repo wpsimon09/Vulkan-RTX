@@ -32,10 +32,8 @@ struct RenderContext
     bool  RenderAABB         = false;
     bool  WireFrameRendering = false;
     float deltaTime          = 0.0;
+
     // other flags
-
-    std::shared_ptr<ApplicationCore::SkyBoxMaterial> SkyBox = nullptr;
-
     std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>> drawCalls;
 
     //===========================================
@@ -48,6 +46,8 @@ struct RenderContext
 
     VulkanCore::VImage2* normalMap     = nullptr;
     VulkanCore::VImage2* positionMap   = nullptr;
+
+    std::shared_ptr<ApplicationCore::SkyBoxMaterial> SkyBox = nullptr;
 
     vk::AccelerationStructureKHR tlas;
 

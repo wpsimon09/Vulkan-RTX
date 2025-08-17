@@ -674,6 +674,7 @@ void ForwardRenderer::Destroy()
     m_normalBufferOutput->Destroy();
     m_visiblityBuffer_Denoised->Destroy();
     m_visibilityBufferPass->Destroy();
+    m_gBufferPass->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer

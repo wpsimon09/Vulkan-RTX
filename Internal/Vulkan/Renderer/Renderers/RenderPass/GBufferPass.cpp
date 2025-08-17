@@ -4,8 +4,12 @@
 
 #include "GBufferPass.hpp"
 
+#include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
+#include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 
@@ -72,7 +76,149 @@ void GBufferPass::Update(int                                   currentFrame,
 
 void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
 {
+    int drawCallCount = 0;
 
+
+    m_depthBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                vk::ImageLayout::eDepthStencilReadOnlyOptimal);
+
+    //=====================================
+    // will loop through each render target
+    for (int i = 0; i < m_numGBufferAttachments; i++) {
+        m_renderTargets[i]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                                  vk::ImageLayout::eShaderReadOnlyOptimal);
+    }
+
+    std::vector<vk::RenderingAttachmentInfo> depthPrePassColourAttachments = {
+        m_renderTargets[EGBufferAttachments::Position]->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
+                                                       vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
+        m_renderTargets[EGBufferAttachments::Normal]->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
+                                                     vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
+
+    auto depthPrePassDepthAttachment =
+        m_depthBuffer->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                     vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
+
+    vk::RenderingInfo renderingInfo;
+    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
+    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
+    renderingInfo.layerCount           = 1;
+    renderingInfo.colorAttachmentCount = depthPrePassColourAttachments.size();
+    renderingInfo.pColorAttachments    = depthPrePassColourAttachments.data();
+    renderingInfo.pDepthAttachment     = &depthPrePassDepthAttachment;
+    renderingInfo.pStencilAttachment   = &depthPrePassDepthAttachment;
+
+
+    m_gBufferEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
+    m_gBufferEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+
+    //==============================================
+    // START RENDER PASS
+    //==============================================
+    auto& cmdB = cmdBuffer.GetCommandBuffer();
+
+    cmdB.beginRendering(&renderingInfo);
+
+    // if there is nothing to render end the render process
+    if(renderContext->drawCalls.empty())
+    {
+        cmdB.endRendering();
+        return;
+    }
+
+    //=================================================
+    // INITIAL CONFIG
+    //=================================================
+
+    auto currentVertexBuffer = renderContext->drawCalls.begin()->second.vertexData;
+    auto currentIndexBuffer  = renderContext->drawCalls.begin()->second.indexData;
+
+    vk::DeviceSize indexBufferOffset = 0;
+
+    cmdB.bindVertexBuffers(0, {currentVertexBuffer->buffer}, {0});
+    cmdB.bindIndexBuffer(currentIndexBuffer->buffer, 0, vk::IndexType::eUint32);
+
+    //============================================
+    // CONFIGURE VIEW PORT
+    //===============================================
+    Renderer::ConfigureViewPort(cmdB, m_width, m_height);
+
+    //=================================================
+    // RECORD OPAQUE DRAW CALLS
+    //=================================================
+    for(auto& drawCall : renderContext->drawCalls)
+    {
+        if(drawCall.second.postProcessingEffect)
+        {
+            //m_postProcessingFogVolumeDrawCall = &drawCall.second;
+            continue;
+        }
+        if(drawCall.second.inDepthPrePass)
+        {
+
+            //================================================================================================
+            // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
+            //================================================================================================
+            if(currentVertexBuffer->BufferID != drawCall.second.vertexData->BufferID)
+            {
+                auto firstBinding = 0;
+
+                std::vector<vk::Buffer>     vertexBuffers = {drawCall.second.vertexData->buffer};
+                std::vector<vk::DeviceSize> offsets       = {0};
+                vertexBuffers                             = {drawCall.second.vertexData->buffer};
+                cmdB.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+                currentVertexBuffer = drawCall.second.vertexData;
+            }
+
+            if(currentIndexBuffer->BufferID != drawCall.second.indexData->BufferID)
+            {
+                indexBufferOffset = 0;
+                cmdB.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
+                currentIndexBuffer = drawCall.second.indexData;
+            }
+
+            if(drawCall.second.selected)
+            {
+                cmdB.setStencilTestEnable(true);
+            }
+            else
+            {
+                cmdB.setStencilTestEnable(false);
+            }
+
+            PerObjectPushConstant pc{};
+            pc.indexes.x   = drawCall.second.drawCallID;
+            pc.modelMatrix = drawCall.second.modelMatrix;
+
+            vk::PushConstantsInfo pcInfo;
+            pcInfo.layout     = drawCall.second.effect->GetPipelineLayout();
+            pcInfo.size       = sizeof(PerObjectPushConstant);
+            pcInfo.offset     = 0;
+            pcInfo.pValues    = &pc;
+            pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+            drawCall.second.effect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+
+            cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
+                             drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                             drawCall.second.vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
+
+            drawCallCount++;
+        }
+    }
+    cmdB.endRendering();
+    for (int i = 0; i < m_numGBufferAttachments; i++) {
+        m_renderTargets[i]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                      vk::ImageLayout::eColorAttachmentOptimal);
+    }
+
+    VulkanUtils::PlaceImageMemoryBarrier(
+        m_depthBuffer->GetPrimaryImage(), cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
+        vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::PipelineStageFlagBits::eEarlyFragmentTests,
+        vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+        vk::AccessFlagBits::eDepthStencilAttachmentRead);
+
+    //m_renderingStatistics.DrawCallCount = drawCallCount;
 }
 
 RenderTarget2& GBufferPass::GetDepthAttachment() {
