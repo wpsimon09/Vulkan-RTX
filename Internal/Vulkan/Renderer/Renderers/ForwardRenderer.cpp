@@ -46,7 +46,8 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
                                  VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                                  int                                 width,
                                  int                                 height)
-    : m_device(device), m_renderContextPtr(renderContext)
+    : m_device(device)
+    , m_renderContextPtr(renderContext)
 
 {
     Utils::Logger::LogInfo("Creating scene renderer");
@@ -165,20 +166,20 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_fogPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI);
 
-    m_renderContextPtr->normalMap = &m_normalBufferOutput->GetResolvedImage();
-    m_renderContextPtr->positionMap =&m_positionBufferOutput->GetResolvedImage();
+    m_renderContextPtr->normalMap   = &m_normalBufferOutput->GetResolvedImage();
+    m_renderContextPtr->positionMap = &m_positionBufferOutput->GetResolvedImage();
 
     m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device, descLayoutCache, width, height);
 
 
     Utils::Logger::LogSuccess("Scene renderer created !");
 }
-void ForwardRenderer::Init(int frameIndex,
-                            VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+void ForwardRenderer::Init(int                                  frameIndex,
+                           VulkanUtils::VUniformBufferManager&  uniformBufferManager,
                            VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
                            VulkanUtils::RenderContext*          renderContext)
 {
-    m_visibilityBufferPass->Init(frameIndex ,uniformBufferManager, rayTracingDataManager, renderContext);
+    m_visibilityBufferPass->Init(frameIndex, uniformBufferManager, rayTracingDataManager, renderContext);
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,
@@ -217,7 +218,6 @@ void ForwardRenderer::Render(int                                       currentFr
     {
         PostProcessingFogPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
     }
-
 
 
     m_frameCount++;
@@ -424,12 +424,14 @@ void ForwardRenderer::DenoiseVisibility(int                                     
     //m_bilateralDenoiser->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
 
     m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 1,
-                                    m_visibilityBuffer->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                                    m_visibilityBufferPass
+                                        ->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer)
+                                        .GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
     m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 2, m_visiblityBuffer_Denoised->GetDescriptorImageInfo());
 
     m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 3,
-                                    m_normalBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                                    m_normalBufferOutput->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
     m_bilateralDenoiser->ApplyWrites(currentFrameIndex);
 

@@ -246,6 +246,10 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
                                                m_postProcessingContext, m_uniformBufferManager);
     }
 
+    //===========================================================
+    // update render passes
+    m_forwardRenderer->Update(m_currentFrameIndex,m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext, &m_postProcessingContext  );
+
     //============================================================
     // start recording command buffer that will render the scene
     m_renderingCommandBuffers[m_currentFrameIndex]->BeginRecording();

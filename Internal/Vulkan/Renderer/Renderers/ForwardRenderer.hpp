@@ -10,6 +10,7 @@
 #include <vector>
 
 // Project headers
+#include "RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
@@ -67,6 +68,7 @@ class ForwardRenderer
                            VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
                            VulkanUtils::RenderContext*           renderContext,
                            VulkanStructs::PostProcessingContext* postProcessingContext) {
+      m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, rayTracingDataManager, renderContext, postProcessingContext);
 
     }
 
