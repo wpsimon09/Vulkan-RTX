@@ -15,7 +15,6 @@ struct AoOcclusionParameters
     float radius      = 1.0;
     float sampleCount = 2.0;
     float strenght    = 4.0;
-    float padding     = 0.0;
 };
 
 struct ToneMappingParameters

@@ -20,6 +20,7 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 #define SIZE_64MB 67108864
+#define SIZE_500MB 524288000
 
 namespace VulkanCore {
 MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device)
@@ -325,7 +326,7 @@ void MeshDatatManager::CreateNewVertexBuffers(bool createForBoundingBox)
     m_vertexBuffers.reserve(GlobalVariables::EngineOptions::VertexBufferChunkSize);
     Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
     VulkanStructs::VGPUBufferInfo newVertexBuffer{};
-    newVertexBuffer.size       = GlobalVariables::EngineOptions::VertexBufferChunkSize > 0 ? GlobalVariables::EngineOptions::VertexBufferChunkSize : SIZE_64MB ;
+    newVertexBuffer.size       = GlobalVariables::EngineOptions::VertexBufferChunkSize > 0 ? GlobalVariables::EngineOptions::VertexBufferChunkSize : SIZE_500MB ;
     newVertexBuffer.usageFlags = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst
                                  | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
                                     | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR;

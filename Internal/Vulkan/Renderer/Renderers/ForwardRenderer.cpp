@@ -24,6 +24,8 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
+#include "RenderPass/GBufferPass.hpp"
+#include "RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
@@ -35,15 +37,18 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
 
 
 namespace Renderer {
 ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
+                                 VulkanUtils::RenderContext*         renderContext,
                                  ApplicationCore::EffectsLibrary&    effectsLibrary,
                                  VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                                  int                                 width,
                                  int                                 height)
     : m_device(device)
+    , m_renderContextPtr(renderContext)
 
 {
     Utils::Logger::LogInfo("Creating scene renderer");
@@ -162,23 +167,23 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_fogPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI);
 
+    m_renderContextPtr->normalMap   = &m_normalBufferOutput->GetResolvedImage();
+    m_renderContextPtr->positionMap = &m_positionBufferOutput->GetResolvedImage();
 
-    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        // IMPORTANT: Depth attachment is  transitioned to shader read only optimal during creation
-        m_rtxShadowPassEffect->SetNumWrites(0, 2, 0);
 
-        m_rtxShadowPassEffect->WriteImage(
-            i, 0, 3, m_positionBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
-
-        m_rtxShadowPassEffect->WriteImage(
-            i, 0, 5, m_normalBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
-
-        m_rtxShadowPassEffect->ApplyWrites(i);
-    }
+    m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device, descLayoutCache, width, height);
+    m_gBufferPass = std::make_unique<Renderer::GBufferPass>(device, descLayoutCache, width, height);
 
 
     Utils::Logger::LogSuccess("Scene renderer created !");
+}
+void ForwardRenderer::Init(int                                  frameIndex,
+                           VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+                           VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
+                           VulkanUtils::RenderContext*          renderContext)
+{
+    m_visibilityBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
+    m_gBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,
@@ -236,7 +241,7 @@ Renderer::RenderTarget2& ForwardRenderer::GetPositionBufferOutput() const
 }
 Renderer::RenderTarget2& ForwardRenderer::GetShadowMapOutput() const
 {
-    return *m_visibilityBuffer;
+    return m_visibilityBufferPass->GetRenderTarget();
 }
 Renderer::RenderTarget2& ForwardRenderer::GetLightPassOutput() const
 {
@@ -401,59 +406,7 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
 {
 
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording ! ");
-
-    VulkanUtils::PlacePipelineBarrier(cmdBuffer, vk::PipelineStageFlagBits::eEarlyFragmentTests,
-                                      vk::PipelineStageFlagBits::eFragmentShader);
-
-    //=========================================================================
-    // Transition shadow map from shader read only optimal to render attachment
-    m_visibilityBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                              vk::ImageLayout::eShaderReadOnlyOptimal);
-
-
-    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_visibilityBuffer->GenerateAttachmentInfo(
-        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
-
-    vk::RenderingInfo renderingInfo{};
-    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
-    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
-    renderingInfo.layerCount           = 1;
-    renderingInfo.colorAttachmentCount = renderingOutputs.size();
-    renderingInfo.pColorAttachments    = renderingOutputs.data();
-    renderingInfo.pDepthAttachment     = nullptr;
-
-    auto& cmdB = cmdBuffer.GetCommandBuffer();
-
-    cmdB.beginRendering(&renderingInfo);
-
-    Renderer::ConfigureViewPort(cmdB, renderingInfo.renderArea.extent.width, renderingInfo.renderArea.extent.height);
-
-    cmdB.setStencilTestEnable(false);
-
-    m_rtxShadowPassEffect->BindPipeline(cmdB);
-    m_rtxShadowPassEffect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
-
-    //===========================================
-    // ambient occlusion parrameters
-    AoOcclusionParameters pc;
-    pc = uniformBufferManager.GetApplicationState()->GetAoOcclusionParameters();
-
-    vk::PushConstantsInfo pcInfo;
-    pcInfo.layout     = m_bilateralDenoiser->GetPipelineLayout();
-    pcInfo.size       = sizeof(AoOcclusionParameters);
-    pcInfo.offset     = 0;
-    pcInfo.pValues    = &pc;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
-
-    m_bilateralDenoiser->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
-
-
-    cmdB.draw(3, 1, 0, 0);
-
-    cmdB.endRendering();
-
-    m_visibilityBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                              vk::ImageLayout::eColorAttachmentOptimal);
+    m_visibilityBufferPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
 }
 
 //==================================================================
@@ -475,12 +428,14 @@ void ForwardRenderer::DenoiseVisibility(int                                     
     //m_bilateralDenoiser->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
 
     m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 1,
-                                    m_visibilityBuffer->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                                    m_visibilityBufferPass
+                                        ->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer)
+                                        .GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
     m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 2, m_visiblityBuffer_Denoised->GetDescriptorImageInfo());
 
     m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 3,
-                                    m_normalBufferOutput->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                                    m_normalBufferOutput->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
     m_bilateralDenoiser->ApplyWrites(currentFrameIndex);
 
@@ -718,6 +673,8 @@ void ForwardRenderer::Destroy()
     m_fogPassOutput->Destroy();
     m_normalBufferOutput->Destroy();
     m_visiblityBuffer_Denoised->Destroy();
+    m_visibilityBufferPass->Destroy();
+    m_gBufferPass->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer

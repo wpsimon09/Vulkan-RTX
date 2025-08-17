@@ -45,8 +45,6 @@ set(SOURCES
         Internal/Application/Rendering/Mesh/StaticMesh.cpp
         Internal/Application/Rendering/Mesh/StaticMesh.hpp
         Internal/Vulkan/Global/GlobalVulkanEnums.hpp
-        Internal/Vulkan/VulkanCore/RenderPass/VRenderPass.cpp
-        Internal/Vulkan/VulkanCore/RenderPass/VRenderPass.hpp
         Internal/Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.cpp
         Internal/Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp
         Internal/Vulkan/VulkanCore/VImage/VImage.cpp
@@ -236,6 +234,12 @@ set(SOURCES
         Internal/Vulkan/Renderer/RenderingUtils.hpp
         Internal/Vulkan/Renderer/RenderingUtils.cpp
         Internal/Application/Structs/ParameterStructs.hpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/RenderPass.cpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.cpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/GBufferPass.cpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/GBufferPass.hpp
 )
 
 

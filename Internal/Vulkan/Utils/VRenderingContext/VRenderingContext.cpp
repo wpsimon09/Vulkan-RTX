@@ -8,18 +8,6 @@
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 
-bool VulkanUtils::RenderContext::CompareByDeptDesc(const VulkanStructs::VDrawCallData& DrawCallA,
-                                                   const VulkanStructs::VDrawCallData& DrawCallB)
-{
-
-    return DrawCallA.depth > DrawCallB.depth;
-}
-
-bool VulkanUtils::RenderContext::CompareByDeptAsc(const VulkanStructs::VDrawCallData& DrawCallA,
-                                                  const VulkanStructs::VDrawCallData& DrawCallB)
-{
-    return DrawCallA.depth < DrawCallB.depth;
-}
 
 void VulkanUtils::RenderContext::GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& outDrawCalls)
 {

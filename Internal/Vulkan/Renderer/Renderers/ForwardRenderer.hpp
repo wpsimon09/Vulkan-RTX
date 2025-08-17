@@ -10,19 +10,22 @@
 #include <vector>
 
 // Project headers
+#include "RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
-
-namespace Renderer {
-class RenderTarget2;
-}
 // Forward declarations
 namespace VEditor {
 class RenderingOptions;
 }
+
+namespace Renderer {
+class GBufferPass;
+class RenderTarget2;
+class VisibilityBufferPass;
+}  // namespace Renderer
 
 namespace VulkanCore {
 class VImage2;
@@ -35,6 +38,7 @@ class VSwapChain;
 }  // namespace VulkanCore
 
 namespace VulkanUtils {
+class VRayTracingDataManager;
 struct RenderContext;
 class VResourceGroupManager;
 class UIContext;
@@ -49,16 +53,30 @@ class ForwardRenderer
 {
   public:
     ForwardRenderer(const VulkanCore::VDevice&          device,
+                    VulkanUtils::RenderContext*         renderContext,
                     ApplicationCore::EffectsLibrary&    effectsLibrary,
                     VulkanCore::VDescriptorLayoutCache& descLayoutCache,
                     int                                 width,
                     int                                 height);
 
+    void Init(int                                  frameIndex,
+              VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+              VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
+              VulkanUtils::RenderContext*          renderContext);
+
+  void Update(int                                   currentFrame,
+                           VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                           VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
+                           VulkanUtils::RenderContext*           renderContext,
+                           VulkanStructs::PostProcessingContext* postProcessingContext) {
+      m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+
+    }
+
     void Render(int                                       currentFrameIndex,
                 VulkanCore::VCommandBuffer&               cmdBuffer,
                 const VulkanUtils::VUniformBufferManager& uniformBufferManager,
                 VulkanUtils::RenderContext*               renderContext);
-
 
     VulkanCore::VImage2*     GetForwardRendererResult() const;
     Renderer::RenderTarget2& GetDepthPrePassOutput() const;
@@ -121,7 +139,6 @@ class ForwardRenderer
     * denoised visiblity buffer
      */
     std::unique_ptr<VulkanCore::VImage2> m_visiblityBuffer_Denoised;
-
     /**
     * Contains final shading of the scene
     */
@@ -145,6 +162,9 @@ class ForwardRenderer
     uint32_t m_height       = 0;
 
     VulkanStructs::VDrawCallData* m_postProcessingFogVolumeDrawCall = nullptr;
+
+    std::unique_ptr<Renderer::VisibilityBufferPass> m_visibilityBufferPass;
+    std::unique_ptr<Renderer::GBufferPass> m_gBufferPass;
 
     // Editor integration
     friend class VEditor::RenderingOptions;

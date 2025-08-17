@@ -39,6 +39,9 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/Utils/VEffect/VRayTracingEffect.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/GBufferPass.hpp"
+
 #include "imgui.h"
 #include <vulkan/vulkan_enums.hpp>
 
@@ -89,7 +92,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
     // Renderers creation
     //----------------------------------------------------------------------------------------------------------------------------
 
-    m_forwardRenderer = std::make_unique<Renderer::ForwardRenderer>(m_device, effectsLybrary, descLayoutCache,
+    m_forwardRenderer = std::make_unique<Renderer::ForwardRenderer>(m_device, &m_renderContext, effectsLybrary, descLayoutCache,
                                                                     GlobalVariables::RenderTargetResolutionWidth,
                                                                     GlobalVariables::RenderTargetResolutionHeight);
 
@@ -117,6 +120,7 @@ void RenderingSystem::Init()
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
+
         //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
@@ -125,6 +129,9 @@ void RenderingSystem::Init()
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
             .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eNormalBuffer).SetImage(m_forwardRenderer->GetNormalBufferOutput().GetPrimaryImage(), i);
+
+        // Init forward rendere
+        m_forwardRenderer->Init(i, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext);
     }
 }
 
@@ -224,12 +231,15 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         if(m_sceneLightInfo->environmentLight->hdrImage->IsAvailable())
             m_envLightGenerator->Generate(m_currentFrameIndex, m_sceneLightInfo->environmentLight->hdrImage->GetHandle(),
                                           *m_renderingTimeLine[m_currentFrameIndex]);
+    //====================================================================
+    // pass necessary data to the rendering context
     m_renderContext.hdrCubeMap    = m_envLightGenerator->GetCubeMapRaw();
     m_renderContext.irradianceMap = m_envLightGenerator->GetIrradianceMapRaw();
     m_renderContext.prefilterMap  = m_envLightGenerator->GetPrefilterMapRaw();
     m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
     m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
     m_renderContext.deltaTime     = ImGui::GetIO().DeltaTime;
+    m_renderContext.tlas          = m_rayTracingDataManager.GetTLAS();
 
     //==============================================================
     // Update descriptor writes
@@ -239,6 +249,11 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         m_effectsLibrary->UpdatePerFrameWrites(*m_forwardRenderer, m_rayTracingDataManager, &m_renderContext,
                                                m_postProcessingContext, m_uniformBufferManager);
     }
+
+    //===========================================================
+    // update render passes
+    m_forwardRenderer->Update(m_currentFrameIndex, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext,
+                              &m_postProcessingContext);
 
     //============================================================
     // start recording command buffer that will render the scene

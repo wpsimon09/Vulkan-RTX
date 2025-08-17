@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 #include <glm/mat4x4.hpp>
+#include "vulkan/vulkan.hpp"
 
 namespace VulkanCore {
 class VImage2;
@@ -31,22 +32,24 @@ struct RenderContext
     bool  RenderAABB         = false;
     bool  WireFrameRendering = false;
     float deltaTime          = 0.0;
+
     // other flags
-
-    std::shared_ptr<ApplicationCore::SkyBoxMaterial> SkyBox = nullptr;
-
     std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>> drawCalls;
 
-    void ExtractDepthValues(glm::vec3& cameraPosition);
-
-    static bool CompareByDeptDesc(const VulkanStructs::VDrawCallData& DrawCallA, const VulkanStructs::VDrawCallData& DrawCallB);
-    static bool CompareByDeptAsc(const VulkanStructs::VDrawCallData& DrawCallA, const VulkanStructs::VDrawCallData& DrawCallB);
-
+    //===========================================
+    //
     VulkanCore::VImage2* hdrCubeMap    = nullptr;
     VulkanCore::VImage2* irradianceMap = nullptr;
     VulkanCore::VImage2* prefilterMap  = nullptr;
     VulkanCore::VImage2* brdfMap       = nullptr;
     VulkanCore::VImage2* dummyCubeMap  = nullptr;
+
+    VulkanCore::VImage2* normalMap     = nullptr;
+    VulkanCore::VImage2* positionMap   = nullptr;
+
+    std::shared_ptr<ApplicationCore::SkyBoxMaterial> SkyBox = nullptr;
+
+    vk::AccelerationStructureKHR tlas;
 
     bool hasSceneChanged = false;
 
