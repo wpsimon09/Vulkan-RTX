@@ -1,31 +1,26 @@
 //
-// Created by wpsimon09 on 16/08/2025.
+// Created by wpsimon09 on 17/08/2025.
 //
 
-#ifndef RTSHADOWMAPPASS_HPP
-#define RTSHADOWMAPPASS_HPP
+#ifndef VULKAN_RTX_GBUFFERPASS_HPP
+#define VULKAN_RTX_GBUFFERPASS_HPP
 #include "RenderPass.hpp"
 
-namespace VulkanCore {
-class VCommandBuffer;
-}
-namespace VulkanUtils {
-struct RenderContext;
-class VRasterEffect;
-}  // namespace VulkanUtils
 namespace Renderer {
 
-enum EVisibilityBufferAttachments
-{
-    VisibilityBuffer = 0
+enum EGBufferAttachments {
+  Depth = 0,
+  Position,
+  Normal,
+  Size
 };
 
-class VisibilityBufferPass : public Renderer::RenderPass
+class GBufferPass : public Renderer::RenderPass
 {
   public:
-    VisibilityBufferPass(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height);
+    GBufferPass(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height);
 
-    void Init(int                                  frameIndex,
+    void Init(int                                  currentFrameIndex,
               VulkanUtils::VUniformBufferManager&  uniformBufferManager,
               VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
               VulkanUtils::RenderContext*          renderContext) override;
@@ -37,13 +32,11 @@ class VisibilityBufferPass : public Renderer::RenderPass
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;
 
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
-
-  private:
-
-    std::unique_ptr<VulkanUtils::VRasterEffect> m_rayTracedShadowEffect;
-    AoOcclusionParameters                       m_aoOcclusionParameters;
+private:
+  int m_numGBufferAttachments = EGBufferAttachments::Size;
+  std::unique_ptr<VulkanUtils::VRasterEffect> m_gBufferEffect;
 };
 
 }  // namespace Renderer
 
-#endif  //VULKAN_RTX_RTSHADOWMAPPASS_HPP
+#endif  //VULKAN_RTX_GBUFFERPASS_HPP

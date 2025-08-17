@@ -26,6 +26,7 @@ class VDevice;
 }
 namespace Renderer {
 
+
 class RenderPass
 {
   public:
