@@ -52,9 +52,7 @@ VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, Vu
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI));
 
 }
-void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManager&  uniformBufferManager,
-                           VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
-                           VulkanUtils::RenderContext*          renderContext)
+void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
 
         m_rayTracedShadowEffect->SetNumWrites(3, 4, 1);
@@ -63,7 +61,7 @@ void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManag
 
         m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 1, uniformBufferManager.GetLightBufferDescriptorInfo()[frameIndex]);
 
-        m_rayTracedShadowEffect->WriteAccelerationStrucutre(frameIndex, 0, 2, rayTracingDataManager.GetTLAS());
+        m_rayTracedShadowEffect->WriteAccelerationStrucutre(frameIndex, 0, 2, renderContext->tlas);
 
         m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 3, renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
@@ -78,13 +76,12 @@ void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManag
 }
 
 void VisibilityBufferPass::Update(int                                   currentFrame,
-                             VulkanUtils::VUniformBufferManager&   uniformBufferManager,
-                             VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
-                             VulkanUtils::RenderContext*           renderContext,
-                             VulkanStructs::PostProcessingContext* postProcessingContext)
+                                  VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                                  VulkanUtils::RenderContext*           renderContext,
+                                  VulkanStructs::PostProcessingContext* postProcessingContext)
 {
     m_rayTracedShadowEffect->SetNumWrites(0, 0, 1 );
-    m_rayTracedShadowEffect->WriteAccelerationStrucutre(currentFrame, 0, 2, rayTracingDataManager.GetTLAS());
+    m_rayTracedShadowEffect->WriteAccelerationStrucutre(currentFrame, 0, 2, renderContext->tlas);
     m_rayTracedShadowEffect->ApplyWrites(currentFrame);
 
     m_aoOcclusionParameters = uniformBufferManager.GetApplicationState()->GetAoOcclusionParameters();

@@ -24,6 +24,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
+#include "RenderPass/GBufferPass.hpp"
 #include "RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
@@ -169,7 +170,9 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_renderContextPtr->normalMap   = &m_normalBufferOutput->GetResolvedImage();
     m_renderContextPtr->positionMap = &m_positionBufferOutput->GetResolvedImage();
 
+
     m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device, descLayoutCache, width, height);
+    m_gBufferPass = std::make_unique<Renderer::GBufferPass>(device, descLayoutCache, width, height);
 
 
     Utils::Logger::LogSuccess("Scene renderer created !");
@@ -179,7 +182,8 @@ void ForwardRenderer::Init(int                                  frameIndex,
                            VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
                            VulkanUtils::RenderContext*          renderContext)
 {
-    m_visibilityBufferPass->Init(frameIndex, uniformBufferManager, rayTracingDataManager, renderContext);
+    m_visibilityBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
+    m_gBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,

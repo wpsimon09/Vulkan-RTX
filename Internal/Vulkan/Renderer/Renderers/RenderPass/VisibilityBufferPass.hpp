@@ -25,14 +25,10 @@ class VisibilityBufferPass : public Renderer::RenderPass
   public:
     VisibilityBufferPass(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height);
 
-    void Init(int                                  frameIndex,
-              VulkanUtils::VUniformBufferManager&  uniformBufferManager,
-              VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
-              VulkanUtils::RenderContext*          renderContext) override;
+    void Init(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
 
     void Update(int                                   currentFrame,
                 VulkanUtils::VUniformBufferManager&   uniformBufferManager,
-                VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;
 

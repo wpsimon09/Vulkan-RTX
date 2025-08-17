@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 #include <glm/mat4x4.hpp>
+#include "vulkan/vulkan.hpp"
 
 namespace VulkanCore {
 class VImage2;
@@ -47,6 +48,8 @@ struct RenderContext
 
     VulkanCore::VImage2* normalMap     = nullptr;
     VulkanCore::VImage2* positionMap   = nullptr;
+
+    vk::AccelerationStructureKHR tlas;
 
     bool hasSceneChanged = false;
 

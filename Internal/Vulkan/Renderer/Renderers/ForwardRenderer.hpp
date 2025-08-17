@@ -22,6 +22,7 @@ class RenderingOptions;
 }
 
 namespace Renderer {
+class GBufferPass;
 class RenderTarget2;
 class VisibilityBufferPass;
 }  // namespace Renderer
@@ -68,7 +69,7 @@ class ForwardRenderer
                            VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
                            VulkanUtils::RenderContext*           renderContext,
                            VulkanStructs::PostProcessingContext* postProcessingContext) {
-      m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, rayTracingDataManager, renderContext, postProcessingContext);
+      m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
 
     }
 
@@ -138,7 +139,6 @@ class ForwardRenderer
     * denoised visiblity buffer
      */
     std::unique_ptr<VulkanCore::VImage2> m_visiblityBuffer_Denoised;
-
     /**
     * Contains final shading of the scene
     */
@@ -164,6 +164,7 @@ class ForwardRenderer
     VulkanStructs::VDrawCallData* m_postProcessingFogVolumeDrawCall = nullptr;
 
     std::unique_ptr<Renderer::VisibilityBufferPass> m_visibilityBufferPass;
+    std::unique_ptr<Renderer::GBufferPass> m_gBufferPass;
 
     // Editor integration
     friend class VEditor::RenderingOptions;
