@@ -50,7 +50,6 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     effects[EEffectType::ForwardShader] = std::move(frowardEffect);
 
-
     //==============================================================================
 
     auto transparentEffect = std::make_shared<VulkanUtils::VRasterEffect>(
@@ -58,7 +57,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
         "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv", descLayoutCache, EShaderBindingGroup::ForwardLit);
 
     transparentEffect->SetTopology(vk::PrimitiveTopology::eTriangleList).EnableAdditiveBlending().SetDepthOpLessEqual();
-
+    transparentEffect->EnableAdditiveBlending();
     if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
     {
         transparentEffect->SetDisableDepthWrite();
@@ -158,6 +157,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     rtxShaderPaths.missPath       = "Shaders/Compiled/SimpleRayTracing.miss.spv";
     rtxShaderPaths.missShadowPath = "Shaders/Compiled/SimpleRayTracing.miss2.spv";
     rtxShaderPaths.rayHitPath     = "Shaders/Compiled/SimpleRayTracing.chit.spv";
+
     auto rayTracingEffect =
         std::make_shared<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Ray tracing ", m_descLayoutCache);
 
@@ -284,7 +284,7 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&      
                     {
                         e->WriteImage(i, 1, 3, renderingContext->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
                     }
-                    if(renderingContext->irradianceMap)
+                    if(renderingContext->brdfMap)
                     {
                         e->WriteImage(i, 1, 4, renderingContext->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                     }
