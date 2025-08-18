@@ -5,6 +5,8 @@
 #ifndef BASEMATERIAL_HPP
 #define BASEMATERIAL_HPP
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
+
 #include <memory>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>
@@ -25,7 +27,7 @@ inline int MaterialIndexCounter = 0;
 class BaseMaterial
 {
   public:
-    BaseMaterial(std::shared_ptr<VulkanUtils::VRasterEffect> effect);
+    BaseMaterial(Renderer::EForwardRenderEffects effect);
 
     bool&                                        IsTransparent() { return m_transparent; }
     void                                         SetTransparent(bool value) { m_transparent = value; }
@@ -40,14 +42,16 @@ class BaseMaterial
     uint32_t                                     GetSceneIndex();
     void                                         SetSceneIndex(uint32_t newIndex);
     virtual std::vector<std::shared_ptr<VTextureAsset>> EnumarateTexture() = 0;
+    void                                                SetMaterialEffect(Renderer::EForwardRenderEffects newEffect);
+    Renderer::EForwardRenderEffects                     GetMatearialEffect();
 
   protected:
-    bool                                        m_transparent = false;
-    bool                                        m_savable     = false;
-    int                                         ID;
-    std::shared_ptr<VulkanUtils::VRasterEffect> m_materialEffect;
-    std::shared_ptr<VulkanUtils::VRasterEffect> m_initialEffect;
-    std::string                                 m_materialName;
+    bool                            m_transparent = false;
+    bool                            m_savable     = false;
+    int                             ID;
+    std::string                     m_materialName;
+    Renderer::EForwardRenderEffects m_materialEffectType;
+    Renderer::EForwardRenderEffects m_defaultMaterialEffect;
 
     uint32_t m_sceneIndex = 0;
 

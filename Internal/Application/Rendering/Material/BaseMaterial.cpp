@@ -6,26 +6,13 @@
 
 namespace ApplicationCore {
 
-BaseMaterial::BaseMaterial(std::shared_ptr<VulkanUtils::VRasterEffect> effect)
-    : m_initialEffect(effect)
-    , m_materialEffect(effect)
-{
+BaseMaterial::BaseMaterial(Renderer::EForwardRenderEffects effect): m_defaultMaterialEffect(effect), m_materialEffectType(effect) {
     ID = MaterialIndexCounter++;
-}
-
-void BaseMaterial::ChangeEffect(std::shared_ptr<VulkanUtils::VRasterEffect> newEffect)
-{
-    m_materialEffect = newEffect;
-}
-
-std::shared_ptr<VulkanUtils::VRasterEffect>& BaseMaterial::GetEffect()
-{
-    return m_materialEffect;
 }
 
 void BaseMaterial::ResetEffect()
 {
-    m_materialEffect = m_initialEffect;
+    m_defaultMaterialEffect ;
 }
 
 void BaseMaterial::SetMaterialname(std::string newName)
@@ -34,6 +21,9 @@ void BaseMaterial::SetMaterialname(std::string newName)
 }
 uint32_t BaseMaterial::GetSceneIndex() { return m_sceneIndex; }
 
-void     BaseMaterial::SetSceneIndex(uint32_t newIndex) {m_sceneIndex = newIndex;}
+void     BaseMaterial::SetSceneIndex(uint32_t newIndex) {m_sceneIndex = newIndex;
+}
+void                            BaseMaterial::SetMaterialEffect(Renderer::EForwardRenderEffects newEffect) {m_materialEffectType = newEffect;}
+Renderer::EForwardRenderEffects BaseMaterial::GetMatearialEffect() { return m_materialEffectType;}
 
 }  // namespace ApplicationCore

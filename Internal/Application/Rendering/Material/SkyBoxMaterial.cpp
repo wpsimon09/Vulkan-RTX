@@ -17,7 +17,7 @@
 
 namespace ApplicationCore {
 SkyBoxMaterial::SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager)
-    : BaseMaterial(assetsManager.GetEffectsLibrary().GetEffect<VulkanUtils::VRasterEffect>(EEffectType::SkyBox))
+    : BaseMaterial(Renderer::SkyBox)
 {
     assetsManager.GetHDRTexture(m_HDRTexture, path, true);
 }
