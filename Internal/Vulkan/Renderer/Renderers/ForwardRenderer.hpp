@@ -16,6 +16,9 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
+namespace Renderer {
+class BilateralFilterPass;
+}
 // Forward declarations
 namespace VEditor {
 class RenderingOptions;
@@ -64,14 +67,11 @@ class ForwardRenderer
               VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
               VulkanUtils::RenderContext*          renderContext);
 
-  void Update(int                                   currentFrame,
+    void Update(int                                   currentFrame,
                            VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                            VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
                            VulkanUtils::RenderContext*           renderContext,
-                           VulkanStructs::PostProcessingContext* postProcessingContext) {
-      m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
-
-    }
+                           VulkanStructs::PostProcessingContext* postProcessingContext);
 
     void Render(int                                       currentFrameIndex,
                 VulkanCore::VCommandBuffer&               cmdBuffer,
@@ -165,6 +165,7 @@ class ForwardRenderer
 
     std::unique_ptr<Renderer::VisibilityBufferPass> m_visibilityBufferPass;
     std::unique_ptr<Renderer::GBufferPass> m_gBufferPass;
+    std::unique_ptr<Renderer::BilateralFilterPass> m_visibilityDenoisePass;
 
     // Editor integration
     friend class VEditor::RenderingOptions;

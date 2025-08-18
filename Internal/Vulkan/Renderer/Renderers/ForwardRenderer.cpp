@@ -24,6 +24,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
+#include "RenderPass/DenoisePass.hpp"
 #include "RenderPass/GBufferPass.hpp"
 #include "RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
@@ -167,8 +168,11 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_fogPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI);
 
+    //==================================================================================================
+    // New render pass system
     m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device, descLayoutCache, width, height);
     m_gBufferPass = std::make_unique<Renderer::GBufferPass>(device, descLayoutCache, width, height);
+    m_visibilityDenoisePass = std::make_unique<Renderer::BilateralFilterPass>(device, descLayoutCache, m_visibilityBufferPass->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer), width, height);
 
     m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
     m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
@@ -182,6 +186,17 @@ void ForwardRenderer::Init(int                                  frameIndex,
 {
     m_visibilityBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_gBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
+    m_visibilityDenoisePass->Init(frameIndex, uniformBufferManager, renderContext);
+}
+
+void ForwardRenderer::Update(int                                   currentFrame,
+                             VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                             VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
+                             VulkanUtils::RenderContext*           renderContext,
+                             VulkanStructs::PostProcessingContext* postProcessingContext)
+{
+    m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_visibilityDenoisePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,
@@ -231,7 +246,7 @@ VulkanCore::VImage2* ForwardRenderer::GetForwardRendererResult() const
 
 Renderer::RenderTarget2& ForwardRenderer::GetDepthPrePassOutput() const
 {
-    return *m_depthPrePassOutput;
+    return m_gBufferPass->GetDepthAttachment();
 }
 Renderer::RenderTarget2& ForwardRenderer::GetPositionBufferOutput() const
 {
@@ -253,7 +268,7 @@ Renderer::RenderTarget2& ForwardRenderer::GetNormalBufferOutput() const
 
 VulkanCore::VImage2& ForwardRenderer::GetDenoisedVisibilityBuffer() const
 {
-    return *m_visiblityBuffer_Denoised;
+    return m_visibilityDenoisePass->GetPrimaryResult(EBilateralFilterAttachments::Result) ;
 }
 
 void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
@@ -280,53 +295,7 @@ void ForwardRenderer::DenoiseVisibility(int                                     
                                         VulkanCore::VCommandBuffer&               cmdBuffer,
                                         const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
-    assert(cmdBuffer.GetIsRecording() && " Command buffer is not in recording state");
-
-    VulkanUtils::PlaceImageMemoryBarrier(*m_visiblityBuffer_Denoised, cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                         vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eColorAttachmentOutput,
-                                         vk::PipelineStageFlagBits::eComputeShader,
-                                         vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderWrite);
-
-    m_bilateralDenoiser->SetNumWrites(1, 4, 0);
-
-    //m_bilateralDenoiser->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
-
-    m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 1,
-                                    m_visibilityBufferPass
-                                        ->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer)
-                                        .GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-    m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 2, m_visiblityBuffer_Denoised->GetDescriptorImageInfo());
-
-    m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 3,
-                                    m_gBufferPass->GetPrimaryResult(EGBufferAttachments::Normal).GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-    m_bilateralDenoiser->ApplyWrites(currentFrameIndex);
-
-    m_bilateralDenoiser->BindPipeline(cmdBuffer.GetCommandBuffer());
-    m_bilateralDenoiser->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
-
-    BilaterialFilterParameters pc = uniformBufferManager.GetApplicationState()->GetBilateralFilaterParameters();
-
-    pc.width  = m_visiblityBuffer_Denoised->GetImageInfo().width;
-    pc.height = m_visiblityBuffer_Denoised->GetImageInfo().height;
-
-    vk::PushConstantsInfo pcInfo;
-    pcInfo.layout     = m_bilateralDenoiser->GetPipelineLayout();
-    pcInfo.size       = sizeof(BilaterialFilterParameters);
-    pcInfo.offset     = 0;
-    pcInfo.pValues    = &pc;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
-
-    m_bilateralDenoiser->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
-
-    cmdBuffer.GetCommandBuffer().dispatch(m_visiblityBuffer_Denoised->GetImageInfo().width / 16,
-                                          m_visiblityBuffer_Denoised->GetImageInfo().height / 16, 1);
-
-    VulkanUtils::PlaceImageMemoryBarrier(*m_visiblityBuffer_Denoised, cmdBuffer, vk::ImageLayout::eGeneral,
-                                         vk::ImageLayout::eShaderReadOnlyOptimal, vk::PipelineStageFlagBits::eComputeShader,
-                                         vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eShaderWrite,
-                                         vk::AccessFlagBits::eShaderRead);
+    m_visibilityDenoisePass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
 }
 
 
@@ -539,6 +508,7 @@ void ForwardRenderer::Destroy()
     m_visiblityBuffer_Denoised->Destroy();
     m_visibilityBufferPass->Destroy();
     m_gBufferPass->Destroy();
+    m_visibilityDenoisePass->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer

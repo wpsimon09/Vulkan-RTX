@@ -73,6 +73,7 @@
 #include "Application/ApplicationState/ApplicationState.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/GBufferPass.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
 
 
 Application::Application() = default;

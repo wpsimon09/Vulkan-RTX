@@ -41,6 +41,8 @@
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/GBufferPass.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
+
 
 #include "imgui.h"
 #include <vulkan/vulkan_enums.hpp>
