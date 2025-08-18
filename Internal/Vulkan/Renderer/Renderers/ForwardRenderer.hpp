@@ -17,6 +17,7 @@
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 namespace Renderer {
+class ForwardRender;
 class BilateralFilterPass;
 }
 // Forward declarations
@@ -166,6 +167,7 @@ class ForwardRenderer
     std::unique_ptr<Renderer::VisibilityBufferPass> m_visibilityBufferPass;
     std::unique_ptr<Renderer::GBufferPass> m_gBufferPass;
     std::unique_ptr<Renderer::BilateralFilterPass> m_visibilityDenoisePass;
+    std::unique_ptr<Renderer::ForwardRender> m_forwardLightPass;
 
     // Editor integration
     friend class VEditor::RenderingOptions;

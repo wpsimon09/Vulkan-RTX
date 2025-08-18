@@ -4,6 +4,8 @@
 
 #include "LightPass.hpp"
 
+#include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
@@ -133,7 +135,7 @@ ForwardRender::ForwardRender(const VulkanCore::VDevice& device, VulkanCore::VDes
         e.second->BuildEffect();
     }
 }
-void ForwardRender::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
+void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
     for(auto& effect : m_effects)
     {
@@ -150,11 +152,11 @@ void ForwardRender::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManag
 
                 //========================
                 // global data
-                e->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
 
                 //========================
                 // per model data
-                e->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectBuffer(currentFrameIndex));
+                e->WriteBuffer(currentFrame, 0, 1, uniformBufferManager.GetPerObjectBuffer(currentFrame));
 
                 break;
             }
@@ -164,19 +166,19 @@ void ForwardRender::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManag
                 e->SetNumWrites(7, 5, 0);
                 //===================================
                 // global data
-                e->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
 
                 //===================================
                 // materials
-                e->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectBuffer(currentFrameIndex));
+                e->WriteBuffer(currentFrame, 0, 1, uniformBufferManager.GetPerObjectBuffer(currentFrame));
 
                 //===================================
                 // lighting information
-                e->WriteBuffer(currentFrameIndex, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrameIndex));
+                e->WriteBuffer(currentFrame, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrame));
 
                 //===================================
                 // std::vector<PerObjectData> SSBO.
-                e->WriteBuffer(currentFrameIndex, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex]);
+                e->WriteBuffer(currentFrame, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
 
                 break;
             }
@@ -185,15 +187,15 @@ void ForwardRender::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManag
                 e->SetNumWrites(7, 4, 0);
                 //===================================
                 // global data
-                e->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
 
                 //===================================
                 // materials
-                e->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetPerObjectBuffer(currentFrameIndex));
+                e->WriteBuffer(currentFrame, 0, 1, uniformBufferManager.GetPerObjectBuffer(currentFrame));
 
                 //===================================
                 // std::vector<PerObjectData> SSBO.
-                e->WriteBuffer(currentFrameIndex, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrameIndex));
+                e->WriteBuffer(currentFrame, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrame));
                 break;
             }
             case EShaderBindingGroup::Skybox: {
@@ -201,11 +203,11 @@ void ForwardRender::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManag
 
                 //====================================
                 // global data
-                e->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
                 break;
             }
         }
-        e->ApplyWrites(currentFrameIndex);
+        e->ApplyWrites(currentFrame);
     }
 }
 
@@ -227,6 +229,7 @@ void ForwardRender::Update(int                                   currentFrame,
                 case EShaderBindingGroup::ForwardLit: {
 
                     e->SetNumWrites(0, 6200, 0);
+                    // TODO: write only so many texture as are in the view frustrum
                     e->WriteImageArray(currentFrame, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
 
                     if(renderContext->irradianceMap)
@@ -268,12 +271,155 @@ void ForwardRender::Update(int                                   currentFrame,
                 }
             }
 
-        e->ApplyWrites(currentFrameIndex);
+        e->ApplyWrites(currentFrame);
     }
 }
 
 void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
 {
+        assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
+    int drawCallCount = 0;
+    //==============================================
+    // CREATE RENDER PASS INFO
+    //==============================================
+    std::vector<vk::RenderingAttachmentInfo> colourAttachments = {
+        m_renderTargets[EForwardRenderAttachments::Main]->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
+                                                     vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
+    };
+
+    auto depthAttachment =
+        renderContext->depthBuffer->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                     vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);
+
+    vk::RenderingInfo renderingInfo;
+    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
+    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
+    renderingInfo.layerCount           = 1;
+    renderingInfo.colorAttachmentCount = colourAttachments.size();
+    renderingInfo.pColorAttachments    = colourAttachments.data();
+
+    renderingInfo.pDepthAttachment   = &depthAttachment;
+    renderingInfo.pStencilAttachment = &depthAttachment;
+
+
+    //==============================================
+    // START RENDER PASS
+    //==============================================
+    auto& cmdB = cmdBuffer.GetCommandBuffer();
+
+
+    m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                                vk::ImageLayout::eShaderReadOnlyOptimal);
+
+
+    cmdB.beginRendering(&renderingInfo);
+
+
+    // if there is nothing to render end the render process
+    if(renderContext->drawCalls.empty())
+    {
+        cmdB.endRendering();
+        //m_renderingStatistics.DrawCallCount = drawCallCount;
+        return;
+    }
+    //=================================================
+    // UPDATE DESCRIPTOR SETS
+    //=================================================
+
+    auto  currentVertexBuffer = renderContext->drawCalls.begin()->second.vertexData;
+    auto  currentIndexBuffer  = renderContext->drawCalls.begin()->second.indexData;
+    auto& currentEffect       = renderContext->drawCalls.begin()->second.effect;
+
+    vk::DeviceSize indexBufferOffset = 0;
+
+    cmdB.bindVertexBuffers(0, {currentVertexBuffer->buffer}, {0});
+    cmdB.bindIndexBuffer(currentIndexBuffer->buffer, 0, vk::IndexType::eUint32);
+    //============================================
+    // CONFIGURE VIEW PORT
+    //===============================================
+    Renderer::ConfigureViewPort(cmdB, m_width, m_height);
+
+    //=================================================
+    // RECORD OPAQUE DRAW CALLS
+    //=================================================
+    currentEffect->BindPipeline(cmdB);
+    currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+
+    for(auto& drawCall : renderContext->drawCalls)
+    {
+        if(drawCall.second.postProcessingEffect)
+        {
+            continue;
+        }
+        auto& material = drawCall.second.material;
+        if(drawCall.second.effect != currentEffect)
+        {
+            currentEffect = drawCall.second.effect;
+            drawCall.second.effect->BindPipeline(cmdB);
+            currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+        }
+
+        if(drawCall.second.selected)
+            cmdB.setStencilTestEnable(true);
+        else
+            cmdB.setStencilTestEnable(false);
+
+        //================================================================================================
+        // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
+        //================================================================================================
+        if(currentVertexBuffer->BufferID != drawCall.second.vertexData->BufferID)
+        {
+            auto firstBinding = 0;
+
+            std::vector<vk::Buffer>     vertexBuffers = {drawCall.second.vertexData->buffer};
+            std::vector<vk::DeviceSize> offsets       = {0};
+            vertexBuffers                             = {drawCall.second.vertexData->buffer};
+            cmdB.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+            currentVertexBuffer = drawCall.second.vertexData;
+        }
+
+        if(currentIndexBuffer->BufferID != drawCall.second.indexData->BufferID)
+        {
+            indexBufferOffset = 0;
+            cmdB.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
+            currentIndexBuffer = drawCall.second.indexData;
+        }
+
+
+        PerObjectPushConstant pc{};
+        pc.indexes.x   = drawCall.second.drawCallID;
+        pc.modelMatrix = drawCall.second.modelMatrix;
+
+        vk::PushConstantsInfo pcInfo;
+        pcInfo.layout     = drawCall.second.effect->GetPipelineLayout();
+        pcInfo.size       = sizeof(PerObjectPushConstant);
+        pcInfo.offset     = 0;
+        pcInfo.pValues    = &pc;
+        pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+        drawCall.second.effect->CmdPushConstant(cmdB, pcInfo);
+
+
+        cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
+                         drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                         drawCall.second.vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
+
+
+        //m_forwardRendererOutput = &m_renderTargets[EForwardRenderAttachments::Main]->GetResolvedImage();
+
+        drawCallCount++;
+    }
+
+    cmdB.endRendering();
+
+
+    m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                vk::ImageLayout::eColorAttachmentOptimal);
+
+    renderContext->depthBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilReadOnlyOptimal,
+                                                vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+    //m_renderingStatistics.DrawCallCount = drawCallCount;
 }
 
 

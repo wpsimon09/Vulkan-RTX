@@ -18,7 +18,7 @@ enum EForwardRenderEffects {
      EditorBilboard,
 
      // all new effects have to go above this
-     Size
+     ForwardRenderEffectsCount
 };
 
 enum EForwardRenderAttachments {

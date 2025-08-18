@@ -26,7 +26,9 @@ class VDevice;
 }
 namespace Renderer {
 
-
+/**
+ * Base class that all render passes are inheriting
+ */
 class RenderPass
 {
   public:

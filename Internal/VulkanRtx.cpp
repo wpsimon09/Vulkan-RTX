@@ -74,6 +74,7 @@
 #include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/GBufferPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 
 
 Application::Application() = default;
