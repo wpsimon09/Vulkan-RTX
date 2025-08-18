@@ -240,6 +240,8 @@ set(SOURCES
         Internal/Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp
         Internal/Vulkan/Renderer/Renderers/RenderPass/GBufferPass.cpp
         Internal/Vulkan/Renderer/Renderers/RenderPass/GBufferPass.hpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/DenoisePass.cpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp
 )
 
 
