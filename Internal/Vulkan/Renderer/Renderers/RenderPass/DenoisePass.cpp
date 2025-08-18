@@ -6,12 +6,17 @@
 
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
+#include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
+#include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
+#include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace Renderer {
 BilateralFilterPass::BilateralFilterPass(const VulkanCore::VDevice&          device,
                                          VulkanCore::VDescriptorLayoutCache& descLayoutCache,
-                                         const VulkanCore::VImage2&          inputImage,
+                                         VulkanCore::VImage2&          inputImage,
                                          int                                 width,
                                          int                                 height)
     : RenderPass(device, width, height)
@@ -36,16 +41,26 @@ BilateralFilterPass::BilateralFilterPass(const VulkanCore::VDevice&          dev
   denoisedResultCI.computeShaderOutput = true;
 
   m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, denoisedResultCI));
-
-
-
-
 }
 
 void BilateralFilterPass::Init(int                                 currentFrameIndex,
                                VulkanUtils::VUniformBufferManager& uniformBufferManager,
                                VulkanUtils::RenderContext*         renderContext)
 {
+  m_bilateralFileter->SetNumWrites(1, 4, 0);
+
+  //m_bilateralFileter->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+
+  m_bilateralFileter->WriteImage(currentFrameIndex, 0, 1,
+                                  m_inputImage.GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+  m_bilateralFileter->WriteImage(currentFrameIndex, 0, 2, m_renderTargets[EBilateralFilterAttachments::Result]->GetPrimaryImage().GetDescriptorImageInfo());
+
+  m_bilateralFileter->WriteImage(currentFrameIndex, 0, 3,
+                                  renderContext->normalMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+  m_bilateralFileter->ApplyWrites(currentFrameIndex);
+
 }
 
 void BilateralFilterPass::Update(int                                   currentFrame,
@@ -53,10 +68,42 @@ void BilateralFilterPass::Update(int                                   currentFr
                                  VulkanUtils::RenderContext*           renderContext,
                                  VulkanStructs::PostProcessingContext* postProcessingContext)
 {
+  m_bilateralFilterParameters = uniformBufferManager.GetApplicationState()->GetBilateralFilaterParameters();
+
+  m_bilateralFilterParameters.width  = m_renderTargets[EBilateralFilterAttachments::Result]->GetPrimaryImage().GetImageInfo().width;
+  m_bilateralFilterParameters.height = m_renderTargets[EBilateralFilterAttachments::Result]->GetPrimaryImage().GetImageInfo().height;
+
 }
 
 void BilateralFilterPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
 {
+  assert(cmdBuffer.GetIsRecording() && " Command buffer is not in recording state");
+
+  VulkanUtils::PlaceImageMemoryBarrier(m_renderTargets[EBilateralFilterAttachments::Result]->GetPrimaryImage(), cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                       vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eColorAttachmentOutput,
+                                       vk::PipelineStageFlagBits::eComputeShader,
+                                       vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderWrite);
+
+  m_bilateralFileter->BindPipeline(cmdBuffer.GetCommandBuffer());
+  m_bilateralFileter->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+
+  vk::PushConstantsInfo pcInfo;
+  pcInfo.layout     = m_bilateralFileter->GetPipelineLayout();
+  pcInfo.size       = sizeof(BilaterialFilterParameters);
+  pcInfo.offset     = 0;
+  pcInfo.pValues    = &m_bilateralFilterParameters;
+  pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+  m_bilateralFileter->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+
+  cmdBuffer.GetCommandBuffer().dispatch(m_bilateralFilterParameters.width  / 16,
+                                        m_bilateralFilterParameters.height / 16, 1);
+
+  VulkanUtils::PlaceImageMemoryBarrier(m_renderTargets[EBilateralFilterAttachments::Result]->GetPrimaryImage(), cmdBuffer, vk::ImageLayout::eGeneral,
+                                       vk::ImageLayout::eShaderReadOnlyOptimal, vk::PipelineStageFlagBits::eComputeShader,
+                                       vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eShaderWrite,
+                                       vk::AccessFlagBits::eShaderRead);
+
 }
 
 }  // namespace Renderer
