@@ -171,10 +171,10 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     //==================================================================================================
     // New render pass system
-    m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device, descLayoutCache, width, height);
-    m_gBufferPass = std::make_unique<Renderer::GBufferPass>(device, descLayoutCache, width, height);
-    m_visibilityDenoisePass = std::make_unique<Renderer::BilateralFilterPass>(device, descLayoutCache, m_visibilityBufferPass->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer), width, height);
-    m_forwardLightPass = std::make_unique<Renderer::ForwardRender>(device, descLayoutCache, width, height);
+    m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device,effectsLibrary, width, height);
+    m_gBufferPass = std::make_unique<Renderer::GBufferPass>(device,effectsLibrary, width, height);
+    m_visibilityDenoisePass = std::make_unique<Renderer::BilateralFilterPass>(device, effectsLibrary, m_visibilityBufferPass->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer), width, height);
+    m_forwardLightPass = std::make_unique<Renderer::ForwardRender>(device, effectsLibrary, width, height);
 
     m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
     m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);

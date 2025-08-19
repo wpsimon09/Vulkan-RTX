@@ -4,6 +4,7 @@
 
 #include "VisibilityBufferPass.hpp"
 #include "RenderPass.hpp"
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/Utils/LookUpTables.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
@@ -16,29 +17,15 @@
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 
 namespace Renderer {
-VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height)
+VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
     : Renderer::RenderPass(device, width, height), m_aoOcclusionParameters{}
 {
     //=================================================
     // create the effect
-    m_rayTracedShadowEffect = std::make_unique<VulkanUtils::VRasterEffect>(device, "Ray traced shadow map effect",
-                                                                           "Shaders/Compiled/RTShadowPass.vert.spv",
-                                                                           "Shaders/Compiled/RTShadowPass.frag.spv",
-                                                                           descLayoutCache, EShaderBindingGroup::ShadowRT);
-    m_rayTracedShadowEffect->SetDisableDepthTest()
-        .DisableStencil()
-        .SetCullNone()
-        .SetNullVertexBinding()
-        .SetColourOutputFormat(vk::Format::eR16G16B16A16Sfloat)
-        .SetPiplineNoMultiSampling();
-
-    m_rayTracedShadowEffect->BuildEffect();
+    m_rayTracedShadowEffect = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::RTShadowPass);
 
     //===================================================
     // create render target
-
-    //==================
-    // Shadow map
     Renderer::RenderTarget2CreatInfo shadowMapCI{
         width,
         height,

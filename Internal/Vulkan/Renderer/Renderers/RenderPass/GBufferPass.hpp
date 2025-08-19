@@ -18,7 +18,7 @@ enum EGBufferAttachments {
 class GBufferPass : public Renderer::RenderPass
 {
   public:
-    GBufferPass(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height);
+    GBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary,  int width, int height);
 
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
 
@@ -32,7 +32,7 @@ class GBufferPass : public Renderer::RenderPass
     RenderTarget2& GetDepthAttachment();
 private:
   int m_numGBufferAttachments = EGBufferAttachments::Size;
-  std::unique_ptr<VulkanUtils::VRasterEffect> m_gBufferEffect;
+  std::shared_ptr<VulkanUtils::VRasterEffect> m_gBufferEffect;
   std::unique_ptr<Renderer::RenderTarget2> m_depthBuffer;
 };
 

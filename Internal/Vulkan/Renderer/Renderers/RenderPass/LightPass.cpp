@@ -4,6 +4,7 @@
 
 #include "LightPass.hpp"
 
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
@@ -15,100 +16,44 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace Renderer {
-ForwardRender::ForwardRender(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height)
+ForwardRender::ForwardRender(const VulkanCore::VDevice& device,ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
     : RenderPass(device, width, height)
 {
 
     //=====================================================================
     // Forward Lit Effect (main opaque forward shader)
     //=====================================================================
-    auto frowardEffect =
-        std::make_unique<VulkanUtils::VRasterEffect>(device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv",
-                                                     "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
-                                                     descLayoutCache, EShaderBindingGroup::ForwardLit);
-    frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
-
-    m_effects[EForwardRenderEffects::ForwardShader] = std::move(frowardEffect);
+    m_effects[EForwardRenderEffects::ForwardShader] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::ForwardShader);
 
     //=====================================================================
     // Transparent Forward Lit (alpha blend / additive pass)
     //=====================================================================
-    auto transparentEffect = std::make_unique<VulkanUtils::VRasterEffect>(
-        device, "Forward lit transparent", "Shaders/Compiled/BasicTriangle.vert.spv",
-        "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv", descLayoutCache, EShaderBindingGroup::ForwardLit);
-
-    transparentEffect->SetTopology(vk::PrimitiveTopology::eTriangleList).EnableAdditiveBlending().SetDepthOpLessEqual();
-
-    transparentEffect->EnableAdditiveBlending();
-
-    m_effects[EForwardRenderEffects::AplhaBlend] = std::move(transparentEffect);
+    m_effects[EForwardRenderEffects::AplhaBlend] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::AlphaMask);;
 
     //=====================================================================
     // Editor Billboards (icons, gizmos, unlit quads)
     //=====================================================================
-    auto editorBillboards =
-        std::make_unique<VulkanUtils::VRasterEffect>(device, "Editor billboards", "Shaders/Compiled/EditorBillboard.vert.spv",
-                                                     "Shaders/Compiled/EditorBilboard.frag.spv", descLayoutCache,
-                                                     EShaderBindingGroup::ForwardUnlit);
-
-    editorBillboards->SetTopology(vk::PrimitiveTopology::eTriangleList).SetCullNone().SetVertexInputMode(EVertexInput::Position_UV);
-    //.SetDepthOpLessEqual();
-
-    m_effects[EForwardRenderEffects::EditorBilboard] = std::move(editorBillboards);
+    m_effects[EForwardRenderEffects::EditorBilboard] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::EditorBilboard);
 
     //=====================================================================
     // Debug Lines (wireframe-style lines for debugging)
     //=====================================================================
-    auto debugLine = std::make_unique<VulkanUtils::VRasterEffect>(device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv",
-                                                                  "Shaders/Compiled/DebugLines.frag.spv", descLayoutCache,
-                                                                  EShaderBindingGroup::ForwardUnlitNoMaterial);
-
-    debugLine->SetTopology(vk::PrimitiveTopology::eTriangleList)
-        .SetCullNone()
-        .SetPolygonLine()
-        .SetLineWidth(2)
-        .SetVertexInputMode(EVertexInput::PositionOnly)
-        .SetDepthOpLessEqual();
-
-    m_effects[EForwardRenderEffects::DebugLine] = std::move(debugLine);
+    m_effects[EForwardRenderEffects::DebugLine] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::DebugLine);
 
     //=====================================================================
     // Object Outline Pass (stencil-based outlines)
     //=====================================================================
-    auto outline = std::make_unique<VulkanUtils::VRasterEffect>(device, "Outline", "Shaders/Compiled/DebugLines.vert.spv",
-                                                                "Shaders/Compiled/Outliines.frag.spv", descLayoutCache,
-                                                                EShaderBindingGroup::ForwardUnlitNoMaterial);
-
-    outline->SetStencilTestOutline().SetVertexInputMode(EVertexInput::PositionOnly).SetDepthOpAllways();
-
-    m_effects[EForwardRenderEffects::Outline] = std::move(outline);
+    m_effects[EForwardRenderEffects::Outline] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::Outline);
 
     //=====================================================================
     // Debug Shapes (lines, wireframe primitives, geometry helpers)
     //=====================================================================
-    auto debugShapes = std::make_unique<VulkanUtils::VRasterEffect>(device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv",
-                                                                    "Shaders/Compiled/DebugGeometry.frag.spv", descLayoutCache,
-                                                                    EShaderBindingGroup::ForwardUnlitNoMaterial);
-
-    debugShapes->SetCullNone()
-        .SetLineWidth(7)
-        .SetPolygonLine()
-        .SetVertexInputMode(EVertexInput::PositionOnly)
-        .SetTopology(vk::PrimitiveTopology::eLineList)
-        .SetDepthOpLessEqual();
-
-    m_effects[EForwardRenderEffects::DebugLine] = std::move(debugShapes);
+    m_effects[EForwardRenderEffects::DebugLine] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::DebugLine);
 
     //=====================================================================
     // Skybox (environment cube rendering)
     //=====================================================================
-    auto skybox = std::make_unique<VulkanUtils::VRasterEffect>(device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv",
-                                                               "Shaders/Compiled/SkyBox.frag.spv", descLayoutCache,
-                                                               EShaderBindingGroup::Skybox);
-
-    skybox->SetCullNone().SetVertexInputMode(EVertexInput::PositionOnly).SetDisableDepthWrite().SetDepthOpLessEqual().DisableStencil();
-
-    m_effects[EForwardRenderEffects::SkyBox] = std::move(skybox);
+    m_effects[EForwardRenderEffects::SkyBox] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::SkyBox);
     //=====================================================================
 
     //======================================================================
@@ -194,7 +139,7 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 e->WriteBuffer(currentFrame, 0, 1, uniformBufferManager.GetPerObjectBuffer(currentFrame));
 
                 //===================================
-                // std::vector<PerObjectData> SSBO.
+                // std::vector<PerObjectData> SSBO.g
                 e->WriteBuffer(currentFrame, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrame));
                 break;
             }

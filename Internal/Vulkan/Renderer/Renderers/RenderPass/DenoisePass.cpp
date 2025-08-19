@@ -4,6 +4,7 @@
 
 #include "DenoisePass.hpp"
 
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
@@ -15,7 +16,7 @@
 
 namespace Renderer {
 BilateralFilterPass::BilateralFilterPass(const VulkanCore::VDevice&          device,
-                                         VulkanCore::VDescriptorLayoutCache& descLayoutCache,
+ApplicationCore::EffectsLibrary& effectsLibrary,
                                          VulkanCore::VImage2&          inputImage,
                                          int                                 width,
                                          int                                 height)
@@ -25,10 +26,7 @@ BilateralFilterPass::BilateralFilterPass(const VulkanCore::VDevice&          dev
 
   //===========================================================
   // create and build effect
-  m_bilateralFileter = std::make_unique<VulkanUtils::VComputeEffect>(m_device, "BilaterialPass", "Shaders/Compiled/Bilaterial-Filter.spv",
-                                                        descLayoutCache, EShaderBindingGroup::ComputePostProecess);
-  m_bilateralFileter->BuildEffect();
-
+  m_bilateralFileter = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BilateralFilter);
   //============================================================
   // create compute attachment
   Renderer::RenderTarget2CreatInfo denoisedResultCI;
