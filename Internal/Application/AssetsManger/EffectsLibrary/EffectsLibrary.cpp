@@ -226,6 +226,10 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     effects[EEffectType::AverageLuminance] = std::move(averageLuminance);
     //================================================================================
 
+    auto bilateralFilter = std::make_shared<VulkanUtils::VComputeEffect>(device, "Bilateral filter", "Shaders/Compiled/Bilaterial-Filter.spv", descLayoutCache, EShaderBindingGroup::ComputePostProecess);
+
+    effects[EEffectType::BilateralFilter] = std::move(bilateralFilter);
+
     BuildAllEffects();
 
 }
