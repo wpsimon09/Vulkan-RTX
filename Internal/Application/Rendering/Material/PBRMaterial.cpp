@@ -19,7 +19,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore {
-PBRMaterial::PBRMaterial(Renderer::EForwardRenderEffects effect, MaterialPaths& materialPaths, AssetsManager& assets_manager)
+PBRMaterial::PBRMaterial(uint32_t effect, MaterialPaths& materialPaths, AssetsManager& assets_manager)
     : m_materialPaths(materialPaths)
     , BaseMaterial(effect)
 {

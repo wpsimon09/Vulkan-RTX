@@ -18,7 +18,6 @@
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 namespace Renderer {
 class ForwardRender;
-class BilateralFilterPass;
 }
 // Forward declarations
 namespace VEditor {
@@ -26,6 +25,7 @@ class RenderingOptions;
 }
 
 namespace Renderer {
+class BilateralFilterPass;
 class GBufferPass;
 class RenderTarget2;
 class VisibilityBufferPass;
@@ -69,10 +69,10 @@ class ForwardRenderer
               VulkanUtils::RenderContext*          renderContext);
 
     void Update(int                                   currentFrame,
-                           VulkanUtils::VUniformBufferManager&   uniformBufferManager,
-                           VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
-                           VulkanUtils::RenderContext*           renderContext,
-                           VulkanStructs::PostProcessingContext* postProcessingContext);
+                VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
+                VulkanUtils::RenderContext*           renderContext,
+                VulkanStructs::PostProcessingContext* postProcessingContext);
 
     void Render(int                                       currentFrameIndex,
                 VulkanCore::VCommandBuffer&               cmdBuffer,
@@ -165,10 +165,9 @@ class ForwardRenderer
     VulkanStructs::VDrawCallData* m_postProcessingFogVolumeDrawCall = nullptr;
 
     std::unique_ptr<Renderer::VisibilityBufferPass> m_visibilityBufferPass;
-    std::unique_ptr<Renderer::GBufferPass> m_gBufferPass;
-    std::unique_ptr<Renderer::BilateralFilterPass> m_visibilityDenoisePass;
-    std::unique_ptr<Renderer::ForwardRender> m_forwardLightPass;
-
+    std::unique_ptr<Renderer::GBufferPass>          m_gBufferPass;
+    std::unique_ptr<Renderer::BilateralFilterPass>  m_visibilityDenoisePass;
+    std::unique_ptr<Renderer::ForwardRender>        m_forwardRenderPass;
     // Editor integration
     friend class VEditor::RenderingOptions;
 };

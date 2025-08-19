@@ -16,44 +16,52 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace Renderer {
-ForwardRender::ForwardRender(const VulkanCore::VDevice& device,ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
+ForwardRender::ForwardRender(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
     : RenderPass(device, width, height)
 {
 
     //=====================================================================
     // Forward Lit Effect (main opaque forward shader)
     //=====================================================================
-    m_effects[EForwardRenderEffects::ForwardShader] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::ForwardShader);
+    m_effects[EForwardRenderEffects::ForwardShader] =
+        effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::ForwardShader);
 
     //=====================================================================
     // Transparent Forward Lit (alpha blend / additive pass)
     //=====================================================================
-    m_effects[EForwardRenderEffects::AplhaBlend] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::AlphaMask);;
+    m_effects[EForwardRenderEffects::AplhaBlend] =
+        effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::AlphaMask);
+    ;
 
     //=====================================================================
     // Editor Billboards (icons, gizmos, unlit quads)
     //=====================================================================
-    m_effects[EForwardRenderEffects::EditorBilboard] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::EditorBilboard);
+    m_effects[EForwardRenderEffects::EditorBilboard] =
+        effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::EditorBilboard);
 
     //=====================================================================
     // Debug Lines (wireframe-style lines for debugging)
     //=====================================================================
-    m_effects[EForwardRenderEffects::DebugLine] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::DebugLine);
+    m_effects[EForwardRenderEffects::DebugLine] =
+        effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::DebugLine);
 
     //=====================================================================
     // Object Outline Pass (stencil-based outlines)
     //=====================================================================
-    m_effects[EForwardRenderEffects::Outline] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::Outline);
+    m_effects[EForwardRenderEffects::Outline] =
+        effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::Outline);
 
     //=====================================================================
     // Debug Shapes (lines, wireframe primitives, geometry helpers)
     //=====================================================================
-    m_effects[EForwardRenderEffects::DebugLine] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::DebugLine);
+    m_effects[EForwardRenderEffects::DebugLine] =
+        effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::DebugLine);
 
     //=====================================================================
     // Skybox (environment cube rendering)
     //=====================================================================
-    m_effects[EForwardRenderEffects::SkyBox] = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::SkyBox);
+    m_effects[EForwardRenderEffects::SkyBox] =
+        effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::SkyBox);
     //=====================================================================
 
     //======================================================================
@@ -168,53 +176,57 @@ void ForwardRender::Update(int                                   currentFrame,
         //=========================
         // for each frame in flight
 
-          switch(e->GetBindingGroup())
-            {
+        switch(e->GetBindingGroup())
+        {
 
-                case EShaderBindingGroup::ForwardLit: {
+            case EShaderBindingGroup::ForwardLit: {
 
-                    e->SetNumWrites(0, 6200, 0);
-                    // TODO: write only so many texture as are in the view frustrum
-                    e->WriteImageArray(currentFrame, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
+                e->SetNumWrites(0, 6200, 0);
+                // TODO: write only so many texture as are in the view frustrum
+                e->WriteImageArray(currentFrame, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
 
-                    if(renderContext->irradianceMap)
-                    {
-                        e->WriteImage(currentFrame, 1, 2, renderContext->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
-                    }
-                    if(renderContext->prefilterMap)
-                    {
-                        e->WriteImage(currentFrame, 1, 3, renderContext->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
-                    }
-                    if(renderContext->brdfMap)
-                    {
-                        e->WriteImage(currentFrame, 1, 4, renderContext->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-                    }
-                    break;
+                if(renderContext->irradianceMap)
+                {
+                    e->WriteImage(currentFrame, 1, 2,
+                                  renderContext->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
                 }
-                case EShaderBindingGroup::ForwardUnlit: {
-                    e->SetNumWrites(0, 5600, 0);
-                    e->WriteImageArray(currentFrame, 1, 0, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
-                    break;
+                if(renderContext->prefilterMap)
+                {
+                    e->WriteImage(currentFrame, 1, 3,
+                                  renderContext->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
                 }
-                case EShaderBindingGroup::ForwardUnlitNoMaterial: {
-                    break;
+                if(renderContext->brdfMap)
+                {
+                    e->WriteImage(currentFrame, 1, 4,
+                                  renderContext->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                 }
-                case EShaderBindingGroup::Skybox: {
-                    //====================================
-                    // global data
-                    e->SetNumWrites(0, 1);
-                    if(renderContext->hdrCubeMap)
-                    {
-                        e->WriteImage(currentFrame, 1, 0, renderContext->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-                    }
-                    break;
-                }
-
-                default: {
-                    // throw std::runtime_error("Unsupported bindinggroup !");
-                    break;
-                }
+                break;
             }
+            case EShaderBindingGroup::ForwardUnlit: {
+                e->SetNumWrites(0, 5600, 0);
+                e->WriteImageArray(currentFrame, 1, 0, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
+                break;
+            }
+            case EShaderBindingGroup::ForwardUnlitNoMaterial: {
+                break;
+            }
+            case EShaderBindingGroup::Skybox: {
+                //====================================
+                // global data
+                e->SetNumWrites(0, 1);
+                if(renderContext->hdrCubeMap)
+                {
+                    e->WriteImage(currentFrame, 1, 0,
+                                  renderContext->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                }
+                break;
+            }
+
+            default: {
+                // throw std::runtime_error("Unsupported bindinggroup !");
+                break;
+            }
+        }
 
         e->ApplyWrites(currentFrame);
     }
@@ -222,19 +234,19 @@ void ForwardRender::Update(int                                   currentFrame,
 
 void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
 {
-        assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
+    assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
     int drawCallCount = 0;
     //==============================================
     // CREATE RENDER PASS INFO
     //==============================================
     std::vector<vk::RenderingAttachmentInfo> colourAttachments = {
-        m_renderTargets[EForwardRenderAttachments::Main]->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
-                                                     vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
+        m_renderTargets[EForwardRenderAttachments::Main]->GenerateAttachmentInfo(
+            vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
     };
 
     auto depthAttachment =
         renderContext->depthBuffer->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                     vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);
+                                                           vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);
 
     vk::RenderingInfo renderingInfo;
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
@@ -254,7 +266,7 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
 
 
     m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                                vk::ImageLayout::eShaderReadOnlyOptimal);
+                                                                            vk::ImageLayout::eShaderReadOnlyOptimal);
 
 
     cmdB.beginRendering(&renderingInfo);
@@ -273,7 +285,7 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
 
     auto  currentVertexBuffer = renderContext->drawCalls.begin()->second.vertexData;
     auto  currentIndexBuffer  = renderContext->drawCalls.begin()->second.indexData;
-    auto& currentEffect       = renderContext->drawCalls.begin()->second.effect;
+    auto& currentEffect       = m_effects[(EForwardRenderEffects)renderContext->drawCalls.begin()->second.effect];
 
     vk::DeviceSize indexBufferOffset = 0;
 
@@ -297,10 +309,10 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
             continue;
         }
         auto& material = drawCall.second.material;
-        if(drawCall.second.effect != currentEffect)
+        if(m_effects[(EForwardRenderEffects)drawCall.second.effect] != currentEffect)
         {
-            currentEffect = drawCall.second.effect;
-            drawCall.second.effect->BindPipeline(cmdB);
+            currentEffect = m_effects[(EForwardRenderEffects)drawCall.second.effect];
+            m_effects[(EForwardRenderEffects)drawCall.second.effect]->BindPipeline(cmdB);
             currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
         }
 
@@ -336,13 +348,13 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
         pc.modelMatrix = drawCall.second.modelMatrix;
 
         vk::PushConstantsInfo pcInfo;
-        pcInfo.layout     = drawCall.second.effect->GetPipelineLayout();
+        pcInfo.layout     = m_effects[(EForwardRenderEffects)drawCall.second.effect]->GetPipelineLayout();
         pcInfo.size       = sizeof(PerObjectPushConstant);
         pcInfo.offset     = 0;
         pcInfo.pValues    = &pc;
         pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
 
-        drawCall.second.effect->CmdPushConstant(cmdB, pcInfo);
+        m_effects[(EForwardRenderEffects)drawCall.second.effect]->CmdPushConstant(cmdB, pcInfo);
 
 
         cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
@@ -359,10 +371,10 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
 
 
     m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                vk::ImageLayout::eColorAttachmentOptimal);
+                                                                            vk::ImageLayout::eColorAttachmentOptimal);
 
     renderContext->depthBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilReadOnlyOptimal,
-                                                vk::ImageLayout::eDepthStencilAttachmentOptimal);
+                                                      vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
     //m_renderingStatistics.DrawCallCount = drawCallCount;
 }

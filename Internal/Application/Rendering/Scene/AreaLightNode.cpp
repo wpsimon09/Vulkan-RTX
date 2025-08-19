@@ -7,6 +7,7 @@
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Lightning/LightStructs.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 namespace ApplicationCore {
@@ -53,10 +54,10 @@ void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
         data.material    = m_mesh->GetMaterial().get();
 
         if(renderingContext->WireFrameRendering)
-            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
+            data.effect = Renderer::EForwardRenderEffects::DebugLine;
         else
         {
-            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard);
+            data.effect = Renderer::EForwardRenderEffects::EditorBilboard;
         }
 
         data.position = m_transformation->GetPosition();
@@ -66,7 +67,7 @@ void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
         renderingContext->AddDrawCall(data);
 
         // visualisation of the light
-        data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
+        data.effect = Renderer::EForwardRenderEffects::DebugLine;
         if(m_visualisationMesh)
         {
             data.vertexData = &m_visualisationMesh->GetMeshData()->vertexData;
@@ -77,7 +78,7 @@ void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
 
         if(m_sceneNodeMetaData.IsSelected)
         {
-            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::Outline);
+            data.effect = Renderer::EForwardRenderEffects::Outline;
             renderingContext->AddDrawCall(data);
         }
     }

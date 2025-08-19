@@ -4,19 +4,27 @@
 
 #ifndef VULKAN_RTX_LIGHTPASS_HPP
 #define VULKAN_RTX_LIGHTPASS_HPP
-#include "RenderPass.hpp"
+
+#include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
 #include "unordered_map"
 
 namespace ApplicationCore {
   class EffectsLibrary;
-}
+};
 
 namespace VulkanStructs {
   struct PostProcessingContext;
-}
+};
 
 namespace VulkanUtils {
   class VRasterEffect;
+  class VUniformBufferManager;
+  struct RenderContext;
+};
+
+namespace VulkanCore {
+  class VDevice;
+  class VCommandBuffer;
 }
 
 namespace Renderer {
@@ -29,6 +37,7 @@ enum EForwardRenderEffects {
      AlphaMask,
      AplhaBlend,
      EditorBilboard,
+     WireFrame,
 
      // all new effects have to go above this
      ForwardRenderEffectsCount

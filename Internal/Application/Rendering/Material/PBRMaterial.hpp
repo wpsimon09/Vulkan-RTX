@@ -52,7 +52,7 @@ class AssetsManager;
 class PBRMaterial : public BaseMaterial
 {
   public:
-    explicit PBRMaterial(Renderer::EForwardRenderEffects effect, MaterialPaths& materialPaths, AssetsManager& assets_manager);
+    explicit PBRMaterial(uint32_t effect, MaterialPaths& materialPaths, AssetsManager& assets_manager);
 
     PBRMaterialDescription&                          GetMaterialDescription() { return m_materialDescription; }
     std::shared_ptr<ApplicationCore::VTextureAsset>& GetTexture(ETextureType type) { return m_textures[type]; }

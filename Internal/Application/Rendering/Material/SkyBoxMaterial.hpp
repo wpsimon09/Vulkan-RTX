@@ -24,7 +24,6 @@ class SkyBoxMaterial : public ApplicationCore::BaseMaterial
   public:
     SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager);
 
-    void ChangeEffect(std::shared_ptr<VulkanUtils::VRasterEffect> newEffect) override;
     std::shared_ptr<ApplicationCore::VTextureAsset> GetHDRTexture();
     std::vector<std::shared_ptr<VTextureAsset>> EnumarateTexture() override;
 

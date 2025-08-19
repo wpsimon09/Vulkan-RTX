@@ -5,7 +5,6 @@
 #ifndef BASEMATERIAL_HPP
 #define BASEMATERIAL_HPP
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
-#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 
 #include <memory>
 #include <vulkan/vulkan.hpp>
@@ -27,31 +26,31 @@ inline int MaterialIndexCounter = 0;
 class BaseMaterial
 {
   public:
-    BaseMaterial(Renderer::EForwardRenderEffects effect);
+    BaseMaterial(uint32_t effectID);
 
     bool&                                        IsTransparent() { return m_transparent; }
     void                                         SetTransparent(bool value) { m_transparent = value; }
     bool                                         IsSavable() const { return m_savable; }
     void                                         SetSavable(bool savable) { m_savable = savable; }
     int                                          GetID() { return ID; }
-    virtual void                                 ChangeEffect(std::shared_ptr<VulkanUtils::VRasterEffect> newEffect);
     std::string&                                 GetMaterialName() { return m_materialName; }
-    std::shared_ptr<VulkanUtils::VRasterEffect>& GetEffect();
+
     void                                         ResetEffect();
     void                                         SetMaterialname(std::string newName);
     uint32_t                                     GetSceneIndex();
     void                                         SetSceneIndex(uint32_t newIndex);
     virtual std::vector<std::shared_ptr<VTextureAsset>> EnumarateTexture() = 0;
-    void                                                SetMaterialEffect(Renderer::EForwardRenderEffects newEffect);
-    Renderer::EForwardRenderEffects                     GetMatearialEffect();
+
+    void                                                SetMaterialEffect(uint32_t newEffect);
+    uint32_t                                            GetMatearialEffect();
 
   protected:
-    bool                            m_transparent = false;
-    bool                            m_savable     = false;
-    int                             ID;
-    std::string                     m_materialName;
-    Renderer::EForwardRenderEffects m_materialEffectType;
-    Renderer::EForwardRenderEffects m_defaultMaterialEffect;
+    bool        m_transparent = false;
+    bool        m_savable     = false;
+    int         ID;
+    std::string m_materialName;
+    uint32_t    m_materialEffectType;
+    uint32_t    m_defaultMaterialEffect;
 
     uint32_t m_sceneIndex = 0;
 

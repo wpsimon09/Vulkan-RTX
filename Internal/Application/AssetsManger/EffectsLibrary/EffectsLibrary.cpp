@@ -37,6 +37,109 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
                                VulkanCore::VDescriptorLayoutCache&  descLayoutCache)
     : m_descLayoutCache(descLayoutCache)
 {
+    auto frowardEffect =
+        std::make_shared<VulkanUtils::VRasterEffect>(device, "Forward lit", "Shaders/Compiled/BasicTriangle.vert.spv",
+                                                     "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv",
+                                                     descLayoutCache, EShaderBindingGroup::ForwardLit);
+    frowardEffect->SetTopology(vk::PrimitiveTopology::eTriangleList);
+    if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
+    {
+        frowardEffect->SetDisableDepthWrite();
+    }
+
+
+    effects[EEffectType::ForwardShader] = std::move(frowardEffect);
+
+
+    //==============================================================================
+
+    auto transparentEffect = std::make_shared<VulkanUtils::VRasterEffect>(
+        device, "Forward lit transparent", "Shaders/Compiled/BasicTriangle.vert.spv",
+        "Shaders/Compiled/GGXColourFragmentMultiLight.frag.spv", descLayoutCache, EShaderBindingGroup::ForwardLit);
+
+    transparentEffect->SetTopology(vk::PrimitiveTopology::eTriangleList).EnableAdditiveBlending().SetDepthOpLessEqual();
+
+    if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
+    {
+        transparentEffect->SetDisableDepthWrite();
+    }
+
+    effects[EEffectType::AplhaBlend] = std::move(transparentEffect);
+
+    //==============================================================================
+
+    auto editorBillboards =
+        std::make_shared<VulkanUtils::VRasterEffect>(device, "Editor billboards", "Shaders/Compiled/EditorBillboard.vert.spv",
+                                                     "Shaders/Compiled/EditorBilboard.frag.spv", descLayoutCache,
+                                                     EShaderBindingGroup::ForwardUnlit);
+
+    editorBillboards->SetTopology(vk::PrimitiveTopology::eTriangleList).SetCullNone().SetVertexInputMode(EVertexInput::Position_UV)
+        //.SetDepthOpLessEqual()
+        ;
+
+
+    effects[EEffectType::EditorBilboard] = std::move(editorBillboards);
+
+    //==============================================================================
+
+    auto debugLine = std::make_shared<VulkanUtils::VRasterEffect>(device, "Debug lines", "Shaders/Compiled/DebugLines.vert.spv",
+                                                                  "Shaders/Compiled/DebugLines.frag.spv",
+                                                                  descLayoutCache, ForwardUnlitNoMaterial);
+
+    debugLine->SetTopology(vk::PrimitiveTopology::eTriangleList)
+        .SetCullNone()
+        .SetPolygonLine()
+        .SetLineWidth(2)
+        .SetVertexInputMode(EVertexInput::PositionOnly)
+        .SetDepthOpLessEqual();
+
+
+    effects[EEffectType::DebugLine] = std::move(debugLine);
+
+    //==============================================================================
+
+    auto outline = std::make_shared<VulkanUtils::VRasterEffect>(device, "Outline", "Shaders/Compiled/DebugLines.vert.spv",
+                                                                "Shaders/Compiled/Outliines.frag.spv", descLayoutCache,
+                                                                EShaderBindingGroup::ForwardUnlitNoMaterial);
+
+    outline
+        //->SetC()
+        ->SetStencilTestOutline()
+        .SetVertexInputMode(EVertexInput::PositionOnly)
+        .SetDepthOpAllways();
+
+
+    effects[EEffectType::Outline] = std::move(outline);
+
+    //===============================================================================
+
+    auto debugShapes = std::make_shared<VulkanUtils::VRasterEffect>(device, "Debug shapes", "Shaders/Compiled/DebugLines.vert.spv",
+                                                                    "Shaders/Compiled/DebugGeometry.frag.spv", descLayoutCache,
+                                                                    EShaderBindingGroup::ForwardUnlitNoMaterial);
+
+    debugShapes->SetCullNone()
+        .SetLineWidth(7)
+        .SetPolygonLine()
+        .SetVertexInputMode(EVertexInput::PositionOnly)
+        .SetTopology(vk::PrimitiveTopology::eLineList)
+        .SetDepthOpLessEqual();
+    if(GlobalVariables::RenderingOptions::PreformDepthPrePass)
+    {
+        debugShapes->SetDisableDepthWrite();
+    }
+
+    effects[EEffectType::DebugLine] = std::move(debugShapes);
+
+    //===============================================================================
+
+    auto skybox = std::make_shared<VulkanUtils::VRasterEffect>(device, "Sky Box", "Shaders/Compiled/SkyBox.vert.spv",
+                                                               "Shaders/Compiled/SkyBox.frag.spv", descLayoutCache,
+                                                               EShaderBindingGroup::Skybox);
+
+
+    skybox->SetCullNone().SetVertexInputMode(EVertexInput::PositionOnly).SetDisableDepthWrite().SetDepthOpLessEqual().DisableStencil();
+
+    effects[EEffectType::SkyBox] = std::move(skybox);
 
     //===============================================================================
     auto depthPrePass =
@@ -55,7 +158,6 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     rtxShaderPaths.missPath       = "Shaders/Compiled/SimpleRayTracing.miss.spv";
     rtxShaderPaths.missShadowPath = "Shaders/Compiled/SimpleRayTracing.miss2.spv";
     rtxShaderPaths.rayHitPath     = "Shaders/Compiled/SimpleRayTracing.chit.spv";
-
     auto rayTracingEffect =
         std::make_shared<VulkanUtils::VRayTracingEffect>(device, rtxShaderPaths, "Ray tracing ", m_descLayoutCache);
 
@@ -124,14 +226,8 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     effects[EEffectType::AverageLuminance] = std::move(averageLuminance);
     //================================================================================
 
-    auto bilateralFilter = std::make_unique<VulkanUtils::VComputeEffect>(device, "Bilateral filter", "Shaders/Compiled/Bilaterial-Filter.spv",
-                                                           descLayoutCache, EShaderBindingGroup::ComputePostProecess);
-
-    effects[EEffectType::BilateralFilter] = std::move(bilateralFilter);
-
-    //=================================================================================
-
     BuildAllEffects();
+
 }
 
 std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type)

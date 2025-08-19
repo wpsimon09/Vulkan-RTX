@@ -186,13 +186,13 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
             pc.modelMatrix = drawCall.second.modelMatrix;
 
             vk::PushConstantsInfo pcInfo;
-            pcInfo.layout     = drawCall.second.effect->GetPipelineLayout();
+            pcInfo.layout     = m_gBufferEffect->GetPipelineLayout();
             pcInfo.size       = sizeof(PerObjectPushConstant);
             pcInfo.offset     = 0;
             pcInfo.pValues    = &pc;
             pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
 
-            drawCall.second.effect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+            m_gBufferEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
             cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
                              drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),

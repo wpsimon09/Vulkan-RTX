@@ -40,6 +40,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 
 
 namespace Renderer {
@@ -174,7 +175,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device,effectsLibrary, width, height);
     m_gBufferPass = std::make_unique<Renderer::GBufferPass>(device,effectsLibrary, width, height);
     m_visibilityDenoisePass = std::make_unique<Renderer::BilateralFilterPass>(device, effectsLibrary, m_visibilityBufferPass->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer), width, height);
-    m_forwardLightPass = std::make_unique<Renderer::ForwardRender>(device, effectsLibrary, width, height);
+    m_forwardRenderPass = std::make_unique<Renderer::ForwardRender>(device, effectsLibrary, width, height);
 
     m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
     m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
@@ -190,7 +191,7 @@ void ForwardRenderer::Init(int                                  frameIndex,
     m_visibilityBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_gBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_visibilityDenoisePass->Init(frameIndex, uniformBufferManager, renderContext);
-    m_forwardLightPass->Init(frameIndex, uniformBufferManager, renderContext);
+    m_forwardRenderPass->Init(frameIndex, uniformBufferManager, renderContext);
 }
 
 void ForwardRenderer::Update(int                                   currentFrame,
@@ -201,7 +202,7 @@ void ForwardRenderer::Update(int                                   currentFrame,
 {
     m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_visibilityDenoisePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
-    m_forwardLightPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_forwardRenderPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,
@@ -246,7 +247,7 @@ void ForwardRenderer::Render(int                                       currentFr
 }
 VulkanCore::VImage2* ForwardRenderer::GetForwardRendererResult() const
 {
-    return &m_forwardLightPass->GetResolvedResult();
+    return &m_forwardRenderPass->GetResolvedResult();
 }
 
 Renderer::RenderTarget2& ForwardRenderer::GetDepthPrePassOutput() const
@@ -263,7 +264,7 @@ Renderer::RenderTarget2& ForwardRenderer::GetShadowMapOutput() const
 }
 Renderer::RenderTarget2& ForwardRenderer::GetLightPassOutput() const
 {
-    return m_forwardLightPass->GetRenderTarget();
+    return m_forwardRenderPass->GetRenderTarget();
 }
 
 Renderer::RenderTarget2& ForwardRenderer::GetNormalBufferOutput() const
@@ -310,7 +311,7 @@ void ForwardRenderer::DrawScene(int                                       curren
 {
 
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
-    m_forwardLightPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
+    m_forwardRenderPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
         
 }
 void ForwardRenderer::PostProcessingFogPass(int                                       currentFrameIndex,
@@ -340,8 +341,8 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
 
     cmdB.setStencilTestEnable(false);
 
-    m_postProcessingFogVolumeDrawCall->effect->BindPipeline(cmdB);
-    m_postProcessingFogVolumeDrawCall->effect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
+    //m_postProcessingFogVolumeDrawCall->effect->BindPipeline(cmdB);
+    //m_postProcessingFogVolumeDrawCall->effect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
 
     cmdB.draw(3, 1, 0, 0);
 
@@ -357,18 +358,7 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
 
 void ForwardRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall)
 {
-    PerObjectPushConstant pc{};
-    pc.indexes.x   = drawCall.drawCallID;
-    pc.modelMatrix = drawCall.modelMatrix;
 
-    vk::PushConstantsInfo pcInfo;
-    pcInfo.layout     = drawCall.effect->GetPipelineLayout();
-    pcInfo.size       = sizeof(PerObjectPushConstant);
-    pcInfo.offset     = 0;
-    pcInfo.pValues    = &pc;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
-
-    drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
 }
 
 

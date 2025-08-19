@@ -12,20 +12,19 @@
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
+#include "Vulkan/Renderer/Renderers/ForwardRenderer.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore {
 SkyBoxMaterial::SkyBoxMaterial(const std::string& path, AssetsManager& assetsManager)
-    : BaseMaterial(Renderer::SkyBox)
+    : BaseMaterial(Renderer::EForwardRenderEffects::SkyBox)
 {
     assetsManager.GetHDRTexture(m_HDRTexture, path, true);
 }
 
-void SkyBoxMaterial::ChangeEffect(std::shared_ptr<VulkanUtils::VRasterEffect> newEffect)
-{
-    Utils::Logger::LogError("Can not change effect of SkyBox material");
-}
+
 
 std::shared_ptr<ApplicationCore::VTextureAsset> SkyBoxMaterial::GetHDRTexture()
 {

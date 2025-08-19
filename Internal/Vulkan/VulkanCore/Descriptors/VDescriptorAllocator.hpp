@@ -10,8 +10,8 @@
 
 #include <unordered_map>
 #include <vector>
-// thin abstraction over descriptor sets based on  https://github.com/vblanco20-1/Vulkan-Descriptor-Allocator
 
+// thin abstraction over descriptor sets based on  https://github.com/vblanco20-1/Vulkan-Descriptor-Allocator
 namespace VulkanCore {
 class VDevice;
 

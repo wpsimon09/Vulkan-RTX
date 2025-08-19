@@ -2,8 +2,8 @@
 // Created by wpsimon09 on 16/08/2025.
 //
 
-#ifndef RENDERPASS_HPP
-#define RENDERPASS_HPP
+#ifndef VULKAN_RTX_RENDERPASS_HPP
+#define VULKAN_RTX_RENDERPASS_HPP
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
 
@@ -28,6 +28,7 @@ class VCommandBuffer;
 class VImage2;
 class VDevice;
 }
+
 namespace Renderer {
 
 /**
