@@ -5,6 +5,19 @@
 #ifndef VULKAN_RTX_LIGHTPASS_HPP
 #define VULKAN_RTX_LIGHTPASS_HPP
 #include "RenderPass.hpp"
+#include "unordered_map"
+
+namespace ApplicationCore {
+  class EffectsLibrary;
+}
+
+namespace VulkanStructs {
+  struct PostProcessingContext;
+}
+
+namespace VulkanUtils {
+  class VRasterEffect;
+}
 
 namespace Renderer {
 
@@ -20,6 +33,7 @@ enum EForwardRenderEffects {
      // all new effects have to go above this
      ForwardRenderEffectsCount
 };
+
 
 enum EForwardRenderAttachments {
   Main = 0,

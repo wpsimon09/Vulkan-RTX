@@ -11,6 +11,10 @@
 #include <vector>
 
 
+namespace VulkanStructs {
+struct PostProcessingContext;
+}
+
 namespace VulkanUtils {
 struct RenderContext;
 class VRayTracingDataManager;

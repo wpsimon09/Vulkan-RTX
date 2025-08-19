@@ -25,6 +25,7 @@ class VRasterEffect;
 }
 
 namespace ApplicationCore {
+class BaseMaterial;
 class EffectsLibrary;
 }
 

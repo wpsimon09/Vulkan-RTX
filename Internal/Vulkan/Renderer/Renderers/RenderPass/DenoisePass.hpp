@@ -28,7 +28,6 @@ class BilateralFilterPass: public Renderer::RenderPass
 
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
 
-    void SetImageToDenoise(VulkanCore::VImage2* imageToDenoise);
 private:
   VulkanCore::VImage2& m_inputImage;
   std::shared_ptr<VulkanUtils::VComputeEffect> m_bilateralFileter;
