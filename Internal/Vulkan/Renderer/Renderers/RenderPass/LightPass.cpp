@@ -30,7 +30,7 @@ ForwardRender::ForwardRender(const VulkanCore::VDevice& device, ApplicationCore:
     // Transparent Forward Lit (alpha blend / additive pass)
     //=====================================================================
     m_effects[EForwardRenderEffects::AplhaBlend] =
-        effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::AlphaMask);
+        effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::AplhaBlend);
     ;
 
     //=====================================================================
@@ -79,14 +79,6 @@ ForwardRender::ForwardRender(const VulkanCore::VDevice& device, ApplicationCore:
 
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, lightPassCI));
 
-    //========================================================================
-    //************************* BUILD ALL EFFECT *****************************
-    //========================================================================
-    for(auto& e : m_effects)
-    {
-        e.second->GetReflectionData()->Print();
-        e.second->BuildEffect();
-    }
 }
 void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
