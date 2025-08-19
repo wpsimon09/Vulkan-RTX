@@ -28,7 +28,7 @@ enum EForwardRenderAttachments {
 class ForwardRender : public Renderer::RenderPass
 {
   public:
-    ForwardRender(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height);
+    ForwardRender(const VulkanCore::VDevice& device,ApplicationCore::EffectsLibrary& effectLibrary, int width, int height);
 
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
 
@@ -40,7 +40,7 @@ class ForwardRender : public Renderer::RenderPass
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
 
   private:
-    std::unordered_map<EForwardRenderEffects, std::unique_ptr<VulkanUtils::VRasterEffect>> m_effects;
+    std::unordered_map<EForwardRenderEffects, std::shared_ptr<VulkanUtils::VRasterEffect>> m_effects;
 
 
 };

@@ -23,7 +23,7 @@ enum EVisibilityBufferAttachments
 class VisibilityBufferPass : public Renderer::RenderPass
 {
   public:
-    VisibilityBufferPass(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height);
+    VisibilityBufferPass(const VulkanCore::VDevice& device,ApplicationCore::EffectsLibrary& effectLibrary, int width, int height);
 
     void Init(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
 
@@ -36,7 +36,7 @@ class VisibilityBufferPass : public Renderer::RenderPass
 
   private:
 
-    std::unique_ptr<VulkanUtils::VRasterEffect> m_rayTracedShadowEffect;
+    std::shared_ptr<VulkanUtils::VRasterEffect> m_rayTracedShadowEffect;
     AoOcclusionParameters                       m_aoOcclusionParameters;
 };
 

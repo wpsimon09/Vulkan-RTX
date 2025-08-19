@@ -18,7 +18,7 @@ enum EBilateralFilterAttachments {
 class BilateralFilterPass: public Renderer::RenderPass
 {
   public:
-    BilateralFilterPass(const VulkanCore::VDevice& device,VulkanCore::VDescriptorLayoutCache& descLayoutCache,  VulkanCore::VImage2& inputImage, int width, int height);
+    BilateralFilterPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, VulkanCore::VImage2& inputImage, int width, int height);
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
 
     void Update(int                                   currentFrame,
@@ -31,7 +31,7 @@ class BilateralFilterPass: public Renderer::RenderPass
     void SetImageToDenoise(VulkanCore::VImage2* imageToDenoise);
 private:
   VulkanCore::VImage2& m_inputImage;
-  std::unique_ptr<VulkanUtils::VComputeEffect> m_bilateralFileter;
+  std::shared_ptr<VulkanUtils::VComputeEffect> m_bilateralFileter;
   BilaterialFilterParameters m_bilateralFilterParameters;
 };
 
