@@ -6,7 +6,7 @@
 #define VULKAN_RTX_LIGHTPASS_HPP
 
 #include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
-#include "unordered_map"
+#include "map"
 
 namespace ApplicationCore {
   class EffectsLibrary;
@@ -63,7 +63,7 @@ class ForwardRender : public Renderer::RenderPass
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
 
   private:
-    std::unordered_map<EForwardRenderEffects, std::shared_ptr<VulkanUtils::VRasterEffect>> m_effects;
+    std::vector<std::shared_ptr<VulkanUtils::VRasterEffect>> m_effects;
 
 
 };

@@ -21,6 +21,7 @@ ForwardRender::ForwardRender(const VulkanCore::VDevice& device, ApplicationCore:
     : RenderPass(device, width, height)
 {
 
+    m_effects.resize(EForwardRenderEffects::ForwardRenderEffectsCount);
     //=====================================================================
     // Forward Lit Effect (main opaque forward shader)
     //=====================================================================
@@ -30,9 +31,9 @@ ForwardRender::ForwardRender(const VulkanCore::VDevice& device, ApplicationCore:
     //=====================================================================
     // Transparent Forward Lit (alpha blend / additive pass)
     //=====================================================================
-    m_effects[EForwardRenderEffects::AplhaBlend] =
-        effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::AplhaBlend);
-    ;
+   // m_effects[EForwardRenderEffects::AplhaBlend] =
+   //     effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::AplhaBlend);
+    //;
 
     //=====================================================================
     // Editor Billboards (icons, gizmos, unlit quads)
@@ -51,12 +52,6 @@ ForwardRender::ForwardRender(const VulkanCore::VDevice& device, ApplicationCore:
     //=====================================================================
     m_effects[EForwardRenderEffects::Outline] =
         effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::Outline);
-
-    //=====================================================================
-    // Debug Shapes (lines, wireframe primitives, geometry helpers)
-    //=====================================================================
-    m_effects[EForwardRenderEffects::DebugLine] =
-        effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::DebugLine);
 
     //=====================================================================
     // Skybox (environment cube rendering)
@@ -85,7 +80,8 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
 {
     for(auto& effect : m_effects)
     {
-        auto& e = effect.second;
+        auto& e = effect;
+        if (!e){continue;}
 
         //=========================
         // for each frame in flight
@@ -130,10 +126,10 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 e->WriteImage(currentFrame, 0, 4, renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                 // ltc
-                e->WriteImage(currentFrame, 0, 5, MathUtils::LookUpTables.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                //e->WriteImage(currentFrame, 0, 5, MathUtils::LookUpTables.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                 // ltc inverse
-                e->WriteImage(currentFrame, 0, 6, MathUtils::LookUpTables.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                //e->WriteImage(currentFrame, 0, 6, MathUtils::LookUpTables.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                 break;
             }
@@ -173,11 +169,11 @@ void ForwardRender::Update(int                                   currentFrame,
 {
     for(auto& effect : m_effects)
     {
-        auto& e = effect.second;
+        auto& e = effect;
 
         //=========================
         // for each frame in flight
-
+        if (!e){continue;}
         switch(e->GetBindingGroup())
         {
 
@@ -314,7 +310,7 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
         auto& material = drawCall.second.material;
         if(m_effects[static_cast<EForwardRenderEffects>(drawCall.second.effect)] != currentEffect)
         {
-            currentEffect = m_effects[(EForwardRenderEffects)drawCall.second.effect];
+            currentEffect = m_effects[static_cast<EForwardRenderEffects>(drawCall.second.effect)];
             currentEffect->BindPipeline(cmdB);
             currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
         }
