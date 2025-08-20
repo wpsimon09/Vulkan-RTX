@@ -1,25 +1,24 @@
 //
-// Created by wpsimon09 on 17/08/2025.
+// Created by wpsimon09 on 18/08/2025.
 //
 
-#ifndef VULKAN_RTX_GBUFFERPASS_HPP
-#define VULKAN_RTX_GBUFFERPASS_HPP
+#ifndef VULKAN_RTX_DENOISEPASS_HPP
+#define VULKAN_RTX_DENOISEPASS_HPP
 #include "RenderPass.hpp"
 
+namespace VulkanUtils {
+class VComputeEffect;
+}
 namespace Renderer {
 
-enum EGBufferAttachments {
-  Position = 0,
-  Normal,
-  // put all attachments above this
-  Size
+enum EBilateralFilterAttachments {
+  Result = 0
 };
 
-class GBufferPass : public Renderer::RenderPass
+class BilateralFilterPass: public Renderer::RenderPass
 {
   public:
-    GBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary,  int width, int height);
-
+    BilateralFilterPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, VulkanCore::VImage2& inputImage, int width, int height);
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
 
     void Update(int                                   currentFrame,
@@ -29,13 +28,12 @@ class GBufferPass : public Renderer::RenderPass
 
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
 
-    RenderTarget2& GetDepthAttachment();
 private:
-  int m_numGBufferAttachments = EGBufferAttachments::Size;
-  std::shared_ptr<VulkanUtils::VRasterEffect> m_gBufferEffect;
-  std::unique_ptr<Renderer::RenderTarget2> m_depthBuffer;
+  VulkanCore::VImage2& m_inputImage;
+  std::shared_ptr<VulkanUtils::VComputeEffect> m_bilateralFileter;
+  BilaterialFilterParameters m_bilateralFilterParameters;
 };
 
 }  // namespace Renderer
 
-#endif  //VULKAN_RTX_GBUFFERPASS_HPP
+#endif  //VULKAN_RTX_DENOISEPASS_HPP

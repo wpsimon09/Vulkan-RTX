@@ -21,6 +21,7 @@ ConstantBuffer<LightInfo> _lightInfo;
 [[vk::binding(4,0)]]
 Sampler2D _shadowMapScreenSpace;
 
+
 //========================
 // set 1
 

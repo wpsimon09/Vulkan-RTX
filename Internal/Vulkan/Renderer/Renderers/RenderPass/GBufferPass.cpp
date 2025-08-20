@@ -4,6 +4,7 @@
 
 #include "GBufferPass.hpp"
 
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
@@ -14,19 +15,13 @@
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 
 namespace Renderer {
-GBufferPass::GBufferPass(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache, int width, int height)
+GBufferPass::GBufferPass(const VulkanCore::VDevice& device,ApplicationCore::EffectsLibrary& effectLibrary,  int width, int height)
     : RenderPass(device, width, height)
 {
 
     //==============================================
     // Generate effect
-    m_gBufferEffect = std::make_unique<VulkanUtils::VRasterEffect>(device, "Depth-PrePass effect", "Shaders/Compiled/DepthPrePass.vert.spv",
-                                                                   "Shaders/Compiled/DepthPrePass.frag.spv", descLayoutCache,
-                                                                   EShaderBindingGroup::ForwardUnlitNoMaterial, 2);
-    m_gBufferEffect->SetVertexInputMode(EVertexInput::Position_Normal).SetDepthOpLess();
-    m_gBufferEffect->AddColourAttachmentFormat(vk::Format::eR16G16B16A16Sfloat);
-
-    m_gBufferEffect->BuildEffect();
+    m_gBufferEffect = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::DepthPrePass);
 
     //===============================================
     // Generate depth pre-pass attachment
@@ -191,13 +186,13 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
             pc.modelMatrix = drawCall.second.modelMatrix;
 
             vk::PushConstantsInfo pcInfo;
-            pcInfo.layout     = drawCall.second.effect->GetPipelineLayout();
+            pcInfo.layout     = m_gBufferEffect->GetPipelineLayout();
             pcInfo.size       = sizeof(PerObjectPushConstant);
             pcInfo.offset     = 0;
             pcInfo.pValues    = &pc;
             pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
 
-            drawCall.second.effect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+            m_gBufferEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
             cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
                              drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),

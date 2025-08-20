@@ -27,6 +27,7 @@
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "EffectsLibrary/EffectsLibrary.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEnvLightGenerator/VEnvLightGenerator.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -310,28 +311,24 @@ void AssetsManager::
     m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device, m_dummyImage);
 
     MaterialPaths paths{};
-    m_dummyMaterial = std::make_shared<ApplicationCore::PBRMaterial>(
-        m_effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::ForwardShader), paths, *this);
+    m_dummyMaterial = std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::ForwardShader, paths, *this);
 
     MaterialPaths directionalLightBillboard{};
     directionalLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-directional.png";
-    auto mat                                 = std::make_shared<ApplicationCore::PBRMaterial>(
-        m_effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard), directionalLightBillboard, *this);
+    auto mat                                 = std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::EditorBilboard, directionalLightBillboard, *this);
     mat->SetMaterialname("Directional light editor billboard");
     m_editorIconsMaterials[EEditorIcon::DirectionalLight] = mat;
 
     MaterialPaths pointLightBillboard{};
     pointLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-point.png";
 
-    mat = std::make_shared<ApplicationCore::PBRMaterial>(
-        m_effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard), pointLightBillboard, *this);
+    mat = std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::EditorBilboard, pointLightBillboard, *this);
     mat->SetMaterialname("Point light editor billboard");
     m_editorIconsMaterials[EEditorIcon::PointLight] = mat;
 
     MaterialPaths areaLightBillboard{};
     areaLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-area.png";
-    mat                               = std::make_shared<ApplicationCore::PBRMaterial>(
-        m_effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard), areaLightBillboard, *this);
+    mat                               = std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::EditorBilboard, areaLightBillboard, *this);
     mat->SetMaterialname("Area light editor billboard");
     m_editorIconsMaterials[EEditorIcon::AreaLight] = mat;
 

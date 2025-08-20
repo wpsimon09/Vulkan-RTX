@@ -19,6 +19,9 @@ struct RenderTarget2CreatInfo
     vk::Format              format{vk::Format::eR16G16B16A16Sfloat};
     vk::ImageLayout         initialLayout{vk::ImageLayout::eShaderReadOnlyOptimal};
     vk::ResolveModeFlagBits resolveMode{vk::ResolveModeFlagBits::eAverage};
+
+    bool computeShaderOutput{false};
+
 };
 
 class RenderTarget2

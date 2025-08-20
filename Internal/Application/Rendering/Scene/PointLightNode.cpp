@@ -5,6 +5,7 @@
 #include "PointLightNode.hpp"
 
 #include "Application/Rendering/Material/PBRMaterial.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 
 namespace ApplicationCore {
 PointLightNode::PointLightNode(LightStructs::SceneLightInfo& sceneLightInfo, std::shared_ptr<StaticMesh> mesh)
@@ -59,10 +60,10 @@ void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vul
         data.modelMatrix = m_transformation->GetModelMatrix();
         data.material    = m_mesh->GetMaterial().get();
         if(renderingContext->WireFrameRendering)
-            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
+            data.effect = Renderer::EForwardRenderEffects::DebugLine;
         else
         {
-            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard);
+            data.effect = Renderer::EForwardRenderEffects::EditorBilboard;
         }
 
         data.position = m_transformation->GetPosition();
@@ -73,7 +74,7 @@ void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vul
 
         if(m_sceneNodeMetaData.IsSelected)
         {
-            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::Outline);
+            data.effect = Renderer::EForwardRenderEffects::Outline;
             renderingContext->AddDrawCall(data);
         }
     }

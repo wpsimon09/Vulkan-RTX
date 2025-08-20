@@ -24,7 +24,9 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
+#include "RenderPass/DenoisePass.hpp"
 #include "RenderPass/GBufferPass.hpp"
+#include "RenderPass/LightPass.hpp"
 #include "RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
@@ -38,6 +40,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 
 
 namespace Renderer {
@@ -86,7 +89,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_visiblityBuffer_Denoised = std::make_unique<VulkanCore::VImage2>(m_device, m_visiblityBuffer_DenoisedCI);
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_visiblityBuffer_Denoised, vk::ImageLayout::eGeneral, vk::ImageLayout::eUndefined,
+    VulkanUtils::RecordImageTransitionLayoutCommand(*m_visiblityBuffer_Denoised, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined,
                                                     m_device.GetTransferOpsManager().GetCommandBuffer());
     //===========================================
     //===== CREATE RENDER TARGETS
@@ -167,15 +170,19 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_fogPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI);
 
-    m_renderContextPtr->normalMap   = &m_normalBufferOutput->GetResolvedImage();
-    m_renderContextPtr->positionMap = &m_positionBufferOutput->GetResolvedImage();
+    //==================================================================================================
+    // New render pass system
+    m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device,effectsLibrary, width, height);
+    m_gBufferPass = std::make_unique<Renderer::GBufferPass>(device,effectsLibrary, width, height);
+    m_visibilityDenoisePass = std::make_unique<Renderer::BilateralFilterPass>(device, effectsLibrary, m_visibilityBufferPass->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer), width, height);
+    m_forwardRenderPass = std::make_unique<Renderer::ForwardRender>(device, effectsLibrary, width, height);
 
+    m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
+    m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
+    m_renderContextPtr->depthBuffer = &m_gBufferPass->GetDepthAttachment();
+    m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
 
-    m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device, descLayoutCache, width, height);
-    m_gBufferPass = std::make_unique<Renderer::GBufferPass>(device, descLayoutCache, width, height);
-
-
-    Utils::Logger::LogSuccess("Scene renderer created !");
+    Utils::Logger::LogSuccess("Forward renderer created !");
 }
 void ForwardRenderer::Init(int                                  frameIndex,
                            VulkanUtils::VUniformBufferManager&  uniformBufferManager,
@@ -184,6 +191,19 @@ void ForwardRenderer::Init(int                                  frameIndex,
 {
     m_visibilityBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_gBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
+    m_visibilityDenoisePass->Init(frameIndex, uniformBufferManager, renderContext);
+    m_forwardRenderPass->Init(frameIndex, uniformBufferManager, renderContext);
+}
+
+void ForwardRenderer::Update(int                                   currentFrame,
+                             VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                             VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
+                             VulkanUtils::RenderContext*           renderContext,
+                             VulkanStructs::PostProcessingContext* postProcessingContext)
+{
+    m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_visibilityDenoisePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_forwardRenderPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,
@@ -228,16 +248,16 @@ void ForwardRenderer::Render(int                                       currentFr
 }
 VulkanCore::VImage2* ForwardRenderer::GetForwardRendererResult() const
 {
-    return m_forwardRendererOutput;
+    return &m_forwardRenderPass->GetResolvedResult();
 }
 
 Renderer::RenderTarget2& ForwardRenderer::GetDepthPrePassOutput() const
 {
-    return *m_depthPrePassOutput;
+    return m_gBufferPass->GetDepthAttachment();
 }
 Renderer::RenderTarget2& ForwardRenderer::GetPositionBufferOutput() const
 {
-    return *m_positionBufferOutput;
+    return m_gBufferPass->GetRenderTarget(EGBufferAttachments::Position);
 }
 Renderer::RenderTarget2& ForwardRenderer::GetShadowMapOutput() const
 {
@@ -245,17 +265,17 @@ Renderer::RenderTarget2& ForwardRenderer::GetShadowMapOutput() const
 }
 Renderer::RenderTarget2& ForwardRenderer::GetLightPassOutput() const
 {
-    return *m_lightingPassOutput;
+    return m_forwardRenderPass->GetRenderTarget();
 }
 
 Renderer::RenderTarget2& ForwardRenderer::GetNormalBufferOutput() const
 {
-    return *m_normalBufferOutput;
+    return m_gBufferPass->GetRenderTarget(EGBufferAttachments::Normal);
 }
 
 VulkanCore::VImage2& ForwardRenderer::GetDenoisedVisibilityBuffer() const
 {
-    return *m_visiblityBuffer_Denoised;
+    return m_visibilityDenoisePass->GetPrimaryResult(EBilateralFilterAttachments::Result) ;
 }
 
 void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
@@ -263,141 +283,7 @@ void ForwardRenderer::DepthPrePass(int                                       cur
                                    const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     int drawCallCount = 0;
-
-
-    m_depthPrePassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                vk::ImageLayout::eDepthStencilReadOnlyOptimal);
-
-    //===========================
-    // TRANSITION POSITION BUFFER
-    m_positionBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                                  vk::ImageLayout::eShaderReadOnlyOptimal);
-
-    m_normalBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                                vk::ImageLayout::eShaderReadOnlyOptimal);
-
-    std::vector<vk::RenderingAttachmentInfo> depthPrePassColourAttachments = {
-        m_positionBufferOutput->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
-                                                       vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
-        m_normalBufferOutput->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
-                                                     vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
-
-    auto depthPrePassDepthAttachment =
-        m_depthPrePassOutput->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                     vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
-
-    vk::RenderingInfo renderingInfo;
-    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
-    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
-    renderingInfo.layerCount           = 1;
-    renderingInfo.colorAttachmentCount = depthPrePassColourAttachments.size();
-    renderingInfo.pColorAttachments    = depthPrePassColourAttachments.data();
-    renderingInfo.pDepthAttachment     = &depthPrePassDepthAttachment;
-    renderingInfo.pStencilAttachment   = &depthPrePassDepthAttachment;
-
-
-    m_depthPrePassEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
-    m_depthPrePassEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
-
-    //==============================================
-    // START RENDER PASS
-    //==============================================
-    auto& cmdB = cmdBuffer.GetCommandBuffer();
-
-    cmdB.beginRendering(&renderingInfo);
-
-    // if there is nothing to render end the render process
-    if(m_renderContextPtr->drawCalls.empty())
-    {
-        cmdB.endRendering();
-        m_renderingStatistics.DrawCallCount = 0;
-        return;
-    }
-
-    //=================================================
-    // INITIAL CONFIG
-    //=================================================
-
-    auto currentVertexBuffer = m_renderContextPtr->drawCalls.begin()->second.vertexData;
-    auto currentIndexBuffer  = m_renderContextPtr->drawCalls.begin()->second.indexData;
-
-    vk::DeviceSize indexBufferOffset = 0;
-
-    cmdB.bindVertexBuffers(0, {currentVertexBuffer->buffer}, {0});
-    cmdB.bindIndexBuffer(currentIndexBuffer->buffer, 0, vk::IndexType::eUint32);
-
-    //============================================
-    // CONFIGURE VIEW PORT
-    //===============================================
-    Renderer::ConfigureViewPort(cmdB, m_width, m_height);
-
-    //=================================================
-    // RECORD OPAQUE DRAW CALLS
-    //=================================================
-    for(auto& drawCall : m_renderContextPtr->drawCalls)
-    {
-        if(drawCall.second.postProcessingEffect)
-        {
-            m_postProcessingFogVolumeDrawCall = &drawCall.second;
-            continue;
-        }
-        if(drawCall.second.inDepthPrePass)
-        {
-
-            //================================================================================================
-            // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
-            //================================================================================================
-            if(currentVertexBuffer->BufferID != drawCall.second.vertexData->BufferID)
-            {
-                auto firstBinding = 0;
-
-                std::vector<vk::Buffer>     vertexBuffers = {drawCall.second.vertexData->buffer};
-                std::vector<vk::DeviceSize> offsets       = {0};
-                vertexBuffers                             = {drawCall.second.vertexData->buffer};
-                cmdB.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
-                currentVertexBuffer = drawCall.second.vertexData;
-            }
-
-            if(currentIndexBuffer->BufferID != drawCall.second.indexData->BufferID)
-            {
-                indexBufferOffset = 0;
-                cmdB.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
-                currentIndexBuffer = drawCall.second.indexData;
-            }
-
-            if(drawCall.second.selected)
-            {
-                cmdB.setStencilTestEnable(true);
-            }
-            else
-            {
-                cmdB.setStencilTestEnable(false);
-            }
-
-            PushDrawCallId(cmdB, drawCall.second);
-
-            cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
-                             drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                             drawCall.second.vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
-
-            drawCallCount++;
-        }
-    }
-    cmdB.endRendering();
-
-    m_positionBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                  vk::ImageLayout::eColorAttachmentOptimal);
-
-    m_normalBufferOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                vk::ImageLayout::eColorAttachmentOptimal);
-
-    VulkanUtils::PlaceImageMemoryBarrier(
-        m_depthPrePassOutput->GetPrimaryImage(), cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
-        vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::PipelineStageFlagBits::eEarlyFragmentTests,
-        vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::AccessFlagBits::eDepthStencilAttachmentWrite,
-        vk::AccessFlagBits::eDepthStencilAttachmentRead);
-
-    m_renderingStatistics.DrawCallCount = drawCallCount;
+    m_gBufferPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
 }
 
 void ForwardRenderer::ShadowMapPass(int                                       currentFrameIndex,
@@ -416,53 +302,7 @@ void ForwardRenderer::DenoiseVisibility(int                                     
                                         VulkanCore::VCommandBuffer&               cmdBuffer,
                                         const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
-    assert(cmdBuffer.GetIsRecording() && " Command buffer is not in recording state");
-
-    VulkanUtils::PlaceImageMemoryBarrier(*m_visiblityBuffer_Denoised, cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                         vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eColorAttachmentOutput,
-                                         vk::PipelineStageFlagBits::eComputeShader,
-                                         vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderWrite);
-
-    m_bilateralDenoiser->SetNumWrites(1, 4, 0);
-
-    //m_bilateralDenoiser->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
-
-    m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 1,
-                                    m_visibilityBufferPass
-                                        ->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer)
-                                        .GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-    m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 2, m_visiblityBuffer_Denoised->GetDescriptorImageInfo());
-
-    m_bilateralDenoiser->WriteImage(currentFrameIndex, 0, 3,
-                                    m_normalBufferOutput->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-    m_bilateralDenoiser->ApplyWrites(currentFrameIndex);
-
-    m_bilateralDenoiser->BindPipeline(cmdBuffer.GetCommandBuffer());
-    m_bilateralDenoiser->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
-
-    BilaterialFilterParameters pc = uniformBufferManager.GetApplicationState()->GetBilateralFilaterParameters();
-
-    pc.width  = m_visiblityBuffer_Denoised->GetImageInfo().width;
-    pc.height = m_visiblityBuffer_Denoised->GetImageInfo().height;
-
-    vk::PushConstantsInfo pcInfo;
-    pcInfo.layout     = m_bilateralDenoiser->GetPipelineLayout();
-    pcInfo.size       = sizeof(BilaterialFilterParameters);
-    pcInfo.offset     = 0;
-    pcInfo.pValues    = &pc;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
-
-    m_bilateralDenoiser->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
-
-    cmdBuffer.GetCommandBuffer().dispatch(m_visiblityBuffer_Denoised->GetImageInfo().width / 16,
-                                          m_visiblityBuffer_Denoised->GetImageInfo().height / 16, 1);
-
-    VulkanUtils::PlaceImageMemoryBarrier(*m_visiblityBuffer_Denoised, cmdBuffer, vk::ImageLayout::eGeneral,
-                                         vk::ImageLayout::eShaderReadOnlyOptimal, vk::PipelineStageFlagBits::eComputeShader,
-                                         vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eShaderWrite,
-                                         vk::AccessFlagBits::eShaderRead);
+    m_visibilityDenoisePass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
 }
 
 
@@ -472,137 +312,8 @@ void ForwardRenderer::DrawScene(int                                       curren
 {
 
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
-    int drawCallCount = 0;
-    //==============================================
-    // CREATE RENDER PASS INFO
-    //==============================================
-    std::vector<vk::RenderingAttachmentInfo> colourAttachments = {
-        m_lightingPassOutput->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
-                                                     vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
-    };
-
-    auto depthAttachment =
-        m_depthPrePassOutput->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                     vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);
-
-    vk::RenderingInfo renderingInfo;
-    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
-    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
-    renderingInfo.layerCount           = 1;
-    renderingInfo.colorAttachmentCount = colourAttachments.size();
-    renderingInfo.pColorAttachments    = colourAttachments.data();
-
-    renderingInfo.pDepthAttachment   = &depthAttachment;
-    renderingInfo.pStencilAttachment = &depthAttachment;
-
-
-    //==============================================
-    // START RENDER PASS
-    //==============================================
-    auto& cmdB = cmdBuffer.GetCommandBuffer();
-
-
-    m_lightingPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                                vk::ImageLayout::eShaderReadOnlyOptimal);
-
-
-    cmdB.beginRendering(&renderingInfo);
-
-
-    // if there is nothing to render end the render process
-    if(m_renderContextPtr->drawCalls.empty())
-    {
-        cmdB.endRendering();
-        m_renderingStatistics.DrawCallCount = drawCallCount;
-        return;
-    }
-    //=================================================
-    // UPDATE DESCRIPTOR SETS
-    //=================================================
-
-    auto  currentVertexBuffer = m_renderContextPtr->drawCalls.begin()->second.vertexData;
-    auto  currentIndexBuffer  = m_renderContextPtr->drawCalls.begin()->second.indexData;
-    auto& currentEffect       = m_renderContextPtr->drawCalls.begin()->second.effect;
-
-    vk::DeviceSize indexBufferOffset = 0;
-
-    cmdB.bindVertexBuffers(0, {currentVertexBuffer->buffer}, {0});
-    cmdB.bindIndexBuffer(currentIndexBuffer->buffer, 0, vk::IndexType::eUint32);
-    //============================================
-    // CONFIGURE VIEW PORT
-    //===============================================
-    Renderer::ConfigureViewPort(cmdB, m_width, m_height);
-
-    //=================================================
-    // RECORD OPAQUE DRAW CALLS
-    //=================================================
-    currentEffect->BindPipeline(cmdB);
-    currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
-
-    for(auto& drawCall : m_renderContextPtr->drawCalls)
-    {
-        if(drawCall.second.postProcessingEffect)
-        {
-            continue;
-        }
-        auto& material = drawCall.second.material;
-        if(drawCall.second.effect != currentEffect)
-        {
-            currentEffect = drawCall.second.effect;
-            drawCall.second.effect->BindPipeline(cmdB);
-            currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrameIndex, 0);
-        }
-
-        if(drawCall.second.selected)
-            cmdB.setStencilTestEnable(true);
-        else
-            cmdB.setStencilTestEnable(false);
-
-        //================================================================================================
-        // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
-        //================================================================================================
-        if(currentVertexBuffer->BufferID != drawCall.second.vertexData->BufferID)
-        {
-            auto firstBinding = 0;
-
-            std::vector<vk::Buffer>     vertexBuffers = {drawCall.second.vertexData->buffer};
-            std::vector<vk::DeviceSize> offsets       = {0};
-            vertexBuffers                             = {drawCall.second.vertexData->buffer};
-            cmdB.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
-            currentVertexBuffer = drawCall.second.vertexData;
-        }
-
-        if(currentIndexBuffer->BufferID != drawCall.second.indexData->BufferID)
-        {
-            indexBufferOffset = 0;
-            cmdB.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
-            currentIndexBuffer = drawCall.second.indexData;
-        }
-
-
-        PushDrawCallId(cmdB, drawCall.second);
-
-
-        cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
-                         drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                         drawCall.second.vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
-
-
-        m_forwardRendererOutput = &m_lightingPassOutput->GetResolvedImage();
-
-        drawCallCount++;
-    }
-
-    cmdB.endRendering();
-
-
-    m_lightingPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                vk::ImageLayout::eColorAttachmentOptimal);
-
-    m_depthPrePassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilReadOnlyOptimal,
-                                                vk::ImageLayout::eDepthStencilAttachmentOptimal);
-
-    m_renderingStatistics.DrawCallCount = drawCallCount;
+    m_forwardRenderPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
+        
 }
 void ForwardRenderer::PostProcessingFogPass(int                                       currentFrameIndex,
                                             VulkanCore::VCommandBuffer&               cmdBuffer,
@@ -631,8 +342,8 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
 
     cmdB.setStencilTestEnable(false);
 
-    m_postProcessingFogVolumeDrawCall->effect->BindPipeline(cmdB);
-    m_postProcessingFogVolumeDrawCall->effect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
+    //m_postProcessingFogVolumeDrawCall->effect->BindPipeline(cmdB);
+    //m_postProcessingFogVolumeDrawCall->effect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
 
     cmdB.draw(3, 1, 0, 0);
 
@@ -648,18 +359,7 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
 
 void ForwardRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall)
 {
-    PerObjectPushConstant pc{};
-    pc.indexes.x   = drawCall.drawCallID;
-    pc.modelMatrix = drawCall.modelMatrix;
 
-    vk::PushConstantsInfo pcInfo;
-    pcInfo.layout     = drawCall.effect->GetPipelineLayout();
-    pcInfo.size       = sizeof(PerObjectPushConstant);
-    pcInfo.offset     = 0;
-    pcInfo.pValues    = &pc;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
-
-    drawCall.effect->CmdPushConstant(cmdBuffer, pcInfo);
 }
 
 
@@ -675,6 +375,7 @@ void ForwardRenderer::Destroy()
     m_visiblityBuffer_Denoised->Destroy();
     m_visibilityBufferPass->Destroy();
     m_gBufferPass->Destroy();
+    m_visibilityDenoisePass->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer

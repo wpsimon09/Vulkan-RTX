@@ -11,6 +11,7 @@
 #include "Application/Rendering/Material/BaseMaterial.hpp"
 #include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 namespace ApplicationCore {
@@ -45,7 +46,7 @@ void SkyBoxNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanU
     data.vertexData = &m_mesh->GetMeshData()->vertexData;
     data.indexData  = &m_mesh->GetMeshData()->indexData;
 
-    data.effect         = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::SkyBox);
+    data.effect         = Renderer::EForwardRenderEffects::SkyBox;
     data.inDepthPrePass = false;
     data.position       = m_transformation->GetPosition();
     data.bounds         = &m_mesh->GetMeshData()->bounds;

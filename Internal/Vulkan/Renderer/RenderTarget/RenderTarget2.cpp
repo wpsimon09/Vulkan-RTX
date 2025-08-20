@@ -27,13 +27,20 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     attachemtImageCI.aspecFlags = createInfo.isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
     if(createInfo.isDepth)
     {
+        assert(!createInfo.computeShaderOutput && "Depth image can not be storage image ");
         attachemtImageCI.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
+    }
+    else if (createInfo.computeShaderOutput) {
+        assert(!createInfo.isDepth && "Storage image can not be depth buffer");
+        attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eStorage ;
+        attachemtImageCI.isStorage = true;
     }
     else
     {
         attachemtImageCI.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled
                                       | vk::ImageUsageFlagBits::eInputAttachment;
     }
+
 
     m_primaryAttachment = std::make_unique<VulkanCore::VImage2>(m_device, attachemtImageCI);
 

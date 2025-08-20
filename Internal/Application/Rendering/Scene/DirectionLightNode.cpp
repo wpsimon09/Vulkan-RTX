@@ -5,6 +5,7 @@
 #include "DirectionLightNode.hpp"
 
 #include "Vulkan/Global/VulkanStructs.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 
 namespace ApplicationCore {
 DirectionLightNode::DirectionLightNode(LightStructs::SceneLightInfo&   sceneLightInfo,
@@ -52,9 +53,9 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
         data.modelMatrix = m_transformation->GetModelMatrix();
         data.material    = m_mesh->GetMaterial().get();
         if(renderingContext->WireFrameRendering)
-            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
+            data.effect = Renderer::EForwardRenderEffects::DebugLine;
         else
-            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::EditorBilboard);
+            data.effect = Renderer::EForwardRenderEffects::EditorBilboard;
 
         data.position = m_transformation->GetPosition();
 
@@ -68,7 +69,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
         //=======================
         if(m_visualisationMesh)
         {
-            data.effect     = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
+            data.effect     = Renderer::EForwardRenderEffects::DebugLine;
             data.vertexData = &m_visualisationMesh->GetMeshData()->vertexData;
             data.indexData  = &m_visualisationMesh->GetMeshData()->indexData;
             data.indexCount = m_visualisationMesh->GetMeshIndexCount();

@@ -25,8 +25,9 @@ class VRasterEffect;
 }
 
 namespace ApplicationCore {
+class BaseMaterial;
 class EffectsLibrary;
-}
+}  // namespace ApplicationCore
 
 namespace LightStructs {
 struct SceneLightInfo;
@@ -184,9 +185,9 @@ struct VDrawCallData
     bool selected             = false;
     bool postProcessingEffect = false;
 
-    ApplicationCore::BaseMaterial*              material;
-    std::shared_ptr<VulkanUtils::VRasterEffect> effect;
-    int                                         materialIndex = 0;
+    ApplicationCore::BaseMaterial* material;
+    uint32_t                       effect;
+    int                            materialIndex = 0;
 };
 
 /**

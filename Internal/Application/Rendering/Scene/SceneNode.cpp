@@ -18,6 +18,7 @@
 #include "Vulkan/Global/EngineOptions.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
@@ -266,35 +267,32 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         data.indexData  = &m_mesh->GetMeshData()->indexData;
 
         data.modelMatrix = m_transformation->GetModelMatrix();
-        if(renderingContext->WireFrameRendering)
-        {
-            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
-        }
-        else if(m_mesh->m_currentMaterial->IsTransparent())
+
+        if(m_mesh->m_currentMaterial->IsTransparent())
         {
             data.inDepthPrePass = false;
-            data.effect         = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::ForwardShader);
+            data.effect         = Renderer::EForwardRenderEffects::ForwardShader;
         }
         else
         {
             //data.effect = effectsLibrary.GetEffect(EEffectType::ForwardShader);
-            data.effect = m_mesh->GetMaterial()->GetEffect();
+            data.effect = m_mesh->GetMaterial()->GetMatearialEffect();
         }
 
         data.position = m_transformation->GetPosition();
         data.bounds   = &m_mesh->GetMeshData()->bounds;
         data.material = m_mesh->m_currentMaterial.get();
 
+        renderingContext->AddDrawCall(data);
 
         if(m_sceneNodeMetaData.IsSelected)
             data.selected = true;
-        renderingContext->AddDrawCall(data);
 
         if(m_sceneNodeMetaData.IsSelected)
         {
             data.inDepthPrePass = false;
 
-            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::Outline);
+            data.effect = Renderer::EForwardRenderEffects::Outline;
             data.modelMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(1.0f + GlobalVariables::RenderingOptions::OutlineWidth));
             renderingContext->AddDrawCall(data);
         }
@@ -308,7 +306,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
             data.indexData  = &m_mesh->GetMeshData()->indexData_BB;
             data.indexCount = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
             ;
-            data.effect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(EEffectType::DebugLine);
+            data.effect = Renderer::EForwardRenderEffects::DebugLine;
             renderingContext->AddDrawCall(data);
         }
 

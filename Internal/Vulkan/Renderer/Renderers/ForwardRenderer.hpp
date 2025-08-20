@@ -16,12 +16,16 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
+namespace Renderer {
+class ForwardRender;
+}
 // Forward declarations
 namespace VEditor {
 class RenderingOptions;
 }
 
 namespace Renderer {
+class BilateralFilterPass;
 class GBufferPass;
 class RenderTarget2;
 class VisibilityBufferPass;
@@ -64,14 +68,11 @@ class ForwardRenderer
               VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
               VulkanUtils::RenderContext*          renderContext);
 
-  void Update(int                                   currentFrame,
-                           VulkanUtils::VUniformBufferManager&   uniformBufferManager,
-                           VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
-                           VulkanUtils::RenderContext*           renderContext,
-                           VulkanStructs::PostProcessingContext* postProcessingContext) {
-      m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
-
-    }
+    void Update(int                                   currentFrame,
+                VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
+                VulkanUtils::RenderContext*           renderContext,
+                VulkanStructs::PostProcessingContext* postProcessingContext);
 
     void Render(int                                       currentFrameIndex,
                 VulkanCore::VCommandBuffer&               cmdBuffer,
@@ -164,8 +165,9 @@ class ForwardRenderer
     VulkanStructs::VDrawCallData* m_postProcessingFogVolumeDrawCall = nullptr;
 
     std::unique_ptr<Renderer::VisibilityBufferPass> m_visibilityBufferPass;
-    std::unique_ptr<Renderer::GBufferPass> m_gBufferPass;
-
+    std::unique_ptr<Renderer::GBufferPass>          m_gBufferPass;
+    std::unique_ptr<Renderer::BilateralFilterPass>  m_visibilityDenoisePass;
+    std::unique_ptr<Renderer::ForwardRender>        m_forwardRenderPass;
     // Editor integration
     friend class VEditor::RenderingOptions;
 };

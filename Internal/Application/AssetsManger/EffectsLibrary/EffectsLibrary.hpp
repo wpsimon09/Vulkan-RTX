@@ -52,7 +52,8 @@ enum class EEffectType : std::uint8_t
     LensFlare,
     ComputePostProcess,
     LuminanceHistrogram,
-    AverageLuminance
+    AverageLuminance,
+    BilateralFilter
 };
 
 class EffectsLibrary

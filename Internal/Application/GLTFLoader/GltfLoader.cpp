@@ -25,6 +25,7 @@
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 
 namespace ApplicationCore {
 
@@ -104,7 +105,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
             {
                 MaterialPaths                paths    = {.saveToDisk = true};
                 std::shared_ptr<PBRMaterial> material = std::make_shared<ApplicationCore::PBRMaterial>(
-                    m_assetsManager.GetAllRasterEffects()[EEffectType::ForwardShader], paths, m_assetsManager);
+                    Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
                 material->SetSavable(true);
                 material->GetMaterialDescription().values.albedo.x = m.pbrData.baseColorFactor.x();
                 material->GetMaterialDescription().values.albedo.y = m.pbrData.baseColorFactor.y();
@@ -180,13 +181,11 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
 
                 if(m.alphaMode == fastgltf::AlphaMode::Blend)
                 {
-                    material->ChangeEffect(std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(
-                        m_assetsManager.GetEffects()[EEffectType::AplhaBlend]));
+                    material->SetMaterialEffect(Renderer::AplhaBlend);
                 }
                 else if(m.alphaMode == fastgltf::AlphaMode::Mask)
                 {
-                    material->ChangeEffect(std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(
-                        m_assetsManager.GetEffects()[EEffectType::AplhaBlend]));
+                    material->SetMaterialEffect(Renderer::AlphaMask);
                 }
                 material->SetTransparent(m.alphaMode == fastgltf::AlphaMode::Blend);
                 materials.emplace_back(material);
@@ -198,7 +197,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
 
             MaterialPaths                paths    = {.saveToDisk = true};
             std::shared_ptr<PBRMaterial> material = std::make_shared<ApplicationCore::PBRMaterial>(
-                m_assetsManager.GetAllRasterEffects()[EEffectType::ForwardShader], paths, m_assetsManager);
+                Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
             materials.emplace_back(material);
             m_assetsManager.m_materials.emplace_back(material);
         }
@@ -226,7 +225,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
             MaterialPaths paths;
 
             std::shared_ptr<PBRMaterial> mat = std::make_shared<ApplicationCore::PBRMaterial>(
-                m_assetsManager.GetAllRasterEffects()[EEffectType::ForwardShader], paths, m_assetsManager);
+                Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
 
 
             for(auto& p : m.primitives)

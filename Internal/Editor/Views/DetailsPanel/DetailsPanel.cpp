@@ -167,19 +167,7 @@ void DetailsPanel::RenderMaterialEditorPanel()
 
         ImGui::SameLine();
 
-        if(ImGui::BeginCombo("Effect", meshMaterial->GetEffect()->GetName().c_str()))
-        {
-            for(auto& effect : m_assetsManager.GetEffects())
-            {
-                auto label = ICON_FA_WAND_MAGIC_SPARKLES " " + effect.second->GetName();
-                if(ImGui::Selectable(label.c_str(), effect.second == m_selectedSceneNode->GetMesh()->GetMaterial()->GetEffect()))
-                {
-                    m_selectedSceneNode->GetMesh()->GetMaterial()->ChangeEffect(
-                        std::dynamic_pointer_cast<VulkanUtils::VRasterEffect>(effect.second));
-                }
-            }
-            ImGui::EndCombo();
-        }
+
         ImGui::TreePop();
     }
 }

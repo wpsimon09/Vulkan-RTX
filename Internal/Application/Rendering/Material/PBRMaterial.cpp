@@ -19,9 +19,9 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore {
-PBRMaterial::PBRMaterial(std::shared_ptr<VulkanUtils::VRasterEffect> materialEffect, MaterialPaths& materialPaths, AssetsManager& assets_manager)
+PBRMaterial::PBRMaterial(uint32_t effect, MaterialPaths& materialPaths, AssetsManager& assets_manager)
     : m_materialPaths(materialPaths)
-    , BaseMaterial(materialEffect)
+    , BaseMaterial(effect)
 {
 
     if(!materialPaths.DiffuseMapPath.empty())
@@ -60,12 +60,6 @@ PBRMaterial::PBRMaterial(std::shared_ptr<VulkanUtils::VRasterEffect> materialEff
     }
 }
 
-
-
-void PBRMaterial::ResetEffect()
-{
-    m_materialEffect = m_initialEffect;
-}
 
 std::vector<std::shared_ptr<VTextureAsset>> PBRMaterial::EnumarateTexture()
 {

@@ -226,7 +226,12 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     effects[EEffectType::AverageLuminance] = std::move(averageLuminance);
     //================================================================================
 
+    auto bilateralFilter = std::make_shared<VulkanUtils::VComputeEffect>(device, "Bilateral filter", "Shaders/Compiled/Bilaterial-Filter.spv", descLayoutCache, EShaderBindingGroup::ComputePostProecess);
+
+    effects[EEffectType::BilateralFilter] = std::move(bilateralFilter);
+
     BuildAllEffects();
+
 }
 
 std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type)
@@ -259,272 +264,111 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&      
                                           VulkanStructs::PostProcessingContext&     postProcessingContext,
                                           const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
-    for(auto& effect : effects)
-    {
-        auto& e = effect.second;
-
-        //=========================
-        // for each frame in flight
-        for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
-        {
-
-            switch(e->GetBindingGroup())
-            {
-
-                case EShaderBindingGroup::ForwardLit: {
-
-                    e->SetNumWrites(0, 6200, 0);
-                    e->WriteImageArray(i, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
-
-                    if(renderingContext->irradianceMap)
-                    {
-                        e->WriteImage(i, 1, 2, renderingContext->irradianceMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
-                    }
-                    if(renderingContext->prefilterMap)
-                    {
-                        e->WriteImage(i, 1, 3, renderingContext->prefilterMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler10Mips));
-                    }
-                    if(renderingContext->irradianceMap)
-                    {
-                        e->WriteImage(i, 1, 4, renderingContext->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-                    }
-                    break;
-                }
-                case EShaderBindingGroup::RayTracing: {
-
-                    break;
-                }
-                case EShaderBindingGroup::ForwardUnlit: {
-                    e->SetNumWrites(0, 5600, 0);
-                    e->WriteImageArray(i, 1, 0, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
-                    break;
-                }
-                case EShaderBindingGroup::ForwardUnlitNoMaterial: {
-                    break;
-                }
-                case EShaderBindingGroup::ToneMap: {
-                    break;
-                }
-
-
-                case EShaderBindingGroup::Skybox: {
-                    //====================================
-                    // global data
-                    e->SetNumWrites(0, 1);
-                    if(renderingContext->hdrCubeMap)
-                    {
-                        e->WriteImage(i, 1, 0, renderingContext->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-                    }
-                    break;
-                }
-                case EShaderBindingGroup::ShadowRT: {
-                    e->SetNumWrites(0, 0, 1);
-                    e->WriteAccelerationStrucutre(i, 0, 2, rayTracingDataManager.GetTLAS());
-                    break;
-                }
-                case EShaderBindingGroup::FogBinding: {
-                    e->SetNumWrites(0, 0, 1);
-                    e->WriteAccelerationStrucutre(i, 0, 6, rayTracingDataManager.GetTLAS());
-                    break;
-                }
-
-                default: {
-                    // throw std::runtime_error("Unsupported bindinggroup !");
-                    break;
-                }
-            }
-
-            //===================================
-            // apply writes
-            e->ApplyWrites(i);
-        }
-    }
+  // TODO: fog binding is missing
 }
 
 void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer&     sceneRenderer,
                                                VulkanUtils::VUniformBufferManager&  uniformBufferManager,
                                                VulkanUtils::VRayTracingDataManager& rayTracingDataManager)
 {
-    for(auto& effect : effects)
+       for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        auto& e = effect.second;
-
-        //=========================
-        // for each frame in flight
-        for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+        // =========================
+        // ToneMap
+        if (auto it = effects.find(EEffectType::ToneMappingPass); it != effects.end())
         {
+            auto& e = it->second;
+            e->SetNumWrites(1, 2, 0);
 
-            switch(e->GetBindingGroup())
-            {
-                case EShaderBindingGroup::ForwardUnlitNoMaterial: {
+            e->WriteImage(i, 0, 0,
+                          sceneRenderer.GetDepthPrePassOutput().GetResolvedImage().GetDescriptorImageInfo(
+                              VulkanCore::VSamplers::Sampler2D));
 
-                    e->SetNumWrites(3, 0, 1);
+            e->ApplyWrites(i);
+        }
 
-                    //========================
-                    // global data
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+        // =========================
+        // FogBinding
+        if (auto it = effects.find(EEffectType::FogVolume); it != effects.end())
+        {
+            auto& e = it->second;
+            e->SetNumWrites(4, 7, 2);
 
-                    //========================
-                    // per model data
-                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+            e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
 
-                    break;
-                }
+            e->WriteImage(i, 0, 1,
+                          sceneRenderer.GetShadowMapOutput().GetPrimaryImage().GetDescriptorImageInfo(
+                              VulkanCore::VSamplers::Sampler2D));
+            e->WriteImage(i, 0, 2,
+                          sceneRenderer.GetPositionBufferOutput().GetResolvedImage().GetDescriptorImageInfo(
+                              VulkanCore::VSamplers::SamplerDepth));
+            e->WriteImage(i, 0, 3,
+                          MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
+                              VulkanCore::VSamplers::Sampler2D));
+            e->WriteImage(i, 0, 4,
+                          sceneRenderer.GetLightPassOutput().GetResolvedImage().GetDescriptorImageInfo(
+                              VulkanCore::VSamplers::Sampler2D));
 
-                case EShaderBindingGroup::ForwardLit: {
+            e->WriteBuffer(i, 0, 5, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
 
-                    e->SetNumWrites(7, 5, 0);
-                    //===================================
-                    // global data
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+            e->WriteAccelerationStrucutre(i, 0, 6, rayTracingDataManager.GetTLAS());
 
-                    //===================================
-                    // materials
-                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+            e->WriteBuffer(i, 1, 0, uniformBufferManager.GetFogVolumParametersBufferDescriptorInfo(i));
 
-                    //===================================
-                    // lighting information
-                    e->WriteBuffer(i, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
+            e->ApplyWrites(i);
+        }
 
-                    //===================================
-                    // std::vector<PerObjectData> SSBO.
-                    e->WriteBuffer(i, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+        // =========================
+        // LensFlareBinding
+        if (auto it = effects.find(EEffectType::LensFlare); it != effects.end())
+        {
+            auto& e = it->second;
+            e->SetNumWrites(3, 2, 0);
 
-                    //===================================
-                    // for ray query we need acceleration strucutre
-                    e->WriteImage(i, 0, 4, sceneRenderer.GetDenoisedVisibilityBuffer().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+            e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
 
-                    break;
-                }
-                case EShaderBindingGroup::RayTracing: {
-                    break;
-                }
-                case EShaderBindingGroup::ForwardUnlit: {
-                    e->SetNumWrites(7, 4, 0);
-                    //===================================
-                    // global data
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+            e->WriteImage(i, 0, 1,
+                          MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
+                              VulkanCore::VSamplers::Sampler2D));
 
-                    //===================================
-                    // materials
-                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetPerObjectBuffer(i));
+            e->WriteBuffer(i, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
 
-                    //===================================
-                    // std::vector<PerObjectData> SSBO.
-                    e->WriteBuffer(i, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(i));
-                    break;
-                }
-                case EShaderBindingGroup::ShadowRT: {
-                    e->SetNumWrites(3, 4, 1);
+            e->ApplyWrites(i);
+        }
 
-                    //==================================
-                    // global data
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
+        // =========================
+        // ComputePostProcess
+        if (auto it = effects.find(EEffectType::ComputePostProcess); it != effects.end())
+        {
+            auto& e = it->second;
+            // Example placeholder if you later want to write images/buffers
+            // e->SetNumWrites(0, 2, 0);
+            // e->WriteImage(i, 0, 0, sceneRenderer.GetForwardRendererResult());
 
-                    //===================================
-                    // ligth buffer
-                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
+            e->ApplyWrites(i);
+        }
 
-                    //===================================
-                    // acceleration structure for shadows
-                    e->WriteAccelerationStrucutre(i, 0, 2, rayTracingDataManager.GetTLAS());
+        // =========================
+        // LuminanceHistogram
+        if (auto it = effects.find(EEffectType::LuminanceHistrogram); it != effects.end())
+        {
+            auto& e = it->second;
+            e->SetNumWrites(1, 1);
 
-                    // depth texture is written in scene renderer constructror
+            e->WriteBuffer(i, 0, 1, uniformBufferManager.GetLuminanceHistogram(i));
 
-                    //===================================
-                    // blue noise texture
-                    e->WriteImage(i, 0, 4,
-                                  MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
-                                      VulkanCore::VSamplers::Sampler2D));
+            e->ApplyWrites(i);
+        }
 
-                    break;
-                }
+        // =========================
+        // AverageLuminance
+        if (auto it = effects.find(EEffectType::AverageLuminance); it != effects.end())
+        {
+            auto& e = it->second;
+            e->SetNumWrites(1, 1);
 
-                case EShaderBindingGroup::Skybox: {
-                    e->SetNumWrites(1, 0);
+            e->WriteBuffer(i, 0, 0, uniformBufferManager.GetLuminanceHistogram(i));
 
-                    //====================================
-                    // global data
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
-                    break;
-                }
-                case EShaderBindingGroup::ToneMap: {
-                    e->SetNumWrites(1, 2, 0);
-
-
-                    e->WriteImage(i, 0, 0,
-                                  sceneRenderer.GetDepthPrePassOutput().GetResolvedImage().GetDescriptorImageInfo(
-                                      VulkanCore::VSamplers::Sampler2D));
-                    break;
-                }
-                case EShaderBindingGroup::FogBinding: {
-                    e->SetNumWrites(4, 7, 2);
-
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
-
-                    e->WriteImage(i, 0, 1,
-                                  sceneRenderer.GetShadowMapOutput().GetPrimaryImage().GetDescriptorImageInfo(
-                                      VulkanCore::VSamplers::Sampler2D));
-                    e->WriteImage(i, 0, 2,
-                                  sceneRenderer.GetPositionBufferOutput().GetResolvedImage().GetDescriptorImageInfo(
-                                      VulkanCore::VSamplers::SamplerDepth));
-                    e->WriteImage(i, 0, 3,
-                                  MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
-                                      VulkanCore::VSamplers::Sampler2D));
-                    e->WriteImage(i, 0, 4,
-                                  sceneRenderer.GetLightPassOutput().GetResolvedImage().GetDescriptorImageInfo(
-                                      VulkanCore::VSamplers::Sampler2D));
-
-                    e->WriteBuffer(i, 0, 5, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
-
-                    e->WriteAccelerationStrucutre(i, 0, 6, rayTracingDataManager.GetTLAS());
-
-                    e->WriteBuffer(i, 1, 0, uniformBufferManager.GetFogVolumParametersBufferDescriptorInfo(i));
-                    break;
-                }
-                case EShaderBindingGroup::LensFlareBinding: {
-                    e->SetNumWrites(3, 2, 0);
-
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
-
-
-                    e->WriteImage(i, 0, 1,
-                                  MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
-                                      VulkanCore::VSamplers::Sampler2D));
-
-                    e->WriteBuffer(i, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
-
-
-                    break;
-                }
-                case EShaderBindingGroup::ComputePostProecess: {
-                    //e->SetNumWrites(0, 2, 0);
-
-                    //e->WriteImage(i, 0, 0,sceneRenderer.GetForwardRendererResult())
-
-                    break;
-                }
-                case EShaderBindingGroup::LuminanceHistrogram: {
-                    e->SetNumWrites(1, 1);
-
-                    e->WriteBuffer(i, 0, 1, uniformBufferManager.GetLuminanceHistogram(i));
-
-                    break;
-                }
-                case EShaderBindingGroup::AverageLuminance: {
-                    e->SetNumWrites(1, 1);
-                    e->WriteBuffer(i, 0, 0, uniformBufferManager.GetLuminanceHistogram(i));
-                    break;
-                }
-
-                default: {
-                    throw std::runtime_error("Unsupported binding group !");
-                    break;
-                }
-            }
-
-            //===================================
-            // apply writes
             e->ApplyWrites(i);
         }
     }
