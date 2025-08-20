@@ -283,7 +283,7 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
 
     auto  currentVertexBuffer = renderContext->drawCalls.begin()->second.vertexData;
     auto  currentIndexBuffer  = renderContext->drawCalls.begin()->second.indexData;
-    auto& currentEffect       = m_effects[(EForwardRenderEffects)renderContext->drawCalls.begin()->second.effect];
+    auto currentEffect       = m_effects[(EForwardRenderEffects)renderContext->drawCalls.begin()->second.effect];
 
     vk::DeviceSize indexBufferOffset = 0;
 
