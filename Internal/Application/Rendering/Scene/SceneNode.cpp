@@ -267,11 +267,8 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         data.indexData  = &m_mesh->GetMeshData()->indexData;
 
         data.modelMatrix = m_transformation->GetModelMatrix();
-        if(renderingContext->WireFrameRendering)
-        {
-            data.effect = Renderer::EForwardRenderEffects::WireFrame;
-        }
-        else if(m_mesh->m_currentMaterial->IsTransparent())
+
+        if(m_mesh->m_currentMaterial->IsTransparent())
         {
             data.inDepthPrePass = false;
             data.effect         = Renderer::EForwardRenderEffects::ForwardShader;
@@ -286,10 +283,10 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         data.bounds   = &m_mesh->GetMeshData()->bounds;
         data.material = m_mesh->m_currentMaterial.get();
 
+        renderingContext->AddDrawCall(data);
 
         if(m_sceneNodeMetaData.IsSelected)
             data.selected = true;
-        renderingContext->AddDrawCall(data);
 
         if(m_sceneNodeMetaData.IsSelected)
         {

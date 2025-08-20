@@ -65,7 +65,6 @@ float4 fragmentMain(VertexOutput fsIn)
     ambientLight.PrefilterMap = PrefilterMap;
     ambientLight.BRDF_Lut = BRDF_Lut;
 
-    LightPair<LightArray<AreaLight, 4>, AmbientLight> AreaAndAmbient;
     AreaAndAmbient.first = _lightInfo.areaLights;
     AreaAndAmbient.second = ambientLight;
 

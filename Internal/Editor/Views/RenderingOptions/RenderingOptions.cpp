@@ -137,7 +137,7 @@ void RenderingOptions::RenderDrawCallListWidndow(Renderer::RenderingSystem* rend
                 // Print effect name (if exists)
                 if(drawCall.second.effect)
                 {
-                    ImGui::Text("Effect ID: %i", drawCall.second.effect);
+                    ImGui::Text("Effect ID: %s", m_forwardRendererEffects[drawCall.second.effect]);
                 }
 
                 // Print position

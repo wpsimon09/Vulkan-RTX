@@ -36,6 +36,18 @@ class RenderingOptions : public IUserInterfaceElement
     bool                               m_openDrawCallListWindow = false;
     bool                               m_openLightInfoLigt      = false;
     ApplicationCore::ApplicationState& m_applicationState;
+
+    const std::vector<const char*> m_forwardRendererEffects = {
+      "Outline",
+      "ForwardShader",
+      "SkyBox",
+      "DebugLine",
+      "AlphaMask",
+      "AplhaBlend",
+      "EditorBilboard",
+      "WireFrame",
+      "Unknown"
+  };
 };
 
 }  // namespace VEditor

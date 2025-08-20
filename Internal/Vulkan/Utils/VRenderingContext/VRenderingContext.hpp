@@ -49,6 +49,7 @@ struct RenderContext
 
     VulkanCore::VImage2* normalMap     = nullptr;
     VulkanCore::VImage2* positionMap   = nullptr;
+    VulkanCore::VImage2*  visibilityBuffer = nullptr;
     Renderer::RenderTarget2* depthBuffer = nullptr;
 
     std::shared_ptr<ApplicationCore::SkyBoxMaterial> SkyBox = nullptr;

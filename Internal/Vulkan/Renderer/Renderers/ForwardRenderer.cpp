@@ -180,6 +180,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
     m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
     m_renderContextPtr->depthBuffer = &m_gBufferPass->GetDepthAttachment();
+    m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
 
     Utils::Logger::LogSuccess("Forward renderer created !");
 }

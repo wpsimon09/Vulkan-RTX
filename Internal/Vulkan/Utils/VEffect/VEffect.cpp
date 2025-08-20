@@ -113,7 +113,7 @@ void VEffect::WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::De
 void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo imageInfo)
 {
     assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
-
+    assert(imageInfo.imageView != nullptr);
     if(!IsWriteValid(frame, set, binding))
         return;
 
@@ -129,7 +129,6 @@ void VEffect::WriteImageArray(uint32_t frame, uint32_t set, uint32_t binding, co
     assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");
     assert(m_imageInfos.capacity() >= imageInfos.capacity()
            && "Image array you are trying to write is too small for this set, adjust SetNumWrites accordingly");
-
     if(!IsWriteValid(frame, set, binding))
         return;
 

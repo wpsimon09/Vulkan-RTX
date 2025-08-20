@@ -5,6 +5,7 @@
 #include "LightPass.hpp"
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
+#include "Application/Utils/LookUpTables.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
@@ -124,6 +125,15 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 //===================================
                 // std::vector<PerObjectData> SSBO.
                 e->WriteBuffer(currentFrame, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
+
+                // visibility buffer.
+                e->WriteImage(currentFrame, 0, 4, renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+                // ltc
+                e->WriteImage(currentFrame, 0, 5, MathUtils::LookUpTables.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+                // ltc inverse
+                e->WriteImage(currentFrame, 0, 6, MathUtils::LookUpTables.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                 break;
             }
@@ -283,6 +293,7 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
 
     cmdB.bindVertexBuffers(0, {currentVertexBuffer->buffer}, {0});
     cmdB.bindIndexBuffer(currentIndexBuffer->buffer, 0, vk::IndexType::eUint32);
+
     //============================================
     // CONFIGURE VIEW PORT
     //===============================================
@@ -301,10 +312,10 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
             continue;
         }
         auto& material = drawCall.second.material;
-        if(m_effects[(EForwardRenderEffects)drawCall.second.effect] != currentEffect)
+        if(m_effects[static_cast<EForwardRenderEffects>(drawCall.second.effect)] != currentEffect)
         {
             currentEffect = m_effects[(EForwardRenderEffects)drawCall.second.effect];
-            m_effects[(EForwardRenderEffects)drawCall.second.effect]->BindPipeline(cmdB);
+            currentEffect->BindPipeline(cmdB);
             currentEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
         }
 
@@ -340,7 +351,7 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
         pc.modelMatrix = drawCall.second.modelMatrix;
 
         vk::PushConstantsInfo pcInfo;
-        pcInfo.layout     = m_effects[(EForwardRenderEffects)drawCall.second.effect]->GetPipelineLayout();
+        pcInfo.layout     = m_effects[static_cast<EForwardRenderEffects>(drawCall.second.effect)]->GetPipelineLayout();
         pcInfo.size       = sizeof(PerObjectPushConstant);
         pcInfo.offset     = 0;
         pcInfo.pValues    = &pc;
