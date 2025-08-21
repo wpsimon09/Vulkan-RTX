@@ -106,7 +106,7 @@ void FogPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, Vu
 
     vk::PushConstantsInfo pcInfo;
     pcInfo.layout     = m_fogPassEffect->GetPipelineLayout();
-    pcInfo.size       = sizeof(BilaterialFilterParameters);
+    pcInfo.size       = sizeof(FogVolumeParameters);
     pcInfo.offset     = 0;
     pcInfo.pValues    = &m_parameters;
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
