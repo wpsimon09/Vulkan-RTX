@@ -11,9 +11,11 @@
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 
 namespace ApplicationCore {
-FogVolumeNode::FogVolumeNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh): SceneNode(mesh) {
-    m_sceneNodeMetaData.nodeType = ENodeType::FogVolume;
-    m_sceneNodeMetaData.FrustumCull = false;
+FogVolumeNode::FogVolumeNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh)
+    : SceneNode(mesh)
+{
+    m_sceneNodeMetaData.nodeType     = ENodeType::FogVolume;
+    m_sceneNodeMetaData.FrustumCull  = false;
     m_sceneNodeMetaData.IsVolumeNode = true;
 }
 
@@ -30,25 +32,25 @@ void FogVolumeNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
     drawCall.vertexData           = &m_mesh->GetMeshData()->vertexData;
     drawCall.indexData            = &m_mesh->GetMeshData()->indexData;
     drawCall.effect               = static_cast<uint32_t>(EEffectType::FogVolume);
-
+    drawCall.material             = nullptr;
     if(m_sceneNodeMetaData.IsVisible)
     {
         renderingContext->AddDrawCall(drawCall);
     }
 }
-FogVolumeParameters& FogVolumeNode::GetParameters() {return m_parameters;}
+FogVolumeParameters& FogVolumeNode::GetParameters()
+{
+    return m_parameters;
+}
 
 void FogVolumeNode::ProcessNodeRemove()
 {
     SceneNode::ProcessNodeRemove();
 }
-void FogVolumeNode::ProcessNodeRemove(SceneData& sceneData)
-{
-
-}
+void FogVolumeNode::ProcessNodeRemove(SceneData& sceneData) {}
 
 void FogVolumeNode::ProcessNodeRemove(const SceneNode& node, SceneData& sceneData)
 {
     //SceneNode::ProcessNodeRemove(node, sceneData);
 }
-} // ApplicationCore
+}  // namespace ApplicationCore

@@ -133,7 +133,6 @@ void ForwardRenderer::Render(int                                       currentFr
     // RECORD COMMAND BUFFER
     //=====================================================
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
-
     // descriptor set 0 is allways the samme
 
     //============================
@@ -237,8 +236,8 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
 {
     // this might not be the best thing to do but for now it should suffice
     m_fogPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
-    m_forwardRendererOutput         = &m_fogPass->GetPrimaryResult();
     m_renderContextPtr->fogDrawCall = nullptr;
+    m_forwardRendererOutput         = &m_fogPass->GetPrimaryResult();
 }
 
 
