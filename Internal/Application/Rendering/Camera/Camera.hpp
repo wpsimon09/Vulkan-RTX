@@ -77,7 +77,7 @@ class Camera
 
     void SetPosition(glm::vec3& newPosition);
 
-    void Update(CameraUpdateInfo& cameraUpdateInfo, SceneUpdateFlags& sceneUpdateFlags);
+    void Update(CameraUpdateInfo& cameraUpdateInfo, SceneUpdateContext& sceneUpdateFlags);
 
     void Recalculate();
 

@@ -39,11 +39,11 @@ void ApplicationState::pSetSceneData(SceneData* pSceneData)
     m_sceneData = pSceneData;
 }
 
-SceneUpdateFlags& ApplicationState::GetSceneUpdateFlags()
+SceneUpdateContext& ApplicationState::GetSceneUpdateFlags()
 {
     return *m_sceneUpdateFlags;
 }
-void ApplicationState::pSetSceneUpdateFlags(SceneUpdateFlags* sceneUpdateFlags)
+void ApplicationState::pSetSceneUpdateFlags(SceneUpdateContext* sceneUpdateFlags)
 {
     m_sceneUpdateFlags = sceneUpdateFlags;
 }
@@ -56,6 +56,9 @@ void ApplicationState::pSetGlobalRenderingInfo(GlobalRenderingInfo* pGlobalRende
 {
     m_globalRenderingInfo = pGlobalRenderingInfo;
 }
+FogVolumeParameters& ApplicationState::GetFogVolumeParameters() {return *m_fogVolumeParameters;
+}
+void ApplicationState::pSetFogVolumeParameters(FogVolumeParameters* pFogVolumeParameters) {m_fogVolumeParameters = pFogVolumeParameters;}
 
 
 bool& ApplicationState::IsWindowResized()

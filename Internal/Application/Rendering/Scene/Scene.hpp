@@ -82,7 +82,7 @@ class Scene
 
     void SetSelectedSceneNode(std::shared_ptr<SceneNode> sceneNode) { m_selectedSceneNode = sceneNode; };
 
-    SceneUpdateFlags& GetSceneUpdateFlags();
+    SceneUpdateContext& GetSceneUpdateFlags();
 
     const SceneData& GetSceneDataConst() const { return m_sceneData; }
     SceneData&       GetSceneData() { return m_sceneData; }
@@ -114,7 +114,7 @@ class Scene
 
     SceneData m_sceneData;
 
-    SceneUpdateFlags m_sceneUpdateFlags{};
+    SceneUpdateContext m_sceneUpdateFlags{};
 
     ApplicationState& m_applicationState;
 };

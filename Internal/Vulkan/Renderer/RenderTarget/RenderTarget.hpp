@@ -27,6 +27,9 @@ class VImage;
 
 namespace Renderer {
 
+/**
+ * @deprecated use RenderTarget2 instead
+ */
 class RenderTarget
 {
   public:

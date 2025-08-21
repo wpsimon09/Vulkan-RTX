@@ -14,7 +14,7 @@ class FogVolumeNode : public SceneNode
   public:
     explicit FogVolumeNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh);
 
-    void Update(SceneUpdateFlags& sceneUpdateFlags) override;
+    void Update(SceneUpdateContext& sceneUpdateFlags) override;
     void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
 
     FogVolumeParameters& GetParameters();

@@ -17,6 +17,9 @@
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 namespace Renderer {
+class FogPass;
+}
+namespace Renderer {
 class ForwardRender;
 }
 // Forward declarations
@@ -104,47 +107,11 @@ class ForwardRenderer
                            VulkanCore::VCommandBuffer&               cmdBuffer,
                            const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-    void PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall);
 
   private:
     // Vulkan context & managers
     const VulkanCore::VDevice&  m_device;
     VulkanUtils::RenderContext* m_renderContextPtr;
-
-    // Rendering
-    std::shared_ptr<VulkanUtils::VEffect> m_depthPrePassEffect;
-    std::shared_ptr<VulkanUtils::VEffect> m_rtxShadowPassEffect;
-
-    /**
-    * Effect that will denoise the visiblity buffer  
-    */
-    std::unique_ptr<VulkanUtils::VComputeEffect> m_bilateralDenoiser;
-
-    /**
-         * Contains depth
-         */
-    std::unique_ptr<Renderer::RenderTarget2> m_depthPrePassOutput;
-
-    /**
-         *Contains world space position of the geometry
-         */
-    std::unique_ptr<Renderer::RenderTarget2> m_positionBufferOutput;
-
-    std::unique_ptr<Renderer::RenderTarget2> m_normalBufferOutput;
-
-    /**
-         * Contains screen space shadow map
-         */
-    std::unique_ptr<Renderer::RenderTarget2> m_visibilityBuffer;
-    /**
-    * denoised visiblity buffer
-     */
-    std::unique_ptr<VulkanCore::VImage2> m_visiblityBuffer_Denoised;
-    /**
-    * Contains final shading of the scene
-    */
-    std::unique_ptr<Renderer::RenderTarget2> m_lightingPassOutput;
-
     /**
      * Contains the fog pass if any is required
      */
@@ -168,6 +135,7 @@ class ForwardRenderer
     std::unique_ptr<Renderer::GBufferPass>          m_gBufferPass;
     std::unique_ptr<Renderer::BilateralFilterPass>  m_visibilityDenoisePass;
     std::unique_ptr<Renderer::ForwardRender>        m_forwardRenderPass;
+    std::unique_ptr<Renderer::FogPass>              m_fogPass;
     // Editor integration
     friend class VEditor::RenderingOptions;
 };

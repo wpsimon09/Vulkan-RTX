@@ -84,7 +84,7 @@ void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
     }
 }
 
-void AreaLightNode::Update(SceneUpdateFlags& sceneUpdateFlags)
+void AreaLightNode::Update(SceneUpdateContext& sceneUpdateFlags)
 {
     LightNode<LightStructs::AreaLight>::Update(sceneUpdateFlags);
     int i                          = 0;

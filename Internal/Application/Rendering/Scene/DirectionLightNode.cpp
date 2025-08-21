@@ -78,7 +78,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
     }
 }
 
-void DirectionLightNode::Update(SceneUpdateFlags& sceneUpdateFlags)
+void DirectionLightNode::Update(SceneUpdateContext& sceneUpdateFlags)
 {
     m_lightStruct.direction =
         glm::normalize(glm::vec3(m_transformation->GetRotationMatrix() * glm::vec4(glm::vec3(-1.0f, 0.0f, 0.0f), 0.0f)));

@@ -18,7 +18,7 @@ class AreaLightNode : public LightNode<LightStructs::AreaLight>
                            LightStructs::AreaLight*      areaLightData = nullptr);
 
     void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
-    void Update(SceneUpdateFlags& sceneUpdateFlags) override;
+    void Update(SceneUpdateContext& sceneUpdateFlags) override;
     void ProcessNodeRemove() override;
 
   private:

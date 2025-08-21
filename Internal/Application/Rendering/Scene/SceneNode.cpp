@@ -201,7 +201,7 @@ void SceneNode::ProcessNodeRemove(const SceneNode& node, SceneData& sceneData)
     }
 }
 
-void SceneNode::Update(SceneUpdateFlags& sceneUpdateFlags)
+void SceneNode::Update(SceneUpdateContext& sceneUpdateFlags)
 {
     if(m_parent)
     {

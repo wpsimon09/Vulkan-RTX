@@ -9,6 +9,9 @@
 #include "Application/Enums/ClientEnums.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 
+namespace ApplicationCore {
+class ApplicationState;
+}
 struct CameraUpdateInfo
 {
 
@@ -121,10 +124,11 @@ struct SceneNodeMetaData
     bool      m_isDirty           = false;
 };
 
-struct SceneUpdateFlags {
+struct SceneUpdateContext {
     bool rebuildAs = true;
     bool updateAs = true;
     bool resetAccumulation = true;
+    ApplicationCore::ApplicationState* applicationState;
 
     void Reset() {
         updateAs = false;

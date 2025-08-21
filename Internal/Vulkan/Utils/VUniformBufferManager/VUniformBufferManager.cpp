@@ -43,10 +43,6 @@ const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager:
     return m_perFrameUniform->GetDescriptorBufferInfos();
 }
 
-const vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetFogVolumParametersBufferDescriptorInfo(int frameIndex) const
-{
-    return m_fogVolumeParameters->GetDescriptorBufferInfos()[frameIndex];
-}
 
 const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::GetLightBufferDescriptorInfo() const
 {
@@ -192,12 +188,6 @@ void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, con
         materials[i] = *sceneData.pbrMaterials[i];
     }
     m_sceneMaterials[frameIndex]->Update(materials);
-    if(sceneData.fogVolumeParameters)
-    {
-        m_fogVolumeParameters->GetUBOStruct() = *sceneData.fogVolumeParameters;
-    }
-
-    m_fogVolumeParameters->UpdateGPUBuffer(frameIndex);
     m_sceneTextures = sceneData.textures;
 }
 
@@ -206,7 +196,6 @@ void VulkanUtils::VUniformBufferManager::Destroy() const
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager and all its data...");
     m_perFrameUniform->Destory();
     m_lightUniform->Destory();
-    m_fogVolumeParameters->Destory();
 
     for(auto& luminanceHistogram : m_luminanceHistogram)
     {
@@ -255,7 +244,6 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
 
     m_perFrameUniform = std::make_unique<VUniform<GlobalRenderingInfo>>(m_device);
 
-    m_fogVolumeParameters = std::make_unique<VUniform<FogVolumeParameters>>(m_device);
 
     m_lightUniform = std::make_unique<VUniform<LightUniforms>>(m_device);
 }

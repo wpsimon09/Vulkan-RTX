@@ -61,7 +61,7 @@ void SkyBoxNode::ProcessNodeRemove()
     m_lightStruct.inUse    = false;
 }
 
-void SkyBoxNode::Update(SceneUpdateFlags& sceneUpdateFlags)
+void SkyBoxNode::Update(SceneUpdateContext& sceneUpdateFlags)
 {
     m_lightStruct.inUse = m_sceneNodeMetaData.IsVisible;
     if(m_sceneLightInfo.environmentLight->hdrImage

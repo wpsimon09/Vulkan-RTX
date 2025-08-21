@@ -39,6 +39,8 @@ Scene::Scene(ApplicationState& applicationState, AssetsManager& assetsManager, C
     m_applicationState.pSetSceneLightInfo(&m_sceneLightInfo);
     m_applicationState.pSetSceneData(&m_sceneData);
     m_applicationState.pSetSceneUpdateFlags(&m_sceneUpdateFlags);
+
+    m_sceneUpdateFlags.applicationState = &applicationState;
 }
 
 void Scene::Init()
@@ -317,7 +319,7 @@ void Scene::PreformRayCast(glm::vec2 mousePosition)
         Utils::Logger::LogErrorClient("Mouse is outside NDC");
     }
 }
-SceneUpdateFlags& Scene::GetSceneUpdateFlags()
+SceneUpdateContext& Scene::GetSceneUpdateFlags()
 {
     return m_sceneUpdateFlags;
 }

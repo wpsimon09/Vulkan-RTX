@@ -84,21 +84,6 @@ struct LightUniforms
     glm::vec4                     info;  // x - use env, y - ambient strength,w - padding
 };
 
-struct FogVolumeParameters
-{
-    float sigma_a{0.0001};  // not alterable through slider
-    float sigma_s{0.0001};  // not alterable through slider
-    float rayDistance{900.0f};
-    float raySteps{4.0};
-
-    glm::vec4 fogColour{0.0f};  // xyz - colour, w - density ,
-
-    float heightFallOff{1};
-    int   rayMarched      = false;
-    float asymmetryFactor = {0.0f};
-    float fogHeight       = {1.0f};
-};
-
 struct RTXObjDescription
 {
     vk::DeviceAddress vertexAddress;

@@ -43,7 +43,6 @@ class VUniformBufferManager
 
     const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;  // per frame in flight
     const vk::DescriptorBufferInfo               GetPostProcessingBufferDescriptorInfo(int frameIndex) const;
-    const vk::DescriptorBufferInfo               GetFogVolumParametersBufferDescriptorInfo(int frameIndex) const;
     const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
     const std::vector<vk::DescriptorImageInfo>& SceneTextures();
@@ -82,8 +81,6 @@ class VUniformBufferManager
     std::unique_ptr<VUniform<LightUniforms>> m_lightUniform;
 
     std::unique_ptr<VulkanUtils::VUniform<GlobalRenderingInfo>> m_perFrameUniform;
-    std::unique_ptr<VulkanUtils::VUniform<FogVolumeParameters>> m_fogVolumeParameters;
-
     //=======================================================
     // storage buffers containing all of the data for materials
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_sceneMaterials;

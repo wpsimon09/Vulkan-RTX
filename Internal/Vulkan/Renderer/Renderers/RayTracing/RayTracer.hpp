@@ -14,7 +14,7 @@ class VEffect;
 namespace ApplicationCore {
 class EffectsLibrary;
 }
-struct SceneUpdateFlags;
+struct SceneUpdateContext;
 namespace VulkanUtils {
 class VRasterEffect;
 }

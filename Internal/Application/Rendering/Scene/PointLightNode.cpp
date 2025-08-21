@@ -80,7 +80,7 @@ void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vul
     }
 }
 
-void PointLightNode::Update(SceneUpdateFlags& sceneUpdateFlags)
+void PointLightNode::Update(SceneUpdateContext& sceneUpdateFlags)
 {
     m_lightStruct.position          = m_transformation->GetPosition();
     m_lightStruct.isPointLightInUse = m_sceneNodeMetaData.IsVisible;

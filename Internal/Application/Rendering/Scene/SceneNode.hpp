@@ -80,7 +80,7 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
     //=========================
     // Transformation
     //=========================
-    virtual void Update(SceneUpdateFlags& sceneUpdateFlags);
+    virtual void Update(SceneUpdateContext& sceneUpdateFlags);
     void         SetLocalTransform(Transformations& transformations)
     {
         m_localTransformation = transformations;

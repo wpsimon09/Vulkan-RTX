@@ -232,7 +232,6 @@ void ForwardRender::Update(int                                   currentFrame,
 
 void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
 {
-    assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
     int drawCallCount = 0;
     //==============================================
     // CREATE RENDER PASS INFO

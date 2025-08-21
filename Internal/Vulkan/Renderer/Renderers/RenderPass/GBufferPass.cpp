@@ -145,7 +145,8 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
     {
         if(drawCall.second.postProcessingEffect)
         {
-            //m_postProcessingFogVolumeDrawCall = &drawCall.second;
+            // i only have one post-processing draw call, but for athosphere and other shit i will have to distinguish betweeen
+            renderContext->fogDrawCall = &drawCall.second;
             continue;
         }
         if(drawCall.second.inDepthPrePass)

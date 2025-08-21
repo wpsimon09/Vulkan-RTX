@@ -244,6 +244,8 @@ set(SOURCES
         Internal/Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp
         Internal/Vulkan/Renderer/Renderers/RenderPass/LightPass.cpp
         Internal/Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/PostProcessing.cpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp
 )
 
 

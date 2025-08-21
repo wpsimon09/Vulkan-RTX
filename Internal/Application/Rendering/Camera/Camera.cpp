@@ -155,7 +155,7 @@ void ApplicationCore::Camera::SetPosition(glm::vec3& newPosition)
     m_position = newPosition;
 }
 
-void ApplicationCore::Camera::Update(CameraUpdateInfo& cameraUpdateInfo, SceneUpdateFlags& sceneUpdateFlags)
+void ApplicationCore::Camera::Update(CameraUpdateInfo& cameraUpdateInfo, SceneUpdateContext& sceneUpdateFlags)
 {
     if (m_previusUpdateInfo != cameraUpdateInfo) {
         RotateAzimutn(cameraUpdateInfo.RotateAzimuthValue);

@@ -5,6 +5,7 @@
 #include "FogVolumeNode.hpp"
 
 #include "Scene.hpp"
+#include "Application/ApplicationState/ApplicationState.hpp"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
@@ -16,8 +17,9 @@ FogVolumeNode::FogVolumeNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh):
     m_sceneNodeMetaData.IsVolumeNode = true;
 }
 
-void FogVolumeNode::Update(SceneUpdateFlags& sceneUpdateFlags)
+void FogVolumeNode::Update(SceneUpdateContext& sceneUpdateFlags)
 {
+    sceneUpdateFlags.applicationState->pSetFogVolumeParameters(&m_parameters);
     SceneNode::Update(sceneUpdateFlags);
 }
 
@@ -42,8 +44,9 @@ void FogVolumeNode::ProcessNodeRemove()
 }
 void FogVolumeNode::ProcessNodeRemove(SceneData& sceneData)
 {
-    sceneData.fogVolumeParameters = nullptr;
+
 }
+
 void FogVolumeNode::ProcessNodeRemove(const SceneNode& node, SceneData& sceneData)
 {
     //SceneNode::ProcessNodeRemove(node, sceneData);

@@ -27,6 +27,7 @@
 #include "RenderPass/DenoisePass.hpp"
 #include "RenderPass/GBufferPass.hpp"
 #include "RenderPass/LightPass.hpp"
+#include "RenderPass/PostProcessing.hpp"
 #include "RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Global/RenderingOptions.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
@@ -59,102 +60,10 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_width  = width;
     m_height = height;
 
-    //=========================
-    // CONFIGURE DEPTH PASS EFFECT
-    //=========================
-    m_depthPrePassEffect = effectsLibrary.effects[ApplicationCore::EEffectType::DepthPrePass];
-
-    //=============================
-    // CONFIGURE RT SHADOW MAP PASS
-    //=============================
-    m_rtxShadowPassEffect = effectsLibrary.effects[ApplicationCore::EEffectType::RTShadowPass];
-
-    //=============================
-    // CONFIGURE BILATERIAL PASS
-    //=============================
-    m_bilateralDenoiser =
-        std::make_unique<VulkanUtils::VComputeEffect>(m_device, "BilaterialPass", "Shaders/Compiled/Bilaterial-Filter.spv",
-                                                      descLayoutCache, EShaderBindingGroup::ComputePostProecess);
-    m_bilateralDenoiser->BuildEffect();
-
-    m_bilateralDenoiser->GetReflectionData()->Print();
-
-    VulkanCore::VImage2CreateInfo m_visiblityBuffer_DenoisedCI;
-    m_visiblityBuffer_DenoisedCI.width     = m_width;
-    m_visiblityBuffer_DenoisedCI.height    = m_height;
-    m_visiblityBuffer_DenoisedCI.isStorage = true;
-    m_visiblityBuffer_DenoisedCI.format    = vk::Format::eR16G16B16A16Sfloat;
-    m_visiblityBuffer_DenoisedCI.layout    = vk::ImageLayout::eGeneral;
-    m_visiblityBuffer_DenoisedCI.imageUsage |= vk::ImageUsageFlagBits::eStorage;
-
-    m_visiblityBuffer_Denoised = std::make_unique<VulkanCore::VImage2>(m_device, m_visiblityBuffer_DenoisedCI);
-
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_visiblityBuffer_Denoised, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eUndefined,
-                                                    m_device.GetTransferOpsManager().GetCommandBuffer());
     //===========================================
     //===== CREATE RENDER TARGETS
     //===========================================
 
-    //=============
-    //depth prepass
-    Renderer::RenderTarget2CreatInfo depthPrepassOutputCI{
-        width,
-        height,
-        true,
-        true,
-        m_device.GetDepthFormat(),
-        vk::ImageLayout::eDepthStencilReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eMin,
-    };
-
-    m_depthPrePassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, depthPrepassOutputCI);
-
-    //=================
-    // position buffer
-    Renderer::RenderTarget2CreatInfo positionBufferCI{
-        width,
-        height,
-        true,
-        false,
-        vk::Format::eR16G16B16A16Sfloat,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eAverage,
-    };
-
-    m_positionBufferOutput = std::make_unique<Renderer::RenderTarget2>(m_device, positionBufferCI);
-
-    //==================
-    // Normal map
-    m_normalBufferOutput = std::make_unique<Renderer::RenderTarget2>(m_device, positionBufferCI);
-
-
-    //==================
-    // Shadow map
-    Renderer::RenderTarget2CreatInfo shadowMapCI{
-        width,
-        height,
-        false,
-        false,
-        vk::Format::eR16G16B16A16Sfloat,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eNone,
-    };
-
-    m_visibilityBuffer = std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI);
-
-    //==================
-    // Lightning pass
-    Renderer::RenderTarget2CreatInfo lightPassCI{
-        width,
-        height,
-        true,
-        false,
-        vk::Format::eR16G16B16A16Sfloat,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eAverage,
-    };
-
-    m_lightingPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, lightPassCI);
 
     //==================
     // Fog pass output
@@ -176,11 +85,13 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_gBufferPass = std::make_unique<Renderer::GBufferPass>(device,effectsLibrary, width, height);
     m_visibilityDenoisePass = std::make_unique<Renderer::BilateralFilterPass>(device, effectsLibrary, m_visibilityBufferPass->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer), width, height);
     m_forwardRenderPass = std::make_unique<Renderer::ForwardRender>(device, effectsLibrary, width, height);
+    m_fogPass = std::make_unique<Renderer::FogPass>(device, effectsLibrary, width, height);
 
     m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
     m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
     m_renderContextPtr->depthBuffer = &m_gBufferPass->GetDepthAttachment();
     m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
+    m_renderContextPtr->lightPassOutput = &m_forwardRenderPass->GetResolvedResult();
 
     Utils::Logger::LogSuccess("Forward renderer created !");
 }
@@ -193,6 +104,7 @@ void ForwardRenderer::Init(int                                  frameIndex,
     m_gBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_visibilityDenoisePass->Init(frameIndex, uniformBufferManager, renderContext);
     m_forwardRenderPass->Init(frameIndex, uniformBufferManager, renderContext);
+    m_fogPass->Init(frameIndex, uniformBufferManager, renderContext);
 }
 
 void ForwardRenderer::Update(int                                   currentFrame,
@@ -204,6 +116,7 @@ void ForwardRenderer::Update(int                                   currentFrame,
     m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_visibilityDenoisePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_forwardRenderPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_fogPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,
@@ -238,7 +151,7 @@ void ForwardRenderer::Render(int                                       currentFr
 
     //==================================
     // render the fog if it is in scene
-    if(m_postProcessingFogVolumeDrawCall)
+    if(m_renderContextPtr->fogDrawCall)
     {
         PostProcessingFogPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
     }
@@ -248,7 +161,7 @@ void ForwardRenderer::Render(int                                       currentFr
 }
 VulkanCore::VImage2* ForwardRenderer::GetForwardRendererResult() const
 {
-    return &m_forwardRenderPass->GetResolvedResult();
+    return m_forwardRendererOutput;
 }
 
 Renderer::RenderTarget2& ForwardRenderer::GetDepthPrePassOutput() const
@@ -313,6 +226,7 @@ void ForwardRenderer::DrawScene(int                                       curren
 
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
     m_forwardRenderPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
+    m_forwardRendererOutput  = &m_forwardRenderPass->GetResolvedResult();
         
 }
 void ForwardRenderer::PostProcessingFogPass(int                                       currentFrameIndex,
@@ -320,59 +234,16 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
                                             const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     // this might not be the best thing to do but for now it should suffice
-    m_fogPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
-
-
-    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_fogPassOutput->GenerateAttachmentInfo(
-        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
-
-    vk::RenderingInfo renderingInfo{};
-    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
-    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
-    renderingInfo.layerCount           = 1;
-    renderingInfo.colorAttachmentCount = renderingOutputs.size();
-    renderingInfo.pColorAttachments    = renderingOutputs.data();
-    renderingInfo.pDepthAttachment     = nullptr;
-
-    auto& cmdB = cmdBuffer.GetCommandBuffer();
-
-    cmdB.beginRendering(&renderingInfo);
-
-    Renderer::ConfigureViewPort(cmdB, renderingInfo.renderArea.extent.width, renderingInfo.renderArea.extent.height);
-
-    cmdB.setStencilTestEnable(false);
-
-    //m_postProcessingFogVolumeDrawCall->effect->BindPipeline(cmdB);
-    //m_postProcessingFogVolumeDrawCall->effect->BindDescriptorSet(cmdB, currentFrameIndex, 0);
-
-    cmdB.draw(3, 1, 0, 0);
-
-    cmdB.endRendering();
-
-    m_fogPassOutput->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal);
-
-    m_postProcessingFogVolumeDrawCall = nullptr;
-
-    m_forwardRendererOutput = &m_fogPassOutput->GetPrimaryImage();
-}
-
-
-void ForwardRenderer::PushDrawCallId(const vk::CommandBuffer& cmdBuffer, VulkanStructs::VDrawCallData& drawCall)
-{
-
+    m_fogPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
+    m_forwardRendererOutput = &m_fogPass->GetPrimaryResult();
+    m_renderContextPtr->fogDrawCall = nullptr;
 }
 
 
 void ForwardRenderer::Destroy()
 {
     //m_renderTargets->Destroy();
-    m_depthPrePassOutput->Destroy();
-    m_visibilityBuffer->Destroy();
-    m_lightingPassOutput->Destroy();
-    m_positionBufferOutput->Destroy();
     m_fogPassOutput->Destroy();
-    m_normalBufferOutput->Destroy();
-    m_visiblityBuffer_Denoised->Destroy();
     m_visibilityBufferPass->Destroy();
     m_gBufferPass->Destroy();
     m_visibilityDenoisePass->Destroy();

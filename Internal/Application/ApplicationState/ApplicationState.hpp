@@ -10,7 +10,7 @@
 #include "Application/Structs/ParameterStructs.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 struct GlobalRenderingInfo;
-struct SceneUpdateFlags;
+struct SceneUpdateContext;
 namespace LightStructs {
 struct SceneLightInfo;
 }
@@ -35,11 +35,14 @@ class ApplicationState
     SceneData& GetSceneData();
     void       pSetSceneData(SceneData* pSceneData);
 
-    SceneUpdateFlags& GetSceneUpdateFlags();
-    void              pSetSceneUpdateFlags(SceneUpdateFlags* sceneUpdateFlags);
+    SceneUpdateContext& GetSceneUpdateFlags();
+    void              pSetSceneUpdateFlags(SceneUpdateContext* sceneUpdateFlags);
 
     GlobalRenderingInfo& GetGlobalRenderingInfo();
     void                 pSetGlobalRenderingInfo(GlobalRenderingInfo* pGlobalRenderingInfo);
+
+    FogVolumeParameters& GetFogVolumeParameters();
+    void pSetFogVolumeParameters(FogVolumeParameters* pFogVolumeParameters);
 
     BilaterialFilterParameters&          GetBilateralFilaterParameters();
     AoOcclusionParameters&               GetAoOcclusionParameters();
@@ -61,8 +64,9 @@ class ApplicationState
   private:
     LightStructs::SceneLightInfo* m_sceneLight          = nullptr;  // instantiated in Scene.hpp
     SceneData*                    m_sceneData           = nullptr;  // instantiated in Scene.hpp
-    SceneUpdateFlags*             m_sceneUpdateFlags    = nullptr;  // instantiated in Scene.hpp
+    SceneUpdateContext*             m_sceneUpdateFlags    = nullptr;  // instantiated in Scene.hpp
     GlobalRenderingInfo*          m_globalRenderingInfo = nullptr;  // instantiated in Client.hpp
+    FogVolumeParameters*          m_fogVolumeParameters = nullptr;
 
     BilaterialFilterParameters          m_bilaterialFilaterParameters;
     AoOcclusionParameters               m_aoOcclusionParameters;
