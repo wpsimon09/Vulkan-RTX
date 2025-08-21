@@ -56,6 +56,8 @@ float4 fragmentMain(VertexOutput fsIn)
     DirAndPoint.second = _lightInfo.pointLights;
 
 
+    LightPair<LightArray<AreaLight,4>,AmbientLight> AreaAndAmbient;
+
     AmbientLight ambientLight;
     ambientLight.albedo = brdf_.albedo.xyz;
     ambientLight.aoIntensity = _lightInfo.info.y;
@@ -77,10 +79,9 @@ float4 fragmentMain(VertexOutput fsIn)
     float3 finalColor;
     float2 shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).xy;
 
-    finalColor = lerp(brdf_.albedo.xyz * 0.2, lightingEnv.illuminate(g, brdf_, V)  + ambientLight.illuminate(g, brdf_, V),   shadowFactor.x);
+    finalColor = lerp(ambientLight.illuminate(g, brdf_, V) * 0.2, lightingEnv.illuminate(g, brdf_, V)  + ambientLight.illuminate(g, brdf_, V),   shadowFactor.x);
 
     
-
     finalColor.xyz += brdf_.emission.xyz;
 
     // shadow factor.y is an ambient occlusion data 

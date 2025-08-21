@@ -226,12 +226,13 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     effects[EEffectType::AverageLuminance] = std::move(averageLuminance);
     //================================================================================
 
-    auto bilateralFilter = std::make_shared<VulkanUtils::VComputeEffect>(device, "Bilateral filter", "Shaders/Compiled/Bilaterial-Filter.spv", descLayoutCache, EShaderBindingGroup::ComputePostProecess);
+    auto bilateralFilter =
+        std::make_shared<VulkanUtils::VComputeEffect>(device, "Bilateral filter", "Shaders/Compiled/Bilaterial-Filter.spv",
+                                                      descLayoutCache, EShaderBindingGroup::ComputePostProecess);
 
     effects[EEffectType::BilateralFilter] = std::move(bilateralFilter);
 
     BuildAllEffects();
-
 }
 
 std::shared_ptr<VulkanUtils::VEffect> EffectsLibrary::GetEffect(EEffectType type)
@@ -264,72 +265,39 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&      
                                           VulkanStructs::PostProcessingContext&     postProcessingContext,
                                           const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
-  // TODO: fog binding is missing
+    // TODO: fog binding is missing
 }
 
 void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer&     sceneRenderer,
                                                VulkanUtils::VUniformBufferManager&  uniformBufferManager,
                                                VulkanUtils::VRayTracingDataManager& rayTracingDataManager)
 {
-       for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         // =========================
         // ToneMap
-        if (auto it = effects.find(EEffectType::ToneMappingPass); it != effects.end())
+        if(auto it = effects.find(EEffectType::ToneMappingPass); it != effects.end())
         {
             auto& e = it->second;
             e->SetNumWrites(1, 2, 0);
 
             e->WriteImage(i, 0, 0,
-                          sceneRenderer.GetDepthPrePassOutput().GetResolvedImage().GetDescriptorImageInfo(
-                              VulkanCore::VSamplers::Sampler2D));
+                          sceneRenderer.GetDepthPrePassOutput().GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
             e->ApplyWrites(i);
         }
 
-        // =========================
-        // FogBinding
-        if (auto it = effects.find(EEffectType::FogVolume); it != effects.end())
-        {
-            auto& e = it->second;
-            e->SetNumWrites(4, 7, 2);
-
-            e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
-
-            e->WriteImage(i, 0, 1,
-                          sceneRenderer.GetShadowMapOutput().GetPrimaryImage().GetDescriptorImageInfo(
-                              VulkanCore::VSamplers::Sampler2D));
-            e->WriteImage(i, 0, 2,
-                          sceneRenderer.GetPositionBufferOutput().GetResolvedImage().GetDescriptorImageInfo(
-                              VulkanCore::VSamplers::SamplerDepth));
-            e->WriteImage(i, 0, 3,
-                          MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
-                              VulkanCore::VSamplers::Sampler2D));
-            e->WriteImage(i, 0, 4,
-                          sceneRenderer.GetLightPassOutput().GetResolvedImage().GetDescriptorImageInfo(
-                              VulkanCore::VSamplers::Sampler2D));
-
-            e->WriteBuffer(i, 0, 5, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
-
-            e->WriteAccelerationStrucutre(i, 0, 6, rayTracingDataManager.GetTLAS());
-
-            e->WriteBuffer(i, 1, 0, uniformBufferManager.GetFogVolumParametersBufferDescriptorInfo(i));
-
-            e->ApplyWrites(i);
-        }
 
         // =========================
         // LensFlareBinding
-        if (auto it = effects.find(EEffectType::LensFlare); it != effects.end())
+        if(auto it = effects.find(EEffectType::LensFlare); it != effects.end())
         {
             auto& e = it->second;
             e->SetNumWrites(3, 2, 0);
 
             e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
 
-            e->WriteImage(i, 0, 1,
-                          MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
-                              VulkanCore::VSamplers::Sampler2D));
+            e->WriteImage(i, 0, 1, MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
             e->WriteBuffer(i, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
 
@@ -338,7 +306,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 
         // =========================
         // ComputePostProcess
-        if (auto it = effects.find(EEffectType::ComputePostProcess); it != effects.end())
+        if(auto it = effects.find(EEffectType::ComputePostProcess); it != effects.end())
         {
             auto& e = it->second;
             // Example placeholder if you later want to write images/buffers
@@ -350,7 +318,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 
         // =========================
         // LuminanceHistogram
-        if (auto it = effects.find(EEffectType::LuminanceHistrogram); it != effects.end())
+        if(auto it = effects.find(EEffectType::LuminanceHistrogram); it != effects.end())
         {
             auto& e = it->second;
             e->SetNumWrites(1, 1);
@@ -362,7 +330,7 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 
         // =========================
         // AverageLuminance
-        if (auto it = effects.find(EEffectType::AverageLuminance); it != effects.end())
+        if(auto it = effects.find(EEffectType::AverageLuminance); it != effects.end())
         {
             auto& e = it->second;
             e->SetNumWrites(1, 1);

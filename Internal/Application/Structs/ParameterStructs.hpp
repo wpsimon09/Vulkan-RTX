@@ -2,6 +2,8 @@
 
 #define PARAMETERSTRUCTS_HPP
 
+#include "glm/glm.hpp"
+
 struct BilaterialFilterParameters
 {
     float sigma  = 0.2f;

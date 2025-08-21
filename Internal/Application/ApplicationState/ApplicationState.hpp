@@ -36,13 +36,13 @@ class ApplicationState
     void       pSetSceneData(SceneData* pSceneData);
 
     SceneUpdateContext& GetSceneUpdateFlags();
-    void              pSetSceneUpdateFlags(SceneUpdateContext* sceneUpdateFlags);
+    void                pSetSceneUpdateFlags(SceneUpdateContext* sceneUpdateFlags);
 
     GlobalRenderingInfo& GetGlobalRenderingInfo();
     void                 pSetGlobalRenderingInfo(GlobalRenderingInfo* pGlobalRenderingInfo);
 
-    FogVolumeParameters& GetFogVolumeParameters();
-    void pSetFogVolumeParameters(FogVolumeParameters* pFogVolumeParameters);
+    FogVolumeParameters* GetFogVolumeParameters();
+    void                 pSetFogVolumeParameters(FogVolumeParameters* pFogVolumeParameters);
 
     BilaterialFilterParameters&          GetBilateralFilaterParameters();
     AoOcclusionParameters&               GetAoOcclusionParameters();
@@ -64,7 +64,7 @@ class ApplicationState
   private:
     LightStructs::SceneLightInfo* m_sceneLight          = nullptr;  // instantiated in Scene.hpp
     SceneData*                    m_sceneData           = nullptr;  // instantiated in Scene.hpp
-    SceneUpdateContext*             m_sceneUpdateFlags    = nullptr;  // instantiated in Scene.hpp
+    SceneUpdateContext*           m_sceneUpdateFlags    = nullptr;  // instantiated in Scene.hpp
     GlobalRenderingInfo*          m_globalRenderingInfo = nullptr;  // instantiated in Client.hpp
     FogVolumeParameters*          m_fogVolumeParameters = nullptr;
 

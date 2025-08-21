@@ -8,14 +8,15 @@
 
 namespace Renderer {
 
-enum FogPassAttachments {
-  Main = 0
+enum FogPassAttachments
+{
+    FogMain = 0
 };
 
-class FogPass: public Renderer::RenderPass
+class FogPass : public Renderer::RenderPass
 {
   public:
-    FogPass(const VulkanCore::VDevice& device,ApplicationCore::EffectsLibrary& effectLibrary, int width, int height);
+    FogPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height);
 
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
     void Update(int                                   currentFrame,
@@ -23,8 +24,9 @@ class FogPass: public Renderer::RenderPass
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
-private:
-    FogVolumeParameters m_parameters;
+
+  private:
+    FogVolumeParameters                         m_parameters;
     std::shared_ptr<VulkanUtils::VRasterEffect> m_fogPassEffect;
 };
 

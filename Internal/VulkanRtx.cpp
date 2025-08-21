@@ -75,6 +75,7 @@
 #include "Vulkan/Renderer/Renderers/RenderPass/GBufferPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp"
 
 
 Application::Application() = default;

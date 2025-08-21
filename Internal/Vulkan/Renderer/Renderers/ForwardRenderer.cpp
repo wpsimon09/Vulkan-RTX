@@ -42,6 +42,7 @@
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp"
 
 
 namespace Renderer {
@@ -81,17 +82,19 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     //==================================================================================================
     // New render pass system
-    m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device,effectsLibrary, width, height);
-    m_gBufferPass = std::make_unique<Renderer::GBufferPass>(device,effectsLibrary, width, height);
-    m_visibilityDenoisePass = std::make_unique<Renderer::BilateralFilterPass>(device, effectsLibrary, m_visibilityBufferPass->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer), width, height);
+    m_visibilityBufferPass  = std::make_unique<Renderer::VisibilityBufferPass>(device, effectsLibrary, width, height);
+    m_gBufferPass           = std::make_unique<Renderer::GBufferPass>(device, effectsLibrary, width, height);
+    m_visibilityDenoisePass = std::make_unique<Renderer::BilateralFilterPass>(
+        device, effectsLibrary,
+        m_visibilityBufferPass->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer), width, height);
     m_forwardRenderPass = std::make_unique<Renderer::ForwardRender>(device, effectsLibrary, width, height);
-    m_fogPass = std::make_unique<Renderer::FogPass>(device, effectsLibrary, width, height);
+    m_fogPass           = std::make_unique<Renderer::FogPass>(device, effectsLibrary, width, height);
 
-    m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
-    m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
-    m_renderContextPtr->depthBuffer = &m_gBufferPass->GetDepthAttachment();
+    m_renderContextPtr->normalMap        = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
+    m_renderContextPtr->positionMap      = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
+    m_renderContextPtr->depthBuffer      = &m_gBufferPass->GetDepthAttachment();
     m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
-    m_renderContextPtr->lightPassOutput = &m_forwardRenderPass->GetResolvedResult();
+    m_renderContextPtr->lightPassOutput  = &m_forwardRenderPass->GetResolvedResult();
 
     Utils::Logger::LogSuccess("Forward renderer created !");
 }
@@ -188,7 +191,7 @@ Renderer::RenderTarget2& ForwardRenderer::GetNormalBufferOutput() const
 
 VulkanCore::VImage2& ForwardRenderer::GetDenoisedVisibilityBuffer() const
 {
-    return m_visibilityDenoisePass->GetPrimaryResult(EBilateralFilterAttachments::Result) ;
+    return m_visibilityDenoisePass->GetPrimaryResult(EBilateralFilterAttachments::Result);
 }
 
 void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
@@ -226,8 +229,7 @@ void ForwardRenderer::DrawScene(int                                       curren
 
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
     m_forwardRenderPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
-    m_forwardRendererOutput  = &m_forwardRenderPass->GetResolvedResult();
-        
+    m_forwardRendererOutput = &m_forwardRenderPass->GetResolvedResult();
 }
 void ForwardRenderer::PostProcessingFogPass(int                                       currentFrameIndex,
                                             VulkanCore::VCommandBuffer&               cmdBuffer,
@@ -235,7 +237,7 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
 {
     // this might not be the best thing to do but for now it should suffice
     m_fogPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
-    m_forwardRendererOutput = &m_fogPass->GetPrimaryResult();
+    m_forwardRendererOutput         = &m_fogPass->GetPrimaryResult();
     m_renderContextPtr->fogDrawCall = nullptr;
 }
 

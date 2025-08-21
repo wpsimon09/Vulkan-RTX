@@ -24,8 +24,8 @@ ConstantBuffer<LightInfo> _light;
 [[vk::binding(6, 0)]]
 RaytracingAccelerationStructure _tlas;
 
-[[vk::binding(0, 1)]]
-ConstantBuffer<FogVolumeParameters> _fogVolumeParametres;
+[[vk::push_constant]]
+FogVolumeParameters _fogVolumeParametres;
 
 struct VertexOut {
     float4 pos : SV_Position;

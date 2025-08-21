@@ -56,9 +56,14 @@ void ApplicationState::pSetGlobalRenderingInfo(GlobalRenderingInfo* pGlobalRende
 {
     m_globalRenderingInfo = pGlobalRenderingInfo;
 }
-FogVolumeParameters& ApplicationState::GetFogVolumeParameters() {return *m_fogVolumeParameters;
+FogVolumeParameters* ApplicationState::GetFogVolumeParameters()
+{
+    return m_fogVolumeParameters;
 }
-void ApplicationState::pSetFogVolumeParameters(FogVolumeParameters* pFogVolumeParameters) {m_fogVolumeParameters = pFogVolumeParameters;}
+void ApplicationState::pSetFogVolumeParameters(FogVolumeParameters* pFogVolumeParameters)
+{
+    m_fogVolumeParameters = pFogVolumeParameters;
+}
 
 
 bool& ApplicationState::IsWindowResized()
