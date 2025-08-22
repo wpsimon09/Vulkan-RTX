@@ -315,30 +315,6 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 
             e->ApplyWrites(i);
         }
-
-        // =========================
-        // LuminanceHistogram
-        if(auto it = effects.find(EEffectType::LuminanceHistrogram); it != effects.end())
-        {
-            auto& e = it->second;
-            e->SetNumWrites(1, 1);
-
-            e->WriteBuffer(i, 0, 1, uniformBufferManager.GetLuminanceHistogram(i));
-
-            e->ApplyWrites(i);
-        }
-
-        // =========================
-        // AverageLuminance
-        if(auto it = effects.find(EEffectType::AverageLuminance); it != effects.end())
-        {
-            auto& e = it->second;
-            e->SetNumWrites(1, 1);
-
-            e->WriteBuffer(i, 0, 0, uniformBufferManager.GetLuminanceHistogram(i));
-
-            e->ApplyWrites(i);
-        }
     }
 }
 

@@ -53,17 +53,9 @@ class PostProcessingSystem
 
     void LensFlare(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
 
-    void AutoExposure(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
-
   private:
-    std::shared_ptr<VulkanUtils::VEffect> m_toneMappingEffect;
-    std::unique_ptr<RenderTarget2>        m_toneMapOutput;
-
     std::shared_ptr<VulkanUtils::VEffect> m_lensFlareEffect;
     std::unique_ptr<RenderTarget2>        m_lensFlareOutput;
-
-    std::shared_ptr<VulkanUtils::VComputeEffect> m_averageLuminanceEffect;
-    std::unique_ptr<VulkanCore::VImage2>         m_averageLuminanceOutput;
 
     std::shared_ptr<VulkanUtils::VComputeEffect> m_luminanceHistrogram;
 
