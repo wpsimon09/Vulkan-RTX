@@ -6,6 +6,7 @@
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/Structs/ParameterStructs.hpp"
+#include "RenderPass/PostProcessing.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
@@ -119,6 +120,8 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
 
     m_device.GetTransferOpsManager().DestroyBuffer(m_averageLuminanceOutput->GetImageStagingvBuffer(), true);
 
+    m_toneMappingPass = std::make_unique<Renderer::ToneMapping>(device, effectsLibrary, width, height);
+
     Utils::Logger::LogInfo("Post processing system created");
 }
 
@@ -180,6 +183,13 @@ void PostProcessingSystem::Update(int frameIndex, VulkanStructs::PostProcessingC
 VulkanCore::VImage2& PostProcessingSystem::GetRenderedResult(int frameIndex)
 {
     return m_toneMapOutput->GetPrimaryImage();
+}
+void PostProcessingSystem::Init(int                                   frameIndex,
+                                VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                                VulkanUtils::RenderContext*           renderContext,
+                                VulkanStructs::PostProcessingContext* postProcessingContext)
+{
+    m_toneMappingPass->Init(frameIndex, uniformBufferManager, renderContext);
 }
 
 

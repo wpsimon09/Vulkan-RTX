@@ -132,10 +132,13 @@ void RenderingSystem::Init()
         m_uiContext.GetViewPortContext(ViewPortType::eShadowMap).SetImage(m_forwardRenderer->GetDenoisedVisibilityBuffer(), i);
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
             .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
-        m_uiContext.GetViewPortContext(ViewPortType::eNormalBuffer).SetImage(m_forwardRenderer->GetNormalBufferOutput().GetPrimaryImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::eNormalBuffer).SetImage(m_forwardRenderer->GetNormalBufferOutput().GetResolvedImage(), i);
 
         // Init forward rendere
         m_forwardRenderer->Init(i, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext);
+
+        //init post processing system
+        m_postProcessingSystem->Init(i, m_uniformBufferManager, &m_renderContext, &m_postProcessingContext);
     }
 }
 

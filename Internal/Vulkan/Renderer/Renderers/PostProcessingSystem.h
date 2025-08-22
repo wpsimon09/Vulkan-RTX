@@ -9,6 +9,12 @@
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 
+namespace VulkanUtils {
+struct RenderContext;
+}
+namespace Renderer {
+class ToneMapping;
+}
 namespace Renderer {
 class RenderTarget2;
 }
@@ -30,6 +36,10 @@ class PostProcessingSystem
 
     void Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
     VulkanCore::VImage2& GetRenderedResult(int frameIndex);
+
+    void Init(int                                  frameIndex,
+              VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+              VulkanUtils::RenderContext* renderContext, VulkanStructs::PostProcessingContext* postProcessingContext);
 
     void Update(int frameIndex, VulkanStructs::PostProcessingContext& postProcessingCotext);
 
@@ -57,6 +67,7 @@ class PostProcessingSystem
 
     std::shared_ptr<VulkanUtils::VComputeEffect> m_luminanceHistrogram;
 
+    std::unique_ptr<Renderer::ToneMapping> m_toneMappingPass;
 
     const VulkanCore::VDevice&          m_device;
     VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
