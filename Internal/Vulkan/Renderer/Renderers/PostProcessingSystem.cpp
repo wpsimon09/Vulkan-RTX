@@ -69,16 +69,9 @@ void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& co
 
 }
 
-void PostProcessingSystem::Update(int frameIndex, VulkanStructs::PostProcessingContext& postProcessingCotext)
+void PostProcessingSystem::Update(int frameIndex,VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanStructs::PostProcessingContext& postProcessingCotext)
 {
-    if(postProcessingCotext.sceneRender != nullptr)
-    {
-        m_luminanceHistrogram->SetNumWrites(0, 1);
-        m_luminanceHistrogram->WriteImage(
-            frameIndex, 0, 0, postProcessingCotext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-        m_luminanceHistrogram->ApplyWrites(frameIndex);
-    }
-
+    m_toneMappingPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext );
     if(postProcessingCotext.sceneRender != nullptr)
     {
         m_lensFlareEffect->SetNumWrites(0, 1, 0);

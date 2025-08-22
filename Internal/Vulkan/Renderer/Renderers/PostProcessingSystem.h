@@ -41,7 +41,7 @@ class PostProcessingSystem
               VulkanUtils::VUniformBufferManager&  uniformBufferManager,
               VulkanUtils::RenderContext* renderContext, VulkanStructs::PostProcessingContext* postProcessingContext);
 
-    void Update(int frameIndex, VulkanStructs::PostProcessingContext& postProcessingCotext);
+    void Update(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanStructs::PostProcessingContext& postProcessingCotext);
 
     void Destroy();
 
@@ -56,8 +56,6 @@ class PostProcessingSystem
   private:
     std::shared_ptr<VulkanUtils::VEffect> m_lensFlareEffect;
     std::unique_ptr<RenderTarget2>        m_lensFlareOutput;
-
-    std::shared_ptr<VulkanUtils::VComputeEffect> m_luminanceHistrogram;
 
     std::unique_ptr<Renderer::ToneMapping> m_toneMappingPass;
 

@@ -28,7 +28,7 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     if(createInfo.isDepth)
     {
         assert(!createInfo.computeShaderOutput && "Depth image can not be storage image ");
-        attachemtImageCI.imageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
+        attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
     }
     else if (createInfo.computeShaderOutput) {
         assert(!createInfo.isDepth && "Storage image can not be depth buffer");
@@ -50,8 +50,11 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     //===================================
     auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_primaryAttachment, createInfo.initialLayout,
+    if (createInfo.initialLayout != vk::ImageLayout::eUndefined) {
+
+        VulkanUtils::RecordImageTransitionLayoutCommand(*m_primaryAttachment, createInfo.initialLayout,
                                                     vk::ImageLayout::eUndefined, cmdBuffer.GetCommandBuffer());
+    }
 
 
     //=================================================
@@ -65,8 +68,10 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
         //===================================
         // transition to specified layout
         //===================================
-        VulkanUtils::RecordImageTransitionLayoutCommand(*m_primaryAttachment, createInfo.initialLayout,
-                                                        vk::ImageLayout::eUndefined, cmdBuffer.GetCommandBuffer());
+        if (createInfo.initialLayout != vk::ImageLayout::eUndefined) {
+            VulkanUtils::RecordImageTransitionLayoutCommand(*m_primaryAttachment, createInfo.initialLayout,
+                                                            vk::ImageLayout::eUndefined, cmdBuffer.GetCommandBuffer());
+        }
     }
 }
 vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfo(vk::ImageLayout layout, vk::AttachmentLoadOp loadOp, vk::AttachmentStoreOp storeOp)

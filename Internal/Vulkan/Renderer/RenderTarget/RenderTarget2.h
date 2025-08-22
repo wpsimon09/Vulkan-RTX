@@ -8,6 +8,9 @@
 
 namespace Renderer {
 
+/**
+ * NOTE: put layout undefined if you don`t want to transition the image during creation
+ */
 struct RenderTarget2CreatInfo
 {
     int width;

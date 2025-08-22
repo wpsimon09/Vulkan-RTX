@@ -38,25 +38,25 @@ FogPass::FogPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibr
 
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI));
 }
-void FogPass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
+void FogPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
     auto& e = m_fogPassEffect;
     e->SetNumWrites(4, 7, 2);
 
-    e->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+    e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
 
-    e->WriteImage(currentFrameIndex, 0, 1, renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-    e->WriteImage(currentFrameIndex, 0, 2, renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
-    e->WriteImage(currentFrameIndex, 0, 3,
+    e->WriteImage(currentFrame, 0, 1, renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    e->WriteImage(currentFrame, 0, 2, renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
+    e->WriteImage(currentFrame, 0, 3,
                   MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-    e->WriteImage(currentFrameIndex, 0, 4, renderContext->lightPassOutput->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    e->WriteImage(currentFrame, 0, 4, renderContext->lightPassOutput->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
-    e->WriteBuffer(currentFrameIndex, 0, 5, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex]);
+    e->WriteBuffer(currentFrame, 0, 5, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
 
-    e->WriteAccelerationStrucutre(currentFrameIndex, 0, 6, renderContext->tlas);
+    e->WriteAccelerationStrucutre(currentFrame, 0, 6, renderContext->tlas);
 
 
-    e->ApplyWrites(currentFrameIndex);
+    e->ApplyWrites(currentFrame);
 }
 
 void FogPass::Update(int                                   currentFrame,
@@ -129,7 +129,7 @@ void FogPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, Vu
 
 ToneMapping::ToneMapping(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
     : RenderPass(device, width, height)
-    , m_luminanceHistogramAverageParameters{}
+    , m_averageLuminanceParameters{}
     , m_luminanceHistogramParameters{}
     , m_toneMappingParameters{}
 {
@@ -137,7 +137,7 @@ ToneMapping::ToneMapping(const VulkanCore::VDevice& device, ApplicationCore::Eff
     // retrieve effects
     m_luminanceHistogramEffect =
         effectLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::LuminanceHistrogram);
-    m_luminanceAverageEffect = effectLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::AverageLuminance);
+    m_averageLuminanceEffect = effectLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::AverageLuminance);
     m_toneMappingEffect = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::ToneMappingPass);
 
     //=========================================
@@ -156,9 +156,16 @@ ToneMapping::ToneMapping(const VulkanCore::VDevice& device, ApplicationCore::Eff
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, toneMapOutputCI));
 
     // Average luminance = 1
-    RenderTarget2CreatInfo avgLuminanceOutputCI{
-        width, height, false, false, vk::Format::eR32Sfloat, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ResolveModeFlagBits::eNone, true};
-    m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, toneMapOutputCI));
+
+    RenderTarget2CreatInfo avgLuminanceOutputCI{1,
+                                                1,
+                                                false,
+                                                false,
+                                                vk::Format::eR32Sfloat,
+                                                vk::ImageLayout::eUndefined,
+                                                vk::ResolveModeFlagBits::eNone,
+                                                true};
+    m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, avgLuminanceOutputCI));
 
 
     VulkanStructs::VImageData<float> dummyImageData = {};
@@ -174,34 +181,37 @@ ToneMapping::ToneMapping(const VulkanCore::VDevice& device, ApplicationCore::Eff
     m_device.GetTransferOpsManager().DestroyBuffer(
         m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage().GetImageStagingvBuffer(), true);
 }
-void ToneMapping::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
+void ToneMapping::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
     //===========================
     // Tone mapping descriptor
-    auto& e = m_toneMappingEffect;
-    e->SetNumWrites(1, 2, 0);
+    m_toneMappingEffect->SetNumWrites(1, 2, 0);
 
-    e->WriteImage(currentFrameIndex, 0, 0,
+    m_toneMappingEffect->WriteImage(currentFrame, 0, 0,
                   renderContext->depthBuffer->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
-    e->ApplyWrites(currentFrameIndex);
+    m_toneMappingEffect->ApplyWrites(currentFrame);
 
     //================================
     // Luminance histogram descriptors
     m_luminanceHistogramEffect->SetNumWrites(1, 1);
 
-    m_luminanceHistogramEffect->WriteBuffer(currentFrameIndex, 0, 1, uniformBufferManager.GetLuminanceHistogram(currentFrameIndex));
+    m_luminanceHistogramEffect->WriteBuffer(currentFrame, 0, 1, uniformBufferManager.GetLuminanceHistogram(currentFrame));
 
-    m_luminanceHistogramEffect->ApplyWrites(currentFrameIndex);
+    m_luminanceHistogramEffect->ApplyWrites(currentFrame);
 
     //================================
     // Average luminance
-    m_luminanceAverageEffect->SetNumWrites(1, 1);
+    m_averageLuminanceEffect->SetNumWrites(1, 1);
 
-    m_luminanceAverageEffect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetLuminanceHistogram(currentFrameIndex));
-    m_luminanceAverageEffect->WriteImage(currentFrameIndex, 0, 1,
-               m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage().GetDescriptorImageInfo());
-    m_luminanceAverageEffect->ApplyWrites(currentFrameIndex);
+    m_averageLuminanceEffect->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetLuminanceHistogram(currentFrame));
+    m_averageLuminanceEffect->WriteImage(
+        currentFrame, 0, 1,
+        m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage().GetDescriptorImageInfo());
+
+    m_averageLuminanceEffect->ApplyWrites(currentFrame);
+
+    //=====================================
 }
 
 void ToneMapping::Update(int                                   currentFrame,
@@ -217,31 +227,30 @@ void ToneMapping::Update(int                                   currentFrame,
         m_luminanceHistogramEffect->ApplyWrites(currentFrame);
     }
 
-    if(postProcessingContext->luminanceAverageParameters != nullptr)
-    {
-        m_luminanceAverageEffect->SetNumWrites(0, 1, 0);
-
-        m_luminanceAverageEffect->ApplyWrites(currentFrame);
-    }
-
-
     m_toneMappingEffect->SetNumWrites(0, 2, 0);
-
     m_toneMappingEffect->WriteImage(currentFrame, 1, 0,
                                     postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
     m_toneMappingEffect->WriteImage(
         currentFrame, 1, 1, m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage().GetDescriptorImageInfo());
     m_toneMappingEffect->ApplyWrites(currentFrame);
 
+    m_averageLuminanceEffect->SetNumWrites(1, 1);
+
+    m_averageLuminanceEffect->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetLuminanceHistogram(currentFrame));
+    m_averageLuminanceEffect->WriteImage(
+        currentFrame, 0, 1,
+        m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage().GetDescriptorImageInfo());
+
+    m_averageLuminanceEffect->ApplyWrites(currentFrame);
+
+    //===============================
+    // Fill in the push constant data
+
     m_toneMappingParameters = *postProcessingContext->toneMappingParameters;
-
     m_luminanceHistogramParameters                   = *postProcessingContext->luminanceHistrogramParameters;
-    m_luminanceHistogramAverageParameters.pixelCount = postProcessingContext->sceneRender->GetPixelCount();
-    //    m_luminanceHistogramAverageParameters.logLuminanceRange = postProcessingContext->luminanceHistrogramParameters->logRange;
-    //    m_luminanceHistogramAverageParameters.minLogLuminance = postProcessingContext->luminanceHistrogramParameters->minLogLuminance;
-    m_luminanceHistogramAverageParameters.timeDelta = postProcessingContext->deltaTime;
 
+    m_averageLuminanceParameters.pixelCount = postProcessingContext->sceneRender->GetPixelCount();
+    m_averageLuminanceParameters.timeDelta = postProcessingContext->deltaTime;
 
     m_luminanceHistogramParameters.width  = m_width;
     m_luminanceHistogramParameters.height = m_height;
@@ -258,7 +267,7 @@ void ToneMapping::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
     //================================================
 
     vk::PushConstantsInfo pcInfo;
-    pcInfo.layout = m_luminanceAverageEffect->GetPipelineLayout();
+    pcInfo.layout = m_averageLuminanceEffect->GetPipelineLayout();
     pcInfo.size = sizeof(LuminanceHistogramParameters) - 2 * sizeof(float);  // one parameter is not taken into the account
     pcInfo.offset     = 0;
     pcInfo.pValues    = &m_luminanceHistogramParameters;
@@ -277,15 +286,15 @@ void ToneMapping::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
     VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage(),
                                                     vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                     cmdBuffer.GetCommandBuffer());
-    pcInfo.layout     = m_luminanceAverageEffect->GetPipelineLayout();
+    pcInfo.layout     = m_averageLuminanceEffect->GetPipelineLayout();
     pcInfo.size       = sizeof(LuminanceHistogramAverageParameters);  // one parameter is not taken into the account
     pcInfo.offset     = 0;
     pcInfo.pValues    = &m_luminanceHistogramParameters;
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
 
-    m_luminanceAverageEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
-    m_luminanceAverageEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
-    m_luminanceAverageEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+    m_averageLuminanceEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
+    m_averageLuminanceEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+    m_averageLuminanceEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
     cmdBuffer.GetCommandBuffer().dispatch(1, 1, 1);
 
@@ -328,11 +337,11 @@ void ToneMapping::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
     m_toneMappingEffect->BindDescriptorSet(cmdB, currentFrame, 0);
 
     vk::PushConstantsInfo pcTonaMapping;
-    pcInfo.layout     = m_toneMappingEffect->GetPipelineLayout();
-    pcInfo.size       = sizeof(ToneMappingParameters);
-    pcInfo.offset     = 0;
-    pcInfo.pValues    = &m_toneMappingParameters;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+    pcTonaMapping.layout     = m_toneMappingEffect->GetPipelineLayout();
+    pcTonaMapping.size       = sizeof(ToneMappingParameters);
+    pcTonaMapping.offset     = 0;
+    pcTonaMapping.pValues    = &m_toneMappingParameters;
+    pcTonaMapping.stageFlags = vk::ShaderStageFlagBits::eAll;
 
     m_toneMappingEffect->CmdPushConstant(cmdB, pcTonaMapping);
 

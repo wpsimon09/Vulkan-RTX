@@ -55,10 +55,11 @@ class ToneMapping : public Renderer::RenderPass
 
   private:
     LuminanceHistogramParameters                 m_luminanceHistogramParameters;
-    LuminanceHistogramAverageParameters          m_luminanceHistogramAverageParameters;
+    LuminanceHistogramAverageParameters          m_averageLuminanceParameters;
     ToneMappingParameters                        m_toneMappingParameters;
+
     std::shared_ptr<VulkanUtils::VComputeEffect> m_luminanceHistogramEffect;
-    std::shared_ptr<VulkanUtils::VComputeEffect> m_luminanceAverageEffect;
+    std::shared_ptr<VulkanUtils::VComputeEffect> m_averageLuminanceEffect;
     std::shared_ptr<VulkanUtils::VRasterEffect>  m_toneMappingEffect;
 };
 

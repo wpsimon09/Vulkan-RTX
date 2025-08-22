@@ -252,7 +252,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     // Update descriptor writes
     if(m_frameCount > 2)
     {
-        m_postProcessingSystem->Update(m_currentFrameIndex, m_postProcessingContext);
+        m_postProcessingSystem->Update(m_currentFrameIndex,m_uniformBufferManager,  m_postProcessingContext);
         m_effectsLibrary->UpdatePerFrameWrites(*m_forwardRenderer, m_rayTracingDataManager, &m_renderContext,
                                                m_postProcessingContext, m_uniformBufferManager);
     }

@@ -14,7 +14,7 @@ LuminanceAverageParameters _luminanceAverageParams;
 [[vk::binding(0, 0)]]
 RWStructuredBuffer<uint> _luminanceHistogram;
 
-[[vk::binding(1,0)]]
+[[vk::binding(1, 0)]]
 RWTexture2D<float> LuminanceOutput;
 
 groupshared uint HistogramShaderd[NUM_HISTOGRMA_BINS];
