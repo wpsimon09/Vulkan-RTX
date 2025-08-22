@@ -95,6 +95,17 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
     avgLuminanceOutCi.imageAllocationName = "Average luminance";
     avgLuminanceOutCi.imageUsage |= vk::ImageUsageFlagBits::eStorage;
 
+    RenderTarget2CreatInfo avgLuminanceOutputCI{
+        width,
+        height,
+        false,
+        false,
+        vk::Format::eR32Sfloat,
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::ResolveModeFlagBits::eNone,
+        true
+    };
+
     m_averageLuminanceOutput = std::make_unique<VulkanCore::VImage2>(m_device, avgLuminanceOutCi);
 
     VulkanStructs::VImageData<float> dummyImageData = {};

@@ -8,6 +8,8 @@
 #include "Application/Utils/LookUpTables.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
+#include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
@@ -121,4 +123,73 @@ void FogPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, Vu
     m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                               vk::ImageLayout::eColorAttachmentOptimal);
 }
+
+//=============================================================================
+// ************************* TONE MAPPING *************************************
+
+ToneMapping::ToneMapping(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
+    :RenderPass(device, width, height), m_luminanceHistogramAverageParameters{}, m_luminanceHistogramParameters{}, m_toneMappingParameters{}
+{
+    //========================================
+    // retrieve effects
+    m_luminanceHistogramEffect = effectLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::LuminanceHistrogram);
+    m_luminanceAverageEffect = effectLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::AverageLuminance);
+    m_toneMappingEffect = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::ToneMappingPass);
+
+    //=========================================
+    // create attachments
+
+    // LDR - tone mapping output = 0
+    Renderer::RenderTarget2CreatInfo toneMapOutputCI{
+        width,
+        height,
+        false,
+        false,
+        vk::Format::eR16G16B16A16Sfloat,
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::ResolveModeFlagBits::eNone,
+    };
+    m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, toneMapOutputCI));
+
+    // Average luminance = 1
+    RenderTarget2CreatInfo avgLuminanceOutputCI{
+        width,
+        height,
+        false,
+        false,
+        vk::Format::eR32Sfloat,
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::ResolveModeFlagBits::eNone,
+        true
+    };
+    m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, toneMapOutputCI));
+
+
+    VulkanStructs::VImageData<float> dummyImageData = {};
+    dummyImageData.channels                         = 4;
+    dummyImageData.height                           = 1;
+    dummyImageData.widht                            = 1;
+    float* dummyPixels                              = new float[]{0.0};
+    dummyImageData.pixels                           = dummyPixels;
+
+    m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage().FillWithImageData<float>(dummyImageData, device.GetTransferOpsManager().GetCommandBuffer());
+
+    m_device.GetTransferOpsManager().DestroyBuffer(m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage().GetImageStagingvBuffer(), true);
+
+
+}
+void ToneMapping::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
+{
+}
+void ToneMapping::Update(int                                   currentFrame,
+                         VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                         VulkanUtils::RenderContext*           renderContext,
+                         VulkanStructs::PostProcessingContext* postProcessingContext)
+{
+}
+void ToneMapping::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
+{
+}
+
+
 }  // namespace Renderer
