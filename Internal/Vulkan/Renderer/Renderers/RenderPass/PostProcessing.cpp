@@ -172,7 +172,7 @@ ToneMapping::ToneMapping(const VulkanCore::VDevice& device, ApplicationCore::Eff
     dummyImageData.channels                         = 4;
     dummyImageData.height                           = 1;
     dummyImageData.widht                            = 1;
-    float* dummyPixels                              = new float[]{0.0};
+    float* dummyPixels                              = new float[]{0.2};
     dummyImageData.pixels                           = dummyPixels;
 
     m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage().FillWithImageData<float>(
@@ -266,17 +266,16 @@ void ToneMapping::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
     // Luminance histogram
     //================================================
 
-    vk::PushConstantsInfo pcInfo;
-    pcInfo.layout = m_averageLuminanceEffect->GetPipelineLayout();
-    pcInfo.size = sizeof(LuminanceHistogramParameters) - 2 * sizeof(float);  // one parameter is not taken into the account
-    pcInfo.offset     = 0;
-    pcInfo.pValues    = &m_luminanceHistogramParameters;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+    vk::PushConstantsInfo pcLuminanceHistogram;
+    pcLuminanceHistogram.layout = m_averageLuminanceEffect->GetPipelineLayout();
+    pcLuminanceHistogram.size = sizeof(LuminanceHistogramParameters) - 2 * sizeof(float);  // one parameter is not taken into the account
+    pcLuminanceHistogram.offset     = 0;
+    pcLuminanceHistogram.pValues    = &m_luminanceHistogramParameters;
+    pcLuminanceHistogram.stageFlags = vk::ShaderStageFlagBits::eAll;
 
     m_luminanceHistogramEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_luminanceHistogramEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
-    m_luminanceHistogramEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
-
+    m_luminanceHistogramEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcLuminanceHistogram);
 
     cmdBuffer.GetCommandBuffer().dispatch(w / 16, h / 16, 1);
 
@@ -286,15 +285,16 @@ void ToneMapping::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
     VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage(),
                                                     vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                     cmdBuffer.GetCommandBuffer());
-    pcInfo.layout     = m_averageLuminanceEffect->GetPipelineLayout();
-    pcInfo.size       = sizeof(LuminanceHistogramAverageParameters);  // one parameter is not taken into the account
-    pcInfo.offset     = 0;
-    pcInfo.pValues    = &m_luminanceHistogramParameters;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+    vk::PushConstantsInfo pcLuminanceAverage;
+    pcLuminanceAverage.layout     = m_averageLuminanceEffect->GetPipelineLayout();
+    pcLuminanceAverage.size       = sizeof(LuminanceHistogramAverageParameters);  // one parameter is not taken into the account
+    pcLuminanceAverage.offset     = 0;
+    pcLuminanceAverage.pValues    = &m_averageLuminanceParameters;
+    pcLuminanceAverage.stageFlags = vk::ShaderStageFlagBits::eAll;
 
     m_averageLuminanceEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_averageLuminanceEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
-    m_averageLuminanceEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+    m_averageLuminanceEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcLuminanceAverage);
 
     cmdBuffer.GetCommandBuffer().dispatch(1, 1, 1);
 

@@ -274,18 +274,6 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
 {
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        // =========================
-        // ToneMap
-        if(auto it = effects.find(EEffectType::ToneMappingPass); it != effects.end())
-        {
-            auto& e = it->second;
-            e->SetNumWrites(1, 2, 0);
-
-            e->WriteImage(i, 0, 0,
-                          sceneRenderer.GetDepthPrePassOutput().GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-            e->ApplyWrites(i);
-        }
 
 
         // =========================
