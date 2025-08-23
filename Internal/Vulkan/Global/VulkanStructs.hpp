@@ -219,6 +219,13 @@ struct PostProcessingContext
     bool  lensFlareEffect = false;
 };
 
+struct BufferHandle
+{
+    VmaAllocation allocation{};
+    VkBuffer      buffer{};
+    void*         mappedPtr;
+};
+
 
 }  // namespace VulkanStructs
 

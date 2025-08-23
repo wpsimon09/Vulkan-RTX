@@ -246,6 +246,8 @@ set(SOURCES
         Internal/Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp
         Internal/Vulkan/Renderer/Renderers/RenderPass/PostProcessing.cpp
         Internal/Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp
+        Internal/Vulkan/VulkanCore/Buffer/VGrowableBuffer.cpp
+        Internal/Vulkan/VulkanCore/Buffer/VGrowableBuffer.hpp
 )
 
 
