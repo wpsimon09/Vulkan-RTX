@@ -36,6 +36,8 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
     m_toneMappingPass = std::make_unique<Renderer::ToneMappingPass>(device, effectsLibrary, width, height);
     m_lensFlarePass   = std::make_unique<Renderer::LensFlarePass>(device, effectsLibrary, width, height);
 
+    m_finalRender = &m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
+
     Utils::Logger::LogInfo("Post processing system created");
 }
 
@@ -54,16 +56,18 @@ void PostProcessingSystem::Update(int                                   frameInd
                                   VulkanStructs::PostProcessingContext& postProcessingCotext)
 {
     m_toneMappingPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
+
     if(postProcessingCotext.lensFlareEffect)
     {
-        //m_lensFlarePass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
+        postProcessingCotext.sceneRender = &m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
+        m_lensFlarePass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
     }
 }
 
 
 VulkanCore::VImage2& PostProcessingSystem::GetRenderedResult(int frameIndex)
 {
-    return m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
+    return *m_finalRender;
 }
 void PostProcessingSystem::Init(int                                   frameIndex,
                                 VulkanUtils::VUniformBufferManager&   uniformBufferManager,
@@ -82,6 +86,7 @@ void PostProcessingSystem::ToneMapping(int                                   cur
     //=================================================================
     // Transition tone mapping output to the output attachment optimal
     m_toneMappingPass->Render(currentIndex, commandBuffer, nullptr);
+    m_finalRender = &m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
 }
 
 
@@ -89,14 +94,14 @@ void PostProcessingSystem::LensFlare(int                                   curre
                                      VulkanCore::VCommandBuffer&           commandBuffer,
                                      VulkanStructs::PostProcessingContext& postProcessingContext)
 {
-    //m_lensFlarePass->Render(currentIndex, commandBuffer, nullptr);
-    //postProcessingContext.sceneRender = &m_lensFlarePass->GetPrimaryResult(ELensFlareAttachments::LensFlareMain);
-    //m_finalRender = postProcessingContext.sceneRender;
+    m_lensFlarePass->Render(currentIndex, commandBuffer, nullptr);
+    m_finalRender = &m_lensFlarePass->GetPrimaryResult(ELensFlareAttachments::LensFlareMain);
 }
 
 void PostProcessingSystem::Destroy()
 {
     m_toneMappingPass->Destroy();
+    m_lensFlarePass->Destroy();
 }
 
 

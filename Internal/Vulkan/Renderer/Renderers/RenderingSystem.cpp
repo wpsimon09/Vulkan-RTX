@@ -123,9 +123,8 @@ void RenderingSystem::Init()
 {
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
 
-        //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(0), i);
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
             .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
@@ -294,6 +293,8 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     //========================================
     // Post processing
     m_postProcessingSystem->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_postProcessingContext);
+
+    m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_currentFrameIndex), m_currentFrameIndex);
 
     //==========================================
     // UI Rendering
