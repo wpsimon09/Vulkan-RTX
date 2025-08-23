@@ -43,7 +43,7 @@ struct ViewPortContext
     }
 
     void OverwriteImage(const VulkanCore::VImage2& renderedScene, int frameIndex) {
-        ImGui_Impl_Vulkan_UpdateTexture(ds[currentFrameInFlight],VulkanCore::VSamplers::Sampler2D, renderedScene.GetImageView(),
+        ImGui_ImplVulkan_UpdateTexture(ds[currentFrameInFlight],VulkanCore::VSamplers::Sampler2D, renderedScene.GetImageView(),
                                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
     }
 };

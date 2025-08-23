@@ -9,10 +9,10 @@
 	url = https://github.com/juliettef/IconFontCppHeaders.git
 [submodule "External/imgui"]
 	path = External/imgui
-	url = https://github.com/ocornut/imgui.git
+	url = https://github.com/wpsimon09/imgui.git
 [submodule "External/imgui"]
 	path = External/imgui
-	url = https://github.com/ocornut/imgui.git
+	url = https://github.com/wpsimon09/imgui.git
 [submodule "External/SPIRV-Reflect"]
 	path = External/SPIRV-Reflect
 	url = https://github.com/KhronosGroup/SPIRV-Reflect.git
