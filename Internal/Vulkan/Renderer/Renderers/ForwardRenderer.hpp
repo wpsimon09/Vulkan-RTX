@@ -97,7 +97,7 @@ class ForwardRenderer
 
     void ShadowMapPass(int currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-    void DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+    void DrawScene(int  currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
     void PostProcessingFogPass(int                                       currentFrameIndex,
                                VulkanCore::VCommandBuffer&               cmdBuffer,
@@ -112,10 +112,6 @@ class ForwardRenderer
     // Vulkan context & managers
     const VulkanCore::VDevice&  m_device;
     VulkanUtils::RenderContext* m_renderContextPtr;
-    /**
-     * Contains the fog pass if any is required
-     */
-    std::unique_ptr<Renderer::RenderTarget2> m_fogPassOutput;
 
 
     VulkanCore::VImage2* m_forwardRendererOutput;

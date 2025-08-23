@@ -32,28 +32,11 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
 {
     Utils::Logger::LogInfo("Creating post processing system");
 
-    //=========================
-    // Get lens flare effect
-    //=========================
-    m_lensFlareEffect = effectsLibrary.GetEffect(ApplicationCore::EEffectType::LensFlare);
 
-    //===============================
-    // Create lens flare result image
-    //===============================
-    RenderTarget2CreatInfo lensFlareOutputCI{
-        width,
-        height,
-        false,
-        false,
-        vk::Format::eR16G16B16A16Sfloat,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eNone,
-    };
+    m_toneMappingPass = std::make_unique<Renderer::ToneMappingPass>(device, effectsLibrary, width, height);
+    m_lensFlarePass   = std::make_unique<Renderer::LensFlarePass>(device, effectsLibrary, width, height);
 
-    m_lensFlareOutput = std::make_unique<Renderer::RenderTarget2>(m_device, lensFlareOutputCI);
-
-
-    m_toneMappingPass = std::make_unique<Renderer::ToneMapping>(device, effectsLibrary, width, height);
+    m_finalRender = &m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
 
     Utils::Logger::LogInfo("Post processing system created");
 }
@@ -66,25 +49,23 @@ void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& co
     {
         LensFlare(frameIndex, commandBuffer, postProcessingContext);
     }
-
 }
 
-void PostProcessingSystem::Update(int frameIndex,VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanStructs::PostProcessingContext& postProcessingCotext)
+void PostProcessingSystem::Update(int                                   frameIndex,
+                                  VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                                  VulkanStructs::PostProcessingContext& postProcessingCotext)
 {
-    m_toneMappingPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext );
-    if(postProcessingCotext.sceneRender != nullptr)
+    m_toneMappingPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
+    if(postProcessingCotext.lensFlareEffect)
     {
-        m_lensFlareEffect->SetNumWrites(0, 1, 0);
-        m_lensFlareEffect->WriteImage(frameIndex, 1, 0,
-                                      postProcessingCotext.sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-        m_lensFlareEffect->ApplyWrites(frameIndex);
+        m_lensFlarePass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
     }
 }
 
 
 VulkanCore::VImage2& PostProcessingSystem::GetRenderedResult(int frameIndex)
 {
-    return m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
+    return *m_finalRender;
 }
 void PostProcessingSystem::Init(int                                   frameIndex,
                                 VulkanUtils::VUniformBufferManager&   uniformBufferManager,
@@ -92,6 +73,7 @@ void PostProcessingSystem::Init(int                                   frameIndex
                                 VulkanStructs::PostProcessingContext* postProcessingContext)
 {
     m_toneMappingPass->Init(frameIndex, uniformBufferManager, renderContext);
+    m_lensFlarePass->Init(frameIndex, uniformBufferManager, renderContext);
 }
 
 
@@ -101,70 +83,23 @@ void PostProcessingSystem::ToneMapping(int                                   cur
 {
     //=================================================================
     // Transition tone mapping output to the output attachment optimal
-     m_toneMappingPass->Render(currentIndex, commandBuffer, nullptr);
+    m_toneMappingPass->Render(currentIndex, commandBuffer, nullptr);
+    postProcessingContext.sceneRender = &m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
+    m_finalRender = postProcessingContext.sceneRender;
 }
-
 
 
 void PostProcessingSystem::LensFlare(int                                   currentIndex,
                                      VulkanCore::VCommandBuffer&           commandBuffer,
                                      VulkanStructs::PostProcessingContext& postProcessingContext)
 {
-    m_lensFlareOutput->TransitionAttachments(commandBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                             vk::ImageLayout::eShaderReadOnlyOptimal);
-
-    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_lensFlareOutput->GenerateAttachmentInfo(
-        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
-
-    vk::RenderingInfo renderingInfo{};
-    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
-    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
-    renderingInfo.layerCount           = 1;
-    renderingInfo.colorAttachmentCount = renderingOutputs.size();
-    renderingInfo.pColorAttachments    = renderingOutputs.data();
-    renderingInfo.pDepthAttachment     = nullptr;
-
-    auto& cmdB = commandBuffer.GetCommandBuffer();
-
-    cmdB.beginRendering(&renderingInfo);
-
-    vk::Viewport viewport{
-        0, 0, (float)renderingInfo.renderArea.extent.width, (float)renderingInfo.renderArea.extent.height, 0.0f, 1.0f};
-    cmdB.setViewport(0, 1, &viewport);
-
-    vk::Rect2D scissors{{0, 0},
-                        {(uint32_t)renderingInfo.renderArea.extent.width, (uint32_t)renderingInfo.renderArea.extent.height}};
-    cmdB.setScissor(0, 1, &scissors);
-    cmdB.setStencilTestEnable(false);
-
-    m_lensFlareEffect->BindPipeline(cmdB);
-    m_lensFlareEffect->BindDescriptorSet(cmdB, currentIndex, 0);
-
-
-    LensFlareParameters pc;
-    pc = *postProcessingContext.lensFlareParameters;
-
-    vk::PushConstantsInfo pcInfo;
-    pcInfo.layout     = m_lensFlareEffect->GetPipelineLayout();
-    pcInfo.size       = sizeof(LensFlareParameters);
-    pcInfo.offset     = 0;
-    pcInfo.pValues    = &pc;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
-
-    m_lensFlareEffect->CmdPushConstant(cmdB, pcInfo);
-
-
-    cmdB.draw(3, 1, 0, 0);
-
-    cmdB.endRendering();
-
-    m_lensFlareOutput->TransitionAttachments(commandBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                             vk::ImageLayout::eColorAttachmentOptimal);
+    m_lensFlarePass->Render(currentIndex, commandBuffer, nullptr);
+    postProcessingContext.sceneRender = &m_lensFlarePass->GetPrimaryResult(ELensFlareAttachments::LensFlareMain);
+    m_finalRender = postProcessingContext.sceneRender;
 }
 
 void PostProcessingSystem::Destroy()
 {
-    m_lensFlareOutput->Destroy();
     m_toneMappingPass->Destroy();
 }
 

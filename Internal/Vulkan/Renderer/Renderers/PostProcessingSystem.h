@@ -4,6 +4,7 @@
 
 #ifndef POSTPROCESSINGSYSTEM_H
 #define POSTPROCESSINGSYSTEM_H
+#include "RenderPass/PostProcessing.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
@@ -13,7 +14,7 @@ namespace VulkanUtils {
 struct RenderContext;
 }
 namespace Renderer {
-class ToneMapping;
+class ToneMappingPass;
 }
 namespace Renderer {
 class RenderTarget2;
@@ -54,13 +55,11 @@ class PostProcessingSystem
     void LensFlare(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
 
   private:
-    std::shared_ptr<VulkanUtils::VEffect> m_lensFlareEffect;
-    std::unique_ptr<RenderTarget2>        m_lensFlareOutput;
-
-    std::unique_ptr<Renderer::ToneMapping> m_toneMappingPass;
-
     const VulkanCore::VDevice&          m_device;
     VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
+
+    std::unique_ptr<Renderer::ToneMappingPass> m_toneMappingPass;
+    std::unique_ptr<Renderer::LensFlarePass> m_lensFlarePass;
 
     VulkanCore::VImage2* m_finalRender = nullptr;
 

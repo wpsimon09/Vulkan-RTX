@@ -123,8 +123,7 @@ void RenderingSystem::Init()
 {
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
-
+        m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(m_currentFrameIndex), m_currentFrameIndex);
         //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
@@ -248,24 +247,10 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     m_renderContext.deltaTime     = ImGui::GetIO().DeltaTime;
     m_renderContext.tlas          = m_rayTracingDataManager.GetTLAS();
 
-    //==============================================================
-    // Update descriptor writes
-    if(m_frameCount > 2)
-    {
-        m_postProcessingSystem->Update(m_currentFrameIndex,m_uniformBufferManager,  m_postProcessingContext);
-        m_effectsLibrary->UpdatePerFrameWrites(*m_forwardRenderer, m_rayTracingDataManager, &m_renderContext,
-                                               m_postProcessingContext, m_uniformBufferManager);
-    }
-
-    //===========================================================
-    // update render passes
-    m_forwardRenderer->Update(m_currentFrameIndex, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext,
-                              &m_postProcessingContext);
 
     //============================================================
     // start recording command buffer that will render the scene
     m_renderingCommandBuffers[m_currentFrameIndex]->BeginRecording();
-
 
     //==================================================
     // Fill in different contexts with parameters
@@ -276,6 +261,14 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     m_postProcessingContext.luminanceAverageParameters =
         &m_uniformBufferManager.GetApplicationState()->GetLuminanceAverageParameters();
     m_postProcessingContext.deltaTime = ImGui::GetIO().DeltaTime;
+
+    //===========================================================
+    // update render passes
+    m_postProcessingSystem->Update(m_currentFrameIndex,m_uniformBufferManager,  m_postProcessingContext);
+    m_forwardRenderer->Update(m_currentFrameIndex, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext,
+                              &m_postProcessingContext);
+
+    m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(m_currentFrameIndex), m_currentFrameIndex);
 
     //===================================================
     // ACTUAL RENDERING IS TRIGGERED HERE

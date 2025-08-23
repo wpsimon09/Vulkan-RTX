@@ -65,21 +65,6 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     //===== CREATE RENDER TARGETS
     //===========================================
 
-
-    //==================
-    // Fog pass output
-    Renderer::RenderTarget2CreatInfo fogPassOutputCI{
-        width,
-        height,
-        false,
-        false,
-        vk::Format::eR16G16B16A16Sfloat,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eNone,
-    };
-
-    m_fogPassOutput = std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI);
-
     //==================================================================================================
     // New render pass system
     m_visibilityBufferPass  = std::make_unique<Renderer::VisibilityBufferPass>(device, effectsLibrary, width, height);
@@ -129,6 +114,7 @@ void ForwardRenderer::Render(int                                       currentFr
 {
 
     m_renderContextPtr = renderContext;
+
     //=====================================================
     // RECORD COMMAND BUFFER
     //=====================================================
@@ -244,10 +230,11 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
 void ForwardRenderer::Destroy()
 {
     //m_renderTargets->Destroy();
-    m_fogPassOutput->Destroy();
     m_visibilityBufferPass->Destroy();
     m_gBufferPass->Destroy();
     m_visibilityDenoisePass->Destroy();
+    m_forwardRenderPass->Destroy();
+    m_fogPass->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer
