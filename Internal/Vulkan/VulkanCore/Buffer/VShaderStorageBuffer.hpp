@@ -5,7 +5,6 @@
 #ifndef VSHADERSTORAGEBUFFER_HPP
 #define VSHADERSTORAGEBUFFER_HPP
 #include "Application/Logger/Logger.hpp"
-#include "Application/Structs/ApplicationStructs.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
@@ -48,12 +47,7 @@ class VShaderStorageBuffer : public VObject
     vk::DeviceSize  GetCurrentSize() const ;
 
   private:
-    struct BufferHandle
-    {
-        VmaAllocation allocation{};
-        VkBuffer      buffer{};
-        void*         mappedPtr;
-    } m_stagingBuffer, m_buffer;
+    VulkanStructs::BufferHandle  m_stagingBuffer, m_buffer;
 
   private:
     const VulkanCore::VDevice& m_device;

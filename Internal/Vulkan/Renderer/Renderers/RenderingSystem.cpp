@@ -293,7 +293,6 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     //========================================
     // Post processing
     m_postProcessingSystem->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_postProcessingContext);
-
     m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_currentFrameIndex), m_currentFrameIndex);
 
     //==========================================
