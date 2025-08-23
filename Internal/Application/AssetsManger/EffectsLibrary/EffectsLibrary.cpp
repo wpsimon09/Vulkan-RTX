@@ -275,23 +275,6 @@ void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer& 
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
 
-
-        // =========================
-        // LensFlareBinding
-        if(auto it = effects.find(EEffectType::LensFlare); it != effects.end())
-        {
-            auto& e = it->second;
-            e->SetNumWrites(3, 2, 0);
-
-            e->WriteBuffer(i, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[i]);
-
-            e->WriteImage(i, 0, 1, MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-            e->WriteBuffer(i, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[i]);
-
-            e->ApplyWrites(i);
-        }
-
         // =========================
         // ComputePostProcess
         if(auto it = effects.find(EEffectType::ComputePostProcess); it != effects.end())

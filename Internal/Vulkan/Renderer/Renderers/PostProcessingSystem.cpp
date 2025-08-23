@@ -36,8 +36,6 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
     m_toneMappingPass = std::make_unique<Renderer::ToneMappingPass>(device, effectsLibrary, width, height);
     m_lensFlarePass   = std::make_unique<Renderer::LensFlarePass>(device, effectsLibrary, width, height);
 
-    m_finalRender = &m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
-
     Utils::Logger::LogInfo("Post processing system created");
 }
 
@@ -58,14 +56,14 @@ void PostProcessingSystem::Update(int                                   frameInd
     m_toneMappingPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
     if(postProcessingCotext.lensFlareEffect)
     {
-        m_lensFlarePass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
+        //m_lensFlarePass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
     }
 }
 
 
 VulkanCore::VImage2& PostProcessingSystem::GetRenderedResult(int frameIndex)
 {
-    return *m_finalRender;
+    return m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
 }
 void PostProcessingSystem::Init(int                                   frameIndex,
                                 VulkanUtils::VUniformBufferManager&   uniformBufferManager,
@@ -84,8 +82,6 @@ void PostProcessingSystem::ToneMapping(int                                   cur
     //=================================================================
     // Transition tone mapping output to the output attachment optimal
     m_toneMappingPass->Render(currentIndex, commandBuffer, nullptr);
-    postProcessingContext.sceneRender = &m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
-    m_finalRender = postProcessingContext.sceneRender;
 }
 
 
@@ -93,9 +89,9 @@ void PostProcessingSystem::LensFlare(int                                   curre
                                      VulkanCore::VCommandBuffer&           commandBuffer,
                                      VulkanStructs::PostProcessingContext& postProcessingContext)
 {
-    m_lensFlarePass->Render(currentIndex, commandBuffer, nullptr);
-    postProcessingContext.sceneRender = &m_lensFlarePass->GetPrimaryResult(ELensFlareAttachments::LensFlareMain);
-    m_finalRender = postProcessingContext.sceneRender;
+    //m_lensFlarePass->Render(currentIndex, commandBuffer, nullptr);
+    //postProcessingContext.sceneRender = &m_lensFlarePass->GetPrimaryResult(ELensFlareAttachments::LensFlareMain);
+    //m_finalRender = postProcessingContext.sceneRender;
 }
 
 void PostProcessingSystem::Destroy()

@@ -16,6 +16,10 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace Renderer {
+
+//=============================================================================
+// ************************* FOG PASS *************************************
+//=============================================================================
 FogPass::FogPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
     : RenderPass(device, width, height)
     , m_parameters{}
@@ -126,6 +130,7 @@ void FogPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, Vu
 
 //=============================================================================
 // ************************* TONE MAPPING *************************************
+//=============================================================================
 
 ToneMappingPass::ToneMappingPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
     : RenderPass(device, width, height)
@@ -248,10 +253,13 @@ void ToneMappingPass::Update(int                                   currentFrame,
     m_averageLuminanceParameters.pixelCount =
         postProcessingContext->sceneRender == nullptr ? 0 : postProcessingContext->sceneRender->GetPixelCount();
     m_averageLuminanceParameters.timeDelta = postProcessingContext->deltaTime;
+    m_averageLuminanceParameters.logLuminanceRange = postProcessingContext->luminanceHistrogramParameters->logRange;
+    m_averageLuminanceParameters.minLogLuminance   = postProcessingContext->luminanceHistrogramParameters->minLogLuminance;
 
     m_luminanceHistogramParameters.width  = m_width;
     m_luminanceHistogramParameters.height = m_height;
 }
+
 void ToneMappingPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
 {
     //==============================================================
@@ -351,6 +359,11 @@ void ToneMappingPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
     m_renderTargets[EToneMappingAttachments::LDR]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                                          vk::ImageLayout::eColorAttachmentOptimal);
 }
+
+//=======================================================================================================
+//***************************************** LENS FLARE **************************************************
+//=======================================================================================================
+
 LensFlarePass::LensFlarePass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height)
     : RenderPass(device, width, height)
     , m_lensFlareParameters{}
