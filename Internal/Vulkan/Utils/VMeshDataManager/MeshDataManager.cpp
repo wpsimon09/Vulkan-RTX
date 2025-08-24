@@ -94,6 +94,7 @@ VulkanStructs::VGPUSubBufferInfo MeshDatatManager::GenerateVertexBuffer(const st
                                                   .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1),
                                                   .BufferID      = m_currentVertexBuffer->ID,
                                                   .bufferAddress = m_currentVertexBuffer->bufferAddress};
+
     m_currentVertexBuffer->currentOffset += vertices.size() * sizeof(ApplicationCore::Vertex);
 
     return bufferInfo;
