@@ -146,13 +146,13 @@ void Application::Init()
     auto inputs = m_client->GetScene().GetBLASInputs();
     m_rayTracingDataManager->InitAs(inputs);
 
-    m_testGrowableBuffer = std::make_unique<VulkanCore::VGrowableBuffer>(*m_vulkanDevice, VulkanCore::SIZE_64_MB * 2);
+    m_testGrowableBuffer = std::make_unique<VulkanCore::VGrowableBuffer>(*m_vulkanDevice, 1032, VulkanCore::SIZE_4_MB);
     m_testGrowableBuffer->Allocate(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eVertexBuffer);
 
-    std::vector<ApplicationCore::Vertex> vertices(200);
+    std::vector<ApplicationCore::Vertex> vertices(2000);
 
-    m_testGrowableBuffer->Fill(vertices.data(), vertices.size() * sizeof(Vertex));
-    m_testGrowableBuffer->PushBack(vertices.data(), vertices.size() * sizeof(Vertex));
+    m_testGrowableBuffer->Fill(vertices.data(), vertices.size() * sizeof(ApplicationCore::Vertex));
+    m_testGrowableBuffer->PushBack(vertices.data(), vertices.size() * sizeof(ApplicationCore::Vertex));
 
     m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU();
 

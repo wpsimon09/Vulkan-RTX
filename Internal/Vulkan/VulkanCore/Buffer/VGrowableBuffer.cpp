@@ -50,6 +50,8 @@ void VGrowableBuffer::Resize(vk::DeviceSize chunkSize) {
 
     m_device.GetTransferOpsManager().DestroyBuffer(m_handle.buffer, m_handle.allocation);
 
+    m_bufferSize = newBuffer.size;
+    m_availabelSize +=  newBuffer.size;
     m_handle = std::move(newBuffer);
 }
 

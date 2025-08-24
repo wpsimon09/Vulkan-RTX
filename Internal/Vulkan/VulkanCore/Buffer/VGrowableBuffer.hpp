@@ -14,11 +14,12 @@
 
 #include <vulkan/vulkan.hpp>
 namespace VulkanCore {
-static constexpr int SIZE_4_MB  = 4194304;
-static constexpr int SIZE_8_MB  = 8388608;
-static constexpr int SIZE_16_MB = 16777216;
-static constexpr int SIZE_32_MB = 33554432;
-static constexpr int SIZE_64_MB = 16777264;
+
+static constexpr size_t SIZE_4_MB  = 4194304;
+static constexpr size_t SIZE_8_MB  = 8388608;
+static constexpr size_t SIZE_16_MB = 16777216;
+static constexpr size_t SIZE_32_MB = 33554432;
+static constexpr size_t SIZE_64_MB = 16777264;
 
 class VDevice;
 
@@ -64,7 +65,7 @@ template <typename T>
 void VGrowableBuffer::Fill(T* data, vk::DeviceSize size)
 {
     // Check if this data will fit the buffer
-    if(size < m_availabelSize)
+    if(size > m_availabelSize)
     {
         Resize(m_chunkSize);
     }

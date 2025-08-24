@@ -321,8 +321,8 @@ VulkanStructs::BufferHandle VulkanUtils::CreateBuffer(const VulkanCore::VDevice&
     VmaAllocationCreateInfo allocationCreateInfo = {};
     allocationCreateInfo.usage                   = VMA_MEMORY_USAGE_AUTO;
     allocationCreateInfo.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
-    assert(vmaCreateBuffer(device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo, &handle.buffer, &handle.allocation, nullptr)
-           == VK_SUCCESS);
+    Check(static_cast<vk::Result>(vmaCreateBuffer(device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo, &handle.buffer, &handle.allocation, nullptr)
+           ),vk::Result::eSuccess);
 
     handle.size = size;
 
