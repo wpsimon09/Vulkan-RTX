@@ -299,6 +299,47 @@ void VulkanUtils::CopyBuffersWithBariers(const VulkanCore::VDevice& device,
     fence->Destroy();
 }
 
+VulkanStructs::BufferHandle VulkanUtils::CreateBuffer(const VulkanCore::VDevice& device, vk::BufferUsageFlags usage, vk::DeviceSize size)
+{
+    VulkanStructs::BufferHandle handle;
+
+    VkBufferCreateInfo bufferCreateInfo = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+    bufferCreateInfo.size               = size;
+    bufferCreateInfo.usage              = static_cast<VkBufferUsageFlags>(usage);
+    bufferCreateInfo.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+
+    std::vector<uint32_t> sharedQueueFamilyIndices = {
+        device.GetQueueFamilyIndices().transferFamily.value().second,
+        device.GetQueueFamilyIndices().graphicsFamily.value().second,
+        device.GetQueueFamilyIndices().computeFamily.value().second,
+    };
+
+    bufferCreateInfo.queueFamilyIndexCount = sharedQueueFamilyIndices.size();
+    bufferCreateInfo.pQueueFamilyIndices   = sharedQueueFamilyIndices.data();
+
+
+    VmaAllocationCreateInfo allocationCreateInfo = {};
+    allocationCreateInfo.usage                   = VMA_MEMORY_USAGE_AUTO;
+    allocationCreateInfo.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+    assert(vmaCreateBuffer(device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo, &handle.buffer, &handle.allocation, nullptr)
+           == VK_SUCCESS);
+
+    handle.size = size;
+
+    vmaSetAllocationName(device.GetAllocator(), handle.allocation, "Buffer allocation");
+    Utils::Logger::LogSuccess("Buffer allocated successfully || SIZE: " + std::to_string(size) + " bytes || ");
+
+    if(usage & vk::BufferUsageFlagBits::eShaderDeviceAddress)
+    {
+
+        vk::BufferDeviceAddressInfo bufferAdressInfo;
+        bufferAdressInfo.buffer = handle.buffer;
+        handle.bufferAddress    = device.GetDevice().getBufferAddress(bufferAdressInfo);
+    }
+
+    return std::move(handle);
+}
+
 
 std::string VulkanUtils::BufferUsageFlagToString(vk::BufferUsageFlags usage)
 {

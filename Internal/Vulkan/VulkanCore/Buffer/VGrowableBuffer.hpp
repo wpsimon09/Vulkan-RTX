@@ -49,6 +49,7 @@ class VGrowableBuffer : public VulkanCore::VObject
     vk::DeviceSize             m_chunkSize;
     vk::DeviceSize             m_currentOffset;
     vk::DeviceSize             m_availabelSize;
+    vk::BufferUsageFlags       m_bufferUsage;
 
     // scratch buffer is used to store temporary information and for staging
     VulkanStructs::BufferHandle                   m_handle;
@@ -72,7 +73,7 @@ void VGrowableBuffer::Fill(T* data, vk::DeviceSize size)
     m_scratchBuffer = VulkanUtils::CreateStagingBuffer(m_device, size);
 
     // fill the scratch buffer
-    memcpy(m_scratchBuffer.m_stagingBufferVK, data, size);
+    memcpy(m_scratchBuffer.mappedPointer, data, size);
 
     // 0 offset since this will rewrite everything in the buffer
     VulkanUtils::CopyBuffers(m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(),
@@ -81,6 +82,30 @@ void VGrowableBuffer::Fill(T* data, vk::DeviceSize size)
     UpdateSizes(size);
     ClearUpStaging();
 }
+
+template <typename T>
+void VGrowableBuffer::PushBack(T* data, vk::DeviceSize size)
+{
+  // Check if this data will fit the buffer
+  if(size < m_availabelSize)
+  {
+    Resize(m_chunkSize);
+  }
+
+  // allocate scratch buffer
+  m_scratchBuffer = VulkanUtils::CreateStagingBuffer(m_device, size);
+
+  // fill the scratch buffer
+  memcpy(m_scratchBuffer.mappedPointer, data, size);
+
+  // 0 offset since this will rewrite everything in the buffer
+  VulkanUtils::CopyBuffers(m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(),
+                           m_scratchBuffer.m_stagingBufferVK, m_handle.buffer, size, 0, m_currentOffset);
+
+  UpdateSizes(size);
+  ClearUpStaging();
+}
+
 
 
 

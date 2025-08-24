@@ -76,6 +76,7 @@
 #include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp"
+#include "Vulkan/VulkanCore/Buffer/VGrowableBuffer.hpp"
 
 
 Application::Application() = default;
@@ -145,9 +146,18 @@ void Application::Init()
     auto inputs = m_client->GetScene().GetBLASInputs();
     m_rayTracingDataManager->InitAs(inputs);
 
+    m_testGrowableBuffer = std::make_unique<VulkanCore::VGrowableBuffer>(*m_vulkanDevice, VulkanCore::SIZE_64_MB * 2);
+    m_testGrowableBuffer->Allocate(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eVertexBuffer);
+
+    std::vector<ApplicationCore::Vertex> vertices(200);
+
+    m_testGrowableBuffer->Fill(vertices.data(), vertices.size() * sizeof(Vertex));
+    m_testGrowableBuffer->PushBack(vertices.data(), vertices.size() * sizeof(Vertex));
+
     m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU();
 
     m_effectsLibrary->ConfigureDescriptorWrites(m_renderingSystem->GetSceneRenderer(), *m_uniformBufferManager, *m_rayTracingDataManager);
+
 }
 
 void Application::MainLoop()
@@ -158,6 +168,7 @@ void Application::MainLoop()
         Update();
         Render();
         PostRender();
+
 
         glfwPollEvents();
     }
@@ -220,6 +231,7 @@ void Application::Update()
         m_rayTracingDataManager->UpdateAS(blasInput);
         Utils::Logger::LogInfo("Updating AS");
     }
+
 
     m_client->GetApplicationState().SetIsWindowResized(m_windowManager->GetHasResized());
 }

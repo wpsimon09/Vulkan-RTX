@@ -221,9 +221,11 @@ struct PostProcessingContext
 
 struct BufferHandle
 {
-    VmaAllocation allocation{};
-    VkBuffer      buffer{};
-    void*         mappedPtr;
+    VmaAllocation     allocation{};
+    VkBuffer          buffer{};
+    vk::DeviceAddress bufferAddress{};
+    vk::DeviceSize    size{0};
+    void*             mappedPtr;
 };
 
 

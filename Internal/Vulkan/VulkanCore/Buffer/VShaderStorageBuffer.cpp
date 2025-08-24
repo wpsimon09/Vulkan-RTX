@@ -36,6 +36,7 @@ void VShaderStorageBuffer::Allocate()
     stagingAllocationCreateInfo.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
     stagingAllocationCreateInfo.priority                = 1.0f;
 
+    m_buffer.size = m_bufferSize;
 
     Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
 
@@ -43,7 +44,6 @@ void VShaderStorageBuffer::Allocate()
                                                                &m_stagingBuffer.buffer, &m_stagingBuffer.allocation, nullptr)));
 
     vmaSetAllocationName(m_device.GetAllocator(), m_stagingBuffer.allocation, allocationNme.c_str());
-
 
     //==========================
     // MAP HOST VISIBLE POINTER

@@ -13,6 +13,7 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 
 namespace VulkanCore {
+class VGrowableBuffer;
 class VDescriptorLayoutCache;
 }
 namespace ApplicationCore {
@@ -87,6 +88,7 @@ private:
   std::unique_ptr<class VulkanCore::VDescriptorLayoutCache>     m_descriptorSetLayoutCache;
   std::unique_ptr<class ApplicationCore::EffectsLibrary>        m_effectsLibrary;
   std::unique_ptr<class VulkanUtils::VRayTracingDataManager>    m_rayTracingDataManager;
+  std::unique_ptr<class VulkanCore::VGrowableBuffer>            m_testGrowableBuffer;
 
   // debu
   bool m_buildAS = true;;

@@ -78,6 +78,8 @@ void CopyBuffersWithBariers(const VulkanCore::VDevice& device,
                             vk::DeviceSize             srcOffset = 0,
                             vk::DeviceSize             dstOffset = 0);
 
+VulkanStructs::BufferHandle CreateBuffer(const VulkanCore::VDevice& device, vk::BufferUsageFlags usage, vk::DeviceSize size);
+
 std::string BufferUsageFlagToString(vk::BufferUsageFlags usage);
 
 std::pair<vk::Result, uint32_t> SwapChainNextImageKHRWrapper(const VulkanCore::VDevice&                       device,
