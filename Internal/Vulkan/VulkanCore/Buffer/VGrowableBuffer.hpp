@@ -52,6 +52,8 @@ class VGrowableBuffer : public VulkanCore::VObject
     vk::DeviceSize             m_availabelSize;
     vk::BufferUsageFlags       m_bufferUsage;
 
+    const VulkanCore::VCommandBuffer& m_transferCmdBuffer;
+
     // scratch buffer is used to store temporary information and for staging
     VulkanStructs::BufferHandle                   m_handle;
     VulkanStructs::VStagingBufferInfo             m_scratchBuffer;

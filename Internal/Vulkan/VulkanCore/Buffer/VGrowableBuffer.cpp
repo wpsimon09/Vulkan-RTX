@@ -10,7 +10,7 @@
 
 namespace VulkanCore {
 VGrowableBuffer::VGrowableBuffer(const VulkanCore::VDevice& device, vk::DeviceSize initialSize, vk::DeviceSize chunkSize)
-    : m_device(device), VObject()
+    : m_device(device),m_transferCmdBuffer(device.GetTransferOpsManager().GetCommandBuffer()), VObject()
 {
     m_bufferSize    = initialSize;
     m_chunkSize     = chunkSize;
@@ -35,6 +35,15 @@ void VGrowableBuffer::Allocate(vk::BufferUsageFlags usage)
     //============================================================
     m_handle = VulkanUtils::CreateBuffer(m_device, usage, m_bufferSize);
 
+}
+
+void VGrowableBuffer::Remove(vk::DeviceSize offset, vk::DeviceSize size) {
+    // where region that we want to remove ends
+    vk::DeviceSize tailOffset = offset + size;
+
+    // size of the region that is after we want to remove it
+    // | AAAA | BBBB | (remove) | DDDD | EEEE (DDDD, EEEE is tail size)
+    vk::DeviceSize tailSize =   m_bufferSize - tailOffset;
 }
 
 void VGrowableBuffer::Destroy()
