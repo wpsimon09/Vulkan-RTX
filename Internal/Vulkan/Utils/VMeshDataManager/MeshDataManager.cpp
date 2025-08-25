@@ -39,7 +39,7 @@ MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device)
 
     m_indexBufferHandle    = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
 
-    m_indexBufferHandle->Allocate(vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR  | vk::BufferUsageFlagBits::eTransferDst
+    m_indexBufferHandle->Allocate( vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR  | vk::BufferUsageFlagBits::eTransferDst
                                  | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
                                     | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR );
     m_vertexBufferHandle   = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
@@ -123,7 +123,7 @@ VulkanStructs::VGPUSubBufferInfo* MeshDatatManager::GenerateVertexBuffer_BB(Vulk
 VulkanStructs::VGPUSubBufferInfo* MeshDatatManager::GenerateIndexBuffer(const std::vector<uint32_t>& indices)
 {
 
-    m_stagingIndices.insert(m_stagingIndices.begin(), indices.begin(), indices.end());
+    m_stagingIndices.insert(m_stagingIndices.end(), indices.begin(), indices.end());
 
     VulkanStructs::VGPUSubBufferInfo bufferInfo = {.size          = indices.size() * sizeof(uint32_t),
                                                    .offset        =  m_indexBuffer.currentOffset,
@@ -134,7 +134,6 @@ VulkanStructs::VGPUSubBufferInfo* MeshDatatManager::GenerateIndexBuffer(const st
     m_indexBuffer.currentOffset += indices.size() * sizeof(uint32_t);
 
     m_indexSubAllocations.push_back(bufferInfo);
-    assert(bufferInfo.buffer != nullptr && "Garbage data detected !");
     return &m_indexSubAllocations.back();
 }
 
