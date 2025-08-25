@@ -14,7 +14,7 @@ void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
 {
     if(node->HasMesh())
     {
-        auto& mesh = node->GetMesh();
+        auto mesh = node->GetMesh();
         //===================
         // for now only PBR materials will be supported
         if(auto mat = dynamic_cast<PBRMaterial*>(mesh->GetMaterial().get()))

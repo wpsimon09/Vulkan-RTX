@@ -243,10 +243,10 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         // frustrum culling
         if(m_sceneNodeMetaData.FrustumCull && GlobalVariables::RenderingOptions::EnableFrustrumCulling)
         {
-            if(!VulkanUtils::IsInViewFrustum(m_mesh->GetMeshData()->bounds, m_transformation->GetModelMatrix(),
-                                             renderingContext->view, renderingContext->projection))
+            //if(!VulkanUtils::IsInViewFrustum(m_mesh->GetMeshData()->bounds, m_transformation->GetModelMatrix(),
+            ///                                 renderingContext->view, renderingContext->projection))
             {
-                return;
+              //  return;
             }
         }
 

@@ -55,6 +55,7 @@ template <typename T>
 void LightNode<T>::SetVisualisationMesh(std::shared_ptr<StaticMesh> mesh)
 {
     m_visualisationMesh = mesh;
+    m_mesh = mesh;
 }
 }  // namespace ApplicationCore
 

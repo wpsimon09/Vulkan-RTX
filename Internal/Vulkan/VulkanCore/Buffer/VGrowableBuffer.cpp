@@ -65,7 +65,7 @@ void VGrowableBuffer::Resize(vk::DeviceSize chunkSize) {
 
     m_bufferSize = newBuffer.size;
     m_availabelSize +=  newBuffer.size;
-    m_handle = std::move(newBuffer);
+    m_handle = newBuffer;
 }
 
 void VGrowableBuffer::UpdateSizes(vk::DeviceSize size) {

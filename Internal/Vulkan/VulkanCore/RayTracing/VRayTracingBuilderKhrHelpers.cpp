@@ -22,6 +22,8 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshI
 
     uint32_t maxPrimitiveCount = (mesh->GetMeshData()->indexData->size / sizeof(uint32_t)) / 3;
 
+    assert(maxPrimitiveCount < GlobalVariables::GlobalStructs::AccelerationStructProperties.maxPrimitiveCount);
+
     vk::AccelerationStructureGeometryTrianglesDataKHR triangles;
     // vertices
     triangles.vertexFormat             = vk::Format::eR32G32B32Sfloat;  // format of each vertex element

@@ -126,14 +126,15 @@ VulkanStructs::VGPUSubBufferInfo* MeshDatatManager::GenerateIndexBuffer(const st
     m_stagingIndices.insert(m_stagingIndices.begin(), indices.begin(), indices.end());
 
     VulkanStructs::VGPUSubBufferInfo bufferInfo = {.size          = indices.size() * sizeof(uint32_t),
-                                                   .offset        = m_indexBuffer.currentOffset,
-                                                   .buffer        = m_indexBufferHandle->GetHandle().buffer,
-                                                   .bufferAddress = m_indexBufferHandle->GetHandle().bufferAddress};
+                                                   .offset        =  m_indexBuffer.currentOffset,
+                                                   .buffer        =m_indexBufferHandle->GetHandle().buffer,
+                                                   .bufferAddress =  m_indexBufferHandle->GetHandle().bufferAddress};
     bufferInfo.index = m_indexSubAllocations.size();
 
     m_indexBuffer.currentOffset += indices.size() * sizeof(uint32_t);
 
-    m_indexSubAllocations.push_back(std::move(bufferInfo));
+    m_indexSubAllocations.push_back(bufferInfo);
+    assert(bufferInfo.buffer != nullptr && "Garbage data detected !");
     return &m_indexSubAllocations.back();
 }
 
