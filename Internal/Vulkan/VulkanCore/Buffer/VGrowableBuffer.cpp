@@ -50,12 +50,16 @@ void VGrowableBuffer::Destroy()
 {
     VObject::Destroy();
 }
+VulkanStructs::BufferHandle& VGrowableBuffer::GetHandle() {
+    return m_handle;
+}
+
 void VGrowableBuffer::Resize(vk::DeviceSize chunkSize) {
     //==========================================================
     // create new buffer that will be used as a copy destination
     auto newBuffer = VulkanUtils::CreateBuffer(m_device, m_bufferUsage, m_bufferSize + chunkSize);
 
-    VulkanUtils::CopyBuffers(m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(), m_handle.buffer, newBuffer.buffer, m_handle.size);
+    VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer, newBuffer.buffer, m_handle.size);
 
     m_device.GetTransferOpsManager().DestroyBuffer(m_handle.buffer, m_handle.allocation);
 

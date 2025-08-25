@@ -39,6 +39,8 @@ class VGrowableBuffer : public VulkanCore::VObject
 
     void Destroy() override;
 
+    VulkanStructs::BufferHandle& GetHandle();
+
   private:
     void Resize(vk::DeviceSize chunkSize);
     void UpdateSizes(vk::DeviceSize size);
@@ -79,8 +81,7 @@ void VGrowableBuffer::Fill(T* data, vk::DeviceSize size)
     memcpy(m_scratchBuffer.mappedPointer, data, size);
 
     // 0 offset since this will rewrite everything in the buffer
-    VulkanUtils::CopyBuffers(m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(),
-                             m_scratchBuffer.m_stagingBufferVK, m_handle.buffer, size);
+    VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, m_handle.buffer, size);
 
     UpdateSizes(size);
     ClearUpStaging();
@@ -89,27 +90,25 @@ void VGrowableBuffer::Fill(T* data, vk::DeviceSize size)
 template <typename T>
 void VGrowableBuffer::PushBack(T* data, vk::DeviceSize size)
 {
-  // Check if this data will fit the buffer
-  if(size < m_availabelSize)
-  {
-    Resize(m_chunkSize);
-  }
+    // Check if this data will fit the buffer
+    if(size < m_availabelSize)
+    {
+        Resize(m_chunkSize);
+    }
 
-  // allocate scratch buffer
-  m_scratchBuffer = VulkanUtils::CreateStagingBuffer(m_device, size);
+    // allocate scratch buffer
+    m_scratchBuffer = VulkanUtils::CreateStagingBuffer(m_device, size);
 
-  // fill the scratch buffer
-  memcpy(m_scratchBuffer.mappedPointer, data, size);
+    // fill the scratch buffer
+    memcpy(m_scratchBuffer.mappedPointer, data, size);
 
-  // 0 offset since this will rewrite everything in the buffer
-  VulkanUtils::CopyBuffers(m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(),
-                           m_scratchBuffer.m_stagingBufferVK, m_handle.buffer, size, 0, m_currentOffset);
+    // 0 offset since this will rewrite everything in the buffer
+    VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, m_handle.buffer,
+                             size, 0, m_currentOffset);
 
-  UpdateSizes(size);
-  ClearUpStaging();
+    UpdateSizes(size);
+    ClearUpStaging();
 }
-
-
 
 
 }  // namespace VulkanCore

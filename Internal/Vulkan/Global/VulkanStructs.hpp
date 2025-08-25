@@ -14,6 +14,8 @@
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 #include "Application/Structs/ParameterStructs.hpp"
+#include "Vulkan/VulkanCore/Buffer/VGrowableBuffer.hpp"
+
 #include <map>
 
 
@@ -104,7 +106,7 @@ struct VGPUSubBufferInfo
     vk::DeviceSize offset;
 
     vk::Buffer        buffer;
-    int               ID;
+    int               index;
     int               BufferID;
     vk::DeviceAddress bufferAddress;
 
@@ -123,6 +125,12 @@ struct VMeshData
     VBounds           bounds;
 };
 
+struct VMeshData2 {
+    VGPUSubBufferInfo* vertexData;
+    VGPUSubBufferInfo* indexData;
+    VBounds*            bounds;
+};
+
 struct VGPUBufferInfo
 {
     vk::DeviceSize size          = 0;
@@ -130,15 +138,14 @@ struct VGPUBufferInfo
     vk::DeviceSize copyOffSet    = 0;
     vk::DeviceSize baseOffset    = 0;
 
-    vk::Buffer           bufferVK;
     vk::BufferUsageFlags usageFlags;
-    vk::DeviceAddress    bufferAddress;
-    VkBuffer             bufferVMA;
-    VmaAllocation        allocationVMA;
+    std::unique_ptr<VulkanCore::VGrowableBuffer> m_buffer;
 
     int            ID;
     vk::DeviceSize GetAvailableSize() const { return (currentOffset >= size) ? 0 : (size - currentOffset); }
     bool           WillNewBufferFit(vk::DeviceSize size) const { return size <= GetAvailableSize(); }
+
+    VGPUBufferInfo(std::unique_ptr<VulkanCore::VGrowableBuffer> buffer) { m_buffer = std::move(buffer); }
 };
 
 template <typename T>
