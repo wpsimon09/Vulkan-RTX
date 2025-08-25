@@ -263,8 +263,8 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
 
         data.bounds     = &m_mesh->GetMeshData()->bounds;
-        data.vertexData = &m_mesh->GetMeshData()->vertexData;
-        data.indexData  = &m_mesh->GetMeshData()->indexData;
+        data.vertexData = m_mesh->GetMeshData()->vertexData;
+        data.indexData  = m_mesh->GetMeshData()->indexData;
 
         data.modelMatrix = m_transformation->GetModelMatrix();
 
@@ -302,12 +302,12 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         //=====================================================
         if(renderingContext->RenderAABB)
         {
-            data.vertexData = &m_mesh->GetMeshData()->vertexData_BB;
-            data.indexData  = &m_mesh->GetMeshData()->indexData_BB;
-            data.indexCount = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
+            //data.vertexData = &m_mesh->GetMeshData()->vertexData_BB;
+            //data.indexData  = &m_mesh->GetMeshData()->indexData_BB;
+            //data.indexCount = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
             ;
-            data.effect = Renderer::EForwardRenderEffects::DebugLine;
-            renderingContext->AddDrawCall(data);
+            //data.effect = Renderer::EForwardRenderEffects::DebugLine;
+            //renderingContext->AddDrawCall(data);
         }
 
         if(m_sceneNodeMetaData.CastsShadows)

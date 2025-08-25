@@ -201,7 +201,7 @@ class AssetsManager
     std::shared_ptr<VulkanCore::VImage2>                           m_dummyImage;
     std::shared_ptr<ApplicationCore::PBRMaterial>                  m_dummyMaterial;
     std::unordered_map<EEditorIcon, std::shared_ptr<PBRMaterial>>  m_editorIconsMaterials;
-    std::unordered_map<EMeshGeometryType, VulkanStructs::VMeshData> m_preloadedMeshes;
+    std::unordered_map<EMeshGeometryType, VulkanStructs::VMeshData2> m_preloadedMeshes;
 
 
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures2;

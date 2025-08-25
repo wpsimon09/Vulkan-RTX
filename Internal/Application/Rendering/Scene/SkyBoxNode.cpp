@@ -43,8 +43,8 @@ void SkyBoxNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanU
     // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
 
     data.bounds     = &m_mesh->GetMeshData()->bounds;
-    data.vertexData = &m_mesh->GetMeshData()->vertexData;
-    data.indexData  = &m_mesh->GetMeshData()->indexData;
+    data.vertexData = m_mesh->GetMeshData()->vertexData;
+    data.indexData  = m_mesh->GetMeshData()->indexData;
 
     data.effect         = Renderer::EForwardRenderEffects::SkyBox;
     data.inDepthPrePass = false;

@@ -14,6 +14,7 @@
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 #include "Application/Structs/ParameterStructs.hpp"
+
 #include <map>
 
 
@@ -100,12 +101,12 @@ struct VRenderingStatistics
 // holds offset to the larger buffer that is in GPU to prevent fragmentation
 struct VGPUSubBufferInfo
 {
-    vk::DeviceSize size;
-    vk::DeviceSize offset;
+    vk::DeviceSize size = 0;
+    vk::DeviceSize offset = 0;
 
-    vk::Buffer        buffer;
-    int               ID;
-    int               BufferID;
+    vk::Buffer        buffer = nullptr;
+    int               index = -1;
+    int               BufferID = -1;
     vk::DeviceAddress bufferAddress;
 
     bool operator==(const VGPUSubBufferInfo& other) const { return BufferID == other.BufferID; }
@@ -123,22 +124,16 @@ struct VMeshData
     VBounds           bounds;
 };
 
+struct VMeshData2 {
+    VGPUSubBufferInfo* vertexData;
+    VGPUSubBufferInfo* indexData;
+    VBounds            bounds;
+};
+
 struct VGPUBufferInfo
 {
     vk::DeviceSize size          = 0;
     vk::DeviceSize currentOffset = 0;
-    vk::DeviceSize copyOffSet    = 0;
-    vk::DeviceSize baseOffset    = 0;
-
-    vk::Buffer           bufferVK;
-    vk::BufferUsageFlags usageFlags;
-    vk::DeviceAddress    bufferAddress;
-    VkBuffer             bufferVMA;
-    VmaAllocation        allocationVMA;
-
-    int            ID;
-    vk::DeviceSize GetAvailableSize() const { return (currentOffset >= size) ? 0 : (size - currentOffset); }
-    bool           WillNewBufferFit(vk::DeviceSize size) const { return size <= GetAvailableSize(); }
 };
 
 template <typename T>

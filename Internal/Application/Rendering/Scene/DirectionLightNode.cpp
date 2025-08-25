@@ -25,7 +25,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
 {
     if(!renderingContext->RenderBillboards)
         return;
-    if(m_mesh && m_sceneNodeMetaData.IsVisible)
+    if (m_mesh && m_sceneNodeMetaData.IsVisible)
     {
         //==========================
         // render editor billboard
@@ -33,7 +33,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
         // frustrum culling
         if(m_sceneNodeMetaData.FrustumCull && GlobalVariables::RenderingOptions::EnableFrustrumCulling)
         {
-            if(!VulkanUtils::IsInViewFrustum(&m_mesh->GetMeshData()->bounds, m_transformation->GetModelMatrix(),
+            if(!VulkanUtils::IsInViewFrustum (&m_mesh->GetMeshData()->bounds, m_transformation->GetModelMatrix(),
                                              renderingContext->view, renderingContext->projection))
             {
                 return;
@@ -46,9 +46,9 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
         data.indexCount = m_mesh->GetMeshIndexCount();
         // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
 
-        data.bounds     = &m_mesh->GetMeshData()->bounds;
-        data.vertexData = &m_mesh->GetMeshData()->vertexData;
-        data.indexData  = &m_mesh->GetMeshData()->indexData;
+        data.bounds     =  &m_mesh->GetMeshData()->bounds;
+        data.vertexData =  m_mesh->GetMeshData()->vertexData;
+        data.indexData  =  m_mesh->GetMeshData()->indexData;
 
         data.modelMatrix = m_transformation->GetModelMatrix();
         data.material    = m_mesh->GetMaterial().get();
@@ -59,7 +59,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
 
         data.position = m_transformation->GetPosition();
 
-        data.bounds   = &m_mesh->GetMeshData()->bounds;
+        data.bounds   =  &m_mesh->GetMeshData()->bounds;
         data.material = m_mesh->GetMaterial().get();
 
         renderingContext->AddDrawCall(data);
@@ -70,8 +70,8 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
         if(m_visualisationMesh)
         {
             data.effect     = Renderer::EForwardRenderEffects::DebugLine;
-            data.vertexData = &m_visualisationMesh->GetMeshData()->vertexData;
-            data.indexData  = &m_visualisationMesh->GetMeshData()->indexData;
+            data.vertexData = m_visualisationMesh->GetMeshData()->vertexData;
+            data.indexData  = m_visualisationMesh->GetMeshData()->indexData;
             data.indexCount = m_visualisationMesh->GetMeshIndexCount();
             // renderingContext->AddDrawCall(data);
         }

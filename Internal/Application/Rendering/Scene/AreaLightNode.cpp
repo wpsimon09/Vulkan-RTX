@@ -47,8 +47,8 @@ void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
         // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
 
         data.bounds     = &m_mesh->GetMeshData()->bounds;
-        data.vertexData = &m_mesh->GetMeshData()->vertexData;
-        data.indexData  = &m_mesh->GetMeshData()->indexData;
+        data.vertexData = m_mesh->GetMeshData()->vertexData;
+        data.indexData  = m_mesh->GetMeshData()->indexData;
 
         data.modelMatrix = m_transformation->GetModelMatrix();
         data.material    = m_mesh->GetMaterial().get();
@@ -70,8 +70,8 @@ void AreaLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
         data.effect = Renderer::EForwardRenderEffects::DebugLine;
         if(m_visualisationMesh)
         {
-            data.vertexData = &m_visualisationMesh->GetMeshData()->vertexData;
-            data.indexData  = &m_visualisationMesh->GetMeshData()->indexData;
+            data.vertexData = m_visualisationMesh->GetMeshData()->vertexData;
+            data.indexData  = m_visualisationMesh->GetMeshData()->indexData;
             data.indexCount = m_visualisationMesh->GetMeshIndexCount();
         }
         renderingContext->AddDrawCall(data);

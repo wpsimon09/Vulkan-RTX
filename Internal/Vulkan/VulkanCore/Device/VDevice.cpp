@@ -19,6 +19,7 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
+#include "Vulkan/VulkanCore/Buffer/VGrowableBuffer.hpp"
 
 VulkanCore::VQueueFamilyIndices VulkanCore::FindQueueFamilies(const vk::PhysicalDevice&         physicalDevice,
                                                               const VulkanCore::VulkanInstance& instance)
