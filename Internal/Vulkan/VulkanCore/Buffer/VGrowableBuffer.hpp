@@ -91,7 +91,7 @@ template <typename T>
 void VGrowableBuffer::PushBack(T* data, vk::DeviceSize size)
 {
     // Check if this data will fit the buffer
-    if(size < m_availabelSize)
+    if(size > m_availabelSize)
     {
         Resize(m_chunkSize);
     }

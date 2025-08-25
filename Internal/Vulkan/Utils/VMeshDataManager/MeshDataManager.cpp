@@ -26,7 +26,11 @@
 
 namespace VulkanCore {
 MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device)
-    : m_device(device)
+    : m_vertexBuffer{}
+    , m_indexBuffer{}
+    , m_vertexBuffers_BB{}
+    , m_indexBuffer_BB{}
+    , m_device(device)
     , m_transferOpsManager(device.GetTransferOpsManager())
 
 {
@@ -34,11 +38,17 @@ MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device)
     Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
 
     m_indexBufferHandle    = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
-    m_vertexBufferHandle   = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
-    m_indexBufferHandle_BB = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
-    m_vertexBufferHandl_BB = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
 
-    auto bufferCopiedFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
+    m_indexBufferHandle->Allocate(vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR  | vk::BufferUsageFlagBits::eTransferDst
+                                 | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
+                                    | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR );
+    m_vertexBufferHandle   = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
+
+    m_vertexBufferHandle->Allocate(vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst
+                                 | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
+                                    | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR );
+    //m_indexBufferHandle_BB = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
+    //m_vertexBufferHandl_BB = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
 }
 
 VulkanStructs::VMeshData2 MeshDatatManager::AddMeshData(std::vector<ApplicationCore::Vertex>& vertices, std::vector<uint32_t>& indices)
@@ -129,24 +139,24 @@ VulkanStructs::VGPUSubBufferInfo* MeshDatatManager::GenerateIndexBuffer(const st
 
 void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
 {
-    //=========================================================================================================================================
-    // VERTEX STAGING BUFFER
-    //==========================================================================================================================================
-
-    //=========================================================================================================================================
-    // VERTEX_BB STAGING BUFFER
-    //==========================================================================================================================================
-
-
-    //=========================================================================================================================================
-    // INDEX STAGING BUFFER
-    //==========================================================================================================================================
 
     assert(m_transferOpsManager.GetCommandBuffer().GetIsRecording()
            && "Command buffer is not recording any commands, before using it make sure it is in recording state  !");
     auto& cmdBuffer = m_transferOpsManager.GetCommandBuffer().GetCommandBuffer();
 
     Utils::Logger::LogSuccess("Buffer copy of vertex and index buffer completed !");
+    //=========================================================================================================================================
+    // VERTEX STAGING BUFFER
+    //==========================================================================================================================================
+    m_vertexBufferHandle->PushBack(m_stagingVertices.data(), m_stagingVertices.size() * sizeof(ApplicationCore::Vertex));
+    //=========================================================================================================================================
+    // VERTEX_BB STAGING BUFFER
+    //==========================================================================================================================================
+    m_indexBufferHandle->PushBack(m_stagingIndices.data(), m_stagingIndices.size() * sizeof(uint32_t));
+
+    //=========================================================================================================================================
+    // INDEX STAGING BUFFER
+    //==========================================================================================================================================
     // CLEAN UP ONCE ALL DATA ARE IN GPU
     {
 
@@ -156,7 +166,9 @@ void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
 }
 
 
-void MeshDatatManager::Destroy() {}
+void MeshDatatManager::Destroy() {
+
+}
 
 
 std::vector<ApplicationCore::Vertex> MeshDatatManager::ReadBack(VulkanStructs::VGPUSubBufferInfo& bufferInfo)
