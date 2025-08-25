@@ -40,7 +40,7 @@ void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vul
         // frustrum culling
         if(m_sceneNodeMetaData.FrustumCull && GlobalVariables::RenderingOptions::EnableFrustrumCulling)
         {
-            if(!VulkanUtils::IsInViewFrustum(&m_mesh->GetMeshData()->bounds, m_transformation->GetModelMatrix(),
+            if(!VulkanUtils::IsInViewFrustum(m_mesh->GetMeshData()->bounds, m_transformation->GetModelMatrix(),
                                              renderingContext->view, renderingContext->projection))
             {
                 return;
@@ -53,9 +53,9 @@ void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vul
         data.indexCount = m_mesh->GetMeshIndexCount();
         // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
 
-        data.bounds     = &m_mesh->GetMeshData()->bounds;
-        data.vertexData = &m_mesh->GetMeshData()->vertexData;
-        data.indexData  = &m_mesh->GetMeshData()->indexData;
+        data.bounds     = m_mesh->GetMeshData()->bounds;
+        data.vertexData = m_mesh->GetMeshData()->vertexData;
+        data.indexData  = m_mesh->GetMeshData()->indexData;
 
         data.modelMatrix = m_transformation->GetModelMatrix();
         data.material    = m_mesh->GetMaterial().get();
@@ -68,7 +68,7 @@ void PointLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vul
 
         data.position = m_transformation->GetPosition();
 
-        data.bounds = &m_mesh->GetMeshData()->bounds;
+        data.bounds = m_mesh->GetMeshData()->bounds;
 
         renderingContext->AddDrawCall(data);
 

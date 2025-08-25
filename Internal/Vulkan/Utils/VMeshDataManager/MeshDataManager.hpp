@@ -13,6 +13,9 @@
 #include "Vulkan/VulkanCore/VObject.hpp"
 
 
+namespace VulkanCore {
+class VGrowableBuffer;
+}
 namespace VulkanUtils {
 class VTransferOperationsManager;
 }
@@ -65,23 +68,28 @@ class MeshDatatManager : public VObject
     // VERTEX BUFFER
     //==================================
     VulkanStructs::VGPUBufferInfo m_vertexBuffer;
+    std::unique_ptr<VulkanCore::VGrowableBuffer> m_vertexBufferHandle;
     std::vector<VulkanStructs::VGPUSubBufferInfo> m_vertexSubAllocations;
 
     //==================================
     // INDEX BUFFER
     //==================================
     VulkanStructs::VGPUBufferInfo m_indexBuffer;
+    std::unique_ptr<VulkanCore::VGrowableBuffer> m_indexBufferHandle;
     std::vector<VulkanStructs::VGPUSubBufferInfo> m_indexSubAllocations;
+
 
     //==================================
     // BOUNDING BOX VERTEX BUFFER
     //==================================
+    std::unique_ptr<VulkanCore::VGrowableBuffer> m_vertexBufferHandl_BB;
     VulkanStructs::VGPUBufferInfo m_vertexBuffers_BB;  // to visualize bounding box
     std::vector<VulkanStructs::VGPUSubBufferInfo> m_vertexSubAllocations_BB;
 
     //=========================================
     // BOUNDING BOX INDEX - is allways the same
     //========================================
+    std::unique_ptr<VulkanCore::VGrowableBuffer> m_indexBufferHandle_BB;
     VulkanStructs::VGPUBufferInfo m_indexBuffer_BB;  // to visualize bounding box
     std::vector<VulkanStructs::VGPUSubBufferInfo> m_indexSubAllocations_BB;
 

@@ -267,8 +267,8 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset& asset, std::share
     //============================================
     fastgltf::BufferView vertexBufferView;
     vertexBufferView.bufferIndex = 0;
-    vertexBufferView.byteLength  = mesh->GetMeshData()->vertexData.size;
-    vertexBufferView.byteOffset  = mesh->GetMeshData()->vertexData.offset;
+    vertexBufferView.byteLength  = mesh->GetMeshData()->vertexData->size;
+    vertexBufferView.byteOffset  = mesh->GetMeshData()->vertexData->offset;
     vertexBufferView.byteStride  = sizeof(Vertex);
     vertexBufferView.name        = "Vertex buffer view";
     vertexBufferView.target      = fastgltf::BufferTarget::ArrayBuffer;
@@ -279,8 +279,8 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset& asset, std::share
     //============================================
     fastgltf::BufferView indexBufferView;
     indexBufferView.bufferIndex = 1;
-    indexBufferView.byteLength  = mesh->GetMeshData()->indexData.size;
-    indexBufferView.byteOffset  = mesh->GetMeshData()->indexData.offset;
+    indexBufferView.byteLength  = mesh->GetMeshData()->indexData->size;
+    indexBufferView.byteOffset  = mesh->GetMeshData()->indexData->offset;
     indexBufferView.name        = "Index buffer view";
     indexBufferView.target      = fastgltf::BufferTarget::ElementArrayBuffer;
     asset.bufferViews.push_back(std::move(indexBufferView));
@@ -292,14 +292,14 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset& asset, std::share
     positionAccessor.bufferViewIndex = asset.bufferViews.size() - 2;
     positionAccessor.byteOffset      = offsetof(Vertex, position);
     positionAccessor.componentType   = fastgltf::ComponentType::Float;
-    positionAccessor.count           = mesh->GetMeshData()->vertexData.size / sizeof(Vertex);
+    positionAccessor.count           = mesh->GetMeshData()->vertexData->size / sizeof(Vertex);
     positionAccessor.type            = fastgltf::AccessorType::Vec3;
     positionAccessor.name            = "Position accessor";
 
-    std::pmr::vector<double> min{(double)mesh->GetMeshData()->bounds.min.x, (double)mesh->GetMeshData()->bounds.min.y,
-                                 (double)mesh->GetMeshData()->bounds.min.z};
-    std::pmr::vector<double> max{(double)mesh->GetMeshData()->bounds.max.x, (double)mesh->GetMeshData()->bounds.max.y,
-                                 (double)mesh->GetMeshData()->bounds.max.z};
+    std::pmr::vector<double> min{(double)mesh->GetMeshData()->bounds->min.x, (double)mesh->GetMeshData()->bounds->min.y,
+                                 (double)mesh->GetMeshData()->bounds->min.z};
+    std::pmr::vector<double> max{(double)mesh->GetMeshData()->bounds->max.x, (double)mesh->GetMeshData()->bounds->max.y,
+                                 (double)mesh->GetMeshData()->bounds->max.z};
 
     //ositionAccessor.min = std::move(min);
     //positionAccessor.max = std::move(max);
@@ -313,7 +313,7 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset& asset, std::share
     normalAccessor.bufferViewIndex = asset.bufferViews.size() - 2;
     normalAccessor.byteOffset      = offsetof(Vertex, normal);
     normalAccessor.componentType   = fastgltf::ComponentType::Float;
-    normalAccessor.count           = mesh->GetMeshData()->vertexData.size / sizeof(Vertex);
+    normalAccessor.count           = mesh->GetMeshData()->vertexData->size / sizeof(Vertex);
     normalAccessor.name            = "Normal accessor";
     normalAccessor.type            = fastgltf::AccessorType::Vec3;
     asset.accessors.push_back(std::move(normalAccessor));
@@ -326,7 +326,7 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset& asset, std::share
     uvAccessor.bufferViewIndex = asset.bufferViews.size() - 2;  // indices are the latest - 1  buffer pushed to this vector
     uvAccessor.byteOffset    = offsetof(Vertex, uv);
     uvAccessor.componentType = fastgltf::ComponentType::Float;
-    uvAccessor.count         = mesh->GetMeshData()->vertexData.size / sizeof(Vertex);
+    uvAccessor.count         = mesh->GetMeshData()->vertexData->size / sizeof(Vertex);
     uvAccessor.name          = "UV accessor";
     uvAccessor.type          = fastgltf::AccessorType::Vec2;
     asset.accessors.push_back(std::move(uvAccessor));
@@ -337,7 +337,7 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset& asset, std::share
     fastgltf::Accessor tangentAccessor;
     tangentAccessor.bufferViewIndex = asset.bufferViews.size() - 2;
     tangentAccessor.byteOffset      = offsetof(Vertex, tangent);
-    tangentAccessor.count           = mesh->GetMeshData()->vertexData.size / sizeof(Vertex);
+    tangentAccessor.count           = mesh->GetMeshData()->vertexData->size / sizeof(Vertex);
     tangentAccessor.name            = "Tangent accessor";
     tangentAccessor.type            = fastgltf::AccessorType::Vec4;
     asset.accessors.push_back(std::move(tangentAccessor));
@@ -350,7 +350,7 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset& asset, std::share
     indicesAccessor.bufferViewIndex = asset.bufferViews.size() - 1;  // indices is the latest buffer pushed to this vector
     indicesAccessor.byteOffset    = 0;
     indicesAccessor.componentType = fastgltf::ComponentType::UnsignedInt;
-    indicesAccessor.count         = mesh->GetMeshData()->indexData.size / sizeof(uint32_t);
+    indicesAccessor.count         = mesh->GetMeshData()->indexData->size / sizeof(uint32_t);
     indicesAccessor.name          = "Indices accessor";
     indicesAccessor.type          = fastgltf::AccessorType::Scalar;
     asset.accessors.push_back(std::move(indicesAccessor));

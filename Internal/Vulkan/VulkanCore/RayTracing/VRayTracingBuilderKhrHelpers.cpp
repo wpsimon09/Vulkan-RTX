@@ -17,20 +17,20 @@ VulkanCore::RTX::BLASInput VulkanCore::RTX::StaticMeshToBLASInput(uint32_t meshI
                                                                   glm::mat4                                     matrix)
 {
     // get the address of vertex buffer and indeex buffers
-    vk::DeviceAddress vertexAddress = mesh->GetMeshData()->vertexData.bufferAddress;
-    vk::DeviceAddress indexAddress  = mesh->GetMeshData()->indexData.bufferAddress;
+    vk::DeviceAddress vertexAddress = mesh->GetMeshData()->vertexData->bufferAddress;
+    vk::DeviceAddress indexAddress  = mesh->GetMeshData()->indexData->bufferAddress;
 
-    uint32_t maxPrimitiveCount = (mesh->GetMeshData()->indexData.size / sizeof(uint32_t)) / 3;
+    uint32_t maxPrimitiveCount = (mesh->GetMeshData()->indexData->size / sizeof(uint32_t)) / 3;
 
     vk::AccelerationStructureGeometryTrianglesDataKHR triangles;
     // vertices
     triangles.vertexFormat             = vk::Format::eR32G32B32Sfloat;  // format of each vertex element
-    triangles.vertexData.deviceAddress = vertexAddress + mesh->GetMeshData()->vertexData.offset;
+    triangles.vertexData.deviceAddress = vertexAddress + mesh->GetMeshData()->vertexData->offset;
     triangles.vertexStride             = sizeof(ApplicationCore::Vertex);
-    triangles.maxVertex                = (mesh->GetMeshData()->vertexData.size / sizeof(ApplicationCore::Vertex)) - 1;
+    triangles.maxVertex                = (mesh->GetMeshData()->vertexData->size / sizeof(ApplicationCore::Vertex)) - 1;
 
     // indices
-    triangles.indexData.deviceAddress = indexAddress + mesh->GetMeshData()->indexData.offset;
+    triangles.indexData.deviceAddress = indexAddress + mesh->GetMeshData()->indexData->offset;
     triangles.indexType               = vk::IndexType::eUint32;
 
 

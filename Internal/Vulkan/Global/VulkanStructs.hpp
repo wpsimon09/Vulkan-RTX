@@ -14,7 +14,6 @@
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 #include "Application/Structs/ParameterStructs.hpp"
-#include "Vulkan/VulkanCore/Buffer/VGrowableBuffer.hpp"
 
 #include <map>
 
@@ -139,13 +138,11 @@ struct VGPUBufferInfo
     vk::DeviceSize baseOffset    = 0;
 
     vk::BufferUsageFlags usageFlags;
-    std::unique_ptr<VulkanCore::VGrowableBuffer> m_buffer;
 
     int            ID;
     vk::DeviceSize GetAvailableSize() const { return (currentOffset >= size) ? 0 : (size - currentOffset); }
     bool           WillNewBufferFit(vk::DeviceSize size) const { return size <= GetAvailableSize(); }
 
-    VGPUBufferInfo(std::unique_ptr<VulkanCore::VGrowableBuffer> buffer) { m_buffer = std::move(buffer); }
 };
 
 template <typename T>

@@ -618,8 +618,8 @@ void VulkanUtils::VEnvLightGenerator::RenderToCubeMap(const vk::CommandBuffer&  
     cmdBuffer.beginRendering(hdrToCubeMapRenderingInfo);
 
 
-    cmdBuffer.bindVertexBuffers(0, {m_cube->GetMeshData()->vertexData.buffer}, {0});
-    cmdBuffer.bindIndexBuffer(m_cube->GetMeshData()->indexData.buffer, 0, vk::IndexType::eUint32);
+    cmdBuffer.bindVertexBuffers(0, {m_cube->GetMeshData()->vertexData->buffer}, {0});
+    cmdBuffer.bindIndexBuffer(m_cube->GetMeshData()->indexData->buffer, 0, vk::IndexType::eUint32);
 
 
     //================== configure vieew port and scissors
@@ -631,9 +631,9 @@ void VulkanUtils::VEnvLightGenerator::RenderToCubeMap(const vk::CommandBuffer&  
 
 
     //==================== Render the cube as a sky box
-    cmdBuffer.drawIndexed(m_cube->GetMeshData()->indexData.size / sizeof(uint32_t), 1,
-                          m_cube->GetMeshData()->indexData.offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                          m_cube->GetMeshData()->vertexData.offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
+    cmdBuffer.drawIndexed(m_cube->GetMeshData()->indexData->size / sizeof(uint32_t), 1,
+                          m_cube->GetMeshData()->indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                          m_cube->GetMeshData()->vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
 
     cmdBuffer.endRendering();
 }

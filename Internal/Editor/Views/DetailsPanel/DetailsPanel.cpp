@@ -262,21 +262,21 @@ void DetailsPanel::RenderNodeStats()
         {
             ImGui::SeparatorText("Mesh data");
             auto& mesh = m_selectedSceneNode->GetMesh();
-            ImGui::TextUnformatted("Vertex buffer ID");
+            ImGui::TextUnformatted("Vertex buffer Index");
             ImGui::SameLine();
-            ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->vertexData.BufferID).c_str());
+            ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->vertexData->index).c_str());
 
-            ImGui::TextUnformatted("Index buffer ID");
+            ImGui::TextUnformatted("Index buffer Index");
             ImGui::SameLine();
-            ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->indexData.BufferID).c_str());
+            ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->indexData->index).c_str());
 
             ImGui::TextUnformatted("Vertex buffer address");
             ImGui::SameLine();
-            ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->vertexData.bufferAddress).c_str());
+            ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->vertexData->bufferAddress).c_str());
 
             ImGui::TextUnformatted("Index buffer address");
             ImGui::SameLine();
-            ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->indexData.bufferAddress).c_str());
+            ImGui::TextUnformatted(std::to_string(mesh->GetMeshData()->indexData->bufferAddress).c_str());
         }
         ImGui::EndTooltip();
     }

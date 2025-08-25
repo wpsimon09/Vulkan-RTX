@@ -42,14 +42,14 @@ void SkyBoxNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanU
     data.indexCount = m_mesh->GetMeshIndexCount();
     // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
 
-    data.bounds     = &m_mesh->GetMeshData()->bounds;
-    data.vertexData = &m_mesh->GetMeshData()->vertexData;
-    data.indexData  = &m_mesh->GetMeshData()->indexData;
+    data.bounds     = m_mesh->GetMeshData()->bounds;
+    data.vertexData = m_mesh->GetMeshData()->vertexData;
+    data.indexData  = m_mesh->GetMeshData()->indexData;
 
     data.effect         = Renderer::EForwardRenderEffects::SkyBox;
     data.inDepthPrePass = false;
     data.position       = m_transformation->GetPosition();
-    data.bounds         = &m_mesh->GetMeshData()->bounds;
+    data.bounds         = m_mesh->GetMeshData()->bounds;
     data.material       = dynamic_cast<SkyBoxMaterial*>(m_mesh->GetMaterial().get());
 
     renderingContext->AddDrawCall(data);
