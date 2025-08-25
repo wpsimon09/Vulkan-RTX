@@ -127,7 +127,7 @@ struct VMeshData
 struct VMeshData2 {
     VGPUSubBufferInfo* vertexData;
     VGPUSubBufferInfo* indexData;
-    VBounds*            bounds;
+    VBounds            bounds;
 };
 
 struct VGPUBufferInfo

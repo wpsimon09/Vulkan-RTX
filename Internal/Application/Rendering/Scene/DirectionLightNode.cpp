@@ -33,7 +33,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
         // frustrum culling
         if(m_sceneNodeMetaData.FrustumCull && GlobalVariables::RenderingOptions::EnableFrustrumCulling)
         {
-            if(!VulkanUtils::IsInViewFrustum (m_mesh->GetMeshData()->bounds, m_transformation->GetModelMatrix(),
+            if(!VulkanUtils::IsInViewFrustum (&m_mesh->GetMeshData()->bounds, m_transformation->GetModelMatrix(),
                                              renderingContext->view, renderingContext->projection))
             {
                 return;
@@ -46,7 +46,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
         data.indexCount = m_mesh->GetMeshIndexCount();
         // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
 
-        data.bounds     =  m_mesh->GetMeshData()->bounds;
+        data.bounds     =  &m_mesh->GetMeshData()->bounds;
         data.vertexData =  m_mesh->GetMeshData()->vertexData;
         data.indexData  =  m_mesh->GetMeshData()->indexData;
 
@@ -59,7 +59,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
 
         data.position = m_transformation->GetPosition();
 
-        data.bounds   =  m_mesh->GetMeshData()->bounds;
+        data.bounds   =  &m_mesh->GetMeshData()->bounds;
         data.material = m_mesh->GetMaterial().get();
 
         renderingContext->AddDrawCall(data);

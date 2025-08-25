@@ -59,12 +59,12 @@ VulkanStructs::VMeshData2 MeshDatatManager::AddMeshData(std::vector<ApplicationC
 
     meshData.vertexData = GenerateVertexBuffer(vertices);
     meshData.indexData  = GenerateIndexBuffer(indices);
+    meshData.bounds              = bounds;
     //meshData.vertexData_BB = GenerateVertexBuffer_BB(bounds);
 
     //meshData.indexData_BB.buffer = m_indexBuffer_BB.bufferVK;
     //meshData.indexData_BB.size   = m_indexBuffer_BB.size;
     //meshData.indexData_BB.offset = 0;
-    //meshData.bounds              = bounds;
 
     return meshData;
 }

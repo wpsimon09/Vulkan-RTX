@@ -134,8 +134,8 @@ void SceneNode::PreformRayIntersectionTest(Ray& ray, std::vector<std::shared_ptr
     if(m_sceneNodeMetaData.HasMesh && m_sceneNodeMetaData.IsVisible)
     {
         // transfer bounds max and min to world space
-        m_mesh->GetMeshData()->bounds->ProjectToWorld(m_transformation->GetModelMatrix());
-        if(ApplicationCore::AABBRayIntersection(ray, m_mesh->GetMeshData()->bounds))
+        m_mesh->GetMeshData()->bounds.ProjectToWorld(m_transformation->GetModelMatrix());
+        if(ApplicationCore::AABBRayIntersection(ray, &m_mesh->GetMeshData()->bounds))
         {
             result.emplace_back(shared_from_this());
         }
@@ -150,8 +150,8 @@ float SceneNode::GetDistanceFromCamera(glm::vec3 cameraPosition)
 {
     if(m_mesh)
     {
-        m_mesh->GetMeshData()->bounds->ProjectToWorld(m_transformation->GetModelMatrix());
-        glm::vec3 pos = m_mesh->GetMeshData()->bounds->origin;
+        m_mesh->GetMeshData()->bounds.ProjectToWorld(m_transformation->GetModelMatrix());
+        glm::vec3 pos = m_mesh->GetMeshData()->bounds.origin;
 
         return glm::length(pos - cameraPosition);
     }
@@ -243,10 +243,10 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         // frustrum culling
         if(m_sceneNodeMetaData.FrustumCull && GlobalVariables::RenderingOptions::EnableFrustrumCulling)
         {
-            //if(!VulkanUtils::IsInViewFrustum(m_mesh->GetMeshData()->bounds, m_transformation->GetModelMatrix(),
-            ///                                 renderingContext->view, renderingContext->projection))
+            if(!VulkanUtils::IsInViewFrustum(&m_mesh->GetMeshData()->bounds, m_transformation->GetModelMatrix(),
+                                             renderingContext->view, renderingContext->projection))
             {
-              //  return;
+                return;
             }
         }
 
@@ -262,7 +262,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         data.indexCount = m_mesh->GetMeshIndexCount();
         // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
 
-        data.bounds     = m_mesh->GetMeshData()->bounds;
+        data.bounds     = &m_mesh->GetMeshData()->bounds;
         data.vertexData = m_mesh->GetMeshData()->vertexData;
         data.indexData  = m_mesh->GetMeshData()->indexData;
 
@@ -280,7 +280,7 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         }
 
         data.position = m_transformation->GetPosition();
-        data.bounds   = m_mesh->GetMeshData()->bounds;
+        data.bounds   = &m_mesh->GetMeshData()->bounds;
         data.material = m_mesh->m_currentMaterial.get();
 
         renderingContext->AddDrawCall(data);

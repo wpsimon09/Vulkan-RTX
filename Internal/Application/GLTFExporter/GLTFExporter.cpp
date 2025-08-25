@@ -296,10 +296,10 @@ void ApplicationCore::GLTFExporter::ParseMesh(fastgltf::Asset& asset, std::share
     positionAccessor.type            = fastgltf::AccessorType::Vec3;
     positionAccessor.name            = "Position accessor";
 
-    std::pmr::vector<double> min{(double)mesh->GetMeshData()->bounds->min.x, (double)mesh->GetMeshData()->bounds->min.y,
-                                 (double)mesh->GetMeshData()->bounds->min.z};
-    std::pmr::vector<double> max{(double)mesh->GetMeshData()->bounds->max.x, (double)mesh->GetMeshData()->bounds->max.y,
-                                 (double)mesh->GetMeshData()->bounds->max.z};
+    std::pmr::vector<double> min{(double)mesh->GetMeshData()->bounds.min.x, (double)mesh->GetMeshData()->bounds.min.y,
+                                 (double)mesh->GetMeshData()->bounds.min.z};
+    std::pmr::vector<double> max{(double)mesh->GetMeshData()->bounds.max.x, (double)mesh->GetMeshData()->bounds.max.y,
+                                 (double)mesh->GetMeshData()->bounds.max.z};
 
     //ositionAccessor.min = std::move(min);
     //positionAccessor.max = std::move(max);
