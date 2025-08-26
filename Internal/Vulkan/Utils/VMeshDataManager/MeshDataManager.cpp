@@ -37,18 +37,20 @@ MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device)
 
     Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
 
-    m_indexBufferHandle = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
+    m_indexBufferHandle = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_4_MB);
 
     m_indexBufferHandle->Allocate(vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR
                                   | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc
                                   | vk::BufferUsageFlagBits::eShaderDeviceAddress
                                   | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR);
-    m_vertexBufferHandle = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
+    m_vertexBufferHandle = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_32_MB);
 
     m_vertexBufferHandle->Allocate(vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst
                                    | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
                                    | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR);
+
     //m_indexBufferHandle_BB = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
+
     //m_vertexBufferHandl_BB = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
 }
 
@@ -144,11 +146,22 @@ void MeshDatatManager::OnIndexBufferResized(VulkanStructs::BufferHandle& newHand
         subAlloc.buffer = newHandle.buffer;
     }
 }
-void MeshDatatManager::OnvertexBufferResized(VulkanStructs::BufferHandle& newHandle)
+void MeshDatatManager::OnVertexBufferResized(VulkanStructs::BufferHandle& newHandle)
 {
     for(auto& subAlloc : m_vertexSubAllocations)
     {
         subAlloc.buffer = newHandle.buffer;
+    }
+}
+void MeshDatatManager::OnVertexBufferDeleted(vk::DeviceSize removedRegionSize) {
+    for(auto& subAlloc : m_vertexSubAllocations)
+    {
+        subAlloc.offset -= removedRegionSize;
+    }
+}
+void MeshDatatManager::OnIndexBufferDeleted(vk::DeviceSize removedRegionSize) {
+    for (auto& subAlloc : m_indexSubAllocations) {
+        subAlloc.offset -= removedRegionSize;
     }
 }
 
@@ -165,7 +178,7 @@ void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
     //==========================================================================================================================================
 
     m_vertexBufferHandle->PushBack(m_stagingVertices.data(), m_stagingVertices.size() * sizeof(ApplicationCore::Vertex),
-                                   std::bind(&MeshDatatManager::OnvertexBufferResized, this, std::placeholders::_1));
+                                   std::bind(&MeshDatatManager::OnVertexBufferResized, this, std::placeholders::_1));
     //=========================================================================================================================================
     // VERTEX_BB STAGING BUFFER
     //==========================================================================================================================================
@@ -188,6 +201,14 @@ void MeshDatatManager::Destroy()
 {
     m_vertexBufferHandle->Destroy();
     m_indexBufferHandle->Destroy();
+}
+
+void MeshDatatManager::ProcessRemove(VulkanStructs::VMeshData2& meshData) {
+    m_vertexBufferHandle->Remove(meshData.vertexData->offset, meshData.vertexData->offset, std::bind(&MeshDatatManager::OnVertexBufferDeleted, this, std::placeholders::_1));
+    m_indexBufferHandle->Remove(meshData.indexData->offset, meshData.indexData->offset, std::bind(&MeshDatatManager::OnIndexBufferDeleted, this, std::placeholders::_1));
+
+    m_vertexSubAllocations.remove(*meshData.vertexData);
+    m_indexSubAllocations.remove(*meshData.indexData);
 }
 
 

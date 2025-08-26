@@ -15,6 +15,7 @@
 #include <vulkan/vulkan.hpp>
 namespace VulkanCore {
 
+static constexpr size_t SIZE_1_KB  = 1024;
 static constexpr size_t SIZE_4_MB  = 4194304;
 static constexpr size_t SIZE_8_MB  = 8388608;
 static constexpr size_t SIZE_16_MB = 16777216;
@@ -28,7 +29,7 @@ class VGrowableBuffer : public VulkanCore::VObject
     //===================
     // Call back function
     typedef std::function<void (VulkanStructs::BufferHandle&)> OnBufferResize;
-    typedef std::function<void (VulkanStructs::BufferHandle&)> OnBufferDelete;
+    typedef std::function<void (vk::DeviceSize)> OnBufferDelete;
 
     public:
     VGrowableBuffer(const VulkanCore::VDevice& device, vk::DeviceSize initialSize, vk::DeviceSize chunkSize = SIZE_8_MB);

@@ -52,6 +52,8 @@ class MeshDatatManager : public VObject
 
     void Destroy() override;
 
+    void ProcessRemove(VulkanStructs::VMeshData2& subAllocation);
+
     VulkanStructs::VReadBackBufferInfo<uint32_t> ReadBackIndexBuffers();
     VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> ReadBackVertexBuffer();
 
@@ -112,8 +114,10 @@ class MeshDatatManager : public VObject
     //=========================================
     // Callbacks
     void OnIndexBufferResized(VulkanStructs::BufferHandle& newHandle);
-    void OnvertexBufferResized(VulkanStructs::BufferHandle& newHandle);
+    void OnVertexBufferResized(VulkanStructs::BufferHandle& newHandle);
 
+    void OnVertexBufferDeleted(vk::DeviceSize removedRegionSize);
+    void OnIndexBufferDeleted(vk::DeviceSize removedRegionSize);
 };
 
 }  // namespace VulkanCore

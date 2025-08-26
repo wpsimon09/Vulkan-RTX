@@ -45,8 +45,10 @@ void VGrowableBuffer::Remove(vk::DeviceSize offset, vk::DeviceSize size, OnBuffe
     // | AAAA | BBBB | (remove) | DDDD | EEEE (DDDD, EEEE is tail size)
     vk::DeviceSize tailSize =   m_bufferSize - tailOffset;
 
+    VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer, m_handle.buffer, tailSize, tailOffset, offset );
+
     if (onBufferDelete) {
-        onBufferDelete(m_handle);
+        onBufferDelete(size);
     }
 }
 
@@ -62,6 +64,7 @@ VulkanStructs::BufferHandle& VGrowableBuffer::GetHandle() {
 void VGrowableBuffer::Resize(vk::DeviceSize chunkSize, const OnBufferResize& onBufferResize) {
     //==========================================================
     // create new buffer that will be used as a copy destination
+    Utils::Logger::LogInfo("Resiting buffer...");
     auto newBuffer = VulkanUtils::CreateBuffer(m_device, m_bufferUsage, m_bufferSize + chunkSize);
 
     VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer, newBuffer.buffer, m_handle.size);
