@@ -137,6 +137,20 @@ VulkanStructs::VGPUSubBufferInfo* MeshDatatManager::GenerateIndexBuffer(const st
     m_indexSubAllocations.push_back(bufferInfo);
     return &m_indexSubAllocations.back();
 }
+void MeshDatatManager::OnIndexBufferResized(VulkanStructs::BufferHandle& newHandle)
+{
+    for(auto& subAlloc : m_indexSubAllocations)
+    {
+        subAlloc.buffer = newHandle.buffer;
+    }
+}
+void MeshDatatManager::OnvertexBufferResized(VulkanStructs::BufferHandle& newHandle)
+{
+    for(auto& subAlloc : m_vertexSubAllocations)
+    {
+        subAlloc.buffer = newHandle.buffer;
+    }
+}
 
 void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
 {
@@ -149,11 +163,14 @@ void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
     //=========================================================================================================================================
     // VERTEX STAGING BUFFER
     //==========================================================================================================================================
-    m_vertexBufferHandle->PushBack(m_stagingVertices.data(), m_stagingVertices.size() * sizeof(ApplicationCore::Vertex));
+
+    m_vertexBufferHandle->PushBack(m_stagingVertices.data(), m_stagingVertices.size() * sizeof(ApplicationCore::Vertex),
+                                   std::bind(&MeshDatatManager::OnvertexBufferResized, this, std::placeholders::_1));
     //=========================================================================================================================================
     // VERTEX_BB STAGING BUFFER
     //==========================================================================================================================================
-    m_indexBufferHandle->PushBack(m_stagingIndices.data(), m_stagingIndices.size() * sizeof(uint32_t));
+    m_indexBufferHandle->PushBack(m_stagingIndices.data(), m_stagingIndices.size() * sizeof(uint32_t),
+                                  std::bind(&MeshDatatManager::OnIndexBufferResized, this, std::placeholders::_1));
 
     //=========================================================================================================================================
     // INDEX STAGING BUFFER
@@ -184,7 +201,7 @@ VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> MeshDatatManager::Re
 
     // create staging buffer to copy readback memory from
 
-    vertexReadBackBufferInfos.size     = m_vertexBuffer.size;
+    vertexReadBackBufferInfos.size = m_vertexBuffer.size;
     vertexReadBackBufferInfos.data.resize(m_vertexBuffer.currentOffset / sizeof(ApplicationCore::Vertex));
 
     auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_vertexBuffer.size);
@@ -201,7 +218,6 @@ VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> MeshDatatManager::Re
 
     bufferCopiedFence->Destroy();
     return vertexReadBackBufferInfos;
-
 }
 
 VulkanStructs::VReadBackBufferInfo<uint32_t> MeshDatatManager::ReadBackIndexBuffers()
@@ -213,7 +229,7 @@ VulkanStructs::VReadBackBufferInfo<uint32_t> MeshDatatManager::ReadBackIndexBuff
 
     // create staging buffer to copy readback memory from
 
-    indexReadBackBuffer.size     = m_indexBuffer.size;
+    indexReadBackBuffer.size = m_indexBuffer.size;
     indexReadBackBuffer.data.resize(m_indexBuffer.currentOffset / sizeof(uint32_t));
 
     auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_indexBuffer.size);
@@ -230,6 +246,5 @@ VulkanStructs::VReadBackBufferInfo<uint32_t> MeshDatatManager::ReadBackIndexBuff
 
     bufferCopiedFence->Destroy();
     return indexReadBackBuffer;
-
 }
 }  // namespace VulkanCore

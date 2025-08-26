@@ -37,13 +37,17 @@ void VGrowableBuffer::Allocate(vk::BufferUsageFlags usage)
 
 }
 
-void VGrowableBuffer::Remove(vk::DeviceSize offset, vk::DeviceSize size) {
+void VGrowableBuffer::Remove(vk::DeviceSize offset, vk::DeviceSize size, OnBufferDelete onBufferDelete) {
     // where region that we want to remove ends
     vk::DeviceSize tailOffset = offset + size;
 
     // size of the region that is after we want to remove it
     // | AAAA | BBBB | (remove) | DDDD | EEEE (DDDD, EEEE is tail size)
     vk::DeviceSize tailSize =   m_bufferSize - tailOffset;
+
+    if (onBufferDelete) {
+        onBufferDelete(m_handle);
+    }
 }
 
 void VGrowableBuffer::Destroy()
@@ -55,7 +59,7 @@ VulkanStructs::BufferHandle& VGrowableBuffer::GetHandle() {
     return m_handle;
 }
 
-void VGrowableBuffer::Resize(vk::DeviceSize chunkSize) {
+void VGrowableBuffer::Resize(vk::DeviceSize chunkSize, const OnBufferResize& onBufferResize) {
     //==========================================================
     // create new buffer that will be used as a copy destination
     auto newBuffer = VulkanUtils::CreateBuffer(m_device, m_bufferUsage, m_bufferSize + chunkSize);
@@ -67,6 +71,11 @@ void VGrowableBuffer::Resize(vk::DeviceSize chunkSize) {
     m_bufferSize = newBuffer.size;
     m_availabelSize +=  newBuffer.size;
     m_handle = newBuffer;
+
+    // callback
+    if (onBufferResize) {
+        onBufferResize(m_handle);
+    }
 }
 
 void VGrowableBuffer::UpdateSizes(vk::DeviceSize size) {

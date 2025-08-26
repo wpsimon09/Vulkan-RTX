@@ -109,9 +109,11 @@ class MeshDatatManager : public VObject
     VulkanStructs::VGPUSubBufferInfo*        GenerateIndexBuffer(const std::vector<uint32_t>& indices);
     VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
 
-    //==============================================
-    // FUNCTIONS THAT WILL ALLOCATE 16mb BIG BUFFER
-    //==============================================
+    //=========================================
+    // Callbacks
+    void OnIndexBufferResized(VulkanStructs::BufferHandle& newHandle);
+    void OnvertexBufferResized(VulkanStructs::BufferHandle& newHandle);
+
 };
 
 }  // namespace VulkanCore

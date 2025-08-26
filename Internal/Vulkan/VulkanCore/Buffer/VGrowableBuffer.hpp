@@ -25,24 +25,30 @@ class VDevice;
 
 class VGrowableBuffer : public VulkanCore::VObject
 {
-  public:
+    //===================
+    // Call back function
+    typedef std::function<void (VulkanStructs::BufferHandle&)> OnBufferResize;
+    typedef std::function<void (VulkanStructs::BufferHandle&)> OnBufferDelete;
+
+    public:
     VGrowableBuffer(const VulkanCore::VDevice& device, vk::DeviceSize initialSize, vk::DeviceSize chunkSize = SIZE_8_MB);
     void Allocate(vk::BufferUsageFlags usage);
 
     template <typename T>
-    void Fill(T* data, vk::DeviceSize size);
+    void Fill(T* data, vk::DeviceSize size, OnBufferResize onBufferResize = nullptr);
 
     template <typename T>
-    void PushBack(T* data, vk::DeviceSize size);
+    void PushBack(T* data, vk::DeviceSize size, OnBufferResize onBufferResize = nullptr);
 
-    void Remove(vk::DeviceSize offset, vk::DeviceSize size);
+    void Remove(vk::DeviceSize offset, vk::DeviceSize size, OnBufferDelete onBufferDelete);
 
     void Destroy() override;
 
     VulkanStructs::BufferHandle& GetHandle();
 
+
   private:
-    void Resize(vk::DeviceSize chunkSize);
+    void Resize(vk::DeviceSize chunkSize, const OnBufferResize& onBufferResize);
     void UpdateSizes(vk::DeviceSize size);
     void ClearUpStaging();
 
@@ -66,12 +72,12 @@ class VGrowableBuffer : public VulkanCore::VObject
 };
 
 template <typename T>
-void VGrowableBuffer::Fill(T* data, vk::DeviceSize size)
+void VGrowableBuffer::Fill(T* data, vk::DeviceSize size, OnBufferResize onBufferResize )
 {
     // Check if this data will fit the buffer
     if(size > m_availabelSize)
     {
-        Resize(m_chunkSize);
+        Resize(m_chunkSize, onBufferResize);
     }
 
     // allocate scratch buffer
@@ -88,12 +94,12 @@ void VGrowableBuffer::Fill(T* data, vk::DeviceSize size)
 }
 
 template <typename T>
-void VGrowableBuffer::PushBack(T* data, vk::DeviceSize size)
+void VGrowableBuffer::PushBack(T* data, vk::DeviceSize size, OnBufferResize onBufferResize)
 {
     // Check if this data will fit the buffer
     if(size > m_availabelSize)
     {
-        Resize(m_chunkSize);
+        Resize(m_chunkSize, onBufferResize);
     }
 
     // allocate scratch buffer
