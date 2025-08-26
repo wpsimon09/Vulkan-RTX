@@ -37,16 +37,17 @@ MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device)
 
     Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
 
-    m_indexBufferHandle    = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
+    m_indexBufferHandle = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
 
-    m_indexBufferHandle->Allocate( vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR  | vk::BufferUsageFlagBits::eTransferDst
-                                 | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
-                                    | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR );
-    m_vertexBufferHandle   = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
+    m_indexBufferHandle->Allocate(vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR
+                                  | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc
+                                  | vk::BufferUsageFlagBits::eShaderDeviceAddress
+                                  | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR);
+    m_vertexBufferHandle = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
 
     m_vertexBufferHandle->Allocate(vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst
-                                 | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
-                                    | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR );
+                                   | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
+                                   | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR);
     //m_indexBufferHandle_BB = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
     //m_vertexBufferHandl_BB = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
 }
@@ -59,7 +60,7 @@ VulkanStructs::VMeshData2 MeshDatatManager::AddMeshData(std::vector<ApplicationC
 
     meshData.vertexData = GenerateVertexBuffer(vertices);
     meshData.indexData  = GenerateIndexBuffer(indices);
-    meshData.bounds              = bounds;
+    meshData.bounds     = bounds;
     //meshData.vertexData_BB = GenerateVertexBuffer_BB(bounds);
 
     //meshData.indexData_BB.buffer = m_indexBuffer_BB.bufferVK;
@@ -81,7 +82,7 @@ VulkanStructs::VGPUSubBufferInfo* MeshDatatManager::GenerateVertexBuffer(const s
                                                    .offset        = m_vertexBuffer.currentOffset,
                                                    .buffer        = m_vertexBufferHandle->GetHandle().buffer,
                                                    .bufferAddress = m_vertexBufferHandle->GetHandle().bufferAddress};
-    bufferInfo.index = m_vertexSubAllocations.size();
+    bufferInfo.index                            = m_vertexSubAllocations.size();
 
     m_vertexBuffer.currentOffset += vertices.size() * sizeof(ApplicationCore::Vertex);
     m_vertexSubAllocations.push_back(std::move(bufferInfo));
@@ -126,10 +127,10 @@ VulkanStructs::VGPUSubBufferInfo* MeshDatatManager::GenerateIndexBuffer(const st
     m_stagingIndices.insert(m_stagingIndices.end(), indices.begin(), indices.end());
 
     VulkanStructs::VGPUSubBufferInfo bufferInfo = {.size          = indices.size() * sizeof(uint32_t),
-                                                   .offset        =  m_indexBuffer.currentOffset,
-                                                   .buffer        =m_indexBufferHandle->GetHandle().buffer,
-                                                   .bufferAddress =  m_indexBufferHandle->GetHandle().bufferAddress};
-    bufferInfo.index = m_indexSubAllocations.size();
+                                                   .offset        = m_indexBuffer.currentOffset,
+                                                   .buffer        = m_indexBufferHandle->GetHandle().buffer,
+                                                   .bufferAddress = m_indexBufferHandle->GetHandle().bufferAddress};
+    bufferInfo.index                            = m_indexSubAllocations.size();
 
     m_indexBuffer.currentOffset += indices.size() * sizeof(uint32_t);
 
@@ -166,100 +167,69 @@ void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
 }
 
 
-void MeshDatatManager::Destroy() {
-
+void MeshDatatManager::Destroy()
+{
+    m_vertexBufferHandle->Destroy();
+    m_indexBufferHandle->Destroy();
 }
 
 
-std::vector<ApplicationCore::Vertex> MeshDatatManager::ReadBack(VulkanStructs::VGPUSubBufferInfo& bufferInfo)
+VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> MeshDatatManager::ReadBackVertexBuffer()
 {
+
+
     auto bufferCopiedFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
-    std::vector<ApplicationCore::Vertex> vertices;
-    vertices.resize(bufferInfo.size / sizeof(ApplicationCore::Vertex));
+
+    VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> vertexReadBackBufferInfos;
 
     // create staging buffer to copy readback memory from
-    auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, bufferInfo.size);
+
+    vertexReadBackBufferInfos.size     = m_vertexBuffer.size;
+    vertexReadBackBufferInfos.data.resize(m_vertexBuffer.currentOffset / sizeof(ApplicationCore::Vertex));
+
+    auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_vertexBuffer.size);
     stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
 
-    VulkanUtils::CopyBuffers(m_device, *bufferCopiedFence, bufferInfo.buffer, stagingBuffer.m_stagingBufferVK,
-                             bufferInfo.size, bufferInfo.offset, 0);
-
+    VulkanUtils::CopyBuffers(m_device, *bufferCopiedFence, m_vertexBufferHandle->GetHandle().buffer,
+                             stagingBuffer.m_stagingBufferVK, m_vertexBuffer.currentOffset, 0, 0);
     bufferCopiedFence->WaitForFence();
-    memcpy(vertices.data(), stagingBuffer.mappedPointer, bufferInfo.size);
+    bufferCopiedFence->ResetFence();
+    memcpy(vertexReadBackBufferInfos.data.data(), stagingBuffer.mappedPointer, m_vertexBuffer.currentOffset);
 
     vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
     vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
-    bufferCopiedFence->Destroy();
 
-    return vertices;
-}
-
-std::vector<VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex>> MeshDatatManager::ReadBackVertexBuffer()
-{
-
-    /*
-     *
-    auto bufferCopiedFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
-
-    std::vector<VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex>> vertexReadBackBufferInfos;
-    vertexReadBackBufferInfos.resize(m_vertexBuffer.size());
-
-    // create staging buffer to copy readback memory from
-    for(int i = 0; i < m_vertexBuffer.size(); i++)
-    {
-
-        vertexReadBackBufferInfos[i].bufferID = m_vertexBuffer[i].ID;
-        vertexReadBackBufferInfos[i].size     = m_vertexBuffer[i].size;
-        vertexReadBackBufferInfos[i].data.resize(m_vertexBuffer[i].currentOffset / sizeof(ApplicationCore::Vertex));
-
-        auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_vertexBuffer[i].size);
-        stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
-
-        VulkanUtils::CopyBuffers(m_device, *bufferCopiedFence, m_vertexBuffer[i].bufferVK,
-                                 stagingBuffer.m_stagingBufferVK, m_vertexBuffer[i].currentOffset, 0, 0);
-        bufferCopiedFence->WaitForFence();
-        bufferCopiedFence->ResetFence();
-        memcpy(vertexReadBackBufferInfos[i].data.data(), stagingBuffer.mappedPointer, m_vertexBuffer[i].currentOffset);
-
-        vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
-        vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
-    }
     bufferCopiedFence->Destroy();
     return vertexReadBackBufferInfos;
-    */
+
 }
 
-std::vector<VulkanStructs::VReadBackBufferInfo<uint32_t>> MeshDatatManager::ReadBackIndexBuffers()
+VulkanStructs::VReadBackBufferInfo<uint32_t> MeshDatatManager::ReadBackIndexBuffers()
 {
-    /*
 
     auto bufferCopiedFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
 
-    std::vector<VulkanStructs::VReadBackBufferInfo<uint32_t>> indexReadBackBufferInfos;
-    indexReadBackBufferInfos.resize(m_indexBuffer.size());
+    VulkanStructs::VReadBackBufferInfo<uint32_t> indexReadBackBuffer;
 
     // create staging buffer to copy readback memory from
-    for(int i = 0; i < m_indexBuffer.size(); i++)
-    {
 
-        indexReadBackBufferInfos[i].bufferID = m_indexBuffer[i].ID;
-        indexReadBackBufferInfos[i].size     = m_indexBuffer[i].size;
-        indexReadBackBufferInfos[i].data.resize(m_indexBuffer[i].currentOffset / sizeof(uint32_t));
+    indexReadBackBuffer.size     = m_indexBuffer.size;
+    indexReadBackBuffer.data.resize(m_indexBuffer.currentOffset / sizeof(uint32_t));
 
-        auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_indexBuffer[i].size);
-        stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
+    auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_indexBuffer.size);
+    stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
 
-        VulkanUtils::CopyBuffers(m_device, *bufferCopiedFence, m_indexBuffer[i].bufferVK,
-                                 stagingBuffer.m_stagingBufferVK, m_indexBuffer[i].currentOffset, 0, 0);
-        bufferCopiedFence->WaitForFence();
-        bufferCopiedFence->ResetFence();
-        memcpy(indexReadBackBufferInfos[i].data.data(), stagingBuffer.mappedPointer, m_indexBuffer[i].currentOffset);
+    VulkanUtils::CopyBuffers(m_device, *bufferCopiedFence, m_indexBufferHandle->GetHandle().buffer,
+                             stagingBuffer.m_stagingBufferVK, m_indexBuffer.currentOffset, 0, 0);
+    bufferCopiedFence->WaitForFence();
+    bufferCopiedFence->ResetFence();
+    memcpy(indexReadBackBuffer.data.data(), stagingBuffer.mappedPointer, m_indexBuffer.currentOffset);
 
-        vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
-        vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
-    }
+    vmaUnmapMemory(m_device.GetAllocator(), stagingBuffer.m_stagingAllocation);
+    vmaDestroyBuffer(m_device.GetAllocator(), stagingBuffer.m_stagingBufferVMA, stagingBuffer.m_stagingAllocation);
+
     bufferCopiedFence->Destroy();
-    return indexReadBackBufferInfos;
-    */
+    return indexReadBackBuffer;
+
 }
 }  // namespace VulkanCore

@@ -52,9 +52,8 @@ class MeshDatatManager : public VObject
 
     void Destroy() override;
 
-    std::vector<ApplicationCore::Vertex>                      ReadBack(VulkanStructs::VGPUSubBufferInfo& bufferInfo);
-    std::vector<VulkanStructs::VReadBackBufferInfo<uint32_t>> ReadBackIndexBuffers();
-    std::vector<VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex>> ReadBackVertexBuffer();
+    VulkanStructs::VReadBackBufferInfo<uint32_t> ReadBackIndexBuffers();
+    VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> ReadBackVertexBuffer();
 
     ~MeshDatatManager() = default;
 
@@ -98,7 +97,6 @@ class MeshDatatManager : public VObject
     //===========================================
     // Transfer pool
     //===========================================
-    std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCommandBuffer;
     const VulkanCore::VDevice&                  m_device;
 
   private:

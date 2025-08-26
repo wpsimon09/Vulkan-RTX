@@ -48,8 +48,9 @@ void VGrowableBuffer::Remove(vk::DeviceSize offset, vk::DeviceSize size) {
 
 void VGrowableBuffer::Destroy()
 {
-    VObject::Destroy();
+    vmaDestroyBuffer(m_device.GetAllocator(), m_handle.buffer, m_handle.allocation);
 }
+
 VulkanStructs::BufferHandle& VGrowableBuffer::GetHandle() {
     return m_handle;
 }
