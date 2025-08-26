@@ -93,15 +93,8 @@ void ApplicationCore::GLTFExporter::ParseBuffers(fastgltf::Asset& asset, AssetsM
     std::vector<uint32_t> indices;
     //std::vector<std::byte> imageData;
 
-    for(auto& buffer : assetsManager.GetBufferAllocator().ReadBackVertexBuffer())
-    {
-        vertices.insert(vertices.end(), buffer.data.begin(), buffer.data.end());
-    }
-
-    for(auto& buffer : assetsManager.GetBufferAllocator().ReadBackIndexBuffers())
-    {
-        indices.insert(indices.end(), buffer.data.begin(), buffer.data.end());
-    }
+    vertices = assetsManager.GetBufferAllocator().ReadBackVertexBuffer().data;
+    indices  = assetsManager.GetBufferAllocator().ReadBackIndexBuffers().data;
 
     m_vertexBuffer.byteLength = vertices.size() * sizeof(Vertex);
     std::vector<std::byte> vertexBufferVector(reinterpret_cast<std::byte*>(vertices.data()),

@@ -52,9 +52,10 @@ class MeshDatatManager : public VObject
 
     void Destroy() override;
 
-    std::vector<ApplicationCore::Vertex>                      ReadBack(VulkanStructs::VGPUSubBufferInfo& bufferInfo);
-    std::vector<VulkanStructs::VReadBackBufferInfo<uint32_t>> ReadBackIndexBuffers();
-    std::vector<VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex>> ReadBackVertexBuffer();
+    void ProcessRemove(VulkanStructs::VMeshData2& subAllocation);
+
+    VulkanStructs::VReadBackBufferInfo<uint32_t> ReadBackIndexBuffers();
+    VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> ReadBackVertexBuffer();
 
     ~MeshDatatManager() = default;
 
@@ -98,7 +99,6 @@ class MeshDatatManager : public VObject
     //===========================================
     // Transfer pool
     //===========================================
-    std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCommandBuffer;
     const VulkanCore::VDevice&                  m_device;
 
   private:
@@ -111,9 +111,13 @@ class MeshDatatManager : public VObject
     VulkanStructs::VGPUSubBufferInfo*        GenerateIndexBuffer(const std::vector<uint32_t>& indices);
     VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
 
-    //==============================================
-    // FUNCTIONS THAT WILL ALLOCATE 16mb BIG BUFFER
-    //==============================================
+    //=========================================
+    // Callbacks
+    void OnIndexBufferResized(VulkanStructs::BufferHandle& newHandle);
+    void OnVertexBufferResized(VulkanStructs::BufferHandle& newHandle);
+
+    void OnVertexBufferDeleted(vk::DeviceSize removedRegionSize);
+    void OnIndexBufferDeleted(vk::DeviceSize removedRegionSize);
 };
 
 }  // namespace VulkanCore
