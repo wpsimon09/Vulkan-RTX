@@ -116,8 +116,8 @@ class MeshDatatManager : public VObject
     void OnIndexBufferResized(VulkanStructs::BufferHandle& newHandle);
     void OnVertexBufferResized(VulkanStructs::BufferHandle& newHandle);
 
-    void OnVertexBufferDeleted(vk::DeviceSize removedRegionSize);
-    void OnIndexBufferDeleted(vk::DeviceSize removedRegionSize);
+    void OnVertexBufferDeleted(vk::DeviceSize removedRegionSize, VulkanStructs::VGPUSubBufferInfo* subBuffer);
+    void OnIndexBufferDeleted(vk::DeviceSize removedRegionSize, VulkanStructs::VGPUSubBufferInfo* subBuffer);
 };
 
 }  // namespace VulkanCore

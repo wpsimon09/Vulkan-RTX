@@ -6,6 +6,7 @@
 #include "vulkan/vulkan.h"
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace VulkanCore {
@@ -43,11 +44,19 @@ void VGrowableBuffer::Remove(vk::DeviceSize offset, vk::DeviceSize size, OnBuffe
 
     // size of the region that is after we want to remove it
     // | AAAA | BBBB | (remove) | DDDD | EEEE (DDDD, EEEE is tail size)
+    assert(tailOffset < m_bufferSize && "Tail offset is bigger then the size of the buffer which is never supposed to be a case and indicates bug somewhere else ");
     vk::DeviceSize tailSize =   m_bufferSize - tailOffset;
 
-    VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer, m_handle.buffer, tailSize, tailOffset, offset );
+    m_scratchBuffer = VulkanUtils::CreateStagingBuffer(m_device, tailSize);
+
+    VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer, m_scratchBuffer.m_stagingBufferVK, tailSize, tailOffset);
+
+    VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, m_handle.buffer, tailSize, 0, offset );
+
+    ClearUpStaging();
 
     if (onBufferDelete) {
+        // offset at which the buffer was changed
         onBufferDelete(size);
     }
 }

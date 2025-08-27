@@ -261,6 +261,7 @@ void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<StaticMesh> me
         m_meshes[meshName] = mesh;
     }
 }
+VulkanCore::MeshDatatManager& AssetsManager::GetMeshDataManager() { return m_meshDataManager;}
 
 void AssetsManager::DestroySkyBoxMaterial(const std::string& name)
 {

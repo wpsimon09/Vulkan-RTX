@@ -109,6 +109,7 @@ struct VGPUSubBufferInfo
     int               BufferID = -1;
     vk::DeviceAddress bufferAddress;
 
+
     bool operator==(const VGPUSubBufferInfo& other) const { return BufferID == other.BufferID; }
 
     bool operator!=(const VGPUSubBufferInfo& other) const { return BufferID != other.BufferID; }

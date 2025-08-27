@@ -55,11 +55,12 @@ void Scene::Init()
 
 void Scene::Update()
 {
-    if(!m_staticMeshes.empty())
-    {
-        //   return m_staticMeshes.clear();
-    }
     m_root->Update(m_sceneUpdateFlags);
+    if (!m_sceneNodesToRemove.empty()) {
+        for (auto& node : m_sceneNodesToRemove) {
+            RemoveNode(node->GetParent(), node);
+        }
+    }
 }
 
 void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> sceneNode)
@@ -80,17 +81,22 @@ void Scene::Reset()
     m_sceneUpdateFlags.Reset();
     m_sceneStatistics.Reset();
 }
+void Scene::ProcessNodeRemove(std::shared_ptr<SceneNode> sceneNode) {
+    m_sceneNodesToRemove.push_back(sceneNode);
+}
 
 void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove)
 {
-    m_sceneData.Reset();
     auto& children               = parent->GetChildrenByRef();
-    m_sceneUpdateFlags.rebuildAs = true;
     for(auto it = children.begin(); it != children.end();)
     {
         if(*it == nodeToRemove)
         {
             auto node = it->get();
+
+            if (node->HasMesh()) {
+                m_assetsManager.GetMeshDataManager().ProcessRemove(*node->GetMesh()->GetMeshData());
+            }
 
             it->get()->ProcessNodeRemove();
             it->get()->ProcessNodeRemove(*node, m_sceneData);
@@ -99,7 +105,7 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
             it = children.erase(it);
             Utils::Logger::LogSuccessClient("Removed node from the scene graph");
 
-            return;
+            break;
         }
         else
         {
@@ -107,15 +113,17 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
         }
     }
 
+    m_sceneUpdateFlags.rebuildAs = true;
+    m_sceneData.Reset();
     ReindexSceneData(m_root);
 
+    m_sceneNodesToRemove.clear();
     Utils::Logger::LogErrorClient("Node not found");
 }
 
 void Scene::ReindexSceneData(std::shared_ptr<SceneNode>& node)
 {
     m_sceneData.AddEntry(node);
-
     for(auto& ch : node->GetChildrenByRef())
     {
         ReindexSceneData(ch);

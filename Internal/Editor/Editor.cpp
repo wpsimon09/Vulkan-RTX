@@ -78,19 +78,16 @@ void Editor::Render()
 
 void Editor::Update()
 {
-    if(m_uiContext.m_windowManager.GetHasResizedStatus())
+    if(m_fps.size() == 50)
     {
-        if(m_fps.size() == 50)
-        {
-            m_fps.erase(m_fps.begin());
-        }
-        m_fps.push_back(ImGui::GetIO().Framerate);
+        m_fps.erase(m_fps.begin());
+    }
+    m_fps.push_back(ImGui::GetIO().Framerate);
 
-        for(auto& uiElement : m_uiElements)
-        {
-            uiElement->Resize(m_uiContext.m_windowManager.GetWindowWidth(), m_uiContext.m_windowManager.GetWindowWidth());
-            uiElement->Update();
-        }
+    for(auto& uiElement : m_uiElements)
+    {
+        uiElement->Resize(m_uiContext.m_windowManager.GetWindowWidth(), m_uiContext.m_windowManager.GetWindowWidth());
+        uiElement->Update();
     }
 }
 

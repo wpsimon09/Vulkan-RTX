@@ -47,7 +47,9 @@ void FogVolumeNode::ProcessNodeRemove()
 {
     SceneNode::ProcessNodeRemove();
 }
-void FogVolumeNode::ProcessNodeRemove(SceneData& sceneData) {}
+void FogVolumeNode::ProcessNodeRemove(SceneData& sceneData) {
+
+}
 
 void FogVolumeNode::ProcessNodeRemove(const SceneNode& node, SceneData& sceneData)
 {

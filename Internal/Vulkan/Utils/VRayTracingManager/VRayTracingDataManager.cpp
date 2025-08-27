@@ -5,6 +5,7 @@
 #include "VRayTracingDataManager.hpp"
 
 #include "VulkanRtx.hpp"
+#include "Application/Rendering/Scene/Scene.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp"
@@ -33,6 +34,30 @@ vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo() {
     info.buffer = m_objDescriptionBuffer->GetBuffer();
     info.range = vk::WholeSize;
     return info;
+}
+void VRayTracingDataManager::Update(ApplicationCore::Scene& scene) {
+    if(scene.GetSceneUpdateFlags().rebuildAs)
+    {
+        auto blasInpu = scene.GetBLASInputs();
+        if(blasInpu.empty())
+            return;
+
+        // implicity destroys all used resources, so no cleanup of previous resources is needed
+        InitAs(blasInpu);
+        Utils::Logger::LogInfo("Rebuilding AS");
+
+        // TODO: this is hacky fix and not according to the standart, maybe callback function could fix this
+        // this happens because i am reseting the rebuildAS because it is being flagged in Render() and Update() is before render
+    }
+
+    if(scene.GetSceneUpdateFlags().updateAs)
+    {
+        auto blasInput = scene.GetBLASInputs();
+        if(blasInput.empty())
+            return;
+        UpdateAS(blasInput);
+        Utils::Logger::LogInfo("Updating AS");
+    }
 }
 
 void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs)

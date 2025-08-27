@@ -28,14 +28,20 @@ class SceneView : public IUserInterfaceElement
 
     void Render() override;
 
+    void Update() override;
+
   private:
     void        CreateSceneLightsList(std::vector<std::shared_ptr<ApplicationCore::SceneNode>>& sceneLights);
     void        CreateTreeView(std::shared_ptr<ApplicationCore::SceneNode> sceneNode);
     std::string GenerateNodeLabel(std::shared_ptr<ApplicationCore::SceneNode>& sceneNode);
     void RenderSceneDataView();
+
+  private:
     ApplicationCore::Scene& m_scene;
 
     std::vector<std::shared_ptr<ApplicationCore::SceneNode>> m_lightNodes;
+
+    std::vector<std::shared_ptr<ApplicationCore::SceneNode>> m_nodesToRemove;
 
     bool m_openSceneDataView = false;
 

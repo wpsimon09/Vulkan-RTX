@@ -24,7 +24,7 @@ struct BLASInput;
 namespace ApplicationCore {
 class ApplicationState;
 class SkyBoxMaterial;
-}
+}  // namespace ApplicationCore
 
 namespace VulkanUtils {
 struct RenderContext;
@@ -48,16 +48,23 @@ namespace ApplicationCore {
 class Scene
 {
 
+
   public:
+    typedef std::function<void(Scene*)> UpdateCallback;
+
     Scene(ApplicationState& applicationState, AssetsManager& assetsManager, Camera& camera);
 
     void Init();
     void Update();
     void Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> sceneNode);
     void Reset();
+
+    void ProcessNodeRemove(std::shared_ptr<SceneNode> sceneNode);
     void RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove);
+
     void AddNode(std::shared_ptr<SceneNode> sceneNode);
     void EnumarateMeshes(std::vector<std::shared_ptr<SceneNode>>& outMeshes, std::shared_ptr<SceneNode> sceneNode);
+
     std::vector<VulkanCore::RTX::BLASInput> GetBLASInputs();
     AssetsManager&                          GetAssetsManager() const { return m_assetsManager; };
 
@@ -98,11 +105,12 @@ class Scene
     void ReindexSceneData(std::shared_ptr<SceneNode>& node);
 
   private:
-    Camera&                          m_camera;
-    std::shared_ptr<class SceneNode> m_root;
-    AssetsManager&                   m_assetsManager;
-    glm::vec3                        m_mousePositionWorldSpace = {0.0f, 0.0f, 0.0F};
-    std::shared_ptr<SceneNode>       m_selectedSceneNode;
+    Camera&                                 m_camera;
+    std::shared_ptr<class SceneNode>        m_root;
+    AssetsManager&                          m_assetsManager;
+    glm::vec3                               m_mousePositionWorldSpace = {0.0f, 0.0f, 0.0F};
+    std::shared_ptr<SceneNode>              m_selectedSceneNode;
+    std::vector<std::shared_ptr<SceneNode>> m_sceneNodesToRemove;
 
     std::vector<std::shared_ptr<BaseMaterial>> m_sceneMaterials;
 
