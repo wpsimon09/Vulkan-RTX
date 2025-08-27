@@ -51,7 +51,14 @@ void VGrowableBuffer::Remove(vk::DeviceSize offset, vk::DeviceSize size, OnBuffe
 
     VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer, m_scratchBuffer.m_stagingBufferVK, tailSize, tailOffset);
 
+    VulkanUtils::PlaceBufferMemoryBarrier(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK,
+         vk::AccessFlagBits::eTransferWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead, vk::PipelineStageFlagBits::eTransfer);
+
     VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, m_handle.buffer, tailSize, 0, offset );
+
+
+   VulkanUtils::PlaceBufferMemoryBarrier(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer,
+        vk::AccessFlagBits::eTransferWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead, vk::PipelineStageFlagBits::eTransfer);
 
     ClearUpStaging();
 
