@@ -56,6 +56,11 @@ void Scene::Init()
 void Scene::Update()
 {
     m_root->Update(m_sceneUpdateFlags);
+    if (!m_sceneNodesToRemove.empty()) {
+        for (auto& node : m_sceneNodesToRemove) {
+            RemoveNode(node->GetParent(), node);
+        }
+    }
 }
 
 void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> sceneNode)
@@ -73,23 +78,16 @@ void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> s
 
 void Scene::Reset()
 {
-
-    for (auto& node : m_sceneNodesToRemove) {
-        RemoveNode(node->GetParent(), node);
-    }
     m_sceneUpdateFlags.Reset();
     m_sceneStatistics.Reset();
 }
 void Scene::ProcessNodeRemove(std::shared_ptr<SceneNode> sceneNode) {
-
     m_sceneNodesToRemove.push_back(sceneNode);
 }
 
 void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove)
 {
-    m_sceneData.Reset();
     auto& children               = parent->GetChildrenByRef();
-    m_sceneUpdateFlags.rebuildAs = true;
     for(auto it = children.begin(); it != children.end();)
     {
         if(*it == nodeToRemove)
@@ -97,7 +95,7 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
             auto node = it->get();
 
             if (node->HasMesh()) {
-                m_assetsManager.GetMeshDataManager().ProcessRemove(*node->GetMesh()->GetMeshData());
+                //m_assetsManager.GetMeshDataManager().ProcessRemove(*node->GetMesh()->GetMeshData());
             }
 
             it->get()->ProcessNodeRemove();
@@ -107,7 +105,7 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
             it = children.erase(it);
             Utils::Logger::LogSuccessClient("Removed node from the scene graph");
 
-            return;
+            break;
         }
         else
         {
@@ -115,6 +113,8 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
         }
     }
 
+    m_sceneUpdateFlags.rebuildAs = true;
+    m_sceneData.Reset();
     ReindexSceneData(m_root);
 
     Utils::Logger::LogErrorClient("Node not found");
@@ -123,7 +123,6 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
 void Scene::ReindexSceneData(std::shared_ptr<SceneNode>& node)
 {
     m_sceneData.AddEntry(node);
-
     for(auto& ch : node->GetChildrenByRef())
     {
         ReindexSceneData(ch);

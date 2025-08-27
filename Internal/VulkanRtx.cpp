@@ -186,9 +186,13 @@ void Application::Update()
 {
     m_vulkanDevice->GetTransferOpsManager().StartRecording();
 
+    //=========================
+    // Update the editor
     m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
     m_editor->Update();
 
+    //===============================================================
+    // Update the scene with whatever data that were changed by editor
     m_client->Update();
     m_client->UpdateCamera(m_windowManager->GetCameraMovement());
 
@@ -199,30 +203,9 @@ void Application::Update()
         m_vulkanDevice->UpdateMemoryStatistics();
     }
 
-    if(m_client->GetScene().GetSceneUpdateFlags().rebuildAs)
-    {
-        auto blasInpu = m_client->GetScene().GetBLASInputs();
-        if(blasInpu.empty())
-            return;
-
-        // implicity destroys all used resources, so no cleanup of previous resources is needed
-        m_rayTracingDataManager->InitAs(blasInpu);
-        Utils::Logger::LogInfo("Rebuilding AS");
-
-        // TODO: this is hacky fix and not according to the standart, maybe callback function could fix this
-        // this happens because i am reseting the rebuildAS because it is being flagged in Render() and Update() is before render
-        m_client->GetScene().GetSceneUpdateFlags().rebuildAs = false;
-    }
-
-    if(m_client->GetScene().GetSceneUpdateFlags().updateAs)
-    {
-        auto blasInput = m_client->GetScene().GetBLASInputs();
-        if(blasInput.empty())
-            return;
-        m_rayTracingDataManager->UpdateAS(blasInput);
-        Utils::Logger::LogInfo("Updating AS");
-    }
-
+    //=====================================================
+    // Update accelerations structures
+    m_rayTracingDataManager->Update(m_client->GetScene());
 
     m_client->GetApplicationState().SetIsWindowResized(m_windowManager->GetHasResized());
 }

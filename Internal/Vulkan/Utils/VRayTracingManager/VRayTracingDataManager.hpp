@@ -10,6 +10,9 @@
 #include <memory>
 #include <vector>
 
+namespace ApplicationCore {
+class Scene;
+}
 namespace VulkanCore {
 class VDevice;
 }
@@ -32,6 +35,8 @@ class VRayTracingDataManager {
     void UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& blasInputs);
 
     vk::DescriptorBufferInfo GetObjDescriptionBufferInfo();
+
+    void Update(ApplicationCore::Scene& scene);
 
     // rebuilds every acceleration structures
     void InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs);

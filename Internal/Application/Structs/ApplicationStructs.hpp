@@ -133,6 +133,7 @@ struct SceneUpdateContext {
     void Reset() {
         updateAs = false;
         resetAccumulation = false;
+        rebuildAs = false;
     }
 };
 

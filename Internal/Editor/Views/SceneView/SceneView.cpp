@@ -72,7 +72,7 @@ void SceneView::Render()
         {
             if(m_scene.GetSelectedSceneNode())
             {
-                m_scene.ProcessNodeRemove(m_scene.GetSelectedSceneNode());
+                m_nodesToRemove.push_back(m_scene.GetSelectedSceneNode());
             }
         }
 
