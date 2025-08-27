@@ -117,6 +117,7 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
     m_sceneData.Reset();
     ReindexSceneData(m_root);
 
+    m_sceneNodesToRemove.clear();
     Utils::Logger::LogErrorClient("Node not found");
 }
 
