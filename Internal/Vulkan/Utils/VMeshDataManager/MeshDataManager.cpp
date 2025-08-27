@@ -153,16 +153,36 @@ void MeshDatatManager::OnVertexBufferResized(VulkanStructs::BufferHandle& newHan
         subAlloc.buffer = newHandle.buffer;
     }
 }
-void MeshDatatManager::OnVertexBufferDeleted(vk::DeviceSize removedRegionSize) {
-    for(auto& subAlloc : m_vertexSubAllocations)
-    {
+void MeshDatatManager::OnVertexBufferDeleted(vk::DeviceSize removedRegionSize, VulkanStructs::VGPUSubBufferInfo* subBuffer ) {
+
+    // since on std::list [i] does not work i have to manually advance iterator
+    auto it = m_vertexSubAllocations.begin();
+    std::advance(it, subBuffer->index + 1);
+
+    for (; it != m_vertexSubAllocations.end(); ++it) {
+        auto& subAlloc = *it;
         subAlloc.offset -= removedRegionSize;
+        subAlloc.index--;
     }
+
+    auto itDel = m_vertexSubAllocations.begin();
+    std::advance(itDel, subBuffer->index);
+    m_vertexSubAllocations.erase(itDel);
+
 }
-void MeshDatatManager::OnIndexBufferDeleted(vk::DeviceSize removedRegionSize) {
-    for (auto& subAlloc : m_indexSubAllocations) {
+void MeshDatatManager::OnIndexBufferDeleted(vk::DeviceSize removedRegionSize, VulkanStructs::VGPUSubBufferInfo* subBuffer) {
+    auto it = m_indexSubAllocations.begin();
+    std::advance(it, subBuffer->index + 1 );
+
+    for (; it != m_indexSubAllocations.end(); ++it) {
+        auto& subAlloc = *it;
         subAlloc.offset -= removedRegionSize;
+        subAlloc.index--;
     }
+
+    auto itDel = m_indexSubAllocations.begin();
+    std::advance(itDel, subBuffer->index);
+    m_indexSubAllocations.erase(itDel);
 }
 
 void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
@@ -204,11 +224,9 @@ void MeshDatatManager::Destroy()
 }
 
 void MeshDatatManager::ProcessRemove(VulkanStructs::VMeshData2& meshData) {
-    m_vertexBufferHandle->Remove(meshData.vertexData->offset, meshData.vertexData->offset, std::bind(&MeshDatatManager::OnVertexBufferDeleted, this, std::placeholders::_1));
-    m_indexBufferHandle->Remove(meshData.indexData->offset, meshData.indexData->offset, std::bind(&MeshDatatManager::OnIndexBufferDeleted, this, std::placeholders::_1));
+    m_vertexBufferHandle->Remove(meshData.vertexData->offset, meshData.vertexData->size, std::bind(&MeshDatatManager::OnVertexBufferDeleted, this, std::placeholders::_1, meshData.vertexData));
+    m_indexBufferHandle->Remove(meshData.indexData->offset, meshData.indexData->size, std::bind(&MeshDatatManager::OnIndexBufferDeleted, this, std::placeholders::_1, meshData.indexData));
 
-    m_vertexSubAllocations.remove(*meshData.vertexData);
-    m_indexSubAllocations.remove(*meshData.indexData);
 }
 
 

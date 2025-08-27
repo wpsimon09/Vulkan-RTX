@@ -95,7 +95,7 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
             auto node = it->get();
 
             if (node->HasMesh()) {
-                //m_assetsManager.GetMeshDataManager().ProcessRemove(*node->GetMesh()->GetMeshData());
+                m_assetsManager.GetMeshDataManager().ProcessRemove(*node->GetMesh()->GetMeshData());
             }
 
             it->get()->ProcessNodeRemove();
