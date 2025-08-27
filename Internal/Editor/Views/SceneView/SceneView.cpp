@@ -30,6 +30,7 @@ void SceneView::Resize(int newWidth, int newHeight) {}
 
 void SceneView::Render()
 {
+    m_nodesToRemove.clear();
     if(!m_detailsPanale->isSelectedSceneNodeSame(m_scene.GetSelectedSceneNode()))
         m_detailsPanale->SetSelectedNode(m_scene.GetSelectedSceneNode());
 
@@ -71,7 +72,7 @@ void SceneView::Render()
         {
             if(m_scene.GetSelectedSceneNode())
             {
-                m_scene.RemoveNode(m_scene.GetSelectedSceneNode()->GetParent(), m_scene.GetSelectedSceneNode());
+                m_scene.ProcessNodeRemove(m_scene.GetSelectedSceneNode());
             }
         }
 
@@ -91,6 +92,13 @@ void SceneView::Render()
 
 
     IUserInterfaceElement::Render();
+}
+void SceneView::Update()
+{
+    for (auto& sceneNode : m_nodesToRemove) {
+        m_scene.ProcessNodeRemove(sceneNode);
+    }
+    IUserInterfaceElement::Update();
 }
 
 void SceneView::CreateSceneLightsList(std::vector<std::shared_ptr<ApplicationCore::SceneNode>>& sceneLights)

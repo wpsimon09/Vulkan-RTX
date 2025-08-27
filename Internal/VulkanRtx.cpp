@@ -186,19 +186,18 @@ void Application::Update()
 {
     m_vulkanDevice->GetTransferOpsManager().StartRecording();
 
-    m_client->Update();
-    m_client->UpdateCamera(m_windowManager->GetCameraMovement());
-    if(m_windowManager->GetIsDirty())
-    {
-        m_client->UpdateClient(m_windowManager->GetLightMovement());
-    }
-    if(GlobalState::ValidationLayersEnabled)
-    {
-        m_vulkanDevice->UpdateMemoryStatistics();
-    }
-
     m_editor->SetVmaStatis(m_vulkanDevice->GetDeviceStatistics());
     m_editor->Update();
+
+    m_client->Update();
+    m_client->UpdateCamera(m_windowManager->GetCameraMovement());
+
+    if(m_windowManager->GetIsDirty()){
+        m_client->UpdateClient(m_windowManager->GetLightMovement());
+    }
+    if(GlobalState::ValidationLayersEnabled){
+        m_vulkanDevice->UpdateMemoryStatistics();
+    }
 
     if(m_client->GetScene().GetSceneUpdateFlags().rebuildAs)
     {
@@ -210,7 +209,7 @@ void Application::Update()
         m_rayTracingDataManager->InitAs(blasInpu);
         Utils::Logger::LogInfo("Rebuilding AS");
 
-        // TODO: this is hacky fix and not according to the standart
+        // TODO: this is hacky fix and not according to the standart, maybe callback function could fix this
         // this happens because i am reseting the rebuildAS because it is being flagged in Render() and Update() is before render
         m_client->GetScene().GetSceneUpdateFlags().rebuildAs = false;
     }

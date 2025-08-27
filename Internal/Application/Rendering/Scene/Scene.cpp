@@ -55,10 +55,6 @@ void Scene::Init()
 
 void Scene::Update()
 {
-    if(!m_staticMeshes.empty())
-    {
-        //   return m_staticMeshes.clear();
-    }
     m_root->Update(m_sceneUpdateFlags);
 }
 
@@ -77,8 +73,16 @@ void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> s
 
 void Scene::Reset()
 {
+
+    for (auto& node : m_sceneNodesToRemove) {
+        RemoveNode(node->GetParent(), node);
+    }
     m_sceneUpdateFlags.Reset();
     m_sceneStatistics.Reset();
+}
+void Scene::ProcessNodeRemove(std::shared_ptr<SceneNode> sceneNode) {
+
+    m_sceneNodesToRemove.push_back(sceneNode);
 }
 
 void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove)
@@ -91,6 +95,10 @@ void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemov
         if(*it == nodeToRemove)
         {
             auto node = it->get();
+
+            if (node->HasMesh()) {
+                m_assetsManager.GetMeshDataManager().ProcessRemove(*node->GetMesh()->GetMeshData());
+            }
 
             it->get()->ProcessNodeRemove();
             it->get()->ProcessNodeRemove(*node, m_sceneData);

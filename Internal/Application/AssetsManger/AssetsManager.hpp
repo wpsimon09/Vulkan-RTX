@@ -112,12 +112,12 @@ class AssetsManager
     void GetHDRTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture, const std::string& path, bool saveToDisk = false);
     void GetDummyTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture) const { texture = m_dummyTexture; }
     std::vector<TextureBufferView> ReadBackAllTextures(std::vector<std::byte>& data);
-
     //=========================
     // Meshes
     //=========================
     void AddMesh(std::string meshName, std::shared_ptr<StaticMesh> mesh);
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::StaticMesh>>& GetMeshes() { return m_meshes; }
+    VulkanCore::MeshDatatManager& GetMeshDataManager();
 
     //=========================
     // Materials
