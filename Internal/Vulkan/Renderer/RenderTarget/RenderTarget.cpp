@@ -303,6 +303,7 @@ void RenderTarget::CreateRenderTargetForSwapChain(const VulkanCore::VSwapChain& 
 
     for(int i = 0; i < swapChainImages.size(); i++)
     {
+
         VulkanUtils::RecordImageTransitionLayoutCommand(*m_colourAttachments[i].second,
                                                         vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eUndefined,
                                                         m_device.GetTransferOpsManager().GetCommandBuffer());
