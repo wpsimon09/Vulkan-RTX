@@ -76,8 +76,13 @@ void UserInterfaceRenderer::Render(int currentFrameIndex, uint32_t swapChainImag
 
     cmdB.endRendering();
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex), vk::ImageLayout::ePresentSrcKHR,
-                                                    vk::ImageLayout::eColorAttachmentOptimal, cmdB);
+    barrierPosition = {vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                  vk::AccessFlagBits2::eColorAttachmentWrite,
+                                                  vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                  vk::AccessFlagBits2::eColorAttachmentRead};
+    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTarget->GetColourImage(swapChainImageIndex), cmdBuffer,
+                                          vk::ImageLayout::eAttachmentOptimalKHR, vk::ImageLayout::ePresentSrcKHR, barrierPosition);
+
     m_imguiInitializer.EndRender();
 
     //===========================
