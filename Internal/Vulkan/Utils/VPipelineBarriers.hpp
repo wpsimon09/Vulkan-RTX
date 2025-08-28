@@ -32,6 +32,15 @@ void PlaceImageMemoryBarrier(VulkanCore::VImage2&        image,
                              vk::AccessFlags             srcData,
                              vk::AccessFlags             dstData);
 
+void PlaceImageMemoryBarrier2(VulkanCore::VImage2&        image,
+                             const VulkanCore::VCommandBuffer& commandBuffer,
+                             vk::ImageLayout             oldLayout,
+                             vk::ImageLayout             newLayout,
+                             vk::PipelineStageFlags2      srcPipelineStage,
+                             vk::PipelineStageFlags2      dstPipelineStage,
+                             vk::AccessFlags2             srcData,
+                             vk::AccessFlags2             dstData);
+
 void PlacePipelineBarrier(const VulkanCore::VCommandBuffer& cmdBuffer, vk::PipelineStageFlags src, vk::PipelineStageFlags dst);
 
 /**
@@ -43,7 +52,11 @@ void PlacePipelineBarrier(const VulkanCore::VCommandBuffer& cmdBuffer, vk::Pipel
  */
 void PlaceAccelerationStructureMemoryBarrier(const vk::CommandBuffer& cmdBuffer, vk::AccessFlags src, vk::AccessFlags dst);
 
+void PlaceAccelerationStructureMemoryBarrier2(const vk::CommandBuffer& cmdBuffer, vk::AccessFlags2 src, vk::AccessFlags2 dst);
+
 void PlaceBufferMemoryBarrier(const vk::CommandBuffer& cmdBuffer, const vk::Buffer& buffer,  vk::AccessFlags src, vk::PipelineStageFlags piplineSrc, vk::AccessFlags dst, vk::PipelineStageFlags pipelineDst);
+
+void PlaceBufferMemoryBarrier2(const vk::CommandBuffer& cmdBuffer, const vk::Buffer& buffer,  vk::AccessFlags2 src, vk::PipelineStageFlags2 piplineSrc, vk::AccessFlags2 dst, vk::PipelineStageFlags2 pipelineDst);
 
 }  // namespace VulkanUtils
 
