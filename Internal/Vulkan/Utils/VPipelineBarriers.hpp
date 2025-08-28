@@ -14,6 +14,15 @@ class VImage;
 }  // namespace VulkanCore
 
 namespace VulkanUtils {
+
+struct VBarrierPosition
+{
+    vk::PipelineStageFlagBits2 srcPipelineStage;
+    vk::PipelineStageFlags2 dstPipelineStage;
+    vk::AccessFlags2 srcData;
+    vk::AccessFlags2 dstData;
+};
+
 void PlaceImageMemoryBarrier(VulkanCore::VImage2&        image,
                              VulkanCore::VCommandBuffer& commandBuffer,
                              vk::ImageLayout             oldLayout,
@@ -23,23 +32,20 @@ void PlaceImageMemoryBarrier(VulkanCore::VImage2&        image,
                              vk::AccessFlags             srcData,
                              vk::AccessFlags             dstData);
 
-void PlaceImageMemoryBarrier(VulkanCore::VImage2&        image,
+void PlaceImageMemoryBarrier(VulkanCore::VImage2&              image,
                              const VulkanCore::VCommandBuffer& commandBuffer,
-                             vk::ImageLayout             oldLayout,
-                             vk::ImageLayout             newLayout,
-                             vk::PipelineStageFlags      srcPipelineStage,
-                             vk::PipelineStageFlags      dstPipelineStage,
-                             vk::AccessFlags             srcData,
-                             vk::AccessFlags             dstData);
+                             vk::ImageLayout                   oldLayout,
+                             vk::ImageLayout                   newLayout,
+                             vk::PipelineStageFlags            srcPipelineStage,
+                             vk::PipelineStageFlags            dstPipelineStage,
+                             vk::AccessFlags                   srcData,
+                             vk::AccessFlags                   dstData);
 
-void PlaceImageMemoryBarrier2(VulkanCore::VImage2&        image,
-                             const VulkanCore::VCommandBuffer& commandBuffer,
-                             vk::ImageLayout             oldLayout,
-                             vk::ImageLayout             newLayout,
-                             vk::PipelineStageFlags2      srcPipelineStage,
-                             vk::PipelineStageFlags2      dstPipelineStage,
-                             vk::AccessFlags2             srcData,
-                             vk::AccessFlags2             dstData);
+void PlaceImageMemoryBarrier2(VulkanCore::VImage2&              image,
+                              const VulkanCore::VCommandBuffer& commandBuffer,
+                              vk::ImageLayout                   oldLayout,
+                              vk::ImageLayout                   newLayout,
+                              const VBarrierPosition&           position);
 
 void PlacePipelineBarrier(const VulkanCore::VCommandBuffer& cmdBuffer, vk::PipelineStageFlags src, vk::PipelineStageFlags dst);
 
@@ -54,9 +60,17 @@ void PlaceAccelerationStructureMemoryBarrier(const vk::CommandBuffer& cmdBuffer,
 
 void PlaceAccelerationStructureMemoryBarrier2(const vk::CommandBuffer& cmdBuffer, vk::AccessFlags2 src, vk::AccessFlags2 dst);
 
-void PlaceBufferMemoryBarrier(const vk::CommandBuffer& cmdBuffer, const vk::Buffer& buffer,  vk::AccessFlags src, vk::PipelineStageFlags piplineSrc, vk::AccessFlags dst, vk::PipelineStageFlags pipelineDst);
+void PlaceBufferMemoryBarrier(const vk::CommandBuffer& cmdBuffer,
+                              const vk::Buffer&        buffer,
+                              vk::AccessFlags          src,
+                              vk::PipelineStageFlags   piplineSrc,
+                              vk::AccessFlags          dst,
+                              vk::PipelineStageFlags   pipelineDst);
 
-void PlaceBufferMemoryBarrier2(const vk::CommandBuffer& cmdBuffer, const vk::Buffer& buffer,  vk::AccessFlags2 src, vk::PipelineStageFlags2 piplineSrc, vk::AccessFlags2 dst, vk::PipelineStageFlags2 pipelineDst);
+void PlaceBufferMemoryBarrier2(const vk::CommandBuffer& cmdBuffer,
+                               const vk::Buffer&        buffer, const VBarrierPosition& position);
+
+void PlaceStallAllBarrier_DEBUG(); // TODO: implement
 
 }  // namespace VulkanUtils
 

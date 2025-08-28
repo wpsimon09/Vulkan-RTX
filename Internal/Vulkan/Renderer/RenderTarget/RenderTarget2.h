@@ -6,6 +6,9 @@
 #define RENDERTARGET2_H
 #include "VulkanRtx.hpp"
 
+namespace VulkanUtils {
+struct VBarrierPosition;
+}
 namespace Renderer {
 
 /**
@@ -48,6 +51,8 @@ class RenderTarget2
     vk::ImageView GetResolvedImageView() const;
 
     void TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout) const;
+    void TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout,
+                               const VulkanUtils::VBarrierPosition& barrierPosition);
 
     void Destroy();
 

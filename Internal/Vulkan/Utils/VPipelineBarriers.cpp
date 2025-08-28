@@ -58,15 +58,12 @@ void VulkanUtils::PlaceImageMemoryBarrier2(VulkanCore::VImage2&              ima
                                            const VulkanCore::VCommandBuffer& commandBuffer,
                                            vk::ImageLayout                   oldLayout,
                                            vk::ImageLayout                   newLayout,
-                                           vk::PipelineStageFlags2           srcPipelineStage,
-                                           vk::PipelineStageFlags2           dstPipelineStage,
-                                           vk::AccessFlags2                  srcData,
-                                           vk::AccessFlags2                  dstData)
+                                           const VBarrierPosition&           position)
 {
-    vk::ImageMemoryBarrier2 imageMemBarrier{srcPipelineStage,
-                                            srcData,
-                                            dstPipelineStage,
-                                            dstData,
+    vk::ImageMemoryBarrier2 imageMemBarrier{position.srcPipelineStage,
+                                            position.srcData,
+                                            position.dstPipelineStage,
+                                            position.dstData,
                                             oldLayout,
                                             newLayout,
                                             vk::QueueFamilyIgnored,
@@ -78,7 +75,7 @@ void VulkanUtils::PlaceImageMemoryBarrier2(VulkanCore::VImage2&              ima
                                                                       0, 1, 0, image.GetImageInfo().arrayLayers}};
     vk::DependencyInfo      depInfo{};
     depInfo.imageMemoryBarrierCount = 1;
-    depInfo.pImageMemoryBarriers = &imageMemBarrier;
+    depInfo.pImageMemoryBarriers    = &imageMemBarrier;
 
     commandBuffer.GetCommandBuffer().pipelineBarrier2(depInfo);
 }
@@ -103,13 +100,12 @@ void VulkanUtils::PlaceAccelerationStructureMemoryBarrier(const vk::CommandBuffe
 
 void VulkanUtils::PlaceAccelerationStructureMemoryBarrier2(const vk::CommandBuffer& cmdBuffer, vk::AccessFlags2 src, vk::AccessFlags2 dst)
 {
-    vk::MemoryBarrier2 memBarrier{
-        vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR, src, vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR, dst
-    };
+    vk::MemoryBarrier2 memBarrier{vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR, src,
+                                  vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR, dst};
 
     vk::DependencyInfo depInfo{};
     depInfo.memoryBarrierCount = 1;
-    depInfo.pMemoryBarriers = &memBarrier;
+    depInfo.pMemoryBarriers    = &memBarrier;
 
     cmdBuffer.pipelineBarrier2(depInfo);
 }
@@ -137,16 +133,11 @@ void VulkanUtils::PlaceBufferMemoryBarrier(const vk::CommandBuffer& cmdBuffer,
                               nullptr                       // imageBarriers
     );
 }
-void VulkanUtils::PlaceBufferMemoryBarrier2(const vk::CommandBuffer& cmdBuffer,
-                                            const vk::Buffer&        buffer,
-                                            vk::AccessFlags2         src,
-                                            vk::PipelineStageFlags2  piplineSrc,
-                                            vk::AccessFlags2         dst,
-                                            vk::PipelineStageFlags2  pipelineDst)
+void VulkanUtils::PlaceBufferMemoryBarrier2(const vk::CommandBuffer& cmdBuffer, const vk::Buffer& buffer, const VBarrierPosition& position)
 {
     vk::BufferMemoryBarrier2 barrier{};
-    barrier.srcAccessMask       = src;
-    barrier.dstAccessMask       = dst;
+    barrier.srcAccessMask       = position.srcData;
+    barrier.dstAccessMask       = position.dstData;
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.buffer              = buffer;
@@ -155,7 +146,7 @@ void VulkanUtils::PlaceBufferMemoryBarrier2(const vk::CommandBuffer& cmdBuffer,
 
     vk::DependencyInfo depInfo{};
     depInfo.bufferMemoryBarrierCount = 1;
-    depInfo.pBufferMemoryBarriers = &barrier;
+    depInfo.pBufferMemoryBarriers    = &barrier;
 
     cmdBuffer.pipelineBarrier2(depInfo);
 }

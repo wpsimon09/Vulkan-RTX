@@ -5,6 +5,7 @@
 #include "RenderTarget2.h"
 
 #include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
@@ -150,6 +151,18 @@ void RenderTarget2::TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer,
         VulkanUtils::RecordImageTransitionLayoutCommand(*m_resolvedAttachment, targetLayout, oldLayout, cmdBuffer);
     }
 }
+void RenderTarget2::TransitionAttachments(VulkanCore::VCommandBuffer&   cmdBuffer,
+                                          vk::ImageLayout               targetLayout,
+                                          vk::ImageLayout               oldLayout,
+                                          const VulkanUtils::VBarrierPosition& barrierPosition)
+{
+    VulkanUtils::PlaceImageMemoryBarrier2(*m_primaryAttachment, cmdBuffer, targetLayout, oldLayout, barrierPosition);
+    if(m_resolvedAttachment)
+    {
+        VulkanUtils::PlaceImageMemoryBarrier2(*m_resolvedAttachment, cmdBuffer, targetLayout, oldLayout, barrierPosition);
+    }
+}
+
 void RenderTarget2::Destroy()
 {
     m_primaryAttachment->Destroy();
