@@ -13,6 +13,7 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
@@ -124,8 +125,13 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
     dummyCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
 
     m_dummyCubeMap = std::make_unique<VulkanCore::VImage2>(m_device, dummyCubeMapCI);
-    RecordImageTransitionLayoutCommand(*m_dummyCubeMap, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                       vk::ImageLayout::eUndefined, m_device.GetTransferOpsManager().GetCommandBuffer());
+    VulkanUtils::VBarrierPosition barrierPosition = {
+        {}, {},
+        vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eColorAttachmentRead
+    };
+
+    VulkanUtils::PlaceImageMemoryBarrier2(*m_dummyCubeMap, m_device.GetTransferOpsManager().GetCommandBuffer(),vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPosition);
+
 }
 
 const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetBRDFLut()
