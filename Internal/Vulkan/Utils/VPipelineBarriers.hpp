@@ -18,8 +18,9 @@ namespace VulkanUtils {
 struct VBarrierPosition
 {
     vk::PipelineStageFlagBits2 srcPipelineStage;
-    vk::PipelineStageFlags2 dstPipelineStage;
     vk::AccessFlags2 srcData;
+
+    vk::PipelineStageFlags2 dstPipelineStage;
     vk::AccessFlags2 dstData;
 };
 
@@ -71,6 +72,20 @@ void PlaceBufferMemoryBarrier2(const vk::CommandBuffer& cmdBuffer,
                                const vk::Buffer&        buffer, const VBarrierPosition& position);
 
 void PlaceStallAllBarrier_DEBUG(); // TODO: implement
+
+static constexpr VBarrierPosition VRenderTarget_Color_ToSample_InFragmnetShader_BarrierPosition{
+  vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+  vk::AccessFlagBits2::eColorAttachmentWrite,
+  vk::PipelineStageFlagBits2::eFragmentShader,
+  vk::AccessFlagBits2::eShaderRead
+};
+
+static constexpr VBarrierPosition VRenderTarget_Depth_ToSample_InFragmnetShader_BarrierPosition{
+  vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+  vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+  vk::PipelineStageFlagBits2::eFragmentShader,
+  vk::AccessFlagBits2::eShaderRead
+};
 
 }  // namespace VulkanUtils
 

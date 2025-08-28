@@ -17,6 +17,7 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 #include "Editor/UIContext/UIContext.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace Renderer {
@@ -40,9 +41,12 @@ void UserInterfaceRenderer::Render(int currentFrameIndex, uint32_t swapChainImag
     //==============================================
     // CREATE RENDER PASS INFO
     //==============================================
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex),
-                                                    vk::ImageLayout::eColorAttachmentOptimal,
-                                                    vk::ImageLayout::ePresentSrcKHR, cmdBuffer);
+    VulkanUtils::VBarrierPosition barrierPosition{vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                  vk::AccessFlagBits2::eColorAttachmentWrite,
+                                                  vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                  vk::AccessFlagBits2::eColorAttachmentWrite};
+    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTarget->GetColourImage(swapChainImageIndex), cmdBuffer,
+                                          vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eAttachmentOptimalKHR, barrierPosition);
 
     //==============================================
     // CREATE RENDER PASS INFO
@@ -72,9 +76,8 @@ void UserInterfaceRenderer::Render(int currentFrameIndex, uint32_t swapChainImag
 
     cmdB.endRendering();
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex),
-                                                    vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eColorAttachmentOptimal,
-                                                    cmdB);
+    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex), vk::ImageLayout::ePresentSrcKHR,
+                                                    vk::ImageLayout::eColorAttachmentOptimal, cmdB);
     m_imguiInitializer.EndRender();
 
     //===========================
