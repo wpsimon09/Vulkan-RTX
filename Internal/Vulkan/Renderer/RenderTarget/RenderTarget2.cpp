@@ -51,10 +51,17 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     //===================================
     auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
 
+    vk::ImageLayout initialLayout {vk::ImageLayout::eUndefined};
+    // since barrier has to be either for colour or depth attachment, for evaluating its position
+    // i have to define weather it is for depth or for colour
+    // other than that i can use new vk::ImageLayout::eAttachmentOptimal
+    if (createInfo.initialLayout == vk::ImageLayout::eAttachmentOptimal) {
+        if (createInfo.isDepth){ initialLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal; }
+        else {initialLayout = vk::ImageLayout::eColorAttachmentOptimal;}
+    }
     if (createInfo.initialLayout != vk::ImageLayout::eUndefined) {
 
-        VulkanUtils::RecordImageTransitionLayoutCommand(*m_primaryAttachment, createInfo.initialLayout,
-                                                    vk::ImageLayout::eUndefined, cmdBuffer.GetCommandBuffer());
+        VulkanUtils::PlaceImageMemoryBarrier2(*m_primaryAttachment, cmdBuffer, vk::ImageLayout::eUndefined, createInfo.initialLayout, VulkanUtils::EvaluateBarrierPositionFromUndefinedLayout(initialLayout));
     }
 
 
@@ -70,8 +77,7 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
         // transition to specified layout
         //===================================
         if (createInfo.initialLayout != vk::ImageLayout::eUndefined) {
-            VulkanUtils::RecordImageTransitionLayoutCommand(*m_primaryAttachment, createInfo.initialLayout,
-                                                            vk::ImageLayout::eUndefined, cmdBuffer.GetCommandBuffer());
+            VulkanUtils::PlaceImageMemoryBarrier2(*m_resolvedAttachment, cmdBuffer, vk::ImageLayout::eUndefined, createInfo.initialLayout, VulkanUtils::EvaluateBarrierPositionFromUndefinedLayout(initialLayout));
         }
     }
 }

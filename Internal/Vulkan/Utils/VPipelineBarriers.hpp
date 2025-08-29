@@ -72,47 +72,68 @@ void PlaceBufferMemoryBarrier2(const vk::CommandBuffer& cmdBuffer, const vk::Buf
 
 void PlaceStallAllBarrier_DEBUG();  // TODO: implement
 
+VBarrierPosition EvaluateBarrierPositionFromUndefinedLayout(vk::ImageLayout targetLayout);
+
+
+//=================================================================================================//
+//*************************** PREDEFINED BARRIER`S POSITIONS **************************************//
+//=================================================================================================//
+
 static constexpr VBarrierPosition VRenderTarget_Color_ToSample_InFragmnetShader_BarrierPosition{
     vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eColorAttachmentWrite,
-    vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead};
+    vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead};
 
 static constexpr VBarrierPosition VRenderTarget_Depth_ToSample_InFragmnetShader_BarrierPosition{
     vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
     vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead};
 
-static constexpr VBarrierPosition VImage_Undefined_ToTransferDst{
-  {}, {},
-  vk::PipelineStageFlagBits2::eTransfer, {}};
+static constexpr VBarrierPosition VImage_Undefined_ToTransferDst{{}, {}, vk::PipelineStageFlagBits2::eTransfer, {}};
 
-static constexpr VBarrierPosition VRenderTarget_Color_ToPresent{
-  vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eColorAttachmentWrite,
-  vk::PipelineStageFlagBits2::eBottomOfPipe, {}};
+static constexpr VBarrierPosition VRenderTarget_Color_ToPresent{vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                                vk::AccessFlagBits2::eColorAttachmentWrite,
+                                                                vk::PipelineStageFlagBits2::eBottomOfPipe,
+                                                                {}};
 
-static constexpr VBarrierPosition VImage_Undefined_ToColorAttachment{
-      {}, {},
-      vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eColorAttachmentWrite};
+static constexpr VBarrierPosition VImage_Undefined_ToColorAttachment{{},
+                                                                     {},
+                                                                     vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                                     vk::AccessFlagBits2::eColorAttachmentWrite};
 
-static constexpr VBarrierPosition VImage_Undefined_ToDepthAttachment{
-      {}, {},
-      vk::PipelineStageFlagBits2::eEarlyFragmentTests, vk::AccessFlagBits2::eDepthStencilAttachmentWrite};
+static constexpr VBarrierPosition VImage_Undefined_ToDepthAttachment{{},
+                                                                     {},
+                                                                     vk::PipelineStageFlagBits2::eEarlyFragmentTests,
+                                                                     vk::AccessFlagBits2::eDepthStencilAttachmentWrite};
 
-static constexpr VBarrierPosition VImage_TransferDst_ToShaderRead{
-  vk::PipelineStageFlagBits2::eTransfer, vk::AccessFlagBits2::eTransferWrite,
-  vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead};
+static constexpr VBarrierPosition VImage_TransferDst_ToShaderRead{vk::PipelineStageFlagBits2::eTransfer,
+                                                                  vk::AccessFlagBits2::eTransferWrite,
+                                                                  vk::PipelineStageFlagBits2::eFragmentShader,
+                                                                  vk::AccessFlagBits2::eShaderRead};
 
-static constexpr VBarrierPosition VImage_Undefined_ToTransferSrc{
-      {}, {},
-      vk::PipelineStageFlagBits2::eTransfer, {}};
+static constexpr VBarrierPosition VImage_Undefined_ToTransferSrc{{}, {}, vk::PipelineStageFlagBits2::eTransfer, {}};
 
-static constexpr VBarrierPosition VImage_TransferDst_ToTransferSrc{
-  vk::PipelineStageFlagBits2::eTransfer, vk::AccessFlagBits2::eTransferWrite,
-  vk::PipelineStageFlagBits2::eTransfer, vk::AccessFlagBits2::eTransferRead};
+static constexpr VBarrierPosition VImage_TransferDst_ToTransferSrc{vk::PipelineStageFlagBits2::eTransfer,
+                                                                   vk::AccessFlagBits2::eTransferWrite,
+                                                                   vk::PipelineStageFlagBits2::eTransfer,
+                                                                   vk::AccessFlagBits2::eTransferRead};
 
-static constexpr VBarrierPosition VImage_ShaderRead_ToTransferDst{
-  vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead,
-  vk::PipelineStageFlagBits2::eTransfer, vk::AccessFlagBits2::eTransferWrite};
+static constexpr VBarrierPosition VImage_ShaderRead_ToTransferDst{vk::PipelineStageFlagBits2::eFragmentShader,
+                                                                  vk::AccessFlagBits2::eShaderRead,
+                                                                  vk::PipelineStageFlagBits2::eTransfer,
+                                                                  vk::AccessFlagBits2::eTransferWrite};
 
+static constexpr VBarrierPosition VRenderTarget_ToAttachment_FromSample{vk::PipelineStageFlagBits2::eFragmentShader,
+                                                                        vk::AccessFlagBits2::eShaderRead,
+                                                                        vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                                        vk::AccessFlagBits2::eColorAttachmentWrite};
 
+static constexpr VBarrierPosition VImage_Undefined_ToGeneral{{},
+                                                             {},
+                                                             vk::PipelineStageFlagBits2::eComputeShader,
+                                                             vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eShaderWrite};
+
+static constexpr VBarrierPosition VImage_Undefined_ToShaderRead{{}, {}, vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead};
+
+// Any Shader Read (general) -> Color Attachment
 
 }  // namespace VulkanUtils
 

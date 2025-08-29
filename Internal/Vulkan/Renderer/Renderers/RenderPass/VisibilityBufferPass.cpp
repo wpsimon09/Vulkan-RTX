@@ -81,8 +81,8 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
 
     //=========================================================================
     // Transition shadow map from shader read only optimal to render attachment
-    m_renderTargets[EVisibilityBufferAttachments::VisibilityBuffer]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                              vk::ImageLayout::eShaderReadOnlyOptimal);
+    m_renderTargets[EVisibilityBufferAttachments::VisibilityBuffer]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eAttachmentOptimal,
+                                              vk::ImageLayout::eShaderReadOnlyOptimal, VulkanUtils::VRenderTarget_ToAttachment_FromSample);
 
 
     std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_renderTargets[EVisibilityBufferAttachments::VisibilityBuffer]->GenerateAttachmentInfo(
@@ -125,7 +125,7 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
     cmdB.endRendering();
 
     m_renderTargets[EVisibilityBufferAttachments::VisibilityBuffer]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                              vk::ImageLayout::eColorAttachmentOptimal);
+                                              vk::ImageLayout::eAttachmentOptimal, VulkanUtils::VRenderTarget_Color_ToSample_InFragmnetShader_BarrierPosition);
 }
 
 }  // namespace

@@ -151,3 +151,27 @@ void VulkanUtils::PlaceBufferMemoryBarrier2(const vk::CommandBuffer& cmdBuffer, 
 
     cmdBuffer.pipelineBarrier2(depInfo);
 }
+VulkanUtils::VBarrierPosition VulkanUtils::EvaluateBarrierPositionFromUndefinedLayout(vk::ImageLayout targetLayout) {
+    assert(targetLayout != vk::ImageLayout::eAttachmentOptimal && "this function does not support attachment optimal, since barrier placement is different, use colour attachment or depth attachment, however, you can AND should use the vk::ImageAttachmentOptimal in barrier call itself ! " );
+    switch (targetLayout) {
+    case vk::ImageLayout::eTransferDstOptimal:
+        return VImage_Undefined_ToTransferDst;
+
+    case vk::ImageLayout::eTransferSrcOptimal:
+        return VImage_Undefined_ToTransferSrc;
+
+    case vk::ImageLayout::eColorAttachmentOptimal:
+        return VImage_Undefined_ToColorAttachment;
+
+    case vk::ImageLayout::eDepthAttachmentOptimal:  // or eDepthStencilAttachmentOptimal depending on your Vulkan version
+    case vk::ImageLayout::eDepthStencilAttachmentOptimal:
+        return VImage_Undefined_ToDepthAttachment;
+
+    case vk::ImageLayout::eShaderReadOnlyOptimal:
+        return VImage_Undefined_ToShaderRead;
+    case vk::ImageLayout::eGeneral:
+        return VImage_Undefined_ToGeneral;
+    default:
+        throw std::runtime_error("Unsupported target layout in EvaluatePositionFromUndefinedLayout");
+    }
+}
