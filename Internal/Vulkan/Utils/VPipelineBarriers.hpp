@@ -17,11 +17,13 @@ namespace VulkanUtils {
 
 struct VBarrierPosition
 {
-    vk::PipelineStageFlagBits2 srcPipelineStage = vk::PipelineStageFlagBits2::eNone;
-    vk::AccessFlags2           srcData          = vk::AccessFlagBits2::eNone;
+    vk::PipelineStageFlags2 srcPipelineStage = vk::PipelineStageFlagBits2::eNone;
+    vk::AccessFlags2        srcData          = vk::AccessFlagBits2::eNone;
 
     vk::PipelineStageFlags2 dstPipelineStage = vk::PipelineStageFlagBits2::eNone;
     vk::AccessFlags2        dstData          = vk::AccessFlagBits2::eNone;
+
+    VBarrierPosition Switch() const { return {dstPipelineStage, dstData, srcPipelineStage, srcData}; }
 };
 
 void PlaceImageMemoryBarrier(VulkanCore::VImage2&        image,
@@ -132,6 +134,11 @@ static constexpr VBarrierPosition VImage_Undefined_ToGeneral{{},
                                                              vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eShaderWrite};
 
 static constexpr VBarrierPosition VImage_Undefined_ToShaderRead{{}, {}, vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead};
+
+static constexpr VBarrierPosition VImage_Undefined_ToDepthStencilReadOnly{{},
+                                                                          {},
+                                                                          vk::PipelineStageFlagBits2::eEarlyFragmentTests,
+                                                                          vk::AccessFlagBits2::eDepthStencilAttachmentWrite};
 
 // Any Shader Read (general) -> Color Attachment
 

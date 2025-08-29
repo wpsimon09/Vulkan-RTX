@@ -156,10 +156,8 @@ VulkanUtils::VBarrierPosition VulkanUtils::EvaluateBarrierPositionFromUndefinedL
     switch (targetLayout) {
     case vk::ImageLayout::eTransferDstOptimal:
         return VImage_Undefined_ToTransferDst;
-
     case vk::ImageLayout::eTransferSrcOptimal:
         return VImage_Undefined_ToTransferSrc;
-
     case vk::ImageLayout::eColorAttachmentOptimal:
         return VImage_Undefined_ToColorAttachment;
 
@@ -167,11 +165,16 @@ VulkanUtils::VBarrierPosition VulkanUtils::EvaluateBarrierPositionFromUndefinedL
     case vk::ImageLayout::eDepthStencilAttachmentOptimal:
         return VImage_Undefined_ToDepthAttachment;
 
+    case vk::ImageLayout::eDepthStencilReadOnlyOptimal: {
+        return VImage_Undefined_ToDepthStencilReadOnly;
+    }
+
     case vk::ImageLayout::eShaderReadOnlyOptimal:
         return VImage_Undefined_ToShaderRead;
     case vk::ImageLayout::eGeneral:
         return VImage_Undefined_ToGeneral;
+
     default:
-        throw std::runtime_error("Unsupported target layout in EvaluatePositionFromUndefinedLayout");
+        throw std::runtime_error("Unsupported target layout in EvaluatePositionFromUndefinedLayout: " + ImageLayoutToString(targetLayout));
     }
 }

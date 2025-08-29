@@ -51,7 +51,7 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     //===================================
     auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
 
-    vk::ImageLayout initialLayout {vk::ImageLayout::eUndefined};
+    vk::ImageLayout initialLayout = createInfo.initialLayout;
     // since barrier has to be either for colour or depth attachment, for evaluating its position
     // i have to define weather it is for depth or for colour
     // other than that i can use new vk::ImageLayout::eAttachmentOptimal
@@ -61,7 +61,8 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     }
     if (createInfo.initialLayout != vk::ImageLayout::eUndefined) {
 
-        VulkanUtils::PlaceImageMemoryBarrier2(*m_primaryAttachment, cmdBuffer, vk::ImageLayout::eUndefined, createInfo.initialLayout, VulkanUtils::EvaluateBarrierPositionFromUndefinedLayout(initialLayout));
+        auto barrierPos = VulkanUtils::EvaluateBarrierPositionFromUndefinedLayout(initialLayout);
+        VulkanUtils::PlaceImageMemoryBarrier2(*m_primaryAttachment, cmdBuffer, vk::ImageLayout::eUndefined, createInfo.initialLayout, barrierPos );
     }
 
 
