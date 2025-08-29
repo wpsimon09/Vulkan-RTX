@@ -4,6 +4,9 @@
 
 #ifndef VENVLIGHTGENERATOR_HPP
 #define VENVLIGHTGENERATOR_HPP
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
+
+
 #include <memory>
 #include <unordered_map>
 #include <glm/ext/matrix_transform.hpp>
@@ -116,6 +119,19 @@ class VEnvLightGenerator
                          std::unique_ptr<VulkanCore::VImage2>& renderTarget,
                          VulkanCore::VImage2CreateInfo&        createInfo,
                          VulkanCore::VTimelineSemaphore&       semaphore);
+
+    VulkanUtils::VBarrierPosition ColorAttachment_To_TransferSrc{vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                                 vk::AccessFlagBits2::eColorAttachmentWrite,
+                                                                 vk::PipelineStageFlagBits2::eCopy,
+                                                                 vk::AccessFlagBits2::eTransferRead};
+
+    VulkanUtils::VBarrierPosition TransferSrc_To_ColorAttachment{vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
+                                                                 vk::PipelineStageFlagBits2::eColorAttachmentOutput | vk::PipelineStageFlagBits2::eFragmentShader,
+                                                                 vk::AccessFlagBits2::eColorAttachmentWrite | vk::AccessFlagBits2::eShaderSampledRead};
+
+    VulkanUtils::VBarrierPosition TransferDst_To_ReadOnly = {vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
+                                                             vk::PipelineStageFlagBits2::eFragmentShader,
+                                                             vk::AccessFlagBits2::eShaderRead};
 };
 }  // namespace VulkanUtils
 
