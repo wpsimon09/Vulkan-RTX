@@ -72,10 +72,11 @@ void VulkanUtils::PlaceImageMemoryBarrier2(VulkanCore::VImage2&              ima
                                             vk::ImageSubresourceRange{image.GetImageFlags().IsDepthBuffer ?
                                                                           vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil :
                                                                           vk::ImageAspectFlagBits::eColor,
-                                                                      0, 1, 0, image.GetImageInfo().arrayLayers}};
+                                        0, image.GetImageInfo().mipLevels, 0, image.GetImageInfo().arrayLayers}};
     vk::DependencyInfo      depInfo{};
     depInfo.imageMemoryBarrierCount = 1;
     depInfo.pImageMemoryBarriers    = &imageMemBarrier;
+    image.GetImageInfo().layout = newLayout;
 
     commandBuffer.GetCommandBuffer().pipelineBarrier2(depInfo);
 }
