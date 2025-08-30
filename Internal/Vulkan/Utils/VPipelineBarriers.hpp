@@ -81,11 +81,11 @@ VBarrierPosition EvaluateBarrierPositionFromUndefinedLayout(vk::ImageLayout targ
 //*************************** PREDEFINED BARRIER`S POSITIONS **************************************//
 //=================================================================================================//
 
-static constexpr VBarrierPosition VRenderTarget_Color_ToSample_InFragmnetShader_BarrierPosition{
+static constexpr VBarrierPosition VRenderTarget_Color_ToSample_InShader_BarrierPosition{
     vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eColorAttachmentWrite,
-    vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead};
+    vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader , vk::AccessFlagBits2::eShaderSampledRead};
 
-static constexpr VBarrierPosition VRenderTarget_Depth_ToSample_InFragmnetShader_BarrierPosition{
+static constexpr VBarrierPosition VRenderTarget_Depth_ToSample_InShader_BarrierPosition{
     vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
     vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead};
 

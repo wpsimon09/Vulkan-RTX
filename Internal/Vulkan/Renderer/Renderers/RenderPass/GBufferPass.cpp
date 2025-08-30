@@ -75,8 +75,8 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
 
 
     VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead,
-                                                vk::PipelineStageFlagBits2::eEarlyFragmentTests,
-                                                vk::AccessFlagBits2::eDepthStencilAttachmentWrite};
+                                                vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eColorAttachmentOutput ,
+                                                vk::AccessFlagBits2::eDepthStencilAttachmentWrite | vk::AccessFlagBits2::eColorAttachmentWrite};
     m_depthBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
                                          vk::ImageLayout::eDepthStencilReadOnlyOptimal, barrierPos);
 
@@ -86,7 +86,7 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
     {
         barrierPos.dstPipelineStage = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
         barrierPos.dstData          = vk::AccessFlagBits2::eColorAttachmentWrite;
-        m_renderTargets[i]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+        m_renderTargets[i]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eAttachmentOptimal,
                                                   vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
     }
 

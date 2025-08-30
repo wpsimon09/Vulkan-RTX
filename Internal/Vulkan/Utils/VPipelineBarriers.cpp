@@ -76,6 +76,7 @@ void VulkanUtils::PlaceImageMemoryBarrier2(VulkanCore::VImage2&              ima
     vk::DependencyInfo      depInfo{};
     depInfo.imageMemoryBarrierCount = 1;
     depInfo.pImageMemoryBarriers    = &imageMemBarrier;
+
     image.GetImageInfo().layout = newLayout;
 
     commandBuffer.GetCommandBuffer().pipelineBarrier2(depInfo);

@@ -77,10 +77,11 @@ void BilateralFilterPass::Render(int currentFrame, VulkanCore::VCommandBuffer& c
 {
   assert(cmdBuffer.GetIsRecording() && " Command buffer is not in recording state");
 
-  VulkanUtils::PlaceImageMemoryBarrier(m_renderTargets[EBilateralFilterAttachments::Result]->GetPrimaryImage(), cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                       vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eColorAttachmentOutput,
-                                       vk::PipelineStageFlagBits::eComputeShader,
-                                       vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderWrite);
+  VulkanUtils::VBarrierPosition barrier = {
+    vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eColorAttachmentWrite,
+    vk::PipelineStageFlagBits2::eComputeShader,  vk::AccessFlagBits2::eShaderWrite
+  };
+  m_renderTargets[EBilateralFilterAttachments::Result]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, barrier);
 
   m_bilateralFileter->BindPipeline(cmdBuffer.GetCommandBuffer());
   m_bilateralFileter->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);

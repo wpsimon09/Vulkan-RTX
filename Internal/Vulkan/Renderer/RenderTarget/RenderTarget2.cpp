@@ -163,10 +163,10 @@ void RenderTarget2::TransitionAttachments(VulkanCore::VCommandBuffer&   cmdBuffe
                                           vk::ImageLayout               oldLayout,
                                           const VulkanUtils::VBarrierPosition& barrierPosition)
 {
-    VulkanUtils::PlaceImageMemoryBarrier2(*m_primaryAttachment, cmdBuffer, targetLayout, oldLayout, barrierPosition);
+    VulkanUtils::PlaceImageMemoryBarrier2(*m_primaryAttachment, cmdBuffer, oldLayout, targetLayout, barrierPosition);
     if(m_resolvedAttachment)
     {
-        VulkanUtils::PlaceImageMemoryBarrier2(*m_resolvedAttachment, cmdBuffer, targetLayout, oldLayout, barrierPosition);
+        VulkanUtils::PlaceImageMemoryBarrier2(*m_resolvedAttachment, cmdBuffer, oldLayout, targetLayout, barrierPosition);
     }
 }
 

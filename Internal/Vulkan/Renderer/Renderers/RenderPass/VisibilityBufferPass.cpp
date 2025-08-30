@@ -125,7 +125,7 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
     cmdB.endRendering();
 
     m_renderTargets[EVisibilityBufferAttachments::VisibilityBuffer]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                              vk::ImageLayout::eAttachmentOptimal, VulkanUtils::VRenderTarget_Color_ToSample_InFragmnetShader_BarrierPosition);
+                                              vk::ImageLayout::eAttachmentOptimal, VulkanUtils::VRenderTarget_Color_ToSample_InShader_BarrierPosition);
 }
 
 }  // namespace

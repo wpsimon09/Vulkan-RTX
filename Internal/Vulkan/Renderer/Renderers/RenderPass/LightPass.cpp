@@ -9,6 +9,7 @@
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
@@ -262,8 +263,12 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
     auto& cmdB = cmdBuffer.GetCommandBuffer();
 
 
-    m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                                                            vk::ImageLayout::eShaderReadOnlyOptimal);
+    VulkanUtils::VBarrierPosition barrierPos = {
+        vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead,
+        vk::PipelineStageFlagBits2::eColorAttachmentOutput , vk::AccessFlagBits2::eColorAttachmentWrite
+    };
+    m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eAttachmentOptimal,
+                                                                            vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
 
 
     cmdB.beginRendering(&renderingInfo);
@@ -369,10 +374,14 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
 
 
     m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                                            vk::ImageLayout::eColorAttachmentOptimal);
+                                                                            vk::ImageLayout::eColorAttachmentOptimal, barrierPos.Switch());
 
+    barrierPos = {
+        vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+        vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead
+    };
     renderContext->depthBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilReadOnlyOptimal,
-                                                      vk::ImageLayout::eDepthStencilAttachmentOptimal);
+                                                      vk::ImageLayout::eDepthStencilAttachmentOptimal, barrierPos);
 
     //m_renderingStatistics.DrawCallCount = drawCallCount;
 }
