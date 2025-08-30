@@ -68,6 +68,12 @@ float4 fragmentMain(VertexOutput fsIn)
     ambientLight.BRDF_Lut = BRDF_Lut;
 
     AreaAndAmbient.first = _lightInfo.areaLights;
+
+    for (int i = 0; i < AreaAndAmbient.first.lights.getCount(); i++) {
+        //AreaAndAmbient.first.lights[i].LTC = DescriptorHandle<Sampler2D>(LTC);
+        //AreaAndAmbient.first.lights[i].LTC_Inverse = LTC_Inverse;    
+    }
+    
     AreaAndAmbient.second = ambientLight;
 
     lightingEnv.first = DirAndPoint;
