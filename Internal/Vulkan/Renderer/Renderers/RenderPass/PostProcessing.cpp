@@ -184,6 +184,12 @@ ToneMappingPass::ToneMappingPass(const VulkanCore::VDevice& device, ApplicationC
     m_device.GetTransferOpsManager().DestroyBuffer(
         m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage().GetImageStagingvBuffer(), true);
 
+    VulkanUtils::VBarrierPosition barrierPos = {
+        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
+        vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+    };
+    m_renderTargets[EToneMappingAttachments::LuminanceAverage]->TransitionAttachments(device.GetTransferOpsManager().GetCommandBuffer(), vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
+
     m_luminanceHistogramBuffer.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
 
 }
@@ -306,7 +312,7 @@ void ToneMappingPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
                                                 vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite};
 
     m_renderTargets[EToneMappingAttachments::LuminanceAverage]->TransitionAttachments(
-        cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, imageBarrierPos);
+        cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, imageBarrierPos);
 
     vk::PushConstantsInfo pcLuminanceAverage;
     pcLuminanceAverage.layout = m_averageLuminanceEffect->GetPipelineLayout();
@@ -321,8 +327,13 @@ void ToneMappingPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
 
     cmdBuffer.GetCommandBuffer().dispatch(1, 1, 1);
 
+    imageBarrierPos = {
+        vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+        vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead
+    };
+
     m_renderTargets[EToneMappingAttachments::LuminanceAverage]->TransitionAttachments(
-        cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, imageBarrierPos.Switch());
+        cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, imageBarrierPos);
 
 
     //=======================================================
