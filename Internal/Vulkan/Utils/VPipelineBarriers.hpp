@@ -89,7 +89,7 @@ static constexpr VBarrierPosition VRenderTarget_Depth_ToSample_InShader_BarrierP
     vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
     vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead};
 
-static constexpr VBarrierPosition VImage_Undefined_ToTransferDst{{}, {}, vk::PipelineStageFlagBits2::eTransfer, {}};
+static constexpr VBarrierPosition VImage_Undefined_ToTransferDst{{}, {}, vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite };
 
 static constexpr VBarrierPosition VRenderTarget_Color_ToPresent{vk::PipelineStageFlagBits2::eColorAttachmentOutput,
                                                                 vk::AccessFlagBits2::eColorAttachmentWrite,

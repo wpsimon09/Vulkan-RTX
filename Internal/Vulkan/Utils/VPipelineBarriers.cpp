@@ -137,14 +137,19 @@ void VulkanUtils::PlaceBufferMemoryBarrier(const vk::CommandBuffer& cmdBuffer,
 }
 void VulkanUtils::PlaceBufferMemoryBarrier2(const vk::CommandBuffer& cmdBuffer, const vk::Buffer& buffer, const VBarrierPosition& position)
 {
+
     vk::BufferMemoryBarrier2 barrier{};
     barrier.srcAccessMask       = position.srcData;
     barrier.dstAccessMask       = position.dstData;
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
     barrier.buffer              = buffer;
     barrier.offset              = {};
     barrier.size                = VK_WHOLE_SIZE;
+
+    barrier.srcStageMask = position.srcPipelineStage;
+    barrier.dstStageMask = position.dstPipelineStage;
 
     vk::DependencyInfo depInfo{};
     depInfo.bufferMemoryBarrierCount = 1;

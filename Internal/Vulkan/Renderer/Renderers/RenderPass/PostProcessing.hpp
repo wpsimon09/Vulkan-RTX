@@ -17,13 +17,15 @@ enum EFogPassAttachments
     FogMain = 0
 };
 
-enum EToneMappingAttachments {
-    LDR =0,
+enum EToneMappingAttachments
+{
+    LDR = 0,
     LuminanceAverage
 };
 
-enum ELensFlareAttachments {
-  LensFlareMain = 0
+enum ELensFlareAttachments
+{
+    LensFlareMain = 0
 };
 
 //============================================================================================================================================================
@@ -60,29 +62,32 @@ class ToneMappingPass : public Renderer::RenderPass
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
 
   private:
-    LuminanceHistogramParameters                 m_luminanceHistogramParameters;
-    LuminanceHistogramAverageParameters          m_averageLuminanceParameters;
-    ToneMappingParameters                        m_toneMappingParameters;
+    LuminanceHistogramParameters        m_luminanceHistogramParameters;
+    LuminanceHistogramAverageParameters m_averageLuminanceParameters;
+    ToneMappingParameters               m_toneMappingParameters;
 
     std::shared_ptr<VulkanUtils::VComputeEffect> m_luminanceHistogramEffect;
     std::shared_ptr<VulkanUtils::VComputeEffect> m_averageLuminanceEffect;
     std::shared_ptr<VulkanUtils::VRasterEffect>  m_toneMappingEffect;
+    std::vector<vk::Buffer>                      m_luminanceHistogramBuffer;
 };
 
 //============================================================================================================================================================
 
-class LensFlarePass : public RenderPass {
-public:
-  LensFlarePass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height);
-  void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
-  void Update(int                                   currentFrame,
-              VulkanUtils::VUniformBufferManager&   uniformBufferManager,
-              VulkanUtils::RenderContext*           renderContext,
-              VulkanStructs::PostProcessingContext* postProcessingContext) override;
-  void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
-private:
-  LensFlareParameters m_lensFlareParameters;
-  std::shared_ptr<VulkanUtils::VRasterEffect> m_lensFlareEffect;
+class LensFlarePass : public RenderPass
+{
+  public:
+    LensFlarePass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height);
+    void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
+    void Update(int                                   currentFrame,
+                VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                VulkanUtils::RenderContext*           renderContext,
+                VulkanStructs::PostProcessingContext* postProcessingContext) override;
+    void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
+
+  private:
+    LensFlareParameters                         m_lensFlareParameters;
+    std::shared_ptr<VulkanUtils::VRasterEffect> m_lensFlareEffect;
 };
 
 }  // namespace Renderer

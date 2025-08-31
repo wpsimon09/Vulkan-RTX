@@ -8,6 +8,9 @@ class VImage;
 }  // namespace VulkanCore
 
 
+/**
+* @depricated, This file contains depricated functions, use VPipelineBarriers for sync2
+*/
 namespace VulkanUtils {
 void ApplyTransition(vk::ImageLayout             currentLayout,
                      vk::ImageLayout             targetLayout,

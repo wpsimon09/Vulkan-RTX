@@ -264,7 +264,6 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
     //===========================================================
     // update render passes
-    m_postProcessingSystem->Update(m_currentFrameIndex,m_uniformBufferManager,  m_postProcessingContext);
     m_forwardRenderer->Update(m_currentFrameIndex, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext,
                               &m_postProcessingContext);
 
@@ -290,8 +289,10 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         m_postProcessingContext.toneMappingParameters->isRayTracing = true;
     }
 
+
     //========================================
     // Post processing
+    m_postProcessingSystem->Update(m_currentFrameIndex,m_uniformBufferManager,  m_postProcessingContext);
     m_postProcessingSystem->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_postProcessingContext);
     m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_currentFrameIndex), m_currentFrameIndex);
 
