@@ -13,6 +13,7 @@
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
@@ -123,9 +124,12 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
     dummyCubeMapCI.arrayLayers = 6;  // six faces
     dummyCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
 
-    m_dummyCubeMap = std::make_unique<VulkanCore::VImage2>(m_device, dummyCubeMapCI);
-    RecordImageTransitionLayoutCommand(*m_dummyCubeMap, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                       vk::ImageLayout::eUndefined, m_device.GetTransferOpsManager().GetCommandBuffer());
+    m_dummyCubeMap                                = std::make_unique<VulkanCore::VImage2>(m_device, dummyCubeMapCI);
+    VulkanUtils::VBarrierPosition barrierPosition = {
+        {}, {}, vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eColorAttachmentRead};
+
+    VulkanUtils::PlaceImageMemoryBarrier2(*m_dummyCubeMap, m_device.GetTransferOpsManager().GetCommandBuffer(),
+                                          vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPosition);
 }
 
 const VulkanCore::VImage2& VulkanUtils::VEnvLightGenerator::GetBRDFLut()
@@ -294,8 +298,9 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
                     RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
 
                     //=================== transition layout to transfer src
-                    RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eTransferSrcOptimal,
-                                                       vk::ImageLayout::eColorAttachmentOptimal, *m_graphicsCmdBuffer);
+
+                    PlaceImageMemoryBarrier2(*renderTarget, *m_graphicsCmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                             vk::ImageLayout::eTransferSrcOptimal, ColorAttachment_To_TransferSrc);
 
                     //=================== cpy offscreen immage to the cueb map`s face
                     CopyResukt(cmdBuffer, renderTarget->GetImage(), hdrCubeMap->GetImage(), viewport.width,
@@ -303,8 +308,9 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
 
 
                     //========================== transfer colour attachment back to rendering layout
-                    RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eColorAttachmentOptimal,
-                                                       vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer);
+
+                    PlaceImageMemoryBarrier2(*renderTarget, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferSrcOptimal,
+                                             vk::ImageLayout::eColorAttachmentOptimal, TransferSrc_To_ColorAttachment);
 
                     i++;
                 }
@@ -312,8 +318,10 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
 
 
             //======================== transition the HDR image to shader read only
-            RecordImageTransitionLayoutCommand(*hdrCubeMap, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                               vk::ImageLayout::eTransferDstOptimal, *m_graphicsCmdBuffer);
+
+            PlaceImageMemoryBarrier2(*hdrCubeMap, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferDstOptimal,
+                                     vk::ImageLayout::eShaderReadOnlyOptimal, TransferDst_To_ReadOnly);
+
 
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,
                                                               vk::PipelineStageFlagBits::eTransfer};
@@ -355,7 +363,6 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         irradianceCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
 
 
-        // transition to colour attachment optimal
         m_graphicsCmdBuffer->BeginRecording();
         auto& cmdBuffer = m_graphicsCmdBuffer->GetCommandBuffer();
 
@@ -421,25 +428,22 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
                 RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
 
                 //=================== transition layout to transfer src
-                RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eTransferSrcOptimal,
-                                                   vk::ImageLayout::eColorAttachmentOptimal, *m_graphicsCmdBuffer);
+                PlaceImageMemoryBarrier2(*renderTarget, *m_graphicsCmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                         vk::ImageLayout::eTransferSrcOptimal, ColorAttachment_To_TransferSrc);
 
                 //=================== cpy offscreen immage to the cueb map`s face
                 CopyResukt(cmdBuffer, renderTarget->GetImage(), irradianceCubeMap->GetImage(), viewport.width,
                            viewport.height, 0, face);
 
-
                 //========================== transfer colour attachment back to rendering layout
-                RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eColorAttachmentOptimal,
-                                                   vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer);
+                PlaceImageMemoryBarrier2(*renderTarget, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal, TransferSrc_To_ColorAttachment);
 
                 //hdrPushBlock.Destory();
             }
 
 
             //======================== transition the HDR image to shader read only
-            RecordImageTransitionLayoutCommand(*irradianceCubeMap, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                               vk::ImageLayout::eTransferDstOptimal, *m_graphicsCmdBuffer);
+            PlaceImageMemoryBarrier2(*irradianceCubeMap, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, TransferDst_To_ReadOnly);
 
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,
                                                               vk::PipelineStageFlagBits::eTransfer};
@@ -562,24 +566,21 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
                 RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
 
                 //=================== transition layout to transfer src
-                RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eTransferSrcOptimal,
-                                                   vk::ImageLayout::eColorAttachmentOptimal, *m_graphicsCmdBuffer);
+                PlaceImageMemoryBarrier2(*renderTarget, *m_graphicsCmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                         vk::ImageLayout::eTransferSrcOptimal, ColorAttachment_To_TransferSrc);
 
                 CopyResukt(cmdBuffer, renderTarget->GetImage(), prefilterMap->GetImage(), viewport.width,
                            viewport.height, mipLevel, face);
 
                 //========================== transfer colour attachment back to rendering layout
-                RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eColorAttachmentOptimal,
-                                                   vk::ImageLayout::eTransferSrcOptimal, *m_graphicsCmdBuffer);
+                PlaceImageMemoryBarrier2(*renderTarget, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal, TransferSrc_To_ColorAttachment);
 
                 i++;
             }
         }
 
-
         //======================== transition the HDR image to shader read only
-        RecordImageTransitionLayoutCommand(*prefilterMap, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                           vk::ImageLayout::eTransferDstOptimal, *m_graphicsCmdBuffer);
+        VulkanUtils::PlaceImageMemoryBarrier2(*prefilterMap, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, TransferDst_To_ReadOnly);
 
         std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,
                                                           vk::PipelineStageFlagBits::eTransfer};
@@ -633,7 +634,8 @@ void VulkanUtils::VEnvLightGenerator::RenderToCubeMap(const vk::CommandBuffer&  
     //==================== Render the cube as a sky box
     cmdBuffer.drawIndexed(m_cube->GetMeshData()->indexData->size / sizeof(uint32_t), 1,
                           m_cube->GetMeshData()->indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                          m_cube->GetMeshData()->vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
+                          m_cube->GetMeshData()->vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)),
+                          0);
 
     cmdBuffer.endRendering();
 }
@@ -677,7 +679,7 @@ void VulkanUtils::VEnvLightGenerator::CreateResources(const vk::CommandBuffer&  
     cubeMap = std::make_unique<VulkanCore::VImage2>(m_device, createInfo);
 
     //============================== Transefer layout to transfer ddestination
-    RecordImageTransitionLayoutCommand(*cubeMap, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
+    PlaceImageMemoryBarrier2(*cubeMap, *m_graphicsCmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, VulkanUtils::VImage_Undefined_ToTransferDst);
 
     //=============================== Create image that will be used to render into
 
@@ -691,8 +693,7 @@ void VulkanUtils::VEnvLightGenerator::CreateResources(const vk::CommandBuffer&  
         renderTarget = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachemntCI);
 
         //============================ Transfer to transfer Src destination
-        RecordImageTransitionLayoutCommand(*renderTarget, vk::ImageLayout::eColorAttachmentOptimal,
-                                           vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
+        PlaceImageMemoryBarrier2(*renderTarget, *m_graphicsCmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, VulkanUtils::VImage_Undefined_ToColorAttachment);
     }
 
     //================ Transfer HDR cube map to be in transfer DST optimal
@@ -728,7 +729,11 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLutCompute()
 
     m_graphicsCmdBuffer->BeginRecording();
 
-    RecordImageTransitionLayoutCommand(*m_brdfLut, vk::ImageLayout::eGeneral, vk::ImageLayout::eUndefined, *m_graphicsCmdBuffer);
+    VulkanUtils::VBarrierPosition barrierPos{
+        {}, {},
+        vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite
+    };
+    PlaceImageMemoryBarrier2(*m_brdfLut, *m_graphicsCmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, barrierPos);
 
     std::vector<vk::PipelineStageFlags> waitStages = {
         vk::PipelineStageFlagBits::eAllGraphics,
@@ -781,8 +786,12 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLutCompute()
     //=========================================
     m_graphicsCmdBuffer->BeginRecording();
 
-    RecordImageTransitionLayoutCommand(*m_brdfLut, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
-                                       *m_graphicsCmdBuffer);
+    barrierPos = {
+        vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+        vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead
+    };
+    PlaceImageMemoryBarrier2(*m_brdfLut, *m_graphicsCmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
+
 
     std::vector<vk::PipelineStageFlags> waitStagesToShaderReadOnly = {
         vk::PipelineStageFlagBits::eNone,

@@ -8,7 +8,6 @@
 
 #include <memory>
 #include <sys/wait.h>
-#include <Vulkan/Utils/VIimageTransitionCommands.hpp>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
@@ -22,7 +21,6 @@
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
-#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "RenderPass/DenoisePass.hpp"
 #include "RenderPass/GBufferPass.hpp"

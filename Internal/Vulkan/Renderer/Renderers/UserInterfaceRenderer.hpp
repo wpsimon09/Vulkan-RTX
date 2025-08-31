@@ -36,6 +36,7 @@ class UIContext;
 }  // namespace VulkanUtils
 
 namespace Renderer {
+class RenderTarget2;
 class RenderTarget;
 
 class UserInterfaceRenderer
@@ -46,14 +47,16 @@ class UserInterfaceRenderer
     void Render(int currentFrameIndex,uint32_t swapChainImageIndex, VulkanCore::VCommandBuffer& cmdBuffer);
     void Present(uint32_t swapChainImageIndex,VulkanCore::VTimelineSemaphore& renderingTimeLine,  const vk::Semaphore& ableToPresentSemaphore);
 
-    RenderTarget& GetRenderTarget() const { return *m_renderTarget; };
+    RenderTarget2& GetRenderTarget() const { return *m_renderTarget; };
+
+    void HandleSwapChainResize(VulkanCore::VSwapChain& resizedSwapChain);
 
     void Destroy();
 
   private:
     const VulkanCore::VDevice&              m_device;
     const VulkanCore::VSwapChain&           m_swapChain;
-    std::unique_ptr<Renderer::RenderTarget> m_renderTarget;
+    std::unique_ptr<Renderer::RenderTarget2> m_renderTarget;
 
     std::unique_ptr<VulkanCore::VCommandPool>                               m_commandPool;
     std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>>                m_commandBuffer;

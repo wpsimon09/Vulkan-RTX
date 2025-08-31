@@ -13,7 +13,6 @@
 #include "RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
-#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 namespace Renderer {

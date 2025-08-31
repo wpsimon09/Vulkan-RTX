@@ -47,8 +47,6 @@ set(SOURCES
         Internal/Vulkan/Global/GlobalVulkanEnums.hpp
         Internal/Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.cpp
         Internal/Vulkan/VulkanCore/FrameBuffer/VFrameBuffer.hpp
-        Internal/Vulkan/VulkanCore/VImage/VImage.cpp
-        Internal/Vulkan/VulkanCore/VImage/VImage.hpp
         External/VMA/vk_mem_alloc_implementation.cpp
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.cpp
         Internal/Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp
@@ -98,8 +96,6 @@ set(SOURCES
         Internal/Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp
         Internal/Vulkan/Renderer/Renderers/RenderingSystem.cpp
         Internal/Vulkan/Renderer/Renderers/RenderingSystem.hpp
-        Internal/Vulkan/Renderer/RenderTarget/RenderTarget.cpp
-        Internal/Vulkan/Renderer/RenderTarget/RenderTarget.hpp
         Internal/Editor/UIContext/ViewPortContext.hpp
         Internal/Editor/Editor.cpp
         Internal/Editor/Editor.hpp
@@ -161,7 +157,6 @@ set(SOURCES
         Internal/Editor/Views/ContentBrowser/ContentBrowser.hpp
         Internal/Vulkan/Utils/VPipelineBarriers.hpp
         Internal/Vulkan/Utils/VPipelineBarriers.cpp
-        Internal/Vulkan/Utils/VImageTransitionCommands.cpp
         Internal/Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.cpp
         Internal/Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp
         Internal/Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.cpp

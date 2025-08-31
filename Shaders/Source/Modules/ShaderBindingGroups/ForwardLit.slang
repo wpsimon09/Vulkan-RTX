@@ -21,6 +21,12 @@ ConstantBuffer<LightInfo> _lightInfo;
 [[vk::binding(4,0)]]
 Sampler2D _shadowMapScreenSpace;
 
+[[vk::binding(5,0)]]
+Sampler2D LTC;
+
+[[vk::binding(6,0)]]
+Sampler2D LTC_Inverse;
+
 
 //========================
 // set 1
@@ -36,3 +42,5 @@ ConstantBuffer<SamplerCube> PrefilterMap;
 
 [[vk::binding(4, 1)]]
 ConstantBuffer<Sampler2D> BRDF_Lut;
+
+

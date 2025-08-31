@@ -9,6 +9,7 @@
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
@@ -31,8 +32,8 @@ ForwardRender::ForwardRender(const VulkanCore::VDevice& device, ApplicationCore:
     //=====================================================================
     // Transparent Forward Lit (alpha blend / additive pass)
     //=====================================================================
-   // m_effects[EForwardRenderEffects::AplhaBlend] =
-   //     effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::AplhaBlend);
+    // m_effects[EForwardRenderEffects::AplhaBlend] =
+    //     effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::AplhaBlend);
     //;
 
     //=====================================================================
@@ -74,14 +75,16 @@ ForwardRender::ForwardRender(const VulkanCore::VDevice& device, ApplicationCore:
     };
 
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, lightPassCI));
-
 }
 void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
     for(auto& effect : m_effects)
     {
         auto& e = effect;
-        if (!e){continue;}
+        if(!e)
+        {
+            continue;
+        }
 
         //=========================
         // for each frame in flight
@@ -123,13 +126,16 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 e->WriteBuffer(currentFrame, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
 
                 // visibility buffer.
-                e->WriteImage(currentFrame, 0, 4, renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                e->WriteImage(currentFrame, 0, 4,
+                              renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                 // ltc
-                //e->WriteImage(currentFrame, 0, 5, MathUtils::LookUpTables.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                e->WriteImage(currentFrame, 0, 5,
+                              MathUtils::LookUpTables.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                 // ltc inverse
-                //e->WriteImage(currentFrame, 0, 6, MathUtils::LookUpTables.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+                e->WriteImage(currentFrame, 0, 6,
+                              MathUtils::LookUpTables.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                 break;
             }
@@ -173,7 +179,10 @@ void ForwardRender::Update(int                                   currentFrame,
 
         //=========================
         // for each frame in flight
-        if (!e){continue;}
+        if(!e)
+        {
+            continue;
+        }
         switch(e->GetBindingGroup())
         {
 
@@ -262,8 +271,11 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
     auto& cmdB = cmdBuffer.GetCommandBuffer();
 
 
-    m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                                                            vk::ImageLayout::eShaderReadOnlyOptimal);
+    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                                                vk::AccessFlagBits2::eShaderRead, vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                vk::AccessFlagBits2::eColorAttachmentWrite};
+    m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eAttachmentOptimal,
+                                                                            vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
 
 
     cmdB.beginRendering(&renderingInfo);
@@ -280,8 +292,8 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
     // UPDATE DESCRIPTOR SETS
     //=================================================
 
-    auto  currentVertexBuffer = renderContext->drawCalls.begin()->second.vertexData;
-    auto  currentIndexBuffer  = renderContext->drawCalls.begin()->second.indexData;
+    auto currentVertexBuffer = renderContext->drawCalls.begin()->second.vertexData;
+    auto currentIndexBuffer  = renderContext->drawCalls.begin()->second.indexData;
     auto currentEffect       = m_effects[(EForwardRenderEffects)renderContext->drawCalls.begin()->second.effect];
 
     vk::DeviceSize indexBufferOffset = 0;
@@ -367,12 +379,15 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
 
     cmdB.endRendering();
 
+    m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(
+        cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal, barrierPos.Switch());
 
-    m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                                            vk::ImageLayout::eColorAttachmentOptimal);
-
+    barrierPos = {vk::PipelineStageFlagBits2::eColorAttachmentOutput | vk::PipelineStageFlagBits2::eLateFragmentTests,
+                  vk::AccessFlagBits2::eColorAttachmentWrite | vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+                  vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                  vk::AccessFlagBits2::eShaderRead};
     renderContext->depthBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilReadOnlyOptimal,
-                                                      vk::ImageLayout::eDepthStencilAttachmentOptimal);
+                                                      vk::ImageLayout::eDepthStencilAttachmentOptimal, barrierPos);
 
     //m_renderingStatistics.DrawCallCount = drawCallCount;
 }

@@ -58,14 +58,15 @@ public struct AreaLight : ILightEnv {
     public bool TwoSided;
     public float2 padding;
     public float4 points[4];
-    Sampler2D LTC;
-    Sampler2D LTC_Inverse;
+
+    //public Sampler2D* LTC;
+    //public Sampler2D* LTC_Inverse;
 
 
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         if (isInuse) {
-            return (intensity.xyz * intensity.w).xyz * brdf.EvaluateByLTC(normalize(wo),g.shadingNormal,  g.shadingPosition, points, TwoSided, LTC, LTC_Inverse);
-            //return 0.f;
+      //      return (intensity.xyz * intensity.w).xyz * brdf.EvaluateByLTC(normalize(wo),g.shadingNormal,  g.shadingPosition, points, TwoSided, *LTC, *LTC_Inverse);
+            return 0.f;
         } else {
             return 0.f;
         }

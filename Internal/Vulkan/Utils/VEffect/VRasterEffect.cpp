@@ -4,7 +4,6 @@
 
 #include "VRasterEffect.hpp"
 #include "Vulkan/VulkanCore/Shader/VShader.hpp"
-#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 
 namespace VulkanUtils {

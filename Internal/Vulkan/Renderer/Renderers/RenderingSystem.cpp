@@ -16,7 +16,6 @@
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "RayTracing/RayTracer.hpp"
-#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
@@ -168,8 +167,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         case vk::Result::eErrorOutOfDateKHR: {
 
             m_swapChain->RecreateSwapChain();
-
-            m_uiRenderer->GetRenderTarget().HandleSwapChainResize(*m_swapChain);
+            m_uiRenderer->HandleSwapChainResize(*m_swapChain);
 
             m_renderingTimeLine[m_currentFrameIndex]->Reset();
             m_renderingTimeLine[m_currentFrameIndex]->CpuSignal(8);
@@ -264,7 +262,6 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
     //===========================================================
     // update render passes
-    m_postProcessingSystem->Update(m_currentFrameIndex,m_uniformBufferManager,  m_postProcessingContext);
     m_forwardRenderer->Update(m_currentFrameIndex, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext,
                               &m_postProcessingContext);
 
@@ -290,8 +287,10 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         m_postProcessingContext.toneMappingParameters->isRayTracing = true;
     }
 
+
     //========================================
     // Post processing
+    m_postProcessingSystem->Update(m_currentFrameIndex,m_uniformBufferManager,  m_postProcessingContext);
     m_postProcessingSystem->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_postProcessingContext);
     m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_currentFrameIndex), m_currentFrameIndex);
 

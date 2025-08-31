@@ -15,7 +15,7 @@
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 
 namespace Renderer {
-GBufferPass::GBufferPass(const VulkanCore::VDevice& device,ApplicationCore::EffectsLibrary& effectLibrary,  int width, int height)
+GBufferPass::GBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
     : RenderPass(device, width, height)
 {
 
@@ -50,7 +50,7 @@ GBufferPass::GBufferPass(const VulkanCore::VDevice& device,ApplicationCore::Effe
     };
     for(int i = 0; i < m_numGBufferAttachments; i++)
     {
-        m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device,gBufferAttachmentCI));
+        m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, gBufferAttachmentCI));
     }
 }
 
@@ -74,25 +74,31 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
     int drawCallCount = 0;
 
 
+    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead,
+                                                vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eColorAttachmentOutput ,
+                                                vk::AccessFlagBits2::eDepthStencilAttachmentWrite | vk::AccessFlagBits2::eColorAttachmentWrite};
     m_depthBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                vk::ImageLayout::eDepthStencilReadOnlyOptimal);
+                                         vk::ImageLayout::eDepthStencilReadOnlyOptimal, barrierPos);
 
     //=====================================
     // will loop through each render target
-    for (int i = 0; i < m_numGBufferAttachments; i++) {
-        m_renderTargets[i]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                                  vk::ImageLayout::eShaderReadOnlyOptimal);
+    for(int i = 0; i < m_numGBufferAttachments; i++)
+    {
+        barrierPos.dstPipelineStage = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
+        barrierPos.dstData          = vk::AccessFlagBits2::eColorAttachmentWrite;
+        m_renderTargets[i]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eAttachmentOptimal,
+                                                  vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
     }
 
     std::vector<vk::RenderingAttachmentInfo> depthPrePassColourAttachments = {
-        m_renderTargets[EGBufferAttachments::Position]->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
-                                                       vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
-        m_renderTargets[EGBufferAttachments::Normal]->GenerateAttachmentInfo(vk::ImageLayout::eColorAttachmentOptimal,
-                                                     vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
+        m_renderTargets[EGBufferAttachments::Position]->GenerateAttachmentInfo(
+            vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
+        m_renderTargets[EGBufferAttachments::Normal]->GenerateAttachmentInfo(
+            vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     auto depthPrePassDepthAttachment =
         m_depthBuffer->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
-                                                     vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
+                                              vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
 
     vk::RenderingInfo renderingInfo;
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
@@ -203,21 +209,26 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
         }
     }
     cmdB.endRendering();
-    for (int i = 0; i < m_numGBufferAttachments; i++) {
+    for(int i = 0; i < m_numGBufferAttachments; i++)
+    {
+        barrierPos = {vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eColorAttachmentWrite,
+                      vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                      vk::AccessFlagBits2::eShaderSampledRead};
         m_renderTargets[i]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                      vk::ImageLayout::eColorAttachmentOptimal);
+                                                  vk::ImageLayout::eColorAttachmentOptimal, barrierPos);
     }
 
-    VulkanUtils::PlaceImageMemoryBarrier(
-        m_depthBuffer->GetPrimaryImage(), cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
-        vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::PipelineStageFlagBits::eEarlyFragmentTests,
-        vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::AccessFlagBits::eDepthStencilAttachmentWrite,
-        vk::AccessFlagBits::eDepthStencilAttachmentRead);
-
+    /*
+    VulkanUtils::PlaceImageMemoryBarrier(m_depthBuffer->GetPrimaryImage(), cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                         vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::PipelineStageFlagBits::eEarlyFragmentTests,
+                                         vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+                                         vk::AccessFlagBits::eDepthStencilAttachmentRead);
+    */
     //m_renderingStatistics.DrawCallCount = drawCallCount;
 }
 
-RenderTarget2& GBufferPass::GetDepthAttachment() {
+RenderTarget2& GBufferPass::GetDepthAttachment()
+{
     return *m_depthBuffer;
 }
 

@@ -4,10 +4,8 @@
 
 #include "UserInterfaceRenderer.hpp"
 
-#include <Vulkan/Utils/VIimageTransitionCommands.hpp>
 
 #include "Vulkan/Global/GlobalVariables.hpp"
-#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
@@ -17,6 +15,8 @@
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 
 #include "Editor/UIContext/UIContext.hpp"
+#include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace Renderer {
@@ -29,7 +29,7 @@ UserInterfaceRenderer::UserInterfaceRenderer(const VulkanCore::VDevice&    devic
     , m_swapChain(swapChain)
 {
 
-    m_renderTarget = std::make_unique<Renderer::RenderTarget>(m_device, swapChain);
+    m_renderTarget = std::make_unique<Renderer::RenderTarget2>(m_device, swapChain);
     uiContext.Initialize(swapChain);
 }
 
@@ -40,23 +40,27 @@ void UserInterfaceRenderer::Render(int currentFrameIndex, uint32_t swapChainImag
     //==============================================
     // CREATE RENDER PASS INFO
     //==============================================
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex),
-                                                    vk::ImageLayout::eColorAttachmentOptimal,
-                                                    vk::ImageLayout::ePresentSrcKHR, cmdBuffer);
+    VulkanUtils::VBarrierPosition barrierPosition{{},
+                                                  {},
+                                                  vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                  vk::AccessFlagBits2::eColorAttachmentWrite};
+
+    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTarget->GetSwapChainImage(swapChainImageIndex), cmdBuffer,
+                                          vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eAttachmentOptimalKHR, barrierPosition);
 
     //==============================================
     // CREATE RENDER PASS INFO
     //==============================================
 
 
+    auto colourAttachment = m_renderTarget->GenerateAttachmentInfoForSwapChain(swapChainImageIndex);
     vk::RenderingInfo renderingInfo;
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
     renderingInfo.renderArea.extent    = vk::Extent2D(m_swapChain.GetExtent().width, m_swapChain.GetExtent().height);
     renderingInfo.layerCount           = 1;
     renderingInfo.colorAttachmentCount = 1;
-    renderingInfo.pColorAttachments    = &m_renderTarget->GetColourAttachmentOneSample(swapChainImageIndex);
-    ;
-    renderingInfo.pDepthAttachment = &m_renderTarget->GetDepthAttachment();
+    renderingInfo.pColorAttachments    = &colourAttachment;
+    renderingInfo.pDepthAttachment = {};
 
     //==============================================
     // START RENDER PASS
@@ -72,9 +76,13 @@ void UserInterfaceRenderer::Render(int currentFrameIndex, uint32_t swapChainImag
 
     cmdB.endRendering();
 
-    VulkanUtils::RecordImageTransitionLayoutCommand(m_renderTarget->GetColourImage(swapChainImageIndex),
-                                                    vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::eColorAttachmentOptimal,
-                                                    cmdB);
+    barrierPosition = {vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                  vk::AccessFlagBits2::eColorAttachmentWrite,
+                                                  vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                  vk::AccessFlagBits2::eColorAttachmentRead};
+    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTarget->GetSwapChainImage(swapChainImageIndex), cmdBuffer,
+                                          vk::ImageLayout::eAttachmentOptimalKHR, vk::ImageLayout::ePresentSrcKHR, barrierPosition);
+
     m_imguiInitializer.EndRender();
 
     //===========================
@@ -107,6 +115,10 @@ void UserInterfaceRenderer::Present(uint32_t                        swapChainIma
 }
 
 
+void UserInterfaceRenderer::HandleSwapChainResize(VulkanCore::VSwapChain& resizedSwapChain) {
+    m_renderTarget->Destroy();
+    m_renderTarget = std::make_unique<RenderTarget2>(m_device, resizedSwapChain);
+}
 void UserInterfaceRenderer::Destroy()
 {
 

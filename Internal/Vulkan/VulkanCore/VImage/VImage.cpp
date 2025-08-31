@@ -15,7 +15,6 @@
 #include "stb_image/stb_image.h"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
-#include "Vulkan/Utils/VIimageTransitionCommands.hpp"
 
 VulkanCore::VImage::VImage(const VulkanCore::VDevice&         device,
                            vk::Image                          image,
