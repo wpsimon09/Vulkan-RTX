@@ -181,6 +181,6 @@ VulkanUtils::VBarrierPosition VulkanUtils::EvaluateBarrierPositionFromUndefinedL
         return VImage_Undefined_ToGeneral;
 
     default:
-        throw std::runtime_error("Unsupported target layout in EvaluatePositionFromUndefinedLayout: " + ImageLayoutToString(targetLayout));
+        throw std::runtime_error("Unsupported target layout in EvaluatePositionFromUndefinedLayout: ");
     }
 }

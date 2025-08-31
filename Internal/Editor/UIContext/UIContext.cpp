@@ -28,7 +28,6 @@
 #include "Editor/EditorOptions.hpp"
 #include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
 #include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
-#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "ImGuiSpectrum/imgui_spectrum.h"
 

@@ -4,36 +4,36 @@
 
 #include "RenderTarget2.h"
 
-#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
+#include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace Renderer {
-RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2CreatInfo& createInfo)
+RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2CreatInfo& m_renderTargetInfo)
     : m_device(device)
-    , m_renderTargetInfo(createInfo)
+    , m_renderTargetInfo(m_renderTargetInfo)
 {
-
-    //==================================================
+     //==================================================
     // Creat main attachment image
     //==================================================
     VulkanCore::VImage2CreateInfo attachemtImageCI;
-    attachemtImageCI.format    = createInfo.format;
-    attachemtImageCI.height    = createInfo.heigh;
-    attachemtImageCI.width     = createInfo.width;
-    attachemtImageCI.layout    = createInfo.initialLayout;
-    attachemtImageCI.samples   = createInfo.multiSampled ? m_device.GetSampleCount() : vk::SampleCountFlagBits::e1;
+    attachemtImageCI.format    = m_renderTargetInfo.format;
+    attachemtImageCI.height    = m_renderTargetInfo.heigh;
+    attachemtImageCI.width     = m_renderTargetInfo.width;
+    attachemtImageCI.layout    = m_renderTargetInfo.initialLayout;
+    attachemtImageCI.samples   = m_renderTargetInfo.multiSampled ? m_device.GetSampleCount() : vk::SampleCountFlagBits::e1;
     attachemtImageCI.mipLevels = 1;
-    attachemtImageCI.aspecFlags = createInfo.isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-    if(createInfo.isDepth)
+    attachemtImageCI.aspecFlags = m_renderTargetInfo.isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+    if(m_renderTargetInfo.isDepth)
     {
-        assert(!createInfo.computeShaderOutput && "Depth image can not be storage image ");
+        assert(!m_renderTargetInfo.computeShaderOutput && "Depth image can not be storage image ");
         attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
     }
-    else if (createInfo.computeShaderOutput) {
-        assert(!createInfo.isDepth && "Storage image can not be depth buffer");
-        attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eStorage ;
+    else if(m_renderTargetInfo.computeShaderOutput)
+    {
+        assert(!m_renderTargetInfo.isDepth && "Storage image can not be depth buffer");
+        attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eStorage;
         attachemtImageCI.isStorage = true;
     }
     else
@@ -51,25 +51,34 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     //===================================
     auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
 
-    vk::ImageLayout initialLayout = createInfo.initialLayout;
+    vk::ImageLayout initialLayout = m_renderTargetInfo.initialLayout;
     // since barrier has to be either for colour or depth attachment, for evaluating its position
     // i have to define weather it is for depth or for colour
     // other than that i can use new vk::ImageLayout::eAttachmentOptimal
-    if (createInfo.initialLayout == vk::ImageLayout::eAttachmentOptimal) {
-        if (createInfo.isDepth){ initialLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal; }
-        else {initialLayout = vk::ImageLayout::eColorAttachmentOptimal;}
+    if(m_renderTargetInfo.initialLayout == vk::ImageLayout::eAttachmentOptimal)
+    {
+        if(m_renderTargetInfo.isDepth)
+        {
+            initialLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+        }
+        else
+        {
+            initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
+        }
     }
-    if (createInfo.initialLayout != vk::ImageLayout::eUndefined) {
+    if(m_renderTargetInfo.initialLayout != vk::ImageLayout::eUndefined)
+    {
 
         auto barrierPos = VulkanUtils::EvaluateBarrierPositionFromUndefinedLayout(initialLayout);
-        VulkanUtils::PlaceImageMemoryBarrier2(*m_primaryAttachment, cmdBuffer, vk::ImageLayout::eUndefined, createInfo.initialLayout, barrierPos );
+        VulkanUtils::PlaceImageMemoryBarrier2(*m_primaryAttachment, cmdBuffer, vk::ImageLayout::eUndefined,
+                                              m_renderTargetInfo.initialLayout, barrierPos);
     }
 
 
     //=================================================
     // Create resolve target image
     //=================================================
-    if(createInfo.multiSampled && createInfo.resolveMode != vk::ResolveModeFlagBits::eNone)
+    if(m_renderTargetInfo.multiSampled && m_renderTargetInfo.resolveMode != vk::ResolveModeFlagBits::eNone)
     {
         attachemtImageCI.samples = vk::SampleCountFlagBits::e1;
         m_resolvedAttachment     = std::make_unique<VulkanCore::VImage2>(m_device, attachemtImageCI);
@@ -77,11 +86,59 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
         //===================================
         // transition to specified layout
         //===================================
-        if (createInfo.initialLayout != vk::ImageLayout::eUndefined) {
-            VulkanUtils::PlaceImageMemoryBarrier2(*m_resolvedAttachment, cmdBuffer, vk::ImageLayout::eUndefined, createInfo.initialLayout, VulkanUtils::EvaluateBarrierPositionFromUndefinedLayout(initialLayout));
+        if(m_renderTargetInfo.initialLayout != vk::ImageLayout::eUndefined)
+        {
+            VulkanUtils::PlaceImageMemoryBarrier2(*m_resolvedAttachment, cmdBuffer, vk::ImageLayout::eUndefined,
+                                                  m_renderTargetInfo.initialLayout,
+                                                  VulkanUtils::EvaluateBarrierPositionFromUndefinedLayout(initialLayout));
         }
     }
 }
+
+
+RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain)
+    : m_device(device)
+    , m_isForSwapChain(true)
+{
+
+    m_swapChainImages.resize(swapChain.GetImageCount());
+    auto& swapChainImages = swapChain.GetSwapChainImages();
+    auto& swapChainExtent = swapChain.GetExtent();
+    auto& swapChainFormat = swapChain.GetSurfaceFormatKHR().format;
+
+    m_renderTargetInfo = {
+        static_cast<int>(swapChainExtent.width),
+        static_cast<int>(swapChainExtent.height),
+        false,
+        false,
+        swapChainFormat,
+        vk::ImageLayout::ePresentSrcKHR,
+        vk::ResolveModeFlagBits::eNone,
+    };
+
+    //==========================
+    // CREATE COLOUR ATTACHMENT
+    //==========================
+    VulkanCore::VImage2CreateInfo colourAttachmentCreateInfo;
+    colourAttachmentCreateInfo.format     = swapChainFormat;
+    colourAttachmentCreateInfo.height     = swapChainExtent.height;
+    colourAttachmentCreateInfo.width      = swapChainExtent.width;
+    colourAttachmentCreateInfo.mipLevels  = 1;
+    colourAttachmentCreateInfo.aspecFlags = vk::ImageAspectFlagBits::eColor;
+
+    for(int i = 0; i < swapChainImages.size(); i++)
+    {
+        m_swapChainImages[i] = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachmentCreateInfo, swapChainImages[i]);
+
+        VulkanUtils::PlaceImageMemoryBarrier2(*m_swapChainImages[i], device.GetTransferOpsManager().GetCommandBuffer(),
+                                              vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR,
+                                              VulkanUtils::VImage_Undefined_ToPresent);
+    }
+}
+
+
+
+
 vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfo(vk::ImageLayout layout, vk::AttachmentLoadOp loadOp, vk::AttachmentStoreOp storeOp)
 {
     bool                        shouldResolve = m_renderTargetInfo.resolveMode != vk::ResolveModeFlagBits::eNone;
@@ -123,6 +180,17 @@ vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfoFromResolvedIma
 
     return attachmentInfo;
 }
+vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfoForSwapChain(int swapChainImageIndex)
+{
+    assert(m_isForSwapChain && "Render target must be created with constructor that accepts swap chain as a parameter ! ");
+    vk::RenderingAttachmentInfo attachmentInfo(m_swapChainImages[swapChainImageIndex]->GetImageView(),
+                                               vk::ImageLayout::eColorAttachmentOptimal, vk::ResolveModeFlagBits::eNone,
+                                               {}, {},  // resolveImageView, resolveImageLayout
+                                               vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore,
+                                               vk::ClearValue{vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}});
+
+    return attachmentInfo;
+}
 
 VulkanCore::VImage2& RenderTarget2::GetPrimaryImage() const
 {
@@ -132,6 +200,7 @@ VulkanCore::VImage2& RenderTarget2::GetResolvedImage() const
 {
     return *m_resolvedAttachment;
 }
+VulkanCore::VImage2& RenderTarget2::GetSwapChainImage(int index) const {assert(m_isForSwapChain && "Render target is not for swap chain !"); return *m_swapChainImages[index];}
 
 uint32_t RenderTarget2::GetWidth()
 {
@@ -150,17 +219,10 @@ vk::ImageView RenderTarget2::GetResolvedImageView() const
 {
     return m_resolvedAttachment->GetImageView();
 }
-void RenderTarget2::TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout) const
-{
-    VulkanUtils::RecordImageTransitionLayoutCommand(*m_primaryAttachment, targetLayout, oldLayout, cmdBuffer);
-    if(m_resolvedAttachment)
-    {
-        VulkanUtils::RecordImageTransitionLayoutCommand(*m_resolvedAttachment, targetLayout, oldLayout, cmdBuffer);
-    }
-}
-void RenderTarget2::TransitionAttachments(VulkanCore::VCommandBuffer&   cmdBuffer,
-                                          vk::ImageLayout               targetLayout,
-                                          vk::ImageLayout               oldLayout,
+
+void RenderTarget2::TransitionAttachments(VulkanCore::VCommandBuffer&          cmdBuffer,
+                                          vk::ImageLayout                      targetLayout,
+                                          vk::ImageLayout                      oldLayout,
                                           const VulkanUtils::VBarrierPosition& barrierPosition)
 {
     VulkanUtils::PlaceImageMemoryBarrier2(*m_primaryAttachment, cmdBuffer, oldLayout, targetLayout, barrierPosition);
@@ -170,13 +232,24 @@ void RenderTarget2::TransitionAttachments(VulkanCore::VCommandBuffer&   cmdBuffe
     }
 }
 
+bool RenderTarget2::IsForSwapChain() const
+{
+    return m_isForSwapChain;
+}
+
 void RenderTarget2::Destroy()
 {
     m_primaryAttachment->Destroy();
     if(m_resolvedAttachment)
         m_resolvedAttachment->Destroy();
-}
 
+    if (!m_swapChainImages.empty()) {
+        for(const auto& swapChainImage: m_swapChainImages)
+        {
+            swapChainImage->Destroy();
+        }
+    }
+}
 
 RenderTarget2::~RenderTarget2() {}
 

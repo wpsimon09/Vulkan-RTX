@@ -95,6 +95,7 @@ static constexpr VBarrierPosition VRenderTarget_Color_ToPresent{vk::PipelineStag
                                                                 vk::AccessFlagBits2::eColorAttachmentWrite,
                                                                 vk::PipelineStageFlagBits2::eBottomOfPipe,
                                                                 {}};
+static constexpr VBarrierPosition VImage_Undefined_ToPresent{{}, {}, vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eColorAttachmentRead};
 
 static constexpr VBarrierPosition VImage_Undefined_ToColorAttachment{{},
                                                                      {},

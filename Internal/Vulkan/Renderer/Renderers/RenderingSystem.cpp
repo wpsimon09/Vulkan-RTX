@@ -16,7 +16,6 @@
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "RayTracing/RayTracer.hpp"
-#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
@@ -168,8 +167,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         case vk::Result::eErrorOutOfDateKHR: {
 
             m_swapChain->RecreateSwapChain();
-
-            m_uiRenderer->GetRenderTarget().HandleSwapChainResize(*m_swapChain);
+            m_uiRenderer->HandleSwapChainResize(*m_swapChain);
 
             m_renderingTimeLine[m_currentFrameIndex]->Reset();
             m_renderingTimeLine[m_currentFrameIndex]->CpuSignal(8);

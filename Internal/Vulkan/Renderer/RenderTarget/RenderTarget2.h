@@ -40,9 +40,11 @@ class RenderTarget2
     vk::RenderingAttachmentInfo GenerateAttachmentInfoFromResolvedImage(vk::ImageLayout       layout,
                                                                         vk::AttachmentLoadOp  loadOp,
                                                                         vk::AttachmentStoreOp storeOp);
+    vk::RenderingAttachmentInfo GenerateAttachmentInfoForSwapChain(int swapChainImageIndex);
 
     VulkanCore::VImage2& GetPrimaryImage() const;
     VulkanCore::VImage2& GetResolvedImage() const;
+    VulkanCore::VImage2& GetSwapChainImage(int index) const;
 
     uint32_t GetWidth();
     uint32_t GetHeight();
@@ -50,9 +52,12 @@ class RenderTarget2
     vk::ImageView GetPrimaryImageView() const;
     vk::ImageView GetResolvedImageView() const;
 
-    void TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout) const;
     void TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout,
                                const VulkanUtils::VBarrierPosition& barrierPosition);
+
+    void ResizeAttachments(int newWidth, int newHeight);
+
+    bool IsForSwapChain() const;
 
     void Destroy();
 
@@ -65,7 +70,11 @@ class RenderTarget2
     std::unique_ptr<VulkanCore::VImage2> m_primaryAttachment;
     std::unique_ptr<VulkanCore::VImage2> m_resolvedAttachment;
 
+    std::vector<std::unique_ptr<VulkanCore::VImage2>> m_swapChainImages;
     RenderTarget2CreatInfo m_renderTargetInfo;
+
+    bool m_isForSwapChain = false;
+
 };
 
 }  // namespace Renderer

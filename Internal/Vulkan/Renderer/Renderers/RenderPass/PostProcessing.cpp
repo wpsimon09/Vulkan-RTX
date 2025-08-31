@@ -344,7 +344,7 @@ void ToneMappingPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
                   vk::AccessFlagBits2::eColorAttachmentWrite};
 
     m_renderTargets[EToneMappingAttachments::LDR]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
-                                                                         vk::ImageLayout::eShaderReadOnlyOptimal);
+                                                                         vk::ImageLayout::eShaderReadOnlyOptimal, imageBarrierPos);
 
 
     std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_renderTargets[EToneMappingAttachments::LDR]->GenerateAttachmentInfo(

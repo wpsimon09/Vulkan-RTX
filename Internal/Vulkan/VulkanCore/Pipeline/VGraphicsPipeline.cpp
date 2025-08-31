@@ -13,7 +13,6 @@
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_core.h>
 
-#include "Vulkan/Renderer/RenderTarget/RenderTarget.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 

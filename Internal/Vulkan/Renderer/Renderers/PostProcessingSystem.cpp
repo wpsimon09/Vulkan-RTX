@@ -11,7 +11,6 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
-#include "Vulkan/Utils/VIimageTransitionCommands.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include <cstdint>
