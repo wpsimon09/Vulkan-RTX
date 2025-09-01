@@ -239,7 +239,9 @@ bool RenderTarget2::IsForSwapChain() const
 
 void RenderTarget2::Destroy()
 {
-    m_primaryAttachment->Destroy();
+    if (m_primaryAttachment) {
+        m_primaryAttachment->Destroy();
+    }
     if(m_resolvedAttachment)
         m_resolvedAttachment->Destroy();
 

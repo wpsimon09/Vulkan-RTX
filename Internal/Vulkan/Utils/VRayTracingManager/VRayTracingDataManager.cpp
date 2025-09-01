@@ -19,23 +19,29 @@ VRayTracingDataManager::VRayTracingDataManager(const VulkanCore::VDevice& device
     m_rayTracingBuilder = std::make_unique<VulkanCore::RTX::VRayTracingBuilderKHR>(device);
 }
 
-void                     VRayTracingDataManager::UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& blasInputs) {
+void VRayTracingDataManager::UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
+{
 
     // for now every instance will be every BLAS, i will have to later redo how scene is describing the
-    for (int i = 0; i < (int)blasInputs.size(); i++) {
+    for(int i = 0; i < (int)blasInputs.size(); ++i)
+    {
         m_instances[i].transform = VulkanCore::RTX::GlmToMatrix4KHR(blasInputs[i].transform);
     }
-    m_rayTracingBuilder->BuildTLAS(m_instances, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate, true);
-
+    m_rayTracingBuilder->BuildTLAS(m_instances,
+                                   vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
+                                       | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate,
+                                   true);
 }
 
-vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo() {
-    vk::DescriptorBufferInfo info {};
+vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo()
+{
+    vk::DescriptorBufferInfo info{};
     info.buffer = m_objDescriptionBuffer->GetBuffer();
-    info.range = vk::WholeSize;
+    info.range  = vk::WholeSize;
     return info;
 }
-void VRayTracingDataManager::Update(ApplicationCore::Scene& scene) {
+void VRayTracingDataManager::Update(ApplicationCore::Scene& scene)
+{
     if(scene.GetSceneUpdateFlags().rebuildAs)
     {
         auto blasInpu = scene.GetBLASInputs();
@@ -62,14 +68,16 @@ void VRayTracingDataManager::Update(ApplicationCore::Scene& scene) {
 
 void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
 {
-    if(blasInputs.empty()) return;
+    if(blasInputs.empty())
+        return;
     m_instances.clear();
     m_instances.shrink_to_fit();
     m_blasInputs.clear();
     m_blasInputs.shrink_to_fit();
     m_rtxObjectDescriptions.clear();
     m_rtxObjectDescriptions.shrink_to_fit();
-    if (m_objDescriptionBuffer) {
+    if(m_objDescriptionBuffer)
+    {
         m_objDescriptionBuffer->DestroyStagingBuffer();
         m_objDescriptionBuffer->Destroy();
     }
@@ -99,7 +107,8 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
         m_rtxObjectDescriptions.emplace_back(blasInputs[i].objDescription);
         i++;
     }
-    m_rayTracingBuilder->BuildTLAS(m_instances, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate );
+    m_rayTracingBuilder->BuildTLAS(m_instances, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
+                                                    | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate);
 
     //===============================================
     // create buffer that holds vertex data adresses
@@ -107,7 +116,6 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
     m_objDescriptionBuffer->CreateBufferAndPutDataOnDevice(
         m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(), m_rtxObjectDescriptions,
         vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer);
-
 }
 
 void VRayTracingDataManager::Destroy()
@@ -121,6 +129,9 @@ const vk::AccelerationStructureKHR& VRayTracingDataManager::GetTLAS()
 {
     return m_rayTracingBuilder->GetTLAS();
 }
-vk::AccelerationStructureKHR VRayTracingDataManager::GetTLASCpy() { return m_rayTracingBuilder->GetTLASCpy();}
+vk::AccelerationStructureKHR VRayTracingDataManager::GetTLASCpy()
+{
+    return m_rayTracingBuilder->GetTLASCpy();
+}
 
 }  // namespace VulkanUtils

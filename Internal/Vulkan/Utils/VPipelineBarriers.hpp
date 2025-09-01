@@ -26,23 +26,6 @@ struct VBarrierPosition
     VBarrierPosition Switch() const { return {dstPipelineStage, dstData, srcPipelineStage, srcData}; }
 };
 
-void PlaceImageMemoryBarrier(VulkanCore::VImage2&        image,
-                             VulkanCore::VCommandBuffer& commandBuffer,
-                             vk::ImageLayout             oldLayout,
-                             vk::ImageLayout             newLayout,
-                             vk::PipelineStageFlags      srcPipelineStage,
-                             vk::PipelineStageFlags      dstPipelineStage,
-                             vk::AccessFlags             srcData,
-                             vk::AccessFlags             dstData);
-
-void PlaceImageMemoryBarrier(VulkanCore::VImage2&              image,
-                             const VulkanCore::VCommandBuffer& commandBuffer,
-                             vk::ImageLayout                   oldLayout,
-                             vk::ImageLayout                   newLayout,
-                             vk::PipelineStageFlags            srcPipelineStage,
-                             vk::PipelineStageFlags            dstPipelineStage,
-                             vk::AccessFlags                   srcData,
-                             vk::AccessFlags                   dstData);
 
 void PlaceImageMemoryBarrier2(VulkanCore::VImage2&              image,
                               const VulkanCore::VCommandBuffer& commandBuffer,
@@ -59,8 +42,6 @@ void PlacePipelineBarrier(const VulkanCore::VCommandBuffer& cmdBuffer, vk::Pipel
  * @param dst stages to wait on
  * @todo Redo to the vulkan HPP style instead of the C style, this might require to turn on Snychronisation2 which I was gracefully ignoring :/
  */
-void PlaceAccelerationStructureMemoryBarrier(const vk::CommandBuffer& cmdBuffer, vk::AccessFlags src, vk::AccessFlags dst);
-
 void PlaceAccelerationStructureMemoryBarrier2(const vk::CommandBuffer& cmdBuffer, vk::AccessFlags2 src, vk::AccessFlags2 dst);
 
 void PlaceBufferMemoryBarrier(const vk::CommandBuffer& cmdBuffer,
