@@ -40,7 +40,7 @@ vk::TimelineSemaphoreSubmitInfo VTimelineSemaphore::GetTimeLineSemaphoreSubmitIn
     submitInfo.pSignalSemaphoreValues    = &m_currentSignal;
     return submitInfo;
 }
-vk::SemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreWaitSubmitInfo(uint64_t waitValue, vk::PipelineStageFlags2& waitStages)
+vk::SemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreWaitSubmitInfo(uint64_t waitValue, vk::PipelineStageFlags2 waitStages)
 {
     m_waitHistory.emplace_back(m_offset + waitValue);
 
@@ -54,7 +54,7 @@ vk::SemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreWaitSubmitInfo(uint64_t 
     return waitSubmitInfo;
 }
 
-vk::SemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreSignalSubmitInfo(uint64_t signalValue, vk::PipelineStageFlags2& signalStages)
+vk::SemaphoreSubmitInfo VTimelineSemaphore::GetSemaphoreSignalSubmitInfo(uint64_t signalValue, vk::PipelineStageFlags2 signalStages)
 {
 
     m_currentSignal = m_offset + signalValue;

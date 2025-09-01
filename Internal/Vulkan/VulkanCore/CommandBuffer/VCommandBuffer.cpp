@@ -141,8 +141,10 @@ void VCommandBuffer::EndAndFlush2(const vk::Queue&                            qu
     submitInfo.signalSemaphoreInfoCount = pSignalSemaphores.size();
     submitInfo.pSignalSemaphoreInfos = pSignalSemaphores.data();
 
-    submitInfo.waitSemaphoreInfoCount = pWaitSemaphores.size();
-    submitInfo.pWaitSemaphoreInfos = pWaitSemaphores.data();
+    if (!pWaitSemaphores.empty()) {
+        submitInfo.waitSemaphoreInfoCount = pWaitSemaphores.size();
+        submitInfo.pWaitSemaphoreInfos = pWaitSemaphores.data();
+    }
 
     auto queueResult = queue.submit2(1, &submitInfo, nullptr);
 

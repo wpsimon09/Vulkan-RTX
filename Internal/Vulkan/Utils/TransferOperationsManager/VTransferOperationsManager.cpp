@@ -37,16 +37,14 @@ void VTransferOperationsManager::UpdateGPU()
 {
     if(m_hasPandingWork)
     {
-        vk::PipelineStageFlags2 waitStages =
-            vk::PipelineStageFlagBits2::eVertexInput | vk::PipelineStageFlagBits2::eFragmentShader |
-            vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eCopy | vk::PipelineStageFlagBits2::eNone ;
+        vk::PipelineStageFlags2 signalStages = vk::PipelineStageFlagBits2::eTransfer | vk::PipelineStageFlagBits2::eCopy | vk::PipelineStageFlagBits2::eNone;
 
-        vk::PipelineStageFlags2 signalStages = vk::PipelineStageFlagBits2::eTransfer | vk::PipelineStageFlagBits2::eCopy;
+        std::vector<vk::SemaphoreSubmitInfo> signalSubmit = {m_transferTimeline->GetSemaphoreSignalSubmitInfo(2, signalStages)} ;
 
-        auto waitSubmit = m_transferTimeline->GetSemaphoreWaitSubmitInfo(0, waitStages);
-        auto signalSubmit = m_transferTimeline->GetSemaphoreSignalSubmitInfo(2, signalStages) ;
-
-        m_commandBuffer->EndAndFlush2(m_device.GetTransferQueue(), signalSubmit, waitSubmit);
+        /**
+         * Submits all the transfer work, like copyes as stuff, and only signals once it is finished it does not have to wait for any other semaphore
+         */
+        m_commandBuffer->EndAndFlush2(m_device.GetTransferQueue(), signalSubmit, {});
 
         m_hasPandingWork = false;
     }

@@ -48,7 +48,11 @@
 #include "imgui.h"
 #include <vulkan/vulkan_enums.hpp>
 
-
+/**
+ * DISCLAIMER:
+ * this class needs major refactor together with submitting transfer operations, but in the current time i have no idea
+ * how to go with this, so i am gona keep it as it is, because it works and does to job for now
+ */
 namespace Renderer {
 RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
                                  const VulkanCore::VDevice&           device,
@@ -221,7 +225,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     applicationState.GetGlobalRenderingInfo().isRayTracing = static_cast<int>(m_isRayTracing);
     m_uniformBufferManager.Update(m_currentFrameIndex, applicationState, m_renderContext.GetAllDrawCall());
 
-    m_device.GetTransferOpsManager().UpdateGPUWaitCPU();
+    m_device.GetTransferOpsManager().UpdateGPU();
 
     //=================================================
     // sort the draw calls based on the state chagnes
@@ -290,7 +294,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
     //========================================
     // Post processing
-    m_postProcessingSystem->Update(m_currentFrameIndex,m_uniformBufferManager,  m_postProcessingContext);
+    m_postProcessingSystem->Update(m_currentFrameIndex, m_uniformBufferManager, m_postProcessingContext);
     m_postProcessingSystem->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_postProcessingContext);
     m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_currentFrameIndex), m_currentFrameIndex);
 
@@ -298,53 +302,46 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     // UI Rendering
     m_uiRenderer->Render(m_currentFrameIndex, m_currentImageIndex, *m_renderingCommandBuffers[m_currentFrameIndex]);
 
-    m_renderingCommandBuffers[m_currentFrameIndex]->EndRecording();
-
     //=====================================================
     // SUBMIT RECORDED COMMAND BUFFER
     //=====================================================
-    vk::SubmitInfo submitInfo;
 
-    const std::vector<vk::Semaphore> waitSemaphores   = {m_transferSemapohore.GetSemaphore(),
-                                                         m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive()};
-    const std::vector<vk::Semaphore> signalSemaphores = {m_renderingTimeLine[m_currentFrameIndex]->GetSemaphore(),
-                                                         m_ableToPresentSemaphore[m_currentImageIndex]->GetSyncPrimitive()};
+    vk::SemaphoreSubmitInfo imageAvailableSubmitInfo = {
+        m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(),
+        {},
+        vk::PipelineStageFlagBits2::eColorAttachmentOutput | vk::PipelineStageFlagBits2::eNone,
+        {}, {}
 
-    std::vector<vk::PipelineStageFlags> waitStages = {
-        vk::PipelineStageFlagBits::eTransfer | vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
-        vk::PipelineStageFlagBits::eTransfer | vk::PipelineStageFlagBits::eColorAttachmentOutput,  // Render wait stage
-
-        // Transfer wait stage
+    };
+     /*
+      * Before we can render, we have to wait for 2 things:
+      * 1. all transfer operations have to be done
+      * 2. image to render into must be acquired from the swap chain
+      */
+    std::vector<vk::SemaphoreSubmitInfo> waitSemaphres = {
+        // wait until transfer is finished
+        m_transferSemapohore.GetSemaphoreWaitSubmitInfo(2, vk::PipelineStageFlagBits2::eVertexShader | vk::PipelineStageFlagBits2::eRayTracingShaderKHR),
+        // wait until image to present is awailable
+        imageAvailableSubmitInfo
     };
 
-    m_renderingTimeLine[m_currentFrameIndex]->SetWaitAndSignal(0, 8);  //
-    //m_transferSemapohore.SetWaitAndSignal(2, 4);
+    /*
+    * After the rendering is done we need to proceede to the next frame by signaling m_renderingTimelineSemaphore
+    * and informing presentation engine and UI renderer that the presentation can happen since rendering is done
+    */
 
-    const std::vector<uint64_t> waitValues = {2, /*transfer- wait*/ 4 /*able to present - binary*/};
-    const std::vector<uint64_t> signalVlaues = {m_renderingTimeLine[m_currentFrameIndex]->GetCurrentSignalValue() /*rendering signal*/,
-                                                7 /*able to present - binary*/};
+    vk::SemaphoreSubmitInfo ableToPresentSubmitInfo = {
+        m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive(),
+        {}, vk::PipelineStageFlagBits2::eAllCommands
+    };
+    std::vector<vk::SemaphoreSubmitInfo> signalSemaphores= {
+            // rendering timeline will signal 8 which means that new frame can start exectuing
+            m_renderingTimeLine[m_currentFrameIndex]->GetSemaphoreSignalSubmitInfo(8, vk::PipelineStageFlagBits2::eColorAttachmentOutput),
+            // able to present semaphore should be singaled once rendering is finished
+           ableToPresentSubmitInfo
+    };
 
-    vk::TimelineSemaphoreSubmitInfo timelineinfo;
-    timelineinfo.waitSemaphoreValueCount = waitValues.size();
-    timelineinfo.pWaitSemaphoreValues    = waitValues.data();
-
-    timelineinfo.signalSemaphoreValueCount = signalVlaues.size();
-    timelineinfo.pSignalSemaphoreValues    = signalVlaues.data();
-
-    submitInfo.pNext              = &timelineinfo;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers    = &m_renderingCommandBuffers[m_currentFrameIndex]->GetCommandBuffer();
-
-    submitInfo.signalSemaphoreCount = signalSemaphores.size();
-    submitInfo.pSignalSemaphores    = signalSemaphores.data();
-
-    submitInfo.waitSemaphoreCount = waitSemaphores.size();
-    submitInfo.pWaitSemaphores    = waitSemaphores.data();
-
-    submitInfo.pWaitDstStageMask = waitStages.data();
-
-    auto result = m_device.GetGraphicsQueue().submit(1, &submitInfo, nullptr);
-    assert(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
+    m_renderingCommandBuffers[m_currentFrameIndex]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
 
     m_uiRenderer->Present(m_currentImageIndex, *m_renderingTimeLine[m_currentFrameIndex],
                           m_ableToPresentSemaphore[m_currentImageIndex]->GetSyncPrimitive());
