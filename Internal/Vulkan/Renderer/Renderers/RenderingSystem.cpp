@@ -66,7 +66,6 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
     , m_renderContext()
     , m_uiContext(uiContext)
     , m_descLayoutCache(descLayoutCache)
-    , m_transferSemapohore(device.GetTransferOpsManager().GetTransferSemaphore())
     , m_effectsLibrary(&effectsLybrary)
     , m_rayTracingDataManager(rayTracingDataManager)
 
@@ -80,13 +79,13 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
     //------------------------------------------------------------------------------------------------------------------------
     // CREATE SYNCHRONIZATION PRIMITIVES and Command buffers
     //------------------------------------------------------------------------------------------------------------------------
-    m_renderingTimeLine.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_frameTimeLine.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_imageAvailableSemaphores.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_renderingCommandBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_renderingTimeLine[i]        = std::make_unique<VulkanCore::VTimelineSemaphore>(m_device, 8);
+        m_frameTimeLine[i]            = std::make_unique<VulkanCore::VTimelineSemaphore>(m_device, 8);
         m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_renderingCommandBuffers[i]  = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_renderingCommandPool);
     }
@@ -144,58 +143,20 @@ void RenderingSystem::Init()
     }
 }
 
-void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState)
+
+void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState)
 {
 
-    m_renderingTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
+    m_frameTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
 
-
-    m_sceneLightInfo = &applicationState.GetSceneLightInfo();
-    //=================================================
-    // GET SWAP IMAGE INDEX
-    //=================================================
-    auto imageIndex = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
+    m_acquiredImage = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
                                                                 *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
 
-    if(applicationState.IsWindowResized())
-    {
-        imageIndex.first = vk::Result::eErrorOutOfDateKHR;
-    }
-    switch(imageIndex.first)
-    {
-        case vk::Result::eSuccess: {
-            m_currentImageIndex = imageIndex.second;
-            Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
-            break;
-        }
-        case vk::Result::eErrorOutOfDateKHR: {
-
-            m_swapChain->RecreateSwapChain();
-            m_uiRenderer->HandleSwapChainResize(*m_swapChain);
-
-            m_renderingTimeLine[m_currentFrameIndex]->Reset();
-            m_renderingTimeLine[m_currentFrameIndex]->CpuSignal(8);
-            // to silent validation layers i will recreate the semaphore
-            m_ableToPresentSemaphore[m_currentImageIndex]->Destroy();
-            m_ableToPresentSemaphore[m_currentImageIndex] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
-
-
-            return;
-        }
-        case vk::Result::eSuboptimalKHR: {
-            m_currentImageIndex = imageIndex.second;
-            break;
-            //m_swapChain->RecreateSwapChain();
-            //return;
-        };
-        default:
-            break;
-    }
-
-
-    m_renderingTimeLine[m_currentFrameIndex]->Reset();
+    m_frameTimeLine[m_currentFrameIndex]->Reset();
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
     m_frameCount++;
+
+    m_sceneLightInfo = &applicationState.GetSceneLightInfo();
 
 
     if(applicationState.GetSceneUpdateFlags().resetAccumulation)
@@ -220,12 +181,13 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         applicationState.GetGlobalRenderingInfo().numberOfFrames = m_frameCount;
     }
 
+
     //=====================================================================
     // IMPORTANT: this sends all data accumulated over the frame to the GPU
     applicationState.GetGlobalRenderingInfo().isRayTracing = static_cast<int>(m_isRayTracing);
     m_uniformBufferManager.Update(m_currentFrameIndex, applicationState, m_renderContext.GetAllDrawCall());
+    m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_currentFrameIndex]);
 
-    m_device.GetTransferOpsManager().UpdateGPU();
 
     //=================================================
     // sort the draw calls based on the state chagnes
@@ -238,7 +200,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     if(m_sceneLightInfo->environmentLight != nullptr)
         if(m_sceneLightInfo->environmentLight->hdrImage->IsAvailable())
             m_envLightGenerator->Generate(m_currentFrameIndex, m_sceneLightInfo->environmentLight->hdrImage->GetHandle(),
-                                          *m_renderingTimeLine[m_currentFrameIndex]);
+                                          *m_frameTimeLine[m_currentFrameIndex]);
     //====================================================================
     // pass necessary data to the rendering context
     m_renderContext.hdrCubeMap    = m_envLightGenerator->GetCubeMapRaw();
@@ -249,25 +211,68 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     m_renderContext.deltaTime     = ImGui::GetIO().DeltaTime;
     m_renderContext.tlas          = m_rayTracingDataManager.GetTLAS();
 
-
-    //============================================================
-    // start recording command buffer that will render the scene
-    m_renderingCommandBuffers[m_currentFrameIndex]->BeginRecording();
-
     //==================================================
-    // Fill in different contexts with parameters
-    m_postProcessingContext.toneMappingParameters = &m_uniformBufferManager.GetApplicationState()->GetToneMappingParameters();
-    m_postProcessingContext.lensFlareParameters = &m_uniformBufferManager.GetApplicationState()->GetLensFlareParameters();
-    m_postProcessingContext.luminanceHistrogramParameters =
-        &m_uniformBufferManager.GetApplicationState()->GetLuminanceHistogramParameters();
-    m_postProcessingContext.luminanceAverageParameters =
-        &m_uniformBufferManager.GetApplicationState()->GetLuminanceAverageParameters();
-    m_postProcessingContext.deltaTime = ImGui::GetIO().DeltaTime;
+    // Pass parameters to the post processing context
+    m_postProcessingContext.toneMappingParameters         = &applicationState.GetToneMappingParameters();
+    m_postProcessingContext.lensFlareParameters           = &applicationState.GetLensFlareParameters();
+    m_postProcessingContext.luminanceHistrogramParameters = &applicationState.GetLuminanceHistogramParameters();
+    m_postProcessingContext.luminanceAverageParameters    = &applicationState.GetLuminanceAverageParameters();
+    m_postProcessingContext.deltaTime                     = ImGui::GetIO().DeltaTime;
 
     //===========================================================
     // update render passes
     m_forwardRenderer->Update(m_currentFrameIndex, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext,
                               &m_postProcessingContext);
+}
+
+
+void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState)
+{
+
+    //=================================================
+    // GET SWAP IMAGE INDEX
+    //=================================================
+    auto imageIndex = m_acquiredImage;
+
+    if(applicationState.IsWindowResized())
+    {
+        imageIndex.first = vk::Result::eErrorOutOfDateKHR;
+    }
+    switch(imageIndex.first)
+    {
+        case vk::Result::eSuccess: {
+            m_currentImageIndex = imageIndex.second;
+            Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
+            break;
+        }
+        case vk::Result::eErrorOutOfDateKHR: {
+
+            m_swapChain->RecreateSwapChain();
+            m_uiRenderer->HandleSwapChainResize(*m_swapChain);
+
+            m_frameTimeLine[m_currentFrameIndex]->Reset();
+            m_frameTimeLine[m_currentFrameIndex]->CpuSignal(8);
+            // to silent validation layers i will recreate the semaphore
+            m_ableToPresentSemaphore[m_currentImageIndex]->Destroy();
+            m_ableToPresentSemaphore[m_currentImageIndex] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+
+
+            return;
+        }
+        case vk::Result::eSuboptimalKHR: {
+            m_currentImageIndex = imageIndex.second;
+            break;
+            //m_swapChain->RecreateSwapChain();
+            //return;
+        };
+        default:
+            break;
+    }
+
+
+    //============================================================
+    // start recording command buffer that will render the scene
+    m_renderingCommandBuffers[m_currentFrameIndex]->BeginRecording();
 
     //===================================================
     // ACTUAL RENDERING IS TRIGGERED HERE
@@ -307,43 +312,34 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     //=====================================================
 
     vk::SemaphoreSubmitInfo imageAvailableSubmitInfo = {
-        m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(),
-        {},
-        vk::PipelineStageFlagBits2::eColorAttachmentOutput | vk::PipelineStageFlagBits2::eNone,
-        {}, {}
-
-    };
-     /*
+        m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eAllCommands, {}, {}};
+    /*
       * Before we can render, we have to wait for 2 things:
       * 1. all transfer operations have to be done
       * 2. image to render into must be acquired from the swap chain
       */
     std::vector<vk::SemaphoreSubmitInfo> waitSemaphres = {
         // wait until transfer is finished
-        m_transferSemapohore.GetSemaphoreWaitSubmitInfo(2, vk::PipelineStageFlagBits2::eVertexShader | vk::PipelineStageFlagBits2::eRayTracingShaderKHR),
+        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreWaitSubmitInfo(5, vk::PipelineStageFlagBits2::eVertexShader
+                                                                                | vk::PipelineStageFlagBits2::eRayTracingShaderKHR),
         // wait until image to present is awailable
-        imageAvailableSubmitInfo
-    };
+        imageAvailableSubmitInfo};
 
     /*
     * After the rendering is done we need to proceede to the next frame by signaling m_renderingTimelineSemaphore
     * and informing presentation engine and UI renderer that the presentation can happen since rendering is done
     */
-
     vk::SemaphoreSubmitInfo ableToPresentSubmitInfo = {
-        m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive(),
-        {}, vk::PipelineStageFlagBits2::eAllCommands
-    };
-    std::vector<vk::SemaphoreSubmitInfo> signalSemaphores= {
-            // rendering timeline will signal 8 which means that new frame can start exectuing
-            m_renderingTimeLine[m_currentFrameIndex]->GetSemaphoreSignalSubmitInfo(8, vk::PipelineStageFlagBits2::eColorAttachmentOutput),
-            // able to present semaphore should be singaled once rendering is finished
-           ableToPresentSubmitInfo
-    };
+        m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eAllCommands};
+    std::vector<vk::SemaphoreSubmitInfo> signalSemaphores = {
+        // rendering timeline will signal 8 which means that new frame can start exectuing
+        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreSignalSubmitInfo(8, vk::PipelineStageFlagBits2::eAllCommands),
+        // able to present semaphore should be singaled once rendering is finished
+        ableToPresentSubmitInfo};
 
     m_renderingCommandBuffers[m_currentFrameIndex]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
 
-    m_uiRenderer->Present(m_currentImageIndex, *m_renderingTimeLine[m_currentFrameIndex],
+    m_uiRenderer->Present(m_currentImageIndex, *m_frameTimeLine[m_currentFrameIndex],
                           m_ableToPresentSemaphore[m_currentImageIndex]->GetSyncPrimitive());
 
     m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
@@ -351,18 +347,18 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     m_renderContext.hasSceneChanged = false;
 }
 
-void RenderingSystem::Update()
+
+void RenderingSystem::PostRender()
 {
     m_renderContext.ResetAllDrawCalls();
     m_uiContext.m_isRayTracing = m_isRayTracing;
 }
-
 void RenderingSystem::Destroy()
 {
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_imageAvailableSemaphores[i]->Destroy();
-        m_renderingTimeLine[i]->Destroy();
+        m_frameTimeLine[i]->Destroy();
     }
     for(int i = 0; i < m_swapChain->GetImageCount(); i++)
     {

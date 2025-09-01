@@ -15,7 +15,6 @@ VTransferOperationsManager::VTransferOperationsManager(const VulkanCore::VDevice
     : m_device(device)
 {
     m_commandBuffer    = std::make_unique<VulkanCore::VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
-    m_transferTimeline = std::make_unique<VulkanCore::VTimelineSemaphore>(m_device);
 }
 
 VulkanCore::VCommandBuffer& VTransferOperationsManager::GetCommandBuffer()
@@ -33,33 +32,26 @@ void VTransferOperationsManager::StartRecording()
     }
 }
 
-void VTransferOperationsManager::UpdateGPU()
+void VTransferOperationsManager::UpdateGPU(VulkanCore::VTimelineSemaphore& frameSemaphore)
 {
-    if(m_hasPandingWork)
-    {
-        vk::PipelineStageFlags2 signalStages = vk::PipelineStageFlagBits2::eTransfer | vk::PipelineStageFlagBits2::eCopy | vk::PipelineStageFlagBits2::eNone;
+    vk::PipelineStageFlags2 signalStages = vk::PipelineStageFlagBits2::eAllCommands;
 
-        std::vector<vk::SemaphoreSubmitInfo> signalSubmit = {m_transferTimeline->GetSemaphoreSignalSubmitInfo(2, signalStages)} ;
+    std::vector<vk::SemaphoreSubmitInfo> signalSubmit = {frameSemaphore.GetSemaphoreSignalSubmitInfo(6, signalStages)} ;
 
-        /**
-         * Submits all the transfer work, like copyes as stuff, and only signals once it is finished it does not have to wait for any other semaphore
-         */
-        m_commandBuffer->EndAndFlush2(m_device.GetTransferQueue(), signalSubmit, {});
+    /**
+     * Submits all the transfer work, like copyes as stuff, and only signals once it is finished it does not have to wait for any other semaphore
+     */
+    m_commandBuffer->EndAndFlush2(m_device.GetTransferQueue(), signalSubmit, {});
 
-        m_hasPandingWork = false;
-    }
-    else
-    {
-        m_transferTimeline->CpuSignal(2);
-    }
+    m_hasPandingWork = false;
+
 }
 
-void VTransferOperationsManager::UpdateGPUWaitCPU(bool startRecording)
+void VTransferOperationsManager::UpdateGPUWaitCPU( VulkanCore::VTimelineSemaphore& frameSemaphore, bool startRecording)
 {
-    UpdateGPU();
-    m_transferTimeline->CpuWaitIdle(2);
+    UpdateGPU(frameSemaphore);
+    frameSemaphore.CpuWaitIdle(2);
     m_commandBuffer->Reset();
-    m_transferTimeline->Reset();
 
     if(startRecording)
     {
@@ -103,6 +95,5 @@ void VTransferOperationsManager::DestroyBuffer(VulkanCore::VBuffer& vBuffer, boo
 void VTransferOperationsManager::Destroy()
 {
     ClearResources();
-    m_transferTimeline->Destroy();
 }
 }  // namespace VulkanUtils

@@ -78,7 +78,8 @@ class RenderingSystem
 
     void Init();
     void Render(ApplicationCore::ApplicationState& applicationState);
-    void Update();
+    void Update(ApplicationCore::ApplicationState& applicationState);
+    void PostRender();
     void Destroy();
 
     ForwardRenderer&            GetSceneRenderer() { return *m_forwardRenderer; };
@@ -111,8 +112,7 @@ class RenderingSystem
     // Synchronization
     std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
     std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_ableToPresentSemaphore;
-    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>>            m_renderingTimeLine;
-    VulkanCore::VTimelineSemaphore&                                         m_transferSemapohore;
+    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>>            m_frameTimeLine;
 
 
     // Render context
@@ -125,6 +125,7 @@ class RenderingSystem
     uint32_t m_currentFrameIndex      = 0;
     uint64_t m_frameCount             = 0;
     uint64_t m_accumulatedFramesCount = 0;
+    std::pair<vk::Result, uint32_t> m_acquiredImage;
     bool     m_isRayTracing           = false;
 
     VulkanCore::VDescriptorLayoutCache& m_descLayoutCache;

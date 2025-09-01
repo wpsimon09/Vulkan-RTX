@@ -141,12 +141,11 @@ void Application::Init()
 
     ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 
-    m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU(true);
+    //m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU(true);
     m_client->GetScene().Update();
-    auto inputs = m_client->GetScene().GetBLASInputs();
-    m_rayTracingDataManager->InitAs(inputs);
+    m_client->GetApplicationState().GetSceneUpdateFlags().rebuildAs = true;
 
-    m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU();
+    //m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU();
 
     m_effectsLibrary->ConfigureDescriptorWrites(m_renderingSystem->GetSceneRenderer(), *m_uniformBufferManager, *m_rayTracingDataManager);
 
@@ -208,11 +207,14 @@ void Application::Update()
     m_rayTracingDataManager->Update(m_client->GetScene());
 
     m_client->GetApplicationState().SetIsWindowResized(m_windowManager->GetHasResized());
+
+    m_client->GetAssetsManager().Sync();
+
+    m_renderingSystem->Update(m_client->GetApplicationState());
 }
 
 void Application::Render()
 {
-    m_client->GetAssetsManager().Sync();
 
     m_client->Render(m_renderingSystem->GetRenderContext());
 
@@ -220,14 +222,15 @@ void Application::Render()
 
     m_renderingSystem->Render(m_client->GetApplicationState());
 
-    m_renderingSystem->Update();
 }
 
 void Application::PostRender()
 {
+    m_renderingSystem->PostRender();
     m_vulkanDevice->GetTransferOpsManager().ClearResources();
     m_client->GetScene().Reset();
     m_client->GetApplicationState().Reset();
+
 }
 
 Application::~Application()
