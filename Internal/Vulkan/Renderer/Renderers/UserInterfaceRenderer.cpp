@@ -77,9 +77,7 @@ void UserInterfaceRenderer::Render(int currentFrameIndex, uint32_t swapChainImag
     cmdB.endRendering();
 
     barrierPosition = {vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-                                                  vk::AccessFlagBits2::eColorAttachmentWrite,
-                                                  vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-                                                  vk::AccessFlagBits2::eColorAttachmentRead};
+                                                  vk::AccessFlagBits2::eColorAttachmentWrite};
     VulkanUtils::PlaceImageMemoryBarrier2(m_renderTarget->GetSwapChainImage(swapChainImageIndex), cmdBuffer,
                                           vk::ImageLayout::eAttachmentOptimalKHR, vk::ImageLayout::ePresentSrcKHR, barrierPosition);
 

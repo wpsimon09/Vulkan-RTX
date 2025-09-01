@@ -119,8 +119,8 @@ void VulkanCore::RTX::AccelerationStructBuildData::CmdUpdateAs(const vk::Command
     cmdBuffer.buildAccelerationStructuresKHR(1, &asBuildInfo, &rangeInfo, dispatchLoader);
 
     // since noe scratch buffer is used, place memory barrier to ensure proper synchronization
-    VulkanUtils::PlaceAccelerationStructureMemoryBarrier(cmdBuffer, vk::AccessFlagBits::eAccelerationStructureWriteKHR,
-                                                         vk::AccessFlagBits::eAccelerationStructureReadKHR);
+    VulkanUtils::PlaceAccelerationStructureMemoryBarrier2(cmdBuffer, vk::AccessFlagBits2::eAccelerationStructureWriteKHR,
+                                                         vk::AccessFlagBits2::eAccelerationStructureReadKHR);
 }
 void VulkanCore::RTX::AccelerationStructBuildData::CmdBuildAs(const vk::CommandBuffer&                 cmdBuffer,
                                                               vk::AccelerationStructureKHR             as,
@@ -142,6 +142,6 @@ void VulkanCore::RTX::AccelerationStructBuildData::CmdBuildAs(const vk::CommandB
     cmdBuffer.buildAccelerationStructuresKHR(1, &asBuildInfo, &rangeInfo, dispatch_loader);
 
     // since noe scratch buffer is used, place memory barrier to ensure proper synchronization
-    VulkanUtils::PlaceAccelerationStructureMemoryBarrier(cmdBuffer, vk::AccessFlagBits::eAccelerationStructureWriteKHR,
-                                                         vk::AccessFlagBits::eAccelerationStructureReadKHR);
+    VulkanUtils::PlaceAccelerationStructureMemoryBarrier2(cmdBuffer, vk::AccessFlagBits2::eAccelerationStructureWriteKHR,
+                                                         vk::AccessFlagBits2::eAccelerationStructureReadKHR);
 }

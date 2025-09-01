@@ -281,8 +281,8 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
                                                                 m_device.DispatchLoader);
 
     // wait until all operations are completed...
-    VulkanUtils::PlaceAccelerationStructureMemoryBarrier(cmdBuffer.GetCommandBuffer(), vk::AccessFlagBits::eAccelerationStructureWriteKHR,
-                                                         vk::AccessFlagBits::eAccelerationStructureReadKHR);
+    VulkanUtils::PlaceAccelerationStructureMemoryBarrier2(cmdBuffer.GetCommandBuffer(), vk::AccessFlagBits2::eAccelerationStructureWriteKHR,
+                                                         vk::AccessFlagBits2::eAccelerationStructureReadKHR);
 
     if(m_queryPool)
     {

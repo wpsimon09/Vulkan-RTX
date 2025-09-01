@@ -51,14 +51,19 @@ void VGrowableBuffer::Remove(vk::DeviceSize offset, vk::DeviceSize size, OnBuffe
 
     VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer, m_scratchBuffer.m_stagingBufferVK, tailSize, tailOffset);
 
-    VulkanUtils::PlaceBufferMemoryBarrier(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK,
-         vk::AccessFlagBits::eTransferWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead, vk::PipelineStageFlagBits::eTransfer);
+    VulkanUtils::VBarrierPosition barrierPos = {
+        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
+        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferRead,
+    };
+    VulkanUtils::PlaceBufferMemoryBarrier2(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK,barrierPos);
 
     VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, m_handle.buffer, tailSize, 0, offset );
 
-
-   VulkanUtils::PlaceBufferMemoryBarrier(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer,
-        vk::AccessFlagBits::eTransferWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead, vk::PipelineStageFlagBits::eTransfer);
+    barrierPos = {
+        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
+        vk::PipelineStageFlagBits2::eVertexShader | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR, vk::AccessFlagBits2::eTransferRead,
+    };
+    VulkanUtils::PlaceBufferMemoryBarrier2(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer,barrierPos);
 
     ClearUpStaging();
 
