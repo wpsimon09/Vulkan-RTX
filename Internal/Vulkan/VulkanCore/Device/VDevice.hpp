@@ -88,6 +88,8 @@ class VDevice : public VObject
 
     vk::detail::DispatchLoaderDynamic DispatchLoader;
 
+    mutable uint32_t CurrentFrame = 0;
+
   private:
     vk::PhysicalDevice m_physicalDevice;
     vk::Device         m_device;  //logical device

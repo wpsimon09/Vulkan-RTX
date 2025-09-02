@@ -32,7 +32,7 @@ class VTransferOperationsManager
     VulkanCore::VCommandBuffer& GetCommandBuffer();
     void                        StartRecording();
     void                        UpdateGPU(VulkanCore::VTimelineSemaphore& frameSemaphore);
-    void                        UpdateGPUWaitCPU(VulkanCore::VTimelineSemaphore& frameSemaphore ,bool startRecording = false);
+    void UpdateGPUWaitCPU(VulkanCore::VTimelineSemaphore& frameSemaphore, bool startRecording = false);
 
     void ClearResources();
 
@@ -42,9 +42,9 @@ class VTransferOperationsManager
     void Destroy();
 
   private:
-    bool                                            m_hasPandingWork = false;
-    const VulkanCore::VDevice&                      m_device;
-    std::unique_ptr<VulkanCore::VCommandBuffer>     m_commandBuffer;
+    bool                                                     m_hasPandingWork = false;
+    const VulkanCore::VDevice&                               m_device;
+    std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_commandBuffer;
 
     std::vector<std::pair<VkBuffer, VmaAllocation>>    m_clearBuffersVKVMA;
     std::vector<std::pair<bool, VulkanCore::VBuffer*>> m_clearVBuffers;

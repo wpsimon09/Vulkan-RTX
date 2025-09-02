@@ -150,10 +150,12 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
     m_frameTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
 
     m_acquiredImage = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
-                                                                *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
+
+    *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
+
+    m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
 
     m_frameTimeLine[m_currentFrameIndex]->Reset();
-    m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
     m_frameCount++;
 
     m_sceneLightInfo = &applicationState.GetSceneLightInfo();
@@ -229,7 +231,7 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
 void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState)
 {
 
-    //=================================================
+    //=================================================2080204129
     // GET SWAP IMAGE INDEX
     //=================================================
     auto imageIndex = m_acquiredImage;
@@ -343,6 +345,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
                           m_ableToPresentSemaphore[m_currentImageIndex]->GetSyncPrimitive());
 
     m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
+    m_device.CurrentFrame = m_currentFrameIndex;
 
     m_renderContext.hasSceneChanged = false;
 }

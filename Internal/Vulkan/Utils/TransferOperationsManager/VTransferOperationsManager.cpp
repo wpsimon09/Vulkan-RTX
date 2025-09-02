@@ -14,21 +14,25 @@ namespace VulkanUtils {
 VTransferOperationsManager::VTransferOperationsManager(const VulkanCore::VDevice& device)
     : m_device(device)
 {
-    m_commandBuffer    = std::make_unique<VulkanCore::VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
+    m_commandBuffer.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        m_commandBuffer[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
+    }
 }
 
 VulkanCore::VCommandBuffer& VTransferOperationsManager::GetCommandBuffer()
 {
     m_hasPandingWork = true;
-    return *m_commandBuffer;
+    return *m_commandBuffer[m_device.CurrentFrame];
 }
 
 void VTransferOperationsManager::StartRecording()
 {
     m_hasPandingWork = true;
-    if(!m_commandBuffer->GetIsRecording())
+    if(!m_commandBuffer[m_device.CurrentFrame]->GetIsRecording())
     {
-        m_commandBuffer->BeginRecording();
+        m_commandBuffer[m_device.CurrentFrame]->BeginRecording();
     }
 }
 
@@ -36,22 +40,21 @@ void VTransferOperationsManager::UpdateGPU(VulkanCore::VTimelineSemaphore& frame
 {
     vk::PipelineStageFlags2 signalStages = vk::PipelineStageFlagBits2::eAllCommands;
 
-    std::vector<vk::SemaphoreSubmitInfo> signalSubmit = {frameSemaphore.GetSemaphoreSignalSubmitInfo(6, signalStages)} ;
+    std::vector<vk::SemaphoreSubmitInfo> signalSubmit = {frameSemaphore.GetSemaphoreSignalSubmitInfo(6, signalStages)};
 
     /**
      * Submits all the transfer work, like copyes as stuff, and only signals once it is finished it does not have to wait for any other semaphore
      */
-    m_commandBuffer->EndAndFlush2(m_device.GetTransferQueue(), signalSubmit, {});
+    m_commandBuffer[m_device.CurrentFrame]->EndAndFlush2(m_device.GetTransferQueue(), signalSubmit, {});
 
     m_hasPandingWork = false;
-
 }
 
-void VTransferOperationsManager::UpdateGPUWaitCPU( VulkanCore::VTimelineSemaphore& frameSemaphore, bool startRecording)
+void VTransferOperationsManager::UpdateGPUWaitCPU(VulkanCore::VTimelineSemaphore& frameSemaphore, bool startRecording)
 {
     UpdateGPU(frameSemaphore);
     frameSemaphore.CpuWaitIdle(2);
-    m_commandBuffer->Reset();
+    m_commandBuffer[m_device.CurrentFrame]->Reset();
 
     if(startRecording)
     {
