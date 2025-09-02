@@ -10,6 +10,7 @@
 #include "Application/Structs/ApplicationStructs.hpp"
 
 namespace VulkanCore {
+class VTimelineSemaphore2;
 class VBuffer;
 class VTimelineSemaphore;
 class VCommandBuffer;
@@ -31,7 +32,7 @@ class VTransferOperationsManager
 
     VulkanCore::VCommandBuffer& GetCommandBuffer();
     void                        StartRecording();
-    void                        UpdateGPU(VulkanCore::VTimelineSemaphore& frameSemaphore);
+    void                        UpdateGPU(VulkanCore::VTimelineSemaphore2& frameSemaphore);
     void UpdateGPUWaitCPU(VulkanCore::VTimelineSemaphore& frameSemaphore, bool startRecording = false);
 
     void ClearResources();

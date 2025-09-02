@@ -18,9 +18,9 @@ class VTimelineSemaphore : public VObject
     explicit VTimelineSemaphore(const VulkanCore::VDevice& device, uint64_t initialValue = 0);
 
     vk::TimelineSemaphoreSubmitInfo GetTimeLineSemaphoreSubmitInfo(uint64_t waitValue, uint64_t signalValue);
-    vk::SemaphoreSubmitInfo GetSemaphoreWaitSubmitInfo(uint64_t waitValue,vk::PipelineStageFlags2 waitStages);
+    vk::SemaphoreSubmitInfo         GetSemaphoreWaitSubmitInfo(uint64_t waitValue, vk::PipelineStageFlags2 waitStages);
     vk::SemaphoreSubmitInfo GetSemaphoreSignalSubmitInfo(uint64_t signalValue, vk::PipelineStageFlags2 signalStages);
-    uint64_t                        GetSemaphoreValue();
+    uint64_t                GetSemaphoreValue();
 
     void CpuSignal(uint64_t signalValue);
     void CpuWaitIdle(uint64_t waitValue);

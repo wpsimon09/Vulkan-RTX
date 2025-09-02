@@ -90,7 +90,6 @@ void UserInterfaceRenderer::Render(int currentFrameIndex, uint32_t swapChainImag
     //assert(presentResult == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 }
 void UserInterfaceRenderer::Present(uint32_t                        swapChainImageIndex,
-                                    VulkanCore::VTimelineSemaphore& renderingTimeLine,
                                     const vk::Semaphore&            ableToPresentSemaphore)
 {
     //===========================

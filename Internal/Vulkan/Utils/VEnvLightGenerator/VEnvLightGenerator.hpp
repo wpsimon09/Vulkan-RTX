@@ -16,6 +16,7 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace VulkanCore {
+class VTimelineSemaphore2;
 class VDescriptorLayoutCache;
 }
 namespace VulkanCore {
@@ -69,11 +70,11 @@ class VEnvLightGenerator
 
     VulkanCore::VImage2* GetPrefilterMapRaw();
 
-    void Generate(uint32_t m_currentFrame, std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore);
+    void Generate(uint32_t m_currentFrame, std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore2& renderingSemaphore);
 
-    void HDRToCubeMap(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore);
-    void CubeMapToIrradiance(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore);
-    void CubeMapToPrefilter(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore& renderingSemaphore);
+    void HDRToCubeMap(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore2& renderingSemaphore);
+    void CubeMapToIrradiance(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore2& renderingSemaphore);
+    void CubeMapToPrefilter(std::shared_ptr<VulkanCore::VImage2> envMap, VulkanCore::VTimelineSemaphore2& renderingSemaphore);
 
     void Destroy();
 

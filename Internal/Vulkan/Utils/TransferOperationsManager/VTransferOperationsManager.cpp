@@ -9,6 +9,7 @@
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp"
 
 namespace VulkanUtils {
 VTransferOperationsManager::VTransferOperationsManager(const VulkanCore::VDevice& device)
@@ -36,11 +37,11 @@ void VTransferOperationsManager::StartRecording()
     }
 }
 
-void VTransferOperationsManager::UpdateGPU(VulkanCore::VTimelineSemaphore& frameSemaphore)
+void VTransferOperationsManager::UpdateGPU(VulkanCore::VTimelineSemaphore2& frameSemaphore)
 {
     vk::PipelineStageFlags2 signalStages = vk::PipelineStageFlagBits2::eAllCommands;
 
-    std::vector<vk::SemaphoreSubmitInfo> signalSubmit = {frameSemaphore.GetSemaphoreSignalSubmitInfo(6, signalStages)};
+    std::vector<vk::SemaphoreSubmitInfo> signalSubmit = {frameSemaphore.GetSemaphoreSignalSubmitInfo(EFrameStages::TransferFinish, signalStages)};
 
     /**
      * Submits all the transfer work, like copyes as stuff, and only signals once it is finished it does not have to wait for any other semaphore
@@ -52,8 +53,10 @@ void VTransferOperationsManager::UpdateGPU(VulkanCore::VTimelineSemaphore& frame
 
 void VTransferOperationsManager::UpdateGPUWaitCPU(VulkanCore::VTimelineSemaphore& frameSemaphore, bool startRecording)
 {
-    UpdateGPU(frameSemaphore);
-    frameSemaphore.CpuWaitIdle(2);
+    //pdateGPU(frameSemaphore);
+    //frameSemaphore.CpuWaitIdle(9);
+    //frameSemaphore.Reset();
+    //frameSemaphore.CpuSignal(8);
     m_commandBuffer[m_device.CurrentFrame]->Reset();
 
     if(startRecording)

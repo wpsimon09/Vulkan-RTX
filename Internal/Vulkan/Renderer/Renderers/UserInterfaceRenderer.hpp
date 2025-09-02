@@ -45,7 +45,7 @@ class UserInterfaceRenderer
     explicit UserInterfaceRenderer(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain, VEditor::UIContext& uiContext);
 
     void Render(int currentFrameIndex,uint32_t swapChainImageIndex, VulkanCore::VCommandBuffer& cmdBuffer);
-    void Present(uint32_t swapChainImageIndex,VulkanCore::VTimelineSemaphore& renderingTimeLine,  const vk::Semaphore& ableToPresentSemaphore);
+    void Present(uint32_t swapChainImageIndex, const vk::Semaphore& ableToPresentSemaphore);
 
     RenderTarget2& GetRenderTarget() const { return *m_renderTarget; };
 

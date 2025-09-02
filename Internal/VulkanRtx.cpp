@@ -77,6 +77,7 @@
 #include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp"
 #include "Vulkan/VulkanCore/Buffer/VGrowableBuffer.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp"
 
 
 Application::Application() = default;
@@ -141,14 +142,7 @@ void Application::Init()
 
     ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 
-    //m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU(true);
-    m_client->GetScene().Update();
     m_client->GetApplicationState().GetSceneUpdateFlags().rebuildAs = true;
-
-    //m_vulkanDevice->GetTransferOpsManager().UpdateGPUWaitCPU();
-
-    m_effectsLibrary->ConfigureDescriptorWrites(m_renderingSystem->GetSceneRenderer(), *m_uniformBufferManager, *m_rayTracingDataManager);
-
 }
 
 void Application::MainLoop()
@@ -183,6 +177,7 @@ void Application::Run()
 
 void Application::Update()
 {
+    m_renderingSystem->CanStartRecording();
     m_vulkanDevice->GetTransferOpsManager().StartRecording();
 
     //=========================
@@ -248,6 +243,7 @@ Application::~Application()
         }
         catch(std::exception& e)
         {
+
         }
     }
     m_vulkanDevice->GetDevice().waitIdle();

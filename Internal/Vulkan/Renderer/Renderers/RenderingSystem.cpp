@@ -46,6 +46,8 @@
 
 
 #include "imgui.h"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp"
+
 #include <vulkan/vulkan_enums.hpp>
 
 /**
@@ -85,7 +87,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
     m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_frameTimeLine[i]            = std::make_unique<VulkanCore::VTimelineSemaphore>(m_device, 8);
+        m_frameTimeLine[i]            = std::make_unique<VulkanCore::VTimelineSemaphore2>(m_device, EFrameStages::NumStages);
         m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_renderingCommandBuffers[i]  = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_renderingCommandPool);
     }
@@ -113,10 +115,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
 
     m_envLightGenerator = std::make_unique<VulkanUtils::VEnvLightGenerator>(m_device, descLayoutCache);
 
-
-    auto cam    = m_uiContext.GetClient().GetCamera();
     m_rayTracer = std::make_unique<RayTracer>(m_device, effectsLybrary, rayTracingDataManager, 1980, 1080);
-
 
     Utils::Logger::LogInfo("RenderingSystem initialized");
 }
@@ -142,21 +141,20 @@ void RenderingSystem::Init()
         m_postProcessingSystem->Init(i, m_uniformBufferManager, &m_renderContext, &m_postProcessingContext);
     }
 }
+void RenderingSystem::CanStartRecording() {
+    if (m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
+        m_frameTimeLine[m_currentFrameIndex]->CpuWaitIdle(EFrameStages::SafeToBegin);
+    }
+}
 
 
 void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState)
 {
 
-    m_frameTimeLine[m_currentFrameIndex]->CpuWaitIdle(8);
-
     m_acquiredImage = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
-
-    *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
+                                                                *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
 
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
-
-    m_frameTimeLine[m_currentFrameIndex]->Reset();
-    m_frameCount++;
 
     m_sceneLightInfo = &applicationState.GetSceneLightInfo();
 
@@ -228,6 +226,7 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
 }
 
 
+
 void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState)
 {
 
@@ -252,12 +251,13 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
             m_swapChain->RecreateSwapChain();
             m_uiRenderer->HandleSwapChainResize(*m_swapChain);
 
-            m_frameTimeLine[m_currentFrameIndex]->Reset();
-            m_frameTimeLine[m_currentFrameIndex]->CpuSignal(8);
+            m_frameTimeLine[m_currentFrameIndex]->CpuSignal(EFrameStages::SafeToBegin);
             // to silent validation layers i will recreate the semaphore
             m_ableToPresentSemaphore[m_currentImageIndex]->Destroy();
             m_ableToPresentSemaphore[m_currentImageIndex] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
 
+            m_frameCount++;
+            m_device.CurrentFrame = m_frameCount;
 
             return;
         }
@@ -322,7 +322,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
       */
     std::vector<vk::SemaphoreSubmitInfo> waitSemaphres = {
         // wait until transfer is finished
-        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreWaitSubmitInfo(5, vk::PipelineStageFlagBits2::eVertexShader
+        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreWaitSubmitInfo(EFrameStages::TransferFinish, vk::PipelineStageFlagBits2::eVertexShader
                                                                                 | vk::PipelineStageFlagBits2::eRayTracingShaderKHR),
         // wait until image to present is awailable
         imageAvailableSubmitInfo};
@@ -333,19 +333,22 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     */
     vk::SemaphoreSubmitInfo ableToPresentSubmitInfo = {
         m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eAllCommands};
+
     std::vector<vk::SemaphoreSubmitInfo> signalSemaphores = {
         // rendering timeline will signal 8 which means that new frame can start exectuing
-        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreSignalSubmitInfo(8, vk::PipelineStageFlagBits2::eAllCommands),
+        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreSignalSubmitInfo(EFrameStages::SafeToBegin, vk::PipelineStageFlagBits2::eAllCommands),
         // able to present semaphore should be singaled once rendering is finished
         ableToPresentSubmitInfo};
 
     m_renderingCommandBuffers[m_currentFrameIndex]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
 
-    m_uiRenderer->Present(m_currentImageIndex, *m_frameTimeLine[m_currentFrameIndex],
+    m_uiRenderer->Present(m_currentImageIndex,
                           m_ableToPresentSemaphore[m_currentImageIndex]->GetSyncPrimitive());
 
-    m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
-    m_device.CurrentFrame = m_currentFrameIndex;
+    m_currentFrameIndex   = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
+
+    m_frameCount++;
+    m_device.CurrentFrame = m_frameCount;
 
     m_renderContext.hasSceneChanged = false;
 }
@@ -374,6 +377,9 @@ void RenderingSystem::Destroy()
     m_envLightGenerator->Destroy();
     m_rayTracer->Destroy();
     m_renderingCommandPool->Destroy();
+}
+VulkanCore::VTimelineSemaphore2& RenderingSystem::GetTimelineSemaphore() {
+    return *m_frameTimeLine[m_currentFrameIndex];
 }
 
 

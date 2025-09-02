@@ -243,6 +243,8 @@ set(SOURCES
         Internal/Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp
         Internal/Vulkan/VulkanCore/Buffer/VGrowableBuffer.cpp
         Internal/Vulkan/VulkanCore/Buffer/VGrowableBuffer.hpp
+        Internal/Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.cpp
+        Internal/Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp
 
 )
 

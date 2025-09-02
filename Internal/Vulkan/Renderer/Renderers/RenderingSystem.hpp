@@ -21,6 +21,7 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace VulkanCore {
+class VTimelineSemaphore2;
 class VDescriptorLayoutCache;
 }
 namespace ApplicationCore {
@@ -77,10 +78,12 @@ class RenderingSystem
                     VEditor::UIContext&                  uiContext);
 
     void Init();
+    void CanStartRecording();
     void Render(ApplicationCore::ApplicationState& applicationState);
     void Update(ApplicationCore::ApplicationState& applicationState);
     void PostRender();
     void Destroy();
+    VulkanCore::VTimelineSemaphore2& GetTimelineSemaphore();
 
     ForwardRenderer&            GetSceneRenderer() { return *m_forwardRenderer; };
     VulkanUtils::RenderContext* GetRenderContext() { return &m_renderContext; }
@@ -109,10 +112,11 @@ class RenderingSystem
     std::unique_ptr<VulkanCore::VCommandPool>                m_renderingCommandPool;
     std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_renderingCommandBuffers;
 
+
     // Synchronization
     std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
     std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_ableToPresentSemaphore;
-    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>>            m_frameTimeLine;
+    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore2>>            m_frameTimeLine;
 
 
     // Render context
