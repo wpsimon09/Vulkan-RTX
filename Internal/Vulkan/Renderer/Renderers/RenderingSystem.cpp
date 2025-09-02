@@ -332,11 +332,11 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     * and informing presentation engine and UI renderer that the presentation can happen since rendering is done
     */
     vk::SemaphoreSubmitInfo ableToPresentSubmitInfo = {
-        m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eAllCommands};
+        m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eNone};
 
     std::vector<vk::SemaphoreSubmitInfo> signalSemaphores = {
         // rendering timeline will signal 8 which means that new frame can start exectuing
-        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreSignalSubmitInfo(EFrameStages::SafeToBegin, vk::PipelineStageFlagBits2::eAllCommands),
+        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreSignalSubmitInfo(EFrameStages::SafeToBegin, vk::PipelineStageFlagBits2::eNone),
         // able to present semaphore should be singaled once rendering is finished
         ableToPresentSubmitInfo};
 
@@ -349,6 +349,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
     m_frameCount++;
     m_device.CurrentFrame = m_frameCount;
+    m_device.CurrentFrameInFlight = m_currentFrameIndex;
 
     m_renderContext.hasSceneChanged = false;
 }

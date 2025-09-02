@@ -25,15 +25,15 @@ VTransferOperationsManager::VTransferOperationsManager(const VulkanCore::VDevice
 VulkanCore::VCommandBuffer& VTransferOperationsManager::GetCommandBuffer()
 {
     m_hasPandingWork = true;
-    return *m_commandBuffer[m_device.CurrentFrame];
+    return *m_commandBuffer[m_device.CurrentFrameInFlight];
 }
 
 void VTransferOperationsManager::StartRecording()
 {
     m_hasPandingWork = true;
-    if(!m_commandBuffer[m_device.CurrentFrame]->GetIsRecording())
+    if(!m_commandBuffer[m_device.CurrentFrameInFlight]->GetIsRecording())
     {
-        m_commandBuffer[m_device.CurrentFrame]->BeginRecording();
+        m_commandBuffer[m_device.CurrentFrameInFlight]->BeginRecording();
     }
 }
 
@@ -46,7 +46,7 @@ void VTransferOperationsManager::UpdateGPU(VulkanCore::VTimelineSemaphore2& fram
     /**
      * Submits all the transfer work, like copyes as stuff, and only signals once it is finished it does not have to wait for any other semaphore
      */
-    m_commandBuffer[m_device.CurrentFrame]->EndAndFlush2(m_device.GetTransferQueue(), signalSubmit, {});
+    m_commandBuffer[m_device.CurrentFrameInFlight]->EndAndFlush2(m_device.GetTransferQueue(), signalSubmit, {});
 
     m_hasPandingWork = false;
 }
@@ -57,7 +57,7 @@ void VTransferOperationsManager::UpdateGPUWaitCPU(VulkanCore::VTimelineSemaphore
     //frameSemaphore.CpuWaitIdle(9);
     //frameSemaphore.Reset();
     //frameSemaphore.CpuSignal(8);
-    m_commandBuffer[m_device.CurrentFrame]->Reset();
+    m_commandBuffer[m_device.CurrentFrameInFlight]->Reset();
 
     if(startRecording)
     {
