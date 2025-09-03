@@ -159,6 +159,7 @@ void VCommandBuffer::EndAndFlush(const vk::Queue&                     queue,
 {
     std::lock_guard<std::mutex> lock(m_device.DeviceMutex);
     EndRecording();
+
     vk::SubmitInfo submitInfo;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers    = &m_commandBuffer;

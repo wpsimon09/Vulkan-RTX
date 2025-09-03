@@ -4,7 +4,11 @@
 
 #include "VTimelineSemaphore2.hpp"
 
+#include "simdjson.h"
+#include "Application/Logger/Logger.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
+
+#include <iostream>
 
 namespace VulkanCore {
 VTimelineSemaphore2::VTimelineSemaphore2(const VulkanCore::VDevice& device, uint32_t maxStageValue)
@@ -30,6 +34,9 @@ vk::SemaphoreSubmitInfo VTimelineSemaphore2::GetSemaphoreWaitSubmitInfo(uint32_t
     waitSubmitInfo.value     = GetStageValue(stage);
     waitSubmitInfo.stageMask = waitStages;
 
+    std::cout<<"Waiting  for: " << waitSubmitInfo.value << std::endl;
+
+
     return waitSubmitInfo;
 }
 
@@ -40,6 +47,9 @@ vk::SemaphoreSubmitInfo VTimelineSemaphore2::GetSemaphoreSignalSubmitInfo(uint32
     signalSubmitInfo.value     = GetStageValue(stage);
     signalSubmitInfo.stageMask = signalStages;
 
+    std::cout<<"Signalling: " << signalSubmitInfo.value << std::endl;
+
+
     return signalSubmitInfo;
 }
 void VTimelineSemaphore2::CpuSignal(uint32_t signalStage)
@@ -49,6 +59,8 @@ void VTimelineSemaphore2::CpuSignal(uint32_t signalStage)
     signalInfo.semaphore = m_semaphore;
     signalInfo.value     = GetStageValue(signalStage);
     m_device.GetDevice().signalSemaphore(signalInfo);
+
+    std::cout<<"Signaling (from CPU) : " << signalInfo.value << std::endl;
 }
 
 void VTimelineSemaphore2::CpuWaitIdle(uint32_t waitStage)
@@ -60,6 +72,8 @@ void VTimelineSemaphore2::CpuWaitIdle(uint32_t waitStage)
     waitInfo.semaphoreCount = 1;
     waitInfo.pSemaphores    = &m_semaphore;
     waitInfo.pValues        = &value;
+
+    std::cout<<"Waiting (on CPU) for: " << value << std::endl;
 
     while(m_device.GetDevice().waitSemaphores(waitInfo, UINT64_MAX) == vk::Result::eTimeout)
         ;

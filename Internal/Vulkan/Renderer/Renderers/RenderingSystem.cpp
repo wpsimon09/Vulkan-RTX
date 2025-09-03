@@ -233,16 +233,16 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     //=================================================2080204129
     // GET SWAP IMAGE INDEX
     //=================================================
-    auto imageIndex = m_acquiredImage;
+    auto swapChainImageIndex = m_acquiredImage;
 
     if(applicationState.IsWindowResized())
     {
-        imageIndex.first = vk::Result::eErrorOutOfDateKHR;
+        swapChainImageIndex.first = vk::Result::eErrorOutOfDateKHR;
     }
-    switch(imageIndex.first)
+    switch(swapChainImageIndex.first)
     {
         case vk::Result::eSuccess: {
-            m_currentImageIndex = imageIndex.second;
+            m_currentImageIndex = m_acquiredImage.second;
             Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
             break;
         }
@@ -253,8 +253,8 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
             m_frameTimeLine[m_currentFrameIndex]->CpuSignal(EFrameStages::SafeToBegin);
             // to silent validation layers i will recreate the semaphore
-            m_ableToPresentSemaphore[m_currentImageIndex]->Destroy();
-            m_ableToPresentSemaphore[m_currentImageIndex] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+            m_ableToPresentSemaphore[m_acquiredImage.second]->Destroy();
+            m_ableToPresentSemaphore[m_acquiredImage.second] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
 
             m_frameCount++;
             m_device.CurrentFrame = m_frameCount;
@@ -262,7 +262,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
             return;
         }
         case vk::Result::eSuboptimalKHR: {
-            m_currentImageIndex = imageIndex.second;
+            m_currentImageIndex = swapChainImageIndex.second;
             break;
             //m_swapChain->RecreateSwapChain();
             //return;
@@ -332,24 +332,28 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     * and informing presentation engine and UI renderer that the presentation can happen since rendering is done
     */
     vk::SemaphoreSubmitInfo ableToPresentSubmitInfo = {
-        m_ableToPresentSemaphore[m_currentFrameIndex]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eNone};
+        m_ableToPresentSemaphore[m_acquiredImage.second]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eAllCommands};
 
     std::vector<vk::SemaphoreSubmitInfo> signalSemaphores = {
         // rendering timeline will signal 8 which means that new frame can start exectuing
-        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreSignalSubmitInfo(EFrameStages::SafeToBegin, vk::PipelineStageFlagBits2::eNone),
+        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreSignalSubmitInfo(EFrameStages::SafeToBegin, vk::PipelineStageFlagBits2::eAllCommands),
         // able to present semaphore should be singaled once rendering is finished
         ableToPresentSubmitInfo};
 
     m_renderingCommandBuffers[m_currentFrameIndex]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
 
-    m_uiRenderer->Present(m_currentImageIndex,
-                          m_ableToPresentSemaphore[m_currentImageIndex]->GetSyncPrimitive());
+    m_uiRenderer->Present(m_acquiredImage.second,
+                          m_ableToPresentSemaphore[m_acquiredImage.second]->GetSyncPrimitive());
 
     m_currentFrameIndex   = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
 
+
     m_frameCount++;
-    m_device.CurrentFrame = m_frameCount;
     m_device.CurrentFrameInFlight = m_currentFrameIndex;
+
+    if (m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
+        m_device.CurrentFrame++;
+    }
 
     m_renderContext.hasSceneChanged = false;
 }
