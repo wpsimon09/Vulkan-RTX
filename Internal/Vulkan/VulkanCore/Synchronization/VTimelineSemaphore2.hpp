@@ -26,6 +26,8 @@ public:
 
   void Destroy() override;
 
+  uint64_t Frame = 0;
+
 private:
   uint32_t GetStageValue(uint32_t stage) const;
 

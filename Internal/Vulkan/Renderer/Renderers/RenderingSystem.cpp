@@ -144,6 +144,8 @@ void RenderingSystem::Init()
 void RenderingSystem::CanStartRecording() {
     if (m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
         m_frameTimeLine[m_currentFrameIndex]->CpuWaitIdle(EFrameStages::SafeToBegin);
+        m_frameTimeLine[m_currentFrameIndex]->Frame++;
+
     }
 }
 
@@ -347,15 +349,11 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
     m_currentFrameIndex   = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
 
+    m_device.CurrentFrameInFlight = m_currentFrameIndex;
+    m_renderContext.hasSceneChanged = false;
+
 
     m_frameCount++;
-    m_device.CurrentFrameInFlight = m_currentFrameIndex;
-
-    if (m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
-        m_device.CurrentFrame++;
-    }
-
-    m_renderContext.hasSceneChanged = false;
 }
 
 

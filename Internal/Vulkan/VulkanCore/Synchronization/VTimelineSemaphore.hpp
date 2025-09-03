@@ -44,8 +44,6 @@ class VTimelineSemaphore : public VObject
 
     vk::Semaphore m_semaphore;
 
-    //uint64_t m_currentValue = 0;
-
     uint64_t m_offset = 0;
 };
 

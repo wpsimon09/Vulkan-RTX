@@ -82,7 +82,7 @@ void VTimelineSemaphore2::CpuWaitIdle(uint32_t waitStage)
 
 uint32_t VTimelineSemaphore2::GetStageValue(uint32_t stage) const
 {
-    return (m_device.CurrentFrame * m_maxStageValue) + stage;
+    return (Frame * m_maxStageValue) + stage;
 }
 
 
