@@ -34,7 +34,7 @@ vk::SemaphoreSubmitInfo VTimelineSemaphore2::GetSemaphoreWaitSubmitInfo(uint32_t
     waitSubmitInfo.value     = GetStageValue(stage);
     waitSubmitInfo.stageMask = waitStages;
 
-    std::cout<<"Waiting  for: " << waitSubmitInfo.value << std::endl;
+    //std::cout<<"Waiting  for: " << waitSubmitInfo.value << std::endl;
 
 
     return waitSubmitInfo;
@@ -47,7 +47,7 @@ vk::SemaphoreSubmitInfo VTimelineSemaphore2::GetSemaphoreSignalSubmitInfo(uint32
     signalSubmitInfo.value     = GetStageValue(stage);
     signalSubmitInfo.stageMask = signalStages;
 
-    std::cout<<"Signalling: " << signalSubmitInfo.value << std::endl;
+    //std::cout<<"Signalling: " << signalSubmitInfo.value << std::endl;
 
 
     return signalSubmitInfo;
@@ -60,7 +60,7 @@ void VTimelineSemaphore2::CpuSignal(uint32_t signalStage)
     signalInfo.value     = GetStageValue(signalStage);
     m_device.GetDevice().signalSemaphore(signalInfo);
 
-    std::cout<<"Signaling (from CPU) : " << signalInfo.value << std::endl;
+    //std::cout<<"Signaling (from CPU) : " << signalInfo.value << std::endl;
 }
 
 void VTimelineSemaphore2::CpuWaitIdle(uint32_t waitStage)
@@ -73,7 +73,7 @@ void VTimelineSemaphore2::CpuWaitIdle(uint32_t waitStage)
     waitInfo.pSemaphores    = &m_semaphore;
     waitInfo.pValues        = &value;
 
-    std::cout<<"Waiting (on CPU) for: " << value << std::endl;
+    //std::cout<<"Waiting (on CPU) for: " << value << std::endl;
 
     while(m_device.GetDevice().waitSemaphores(waitInfo, UINT64_MAX) == vk::Result::eTimeout)
         ;

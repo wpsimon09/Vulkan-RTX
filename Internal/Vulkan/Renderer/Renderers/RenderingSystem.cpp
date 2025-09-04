@@ -151,14 +151,48 @@ void RenderingSystem::CanStartRecording() {
 
 void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState)
 {
-
     m_acquiredImage = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
-                                                                *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
+                                                            *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
 
-    m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
+    auto swapChainImageIndex = m_acquiredImage;
+
+    if(applicationState.IsWindowResized())
+    {
+        swapChainImageIndex.first = vk::Result::eErrorOutOfDateKHR;
+    }
+    switch(swapChainImageIndex.first)
+    {
+    case vk::Result::eSuccess: {
+        m_currentImageIndex = m_acquiredImage.second;
+        Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
+        break;
+    }
+    case vk::Result::eErrorOutOfDateKHR: {
+
+        m_swapChain->RecreateSwapChain();
+        m_uiRenderer->HandleSwapChainResize(*m_swapChain);
+
+        m_frameTimeLine[m_currentFrameIndex]->CpuSignal(EFrameStages::SafeToBegin);
+        // to silent validation layers i will recreate the semaphore
+        m_ableToPresentSemaphore[m_acquiredImage.second]->Destroy();
+        m_ableToPresentSemaphore[m_acquiredImage.second] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+
+        m_frameCount++;
+        m_device.CurrentFrame = m_frameCount;
+
+        return;
+    }
+    case vk::Result::eSuboptimalKHR: {
+        m_currentImageIndex = swapChainImageIndex.second;
+        break;
+        //m_swapChain->RecreateSwapChain();
+        //return;
+    };
+    default:
+        break;
+    }
 
     m_sceneLightInfo = &applicationState.GetSceneLightInfo();
-
 
     if(applicationState.GetSceneUpdateFlags().resetAccumulation)
     {
@@ -232,48 +266,8 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
 void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState)
 {
 
-    //=================================================2080204129
-    // GET SWAP IMAGE INDEX
-    //=================================================
-    auto swapChainImageIndex = m_acquiredImage;
 
-    if(applicationState.IsWindowResized())
-    {
-        swapChainImageIndex.first = vk::Result::eErrorOutOfDateKHR;
-    }
-    switch(swapChainImageIndex.first)
-    {
-        case vk::Result::eSuccess: {
-            m_currentImageIndex = m_acquiredImage.second;
-            Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
-            break;
-        }
-        case vk::Result::eErrorOutOfDateKHR: {
-
-            m_swapChain->RecreateSwapChain();
-            m_uiRenderer->HandleSwapChainResize(*m_swapChain);
-
-            m_frameTimeLine[m_currentFrameIndex]->CpuSignal(EFrameStages::SafeToBegin);
-            // to silent validation layers i will recreate the semaphore
-            m_ableToPresentSemaphore[m_acquiredImage.second]->Destroy();
-            m_ableToPresentSemaphore[m_acquiredImage.second] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
-
-            m_frameCount++;
-            m_device.CurrentFrame = m_frameCount;
-
-            return;
-        }
-        case vk::Result::eSuboptimalKHR: {
-            m_currentImageIndex = swapChainImageIndex.second;
-            break;
-            //m_swapChain->RecreateSwapChain();
-            //return;
-        };
-        default:
-            break;
-    }
-
-
+    m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
     //============================================================
     // start recording command buffer that will render the scene
     m_renderingCommandBuffers[m_currentFrameIndex]->BeginRecording();
