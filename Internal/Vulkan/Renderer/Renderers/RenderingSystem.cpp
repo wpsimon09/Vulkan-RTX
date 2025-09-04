@@ -145,7 +145,6 @@ void RenderingSystem::CanStartRecording() {
     if (m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
         m_frameTimeLine[m_currentFrameIndex]->CpuWaitIdle(EFrameStages::SafeToBegin);
         m_frameTimeLine[m_currentFrameIndex]->Frame++;
-
     }
 }
 
@@ -188,6 +187,7 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
     // IMPORTANT: this sends all data accumulated over the frame to the GPU
     applicationState.GetGlobalRenderingInfo().isRayTracing = static_cast<int>(m_isRayTracing);
     m_uniformBufferManager.Update(m_currentFrameIndex, applicationState, m_renderContext.GetAllDrawCall());
+
     m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_currentFrameIndex]);
 
 

@@ -116,6 +116,7 @@ void Application::Init()
     m_client->Init();
     m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
+
     m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_rayTracingDataManager,
                                                                     *m_uniformBufferManager, *m_effectsLibrary,
                                                                     *m_descriptorSetLayoutCache, *m_uiContext);
@@ -205,7 +206,6 @@ void Application::Update()
 
     m_client->GetAssetsManager().Sync();
 
-    m_renderingSystem->Update(m_client->GetApplicationState());
 }
 
 void Application::Render()
@@ -214,6 +214,8 @@ void Application::Render()
     m_client->Render(m_renderingSystem->GetRenderContext());
 
     m_editor->Render();
+
+    m_renderingSystem->Update(m_client->GetApplicationState());
 
     m_renderingSystem->Render(m_client->GetApplicationState());
 
