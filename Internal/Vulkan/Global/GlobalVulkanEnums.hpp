@@ -71,5 +71,13 @@ enum EShaderBindingGroup
     AverageLuminance
 };
 
+enum EFrameStages {
+    Uninitialized = 0,
+    TransferFinish,
+    RenderFinish,
+    SafeToBegin,
+    NumStages
+};
+
 
 #endif  //GLOBALVULKANENUMS_HPP

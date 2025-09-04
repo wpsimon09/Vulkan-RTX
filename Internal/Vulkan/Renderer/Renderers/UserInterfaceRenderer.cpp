@@ -77,7 +77,8 @@ void UserInterfaceRenderer::Render(int currentFrameIndex, uint32_t swapChainImag
     cmdB.endRendering();
 
     barrierPosition = {vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-                                                  vk::AccessFlagBits2::eColorAttachmentWrite};
+                                                  vk::AccessFlagBits2::eColorAttachmentWrite, vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eColorAttachmentRead};
+
     VulkanUtils::PlaceImageMemoryBarrier2(m_renderTarget->GetSwapChainImage(swapChainImageIndex), cmdBuffer,
                                           vk::ImageLayout::eAttachmentOptimalKHR, vk::ImageLayout::ePresentSrcKHR, barrierPosition);
 
@@ -90,12 +91,12 @@ void UserInterfaceRenderer::Render(int currentFrameIndex, uint32_t swapChainImag
     //assert(presentResult == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR);
 }
 void UserInterfaceRenderer::Present(uint32_t                        swapChainImageIndex,
-                                    VulkanCore::VTimelineSemaphore& renderingTimeLine,
                                     const vk::Semaphore&            ableToPresentSemaphore)
 {
     //===========================
     // PRESENT TO SCREEN
     //===========================
+
     vk::PresentInfoKHR presentInfo;
     //auto next = renderingTimeLine.GetTimeLineSemaphoreSubmitInfo(4, 8);
     //presentInfo.pNext = &next;

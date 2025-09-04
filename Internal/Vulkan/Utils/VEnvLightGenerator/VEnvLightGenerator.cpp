@@ -24,6 +24,9 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 
+namespace VulkanCore {
+class VTimelineSemaphore2;
+}
 VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& device, VulkanCore::VDescriptorLayoutCache& descLayoutCache)
     : m_device(device)
     , m_descLayoutChache(descLayoutCache)
@@ -174,7 +177,7 @@ VulkanCore::VImage2* VulkanUtils::VEnvLightGenerator::GetPrefilterMapRaw()
 
 void VulkanUtils::VEnvLightGenerator::Generate(uint32_t                             currentFrame,
                                                std::shared_ptr<VulkanCore::VImage2> envMap,
-                                               VulkanCore::VTimelineSemaphore&      renderingSemaphore)
+                                               VulkanCore::VTimelineSemaphore2&      renderingSemaphore)
 {
     m_currentFrame = currentFrame;
 
@@ -207,7 +210,7 @@ void VulkanUtils::VEnvLightGenerator::Generate(uint32_t                         
 // CUBE MAP GENERATION
 //==================================
 void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::VImage2> envMap,
-                                                   VulkanCore::VTimelineSemaphore&      renderingSemaphore)
+                                                   VulkanCore::VTimelineSemaphore2&      renderingSemaphore)
 {
 
     {
@@ -346,7 +349,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
 // IRRADIANCE GENERATION
 //==================================
 void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<VulkanCore::VImage2> envMap,
-                                                          VulkanCore::VTimelineSemaphore&      renderingSemaphore)
+                                                          VulkanCore::VTimelineSemaphore2&      renderingSemaphore)
 {
     {
 
@@ -467,7 +470,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
 // PREFILTER MAP
 //=====================================
 void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanCore::VImage2> envMap,
-                                                         VulkanCore::VTimelineSemaphore&      renderingSemaphore)
+                                                         VulkanCore::VTimelineSemaphore2&      renderingSemaphore)
 {
     VulkanCore::VTimelineSemaphore envGenerationSemaphore(m_device);
     const vk::Format               format     = vk::Format::eR16G16B16A16Sfloat;

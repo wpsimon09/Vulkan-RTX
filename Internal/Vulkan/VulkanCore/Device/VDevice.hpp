@@ -15,6 +15,9 @@
 #include "Vulkan/Utils/VMeshDataManager/MeshDataManager.hpp"
 
 namespace VulkanCore {
+class VTimelineSemaphore;
+}
+namespace VulkanCore {
 class VDescriptorAllocator;
 }
 namespace VulkanUtils {
@@ -68,7 +71,7 @@ class VDevice : public VObject
     const vk::Format&                        GetDepthFormat() const { return m_depthFormat; }
     const vk::SampleCountFlagBits            GetSampleCount() const { return m_sampleCount; }
     VmaTotalStatistics&                      GetDeviceStatistics() { return m_vmaStatistics; }
-    VulkanUtils::VTransferOperationsManager& GetTransferOpsManager() const  { return *m_transferOpsManager;  }
+    VulkanUtils::VTransferOperationsManager& GetTransferOpsManager() const { return *m_transferOpsManager; }
     VulkanCore::VDescriptorAllocator&        GetDescriptorAllocator() const { return *m_descriptorAllocator; }
     //----------------------------------------------------------------------------------------
 
@@ -85,6 +88,8 @@ class VDevice : public VObject
 
     vk::detail::DispatchLoaderDynamic DispatchLoader;
 
+    mutable uint64_t CurrentFrame = 0;
+    mutable uint32_t CurrentFrameInFlight = 0;
   private:
     vk::PhysicalDevice m_physicalDevice;
     vk::Device         m_device;  //logical device
@@ -98,10 +103,11 @@ class VDevice : public VObject
     vk::SampleCountFlagBits m_sampleCount;
 
     std::array<std::unique_ptr<VulkanCore::VCommandPool>, GlobalVariables::MAX_THREADS> m_transferCommandPool;
-    std::unique_ptr<VulkanCore::VCommandPool>                m_transferCommandPoolForSingleThread;
-    std::unique_ptr<VulkanUtils::VTransferOperationsManager> m_transferOpsManager;
-    std::unique_ptr<MeshDatatManager>                        m_meshDataManager;
-    std::unique_ptr<VulkanCore::VDescriptorAllocator>        m_descriptorAllocator;
+    std::unique_ptr<VulkanCore::VCommandPool>                    m_transferCommandPoolForSingleThread;
+    std::unique_ptr<VulkanUtils::VTransferOperationsManager>     m_transferOpsManager;
+    std::unique_ptr<MeshDatatManager>                            m_meshDataManager;
+    std::unique_ptr<VulkanCore::VDescriptorAllocator>            m_descriptorAllocator;
+    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore>> m_frameSemaphore;
 
     VQueueFamilyIndices m_queueFamilyIndices;
 
