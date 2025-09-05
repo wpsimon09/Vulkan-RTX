@@ -111,7 +111,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
 
     m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, *m_swapChain, uiContext);
 
-    m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
+    m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameInFlight;
 
     m_envLightGenerator = std::make_unique<VulkanUtils::VEnvLightGenerator>(m_device, descLayoutCache);
 
@@ -145,10 +145,10 @@ void RenderingSystem::WaitForSignalToProcede(int stage)
 {
     if(m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT)
     {
-        m_frameTimeLine[m_currentFrameIndex]->CpuWaitIdle(stage);
+        m_frameTimeLine[m_currentFrameInFlight]->CpuWaitIdle(stage);
 
         if (stage == EFrameStages::SafeToBeginDrawCallRecording) {
-            m_frameTimeLine[m_currentFrameIndex]->ProcedeToNextFrame();
+            m_frameTimeLine[m_currentFrameInFlight]->ProcedeToNextFrame();
         }
     }
 }
@@ -169,9 +169,9 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
     if(m_isRayTracing)
     {
         applicationState.GetGlobalRenderingInfo().screenSize.x =
-            m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().width;
+            m_rayTracer->GetRenderedImage(m_currentFrameInFlight).GetImageInfo().width;
         applicationState.GetGlobalRenderingInfo().screenSize.y =
-            m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().height;
+            m_rayTracer->GetRenderedImage(m_currentFrameInFlight).GetImageInfo().height;
         // will cause to multiply by 0 thus clear the colour
         applicationState.GetGlobalRenderingInfo().numberOfFrames = m_accumulatedFramesCount;
     }
@@ -193,7 +193,7 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
     //=====================================================================
     // IMPORTANT: this sends all data accumulated over the frame to the GPU
     applicationState.GetGlobalRenderingInfo().isRayTracing = static_cast<int>(m_isRayTracing);
-    m_uniformBufferManager.Update(m_currentFrameIndex, applicationState, m_renderContext.GetAllDrawCall());
+    m_uniformBufferManager.Update(m_currentFrameInFlight, applicationState, m_renderContext.GetAllDrawCall());
 }
 
 
@@ -205,12 +205,12 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
     if(m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT)
     {
-        m_frameTimeLine[m_currentFrameIndex]->CpuWaitIdle(EFrameStages::SafeToBeginDrawCallRecording);
-        m_frameTimeLine[m_currentFrameIndex]->ProcedeToNextFrame();
+        m_frameTimeLine[m_currentFrameInFlight]->CpuWaitIdle(EFrameStages::SafeToBeginDrawCallRecording);
+        m_frameTimeLine[m_currentFrameInFlight]->ProcedeToNextFrame();
     }
 
     m_acquiredImage = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
-                                                                *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
+                                                                *m_imageAvailableSemaphores[m_currentSwapChainImage], nullptr);
 
     auto swapChainImageIndex = m_acquiredImage;
 
@@ -221,7 +221,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     switch(swapChainImageIndex.first)
     {
     case vk::Result::eSuccess: {
-        m_currentImageIndex = m_acquiredImage.second;
+        m_currentSwapChainImage = m_acquiredImage.second;
         Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
         break;
     }
@@ -230,7 +230,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         m_swapChain->RecreateSwapChain();
         m_uiRenderer->HandleSwapChainResize(*m_swapChain);
 
-        m_frameTimeLine[m_currentFrameIndex]->CpuSignal(EFrameStages::SafeToBeginDrawCallRecording);
+        m_frameTimeLine[m_currentFrameInFlight]->CpuSignal(EFrameStages::SafeToBeginDrawCallRecording);
         // to silent validation layers i will recreate the semaphore
         m_ableToPresentSemaphore[m_acquiredImage.second]->Destroy();
         m_ableToPresentSemaphore[m_acquiredImage.second] =
@@ -242,7 +242,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         return;
     }
     case vk::Result::eSuboptimalKHR: {
-        m_currentImageIndex = swapChainImageIndex.second;
+        m_currentSwapChainImage = swapChainImageIndex.second;
         break;
         //m_swapChain->RecreateSwapChain();
         //return;
@@ -251,9 +251,8 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
         break;
     }
 
-    m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
-
-    m_renderingCommandBuffers[m_currentFrameIndex]->BeginRecording();
+    m_renderingCommandBuffers[m_currentFrameInFlight]->Reset();
+    m_renderingCommandBuffers[m_currentFrameInFlight]->BeginRecording();
 
 
       //=================================================
@@ -266,8 +265,8 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     // generate new IBL maps if new one was selected
     if(m_sceneLightInfo->environmentLight != nullptr)
         if(m_sceneLightInfo->environmentLight->hdrImage->IsAvailable())
-            m_envLightGenerator->Generate(m_currentFrameIndex, m_sceneLightInfo->environmentLight->hdrImage->GetHandle(),
-                                          *m_frameTimeLine[m_currentFrameIndex]);
+            m_envLightGenerator->Generate(m_currentFrameInFlight, m_sceneLightInfo->environmentLight->hdrImage->GetHandle(),
+                                          *m_frameTimeLine[m_currentFrameInFlight]);
     //====================================================================
     // pass necessary data to the rendering context
     m_renderContext.hdrCubeMap    = m_envLightGenerator->GetCubeMapRaw();
@@ -285,10 +284,10 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     {
         //===========================================================
         // update render passes
-        m_forwardRenderer->WriteDescriptorSets(m_currentFrameIndex, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext,
+        m_forwardRenderer->WriteDescriptorSets(m_currentFrameInFlight, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext,
                                   &m_postProcessingContext);
         // render scene
-        m_forwardRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex],
+        m_forwardRenderer->Render(m_currentFrameInFlight, *m_renderingCommandBuffers[m_currentFrameInFlight],
                                   m_uniformBufferManager, &m_renderContext);
 
         m_postProcessingContext.sceneRender = m_forwardRenderer->GetForwardRendererResult();
@@ -298,34 +297,36 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     else
     {
         // path trace the scene
-        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex], m_uniformBufferManager, m_currentFrameIndex);
+        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameInFlight], m_uniformBufferManager, m_currentFrameInFlight);
         m_accumulatedFramesCount++;
 
-        m_postProcessingContext.sceneRender = &m_rayTracer->GetRenderedImage(m_currentFrameIndex);
+        m_postProcessingContext.sceneRender = &m_rayTracer->GetRenderedImage(m_currentFrameInFlight);
         m_postProcessingContext.toneMappingParameters->isRayTracing = true;
     }
 
 
     //========================================
     // Post processing
-    m_postProcessingSystem->WriteDescriptorSets(m_currentFrameIndex, m_uniformBufferManager, m_postProcessingContext);
-    m_postProcessingSystem->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_postProcessingContext);
-    m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_currentFrameIndex), m_currentFrameIndex);
+    m_postProcessingSystem->WriteDescriptorSets(m_currentFrameInFlight, m_uniformBufferManager, m_postProcessingContext);
+    m_postProcessingSystem->Render(m_currentFrameInFlight, *m_renderingCommandBuffers[m_currentFrameInFlight], m_postProcessingContext);
 
+    m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_currentFrameInFlight), m_currentFrameInFlight);
     //==========================================
     // UI Rendering
-    m_uiRenderer->Render(m_currentFrameIndex, m_currentImageIndex, *m_renderingCommandBuffers[m_currentFrameIndex]);
+    m_uiRenderer->Render(m_currentFrameInFlight, m_currentSwapChainImage, *m_renderingCommandBuffers[m_currentFrameInFlight]);
 }
 
 
-void RenderingSystem::PostRender()
+void RenderingSystem::SubmitFrame()
 {
 
     //=====================================================
     // SUBMIT RECORDED COMMAND BUFFER
     //=====================================================
+    m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_currentFrameInFlight]);
+
     vk::SemaphoreSubmitInfo imageAvailableSubmitInfo = {
-        m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eAllCommands, {}, {}};
+        m_imageAvailableSemaphores[m_currentFrameInFlight]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eAllCommands, {}, {}};
     /*
       * Before we can render, we have to wait for 2 things:
       * 1. all transfer operations have to be done
@@ -333,7 +334,7 @@ void RenderingSystem::PostRender()
       */
     std::vector<vk::SemaphoreSubmitInfo> waitSemaphres = {
         // wait until transfer is finished
-        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreWaitSubmitInfo(
+        m_frameTimeLine[m_currentFrameInFlight]->GetSemaphoreWaitSubmitInfo(
             EFrameStages::TransferFinish, vk::PipelineStageFlagBits2::eVertexShader | vk::PipelineStageFlagBits2::eRayTracingShaderKHR),
         // wait until image to present is awailable
         imageAvailableSubmitInfo};
@@ -347,24 +348,19 @@ void RenderingSystem::PostRender()
 
     std::vector<vk::SemaphoreSubmitInfo> signalSemaphores = {
         // rendering timeline will signal 8 which means that new frame can start exectuing
-        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreSignalSubmitInfo(EFrameStages::SafeToBeginDrawCallRecording,
+        m_frameTimeLine[m_currentFrameInFlight]->GetSemaphoreSignalSubmitInfo(EFrameStages::SafeToBeginDrawCallRecording,
                                                                            vk::PipelineStageFlagBits2::eAllCommands),
         // able to present semaphore should be singaled once rendering is finished
         ableToPresentSubmitInfo};
 
-
-
-    vk::SubmitInfo2 submitInfo = {}
-
-    m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_currentFrameIndex]);
-    m_renderingCommandBuffers[m_currentFrameIndex]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
+    m_renderingCommandBuffers[m_currentFrameInFlight]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
 
     m_uiRenderer->Present(m_acquiredImage.second, m_ableToPresentSemaphore[m_acquiredImage.second]->GetSyncPrimitive());
 
-    m_currentFrameIndex = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
+    m_currentFrameInFlight = (m_currentFrameInFlight + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
 
     m_device.CurrentFrame++;
-    m_device.CurrentFrameInFlight   = m_currentFrameIndex;
+    m_device.CurrentFrameInFlight   = m_currentFrameInFlight;
     m_renderContext.hasSceneChanged = false;
 
 
@@ -372,7 +368,7 @@ void RenderingSystem::PostRender()
 
 
     //=======================================
-    // reset everyting
+    // reset everything
     m_renderContext.ResetAllDrawCalls();
     m_uiContext.m_isRayTracing = m_isRayTracing;
 }
@@ -397,7 +393,7 @@ void RenderingSystem::Destroy()
 }
 VulkanCore::VTimelineSemaphore2& RenderingSystem::GetTimelineSemaphore()
 {
-    return *m_frameTimeLine[m_currentFrameIndex];
+    return *m_frameTimeLine[m_currentFrameInFlight];
 }
 
 

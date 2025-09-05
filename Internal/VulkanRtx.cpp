@@ -227,7 +227,7 @@ void Application::Render()
 
 void Application::PostRender()
 {
-    m_renderingSystem->PostRender();
+    m_renderingSystem->SubmitFrame();
     m_vulkanDevice->GetTransferOpsManager().ClearResources();
     m_client->GetScene().Reset();
     m_client->GetApplicationState().Reset();

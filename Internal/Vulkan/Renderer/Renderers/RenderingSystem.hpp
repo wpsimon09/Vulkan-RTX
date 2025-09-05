@@ -81,7 +81,7 @@ class RenderingSystem
     void WaitForSignalToProcede(int stage);
     void Render(ApplicationCore::ApplicationState& applicationState);
     void Update(ApplicationCore::ApplicationState& applicationState);
-    void PostRender();
+    void SubmitFrame();
     void Destroy();
     VulkanCore::VTimelineSemaphore2& GetTimelineSemaphore();
 
@@ -125,8 +125,8 @@ class RenderingSystem
     VulkanUtils::VRayTracingDataManager& m_rayTracingDataManager;
 
     // State
-    uint32_t m_currentImageIndex      = 0;
-    uint32_t m_currentFrameIndex      = 0;
+    uint32_t m_currentSwapChainImage      = 0;
+    uint32_t m_currentFrameInFlight      = 0;
     uint64_t m_frameCount             = 0;
     uint64_t m_accumulatedFramesCount = 0;
     std::pair<vk::Result, uint32_t> m_acquiredImage;
