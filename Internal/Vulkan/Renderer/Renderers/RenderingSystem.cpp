@@ -226,6 +226,7 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
 
     //=================================================
     // generate new IBL maps if new one was selected
+    // FIXME: this does not work because the transfer command buffer is not submitted at this point, where images used in generating IBL are not on GPU, thus everything is black
     if(m_sceneLightInfo->environmentLight != nullptr)
         if(m_sceneLightInfo->environmentLight->hdrImage->IsAvailable())
             m_envLightGenerator->Generate(m_currentFrameIndex, m_sceneLightInfo->environmentLight->hdrImage->GetHandle(),

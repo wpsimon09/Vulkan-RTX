@@ -211,7 +211,6 @@ void Application::Update()
     m_client->GetApplicationState().SetIsWindowResized(m_windowManager->GetHasResized());
 
     m_client->GetAssetsManager().Sync();
-
 }
 
 void Application::Render()

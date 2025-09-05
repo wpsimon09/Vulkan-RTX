@@ -96,7 +96,7 @@ class VEnvLightGenerator
     const VulkanCore::VDevice&          m_device;
     VulkanCore::VDescriptorLayoutCache& m_descLayoutChache;
 
-    std::unique_ptr<VulkanCore::VCommandBuffer> m_graphicsCmdBuffer;
+    VulkanCore::VCommandBuffer* m_graphicsCmdBuffer;
     std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCmdBuffer;
 
     std::unique_ptr<VulkanCore::VCommandPool> m_graphicsCmdPool;
