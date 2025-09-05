@@ -81,7 +81,7 @@ class RenderingSystem
     void CanStartRecording();
     void Render(ApplicationCore::ApplicationState& applicationState);
     void Update(ApplicationCore::ApplicationState& applicationState);
-    void PostRender();
+    void FinishFrame();
     void Destroy();
     VulkanCore::VTimelineSemaphore2& GetTimelineSemaphore();
 

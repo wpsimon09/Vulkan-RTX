@@ -179,6 +179,9 @@ void Application::Run()
 void Application::Update()
 {
     m_renderingSystem->CanStartRecording();
+    if (m_vulkanDevice->CurrentFrame >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
+        m_vulkanDevice->GetTransferOpsManager().ClearResources();
+    }
     m_vulkanDevice->GetTransferOpsManager().StartRecording();
 
     //=========================
@@ -223,8 +226,7 @@ void Application::Render()
 
 void Application::PostRender()
 {
-    m_renderingSystem->PostRender();
-    m_vulkanDevice->GetTransferOpsManager().ClearResources();
+    m_renderingSystem->FinishFrame();
     m_client->GetScene().Reset();
     m_client->GetApplicationState().Reset();
 

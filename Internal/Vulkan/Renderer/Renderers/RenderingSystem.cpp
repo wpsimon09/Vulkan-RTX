@@ -124,7 +124,6 @@ void RenderingSystem::Init()
 {
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-
         m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(0), i);
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
@@ -304,11 +303,14 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     //==========================================
     // UI Rendering
     m_uiRenderer->Render(m_currentFrameIndex, m_currentImageIndex, *m_renderingCommandBuffers[m_currentFrameIndex]);
+}
 
-    //=====================================================
+
+void RenderingSystem::FinishFrame()
+{
+      //=====================================================
     // SUBMIT RECORDED COMMAND BUFFER
     //=====================================================
-
     vk::SemaphoreSubmitInfo imageAvailableSubmitInfo = {
         m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eAllCommands, {}, {}};
     /*
@@ -318,7 +320,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
       */
     std::vector<vk::SemaphoreSubmitInfo> waitSemaphres = {
         // wait until transfer is finished
-        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreWaitSubmitInfo(EFrameStages::TransferFinish, vk::PipelineStageFlagBits2::eVertexShader
+        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreWaitSubmitInfo(EFrameStages::TransferFinish, vk::PipelineStageFlagBits2::eVertexAttributeInput
                                                                                 | vk::PipelineStageFlagBits2::eRayTracingShaderKHR),
         // wait until image to present is awailable
         imageAvailableSubmitInfo};
@@ -348,11 +350,7 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
 
     m_frameCount++;
-}
 
-
-void RenderingSystem::PostRender()
-{
     m_renderContext.ResetAllDrawCalls();
     m_uiContext.m_isRayTracing = m_isRayTracing;
 }
