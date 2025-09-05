@@ -141,10 +141,7 @@ void RenderingSystem::Init()
     }
 }
 void RenderingSystem::CanStartRecording() {
-    if (m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
-        m_frameTimeLine[m_currentFrameIndex]->CpuWaitIdle(EFrameStages::SafeToBegin);
-        m_frameTimeLine[m_currentFrameIndex]->Frame++;
-    }
+
 }
 
 
@@ -221,9 +218,6 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
     applicationState.GetGlobalRenderingInfo().isRayTracing = static_cast<int>(m_isRayTracing);
     m_uniformBufferManager.Update(m_currentFrameIndex, applicationState, m_renderContext.GetAllDrawCall());
 
-    m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_currentFrameIndex]);
-
-
     //=================================================
     // sort the draw calls based on the state chagnes
     std::sort(m_renderContext.drawCalls.begin(), m_renderContext.drawCalls.end(),
@@ -264,7 +258,10 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
 
 void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState)
 {
-
+    if (m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
+        m_frameTimeLine[m_currentFrameIndex]->CpuWaitIdle(EFrameStages::SafeToBegin);
+        m_frameTimeLine[m_currentFrameIndex]->ProcedeToNextFrame();
+    }
 
     m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
     //============================================================
@@ -338,18 +335,20 @@ void RenderingSystem::FinishFrame()
         // able to present semaphore should be singaled once rendering is finished
         ableToPresentSubmitInfo};
 
+    m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_currentFrameIndex]);
+
     m_renderingCommandBuffers[m_currentFrameIndex]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
 
     m_uiRenderer->Present(m_acquiredImage.second,
                           m_ableToPresentSemaphore[m_acquiredImage.second]->GetSyncPrimitive());
 
     m_currentFrameIndex   = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
-
     m_device.CurrentFrameInFlight = m_currentFrameIndex;
     m_renderContext.hasSceneChanged = false;
 
 
     m_frameCount++;
+    m_device.CurrentFrame++;
 
     m_renderContext.ResetAllDrawCalls();
     m_uiContext.m_isRayTracing = m_isRayTracing;

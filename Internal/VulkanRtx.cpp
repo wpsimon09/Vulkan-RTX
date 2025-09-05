@@ -178,11 +178,14 @@ void Application::Run()
 
 void Application::Update()
 {
-    m_renderingSystem->CanStartRecording();
     if (m_vulkanDevice->CurrentFrame >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
+        m_renderingSystem->GetTimelineSemaphore().CpuWaitIdle(EFrameStages::TransferFinish);
         m_vulkanDevice->GetTransferOpsManager().ClearResources();
     }
-    m_vulkanDevice->GetTransferOpsManager().StartRecording();
+    if (m_vulkanDevice->CurrentFrame > 0) {
+        m_vulkanDevice->GetTransferOpsManager().GetCommandBuffer().Reset();
+        m_vulkanDevice->GetTransferOpsManager().StartRecording();
+    }
 
     //=========================
     // Update the editor

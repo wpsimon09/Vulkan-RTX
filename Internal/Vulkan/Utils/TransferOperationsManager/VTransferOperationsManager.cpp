@@ -31,10 +31,8 @@ VulkanCore::VCommandBuffer& VTransferOperationsManager::GetCommandBuffer()
 void VTransferOperationsManager::StartRecording()
 {
     m_hasPandingWork = true;
-    if(!m_commandBuffer[m_device.CurrentFrameInFlight]->GetIsRecording())
-    {
-        m_commandBuffer[m_device.CurrentFrameInFlight]->BeginRecording();
-    }
+
+    m_commandBuffer[m_device.CurrentFrameInFlight]->BeginRecording();
 }
 
 void VTransferOperationsManager::UpdateGPU(VulkanCore::VTimelineSemaphore2& frameSemaphore)

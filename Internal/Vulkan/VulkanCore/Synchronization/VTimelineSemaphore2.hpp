@@ -18,6 +18,7 @@ public:
 
   vk::SemaphoreSubmitInfo         GetSemaphoreWaitSubmitInfo(uint32_t stage, vk::PipelineStageFlags2 waitStages);
   vk::SemaphoreSubmitInfo         GetSemaphoreSignalSubmitInfo(uint32_t stage, vk::PipelineStageFlags2 signalStages);
+  void ProcedeToNextFrame();
 
   void CpuSignal  (uint32_t signalStage);
   void CpuWaitIdle(uint32_t waitStage);
