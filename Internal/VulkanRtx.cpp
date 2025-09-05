@@ -94,7 +94,7 @@ void Application::Init()
     m_vulkanInstance = std::make_unique<VulkanCore::VulkanInstance>("Vulkan-RTX", m_windowManager->GetWindow());
     m_vulkanDevice   = std::make_unique<VulkanCore::VDevice>(*m_vulkanInstance);
 
-    m_vulkanDevice->GetTransferOpsManager().StartRecording();
+    m_vulkanDevice->GetTransferOpsManager().StartRecording(false);
 
     VulkanCore::VSamplers::CreateAllSamplers(*m_vulkanDevice);
     MathUtils::InitLookUpTables(*m_vulkanDevice);
@@ -178,8 +178,12 @@ void Application::Run()
 
 void Application::Update()
 {
-    m_renderingSystem->CanStartRecording();
-    m_vulkanDevice->GetTransferOpsManager().StartRecording();
+    if (m_vulkanDevice->CurrentFrame >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
+        m_renderingSystem->GetTimelineSemaphore().CpuWaitIdle(EFrameStages::TransferFinish);
+    }
+    if (m_vulkanDevice->CurrentFrame > 0) {
+        m_vulkanDevice->GetTransferOpsManager().StartRecording(true);
+    }
 
     //=========================
     // Update the editor
@@ -215,8 +219,8 @@ void Application::Render()
 
     m_editor->Render();
 
+    // i have to update rendering system here, since it does data after the UI rendering was completed and scene register the draw calls
     m_renderingSystem->Update(m_client->GetApplicationState());
-
     m_renderingSystem->Render(m_client->GetApplicationState());
 
 }

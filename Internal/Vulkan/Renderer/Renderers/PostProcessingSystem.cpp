@@ -50,16 +50,16 @@ void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& co
     }
 }
 
-void PostProcessingSystem::Update(int                                   frameIndex,
+void PostProcessingSystem::WriteDescriptorSets(int                                   frameIndex,
                                   VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                                   VulkanStructs::PostProcessingContext& postProcessingCotext)
 {
-    m_toneMappingPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
+    m_toneMappingPass->WriteDescriptorSets(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
 
     if(postProcessingCotext.lensFlareEffect)
     {
         postProcessingCotext.sceneRender = &m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
-        m_lensFlarePass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
+        m_lensFlarePass->WriteDescriptorSets(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
     }
 }
 

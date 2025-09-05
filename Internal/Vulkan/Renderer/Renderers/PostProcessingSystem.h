@@ -42,7 +42,7 @@ class PostProcessingSystem
               VulkanUtils::VUniformBufferManager&  uniformBufferManager,
               VulkanUtils::RenderContext* renderContext, VulkanStructs::PostProcessingContext* postProcessingContext);
 
-    void Update(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanStructs::PostProcessingContext& postProcessingCotext);
+    void WriteDescriptorSets(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanStructs::PostProcessingContext& postProcessingCotext);
 
     void Destroy();
 

@@ -36,7 +36,7 @@ class FogPass : public Renderer::RenderPass
     FogPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height);
 
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
-    void Update(int                                   currentFrame,
+    void WriteDescriptorSets(int                                   currentFrame,
                 VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;
@@ -55,7 +55,7 @@ class ToneMappingPass : public Renderer::RenderPass
     ToneMappingPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height);
 
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
-    void Update(int                                   currentFrame,
+    void WriteDescriptorSets(int                                   currentFrame,
                 VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;
@@ -79,7 +79,7 @@ class LensFlarePass : public RenderPass
   public:
     LensFlarePass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height);
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
-    void Update(int                                   currentFrame,
+    void WriteDescriptorSets(int                                   currentFrame,
                 VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;

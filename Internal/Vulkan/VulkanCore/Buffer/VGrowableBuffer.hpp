@@ -7,6 +7,7 @@
 
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
@@ -112,6 +113,12 @@ void VGrowableBuffer::PushBack(T* data, vk::DeviceSize size, OnBufferResize onBu
     // 0 offset since this will rewrite everything in the buffer
     VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, m_handle.buffer,
                              size, 0, m_currentOffset);
+
+    VulkanUtils::VBarrierPosition barrierPos  = {
+        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite, vk::PipelineStageFlagBits2::eVertexShader | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR , vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eAccelerationStructureReadKHR
+    };
+
+    VulkanUtils::PlaceBufferMemoryBarrier2(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, barrierPos);
 
     UpdateSizes(size);
     ClearUpStaging();

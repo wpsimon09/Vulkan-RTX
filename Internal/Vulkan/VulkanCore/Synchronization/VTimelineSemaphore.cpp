@@ -102,7 +102,6 @@ void VTimelineSemaphore::SetWaitAndSignal(uint64_t waitValue, uint64_t signalVal
     m_currentSignal = m_offset + signalValue;
 }
 
-
 void VTimelineSemaphore::Reset()
 {
     if(!m_waitHistory.empty())

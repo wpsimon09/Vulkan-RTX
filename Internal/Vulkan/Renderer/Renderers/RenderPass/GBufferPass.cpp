@@ -62,7 +62,7 @@ void GBufferPass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager
     m_gBufferEffect->ApplyWrites(currentFrameIndex);
 }
 
-void GBufferPass::Update(int                                   currentFrame,
+void GBufferPass::WriteDescriptorSets(int                                   currentFrame,
                          VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                          VulkanUtils::RenderContext*           renderContext,
                          VulkanStructs::PostProcessingContext* postProcessingContext)

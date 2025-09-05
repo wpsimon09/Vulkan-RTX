@@ -21,7 +21,7 @@ class BilateralFilterPass: public Renderer::RenderPass
     BilateralFilterPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, VulkanCore::VImage2& inputImage, int width, int height);
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
 
-    void Update(int                                   currentFrame,
+    void WriteDescriptorSets(int                                   currentFrame,
                 VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;

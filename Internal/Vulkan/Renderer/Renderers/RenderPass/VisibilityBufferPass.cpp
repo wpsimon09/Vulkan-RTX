@@ -62,7 +62,7 @@ void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManag
 
 }
 
-void VisibilityBufferPass::Update(int                                   currentFrame,
+void VisibilityBufferPass::WriteDescriptorSets(int                                   currentFrame,
                                   VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                                   VulkanUtils::RenderContext*           renderContext,
                                   VulkanStructs::PostProcessingContext* postProcessingContext)

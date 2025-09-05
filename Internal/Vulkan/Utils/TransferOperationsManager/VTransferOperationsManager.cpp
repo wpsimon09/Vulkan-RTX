@@ -28,13 +28,13 @@ VulkanCore::VCommandBuffer& VTransferOperationsManager::GetCommandBuffer()
     return *m_commandBuffer[m_device.CurrentFrameInFlight];
 }
 
-void VTransferOperationsManager::StartRecording()
+void VTransferOperationsManager::StartRecording(bool reset)
 {
     m_hasPandingWork = true;
-    if(!m_commandBuffer[m_device.CurrentFrameInFlight]->GetIsRecording())
-    {
-        m_commandBuffer[m_device.CurrentFrameInFlight]->BeginRecording();
+    if (reset) {
+        m_commandBuffer[m_device.CurrentFrameInFlight]->Reset();
     }
+    m_commandBuffer[m_device.CurrentFrameInFlight]->BeginRecording();
 }
 
 void VTransferOperationsManager::UpdateGPU(VulkanCore::VTimelineSemaphore2& frameSemaphore)
@@ -61,7 +61,7 @@ void VTransferOperationsManager::UpdateGPUWaitCPU(VulkanCore::VTimelineSemaphore
 
     if(startRecording)
     {
-        StartRecording();
+        //StartRecording();
     }
 }
 

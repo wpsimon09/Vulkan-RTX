@@ -65,7 +65,7 @@ void FogPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniform
     e->ApplyWrites(currentFrame);
 }
 
-void FogPass::Update(int                                   currentFrame,
+void FogPass::WriteDescriptorSets(int                                   currentFrame,
                      VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                      VulkanUtils::RenderContext*           renderContext,
                      VulkanStructs::PostProcessingContext* postProcessingContext)
@@ -227,7 +227,7 @@ void ToneMappingPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager&
     //=====================================
 }
 
-void ToneMappingPass::Update(int                                   currentFrame,
+void ToneMappingPass::WriteDescriptorSets(int                                   currentFrame,
                              VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                              VulkanUtils::RenderContext*           renderContext,
                              VulkanStructs::PostProcessingContext* postProcessingContext)
@@ -437,7 +437,7 @@ void LensFlarePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManag
     m_lensFlareEffect->ApplyWrites(currentFrameIndex);
 }
 
-void LensFlarePass::Update(int                                   currentFrame,
+void LensFlarePass::WriteDescriptorSets(int                                   currentFrame,
                            VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                            VulkanUtils::RenderContext*           renderContext,
                            VulkanStructs::PostProcessingContext* postProcessingContext)

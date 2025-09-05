@@ -21,7 +21,7 @@ public:
 
   void CpuSignal  (uint32_t signalStage);
   void CpuWaitIdle(uint32_t waitStage);
-
+  void ProcedeToNextFrame();
   void Reset();
 
   void Destroy() override;

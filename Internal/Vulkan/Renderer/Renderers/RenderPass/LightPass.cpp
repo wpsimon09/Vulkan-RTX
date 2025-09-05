@@ -168,7 +168,7 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
     }
 }
 
-void ForwardRender::Update(int                                   currentFrame,
+void ForwardRender::WriteDescriptorSets(int                                   currentFrame,
                            VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                            VulkanUtils::RenderContext*           renderContext,
                            VulkanStructs::PostProcessingContext* postProcessingContext)

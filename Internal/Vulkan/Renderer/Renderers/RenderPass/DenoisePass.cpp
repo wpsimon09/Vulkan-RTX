@@ -60,7 +60,7 @@ void BilateralFilterPass::Init(int                                 currentFrameI
     m_bilateralFileter->ApplyWrites(currentFrameIndex);
 }
 
-void BilateralFilterPass::Update(int                                   currentFrame,
+void BilateralFilterPass::WriteDescriptorSets(int                                   currentFrame,
                                  VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                                  VulkanUtils::RenderContext*           renderContext,
                                  VulkanStructs::PostProcessingContext* postProcessingContext)

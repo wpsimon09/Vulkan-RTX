@@ -36,7 +36,6 @@ vk::SemaphoreSubmitInfo VTimelineSemaphore2::GetSemaphoreWaitSubmitInfo(uint32_t
 
     //std::cout<<"Waiting  for: " << waitSubmitInfo.value << std::endl;
 
-
     return waitSubmitInfo;
 }
 
@@ -77,6 +76,9 @@ void VTimelineSemaphore2::CpuWaitIdle(uint32_t waitStage)
 
     while(m_device.GetDevice().waitSemaphores(waitInfo, UINT64_MAX) == vk::Result::eTimeout)
         ;
+}
+void VTimelineSemaphore2::ProcedeToNextFrame() {
+    m_frame++;
 }
 
 

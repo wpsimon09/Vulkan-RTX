@@ -75,7 +75,7 @@ enum EFrameStages {
     Uninitialized = 0,
     TransferFinish,
     RenderFinish,
-    SafeToBegin,
+    SafeToBeginDrawCallRecording,
     NumStages
 };
 

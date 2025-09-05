@@ -27,7 +27,7 @@ class VisibilityBufferPass : public Renderer::RenderPass
 
     void Init(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
 
-    void Update(int                                   currentFrame,
+    void WriteDescriptorSets(int                                   currentFrame,
                 VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;

@@ -55,7 +55,7 @@ class ForwardRender : public Renderer::RenderPass
 
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
 
-    void Update(int                                   currentFrame,
+    void WriteDescriptorSets(int                                   currentFrame,
                 VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;

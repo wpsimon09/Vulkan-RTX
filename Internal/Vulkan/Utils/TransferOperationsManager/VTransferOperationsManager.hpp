@@ -31,7 +31,7 @@ class VTransferOperationsManager
     VTransferOperationsManager(const VulkanCore::VDevice& device);
 
     VulkanCore::VCommandBuffer& GetCommandBuffer();
-    void                        StartRecording();
+    void                        StartRecording(bool reset);
     void                        UpdateGPU(VulkanCore::VTimelineSemaphore2& frameSemaphore);
     void UpdateGPUWaitCPU(VulkanCore::VTimelineSemaphore& frameSemaphore, bool startRecording = false);
 

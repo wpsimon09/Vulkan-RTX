@@ -70,7 +70,7 @@ class ForwardRenderer
               VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
               VulkanUtils::RenderContext*          renderContext);
 
-    void Update(int                                   currentFrame,
+    void WriteDescriptorSets(int                                   currentFrame,
                 VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                 VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
                 VulkanUtils::RenderContext*           renderContext,

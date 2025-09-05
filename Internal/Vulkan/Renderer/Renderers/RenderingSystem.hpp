@@ -78,7 +78,7 @@ class RenderingSystem
                     VEditor::UIContext&                  uiContext);
 
     void Init();
-    void CanStartRecording();
+    void WaitForSignalToProcede(int stage);
     void Render(ApplicationCore::ApplicationState& applicationState);
     void Update(ApplicationCore::ApplicationState& applicationState);
     void PostRender();

@@ -43,7 +43,7 @@ class RenderPass
                       VulkanUtils::VUniformBufferManager& uniformBufferManager,
                       VulkanUtils::RenderContext*         renderContext)    = 0;
 
-    virtual void Update(int                                   currentFrame,
+    virtual void WriteDescriptorSets(int                                   currentFrame,
                         VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                         VulkanUtils::RenderContext*           renderContext,
                         VulkanStructs::PostProcessingContext* postProcessingContext)  = 0;

@@ -93,16 +93,16 @@ void ForwardRenderer::Init(int                                  frameIndex,
     m_fogPass->Init(frameIndex, uniformBufferManager, renderContext);
 }
 
-void ForwardRenderer::Update(int                                   currentFrame,
-                             VulkanUtils::VUniformBufferManager&   uniformBufferManager,
-                             VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
-                             VulkanUtils::RenderContext*           renderContext,
-                             VulkanStructs::PostProcessingContext* postProcessingContext)
+void ForwardRenderer::WriteDescriptorSets(int                                   currentFrame,
+                                          VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                                          VulkanUtils::VRayTracingDataManager&  rayTracingDataManager,
+                                          VulkanUtils::RenderContext*           renderContext,
+                                          VulkanStructs::PostProcessingContext* postProcessingContext)
 {
-    m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
-    m_visibilityDenoisePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
-    m_forwardRenderPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
-    m_fogPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_visibilityBufferPass->WriteDescriptorSets(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_visibilityDenoisePass->WriteDescriptorSets(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_forwardRenderPass->WriteDescriptorSets(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_fogPass->WriteDescriptorSets(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,
@@ -214,6 +214,7 @@ void ForwardRenderer::DrawScene(int                                       curren
     m_forwardRenderPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
     m_forwardRendererOutput = &m_forwardRenderPass->GetResolvedResult();
 }
+
 void ForwardRenderer::PostProcessingFogPass(int                                       currentFrameIndex,
                                             VulkanCore::VCommandBuffer&               cmdBuffer,
                                             const VulkanUtils::VUniformBufferManager& uniformBufferManager)
