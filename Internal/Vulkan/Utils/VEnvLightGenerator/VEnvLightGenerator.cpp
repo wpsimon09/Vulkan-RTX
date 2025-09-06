@@ -109,6 +109,12 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
 
     //------------------------------------------------
 
+
+    //===============================================================================================================
+    // Create render attachemnts that will be used to render stuff into and later ocpied to the sides of the cube map
+    //===============================================================================================================
+
+
     //================================================
 
     GenerateBRDFLutCompute();
@@ -665,8 +671,6 @@ void VulkanUtils::VEnvLightGenerator::CreateResources(const vk::CommandBuffer&  
 //==================================
 void VulkanUtils::VEnvLightGenerator::GenerateBRDFLutCompute()
 {
-    VulkanCore::VCommandPool   computePool(m_device, EQueueFamilyIndexType::Compute);
-    VulkanCore::VCommandBuffer cmdBuffer(m_device, computePool);
 
 
     VulkanCore::VTimelineSemaphore brdfGenerationSemaphore(m_device);
@@ -683,20 +687,12 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLutCompute()
     brdfCI.imageUsage |= vk::ImageUsageFlagBits::eStorage;
     m_brdfLut = std::make_unique<VulkanCore::VImage2>(m_device, brdfCI);
 
-    m_graphicsCmdBuffer->BeginRecording();
-
     VulkanUtils::VBarrierPosition barrierPos{
         {}, {},
         vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite
     };
     PlaceImageMemoryBarrier2(*m_brdfLut, *m_graphicsCmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, barrierPos);
 
-    std::vector<vk::PipelineStageFlags> waitStages = {
-        vk::PipelineStageFlagBits::eAllGraphics,
-    };
-
-    m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), brdfGenerationSemaphore.GetSemaphore(),
-                                     brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
 
     //==========================================================================
     // PREPARE FOR RENDERING
@@ -720,43 +716,22 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLutCompute()
     //=============================================
     // RECORD COMMAND BUFFER
     //=============================================
-    cmdBuffer.BeginRecording();
-
-    brdfCompute.BindPipeline(cmdBuffer.GetCommandBuffer());
-    brdfCompute.BindDescriptorSet(cmdBuffer.GetCommandBuffer(), 0, 0);
+    brdfCompute.BindPipeline(m_graphicsCmdBuffer->GetCommandBuffer());
+    brdfCompute.BindDescriptorSet(m_graphicsCmdBuffer->GetCommandBuffer(), 0, 0);
     //=========================================
     // DISPATCH COMPUTE WORK
     //=========================================
-    cmdBuffer.GetCommandBuffer().dispatch(m_brdfLut->GetImageInfo().width / 16, m_brdfLut->GetImageInfo().width / 16, 1);
+    m_graphicsCmdBuffer->GetCommandBuffer().dispatch(m_brdfLut->GetImageInfo().width / 16, m_brdfLut->GetImageInfo().width / 16, 1);
 
-    std::vector<vk::PipelineStageFlags> renderWaitStages = {
-        vk::PipelineStageFlagBits::eComputeShader,
-    };
-    cmdBuffer.EndAndFlush(m_device.GetComputeQueue(), brdfGenerationSemaphore.GetSemaphore(),
-                          brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), renderWaitStages.data());
-
-    brdfGenerationSemaphore.CpuWaitIdle(4);
 
     //=========================================
     // TRANSITION FROM GENERAL TO READ ONLY
     //=========================================
-    m_graphicsCmdBuffer->BeginRecording();
-
     barrierPos = {
         vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
         vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead
     };
     PlaceImageMemoryBarrier2(*m_brdfLut, *m_graphicsCmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
-
-
-    std::vector<vk::PipelineStageFlags> waitStagesToShaderReadOnly = {
-        vk::PipelineStageFlagBits::eNone,
-    };
-
-    m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), brdfGenerationSemaphore.GetSemaphore(),
-                                     brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(4, 6), waitStages.data());
-
-    brdfGenerationSemaphore.CpuWaitIdle(6);
 
     brdfGenerationSemaphore.Destroy();
 

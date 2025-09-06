@@ -51,6 +51,14 @@ class VDevice;
 /**
  * This class intends to be quite large and its main purpose is to genera images for IBL, irradiance map, radiance map and HDR cube map
  */
+
+enum EIBLAttachmetn {
+  HDR = 0,
+  IrradianceMap,
+
+  PrefilterMap,
+};
+
 namespace VulkanUtils {
 class VEnvLightGenerator
 {
@@ -92,6 +100,9 @@ class VEnvLightGenerator
     std::unique_ptr<VulkanCore::VImage2>                          m_dummyCubeMap;
     int                                                           m_currentHDR;
     uint32_t                                                      m_currentFrame;
+
+    // used as render attachments which data are then copied to the GPU
+    std::vector<std::unique_ptr<VulkanCore::VImage2>> m_temporaryRenderTargets;
 
     const VulkanCore::VDevice&          m_device;
     VulkanCore::VDescriptorLayoutCache& m_descLayoutChache;
