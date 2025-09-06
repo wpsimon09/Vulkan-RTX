@@ -109,11 +109,8 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
 
     //------------------------------------------------
 
-
-    //===============================================================================================================
-    // Create render attachemnts that will be used to render stuff into and later ocpied to the sides of the cube map
-    //===============================================================================================================
-
+    m_temporaryRenderTargets.resize(EIBLAttachmetn::IBLAttachmentCount);
+    CreateTempRenderTargets(EIBLAttachmetn::HDR, )
 
     //================================================
 
@@ -222,8 +219,25 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
     {
         Utils::Logger::LogInfo("Generating IBL enviroment...");
         VulkanCore::VTimelineSemaphore envGenerationSemaphore(m_device);
+
+
+        // transition to colour attachment optimal
+        auto& cmdBuffer = m_graphicsCmdBuffer->GetCommandBuffer();
+
+        std::unique_ptr<VulkanCore::VImage2> cubeMap;
+
         const uint32_t                 dimensions = 1024;
         const uint32_t                 mipLevels  = static_cast<uint32_t>(floor(log2(dimensions))) + 1;
+
+        if (m_temporaryRenderTargets[EIBLAttachmetn::HDR] == nullptr) {
+            CreateTempRenderTargets(EIBLAttachmetn::HDR, dimensions, dimensions, vk::Format::eR32G32B32A32Sfloat);
+        }else {
+            VulkanUtils::VBarrierPosition barrierPos = {
+                vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferRead,
+                vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eColorAttachmentWrite
+            };
+            VulkanUtils::PlaceImageMemoryBarrier2(*m_temporaryRenderTargets[EIBLAttachmetn::HDR], *m_graphicsCmdBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal, barrierPos);
+        }
 
         //============================== Generate cube which is going ot be stored
         VulkanCore::VImage2CreateInfo hdrCubeMapCI;
@@ -235,16 +249,12 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
         hdrCubeMapCI.arrayLayers = 6;  // six faces
         hdrCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
 
-        std::unique_ptr<VulkanCore::VImage2> cubeMap;
-        std::unique_ptr<VulkanCore::VImage2> renderTarget;
-
-        // transition to colour attachment optimal
-        auto& cmdBuffer = m_graphicsCmdBuffer->GetCommandBuffer();
-
-        CreateResources(cmdBuffer, cubeMap, renderTarget, hdrCubeMapCI, envGenerationSemaphore);
+        cubeMap = std::make_unique<VulkanCore::VImage2>(m_device, hdrCubeMapCI);
+        //============================== Transefer layout to transfer ddestination
+        PlaceImageMemoryBarrier2(*cubeMap, *m_graphicsCmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, VulkanUtils::VImage_Undefined_ToTransferDst);
 
         m_hdrCubeMaps[envMap->GetID()] = std::move(cubeMap);
-        ;
+
 
         auto& hdrCubeMap = m_hdrCubeMaps[envMap->GetID()];
 
@@ -265,7 +275,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             vk::RenderingAttachmentInfo renderAttachentInfo;
             renderAttachentInfo.clearValue.color = {0.0f, 0.0f, 0.0f, 1.0f};
             renderAttachentInfo.imageLayout      = vk::ImageLayout::eColorAttachmentOptimal;
-            renderAttachentInfo.imageView        = renderTarget->GetImageView();
+            renderAttachentInfo.imageView        = m_temporaryRenderTargets[EIBLAttachmetn::HDR]->GetImageView();
             renderAttachentInfo.loadOp           = vk::AttachmentLoadOp::eClear;
             renderAttachentInfo.storeOp          = vk::AttachmentStoreOp::eStore;
 
@@ -307,17 +317,17 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
 
                     //=================== transition layout to transfer src
 
-                    PlaceImageMemoryBarrier2(*renderTarget, *m_graphicsCmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                    PlaceImageMemoryBarrier2(*m_temporaryRenderTargets[EIBLAttachmetn::HDR], *m_graphicsCmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
                                              vk::ImageLayout::eTransferSrcOptimal, ColorAttachment_To_TransferSrc);
 
                     //=================== cpy offscreen immage to the cueb map`s face
-                    CopyResukt(cmdBuffer, renderTarget->GetImage(), hdrCubeMap->GetImage(), viewport.width,
+                    CopyResukt(cmdBuffer, m_temporaryRenderTargets[EIBLAttachmetn::HDR]->GetImage(), hdrCubeMap->GetImage(), viewport.width,
                                viewport.height, mip, face);
 
 
                     //========================== transfer colour attachment back to rendering layout
 
-                    PlaceImageMemoryBarrier2(*renderTarget, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferSrcOptimal,
+                    PlaceImageMemoryBarrier2(*m_temporaryRenderTargets[EIBLAttachmetn::HDR], *m_graphicsCmdBuffer, vk::ImageLayout::eTransferSrcOptimal,
                                              vk::ImageLayout::eColorAttachmentOptimal, TransferSrc_To_ColorAttachment);
 
                     i++;
@@ -330,7 +340,6 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             PlaceImageMemoryBarrier2(*hdrCubeMap, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferDstOptimal,
                                      vk::ImageLayout::eShaderReadOnlyOptimal, TransferDst_To_ReadOnly);
 
-            renderTarget->Destroy();
 
 
             Utils::Logger::LogSuccess("HDR Cube map generated");
@@ -349,6 +358,16 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
 
         VulkanCore::VTimelineSemaphore envGenerationSemaphore(m_device);
 
+        if (m_temporaryRenderTargets[EIBLAttachmetn::IrradianceMap] == nullptr) {
+            CreateTempRenderTargets(EIBLAttachmetn::HDR, 32, 32, vk::Format::eR16G16B16A16Sfloat);
+        }else {
+            VulkanUtils::VBarrierPosition barrierPos = {
+                vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferRead,
+                vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eColorAttachmentWrite
+            };
+            VulkanUtils::PlaceImageMemoryBarrier2(*m_temporaryRenderTargets[EIBLAttachmetn::IrradianceMap], *m_graphicsCmdBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal, barrierPos);
+        }
+
         //============================== Generate cube which is going ot be stored
         VulkanCore::VImage2CreateInfo irradianceCubeMapCI;
         irradianceCubeMapCI.channels    = 4;
@@ -362,9 +381,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
 
         auto& cmdBuffer = m_graphicsCmdBuffer->GetCommandBuffer();
 
+
         std::unique_ptr<VulkanCore::VImage2> cubeMap;
-        std::unique_ptr<VulkanCore::VImage2> renderTarget;
-        CreateResources(cmdBuffer, cubeMap, renderTarget, irradianceCubeMapCI, envGenerationSemaphore);
 
         m_irradianceMaps.insert(std::make_pair(envMap->GetID(), std::move(cubeMap)));
         auto& irradianceCubeMap = m_irradianceMaps[envMap->GetID()];
@@ -441,7 +459,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
             //======================== transition the HDR image to shader read only
             PlaceImageMemoryBarrier2(*irradianceCubeMap, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, TransferDst_To_ReadOnly);
 
-            renderTarget->Destroy();
+            // TODO: add function that can also destry images
 
             //            hdrPushBlock.Destory();
             Utils::Logger::LogSuccess("Irradiance map generated");
@@ -543,7 +561,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
 
                 cmdBuffer.pushConstants2(pcInfo);
 
-                RenderToCubeMap(cmdBuffer, viewport, renderAttachentInfo);
+                RenderToCubeMap(cmdBuffer,viewport, renderAttachentInfo);
 
                 //=================== transition layout to transfer src
                 PlaceImageMemoryBarrier2(*renderTarget, *m_graphicsCmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
@@ -637,35 +655,21 @@ void VulkanUtils::VEnvLightGenerator::CopyResukt(const vk::CommandBuffer& cmdBuf
     cmdBuffer.copyImage(src, vk::ImageLayout::eTransferSrcOptimal, dst, vk::ImageLayout::eTransferDstOptimal, copyRegion);
 }
 
-void VulkanUtils::VEnvLightGenerator::CreateResources(const vk::CommandBuffer&              cmdBuffer,
-                                                      std::unique_ptr<VulkanCore::VImage2>& cubeMap,
-                                                      std::unique_ptr<VulkanCore::VImage2>& renderTarget,
-                                                      VulkanCore::VImage2CreateInfo&        createInfo,
-                                                      VulkanCore::VTimelineSemaphore&       semaphore) {
-    cubeMap = std::make_unique<VulkanCore::VImage2>(m_device, createInfo);
 
-    //============================== Transefer layout to transfer ddestination
-    PlaceImageMemoryBarrier2(*cubeMap, *m_graphicsCmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, VulkanUtils::VImage_Undefined_ToTransferDst);
+void VulkanUtils::VEnvLightGenerator::CreateTempRenderTargets(EIBLAttachmetn attachment, int width, int height, vk::Format format)
+{
+    VulkanCore::VImage2CreateInfo colourAttachemntCI;
+    colourAttachemntCI.width  = width;
+    colourAttachemntCI.height = height;
+    colourAttachemntCI.format = format;
+    colourAttachemntCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc;
 
-    //=============================== Create image that will be used to render into
+    m_temporaryRenderTargets[attachment] = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachemntCI);
 
-    {
-        VulkanCore::VImage2CreateInfo colourAttachemntCI;
-        colourAttachemntCI.width  = createInfo.width;
-        colourAttachemntCI.height = createInfo.height;
-        colourAttachemntCI.format = createInfo.format;
-        colourAttachemntCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc;
+    //============================ Transfer to transfer Src destination
+    PlaceImageMemoryBarrier2(*m_temporaryRenderTargets[attachment], *m_graphicsCmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, VulkanUtils::VImage_Undefined_ToColorAttachment);
 
-        renderTarget = std::make_unique<VulkanCore::VImage2>(m_device, colourAttachemntCI);
-
-        //============================ Transfer to transfer Src destination
-        PlaceImageMemoryBarrier2(*renderTarget, *m_graphicsCmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, VulkanUtils::VImage_Undefined_ToColorAttachment);
-    }
-
-    //================ Transfer HDR cube map to be in transfer DST optimal
-    std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
 }
-
 //==================================
 // BRDF LOOK UP TABLE GENERATION
 //==================================
