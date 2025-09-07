@@ -87,7 +87,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
     m_renderingCommandPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Graphics);
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_frameTimeLine[i]            = std::make_unique<VulkanCore::VTimelineSemaphore2>(m_device, EFrameStages::NumStages);
+        m_frameTimeLine[i] = std::make_unique<VulkanCore::VTimelineSemaphore2>(m_device, EFrameStages::NumStages);
         m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
         m_renderingCommandBuffers[i]  = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_renderingCommandPool);
     }
@@ -111,7 +111,7 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
 
     m_uiRenderer = std::make_unique<Renderer::UserInterfaceRenderer>(m_device, *m_swapChain, uiContext);
 
-    m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_currentFrameIndex;
+    m_uiContext.GetViewPortContext(ViewPortType::eMain).currentFrameInFlight = m_frameInFlightID;
 
     m_envLightGenerator = std::make_unique<VulkanUtils::VEnvLightGenerator>(m_device, descLayoutCache);
 
@@ -140,15 +140,84 @@ void RenderingSystem::Init()
         m_postProcessingSystem->Init(i, m_uniformBufferManager, &m_renderContext, &m_postProcessingContext);
     }
 }
-void RenderingSystem::CanStartRecording() {
-
-}
 
 
 void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState)
 {
+    m_sceneLightInfo = &applicationState.GetSceneLightInfo();
+
+    if(applicationState.GetSceneUpdateFlags().resetAccumulation)
+    {
+        // reset the accumulation
+        m_accumulatedFramesCount        = 0;
+        m_renderContext.hasSceneChanged = true;
+    }
+
+    // ==== check if it is possible ot use env light
+    if(m_isRayTracing)
+    {
+        applicationState.GetGlobalRenderingInfo().screenSize.x =
+            m_rayTracer->GetRenderedImage(m_frameInFlightID).GetImageInfo().width;
+        applicationState.GetGlobalRenderingInfo().screenSize.y =
+            m_rayTracer->GetRenderedImage(m_frameInFlightID).GetImageInfo().height;
+        // will cause to multiply by 0 thus clear the colour
+        applicationState.GetGlobalRenderingInfo().numberOfFrames = m_accumulatedFramesCount;
+    }
+    else
+    {
+        applicationState.GetGlobalRenderingInfo().numberOfFrames = m_frameCount;
+    }
+
+
+    //=====================================================================
+    // IMPORTANT: this sends all data accumulated over the frame to the GPU
+    applicationState.GetGlobalRenderingInfo().isRayTracing = static_cast<int>(m_isRayTracing);
+    m_uniformBufferManager.Update(m_frameInFlightID, applicationState, m_renderContext.GetAllDrawCall());
+
+    //=================================================
+    // sort the draw calls based on the state chagnes
+    std::sort(m_renderContext.drawCalls.begin(), m_renderContext.drawCalls.end(),
+              [](std::pair<unsigned long, VulkanStructs::VDrawCallData>& lhs,
+                 std::pair<unsigned long, VulkanStructs::VDrawCallData>& rhs) { return lhs.first < rhs.first; });
+
+    //=================================================
+    // generate new IBL maps if new one was selected
+    // FIXME: this does not work because the transfer command buffer is not submitted at this point, where images used in generating IBL are not on GPU, thus everything is black
+    if(m_sceneLightInfo->environmentLight != nullptr)
+        if(m_sceneLightInfo->environmentLight->hdrImage->IsAvailable())
+            m_envLightGenerator->Generate(m_frameInFlightID, m_sceneLightInfo->environmentLight->hdrImage->GetHandle(),
+                                          *m_frameTimeLine[m_frameInFlightID]);
+    //====================================================================
+    // pass necessary data to the rendering context
+    m_renderContext.hdrCubeMap    = m_envLightGenerator->GetCubeMapRaw();
+    m_renderContext.irradianceMap = m_envLightGenerator->GetIrradianceMapRaw();
+    m_renderContext.prefilterMap  = m_envLightGenerator->GetPrefilterMapRaw();
+    m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
+    m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
+    m_renderContext.deltaTime     = ImGui::GetIO().DeltaTime;
+    m_renderContext.tlas          = m_rayTracingDataManager.GetTLAS();
+
+    //==================================================
+    // Pass parameters to the post processing context
+    m_postProcessingContext.toneMappingParameters         = &applicationState.GetToneMappingParameters();
+    m_postProcessingContext.lensFlareParameters           = &applicationState.GetLensFlareParameters();
+    m_postProcessingContext.luminanceHistrogramParameters = &applicationState.GetLuminanceHistogramParameters();
+    m_postProcessingContext.luminanceAverageParameters    = &applicationState.GetLuminanceAverageParameters();
+    m_postProcessingContext.deltaTime                     = ImGui::GetIO().DeltaTime;
+
+}
+
+
+bool RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState)
+{
+    if(m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT)
+    {
+        m_frameTimeLine[m_frameInFlightID]->CpuWaitIdle(EFrameStages::SafeToBegin);
+        m_frameTimeLine[m_frameInFlightID]->ProcedeToNextFrame();
+    }
+
     m_acquiredImage = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
-                                                            *m_imageAvailableSemaphores[m_currentFrameIndex], nullptr);
+                                                            *m_imageAvailableSemaphores[m_frameInFlightID], nullptr);
 
     auto swapChainImageIndex = m_acquiredImage;
 
@@ -168,15 +237,16 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
         m_swapChain->RecreateSwapChain();
         m_uiRenderer->HandleSwapChainResize(*m_swapChain);
 
-        m_frameTimeLine[m_currentFrameIndex]->CpuSignal(EFrameStages::SafeToBegin);
+        m_frameTimeLine[m_frameInFlightID]->CpuSignal(EFrameStages::SafeToBegin);
         // to silent validation layers i will recreate the semaphore
         m_ableToPresentSemaphore[m_acquiredImage.second]->Destroy();
-        m_ableToPresentSemaphore[m_acquiredImage.second] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+        m_ableToPresentSemaphore[m_acquiredImage.second] =
+            std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
 
         m_frameCount++;
         m_device.CurrentFrame = m_frameCount;
 
-        return;
+        return false;
     }
     case vk::Result::eSuboptimalKHR: {
         m_currentImageIndex = swapChainImageIndex.second;
@@ -188,84 +258,12 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
         break;
     }
 
-    m_sceneLightInfo = &applicationState.GetSceneLightInfo();
-
-    if(applicationState.GetSceneUpdateFlags().resetAccumulation)
-    {
-        // reset the accumulation
-        m_accumulatedFramesCount        = 0;
-        m_renderContext.hasSceneChanged = true;
-    }
-
-    // ==== check if it is possible ot use env light
-    if(m_isRayTracing)
-    {
-        applicationState.GetGlobalRenderingInfo().screenSize.x =
-            m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().width;
-        applicationState.GetGlobalRenderingInfo().screenSize.y =
-            m_rayTracer->GetRenderedImage(m_currentFrameIndex).GetImageInfo().height;
-        // will cause to multiply by 0 thus clear the colour
-        applicationState.GetGlobalRenderingInfo().numberOfFrames = m_accumulatedFramesCount;
-    }
-    else
-    {
-        applicationState.GetGlobalRenderingInfo().numberOfFrames = m_frameCount;
-    }
 
 
-    //=====================================================================
-    // IMPORTANT: this sends all data accumulated over the frame to the GPU
-    applicationState.GetGlobalRenderingInfo().isRayTracing = static_cast<int>(m_isRayTracing);
-    m_uniformBufferManager.Update(m_currentFrameIndex, applicationState, m_renderContext.GetAllDrawCall());
-
-    //=================================================
-    // sort the draw calls based on the state chagnes
-    std::sort(m_renderContext.drawCalls.begin(), m_renderContext.drawCalls.end(),
-              [](std::pair<unsigned long, VulkanStructs::VDrawCallData>& lhs,
-                 std::pair<unsigned long, VulkanStructs::VDrawCallData>& rhs) { return lhs.first < rhs.first; });
-
-    //=================================================
-    // generate new IBL maps if new one was selected
-    // FIXME: this does not work because the transfer command buffer is not submitted at this point, where images used in generating IBL are not on GPU, thus everything is black
-    if(m_sceneLightInfo->environmentLight != nullptr)
-        if(m_sceneLightInfo->environmentLight->hdrImage->IsAvailable())
-            m_envLightGenerator->Generate(m_currentFrameIndex, m_sceneLightInfo->environmentLight->hdrImage->GetHandle(),
-                                          *m_frameTimeLine[m_currentFrameIndex]);
-    //====================================================================
-    // pass necessary data to the rendering context
-    m_renderContext.hdrCubeMap    = m_envLightGenerator->GetCubeMapRaw();
-    m_renderContext.irradianceMap = m_envLightGenerator->GetIrradianceMapRaw();
-    m_renderContext.prefilterMap  = m_envLightGenerator->GetPrefilterMapRaw();
-    m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
-    m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
-    m_renderContext.deltaTime     = ImGui::GetIO().DeltaTime;
-    m_renderContext.tlas          = m_rayTracingDataManager.GetTLAS();
-
-    //==================================================
-    // Pass parameters to the post processing context
-    m_postProcessingContext.toneMappingParameters         = &applicationState.GetToneMappingParameters();
-    m_postProcessingContext.lensFlareParameters           = &applicationState.GetLensFlareParameters();
-    m_postProcessingContext.luminanceHistrogramParameters = &applicationState.GetLuminanceHistogramParameters();
-    m_postProcessingContext.luminanceAverageParameters    = &applicationState.GetLuminanceAverageParameters();
-    m_postProcessingContext.deltaTime                     = ImGui::GetIO().DeltaTime;
-
-    m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_currentFrameIndex]);
-
-}
-
-
-
-void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState)
-{
-    if (m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
-        m_frameTimeLine[m_currentFrameIndex]->CpuWaitIdle(EFrameStages::SafeToBegin);
-        m_frameTimeLine[m_currentFrameIndex]->ProcedeToNextFrame();
-    }
-
-    m_renderingCommandBuffers[m_currentFrameIndex]->Reset();
+    m_renderingCommandBuffers[m_frameInFlightID]->Reset();
     //============================================================
     // start recording command buffer that will render the scene
-    m_renderingCommandBuffers[m_currentFrameIndex]->BeginRecording();
+    m_renderingCommandBuffers[m_frameInFlightID]->BeginRecording();
 
     //===================================================
     // ACTUAL RENDERING IS TRIGGERED HERE
@@ -274,10 +272,10 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 
         //===========================================================
         // update render passes
-        m_forwardRenderer->Update(m_currentFrameIndex, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext,
+        m_forwardRenderer->Update(m_frameInFlightID, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext,
                                   &m_postProcessingContext);
         // render scene
-        m_forwardRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex],
+        m_forwardRenderer->Render(m_frameInFlightID, *m_renderingCommandBuffers[m_frameInFlightID],
                                   m_uniformBufferManager, &m_renderContext);
 
         m_postProcessingContext.sceneRender = m_forwardRenderer->GetForwardRendererResult();
@@ -287,33 +285,35 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     else
     {
         // path trace the scene
-        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_currentFrameIndex], m_uniformBufferManager, m_currentFrameIndex);
+        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_frameInFlightID], m_uniformBufferManager, m_frameInFlightID);
         m_accumulatedFramesCount++;
 
-        m_postProcessingContext.sceneRender = &m_rayTracer->GetRenderedImage(m_currentFrameIndex);
+        m_postProcessingContext.sceneRender                         = &m_rayTracer->GetRenderedImage(m_frameInFlightID);
         m_postProcessingContext.toneMappingParameters->isRayTracing = true;
     }
 
 
     //========================================
     // Post processing
-    m_postProcessingSystem->Update(m_currentFrameIndex, m_uniformBufferManager, m_postProcessingContext);
-    m_postProcessingSystem->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex], m_postProcessingContext);
-    m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_currentFrameIndex), m_currentFrameIndex);
+    m_postProcessingSystem->Update(m_frameInFlightID, m_uniformBufferManager, m_postProcessingContext);
+    m_postProcessingSystem->Render(m_frameInFlightID, *m_renderingCommandBuffers[m_frameInFlightID], m_postProcessingContext);
+    m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_frameInFlightID), m_frameInFlightID);
 
     //==========================================
     // UI Rendering
-    m_uiRenderer->Render(m_currentFrameIndex, m_currentImageIndex, *m_renderingCommandBuffers[m_currentFrameIndex]);
+    m_uiRenderer->Render(m_frameInFlightID, m_currentImageIndex, *m_renderingCommandBuffers[m_frameInFlightID]);
+
+    return true;
 }
 
 
 void RenderingSystem::FinishFrame()
 {
-      //=====================================================
+    //=====================================================
     // SUBMIT RECORDED COMMAND BUFFER
     //=====================================================
     vk::SemaphoreSubmitInfo imageAvailableSubmitInfo = {
-        m_imageAvailableSemaphores[m_currentFrameIndex]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eAllCommands, {}, {}};
+        m_imageAvailableSemaphores[m_frameInFlightID]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eAllCommands, {}, {}};
     /*
       * Before we can render, we have to wait for 2 things:
       * 1. all transfer operations have to be done
@@ -321,8 +321,9 @@ void RenderingSystem::FinishFrame()
       */
     std::vector<vk::SemaphoreSubmitInfo> waitSemaphres = {
         // wait until transfer is finished
-        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreWaitSubmitInfo(EFrameStages::TransferFinish, vk::PipelineStageFlagBits2::eVertexAttributeInput
-                                                                                | vk::PipelineStageFlagBits2::eRayTracingShaderKHR),
+        m_frameTimeLine[m_frameInFlightID]->GetSemaphoreWaitSubmitInfo(EFrameStages::TransferFinish,
+                                                                       vk::PipelineStageFlagBits2::eVertexAttributeInput
+                                                                           | vk::PipelineStageFlagBits2::eRayTracingShaderKHR),
         // wait until image to present is awailable
         imageAvailableSubmitInfo};
 
@@ -335,17 +336,19 @@ void RenderingSystem::FinishFrame()
 
     std::vector<vk::SemaphoreSubmitInfo> signalSemaphores = {
         // rendering timeline will signal 8 which means that new frame can start exectuing
-        m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreSignalSubmitInfo(EFrameStages::SafeToBegin, vk::PipelineStageFlagBits2::eAllCommands),
+        m_frameTimeLine[m_frameInFlightID]->GetSemaphoreSignalSubmitInfo(EFrameStages::SafeToBegin,
+                                                                         vk::PipelineStageFlagBits2::eAllCommands),
         // able to present semaphore should be singaled once rendering is finished
         ableToPresentSubmitInfo};
 
-    m_renderingCommandBuffers[m_currentFrameIndex]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
+    m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_frameInFlightID]);
+    m_renderingCommandBuffers[m_frameInFlightID]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
 
-    m_uiRenderer->Present(m_acquiredImage.second,
-                          m_ableToPresentSemaphore[m_acquiredImage.second]->GetSyncPrimitive());
+    m_uiRenderer->Present(m_acquiredImage.second, m_ableToPresentSemaphore[m_acquiredImage.second]->GetSyncPrimitive());
 
-    m_currentFrameIndex   = (m_currentFrameIndex + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
-    m_device.CurrentFrameInFlight = m_currentFrameIndex;
+
+    m_frameInFlightID               = (m_frameInFlightID + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
+    m_device.CurrentFrameInFlight   = m_frameInFlightID;
     m_renderContext.hasSceneChanged = false;
 
 
@@ -374,8 +377,9 @@ void RenderingSystem::Destroy()
     m_rayTracer->Destroy();
     m_renderingCommandPool->Destroy();
 }
-VulkanCore::VTimelineSemaphore2& RenderingSystem::GetTimelineSemaphore() {
-    return *m_frameTimeLine[m_currentFrameIndex];
+VulkanCore::VTimelineSemaphore2& RenderingSystem::GetTimelineSemaphore()
+{
+    return *m_frameTimeLine[m_frameInFlightID];
 }
 
 

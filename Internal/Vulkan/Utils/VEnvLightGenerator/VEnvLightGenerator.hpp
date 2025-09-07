@@ -127,7 +127,7 @@ class VEnvLightGenerator
     void CopyResukt(const vk::CommandBuffer& cmdBuffer, const vk::Image& src, const vk::Image& dst, int w, int h, int m = 0, int f = 0);
 
 
-  void VulkanUtils::VEnvLightGenerator::CreateResources(const vk::CommandBuffer&              cmdBuffer,
+  void CreateResources(const vk::CommandBuffer&              cmdBuffer,
                                                         std::unique_ptr<VulkanCore::VImage2>& cubeMap,
                                                         std::unique_ptr<VulkanCore::VImage2>& renderTarget,
                                                         VulkanCore::VImage2CreateInfo&        createInfo,

@@ -220,15 +220,15 @@ void Application::Render()
 
     m_editor->Render();
 
-    m_renderingSystem->Update(m_client->GetApplicationState());
-
-    m_renderingSystem->Render(m_client->GetApplicationState());
-
+        m_renderingSystem->Update(m_client->GetApplicationState());
+        if (m_renderingSystem->Render(m_client->GetApplicationState())) {
+            // if swap chain is good we can render and finish the frame, otherwise skip presenting and resubmit the command buffer
+            m_renderingSystem->FinishFrame();
+        }
 }
 
 void Application::PostRender()
 {
-    m_renderingSystem->FinishFrame();
     m_client->GetScene().Reset();
     m_client->GetApplicationState().Reset();
 
