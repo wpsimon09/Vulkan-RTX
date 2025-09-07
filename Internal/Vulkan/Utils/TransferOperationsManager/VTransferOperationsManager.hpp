@@ -48,9 +48,9 @@ class VTransferOperationsManager
     const VulkanCore::VDevice&                               m_device;
     std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_commandBuffer;
 
-    std::vector<std::pair<VkBuffer, VmaAllocation>>    m_clearBuffersVKVMA;
-    std::vector<std::pair<bool, VulkanCore::VBuffer*>> m_clearVBuffers;
-    std::vector<std::pair<vk::Image, VmaAllocation>> m_clearImages;
+    std::vector<std::vector<std::pair<VkBuffer, VmaAllocation>>>    m_clearBuffersVKVMA;
+    std::vector<std::vector<std::pair<bool, VulkanCore::VBuffer*>>> m_clearVBuffers;
+    std::vector<std::vector<std::pair<vk::Image, VmaAllocation>>>   m_clearImages;
 };
 
 }  // namespace VulkanUtils

@@ -186,6 +186,7 @@ void VulkanUtils::VEnvLightGenerator::Generate(uint32_t                         
                                                VulkanCore::VTimelineSemaphore2&      renderingSemaphore)
 {
     m_currentFrame = currentFrame;
+    m_graphicsCmdBuffer = &m_device.GetTransferOpsManager().GetCommandBuffer();
 
     if(!envMap)
     {

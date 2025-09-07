@@ -21,6 +21,9 @@ VTransferOperationsManager::VTransferOperationsManager(const VulkanCore::VDevice
     {
         m_commandBuffer[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
     }
+    m_clearBuffersVKVMA.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_clearImages.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    m_clearVBuffers.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
 }
 
 VulkanCore::VCommandBuffer& VTransferOperationsManager::GetCommandBuffer()
@@ -68,7 +71,7 @@ void VTransferOperationsManager::UpdateGPUWaitCPU(VulkanCore::VTimelineSemaphore
 void VTransferOperationsManager::ClearResources()
 {
     //m_transferTimeline->CpuWaitIdle(2);
-    for(auto& buffer : m_clearVBuffers)
+    for(auto& buffer : m_clearVBuffers[m_device.CurrentFrameInFlight])
     {
         if(buffer.first)  // is staging
         {
@@ -80,32 +83,32 @@ void VTransferOperationsManager::ClearResources()
         }
     }
 
-    for(auto& buffer : m_clearBuffersVKVMA)
+    for(auto& buffer : m_clearBuffersVKVMA[m_device.CurrentFrameInFlight])
     {
         vmaDestroyBuffer(m_device.GetAllocator(), buffer.first, buffer.second);
     }
-    for(auto& image : m_clearImages)
+    for(auto& image : m_clearImages[m_device.CurrentFrameInFlight])
     {
         vmaDestroyImage(m_device.GetAllocator(), image.first, image.second);
     }
 
-    m_clearImages.clear();
-    m_clearBuffersVKVMA.clear();
-    m_clearVBuffers.clear();
+    m_clearImages[m_device.CurrentFrameInFlight].clear();
+    m_clearBuffersVKVMA[m_device.CurrentFrameInFlight].clear();
+    m_clearVBuffers[m_device.CurrentFrameInFlight].clear();
 }
 
 void VTransferOperationsManager::DestroyBuffer(VkBuffer& buffer, VmaAllocation& vmaAllocation)
 {
-    m_clearBuffersVKVMA.emplace_back(std::make_pair<VkBuffer, VmaAllocation>(std::move(buffer), std::move(vmaAllocation)));
+    m_clearBuffersVKVMA[m_device.CurrentFrameInFlight].emplace_back(std::make_pair<VkBuffer, VmaAllocation>(std::move(buffer), std::move(vmaAllocation)));
 }
 
 void VTransferOperationsManager::DestroyBuffer(VulkanCore::VBuffer& vBuffer, bool isStaging)
 {
-    m_clearVBuffers.emplace_back(isStaging, &vBuffer);
+    m_clearVBuffers[m_device.CurrentFrameInFlight].emplace_back(isStaging, &vBuffer);
 }
 
 void VTransferOperationsManager::DestroyImage(vk::Image image, VmaAllocation& vmaAllocation) {
-    m_clearImages.emplace_back(image, vmaAllocation);
+    m_clearImages[m_device.CurrentFrameInFlight].emplace_back(image, vmaAllocation);
 }
 
 

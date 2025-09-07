@@ -219,10 +219,12 @@ void Application::Render()
     m_client->Render(m_renderingSystem->GetRenderContext());
 
     m_editor->Render();
-    //0X15b
+
         m_renderingSystem->Update(m_client->GetApplicationState());
-        m_renderingSystem->Render(m_client->GetApplicationState());
-        m_renderingSystem->FinishFrame();
+        if (m_renderingSystem->Render(m_client->GetApplicationState())) {
+
+            m_renderingSystem->FinishFrame();
+        }
 }
 
 void Application::PostRender()

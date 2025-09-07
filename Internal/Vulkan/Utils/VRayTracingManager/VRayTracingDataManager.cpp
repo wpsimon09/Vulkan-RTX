@@ -23,7 +23,7 @@ void VRayTracingDataManager::UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& b
 {
 
     // for now every instance will be every BLAS, i will have to later redo how scene is describing the
-    for(int i = 0; i < (int)blasInputs.size(); ++i)
+    for(int i = 0; i < (int)blasInputs.size(); i++)
     {
         m_instances[i].transform = VulkanCore::RTX::GlmToMatrix4KHR(blasInputs[i].transform);
     }
