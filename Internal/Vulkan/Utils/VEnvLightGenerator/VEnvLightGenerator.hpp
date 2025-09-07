@@ -55,8 +55,8 @@ class VDevice;
 enum EIBLAttachmetn {
   HDR = 0,
   IrradianceMap,
-
   PrefilterMap,
+  IBLAttachmentCount
 };
 
 namespace VulkanUtils {
@@ -126,12 +126,12 @@ class VEnvLightGenerator
 
     void CopyResukt(const vk::CommandBuffer& cmdBuffer, const vk::Image& src, const vk::Image& dst, int w, int h, int m = 0, int f = 0);
 
-    void CreateResources(const vk::CommandBuffer&              cmdBuffer,
-                         std::unique_ptr<VulkanCore::VImage2>& cubeMap,
-                         std::unique_ptr<VulkanCore::VImage2>& renderTarget,
-                         VulkanCore::VImage2CreateInfo&        createInfo,
-                         VulkanCore::VTimelineSemaphore&       semaphore);
 
+  void VulkanUtils::VEnvLightGenerator::CreateResources(const vk::CommandBuffer&              cmdBuffer,
+                                                        std::unique_ptr<VulkanCore::VImage2>& cubeMap,
+                                                        std::unique_ptr<VulkanCore::VImage2>& renderTarget,
+                                                        VulkanCore::VImage2CreateInfo&        createInfo,
+                                                        VulkanCore::VTimelineSemaphore&       semaphore);
     VulkanUtils::VBarrierPosition ColorAttachment_To_TransferSrc{vk::PipelineStageFlagBits2::eColorAttachmentOutput,
                                                                  vk::AccessFlagBits2::eColorAttachmentWrite,
                                                                  vk::PipelineStageFlagBits2::eCopy,
