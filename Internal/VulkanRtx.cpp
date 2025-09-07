@@ -219,12 +219,10 @@ void Application::Render()
     m_client->Render(m_renderingSystem->GetRenderContext());
 
     m_editor->Render();
-
+    //0X15b
         m_renderingSystem->Update(m_client->GetApplicationState());
-        if (m_renderingSystem->Render(m_client->GetApplicationState())) {
-            // if swap chain is good we can render and finish the frame, otherwise skip presenting and resubmit the command buffer
-            m_renderingSystem->FinishFrame();
-        }
+        m_renderingSystem->Render(m_client->GetApplicationState());
+        m_renderingSystem->FinishFrame();
 }
 
 void Application::PostRender()

@@ -205,6 +205,8 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
     m_postProcessingContext.luminanceAverageParameters    = &applicationState.GetLuminanceAverageParameters();
     m_postProcessingContext.deltaTime                     = ImGui::GetIO().DeltaTime;
 
+    m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_frameInFlightID), m_frameInFlightID);
+
 }
 
 
@@ -297,7 +299,6 @@ bool RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     // Post processing
     m_postProcessingSystem->Update(m_frameInFlightID, m_uniformBufferManager, m_postProcessingContext);
     m_postProcessingSystem->Render(m_frameInFlightID, *m_renderingCommandBuffers[m_frameInFlightID], m_postProcessingContext);
-    m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_frameInFlightID), m_frameInFlightID);
 
     //==========================================
     // UI Rendering
