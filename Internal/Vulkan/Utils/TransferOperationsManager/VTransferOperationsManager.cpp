@@ -2,14 +2,15 @@
 // Created by wpsimon09 on 11/03/25.
 //
 
+#include "VTransferOperationsManager.hpp"
 #include "VMA/vk_mem_alloc.h"
 #include "vulkan/vulkan.h"
-#include "VTransferOperationsManager.hpp"
 
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp"
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace VulkanUtils {
 VTransferOperationsManager::VTransferOperationsManager(const VulkanCore::VDevice& device)
@@ -39,7 +40,8 @@ void VTransferOperationsManager::UpdateGPU(VulkanCore::VTimelineSemaphore2& fram
 {
     vk::PipelineStageFlags2 signalStages = vk::PipelineStageFlagBits2::eAllCommands;
 
-    std::vector<vk::SemaphoreSubmitInfo> signalSubmit = {frameSemaphore.GetSemaphoreSignalSubmitInfo(EFrameStages::TransferFinish, signalStages)};
+    std::vector<vk::SemaphoreSubmitInfo> signalSubmit = {
+        frameSemaphore.GetSemaphoreSignalSubmitInfo(EFrameStages::TransferFinish, signalStages)};
 
     /**
      * Submits all the transfer work, like copyes as stuff, and only signals once it is finished it does not have to wait for any other semaphore
@@ -82,6 +84,12 @@ void VTransferOperationsManager::ClearResources()
     {
         vmaDestroyBuffer(m_device.GetAllocator(), buffer.first, buffer.second);
     }
+    for(auto& image : m_clearImages)
+    {
+        vmaDestroyImage(m_device.GetAllocator(), image.first, image.second);
+    }
+
+    m_clearImages.clear();
     m_clearBuffersVKVMA.clear();
     m_clearVBuffers.clear();
 }
@@ -95,6 +103,11 @@ void VTransferOperationsManager::DestroyBuffer(VulkanCore::VBuffer& vBuffer, boo
 {
     m_clearVBuffers.emplace_back(isStaging, &vBuffer);
 }
+
+void VTransferOperationsManager::DestroyImage(vk::Image image, VmaAllocation& vmaAllocation) {
+    m_clearImages.emplace_back(image, vmaAllocation);
+}
+
 
 void VTransferOperationsManager::Destroy()
 {

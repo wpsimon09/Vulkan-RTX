@@ -330,7 +330,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             PlaceImageMemoryBarrier2(*hdrCubeMap, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferDstOptimal,
                                      vk::ImageLayout::eShaderReadOnlyOptimal, TransferDst_To_ReadOnly);
 
-            renderTarget->Destroy();
+             m_device.GetTransferOpsManager().DestroyImage(renderTarget->GetImage(), renderTarget->GetImageAllocation());
 
 
             Utils::Logger::LogSuccess("HDR Cube map generated");
@@ -441,7 +441,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
             //======================== transition the HDR image to shader read only
             PlaceImageMemoryBarrier2(*irradianceCubeMap, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, TransferDst_To_ReadOnly);
 
-            renderTarget->Destroy();
+            m_device.GetTransferOpsManager().DestroyImage(renderTarget->GetImage(), renderTarget->GetImageAllocation());
 
             //            hdrPushBlock.Destory();
             Utils::Logger::LogSuccess("Irradiance map generated");
@@ -562,7 +562,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         //======================== transition the HDR image to shader read only
         VulkanUtils::PlaceImageMemoryBarrier2(*prefilterMap, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, TransferDst_To_ReadOnly);
 
-        renderTarget->Destroy();
+        m_device.GetTransferOpsManager().DestroyImage(renderTarget->GetImage(), renderTarget->GetImageAllocation());
 
 
         //            hdrPushBlock.Destory();

@@ -249,10 +249,8 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
     m_postProcessingContext.luminanceAverageParameters    = &applicationState.GetLuminanceAverageParameters();
     m_postProcessingContext.deltaTime                     = ImGui::GetIO().DeltaTime;
 
-    //===========================================================
-    // update render passes
-    m_forwardRenderer->Update(m_currentFrameIndex, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext,
-                              &m_postProcessingContext);
+    m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_currentFrameIndex]);
+
 }
 
 
@@ -273,6 +271,11 @@ void RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     // ACTUAL RENDERING IS TRIGGERED HERE
     if(!m_uiContext.m_isRayTracing)
     {
+
+        //===========================================================
+        // update render passes
+        m_forwardRenderer->Update(m_currentFrameIndex, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext,
+                                  &m_postProcessingContext);
         // render scene
         m_forwardRenderer->Render(m_currentFrameIndex, *m_renderingCommandBuffers[m_currentFrameIndex],
                                   m_uniformBufferManager, &m_renderContext);
@@ -335,8 +338,6 @@ void RenderingSystem::FinishFrame()
         m_frameTimeLine[m_currentFrameIndex]->GetSemaphoreSignalSubmitInfo(EFrameStages::SafeToBegin, vk::PipelineStageFlagBits2::eAllCommands),
         // able to present semaphore should be singaled once rendering is finished
         ableToPresentSubmitInfo};
-
-    m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_currentFrameIndex]);
 
     m_renderingCommandBuffers[m_currentFrameIndex]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
 
