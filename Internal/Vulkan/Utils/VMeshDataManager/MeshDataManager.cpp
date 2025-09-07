@@ -15,6 +15,7 @@
 #include <limits>
 
 #include "Vulkan/Global/EngineOptions.hpp"
+#include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Buffer/VGrowableBuffer.hpp"
@@ -199,12 +200,26 @@ void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
 
     m_vertexBufferHandle->PushBack(m_stagingVertices.data(), m_stagingVertices.size() * sizeof(ApplicationCore::Vertex),
                                    std::bind(&MeshDatatManager::OnVertexBufferResized, this, std::placeholders::_1));
+
+    //place barrier so that everything that reads this have to wait until it is done
+    VulkanUtils::VBarrierPosition barrierPos ={
+        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
+        vk::PipelineStageFlagBits2::eVertexAttributeInput | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR, vk::AccessFlagBits2::eVertexAttributeRead | vk::AccessFlagBits2::eAccelerationStructureReadKHR,
+    };
+
+    VulkanUtils::PlaceBufferMemoryBarrier2(m_transferOpsManager.GetCommandBuffer().GetCommandBuffer(), m_vertexBufferHandle->GetHandle().buffer, barrierPos);
+
     //=========================================================================================================================================
     // VERTEX_BB STAGING BUFFER
     //==========================================================================================================================================
     m_indexBufferHandle->PushBack(m_stagingIndices.data(), m_stagingIndices.size() * sizeof(uint32_t),
                                   std::bind(&MeshDatatManager::OnIndexBufferResized, this, std::placeholders::_1));
 
+    barrierPos = {
+        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
+        vk::PipelineStageFlagBits2::eIndexInput | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR, vk::AccessFlagBits2::eIndexRead | vk::AccessFlagBits2::eAccelerationStructureReadKHR
+    };
+    VulkanUtils::PlaceBufferMemoryBarrier2(m_transferOpsManager.GetCommandBuffer().GetCommandBuffer(), m_indexBufferHandle->GetHandle().buffer, barrierPos);
     //=========================================================================================================================================
     // INDEX STAGING BUFFER
     //==========================================================================================================================================

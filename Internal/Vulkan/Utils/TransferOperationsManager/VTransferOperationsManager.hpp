@@ -39,6 +39,7 @@ class VTransferOperationsManager
 
     void DestroyBuffer(VkBuffer& buffer, VmaAllocation& vmaAllocation);
     void DestroyBuffer(VulkanCore::VBuffer& vBuffer, bool isStaging = false);
+    void DestroyImage(vk::Image image, VmaAllocation& vmaAllocation);
 
     void Destroy();
 
@@ -49,6 +50,7 @@ class VTransferOperationsManager
 
     std::vector<std::pair<VkBuffer, VmaAllocation>>    m_clearBuffersVKVMA;
     std::vector<std::pair<bool, VulkanCore::VBuffer*>> m_clearVBuffers;
+    std::vector<std::pair<vk::Image, VmaAllocation>> m_clearImages;
 };
 
 }  // namespace VulkanUtils

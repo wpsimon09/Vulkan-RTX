@@ -51,6 +51,14 @@ class VDevice;
 /**
  * This class intends to be quite large and its main purpose is to genera images for IBL, irradiance map, radiance map and HDR cube map
  */
+
+enum EIBLAttachmetn {
+  HDR = 0,
+  IrradianceMap,
+  PrefilterMap,
+  IBLAttachmentCount
+};
+
 namespace VulkanUtils {
 class VEnvLightGenerator
 {
@@ -93,10 +101,13 @@ class VEnvLightGenerator
     int                                                           m_currentHDR;
     uint32_t                                                      m_currentFrame;
 
+    // used as render attachments which data are then copied to the GPU
+    std::vector<std::unique_ptr<VulkanCore::VImage2>> m_temporaryRenderTargets;
+
     const VulkanCore::VDevice&          m_device;
     VulkanCore::VDescriptorLayoutCache& m_descLayoutChache;
 
-    std::unique_ptr<VulkanCore::VCommandBuffer> m_graphicsCmdBuffer;
+    VulkanCore::VCommandBuffer* m_graphicsCmdBuffer;
     std::unique_ptr<VulkanCore::VCommandBuffer> m_transferCmdBuffer;
 
     std::unique_ptr<VulkanCore::VCommandPool> m_graphicsCmdPool;
@@ -115,12 +126,12 @@ class VEnvLightGenerator
 
     void CopyResukt(const vk::CommandBuffer& cmdBuffer, const vk::Image& src, const vk::Image& dst, int w, int h, int m = 0, int f = 0);
 
-    void CreateResources(const vk::CommandBuffer&              cmdBuffer,
-                         std::unique_ptr<VulkanCore::VImage2>& cubeMap,
-                         std::unique_ptr<VulkanCore::VImage2>& renderTarget,
-                         VulkanCore::VImage2CreateInfo&        createInfo,
-                         VulkanCore::VTimelineSemaphore&       semaphore);
 
+  void CreateResources(const vk::CommandBuffer&              cmdBuffer,
+                                                        std::unique_ptr<VulkanCore::VImage2>& cubeMap,
+                                                        std::unique_ptr<VulkanCore::VImage2>& renderTarget,
+                                                        VulkanCore::VImage2CreateInfo&        createInfo,
+                                                        VulkanCore::VTimelineSemaphore&       semaphore);
     VulkanUtils::VBarrierPosition ColorAttachment_To_TransferSrc{vk::PipelineStageFlagBits2::eColorAttachmentOutput,
                                                                  vk::AccessFlagBits2::eColorAttachmentWrite,
                                                                  vk::PipelineStageFlagBits2::eCopy,

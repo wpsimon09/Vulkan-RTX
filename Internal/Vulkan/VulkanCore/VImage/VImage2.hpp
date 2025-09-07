@@ -287,6 +287,7 @@ void VImage2::FillWithImageData(const std::vector<VulkanStructs::VImageData<T>>&
 
     VulkanUtils::PlaceImageMemoryBarrier2(*this, cmdBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
 
+    //imageData.clear();
 }
 
 }  // namespace VulkanCore

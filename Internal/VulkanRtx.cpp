@@ -211,7 +211,6 @@ void Application::Update()
     m_client->GetApplicationState().SetIsWindowResized(m_windowManager->GetHasResized());
 
     m_client->GetAssetsManager().Sync();
-
 }
 
 void Application::Render()
@@ -220,16 +219,14 @@ void Application::Render()
     m_client->Render(m_renderingSystem->GetRenderContext());
 
     m_editor->Render();
-
-    m_renderingSystem->Update(m_client->GetApplicationState());
-
-    m_renderingSystem->Render(m_client->GetApplicationState());
-
+    //0X15b
+        m_renderingSystem->Update(m_client->GetApplicationState());
+        m_renderingSystem->Render(m_client->GetApplicationState());
+        m_renderingSystem->FinishFrame();
 }
 
 void Application::PostRender()
 {
-    m_renderingSystem->FinishFrame();
     m_client->GetScene().Reset();
     m_client->GetApplicationState().Reset();
 

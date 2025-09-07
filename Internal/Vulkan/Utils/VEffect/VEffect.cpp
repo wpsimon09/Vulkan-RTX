@@ -71,6 +71,7 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
                 write.dstSet          = reflectedSet.sets[i];  // 1 set for the frame
                 write.dstBinding      = binding.binding;
 
+                // for each frame in fliht and for each biniding
                 reflectedSet.writes[i][binding.binding] = write;
             }
         }

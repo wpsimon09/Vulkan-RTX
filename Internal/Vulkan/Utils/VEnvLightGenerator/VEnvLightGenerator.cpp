@@ -40,7 +40,7 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
     m_transferCmdPool = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Transfer);
 
 
-    m_graphicsCmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_graphicsCmdPool);
+    m_graphicsCmdBuffer = &m_device.GetTransferOpsManager().GetCommandBuffer();
     m_transferCmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_transferCmdPool);
 
 
@@ -108,6 +108,12 @@ VulkanUtils::VEnvLightGenerator::VEnvLightGenerator(const VulkanCore::VDevice& d
 
 
     //------------------------------------------------
+
+
+    //===============================================================================================================
+    // Create render attachemnts that will be used to render stuff into and later ocpied to the sides of the cube map
+    //===============================================================================================================
+
 
     //================================================
 
@@ -233,7 +239,6 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
         std::unique_ptr<VulkanCore::VImage2> renderTarget;
 
         // transition to colour attachment optimal
-        m_graphicsCmdBuffer->BeginRecording();
         auto& cmdBuffer = m_graphicsCmdBuffer->GetCommandBuffer();
 
         CreateResources(cmdBuffer, cubeMap, renderTarget, hdrCubeMapCI, envGenerationSemaphore);
@@ -325,18 +330,7 @@ void VulkanUtils::VEnvLightGenerator::HDRToCubeMap(std::shared_ptr<VulkanCore::V
             PlaceImageMemoryBarrier2(*hdrCubeMap, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferDstOptimal,
                                      vk::ImageLayout::eShaderReadOnlyOptimal, TransferDst_To_ReadOnly);
 
-
-            std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,
-                                                              vk::PipelineStageFlagBits::eTransfer};
-            // waiting for value 2 because value 2 is signal by create resource command
-            m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
-                                             envGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), waitStages.data());
-
-            envGenerationSemaphore.CpuWaitIdle(4);
-
-            envGenerationSemaphore.Reset();
-            envGenerationSemaphore.Destroy();
-            renderTarget->Destroy();
+             m_device.GetTransferOpsManager().DestroyImage(renderTarget->GetImage(), renderTarget->GetImageAllocation());
 
 
             Utils::Logger::LogSuccess("HDR Cube map generated");
@@ -366,7 +360,6 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
         irradianceCubeMapCI.imageUsage |= vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
 
 
-        m_graphicsCmdBuffer->BeginRecording();
         auto& cmdBuffer = m_graphicsCmdBuffer->GetCommandBuffer();
 
         std::unique_ptr<VulkanCore::VImage2> cubeMap;
@@ -448,16 +441,7 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToIrradiance(std::shared_ptr<Vulkan
             //======================== transition the HDR image to shader read only
             PlaceImageMemoryBarrier2(*irradianceCubeMap, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, TransferDst_To_ReadOnly);
 
-            std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,
-                                                              vk::PipelineStageFlagBits::eTransfer};
-            m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
-                                             envGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), waitStages.data());
-
-            envGenerationSemaphore.CpuWaitIdle(4);
-
-            envGenerationSemaphore.Reset();
-            envGenerationSemaphore.Destroy();
-            renderTarget->Destroy();
+            m_device.GetTransferOpsManager().DestroyImage(renderTarget->GetImage(), renderTarget->GetImageAllocation());
 
             //            hdrPushBlock.Destory();
             Utils::Logger::LogSuccess("Irradiance map generated");
@@ -490,7 +474,6 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
     std::unique_ptr<VulkanCore::VImage2> cubeMap;
     std::unique_ptr<VulkanCore::VImage2> renderTarget;
 
-    m_graphicsCmdBuffer->BeginRecording();
     auto& cmdBuffer = m_graphicsCmdBuffer->GetCommandBuffer();
 
 
@@ -520,12 +503,6 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         renderAttachentInfo.imageView        = renderTarget->GetImageView();
         renderAttachentInfo.loadOp           = vk::AttachmentLoadOp::eClear;
         renderAttachentInfo.storeOp          = vk::AttachmentStoreOp::eStore;
-
-        std::vector<std::unique_ptr<VUniform<PushBlock>>> hdrPushBlocks(mipLevels * 6);
-        for(auto& hdrPushBlock : hdrPushBlocks)
-        {
-            hdrPushBlock = std::make_unique<VUniform<PushBlock>>(m_device, true);
-        }
 
         vk::Viewport viewport{0, 0, (float)preffilterMapCI.width, (float)preffilterMapCI.height, 0.0f, 1.0f};
         vk::Rect2D   scissors{{0, 0}, {(uint32_t)preffilterMapCI.width, (uint32_t)preffilterMapCI.height}};
@@ -585,20 +562,8 @@ void VulkanUtils::VEnvLightGenerator::CubeMapToPrefilter(std::shared_ptr<VulkanC
         //======================== transition the HDR image to shader read only
         VulkanUtils::PlaceImageMemoryBarrier2(*prefilterMap, *m_graphicsCmdBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, TransferDst_To_ReadOnly);
 
-        std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput,
-                                                          vk::PipelineStageFlagBits::eTransfer};
-        m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), envGenerationSemaphore.GetSemaphore(),
-                                         envGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), waitStages.data());
+        m_device.GetTransferOpsManager().DestroyImage(renderTarget->GetImage(), renderTarget->GetImageAllocation());
 
-        envGenerationSemaphore.CpuWaitIdle(4);
-
-        envGenerationSemaphore.Reset();
-        envGenerationSemaphore.Destroy();
-        renderTarget->Destroy();
-        for(auto& hdrPushBlock : hdrPushBlocks)
-        {
-            hdrPushBlock->Destory();
-        }
 
         //            hdrPushBlock.Destory();
         Utils::Logger::LogSuccess("Prefilterred generated");
@@ -676,9 +641,7 @@ void VulkanUtils::VEnvLightGenerator::CreateResources(const vk::CommandBuffer&  
                                                       std::unique_ptr<VulkanCore::VImage2>& cubeMap,
                                                       std::unique_ptr<VulkanCore::VImage2>& renderTarget,
                                                       VulkanCore::VImage2CreateInfo&        createInfo,
-                                                      VulkanCore::VTimelineSemaphore&       semaphore)
-{
-
+                                                      VulkanCore::VTimelineSemaphore&       semaphore) {
     cubeMap = std::make_unique<VulkanCore::VImage2>(m_device, createInfo);
 
     //============================== Transefer layout to transfer ddestination
@@ -701,10 +664,6 @@ void VulkanUtils::VEnvLightGenerator::CreateResources(const vk::CommandBuffer&  
 
     //================ Transfer HDR cube map to be in transfer DST optimal
     std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
-    m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), semaphore.GetSemaphore(),
-                                     semaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
-    semaphore.CpuWaitIdle(2);
-    m_graphicsCmdBuffer->BeginRecording();
 }
 
 //==================================
@@ -712,8 +671,6 @@ void VulkanUtils::VEnvLightGenerator::CreateResources(const vk::CommandBuffer&  
 //==================================
 void VulkanUtils::VEnvLightGenerator::GenerateBRDFLutCompute()
 {
-    VulkanCore::VCommandPool   computePool(m_device, EQueueFamilyIndexType::Compute);
-    VulkanCore::VCommandBuffer cmdBuffer(m_device, computePool);
 
 
     VulkanCore::VTimelineSemaphore brdfGenerationSemaphore(m_device);
@@ -730,20 +687,12 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLutCompute()
     brdfCI.imageUsage |= vk::ImageUsageFlagBits::eStorage;
     m_brdfLut = std::make_unique<VulkanCore::VImage2>(m_device, brdfCI);
 
-    m_graphicsCmdBuffer->BeginRecording();
-
     VulkanUtils::VBarrierPosition barrierPos{
         {}, {},
         vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite
     };
     PlaceImageMemoryBarrier2(*m_brdfLut, *m_graphicsCmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, barrierPos);
 
-    std::vector<vk::PipelineStageFlags> waitStages = {
-        vk::PipelineStageFlagBits::eAllGraphics,
-    };
-
-    m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), brdfGenerationSemaphore.GetSemaphore(),
-                                     brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
 
     //==========================================================================
     // PREPARE FOR RENDERING
@@ -767,43 +716,22 @@ void VulkanUtils::VEnvLightGenerator::GenerateBRDFLutCompute()
     //=============================================
     // RECORD COMMAND BUFFER
     //=============================================
-    cmdBuffer.BeginRecording();
-
-    brdfCompute.BindPipeline(cmdBuffer.GetCommandBuffer());
-    brdfCompute.BindDescriptorSet(cmdBuffer.GetCommandBuffer(), 0, 0);
+    brdfCompute.BindPipeline(m_graphicsCmdBuffer->GetCommandBuffer());
+    brdfCompute.BindDescriptorSet(m_graphicsCmdBuffer->GetCommandBuffer(), 0, 0);
     //=========================================
     // DISPATCH COMPUTE WORK
     //=========================================
-    cmdBuffer.GetCommandBuffer().dispatch(m_brdfLut->GetImageInfo().width / 16, m_brdfLut->GetImageInfo().width / 16, 1);
+    m_graphicsCmdBuffer->GetCommandBuffer().dispatch(m_brdfLut->GetImageInfo().width / 16, m_brdfLut->GetImageInfo().width / 16, 1);
 
-    std::vector<vk::PipelineStageFlags> renderWaitStages = {
-        vk::PipelineStageFlagBits::eComputeShader,
-    };
-    cmdBuffer.EndAndFlush(m_device.GetComputeQueue(), brdfGenerationSemaphore.GetSemaphore(),
-                          brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), renderWaitStages.data());
-
-    brdfGenerationSemaphore.CpuWaitIdle(4);
 
     //=========================================
     // TRANSITION FROM GENERAL TO READ ONLY
     //=========================================
-    m_graphicsCmdBuffer->BeginRecording();
-
     barrierPos = {
         vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
         vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead
     };
     PlaceImageMemoryBarrier2(*m_brdfLut, *m_graphicsCmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
-
-
-    std::vector<vk::PipelineStageFlags> waitStagesToShaderReadOnly = {
-        vk::PipelineStageFlagBits::eNone,
-    };
-
-    m_graphicsCmdBuffer->EndAndFlush(m_device.GetGraphicsQueue(), brdfGenerationSemaphore.GetSemaphore(),
-                                     brdfGenerationSemaphore.GetTimeLineSemaphoreSubmitInfo(4, 6), waitStages.data());
-
-    brdfGenerationSemaphore.CpuWaitIdle(6);
 
     brdfGenerationSemaphore.Destroy();
 
