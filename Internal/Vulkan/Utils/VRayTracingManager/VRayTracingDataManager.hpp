@@ -14,8 +14,9 @@ namespace ApplicationCore {
 class Scene;
 }
 namespace VulkanCore {
+class VTimelineSemaphore2;
 class VDevice;
-}
+}  // namespace VulkanCore
 namespace vk {
 struct AccelerationStructureInstanceKHR;
 }
@@ -27,34 +28,38 @@ namespace VulkanUtils {
 /**
  * Class that manages acceleration structures creation, updates etc.
  */
-class VRayTracingDataManager {
+class VRayTracingDataManager
+{
   public:
     VRayTracingDataManager(const VulkanCore::VDevice& device);
 
-    // updates transformations in TLAS
-    void UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& blasInputs);
-
     vk::DescriptorBufferInfo GetObjDescriptionBufferInfo();
 
-    void Update(ApplicationCore::Scene& scene);
+    void Update(ApplicationCore::Scene& scene, VulkanCore::VTimelineSemaphore2& frameTimeline);
 
     // rebuilds every acceleration structures
-    void InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs);
+    void InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs, VulkanCore::VTimelineSemaphore2& frameTimeline);
+    // updates transformations in TLAS
+    void UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& blasInputs, VulkanCore::VTimelineSemaphore2& frameTimeline);
     void Destroy();
-    const vk::AccelerationStructureKHR&  GetTLAS();
-    vk::AccelerationStructureKHR         GetTLASCpy();
+    const vk::AccelerationStructureKHR& GetTLAS();
+    vk::AccelerationStructureKHR        GetTLASCpy();
 
   private:
     const VulkanCore::VDevice& m_device;
 
-    std::vector<RTXObjDescription> m_rtxObjectDescriptions;
+    std::vector<RTXObjDescription>                          m_rtxObjectDescriptions;
     std::unique_ptr<VulkanCore::RTX::VRayTracingBuilderKHR> m_rayTracingBuilder;
-    std::vector <VulkanCore::RTX::BLASInput> m_blasInputs;
-    std::vector<vk::AccelerationStructureInstanceKHR> m_instances;
+    std::vector<VulkanCore::RTX::BLASInput>                 m_blasInputs;
+    std::vector<vk::AccelerationStructureInstanceKHR>       m_instances;
 
     std::unique_ptr<VulkanCore::VBuffer> m_objDescriptionBuffer;
+
+
+    std::unique_ptr<VulkanCore::VCommandPool>   m_cmdPool;
+    std::unique_ptr<VulkanCore::VCommandBuffer> m_cmdBuffer;
 };
 
-} // VulkanUtils
+}  // namespace VulkanUtils
 
-#endif //VRAYTRACINGMANAGER_HPP
+#endif  //VRAYTRACINGMANAGER_HPP

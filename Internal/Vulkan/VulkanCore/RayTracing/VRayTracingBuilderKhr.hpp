@@ -12,6 +12,9 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace VulkanCore {
+class VTimelineSemaphore2;
+}
+namespace VulkanCore {
 class VCommandBuffer;
 }
 
@@ -35,10 +38,14 @@ class VRayTracingBuilderKHR
 {
   public:
     explicit VRayTracingBuilderKHR(const VulkanCore::VDevice& device);
-    void BuildBLAS(std::vector<RTX::BLASInput>& inputs,
+    void BuildBLAS(std::vector<RTX::BLASInput>&     inputs,
+                   VulkanCore::VCommandBuffer& cmdBuffer,
+                   VulkanCore::VTimelineSemaphore2& frameTimeline,
                    vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
 
     void BuildTLAS(const std::vector<vk::AccelerationStructureInstanceKHR>& instances,
+                  VulkanCore::VCommandBuffer& cmdBuffer,
+                   VulkanCore::VTimelineSemaphore2&                         frameTimeline,
                    vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace,
                    bool update = false,
                    bool motion = false);
@@ -46,7 +53,7 @@ class VRayTracingBuilderKHR
     vk::DeviceAddress GetInstanceDeviceAddress(uint32_t instance) const;
 
     const vk::AccelerationStructureKHR& GetTLAS() const;
-    vk::AccelerationStructureKHR GetTLASCpy() const;
+    vk::AccelerationStructureKHR        GetTLASCpy() const;
 
     void Destroy();
     void Clear();
@@ -57,9 +64,6 @@ class VRayTracingBuilderKHR
 
     const VulkanCore::VDevice&  m_device;
     std::vector<RTX::BLASEntry> m_blasEntries;
-
-    std::unique_ptr<VulkanCore::VCommandPool>   m_cmdPool;
-    std::unique_ptr<VulkanCore::VCommandBuffer> m_cmdBuffer;
 
     VulkanCore::RTX::AccelKHR              m_tlas;
     std::vector<VulkanCore::RTX::AccelKHR> m_blas;
@@ -72,7 +76,6 @@ class VRayTracingBuilderKHR
                       vk::BuildAccelerationStructureFlagsKHR flags,
                       bool                                   update,
                       bool                                   motion);
-
 };
 }  // namespace VulkanCore::RTX
 
