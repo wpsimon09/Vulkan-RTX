@@ -13,18 +13,19 @@
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "vulkan/vulkan_core.h"
+#include <vulkan/vulkan_enums.hpp>
+#include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 
 namespace VulkanCore::RTX {
 VRayTracingBuilderKHR::VRayTracingBuilderKHR(const VulkanCore::VDevice& device)
     : m_device(device)
     , m_asBuildSemaphore(device)
 {
-
 }
 
 
 void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>&                inputs,
-VulkanCore::VCommandBuffer& cmdBuffer,
+                                      VulkanCore::VCommandBuffer&            cmdBuffer,
                                       VulkanCore::VTimelineSemaphore2&       frameTimeline,
                                       vk::BuildAccelerationStructureFlagsKHR flags)
 {
@@ -86,21 +87,24 @@ VulkanCore::VCommandBuffer& cmdBuffer,
             cmdBuffer.BeginRecording();
             finished = blasBuilder.CmdCreateParallelBlas(cmdBuffer, asBuildData, m_blas, scratchAdresses, hintMaxBudget);
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
-            cmdBuffer.EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
-                                     m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
-            m_asBuildSemaphore.CpuWaitIdle(2);
+            //            cmdBuffer.EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
+            //                                  m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
+            // m_asBuildSemaphore.CpuWaitIdle(2);
         }
         // compact the BLAS right away
         if(hasCompaction)
         {
-            cmdBuffer.BeginRecording();
+            //          cmdBuffer.BeginRecording();
             Utils::Logger::LogInfoVerboseOnly("Compacting BLAS...");
+            VulkanUtils::PlaceAccelerationStructureMemoryBarrier2(cmdBuffer.GetCommandBuffer(),
+                                                                  vk::AccessFlagBits2::eAccelerationStructureReadKHR,
+                                                                  vk::AccessFlagBits2::eAccelerationStructureReadKHR);
             blasBuilder.CmdCompactBlas(cmdBuffer, asBuildData, m_blas);
 
-            std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
-            cmdBuffer.EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
-                                     m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), waitStages.data());
-            m_asBuildSemaphore.CpuWaitIdle(4);
+            //std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
+            //          cmdBuffer.EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
+            //                                m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), waitStages.data());
+            //          m_asBuildSemaphore.CpuWaitIdle(4);
 
             blasBuilder.DestroyNonCompactedBlas();
 
@@ -109,22 +113,22 @@ VulkanCore::VCommandBuffer& cmdBuffer,
         m_asBuildSemaphore.Reset();
     } while(!finished);
 
-    blasScratchBuffer.Destroy();
+    m_device.GetTransferOpsManager().DestroyBuffer(blasScratchBuffer);
+    //blasScratchBuffer.Destroy();
     blasBuilder.Destroy();
     scratchAdresses.clear();
 }
 void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructureInstanceKHR>& instances,
-VulkanCore::VCommandBuffer& cmdBuffer,
-                                      VulkanCore::VTimelineSemaphore2& frameTimeline,
-                                      vk::BuildAccelerationStructureFlagsKHR flags,
-                                      bool update,
-                                      bool motion)
+                                      VulkanCore::VCommandBuffer&                              cmdBuffer,
+                                      VulkanCore::VTimelineSemaphore2&                         frameTimeline,
+                                      vk::BuildAccelerationStructureFlagsKHR                   flags,
+                                      bool                                                     update,
+                                      bool                                                     motion)
 {
 
     if(instances.empty())
         return;
 
-    cmdBuffer.BeginRecording();
 
     auto buffer = VulkanCore::VBuffer(m_device, "TLAS buffer");
     buffer.CreateBufferAndPutDataOnDevice(cmdBuffer.GetCommandBuffer(), instances,
@@ -141,11 +145,11 @@ VulkanCore::VCommandBuffer& cmdBuffer,
     VulkanCore::VBuffer scratchBuffer(m_device);
 
     CmdCreteTlas(cmdBuffer.GetCommandBuffer(), instances.size(), buffer.GetBufferAdress(), scratchBuffer, flags, update, motion);
-    std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
-    cmdBuffer.EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
-                             m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
+    // std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
+    // cmdBuffer.EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
+    //                          m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
 
-    m_asBuildSemaphore.CpuWaitIdle(2);
+    //m_asBuildSemaphore.CpuWaitIdle(2);
 
     buffer.DestroyStagingBuffer();
     buffer.Destroy();
@@ -157,7 +161,6 @@ vk::DeviceAddress VRayTracingBuilderKHR::GetInstanceDeviceAddress(uint32_t insta
 {
     if(instance > m_blasEntries.size())
         throw std::runtime_error("wrong instance");
-
 
     return m_blas[instance].address;
 }

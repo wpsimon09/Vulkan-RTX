@@ -29,7 +29,7 @@ class VBuffer : public VObject
     const vk::Buffer&    GetStagingBuffer() const { return m_stagingBufferVK; }
     const VmaAllocation& GetStagingBufferAllocation() const { return m_stagingAllocation; }
     vk::DeviceSize       GetBuffeSizeInBytes() const { return m_bufferSize; };
-    vk::DeviceAddress    GetBufferAdress() const {return m_bufferAddress.value_or(0);}
+    vk::DeviceAddress    GetBufferAdress() const { return m_bufferAddress.value_or(0); }
 
     void* GetMapPointer() const
     {
@@ -44,11 +44,11 @@ class VBuffer : public VObject
     vk::DescriptorBufferInfo& GetBufferInfoForDescriptor();
 
     template <typename T>
-    void MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size,  bool makeDeviceAddress = false);
+    void MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size, bool makeDeviceAddress = false);
 
     void Destroy() override;
 
-    void CreateHostVisibleBuffer(VkDeviceSize size, VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT , uint32_t aligment = 0);
+    void CreateHostVisibleBuffer(VkDeviceSize size, VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT, uint32_t aligment = 0);
 
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage);
 
@@ -83,12 +83,12 @@ class VBuffer : public VObject
     std::vector<uint32_t>    m_sharedQueueFamilyIndices;
     vk::DescriptorBufferInfo m_descriptorBufferInfo;
 
-    vk::DeviceSize    m_bufferSize;
-    const std::string m_allocationName;
+    vk::DeviceSize                   m_bufferSize;
+    const std::string                m_allocationName;
     std::optional<vk::DeviceAddress> m_bufferAddress;
 
-    bool  m_isInitialized        = false;
-    bool  m_isPresistentlyMapped = false;
+    bool  m_isInitialized          = false;
+    bool  m_isPresistentlyMapped   = false;
     bool  m_hasShaderDeviceAddress = false;
     void* m_mappedData;
 };
@@ -107,12 +107,13 @@ void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size, boo
     // - persistently mapped
     //----------------------
     Utils::Logger::LogInfoVerboseOnly("Allocating Uniform buffer....");
-    m_bufferType = vk::BufferUsageFlagBits::eUniformBuffer ;
-    VkBufferUsageFlags usageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT  ;
-    if (makeDeviceAddress){
-        usageFlags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT ;
+    m_bufferType                  = vk::BufferUsageFlagBits::eUniformBuffer;
+    VkBufferUsageFlags usageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    if(makeDeviceAddress)
+    {
+        usageFlags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
     }
-    CreateBuffer(size, usageFlags );
+    CreateBuffer(size, usageFlags);
     Utils::Logger::LogSuccess("Allocation completed successfully !");
 
     //----------------------------
@@ -140,13 +141,13 @@ void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size, boo
 template <typename T>
 void VBuffer::CreateBufferAndPutDataOnDevice(const vk::CommandBuffer& commandBuffer, const std::vector<T>& data, vk::BufferUsageFlags usage)
 {
-    CreateHostVisibleBuffer(data.size() * sizeof(T)); // implicitly maps the buffer
+    CreateHostVisibleBuffer(data.size() * sizeof(T));  // implicitly maps the buffer
     CreateBuffer(data.size() * sizeof(T), static_cast<VkBufferUsageFlags>(usage) | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
     memcpy(MapStagingBuffer(), data.data(), data.size() * sizeof(T));
     UnMapStagingBuffer();
     VulkanUtils::CopyBuffers(commandBuffer, m_stagingBufferVMA, m_bufferVMA, data.size() * sizeof(T));
 }
 
-}
+}  // namespace VulkanCore
 
 #endif  //VVERTEXBUFFER_HPP

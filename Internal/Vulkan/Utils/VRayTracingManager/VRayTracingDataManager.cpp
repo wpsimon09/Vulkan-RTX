@@ -16,8 +16,8 @@ namespace VulkanUtils {
 VRayTracingDataManager::VRayTracingDataManager(const VulkanCore::VDevice& device)
     : m_device(device)
 {
-    m_cmdPool   = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Compute);
-    m_cmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_cmdPool);
+    m_cmdPool           = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Compute);
+    m_cmdBuffer         = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_cmdPool);
     m_rayTracingBuilder = std::make_unique<VulkanCore::RTX::VRayTracingBuilderKHR>(device);
 }
 
@@ -42,8 +42,13 @@ vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo()
     info.range  = vk::WholeSize;
     return info;
 }
+
 void VRayTracingDataManager::Update(ApplicationCore::Scene& scene, VulkanCore::VTimelineSemaphore2& frameTimeline)
 {
+    // wait until the semaphore signals `AccelerationStructureUpdateStage`
+    // if the frame  0, do not wait for signal
+    // if the as build does not update, just signal through cpu at the end of the frame
+    // TODO: figure out when should I submit the recorded async compute command buffer .
     if(scene.GetSceneUpdateFlags().rebuildAs)
     {
         auto blasInpu = scene.GetBLASInputs();
@@ -84,8 +89,9 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
         m_objDescriptionBuffer->Destroy();
     }
     m_rayTracingBuilder->Clear();
-    m_rayTracingBuilder->BuildBLAS(blasInputs,*m_cmdBuffer, frameTimeline,  vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
-                                                   | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
+    m_rayTracingBuilder->BuildBLAS(blasInputs, *m_cmdBuffer, frameTimeline,
+                                   vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
+                                       | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
 
     // single shader hit group is going to be stored under this index...
     std::vector<vk::AccelerationStructureInstanceKHR> instances;
@@ -109,7 +115,9 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
         m_rtxObjectDescriptions.emplace_back(blasInputs[i].objDescription);
         i++;
     }
-    m_rayTracingBuilder->BuildTLAS(m_instances, *m_cmdBuffer,frameTimeline, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate);
+    m_rayTracingBuilder->BuildTLAS(m_instances, *m_cmdBuffer, frameTimeline,
+                                   vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
+                                       | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate);
 
     //===============================================
     // create buffer that holds vertex data adresses
@@ -117,6 +125,9 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
     m_objDescriptionBuffer->CreateBufferAndPutDataOnDevice(
         m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(), m_rtxObjectDescriptions,
         vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer);
+
+    //=================================================
+    // Here submit the work from tlas build
 }
 
 void VRayTracingDataManager::Destroy()
@@ -125,7 +136,6 @@ void VRayTracingDataManager::Destroy()
     m_objDescriptionBuffer->Destroy();
     m_rayTracingBuilder->Destroy();
     m_cmdPool->Destroy();
-
 }
 
 const vk::AccelerationStructureKHR& VRayTracingDataManager::GetTLAS()
