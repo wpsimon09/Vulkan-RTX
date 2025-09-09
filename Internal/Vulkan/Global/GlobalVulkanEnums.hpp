@@ -71,10 +71,12 @@ enum EShaderBindingGroup
     AverageLuminance
 };
 
-enum EFrameStages {
+enum EFrameStages
+{
     Uninitialized = 0,
     TransferFinish,
     AsBuildFinish,
+    AsCompactionFinishe,
     RenderFinish,
     SafeToBegin,
     NumStages

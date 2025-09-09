@@ -41,6 +41,9 @@ class VRayTracingDataManager
     void InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs, VulkanCore::VTimelineSemaphore2& frameTimeline);
     // updates transformations in TLAS
     void UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& blasInputs, VulkanCore::VTimelineSemaphore2& frameTimeline);
+
+    void SubmitGPUWork(VulkanCore::VTimelineSemaphore2& frameTimeline);
+
     void Destroy();
     const vk::AccelerationStructureKHR& GetTLAS();
     vk::AccelerationStructureKHR        GetTLASCpy();

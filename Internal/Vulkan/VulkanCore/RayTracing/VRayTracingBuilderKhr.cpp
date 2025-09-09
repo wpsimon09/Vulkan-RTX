@@ -14,6 +14,7 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 #include "vulkan/vulkan_core.h"
 #include <vulkan/vulkan_enums.hpp>
+#include <vulkan/vulkan_structs.hpp>
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 
 namespace VulkanCore::RTX {
@@ -86,11 +87,20 @@ void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>&                inp
             cmdBuffer.BeginRecording();
             finished = blasBuilder.CmdCreateParallelBlas(cmdBuffer, asBuildData, m_blas, scratchAdresses, hintMaxBudget);
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
+
+            // submit the queue here
+            vk::SemaphoreSubmitInfo signallSemaphoreInfo = ;
+            cmdBuffer.EndAndFlush2(m_device.GetComputeQueue(), )
+
             //            cmdBuffer.EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
             //                                  m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
             // m_asBuildSemaphore.CpuWaitIdle(2);
         }
         // compact the BLAS right away
+
+
+        // TODO: this has to happen after the query building as is submitted and ready, idk yet where this
+        // should be, or how should i go about making this in the current architecture
         if(hasCompaction)
         {
             //          cmdBuffer.BeginRecording();

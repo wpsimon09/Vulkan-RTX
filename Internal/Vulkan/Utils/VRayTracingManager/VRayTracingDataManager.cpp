@@ -24,6 +24,8 @@ VRayTracingDataManager::VRayTracingDataManager(const VulkanCore::VDevice& device
         m_cmdBuffer[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_cmdPool);
     }
     m_rayTracingBuilder = std::make_unique<VulkanCore::RTX::VRayTracingBuilderKHR>(device);
+
+    m_objDescriptionBuffer.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
 }
 
 void VRayTracingDataManager::UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& blasInputs, VulkanCore::VTimelineSemaphore2& frameTimeline)
@@ -38,6 +40,7 @@ void VRayTracingDataManager::UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& b
                                        | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate,
                                    true);
 }
+
 
 vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo()
 {
@@ -141,6 +144,14 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
 
     //=================================================
     // Here submit the work from tlas build
+}
+
+void VRayTracingDataManager::SubmitGPUWork(VulkanCore::VTimelineSemaphore2& frameTimeline) {
+
+    vk::SemaphoreSubmitInfo signalInfo = frameTimeline.GetSemaphoreSignalSubmitInfo(EFrameStages::AsBuildFinish, {});
+    vk::SemaphoreSubmitInfo waitInfo = frameTimeline.GetSemaphoreWaitSubmitInfo(EFrameStages::TransferFinish, vk::PipelineStageFlagBits2::eCopy | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR);
+
+    m_cmdBuffer[m_device.CurrentFrameInFlight]->EndAndFlush2(m_device.GetComputeQueue(), signalInfo, waitInfo);
 }
 
 void VRayTracingDataManager::Destroy()

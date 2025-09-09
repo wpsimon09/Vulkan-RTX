@@ -314,14 +314,19 @@ void Frame::FinishFrame()
     vk::SemaphoreSubmitInfo imageAvailableSubmitInfo = {
         m_imageAvailableSemaphores[m_frameInFlightID]->GetSyncPrimitive(), {}, vk::PipelineStageFlagBits2::eAllCommands, {}, {}};
     /*
-      * Before we can render, we have to wait for 2 things:
+      * Before we can render, we have to wait for 3 things:
       * 1. all transfer operations have to be done
-      * 2. image to render into must be acquired from the swap chain
+      * 2. building of acceleration structures must be finished
+      * 3. image to render into must be acquired from the swap chain
       */
     std::vector<vk::SemaphoreSubmitInfo> waitSemaphres = {
         // wait until transfer is finished
         m_frameTimeLine[m_frameInFlightID]->GetSemaphoreWaitSubmitInfo(EFrameStages::TransferFinish,
                                                                        vk::PipelineStageFlagBits2::eVertexAttributeInput
+                                                                           | vk::PipelineStageFlagBits2::eRayTracingShaderKHR),
+
+        m_frameTimeLine[m_frameInFlightID]->GetSemaphoreWaitSubmitInfo(EFrameStages::AsBuildFinish,
+                                                                       vk::PipelineStageFlagBits2::eFragmentShader
                                                                            | vk::PipelineStageFlagBits2::eRayTracingShaderKHR),
         // wait until image to present is awailable
         imageAvailableSubmitInfo};
@@ -340,9 +345,15 @@ void Frame::FinishFrame()
         // able to present semaphore should be singaled once rendering is finished
         ableToPresentSubmitInfo};
 
+    //======================================================
+    // this will submit all work recorded through the frame
     m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_frameInFlightID]);
+    m_rayTracingDataManager.SubmitGPUWork(*m_frameTimeLine[m_frameInFlightID]);
+
     m_renderingCommandBuffers[m_frameInFlightID]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
 
+    //===================================
+    // present the result in back buffer
     m_uiRenderer->Present(m_acquiredImage.second, m_ableToPresentSemaphore[m_acquiredImage.second]->GetSyncPrimitive());
 
 
@@ -380,7 +391,6 @@ VulkanCore::VTimelineSemaphore2& Frame::GetTimelineSemaphore()
 {
     return *m_frameTimeLine[m_frameInFlightID];
 }
-
 
 
 }  // namespace Renderer

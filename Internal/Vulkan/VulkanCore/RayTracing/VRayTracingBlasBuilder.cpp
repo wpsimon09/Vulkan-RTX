@@ -92,8 +92,8 @@ void VRayTracingBlasBuilder::CmdCompactBlas(const VulkanCore::VCommandBuffer&   
             outBlas[i] = AllocateAccelerationStructure(m_device, accelCI);  //since this one is coppied to the clean up list, I can directly overwirte this variable with new BLAS
 
             vk::CopyAccelerationStructureInfoKHR copyInfo{};
-            copyInfo.src = blasBuildData[i].asBuildInfo.dstAccelerationStructure;  // set during the build of AS
-            copyInfo.dst = outBlas[i].as;
+            copyInfo.src  = blasBuildData[i].asBuildInfo.dstAccelerationStructure;  // set during the build of AS
+            copyInfo.dst  = outBlas[i].as;
             copyInfo.mode = vk::CopyAccelerationStructureModeKHR::eCompact;
 
             assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state");
@@ -103,11 +103,13 @@ void VRayTracingBlasBuilder::CmdCompactBlas(const VulkanCore::VCommandBuffer&   
             blasBuildData[i].asBuildInfo.dstAccelerationStructure = outBlas[i].as;
         }
     }
-        m_currentQueryIndex = m_currentBlasIndex;
+    m_currentQueryIndex = m_currentBlasIndex;
 }
 
-void VRayTracingBlasBuilder::DestroyNonCompactedBlas() {
-    for (auto& blas : m_cleanUpdBlasAccell) {
+void VRayTracingBlasBuilder::DestroyNonCompactedBlas()
+{
+    for(auto& blas : m_cleanUpdBlasAccell)
+    {
         blas.Destroy(m_device);
     }
     m_cleanUpdBlasAccell.clear();
@@ -122,7 +124,7 @@ VulkanCore::RTX::ScratchSizeInfo CalculateScratchAlignedSize(const std::vector<A
 
     for(auto& buildData : asBuildData)
     {
-     //   vk::DeviceSize alignedSize = MathUtils::align_up(buildData.asBuildSizesInfo.buildScratchSize, minAlligment);
+        //   vk::DeviceSize alignedSize = MathUtils::align_up(buildData.asBuildSizesInfo.buildScratchSize, minAlligment);
         vk::DeviceSize alignedSize = MathUtils::AlignUP(buildData.asBuildSizesInfo.buildScratchSize, minAlligment);
         assert(alignedSize == buildData.asBuildSizesInfo.buildScratchSize);
 
@@ -154,7 +156,7 @@ vk::DeviceSize VRayTracingBlasBuilder::GetScratchSize(vk::DeviceSize            
 }
 
 
-    void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                                  hintMaxBudget,
+void VRayTracingBlasBuilder::GetScratchAddresses(vk::DeviceSize                                  hintMaxBudget,
                                                  const std::vector<AccelerationStructBuildData>& blasBuildData,
                                                  vk::DeviceAddress                               scratchBufferAderess,
                                                  std::vector<vk::DeviceAddress>&                 outScratchAddresses,
@@ -163,8 +165,8 @@ vk::DeviceSize VRayTracingBlasBuilder::GetScratchSize(vk::DeviceSize            
 
     // each BLAS build needs its own non-overlapping scratch adress and for this reason we have to return array of those adresses
     ScratchSizeInfo sizeInfo     = CalculateScratchAlignedSize(blasBuildData, minimumAligment);
-    vk::DeviceSize  maxScratch   = sizeInfo.maxScratch; // 733056 % 128 = 0
-    vk::DeviceSize  totalScratch = sizeInfo.totalScratch; // 4502144 % 128 = 0
+    vk::DeviceSize  maxScratch   = sizeInfo.maxScratch;    // 733056 % 128 = 0
+    vk::DeviceSize  totalScratch = sizeInfo.totalScratch;  // 4502144 % 128 = 0
     // scratch sizes are correctly aligned to 128
 
     // in case the scratch buffer will fir every BLAS return the same thing for each BLAS build info
@@ -193,10 +195,10 @@ vk::DeviceSize VRayTracingBlasBuilder::GetScratchSize(vk::DeviceSize            
     }
 }
 
-void VRayTracingBlasBuilder::Destroy() {
-    if (m_queryPool)
+void VRayTracingBlasBuilder::Destroy()
+{
+    if(m_queryPool)
         m_device.GetDevice().destroyQueryPool(m_queryPool);
-
 }
 
 void VRayTracingBlasBuilder::DestroyQueryPool() {}
@@ -282,13 +284,13 @@ vk::DeviceSize VRayTracingBlasBuilder::BuildAccelerationStructures(const VulkanC
 
     // wait until all operations are completed...
     VulkanUtils::PlaceAccelerationStructureMemoryBarrier2(cmdBuffer.GetCommandBuffer(), vk::AccessFlagBits2::eAccelerationStructureWriteKHR,
-                                                         vk::AccessFlagBits2::eAccelerationStructureReadKHR);
+                                                          vk::AccessFlagBits2::eAccelerationStructureReadKHR);
 
     if(m_queryPool)
     {
-            cmdBuffer.GetCommandBuffer().writeAccelerationStructuresPropertiesKHR(
-                static_cast<uint32_t>(collectedAs.size()), collectedAs.data(),
-                vk::QueryType::eAccelerationStructureCompactedSizeKHR, m_queryPool, currentQueryIndex, m_device.DispatchLoader);
+        cmdBuffer.GetCommandBuffer().writeAccelerationStructuresPropertiesKHR(
+            static_cast<uint32_t>(collectedAs.size()), collectedAs.data(),
+            vk::QueryType::eAccelerationStructureCompactedSizeKHR, m_queryPool, currentQueryIndex, m_device.DispatchLoader);
 
         currentQueryIndex += static_cast<uint32_t>(collectedAs.size());
     }
