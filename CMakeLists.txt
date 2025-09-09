@@ -94,8 +94,8 @@ set(SOURCES
         Internal/Vulkan/Renderer/Renderers/ForwardRenderer.hpp
         Internal/Vulkan/Renderer/Renderers/UserInterfaceRenderer.cpp
         Internal/Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp
-        Internal/Vulkan/Renderer/Renderers/RenderingSystem.cpp
-        Internal/Vulkan/Renderer/Renderers/RenderingSystem.hpp
+        Internal/Vulkan/Renderer/Renderers/Frame.cpp
+        Internal/Vulkan/Renderer/Renderers/Frame.hpp
         Internal/Editor/UIContext/ViewPortContext.hpp
         Internal/Editor/Editor.cpp
         Internal/Editor/Editor.hpp

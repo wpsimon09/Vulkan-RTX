@@ -2,7 +2,7 @@
 // Created by wpsimon09 on 21/12/24.
 //
 
-#include "RenderingSystem.hpp"
+#include "Frame.hpp"
 
 #include "Application/ApplicationState/ApplicationState.hpp"
 #include "Editor/UIContext/ViewPortContext.hpp"
@@ -56,7 +56,7 @@
  * how to go with this, so i am gona keep it as it is, because it works and does to job for now
  */
 namespace Renderer {
-RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
+Frame::Frame(const VulkanCore::VulkanInstance&    instance,
                                  const VulkanCore::VDevice&           device,
                                  VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
                                  VulkanUtils::VUniformBufferManager&  uniformBufferManager,
@@ -117,10 +117,10 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
 
     m_rayTracer = std::make_unique<RayTracer>(m_device, effectsLybrary, rayTracingDataManager, 1980, 1080);
 
-    Utils::Logger::LogInfo("RenderingSystem initialized");
+    Utils::Logger::LogInfo("Frame initialized");
 }
 
-void RenderingSystem::Init()
+void Frame::Init()
 {
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
@@ -142,7 +142,7 @@ void RenderingSystem::Init()
 }
 
 
-void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState)
+void Frame::Update(ApplicationCore::ApplicationState& applicationState)
 {
     m_sceneLightInfo = &applicationState.GetSceneLightInfo();
 
@@ -210,7 +210,7 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
 }
 
 
-bool RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState)
+bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
 {
     if(m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT)
     {
@@ -308,7 +308,7 @@ bool RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 }
 
 
-void RenderingSystem::FinishFrame()
+void Frame::FinishFrame()
 {
     //=====================================================
     // SUBMIT RECORDED COMMAND BUFFER
@@ -342,7 +342,12 @@ void RenderingSystem::FinishFrame()
         // able to present semaphore should be singaled once rendering is finished
         ableToPresentSubmitInfo};
 
+    // submits data to GPU
     m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_frameInFlightID]);
+
+    // waits until data are on GPU
+    m_rayTracingDataManager.RecordAndSubmitAsBuld(*m_frameTimeLine[m_frameInFlightID]);
+
     m_renderingCommandBuffers[m_frameInFlightID]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
 
     m_uiRenderer->Present(m_acquiredImage.second, m_ableToPresentSemaphore[m_acquiredImage.second]->GetSyncPrimitive());
@@ -359,7 +364,7 @@ void RenderingSystem::FinishFrame()
     m_renderContext.ResetAllDrawCalls();
     m_uiContext.m_isRayTracing = m_isRayTracing;
 }
-void RenderingSystem::Destroy()
+void Frame::Destroy()
 {
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
@@ -378,7 +383,7 @@ void RenderingSystem::Destroy()
     m_rayTracer->Destroy();
     m_renderingCommandPool->Destroy();
 }
-VulkanCore::VTimelineSemaphore2& RenderingSystem::GetTimelineSemaphore()
+VulkanCore::VTimelineSemaphore2& Frame::GetTimelineSemaphore()
 {
     return *m_frameTimeLine[m_frameInFlightID];
 }

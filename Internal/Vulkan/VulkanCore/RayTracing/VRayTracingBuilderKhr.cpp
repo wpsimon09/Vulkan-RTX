@@ -12,6 +12,7 @@
 #include "Application/Utils/MathUtils.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp"
 #include "vulkan/vulkan_core.h"
 
 namespace VulkanCore::RTX {
@@ -24,7 +25,9 @@ VRayTracingBuilderKHR::VRayTracingBuilderKHR(const VulkanCore::VDevice& device)
 }
 
 
-void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>& inputs, vk::BuildAccelerationStructureFlagsKHR flags)
+void VRayTracingBuilderKHR::BuildBLAS(std::vector<BLASInput>&                inputs,
+                                      VulkanCore::VTimelineSemaphore2&       frameSemaphore,
+                                      vk::BuildAccelerationStructureFlagsKHR flags)
 {
     if(inputs.empty())
         return;
@@ -84,8 +87,13 @@ vk:
             m_cmdBuffer->BeginRecording();
             finished = blasBuilder.CmdCreateParallelBlas(*m_cmdBuffer, asBuildData, m_blas, scratchAdresses, hintMaxBudget);
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
-            m_cmdBuffer->EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
-                                     m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
+
+            vk::SemaphoreSubmitInfo waitUntilTransferFinished = frameSemaphore.GetSemaphoreWaitSubmitInfo(EFrameStages::TransferFinish, vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR);
+            vk::SemaphoreSubmitInfo signalBuildIsComplete = {m_asBuildSemaphore.GetSemaphore(), 2, {}};
+
+
+            m_cmdBuffer->EndAndFlush2(m_device.GetComputeQueue(),signalBuildIsComplete, waitUntilTransferFinished);
+
             m_asBuildSemaphore.CpuWaitIdle(2);
         }
         // compact the BLAS right away
@@ -112,6 +120,7 @@ vk:
     scratchAdresses.clear();
 }
 void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructureInstanceKHR>& instances,
+                                      VulkanCore::VTimelineSemaphore2&                         frameSemaphore,
                                       vk::BuildAccelerationStructureFlagsKHR                   flags,
                                       bool                                                     update,
                                       bool                                                     motion)
@@ -128,10 +137,9 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
                                           vk::BufferUsageFlagBits::eShaderDeviceAddress
                                               | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR);
 
-    VulkanUtils::VBarrierPosition barrierPos = {
-        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
-        vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR, vk::AccessFlagBits2::eShaderRead
-    };
+    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
+                                                vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR,
+                                                vk::AccessFlagBits2::eShaderRead};
 
     VulkanUtils::PlaceBufferMemoryBarrier2(m_cmdBuffer->GetCommandBuffer(), buffer.GetBuffer(), barrierPos);
     // acctuall creating of the TLAS

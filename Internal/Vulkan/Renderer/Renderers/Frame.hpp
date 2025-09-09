@@ -66,10 +66,10 @@ struct GlobalRenderingInfo;
 
 namespace Renderer {
 
-class RenderingSystem
+class Frame
 {
   public:
-    RenderingSystem(const VulkanCore::VulkanInstance&    instance,
+    Frame(const VulkanCore::VulkanInstance&    instance,
                     const VulkanCore::VDevice&           device,
                     VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
                     VulkanUtils::VUniformBufferManager&  uniformBufferManager,

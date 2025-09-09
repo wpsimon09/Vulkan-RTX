@@ -14,6 +14,7 @@ namespace ApplicationCore {
 class Scene;
 }
 namespace VulkanCore {
+class VTimelineSemaphore2;
 class VDevice;
 }
 namespace vk {
@@ -31,21 +32,22 @@ class VRayTracingDataManager {
   public:
     VRayTracingDataManager(const VulkanCore::VDevice& device);
 
-    // updates transformations in TLAS
-    void UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& blasInputs);
-
     vk::DescriptorBufferInfo GetObjDescriptionBufferInfo();
 
-    void Update(ApplicationCore::Scene& scene);
 
-    // rebuilds every acceleration structures
-    void InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs);
+    void UpdateData(SceneUpdateContext& sceneUpdateContext, std::vector<VulkanCore::RTX::BLASInput>& blasInputs);
+    void RecordAndSubmitAsBuld(VulkanCore::VTimelineSemaphore2& frameSemaphore);
     void Destroy();
     const vk::AccelerationStructureKHR&  GetTLAS();
     vk::AccelerationStructureKHR         GetTLASCpy();
 
+
   private:
     const VulkanCore::VDevice& m_device;
+
+
+    // rebuilds every acceleration structures
+    void InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs, VulkanCore::VTimelineSemaphore2& frameSemaphore);
 
     std::vector<RTXObjDescription> m_rtxObjectDescriptions;
     std::unique_ptr<VulkanCore::RTX::VRayTracingBuilderKHR> m_rayTracingBuilder;
@@ -53,6 +55,8 @@ class VRayTracingDataManager {
     std::vector<vk::AccelerationStructureInstanceKHR> m_instances;
 
     std::unique_ptr<VulkanCore::VBuffer> m_objDescriptionBuffer;
+    SceneUpdateContext* m_sceneUpdateContext;
+
 };
 
 } // VulkanUtils

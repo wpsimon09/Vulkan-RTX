@@ -34,7 +34,7 @@ class UIContext;
 }
 
 namespace Renderer {
-class RenderingSystem;
+class Frame;
 }
 
 namespace VulkanUtils {
@@ -84,7 +84,7 @@ private:
   std::unique_ptr<class VulkanCore::VDevice>                    m_vulkanDevice;
   std::unique_ptr<class VEditor::UIContext>                     m_uiContext;
   std::unique_ptr<class VEditor::Editor>                        m_editor;
-  std::unique_ptr<class Renderer::RenderingSystem>              m_renderingSystem;
+  std::unique_ptr<class Renderer::Frame>              m_frame;
   std::unique_ptr<class VulkanCore::VDescriptorLayoutCache>     m_descriptorSetLayoutCache;
   std::unique_ptr<class ApplicationCore::EffectsLibrary>        m_effectsLibrary;
   std::unique_ptr<class VulkanUtils::VRayTracingDataManager>    m_rayTracingDataManager;

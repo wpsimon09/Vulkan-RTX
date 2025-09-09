@@ -18,20 +18,37 @@ VRayTracingDataManager::VRayTracingDataManager(const VulkanCore::VDevice& device
 {
     m_rayTracingBuilder = std::make_unique<VulkanCore::RTX::VRayTracingBuilderKHR>(device);
 }
-
-void VRayTracingDataManager::UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
+void VRayTracingDataManager::UpdateData(SceneUpdateContext& sceneUpdateContext, std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
 {
-
-    // for now every instance will be every BLAS, i will have to later redo how scene is describing the
-    for(int i = 0; i < (int)blasInputs.size(); i++)
-    {
-        m_instances[i].transform = VulkanCore::RTX::GlmToMatrix4KHR(blasInputs[i].transform);
-    }
-    m_rayTracingBuilder->BuildTLAS(m_instances,
-                                   vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
-                                       | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate,
-                                   true);
+    m_blasInputs = blasInputs;
+    m_sceneUpdateContext = &sceneUpdateContext;
 }
+
+void VRayTracingDataManager::RecordAndSubmitAsBuld(VulkanCore::VTimelineSemaphore2& frameSemaphore) {
+    if(m_sceneUpdateContext->rebuildAs)
+    {
+        if(m_blasInputs.empty())
+            return;
+
+        // implicity destroys all used resources, so no cleanup of previous resources is needed
+        InitAs(m_blasInputs, frameSemaphore);
+        Utils::Logger::LogInfo("Rebuilding AS");
+    }
+
+    if(m_sceneUpdateContext->updateAs)
+    {
+        // for now every instance will be every BLAS, i will have to later redo how scene is describing the
+        for(int i = 0; i < (int)m_blasInputs.size(); i++)
+        {
+            m_instances[i].transform = VulkanCore::RTX::GlmToMatrix4KHR(m_blasInputs[i].transform);
+        }
+        m_rayTracingBuilder->BuildTLAS(m_instances, frameSemaphore,
+                                       vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
+                                           | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate,
+                                       true);        Utils::Logger::LogInfo("Updating AS");
+    }
+}
+
 
 vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo()
 {
@@ -40,40 +57,16 @@ vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo()
     info.range  = vk::WholeSize;
     return info;
 }
-void VRayTracingDataManager::Update(ApplicationCore::Scene& scene)
-{
-    if(scene.GetSceneUpdateFlags().rebuildAs)
-    {
-        auto blasInpu = scene.GetBLASInputs();
-        if(blasInpu.empty())
-            return;
 
-        // implicity destroys all used resources, so no cleanup of previous resources is needed
-        InitAs(blasInpu);
-        Utils::Logger::LogInfo("Rebuilding AS");
 
-        // TODO: this is hacky fix and not according to the standart, maybe callback function could fix this
-        // this happens because i am reseting the rebuildAS because it is being flagged in Render() and Update() is before render
-    }
-
-    if(scene.GetSceneUpdateFlags().updateAs)
-    {
-        auto blasInput = scene.GetBLASInputs();
-        if(blasInput.empty())
-            return;
-        UpdateAS(blasInput);
-        Utils::Logger::LogInfo("Updating AS");
-    }
-}
-
-void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
+void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& blasInputs, VulkanCore::VTimelineSemaphore2& frameSemaphore)
 {
     if(blasInputs.empty())
         return;
     m_instances.clear();
     m_instances.shrink_to_fit();
-    m_blasInputs.clear();
-    m_blasInputs.shrink_to_fit();
+    //m_blasInputs.clear();
+    //m_blasInputs.shrink_to_fit();
     m_rtxObjectDescriptions.clear();
     m_rtxObjectDescriptions.shrink_to_fit();
     if(m_objDescriptionBuffer)
@@ -82,7 +75,7 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
         m_objDescriptionBuffer->Destroy();
     }
     m_rayTracingBuilder->Clear();
-    m_rayTracingBuilder->BuildBLAS(blasInputs, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
+    m_rayTracingBuilder->BuildBLAS(blasInputs, frameSemaphore,  vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
                                                    | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
 
     // single shader hit group is going to be stored under this index...
@@ -107,7 +100,7 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
         m_rtxObjectDescriptions.emplace_back(blasInputs[i].objDescription);
         i++;
     }
-    m_rayTracingBuilder->BuildTLAS(m_instances, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
+    m_rayTracingBuilder->BuildTLAS(m_instances,frameSemaphore, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
                                                     | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate);
 
     //===============================================

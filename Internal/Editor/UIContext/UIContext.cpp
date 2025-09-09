@@ -26,7 +26,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Application/Utils/GizmoUtils.hpp"
 #include "Editor/EditorOptions.hpp"
-#include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
+#include "Vulkan/Renderer/Renderers/Frame.hpp"
 #include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
 #include "ImGuiSpectrum/imgui_spectrum.h"

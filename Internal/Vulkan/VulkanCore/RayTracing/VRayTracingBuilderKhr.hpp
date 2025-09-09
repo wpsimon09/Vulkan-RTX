@@ -12,8 +12,9 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 namespace VulkanCore {
+class VTimelineSemaphore2;
 class VCommandBuffer;
-}
+}  // namespace VulkanCore
 
 namespace ApplicationCore {
 class Scene;
@@ -35,10 +36,12 @@ class VRayTracingBuilderKHR
 {
   public:
     explicit VRayTracingBuilderKHR(const VulkanCore::VDevice& device);
-    void BuildBLAS(std::vector<RTX::BLASInput>& inputs,
+    void BuildBLAS(std::vector<RTX::BLASInput>&     inputs,
+                   VulkanCore::VTimelineSemaphore2& frameSemaphore,
                    vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
 
     void BuildTLAS(const std::vector<vk::AccelerationStructureInstanceKHR>& instances,
+                   VulkanCore::VTimelineSemaphore2&                         frameSemaphore,
                    vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace,
                    bool update = false,
                    bool motion = false);
@@ -46,7 +49,7 @@ class VRayTracingBuilderKHR
     vk::DeviceAddress GetInstanceDeviceAddress(uint32_t instance) const;
 
     const vk::AccelerationStructureKHR& GetTLAS() const;
-    vk::AccelerationStructureKHR GetTLASCpy() const;
+    vk::AccelerationStructureKHR        GetTLASCpy() const;
 
     void Destroy();
     void Clear();
@@ -72,7 +75,6 @@ class VRayTracingBuilderKHR
                       vk::BuildAccelerationStructureFlagsKHR flags,
                       bool                                   update,
                       bool                                   motion);
-
 };
 }  // namespace VulkanCore::RTX
 
