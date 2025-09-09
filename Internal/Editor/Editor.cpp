@@ -19,7 +19,7 @@
 #include "Views/RenderingOptions/RenderingOptions.hpp"
 #include "Views/SceneView/SceneView.hpp"
 #include "Views/ViewPort/ViewPort.hpp"
-#include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
+#include "Vulkan/Renderer/Renderers/Frame.hpp"
 #include "imgui.h"
 
 namespace VEditor {

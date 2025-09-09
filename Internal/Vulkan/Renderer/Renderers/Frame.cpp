@@ -2,7 +2,7 @@
 // Created by wpsimon09 on 21/12/24.
 //
 
-#include "RenderingSystem.hpp"
+#include "Frame.hpp"
 
 #include "Application/ApplicationState/ApplicationState.hpp"
 #include "Editor/UIContext/ViewPortContext.hpp"
@@ -56,13 +56,13 @@
  * how to go with this, so i am gona keep it as it is, because it works and does to job for now
  */
 namespace Renderer {
-RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
-                                 const VulkanCore::VDevice&           device,
-                                 VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
-                                 VulkanUtils::VUniformBufferManager&  uniformBufferManager,
-                                 ApplicationCore::EffectsLibrary&     effectsLybrary,
-                                 VulkanCore::VDescriptorLayoutCache&  descLayoutCache,
-                                 VEditor::UIContext&                  uiContext)
+Frame::Frame(const VulkanCore::VulkanInstance&    instance,
+             const VulkanCore::VDevice&           device,
+             VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
+             VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+             ApplicationCore::EffectsLibrary&     effectsLybrary,
+             VulkanCore::VDescriptorLayoutCache&  descLayoutCache,
+             VEditor::UIContext&                  uiContext)
     : m_device(device)
     , m_uniformBufferManager(uniformBufferManager)
     , m_renderContext()
@@ -117,10 +117,10 @@ RenderingSystem::RenderingSystem(const VulkanCore::VulkanInstance&    instance,
 
     m_rayTracer = std::make_unique<RayTracer>(m_device, effectsLybrary, rayTracingDataManager, 1980, 1080);
 
-    Utils::Logger::LogInfo("RenderingSystem initialized");
+    Utils::Logger::LogInfo("Frame initialized");
 }
 
-void RenderingSystem::Init()
+void Frame::Init()
 {
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
@@ -142,7 +142,7 @@ void RenderingSystem::Init()
 }
 
 
-void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState)
+void Frame::Update(ApplicationCore::ApplicationState& applicationState)
 {
     m_sceneLightInfo = &applicationState.GetSceneLightInfo();
 
@@ -206,11 +206,10 @@ void RenderingSystem::Update(ApplicationCore::ApplicationState& applicationState
     m_postProcessingContext.deltaTime                     = ImGui::GetIO().DeltaTime;
 
     m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_frameInFlightID), m_frameInFlightID);
-
 }
 
 
-bool RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState)
+bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
 {
     if(m_frameCount >= GlobalVariables::MAX_FRAMES_IN_FLIGHT)
     {
@@ -219,7 +218,7 @@ bool RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     }
 
     m_acquiredImage = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
-                                                            *m_imageAvailableSemaphores[m_frameInFlightID], nullptr);
+                                                                *m_imageAvailableSemaphores[m_frameInFlightID], nullptr);
 
     auto swapChainImageIndex = m_acquiredImage;
 
@@ -229,37 +228,36 @@ bool RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
     }
     switch(swapChainImageIndex.first)
     {
-    case vk::Result::eSuccess: {
-        m_currentImageIndex = m_acquiredImage.second;
-        Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
-        break;
+        case vk::Result::eSuccess: {
+            m_currentImageIndex = m_acquiredImage.second;
+            Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
+            break;
+        }
+        case vk::Result::eErrorOutOfDateKHR: {
+
+            m_swapChain->RecreateSwapChain();
+            m_uiRenderer->HandleSwapChainResize(*m_swapChain);
+
+            m_frameTimeLine[m_frameInFlightID]->CpuSignal(EFrameStages::SafeToBegin);
+            // to silent validation layers i will recreate the semaphore
+            m_ableToPresentSemaphore[m_acquiredImage.second]->Destroy();
+            m_ableToPresentSemaphore[m_acquiredImage.second] =
+                std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+
+            m_frameCount++;
+            m_device.CurrentFrame = m_frameCount;
+
+            return false;
+        }
+        case vk::Result::eSuboptimalKHR: {
+            m_currentImageIndex = swapChainImageIndex.second;
+            break;
+            //m_swapChain->RecreateSwapChain();
+            //return;
+        };
+        default:
+            break;
     }
-    case vk::Result::eErrorOutOfDateKHR: {
-
-        m_swapChain->RecreateSwapChain();
-        m_uiRenderer->HandleSwapChainResize(*m_swapChain);
-
-        m_frameTimeLine[m_frameInFlightID]->CpuSignal(EFrameStages::SafeToBegin);
-        // to silent validation layers i will recreate the semaphore
-        m_ableToPresentSemaphore[m_acquiredImage.second]->Destroy();
-        m_ableToPresentSemaphore[m_acquiredImage.second] =
-            std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
-
-        m_frameCount++;
-        m_device.CurrentFrame = m_frameCount;
-
-        return false;
-    }
-    case vk::Result::eSuboptimalKHR: {
-        m_currentImageIndex = swapChainImageIndex.second;
-        break;
-        //m_swapChain->RecreateSwapChain();
-        //return;
-    };
-    default:
-        break;
-    }
-
 
 
     m_renderingCommandBuffers[m_frameInFlightID]->Reset();
@@ -308,7 +306,7 @@ bool RenderingSystem::Render(ApplicationCore::ApplicationState& applicationState
 }
 
 
-void RenderingSystem::FinishFrame()
+void Frame::FinishFrame()
 {
     //=====================================================
     // SUBMIT RECORDED COMMAND BUFFER
@@ -359,7 +357,7 @@ void RenderingSystem::FinishFrame()
     m_renderContext.ResetAllDrawCalls();
     m_uiContext.m_isRayTracing = m_isRayTracing;
 }
-void RenderingSystem::Destroy()
+void Frame::Destroy()
 {
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
@@ -378,10 +376,11 @@ void RenderingSystem::Destroy()
     m_rayTracer->Destroy();
     m_renderingCommandPool->Destroy();
 }
-VulkanCore::VTimelineSemaphore2& RenderingSystem::GetTimelineSemaphore()
+VulkanCore::VTimelineSemaphore2& Frame::GetTimelineSemaphore()
 {
     return *m_frameTimeLine[m_frameInFlightID];
 }
+
 
 
 }  // namespace Renderer

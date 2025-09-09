@@ -74,6 +74,7 @@ enum EShaderBindingGroup
 enum EFrameStages {
     Uninitialized = 0,
     TransferFinish,
+    AsBuildFinish,
     RenderFinish,
     SafeToBegin,
     NumStages

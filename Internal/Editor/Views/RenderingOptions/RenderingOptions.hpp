@@ -12,7 +12,7 @@ class Scene;
 class ApplicationState;
 }  // namespace ApplicationCore
 namespace Renderer {
-class RenderingSystem;
+class Frame;
 }
 
 namespace VEditor {
@@ -22,17 +22,17 @@ class RenderingOptions : public IUserInterfaceElement
   public:
     RenderingOptions(ApplicationCore::ApplicationState& applicationState,
                      ApplicationCore::Scene&            scene,
-                     Renderer::RenderingSystem*         renderingSystem);
+                     Renderer::Frame*         renderingSystem);
 
     void Resize(int newWidth, int newHeight) override;
     void Render() override;
     void Update() override;
 
   private:
-    void                               RenderDrawCallListWidndow(Renderer::RenderingSystem* renderingSystem);
-    void                               RenderLightInfoWindow(Renderer::RenderingSystem* renderingSystem);
+    void                               RenderDrawCallListWidndow(Renderer::Frame* renderingSystem);
+    void                               RenderLightInfoWindow(Renderer::Frame* renderingSystem);
     ApplicationCore::Scene&            m_scene;
-    Renderer::RenderingSystem*         m_renderingSystem;
+    Renderer::Frame*         m_renderingSystem;
     bool                               m_openDrawCallListWindow = false;
     bool                               m_openLightInfoLigt      = false;
     ApplicationCore::ApplicationState& m_applicationState;

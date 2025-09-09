@@ -20,7 +20,7 @@ class SceneNode;
 class Client;
 
 namespace Renderer {
-class RenderingSystem;
+class Frame;
 }
 
 namespace ApplicationCore {
@@ -51,7 +51,7 @@ class UIContext
     void Initialize(const VulkanCore::VSwapChain& swapChain);
     void BeginRender();
     void Render(VulkanCore::VCommandBuffer& commandBuffer);
-    void SetRenderingSystem(Renderer::RenderingSystem* rendderingSystem) { m_renderingSystem = rendderingSystem; }
+    void SetRenderingSystem(Renderer::Frame* rendderingSystem) { m_renderingSystem = rendderingSystem; }
     void EndRender();
     void Destroy();
     void SetCurrentOperation(ImGuizmo::OPERATION operation) { m_operation = operation; }
@@ -78,7 +78,7 @@ class UIContext
     WindowManager&                    m_windowManager;
     Client&                           m_client;
 
-    Renderer::RenderingSystem* m_renderingSystem;
+    Renderer::Frame* m_renderingSystem;
 
     vk::PipelineCache  m_imguiPipelineCache;
     vk::DescriptorPool m_imguiDescriptorPool;

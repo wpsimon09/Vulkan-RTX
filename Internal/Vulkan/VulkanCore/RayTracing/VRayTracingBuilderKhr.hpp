@@ -59,8 +59,6 @@ class VRayTracingBuilderKHR
     void Clear();
 
   private:
-    VTimelineSemaphore m_asBuildSemaphore;
-
 
     const VulkanCore::VDevice&  m_device;
     std::vector<RTX::BLASEntry> m_blasEntries;

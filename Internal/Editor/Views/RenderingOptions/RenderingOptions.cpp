@@ -10,7 +10,7 @@
 #include "Application/ApplicationState/ApplicationState.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
-#include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
+#include "Vulkan/Renderer/Renderers/Frame.hpp"
 #include "Vulkan/Renderer/Renderers/ForwardRenderer.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
@@ -18,7 +18,7 @@
 namespace VEditor {
 RenderingOptions::RenderingOptions(ApplicationCore::ApplicationState& applicationState,
                                    ApplicationCore::Scene&            scene,
-                                   Renderer::RenderingSystem*         renderingSystem)
+                                   Renderer::Frame*         renderingSystem)
     : m_scene(scene)
     , m_applicationState(applicationState)
 {
@@ -96,7 +96,7 @@ void RenderingOptions::Update()
     IUserInterfaceElement::Update();
 }
 
-void RenderingOptions::RenderDrawCallListWidndow(Renderer::RenderingSystem* renderingSystem)
+void RenderingOptions::RenderDrawCallListWidndow(Renderer::Frame* renderingSystem)
 {
     ImGui::Begin(ICON_FA_FILM " All draw calls");
     ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
@@ -161,7 +161,7 @@ void RenderingOptions::RenderDrawCallListWidndow(Renderer::RenderingSystem* rend
     ImGui::End();
 }
 
-void RenderingOptions::RenderLightInfoWindow(Renderer::RenderingSystem* renderingSystem)
+void RenderingOptions::RenderLightInfoWindow(Renderer::Frame* renderingSystem)
 {
     ImGui::Begin(ICON_FA_BOLT_LIGHTNING " Light info");
 

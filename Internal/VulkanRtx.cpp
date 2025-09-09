@@ -44,7 +44,7 @@
 
 // Application Entry
 #include "VulkanRtx.hpp"
-#include "Vulkan/Renderer/Renderers/RenderingSystem.hpp"
+#include "Vulkan/Renderer/Renderers/Frame.hpp"
 #include "Vulkan/Renderer/Renderers/ForwardRenderer.hpp"
 #include "Vulkan/Renderer/Renderers/UserInterfaceRenderer.hpp"
 
@@ -117,13 +117,13 @@ void Application::Init()
     m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
 
-    m_renderingSystem = std::make_unique<Renderer::RenderingSystem>(*m_vulkanInstance, *m_vulkanDevice, *m_rayTracingDataManager,
+    m_frame = std::make_unique<Renderer::Frame>(*m_vulkanInstance, *m_vulkanDevice, *m_rayTracingDataManager,
                                                                     *m_uniformBufferManager, *m_effectsLibrary,
                                                                     *m_descriptorSetLayoutCache, *m_uiContext);
 
 
-    m_renderingSystem->Init();
-    m_uiContext->SetRenderingSystem(m_renderingSystem.get());
+    m_frame->Init();
+    m_uiContext->SetRenderingSystem(m_frame.get());
 
 
     //auto sponsa = m_client->GetGLTFLoader().LoadGLTFScene("/home/wpsimon09/Desktop/Models/sponza_scene/scene.gltf");
@@ -179,7 +179,7 @@ void Application::Run()
 void Application::Update()
 {
     if (m_vulkanDevice->CurrentFrame >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
-        m_renderingSystem->GetTimelineSemaphore().CpuWaitIdle(EFrameStages::TransferFinish);
+        m_frame->GetTimelineSemaphore().CpuWaitIdle(EFrameStages::TransferFinish);
         m_vulkanDevice->GetTransferOpsManager().ClearResources();
     }
     if (m_vulkanDevice->CurrentFrame > 0) {
@@ -206,7 +206,7 @@ void Application::Update()
 
     //=====================================================
     // Update accelerations structures
-    m_rayTracingDataManager->Update(m_client->GetScene());
+    m_rayTracingDataManager->Update(m_client->GetScene(), m_frame->GetTimelineSemaphore());
 
     m_client->GetApplicationState().SetIsWindowResized(m_windowManager->GetHasResized());
 
@@ -216,14 +216,14 @@ void Application::Update()
 void Application::Render()
 {
 
-    m_client->Render(m_renderingSystem->GetRenderContext());
+    m_client->Render(m_frame->GetRenderContext());
 
     m_editor->Render();
 
-        m_renderingSystem->Update(m_client->GetApplicationState());
-        if (m_renderingSystem->Render(m_client->GetApplicationState())) {
+        m_frame->Update(m_client->GetApplicationState());
+        if (m_frame->Render(m_client->GetApplicationState())) {
 
-            m_renderingSystem->FinishFrame();
+            m_frame->FinishFrame();
         }
 }
 
@@ -253,7 +253,7 @@ Application::~Application()
         }
     }
     m_vulkanDevice->GetDevice().waitIdle();
-    m_renderingSystem->Destroy();
+    m_frame->Destroy();
     m_effectsLibrary->Destroy();
     m_client->Destroy();
     m_uniformBufferManager->Destroy();

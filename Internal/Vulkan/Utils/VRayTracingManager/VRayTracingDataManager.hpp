@@ -53,10 +53,10 @@ class VRayTracingDataManager
     std::vector<VulkanCore::RTX::BLASInput>                 m_blasInputs;
     std::vector<vk::AccelerationStructureInstanceKHR>       m_instances;
 
-    std::unique_ptr<VulkanCore::VBuffer> m_objDescriptionBuffer;
+    std::vector<std::unique_ptr<VulkanCore::VBuffer>>        m_objDescriptionBuffer;
+    std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_cmdBuffer;
 
     std::unique_ptr<VulkanCore::VCommandPool>   m_cmdPool;
-    std::unique_ptr<VulkanCore::VCommandBuffer> m_cmdBuffer;
 };
 
 }  // namespace VulkanUtils

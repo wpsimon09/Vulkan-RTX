@@ -26,7 +26,7 @@ class VResourceGroupManager;
 
 namespace Renderer {
 class ForwardRenderer;
-class RenderingSystem;
+class Frame;
 }  // namespace Renderer
 
 namespace VulkanCore {

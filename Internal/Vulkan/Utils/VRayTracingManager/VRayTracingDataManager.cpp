@@ -10,6 +10,7 @@
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp"
 #include "vulkan/vulkan.hpp"
 
 namespace VulkanUtils {
@@ -17,19 +18,22 @@ VRayTracingDataManager::VRayTracingDataManager(const VulkanCore::VDevice& device
     : m_device(device)
 {
     m_cmdPool           = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Compute);
-    m_cmdBuffer         = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_cmdPool);
+
+    m_cmdBuffer.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
+    for (int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++) {
+        m_cmdBuffer[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_cmdPool);
+    }
     m_rayTracingBuilder = std::make_unique<VulkanCore::RTX::VRayTracingBuilderKHR>(device);
 }
 
 void VRayTracingDataManager::UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& blasInputs, VulkanCore::VTimelineSemaphore2& frameTimeline)
 {
-
     // for now every instance will be every BLAS, i will have to later redo how scene is describing the
     for(int i = 0; i < (int)blasInputs.size(); i++)
     {
         m_instances[i].transform = VulkanCore::RTX::GlmToMatrix4KHR(blasInputs[i].transform);
     }
-    m_rayTracingBuilder->BuildTLAS(m_instances, *m_cmdBuffer, frameTimeline,
+    m_rayTracingBuilder->BuildTLAS(m_instances, *m_cmdBuffer[m_device.CurrentFrameInFlight], frameTimeline,
                                    vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
                                        | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate,
                                    true);
@@ -38,13 +42,22 @@ void VRayTracingDataManager::UpdateAS(std::vector<VulkanCore::RTX::BLASInput>& b
 vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo()
 {
     vk::DescriptorBufferInfo info{};
-    info.buffer = m_objDescriptionBuffer->GetBuffer();
+    info.buffer = m_objDescriptionBuffer[m_device.CurrentFrameInFlight]->GetBuffer();
     info.range  = vk::WholeSize;
     return info;
 }
 
 void VRayTracingDataManager::Update(ApplicationCore::Scene& scene, VulkanCore::VTimelineSemaphore2& frameTimeline)
 {
+    // As build is single buffered, therefore I have to wait until cmd buffer is done using it.
+    if (m_device.CurrentFrame > 0) {
+        frameTimeline.CpuWaitIdle(EFrameStages::AsBuildFinish);
+    }
+
+    if (!scene.GetSceneUpdateFlags().updateAs && !scene.GetSceneUpdateFlags().rebuildAs) {
+        frameTimeline.CpuSignal(EFrameStages::AsBuildFinish);
+    }
+
     // wait until the semaphore signals `AccelerationStructureUpdateStage`
     // if the frame  0, do not wait for signal
     // if the as build does not update, just signal through cpu at the end of the frame
@@ -83,13 +96,13 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
     m_blasInputs.shrink_to_fit();
     m_rtxObjectDescriptions.clear();
     m_rtxObjectDescriptions.shrink_to_fit();
-    if(m_objDescriptionBuffer)
+    if(m_objDescriptionBuffer[m_device.CurrentFrameInFlight])
     {
-        m_objDescriptionBuffer->DestroyStagingBuffer();
-        m_objDescriptionBuffer->Destroy();
+        m_objDescriptionBuffer[m_device.CurrentFrameInFlight]->DestroyStagingBuffer();
+        m_objDescriptionBuffer[m_device.CurrentFrameInFlight]->Destroy();
     }
     m_rayTracingBuilder->Clear();
-    m_rayTracingBuilder->BuildBLAS(blasInputs, *m_cmdBuffer, frameTimeline,
+    m_rayTracingBuilder->BuildBLAS(blasInputs, *m_cmdBuffer[m_device.CurrentFrameInFlight], frameTimeline,
                                    vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
                                        | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
 
@@ -115,14 +128,14 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
         m_rtxObjectDescriptions.emplace_back(blasInputs[i].objDescription);
         i++;
     }
-    m_rayTracingBuilder->BuildTLAS(m_instances, *m_cmdBuffer, frameTimeline,
+    m_rayTracingBuilder->BuildTLAS(m_instances, *m_cmdBuffer[m_device.CurrentFrameInFlight], frameTimeline,
                                    vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
                                        | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate);
 
     //===============================================
     // create buffer that holds vertex data adresses
-    m_objDescriptionBuffer = std::make_unique<VulkanCore::VBuffer>(m_device, "All vertex and index data for RTX");
-    m_objDescriptionBuffer->CreateBufferAndPutDataOnDevice(
+    m_objDescriptionBuffer[m_device.CurrentFrameInFlight] = std::make_unique<VulkanCore::VBuffer>(m_device, "All vertex and index data for RTX");
+    m_objDescriptionBuffer[m_device.CurrentFrameInFlight]->CreateBufferAndPutDataOnDevice(
         m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(), m_rtxObjectDescriptions,
         vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer);
 
@@ -132,8 +145,8 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
 
 void VRayTracingDataManager::Destroy()
 {
-    m_objDescriptionBuffer->DestroyStagingBuffer();
-    m_objDescriptionBuffer->Destroy();
+    m_objDescriptionBuffer[m_device.CurrentFrameInFlight]->DestroyStagingBuffer();
+    m_objDescriptionBuffer[m_device.CurrentFrameInFlight]->Destroy();
     m_rayTracingBuilder->Destroy();
     m_cmdPool->Destroy();
 }
