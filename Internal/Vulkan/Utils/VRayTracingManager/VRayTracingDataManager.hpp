@@ -57,6 +57,10 @@ class VRayTracingDataManager {
     std::unique_ptr<VulkanCore::VBuffer> m_objDescriptionBuffer;
     SceneUpdateContext* m_sceneUpdateContext;
 
+
+    std::unique_ptr<VulkanCore::VCommandPool>   m_cmdPool;
+    std::unique_ptr<VulkanCore::VCommandBuffer> m_cmdBuffer;
+
 };
 
 } // VulkanUtils

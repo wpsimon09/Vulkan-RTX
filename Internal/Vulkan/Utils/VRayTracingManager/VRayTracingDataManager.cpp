@@ -17,6 +17,8 @@ VRayTracingDataManager::VRayTracingDataManager(const VulkanCore::VDevice& device
     : m_device(device)
 {
     m_rayTracingBuilder = std::make_unique<VulkanCore::RTX::VRayTracingBuilderKHR>(device);
+    m_cmdPool   = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Compute);
+    m_cmdBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_cmdPool);
 }
 void VRayTracingDataManager::UpdateData(SceneUpdateContext& sceneUpdateContext, std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
 {
@@ -42,7 +44,7 @@ void VRayTracingDataManager::RecordAndSubmitAsBuld(VulkanCore::VTimelineSemaphor
         {
             m_instances[i].transform = VulkanCore::RTX::GlmToMatrix4KHR(m_blasInputs[i].transform);
         }
-        m_rayTracingBuilder->BuildTLAS(m_instances, frameSemaphore,
+        m_rayTracingBuilder->BuildTLAS(m_instances,*m_cmdBuffer, frameSemaphore,
                                        vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
                                            | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate,
                                        true);        Utils::Logger::LogInfo("Updating AS");
@@ -75,16 +77,16 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
         m_objDescriptionBuffer->Destroy();
     }
     m_rayTracingBuilder->Clear();
-    m_rayTracingBuilder->BuildBLAS(blasInputs, frameSemaphore,  vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
+    m_rayTracingBuilder->BuildBLAS(blasInputs,*m_cmdBuffer, frameSemaphore,  vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
                                                    | vk::BuildAccelerationStructureFlagBitsKHR::eAllowCompaction);
 
     // single shader hit group is going to be stored under this index...
     std::vector<vk::AccelerationStructureInstanceKHR> instances;
-    instances.reserve(blasInputs.size());
+    instances.reserve(m_blasInputs.size());
 
     int i                   = 0;
     int shaderHitGroupIndex = 0;
-    for(auto& instance : blasInputs)
+    for(auto& instance : m_blasInputs)
     {
 
         vk::AccelerationStructureInstanceKHR instanceInfo{};
@@ -100,15 +102,18 @@ void VRayTracingDataManager::InitAs(std::vector<VulkanCore::RTX::BLASInput>& bla
         m_rtxObjectDescriptions.emplace_back(blasInputs[i].objDescription);
         i++;
     }
-    m_rayTracingBuilder->BuildTLAS(m_instances,frameSemaphore, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
+    // this causes all problems, the transfer ops manager is submitted at this point
+    m_cmdBuffer->BeginRecording();
+    m_objDescriptionBuffer = std::make_unique<VulkanCore::VBuffer>(m_device, "All vertex and index data for RTX");
+    m_objDescriptionBuffer->CreateBufferAndPutDataOnDevice(m_cmdBuffer->GetCommandBuffer(), m_rtxObjectDescriptions,
+        vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer);
+
+    m_rayTracingBuilder->BuildTLAS(m_instances,*m_cmdBuffer, frameSemaphore, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
                                                     | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate);
 
     //===============================================
     // create buffer that holds vertex data adresses
-    m_objDescriptionBuffer = std::make_unique<VulkanCore::VBuffer>(m_device, "All vertex and index data for RTX");
-    m_objDescriptionBuffer->CreateBufferAndPutDataOnDevice(
-        m_device.GetTransferOpsManager().GetCommandBuffer().GetCommandBuffer(), m_rtxObjectDescriptions,
-        vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer);
+
 }
 
 void VRayTracingDataManager::Destroy()
@@ -116,6 +121,7 @@ void VRayTracingDataManager::Destroy()
     m_objDescriptionBuffer->DestroyStagingBuffer();
     m_objDescriptionBuffer->Destroy();
     m_rayTracingBuilder->Destroy();
+    m_cmdPool->Destroy();
 }
 
 const vk::AccelerationStructureKHR& VRayTracingDataManager::GetTLAS()

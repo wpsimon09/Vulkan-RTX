@@ -37,10 +37,12 @@ class VRayTracingBuilderKHR
   public:
     explicit VRayTracingBuilderKHR(const VulkanCore::VDevice& device);
     void BuildBLAS(std::vector<RTX::BLASInput>&     inputs,
+                   VulkanCore::VCommandBuffer&      cmdBuffer,
                    VulkanCore::VTimelineSemaphore2& frameSemaphore,
                    vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
 
     void BuildTLAS(const std::vector<vk::AccelerationStructureInstanceKHR>& instances,
+                   VulkanCore::VCommandBuffer&                              cmdBuffer,
                    VulkanCore::VTimelineSemaphore2&                         frameSemaphore,
                    vk::BuildAccelerationStructureFlagsKHR flags = vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace,
                    bool update = false,
@@ -57,12 +59,8 @@ class VRayTracingBuilderKHR
   private:
     VTimelineSemaphore m_asBuildSemaphore;
 
-
     const VulkanCore::VDevice&  m_device;
     std::vector<RTX::BLASEntry> m_blasEntries;
-
-    std::unique_ptr<VulkanCore::VCommandPool>   m_cmdPool;
-    std::unique_ptr<VulkanCore::VCommandBuffer> m_cmdBuffer;
 
     VulkanCore::RTX::AccelKHR              m_tlas;
     std::vector<VulkanCore::RTX::AccelKHR> m_blas;

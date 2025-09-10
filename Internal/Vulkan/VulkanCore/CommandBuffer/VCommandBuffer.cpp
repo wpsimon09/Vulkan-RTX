@@ -50,16 +50,17 @@ void VCommandBuffer::BeginRecording()
     Utils::Logger::LogInfoVerboseRendering("Begin recording command buffer...");
     vk::CommandBufferBeginInfo beginInfo{};
 
-    if(m_commandPool.GetQueueFamily().first == Transfer && GlobalState::AutoCommandBufferFlags)
+    if((m_commandPool.GetQueueFamily().first == Transfer || m_commandPool.GetQueueFamily().second == Compute)  && GlobalState::AutoCommandBufferFlags)
     {
         Utils::Logger::LogInfoVerboseOnly(
             "Command buffer is going to be used with transfer family. Setting flags to be eOneTimeSubmit, this can be changed in global state by setting variable AutoCommandBufferFlags to false!");
         beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
     }
     beginInfo.pInheritanceInfo = nullptr;
-    assert(m_isCurrentlyRecording == false);
-    m_isCurrentlyRecording = true;
-    m_commandBuffer.begin(beginInfo);
+    if (m_isCurrentlyRecording == false) {
+        m_isCurrentlyRecording = true;
+        m_commandBuffer.begin(beginInfo);
+    }
 }
 
 
