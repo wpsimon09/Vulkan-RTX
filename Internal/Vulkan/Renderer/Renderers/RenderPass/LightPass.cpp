@@ -7,6 +7,7 @@
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/Utils/LookUpTables.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
@@ -390,6 +391,18 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
                                                       vk::ImageLayout::eDepthStencilAttachmentOptimal, barrierPos);
 
     //m_renderingStatistics.DrawCallCount = drawCallCount;
+}
+
+void ForwardRender::Destroy()
+{
+    RenderPass::Destroy();
+    for(int i = 0; i < m_effects.size(); i++)
+    {
+        if(m_effects[i])
+        {
+            m_effects[i]->Destroy();
+        }
+    }
 }
 
 

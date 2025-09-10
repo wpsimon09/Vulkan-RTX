@@ -9,49 +9,51 @@
 #include "map"
 
 namespace ApplicationCore {
-  class EffectsLibrary;
+class EffectsLibrary;
 };
 
 namespace VulkanStructs {
-  struct PostProcessingContext;
+struct PostProcessingContext;
 };
 
 namespace VulkanUtils {
-  class VRasterEffect;
-  class VUniformBufferManager;
-  struct RenderContext;
-};
+class VRasterEffect;
+class VUniformBufferManager;
+struct RenderContext;
+};  // namespace VulkanUtils
 
 namespace VulkanCore {
-  class VDevice;
-  class VCommandBuffer;
-}
+class VDevice;
+class VCommandBuffer;
+}  // namespace VulkanCore
 
 namespace Renderer {
 
-enum EForwardRenderEffects {
-     Outline = 0,
-     ForwardShader,
-     SkyBox,
-     DebugLine,
-     AlphaMask,
-     AplhaBlend,
-     EditorBilboard,
-     WireFrame,
+enum EForwardRenderEffects
+{
+    Outline = 0,
+    ForwardShader,
+    SkyBox,
+    DebugLine,
+    AlphaMask,
+    AplhaBlend,
+    EditorBilboard,
+    WireFrame,
 
-     // all new effects have to go above this
-     ForwardRenderEffectsCount
+    // all new effects have to go above this
+    ForwardRenderEffectsCount
 };
 
 
-enum EForwardRenderAttachments {
-  Main = 0,
+enum EForwardRenderAttachments
+{
+    Main = 0,
 };
 
 class ForwardRender : public Renderer::RenderPass
 {
   public:
-    ForwardRender(const VulkanCore::VDevice& device,ApplicationCore::EffectsLibrary& effectLibrary, int width, int height);
+    ForwardRender(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height);
 
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
 
@@ -62,10 +64,10 @@ class ForwardRender : public Renderer::RenderPass
 
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
 
+    void Destroy() override;
+
   private:
     std::vector<std::shared_ptr<VulkanUtils::VRasterEffect>> m_effects;
-
-
 };
 
 }  // namespace Renderer

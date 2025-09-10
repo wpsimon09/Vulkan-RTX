@@ -6,6 +6,7 @@
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
@@ -74,9 +75,10 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
     int drawCallCount = 0;
 
 
-    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead,
-                                                vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eColorAttachmentOutput ,
-                                                vk::AccessFlagBits2::eDepthStencilAttachmentWrite | vk::AccessFlagBits2::eColorAttachmentWrite};
+    VulkanUtils::VBarrierPosition barrierPos = {
+        vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead,
+        vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+        vk::AccessFlagBits2::eDepthStencilAttachmentWrite | vk::AccessFlagBits2::eColorAttachmentWrite};
     m_depthBuffer->TransitionAttachments(cmdBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal,
                                          vk::ImageLayout::eDepthStencilReadOnlyOptimal, barrierPos);
 
@@ -230,6 +232,13 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
 RenderTarget2& GBufferPass::GetDepthAttachment()
 {
     return *m_depthBuffer;
+}
+
+void GBufferPass::Destroy()
+{
+    RenderPass::Destroy();
+    m_depthBuffer->Destroy();
+    m_gBufferEffect->Destroy();
 }
 
 }  // namespace Renderer

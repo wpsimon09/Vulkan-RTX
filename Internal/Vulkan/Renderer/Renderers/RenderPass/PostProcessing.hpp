@@ -42,6 +42,8 @@ class FogPass : public Renderer::RenderPass
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
 
+    void Destroy() override;
+
   private:
     FogVolumeParameters                         m_parameters;
     std::shared_ptr<VulkanUtils::VRasterEffect> m_fogPassEffect;
@@ -60,6 +62,8 @@ class ToneMappingPass : public Renderer::RenderPass
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
+
+    void Destroy() override;
 
   private:
     LuminanceHistogramParameters        m_luminanceHistogramParameters;
@@ -84,6 +88,7 @@ class LensFlarePass : public RenderPass
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
+    void Destroy() override;
 
   private:
     LensFlareParameters                         m_lensFlareParameters;

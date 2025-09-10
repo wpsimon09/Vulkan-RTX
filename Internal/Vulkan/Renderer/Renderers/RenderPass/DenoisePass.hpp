@@ -11,14 +11,19 @@ class VComputeEffect;
 }
 namespace Renderer {
 
-enum EBilateralFilterAttachments {
-  Result = 0
+enum EBilateralFilterAttachments
+{
+    Result = 0
 };
 
-class BilateralFilterPass: public Renderer::RenderPass
+class BilateralFilterPass : public Renderer::RenderPass
 {
   public:
-    BilateralFilterPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, VulkanCore::VImage2& inputImage, int width, int height);
+    BilateralFilterPass(const VulkanCore::VDevice&       device,
+                        ApplicationCore::EffectsLibrary& effectsLibrary,
+                        VulkanCore::VImage2&             inputImage,
+                        int                              width,
+                        int                              height);
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
 
     void Update(int                                   currentFrame,
@@ -28,10 +33,12 @@ class BilateralFilterPass: public Renderer::RenderPass
 
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
 
-private:
-  VulkanCore::VImage2& m_inputImage;
-  std::shared_ptr<VulkanUtils::VComputeEffect> m_bilateralFileter;
-  BilaterialFilterParameters m_bilateralFilterParameters;
+    void Destroy() override;
+
+  private:
+    VulkanCore::VImage2&                         m_inputImage;
+    std::shared_ptr<VulkanUtils::VComputeEffect> m_bilateralFileter;
+    BilaterialFilterParameters                   m_bilateralFilterParameters;
 };
 
 }  // namespace Renderer

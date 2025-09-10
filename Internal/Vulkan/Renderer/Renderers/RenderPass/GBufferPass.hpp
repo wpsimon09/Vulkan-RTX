@@ -8,17 +8,18 @@
 
 namespace Renderer {
 
-enum EGBufferAttachments {
-  Position = 0,
-  Normal,
-  // put all attachments above this
-  Size
+enum EGBufferAttachments
+{
+    Position = 0,
+    Normal,
+    // put all attachments above this
+    Size
 };
 
 class GBufferPass : public Renderer::RenderPass
 {
   public:
-    GBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary,  int width, int height);
+    GBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height);
 
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
 
@@ -29,11 +30,14 @@ class GBufferPass : public Renderer::RenderPass
 
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
 
+    void Destroy() override;
+
     RenderTarget2& GetDepthAttachment();
-private:
-  int m_numGBufferAttachments = EGBufferAttachments::Size;
-  std::shared_ptr<VulkanUtils::VRasterEffect> m_gBufferEffect;
-  std::unique_ptr<Renderer::RenderTarget2> m_depthBuffer;
+
+  private:
+    int                                         m_numGBufferAttachments = EGBufferAttachments::Size;
+    std::shared_ptr<VulkanUtils::VRasterEffect> m_gBufferEffect;
+    std::unique_ptr<Renderer::RenderTarget2>    m_depthBuffer;
 };
 
 }  // namespace Renderer

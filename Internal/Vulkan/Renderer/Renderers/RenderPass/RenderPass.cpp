@@ -13,6 +13,7 @@ RenderPass::RenderPass(const VulkanCore::VDevice& device, int width, int height)
     , m_height(height)
 {
 }
+
 void RenderPass::Destroy()
 {
     for(auto& renderTarget : m_renderTargets)
@@ -20,6 +21,7 @@ void RenderPass::Destroy()
         renderTarget->Destroy();
     }
 }
+
 RenderTarget2& RenderPass::GetRenderTarget(int index)
 {
     return *m_renderTargets[index];

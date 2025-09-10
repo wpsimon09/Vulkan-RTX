@@ -6,6 +6,7 @@
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
+#include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
@@ -101,6 +102,12 @@ void BilateralFilterPass::Render(int currentFrame, VulkanCore::VCommandBuffer& c
 
     m_renderTargets[EBilateralFilterAttachments::Result]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                                                 vk::ImageLayout::eGeneral, barrierPos);
+}
+
+void BilateralFilterPass::Destroy()
+{
+    RenderPass::Destroy();
+    m_bilateralFileter->Destroy();
 }
 
 }  // namespace Renderer

@@ -6,6 +6,8 @@
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/Utils/LookUpTables.hpp"
+#include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
@@ -131,6 +133,12 @@ void FogPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, Vu
                                               VulkanUtils::VRenderTarget_Color_ToSample_InShader_BarrierPosition);
 }
 
+void FogPass::Destroy()
+{
+    RenderPass::Destroy();
+    m_fogPassEffect->Destroy();
+}
+
 //=============================================================================
 // ************************* TONE MAPPING *************************************
 //=============================================================================
@@ -185,13 +193,16 @@ ToneMappingPass::ToneMappingPass(const VulkanCore::VDevice& device, ApplicationC
         m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage().GetImageStagingvBuffer(), true);
 
     VulkanUtils::VBarrierPosition barrierPos = {
-        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
-        vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+        vk::PipelineStageFlagBits2::eCopy,
+        vk::AccessFlagBits2::eTransferWrite,
+        vk::PipelineStageFlagBits2::eComputeShader,
+        vk::AccessFlagBits2::eShaderWrite,
     };
-    m_renderTargets[EToneMappingAttachments::LuminanceAverage]->TransitionAttachments(device.GetTransferOpsManager().GetCommandBuffer(), vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
+    m_renderTargets[EToneMappingAttachments::LuminanceAverage]->TransitionAttachments(
+        device.GetTransferOpsManager().GetCommandBuffer(), vk::ImageLayout::eGeneral,
+        vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
 
     m_luminanceHistogramBuffer.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
-
 }
 void ToneMappingPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
@@ -299,20 +310,18 @@ void ToneMappingPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
 
     //==================================
     // sync the average luminance buffer
-    VulkanUtils::VBarrierPosition bufferBarrierPos = {
-        vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
-        vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead
-    };
+    VulkanUtils::VBarrierPosition bufferBarrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+                                                      vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};
     VulkanUtils::PlaceBufferMemoryBarrier2(cmdBuffer.GetCommandBuffer(), m_luminanceHistogramBuffer[currentFrame], bufferBarrierPos);
 
     //=================================================
     // Average luminance
     //=================================================
     VulkanUtils::VBarrierPosition imageBarrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead,
-                                                vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite};
+                                                     vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite};
 
-    m_renderTargets[EToneMappingAttachments::LuminanceAverage]->TransitionAttachments(
-        cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, imageBarrierPos);
+    m_renderTargets[EToneMappingAttachments::LuminanceAverage]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral,
+                                                                                      vk::ImageLayout::eGeneral, imageBarrierPos);
 
     vk::PushConstantsInfo pcLuminanceAverage;
     pcLuminanceAverage.layout = m_averageLuminanceEffect->GetPipelineLayout();
@@ -327,21 +336,19 @@ void ToneMappingPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
 
     cmdBuffer.GetCommandBuffer().dispatch(1, 1, 1);
 
-    imageBarrierPos = {
-        vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
-        vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead
-    };
+    imageBarrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+                       vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead};
 
-    m_renderTargets[EToneMappingAttachments::LuminanceAverage]->TransitionAttachments(
-        cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, imageBarrierPos);
+    m_renderTargets[EToneMappingAttachments::LuminanceAverage]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral,
+                                                                                      vk::ImageLayout::eGeneral, imageBarrierPos);
 
 
     //=======================================================
     // Tone mapping
     //=======================================================
     imageBarrierPos = {vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eFragmentShader,
-                  vk::AccessFlagBits2::eShaderRead, vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-                  vk::AccessFlagBits2::eColorAttachmentWrite};
+                       vk::AccessFlagBits2::eShaderRead, vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                       vk::AccessFlagBits2::eColorAttachmentWrite};
 
     m_renderTargets[EToneMappingAttachments::LDR]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
                                                                          vk::ImageLayout::eShaderReadOnlyOptimal, imageBarrierPos);
@@ -391,8 +398,17 @@ void ToneMappingPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
     cmdB.endRendering();
 
 
-    m_renderTargets[EToneMappingAttachments::LDR]->TransitionAttachments(
-        cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal, imageBarrierPos.Switch());
+    m_renderTargets[EToneMappingAttachments::LDR]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                                         vk::ImageLayout::eColorAttachmentOptimal,
+                                                                         imageBarrierPos.Switch());
+}
+
+void ToneMappingPass::Destroy()
+{
+    RenderPass::Destroy();
+    m_averageLuminanceEffect->Destroy();
+    m_luminanceHistogramEffect->Destroy();
+    m_toneMappingEffect->Destroy();
 }
 
 //=======================================================================================================
@@ -507,6 +523,12 @@ void LensFlarePass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
 
     m_renderTargets[ELensFlareAttachments::LensFlareMain]->TransitionAttachments(
         cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal, barrierPos.Switch());
+}
+
+void LensFlarePass::Destroy()
+{
+    RenderPass::Destroy();
+    m_lensFlareEffect->Destroy();
 }
 
 
