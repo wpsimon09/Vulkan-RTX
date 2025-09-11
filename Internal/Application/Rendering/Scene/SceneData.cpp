@@ -12,6 +12,8 @@ namespace ApplicationCore {
 
 void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
 {
+    if (node->GetSceneNodeMetaData().VisibleInRayTracing) {
+
     if(node->HasMesh())
     {
         auto mesh = node->GetMesh();
@@ -45,9 +47,10 @@ void SceneData::AddEntry(std::shared_ptr<ApplicationCore::SceneNode>& node)
                 }
                 i++;
             }
-
             pbrMaterials.emplace_back(&mat->GetMaterialDescription());
             mat->SetSceneIndex(pbrMaterials.size() - 1);
+    }
+
         }
     }
     nodes.emplace_back(node);

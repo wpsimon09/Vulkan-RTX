@@ -14,9 +14,10 @@ namespace ApplicationCore {
 FogVolumeNode::FogVolumeNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh)
     : SceneNode(mesh)
 {
-    m_sceneNodeMetaData.nodeType     = ENodeType::FogVolume;
-    m_sceneNodeMetaData.FrustumCull  = false;
-    m_sceneNodeMetaData.IsVolumeNode = true;
+    m_sceneNodeMetaData.nodeType            = ENodeType::FogVolume;
+    m_sceneNodeMetaData.FrustumCull         = false;
+    m_sceneNodeMetaData.IsVolumeNode        = true;
+    m_sceneNodeMetaData.VisibleInRayTracing = false;
 }
 
 void FogVolumeNode::Update(SceneUpdateContext& sceneUpdateFlags)
@@ -47,9 +48,7 @@ void FogVolumeNode::ProcessNodeRemove()
 {
     SceneNode::ProcessNodeRemove();
 }
-void FogVolumeNode::ProcessNodeRemove(SceneData& sceneData) {
-
-}
+void FogVolumeNode::ProcessNodeRemove(SceneData& sceneData) {}
 
 void FogVolumeNode::ProcessNodeRemove(const SceneNode& node, SceneData& sceneData)
 {

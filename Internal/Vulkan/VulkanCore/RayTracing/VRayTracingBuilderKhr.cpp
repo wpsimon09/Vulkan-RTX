@@ -90,6 +90,7 @@ vk:
             vk::SemaphoreSubmitInfo waitUntilTransferFinished =
                 frameSemaphore.GetSemaphoreWaitSubmitInfo(EFrameStages::TransferFinish,
                                                           vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR);
+
             vk::SemaphoreSubmitInfo signalBuildIsComplete = {m_asBuildSemaphore.GetSemaphore(), 2, {}};
 
 

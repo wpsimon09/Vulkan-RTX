@@ -221,6 +221,8 @@ void Application::Render()
 
     m_editor->Render();
 
+    // the frame update has to be here since editor render might change some stuff based on the UI alterations
+    // this should be fixed with Command pattern or similar techinique
     m_frame->Update(m_client->GetApplicationState());
     if (m_frame->Render(m_client->GetApplicationState())) {
         m_frame->FinishFrame();
