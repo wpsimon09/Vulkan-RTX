@@ -91,8 +91,8 @@ vk:
                 frameSemaphore.GetSemaphoreWaitSubmitInfo(EFrameStages::TransferFinish,
                                                           vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR);
 
-            vk::SemaphoreSubmitInfo signalBuildIsComplete = {m_asBuildSemaphore.GetSemaphore(), 2, {}};
-
+            m_asBuildSemaphore.SetWaitAndSignal(0, 2);
+            vk::SemaphoreSubmitInfo signalBuildIsComplete = {m_asBuildSemaphore.GetSemaphore(), m_asBuildSemaphore.GetCurrentSignalValue(), vk::PipelineStageFlagBits2::eAllCommands};
 
             cmdBuffer.EndAndFlush2(m_device.GetComputeQueue(), signalBuildIsComplete, waitUntilTransferFinished);
 
