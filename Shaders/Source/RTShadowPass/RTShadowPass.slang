@@ -69,7 +69,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float3 lightBitangent = normalize(cross(lightTangent, direction.xyz));
 
     float nShadowRays = _lightInfo.dirLight.parameters.x;
-    float shadowBias = _lightInfo.dirLight.parameters.y;
+    float shadowBias = 0.1;
 
     uint2 pixelCoord = uint2(fsIn.uv * globalData.screenSize);
 

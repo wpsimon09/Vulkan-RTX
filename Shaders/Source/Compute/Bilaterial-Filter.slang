@@ -15,7 +15,7 @@ Sampler2D _nomrmalMap;
 
 
 struct FilterParameters{
-   float sigma; // spatial factor 
+   float sigma;  // spatial factor 
    float BSigma; // weight factor 
    float width;
    float height;
@@ -53,7 +53,7 @@ float3 bilaterialFilter(uint3 threadID){
 
     const int kSize = (MSize - 1) / 2; // kernel size in one dimension
     // SPACIAL KERNEL
-    // - create create the  ID kernel, 
+    // - create the  1D kernel, 
     // - it is onyl for the spacial part of the gaussian kernel since 
     // - bialteral is composed of two weights, special and range 
     // - 2 parts spacial and range 

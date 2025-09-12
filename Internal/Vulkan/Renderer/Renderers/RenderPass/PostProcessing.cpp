@@ -337,7 +337,8 @@ void ToneMappingPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
     cmdBuffer.GetCommandBuffer().dispatch(1, 1, 1);
 
     imageBarrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
-                       vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderSampledRead};
+                       vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                       vk::AccessFlagBits2::eShaderSampledRead};
 
     m_renderTargets[EToneMappingAttachments::LuminanceAverage]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral,
                                                                                       vk::ImageLayout::eGeneral, imageBarrierPos);

@@ -202,7 +202,7 @@ void Settings::RenderRenderingSettings()
 
         if(ImGui::TreeNode("De-noising"))
         {
-            ImGui::SliderFloat("Spacial", &applicationState.GetBilateralFilaterParameters().sigma, 0.001, 10.0);
+            ImGui::SliderFloat("Spacial", &applicationState.GetBilateralFilaterParameters().sigma, 0.001, 300.0);
             ImGui::SliderFloat("Range", &applicationState.GetBilateralFilaterParameters().BSigma, 1, 300.0);
             ImGui::TreePop();
         }
