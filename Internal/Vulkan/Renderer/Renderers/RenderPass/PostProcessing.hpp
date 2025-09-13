@@ -4,6 +4,7 @@
 
 #ifndef VULKAN_RTX_POSTPROCESSING_HPP
 #define VULKAN_RTX_POSTPROCESSING_HPP
+#include "Application/Structs/ParameterStructs.hpp"
 #include "RenderPass.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
 
@@ -26,6 +27,11 @@ enum EToneMappingAttachments
 enum ELensFlareAttachments
 {
     LensFlareMain = 0
+};
+
+enum EBloomAttachments
+{
+    BloomMain = 0
 };
 
 //============================================================================================================================================================
@@ -99,8 +105,21 @@ class BloomPass : public RenderPass
 {
   public:
     BloomPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height);
+    void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
+    void Update(int                                   currentFrame,
+                VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                VulkanUtils::RenderContext*           renderContext,
+                VulkanStructs::PostProcessingContext* postProcessingContext) override;
+    void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
+    void Destroy() override;
 
   private:
+    std::shared_ptr<VulkanUtils::VComputeEffect> m_downSampleEffect;
+    std::shared_ptr<VulkanUtils::VComputeEffect> m_upSampleEffect;
+
+
+    BloomDownSampleParams m_downSampleParams;
+    BloomUpSampleParams   m_upSampleParams;
 };
 
 }  // namespace Renderer

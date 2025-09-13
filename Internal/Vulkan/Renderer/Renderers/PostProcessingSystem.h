@@ -6,6 +6,7 @@
 #define POSTPROCESSINGSYSTEM_H
 #include "RenderPass/PostProcessing.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VEffect/VEffect.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
@@ -38,11 +39,14 @@ class PostProcessingSystem
     void Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
     VulkanCore::VImage2& GetRenderedResult(int frameIndex);
 
-    void Init(int                                  frameIndex,
-              VulkanUtils::VUniformBufferManager&  uniformBufferManager,
-              VulkanUtils::RenderContext* renderContext, VulkanStructs::PostProcessingContext* postProcessingContext);
+    void Init(int                                   frameIndex,
+              VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+              VulkanUtils::RenderContext*           renderContext,
+              VulkanStructs::PostProcessingContext* postProcessingContext);
 
-    void Update(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanStructs::PostProcessingContext& postProcessingCotext);
+    void Update(int                                   frameIndex,
+                VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                VulkanStructs::PostProcessingContext& postProcessingCotext);
 
     void Destroy();
 
@@ -54,12 +58,15 @@ class PostProcessingSystem
 
     void LensFlare(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
 
+    void Bloom(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
+
   private:
     const VulkanCore::VDevice&          m_device;
     VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
 
     std::unique_ptr<Renderer::ToneMappingPass> m_toneMappingPass;
-    std::unique_ptr<Renderer::LensFlarePass> m_lensFlarePass;
+    std::unique_ptr<Renderer::LensFlarePass>   m_lensFlarePass;
+    std::unique_ptr<Renderer::BloomPass>       m_bloomPass;
 
     VulkanCore::VImage2* m_finalRender = nullptr;
 

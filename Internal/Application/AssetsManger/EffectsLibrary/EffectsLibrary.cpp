@@ -232,6 +232,21 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     effects[EEffectType::BilateralFilter] = std::move(bilateralFilter);
 
+    //=================================================================================
+    auto bloomUpSample =
+        std::make_shared<VulkanUtils::VComputeEffect>(device, "Bloom up sample", "Shaders/Compiled/BloomUpSample.spv",
+                                                      descLayoutCache, EShaderBindingGroup::ComputePostProecess);
+
+    effects[EEffectType::BloomUpSample] = std::move(bloomUpSample);
+
+    //=================================================================================
+
+    auto bloomDownSample =
+        std::make_shared<VulkanUtils::VComputeEffect>(device, "Bloom down sample", "Shaders/Compiled/BloomDownsample.spv",
+                                                      descLayoutCache, EShaderBindingGroup::ComputePostProecess);
+
+    effects[EEffectType::BloomDownSample] = std::move(bloomDownSample);
+
     BuildAllEffects();
 }
 

@@ -34,6 +34,7 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
 
     m_toneMappingPass = std::make_unique<Renderer::ToneMappingPass>(device, effectsLibrary, width, height);
     m_lensFlarePass   = std::make_unique<Renderer::LensFlarePass>(device, effectsLibrary, width, height);
+    m_bloomPass       = std::make_unique<Renderer::BloomPass>(device, effectsLibrary, width, height);
 
     m_finalRender = &m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
 

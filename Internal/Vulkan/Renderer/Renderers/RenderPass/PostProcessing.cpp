@@ -532,5 +532,56 @@ void LensFlarePass::Destroy()
     m_lensFlareEffect->Destroy();
 }
 
+//=======================================================================================================
+//***************************************** BLOOM PASS **************************************************
+//=======================================================================================================
+
+BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height)
+    : RenderPass(device, width, height)
+    , m_downSampleParams{}
+    , m_upSampleParams{}
+{
+    RenderTarget2CreatInfo bloomOutputCi{
+        width,
+        height,
+        false,
+        false,
+        vk::Format::eR16G16B16A16Sfloat,
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::ResolveModeFlagBits::eNone,
+    };
+
+    int mipMapImages = 6;
+
+    for(int i = 0; i < mipMapImages; i++)
+    {
+        bloomOutputCi.width *= 0.5;
+        bloomOutputCi.heigh *= 0.5;
+        m_renderTargets.push_back(std::make_unique<Renderer::RenderTarget2>(device, bloomOutputCi));
+    }
+
+    m_downSampleEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BloomDownSample);
+    m_upSampleEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BloomUpSample);
+}
+void BloomPass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
+{
+
+}
+void BloomPass::Update(int                                   currentFrame,
+                       VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                       VulkanUtils::RenderContext*           renderContext,
+                       VulkanStructs::PostProcessingContext* postProcessingContext)
+{
+}
+void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
+{
+}
+void BloomPass::Destroy()
+{
+    m_downSampleEffect->Destroy();
+    m_upSampleEffect->Destroy();
+    RenderPass::Destroy();
+}
+
 
 }  // namespace Renderer

@@ -3,6 +3,7 @@
 #define PARAMETERSTRUCTS_HPP
 
 #include "glm/glm.hpp"
+#include <glm/fwd.hpp>
 
 struct BilaterialFilterParameters
 {
@@ -74,6 +75,17 @@ struct FogVolumeParameters
     int   rayMarched      = false;
     float asymmetryFactor = {0.0f};
     float fogHeight       = {1.0f};
+};
+
+struct BloomUpSampleParams
+{
+    glm::vec4 src_xy_dst_xy;
+    float     filterRadius;
+};
+
+struct BloomDownSampleParams
+{
+    glm::vec4 src_xy_dst_xy;
 };
 
 #endif

@@ -53,7 +53,9 @@ enum class EEffectType : std::uint8_t
     ComputePostProcess,
     LuminanceHistrogram,
     AverageLuminance,
-    BilateralFilter
+    BilateralFilter,
+    BloomDownSample,
+    BloomUpSample
 };
 
 class EffectsLibrary

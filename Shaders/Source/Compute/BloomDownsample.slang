@@ -2,7 +2,6 @@ import Core;
 
 struct BloomDownSampleParams{
     float4 src_dst_resolution;
-    float currentMip;
 }
 
 [[vk::push_constant]]
