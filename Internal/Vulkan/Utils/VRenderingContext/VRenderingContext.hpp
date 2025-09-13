@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 #include <glm/mat4x4.hpp>
+#include "Application/Rendering/Scene/SceneData.hpp"
 #include "vulkan/vulkan.hpp"
 
 namespace Renderer {
@@ -49,7 +50,7 @@ struct RenderContext
 
     //===========================================
     // outputs from different render passes
-    VulkanCore::VImage2*     lightPassOutput      = nullptr;
+    VulkanCore::VImage2*     lightPassOutput  = nullptr;
     VulkanCore::VImage2*     normalMap        = nullptr;
     VulkanCore::VImage2*     positionMap      = nullptr;
     VulkanCore::VImage2*     visibilityBuffer = nullptr;
@@ -64,6 +65,8 @@ struct RenderContext
     //===============================================================
     // DRAW CALLS SECTION
     std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& GetAllDrawCall();
+
+    ApplicationCore::SceneData renderingSceneData;  // contains not the entire scene but only what is visible in the view port
 
     VulkanStructs::VDrawCallData* fogDrawCall;
 

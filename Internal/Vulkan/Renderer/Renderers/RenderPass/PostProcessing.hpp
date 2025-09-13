@@ -95,6 +95,14 @@ class LensFlarePass : public RenderPass
     std::shared_ptr<VulkanUtils::VRasterEffect> m_lensFlareEffect;
 };
 
+class BloomPass : public RenderPass
+{
+  public:
+    BloomPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height);
+
+  private:
+};
+
 }  // namespace Renderer
 
 #endif  //VULKAN_RTX_POSTPROCESSING_HPP

@@ -245,6 +245,7 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Buffer/VGrowableBuffer.hpp
         Internal/Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.cpp
         Internal/Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp
+        External/vk-profiles/vulkan_profiles.hpp
 
 )
 

@@ -86,10 +86,10 @@ vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice()
 
                 vk::PhysicalDeviceRayTracingPipelinePropertiesKHR    rayTracingPipelineProperties{};
                 vk::PhysicalDeviceAccelerationStructurePropertiesKHR accelerationStructureProperties{};
-                vk::PhysicalDeviceDepthStencilResolveProperties physicalDeviceDepthStencilResolveProperties{};
-                accelerationStructureProperties.pNext = &rayTracingPipelineProperties;
+                vk::PhysicalDeviceDepthStencilResolveProperties      physicalDeviceDepthStencilResolveProperties{};
+                accelerationStructureProperties.pNext             = &rayTracingPipelineProperties;
                 physicalDeviceDepthStencilResolveProperties.pNext = &accelerationStructureProperties;
-                physicalDeviceProperties.pNext        = &physicalDeviceDepthStencilResolveProperties;
+                physicalDeviceProperties.pNext                    = &physicalDeviceDepthStencilResolveProperties;
 
                 //GlobalVariables::GlobalStructs::GpuProperties.pNext = &rayTracingPipelineProperties;
 
@@ -129,6 +129,7 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance)
     CreateVmaAllocator(instance);
     FetchMaxSampleCount();
 
+
     for(int i = 0; i < m_transferCommandPool.size(); i++)
     {
         m_transferCommandPool[i] = std::make_unique<VulkanCore::VCommandPool>(*this, Transfer);
@@ -137,15 +138,15 @@ VulkanCore::VDevice::VDevice(const VulkanCore::VulkanInstance& instance)
     DispatchLoader = vk::detail::DispatchLoaderDynamic(m_instance.GetInstance(), vkGetInstanceProcAddr);
     RetreiveDepthFormat();
 
-    m_transferOpsManager = std::make_unique<VulkanUtils::VTransferOperationsManager>(*this);
-    m_meshDataManager    = std::make_unique<MeshDatatManager>(*this);
+    m_transferOpsManager  = std::make_unique<VulkanUtils::VTransferOperationsManager>(*this);
+    m_meshDataManager     = std::make_unique<MeshDatatManager>(*this);
     m_descriptorAllocator = std::make_unique<VulkanCore::VDescriptorAllocator>(*this);
 }
 
 VulkanCore::VCommandPool& VulkanCore::VDevice::GetTransferCommandPool() const
 {
 
-    VkInstanceCreateInfo createInfo = {};
+    VkInstanceCreateInfo   createInfo = {};
     vk::InstanceCreateInfo createInfo2;
     createInfo = static_cast<VkInstanceCreateInfo>(createInfo2);
 
@@ -196,16 +197,16 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     vk::PhysicalDeviceVulkan12Features physicalDeviceVulkan12Features;
     physicalDeviceVulkan12Features.timelineSemaphore   = true;
     physicalDeviceVulkan12Features.bufferDeviceAddress = true;
-    physicalDeviceVulkan12Features.hostQueryReset = true;
+    physicalDeviceVulkan12Features.hostQueryReset      = true;
 
     //descriptor indexing feature
-    physicalDeviceVulkan12Features.descriptorIndexing = true;
-    physicalDeviceVulkan12Features.shaderSampledImageArrayNonUniformIndexing = true;
-    physicalDeviceVulkan12Features.runtimeDescriptorArray = true;
-    physicalDeviceVulkan12Features.descriptorBindingVariableDescriptorCount = true;
-    physicalDeviceVulkan12Features.descriptorBindingPartiallyBound = true;
-    physicalDeviceVulkan12Features.descriptorBindingUpdateUnusedWhilePending = true;
-    physicalDeviceVulkan12Features.descriptorBindingSampledImageUpdateAfterBind = true;
+    physicalDeviceVulkan12Features.descriptorIndexing                            = true;
+    physicalDeviceVulkan12Features.shaderSampledImageArrayNonUniformIndexing     = true;
+    physicalDeviceVulkan12Features.runtimeDescriptorArray                        = true;
+    physicalDeviceVulkan12Features.descriptorBindingVariableDescriptorCount      = true;
+    physicalDeviceVulkan12Features.descriptorBindingPartiallyBound               = true;
+    physicalDeviceVulkan12Features.descriptorBindingUpdateUnusedWhilePending     = true;
+    physicalDeviceVulkan12Features.descriptorBindingSampledImageUpdateAfterBind  = true;
     physicalDeviceVulkan12Features.descriptorBindingStorageBufferUpdateAfterBind = true;
     physicalDeviceVulkan12Features.descriptorBindingUniformBufferUpdateAfterBind = true;
 
@@ -218,7 +219,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     vk::PhysicalDeviceVulkan11Features oneOneFeatures;
 
     oneOneFeatures.shaderDrawParameters = true;
-    oneOneFeatures.pNext = &dynamicRenderingUnUsedAttachemnts;
+    oneOneFeatures.pNext                = &dynamicRenderingUnUsedAttachemnts;
 
     physicalDeviceVulkan12Features.pNext = oneOneFeatures;
 
@@ -227,8 +228,8 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     GpuAccelerationStrucutreFeatures.pNext = &physicalDeviceVulkan12Features;
 
     vk::PhysicalDeviceRayQueryFeaturesKHR GpuRayQueryFeatures = {};
-    GpuRayQueryFeatures.rayQuery = true;
-    GpuRayQueryFeatures.pNext = &GpuAccelerationStrucutreFeatures;
+    GpuRayQueryFeatures.rayQuery                              = true;
+    GpuRayQueryFeatures.pNext                                 = &GpuAccelerationStrucutreFeatures;
 
     vk::PhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingPipelineFeatures = {};
     rayTracingPipelineFeatures.rayTracingPipeline                              = true;
@@ -237,7 +238,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
 
     vk::PhysicalDeviceSynchronization2Features synchronization2Features{};
     synchronization2Features.synchronization2 = true;
-    synchronization2Features.pNext = rayTracingPipelineFeatures;
+    synchronization2Features.pNext            = rayTracingPipelineFeatures;
 
 
     vk::PhysicalDeviceFeatures deviceFeatures{};
