@@ -190,6 +190,7 @@ void ForwardRender::Update(int                                   currentFrame,
             case EShaderBindingGroup::ForwardLit: {
 
                 e->SetNumWrites(0, 6200, 0);
+
                 // TODO: write only so many texture as are in the view frustrum
                 e->WriteImageArray(currentFrame, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
 

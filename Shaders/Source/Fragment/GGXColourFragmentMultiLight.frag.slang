@@ -88,7 +88,7 @@ float4 fragmentMain(VertexOutput fsIn)
     finalColor = lerp(ambientLight.illuminate(g, brdf_, V) * 0.2, lightingEnv.illuminate(g, brdf_, V)  + ambientLight.illuminate(g, brdf_, V),   shadowFactor.x);
 
     
-    finalColor.xyz += brdf_.emission.xyz;
+    finalColor.xyz += (brdf_.emission.xyz * brdf_.emission.w);
 
     // shadow factor.y is an ambient occlusion data 
     finalColor.xyz *= shadowFactor.y;

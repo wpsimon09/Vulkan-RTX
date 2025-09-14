@@ -10,7 +10,6 @@ Sampler2D srcTexture; // the downsampled texture
 [[vk::binding(1,0)]]
 RWTexture2D DstImage; // the up-sampled texture where we up sample + apply blur 
 
-
 [[vk::push_constant]]
 BloomUpSampleParams _bloomUpSampleParams;
 
@@ -57,5 +56,7 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     upsample += (a+c+g+i);
     upsample *= 1.0 / 16.0;
 
-    DstImage[uint2(dstCoord )].xyz = upsample;
+    // X` = X + blur(X-1, b4)
+    // aditive blending, add whatever was in this mip layer with blured result of the lower mip layer 
+    DstImage[uint2(dstCoord )].xyz += upsample;
 }
