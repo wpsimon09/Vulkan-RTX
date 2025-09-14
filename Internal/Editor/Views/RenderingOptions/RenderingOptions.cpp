@@ -18,7 +18,7 @@
 namespace VEditor {
 RenderingOptions::RenderingOptions(ApplicationCore::ApplicationState& applicationState,
                                    ApplicationCore::Scene&            scene,
-                                   Renderer::Frame*         renderingSystem)
+                                   Renderer::Frame*                   renderingSystem)
     : m_scene(scene)
     , m_applicationState(applicationState)
 {
@@ -61,6 +61,7 @@ void RenderingOptions::Render()
             m_openLightInfoLigt = true;
         }
         ImGui::Checkbox("Lens flare", &m_renderingSystem->m_postProcessingContext.lensFlareEffect);
+        ImGui::Checkbox("Bloom", &m_renderingSystem->m_postProcessingContext.bloomEffect);
 
 
         ImGui::Text("Number of frames: %lu", m_renderingSystem->m_frameCount);

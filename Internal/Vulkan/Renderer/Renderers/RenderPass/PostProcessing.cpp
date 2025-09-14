@@ -642,7 +642,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
 
         cmdBuffer.GetCommandBuffer().dispatch(m_downSampleParams.src_xy_dst_xy.x / 8, m_downSampleParams.src_xy_dst_xy.y / 8, 1);
 
-        VulkanUtils::VBarrierPosition barrierPos = {  vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+        VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                                                     vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};
 
         VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[i]->GetPrimaryImage(), cmdBuffer,

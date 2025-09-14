@@ -101,11 +101,11 @@ struct VRenderingStatistics
 // holds offset to the larger buffer that is in GPU to prevent fragmentation
 struct VGPUSubBufferInfo
 {
-    vk::DeviceSize size = 0;
+    vk::DeviceSize size   = 0;
     vk::DeviceSize offset = 0;
 
-    vk::Buffer        buffer = nullptr;
-    int               index = -1;
+    vk::Buffer        buffer   = nullptr;
+    int               index    = -1;
     int               BufferID = -1;
     vk::DeviceAddress bufferAddress;
 
@@ -125,7 +125,8 @@ struct VMeshData
     VBounds           bounds;
 };
 
-struct VMeshData2 {
+struct VMeshData2
+{
     VGPUSubBufferInfo* vertexData;
     VGPUSubBufferInfo* indexData;
     VBounds            bounds;
@@ -213,6 +214,7 @@ struct PostProcessingContext
 
     float deltaTime       = 0.0;
     bool  lensFlareEffect = false;
+    bool  bloomEffect     = false;
 };
 
 struct BufferHandle

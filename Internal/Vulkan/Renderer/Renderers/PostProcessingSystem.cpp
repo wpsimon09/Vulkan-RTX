@@ -44,6 +44,10 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
 void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext)
 {
 
+    if(postProcessingContext.bloomEffect)
+    {
+        Bloom(frameIndex, commandBuffer, postProcessingContext);
+    }
     ToneMapping(frameIndex, commandBuffer, postProcessingContext);
     if(postProcessingContext.lensFlareEffect)
     {
@@ -55,6 +59,12 @@ void PostProcessingSystem::Update(int                                   frameInd
                                   VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                                   VulkanStructs::PostProcessingContext& postProcessingCotext)
 {
+    if(postProcessingCotext.bloomEffect)
+    {
+        m_bloomPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
+        //TODO: if bloom is enabled make that as input to the tone mapping pass.
+    }
+
     m_toneMappingPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
 
     if(postProcessingCotext.lensFlareEffect)
@@ -97,6 +107,13 @@ void PostProcessingSystem::LensFlare(int                                   curre
     m_lensFlarePass->Render(currentIndex, commandBuffer, nullptr);
     m_finalRender = &m_lensFlarePass->GetPrimaryResult(ELensFlareAttachments::LensFlareMain);
 }
+
+
+void PostProcessingSystem::Bloom(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext)
+{
+    m_bloomPass->Render(currentIndex, commandBuffer, nullptr);
+}
+
 
 void PostProcessingSystem::Destroy()
 {

@@ -5,6 +5,7 @@
 #ifndef DETAILSPANNEL_HPP
 #define DETAILSPANNEL_HPP
 
+#include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
@@ -18,7 +19,9 @@ class AssetsManager;
 
 namespace ApplicationCore {
 class SceneNode;
-}
+class PBRMaterial;
+}  // namespace ApplicationCore
+
 
 namespace VEditor {
 
