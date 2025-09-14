@@ -604,7 +604,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     //========================================
     // Down sample
     // - loop over each mip
-    // - write correct resoruces
+    // - write correct resoruces (dispatch shader on smaller level, and sample higher )
     // - ( the down sample takes one mip larger as an input and outpus one mip smaller with applied bluer )
     for(int i = 0; i < EBloomAttachments::Count; i++)
     {
@@ -630,6 +630,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         m_downSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
         m_downSampleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
 
+        // set up push-constatnts
         vk::PushConstantsInfo pcInfo;
         pcInfo.layout     = m_downSampleEffect->GetPipelineLayout();
         pcInfo.size       = sizeof(m_downSampleParams);
@@ -639,7 +640,13 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
 
         m_downSampleEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-        // set up push-constatnts
+        cmdBuffer.GetCommandBuffer().dispatch(m_downSampleParams.src_xy_dst_xy.x / 8, m_downSampleParams.src_xy_dst_xy.y / 8, 1);
+
+        VulkanUtils::VBarrierPosition barrierPos = {  vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+                                                    vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};
+
+        VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[i]->GetPrimaryImage(), cmdBuffer,
+                                              vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
     }
 
     //============================================
