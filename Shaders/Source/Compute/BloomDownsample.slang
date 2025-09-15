@@ -2,16 +2,18 @@ import Core;
 
 struct BloomDownSampleParams{
     float4 src_dst_resolution;
+    int srcImage;
+    int dstImage;
 }
 
 [[vk::push_constant]]
 ConstantBuffer<BloomDownSampleParams> _bloomDownsampleParams;
 
 [[vk::binding(0,0)]]
-Sampler2D _srcTexture; // rendered texture with shadows and lighting 
+Sampler2D srcTextures[]; // rendered texture with shadows and lighting 
 
 [[vk::binding(1,0)]]
-writeonly RWTexture2D _downSampleResult; 
+writeonly RWTexture2D _downSampleResults[]; 
 
 [[shader("compute")]]
 [numthreads(8, 8, 1)]
@@ -37,29 +39,29 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     // - l - m -
     // g - h - i
     // === ('e' is the current texel) ===
-    float3 a = _srcTexture.Sample( float2(srcTexCoord.x - 2*x, srcTexCoord.y + 2*y)).rgb;
-    float3 b = _srcTexture.Sample( float2(srcTexCoord.x,       srcTexCoord.y + 2*y)).rgb;
-    float3 c = _srcTexture.Sample( float2(srcTexCoord.x + 2*x, srcTexCoord.y + 2*y)).rgb;
+    float3 a = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x - 2*x, srcTexCoord.y + 2*y)).rgb;
+    float3 b = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x,       srcTexCoord.y + 2*y)).rgb;
+    float3 c = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x + 2*x, srcTexCoord.y + 2*y)).rgb;
 
-    float3 d = _srcTexture.Sample( float2(srcTexCoord.x - 2*x, srcTexCoord.y)).rgb;
-    float3 e = _srcTexture.Sample( float2(srcTexCoord.x,       srcTexCoord.y)).rgb;
-    float3 f = _srcTexture.Sample( float2(srcTexCoord.x + 2*x, srcTexCoord.y)).rgb;
+    float3 d = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x - 2*x, srcTexCoord.y)).rgb;
+    float3 e = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x,       srcTexCoord.y)).rgb;
+    float3 f = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x + 2*x, srcTexCoord.y)).rgb;
 
-    float3 g = _srcTexture.Sample( float2(srcTexCoord.x - 2*x, srcTexCoord.y - 2*y)).rgb;
-    float3 h = _srcTexture.Sample( float2(srcTexCoord.x,       srcTexCoord.y - 2*y)).rgb;
-    float3 i = _srcTexture.Sample( float2(srcTexCoord.x + 2*x, srcTexCoord.y - 2*y)).rgb;
+    float3 g = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x - 2*x, srcTexCoord.y - 2*y)).rgb;
+    float3 h = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x,       srcTexCoord.y - 2*y)).rgb;
+    float3 i = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x + 2*x, srcTexCoord.y - 2*y)).rgb;
 
-    float3 j = _srcTexture.Sample( float2(srcTexCoord.x - x, srcTexCoord.y + y)).rgb;
-    float3 k = _srcTexture.Sample( float2(srcTexCoord.x + x, srcTexCoord.y + y)).rgb;
-    float3 l = _srcTexture.Sample( float2(srcTexCoord.x - x, srcTexCoord.y - y)).rgb;
-    float3 m = _srcTexture.Sample( float2(srcTexCoord.x + x, srcTexCoord.y - y)).rgb;
+    float3 j = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x - x, srcTexCoord.y + y)).rgb;
+    float3 k = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x + x, srcTexCoord.y + y)).rgb;
+    float3 l = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x - x, srcTexCoord.y - y)).rgb;
+    float3 m = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x + x, srcTexCoord.y - y)).rgb;
 
     float3 downSample = e* 0.125;
     downSample += (a+c+g+i)*0.03125;
     downSample += (b+d+f+h)*0.0625;
     downSample += (j+k+l+m)*0.125;
 
-    _downSampleResult[int2(dstCoord.xy)].xyz = downSample; 
+    _downSampleResults[_bloomDownsampleParams.dstImage][int2(dstCoord.xy)].xyz = downSample; 
 
 }
 

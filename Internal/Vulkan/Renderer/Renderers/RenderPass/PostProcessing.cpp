@@ -18,6 +18,7 @@
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include <exception>
+#include <vector>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
@@ -57,6 +58,7 @@ void FogPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniform
 
     e->WriteImage(currentFrame, 0, 1, renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     e->WriteImage(currentFrame, 0, 2, renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
+
     e->WriteImage(currentFrame, 0, 3,
                   MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     e->WriteImage(currentFrame, 0, 4, renderContext->lightPassOutput->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
@@ -579,6 +581,36 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
 
 void BloomPass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
+
+    std::vector<vk::DescriptorImageInfo> sampledImages;
+    sampledImages.reserve(EBloomAttachments::Count);
+
+    std::vector<vk::DescriptorImageInfo> writeImages;
+    writeImages.reserve(EBloomAttachments::Count);
+
+    for(int i = 0; i < EBloomAttachments::Count; i++)
+    {
+        // sampled images
+        // Goes from A to E
+        sampledImages.push_back(m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+        // rw textures
+        // Goes from E` to A`
+        writeImages.push_back(m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo());
+    }
+
+    m_downSampleEffect->SetNumWrites(0, EBloomAttachments::Count, 0);
+    m_upSampleEffect->SetNumWrites(0, EBloomAttachments::Count, 0);
+
+    m_downSampleEffect->WriteImageArray(currentFrameIndex, 0, 0, sampledImages);
+    m_downSampleEffect->WriteImageArray(currentFrameIndex, 0, 0, writeImages);
+
+    m_upSampleEffect->WriteImageArray(currentFrameIndex, 0, 0, sampledImages);
+    m_upSampleEffect->WriteImageArray(currentFrameIndex, 0, 0, writeImages);
+
+
+    m_upSampleEffect->ApplyWrites(currentFrameIndex);
+    m_downSampleEffect->ApplyWrites(currentFrameIndex);
 }
 
 void BloomPass::Update(int                                   currentFrame,
@@ -606,10 +638,12 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     // - loop over each mip
     // - write correct resoruces (dispatch shader on smaller level, and sample higher )
     // - ( the down sample takes one mip larger as an input and outpus one mip smaller with applied bluer )
+
+    // bind resources
+    m_downSampleEffect->SetNumWrites(0, EBloomAttachments::Count + 1, 0);
+
     for(int i = 0; i < EBloomAttachments::Count; i++)
     {
-        // bind resources
-        m_downSampleEffect->SetNumWrites(0, 2, 0);
 
         if(i > 0)  // first image is the HDR render
         {

@@ -84,6 +84,7 @@ void PostProcessingSystem::Init(int                                   frameIndex
                                 VulkanUtils::RenderContext*           renderContext,
                                 VulkanStructs::PostProcessingContext* postProcessingContext)
 {
+    m_bloomPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_toneMappingPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_lensFlarePass->Init(frameIndex, uniformBufferManager, renderContext);
 }
