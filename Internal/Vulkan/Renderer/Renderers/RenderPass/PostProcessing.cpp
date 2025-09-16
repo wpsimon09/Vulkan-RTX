@@ -553,7 +553,7 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
                                          vk::ImageLayout::eGeneral,
                                          vk::ResolveModeFlagBits::eNone,
                                          true};
-    m_renderTargets.resize(EBloomAttachments::Count + 1);
+    m_renderTargets.resize(EBloomAttachments::Count);
 
     for(int i = 0; i < EBloomAttachments::Count; i++)
     {
@@ -581,12 +581,12 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
     m_downSampleEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BloomDownSample);
     m_upSampleEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BloomUpSample);
 
-    m_downSampleWriteImages.resize(EBloomAttachments::Count + 1);
-    m_downSampleReadImages.resize(EBloomAttachments::Count + 1);  // + 1 for full res HDR colour attachment
+    m_downSampleWriteImages.resize(EBloomAttachments::Count);
+    m_downSampleReadImages.resize(EBloomAttachments::Count);  // + 1 for full res HDR colour attachment
 
 
-    m_upSampleReadImage.resize(EBloomAttachments::Count + 1);
-    m_upSampleWriteImages.resize(EBloomAttachments::Count + 1);  // + 1 for full res Bloom output
+    m_upSampleReadImage.resize(EBloomAttachments::Count);
+    m_upSampleWriteImages.resize(EBloomAttachments::Count);  // + 1 for full res Bloom output
 }
 
 void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
@@ -598,7 +598,7 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
     // i can update up sample fist image now, since it will be the bloom pass output attachment, where full res image is combined with up sampled image
     m_upSampleWriteImages[0] = m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo();
 
-    for(int i = 1; i <= EBloomAttachments::Count; i++)
+    for(int i = 1; i < EBloomAttachments::Count; i++)
     {
         // sampled images
         // Goes from A to E
@@ -631,7 +631,7 @@ void BloomPass::Update(int                                   currentFrame,
     //TODO create effect that will merge both up sampled image (bloom output) and final scene render
     //m_writeImages[0]   = postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-    m_downSampleEffect->SetNumWrites(0, EBloomAttachments::Count + 1, 0);
+    m_downSampleEffect->SetNumWrites(0, EBloomAttachments::Count, 0);
 
     // down sample has as a first image input as a scene render whic is used as a first thing to down sample (HDR colour)
     m_downSampleReadImages[0] = postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
@@ -656,7 +656,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     // bind resources
     // I start from 1 since
     // : HDR image [0], A [1], B[2]
-    for(int i = 1; i < EBloomAttachments::Count + 1; i++)  // + 1 to include full res image
+    for(int i = 1; i < EBloomAttachments::Count; i++)  // + 1 to include full res image
     {
 
         // source
