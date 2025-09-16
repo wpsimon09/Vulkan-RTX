@@ -443,19 +443,19 @@ LensFlarePass::LensFlarePass(const VulkanCore::VDevice& device, ApplicationCore:
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(device, lensFlareOutputCI));
 }
 
-void LensFlarePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
+void LensFlarePass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
     m_lensFlareEffect->SetNumWrites(3, 2, 0);
 
-    m_lensFlareEffect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+    m_lensFlareEffect->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
 
-    m_lensFlareEffect->WriteImage(currentFrameIndex, 0, 1,
+    m_lensFlareEffect->WriteImage(currentFrame, 0, 1,
                                   MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
                                       VulkanCore::VSamplers::Sampler2D));
 
-    m_lensFlareEffect->WriteBuffer(currentFrameIndex, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex]);
+    m_lensFlareEffect->WriteBuffer(currentFrame, 0, 2, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
 
-    m_lensFlareEffect->ApplyWrites(currentFrameIndex);
+    m_lensFlareEffect->ApplyWrites(currentFrame);
 }
 
 void LensFlarePass::Update(int                                   currentFrame,
@@ -552,7 +552,6 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
                                          vk::Format::eR16G16B16A16Sfloat,
                                          vk::ImageLayout::eGeneral,
                                          vk::ResolveModeFlagBits::eNone,
-
                                          true};
     m_renderTargets.resize(EBloomAttachments::Count + 1);
 
@@ -562,6 +561,10 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
         bloomOutputCi.heigh *= 0.5;
         m_renderTargets[i] = std::make_unique<Renderer::RenderTarget2>(device, bloomOutputCi);
     }
+
+    bloomOutputCi.width                              = width;
+    bloomOutputCi.heigh                              = height;
+    m_renderTargets[EBloomAttachments::BloomFullRes] = std::make_unique<Renderer::RenderTarget2>(device, bloomOutputCi);
 
     // TODO: create attachment that will combine the results from output and bloom
     /*
@@ -577,40 +580,46 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
 
     m_downSampleEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BloomDownSample);
     m_upSampleEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BloomUpSample);
+
+    m_downSampleWriteImages.resize(EBloomAttachments::Count + 1);
+    m_downSampleReadImages.resize(EBloomAttachments::Count + 1);  // + 1 for full res HDR colour attachment
+
+
+    m_upSampleReadImage.resize(EBloomAttachments::Count + 1);
+    m_upSampleWriteImages.resize(EBloomAttachments::Count + 1);  // + 1 for full res Bloom output
 }
 
-void BloomPass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
+void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
 
-    std::vector<vk::DescriptorImageInfo> sampledImages;
-    sampledImages.reserve(EBloomAttachments::Count);
+    m_downSampleEffect->SetNumWrites(0, EBloomAttachments::Count + 1, 0);  //+1 for the original image
+    m_upSampleEffect->SetNumWrites(0, EBloomAttachments::Count + 1, 0);
 
-    std::vector<vk::DescriptorImageInfo> writeImages;
-    writeImages.reserve(EBloomAttachments::Count);
+    // i can update up sample fist image now, since it will be the bloom pass output attachment, where full res image is combined with up sampled image
+    m_upSampleWriteImages[0] = m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo();
 
-    for(int i = 0; i < EBloomAttachments::Count; i++)
+    for(int i = 1; i <= EBloomAttachments::Count; i++)
     {
         // sampled images
         // Goes from A to E
-        sampledImages.push_back(m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+        m_downSampleReadImages[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+        m_upSampleReadImage[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
         // rw textures
         // Goes from E` to A`
-        writeImages.push_back(m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo());
+        m_downSampleWriteImages[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo();
+        m_upSampleWriteImages[i]   = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo();
     }
 
-    m_downSampleEffect->SetNumWrites(0, EBloomAttachments::Count, 0);
-    m_upSampleEffect->SetNumWrites(0, EBloomAttachments::Count, 0);
+    m_downSampleEffect->WriteImageArray(currentFrame, 0, 0, m_downSampleReadImages);
+    m_downSampleEffect->WriteImageArray(currentFrame, 0, 1, m_downSampleWriteImages);
 
-    m_downSampleEffect->WriteImageArray(currentFrameIndex, 0, 0, sampledImages);
-    m_downSampleEffect->WriteImageArray(currentFrameIndex, 0, 0, writeImages);
-
-    m_upSampleEffect->WriteImageArray(currentFrameIndex, 0, 0, sampledImages);
-    m_upSampleEffect->WriteImageArray(currentFrameIndex, 0, 0, writeImages);
+    m_upSampleEffect->WriteImageArray(currentFrame, 0, 0, m_upSampleReadImage);
+    m_upSampleEffect->WriteImageArray(currentFrame, 0, 1, m_upSampleWriteImages);
 
 
-    m_upSampleEffect->ApplyWrites(currentFrameIndex);
-    m_downSampleEffect->ApplyWrites(currentFrameIndex);
+    m_upSampleEffect->ApplyWrites(currentFrame);
+    m_downSampleEffect->ApplyWrites(currentFrame);
 }
 
 void BloomPass::Update(int                                   currentFrame,
@@ -619,15 +628,20 @@ void BloomPass::Update(int                                   currentFrame,
                        VulkanStructs::PostProcessingContext* postProcessingContext)
 {
     // todo: final composition of the images will require bloom strength that might be put here
+    //TODO create effect that will merge both up sampled image (bloom output) and final scene render
+    //m_writeImages[0]   = postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-    // for the firts passs bind the rendering output
-    m_downSampleEffect->SetNumWrites(0, 1, 0);
-    m_downSampleEffect->WriteImage(currentFrame, 0, 0,
-                                   postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    m_downSampleEffect->SetNumWrites(0, EBloomAttachments::Count + 1, 0);
 
-    m_downSampleEffect->ApplyWrites(currentFrame);
+    // down sample has as a first image input as a scene render whic is used as a first thing to down sample (HDR colour)
+    m_downSampleReadImages[0] = postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+    m_downSampleEffect->WriteImageArray(currentFrame, 0, 0, m_downSampleReadImages);
+
+    //up sampling outputs and inputs does not vary based on the previous render, therfore it is not included here
+
     m_downSampleParams.src_xy_dst_xy.x = postProcessingContext->sceneRender->GetImageInfo().width;
     m_downSampleParams.src_xy_dst_xy.y = postProcessingContext->sceneRender->GetImageInfo().height;
+    m_downSampleParams.srcImage        = 0;  // start with the scene render
 }
 
 
@@ -640,26 +654,19 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     // - ( the down sample takes one mip larger as an input and outpus one mip smaller with applied bluer )
 
     // bind resources
-    m_downSampleEffect->SetNumWrites(0, EBloomAttachments::Count + 1, 0);
-
-    for(int i = 0; i < EBloomAttachments::Count; i++)
+    // I start from 1 since
+    // : HDR image [0], A [1], B[2]
+    for(int i = 1; i < EBloomAttachments::Count + 1; i++)  // + 1 to include full res image
     {
 
-        if(i > 0)  // first image is the HDR render
-        {
-            // source
-            m_downSampleEffect->WriteImage(currentFrame, 0, 0,
-                                           m_renderTargets[i - 1]->GetPrimaryImage().GetDescriptorImageInfo(
-                                               VulkanCore::VSamplers::Sampler2D));
-            m_downSampleParams.src_xy_dst_xy.x = m_renderTargets[i - 1]->GetWidth();
-            m_downSampleParams.src_xy_dst_xy.y = m_renderTargets[i - 1]->GetHeight();
-        }
+        // source
+        m_downSampleParams.src_xy_dst_xy.x = m_renderTargets[i - 1]->GetWidth();
+        m_downSampleParams.src_xy_dst_xy.y = m_renderTargets[i - 1]->GetHeight();
+        m_downSampleParams.srcImage        = i - 1;
         // destination
-        m_downSampleEffect->WriteImage(currentFrame, 0, 1,
-                                       m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-        m_downSampleEffect->ApplyWrites(currentFrame);
         m_downSampleParams.src_xy_dst_xy.z = m_renderTargets[i]->GetWidth();
         m_downSampleParams.src_xy_dst_xy.w = m_renderTargets[i]->GetHeight();
+        m_downSampleParams.dstImage        = i;
 
         m_downSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
         m_downSampleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);

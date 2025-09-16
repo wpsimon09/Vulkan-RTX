@@ -86,6 +86,8 @@ struct BloomUpSampleParams
 struct BloomDownSampleParams
 {
     glm::vec4 src_xy_dst_xy;
+    float     srcImage;
+    float     dstImage;
 };
 
 #endif
