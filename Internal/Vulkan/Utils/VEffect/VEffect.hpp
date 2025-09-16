@@ -6,6 +6,7 @@
 #define VEFFECT_HPP
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
+#include <vulkan/vulkan_enums.hpp>
 
 namespace VulkanCore {
 struct ReflectionData;
@@ -28,17 +29,18 @@ class VEffect
                      EShaderBindingGroup                 bindingGroup = EShaderBindingGroup::ForwardUnlit);
 
   public:
-    std::string&                      GetName();
-    EShaderBindingGroup               GetBindingGroup();
-    virtual void                      BuildEffect()                                    = 0;
-    virtual vk::PipelineLayout        GetPipelineLayout()                              = 0;
-    virtual void                      BindPipeline(const vk::CommandBuffer& cmdBuffer) = 0;
-    virtual void                      Destroy() = 0;
+    std::string&                              GetName();
+    EShaderBindingGroup                       GetBindingGroup();
+    virtual void                              BuildEffect()                                    = 0;
+    virtual vk::PipelineLayout                GetPipelineLayout()                              = 0;
+    virtual void                              BindPipeline(const vk::CommandBuffer& cmdBuffer) = 0;
+    virtual void                              Destroy()                                        = 0;
     virtual vk::StridedDeviceAddressRegionKHR GetShaderBindingTableEntry(VulkanCore::RTX::ERayTracingStageIndices);
-    unsigned short                    EvaluateRenderingOrder();
-    int&                              GetID();
-    void                              CreateLayouts(const VulkanCore::ReflectionData& reflectionData);
-    const VulkanCore::ReflectionData* GetReflectionData();
+    unsigned short                            EvaluateRenderingOrder();
+    int&                                      GetID();
+    void                                      CreateLayouts(const VulkanCore::ReflectionData& reflectionData);
+    const VulkanCore::ReflectionData*         GetReflectionData();
+
     /**
      * Informs how many writes will be needed for each element in the descriptor sets
      * @param buffers number of buffers for writes
@@ -52,7 +54,7 @@ class VEffect
     //=====================================
     void WriteBuffer(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorBufferInfo bufferInfo);
     void WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::DescriptorImageInfo imageInfo);
-    void WriteImageArray(uint32_t frame, uint32_t set,uint32_t binding, const  std::vector<vk::DescriptorImageInfo>& imageInfos);
+    void WriteImageArray(uint32_t frame, uint32_t set, uint32_t binding, const std::vector<vk::DescriptorImageInfo>& imageInfos);
     void WriteAccelerationStrucutre(uint32_t frame, uint32_t set, uint32_t binding, vk::AccelerationStructureKHR asInfo);
     void ApplyWrites(uint32_t frame);
 
@@ -67,6 +69,7 @@ class VEffect
     std::vector<vk::DescriptorImageInfo>                        m_imageInfos;
     std::vector<vk::AccelerationStructureKHR>                   m_asInfos;
     std::vector<vk::WriteDescriptorSetAccelerationStructureKHR> m_asWriteInfos;
+
   private:
     bool IsWriteValid(uint32_t frame, uint32_t set, uint32_t binding);
 
@@ -85,11 +88,11 @@ class VEffect
      */
     std::vector<VulkanStructs::VDescriptorSet> m_descriptorSets;
     // each set has a descriptor set laytou, for conviniece it is copied to this vector
-    std::vector<vk::DescriptorSetLayout>       m_descriptorSetLayouts;
+    std::vector<vk::DescriptorSetLayout> m_descriptorSetLayouts;
     // raw pointer to reflection data from spir-v
-    const VulkanCore::ReflectionData*          m_reflectionData;
+    const VulkanCore::ReflectionData* m_reflectionData;
 
-    VulkanCore::VDescriptorLayoutCache&        m_descriptorSetLayoutCache;
+    VulkanCore::VDescriptorLayoutCache& m_descriptorSetLayoutCache;
 };
 
 }  // namespace VulkanUtils

@@ -59,7 +59,7 @@ void ReflectionData::Print() const
 //=============================================
 void ReflectionData::Init(const void* byteCode, size_t size) {}
 
-void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage)
+void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage, vk::DescriptorBindingFlags decriptorFlags)
 {
     auto result = spvReflectCreateShaderModule(size, byteCode, &moduleReflection);
     assert(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to reflect shader bytecode ensure size and code is correct ");
@@ -170,32 +170,47 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
         descriptorSets[setIndex].setNumber = setIndex;
 
         // take the current bindings from the descriptor set
-        auto& currentBindings = descriptorSets[setIndex];
+        auto& currentSet = descriptorSets[setIndex];
 
         // insert currently cerated bindings to the newly ones
-        currentBindings.bindings.insert(currentBindings.bindings.end(), newSetLayout.bindings.begin(),
-                                        newSetLayout.bindings.end());
+        currentSet.bindings.insert(currentSet.bindings.end(), newSetLayout.bindings.begin(), newSetLayout.bindings.end());
 
-        currentBindings.variableNames.insert(currentBindings.variableNames.end(), newSetLayout.variableNames.begin(),
-                                             newSetLayout.variableNames.end());
+        currentSet.variableNames.insert(currentSet.variableNames.end(), newSetLayout.variableNames.begin(),
+                                        newSetLayout.variableNames.end());
 
 
-        //=============================================
+        //==============================================
         // vk::DescriptorSetLayoutBindingFlagsCreateInfo
-        currentBindings.descriptorFlags = std::vector<vk::DescriptorBindingFlags>(currentBindings.bindings.size());
+        currentSet.descriptorFlags.resize(currentSet.bindings.size());
+        int i = 0;
+        for(auto& bindingInSet : currentSet.bindings)
+        {
+            // special prefix for the descriptors in shaders will allow for them to be "update after bind (uab)"
+            bool isUpdateAfterBind = (currentSet.variableNames[i].first.substr(0, 4) == "uab");
 
-        currentBindings.bindingFlagsInfo.bindingCount  = currentBindings.descriptorFlags.size();
-        currentBindings.bindingFlagsInfo.pBindingFlags = currentBindings.descriptorFlags.data();
+            if(isUpdateAfterBind)
+            {
+                currentSet.descriptorFlags[i] |= vk::DescriptorBindingFlagBits::eUpdateAfterBind;
+            }
+            else
+            {
+                currentSet.descriptorFlags[i] = {};
+            }
+            i++;
+        }
+
+        currentSet.bindingFlagsInfo.bindingCount  = currentSet.descriptorFlags.size();
+        currentSet.bindingFlagsInfo.pBindingFlags = currentSet.descriptorFlags.data();
 
         //============================================
         // vk::DescriptorSetLayoutCreateInfo
-        currentBindings.createInfo.flags = vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool;
-        currentBindings.createInfo.pNext = &descriptorSets[setIndex].bindingFlagsInfo;
+        currentSet.createInfo.flags = vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool;
+        currentSet.createInfo.pNext = &descriptorSets[setIndex].bindingFlagsInfo;
         ;
 
 
-        currentBindings.createInfo.bindingCount = currentBindings.bindings.size();
-        currentBindings.createInfo.pBindings    = currentBindings.bindings.data();
+        currentSet.createInfo.bindingCount = currentSet.bindings.size();
+        currentSet.createInfo.pBindings    = currentSet.bindings.data();
     }
 }
 
@@ -208,7 +223,7 @@ void ReflectionData::Destroy()
 //=============================================
 // SHADER ABSTRACTION
 //=============================================
-VShader::VShader(const VulkanCore::VDevice& device, const std::string& vertexSource, const std::string& fragmentSource)
+VShader::VShader(const VulkanCore::VDevice& device, const std::string& vertexSource, const std::string& fragmentSource, vk::DescriptorBindingFlags bindnigFlags)
     : m_device(device)
 {
     m_vertexSource   = vertexSource;
@@ -217,7 +232,7 @@ VShader::VShader(const VulkanCore::VDevice& device, const std::string& vertexSou
     CreateShaderModules();
 }
 
-VShader::VShader(const VulkanCore::VDevice& device, const std::string& computeShaderSource)
+VShader::VShader(const VulkanCore::VDevice& device, const std::string& computeShaderSource, vk::DescriptorBindingFlags bindnigFlags)
     : m_device(device)
 {
     m_vertexSource   = "";
@@ -226,7 +241,7 @@ VShader::VShader(const VulkanCore::VDevice& device, const std::string& computeSh
 
     auto computeSPRIV     = VulkanUtils::ReadSPIRVShader(m_computeSource.value());
     m_computeShaderModule = VulkanUtils::CreateShaderModule(m_device, computeSPRIV);
-    m_shaderReeflection.AddShader(computeSPRIV.data(), computeSPRIV.size() * sizeof(char), vk::ShaderStageFlagBits::eAll);
+    m_shaderReeflection.AddShader(computeSPRIV.data(), computeSPRIV.size() * sizeof(char), vk::ShaderStageFlagBits::eAll, bindnigFlags);
 }
 
 void VShader::DestroyExistingShaderModules()
@@ -268,7 +283,7 @@ const ReflectionData& VShader::GetReflectionData() const
     return m_shaderReeflection;
 }
 
-void VShader::CreateShaderModules()
+void VShader::CreateShaderModules(vk::DescriptorBindingFlags bindingFlags)
 {
 
     Utils::Logger::LogInfoVerboseOnly("Creating shader modules...");
@@ -281,8 +296,9 @@ void VShader::CreateShaderModules()
 
     //SpvReflectResult result = spvReflectCreateShaderModule(vertexSPRIV.size() * sizeof(char),vertexSPRIV.data(), &m_vertexReflection) ;
 
-    m_shaderReeflection.AddShader(vertexSPRIV.data(), sizeof(char) * vertexSPRIV.size(), vk::ShaderStageFlagBits::eVertex);
-    m_shaderReeflection.AddShader(fragmentSPRIV.data(), sizeof(char) * fragmentSPRIV.size(), vk::ShaderStageFlagBits::eFragment);
+    m_shaderReeflection.AddShader(vertexSPRIV.data(), sizeof(char) * vertexSPRIV.size(), vk::ShaderStageFlagBits::eVertex, bindingFlags);
+    m_shaderReeflection.AddShader(fragmentSPRIV.data(), sizeof(char) * fragmentSPRIV.size(),
+                                  vk::ShaderStageFlagBits::eFragment, bindingFlags);
 
     // assert(result == SPV_REFLECT_RESULT_SUCCESS);
 

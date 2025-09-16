@@ -80,6 +80,7 @@ void VEffect::CreateLayouts(const VulkanCore::ReflectionData& reflectionData)
 
     Utils::Logger::LogSuccess("Descriptor set layout created successfully");
 }
+
 const VulkanCore::ReflectionData* VEffect::GetReflectionData()
 {
     return m_reflectionData;

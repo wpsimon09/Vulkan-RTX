@@ -6,6 +6,7 @@
 #define VSHADER_HPP
 #include <string>
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_enums.hpp>
 
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/VObject.hpp"
@@ -46,7 +47,7 @@ struct ReflectionData
 
     void Print() const;
     void Init(const void* byteCode, size_t size);
-    void AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage);
+    void AddShader(const void* byteCode, size_t size, vk::ShaderStageFlags stage, vk::DescriptorBindingFlags decriptorFlags = {});
     void Destroy();
 };
 
@@ -54,14 +55,17 @@ class VShader : public VObject
 {
 
   public:
-    VShader(const VulkanCore::VDevice& device, const std::string& vertexSource, const std::string& fragmentSource);
-    VShader(const VulkanCore::VDevice& device, const std::string& computeShaderSource);
+    VShader(const VulkanCore::VDevice& device,
+            const std::string&         vertexSource,
+            const std::string&         fragmentSource,
+            vk::DescriptorBindingFlags bindnigFlags = {});
+    VShader(const VulkanCore::VDevice& device, const std::string& computeShaderSource, vk::DescriptorBindingFlags bindnigFlags = {});
     void                    DestroyExistingShaderModules();
     const vk::ShaderModule& GetShaderModule(GlobalVariables::SHADER_TYPE shaderType) const;
     const ReflectionData&   GetReflectionData() const;
 
   private:
-    void CreateShaderModules();
+    void CreateShaderModules(vk::DescriptorBindingFlags bindingFlags = {});
 
   private:
     const VulkanCore::VDevice& m_device;
@@ -81,6 +85,8 @@ class VShader : public VObject
     std::string                m_vertexSource;
     std::string                m_fragmentSource;
     std::optional<std::string> m_computeSource;
+
+    bool m_forceUpdateAfterBind;
 };
 
 }  // namespace VulkanCore

@@ -608,6 +608,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     // - ( the down sample takes one mip larger as an input and outpus one mip smaller with applied bluer )
     for(int i = 0; i < EBloomAttachments::Count; i++)
     {
+        // TODO: extract only bright parts of the scene
         // bind resources
         m_downSampleEffect->SetNumWrites(0, 2, 0);
 
@@ -623,12 +624,13 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         // destination
         m_downSampleEffect->WriteImage(currentFrame, 0, 1,
                                        m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-        m_downSampleEffect->ApplyWrites(currentFrame);
         m_downSampleParams.src_xy_dst_xy.z = m_renderTargets[i]->GetWidth();
         m_downSampleParams.src_xy_dst_xy.w = m_renderTargets[i]->GetHeight();
 
         m_downSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
         m_downSampleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+
+        m_downSampleEffect->ApplyWrites(currentFrame);
 
         // set up push-constatnts
         vk::PushConstantsInfo pcInfo;
@@ -652,7 +654,9 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     //============================================
     // up sample
 
-    // TODO: extract only bright parts of the scene
+
+    //===================================================================================
+    // mix(bloom, hdr, bloom strength) - that is, combine the results to the final image
 }
 
 void BloomPass::Destroy()
