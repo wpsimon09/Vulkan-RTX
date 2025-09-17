@@ -581,11 +581,11 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
     m_downSampleEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BloomDownSample);
     m_upSampleEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BloomUpSample);
 
-    m_downSampleWriteImages.resize(EBloomAttachments::Count);
-    m_downSampleReadImages.resize(EBloomAttachments::Count);  // + 1 for full res HDR colour attachment
+    m_downSampleWriteImages.resize(EBloomAttachments::Count - 1);
+    m_downSampleReadImages.resize(EBloomAttachments::Count - 1);  // - 1 for full res HDR colour attachment
 
 
-    m_upSampleReadImage.resize(EBloomAttachments::Count);
+    m_upSampleReadImage.resize(EBloomAttachments::Count - 1);
     m_upSampleWriteImages.resize(EBloomAttachments::Count);  // + 1 for full res Bloom output
 }
 
@@ -597,15 +597,14 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
         down sample writes - A`, B`, C`, D`, E` (5)
 
         up sample reads - A, B, C, D, E (5)
-        up sample write - bloom output, A, B, C, D, E (5)
+        up sample write - bloom output, A, B, C, D, E (6)
     */
 
     m_downSampleEffect->SetNumWrites(0, 2 * (EBloomAttachments::Count + 1), 0);  //+1 for the original image
     m_upSampleEffect->SetNumWrites(0, 2 * (EBloomAttachments::Count + 1), 0);
 
     // this will get replaced udring update
-    m_downSampleWriteImages[0] =
-        m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo()[EBloomAttachments::BloomFullRes];
+    m_downSampleWriteImages[0] = m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo();
 
     for(int i = 1; i < EBloomAttachments::Count - 1; i++)
     {
@@ -615,31 +614,23 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
 
     for(int i = 0; i < EBloomAttachments::Count - 1; i++)
     {
-        m_downSampleWriteImages[i] = m_renderTargets[i - 1]->GetPrimaryImage().GetDescriptorImageInfo();
+        m_downSampleWriteImages[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo();
     }
 
-    for(int i = 0; i < EBloomAttachments::Count - 1)
+    for(int i = 0; i < EBloomAttachments::Count - 1; i++)
+    {
+        m_upSampleReadImage[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+    }
 
-        // i can update up sample fist image now, since it will be the bloom pass output attachment, where full res image is combined with up sampled image
-        m_upSampleWriteImages[0] = m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo();
+    for(int i = 0; i < EBloomAttachments::Count; i++)
+    {
+        m_upSampleWriteImages[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo();
+    }
+
 
     // to eliminite segv i will write bloom attachment to the sampled reads for the down sample effect
     m_downSampleReadImages[0] = m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo(
         VulkanCore::VSamplers::Sampler2D)[EBloomAttachments::BloomFullRes];
-
-
-    for(int i = 1; i < EBloomAttachments::Count; i++)
-    {
-        // sampled images
-        // Goes from A to E
-
-        m_upSampleReadImage[i] = m_renderTargets[i - 1]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-
-        // rw textures
-        // Goes from E` to A`
-        m_downSampleWriteImages[i] = m_renderTargets[i - 1]->GetPrimaryImage().GetDescriptorImageInfo();
-        m_upSampleWriteImages[i]   = m_renderTargets[i - 1]->GetPrimaryImage().GetDescriptorImageInfo();
-    }
 
     m_downSampleEffect->WriteImageArray(currentFrame, 0, 0, m_downSampleReadImages);
     m_downSampleEffect->WriteImageArray(currentFrame, 0, 1, m_downSampleWriteImages);
@@ -661,17 +652,11 @@ void BloomPass::Update(int                                   currentFrame,
     //TODO create effect that will merge both up sampled image (bloom output) and final scene render, in opengl version they use GL_BLEND_ADDITIVE which i cant do with compute shaders
     //m_writeImages[0]   = postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
-    m_downSampleEffect->SetNumWrites(0, EBloomAttachments::Count, 0);
+    m_downSampleEffect->SetNumWrites(0, EBloomAttachments::Count * 2, 0);
 
     // down sample has as a first image input as a scene render whic is used as a first thing to down sample (HDR colour)
     m_downSampleReadImages[0] = postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
     m_downSampleEffect->WriteImageArray(currentFrame, 0, 0, m_downSampleReadImages);
-
-    //up sampling outputs and inputs does not vary based on the previous render, therfore it is not included here
-
-    m_downSampleParams.src_xy_dst_xy.x = postProcessingContext->sceneRender->GetImageInfo().width;
-    m_downSampleParams.src_xy_dst_xy.y = postProcessingContext->sceneRender->GetImageInfo().height;
-    m_downSampleParams.srcImage        = 0;  // start with the scene render
 }
 
 
