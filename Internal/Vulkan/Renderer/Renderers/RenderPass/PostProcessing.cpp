@@ -629,8 +629,8 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
 
 
     // to eliminite segv i will write bloom attachment to the sampled reads for the down sample effect
-    m_downSampleReadImages[0] = m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo(
-        VulkanCore::VSamplers::Sampler2D)[EBloomAttachments::BloomFullRes];
+    m_downSampleReadImages[0] =
+        m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
     m_downSampleEffect->WriteImageArray(currentFrame, 0, 0, m_downSampleReadImages);
     m_downSampleEffect->WriteImageArray(currentFrame, 0, 1, m_downSampleWriteImages);
@@ -657,6 +657,10 @@ void BloomPass::Update(int                                   currentFrame,
     // down sample has as a first image input as a scene render whic is used as a first thing to down sample (HDR colour)
     m_downSampleReadImages[0] = postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
     m_downSampleEffect->WriteImageArray(currentFrame, 0, 0, m_downSampleReadImages);
+
+    m_downSampleParams.src_xy_dst_xy.x = postProcessingContext->sceneRender->GetImageInfo().width;
+    m_downSampleParams.src_xy_dst_xy.y = postProcessingContext->sceneRender->GetImageInfo().height;
+    m_downSampleParams.srcImage        = 0;
 }
 
 
@@ -671,13 +675,16 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     // bind resources
     // I start from 1 since
     // : HDR image [0], A [1], B[2]
-    for(int i = 1; i < EBloomAttachments::Count; i++)  // + 1 to include full res image
+    for(int i = 0; i < EBloomAttachments::Count - 1; i++)  // - 1 to include full res image
     {
 
-        // source
-        m_downSampleParams.src_xy_dst_xy.x = m_renderTargets[i - 1]->GetWidth();
-        m_downSampleParams.src_xy_dst_xy.y = m_renderTargets[i - 1]->GetHeight();
-        m_downSampleParams.srcImage        = i - 1;
+        if(i > 0)
+        {
+            // source
+            m_downSampleParams.src_xy_dst_xy.x = m_renderTargets[i - 1]->GetWidth();
+            m_downSampleParams.src_xy_dst_xy.y = m_renderTargets[i - 1]->GetHeight();
+            m_downSampleParams.srcImage        = i - 1;
+        }
 
         // destination
         m_downSampleParams.src_xy_dst_xy.z = m_renderTargets[i]->GetWidth();
