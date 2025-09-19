@@ -593,6 +593,8 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
 {
 
     /*
+        Render targets: A, B, C, D, E, FullRes
+
         down sample reads - rendered texture, A, B , C, D (5)
         down sample writes - A`, B`, C`, D`, E` (5)
 
@@ -652,15 +654,24 @@ void BloomPass::Update(int                                   currentFrame,
     //TODO create effect that will merge both up sampled image (bloom output) and final scene render, in opengl version they use GL_BLEND_ADDITIVE which i cant do with compute shaders
     //m_writeImages[0]   = postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
+
     m_downSampleEffect->SetNumWrites(0, EBloomAttachments::Count * 2, 0);
 
     // down sample has as a first image input as a scene render whic is used as a first thing to down sample (HDR colour)
     m_downSampleReadImages[0] = postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
     m_downSampleEffect->WriteImageArray(currentFrame, 0, 0, m_downSampleReadImages);
+
+    m_downSampleEffect->ApplyWrites(currentFrame);
 
     m_downSampleParams.src_xy_dst_xy.x = postProcessingContext->sceneRender->GetImageInfo().width;
     m_downSampleParams.src_xy_dst_xy.y = postProcessingContext->sceneRender->GetImageInfo().height;
     m_downSampleParams.srcImage        = 0;
+
+
+    m_downSampleParams.src_xy_dst_xy.z = m_renderTargets[0]->GetWidth();
+    m_downSampleParams.src_xy_dst_xy.w = m_renderTargets[0]->GetHeight();
+    m_downSampleParams.dstImage        = 0;
 }
 
 
@@ -675,21 +686,30 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     // bind resources
     // I start from 1 since
     // : HDR image [0], A [1], B[2]
+    int srcIndex = 0;
     for(int i = 0; i < EBloomAttachments::Count - 1; i++)  // - 1 to include full res image
     {
 
         if(i > 0)
         {
+            srcIndex++;
             // source
             m_downSampleParams.src_xy_dst_xy.x = m_renderTargets[i - 1]->GetWidth();
             m_downSampleParams.src_xy_dst_xy.y = m_renderTargets[i - 1]->GetHeight();
-            m_downSampleParams.srcImage        = i - 1;
+            m_downSampleParams.srcImage        = srcIndex;
         }
-
         // destination
         m_downSampleParams.src_xy_dst_xy.z = m_renderTargets[i]->GetWidth();
         m_downSampleParams.src_xy_dst_xy.w = m_renderTargets[i]->GetHeight();
         m_downSampleParams.dstImage        = i;
+
+        std::cout << "Down samplling...." << std::endl;
+        printf("Src: index (%i), w: (%i) h (%i) \n", m_downSampleParams.srcImage,
+               (int)m_downSampleParams.src_xy_dst_xy.x, (int)m_downSampleParams.src_xy_dst_xy.y);
+
+        printf("Dst: index (%i), w: (%i) h (%i) \n", m_downSampleParams.dstImage,
+               (int)m_downSampleParams.src_xy_dst_xy.z, (int)m_downSampleParams.src_xy_dst_xy.w);
+
 
         m_downSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
         m_downSampleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
