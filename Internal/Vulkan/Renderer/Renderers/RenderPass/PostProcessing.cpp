@@ -686,17 +686,15 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     // bind resources
     // I start from 1 since
     // : HDR image [0], A [1], B[2]
-    int srcIndex = 0;
     for(int i = 0; i < EBloomAttachments::Count - 1; i++)  // - 1 to include full res image
     {
 
         if(i > 0)
         {
-            srcIndex++;
             // source
-            m_downSampleParams.src_xy_dst_xy.x = m_renderTargets[i - 1]->GetWidth();
-            m_downSampleParams.src_xy_dst_xy.y = m_renderTargets[i - 1]->GetHeight();
-            m_downSampleParams.srcImage        = srcIndex;
+            m_downSampleParams.src_xy_dst_xy.x = m_renderTargets[i]->GetWidth();
+            m_downSampleParams.src_xy_dst_xy.y = m_renderTargets[i]->GetHeight();
+            m_downSampleParams.srcImage        = i;
         }
         // destination
         m_downSampleParams.src_xy_dst_xy.z = m_renderTargets[i]->GetWidth();
