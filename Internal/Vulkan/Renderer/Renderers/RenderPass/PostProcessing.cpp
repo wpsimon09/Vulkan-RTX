@@ -655,7 +655,6 @@ void BloomPass::Update(int                                   currentFrame,
 
 
     m_downSampleEffect->SetNumWrites(0, EBloomAttachments::Count * 2, 0);
-
     // down sample has as a first image input as a scene render whic is used as a first thing to down sample (HDR colour)
     m_downSampleReadImages[0] = postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
 
@@ -666,6 +665,8 @@ void BloomPass::Update(int                                   currentFrame,
     m_downSampleParams.src_xy_dst_xy.x = postProcessingContext->sceneRender->GetImageInfo().width;
     m_downSampleParams.src_xy_dst_xy.y = postProcessingContext->sceneRender->GetImageInfo().height;
     m_downSampleParams.srcImage        = 0;
+
+    m_upSampleParams.filterRadius = 0.005f;
 }
 
 
@@ -683,6 +684,8 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     for(int i = 0; i < EBloomAttachments::Count - 1; i++)  // - 1 to include full res image
     {
 
+        // TODO: extract only bright parts of the scene
+
         if(i > 0)
         {
             // source
@@ -695,16 +698,16 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         m_downSampleParams.src_xy_dst_xy.w = m_renderTargets[i]->GetHeight();
         m_downSampleParams.dstImage        = i;
 
+
+        m_downSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
+        m_downSampleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+
         std::cout << "Down samplling...." << std::endl;
         printf("Src: index (%i), w: (%i) h (%i) \n", m_downSampleParams.srcImage,
                (int)m_downSampleParams.src_xy_dst_xy.x, (int)m_downSampleParams.src_xy_dst_xy.y);
 
         printf("Dst: index (%i), w: (%i) h (%i) \n", m_downSampleParams.dstImage,
                (int)m_downSampleParams.src_xy_dst_xy.z, (int)m_downSampleParams.src_xy_dst_xy.w);
-
-
-        m_downSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
-        m_downSampleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
 
         // set up push-constatnts
         vk::PushConstantsInfo pcInfo;
@@ -713,6 +716,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         pcInfo.offset     = 0;
         pcInfo.pValues    = &m_downSampleParams;
         pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
 
         m_downSampleEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
@@ -726,10 +730,60 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
                                               vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
     }
 
+    std::cout << "\n ============== \n";
+
+    for(int i = EBloomAttachments::Count - 2; i >= 0; i--)
+    {
+
+        m_upSampleParams.src_xy_dst_xy.x = m_renderTargets[i]->GetWidth();
+        m_upSampleParams.src_xy_dst_xy.y = m_renderTargets[i]->GetHeight();
+        m_upSampleParams.srcImage        = i;
+
+        if(i > 0)
+        {
+            m_upSampleParams.src_xy_dst_xy.z = m_renderTargets[i - 1]->GetWidth();
+            m_upSampleParams.src_xy_dst_xy.w = m_renderTargets[i - 1]->GetHeight();
+            m_upSampleParams.dstImage        = i - 1;
+        }
+        else
+        {
+            m_upSampleParams.src_xy_dst_xy.z = m_renderTargets[EBloomAttachments::BloomFullRes]->GetWidth();
+            m_upSampleParams.src_xy_dst_xy.w = m_renderTargets[EBloomAttachments::BloomFullRes]->GetHeight();
+            m_upSampleParams.dstImage        = EBloomAttachments::BloomFullRes;
+        }
+
+
+        std::cout << "Up samplling...." << std::endl;
+        printf("Src: index (%i), w: (%i) h (%i) \n", m_upSampleParams.srcImage, (int)m_upSampleParams.src_xy_dst_xy.x,
+               (int)m_upSampleParams.src_xy_dst_xy.y);
+
+        printf("Dst: index (%i), w: (%i) h (%i) \n", m_upSampleParams.dstImage, (int)m_upSampleParams.src_xy_dst_xy.z,
+               (int)m_upSampleParams.src_xy_dst_xy.w);
+
+        m_upSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
+        m_upSampleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+
+        // set up push-constatnts
+        vk::PushConstantsInfo pcInfo;
+        pcInfo.layout     = m_upSampleEffect->GetPipelineLayout();
+        pcInfo.size       = sizeof(m_upSampleParams);
+        pcInfo.offset     = 0;
+        pcInfo.pValues    = &m_upSampleParams;
+        pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+        m_downSampleEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+
+        cmdBuffer.GetCommandBuffer().dispatch((m_downSampleParams.src_xy_dst_xy.z) / 8,
+                                              (m_downSampleParams.src_xy_dst_xy.w) / 8, 1);
+        VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+                                                    vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};
+
+        VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[i]->GetPrimaryImage(), cmdBuffer,
+                                              vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
+    }
+
     //============================================
     // up sample
-
-    // TODO: extract only bright parts of the scene
 }
 
 void BloomPass::Destroy()
