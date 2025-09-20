@@ -666,11 +666,6 @@ void BloomPass::Update(int                                   currentFrame,
     m_downSampleParams.src_xy_dst_xy.x = postProcessingContext->sceneRender->GetImageInfo().width;
     m_downSampleParams.src_xy_dst_xy.y = postProcessingContext->sceneRender->GetImageInfo().height;
     m_downSampleParams.srcImage        = 0;
-
-
-    m_downSampleParams.src_xy_dst_xy.z = m_renderTargets[0]->GetWidth();
-    m_downSampleParams.src_xy_dst_xy.w = m_renderTargets[0]->GetHeight();
-    m_downSampleParams.dstImage        = 0;
 }
 
 

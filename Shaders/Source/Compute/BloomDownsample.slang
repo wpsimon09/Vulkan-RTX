@@ -18,9 +18,9 @@ writeonly RWTexture2D _downSampleResults[];
 [[shader("compute")]]
 [numthreads(8, 8, 1)]
 void computeMain(uint3 threadId : SV_DispatchThreadID){
-    uint2 dstCoord = threadId.xy / 2;
+    uint2 dstCoord = threadId.xy;
     
-
+    
     // Get resolutions from push constants
     float2 srcResolution = float2(_bloomDownsampleParams.src_dst_resolution.x, _bloomDownsampleParams.src_dst_resolution.y);
     float2 dstResolution = float2(_bloomDownsampleParams.src_dst_resolution.z, _bloomDownsampleParams.src_dst_resolution.w);
@@ -32,9 +32,7 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     float x = srcTexelSize.x;
     float y = srcTexelSize.y;
 
-    if (dstCoord.x >= dstResolution.x || dstCoord.y >= dstResolution.y)
-        return;
-
+  
     // Take 13 samples around current texel:
     // a - b - c
     // - j - k -
@@ -63,6 +61,7 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     downSample += (a+c+g+i)*0.03125;
     downSample += (b+d+f+h)*0.0625;
     downSample += (j+k+l+m)*0.125;
+
 
     _downSampleResults[_bloomDownsampleParams.dstImage][dstCoord.xy].xyz = downSample; 
 
