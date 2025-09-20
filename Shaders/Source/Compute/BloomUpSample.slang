@@ -1,8 +1,8 @@
 struct BloomUpSampleParams{
+    float4 src_xy_dst_xy;
     float filterRadius;
     int srcImage;
     int dstImage;
-    float4 src_xy_dst_xy;
 }
 
 
@@ -30,7 +30,7 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     float2 srcUv = dstUv * srcRes;
 
     float2 texelSize = 1.0/srcRes;
-    float2 texCoords = srcUv * texelSize;
+    float2 texCoords = srcUv;
 
     // Take 9 samples around current texel:w
     // a - b - c

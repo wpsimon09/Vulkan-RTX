@@ -32,7 +32,6 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     float x = srcTexelSize.x;
     float y = srcTexelSize.y;
 
-  
     // Take 13 samples around current texel:
     // a - b - c
     // - j - k -
