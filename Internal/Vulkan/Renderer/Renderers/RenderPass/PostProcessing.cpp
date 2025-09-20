@@ -597,7 +597,7 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
 
         down sample reads - rendered texture, A, B , C, D (5)
         down sample writes - A`, B`, C`, D`, E` (5)
-
+        
         up sample reads - A, B, C, D, E (5)
         up sample write - bloom output, A, B, C, D, E (6)
     */
@@ -628,7 +628,6 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
     {
         m_upSampleWriteImages[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo();
     }
-
 
     // to eliminite segv i will write bloom attachment to the sampled reads for the down sample effect
     m_downSampleReadImages[0] =
@@ -692,9 +691,9 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         if(i > 0)
         {
             // source
-            m_downSampleParams.src_xy_dst_xy.x = m_renderTargets[i]->GetWidth();
-            m_downSampleParams.src_xy_dst_xy.y = m_renderTargets[i]->GetHeight();
-            m_downSampleParams.srcImage        = i;
+            m_downSampleParams.src_xy_dst_xy.x = m_renderTargets[i - 1]->GetWidth();
+            m_downSampleParams.src_xy_dst_xy.y = m_renderTargets[i - 1]->GetHeight();
+            m_downSampleParams.srcImage        = i - 1;
         }
         // destination
         m_downSampleParams.src_xy_dst_xy.z = m_renderTargets[i]->GetWidth();
@@ -722,7 +721,8 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
 
         m_downSampleEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-        cmdBuffer.GetCommandBuffer().dispatch(m_downSampleParams.src_xy_dst_xy.x / 8, m_downSampleParams.src_xy_dst_xy.y / 8, 1);
+        cmdBuffer.GetCommandBuffer().dispatch((m_downSampleParams.src_xy_dst_xy.x) / 8,
+                                              (m_downSampleParams.src_xy_dst_xy.y) / 8, 1);
 
         VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                                                     vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};

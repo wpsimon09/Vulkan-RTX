@@ -18,19 +18,22 @@ writeonly RWTexture2D _downSampleResults[];
 [[shader("compute")]]
 [numthreads(8, 8, 1)]
 void computeMain(uint3 threadId : SV_DispatchThreadID){
-    uint2 dstCoord = threadId.xy;
+    uint2 dstCoord = threadId.xy / 2;
     
+
     // Get resolutions from push constants
     float2 srcResolution = float2(_bloomDownsampleParams.src_dst_resolution.x, _bloomDownsampleParams.src_dst_resolution.y);
     float2 dstResolution = float2(_bloomDownsampleParams.src_dst_resolution.z, _bloomDownsampleParams.src_dst_resolution.w);
     
-    // Calculate source texture coordinates from destination coordinates
-    float2 srcTexCoord = (dstCoord + 0.5) / dstResolution; // Normalized coords for destination
-    srcTexCoord = srcTexCoord * (dstResolution / srcResolution); // Scale to source texture space
+    // since i am using sampler the tex coordinates have to be in 0 - 1 range which is achieved by deviding by the src resolution
+    float2 srcTexCoord = (float2(threadId.xy) + 0.5) / srcResolution;
 
     float2 srcTexelSize = 1.0 / srcResolution;
     float x = srcTexelSize.x;
     float y = srcTexelSize.y;
+
+    if (dstCoord.x >= dstResolution.x || dstCoord.y >= dstResolution.y)
+        return;
 
     // Take 13 samples around current texel:
     // a - b - c
@@ -61,7 +64,7 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     downSample += (b+d+f+h)*0.0625;
     downSample += (j+k+l+m)*0.125;
 
-    _downSampleResults[_bloomDownsampleParams.dstImage][int2(dstCoord.xy)].xyz = downSample; 
+    _downSampleResults[_bloomDownsampleParams.dstImage][dstCoord.xy].xyz = downSample; 
 
 }
 
