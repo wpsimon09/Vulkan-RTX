@@ -62,7 +62,7 @@ void PostProcessingSystem::Update(int                                   frameInd
     if(postProcessingCotext.bloomEffect)
     {
         m_bloomPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
-        postProcessingCotext.sceneRender = &m_bloomPass->GetRenderTarget(EBloomAttachments::BloomFullRes).GetPrimaryImage();
+        postProcessingCotext.sceneRender = &m_bloomPass->GetRenderTarget(EBloomAttachments::BloomOutput - 1).GetPrimaryImage();
     }
 
     m_toneMappingPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);

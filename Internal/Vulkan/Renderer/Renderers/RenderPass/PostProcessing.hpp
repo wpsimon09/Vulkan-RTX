@@ -32,13 +32,14 @@ enum ELensFlareAttachments
 
 enum EBloomAttachments
 {
-    A = 0,
+    BloomFullRes = 0,
+    A,
     B,
     C,
     D,
     E,
-    BloomFullRes,
-    Count
+    BloomOutput,
+    Count,
 };
 
 //============================================================================================================================================================

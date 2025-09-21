@@ -18,7 +18,7 @@ writeonly RWTexture2D _bloomFinalResult;
 //Sampler2D _dirtTexture;
 
 [[shader("compute")]]
-[numthreads(16, 16, 1)]
+[numthreads(8, 8, 1)]
 void computeMain(uint3 threadId : SV_DispatchThreadID){
     int2 dstWriteCoords = threadId.xy;
 
