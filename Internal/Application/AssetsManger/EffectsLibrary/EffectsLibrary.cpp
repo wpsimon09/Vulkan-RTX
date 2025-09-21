@@ -247,6 +247,12 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     effects[EEffectType::BloomDownSample] = std::move(bloomDownSample);
 
+
+    auto bloomCombine =
+        std::make_shared<VulkanUtils::VComputeEffect>(device, "Bloom combine effect", "Shaders/Compiled/BloomCombine.spv",
+                                                      descLayoutCache, EShaderBindingGroup::ComputePostProecess);
+    effects[EEffectType::BloomCombine] = std::move(bloomCombine);
+
     BuildAllEffects();
 }
 

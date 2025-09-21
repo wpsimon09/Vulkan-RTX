@@ -270,7 +270,14 @@ void Settings::RenderRenderingSettings()
 
     if(ImGui::TreeNode("Bloom"))
     {
-        auto& applicationStaet = m_client.GetApplicationState();
+        auto& bloomSettings = m_client.GetApplicationState().GetBloomSettings();
+
+        ImGui::Checkbox("Lens dirt", reinterpret_cast<bool*>(&bloomSettings.dirtTexture));
+
+        ImGui::SliderFloat("Bloom strength", &bloomSettings.bloomStrenght, 0.0, 1.0);
+        ImGui::SliderFloat("Filter radius", &bloomSettings.filterRadius, 0.001, 1.0);
+
+        ImGui::TreePop();
     }
 }
 }  // namespace VEditor

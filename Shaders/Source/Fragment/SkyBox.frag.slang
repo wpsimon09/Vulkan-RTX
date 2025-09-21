@@ -24,6 +24,6 @@ float4 fragmentMain(FragmentShaderIn fsIn) : SV_Target {
 //    float3 skyboxColour = _skyBoxHDR.Sample(skyBoxUV).xyz;
     float3 skyboxColour = _skyBoxHDR.Sample(fsIn.localPos).xyz;
 
-    float3 mapped = skyboxColour / (skyboxColour + float3(1.0));
-    return float4(mapped, 1.0);
+    //float3 mapped = skyboxColour / (skyboxColour + float3(1.0));
+    return float4(skyboxColour, 1.0);
 }

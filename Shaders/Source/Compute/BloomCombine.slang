@@ -3,6 +3,7 @@ struct BloomSettings
     float4 src_dst_dims;
     float bloomStrength;
     bool useDirtTexture;
+    float padding, padding2;
 }
 
 [[vk::push_constant]]
@@ -14,10 +15,10 @@ Sampler2D hdrTexture;
 
 writeonly RWTexture2D _bloomFinalResult;
 
-Sampler2D _dirtTexture;
+//Sampler2D _dirtTexture;
 
 [[shader("compute")]]
-[numthreads(8, 8, 1)]
+[numthreads(16, 16, 1)]
 void computeMain(uint3 threadId : SV_DispatchThreadID){
     int2 dstWriteCoords = threadId.xy;
 

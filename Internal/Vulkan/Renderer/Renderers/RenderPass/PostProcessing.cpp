@@ -7,6 +7,7 @@
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/Utils/LookUpTables.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
+#include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
@@ -19,6 +20,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include <exception>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
@@ -559,6 +561,14 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
     {
         bloomOutputCi.width *= 0.5;
         bloomOutputCi.heigh *= 0.5;
+        if(i == EBloomAttachments::BloomFullRes)
+        {
+            bloomOutputCi.initialLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        }
+        else
+        {
+            bloomOutputCi.initialLayout = vk::ImageLayout::eGeneral;
+        }
         m_renderTargets[i] = std::make_unique<Renderer::RenderTarget2>(device, bloomOutputCi);
     }
 
@@ -580,6 +590,7 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
 
     m_downSampleEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BloomDownSample);
     m_upSampleEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BloomUpSample);
+    m_combineEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BloomCombine);
 
     m_downSampleWriteImages.resize(EBloomAttachments::Count - 1);
     m_downSampleReadImages.resize(EBloomAttachments::Count - 1);  // - 1 for full res HDR colour attachment
@@ -608,6 +619,8 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
     // this will get replaced udring update
     m_downSampleWriteImages[0] = m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo();
 
+    //=========================================
+    // down sample
     for(int i = 1; i < EBloomAttachments::Count - 1; i++)
     {
         m_downSampleReadImages[i] =
@@ -619,6 +632,18 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
         m_downSampleWriteImages[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo();
     }
 
+    // to eliminite segv i will write bloom attachment to the sampled reads for the down sample effect
+    m_downSampleReadImages[0] =
+        m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
+
+    m_downSampleEffect->WriteImageArray(currentFrame, 0, 0, m_downSampleReadImages);
+    m_downSampleEffect->WriteImageArray(currentFrame, 0, 1, m_downSampleWriteImages);
+
+    m_downSampleEffect->ApplyWrites(currentFrame);
+
+    //============================================
+    // Up sample
+
     for(int i = 0; i < EBloomAttachments::Count - 1; i++)
     {
         m_upSampleReadImage[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
@@ -628,20 +653,22 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
     {
         m_upSampleWriteImages[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo();
     }
-
-    // to eliminite segv i will write bloom attachment to the sampled reads for the down sample effect
-    m_downSampleReadImages[0] =
-        m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
-
-    m_downSampleEffect->WriteImageArray(currentFrame, 0, 0, m_downSampleReadImages);
-    m_downSampleEffect->WriteImageArray(currentFrame, 0, 1, m_downSampleWriteImages);
-
     m_upSampleEffect->WriteImageArray(currentFrame, 0, 0, m_upSampleReadImage);
     m_upSampleEffect->WriteImageArray(currentFrame, 0, 1, m_upSampleWriteImages);
-
-
     m_upSampleEffect->ApplyWrites(currentFrame);
-    m_downSampleEffect->ApplyWrites(currentFrame);
+
+    //================================================
+    // Combine
+    m_combineEffect->SetNumWrites(0, 2, 0);
+
+    m_combineEffect->WriteImage(currentFrame, 0, 0,
+                                m_renderTargets[EBloomAttachments::A]->GetPrimaryImage().GetDescriptorImageInfo(
+                                    VulkanCore::VSamplers::Sampler2D));
+
+    m_combineEffect->WriteImage(currentFrame, 0, 2,
+                                m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo());
+
+    m_combineEffect->ApplyWrites(currentFrame);
 }
 
 void BloomPass::Update(int                                   currentFrame,
@@ -666,11 +693,23 @@ void BloomPass::Update(int                                   currentFrame,
     m_downSampleParams.src_xy_dst_xy.y = postProcessingContext->sceneRender->GetImageInfo().height;
     m_downSampleParams.srcImage        = 0;
 
-    //filter radius
-    auto& bloomSettings           = uniformBufferManager.GetApplicationState()->GetBloomSettings();
-    m_upSampleParams.filterRadius = bloomSettings.filterRadius;
 
-    m_bloomSettings = bloomSettings;
+    //==========================
+    // combine
+    m_combineEffect->SetNumWrites(0, 1, 0);
+    m_combineEffect->WriteImage(currentFrame, 0, 1,
+                                postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+    m_combineEffect->ApplyWrites(currentFrame);
+
+    //filter radius
+    auto& bloomSettings             = uniformBufferManager.GetApplicationState()->GetBloomSettings();
+    m_upSampleParams.filterRadius   = bloomSettings.filterRadius;
+    m_bloomSettings                 = bloomSettings;
+    m_bloomSettings.src_xy_dst_xy.x = m_renderTargets[EBloomAttachments::A]->GetWidth();
+    m_bloomSettings.src_xy_dst_xy.y = m_renderTargets[EBloomAttachments::A]->GetHeight();
+    m_bloomSettings.src_xy_dst_xy.w = m_renderTargets[EBloomAttachments::BloomFullRes]->GetWidth();
+    m_bloomSettings.src_xy_dst_xy.z = m_renderTargets[EBloomAttachments::BloomFullRes]->GetHeight();
 }
 
 
@@ -730,6 +769,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                                                     vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};
 
+
         VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[i]->GetPrimaryImage(), cmdBuffer,
                                               vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
     }
@@ -769,7 +809,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         pcInfo.pValues    = &m_upSampleParams;
         pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
 
-        m_downSampleEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+        m_upSampleEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
         cmdBuffer.GetCommandBuffer().dispatch((m_downSampleParams.src_xy_dst_xy.z) / 8,
                                               (m_downSampleParams.src_xy_dst_xy.w) / 8, 1);
@@ -783,6 +823,34 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
 
     //============================================
     // up sample
+
+    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderSampledRead,
+                                                vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite};
+
+    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage(), cmdBuffer,
+                                          vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, barrierPos);
+
+
+    m_combineEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
+    m_combineEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+
+    // set up push-constatnts
+    vk::PushConstantsInfo pcInfo;
+    pcInfo.layout     = m_combineEffect->GetPipelineLayout();
+    pcInfo.size       = sizeof(m_bloomSettings) - sizeof(float);
+    pcInfo.offset     = 0;
+    pcInfo.pValues    = &m_bloomSettings;
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+    m_combineEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+
+    cmdBuffer.GetCommandBuffer().dispatch(m_bloomSettings.src_xy_dst_xy.z / 16, m_bloomSettings.src_xy_dst_xy.w / 16, 1);
+
+    barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+                  vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};
+
+    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage(), cmdBuffer,
+                                          vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
 }
 
 void BloomPass::Destroy()
