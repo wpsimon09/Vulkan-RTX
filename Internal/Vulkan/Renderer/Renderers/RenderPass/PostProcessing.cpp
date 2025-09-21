@@ -560,10 +560,7 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
 
     for(int i = 0; i < EBloomAttachments::Count; i++)
     {
-        if(i == EBloomAttachments::BloomOutput)
-        {
-            bloomOutputCi.initialLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-        }
+
         m_renderTargets[i] = std::make_unique<Renderer::RenderTarget2>(device, bloomOutputCi);
 
         printf("Created texture (%i) w:(%i) h:(%i) \n", i, bloomOutputCi.width, bloomOutputCi.heigh);
@@ -574,6 +571,7 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
 
     bloomOutputCi.width                             = width;
     bloomOutputCi.heigh                             = height;
+    bloomOutputCi.initialLayout                     = vk::ImageLayout::eShaderReadOnlyOptimal;
     m_renderTargets[EBloomAttachments::BloomOutput] = std::make_unique<RenderTarget2>(device, bloomOutputCi);
 
     // TODO: create attachment that will combine the results from output and bloom
@@ -736,12 +734,14 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         m_downSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
         m_downSampleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
 
+        /*
         std::cout << "Down samplling...." << std::endl;
         printf("Src: index (%i), w: (%i) h (%i) \n", m_downSampleParams.srcImage,
-               (int)m_downSampleParams.src_xy_dst_xy.x, (int)m_downSampleParams.src_xy_dst_xy.y);
-
+        (int)m_downSampleParams.src_xy_dst_xy.x, (int)m_downSampleParams.src_xy_dst_xy.y);
+        
         printf("Dst: index (%i), w: (%i) h (%i) \n", m_downSampleParams.dstImage,
-               (int)m_downSampleParams.src_xy_dst_xy.z, (int)m_downSampleParams.src_xy_dst_xy.w);
+        (int)m_downSampleParams.src_xy_dst_xy.z, (int)m_downSampleParams.src_xy_dst_xy.w);
+        */
 
         // set up push-constatnts
         vk::PushConstantsInfo pcInfo;
@@ -785,12 +785,14 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         }
 
 
+        /*
         std::cout << "Up samplling...." << std::endl;
         printf("Src: index (%i), w: (%i) h (%i) \n", m_upSampleParams.srcImage, (int)m_upSampleParams.src_xy_dst_xy.x,
-               (int)m_upSampleParams.src_xy_dst_xy.y);
-
+        (int)m_upSampleParams.src_xy_dst_xy.y);
+        
         printf("Dst: index (%i), w: (%i) h (%i) \n", m_upSampleParams.dstImage, (int)m_upSampleParams.src_xy_dst_xy.z,
-               (int)m_upSampleParams.src_xy_dst_xy.w);
+        (int)m_upSampleParams.src_xy_dst_xy.w);
+        */
 
         m_upSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
         m_upSampleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
@@ -820,7 +822,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderSampledRead,
                                                 vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite};
 
-    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage(), cmdBuffer,
+    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EBloomAttachments::BloomOutput]->GetPrimaryImage(), cmdBuffer,
                                           vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, barrierPos);
 
 
@@ -837,12 +839,13 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
 
     m_combineEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-    cmdBuffer.GetCommandBuffer().dispatch(m_bloomSettings.src_xy_dst_xy.z / 8, m_bloomSettings.src_xy_dst_xy.w / 8, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(m_renderTargets[EBloomAttachments::BloomOutput]->GetWidth() / 8,
+                                          m_renderTargets[EBloomAttachments::BloomOutput]->GetHeight() / 8, 1);
 
     barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                   vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};
 
-    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage(), cmdBuffer,
+    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EBloomAttachments::BloomOutput]->GetPrimaryImage(), cmdBuffer,
                                           vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
 }
 
