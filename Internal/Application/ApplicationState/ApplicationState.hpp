@@ -50,6 +50,8 @@ class ApplicationState
     LensFlareParameters&                 GetLensFlareParameters();
     LuminanceHistogramParameters&        GetLuminanceHistogramParameters();
     LuminanceHistogramAverageParameters& GetLuminanceAverageParameters();
+    BloomSettings&                       GetBloomSettings();
+
 
     bool& IsWindowResized();
     void  SetIsWindowResized(bool windowResized);
@@ -74,6 +76,7 @@ class ApplicationState
     LensFlareParameters                 m_lensFlareParameters;
     LuminanceHistogramParameters        m_luminanceHistrogramParameters;
     LuminanceHistogramAverageParameters m_luminanceAverageParameters;
+    BloomSettings                       m_bloomSettings;
 
     bool m_windowResized = false;
 };

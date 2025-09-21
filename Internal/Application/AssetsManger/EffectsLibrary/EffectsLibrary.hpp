@@ -55,7 +55,8 @@ enum class EEffectType : std::uint8_t
     AverageLuminance,
     BilateralFilter,
     BloomDownSample,
-    BloomUpSample
+    BloomUpSample,
+    BloomCombine
 };
 
 class EffectsLibrary

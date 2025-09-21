@@ -3,6 +3,7 @@ struct BloomUpSampleParams{
     float filterRadius;
     int srcImage;
     int dstImage;
+    int padding;
 }
 
 
@@ -27,7 +28,7 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     float2 dstRes = _bloomUpSampleParams.src_xy_dst_xy.zw;
 
     float2 dstUv = (dstCoord + 0.5) / dstRes;
-    float2 srcUv = dstUv * srcRes;
+    float2 srcUv = dstUv;
 
     float2 texelSize = 1.0/srcRes;
     float2 texCoords = srcUv;

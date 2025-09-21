@@ -267,5 +267,10 @@ void Settings::RenderRenderingSettings()
 
         ImGui::TreePop();
     }
+
+    if(ImGui::TreeNode("Bloom"))
+    {
+        auto& applicationStaet = m_client.GetApplicationState();
+    }
 }
 }  // namespace VEditor

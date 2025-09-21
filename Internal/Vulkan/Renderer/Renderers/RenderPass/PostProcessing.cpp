@@ -666,7 +666,11 @@ void BloomPass::Update(int                                   currentFrame,
     m_downSampleParams.src_xy_dst_xy.y = postProcessingContext->sceneRender->GetImageInfo().height;
     m_downSampleParams.srcImage        = 0;
 
-    m_upSampleParams.filterRadius = 0.005f;
+    //filter radius
+    auto& bloomSettings           = uniformBufferManager.GetApplicationState()->GetBloomSettings();
+    m_upSampleParams.filterRadius = bloomSettings.filterRadius;
+
+    m_bloomSettings = bloomSettings;
 }
 
 
@@ -732,7 +736,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
 
     std::cout << "\n ============== \n";
 
-    for(int i = EBloomAttachments::Count - 2; i >= 0; i--)
+    for(int i = EBloomAttachments::Count - 2; i > 0; i--)
     {
 
         m_upSampleParams.src_xy_dst_xy.x = m_renderTargets[i]->GetWidth();
@@ -744,12 +748,6 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
             m_upSampleParams.src_xy_dst_xy.z = m_renderTargets[i - 1]->GetWidth();
             m_upSampleParams.src_xy_dst_xy.w = m_renderTargets[i - 1]->GetHeight();
             m_upSampleParams.dstImage        = i - 1;
-        }
-        else
-        {
-            m_upSampleParams.src_xy_dst_xy.z = m_renderTargets[EBloomAttachments::BloomFullRes]->GetWidth();
-            m_upSampleParams.src_xy_dst_xy.w = m_renderTargets[EBloomAttachments::BloomFullRes]->GetHeight();
-            m_upSampleParams.dstImage        = EBloomAttachments::BloomFullRes;
         }
 
 
@@ -775,6 +773,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
 
         cmdBuffer.GetCommandBuffer().dispatch((m_downSampleParams.src_xy_dst_xy.z) / 8,
                                               (m_downSampleParams.src_xy_dst_xy.w) / 8, 1);
+
         VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                                                     vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};
 

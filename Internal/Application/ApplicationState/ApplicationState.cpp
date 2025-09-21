@@ -65,6 +65,10 @@ void ApplicationState::pSetFogVolumeParameters(FogVolumeParameters* pFogVolumePa
     m_fogVolumeParameters = pFogVolumeParameters;
 }
 
+BloomSettings& ApplicationState::GetBloomSettings()
+{
+    return m_bloomSettings;
+}
 
 bool& ApplicationState::IsWindowResized()
 {
