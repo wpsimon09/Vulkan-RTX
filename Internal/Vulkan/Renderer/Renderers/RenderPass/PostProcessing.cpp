@@ -821,18 +821,23 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     m_combineEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_combineEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
 
+    m_bloomSettings.src_xy_dst_xy.x = m_bloomSettings.src_xy_dst_xy.z =
+        m_renderTargets[EBloomAttachments::BloomOutput]->GetWidth();
+    m_bloomSettings.src_xy_dst_xy.y = m_bloomSettings.src_xy_dst_xy.w =
+        m_renderTargets[EBloomAttachments::BloomOutput]->GetHeight();
     // set up push-constatnts
     vk::PushConstantsInfo pcInfo;
+
     pcInfo.layout     = m_combineEffect->GetPipelineLayout();
-    pcInfo.size       = sizeof(m_bloomSettings) - sizeof(float);
+    pcInfo.size       = sizeof(m_bloomSettings);
     pcInfo.offset     = 0;
     pcInfo.pValues    = &m_bloomSettings;
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
 
     m_combineEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-    cmdBuffer.GetCommandBuffer().dispatch(m_renderTargets[EBloomAttachments::BloomOutput]->GetWidth() / 8,
-                                          m_renderTargets[EBloomAttachments::BloomOutput]->GetHeight() / 8, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(m_renderTargets[EBloomAttachments::BloomOutput]->GetWidth() / 16,
+                                          m_renderTargets[EBloomAttachments::BloomOutput]->GetHeight() / 16, 1);
 
     barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                   vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eFragmentShader,
