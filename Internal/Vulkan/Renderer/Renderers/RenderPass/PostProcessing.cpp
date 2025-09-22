@@ -217,9 +217,6 @@ void ToneMappingPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager&
     // Tone mapping descriptor
     m_toneMappingEffect->SetNumWrites(1, 2, 0);
 
-    m_toneMappingEffect->WriteImage(
-        currentFrame, 0, 0, renderContext->depthBuffer->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
     m_toneMappingEffect->ApplyWrites(currentFrame);
 
     //================================
@@ -261,11 +258,11 @@ void ToneMappingPass::Update(int                                   currentFrame,
     m_toneMappingEffect->SetNumWrites(0, 2, 0);
     if(postProcessingContext->sceneRender != nullptr)
     {
-        m_toneMappingEffect->WriteImage(currentFrame, 1, 0,
+        m_toneMappingEffect->WriteImage(currentFrame, 0, 0,
                                         postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     }
     m_toneMappingEffect->WriteImage(
-        currentFrame, 1, 1, m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage().GetDescriptorImageInfo());
+        currentFrame, 0, 1, m_renderTargets[EToneMappingAttachments::LuminanceAverage]->GetPrimaryImage().GetDescriptorImageInfo());
     m_toneMappingEffect->ApplyWrites(currentFrame);
 
     m_averageLuminanceEffect->SetNumWrites(1, 1);
@@ -594,8 +591,8 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
     m_downSampleReadImages.resize(EBloomAttachments::Count - 1);  // - 1 for full res HDR colour attachment
 
 
-    m_upSampleReadImage.resize(EBloomAttachments::Count - 2);
-    m_upSampleWriteImages.resize(EBloomAttachments::Count - 2);  // + 1 for full res Bloom output
+    m_upSampleReadImage.resize(EBloomAttachments::Count - 1);
+    m_upSampleWriteImages.resize(EBloomAttachments::Count - 1);  // + 1 for full res Bloom output
 }
 
 void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
@@ -637,12 +634,12 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
     //============================================
     // Up sample
 
-    for(int i = 0; i < EBloomAttachments::Count - 2; i++)
+    for(int i = 0; i < EBloomAttachments::Count - 1; i++)
     {
         m_upSampleReadImage[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
     }
 
-    for(int i = 0; i < EBloomAttachments::Count - 2; i++)
+    for(int i = 0; i < EBloomAttachments::Count - 1; i++)
     {
         m_upSampleWriteImages[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo();
     }
@@ -842,7 +839,8 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
                                           m_renderTargets[EBloomAttachments::BloomOutput]->GetHeight() / 8, 1);
 
     barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
-                  vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};
+                  vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eFragmentShader,
+                  vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eShaderSampledRead};
 
     VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EBloomAttachments::BloomOutput]->GetPrimaryImage(), cmdBuffer,
                                           vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);

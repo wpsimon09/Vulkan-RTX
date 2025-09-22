@@ -7,14 +7,14 @@ import ColourSpaceConversions;
 [[vk::push_constant]]
 ToneMappingParameters _toneMappigParams;
 
-[[vk::binding(0, 1)]]
+[[vk::binding(0, 0)]]
 Sampler2D _inputTexture_Render;
 
-[[vk::binding(1, 1)]]
+[[vk::binding(1, 0)]]
 Texture2D _inputeTexture_AverageLuminance;
 
-[[vk::binding(0, 0)]]
-Sampler2D _inputTexture_Depth; // used to determine if we are tone mapping background
+//[[vk::binding(0, 0)]]
+//Sampler2D _inputTexture_Depth; // used to determine if we are tone mapping background
 
 enum EToneMappingCurve
 {
@@ -43,9 +43,12 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 float4 fragmentMain(VertexOut fsIn) :SV_Target {
     
     float3 hdrColor = _inputTexture_Render.Sample(fsIn.uv).xyz;
+
+    /*
     if(_inputTexture_Depth.Sample(fsIn.uv).x == 1.0 && !(bool)_toneMappigParams.isRayTracing){
         return float4(tone_map_aces_approx(hdrColor),1.0);
     }
+    */
 
     float avgLuminance = _inputeTexture_AverageLuminance.Load(uint3(0,0,0)).x;
 
