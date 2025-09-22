@@ -594,8 +594,8 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
     m_downSampleReadImages.resize(EBloomAttachments::Count - 1);  // - 1 for full res HDR colour attachment
 
 
-    m_upSampleReadImage.resize(EBloomAttachments::Count - 1);
-    m_upSampleWriteImages.resize(EBloomAttachments::Count);  // + 1 for full res Bloom output
+    m_upSampleReadImage.resize(EBloomAttachments::Count - 2);
+    m_upSampleWriteImages.resize(EBloomAttachments::Count - 2);  // + 1 for full res Bloom output
 }
 
 void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
@@ -637,12 +637,12 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
     //============================================
     // Up sample
 
-    for(int i = 0; i < EBloomAttachments::Count - 1; i++)
+    for(int i = 0; i < EBloomAttachments::Count - 2; i++)
     {
         m_upSampleReadImage[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
     }
 
-    for(int i = 0; i < EBloomAttachments::Count; i++)
+    for(int i = 0; i < EBloomAttachments::Count - 2; i++)
     {
         m_upSampleWriteImages[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo();
     }
@@ -734,14 +734,14 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         m_downSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
         m_downSampleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
 
-        /*
+
         std::cout << "Down samplling...." << std::endl;
         printf("Src: index (%i), w: (%i) h (%i) \n", m_downSampleParams.srcImage,
-        (int)m_downSampleParams.src_xy_dst_xy.x, (int)m_downSampleParams.src_xy_dst_xy.y);
-        
+               (int)m_downSampleParams.src_xy_dst_xy.x, (int)m_downSampleParams.src_xy_dst_xy.y);
+
         printf("Dst: index (%i), w: (%i) h (%i) \n", m_downSampleParams.dstImage,
-        (int)m_downSampleParams.src_xy_dst_xy.z, (int)m_downSampleParams.src_xy_dst_xy.w);
-        */
+               (int)m_downSampleParams.src_xy_dst_xy.z, (int)m_downSampleParams.src_xy_dst_xy.w);
+
 
         // set up push-constatnts
         vk::PushConstantsInfo pcInfo;
@@ -773,26 +773,24 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     for(int i = EBloomAttachments::Count - 2; i > 0; i--)
     {
 
+
         m_upSampleParams.src_xy_dst_xy.x = m_renderTargets[i]->GetWidth();
         m_upSampleParams.src_xy_dst_xy.y = m_renderTargets[i]->GetHeight();
         m_upSampleParams.srcImage        = i;
 
-        if(i > 0)
-        {
-            m_upSampleParams.src_xy_dst_xy.z = m_renderTargets[i - 1]->GetWidth();
-            m_upSampleParams.src_xy_dst_xy.w = m_renderTargets[i - 1]->GetHeight();
-            m_upSampleParams.dstImage        = i - 1;
-        }
+
+        m_upSampleParams.src_xy_dst_xy.z = m_renderTargets[i - 1]->GetWidth();
+        m_upSampleParams.src_xy_dst_xy.w = m_renderTargets[i - 1]->GetHeight();
+        m_upSampleParams.dstImage        = i - 1;
 
 
-        /*
         std::cout << "Up samplling...." << std::endl;
         printf("Src: index (%i), w: (%i) h (%i) \n", m_upSampleParams.srcImage, (int)m_upSampleParams.src_xy_dst_xy.x,
-        (int)m_upSampleParams.src_xy_dst_xy.y);
-        
+               (int)m_upSampleParams.src_xy_dst_xy.y);
+
         printf("Dst: index (%i), w: (%i) h (%i) \n", m_upSampleParams.dstImage, (int)m_upSampleParams.src_xy_dst_xy.z,
-        (int)m_upSampleParams.src_xy_dst_xy.w);
-        */
+               (int)m_upSampleParams.src_xy_dst_xy.w);
+
 
         m_upSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
         m_upSampleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
@@ -806,6 +804,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
 
         m_upSampleEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+
 
         cmdBuffer.GetCommandBuffer().dispatch((m_downSampleParams.src_xy_dst_xy.z) / 8,
                                               (m_downSampleParams.src_xy_dst_xy.w) / 8, 1);
