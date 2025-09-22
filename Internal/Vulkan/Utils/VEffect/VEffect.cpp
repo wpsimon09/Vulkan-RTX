@@ -126,6 +126,7 @@ void VEffect::WriteImage(uint32_t frame, uint32_t set, uint32_t binding, vk::Des
     m_imageInfos.push_back(imageInfo);
     write.pImageInfo = &m_imageInfos[m_imageInfos.size() - 1];
 }
+
 void VEffect::WriteImageArray(uint32_t frame, uint32_t set, uint32_t binding, const std::vector<vk::DescriptorImageInfo>& imageInfos)
 {
     assert(m_imageInfos.capacity() > 0 && "Before writing to the vector ensure you call SetNumWrites()");

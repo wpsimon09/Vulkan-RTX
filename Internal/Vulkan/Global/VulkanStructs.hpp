@@ -6,6 +6,7 @@
 #define VULKANSTRUCTS_HPP
 
 #include <stb_image/stb_image.h>
+#include <type_traits>
 #include <vulkan/vulkan.hpp>
 
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"

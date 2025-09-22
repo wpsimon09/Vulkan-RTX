@@ -60,6 +60,7 @@ void CreateAllSamplers(const VulkanCore::VDevice& device)
     samplerInfo.minLod                  = 0.0f;
     VulkanCore::VSamplers::SamplerDepth = device.GetDevice().createSampler(samplerInfo);
 
+
     //---------------------------------------------------------
     //  SAMPLER 2D - CLAMP TO EDGE
     //---------------------------------------------------------

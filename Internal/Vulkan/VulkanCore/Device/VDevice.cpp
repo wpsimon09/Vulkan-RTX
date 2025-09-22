@@ -5,6 +5,7 @@
 #include "VDevice.hpp"
 
 #include <set>
+#include <vulkan/vulkan_structs.hpp>
 
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
@@ -235,10 +236,14 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     rayTracingPipelineFeatures.rayTracingPipeline                              = true;
     rayTracingPipelineFeatures.pNext                                           = &GpuRayQueryFeatures;
 
+    vk::PhysicalDeviceRobustness2FeaturesEXT robustens2 = {};
+    robustens2.nullDescriptor                           = true;
+    robustens2.pNext                                    = &rayTracingPipelineFeatures;
+
 
     vk::PhysicalDeviceSynchronization2Features synchronization2Features{};
     synchronization2Features.synchronization2 = true;
-    synchronization2Features.pNext            = rayTracingPipelineFeatures;
+    synchronization2Features.pNext            = &robustens2;
 
 
     vk::PhysicalDeviceFeatures deviceFeatures{};

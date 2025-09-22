@@ -13,6 +13,8 @@ class VDevice;
 namespace VulkanCore::VSamplers {
 inline vk::Sampler Sampler2D;
 
+inline vk::Sampler Sampler2DBilinear;
+
 inline vk::Sampler SamplerClampToEdge;
 
 inline vk::Sampler SamplerCube;

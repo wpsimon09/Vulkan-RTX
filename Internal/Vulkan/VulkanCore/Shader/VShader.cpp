@@ -145,6 +145,9 @@ void ReflectionData::AddShader(const void* byteCode, size_t size, vk::ShaderStag
                     case vk::DescriptorType::eCombinedImageSampler:
                         binding.descriptorCount = 1000;
                         break;
+                    case vk::DescriptorType::eStorageImage:
+                        binding.descriptorCount = 100;
+                        break;
                     default:
                         binding.descriptorCount = 1;
                         break;

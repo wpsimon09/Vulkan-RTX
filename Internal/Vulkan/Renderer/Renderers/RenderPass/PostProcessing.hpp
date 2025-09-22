@@ -7,6 +7,7 @@
 #include "Application/Structs/ParameterStructs.hpp"
 #include "RenderPass.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include <vulkan/vulkan_structs.hpp>
 
 namespace VulkanUtils {
 class VComputeEffect;
@@ -31,14 +32,14 @@ enum ELensFlareAttachments
 
 enum EBloomAttachments
 {
-    A = 0,
+    BloomFullRes = 0,
+    A,
     B,
     C,
     D,
     E,
+    BloomOutput,
     Count,
-
-    BloomMain
 };
 
 //============================================================================================================================================================
@@ -123,10 +124,14 @@ class BloomPass : public RenderPass
   private:
     std::shared_ptr<VulkanUtils::VComputeEffect> m_downSampleEffect;
     std::shared_ptr<VulkanUtils::VComputeEffect> m_upSampleEffect;
+    std::shared_ptr<VulkanUtils::VComputeEffect> m_combineEffect;
 
+    std::vector<vk::DescriptorImageInfo> m_downSampleReadImages, m_downSampleWriteImages;
+    std::vector<vk::DescriptorImageInfo> m_upSampleReadImage, m_upSampleWriteImages;
 
     BloomDownSampleParams m_downSampleParams;
     BloomUpSampleParams   m_upSampleParams;
+    BloomSettings         m_bloomSettings;
 };
 
 }  // namespace Renderer

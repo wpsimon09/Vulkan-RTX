@@ -53,6 +53,7 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     float whitePoint = _toneMappigParams.whitePoint;
 
     // exposure 
+
     Yxy.x /= (9.6 * avgLuminance + 0.00001);
 
     let rgb = convertYxy2RGB(Yxy);

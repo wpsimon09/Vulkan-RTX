@@ -62,7 +62,7 @@ void PostProcessingSystem::Update(int                                   frameInd
     if(postProcessingCotext.bloomEffect)
     {
         m_bloomPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
-        //TODO: if bloom is enabled make that as input to the tone mapping pass.
+        postProcessingCotext.sceneRender = &m_bloomPass->GetRenderTarget(EBloomAttachments::BloomOutput).GetPrimaryImage();
     }
 
     m_toneMappingPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
@@ -84,6 +84,7 @@ void PostProcessingSystem::Init(int                                   frameIndex
                                 VulkanUtils::RenderContext*           renderContext,
                                 VulkanStructs::PostProcessingContext* postProcessingContext)
 {
+    m_bloomPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_toneMappingPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_lensFlarePass->Init(frameIndex, uniformBufferManager, renderContext);
 }
