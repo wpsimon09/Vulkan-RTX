@@ -25,7 +25,7 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     float2 srcDim = bloomSettings.src_dst_dims.xy;
     float2 dstDim = bloomSettings.src_dst_dims.zw;
 
-    float2 texCooreds = (dstWriteCoords+0.5) / dstDim; // convert to normlaised 0,1 space 
+    float2 texCooreds = (dstWriteCoords + 0.5) / dstDim; // convert to normlaised 0,1 space 
  
     float4 HDRColour = hdrTexture.Sample(texCooreds);
     float4 BloomResult = _bloomUpSampleResult_A.Sample(texCooreds);

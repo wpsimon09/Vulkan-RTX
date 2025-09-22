@@ -633,7 +633,6 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
 
     //============================================
     // Up sample
-
     for(int i = 0; i < EBloomAttachments::Count - 1; i++)
     {
         m_upSampleReadImage[i] = m_renderTargets[i]->GetPrimaryImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D);
@@ -769,8 +768,6 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
 
     for(int i = EBloomAttachments::Count - 2; i > 0; i--)
     {
-
-
         m_upSampleParams.src_xy_dst_xy.x = m_renderTargets[i]->GetWidth();
         m_upSampleParams.src_xy_dst_xy.y = m_renderTargets[i]->GetHeight();
         m_upSampleParams.srcImage        = i;
@@ -803,8 +800,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         m_upSampleEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
 
-        cmdBuffer.GetCommandBuffer().dispatch((m_downSampleParams.src_xy_dst_xy.z) / 8,
-                                              (m_downSampleParams.src_xy_dst_xy.w) / 8, 1);
+        cmdBuffer.GetCommandBuffer().dispatch((m_upSampleParams.src_xy_dst_xy.z) / 8, (m_upSampleParams.src_xy_dst_xy.w) / 8, 1);
 
         VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                                                     vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};

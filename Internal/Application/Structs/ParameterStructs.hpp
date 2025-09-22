@@ -81,9 +81,9 @@ struct BloomUpSampleParams
 {
     glm::vec4 src_xy_dst_xy;
     float     filterRadius;
-    int       srcImage;
-    int       dstImage;
-    int       pad;
+    float     srcImage;
+    float     dstImage;
+    float     pad;
 };
 
 struct BloomDownSampleParams
