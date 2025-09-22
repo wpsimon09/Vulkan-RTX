@@ -555,7 +555,7 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
                                          true};
     m_renderTargets.resize(EBloomAttachments::Count);
 
-    for(int i = 0; i < EBloomAttachments::Count; i++)
+    for(int i = 0; i < EBloomAttachments::Count - 1; i++)
     {
 
         m_renderTargets[i] = std::make_unique<Renderer::RenderTarget2>(device, bloomOutputCi);

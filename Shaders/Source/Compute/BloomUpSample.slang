@@ -25,6 +25,7 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     float2 dstRes = _bloomUpSampleParams.src_xy_dst_xy.zw;
 
     float2 texelSize = 1.0 / srcRes;
+    // filter is in textel size
     float x = _bloomUpSampleParams.filterRadius * texelSize.x;
     float y = _bloomUpSampleParams.filterRadius * texelSize.y;
 
@@ -61,5 +62,9 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
 
     // X` = X + blur(X-1, b4)
     // aditive blending, add whatever was in this mip layer with blured result of the lower mip layer 
-    DstImage[(int)_bloomUpSampleParams.dstImage][uint2(dstCoord )].xyz += upsample;
+    if (_bloomUpSampleParams.dstImage == 0){
+        DstImage[(int)_bloomUpSampleParams.dstImage][uint2(dstCoord )].xyz = upsample;
+    }else{
+        DstImage[(int)_bloomUpSampleParams.dstImage][uint2(dstCoord )].xyz += upsample;
+    }
 }
