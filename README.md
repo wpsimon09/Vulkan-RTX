@@ -138,6 +138,8 @@ https://github.com/user-attachments/assets/550c47df-4557-45c6-b38a-dce62449e8c7
 
 ![image](https://github.com/user-attachments/assets/69a1ac89-3466-49b0-b9ef-e5a453318cb1 )
 
+<img width="2866" height="1695" alt="image" src="https://github.com/user-attachments/assets/fc3d2e0b-e36e-4d75-a3e0-c1b57b33ffcc" />
+
 <img width="2869" height="1545" alt="image" src="https://github.com/user-attachments/assets/cbb1b019-7392-47c3-8a4f-a992c9831ddd" />
 
 <img width="2880" height="1620" alt="image" src="https://github.com/user-attachments/assets/66cfda6b-8572-41db-8da5-efa4a3ff78ec" />
