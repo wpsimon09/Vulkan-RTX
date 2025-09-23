@@ -730,13 +730,15 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         m_downSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
         m_downSampleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
 
-
+        /*
+        
         std::cout << "Down samplling...." << std::endl;
         printf("Src: index (%i), w: (%i) h (%i) \n", m_downSampleParams.srcImage,
-               (int)m_downSampleParams.src_xy_dst_xy.x, (int)m_downSampleParams.src_xy_dst_xy.y);
-
+        (int)m_downSampleParams.src_xy_dst_xy.x, (int)m_downSampleParams.src_xy_dst_xy.y);
+        
         printf("Dst: index (%i), w: (%i) h (%i) \n", m_downSampleParams.dstImage,
-               (int)m_downSampleParams.src_xy_dst_xy.z, (int)m_downSampleParams.src_xy_dst_xy.w);
+        (int)m_downSampleParams.src_xy_dst_xy.z, (int)m_downSampleParams.src_xy_dst_xy.w);
+        */
 
 
         // set up push-constatnts
@@ -778,12 +780,14 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         m_upSampleParams.dstImage        = i - 1;
 
 
+        /*
         std::cout << "Up samplling...." << std::endl;
         printf("Src: index (%i), w: (%i) h (%i) \n", m_upSampleParams.srcImage, (int)m_upSampleParams.src_xy_dst_xy.x,
                (int)m_upSampleParams.src_xy_dst_xy.y);
 
         printf("Dst: index (%i), w: (%i) h (%i) \n", m_upSampleParams.dstImage, (int)m_upSampleParams.src_xy_dst_xy.z,
                (int)m_upSampleParams.src_xy_dst_xy.w);
+        */
 
 
         m_upSampleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
