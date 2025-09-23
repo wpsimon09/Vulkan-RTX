@@ -128,6 +128,7 @@ The `--no-skip-unchanged` option forces all shaders to compile, even if they hav
 - Large scale homogeneous participating media rendering
 - Ray traced AO
 - Bilateral filter denoiser
+- Physically based bloom
 
 ## Little showcase
 
