@@ -1,4 +1,5 @@
 import Core;
+import ColourSpaceConversions;
 
 struct BloomDownSampleParams{
     float4 src_dst_resolution;
@@ -14,6 +15,12 @@ Sampler2D srcTextures[]; // rendered texture with shadows and lighting
 
 [[vk::binding(1,0)]]
 writeonly RWTexture2D _downSampleResults[]; 
+
+float KarisAverage(float3 colour){
+    //TODO: maybe converte to srgb but the format is srgb already in vulkan
+    float luma = RGBToLuminance(colour) * 0.25;
+    return 1.0 / (1.0f + luma);
+}
 
 [[shader("compute")]]
 [numthreads(8, 8, 1)]
@@ -56,13 +63,28 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     float3 l = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x - x, srcTexCoord.y - y)).rgb;
     float3 m = srcTextures[_bloomDownsampleParams.srcImage].Sample( float2(srcTexCoord.x + x, srcTexCoord.y - y)).rgb;
 
+    float3 groups[5];
+    if(_bloomDownsampleParams.srcImage == 0){
+        groups[0] = (a+b+d+e) * (0.125f/4.0f);
+        groups[1] = (b+c+e+f) * (0.125f/4.0f);
+        groups[2] = (d+e+g+h) * (0.125f/4.0f);
+        groups[3] = (e+f+h+i) * (0.125f/4.0f);
+        groups[4] = (j+k+l+m) * (0.5f/4.0f);
+        groups[0] *= KarisAverage(groups[0]);
+        groups[1] *= KarisAverage(groups[1]);
+        groups[2] *= KarisAverage(groups[2]);
+        groups[3] *= KarisAverage(groups[3]);
+        groups[4] *= KarisAverage(groups[4]);
+        _downSampleResults[_bloomDownsampleParams.dstImage][dstCoord.xy].xyz = groups[0]+groups[1]+groups[2]+groups[3]+groups[4];
+        return;
+    }
     float3 downSample = e* 0.125;
     downSample += (a+c+g+i)*0.03125;
     downSample += (b+d+f+h)*0.0625;
     downSample += (j+k+l+m)*0.125;
 
 
-    _downSampleResults[_bloomDownsampleParams.dstImage][dstCoord.xy].xyz = downSample; 
+    _downSampleResults[_bloomDownsampleParams.dstImage][dstCoord.xy].xyz = max(downSample, 0.0001f); 
 
 }
 

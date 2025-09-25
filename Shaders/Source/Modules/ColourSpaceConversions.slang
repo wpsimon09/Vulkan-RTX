@@ -52,3 +52,8 @@ public float3 convertYxy2RGB(float3 _Yxy)
 {
 	return convertXYZ2RGB(convertYxy2XYZ(_Yxy) );
 }
+
+public float RGBToLuminance(float3 col)
+{
+	return dot(col, float3(0.2126f, 0.7152f, 0.0722f));
+}
