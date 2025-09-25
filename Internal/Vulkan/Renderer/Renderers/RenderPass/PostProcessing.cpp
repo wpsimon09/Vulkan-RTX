@@ -763,7 +763,6 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
                                               vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
     }
 
-    std::cout << "\n ============== \n";
 
     //=============================
     // Up sample

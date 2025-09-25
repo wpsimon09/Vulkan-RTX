@@ -155,3 +155,8 @@ public float3x3 CalculateTBN(float3 geomNormal, float4 tangnent, float3x3 normal
     float3x3 TBN = transpose(float3x3(T, B, N));
     return TBN;
 }
+
+public float3 PowFloat3(float3 v, float p){ 
+    return float3(pow(v.x, p), pow(v.y, p), pow(v.z,p));
+}
+

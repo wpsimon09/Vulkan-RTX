@@ -18,8 +18,8 @@ writeonly RWTexture2D _downSampleResults[];
 
 float KarisAverage(float3 colour){
     //TODO: maybe converte to srgb but the format is srgb already in vulkan
-    float luma = RGBToLuminance(colour) * 0.25;
-    return 1.0 / (1.0f + luma);
+    float luma = RGBToLuminance(ToSRGB(colour)) * 0.25;
+    return 1.0f / (1.0f + luma);
 }
 
 [[shader("compute")]]

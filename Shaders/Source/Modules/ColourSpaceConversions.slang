@@ -1,4 +1,5 @@
 module ColourSpaceConversions;
+import Utils;
 
 float3 convertRGB2XYZ(float3 _rgb)
 {
@@ -52,6 +53,12 @@ public float3 convertYxy2RGB(float3 _Yxy)
 {
 	return convertXYZ2RGB(convertYxy2XYZ(_Yxy) );
 }
+
+public float3 ToSRGB(float3 rgb){
+	const float invGamma = 1.0 / 2.2;
+	return PowFloat3(rgb, invGamma);
+}
+	
 
 public float RGBToLuminance(float3 col)
 {
