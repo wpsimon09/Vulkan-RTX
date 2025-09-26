@@ -3,7 +3,7 @@ struct BloomSettings
     float4 src_dst_dims;
     float bloomStrength;
     bool useDirtTexture;
-    float dirtStrength
+    float dirtStrength;
 }
 
 [[vk::push_constant]]

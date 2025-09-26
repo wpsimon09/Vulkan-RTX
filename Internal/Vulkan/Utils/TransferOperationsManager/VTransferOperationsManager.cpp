@@ -99,7 +99,8 @@ void VTransferOperationsManager::ClearResources()
 
 void VTransferOperationsManager::DestroyBuffer(VkBuffer& buffer, VmaAllocation& vmaAllocation)
 {
-    m_clearBuffersVKVMA[m_device.CurrentFrameInFlight].emplace_back(std::make_pair<VkBuffer, VmaAllocation>(std::move(buffer), std::move(vmaAllocation)));
+    m_clearBuffersVKVMA[m_device.CurrentFrameInFlight].emplace_back(
+        std::make_pair<VkBuffer, VmaAllocation>(std::move(buffer), std::move(vmaAllocation)));
 }
 
 void VTransferOperationsManager::DestroyBuffer(VulkanCore::VBuffer& vBuffer, bool isStaging)
@@ -107,8 +108,34 @@ void VTransferOperationsManager::DestroyBuffer(VulkanCore::VBuffer& vBuffer, boo
     m_clearVBuffers[m_device.CurrentFrameInFlight].emplace_back(isStaging, &vBuffer);
 }
 
-void VTransferOperationsManager::DestroyImage(vk::Image image, VmaAllocation& vmaAllocation) {
+void VTransferOperationsManager::DestroyImage(vk::Image image, VmaAllocation& vmaAllocation)
+{
     m_clearImages[m_device.CurrentFrameInFlight].emplace_back(image, vmaAllocation);
+}
+
+void VTransferOperationsManager::AddToSyncList(std::shared_ptr<ApplicationCore::VTextureAsset> texture)
+{
+    m_texturesToSync.push_back(texture);
+}
+
+void VTransferOperationsManager::Sync()
+{
+    int i = 0;
+    if(!m_texturesToSync.empty())
+    {
+        for(auto& tex : m_texturesToSync)
+        {
+            if(tex)
+            {
+                if(tex->Sync())
+                {
+                    m_texturesToSync.erase(m_texturesToSync.begin() + (i));
+                    //m_texturesToSync.shrink_to_fit();
+                }
+            }
+            i++;
+        }
+    }
 }
 
 

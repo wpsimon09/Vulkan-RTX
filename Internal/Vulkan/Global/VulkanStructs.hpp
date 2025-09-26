@@ -5,6 +5,7 @@
 #ifndef VULKANSTRUCTS_HPP
 #define VULKANSTRUCTS_HPP
 
+#include <memory>
 #include <stb_image/stb_image.h>
 #include <type_traits>
 #include <vulkan/vulkan.hpp>
@@ -208,6 +209,7 @@ struct PostProcessingContext
 {
     VulkanCore::VImage2*                 sceneRender;
     VulkanCore::VImage2*                 shadowMap;
+    std::shared_ptr<VulkanCore::VImage2> dummyTexture;
     LensFlareParameters*                 lensFlareParameters;
     ToneMappingParameters*               toneMappingParameters;
     LuminanceHistogramParameters*        luminanceHistrogramParameters;

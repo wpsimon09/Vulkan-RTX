@@ -600,7 +600,7 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
 {
 
     m_lensDirtTexture =
-        std::make_unique<ApplicationCore::VTextureAsset>(m_device, renderContext->defaultTexture,
+        std::make_shared<ApplicationCore::VTextureAsset>(m_device, renderContext->defaultTexture,
                                                          ETextureAssetType::Texture, "Resources/Textures/lens-dirt.png");
 
     /*
@@ -688,6 +688,7 @@ void BloomPass::Update(int                                   currentFrame,
     m_downSampleParams.srcImage        = 0;
 
 
+    m_device.GetTransferOpsManager().AddToSyncList(m_lensDirtTexture);
     //==========================
     // combine
     m_combineEffect->SetNumWrites(0, 2, 0);
@@ -838,7 +839,7 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
     vk::PushConstantsInfo pcInfo;
 
     pcInfo.layout     = m_combineEffect->GetPipelineLayout();
-    pcInfo.size       = sizeof(m_bloomSettings);
+    pcInfo.size       = sizeof(m_bloomSettings) - sizeof(float);
     pcInfo.offset     = 0;
     pcInfo.pValues    = &m_bloomSettings;
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;

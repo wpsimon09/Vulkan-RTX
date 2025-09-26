@@ -57,12 +57,12 @@
  */
 namespace Renderer {
 Frame::Frame(const VulkanCore::VulkanInstance&    instance,
-                                 const VulkanCore::VDevice&           device,
-                                 VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
-                                 VulkanUtils::VUniformBufferManager&  uniformBufferManager,
-                                 ApplicationCore::EffectsLibrary&     effectsLybrary,
-                                 VulkanCore::VDescriptorLayoutCache&  descLayoutCache,
-                                 VEditor::UIContext&                  uiContext)
+             const VulkanCore::VDevice&           device,
+             VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
+             VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+             ApplicationCore::EffectsLibrary&     effectsLybrary,
+             VulkanCore::VDescriptorLayoutCache&  descLayoutCache,
+             VEditor::UIContext&                  uiContext)
     : m_device(device)
     , m_uniformBufferManager(uniformBufferManager)
     , m_renderContext()
@@ -205,7 +205,6 @@ void Frame::Update(ApplicationCore::ApplicationState& applicationState)
     m_postProcessingContext.deltaTime                     = ImGui::GetIO().DeltaTime;
 
     m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_frameInFlightID), m_frameInFlightID);
-
 }
 
 
@@ -218,7 +217,7 @@ bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
     }
 
     m_acquiredImage = VulkanUtils::SwapChainNextImageKHRWrapper(m_device, *m_swapChain, UINT64_MAX,
-                                                            *m_imageAvailableSemaphores[m_frameInFlightID], nullptr);
+                                                                *m_imageAvailableSemaphores[m_frameInFlightID], nullptr);
 
     auto swapChainImageIndex = m_acquiredImage;
 
@@ -228,37 +227,36 @@ bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
     }
     switch(swapChainImageIndex.first)
     {
-    case vk::Result::eSuccess: {
-        m_currentImageIndex = m_acquiredImage.second;
-        Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
-        break;
+        case vk::Result::eSuccess: {
+            m_currentImageIndex = m_acquiredImage.second;
+            Utils::Logger::LogInfoVerboseRendering("Swap chain is successfuly retrieved");
+            break;
+        }
+        case vk::Result::eErrorOutOfDateKHR: {
+
+            m_swapChain->RecreateSwapChain();
+            m_uiRenderer->HandleSwapChainResize(*m_swapChain);
+
+            m_frameTimeLine[m_frameInFlightID]->CpuSignal(EFrameStages::SafeToBegin);
+            // to silent validation layers i will recreate the semaphore
+            m_ableToPresentSemaphore[m_acquiredImage.second]->Destroy();
+            m_ableToPresentSemaphore[m_acquiredImage.second] =
+                std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
+
+            m_frameCount++;
+            m_device.CurrentFrame = m_frameCount;
+
+            return false;
+        }
+        case vk::Result::eSuboptimalKHR: {
+            m_currentImageIndex = swapChainImageIndex.second;
+            break;
+            //m_swapChain->RecreateSwapChain();
+            //return;
+        };
+        default:
+            break;
     }
-    case vk::Result::eErrorOutOfDateKHR: {
-
-        m_swapChain->RecreateSwapChain();
-        m_uiRenderer->HandleSwapChainResize(*m_swapChain);
-
-        m_frameTimeLine[m_frameInFlightID]->CpuSignal(EFrameStages::SafeToBegin);
-        // to silent validation layers i will recreate the semaphore
-        m_ableToPresentSemaphore[m_acquiredImage.second]->Destroy();
-        m_ableToPresentSemaphore[m_acquiredImage.second] =
-            std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
-
-        m_frameCount++;
-        m_device.CurrentFrame = m_frameCount;
-
-        return false;
-    }
-    case vk::Result::eSuboptimalKHR: {
-        m_currentImageIndex = swapChainImageIndex.second;
-        break;
-        //m_swapChain->RecreateSwapChain();
-        //return;
-    };
-    default:
-        break;
-    }
-
 
 
     m_renderingCommandBuffers[m_frameInFlightID]->Reset();

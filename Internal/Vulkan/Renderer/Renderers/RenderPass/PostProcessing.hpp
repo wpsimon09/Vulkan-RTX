@@ -129,7 +129,7 @@ class BloomPass : public RenderPass
 
     std::vector<vk::DescriptorImageInfo>            m_downSampleReadImages, m_downSampleWriteImages;
     std::vector<vk::DescriptorImageInfo>            m_upSampleReadImage, m_upSampleWriteImages;
-    std::unique_ptr<ApplicationCore::VTextureAsset> m_lensDirtTexture;
+    std::shared_ptr<ApplicationCore::VTextureAsset> m_lensDirtTexture;
 
     BloomDownSampleParams m_downSampleParams;
     BloomUpSampleParams   m_upSampleParams;

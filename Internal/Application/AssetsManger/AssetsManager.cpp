@@ -137,7 +137,7 @@ void AssetsManager::GetTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& 
     {
         m_textures2[path] =
             std::make_shared<ApplicationCore::VTextureAsset>(m_device, m_dummyImage, ETextureAssetType::Texture, path);
-        m_texturesToSync.emplace_back(m_textures2[path]);
+        m_device.GetTransferOpsManager().AddToSyncList(m_textures2[path]);
     }
 
     texture = m_textures2[path];
@@ -152,7 +152,7 @@ void AssetsManager::GetTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& 
     {
         m_textures2[data.textureID] =
             std::make_shared<ApplicationCore::VTextureAsset>(m_device, m_dummyImage, ETextureAssetType::Texture, data);
-        m_texturesToSync.emplace_back(m_textures2[data.textureID]);
+        m_device.GetTransferOpsManager().AddToSyncList(m_textures2[data.textureID]);
     }
 
     texture = m_textures2[data.textureID];
@@ -164,7 +164,7 @@ void AssetsManager::GetHDRTexture(std::shared_ptr<ApplicationCore::VTextureAsset
     {
         m_HDRTextures[path] =
             std::make_shared<ApplicationCore::VTextureAsset>(m_device, m_dummyImage, ETextureAssetType::HDRTexture, path);
-        m_texturesToSync.emplace_back(m_HDRTextures[path]);
+        m_device.GetTransferOpsManager().AddToSyncList(m_HDRTextures[path]);
     }
     texture = m_HDRTextures[path];
 }
@@ -261,7 +261,10 @@ void AssetsManager::AddMesh(std::string meshName, std::shared_ptr<StaticMesh> me
         m_meshes[meshName] = mesh;
     }
 }
-VulkanCore::MeshDatatManager& AssetsManager::GetMeshDataManager() { return m_meshDataManager;}
+VulkanCore::MeshDatatManager& AssetsManager::GetMeshDataManager()
+{
+    return m_meshDataManager;
+}
 
 void AssetsManager::DestroySkyBoxMaterial(const std::string& name)
 {
@@ -278,27 +281,6 @@ void AssetsManager::DestroySkyBoxMaterial(const std::string& name)
     }
 }
 
-bool AssetsManager::Sync()
-{
-    int i = 0;
-    if(!m_texturesToSync.empty())
-    {
-        for(auto& tex : m_texturesToSync)
-        {
-            if(tex)
-            {
-                if(tex->Sync())
-                {
-                    m_texturesToSync.erase(m_texturesToSync.begin() + (i));
-                    //m_texturesToSync.shrink_to_fit();
-                }
-            }
-            i++;
-        }
-        return false;
-    }
-    return false;
-}
 
 void AssetsManager::
 
@@ -312,29 +294,29 @@ void AssetsManager::
     m_dummyTexture = std::make_shared<ApplicationCore::VTextureAsset>(m_device, m_dummyImage);
 
     MaterialPaths paths{};
-    m_dummyMaterial = std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::ForwardShader, paths, *this);
+    m_dummyMaterial =
+        std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::ForwardShader, paths, *this);
 
     MaterialPaths directionalLightBillboard{};
     directionalLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-directional.png";
-    auto mat                                 = std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::EditorBilboard, directionalLightBillboard, *this);
+    auto mat = std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::EditorBilboard,
+                                                              directionalLightBillboard, *this);
     mat->SetMaterialname("Directional light editor billboard");
     m_editorIconsMaterials[EEditorIcon::DirectionalLight] = mat;
 
     MaterialPaths pointLightBillboard{};
     pointLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-point.png";
 
-    mat = std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::EditorBilboard, pointLightBillboard, *this);
+    mat = std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::EditorBilboard,
+                                                         pointLightBillboard, *this);
     mat->SetMaterialname("Point light editor billboard");
     m_editorIconsMaterials[EEditorIcon::PointLight] = mat;
 
     MaterialPaths areaLightBillboard{};
     areaLightBillboard.DiffuseMapPath = "Resources/EditorIcons/light-area.png";
-    mat                               = std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::EditorBilboard, areaLightBillboard, *this);
+    mat = std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::EditorBilboard, areaLightBillboard, *this);
     mat->SetMaterialname("Area light editor billboard");
     m_editorIconsMaterials[EEditorIcon::AreaLight] = mat;
-
-
-    Sync();
 }
 
 std::vector<TextureBufferView> AssetsManager::ReadBackAllTextures(std::vector<std::byte>& data)

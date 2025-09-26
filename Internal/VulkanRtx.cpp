@@ -121,6 +121,9 @@ void Application::Init()
                                                 *m_effectsLibrary, *m_descriptorSetLayoutCache, *m_uiContext);
 
 
+    m_frame->GetRenderContext()->defaultTexture       = m_client->GetAssetsManager().GetDummyTextureImage();
+    m_frame->GetPostProcessingContext()->dummyTexture = m_client->GetAssetsManager().GetDummyTextureImage();
+
     m_frame->Init();
     m_uiContext->SetRenderingSystem(m_frame.get());
 
@@ -143,8 +146,6 @@ void Application::Init()
     ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 
     m_client->GetApplicationState().GetSceneUpdateFlags().rebuildAs = true;
-
-    m_frame->GetRenderContext()->defaultTexture = m_client->GetAssetsManager().GetDummyTextureImage();
 }
 
 void Application::MainLoop()
@@ -216,7 +217,8 @@ void Application::Update()
 
     m_client->GetApplicationState().SetIsWindowResized(m_windowManager->GetHasResized());
 
-    m_client->GetAssetsManager().Sync();
+    // checks if CPU threads processing textuers are done
+    m_vulkanDevice->GetTransferOpsManager().Sync();
 }
 
 void Application::Render()

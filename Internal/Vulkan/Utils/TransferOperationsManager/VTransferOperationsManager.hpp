@@ -6,6 +6,7 @@
 #define VTRANSFEROPERATIONSMANAGER_HPP
 #include <memory>
 #include <vector>
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "VMA/vk_mem_alloc.h"
 #include "Application/Structs/ApplicationStructs.hpp"
 
@@ -40,6 +41,8 @@ class VTransferOperationsManager
     void DestroyBuffer(VkBuffer& buffer, VmaAllocation& vmaAllocation);
     void DestroyBuffer(VulkanCore::VBuffer& vBuffer, bool isStaging = false);
     void DestroyImage(vk::Image image, VmaAllocation& vmaAllocation);
+    void AddToSyncList(std::shared_ptr<ApplicationCore::VTextureAsset> texture);
+    void Sync();
 
     void Destroy();
 
@@ -51,6 +54,7 @@ class VTransferOperationsManager
     std::vector<std::vector<std::pair<VkBuffer, VmaAllocation>>>    m_clearBuffersVKVMA;
     std::vector<std::vector<std::pair<bool, VulkanCore::VBuffer*>>> m_clearVBuffers;
     std::vector<std::vector<std::pair<vk::Image, VmaAllocation>>>   m_clearImages;
+    std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>    m_texturesToSync;
 };
 
 }  // namespace VulkanUtils

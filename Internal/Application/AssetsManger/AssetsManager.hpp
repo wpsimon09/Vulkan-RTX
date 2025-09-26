@@ -157,7 +157,6 @@ class AssetsManager
     //=========================
     // Synchronization
     //=========================
-    bool Sync();
 
   private:
     //=========================
@@ -206,8 +205,6 @@ class AssetsManager
 
 
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures2;
-
-    std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>> m_texturesToSync;
 
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::VTextureAsset>> m_HDRTextures;
     std::vector<std::shared_ptr<ApplicationCore::SkyBoxMaterial>>                    m_skyBoxMaterials;

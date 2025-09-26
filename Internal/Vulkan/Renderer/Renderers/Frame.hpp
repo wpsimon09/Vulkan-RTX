@@ -23,7 +23,7 @@
 namespace VulkanCore {
 class VTimelineSemaphore2;
 class VDescriptorLayoutCache;
-}
+}  // namespace VulkanCore
 namespace ApplicationCore {
 struct SceneData;
 }
@@ -70,22 +70,23 @@ class Frame
 {
   public:
     Frame(const VulkanCore::VulkanInstance&    instance,
-                    const VulkanCore::VDevice&           device,
-                    VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
-                    VulkanUtils::VUniformBufferManager&  uniformBufferManager,
-                    ApplicationCore::EffectsLibrary&     effectsLybrary,
-                    VulkanCore::VDescriptorLayoutCache&  descLayoutCache,
-                    VEditor::UIContext&                  uiContext);
+          const VulkanCore::VDevice&           device,
+          VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
+          VulkanUtils::VUniformBufferManager&  uniformBufferManager,
+          ApplicationCore::EffectsLibrary&     effectsLybrary,
+          VulkanCore::VDescriptorLayoutCache&  descLayoutCache,
+          VEditor::UIContext&                  uiContext);
 
-    void Init();
-    bool Render(ApplicationCore::ApplicationState& applicationState);
-    void Update(ApplicationCore::ApplicationState& applicationState);
-    void FinishFrame();
-    void Destroy();
+    void                             Init();
+    bool                             Render(ApplicationCore::ApplicationState& applicationState);
+    void                             Update(ApplicationCore::ApplicationState& applicationState);
+    void                             FinishFrame();
+    void                             Destroy();
     VulkanCore::VTimelineSemaphore2& GetTimelineSemaphore();
 
-    ForwardRenderer&            GetSceneRenderer() { return *m_forwardRenderer; };
-    VulkanUtils::RenderContext* GetRenderContext() { return &m_renderContext; }
+    ForwardRenderer&                      GetSceneRenderer() { return *m_forwardRenderer; };
+    VulkanUtils::RenderContext*           GetRenderContext() { return &m_renderContext; }
+    VulkanStructs::PostProcessingContext* GetPostProcessingContext() { return &m_postProcessingContext; }
 
   private:
     // Core Vulkan references
@@ -115,7 +116,7 @@ class Frame
     // Synchronization
     std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_imageAvailableSemaphores;
     std::vector<std::unique_ptr<VulkanCore::VSyncPrimitive<vk::Semaphore>>> m_ableToPresentSemaphore;
-    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore2>>            m_frameTimeLine;
+    std::vector<std::unique_ptr<VulkanCore::VTimelineSemaphore2>>           m_frameTimeLine;
 
 
     // Render context
@@ -124,12 +125,12 @@ class Frame
     VulkanUtils::VRayTracingDataManager& m_rayTracingDataManager;
 
     // State
-    uint32_t m_currentImageIndex      = 0;
-    uint32_t m_frameInFlightID      = 0;
-    uint64_t m_frameCount             = 0;
-    uint64_t m_accumulatedFramesCount = 0;
+    uint32_t                        m_currentImageIndex      = 0;
+    uint32_t                        m_frameInFlightID        = 0;
+    uint64_t                        m_frameCount             = 0;
+    uint64_t                        m_accumulatedFramesCount = 0;
     std::pair<vk::Result, uint32_t> m_acquiredImage;
-    bool     m_isRayTracing           = false;
+    bool                            m_isRayTracing = false;
 
     VulkanCore::VDescriptorLayoutCache& m_descLayoutCache;
 
