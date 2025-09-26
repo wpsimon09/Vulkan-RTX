@@ -275,7 +275,7 @@ void Settings::RenderRenderingSettings()
         ImGui::Checkbox("Lens dirt", reinterpret_cast<bool*>(&bloomSettings.dirtTexture));
         if(bloomSettings.dirtTexture)
         {
-            ImGui::DragFloat("Dirt texture intensity", &bloomSettings.dirstIntensity, 0.0);
+            ImGui::DragFloat("Dirt texture intensity", &bloomSettings.dirstIntensity, 0.1, 0.0);
         }
 
         ImGui::SliderFloat("Bloom strength", &bloomSettings.bloomStrenght, 0.0, 1.0);

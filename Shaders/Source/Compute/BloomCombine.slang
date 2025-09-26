@@ -30,11 +30,16 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     
     float2 texCooreds = (dstWriteCoords + 0.5) / dstDim; // convert to normlaised 0,1 space 
     
-    float4 drt = dirtTexture.Sample(texCooreds) * bloomSettings.dirtStrength;
     float4 HDRColour = hdrTexture.Sample(texCooreds);
     float4 BloomResult = _bloomUpSampleResult_A.Sample(texCooreds);
+    
+    if(bloomSettings.useDirtTexture){
+        float4 drt = dirtTexture.Sample(texCooreds) * bloomSettings.dirtStrength;
+        float4 result = lerp(HDRColour, BloomResult +  BloomResult * drt, bloomSettings.bloomStrength);
+        _bloomFinalResult[dstWriteCoords] = result;
+    }else{
+        float4 result = lerp(HDRColour, BloomResult, bloomSettings.bloomStrength);
+        _bloomFinalResult[dstWriteCoords] = result;
+    }
 
-    float4 result = lerp(HDRColour, BloomResult + BloomResult * drt, bloomSettings.bloomStrength);
-
-    _bloomFinalResult[dstWriteCoords] = result;
 }
