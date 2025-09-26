@@ -120,6 +120,7 @@ void PostProcessingSystem::Destroy()
 {
     m_toneMappingPass->Destroy();
     m_lensFlarePass->Destroy();
+    m_bloomPass->Destroy();
 }
 
 

@@ -31,6 +31,7 @@ class VTextureAsset : public VAsset<VulkanCore::VImage2>
                            std::shared_ptr<VulkanCore::VImage2> defaultTexture,
                            ETextureAssetType                    type,
                            std::filesystem::path                texturePath);
+
     explicit VTextureAsset(const VulkanCore::VDevice&           device,
                            std::shared_ptr<VulkanCore::VImage2> defaultTexture,
                            ETextureAssetType                    type,

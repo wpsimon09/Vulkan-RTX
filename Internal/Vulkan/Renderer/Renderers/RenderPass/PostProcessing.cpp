@@ -5,6 +5,7 @@
 #include "PostProcessing.hpp"
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
+#include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Utils/LookUpTables.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
@@ -598,6 +599,10 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
 void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
 
+    m_lensDirtTexture =
+        std::make_unique<ApplicationCore::VTextureAsset>(m_device, renderContext->defaultTexture,
+                                                         ETextureAssetType::Texture, "Resources/Textures/lens-dirt.png");
+
     /*
         Render targets: FullRes, A, B, C, D, E 
 
@@ -654,7 +659,7 @@ void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& unifo
                                 m_renderTargets[EBloomAttachments::BloomFullRes]->GetPrimaryImage().GetDescriptorImageInfo(
                                     VulkanCore::VSamplers::Sampler2D));
 
-    m_combineEffect->WriteImage(currentFrame, 0, 2,
+    m_combineEffect->WriteImage(currentFrame, 0, 3,
                                 m_renderTargets[EBloomAttachments::BloomOutput]->GetPrimaryImage().GetDescriptorImageInfo());
 
     m_combineEffect->ApplyWrites(currentFrame);
@@ -685,12 +690,13 @@ void BloomPass::Update(int                                   currentFrame,
 
     //==========================
     // combine
-    m_combineEffect->SetNumWrites(0, 1, 0);
+    m_combineEffect->SetNumWrites(0, 2, 0);
 
 
     m_combineEffect->WriteImage(currentFrame, 0, 1,
                                 postProcessingContext->sceneRender->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
+    m_combineEffect->WriteImage(currentFrame, 0, 2,
+                                m_lensDirtTexture->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     m_combineEffect->ApplyWrites(currentFrame);
 
     //filter radius
@@ -854,6 +860,7 @@ void BloomPass::Destroy()
 {
     m_downSampleEffect->Destroy();
     m_upSampleEffect->Destroy();
+    m_lensDirtTexture->Destroy();
     RenderPass::Destroy();
 }
 

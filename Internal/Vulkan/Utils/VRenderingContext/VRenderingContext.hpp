@@ -50,11 +50,12 @@ struct RenderContext
 
     //===========================================
     // outputs from different render passes
-    VulkanCore::VImage2*     lightPassOutput  = nullptr;
-    VulkanCore::VImage2*     normalMap        = nullptr;
-    VulkanCore::VImage2*     positionMap      = nullptr;
-    VulkanCore::VImage2*     visibilityBuffer = nullptr;
-    Renderer::RenderTarget2* depthBuffer      = nullptr;
+    VulkanCore::VImage2*                 lightPassOutput  = nullptr;
+    VulkanCore::VImage2*                 normalMap        = nullptr;
+    VulkanCore::VImage2*                 positionMap      = nullptr;
+    VulkanCore::VImage2*                 visibilityBuffer = nullptr;
+    Renderer::RenderTarget2*             depthBuffer      = nullptr;
+    std::shared_ptr<VulkanCore::VImage2> defaultTexture   = nullptr;
 
     std::shared_ptr<ApplicationCore::SkyBoxMaterial> SkyBox = nullptr;
 

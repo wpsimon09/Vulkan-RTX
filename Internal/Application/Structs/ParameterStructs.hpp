@@ -95,10 +95,11 @@ struct BloomDownSampleParams
 
 struct BloomSettings
 {
-    glm::vec4 src_xy_dst_xy = {};
-    float     bloomStrenght = 0.2;
-    int       dirtTexture   = 0;
-    float     filterRadius  = 0.005;
+    glm::vec4 src_xy_dst_xy  = {};
+    float     bloomStrenght  = 0.2;
+    int       dirtTexture    = 0;
+    float     filterRadius   = 0.005;
+    float     dirstIntensity = 2.0f
 };
 
 #endif

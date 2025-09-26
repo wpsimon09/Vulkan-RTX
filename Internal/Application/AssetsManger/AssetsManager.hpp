@@ -111,13 +111,14 @@ class AssetsManager
                     bool                                             saveToDisk = false);
     void GetHDRTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture, const std::string& path, bool saveToDisk = false);
     void GetDummyTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture) const { texture = m_dummyTexture; }
-    std::vector<TextureBufferView> ReadBackAllTextures(std::vector<std::byte>& data);
+    std::shared_ptr<VulkanCore::VImage2> GetDummyTextureImage() const { return m_dummyImage; };
+    std::vector<TextureBufferView>       ReadBackAllTextures(std::vector<std::byte>& data);
     //=========================
     // Meshes
     //=========================
     void AddMesh(std::string meshName, std::shared_ptr<StaticMesh> mesh);
     std::unordered_map<std::string, std::shared_ptr<ApplicationCore::StaticMesh>>& GetMeshes() { return m_meshes; }
-    VulkanCore::MeshDatatManager& GetMeshDataManager();
+    VulkanCore::MeshDatatManager&                                                  GetMeshDataManager();
 
     //=========================
     // Materials
@@ -138,8 +139,8 @@ class AssetsManager
     //=========================
     // Effects
     //=========================
-    EffectsLibrary&                                              GetEffectsLibrary() { return m_effectsLibrary; }
-    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>> GetEffects() const;
+    EffectsLibrary&                                                    GetEffectsLibrary() { return m_effectsLibrary; }
+    std::map<EEffectType, std::shared_ptr<VulkanUtils::VEffect>>       GetEffects() const;
     std::map<EEffectType, std::shared_ptr<VulkanUtils::VRasterEffect>> GetAllRasterEffects() const;
 
     //=========================
@@ -197,10 +198,10 @@ class AssetsManager
     // Default Assets
     //=========================
 
-    std::shared_ptr<ApplicationCore::VTextureAsset>                m_dummyTexture;
-    std::shared_ptr<VulkanCore::VImage2>                           m_dummyImage;
-    std::shared_ptr<ApplicationCore::PBRMaterial>                  m_dummyMaterial;
-    std::unordered_map<EEditorIcon, std::shared_ptr<PBRMaterial>>  m_editorIconsMaterials;
+    std::shared_ptr<ApplicationCore::VTextureAsset>                  m_dummyTexture;
+    std::shared_ptr<VulkanCore::VImage2>                             m_dummyImage;
+    std::shared_ptr<ApplicationCore::PBRMaterial>                    m_dummyMaterial;
+    std::unordered_map<EEditorIcon, std::shared_ptr<PBRMaterial>>    m_editorIconsMaterials;
     std::unordered_map<EMeshGeometryType, VulkanStructs::VMeshData2> m_preloadedMeshes;
 
 

@@ -117,9 +117,8 @@ void Application::Init()
     m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
 
-    m_frame = std::make_unique<Renderer::Frame>(*m_vulkanInstance, *m_vulkanDevice, *m_rayTracingDataManager,
-                                                                    *m_uniformBufferManager, *m_effectsLibrary,
-                                                                    *m_descriptorSetLayoutCache, *m_uiContext);
+    m_frame = std::make_unique<Renderer::Frame>(*m_vulkanInstance, *m_vulkanDevice, *m_rayTracingDataManager, *m_uniformBufferManager,
+                                                *m_effectsLibrary, *m_descriptorSetLayoutCache, *m_uiContext);
 
 
     m_frame->Init();
@@ -144,6 +143,8 @@ void Application::Init()
     ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 
     m_client->GetApplicationState().GetSceneUpdateFlags().rebuildAs = true;
+
+    m_frame->GetRenderContext()->defaultTexture = m_client->GetAssetsManager().GetDummyTextureImage();
 }
 
 void Application::MainLoop()
@@ -178,11 +179,13 @@ void Application::Run()
 
 void Application::Update()
 {
-    if (m_vulkanDevice->CurrentFrame >= GlobalVariables::MAX_FRAMES_IN_FLIGHT) {
+    if(m_vulkanDevice->CurrentFrame >= GlobalVariables::MAX_FRAMES_IN_FLIGHT)
+    {
         m_frame->GetTimelineSemaphore().CpuWaitIdle(EFrameStages::TransferFinish);
         m_vulkanDevice->GetTransferOpsManager().ClearResources();
     }
-    if (m_vulkanDevice->CurrentFrame > 0) {
+    if(m_vulkanDevice->CurrentFrame > 0)
+    {
         m_vulkanDevice->GetTransferOpsManager().GetCommandBuffer().Reset();
         m_vulkanDevice->GetTransferOpsManager().StartRecording();
     }
@@ -197,17 +200,19 @@ void Application::Update()
     m_client->Update();
     m_client->UpdateCamera(m_windowManager->GetCameraMovement());
 
-    if(m_windowManager->GetIsDirty()){
+    if(m_windowManager->GetIsDirty())
+    {
         m_client->UpdateClient(m_windowManager->GetLightMovement());
     }
-    if(GlobalState::ValidationLayersEnabled){
+    if(GlobalState::ValidationLayersEnabled)
+    {
         m_vulkanDevice->UpdateMemoryStatistics();
     }
 
     //=====================================================
     // Update accelerations structures
     auto blasInputs = m_client->GetScene().GetBLASInputs();
-    m_rayTracingDataManager->UpdateData(m_client->GetScene().GetSceneUpdateFlags(), blasInputs );
+    m_rayTracingDataManager->UpdateData(m_client->GetScene().GetSceneUpdateFlags(), blasInputs);
 
     m_client->GetApplicationState().SetIsWindowResized(m_windowManager->GetHasResized());
 
@@ -224,7 +229,8 @@ void Application::Render()
     // the frame update has to be here since editor render might change some stuff based on the UI alterations
     // this should be fixed with Command pattern or similar techinique
     m_frame->Update(m_client->GetApplicationState());
-    if (m_frame->Render(m_client->GetApplicationState())) {
+    if(m_frame->Render(m_client->GetApplicationState()))
+    {
         m_frame->FinishFrame();
     }
 }
@@ -233,7 +239,6 @@ void Application::PostRender()
 {
     m_client->GetScene().Reset();
     m_client->GetApplicationState().Reset();
-
 }
 
 Application::~Application()
@@ -251,7 +256,6 @@ Application::~Application()
         }
         catch(std::exception& e)
         {
-
         }
     }
     m_vulkanDevice->GetDevice().waitIdle();
