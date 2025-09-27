@@ -598,10 +598,12 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
 
 void BloomPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
-
-    m_lensDirtTexture =
-        std::make_shared<ApplicationCore::VTextureAsset>(m_device, renderContext->defaultTexture,
-                                                         ETextureAssetType::Texture, "Resources/Textures/lens-dirt.png");
+    if(m_lensDirtTexture == nullptr)
+    {
+        m_lensDirtTexture = std::make_shared<ApplicationCore::VTextureAsset>(
+            m_device, renderContext->defaultTexture, ETextureAssetType::Texture, "Resources/Textures/lens-dirt.png");
+        m_device.GetTransferOpsManager().AddToSyncList(m_lensDirtTexture);
+    }
 
     /*
         Render targets: FullRes, A, B, C, D, E 
@@ -688,7 +690,6 @@ void BloomPass::Update(int                                   currentFrame,
     m_downSampleParams.srcImage        = 0;
 
 
-    m_device.GetTransferOpsManager().AddToSyncList(m_lensDirtTexture);
     //==========================
     // combine
     m_combineEffect->SetNumWrites(0, 2, 0);

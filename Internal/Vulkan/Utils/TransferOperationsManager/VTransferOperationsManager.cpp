@@ -115,7 +115,7 @@ void VTransferOperationsManager::DestroyImage(vk::Image image, VmaAllocation& vm
 
 void VTransferOperationsManager::AddToSyncList(std::shared_ptr<ApplicationCore::VTextureAsset> texture)
 {
-    m_texturesToSync.push_back(texture);
+    m_texturesToSync.emplace_back(texture);
 }
 
 void VTransferOperationsManager::Sync()
