@@ -92,6 +92,10 @@ void VEditor::ViewPort::Render()
 
         if(ImGui::BeginMenu(ICON_FA_SUN " Lights"))
         {
+            if (ImGui::Selectable( ICON_FA_CLOUD_SUN "Atmosphere "))
+                {
+                m_scene.AddAtmosphere();
+            }
             if(ImGui::Selectable(ICON_FA_SUN " Directional"))
             {
                 m_scene.AddDirectionalLight();

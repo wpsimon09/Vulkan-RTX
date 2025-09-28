@@ -4,8 +4,6 @@
 
 #include "AtmospherePass.hpp"
 
-#include "RenderPass.hpp"
-
 namespace Renderer {
 AtmospherePass::AtmospherePass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height):RenderPass(device, width, height)
 {

@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include "AreaLightNode.hpp"
+#include "AtmosphereSceneNode.hpp"
 #include "DirectionLightNode.hpp"
 #include "FogVolumeNode.hpp"
 #include "PointLightNode.hpp"
@@ -210,6 +211,12 @@ void Scene::AddFogVolume()
     auto obj  = m_assetsManager.GetDefaultMesh(PostProcessQuad);
     auto node = std::make_shared<FogVolumeNode>(obj);
     node->SetName("Fog ##" + VulkanUtils::random_string(5));
+    AddNode(node);
+}
+void Scene::AddAtmosphere() {
+    auto obj = m_assetsManager.GetDefaultMesh(PostProcessQuad);
+    auto node = std::make_shared<AtmosphereSceneNode>(obj);
+    node->SetName("Atmosphere ##" + VulkanUtils::random_string(5));
     AddNode(node);
 }
 

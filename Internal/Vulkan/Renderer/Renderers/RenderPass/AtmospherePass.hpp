@@ -5,7 +5,6 @@
 #ifndef VULKAN_RTX_ATMOSPHEREPASS_HPP
 #define VULKAN_RTX_ATMOSPHEREPASS_HPP
 #include "RenderPass.hpp"
-#include "Vulkan/VulkanCore/RenderPass/VRenderPass.hpp"
 
 namespace VulkanStructs {
 struct PostProcessingContext;

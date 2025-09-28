@@ -6,7 +6,7 @@
 #define VULKAN_RTX_RENDERPASS_HPP
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/VulkanCore/Descriptors/VDescriptorAllocator.hpp"
-
+#include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 
 #include <vector>
 

@@ -50,6 +50,7 @@
 
 
 // Im gui entry
+#include "Application/Rendering/Scene/AtmosphereSceneNode.hpp"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/GLTFLoader/LoadSceneLights.hpp"
 #include "Application/Utils/LookUpTables.hpp"

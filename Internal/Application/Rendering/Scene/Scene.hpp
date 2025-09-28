@@ -77,6 +77,7 @@ class Scene
     void AddSphereToScene();
     void AddPlaneToScene();
     void AddFogVolume();
+    void AddAtmosphere();
 
     void AddSkyBox(LightStructs::EnvLight* envLight = nullptr);
     void AddDirectionalLight(LightStructs::DirectionalLight* directionalLightInfo = nullptr);

@@ -248,6 +248,8 @@ set(SOURCES
         External/vk-profiles/vulkan_profiles.hpp
         Internal/Vulkan/Renderer/Renderers/RenderPass/AtmospherePass.cpp
         Internal/Vulkan/Renderer/Renderers/RenderPass/AtmospherePass.hpp
+        Internal/Application/Rendering/Scene/AtmosphereSceneNode.cpp
+        Internal/Application/Rendering/Scene/AtmosphereSceneNode.hpp
 
 )
 
