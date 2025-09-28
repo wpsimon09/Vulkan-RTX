@@ -216,9 +216,6 @@ void Application::Update()
     m_rayTracingDataManager->UpdateData(m_client->GetScene().GetSceneUpdateFlags(), blasInputs);
 
     m_client->GetApplicationState().SetIsWindowResized(m_windowManager->GetHasResized());
-
-    // checks if CPU threads processing textuers are done
-    m_vulkanDevice->GetTransferOpsManager().Sync();
 }
 
 void Application::Render()
@@ -230,7 +227,10 @@ void Application::Render()
 
     // the frame update has to be here since editor render might change some stuff based on the UI alterations
     // this should be fixed with Command pattern or similar techinique
+    // checks if CPU threads processing textuers are done
+    m_vulkanDevice->GetTransferOpsManager().Sync();
     m_frame->Update(m_client->GetApplicationState());
+
     if(m_frame->Render(m_client->GetApplicationState()))
     {
         m_frame->FinishFrame();

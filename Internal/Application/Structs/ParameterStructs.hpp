@@ -102,4 +102,20 @@ struct BloomSettings
     float     filterRadius   = 0.005;
 };
 
+struct AtmosphereParameters {
+    glm::vec4 groundAlbedo;          // xyz: as-is, w: Radius bottom
+    glm::vec4 rayleighScattering;    // xyz: wevelength dependant, w: Radius top
+    // rayleightAbsorption is 0 in paper so not included here
+    glm::vec4 mieScattering;         // xyz: as-is, w: Rayleigh density exp scale
+    glm::vec4 mieAbsorption;         // xyz: as-is, w: Mie density exp scale
+    glm::vec4 mieExtinction;         // xyz: as-is, w: Mie phase g
+    glm::vec4 absorptionAxtinction;  // xyz: as-is, w: Absorption density 0 layer width
+
+    // absorption_density_0_constant_term;
+    // absorption_density_0_linear_term;
+    // absorption_density_1_constant_term;
+    // absorption_density_1_linear_term;
+    glm::vec4 absorption_density_params_;
+};
+
 #endif

@@ -124,7 +124,6 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
 
     m_rayTracedShadowEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-
     cmdB.draw(3, 1, 0, 0);
 
     cmdB.endRendering();

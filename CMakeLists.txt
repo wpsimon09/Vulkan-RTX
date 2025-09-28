@@ -246,6 +246,8 @@ set(SOURCES
         Internal/Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.cpp
         Internal/Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp
         External/vk-profiles/vulkan_profiles.hpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/AtmospherePass.cpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/AtmospherePass.hpp
 
 )
 
