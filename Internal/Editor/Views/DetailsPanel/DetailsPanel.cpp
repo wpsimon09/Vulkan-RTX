@@ -13,6 +13,7 @@
 #include "Application/Rendering/Material/SkyBoxMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/AreaLightNode.hpp"
+#include "Application/Rendering/Scene/AtmosphereSceneNode.hpp"
 #include "Application/Rendering/Scene/DirectionLightNode.hpp"
 #include "Application/Rendering/Scene/FogVolumeNode.hpp"
 #include "Application/Rendering/Scene/PointLightNode.hpp"
@@ -414,6 +415,16 @@ void DetailsPanel::RenderFogVolumeNodeUI()
             ImGui::SliderFloat("Scattering coeficient", &fogNode->GetParameters().sigma_s, 0.00001, 0.001, "%.5f");
             ImGui::TreePop();
         }
+    }
+}
+
+void DetailsPanel::RenderAtmosphereDetails()
+{
+    if(auto atmosNode = dynamic_cast<ApplicationCore::AtmosphereSceneNode*>(m_selectedSceneNode.get()))
+    {
+        auto& params = atmosNode->GetParameters();
+        ImGui::DragFloat("Ground radius", &params.groundAlbedo.w, 1.0, 6360);
+        ImGui::DragFloat("Atmospherer radius", &params.rayleighScattering.w, 1.0, 6460);
     }
 }
 

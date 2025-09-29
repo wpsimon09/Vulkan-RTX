@@ -65,6 +65,7 @@ class DetailsPanel : public IUserInterfaceElement
     void RenderNodeStats();
     void RenderPBRMaterialDetails(ApplicationCore::PBRMaterial* material);
     void RenderSkyBoxMaterialDetails(ApplicationCore::SkyBoxMaterial* material);
+    void RenderAtmosphereDetails();
 };
 
 }  // namespace VEditor
