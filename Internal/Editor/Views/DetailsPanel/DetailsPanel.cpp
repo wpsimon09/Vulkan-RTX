@@ -425,6 +425,7 @@ void DetailsPanel::RenderAtmosphereDetails()
         auto& params = atmosNode->GetParameters();
         ImGui::DragFloat("Ground radius", &params.groundAlbedo.w, 1.0, 6360);
         ImGui::DragFloat("Atmospherer radius", &params.rayleighScattering.w, 1.0, 6460);
+        ImGui::DragFloat("Mie Assimetry", &params.mieExtinction.w, 0.1, -1.0, 1.0);
     }
 }
 

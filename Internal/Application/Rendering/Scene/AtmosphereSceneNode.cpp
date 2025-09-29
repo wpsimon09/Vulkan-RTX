@@ -3,10 +3,13 @@
 //
 
 #include "AtmosphereSceneNode.hpp"
+#include "Application/Enums/ClientEnums.hpp"
 
 namespace ApplicationCore {
-AtmosphereSceneNode::AtmosphereSceneNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh): m_parameters() {
-
+AtmosphereSceneNode::AtmosphereSceneNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh)
+    : m_parameters()
+{
+    m_sceneNodeMetaData.nodeType = ENodeType::Atmosphere;
 }
 
 void AtmosphereSceneNode::Update(SceneUpdateContext& sceneUpdateFlags)

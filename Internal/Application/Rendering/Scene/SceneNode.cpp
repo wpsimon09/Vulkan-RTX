@@ -315,8 +315,6 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         {
             // change effect
         }
-
-        // if in ray tracing capture do some shenanigans here
     }
 }
 }  // namespace ApplicationCore

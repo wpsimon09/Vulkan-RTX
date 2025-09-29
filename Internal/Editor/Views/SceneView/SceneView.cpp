@@ -9,6 +9,7 @@
 #include <imgui.h>
 #include <IconFontCppHeaders/IconsFontAwesome6.h>
 
+#include "Application/Enums/ClientEnums.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
@@ -95,7 +96,8 @@ void SceneView::Render()
 }
 void SceneView::Update()
 {
-    for (auto& sceneNode : m_nodesToRemove) {
+    for(auto& sceneNode : m_nodesToRemove)
+    {
         m_scene.ProcessNodeRemove(sceneNode);
     }
     IUserInterfaceElement::Update();
@@ -281,6 +283,10 @@ std::string SceneView::GenerateNodeLabel(std::shared_ptr<ApplicationCore::SceneN
             nodeLabel = std::string(ICON_FA_SMOG) + "  " + std::string(sceneNode->GetName());
             break;
         }
+        case Atmosphere: {
+            nodeLabel = std::string(ICON_FA_CLOUD_SUN) + "  " + std::string(sceneNode->GetName());
+            break;
+        }
 
         default: {
             nodeLabel = std::string(ICON_FA_QUESTION "Unknown scene node");
@@ -332,7 +338,7 @@ void SceneView::RenderSceneDataView()
                 ImGui::Text("%i", i);
                 ImGui::SameLine();
                 //ImGui::Text(ICON_FA_CIRCLE_HALF_STROKE " %s", m->GetMaterialName().c_str());
-                std::string treeNodeLabel = ICON_FA_CIRCLE_HALF_STROKE  " Material##"+ std::to_string(i);
+                std::string treeNodeLabel = ICON_FA_CIRCLE_HALF_STROKE " Material##" + std::to_string(i);
                 if(ImGui::TreeNodeEx(treeNodeLabel.c_str()))
                 {
                     ImGui::Text("Diffuse index %i", m->features.albedo);
@@ -342,7 +348,8 @@ void SceneView::RenderSceneDataView()
 
                     ImGui::Separator();
 
-                    ImGui::Text("Diffuce val") ; ImGui::SameLine() ;
+                    ImGui::Text("Diffuce val");
+                    ImGui::SameLine();
                     ImVec4 col;
                     col.x = m->values.albedo.x;
                     col.y = m->values.albedo.y;

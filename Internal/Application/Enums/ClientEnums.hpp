@@ -65,6 +65,7 @@ enum ENodeType
     AreaLightNode,
     SkyBoxNode,
     FogVolume,
+    Atmosphere,
 };
 
 inline std::string IconToString(EEditorIcon icon)
