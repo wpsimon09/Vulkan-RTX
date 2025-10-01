@@ -60,6 +60,34 @@ struct AtmosphereParamsGPU{
     float transmitanceTextureHeight;
 }
 
+/*
+ A density profile layer describes how the concentration of a scattering or
+ absorbing species varies with altitude. Each layer is valid for a vertical
+ interval of size `width`, and within that interval the density is defined as:
+
+     density(h) = exp_term * exp(exp_scale * h)
+                + linear_term * h
+                + constant_term
+
+ where h is the altitude above the bottom of the layer. The resulting value
+ is clamped to [0,1]. By combining multiple layers, we can approximate real
+ atmospheric profiles such as:
+
+   - Rayleigh scattering (air molecules) → mostly exponential falloff
+   - Mie scattering (aerosols) → different exponential scale
+   - Ozone absorption → can be shaped with linear + constant terms
+
+ These profiles are later integrated along view/light paths to compute
+ transmittance, scattering, and absorption in the atmosphere.
+*/
+ struct DensityProfileLayer{
+    float width;
+    float exponentialTerm;
+    float expScale;
+    float linearTerm;
+    float constantTerm;
+}
+
 //=========================================================================================================
 
 /*
@@ -89,6 +117,7 @@ float DistanceToBottomAtmosphereBoundary(AtmosphereParamsGPU atmosphere, float r
     return max(( -r * mu - sqrt(discriminant)), 0.0);
 }
 
+float GetLayerDensity(DensityProfileLayer)
 
 /*
 Converts the azimuth (mu) and radius (r) to the the texture coordinates so that we can write to the texture 
