@@ -107,10 +107,10 @@ struct AtmosphereParameters
     glm::vec4 groundAlbedo = {0.3, 0.3, 0.3, 6360};             // xyz: as-is, w: Radius bottom
     glm::vec4 rayleighScattering{5.802, 13.558, 33.1, 6460.0};  // xyz: wevelength dependant, w: Radius top
     // rayleightAbsorption is 0 in paper so not included here
-    glm::vec4 mieScattering = {3.996, 3.996, 3.996, 8.0};  // xyz: as-is, w: Rayleigh density exp scale
-    glm::vec4 mieAbsorption = {4.40, 4.40, 4.40, 1.2};     // xyz: as-is, w: Mie density exp scale
-    glm::vec4 mieExtinction = {8.369, 8.369, 8.369, 0.8};  // xyz: as-is, w: Mie phase g
-    glm::vec4 absorptionExtinction;                        // xyz: as-is, w: Absorption density 0 layer width
+    glm::vec4 mieScattering = {0.003996f, 0.003996f, 0.003996f, 8.0};  // xyz: as-is, w: Rayleigh density exp scale
+    glm::vec4 mieAbsorption = {0.004440f, 0.004440f, 0.004440f, 1.2};  // xyz: as-is, w: Mie density exp scale
+    glm::vec4 mieExtinction = {0.004440f, 0.004440f, 0.004440f, 0.8};  // xyz: as-is, w: Mie phase g
+    glm::vec4 absorptionExtinction = {0.000650f, 0.001881f, 0.000085f, 0.0f};  // xyz: as-is, w: Absorption density 0 layer width
 
     // absorption_density_0_constant_term;
     // absorption_density_0_linear_term;

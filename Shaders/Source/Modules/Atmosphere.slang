@@ -1,92 +1,6 @@
-//========================================================================
-// Every parameter related to the atmosphere will live here
-struct AtmosphereParamsCPU{
-    float4 groundAlbedo; //xyz - colour, w: Radius bottom
-    float4 rayleighScattering; //xyz - wavelenght dependad, w :radius top
-    float4 mieScattering;  //xyz: as-is, w:Reayleigh density exp scale 
-    float4 mieAbsorption;//xyz: as-is, w: Mie density exp scale
-    float4 mieExctinction;//xyz: as-is, w: Mie phase G
-    float4 absorptionExctinction; //xyz: as-is, w: Absorption denssity 0 layer width
+module Atmosphere;
 
-    AtmosphereParamsGPU Parse(){
-         AtmosphereParamsGPU gpu;
-
-    gpu.groundAlbedo = groundAlbedo.xyz;
-    gpu.radiusBottom = groundAlbedo.w;
-
-    gpu.rayLeightScattering = rayleighScattering.xyz;
-    gpu.radiusTop = rayleighScattering.w;
-
-    gpu.mieScattering = mieScattering.xyz;
-    gpu.reayleghtDensityExpScale = mieScattering.w;
-
-    gpu.mieAbsorption = mieAbsorption.xyz;
-    gpu.mieDensityExpScale = mieAbsorption.w;
-
-    gpu.mieExctinction = mieExctinction.xyz;
-    gpu.miePhaseG = mieExctinction.w;
-
-    gpu.absorptionExctinction = absorptionExctinction.xyz;
-    gpu.absorptionDensityZeroLayerWidth = absorptionExctinction.w;
-
-    // Typically you’ll also assign LUT sizes here (hardcoded or passed in).
-    gpu.transmitanceTextureWidth  = 256.0f; // or your chosen value
-    gpu.transmitanceTextureHeight = 64.0f;  // or your chosen value
-
-    return gpu;
-    }
-}
-
-struct AtmosphereParamsGPU{
-    float3 groundAlbedo;
-    float radiusBottom;
-
-    float3 rayLeightScattering;
-    float radiusTop;
-
-    float3 mieScattering;
-    float reayleghtDensityExpScale;
-    
-    float3 mieAbsorption;
-    float mieDensityExpScale;
-    
-    float3 mieExctinction;
-    float miePhaseG;
-    
-    float4 absorptionExctinction;
-    float absorptionDensityZeroLayerWidth;
-
-    float transmitanceTextureWidth;
-    float transmitanceTextureHeight;
-}
-
-/*
- A density profile layer describes how the concentration of a scattering or
- absorbing species varies with altitude. Each layer is valid for a vertical
- interval of size `width`, and within that interval the density is defined as:
-
-     density(h) = exp_term * exp(exp_scale * h)
-                + linear_term * h
-                + constant_term
-
- where h is the altitude above the bottom of the layer. The resulting value
- is clamped to [0,1]. By combining multiple layers, we can approximate real
- atmospheric profiles such as:
-
-   - Rayleigh scattering (air molecules) → mostly exponential falloff
-   - Mie scattering (aerosols) → different exponential scale
-   - Ozone absorption → can be shaped with linear + constant terms
-
- These profiles are later integrated along view/light paths to compute
- transmittance, scattering, and absorption in the atmosphere.
-*/
- struct DensityProfileLayer{
-    float width;
-    float exponentialTerm;
-    float expScale;
-    float linearTerm;
-    float constantTerm;
-}
+import AtmosphereParameters;
 
 //=========================================================================================================
 
@@ -117,7 +31,16 @@ float DistanceToBottomAtmosphereBoundary(AtmosphereParamsGPU atmosphere, float r
     return max(( -r * mu - sqrt(discriminant)), 0.0);
 }
 
-float GetLayerDensity(DensityProfileLayer)
+float GetLayerDensity(DensityProfileLayer layer, float altitude){
+    float density = layer.exponentialTerm * exp(layer.expScale * altitude) + layer.linearTerm * altitude + layer.constantTerm;
+}
+
+float GetProfileDensity(DensityProfile profile, float altitude){
+    return altitude < profile.layers[0].width ?
+        GetLayerDensity(profile.layers[0], altitude) :
+        GetLayerDensity(profile.layers[1], altitude);
+}
+
 
 /*
 Converts the azimuth (mu) and radius (r) to the the texture coordinates so that we can write to the texture 
@@ -182,8 +105,30 @@ float3 ComputeTransmittanceToTopAtmosphereBoundaryTexture(AtmosphereParamsGPU at
     return ComputeTransmittanceToTopAtmosphereBoundary(atmosphere, r, mu);
 }
 
+float ComputeOpticalLengthToTopAtmosphereBoundary(AtmosphereParamsGPU atmosphere, DensityProfile profle, float r, float mu){
+    const int SAMPLE_COUNT  = 500;
+    float dx = DistanceToTopAtmosphereBoundary(atmosphere, r, mu) / SAMPLE_COUNT;
+
+    //integrate the transmitance for one participating medium
+    float result = 0.0 * 1.0;
+    for (int i = 0; i<= SAMPLE_COUNT; ++i){
+        float d_i = float(i) * dx;
+        
+        //distance between planet center and current sample point 
+        float r_i = sqrt(d_i * d_i + 2.0 * r * mu * d_i + r * r);
+
+        float y_i = GetProfileDensity(profle, r_i - atmosphere.radiusBottom);
+
+        float weight_i = i == 0 || i == SAMPLE_COUNT ? 0.5 : 1.0;
+
+        result += y_i * weight_i * dx;
+    }
+
+    return result;
+}
+
 float3 ComputeTransmittanceToTopAtmosphereBoundary(AtmosphereParamsGPU atmoshere, float r, float mu){
     return exp(-(
-        atmoshere.rayLeightScattering * ComputeOpticalLengthToTopAtmosphereBoundary(atmo)
+        atmoshere.rayLeightScattering * ComputeOpticalLengthToTopAtmosphereBoundary(atmosphere, at)
     ))
 }
