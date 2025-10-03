@@ -18,6 +18,7 @@
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/AtmospherePass.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
@@ -91,6 +92,7 @@ void ForwardRenderer::Init(int                                  frameIndex,
     m_visibilityDenoisePass->Init(frameIndex, uniformBufferManager, renderContext);
     m_forwardRenderPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_fogPass->Init(frameIndex, uniformBufferManager, renderContext);
+    m_atmospherePass->Init(frameIndex, uniformBufferManager, renderContext);
 }
 
 void ForwardRenderer::Update(int                                   currentFrame,
@@ -103,6 +105,7 @@ void ForwardRenderer::Update(int                                   currentFrame,
     m_visibilityDenoisePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_forwardRenderPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_fogPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_atmospherePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,
@@ -224,6 +227,14 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
     m_forwardRendererOutput         = &m_fogPass->GetPrimaryResult();
 }
 
+void ForwardRenderer::AtmospherePass(int                                       currentFrameIndex,
+                                     VulkanCore::VCommandBuffer&               cmdBuffer,
+                                     const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+{
+    m_atmospherePass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
+    m_renderContextPtr->atmosphereCall = nullptr;
+}
+
 
 void ForwardRenderer::Destroy()
 {
@@ -233,6 +244,7 @@ void ForwardRenderer::Destroy()
     m_visibilityDenoisePass->Destroy();
     m_forwardRenderPass->Destroy();
     m_fogPass->Destroy();
+    m_atmospherePass->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer

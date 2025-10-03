@@ -56,7 +56,8 @@ enum class EEffectType : std::uint8_t
     BilateralFilter,
     BloomDownSample,
     BloomUpSample,
-    BloomCombine
+    BloomCombine,
+    AtmosphereTransmitanceLUT
 };
 
 class EffectsLibrary

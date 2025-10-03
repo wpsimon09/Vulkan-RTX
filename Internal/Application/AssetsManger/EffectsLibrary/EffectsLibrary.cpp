@@ -253,6 +253,14 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
                                                       descLayoutCache, EShaderBindingGroup::ComputePostProecess);
     effects[EEffectType::BloomCombine] = std::move(bloomCombine);
 
+    //===================================================================================
+
+    auto precomputeTransmitanceLut =
+        std::make_shared<VulkanUtils::VComputeEffect>(device, "atmosphere transmitance precomputation",
+                                                      "Shaders/Compiled/Atm_TransmitanceLut.spv", descLayoutCache,
+                                                      EShaderBindingGroup::ComputePostProecess);
+
+    effects[EEffectType::AtmosphereTransmitanceLUT] = std::move(precomputeTransmitanceLut);
     BuildAllEffects();
 }
 

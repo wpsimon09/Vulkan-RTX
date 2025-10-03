@@ -70,6 +70,7 @@ struct RenderContext
     ApplicationCore::SceneData renderingSceneData;  // contains not the entire scene but only what is visible in the view port
 
     VulkanStructs::VDrawCallData* fogDrawCall;
+    VulkanStructs::VDrawCallData* atmosphereCall;
 
     void GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& outDrawCalls);
     void AddDrawCall(VulkanStructs::VDrawCallData& DrawCall);

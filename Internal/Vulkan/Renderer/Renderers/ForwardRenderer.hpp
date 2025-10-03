@@ -31,6 +31,7 @@ class BilateralFilterPass;
 class GBufferPass;
 class RenderTarget2;
 class VisibilityBufferPass;
+class AtmospherePass;
 }  // namespace Renderer
 
 namespace VulkanCore {
@@ -96,7 +97,11 @@ class ForwardRenderer
 
     void ShadowMapPass(int currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
-    void DrawScene(int  currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+    void DrawScene(int currentFrameIndex, VulkanCore::VCommandBuffer& cmdBuffer, const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+
+    void AtmospherePass(int                                       currentFrameIndex,
+                        VulkanCore::VCommandBuffer&               cmdBuffer,
+                        const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
     void PostProcessingFogPass(int                                       currentFrameIndex,
                                VulkanCore::VCommandBuffer&               cmdBuffer,
@@ -131,6 +136,7 @@ class ForwardRenderer
     std::unique_ptr<Renderer::BilateralFilterPass>  m_visibilityDenoisePass;
     std::unique_ptr<Renderer::ForwardRender>        m_forwardRenderPass;
     std::unique_ptr<Renderer::FogPass>              m_fogPass;
+    std::unique_ptr<Renderer::AtmospherePass>       m_atmospherePass;
     // Editor integration
     friend class VEditor::RenderingOptions;
 };
