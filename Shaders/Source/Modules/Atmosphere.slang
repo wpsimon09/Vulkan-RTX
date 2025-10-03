@@ -33,6 +33,7 @@ float DistanceToBottomAtmosphereBoundary(AtmosphereParamsGPU atmosphere, float r
 
 float GetLayerDensity(DensityProfileLayer layer, float altitude){
     float density = layer.exponentialTerm * exp(layer.expScale * altitude) + layer.linearTerm * altitude + layer.constantTerm;
+    return clamp(density, 0.0, 1.0);
 }
 
 float GetProfileDensity(DensityProfile profile, float altitude){
@@ -72,7 +73,7 @@ float2 GetTransmittanceTextureUvFromRMu(AtmosphereParamsGPU atmosphere, float r,
 /*
 Converts texture coordinate 
 */
-void GetRMuFromTransmitanceTextureUv(AtmosphereParamsGPU atmosphere, float2 uv, out float r, out float mu){
+public void GetRMuFromTransmitanceTextureUv(AtmosphereParamsGPU atmosphere, float2 uv, out float r, out float mu){
     float x_mu = GetUnitRangeFromTextureCoord(uv.x,(int)atmosphere.transmitanceTextureWidth);
     float x_r = GetUnitRangeFromTextureCoord(uv.y, (int)atmosphere.transmitanceTextureHeight);
     
@@ -96,12 +97,12 @@ void GetRMuFromTransmitanceTextureUv(AtmosphereParamsGPU atmosphere, float2 uv, 
 //=============================================================
 // Transmitance pre-computation
 
-float3 ComputeTransmittanceToTopAtmosphereBoundaryTexture(AtmosphereParamsGPU atmosphere, float2 pixelCoord){
+public float3 ComputeTransmittanceToTopAtmosphereBoundaryTexture(AtmosphereParamsGPU atmosphere, float2 uv){
     const float2 transmitanceTextureSize = float2(atmosphere.transmitanceTextureWidth, atmosphere.transmitanceTextureHeight);
     
     float r;
     float mu;
-    GetRMuFromTransmitanceTextureUv(atmosphere, pixelCoord / transmitanceTextureSize, r, mu);
+    GetRMuFromTransmitanceTextureUv(atmosphere, uv, r, mu);
     return ComputeTransmittanceToTopAtmosphereBoundary(atmosphere, r, mu);
 }
 
@@ -127,8 +128,17 @@ float ComputeOpticalLengthToTopAtmosphereBoundary(AtmosphereParamsGPU atmosphere
     return result;
 }
 
-float3 ComputeTransmittanceToTopAtmosphereBoundary(AtmosphereParamsGPU atmoshere, float r, float mu){
-    return exp(-(
-        atmoshere.rayLeightScattering * ComputeOpticalLengthToTopAtmosphereBoundary(atmosphere, at)
-    ))
+// Computes the total transmittance from position r along direction mu
+// by integrating optical depths of all atmospheric components (Rayleigh scattering,
+// Mie scattering, and ozone absorption) up to the top of the atmosphere.
+
+float3 ComputeTransmittanceToTopAtmosphereBoundary(AtmosphereParamsGPU atmosphere, float r, float mu){
+
+    float3 rayLeightTransmitance, mieTransmitance, ozoneTransmitance;
+
+    rayLeightTransmitance = atmosphere.rayLeightScattering * ComputeOpticalLengthToTopAtmosphereBoundary(atmosphere, atmosphere.rayleightDensity, r, mu);
+    mieTransmitance = atmosphere.mieExtinction * ComputeOpticalLengthToTopAtmosphereBoundary(atmosphere, atmosphere.mieDensity, r, mu);
+    ozoneTransmitance = atmosphere.absorptionExctinction * ComputeOpticalLengthToTopAtmosphereBoundary(atmosphere, atmosphere.ozoneDensity, r, mu);
+
+    return exp(-(rayLeightTransmitance + mieTransmitance + ozoneTransmitance));
 }

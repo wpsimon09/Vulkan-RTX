@@ -8,7 +8,7 @@ public struct AtmosphereParamsCPU{
     float4 mieExctinction;//xyz: as-is, w: Mie phase G
     float4 absorptionExctinction; //xyz: as-is, w: Absorption denssity 0 layer width
 
-AtmosphereParamsGPU Parse(){
+    public AtmosphereParamsGPU Parse(){
         AtmosphereParamsGPU gpu;
 
         gpu.groundAlbedo = groundAlbedo.xyz;
@@ -21,10 +21,6 @@ AtmosphereParamsGPU Parse(){
         gpu.mieAbsorption = mieAbsorption.xyz;
         gpu.mieDensityExpScale = mieAbsorption.w;
         
-        gpu.mieExctinction = mieExctinction.xyz;
-        gpu.miePhaseG = mieExctinction.w;
-        
-        gpu.absorptionExctinction = absorptionExctinction.xyz;
         gpu.absorptionDensityZeroLayerWidth = absorptionExctinction.w;
         
         gpu.transmitanceTextureWidth  = 256.0f; 
@@ -37,9 +33,12 @@ AtmosphereParamsGPU Parse(){
         gpu.mieDensity.layers[0] = DensityProfileLayer();
         gpu.mieDensity.layers[1] = DensityProfileLayer(0.0f, 1.0f, -1.0f / 1.2f);
         gpu.mieScattering = mieScattering.xyz;
-
+        gpu.miePhaseG = mieExctinction.w;
+        
+        
         gpu.ozoneDensity.layers[0] = DensityProfileLayer(25.0f, 0.0f, 0.0f, 1.0f / 15.0f, -2.0f / 3.0f);
         gpu.ozoneDensity.layers[1] = DensityProfileLayer(0.0f, 0.0f, 0.0f, -1.0f / 15.0f, 8.0f / 3.0f);
+        gpu.absorptionExctinction = absorptionExctinction.xyz;
 
         return gpu;
     }
@@ -58,8 +57,8 @@ public struct AtmosphereParamsGPU{
     
     public float3 mieAbsorption;
     public float mieDensityExpScale;
+    public float3 mieExtinction;
     
-    public float3 mieExctinction;
     public float miePhaseG;
     
     public float3 absorptionExctinction;
@@ -68,9 +67,9 @@ public struct AtmosphereParamsGPU{
     public float transmitanceTextureWidth;
     public float transmitanceTextureHeight;
 
-    DensityProfile rayleightDensity;
-    DensityProfile mieDensity;
-    DensityProfile ozoneDensity;
+    public DensityProfile rayleightDensity;
+    public DensityProfile mieDensity;
+    public DensityProfile ozoneDensity;
 
     
 }

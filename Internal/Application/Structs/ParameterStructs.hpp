@@ -104,8 +104,8 @@ struct BloomSettings
 
 struct AtmosphereParameters
 {
-    glm::vec4 groundAlbedo = {0.3, 0.3, 0.3, 6360};             // xyz: as-is, w: Radius bottom
-    glm::vec4 rayleighScattering{5.802, 13.558, 33.1, 6460.0};  // xyz: wevelength dependant, w: Radius top
+    glm::vec4 groundAlbedo = {0.3, 0.3, 0.3, 6360};                         // xyz: as-is, w: Radius bottom
+    glm::vec4 rayleighScattering{0.005802f, 0.013558f, 0.033100f, 6460.0};  // xyz: wevelength dependant, w: Radius top
     // rayleightAbsorption is 0 in paper so not included here
     glm::vec4 mieScattering = {0.003996f, 0.003996f, 0.003996f, 8.0};  // xyz: as-is, w: Rayleigh density exp scale
     glm::vec4 mieAbsorption = {0.004440f, 0.004440f, 0.004440f, 1.2};  // xyz: as-is, w: Mie density exp scale

@@ -1,19 +1,34 @@
 import Utils;
 import Atmosphere;
+import AtmosphereParameters;
 
 static const int STEP_COUNT = 50;
 
+[[vk::push_constant]]
+AtmosphereParamsCPU atmosphereParams;
 
 RWTexture2D<float4> transmittanceLut;
 
 [shader("compute")]
 [numthreads(16,16,1)]
 void computeMain(int3 threadIdx: SV_DispatchThreadID){
-    int width, height;
-    transmittanceLut.GetDimensions(width, height);
+   int width, height;
+   transmittanceLut.GetDimensions(width, height);
 
-     if(threadIdx.x >= width || threadIdx.y >= height)
-        return;
+   AtmosphereParamsGPU atmos = atmosphereParams.Parse();
+   atmos.transmitanceTextureWidth = width;
+   atmos.transmitanceTextureHeight = height;
 
+   if(threadIdx.x >= width || threadIdx.y >= height)
+      return;
+
+   float2 uv;
+   uv.x = threadIdx.x / width;
+   uv.y = threadIdx.y / height;   
+
+
+   float3 transmitance = ComputeTransmittanceToTopAtmosphereBoundaryTexture(atmos, uv);
+
+   transmittanceLut[threadIdx.xy] = float4(transmitance, 1.0f);
     
 }
