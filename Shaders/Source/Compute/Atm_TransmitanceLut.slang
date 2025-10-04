@@ -29,6 +29,6 @@ uv.y = (threadIdx.y + 0.5f) / height;
 
    float3 transmitance = ComputeTransmittanceToTopAtmosphereBoundaryTexture(atmos, uv);
 
-   transmittanceLut[threadIdx.xy] = float4(transmitance, 1.0f);
+   transmittanceLut[threadIdx.xy] = float4(transmitance, 1.0);
     
 }

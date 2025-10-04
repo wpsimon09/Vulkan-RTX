@@ -18,7 +18,6 @@ public struct AtmosphereParamsCPU{
         
         gpu.reayleghtDensityExpScale = mieScattering.w;
         
-        gpu.mieAbsorption = mieAbsorption.xyz;
         gpu.mieDensityExpScale = mieAbsorption.w;
         
         gpu.absorptionDensityZeroLayerWidth = absorptionExctinction.w;
@@ -32,6 +31,8 @@ public struct AtmosphereParamsCPU{
         
         gpu.mieDensity.layers[0] = DensityProfileLayer();
         gpu.mieDensity.layers[1] = DensityProfileLayer(0.0f, 1.0f, -1.0f / 1.2f);
+        
+        gpu.mieExtinction = mieExctinction.xyz;
         gpu.mieScattering = mieScattering.xyz;
         gpu.miePhaseG = mieExctinction.w;
         
@@ -55,7 +56,6 @@ public struct AtmosphereParamsGPU{
     public float3 mieScattering;
     public float reayleghtDensityExpScale;
     
-    public float3 mieAbsorption;
     public float mieDensityExpScale;
     public float3 mieExtinction;
     
@@ -95,11 +95,11 @@ public struct AtmosphereParamsGPU{
  transmittance, scattering, and absorption in the atmosphere.
 */
 public struct DensityProfileLayer{
-    public float width;
-    public float exponentialTerm;
-    public float expScale;
-    public float linearTerm;
-    public float constantTerm;
+    public float width = 0.0;
+    public float exponentialTerm = 0.0;
+    public float expScale = 0.0;
+    public float linearTerm = 0.0;
+    public float constantTerm = 0.0;
 
     __init(float _width = 0.0, float _exponentialTerm = 0.0, float _expScale = 0.0f, float _linearTerm = 0.0f, float _constantTerm = 0.0f){
         width = _width;

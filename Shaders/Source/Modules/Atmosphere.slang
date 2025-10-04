@@ -4,6 +4,26 @@ import AtmosphereParameters;
 
 //=========================================================================================================
 
+static const float m = 1.0;
+static const float m2 = m * m;
+
+float ClampCosine(float mu) {
+  return clamp(mu, float(-1.0), float(1.0));
+}
+
+float ClampDistance(float d) {
+  return max(d, 0.0 * m);
+}
+
+float ClampRadius(AtmosphereParamsGPU atmosphere, float r) {
+  return clamp(r, atmosphere.radiusBottom, atmosphere.radiusTop);
+}
+
+float SafeSqrt(float a) {
+  return sqrt(max(a, 0.0 * (m2)));
+}
+
+
 /*
 Converts from parametrized domain (mu and r) to the texture uv domain
     - for  x = v || u
@@ -23,12 +43,12 @@ float GetUnitRangeFromTextureCoord(float u, int textureSize){
 
 float DistanceToTopAtmosphereBoundary(AtmosphereParamsGPU atmosphere,float r, float mu){
     float discriminatn = r * r * (mu * mu - 1.0) + atmosphere.radiusTop * atmosphere.radiusTop;
-    return max((-r * mu + sqrt(discriminatn)),0.0);
+    return ClampDistance(-r * mu + SafeSqrt(discriminatn));
 }
 
 float DistanceToBottomAtmosphereBoundary(AtmosphereParamsGPU atmosphere, float r, float mu){
     float discriminant = r * r * (mu * mu - 1.0) + atmosphere.radiusBottom * atmosphere.radiusBottom;
-    return max(( -r * mu - sqrt(discriminant)), 0.0);
+    return ClampDistance(-r * mu - SafeSqrt(discriminant));
 }
 
 float GetLayerDensity(DensityProfileLayer layer, float altitude){
@@ -52,11 +72,11 @@ float2 GetTransmittanceTextureUvFromRMu(AtmosphereParamsGPU atmosphere, float r,
 
     //compute how far a horizontal ray at sea level goes before it escapes the atmosphere.
     // see figure 2 the big H
-    float H = sqrt(atmosphere.radiusTop *atmosphere.radiusTop  - atmosphere.radiusBottom * atmosphere.radiusBottom);
+    float H = SafeSqrt(atmosphere.radiusTop *atmosphere.radiusTop  - atmosphere.radiusBottom * atmosphere.radiusBottom);
 
     // distance to the horizon, see figure 2 in 
     //https://ebruneton.github.io/precomputed_atmospheric_scattering/atmosphere/functions.glsl.html#transmittance_computation
-    float rho = sqrt(r * r - atmosphere.radiusBottom * atmosphere.radiusBottom);
+    float rho = SafeSqrt(r * r - atmosphere.radiusBottom * atmosphere.radiusBottom);
 
     // distance to the top of the atmosphere verticaly 
     float d = DistanceToTopAtmosphereBoundary(atmosphere,r, mu);
@@ -78,12 +98,12 @@ public void GetRMuFromTransmitanceTextureUv(AtmosphereParamsGPU atmosphere, floa
     float x_r = GetUnitRangeFromTextureCoord(uv.y, (int)atmosphere.transmitanceTextureHeight);
     
     // Distance to the top atmosphere boundary
-    float H = sqrt(atmosphere.radiusTop * atmosphere.radiusTop - atmosphere.radiusBottom * atmosphere.radiusBottom);
+    float H = SafeSqrt(atmosphere.radiusTop * atmosphere.radiusTop - atmosphere.radiusBottom * atmosphere.radiusBottom);
 
     // distance to the horizon
     float rho = H * x_r;
 
-    r = sqrt(rho * rho + atmosphere.radiusBottom * atmosphere.radiusBottom);
+    r = SafeSqrt(rho * rho + atmosphere.radiusBottom * atmosphere.radiusBottom);
 
     float d_min = atmosphere.radiusTop - r;
     float d_max = rho + H;
@@ -111,12 +131,12 @@ float ComputeOpticalLengthToTopAtmosphereBoundary(AtmosphereParamsGPU atmosphere
     float dx = DistanceToTopAtmosphereBoundary(atmosphere, r, mu) / SAMPLE_COUNT;
 
     //integrate the transmitance for one participating medium
-    float result = 0.0 * 1.0;
+    float result = 0.0 * m;
     for (int i = 0; i<= SAMPLE_COUNT; ++i){
         float d_i = float(i) * dx;
         
         //distance between planet center and current sample point 
-        float r_i = sqrt(d_i * d_i + 2.0 * r * mu * d_i + r * r);
+        float r_i = SafeSqrt(d_i * d_i + 2.0 * r * mu * d_i + r * r);
 
         float y_i = GetProfileDensity(profle, r_i - atmosphere.radiusBottom);
 
@@ -139,6 +159,6 @@ float3 ComputeTransmittanceToTopAtmosphereBoundary(AtmosphereParamsGPU atmospher
     rayLeightTransmitance = atmosphere.rayLeightScattering * ComputeOpticalLengthToTopAtmosphereBoundary(atmosphere, atmosphere.rayleightDensity, r, mu);
     mieTransmitance = atmosphere.mieExtinction * ComputeOpticalLengthToTopAtmosphereBoundary(atmosphere, atmosphere.mieDensity, r, mu);
     ozoneTransmitance = atmosphere.absorptionExctinction * ComputeOpticalLengthToTopAtmosphereBoundary(atmosphere, atmosphere.ozoneDensity, r, mu);
-
+    //  + mieTransmitance + ozoneTransmitance
     return exp(-(rayLeightTransmitance + mieTransmitance + ozoneTransmitance));
 }
