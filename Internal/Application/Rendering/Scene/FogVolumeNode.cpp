@@ -36,7 +36,7 @@ void FogVolumeNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
     drawCall.material             = nullptr;
     if(m_sceneNodeMetaData.IsVisible)
     {
-        renderingContext->fogDrawCall = std::move(&drawCall);
+        renderingContext->fogDrawCall = std::move(drawCall);
     }
 }
 FogVolumeParameters& FogVolumeNode::GetParameters()

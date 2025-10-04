@@ -23,8 +23,8 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
       return;
 
    float2 uv;
-   uv.x = threadIdx.x / width;
-   uv.y = threadIdx.y / height;   
+uv.x = (threadIdx.x + 0.5f) / width;
+uv.y = (threadIdx.y + 0.5f) / height; 
 
 
    float3 transmitance = ComputeTransmittanceToTopAtmosphereBoundaryTexture(atmos, uv);

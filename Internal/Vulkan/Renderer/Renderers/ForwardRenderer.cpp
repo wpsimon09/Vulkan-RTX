@@ -73,12 +73,14 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         m_visibilityBufferPass->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer), width, height);
     m_forwardRenderPass = std::make_unique<Renderer::ForwardRender>(device, effectsLibrary, width, height);
     m_fogPass           = std::make_unique<Renderer::FogPass>(device, effectsLibrary, width, height);
+    m_atmospherePass    = std::make_unique<Renderer::AtmospherePass>(device, effectsLibrary, width, height);
 
     m_renderContextPtr->normalMap        = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
     m_renderContextPtr->positionMap      = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
     m_renderContextPtr->depthBuffer      = &m_gBufferPass->GetDepthAttachment();
     m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
     m_renderContextPtr->lightPassOutput  = &m_forwardRenderPass->GetResolvedResult();
+
 
     Utils::Logger::LogSuccess("Forward renderer created !");
 }
@@ -122,13 +124,15 @@ void ForwardRenderer::Render(int                                       currentFr
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
     // descriptor set 0 is allways the samme
 
+    m_atmospherePass->Precompute(currentFrameIndex, cmdBuffer, renderContext);
+
     //============================
     // generates depth buffer
     DepthPrePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
     //============================
     // Atmosphere pass
-    if(m_renderContextPtr->atmosphereCall)
+    if(m_renderContextPtr->atmosphereCall.has_value())
     {
         AtmospherePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
     }
@@ -147,7 +151,7 @@ void ForwardRenderer::Render(int                                       currentFr
 
     //==================================
     // render the fog if it is in scene
-    if(m_renderContextPtr->fogDrawCall)
+    if(m_renderContextPtr->fogDrawCall.has_value())
     {
         PostProcessingFogPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
     }
@@ -230,8 +234,7 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
 {
     // this might not be the best thing to do but for now it should suffice
     m_fogPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
-    m_renderContextPtr->fogDrawCall = nullptr;
-    m_forwardRendererOutput         = &m_fogPass->GetPrimaryResult();
+    m_forwardRendererOutput = &m_fogPass->GetPrimaryResult();
 }
 
 void ForwardRenderer::AtmospherePass(int                                       currentFrameIndex,
@@ -239,7 +242,6 @@ void ForwardRenderer::AtmospherePass(int                                       c
                                      const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
     m_atmospherePass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
-    m_renderContextPtr->atmosphereCall = nullptr;
 }
 
 

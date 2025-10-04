@@ -10,19 +10,21 @@ namespace ApplicationCore {
 
 class AtmosphereSceneNode : public SceneNode
 {
-public:
-  explicit AtmosphereSceneNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh);
+  public:
+    explicit AtmosphereSceneNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh);
 
-  void Update(SceneUpdateContext& sceneUpdateFlags) override;
-  void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
+    void Update(SceneUpdateContext& sceneUpdateFlags) override;
+    void Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const override;
 
-  AtmosphereParameters& GetParameters();
-  void                 ProcessNodeRemove() override;
-  void                 ProcessNodeRemove(SceneData& sceneData) override;
-  void                 ProcessNodeRemove(const SceneNode& node, SceneData& sceneData) override;
+    AtmosphereParameters& GetParameters();
+    void                  ProcessNodeRemove() override;
+    void                  ProcessNodeRemove(SceneData& sceneData) override;
+    void                  ProcessNodeRemove(const SceneNode& node, SceneData& sceneData) override;
 
-private:
-  AtmosphereParameters m_parameters;
+  private:
+    const VulkanStructs::VDrawCallData m_drawCall;
+
+    AtmosphereParameters m_parameters;
 };
 
 }  // namespace ApplicationCore

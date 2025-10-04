@@ -5,10 +5,12 @@
 #ifndef VRENDERINGCONTEXT_HPP
 #define VRENDERINGCONTEXT_HPP
 #include <memory>
+#include <optional>
 #include <vector>
 #include <glm/mat4x4.hpp>
 #include "Application/Rendering/Scene/SceneData.hpp"
 #include "vulkan/vulkan.hpp"
+#include "Vulkan/Global/GlobalStructs.hpp"
 
 namespace Renderer {
 class RenderTarget2;
@@ -21,9 +23,6 @@ namespace ApplicationCore {
 class SkyBoxMaterial;
 }
 
-namespace VulkanStructs {
-struct VDrawCallData;
-}
 
 namespace VulkanUtils {
 
@@ -74,8 +73,8 @@ struct RenderContext
 
     ApplicationCore::SceneData renderingSceneData;  // contains not the entire scene but only what is visible in the view port
 
-    VulkanStructs::VDrawCallData* fogDrawCall;
-    VulkanStructs::VDrawCallData* atmosphereCall;
+    std::optional<VulkanStructs::VDrawCallData> fogDrawCall;
+    std::optional<VulkanStructs::VDrawCallData> atmosphereCall;
 
     void GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& outDrawCalls);
     void AddDrawCall(VulkanStructs::VDrawCallData& DrawCall);

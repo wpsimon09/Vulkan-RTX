@@ -43,17 +43,14 @@ class AtmospherePass : public Renderer::RenderPass
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
+    void Precompute(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext);
 
     void Destroy() override;
 
   private:
-    std::unique_ptr<RenderTarget2>               m_transmittanceLut;
     std::shared_ptr<VulkanUtils::VComputeEffect> m_transmitanceLutEffect;
 
     AtmosphereParameters m_atmosphereParams;
-
-  private:
-    void Precompute(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext);
 };
 
 }  // namespace Renderer

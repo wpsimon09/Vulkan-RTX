@@ -111,12 +111,6 @@ struct AtmosphereParameters
     glm::vec4 mieAbsorption = {0.004440f, 0.004440f, 0.004440f, 1.2};  // xyz: as-is, w: Mie density exp scale
     glm::vec4 mieExtinction = {0.004440f, 0.004440f, 0.004440f, 0.8};  // xyz: as-is, w: Mie phase g
     glm::vec4 absorptionExtinction = {0.000650f, 0.001881f, 0.000085f, 0.0f};  // xyz: as-is, w: Absorption density 0 layer width
-
-    // absorption_density_0_constant_term;
-    // absorption_density_0_linear_term;
-    // absorption_density_1_constant_term;
-    // absorption_density_1_linear_term;
-    glm::vec4 absorption_density_params_;
 };
 
 #endif
