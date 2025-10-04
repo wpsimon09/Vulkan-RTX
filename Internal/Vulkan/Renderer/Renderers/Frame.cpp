@@ -43,6 +43,7 @@
 #include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/AtmospherePass.hpp"
 
 
 #include "imgui.h"

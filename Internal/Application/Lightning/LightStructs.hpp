@@ -111,11 +111,11 @@ struct DirectionalLight
 
     mutable glm::vec3 direction;
 
-    float sunRadius = 0.2f;
+    float sunRadius = 0.1f;
 
-    int shadowRaysPerPixel {6};
+    int shadowRaysPerPixel{2};
 
-    float shadowBias {0.1};
+    float shadowBias{0.1};
 
     void Reset()
     {
@@ -147,7 +147,7 @@ struct SceneLightInfo
     std::vector<LightStructs::PointLight*> PointLightInfos;
     std::vector<LightStructs::AreaLight*>  AreaLightInfos;
     EnvLight*                              environmentLight = nullptr;
-    float ambientStrenght = 0.4;
+    float                                  ambientStrenght  = 0.4;
 
     int AddPointLight(PointLight* pointLight)
     {

@@ -7,6 +7,7 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
+#include <cstddef>
 
 
 void VulkanUtils::RenderContext::GetAllDrawCall(std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& outDrawCalls)
@@ -26,6 +27,8 @@ void VulkanUtils::RenderContext::AddDrawCall(VulkanStructs::VDrawCallData& DrawC
 
 void VulkanUtils::RenderContext::ResetAllDrawCalls()
 {
+    atmosphereCall = nullptr;
+    fogDrawCall    = nullptr;
     drawCalls.clear();
 }
 

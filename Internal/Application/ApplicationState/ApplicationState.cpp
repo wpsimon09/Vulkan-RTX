@@ -108,5 +108,15 @@ LuminanceHistogramAverageParameters& ApplicationState::GetLuminanceAverageParame
     return m_luminanceAverageParameters;
 }
 
+AtmosphereParameters* ApplicationState::GetAtmosphereParameters()
+{
+    return m_atmosphereParams;
+}
+
+void ApplicationState::pSetAtmosphereParameters(AtmosphereParameters* pAtmosphereParams)
+{
+    m_atmosphereParams = pAtmosphereParams;
+}
+
 
 }  // namespace ApplicationCore

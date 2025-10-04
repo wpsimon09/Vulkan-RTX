@@ -4,6 +4,7 @@
 
 #ifndef VULKAN_RTX_ATMOSPHEREPASS_HPP
 #define VULKAN_RTX_ATMOSPHEREPASS_HPP
+#include "Application/Structs/ParameterStructs.hpp"
 #include "RenderPass.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 
@@ -41,7 +42,6 @@ class AtmospherePass : public Renderer::RenderPass
                 VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;
-
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
 
     void Destroy() override;
@@ -49,6 +49,11 @@ class AtmospherePass : public Renderer::RenderPass
   private:
     std::unique_ptr<RenderTarget2>               m_transmittanceLut;
     std::shared_ptr<VulkanUtils::VComputeEffect> m_transmitanceLutEffect;
+
+    AtmosphereParameters m_atmosphereParams;
+
+  private:
+    void Precompute(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext);
 };
 
 }  // namespace Renderer

@@ -7,6 +7,7 @@
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
+#include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include <memory>
 
 namespace Renderer {
@@ -39,9 +40,18 @@ void AtmospherePass::Update(int                                   currentFrame,
                             VulkanUtils::RenderContext*           renderContext,
                             VulkanStructs::PostProcessingContext* postProcessingContext)
 {
+    m_atmosphereParams = *uniformBufferManager.GetApplicationState()->GetAtmosphereParameters();
 }
 
 void AtmospherePass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
+{
+    if(m_device.CurrentFrame == 0)
+    {
+        Precompute(currentFrame, cmdBuffer, renderContext);
+    }
+}
+
+void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
 {
 }
 

@@ -6,6 +6,7 @@
 #include "Application/Enums/ClientEnums.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
+#include "Application/ApplicationState/ApplicationState.hpp"
 
 namespace ApplicationCore {
 AtmosphereSceneNode::AtmosphereSceneNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh)
@@ -16,16 +17,18 @@ AtmosphereSceneNode::AtmosphereSceneNode(std::shared_ptr<ApplicationCore::Static
 
 void AtmosphereSceneNode::Update(SceneUpdateContext& sceneUpdateFlags)
 {
-    SceneNode::Update(sceneUpdateFlags);
+    sceneUpdateFlags.applicationState->pSetAtmosphereParameters(&m_parameters);
 }
+
 void AtmosphereSceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUtils::RenderContext* renderingContext) const
 {
     auto drawCal = VulkanStructs::VDrawCallData();
 
     if(m_sceneNodeMetaData.IsVisible)
     {
-        renderingContext->AddDrawCall(drawCal);
+        renderingContext->atmosphereCall = std::move(&drawCal);
     }
+
     SceneNode::Render(effectsLibrary, renderingContext);
 }
 AtmosphereParameters& AtmosphereSceneNode::GetParameters() {}

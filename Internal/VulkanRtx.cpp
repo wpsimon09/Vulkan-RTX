@@ -79,7 +79,7 @@
 #include "Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp"
 #include "Vulkan/VulkanCore/Buffer/VGrowableBuffer.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp"
-
+#include "Vulkan/Renderer/Renderers/RenderPass/AtmospherePass.hpp"
 
 Application::Application() = default;
 

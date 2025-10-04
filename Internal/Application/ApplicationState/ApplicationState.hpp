@@ -44,6 +44,9 @@ class ApplicationState
     FogVolumeParameters* GetFogVolumeParameters();
     void                 pSetFogVolumeParameters(FogVolumeParameters* pFogVolumeParameters);
 
+    AtmosphereParameters* GetAtmosphereParameters();
+    void                  pSetAtmosphereParameters(AtmosphereParameters* pAtmosphereParams);
+
     BilaterialFilterParameters&          GetBilateralFilaterParameters();
     AoOcclusionParameters&               GetAoOcclusionParameters();
     ToneMappingParameters&               GetToneMappingParameters();
@@ -69,6 +72,7 @@ class ApplicationState
     SceneUpdateContext*           m_sceneUpdateFlags    = nullptr;  // instantiated in Scene.hpp
     GlobalRenderingInfo*          m_globalRenderingInfo = nullptr;  // instantiated in Client.hpp
     FogVolumeParameters*          m_fogVolumeParameters = nullptr;
+    AtmosphereParameters*         m_atmosphereParams    = nullptr;
 
     BilaterialFilterParameters          m_bilaterialFilaterParameters;
     AoOcclusionParameters               m_aoOcclusionParameters;

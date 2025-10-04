@@ -49,6 +49,11 @@ struct RenderContext
     VulkanCore::VImage2* dummyCubeMap  = nullptr;
 
     //===========================================
+    // atmosphere rendering textures
+    VulkanCore::VImage2* transmitanceLut = nullptr;
+
+
+    //===========================================
     // outputs from different render passes
     VulkanCore::VImage2*                 lightPassOutput  = nullptr;
     VulkanCore::VImage2*                 normalMap        = nullptr;

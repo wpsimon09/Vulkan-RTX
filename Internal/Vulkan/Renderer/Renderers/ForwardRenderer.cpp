@@ -126,6 +126,13 @@ void ForwardRenderer::Render(int                                       currentFr
     // generates depth buffer
     DepthPrePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
+    //============================
+    // Atmosphere pass
+    if(m_renderContextPtr->atmosphereCall)
+    {
+        AtmospherePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
+    }
+
     //===========================
     // generates shadow mapp in  screen space
     ShadowMapPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
