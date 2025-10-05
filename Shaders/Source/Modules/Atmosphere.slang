@@ -23,6 +23,9 @@ float SafeSqrt(float a) {
   return sqrt(max(a, 0.0 * (m2)));
 }
 
+//==================================================================================================
+//===================== TRANSMITANCE PRECOMPUTATION ================================================
+//==================================================================================================
 
 /*
 Converts from parametrized domain (mu and r) to the texture uv domain
@@ -162,3 +165,9 @@ float3 ComputeTransmittanceToTopAtmosphereBoundary(AtmosphereParamsGPU atmospher
     //  + mieTransmitance + ozoneTransmitance
     return exp(-(rayLeightTransmitance + mieTransmitance + ozoneTransmitance));
 }
+
+
+//==================================================================================================
+//===================== MULTIPLE SCATTERING PRECOMPUTEATION ========================================
+//==================================================================================================
+
