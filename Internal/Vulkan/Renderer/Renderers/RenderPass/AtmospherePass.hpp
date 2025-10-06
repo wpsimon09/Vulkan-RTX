@@ -29,7 +29,8 @@ namespace Renderer {
 
 enum EAtmosphereAttachments
 {
-    TransmitanceLUT = 0
+    TransmitanceLUT = 0,
+    MultipleScatteringLut
 };
 
 class AtmospherePass : public Renderer::RenderPass
@@ -49,6 +50,7 @@ class AtmospherePass : public Renderer::RenderPass
 
   private:
     std::shared_ptr<VulkanUtils::VComputeEffect> m_transmitanceLutEffect;
+    std::shared_ptr<VulkanUtils::VComputeEffect> m_multipleScatteringLutEffect;
 
     AtmosphereParameters m_atmosphereParams;
 };

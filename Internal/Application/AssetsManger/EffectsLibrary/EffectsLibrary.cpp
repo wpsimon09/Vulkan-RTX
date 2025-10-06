@@ -261,6 +261,14 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
                                                       EShaderBindingGroup::ComputePostProecess);
 
     effects[EEffectType::AtmosphereTransmitanceLUT] = std::move(precomputeTransmitanceLut);
+
+    //===================================================================================
+    auto precommputeMultipleScattering =
+        std::make_shared<VulkanUtils::VComputeEffect>(device, "Multiple scattering", "Shaders/Compiled/Atm_MultipleScatteringLut.spv",
+                                                      descLayoutCache, EShaderBindingGroup::ComputePostProecess);
+
+    effects[EEffectType::MultipleScatteringLUT] = std::move(precommputeMultipleScattering);
+
     BuildAllEffects();
 }
 

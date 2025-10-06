@@ -57,7 +57,8 @@ enum class EEffectType : std::uint8_t
     BloomDownSample,
     BloomUpSample,
     BloomCombine,
-    AtmosphereTransmitanceLUT
+    AtmosphereTransmitanceLUT,
+    MultipleScatteringLUT,
 };
 
 class EffectsLibrary
