@@ -71,6 +71,21 @@ public struct AtmosphereParamsGPU{
     public DensityProfile mieDensity;
     public DensityProfile ozoneDensity;
 
+    public float getOzoneDensity(float viewHeight) {
+        float densityOzo;
+        if (viewHeight < ozoneDensity.layers[0].width) {
+            densityOzo = ozoneDensity.layers[0].exponentialTerm * exp(ozoneDensity.layers[0].expScale * viewHeight)
+                       + ozoneDensity.layers[0].linearTerm * viewHeight
+                       + ozoneDensity.layers[0].constantTerm;
+        } else {
+            densityOzo = ozoneDensity.layers[1].exponentialTerm * exp(ozoneDensity.layers[1].expScale * viewHeight)
+                       + ozoneDensity.layers[1].linearTerm * viewHeight
+                       + ozoneDensity.layers[1].constantTerm;
+        }
+        return clamp(densityOzo, 0.0, 1.0);
+    }
+
+
     
 }
 
