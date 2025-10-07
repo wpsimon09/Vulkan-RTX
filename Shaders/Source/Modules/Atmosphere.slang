@@ -1,28 +1,13 @@
 module Atmosphere;
 
 import AtmosphereParameters;
-
+import Utils;
 //=========================================================================================================
 
-static const float m = 1.0;
-static const float m2 = m * m;
 
-float ClampCosine(float mu) {
-  return clamp(mu, float(-1.0), float(1.0));
-}
-
-float ClampDistance(float d) {
-  return max(d, 0.0 * m);
-}
-
-float ClampRadius(AtmosphereParamsGPU atmosphere, float r) {
+public float ClampRadius(AtmosphereParamsGPU atmosphere, float r) {
   return clamp(r, atmosphere.radiusBottom, atmosphere.radiusTop);
 }
-
-float SafeSqrt(float a) {
-  return sqrt(max(a, 0.0 * (m2)));
-}
-
 //==================================================================================================
 //===================== TRANSMITANCE PRECOMPUTATION ================================================
 //==================================================================================================
@@ -69,7 +54,7 @@ float GetProfileDensity(DensityProfile profile, float altitude){
 /*
 Converts the azimuth (mu) and radius (r) to the the texture coordinates so that we can write to the texture 
 */
-float2 GetTransmittanceTextureUvFromRMu(AtmosphereParamsGPU atmosphere, float r, float mu){
+public float2 GetTransmittanceTextureUvFromRMu(AtmosphereParamsGPU atmosphere, float r, float mu){
     //if(!(r >= atmosphere.radiusBottom && r <= atmosphere.radiusTop)){return {-1,-1};}
     //if(!(mu >= -1.0 && mu <= 1.0)) {}
 

@@ -1,5 +1,12 @@
 module Utils;
 
+
+public static const float m = 1.0;
+public static const float m2 = m * m;
+
+
+//===========================================
+
 public float inverseSqrt(float x) {
     return max(1.0 / sqrt(x), 0.f);
 }
@@ -159,6 +166,19 @@ public float3x3 CalculateTBN(float3 geomNormal, float4 tangnent, float3x3 normal
 public float3 PowFloat3(float3 v, float p){ 
     return float3(pow(v.x, p), pow(v.y, p), pow(v.z,p));
 }
+
+public float ClampCosine(float mu) {
+  return clamp(mu, float(-1.0), float(1.0));
+}
+
+public float ClampDistance(float d) {
+  return max(d, 0.0 * m);
+}
+
+public float SafeSqrt(float a) {
+  return sqrt(max(a, 0.0 * (m2)));
+}
+
 
 
 
