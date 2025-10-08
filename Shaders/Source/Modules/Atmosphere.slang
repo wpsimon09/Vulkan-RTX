@@ -2,12 +2,115 @@ module Atmosphere;
 
 import AtmosphereParameters;
 import Utils;
+import Intersections;
 //=========================================================================================================
+
+public static const float PI = 3.1415926535897932384626433832795;
 
 
 public float ClampRadius(AtmosphereParamsGPU atmosphere, float r) {
   return clamp(r, atmosphere.radiusBottom, atmosphere.radiusTop);
 }
+
+
+//==================================================================================================
+//======================================= HELPER FUNCTIONS  ========================================
+//==================================================================================================
+
+public float fromSubUvsToUnit(float u, float resolution) {
+	return (u - 0.5 / resolution) * (resolution / (resolution - 1.0)); 
+}
+
+public float fromUnitToSubUvs(float u, float resolution) {
+	 return (u + 0.5f / resolution) * (resolution / (resolution + 1.0));
+}
+
+
+/*
+Samples the medium extinction (i.e., absorption) for each component of the atmosphere.
+Calculates how much light is absorbed by Mie particles, Rayleigh particles, and ozone at a given world position.
+Returns the total extinction as the sum of all components.
+*/
+public float3 SampleMediumExctinction(AtmosphereParamsGPU atmosphere,float3 worldPosition){
+    const float viewHeight = length(worldPosition) - atmosphere.radiusBottom;
+
+    // get the denity of the medium in the given height 
+    // mie 1.2/H , rayileigh 8.0/H
+    const float densityMie = exp(atmosphere.mieDensity.layers[1].expScale * viewHeight);
+    const float densityRei = exp(atmosphere.rayleightDensity.layers[1].expScale * viewHeight);
+    const float densityOzo = atmosphere.getOzoneDensity(viewHeight); 
+
+    // get exctincion coeficient of differnet particales in the atmosphere and scaled it based on the height 
+    float3 mieExtinction = atmosphere.mieExtinction * densityMie;
+    float3 rayExtinction = atmosphere.rayLeightScattering * densityRei;
+    float3 ozoneExctinction = atmosphere.absorptionExctinction * densityOzo;
+
+    return mieExtinction + rayExtinction + ozoneExctinction; // total atentuation of the energy 
+}
+
+/*
+Samples the total scattering of light in the atmosphere, independent of direction.
+Calculates the contribution from Mie and Rayleigh scattering at a given world position.
+Ozone only absorbs light and does not contribute to scattering.
+Returns the sum of all scattering components.
+
+returns mie + phase + atmos, mie and phase are outputed separately in the parameters
+*/
+public float3 SampleMediumScattering(AtmosphereParamsGPU atmosphere, float3 worldPostion, out float3 mieScatter, out float3 rayScatter){
+    const float viewHeight = length(worldPostion) - atmosphere.radiusBottom;
+
+    // get the denity of the medium in the given height 
+    // densities are from the paper
+    //e^(-h / 1.2km)
+    const float densityMie = exp(atmosphere.mieDensity.layers[1].expScale * viewHeight);
+    //e^(-h / 8km) 
+    const float densityRei = exp(atmosphere.rayleightDensity.layers[1].expScale * viewHeight);
+    // ozone does not scatter light only absorbs 
+    //const float densityOzo = atmosphere.getOzoneDensity(viewHeight); 
+
+    // get exctincion coeficient of differnet particales in the atmosphere and scaled it based on the height 
+    float3 mieScattering = atmosphere.mieScattering * densityMie;
+    float3 rayleighScattering = atmosphere.rayLeightScattering * densityRei;
+    float3 ozoneScattering = float3(0.0f); // does not scatter light only absorbs
+
+    mieScatter = mieScattering;
+    rayScatter = rayleighScattering;
+
+    return mieScattering + rayleighScattering + ozoneScattering;
+}
+
+/*
+ Computes the lenght of integration based on the ray-sphere intersection tests (sphere being the plane)
+*/
+public float ComputeIntegrationLength(AtmosphereParamsGPU atmosphere, float3 worldPosition, float3 worldDirection){
+    
+    float3 planet0 = float3(0.0);
+    float planetIntersectionDistance = raySphereIntersectNearest(
+        worldPosition, worldDirection, planet0, atmosphere.radiusBottom);
+    float atmosphereIntersectionDistance = raySphereIntersectNearest(
+        worldPosition, worldDirection, planet0, atmosphere.radiusTop);
+
+    float integrationLength;
+    if((planetIntersectionDistance == -1.0 && atmosphereIntersectionDistance > 0.0)){
+        /* Ray missies both atmosphere and ground so we are not gonna ray march*/
+        return -1.0;
+    }    
+     else if((planetIntersectionDistance == -1.0) && (atmosphereIntersectionDistance > 0.0)){
+        /* ray intersects only atmosphere */
+        integrationLength = atmosphereIntersectionDistance;
+    }
+    else if((planetIntersectionDistance > 0.0) && (atmosphereIntersectionDistance == -1.0)){
+        /* ray intersects only planet */
+        integrationLength = planetIntersectionDistance;
+    } else {
+        /* ray intersects both planet and atmosphere -> return the first intersection */
+        integrationLength = min(planetIntersectionDistance, atmosphereIntersectionDistance);
+    }
+
+    return integrationLength;
+}
+
+
 //==================================================================================================
 //===================== TRANSMITANCE PRECOMPUTATION ================================================
 //==================================================================================================
@@ -150,9 +253,4 @@ float3 ComputeTransmittanceToTopAtmosphereBoundary(AtmosphereParamsGPU atmospher
     //  + mieTransmitance + ozoneTransmitance
     return exp(-(rayLeightTransmitance + mieTransmitance + ozoneTransmitance));
 }
-
-
-//==================================================================================================
-//===================== MULTIPLE SCATTERING PRECOMPUTEATION ========================================
-//==================================================================================================
 

@@ -59,6 +59,7 @@ enum class EEffectType : std::uint8_t
     BloomCombine,
     AtmosphereTransmitanceLUT,
     MultipleScatteringLUT,
+    SkyViewLUT
 };
 
 class EffectsLibrary

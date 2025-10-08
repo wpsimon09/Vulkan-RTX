@@ -269,6 +269,11 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     effects[EEffectType::MultipleScatteringLUT] = std::move(precommputeMultipleScattering);
 
+    //====================================================================================
+    auto skyViewLut = std::make_shared<VulkanUtils::VComputeEffect>(device, "Sky view LUT", "Shaders/Compiled/Atm_SkyViewLut.spv",
+                                                                    descLayoutCache, EShaderBindingGroup::ComputePostProecess);
+    effects[EEffectType::SkyViewLUT] = std::move(skyViewLut);
+
     BuildAllEffects();
 }
 

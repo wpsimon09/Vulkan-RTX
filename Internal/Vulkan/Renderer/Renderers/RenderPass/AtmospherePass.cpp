@@ -26,6 +26,9 @@ AtmospherePass::AtmospherePass(const VulkanCore::VDevice& device, ApplicationCor
     m_multipleScatteringLutEffect =
         effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::MultipleScatteringLUT);
 
+    m_skyViewLutEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::SkyViewLUT);
+
+
     Renderer::RenderTarget2CreatInfo transmitanceLutCi{256,
                                                        64,
                                                        false,
@@ -39,6 +42,9 @@ AtmospherePass::AtmospherePass(const VulkanCore::VDevice& device, ApplicationCor
     transmitanceLutCi.heigh = 32;
     transmitanceLutCi.width = 32;
     m_renderTargets.push_back(std::make_unique<RenderTarget2>(device, transmitanceLutCi));
+
+    transmitanceLutCi.width = 192;
+    transmitanceLutCi.heigh = 128;
 }
 
 void AtmospherePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)

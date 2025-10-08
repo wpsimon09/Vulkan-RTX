@@ -51,6 +51,7 @@ class AtmospherePass : public Renderer::RenderPass
   private:
     std::shared_ptr<VulkanUtils::VComputeEffect> m_transmitanceLutEffect;
     std::shared_ptr<VulkanUtils::VComputeEffect> m_multipleScatteringLutEffect;
+    std::shared_ptr<VulkanUtils::VComputeEffect> m_skyViewLutEffect;
 
     AtmosphereParameters m_atmosphereParams;
 };
