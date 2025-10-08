@@ -43,6 +43,7 @@ float3 SampleMediumExctinction(AtmosphereParamsGPU atmosphere,float3 worldPositi
     const float viewHeight = length(worldPosition) - atmosphere.radiusBottom;
 
     // get the denity of the medium in the given height 
+    // mie 1.2/H , rayileigh 8.0/H
     const float densityMie = exp(atmosphere.mieDensity.layers[1].expScale * viewHeight);
     const float densityRei = exp(atmosphere.rayleightDensity.layers[1].expScale * viewHeight);
     const float densityOzo = atmosphere.getOzoneDensity(viewHeight); 
@@ -65,9 +66,13 @@ float3 SampleMediumScattering(AtmosphereParamsGPU atmosphere, float3 worldPostio
     const float viewHeight = length(worldPostion) - atmosphere.radiusBottom;
 
     // get the denity of the medium in the given height 
+    // densities are from the paper
+    //e^(-h / 1.2km)
     const float densityMie = exp(atmosphere.mieDensity.layers[1].expScale * viewHeight);
+    //e^(-h / 8km) 
     const float densityRei = exp(atmosphere.rayleightDensity.layers[1].expScale * viewHeight);
-    const float densityOzo = atmosphere.getOzoneDensity(viewHeight); 
+    // ozone does not scatter light only absorbs 
+    //const float densityOzo = atmosphere.getOzoneDensity(viewHeight); 
 
     // get exctincion coeficient of differnet particales in the atmosphere and scaled it based on the height 
     float3 mieScattering = atmosphere.mieScattering * densityMie;
@@ -109,7 +114,7 @@ RayMarchResult IntegrateScatteredLuminance(AtmosphereParamsGPU atmosphere, float
     float3 accumTrans = float3(1.0);
 
     // stores accumlated light contribution during ray marching
-    float3 accumLight = float3(1.0);
+    float3 accumLight = float3(0.0);
 
     float oldRayShift = 0;
 
@@ -152,7 +157,7 @@ RayMarchResult IntegrateScatteredLuminance(AtmosphereParamsGPU atmosphere, float
         float3 sunLight = inEarthShadow * transmitanceToSun * mediumScattering * uniformPhase;
 
         float3 multiscatteriedContInt = (mediumScattering - mediumScattering * transIncreaseOverIntegraionStep) / mediumExctinction;
-        float3 inscatteerdContInt = (sunLight - sunLight * transIncreaseOverIntegraionStep) / mediumScattering;
+        float3 inscatteerdContInt = (sunLight - sunLight * transIncreaseOverIntegraionStep) / mediumExctinction;
 
         result.Multiscattering += accumTrans * multiscatteriedContInt;
         accumLight += accumTrans * inscatteerdContInt;
@@ -197,7 +202,6 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
 
     float sampleIdx = threadIdx.z;
 
-    
     // generates sphere samples
     float theta = acos(1.0 - 2.0 * (sampleIdx + 0.5) / SphereSamples);
     float phi = (2 * PI * sampleIdx) / golden_ration;
@@ -254,7 +258,7 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     
     GroupMemoryBarrierWithGroupSync();
 
-    if(threadIdx.x == 0 ) return;
+    if(threadIdx.z != 0 ) return;
 
     float3 multiscattSum = MultiscattSharedMem[0];
     float3 InScattLumSum = LShaderMem[0];
