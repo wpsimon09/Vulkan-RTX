@@ -23,6 +23,9 @@ AtmospherePass::AtmospherePass(const VulkanCore::VDevice& device, ApplicationCor
     m_transmitanceLutEffect =
         effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::AtmosphereTransmitanceLUT);
 
+    m_multipleScatteringLutEffect =
+        effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::MultipleScatteringLUT);
+
     Renderer::RenderTarget2CreatInfo transmitanceLutCi{256,
                                                        64,
                                                        false,
@@ -111,10 +114,10 @@ void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cm
 
     pcInfo.layout = m_multipleScatteringLutEffect->GetPipelineLayout();
 
-    m_transmitanceLutEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+    m_multipleScatteringLutEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-    cmdBuffer.GetCommandBuffer().dispatch(m_renderTargets[EAtmosphereAttachments::MultipleScatteringLut]->GetWidth() / 8,
-                                          m_renderTargets[EAtmosphereAttachments::MultipleScatteringLut]->GetHeight() / 8, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(m_renderTargets[EAtmosphereAttachments::MultipleScatteringLut]->GetWidth(),
+                                          m_renderTargets[EAtmosphereAttachments::MultipleScatteringLut]->GetHeight(), 1);
 
     VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EAtmosphereAttachments::MultipleScatteringLut]->GetPrimaryImage(),
                                           cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
