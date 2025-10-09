@@ -16,6 +16,23 @@ public float ClampRadius(AtmosphereParamsGPU atmosphere, float r) {
 //==================================================================================================
 //======================================= HELPER FUNCTIONS  ========================================
 //==================================================================================================
+public bool  moveToTopAtmosphere(inout float3 worldPosition, float3 worldDirection, float2 atmosPhereBoundaries){
+    float3 planetOrigin = float3(0.0);
+    if(length(worldPosition) > atmosPhereBoundaries.y){
+        float distToTopAtmosphereIntersection = raySphereIntersectNearest(
+			worldPosition, worldDirection, planetOrigin, atmosPhereBoundaries.y);
+    
+        	/* No intersection with the atmosphere */
+		if (distToTopAtmosphereIntersection == -1.0) { return false; }
+		else
+		{
+			float3 upOffset = normalize(worldPosition) * -0.01;
+			worldPosition += worldDirection * distToTopAtmosphereIntersection + upOffset;
+		}
+    }
+    return true;
+
+}
 
 public float2 UvToSkyViewLUTParams(float2 uv, float2 atmosPhereBoundaries, float2 skyViewDimenstions, float viewHeight){
     uv = float2(fromSubUvsToUnit(uv.x, skyViewDimenstions.x),
@@ -61,8 +78,8 @@ public float2 SkyViewLutParamsToUv(bool intersectsGround, float2 LUTParams, floa
     uv.x = SafeSqrt(LUTParams.y / PI);
     uv = float2(
         fromUnitToSubUvs(uv.x, skyViewDimensions.x),
-        fromUnitToSubUvs(uv.y, skyViewDimensions.y);
-    )
+        fromUnitToSubUvs(uv.y, skyViewDimensions.y)
+    );
     return uv;
 }
 

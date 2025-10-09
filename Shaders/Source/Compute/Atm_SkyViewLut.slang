@@ -3,6 +3,7 @@ import AtmosphereParameters;
 import Light;
 import Intersections;
 import Core;
+import Utils;
 
 Sampler2D transmitanceLut;
 readonly Texture2D multiscatteringLut;
@@ -134,5 +135,22 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     float3 worldPosition = float3(0.0, 0.0, camearHeight + atmosParams.radiusBottom);
 
     float2 uv = float2(threadIdx.xy) / int2((int)width, (int)height);
-    float2 LUTParams = 
+    float2 LUTParams = UvToSkyViewLUTParams(
+        uv, atmosphereBoundaries, float2(width,height),length(worldPosition)
+    );
+    float sunZenithCosAngle = dot(normalize(worldPosition), sunDirection);
+    float3 localSunDirection = normalize(float3(SafeSqrt(1.0 - sunZenithCosAngle * sunZenithCosAngle),0.0, sunZenithCosAngle));
+
+    float viewZenitSinAngle = SafeSqrt(1.0 - LUTParams.x * LUTParams.x);
+
+    float3 worldDirection = float3(cos(LUTParams.y) * sin(LUTParams.x),
+           sin(LUTParams.y) * sin(LUTParams.x), cos(LUTParams.x));
+
+    if(!moveToTopAtmosphere(worldPosition, worldDirection, atmosphereBoundaries)){
+        // we do not intersetc atmosphere, thus we store nothign
+        skyViewLut[threadIdx.xy] = float4(float3(0.0), 1.0);
+        return;
+    }
+    float3 Luminance = integrateScatteredLuminance(atmosParams, worldPosition, worldDirection, sunDirection, 30);
+    skyViewLut[threadIdx.xy] = float4(Luminance, 1.0);
 }
