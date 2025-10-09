@@ -1,11 +1,17 @@
 import Atmosphere;
 import AtmosphereParameters;
 import Light;
+import Intersections;
+import Core;
 
 Sampler2D transmitanceLut;
 readonly Texture2D multiscatteringLut;
 RWTexture2D skyViewLut;
 ConstantBuffer<LightInfo> light;
+ConstantBuffer<GlobalData> globalData;
+
+[vk::push_constant]
+AtmosphereParamsCPU atmosphereParamsCPU;
 
 const static float cameraScale = 0.1;
 
@@ -89,11 +95,44 @@ float3 integrateScatteredLuminance(AtmosphereParamsGPU atmosphere, float3 worldP
 
         // get how much light is traveling in the direction we are interested in by multiplying scattered light with phase functino
         // L_in_scat = p * L_scate (in scattered light formula)
-        float3 phaseTimesScattering = mediumScattering.Mie * miePhaseValue + mediumScattering.Ray * rayleighPhase;
+        float3 phaseTimesScattering = mediumScattering.Mie * miePhaseValue + mediumScattering.Ray * rayLeightPhaseValue;
 
-        
+        float earthIntersectionDistance = raySphereIntersectNearest(newPos, sunDirection, 0.0 + 0.001 * upVector, atmosphere.radiusBottom);
+        float inEarthShadow = earthIntersectionDistance == -1.0 ? 1.0 : 0.0;
+
+        float3 multiscatteredLuminance = getMultipleScattering(atmosphere, newPos, dot(sunDirection, upVector));
 
 
+        float3 sunLight = inEarthShadow * transmitanceToSun * phaseTimesScattering + multiscatteredLuminance * (mediumScattering.Ray + mediumScattering.Mie);
+
+        // absorption
+        float3 transIncreaseOverIntegraionStep = exp(-(mediumExctinciton * integrationStep));
+
+        float3 sunLightInteg = (sunLight - sunLight * transIncreaseOverIntegraionStep) / mediumExctinciton;
+
+        accumLight += accumTrans * sunLightInteg;
+        accumTrans *= transIncreaseOverIntegraionStep;
     }
+    return accumLight;
 
+}
+
+[shader("compute")]
+[numthreads(16, 16, 1)]
+void computeMain(int3 threadIdx: SV_DispatchThreadID){
+    
+    float width, height;
+    skyViewLut.GetDimensions(width, height);
+    
+    AtmosphereParamsGPU atmosParams = atmosphereParamsCPU.Parse();
+
+
+    float2 atmosphereBoundaries = float2(atmosParams.radiusBottom, atmosParams.radiusTop);
+    const float camearHeight = globalData.cameraPostiion.z * cameraScale;
+
+    float3 sunDirection = light.dirLight.direction.xyz;
+    float3 worldPosition = float3(0.0, 0.0, camearHeight + atmosParams.radiusBottom);
+
+    float2 uv = float2(threadIdx.xy) / int2((int)width, (int)height);
+    float2 LUTParams = 
 }

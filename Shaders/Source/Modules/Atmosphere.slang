@@ -17,6 +17,55 @@ public float ClampRadius(AtmosphereParamsGPU atmosphere, float r) {
 //======================================= HELPER FUNCTIONS  ========================================
 //==================================================================================================
 
+public float2 UvToSkyViewLUTParams(float2 uv, float2 atmosPhereBoundaries, float2 skyViewDimenstions, float viewHeight){
+    uv = float2(fromSubUvsToUnit(uv.x, skyViewDimenstions.x),
+                fromSubUvsToUnit(uv.y, skyViewDimenstions.y));
+    
+    float beta = asin(atmosPhereBoundaries.x / viewHeight);
+    float zenithHorizonAngle = PI - beta;
+
+    float viewZenithAngle;
+    float lightViewAngle;
+
+    /* Non uniform mapping as described in the paper.
+       Since there is low visual frequency through the map, we should 
+       put more pixels towards horizon to get the best results 
+    */
+    if(uv.y < 0.5){
+        float coord = 1.0 - (1.0 - 2.0 * uv.y) * (1.0 - 2.0 * uv.y);
+        viewZenithAngle = zenithHorizonAngle * coord;
+    }
+    else{
+        float coord = (uv.y * 2.0 -1.0) * (uv.y * 2.0 - 1.0);
+        viewZenithAngle = zenithHorizonAngle + beta * coord;
+    }
+    lightViewAngle = (uv.x * uv.x) * PI;
+    return float2(viewZenithAngle, lightViewAngle);
+}
+
+public float2 SkyViewLutParamsToUv(bool intersectsGround, float2 LUTParams, float viewHeight, float2 atmosBoundaries, float2 skyViewDimensions){
+    float2 uv;
+    float beta = asin(atmosBoundaries.x / viewHeight);
+    float zeithHorizonAngle = PI - beta;
+
+    if(!intersectsGround){
+        float coord = LUTParams.x / zeithHorizonAngle;
+        coord = (1.0 - SafeSqrt(1.0 - coord)) / 2.0;
+        uv.y = coord;
+    }
+    else{
+        float coord = (LUTParams.x - zeithHorizonAngle) / beta;
+        coord = (SafeSqrt(coord) + 1.0) / 2.0;
+        uv.y = coord;
+    }
+    uv.x = SafeSqrt(LUTParams.y / PI);
+    uv = float2(
+        fromUnitToSubUvs(uv.x, skyViewDimensions.x),
+        fromUnitToSubUvs(uv.y, skyViewDimensions.y);
+    )
+    return uv;
+}
+
 public float fromSubUvsToUnit(float u, float resolution) {
 	return (u - 0.5 / resolution) * (resolution / (resolution - 1.0)); 
 }
