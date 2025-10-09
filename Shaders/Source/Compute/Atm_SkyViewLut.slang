@@ -5,10 +5,19 @@ import Intersections;
 import Core;
 import Utils;
 
+[[vk::binding(0,0)]]
 Sampler2D transmitanceLut;
+
+[[vk::binding(1,0)]]
 readonly Texture2D multiscatteringLut;
+
+[[vk::binding(2,0)]]
 RWTexture2D skyViewLut;
+
+[[vk::binding(3,0)]]
 ConstantBuffer<LightInfo> light;
+
+[[vk::binding(4,0)]]
 ConstantBuffer<GlobalData> globalData;
 
 [vk::push_constant]
@@ -129,7 +138,7 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
 
 
     float2 atmosphereBoundaries = float2(atmosParams.radiusBottom, atmosParams.radiusTop);
-    const float camearHeight = globalData.cameraPostiion.z * cameraScale;
+    const float camearHeight = globalData.cameraPostiion.y * cameraScale;
 
     float3 sunDirection = light.dirLight.direction.xyz;
     float3 worldPosition = float3(0.0, 0.0, camearHeight + atmosParams.radiusBottom);
@@ -148,7 +157,7 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
 
     if(!moveToTopAtmosphere(worldPosition, worldDirection, atmosphereBoundaries)){
         // we do not intersetc atmosphere, thus we store nothign
-        skyViewLut[threadIdx.xy] = float4(float3(0.0), 1.0);
+        skyViewLut[threadIdx.xy] = float4(float3(0.4), 1.0);
         return;
     }
     float3 Luminance = integrateScatteredLuminance(atmosParams, worldPosition, worldDirection, sunDirection, 30);

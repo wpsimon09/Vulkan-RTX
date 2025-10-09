@@ -45,6 +45,7 @@ AtmospherePass::AtmospherePass(const VulkanCore::VDevice& device, ApplicationCor
 
     transmitanceLutCi.width = 192;
     transmitanceLutCi.heigh = 128;
+    m_renderTargets.push_back(std::make_unique<RenderTarget2>(device, transmitanceLutCi));
 }
 
 void AtmospherePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
@@ -52,25 +53,37 @@ void AtmospherePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferMana
     renderContext->transmitanceLut = &m_renderTargets[EAtmosphereAttachments::TransmitanceLUT]->GetPrimaryImage();
 
     m_transmitanceLutEffect->SetNumWrites(0, 1, 0);
-    m_transmitanceLutEffect->WriteImage(
-        currentFrameIndex, 0, 0,
-        m_renderTargets[EAtmosphereAttachments::TransmitanceLUT]->GetPrimaryImage().GetDescriptorImageInfo());
+    m_transmitanceLutEffect->WriteImage(currentFrameIndex, 0, 0,
+                                        GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::TransmitanceLUT));
     m_transmitanceLutEffect->ApplyWrites(currentFrameIndex);
 
     //=============================
 
     m_multipleScatteringLutEffect->SetNumWrites(0, 2, 0);
     // precomputed transmitance
-    m_multipleScatteringLutEffect->WriteImage(
-        currentFrameIndex, 0, 0,
-        m_renderTargets[EAtmosphereAttachments::TransmitanceLUT]->GetPrimaryImage().GetDescriptorImageInfo(
-            VulkanCore::VSamplers::Sampler2D));
+    m_multipleScatteringLutEffect->WriteImage(currentFrameIndex, 0, 0,
+                                              GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::TransmitanceLUT,
+                                                                                 VulkanCore::VSamplers::Sampler2D));
     //output
-    m_multipleScatteringLutEffect->WriteImage(
-        currentFrameIndex, 0, 1,
-        m_renderTargets[EAtmosphereAttachments::MultipleScatteringLut]->GetPrimaryImage().GetDescriptorImageInfo());
+    m_multipleScatteringLutEffect->WriteImage(currentFrameIndex, 0, 1,
+                                              GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::MultipleScatteringLut));
 
     m_multipleScatteringLutEffect->ApplyWrites(currentFrameIndex);
+
+    //=============================
+
+    m_skyViewLutEffect->SetNumWrites(2, 3, 0);
+    m_skyViewLutEffect->WriteImage(currentFrameIndex, 0, 0,
+                                   GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::TransmitanceLUT,
+                                                                      VulkanCore::VSamplers::Sampler2D));
+    m_skyViewLutEffect->WriteImage(currentFrameIndex, 0, 1,
+                                   GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::MultipleScatteringLut));
+
+    m_skyViewLutEffect->WriteImage(currentFrameIndex, 0, 2, GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::SkyViewLut));
+    m_skyViewLutEffect->WriteBuffer(currentFrameIndex, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex]);
+    m_skyViewLutEffect->WriteBuffer(currentFrameIndex, 0, 4, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+
+    m_skyViewLutEffect->ApplyWrites(currentFrameIndex);
 }
 
 void AtmospherePass::Update(int                                   currentFrame,
@@ -126,6 +139,21 @@ void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cm
                                           m_renderTargets[EAtmosphereAttachments::MultipleScatteringLut]->GetHeight(), 1);
 
     VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EAtmosphereAttachments::MultipleScatteringLut]->GetPrimaryImage(),
+                                          cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
+
+    //========================================
+    // Sky view LUT
+    m_skyViewLutEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
+    m_skyViewLutEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+
+    pcInfo.layout = m_skyViewLutEffect->GetPipelineLayout();
+
+    m_skyViewLutEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+
+    cmdBuffer.GetCommandBuffer().dispatch(m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetWidth() / 16,
+                                          m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetHeight() / 16, 1);
+
+    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetPrimaryImage(),
                                           cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
 }
 

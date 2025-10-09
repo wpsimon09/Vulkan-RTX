@@ -9,6 +9,7 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 
 #include <vector>
+#include <vulkan/vulkan_structs.hpp>
 
 
 namespace VulkanStructs {
@@ -19,7 +20,7 @@ namespace VulkanUtils {
 struct RenderContext;
 class VRayTracingDataManager;
 class VUniformBufferManager;
-}
+}  // namespace VulkanUtils
 namespace Renderer {
 class RenderTarget2;
 }
@@ -27,7 +28,7 @@ namespace VulkanCore {
 class VCommandBuffer;
 class VImage2;
 class VDevice;
-}
+}  // namespace VulkanCore
 
 namespace Renderer {
 
@@ -41,24 +42,31 @@ class RenderPass
 
     virtual void Init(int                                 currentFrameIndex,
                       VulkanUtils::VUniformBufferManager& uniformBufferManager,
-                      VulkanUtils::RenderContext*         renderContext)    = 0;
+                      VulkanUtils::RenderContext*         renderContext) = 0;
 
     virtual void Update(int                                   currentFrame,
                         VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                         VulkanUtils::RenderContext*           renderContext,
-                        VulkanStructs::PostProcessingContext* postProcessingContext)  = 0;
+                        VulkanStructs::PostProcessingContext* postProcessingContext) = 0;
 
-    virtual void Render(int currentFrame,VulkanCore::VCommandBuffer& cmdBuffer,  VulkanUtils::RenderContext* renderContext )  = 0;
+    virtual void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) = 0;
     virtual void Destroy();
 
-    RenderTarget2& GetRenderTarget(int index = 0);
+    RenderTarget2&       GetRenderTarget(int index = 0);
     VulkanCore::VImage2& GetResolvedResult(int index = 0);
     VulkanCore::VImage2& GetPrimaryResult(int index = 0);
 
   protected:
-    const VulkanCore::VDevice& m_device;
+    const VulkanCore::VDevice&                            m_device;
     std::vector<std::unique_ptr<Renderer::RenderTarget2>> m_renderTargets;
-    int m_width, m_height;
+    int                                                   m_width, m_height;
+
+  protected:
+    vk::DescriptorImageInfo GetPrimaryAttachemntDescriptorInfo(int attachment, vk::Sampler& sampler);
+    vk::DescriptorImageInfo GetPrimaryResolvedDescriptorInfo(int attachment, vk::Sampler& sampler);
+
+    vk::DescriptorImageInfo GetPrimaryAttachemntDescriptorInfo(int attachment);
+    vk::DescriptorImageInfo GetPrimaryResolvedDescriptorInfo(int attachment);
 };
 
 }  // namespace Renderer

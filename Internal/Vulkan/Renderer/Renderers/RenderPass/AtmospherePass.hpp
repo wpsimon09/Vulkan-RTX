@@ -30,7 +30,8 @@ namespace Renderer {
 enum EAtmosphereAttachments
 {
     TransmitanceLUT = 0,
-    MultipleScatteringLut
+    MultipleScatteringLut,
+    SkyViewLut
 };
 
 class AtmospherePass : public Renderer::RenderPass
