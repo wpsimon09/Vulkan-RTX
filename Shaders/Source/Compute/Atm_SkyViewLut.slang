@@ -140,7 +140,7 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     const float camearHeight = globalData.cameraPostiion.y * cameraScale;
 
     float3 sunDirection = light.dirLight.direction.xyz;
-    float3 worldPosition = globalData.cameraPostiion.xyz + float3(0.0, 0.0, atmosParams.radiusBottom);
+    float3 worldPosition = float3(0.0, 0.0, camearHeight) + float3(0.0, 0.0, atmosParams.radiusBottom);
 
     float2 uv = float2(threadIdx.xy) / float2(width, height);
     float2 LUTParams = UvToSkyViewLUTParams(
