@@ -31,7 +31,7 @@ RayMarchResult IntegrateScatteredLuminance(AtmosphereParamsGPU atmosphere, float
  
     float integrationLength = ComputeIntegrationLength(atmosphere, worldPosition, worldDirection);
 
-    if(integrationLength <= 0) {return {};}
+    if(integrationLength <= 0) {return {1.0, 0.0, 0.0};}
 
     float integrationStep = integrationLength / float(sampleCount);
 

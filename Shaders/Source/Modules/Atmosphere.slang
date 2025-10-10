@@ -157,7 +157,7 @@ public float ComputeIntegrationLength(AtmosphereParamsGPU atmosphere, float3 wor
         worldPosition, worldDirection, planet0, atmosphere.radiusTop);
 
     float integrationLength;
-    if((planetIntersectionDistance == -1.0 && atmosphereIntersectionDistance > 0.0)){
+    if((planetIntersectionDistance == -1.0 && atmosphereIntersectionDistance == -1.0)){
         /* Ray missies both atmosphere and ground so we are not gonna ray march*/
         return -1.0;
     }    

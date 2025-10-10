@@ -62,7 +62,7 @@ float3 integrateScatteredLuminance(AtmosphereParamsGPU atmosphere, float3 worldP
     // how far the ray will travel
     float integrationlength = ComputeIntegrationLength(atmosphere, worldPosition, worldDirection);
 
-    if(integrationlength <= 0) {return {};}
+    if(integrationlength <= 0) {return {1.0, 0.0, 0.0};}
 
     float cosTheta = dot(sunDirection, worldDirection);
     float miePhaseValue = cornetteShanksMiePhaseFunction(atmosphere.miePhaseG, -cosTheta);
@@ -87,7 +87,7 @@ float3 integrateScatteredLuminance(AtmosphereParamsGPU atmosphere, float3 worldP
         float3 newPos = worldPosition + integrationStep * worldDirection;
         
         ScatteringSample mediumScattering;
-        SampleMediumScattering(atmosphere, worldPosition, mediumScattering.Mie, mediumScattering.Ray);
+        SampleMediumScattering(atmosphere, newPos, mediumScattering.Mie, mediumScattering.Ray);
         float3 mediumExctinciton = SampleMediumExctinction(atmosphere, worldPosition );
 
         // the shift changes the angle to the sun and we have to recalcualte here 
@@ -116,7 +116,7 @@ float3 integrateScatteredLuminance(AtmosphereParamsGPU atmosphere, float3 worldP
         float3 sunLight = inEarthShadow * transmitanceToSun * phaseTimesScattering + multiscatteredLuminance * (mediumScattering.Ray + mediumScattering.Mie);
 
         // absorption
-        float3 transIncreaseOverIntegraionStep = exp(-(mediumExctinciton * integrationStep));
+        float3 transIncreaseOverIntegraionStep = exp(-(mediumExctinciton * dIntStep));
 
         float3 sunLightInteg = (sunLight - sunLight * transIncreaseOverIntegraionStep) / mediumExctinciton;
 
@@ -148,18 +148,30 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     );
     
     float sunZenithCosAngle = dot(normalize(worldPosition), sunDirection);
-    float3 localSunDirection = normalize(float3(SafeSqrt(1.0 - sunZenithCosAngle * sunZenithCosAngle),sunZenithCosAngle, 0.0 ));
+    float3 localSunDirection = normalize(float3(
+        SafeSqrt(1.0 - sunZenithCosAngle * sunZenithCosAngle),
+        0.0,
+        sunZenithCosAngle));
 
     float viewZenitSinAngle = SafeSqrt(1.0 - LUTParams.x * LUTParams.x);
     
+    /*
     float3 worldDirection = float3(cos(LUTParams.y) * sin(LUTParams.x),
            sin(LUTParams.y) * sin(LUTParams.x), cos(LUTParams.x));
-    
+    */
+
+    float3 worldDirection = float3(
+        cos(LUTParams.y) * sin(LUTParams.x),
+        sin(LUTParams.y) * sin(LUTParams.x),
+        cos(LUTParams.x)
+    );
+
     if(!moveToTopAtmosphere(worldPosition, worldDirection, atmosphereBoundaries)){
         // we do not intersetc atmosphere, thus we store nothign
         skyViewLut[threadIdx.xy] = float4(float3(0.4), 1.0);
         return;
     }
     float3 Luminance = integrateScatteredLuminance(atmosParams, worldPosition, worldDirection, sunDirection, 30);
+    
     skyViewLut[threadIdx.xy] = float4(Luminance, 1.0);
 }
