@@ -7,6 +7,7 @@
 #include "Application/Structs/ParameterStructs.hpp"
 #include "RenderPass.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 
 namespace VulkanStructs {
 struct PostProcessingContext;
@@ -31,7 +32,8 @@ enum EAtmosphereAttachments
 {
     TransmitanceLUT = 0,
     MultipleScatteringLut,
-    SkyViewLut
+    SkyViewLut,
+    AtmosphereComposition
 };
 
 class AtmospherePass : public Renderer::RenderPass
@@ -53,6 +55,9 @@ class AtmospherePass : public Renderer::RenderPass
     std::shared_ptr<VulkanUtils::VComputeEffect> m_transmitanceLutEffect;
     std::shared_ptr<VulkanUtils::VComputeEffect> m_multipleScatteringLutEffect;
     std::shared_ptr<VulkanUtils::VComputeEffect> m_skyViewLutEffect;
+    // final composition of the atmosphere
+    std::shared_ptr<VulkanUtils::VRasterEffect> m_atmospherePassEffect;
+
 
     AtmosphereParameters m_atmosphereParams;
 };

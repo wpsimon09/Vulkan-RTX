@@ -1,3 +1,4 @@
+// based on https://github.com/MatejSakmary/atmosphere-bac/blob/rewrite/shaders/multiscatteringLUT.glsl
 import Atmosphere;
 import AtmosphereParameters;
 import Light;

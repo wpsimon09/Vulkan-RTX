@@ -381,8 +381,14 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
 
     cmdB.endRendering();
 
-    m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(
-        cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal, barrierPos.Switch());
+    //TODO: this is being transitioned but the FOG pass (not yet) will draw to this as well as atmosphere pass, maybe it is better to keep the transition at the very end
+    if(!renderContext->atmosphereCall.has_value())
+    {
+        // transition of the colour attachemtn will be done in atmosphere / fog draw call
+        m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                                                vk::ImageLayout::eColorAttachmentOptimal,
+                                                                                barrierPos.Switch());
+    }
 
     barrierPos = {vk::PipelineStageFlagBits2::eColorAttachmentOutput | vk::PipelineStageFlagBits2::eLateFragmentTests,
                   vk::AccessFlagBits2::eColorAttachmentWrite | vk::AccessFlagBits2::eDepthStencilAttachmentWrite,

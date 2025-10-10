@@ -14,15 +14,15 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     : m_device(device)
     , m_renderTargetInfo(m_renderTargetInfo)
 {
-     //==================================================
+    //==================================================
     // Creat main attachment image
     //==================================================
     VulkanCore::VImage2CreateInfo attachemtImageCI;
-    attachemtImageCI.format    = m_renderTargetInfo.format;
-    attachemtImageCI.height    = m_renderTargetInfo.heigh;
-    attachemtImageCI.width     = m_renderTargetInfo.width;
-    attachemtImageCI.layout    = m_renderTargetInfo.initialLayout;
-    attachemtImageCI.samples   = m_renderTargetInfo.multiSampled ? m_device.GetSampleCount() : vk::SampleCountFlagBits::e1;
+    attachemtImageCI.format = m_renderTargetInfo.format;
+    attachemtImageCI.height = m_renderTargetInfo.heigh;
+    attachemtImageCI.width  = m_renderTargetInfo.width;
+    attachemtImageCI.layout = m_renderTargetInfo.initialLayout;
+    attachemtImageCI.samples = m_renderTargetInfo.multiSampled ? m_device.GetSampleCount() : vk::SampleCountFlagBits::e1;
     attachemtImageCI.mipLevels = 1;
     attachemtImageCI.aspecFlags = m_renderTargetInfo.isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
     if(m_renderTargetInfo.isDepth)
@@ -137,8 +137,6 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, const VulkanCore
 }
 
 
-
-
 vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfo(vk::ImageLayout layout, vk::AttachmentLoadOp loadOp, vk::AttachmentStoreOp storeOp)
 {
     bool                        shouldResolve = m_renderTargetInfo.resolveMode != vk::ResolveModeFlagBits::eNone;
@@ -200,7 +198,11 @@ VulkanCore::VImage2& RenderTarget2::GetResolvedImage() const
 {
     return *m_resolvedAttachment;
 }
-VulkanCore::VImage2& RenderTarget2::GetSwapChainImage(int index) const {assert(m_isForSwapChain && "Render target is not for swap chain !"); return *m_swapChainImages[index];}
+VulkanCore::VImage2& RenderTarget2::GetSwapChainImage(int index) const
+{
+    assert(m_isForSwapChain && "Render target is not for swap chain !");
+    return *m_swapChainImages[index];
+}
 
 uint32_t RenderTarget2::GetWidth()
 {
@@ -239,14 +241,16 @@ bool RenderTarget2::IsForSwapChain() const
 
 void RenderTarget2::Destroy()
 {
-    if (m_primaryAttachment) {
+    if(m_primaryAttachment)
+    {
         m_primaryAttachment->Destroy();
     }
     if(m_resolvedAttachment)
         m_resolvedAttachment->Destroy();
 
-    if (!m_swapChainImages.empty()) {
-        for(const auto& swapChainImage: m_swapChainImages)
+    if(!m_swapChainImages.empty())
+    {
+        for(const auto& swapChainImage : m_swapChainImages)
         {
             swapChainImage->Destroy();
         }

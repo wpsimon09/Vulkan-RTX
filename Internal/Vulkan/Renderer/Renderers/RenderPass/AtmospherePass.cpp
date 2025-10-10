@@ -5,6 +5,8 @@
 #include "AtmospherePass.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
+#include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
+#include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
@@ -12,6 +14,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
+#include <exception>
 #include <memory>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_structs.hpp>
@@ -86,6 +89,22 @@ void AtmospherePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferMana
     m_skyViewLutEffect->WriteBuffer(currentFrameIndex, 0, 4, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
 
     m_skyViewLutEffect->ApplyWrites(currentFrameIndex);
+
+    //=============================
+
+    m_atmospherePassEffect->SetNumWrites(2, 4, 0);
+    m_atmospherePassEffect->WriteBuffer(currentFrameIndex, 0, 0,
+                                        uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+    m_atmospherePassEffect->WriteBuffer(currentFrameIndex, 0, 1,
+                                        uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex]);
+    m_atmospherePassEffect->WriteImage(currentFrameIndex, 0, 2,
+                                       renderContext->depthBuffer->GetPrimaryImage().GetDescriptorImageInfo(
+                                           VulkanCore::VSamplers::Sampler2D));
+    m_atmospherePassEffect->WriteImage(currentFrameIndex, 0, 3,
+                                       GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::SkyViewLut,
+                                                                          VulkanCore::VSamplers::Sampler2D));
+
+    m_atmospherePassEffect->ApplyWrites(currentFrameIndex);
 }
 
 void AtmospherePass::Update(int                                   currentFrame,
@@ -99,13 +118,55 @@ void AtmospherePass::Update(int                                   currentFrame,
 
 void AtmospherePass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
 {
-    std::cout << "Rendering atmospherer\n";
+    //!NOTE: it will render to the final rendered image and not to its own
+
+
+    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {renderContext->lightPassOutputRenderTarget->GenerateAttachmentInfo(
+        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore)};
+
+    vk::RenderingInfo renderingInfo{};
+    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
+    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
+    renderingInfo.layerCount           = 1;
+    renderingInfo.colorAttachmentCount = renderingOutputs.size();
+    renderingInfo.pColorAttachments    = renderingOutputs.data();
+    renderingInfo.pDepthAttachment     = nullptr;
+
+    auto& cmdB = cmdBuffer.GetCommandBuffer();
+
+    cmdB.beginRendering(&renderingInfo);
+
+    Renderer::ConfigureViewPort(cmdB, renderingInfo.renderArea.extent.width, renderingInfo.renderArea.extent.height);
+
+    cmdB.setStencilTestEnable(false);
+
+    m_atmospherePassEffect->BindPipeline(cmdB);
+    m_atmospherePassEffect->BindDescriptorSet(cmdB, currentFrame, 0);
+
+    vk::PushConstantsInfo pcInfo;
+    pcInfo.layout     = m_atmospherePassEffect->GetPipelineLayout();
+    pcInfo.offset     = 0;
+    pcInfo.pValues    = &m_atmosphereParams;
+    pcInfo.size       = sizeof(m_atmosphereParams);
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+    m_atmospherePassEffect->CmdPushConstant(cmdB, pcInfo);
+
+    cmdB.draw(3, 1, 0, 0);
+
+    cmdB.endRendering();
+
+    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                                                vk::AccessFlagBits2::eShaderRead, vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                vk::AccessFlagBits2::eColorAttachmentWrite};
+
+    renderContext->lightPassOutputRenderTarget->TransitionAttachments(
+        cmdBuffer, vk::ImageLayout::eAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos.Switch());
 }
 
 void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
 {
 
-    Utils::Logger::LogInfo("Precomputing transmitance");
     m_transmitanceLutEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_transmitanceLutEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
 
@@ -159,6 +220,9 @@ void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cm
                                           cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
 }
 
-void AtmospherePass::Destroy() {}
+void AtmospherePass::Destroy()
+{
+    RenderPass::Destroy();
+}
 
 }  // namespace Renderer

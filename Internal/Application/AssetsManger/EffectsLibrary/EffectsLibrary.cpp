@@ -274,6 +274,14 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
                                                                     descLayoutCache, EShaderBindingGroup::ComputePostProecess);
     effects[EEffectType::SkyViewLUT] = std::move(skyViewLut);
 
+    //====================================================================================
+    auto atmospherePass = std::make_shared<VulkanUtils::VRasterEffect>(device, "Atmosphere composition",
+                                                                       "Shaders/Compiled/AtmospherePass.vert.spv",
+                                                                       "Shaders/Compiled/AtmospherePass.frag.spv",
+                                                                       descLayoutCache, EShaderBindingGroup::PostProcessing);
+
+    effects[EEffectType::AtmospherePass] = std::move(atmospherePass);
+
     BuildAllEffects();
 }
 

@@ -75,9 +75,10 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_fogPass           = std::make_unique<Renderer::FogPass>(device, effectsLibrary, width, height);
     m_atmospherePass    = std::make_unique<Renderer::AtmospherePass>(device, effectsLibrary, width, height);
 
-    m_renderContextPtr->normalMap        = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
-    m_renderContextPtr->positionMap      = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
-    m_renderContextPtr->depthBuffer      = &m_gBufferPass->GetDepthAttachment();
+    m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
+    m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
+    m_renderContextPtr->depthBuffer = &m_gBufferPass->GetDepthAttachment();
+    m_renderContextPtr->lightPassOutputRenderTarget = &m_forwardRenderPass->GetRenderTarget(EForwardRenderAttachments::Main);
     m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
     m_renderContextPtr->lightPassOutput  = &m_forwardRenderPass->GetResolvedResult();
 
@@ -130,13 +131,6 @@ void ForwardRenderer::Render(int                                       currentFr
     // generates depth buffer
     DepthPrePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
-    //============================
-    // Atmosphere pass
-    if(m_renderContextPtr->atmosphereCall.has_value())
-    {
-        AtmospherePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
-    }
-
     //===========================
     // generates shadow mapp in  screen space
     ShadowMapPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
@@ -148,6 +142,15 @@ void ForwardRenderer::Render(int                                       currentFr
     //============================
     // uses forward renderer to render the scene
     DrawScene(currentFrameIndex, cmdBuffer, uniformBufferManager);
+
+
+    //============================
+    // Atmosphere pass
+    if(m_renderContextPtr->atmosphereCall.has_value())
+    {
+        // ** renderes the scene to the output of forward render !
+        AtmospherePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
+    }
 
     //==================================
     // render the fog if it is in scene
