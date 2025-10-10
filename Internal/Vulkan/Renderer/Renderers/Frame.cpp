@@ -131,8 +131,7 @@ void Frame::Init()
         //init post processing system
         m_postProcessingSystem->Init(i, m_uniformBufferManager, &m_renderContext, &m_postProcessingContext);
 
-        //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(0), i);
-        m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(*m_renderContext.skyViewLut, i);
+        m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(0), i);
 
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
@@ -207,8 +206,7 @@ void Frame::Update(ApplicationCore::ApplicationState& applicationState)
     m_postProcessingContext.luminanceAverageParameters    = &applicationState.GetLuminanceAverageParameters();
     m_postProcessingContext.deltaTime                     = ImGui::GetIO().DeltaTime;
 
-    //TODO: uncomment once done with debugging
-    //m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_frameInFlightID), m_frameInFlightID);
+    m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_frameInFlightID), m_frameInFlightID);
 }
 
 

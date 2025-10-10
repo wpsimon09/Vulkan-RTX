@@ -288,11 +288,11 @@ void VulkanCore::VGraphicsPipeline::EnableBlendingAlpha(int numAttachments)
                                                         | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
 
         m_colorBlendAttachmentState[i].srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
-        m_colorBlendAttachmentState[i].dstColorBlendFactor = vk::BlendFactor::eOne;
+        m_colorBlendAttachmentState[i].dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
         m_colorBlendAttachmentState[i].colorBlendOp        = vk::BlendOp::eAdd;
 
-        m_colorBlendAttachmentState[i].srcAlphaBlendFactor = vk::BlendFactor::eOne;
-        m_colorBlendAttachmentState[i].dstAlphaBlendFactor = vk::BlendFactor::eZero;
+        m_colorBlendAttachmentState[i].srcAlphaBlendFactor = vk::BlendFactor::eZero;
+        m_colorBlendAttachmentState[i].dstAlphaBlendFactor = vk::BlendFactor::eOne;
         m_colorBlendAttachmentState[i].alphaBlendOp        = vk::BlendOp::eAdd;
     }
 

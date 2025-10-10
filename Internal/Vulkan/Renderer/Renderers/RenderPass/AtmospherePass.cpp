@@ -9,6 +9,7 @@
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
+#include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -31,6 +32,8 @@ AtmospherePass::AtmospherePass(const VulkanCore::VDevice& device, ApplicationCor
 
     m_skyViewLutEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::SkyViewLUT);
 
+
+    m_atmospherePassEffect = effectsLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::AtmospherePass);
 
     Renderer::RenderTarget2CreatInfo transmitanceLutCi{256,
                                                        64,
@@ -98,7 +101,7 @@ void AtmospherePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferMana
     m_atmospherePassEffect->WriteBuffer(currentFrameIndex, 0, 1,
                                         uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex]);
     m_atmospherePassEffect->WriteImage(currentFrameIndex, 0, 2,
-                                       renderContext->depthBuffer->GetPrimaryImage().GetDescriptorImageInfo(
+                                       renderContext->depthBuffer->GetResolvedImage().GetDescriptorImageInfo(
                                            VulkanCore::VSamplers::Sampler2D));
     m_atmospherePassEffect->WriteImage(currentFrameIndex, 0, 3,
                                        GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::SkyViewLut,
@@ -121,7 +124,7 @@ void AtmospherePass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuf
     //!NOTE: it will render to the final rendered image and not to its own
 
 
-    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {renderContext->lightPassOutputRenderTarget->GenerateAttachmentInfo(
+    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {renderContext->lightPassOutputRenderTarget->GenerateAttachmentInfoFromResolvedImage(
         vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore)};
 
     vk::RenderingInfo renderingInfo{};
@@ -160,8 +163,8 @@ void AtmospherePass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuf
                                                 vk::AccessFlagBits2::eShaderRead, vk::PipelineStageFlagBits2::eColorAttachmentOutput,
                                                 vk::AccessFlagBits2::eColorAttachmentWrite};
 
-    renderContext->lightPassOutputRenderTarget->TransitionAttachments(
-        cmdBuffer, vk::ImageLayout::eAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos.Switch());
+    renderContext->lightPassOutputRenderTarget->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                                      vk::ImageLayout::eAttachmentOptimal, barrierPos.Switch());
 }
 
 void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)

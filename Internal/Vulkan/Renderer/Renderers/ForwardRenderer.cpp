@@ -125,7 +125,6 @@ void ForwardRenderer::Render(int                                       currentFr
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
     // descriptor set 0 is allways the samme
 
-    m_atmospherePass->Precompute(currentFrameIndex, cmdBuffer, renderContext);
 
     //============================
     // generates depth buffer
@@ -244,6 +243,7 @@ void ForwardRenderer::AtmospherePass(int                                       c
                                      VulkanCore::VCommandBuffer&               cmdBuffer,
                                      const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
+    m_atmospherePass->Precompute(currentFrameIndex, cmdBuffer, m_renderContextPtr);
     m_atmospherePass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
 }
 

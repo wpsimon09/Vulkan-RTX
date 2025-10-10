@@ -14,7 +14,8 @@ AtmosphereSceneNode::AtmosphereSceneNode(std::shared_ptr<ApplicationCore::Static
     : m_parameters()
     , m_drawCall{}
 {
-    m_sceneNodeMetaData.nodeType = ENodeType::Atmosphere;
+    m_sceneNodeMetaData.nodeType     = ENodeType::Atmosphere;
+    m_sceneNodeMetaData.IsVolumeNode = true;
 }
 
 void AtmosphereSceneNode::Update(SceneUpdateContext& sceneUpdateFlags)

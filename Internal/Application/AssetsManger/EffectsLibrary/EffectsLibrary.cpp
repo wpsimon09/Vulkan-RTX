@@ -280,6 +280,14 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
                                                                        "Shaders/Compiled/AtmospherePass.frag.spv",
                                                                        descLayoutCache, EShaderBindingGroup::PostProcessing);
 
+
+    atmospherePass->EnableAlphaBlending();
+    atmospherePass->SetPiplineNoMultiSampling();
+    atmospherePass->SetDisableDepthWrite();
+    atmospherePass->SetCullNone();
+
+
+    atmospherePass->SetDisableDepthTest();
     effects[EEffectType::AtmospherePass] = std::move(atmospherePass);
 
     BuildAllEffects();
