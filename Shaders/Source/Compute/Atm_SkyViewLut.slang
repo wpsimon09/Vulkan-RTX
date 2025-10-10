@@ -136,25 +136,25 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     
     AtmosphereParamsGPU atmosParams = atmosphereParamsCPU.Parse();
 
-
     float2 atmosphereBoundaries = float2(atmosParams.radiusBottom, atmosParams.radiusTop);
     const float camearHeight = globalData.cameraPostiion.y * cameraScale;
 
     float3 sunDirection = light.dirLight.direction.xyz;
-    float3 worldPosition = float3(0.0, 0.0, camearHeight + atmosParams.radiusBottom);
+    float3 worldPosition = globalData.cameraPostiion.xyz + float3(0.0, 0.0, atmosParams.radiusBottom);
 
-    float2 uv = float2(threadIdx.xy) / int2((int)width, (int)height);
+    float2 uv = float2(threadIdx.xy) / float2(width, height);
     float2 LUTParams = UvToSkyViewLUTParams(
         uv, atmosphereBoundaries, float2(width,height),length(worldPosition)
     );
+    
     float sunZenithCosAngle = dot(normalize(worldPosition), sunDirection);
-    float3 localSunDirection = normalize(float3(SafeSqrt(1.0 - sunZenithCosAngle * sunZenithCosAngle),0.0, sunZenithCosAngle));
+    float3 localSunDirection = normalize(float3(SafeSqrt(1.0 - sunZenithCosAngle * sunZenithCosAngle),sunZenithCosAngle, 0.0 ));
 
     float viewZenitSinAngle = SafeSqrt(1.0 - LUTParams.x * LUTParams.x);
-
+    
     float3 worldDirection = float3(cos(LUTParams.y) * sin(LUTParams.x),
            sin(LUTParams.y) * sin(LUTParams.x), cos(LUTParams.x));
-
+    
     if(!moveToTopAtmosphere(worldPosition, worldDirection, atmosphereBoundaries)){
         // we do not intersetc atmosphere, thus we store nothign
         skyViewLut[threadIdx.xy] = float4(float3(0.4), 1.0);

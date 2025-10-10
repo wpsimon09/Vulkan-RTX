@@ -51,6 +51,8 @@ AtmospherePass::AtmospherePass(const VulkanCore::VDevice& device, ApplicationCor
 void AtmospherePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
     renderContext->transmitanceLut = &m_renderTargets[EAtmosphereAttachments::TransmitanceLUT]->GetPrimaryImage();
+    renderContext->skyViewLut      = &m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetPrimaryImage();
+
 
     m_transmitanceLutEffect->SetNumWrites(0, 1, 0);
     m_transmitanceLutEffect->WriteImage(currentFrameIndex, 0, 0,

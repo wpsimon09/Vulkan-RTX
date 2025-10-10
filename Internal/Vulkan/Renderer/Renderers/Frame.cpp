@@ -125,7 +125,15 @@ void Frame::Init()
 {
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(0), i);
+        // Init forward rendere
+        m_forwardRenderer->Init(i, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext);
+
+        //init post processing system
+        m_postProcessingSystem->Init(i, m_uniformBufferManager, &m_renderContext, &m_postProcessingContext);
+
+        //m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(0), i);
+        m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(*m_renderContext.skyViewLut, i);
+
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
             .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
@@ -133,12 +141,6 @@ void Frame::Init()
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
             .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eNormalBuffer).SetImage(m_forwardRenderer->GetNormalBufferOutput().GetResolvedImage(), i);
-
-        // Init forward rendere
-        m_forwardRenderer->Init(i, m_uniformBufferManager, m_rayTracingDataManager, &m_renderContext);
-
-        //init post processing system
-        m_postProcessingSystem->Init(i, m_uniformBufferManager, &m_renderContext, &m_postProcessingContext);
     }
 }
 
@@ -205,7 +207,8 @@ void Frame::Update(ApplicationCore::ApplicationState& applicationState)
     m_postProcessingContext.luminanceAverageParameters    = &applicationState.GetLuminanceAverageParameters();
     m_postProcessingContext.deltaTime                     = ImGui::GetIO().DeltaTime;
 
-    m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_frameInFlightID), m_frameInFlightID);
+    //TODO: uncomment once done with debugging
+    //m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_frameInFlightID), m_frameInFlightID);
 }
 
 
