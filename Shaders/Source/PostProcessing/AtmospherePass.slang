@@ -90,7 +90,7 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
             // zenith is needed to fetch the colour of the sky 
             float viewZenithAngle = acos(dot(worldDir, upVector));
 
-            float lightViewAngle = acos(dot(normalize(float3(sunDir.xy, 0.0)), normalize(float3(worldDir.xz, 0.0))));
+            float lightViewAngle = acos(dot(normalize(float3(sunDir.xz, 0.0)), normalize(float3(worldDir.xz, 0.0))));
 
             bool intersectsGround = raySphereIntersectNearest(worldPos, worldDir, float3(0.0), atmosphere.radiusBottom) >= 0;
 
