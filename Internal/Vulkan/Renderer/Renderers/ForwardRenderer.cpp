@@ -123,12 +123,14 @@ void ForwardRenderer::Render(int                                       currentFr
     // RECORD COMMAND BUFFER
     //=====================================================
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not in recording state !");
-    // descriptor set 0 is allways the samme
-
+    // descriptor set 0 is allways the samm
 
     //============================
     // generates depth buffer
     DepthPrePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
+
+    m_atmospherePass->Precompute(currentFrameIndex, cmdBuffer, m_renderContextPtr);
+
 
     //===========================
     // generates shadow mapp in  screen space
@@ -243,7 +245,6 @@ void ForwardRenderer::AtmospherePass(int                                       c
                                      VulkanCore::VCommandBuffer&               cmdBuffer,
                                      const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
-    m_atmospherePass->Precompute(currentFrameIndex, cmdBuffer, m_renderContextPtr);
     m_atmospherePass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
 }
 
