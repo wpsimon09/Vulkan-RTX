@@ -162,11 +162,10 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     */
 
     float3 worldDirection = float3(
-    sin(LUTParams.x) * cos(LUTParams.y),
-    cos(LUTParams.x),
-    sin(LUTParams.x) * sin(LUTParams.y)
-);
-
+        cos(LUTParams.y) * sin(LUTParams.x),
+        sin(LUTParams.y) * sin(LUTParams.x),
+        cos(LUTParams.x)
+    );
 
     if(!moveToTopAtmosphere(worldPosition, worldDirection, atmosphereBoundaries)){
         // we do not intersetc atmosphere, thus we store nothign
