@@ -190,6 +190,9 @@ void DetailsPanel::RenderDirectionLightUI()
 {
     auto DirLightNode = dynamic_cast<ApplicationCore::DirectionLightNode*>(m_selectedSceneNode.get());
 
+    auto dir = DirLightNode->GetLightStruct().direction;
+    ImGui::Text("Direction x: %f y: %f z: %f", dir.x, dir.y, dir.z);
+
     ImGui::SeparatorText("General light settings");
     ImGui::SetNextItemWidth(600.0f);
     ImGui::ColorEdit3("LightColour", &DirLightNode->GetLightStruct().colour.x, ImGuiColorEditFlags_NoInputs);

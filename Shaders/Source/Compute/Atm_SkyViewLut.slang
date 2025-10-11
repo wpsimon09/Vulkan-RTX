@@ -141,8 +141,8 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     const float camearHeight = globalData.cameraPostiion.y * cameraScale;
 
     float3 sunDirection = light.dirLight.direction.xyz;
-    float3 worldPosition = float3(0.0, 0.0, camearHeight) + float3(0.0, 0.0, atmosParams.radiusBottom);
-
+    float3 worldPosition = float3(0.0, camearHeight + atmosParams.radiusBottom, 0.0);
+    
     float2 uv = float2(threadIdx.xy) / float2(width, height);
     float2 LUTParams = UvToSkyViewLUTParams(
         uv, atmosphereBoundaries, float2(width,height),length(worldPosition)
@@ -162,10 +162,11 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     */
 
     float3 worldDirection = float3(
-        cos(LUTParams.y) * sin(LUTParams.x),
-        sin(LUTParams.y) * sin(LUTParams.x),
-        cos(LUTParams.x)
-    );
+    sin(LUTParams.x) * cos(LUTParams.y),
+    cos(LUTParams.x),
+    sin(LUTParams.x) * sin(LUTParams.y)
+);
+
 
     if(!moveToTopAtmosphere(worldPosition, worldDirection, atmosphereBoundaries)){
         // we do not intersetc atmosphere, thus we store nothign

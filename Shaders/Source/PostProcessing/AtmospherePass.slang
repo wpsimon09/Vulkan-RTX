@@ -55,54 +55,57 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
 }
 
 [[shader("fragment")]]
-float4 fragmentMain(VertexOut fsIn){
+    float4 fragmentMain(VertexOut fsIn){
 
-    AtmosphereParamsGPU atmosphere = atmosphereParams.Parse();
+        AtmosphereParamsGPU atmosphere = atmosphereParams.Parse();
 
-    const float3 camera = globalData.cameraPostiion.xyz;
-    const float3 sunDir = light.dirLight.direction.xyz;
-    float2 skyViewDims;
-    skyViewLut.GetDimensions(skyViewDims.x, skyViewDims.y);
+        const float3 camera = globalData.cameraPostiion.xyz;
+        const float3 sunDir = light.dirLight.direction.xyz;
+        float2 skyViewDims;
+        skyViewLut.GetDimensions(skyViewDims.x, skyViewDims.y);
 
-    float2 atmosphereBoundareis = float2(atmosphere.radiusBottom, atmosphere.radiusTop);
+        float2 atmosphereBoundareis = float2(atmosphere.radiusBottom, atmosphere.radiusTop);
 
-    // tansform pixel to the world pos 
-    float4x4 invViewProjMat = mul(globalData.inverseView , globalData.invProjection);
-    float2 pixPos = fsIn.uv;
-    float3 clipSpace = float3(pixPos * float2(2.0) - float2(1.0), 1.0);
-    float4 Hpos = mul(invViewProjMat, float4(clipSpace, 1.0));
+        // tansform pixel to the world pos 
+        float4x4 invViewProjMat = mul(globalData.inverseView , globalData.invProjection);
+        float2 pixPos = fsIn.uv;
+        float3 clipSpace = float3(pixPos * float2(2.0) - float2(1.0), 1.0);
+        float4 Hpos = mul(invViewProjMat, float4(clipSpace, 1.0));
 
-    float3 worldDir = normalize(Hpos.xyz / Hpos.w - camera);
-    float3 worldPos = camera * cameraScale + float3(0, atmosphere.radiusBottom,0.0);
+        //
+        float3 worldDir = normalize(Hpos.xyz / Hpos.w - camera);
+        float3 worldPos = camera * cameraScale + float3(0, atmosphere.radiusBottom,0.0);
 
-    float viewHeight = length(worldPos);
-    float3 L = float3(0.0);
+        float viewHeight = length(worldPos);
+        float3 L = float3(0.0);
 
-    // mask the depth 
-    float depth = depthTexture.Sample(fsIn.uv).x;
+        // mask the depth 
+        float depth = depthTexture.Sample(fsIn.uv).x;
 
-    if(depth == 1.0){
-        float2 uv; // uvs for sampling the sky view lut 
-        float3 upVector = normalize(worldPos);
-        // zenith is needed to fetch the colour of the sky 
-        float viewZenithAngle = acos(dot(worldDir, upVector));
+        if(depth == 1.0){
+            float2 uv; // uvs for sampling the sky view lut 
 
-        float lightViewAngle = acos(dot(normalize(float3(sunDir.yz, 0.0)), normalize(float3(worldDir.xz, 0.0))));
+            // since we only care about camera hight, normalizing camear position (0, height, 0) will give up vector 
+            float3 upVector = normalize(worldPos);
+            // zenith is needed to fetch the colour of the sky 
+            float viewZenithAngle = acos(dot(worldDir, upVector));
 
-        bool intersectsGround = raySphereIntersectNearest(worldPos, worldDir, float3(0.0), atmosphere.radiusBottom) >= 0;
+            float lightViewAngle = acos(dot(normalize(float3(sunDir.xy, 0.0)), normalize(float3(worldDir.xz, 0.0))));
 
-        uv = SkyViewLutParamsToUv(intersectsGround, float2(viewZenithAngle, lightViewAngle),viewHeight, atmosphereBoundareis, skyViewDims );
+            bool intersectsGround = raySphereIntersectNearest(worldPos, worldDir, float3(0.0), atmosphere.radiusBottom) >= 0;
 
-        L += skyViewLut.Sample(uv).xyz;
+            uv = SkyViewLutParamsToUv(intersectsGround, float2(viewZenithAngle, lightViewAngle),viewHeight, atmosphereBoundareis, skyViewDims );
 
-        // if des not ray intersect the ground and thus goes all the way to the atmosphere, render the small sun 
-        if(!intersectsGround){
-           L += sunWithHalo(worldDir, sunDir);
+            L += skyViewLut.Sample(uv).xyz;
+
+            // if des not ray intersect the ground and thus goes all the way to the atmosphere, render the small sun 
+            if(!intersectsGround){
+                L += sunWithHalo(worldDir, sunDir);
+            }
+
+            return float4(L, 1.0);
+
+        }else{
+            return float4(0.0);
         }
-
-        return float4(L, 1.0);
-
-    }else{
-        return float4(0.0);
     }
-}
