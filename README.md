@@ -133,7 +133,8 @@ The `--no-skip-unchanged` option forces all shaders to compile, even if they hav
 ## Little showcase
 
 
-https://github.com/user-attachments/assets/550c47df-4557-45c6-b38a-dce62449e8c7
+https://github.com/user-attachments/assets/f35be847-0669-4854-a1f1-b33462a8afd5
+
 
 <img width="2880" height="1719" alt="Screenshot From 2025-09-23 08-29-38" src="https://github.com/user-attachments/assets/afddae93-faa1-4ea8-b115-25d0502cb06c" />
 
