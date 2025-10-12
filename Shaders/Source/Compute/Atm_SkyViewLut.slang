@@ -10,7 +10,7 @@ import Utils;
 Sampler2D transmitanceLut;
 
 [[vk::binding(1,0)]]
-readonly Texture2D multiscatteringLut;
+Sampler2D multiscatteringLut;
 
 [[vk::binding(2,0)]]
 RWTexture2D skyViewLut;
@@ -47,16 +47,12 @@ float3 getMultipleScattering(AtmosphereParamsGPU atmosphere, float3 worldPositio
     float width,height;
     multiscatteringLut.GetDimensions(width, height);
 
-    float2 uv = clamp(float2(zenithCosAngle * 0.5 + 0.5,
-                 (length(worldPosition) - atmosphere.radiusBottom) /
-                     (atmosphere.radiusTop -
-                      atmosphere.radiusBottom)),
-            0.0, 1.0);
-
+	float2 uv = saturate(float2(zenithCosAngle*0.5f + 0.5f, (length(worldPosition) - atmosphere.radiusBottom) / (atmosphere.radiusTop - atmosphere.radiusBottom)));
     uv = float2(fromUnitToSubUvs(uv.x, width), fromUnitToSubUvs(uv.y, height));
-    int2 coords = int2(uv * int2(width, height));
+    
+    float3 multiScatteredLuminance = multiscatteringLut.Sample(uv).rgb;
+	return multiScatteredLuminance;
 
-    return multiscatteringLut[coords].rgb;
 }
 
 float3 integrateScatteredLuminance(AtmosphereParamsGPU atmosphere, float3 worldPosition ,float3 worldDirection, float3 sunDirection, int sampleCount){
@@ -111,7 +107,8 @@ float3 integrateScatteredLuminance(AtmosphereParamsGPU atmosphere, float3 worldP
         float earthIntersectionDistance = raySphereIntersectNearest(newPos, sunDirection, 0.0 + 0.001 * upVector, atmosphere.radiusBottom);
         float inEarthShadow = earthIntersectionDistance == -1.0 ? 1.0 : 0.0;
 
-        float3 multiscatteredLuminance = getMultipleScattering(atmosphere, newPos, dot(sunDirection, upVector));
+        // The multiscattering is an issue
+        float3 multiscatteredLuminance =  getMultipleScattering(atmosphere, newPos, dot(sunDirection, upVector));
 
 
         float3 sunLight = inEarthShadow * transmitanceToSun * phaseTimesScattering + multiscatteredLuminance * (mediumScattering.Ray + mediumScattering.Mie);
@@ -141,18 +138,19 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     const float camearHeight = globalData.cameraPostiion.y * cameraScale;
 
     float3 sunDirection = light.dirLight.direction.xyz;
-    float3 worldPosition = float3(0.0, 0.0, camearHeight) + float3(0.0, 0.0, atmosParams.radiusBottom);
+    // in papaer this is with .z up, however this uses .y up 
+    float3 worldPosition = float3(0.0, camearHeight, 0.0 ) + float3(0.0, atmosParams.radiusBottom,0.0);
 
     float2 uv = float2(threadIdx.xy) / float2(width, height);
     float2 LUTParams = UvToSkyViewLUTParams(
-        uv, atmosphereBoundaries, float2(width,height),length(worldPosition)
+        uv, atmosphereBoundaries, float2(width,height), length(worldPosition)
     );
     
     float sunZenithCosAngle = dot(normalize(worldPosition), sunDirection);
     float3 localSunDirection = normalize(float3(
         SafeSqrt(1.0 - sunZenithCosAngle * sunZenithCosAngle),
-        0.0,
-        sunZenithCosAngle));
+        sunZenithCosAngle, 0.0
+        ));
 
     float viewZenitSinAngle = SafeSqrt(1.0 - LUTParams.x * LUTParams.x);
     
@@ -162,17 +160,16 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     */
 
     float3 worldDirection = float3(
-        cos(LUTParams.y) * sin(LUTParams.x),
-        sin(LUTParams.y) * sin(LUTParams.x),
-        cos(LUTParams.x)
+        sin(LUTParams.x) * cos(LUTParams.y),
+        cos(LUTParams.x),
+        sin(LUTParams.x) * sin(LUTParams.y)
     );
-
     if(!moveToTopAtmosphere(worldPosition, worldDirection, atmosphereBoundaries)){
         // we do not intersetc atmosphere, thus we store nothign
         skyViewLut[threadIdx.xy] = float4(float3(0.4), 1.0);
         return;
     }
-    float3 Luminance = integrateScatteredLuminance(atmosParams, worldPosition, worldDirection, sunDirection, 30);
+    float3 Luminance = integrateScatteredLuminance(atmosParams, worldPosition, worldDirection, sunDirection, 40);
     
     skyViewLut[threadIdx.xy] = float4(Luminance, 1.0);
 }

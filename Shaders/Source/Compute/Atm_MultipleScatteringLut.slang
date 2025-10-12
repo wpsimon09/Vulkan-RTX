@@ -117,14 +117,16 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     float sunCosZenithAngle = uv.x * 2.0 - 1.0;
     
     float3 sunDirection = float3(
-      0.0, sqrt(clamp(1.0 - sunCosZenithAngle * sunCosZenithAngle, 0.0, 1.0)),
-      sunCosZenithAngle);
+        0.0,
+        sqrt(saturate(1.0 - sunCosZenithAngle * sunCosZenithAngle)),
+        sunCosZenithAngle,
+    );
 
     float viewHeight = atmos.radiusBottom +  clamp(uv.y + planetRadiusOffset, 0.0, 1.0) *
           (atmos.radiusTop -
            atmos.radiusBottom - planetRadiusOffset);
 
-    float3 worldPosition = float3(0.0, 0.0, viewHeight);
+    float3 worldPosition = float3(0.0, viewHeight, 0.0);
 
     float sampleIdx = threadIdx.z;
 
@@ -132,8 +134,12 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     float theta = acos(1.0 - 2.0 * (sampleIdx + 0.5) / SphereSamples);
     float phi = (2 * PI * sampleIdx) / golden_ration;
 
-    // to cartesian
-    float3 worldDir = float3(cos(theta) * sin(phi), sin(theta) * sin(phi), cos(phi));
+    // to cartesian, switched again to match y-up assumption
+    float3 worldDir = float3(
+        sin(theta) * cos(phi),
+        cos(theta),
+        sin(theta) * sin(phi)
+    );
     
     RayMarchResult result = IntegrateScatteredLuminance(atmos, worldPosition, worldDir, sunDirection, SampleCount);
     
@@ -186,8 +192,8 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
 
     if(threadIdx.z != 0 ) return;
 
-    float3 multiscattSum = MultiscattSharedMem[0];
-    float3 InScattLumSum = LShaderMem[0];
+    float3 multiscattSum = MultiscattSharedMem[0] * uniformPhase;
+    float3 InScattLumSum = LShaderMem[0] * uniformPhase;
 
     float3 r = multiscattSum;
     float3 sumOfAllMultiscatteringEventsContribution = float3(1.0 / (1.0 - r.x), 1.0 / (1.0 - r.y), 1.0 / (1.0 - r.z));

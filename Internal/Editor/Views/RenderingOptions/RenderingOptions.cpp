@@ -14,6 +14,7 @@
 #include "Vulkan/Renderer/Renderers/ForwardRenderer.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
+#include "Application/Rendering/Camera/Camera.hpp"
 
 namespace VEditor {
 RenderingOptions::RenderingOptions(ApplicationCore::ApplicationState& applicationState,
@@ -30,6 +31,8 @@ void RenderingOptions::Render()
 {
     ImGui::Begin(ICON_FA_BOOK_JOURNAL_WHILLS " Rendering options", &m_isOpen);
 
+    ImGui::Text("Camera pos: x: %f , y:%f , z:%f", m_scene.GetCamera().GetPosition().x,
+                m_scene.GetCamera().GetPosition().y, m_scene.GetCamera().GetPosition().z);
     if(ImGui::Button("Rebuild AS"))
     {
         auto input = m_scene.GetBLASInputs();
@@ -44,10 +47,10 @@ void RenderingOptions::Render()
         ImGui::TreePop();
     }
 
-    ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_renderContext.RenderBillboards);
 
     if(ImGui::TreeNode(ICON_FA_DRAW_POLYGON " Scene render"))
     {
+        ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_renderContext.RenderBillboards);
         ImGui::Checkbox("Wire frame mode", &m_renderingSystem->m_renderContext.WireFrameRendering);
 
         ImGui::SeparatorText("Draw calls");
