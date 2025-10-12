@@ -36,7 +36,7 @@ float3 sunWithHalo(float3 worldDir, float3 sunDir){
     const float sunSolidAngle = 1.0 * PI / 180.0;
     const float minSunCosTheta = cos(sunSolidAngle);
 
-    float cosTheta = dot(worldDir, sunDir);
+    float cosTheta = dot(worldDir, -sunDir);
     if(cosTheta >= minSunCosTheta) {return float3(0.5) ;}
     float offset = minSunCosTheta - cosTheta;
     float gaussianBloom = exp(-offset * 50000.0) * 0.5;
@@ -60,7 +60,7 @@ float4 fragmentMain(VertexOut fsIn){
     AtmosphereParamsGPU atmosphere = atmosphereParams.Parse();
 
     const float3 camera = globalData.cameraPostiion.xyz;
-    const float3 sunDir = light.dirLight.direction.xyz;
+    const float3 sunDir = -light.dirLight.direction.xyz;
     float2 skyViewDims;
     skyViewLut.GetDimensions(skyViewDims.x, skyViewDims.y);
 
@@ -100,7 +100,7 @@ float4 fragmentMain(VertexOut fsIn){
            L += sunWithHalo(worldDir, sunDir);
         }
 
-        return float4(L, 1.0);
+        return float4(L * light.dirLight.intensity.w, 1.0);
 
     }else{
         return float4(0.0);

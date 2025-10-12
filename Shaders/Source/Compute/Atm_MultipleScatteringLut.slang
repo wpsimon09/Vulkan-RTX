@@ -117,9 +117,9 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     float sunCosZenithAngle = uv.x * 2.0 - 1.0;
     
     float3 sunDirection = float3(
-        sqrt(clamp(1.0 - sunCosZenithAngle * sunCosZenithAngle, 0.0, 1.0)),
+        0.0,
+        sqrt(saturate(1.0 - sunCosZenithAngle * sunCosZenithAngle)),
         sunCosZenithAngle,
-        0.0
     );
 
     float viewHeight = atmos.radiusBottom +  clamp(uv.y + planetRadiusOffset, 0.0, 1.0) *
@@ -192,8 +192,8 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
 
     if(threadIdx.z != 0 ) return;
 
-    float3 multiscattSum = MultiscattSharedMem[0];
-    float3 InScattLumSum = LShaderMem[0];
+    float3 multiscattSum = MultiscattSharedMem[0] * uniformPhase;
+    float3 InScattLumSum = LShaderMem[0] * uniformPhase;
 
     float3 r = multiscattSum;
     float3 sumOfAllMultiscatteringEventsContribution = float3(1.0 / (1.0 - r.x), 1.0 / (1.0 - r.y), 1.0 / (1.0 - r.z));
