@@ -85,7 +85,8 @@ void AtmospherePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferMana
                                    GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::TransmitanceLUT,
                                                                       VulkanCore::VSamplers::Sampler2D));
     m_skyViewLutEffect->WriteImage(currentFrameIndex, 0, 1,
-                                   GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::MultipleScatteringLut));
+                                   GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::MultipleScatteringLut,
+                                                                      VulkanCore::VSamplers::Sampler2D));
 
     m_skyViewLutEffect->WriteImage(currentFrameIndex, 0, 2, GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::SkyViewLut));
     m_skyViewLutEffect->WriteBuffer(currentFrameIndex, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex]);
