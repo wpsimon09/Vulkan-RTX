@@ -6,6 +6,7 @@
 #include <IconFontCppHeaders/IconsFontAwesome6.h>
 
 #include <imgui.h>
+#include <memory>
 
 #include "Application/AssetsManger/AssetsManager.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
@@ -433,36 +434,43 @@ void DetailsPanel::RenderAtmosphereDetails()
         ImGui::DragFloat("Ground radius", &params.groundAlbedo.w, 1.0, 6360);
         ImGui::DragFloat("Atmospherer radius", &params.rayleighScattering.w, 1.0, 6460);
         ImGui::DragFloat("Mie Assimetry", &params.mieExtinction.w, 0.1, -1.0, 1.0);
+        ImGui::Checkbox("Use multiple scattering", reinterpret_cast<bool*>(&params.booleans.x));
+        ImGui::Checkbox("Draw sun", reinterpret_cast<bool*>(&params.booleans.y));
 
-        ImGui::SeparatorText("Light interaction parameters");
-
-        if(ImGui::Button(ICON_FA_REPLY "##resetmieScat"))
+        if(ImGui::TreeNode("Light interaction parameters"))
         {
-            params.mieScattering = defaultParams.mieScattering;
-        }
-        ImGui::SameLine();
-        ImGui::DragFloat3("Mie scattering", &params.mieScattering.x, 0.0000001, 0.0, 0.2, "%.7f");
 
-        if(ImGui::Button(ICON_FA_REPLY "##resetMieExtinc"))
-        {
-            params.mieExtinction = defaultParams.mieExtinction;
-        }
-        ImGui::SameLine();
-        ImGui::DragFloat3("Mie exctinction", &params.mieExtinction.x, 0.0000001, 0.0, 0.2, "%.7f");
 
-        if(ImGui::Button(ICON_FA_REPLY "##resetmieAbs"))
-        {
-            params.mieAbsorption = defaultParams.mieAbsorption;
-        }
-        ImGui::SameLine();
-        ImGui::DragFloat3("Mie absorption", &params.mieAbsorption.x, 0.0000001, 0.0, 0.2, "%.7f");
+            if(ImGui::Button(ICON_FA_REPLY "##resetmieScat"))
+            {
+                params.mieScattering = defaultParams.mieScattering;
+            }
+            ImGui::SameLine();
+            ImGui::DragFloat3("Mie scattering", &params.mieScattering.x, 0.0000001, 0.0, 0.2, "%.7f");
 
-        if(ImGui::Button(ICON_FA_REPLY "##resetmieRayleighScat"))
-        {
-            params.rayleighScattering = defaultParams.rayleighScattering;
+            if(ImGui::Button(ICON_FA_REPLY "##resetMieExtinc"))
+            {
+                params.mieExtinction = defaultParams.mieExtinction;
+            }
+            ImGui::SameLine();
+            ImGui::DragFloat3("Mie exctinction", &params.mieExtinction.x, 0.0000001, 0.0, 0.2, "%.7f");
+
+            if(ImGui::Button(ICON_FA_REPLY "##resetmieAbs"))
+            {
+                params.mieAbsorption = defaultParams.mieAbsorption;
+            }
+            ImGui::SameLine();
+            ImGui::DragFloat3("Mie absorption", &params.mieAbsorption.x, 0.0000001, 0.0, 0.2, "%.7f");
+
+            if(ImGui::Button(ICON_FA_REPLY "##resetmieRayleighScat"))
+            {
+                params.rayleighScattering = defaultParams.rayleighScattering;
+            }
+            ImGui::SameLine();
+            ImGui::DragFloat3("Rayleigh scattering", &params.rayleighScattering.x, 0.0000001, 0.0, 0.2, "%.7f");
+
+            ImGui::TreePop();
         }
-        ImGui::SameLine();
-        ImGui::DragFloat3("Rayleigh scattering", &params.rayleighScattering.x, 0.0000001, 0.0, 0.2, "%.7f");
     }
 }
 
