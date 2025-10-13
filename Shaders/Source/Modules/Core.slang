@@ -37,6 +37,7 @@ public struct GlobalData {
     public bool accumulateFrames;
     public bool aoOcclusion;
     public bool isRayTracing;
+    public bool accountForSunTransmitance;
 };
 
 

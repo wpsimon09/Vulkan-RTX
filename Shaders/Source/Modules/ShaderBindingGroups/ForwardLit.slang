@@ -27,6 +27,9 @@ Sampler2D LTC;
 [[vk::binding(6,0)]]
 Sampler2D LTC_Inverse;
 
+[[vk::binding(7,0)]]
+Sampler2D TransmitanceLUT;
+
 
 //========================
 // set 1

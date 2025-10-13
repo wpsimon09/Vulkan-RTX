@@ -138,6 +138,8 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 e->WriteImage(currentFrame, 0, 6,
                               MathUtils::LookUpTables.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
+                e->WriteImage(currentFrame, 0, 7,
+                              renderContext->transmitanceLut->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                 break;
             }
 
@@ -154,6 +156,7 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 //===================================
                 // std::vector<PerObjectData> SSBO.g
                 e->WriteBuffer(currentFrame, 0, 2, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrame));
+
                 break;
             }
             case EShaderBindingGroup::Skybox: {
