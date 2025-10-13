@@ -45,13 +45,17 @@ float rayleighPhase(float cosTheta) {
 
 float3 getMultipleScattering(AtmosphereParamsGPU atmosphere, float3 worldPosition, float zenithCosAngle){
     float width,height;
-    multiscatteringLut.GetDimensions(width, height);
+    if(atmosphere.UseMultiscattering){
 
-	float2 uv = saturate(float2(zenithCosAngle*0.5f + 0.5f, (length(worldPosition) - atmosphere.radiusBottom) / (atmosphere.radiusTop - atmosphere.radiusBottom)));
-    uv = float2(fromUnitToSubUvs(uv.x, width), fromUnitToSubUvs(uv.y, height));
-    
-    float3 multiScatteredLuminance = multiscatteringLut.Sample(uv).rgb;
-	return multiScatteredLuminance;
+        multiscatteringLut.GetDimensions(width, height);
+        
+        float2 uv = saturate(float2(zenithCosAngle*0.5f + 0.5f, (length(worldPosition) - atmosphere.radiusBottom) / (atmosphere.radiusTop - atmosphere.radiusBottom)));
+        uv = float2(fromUnitToSubUvs(uv.x, width), fromUnitToSubUvs(uv.y, height));
+        
+        float3 multiScatteredLuminance = multiscatteringLut.Sample(uv).rgb;
+        return multiScatteredLuminance;
+    }
+    return {0.0, 0.0, 0.0};
 
 }
 

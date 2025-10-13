@@ -33,6 +33,7 @@ Sampler2D skyViewLut;
 AtmosphereParamsCPU atmosphereParams;
 
 float3 sunWithHalo(float3 worldDir, float3 sunDir){
+    
     const float sunSolidAngle = 1.0 * PI / 180.0;
     const float minSunCosTheta = cos(sunSolidAngle);
 
@@ -96,7 +97,7 @@ float4 fragmentMain(VertexOut fsIn){
         L += skyViewLut.Sample(uv).xyz;
 
         // if des not ray intersect the ground and thus goes all the way to the atmosphere, render the small sun 
-        if(!intersectsGround){
+        if(!intersectsGround && atmosphere.DrawSun){
            L += sunWithHalo(worldDir, sunDir);
         }
 

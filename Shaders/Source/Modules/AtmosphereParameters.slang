@@ -7,6 +7,7 @@ public struct AtmosphereParamsCPU{
     float4 mieAbsorption;//xyz: as-is, w: Mie density exp scale
     float4 mieExctinction;//xyz: as-is, w: Mie phase G
     float4 absorptionExctinction; //xyz: as-is, w: Absorption denssity 0 layer width
+    float4 booleans; //x - use multiscattering
 
     public AtmosphereParamsGPU Parse(){
         AtmosphereParamsGPU gpu;
@@ -41,6 +42,9 @@ public struct AtmosphereParamsCPU{
         gpu.ozoneDensity.layers[1] = DensityProfileLayer(0.0f, 0.0f, 0.0f, -1.0f / 15.0f, 8.0f / 3.0f);
         gpu.absorptionExctinction = absorptionExctinction.xyz;
 
+        gpu.UseMultiscattering = (bool)booleans.x;
+        gpu.DrawSun = (bool)booleans.y;
+
         return gpu;
     }
 }
@@ -70,6 +74,10 @@ public struct AtmosphereParamsGPU{
     public DensityProfile rayleightDensity;
     public DensityProfile mieDensity;
     public DensityProfile ozoneDensity;
+
+
+    public bool UseMultiscattering;
+    public bool DrawSun;
 
     public float getOzoneDensity(float viewHeight) {
         float densityOzo;
