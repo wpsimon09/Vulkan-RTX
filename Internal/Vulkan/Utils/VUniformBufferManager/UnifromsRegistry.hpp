@@ -21,7 +21,7 @@ struct GlobalRenderingInfo
     glm::mat4 inverseView;
     glm::mat4 inverseProj;
 
-    glm::vec4 lightPosition = glm::vec4(2.0f, 400.0f, 2.0f, 1.0f);
+    glm::vec4 atmosphereParams;
     glm::vec4 cameraPosition;
     glm::vec4 viewParams;
 
@@ -31,10 +31,10 @@ struct GlobalRenderingInfo
     float numberOfFrames;
     alignas(4) int rendererOutput;  // ClientEnums/EDebugRendering
     alignas(4) int rendererOutputRTX;
-    alignas(4) int accumulateFrames          = 1.0;
-    alignas(4) int aoOcclusion               = 1.0f;
-    alignas(4) int isRayTracing              = 0.0;
-    alignas(4) int accountForSunTransmitance = 0.0
+    alignas(4) int accumulateFrames                 = 1.0;
+    alignas(4) int aoOcclusion                      = 1.0f;
+    alignas(4) int isRayTracing                     = 0.0;
+    alignas(4) int accountForAtmosphereTransmitance = 0.0;
 };
 
 struct ObjectDataUniform

@@ -23,8 +23,8 @@ public struct GlobalData {
     public column_major float4x4 inverseView;
     public column_major float4x4 invProjection;
 
-    public float4 lightPosition;
-    public float4 cameraPostiion;
+    public float4 atmosphereInfo; // x - bottom atmosphere radius, y - up atmosphere radius, zw - padding
+    public float4 cameraPostiion; // xyz - camera position, w - bottom atmosphere radius
     public float4 viewParams; // x - defocuse strength, y - focal plane pos, z - nerPlane, w - far plane
     public float raysPerPixel;
     public float reccursionDepth;

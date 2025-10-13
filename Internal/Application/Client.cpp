@@ -116,8 +116,8 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)
 {
     // deprecated
-    m_globalRenderingData.lightPosition.x += lightUpdateInfo.moveLightX;
-    m_globalRenderingData.lightPosition.y += lightUpdateInfo.moveLightY;
+    m_globalRenderingData.atmosphereParams.x += lightUpdateInfo.moveLightX;
+    m_globalRenderingData.atmosphereParams.y += lightUpdateInfo.moveLightY;
     m_isRTXOn = lightUpdateInfo.isRTXon;
 
     lightUpdateInfo.Reset();

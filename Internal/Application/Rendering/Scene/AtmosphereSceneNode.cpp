@@ -24,6 +24,7 @@ AtmosphereSceneNode::AtmosphereSceneNode(std::shared_ptr<ApplicationCore::Static
 void AtmosphereSceneNode::Update(SceneUpdateContext& sceneUpdateFlags)
 {
     sceneUpdateFlags.applicationState->pSetAtmosphereParameters(&m_parameters);
+
     SceneNode::Update(sceneUpdateFlags);
 }
 

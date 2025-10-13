@@ -124,16 +124,18 @@ struct SceneNodeMetaData
     bool      m_isDirty           = false;
 };
 
-struct SceneUpdateContext {
-    bool rebuildAs = true;
-    bool updateAs = true;
-    bool resetAccumulation = true;
+struct SceneUpdateContext
+{
+    bool                               rebuildAs         = true;
+    bool                               updateAs          = true;
+    bool                               resetAccumulation = true;
     ApplicationCore::ApplicationState* applicationState;
 
-    void Reset() {
-        updateAs = false;
+    void Reset()
+    {
+        updateAs          = false;
         resetAccumulation = false;
-        rebuildAs = false;
+        rebuildAs         = false;
     }
 };
 
