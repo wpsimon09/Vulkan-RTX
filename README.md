@@ -129,6 +129,7 @@ The `--no-skip-unchanged` option forces all shaders to compile, even if they hav
 - Ray traced AO
 - Bilateral filter denoiser
 - Physically based bloom
+- Atmospheric scattering
 
 ## Little showcase
 
