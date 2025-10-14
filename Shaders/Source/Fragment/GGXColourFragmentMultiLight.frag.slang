@@ -89,7 +89,7 @@ float4 fragmentMain(VertexOutput fsIn)
         float height = length(worldPosInAtmosphere);
         float3 upVector = worldPosInAtmosphere / height;
         // TODO: do i reall need to revert the light direction ? 
-        float viewZenithAngle = dot(lightingEnv.first.first.direction.xyz, upVector);
+        float viewZenithAngle = dot(-lightingEnv.first.first.direction.xyz, upVector);
         float2 transLutParams = float2(height, viewZenithAngle);
         
         float2 transmitanceTextureWH;
