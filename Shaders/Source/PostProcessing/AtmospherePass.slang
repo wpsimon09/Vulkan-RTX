@@ -97,8 +97,10 @@ float4 fragmentMain(VertexOut fsIn){
         L += skyViewLut.Sample(uv).xyz;
 
         // if des not ray intersect the ground and thus goes all the way to the atmosphere, render the small sun 
-        if(!intersectsGround && atmosphere.DrawSun){
-           L += sunWithHalo(worldDir, sunDir);
+        if(!intersectsGround){
+            if(atmosphere.DrawSun){
+                L += sunWithHalo(worldDir, sunDir);
+            }
         }
 
         return float4(L * light.dirLight.intensity.w, 1.0);

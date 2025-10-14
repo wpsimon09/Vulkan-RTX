@@ -85,7 +85,7 @@ float4 fragmentMain(VertexOutput fsIn)
     finalColor = lerp(ambientLight.illuminate(g, brdf_, V) * 0.2, lightingEnv.illuminate(g, brdf_, V)  + ambientLight.illuminate(g, brdf_, V),   shadowFactor.x);
 
     float3 transmitanceToSun = float3(1.0);
-    if(globalData.accountForSunTransmitance == true){
+    if(globalData.accountForSunTransmitance){
         float3 worldPosInAtmosphere = fsIn.vertexData.fragPos * cameraScale + float3(0.0, globalData.atmosphereInfo.x , 0.0);
         float height = length(worldPosInAtmosphere);
         float3 upVector = worldPosInAtmosphere / height;

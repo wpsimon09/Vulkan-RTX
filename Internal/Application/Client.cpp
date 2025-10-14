@@ -26,7 +26,7 @@
 #include "ApplicationState/ApplicationState.hpp"
 
 Client::Client()
-    : m_globalRenderingData()
+    : m_globalRenderingData{}
 {
     m_applicationState = std::make_unique<ApplicationCore::ApplicationState>();
 
@@ -97,7 +97,6 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 {
     m_camera->Update(cameraUpdateInfo, m_scene->GetSceneUpdateFlags());
 
-
     m_globalRenderingData.proj        = m_camera->GetProjectionMatrix();
     m_globalRenderingData.view        = m_camera->GetViewMatrix();
     m_globalRenderingData.inverseView = m_camera->GetInverseViewMatrix();
@@ -113,8 +112,6 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData.rendererOutputRTX = m_applicationState->m_rtxRenderOutput;
     m_globalRenderingData.accumulateFrames  = static_cast<bool>(m_applicationState->m_accumulateFrames);
     m_globalRenderingData.aoOcclusion       = static_cast<bool>(m_applicationState->m_ambientOcclusion);
-
-    m_globalRenderingData.accountForAtmosphereTransmitance = m_applicationState->GetGlobalRenderingInfo().accountForAtmosphereTransmitance;
 }
 
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)

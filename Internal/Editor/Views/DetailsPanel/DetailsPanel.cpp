@@ -440,8 +440,6 @@ void DetailsPanel::RenderAtmosphereDetails()
 
         if(ImGui::TreeNode("Light interaction parameters"))
         {
-
-
             if(ImGui::Button(ICON_FA_REPLY "##resetmieScat"))
             {
                 params.mieScattering = defaultParams.mieScattering;
