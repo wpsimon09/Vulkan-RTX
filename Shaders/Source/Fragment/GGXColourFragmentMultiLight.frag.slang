@@ -82,8 +82,7 @@ float4 fragmentMain(VertexOutput fsIn)
     float3 finalColor;
     float2 shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).xy;
 
-    finalColor = lerp(ambientLight.illuminate(g, brdf_, V) * 0.2, lightingEnv.illuminate(g, brdf_, V)  + ambientLight.illuminate(g, brdf_, V),   shadowFactor.x);
-
+    
     float3 transmitanceToSun = float3(1.0);
     if(globalData.accountForSunTransmitance){
         float3 worldPosInAtmosphere = fsIn.vertexData.fragPos * cameraScale + float3(0.0, globalData.atmosphereInfo.x , 0.0);
@@ -92,15 +91,18 @@ float4 fragmentMain(VertexOutput fsIn)
         // TODO: do i reall need to revert the light direction ? 
         float viewZenithAngle = dot(lightingEnv.first.first.direction.xyz, upVector);
         float2 transLutParams = float2(height, viewZenithAngle);
-
+        
         float2 transmitanceTextureWH;
         TransmitanceLUT.GetDimensions(transmitanceTextureWH.x, transmitanceTextureWH.y);
-
+        
         float2 trnansUv = GetTransmittanceTextureUvFromRMu(float2(globalData.atmosphereInfo.x,globalData.atmosphereInfo.y), transmitanceTextureWH, height, viewZenithAngle);
         transmitanceToSun = TransmitanceLUT.Sample(trnansUv).xyz;
+        
+        lightingEnv.first.first.transmitanceToSun = transmitanceToSun;
     }
     
-    finalColor.xyz += (brdf_.emission.xyz * brdf_.emission.w) * transmitanceToSun;
+    finalColor = lerp(ambientLight.illuminate(g, brdf_, V) * 0.2, lightingEnv.illuminate(g, brdf_, V)  + ambientLight.illuminate(g, brdf_, V),   shadowFactor.x);
+    finalColor.xyz += (brdf_.emission.xyz * brdf_.emission.w);
 
     // shadow factor.y is an ambient occlusion data 
     finalColor.xyz *= shadowFactor.y;
