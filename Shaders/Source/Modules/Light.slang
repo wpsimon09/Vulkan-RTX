@@ -24,7 +24,6 @@ public struct DirectionalLight : ILightEnv {
     public float4 intensity;
     public float4 parameters; //x - shadow rays, y -shadow bias, z - in use, w- padding
 
-    public float transmitanceToSun = {1.0}; // tODO: finish
 
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         if((bool)parameters.z){

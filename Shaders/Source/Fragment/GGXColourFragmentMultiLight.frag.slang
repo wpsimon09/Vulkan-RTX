@@ -84,7 +84,8 @@ float4 fragmentMain(VertexOutput fsIn)
 
     finalColor = lerp(ambientLight.illuminate(g, brdf_, V) * 0.2, lightingEnv.illuminate(g, brdf_, V)  + ambientLight.illuminate(g, brdf_, V),   shadowFactor.x);
 
-    if(globalData.accountForSunTransmitance){
+    float3 transmitanceToSun = float3(1.0);
+    if(globalData.accountForSunTransmitance == true){
         float3 worldPosInAtmosphere = fsIn.vertexData.fragPos * cameraScale + float3(0.0, globalData.atmosphereInfo.x , 0.0);
         float height = length(worldPosInAtmosphere);
         float3 upVector = worldPosInAtmosphere / height;
@@ -96,10 +97,10 @@ float4 fragmentMain(VertexOutput fsIn)
         TransmitanceLUT.GetDimensions(transmitanceTextureWH.x, transmitanceTextureWH.y);
 
         float2 trnansUv = GetTransmittanceTextureUvFromRMu(float2(globalData.atmosphereInfo.x,globalData.atmosphereInfo.y), transmitanceTextureWH, height, viewZenithAngle);
-        float3 transmitanceToSun = TransmitanceLUT.Sample(trnansUv).xyz;
+        transmitanceToSun = TransmitanceLUT.Sample(trnansUv).xyz;
     }
     
-    finalColor.xyz += (brdf_.emission.xyz * brdf_.emission.w);
+    finalColor.xyz += (brdf_.emission.xyz * brdf_.emission.w) * transmitanceToSun;
 
     // shadow factor.y is an ambient occlusion data 
     finalColor.xyz *= shadowFactor.y;

@@ -90,12 +90,13 @@ void ForwardRenderer::Init(int                                  frameIndex,
                            VulkanUtils::VRayTracingDataManager& rayTracingDataManager,
                            VulkanUtils::RenderContext*          renderContext)
 {
-    m_visibilityBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_gBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
+    m_atmospherePass->Init(frameIndex, uniformBufferManager, renderContext);
+
+    m_visibilityBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_visibilityDenoisePass->Init(frameIndex, uniformBufferManager, renderContext);
     m_forwardRenderPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_fogPass->Init(frameIndex, uniformBufferManager, renderContext);
-    m_atmospherePass->Init(frameIndex, uniformBufferManager, renderContext);
 }
 
 void ForwardRenderer::Update(int                                   currentFrame,
