@@ -26,7 +26,7 @@
 #include "ApplicationState/ApplicationState.hpp"
 
 Client::Client()
-    : m_globalRenderingData()
+    : m_globalRenderingData{}
 {
     m_applicationState = std::make_unique<ApplicationCore::ApplicationState>();
 
@@ -102,6 +102,7 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData.inverseView = m_camera->GetInverseViewMatrix();
     m_globalRenderingData.inverseProj = m_camera->GetinverseProjectionMatrix();
     m_globalRenderingData.screenSize = {GlobalVariables::RenderTargetResolutionWidth, GlobalVariables::RenderTargetResolutionHeight};
+
     m_globalRenderingData.viewParams        = glm::vec4(m_camera->GetDefocuseStrength(), m_camera->GetFocalLength(),
                                                         m_camera->GetNearPlane(), m_camera->GetFarPlane());
     m_globalRenderingData.reccursionDepth   = GlobalVariables::RenderingOptions::MaxRecursionDepth;
@@ -116,8 +117,8 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)
 {
     // deprecated
-    m_globalRenderingData.lightPosition.x += lightUpdateInfo.moveLightX;
-    m_globalRenderingData.lightPosition.y += lightUpdateInfo.moveLightY;
+    m_globalRenderingData.atmosphereParams.x += lightUpdateInfo.moveLightX;
+    m_globalRenderingData.atmosphereParams.y += lightUpdateInfo.moveLightY;
     m_isRTXOn = lightUpdateInfo.isRTXon;
 
     lightUpdateInfo.Reset();

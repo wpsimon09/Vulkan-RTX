@@ -1,7 +1,7 @@
 import Material;
 import Light;
 import Surface;
-
+import Atmosphere;
 #include "ShaderBindingGroups/ForwardLit.slang"
 
 struct FragmentShaderIn
@@ -20,6 +20,9 @@ struct VertexOutput {
     FragmentShaderIn vertexData : DATA;
     float4 sv_position : SV_Position;
 }
+
+static const float cameraScale = 0.1;
+// TODO: figure out how to pass atmosphere botom radius
 
 [shader("pixel")]
 float4 fragmentMain(VertexOutput fsIn)
@@ -68,12 +71,6 @@ float4 fragmentMain(VertexOutput fsIn)
     ambientLight.BRDF_Lut = BRDF_Lut;
 
     AreaAndAmbient.first = _lightInfo.areaLights;
-
-    for (int i = 0; i < AreaAndAmbient.first.lights.getCount(); i++) {
-        //AreaAndAmbient.first.lights[i].LTC = DescriptorHandle<Sampler2D>(LTC);
-        //AreaAndAmbient.first.lights[i].LTC_Inverse = LTC_Inverse;    
-    }
-    
     AreaAndAmbient.second = ambientLight;
 
     lightingEnv.first = DirAndPoint;
@@ -85,9 +82,26 @@ float4 fragmentMain(VertexOutput fsIn)
     float3 finalColor;
     float2 shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).xy;
 
-    finalColor = lerp(ambientLight.illuminate(g, brdf_, V) * 0.2, lightingEnv.illuminate(g, brdf_, V)  + ambientLight.illuminate(g, brdf_, V),   shadowFactor.x);
-
     
+    float3 transmitanceToSun = float3(1.0);
+    if(globalData.accountForSunTransmitance){
+        float3 worldPosInAtmosphere = fsIn.vertexData.fragPos * cameraScale + float3(0.0, globalData.atmosphereInfo.x , 0.0);
+        float height = length(worldPosInAtmosphere);
+        float3 upVector = worldPosInAtmosphere / height;
+        // TODO: do i reall need to revert the light direction ? 
+        float viewZenithAngle = dot(-lightingEnv.first.first.direction.xyz, upVector);
+        float2 transLutParams = float2(height, viewZenithAngle);
+        
+        float2 transmitanceTextureWH;
+        TransmitanceLUT.GetDimensions(transmitanceTextureWH.x, transmitanceTextureWH.y);
+        
+        float2 trnansUv = GetTransmittanceTextureUvFromRMu(float2(globalData.atmosphereInfo.x,globalData.atmosphereInfo.y), transmitanceTextureWH, height, viewZenithAngle);
+        transmitanceToSun = TransmitanceLUT.Sample(trnansUv).xyz;
+        
+        lightingEnv.first.first.transmitanceToSun = transmitanceToSun;
+    }
+    
+    finalColor = lerp(ambientLight.illuminate(g, brdf_, V) * 0.2, lightingEnv.illuminate(g, brdf_, V)  + ambientLight.illuminate(g, brdf_, V),   shadowFactor.x);
     finalColor.xyz += (brdf_.emission.xyz * brdf_.emission.w);
 
     // shadow factor.y is an ambient occlusion data 

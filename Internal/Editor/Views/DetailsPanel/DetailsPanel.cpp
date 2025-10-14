@@ -436,11 +436,10 @@ void DetailsPanel::RenderAtmosphereDetails()
         ImGui::DragFloat("Mie Assimetry", &params.mieExtinction.w, 0.1, -1.0, 1.0);
         ImGui::Checkbox("Use multiple scattering", reinterpret_cast<bool*>(&params.booleans.x));
         ImGui::Checkbox("Draw sun", reinterpret_cast<bool*>(&params.booleans.y));
+        ImGui::Checkbox("Affetcs sun luminance", reinterpret_cast<bool*>(&params.booleans.z));
 
         if(ImGui::TreeNode("Light interaction parameters"))
         {
-
-
             if(ImGui::Button(ICON_FA_REPLY "##resetmieScat"))
             {
                 params.mieScattering = defaultParams.mieScattering;

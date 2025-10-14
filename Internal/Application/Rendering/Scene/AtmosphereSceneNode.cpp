@@ -9,6 +9,7 @@
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Application/ApplicationState/ApplicationState.hpp"
+#include <vulkan/vulkan.hpp>
 
 namespace ApplicationCore {
 AtmosphereSceneNode::AtmosphereSceneNode(std::shared_ptr<ApplicationCore::StaticMesh> mesh)
@@ -23,6 +24,7 @@ AtmosphereSceneNode::AtmosphereSceneNode(std::shared_ptr<ApplicationCore::Static
 void AtmosphereSceneNode::Update(SceneUpdateContext& sceneUpdateFlags)
 {
     sceneUpdateFlags.applicationState->pSetAtmosphereParameters(&m_parameters);
+
     SceneNode::Update(sceneUpdateFlags);
 }
 

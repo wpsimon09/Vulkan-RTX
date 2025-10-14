@@ -27,7 +27,6 @@ struct RenderTarget2CreatInfo
     vk::ResolveModeFlagBits resolveMode{vk::ResolveModeFlagBits::eAverage};
 
     bool computeShaderOutput{false};
-
 };
 
 class RenderTarget2
@@ -52,7 +51,9 @@ class RenderTarget2
     vk::ImageView GetPrimaryImageView() const;
     vk::ImageView GetResolvedImageView() const;
 
-    void TransitionAttachments(VulkanCore::VCommandBuffer& cmdBuffer, vk::ImageLayout targetLayout, vk::ImageLayout oldLayout,
+    void TransitionAttachments(VulkanCore::VCommandBuffer&          cmdBuffer,
+                               vk::ImageLayout                      targetLayout,
+                               vk::ImageLayout                      oldLayout,
                                const VulkanUtils::VBarrierPosition& barrierPosition);
 
     void ResizeAttachments(int newWidth, int newHeight);
@@ -71,10 +72,9 @@ class RenderTarget2
     std::unique_ptr<VulkanCore::VImage2> m_resolvedAttachment;
 
     std::vector<std::unique_ptr<VulkanCore::VImage2>> m_swapChainImages;
-    RenderTarget2CreatInfo m_renderTargetInfo;
+    RenderTarget2CreatInfo                            m_renderTargetInfo;
 
     bool m_isForSwapChain = false;
-
 };
 
 }  // namespace Renderer

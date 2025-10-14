@@ -23,10 +23,11 @@ public struct DirectionalLight : ILightEnv {
     public float4 direction; //xyz - direction, w- sun radius
     public float4 intensity;
     public float4 parameters; //x - shadow rays, y -shadow bias, z - in use, w- padding
+    public float3 transmitanceToSun = float3(1.0);
 
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         if((bool)parameters.z){
-            return (intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g.shadingNormal);
+            return ((intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g.shadingNormal) * transmitanceToSun );
         }
         return float3(0.0);
 

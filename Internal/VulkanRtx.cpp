@@ -228,8 +228,7 @@ void Application::Render()
 
     // the frame update has to be here since editor render might change some stuff based on the UI alterations
     // this should be fixed with Command pattern or similar techinique
-    // checks if CPU threads processing textuers are done
-    m_vulkanDevice->GetTransferOpsManager().Sync();
+    m_vulkanDevice->GetTransferOpsManager().Sync();  // checks if CPU threads processing textuers are done
     m_frame->Update(m_client->GetApplicationState());
 
     if(m_frame->Render(m_client->GetApplicationState()))

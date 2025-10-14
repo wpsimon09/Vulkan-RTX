@@ -7,7 +7,7 @@ public struct AtmosphereParamsCPU{
     float4 mieAbsorption;//xyz: as-is, w: Mie density exp scale
     float4 mieExctinction;//xyz: as-is, w: Mie phase G
     float4 absorptionExctinction; //xyz: as-is, w: Absorption denssity 0 layer width
-    float4 booleans; //x - use multiscattering
+    int4 booleans; //x - use multiscattering
 
     public AtmosphereParamsGPU Parse(){
         AtmosphereParamsGPU gpu;

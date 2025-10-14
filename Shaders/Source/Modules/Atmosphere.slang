@@ -203,6 +203,13 @@ float DistanceToTopAtmosphereBoundary(AtmosphereParamsGPU atmosphere,float r, fl
     return ClampDistance(-r * mu + SafeSqrt(discriminatn));
 }
 
+float DistanceToTopAtmosphereBoundary(float2 atmosphereExtremes,float r, float mu){
+    float radiusBottom = atmosphereExtremes.x;
+    float radiusTop = atmosphereExtremes.y;
+    float discriminatn = r * r * (mu * mu - 1.0) + radiusTop * radiusTop;
+    return ClampDistance(-r * mu + SafeSqrt(discriminatn));
+}
+
 float DistanceToBottomAtmosphereBoundary(AtmosphereParamsGPU atmosphere, float r, float mu){
     float discriminant = r * r * (mu * mu - 1.0) + atmosphere.radiusBottom * atmosphere.radiusBottom;
     return ClampDistance(-r * mu - SafeSqrt(discriminant));
@@ -246,6 +253,34 @@ public float2 GetTransmittanceTextureUvFromRMu(AtmosphereParamsGPU atmosphere, f
     return float2(GetTextureCoordFromUnitRange(x_mu, (int)atmosphere.transmitanceTextureWidth),
                   GetTextureCoordFromUnitRange(x_r, (int)atmosphere.transmitanceTextureHeight));
 }
+
+public float2 GetTransmittanceTextureUvFromRMu(float2 atmosphereExtremens, float2 transmitanceTextureWH, float r, float mu){
+    //if(!(r >= atmosphere.radiusBottom && r <= atmosphere.radiusTop)){return {-1,-1};}
+    //if(!(mu >= -1.0 && mu <= 1.0)) {}
+
+    //compute how far a horizontal ray at sea level goes before it escapes the atmosphere.
+    // see figure 2 the big H
+    float radiusBottom = atmosphereExtremens.x;
+    float radiusTop = atmosphereExtremens.y;
+
+    float H = SafeSqrt(radiusTop *radiusTop  - radiusBottom * radiusBottom);
+
+    // distance to the horizon, see figure 2 in 
+    //https://ebruneton.github.io/precomputed_atmospheric_scattering/atmosphere/functions.glsl.html#transmittance_computation
+    float rho = SafeSqrt(r * r - radiusBottom * radiusBottom);
+
+    // distance to the top of the atmosphere verticaly 
+    float d = DistanceToTopAtmosphereBoundary(atmosphereExtremens,r, mu);
+    float d_min = radiusTop - r;
+    float d_max = rho + H;
+    
+    // normalize to the 0, 1
+    float x_mu = (d - d_min) / (d_max - d_min);
+    float x_r = rho / H;
+    return float2(GetTextureCoordFromUnitRange(x_mu, (int)transmitanceTextureWH.x),
+                  GetTextureCoordFromUnitRange(x_r, (int)transmitanceTextureWH.y));
+}
+
 
 /*
 Converts texture coordinate 
