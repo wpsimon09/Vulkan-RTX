@@ -89,7 +89,7 @@ float4 fragmentMain(VertexOutput fsIn)
         float height = length(worldPosInAtmosphere);
         float3 upVector = worldPosInAtmosphere / height;
         // TODO: do i reall need to revert the light direction ? 
-        float viewZenithAngle = dot(-lightingEnv.first.first.direction.xyz, upVector);
+        float viewZenithAngle = dot(lightingEnv.first.first.direction.xyz, upVector);
         float2 transLutParams = float2(height, viewZenithAngle);
         
         float2 transmitanceTextureWH;
@@ -99,7 +99,10 @@ float4 fragmentMain(VertexOutput fsIn)
         transmitanceToSun = TransmitanceLUT.Sample(trnansUv).xyz;
         
         lightingEnv.first.first.transmitanceToSun = transmitanceToSun;
+    }else{
+        lightingEnv.first.first.transmitanceToSun = transmitanceToSun;
     }
+
     
     finalColor = lerp(ambientLight.illuminate(g, brdf_, V) * 0.2, lightingEnv.illuminate(g, brdf_, V)  + ambientLight.illuminate(g, brdf_, V),   shadowFactor.x);
     finalColor.xyz += (brdf_.emission.xyz * brdf_.emission.w);
