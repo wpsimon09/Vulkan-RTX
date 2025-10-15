@@ -65,15 +65,15 @@ ForwardRender::ForwardRender(const VulkanCore::VDevice& device, ApplicationCore:
     //======================================================================
     //************************* CREATE RENDER TARGET ***********************
     //======================================================================
-    Renderer::RenderTarget2CreatInfo lightPassCI{
-        width,
-        height,
-        true,
-        false,
-        vk::Format::eR16G16B16A16Sfloat,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eAverage,
-    };
+    Renderer::RenderTarget2CreatInfo lightPassCI{width,
+                                                 height,
+                                                 true,
+                                                 false,
+                                                 vk::Format::eR16G16B16A16Sfloat,
+                                                 vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                 vk::ResolveModeFlagBits::eAverage,
+                                                 false,
+                                                 "Forward render light pass output attachemnt"};
 
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, lightPassCI));
 }

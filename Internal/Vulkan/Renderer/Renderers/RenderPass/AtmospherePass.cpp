@@ -43,14 +43,17 @@ AtmospherePass::AtmospherePass(const VulkanCore::VDevice& device, ApplicationCor
                                                        vk::ImageLayout::eGeneral,
                                                        vk::ResolveModeFlagBits::eNone,
                                                        true};
+    transmitanceLutCi.imageDebugName = "Transmitacne LUT";
     m_renderTargets.push_back(std::make_unique<RenderTarget2>(device, transmitanceLutCi));
 
-    transmitanceLutCi.heigh = 32;
-    transmitanceLutCi.width = 32;
+    transmitanceLutCi.heigh          = 32;
+    transmitanceLutCi.width          = 32;
+    transmitanceLutCi.imageDebugName = "Multiscattering LUT";
     m_renderTargets.push_back(std::make_unique<RenderTarget2>(device, transmitanceLutCi));
 
-    transmitanceLutCi.width = 192;
-    transmitanceLutCi.heigh = 128;
+    transmitanceLutCi.width          = 192;
+    transmitanceLutCi.heigh          = 128;
+    transmitanceLutCi.imageDebugName = "Sky view-lut";
     m_renderTargets.push_back(std::make_unique<RenderTarget2>(device, transmitanceLutCi));
 }
 

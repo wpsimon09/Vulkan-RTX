@@ -26,7 +26,8 @@ struct RenderTarget2CreatInfo
     vk::ImageLayout         initialLayout{vk::ImageLayout::eShaderReadOnlyOptimal};
     vk::ResolveModeFlagBits resolveMode{vk::ResolveModeFlagBits::eAverage};
 
-    bool computeShaderOutput{false};
+    bool        computeShaderOutput{false};
+    std::string imageDebugName = "";
 };
 
 class RenderTarget2

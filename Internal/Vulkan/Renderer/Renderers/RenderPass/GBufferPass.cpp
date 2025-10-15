@@ -26,31 +26,32 @@ GBufferPass::GBufferPass(const VulkanCore::VDevice& device, ApplicationCore::Eff
 
     //===============================================
     // Generate depth pre-pass attachment
-    Renderer::RenderTarget2CreatInfo depthPrepassOutputCI{
-        width,
-        height,
-        true,
-        true,
-        m_device.GetDepthFormat(),
-        vk::ImageLayout::eDepthStencilReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eMin,
-    };
+    Renderer::RenderTarget2CreatInfo depthPrepassOutputCI{width,
+                                                          height,
+                                                          true,
+                                                          true,
+                                                          m_device.GetDepthFormat(),
+                                                          vk::ImageLayout::eDepthStencilReadOnlyOptimal,
+                                                          vk::ResolveModeFlagBits::eMin,
+                                                          false,
+                                                          "Depth pre pass attachment"};
 
     m_depthBuffer = std::make_unique<Renderer::RenderTarget2>(m_device, depthPrepassOutputCI);
 
     //===============================================
     // Generate GBuffer attachments
-    Renderer::RenderTarget2CreatInfo gBufferAttachmentCI{
-        width,
-        height,
-        true,
-        false,
-        vk::Format::eR16G16B16A16Sfloat,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eAverage,
-    };
+    Renderer::RenderTarget2CreatInfo gBufferAttachmentCI{width,
+                                                         height,
+                                                         true,
+                                                         false,
+                                                         vk::Format::eR16G16B16A16Sfloat,
+                                                         vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                         vk::ResolveModeFlagBits::eAverage,
+                                                         false,
+                                                         "G buffer attachemnt"};
     for(int i = 0; i < m_numGBufferAttachments; i++)
     {
+        gBufferAttachmentCI.imageDebugName += " | number" + std::to_string(i);
         m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, gBufferAttachmentCI));
     }
 }

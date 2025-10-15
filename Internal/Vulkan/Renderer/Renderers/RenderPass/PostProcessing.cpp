@@ -21,6 +21,7 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include <exception>
 #include <memory>
+#include <string>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
@@ -41,15 +42,15 @@ FogPass::FogPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibr
     // Generate attachment
     //==================
     // Fog pass output
-    Renderer::RenderTarget2CreatInfo fogPassOutputCI{
-        width,
-        height,
-        false,
-        false,
-        vk::Format::eR16G16B16A16Sfloat,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eNone,
-    };
+    Renderer::RenderTarget2CreatInfo fogPassOutputCI{width,
+                                                     height,
+                                                     false,
+                                                     false,
+                                                     vk::Format::eR16G16B16A16Sfloat,
+                                                     vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                     vk::ResolveModeFlagBits::eNone,
+                                                     false,
+                                                     "Fog pass output attachment"};
 
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI));
 }
@@ -168,21 +169,21 @@ ToneMappingPass::ToneMappingPass(const VulkanCore::VDevice& device, ApplicationC
     // create attachments
 
     // LDR - tone mapping output = 0
-    Renderer::RenderTarget2CreatInfo toneMapOutputCI{
-        width,
-        height,
-        false,
-        false,
-        vk::Format::eR16G16B16A16Sfloat,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eNone,
-    };
+    Renderer::RenderTarget2CreatInfo toneMapOutputCI{width,
+                                                     height,
+                                                     false,
+                                                     false,
+                                                     vk::Format::eR16G16B16A16Sfloat,
+                                                     vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                     vk::ResolveModeFlagBits::eNone,
+                                                     false,
+                                                     "Tone map output attachment"};
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, toneMapOutputCI));
 
     // Average luminance = 1
 
     RenderTarget2CreatInfo avgLuminanceOutputCI{
-        1, 1, false, false, vk::Format::eR32Sfloat, vk::ImageLayout::eUndefined, vk::ResolveModeFlagBits::eNone, true};
+        1, 1, false, false, vk::Format::eR32Sfloat, vk::ImageLayout::eUndefined, vk::ResolveModeFlagBits::eNone, true, "Average luminance texture"};
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, avgLuminanceOutputCI));
 
 
@@ -431,15 +432,15 @@ LensFlarePass::LensFlarePass(const VulkanCore::VDevice& device, ApplicationCore:
 
     //==================================
     // Generate lens flare render target
-    RenderTarget2CreatInfo lensFlareOutputCI{
-        width,
-        height,
-        false,
-        false,
-        vk::Format::eR16G16B16A16Sfloat,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eNone,
-    };
+    RenderTarget2CreatInfo lensFlareOutputCI{width,
+                                             height,
+                                             false,
+                                             false,
+                                             vk::Format::eR16G16B16A16Sfloat,
+                                             vk::ImageLayout::eShaderReadOnlyOptimal,
+                                             vk::ResolveModeFlagBits::eNone,
+                                             false,
+                                             "lens flare output attachment"};
 
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(device, lensFlareOutputCI));
 }
@@ -546,22 +547,18 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
     , m_downSampleParams{}
     , m_upSampleParams{}
 {
-    RenderTarget2CreatInfo bloomOutputCi{width,
-                                         height,
-                                         false,
-                                         false,
-                                         vk::Format::eR16G16B16A16Sfloat,
-                                         vk::ImageLayout::eGeneral,
-                                         vk::ResolveModeFlagBits::eNone,
-                                         true};
+    RenderTarget2CreatInfo bloomOutputCi{
+        width, height, false, false, vk::Format::eR16G16B16A16Sfloat, vk::ImageLayout::eGeneral, vk::ResolveModeFlagBits::eNone, true, "bloom temp attachemnt"};
     m_renderTargets.resize(EBloomAttachments::Count);
 
     for(int i = 0; i < EBloomAttachments::Count - 1; i++)
     {
 
+
+        bloomOutputCi.imageDebugName += "| attachment number: " + std::to_string(i);
         m_renderTargets[i] = std::make_unique<Renderer::RenderTarget2>(device, bloomOutputCi);
 
-        printf("Created texture (%i) w:(%i) h:(%i) \n", i, bloomOutputCi.width, bloomOutputCi.heigh);
+        //printf("Created texture (%i) w:(%i) h:(%i) \n", i, bloomOutputCi.width, bloomOutputCi.heigh);
 
         bloomOutputCi.width *= 0.5;
         bloomOutputCi.heigh *= 0.5;
@@ -569,6 +566,7 @@ BloomPass::BloomPass(const VulkanCore::VDevice& device, ApplicationCore::Effects
 
     bloomOutputCi.width                             = width;
     bloomOutputCi.heigh                             = height;
+    bloomOutputCi.imageDebugName                    = "final bloom attachemnt";
     bloomOutputCi.initialLayout                     = vk::ImageLayout::eShaderReadOnlyOptimal;
     m_renderTargets[EBloomAttachments::BloomOutput] = std::make_unique<RenderTarget2>(device, bloomOutputCi);
 

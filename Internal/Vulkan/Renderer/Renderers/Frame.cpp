@@ -267,7 +267,7 @@ bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
     m_renderingCommandBuffers[m_frameInFlightID]->BeginRecording();
 
     //===================================================
-    // ACTUAL RENDERING IS TRIGGERED HERE
+    // !!! ACTUAL RENDERING IS TRIGGERED HERE
     if(!m_uiContext.m_isRayTracing)
     {
 

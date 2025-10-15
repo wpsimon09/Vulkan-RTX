@@ -39,6 +39,7 @@ BilateralFilterPass::BilateralFilterPass(const VulkanCore::VDevice&       device
     denoisedResultCI.multiSampled        = false;
     denoisedResultCI.computeShaderOutput = true;
 
+    denoisedResultCI.imageDebugName = "Denoise pass resul";
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, denoisedResultCI));
 }
 

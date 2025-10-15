@@ -6,6 +6,7 @@
 #define VIMAGE2_HPP
 #include <cstdint>
 #include <glm/fwd.hpp>
+#include <string>
 #include <vulkan/vulkan.hpp>
 
 #include "Application/Logger/Logger.hpp"
@@ -36,6 +37,7 @@ struct VImage2CreateInfo
     vk::ImageLayout         layout     = vk::ImageLayout::eUndefined;
 
     std::string imageAllocationName = "Image allocation name not set !";
+    std::string imageDebugName      = "";
 
     bool isStorage = false;
 
@@ -99,6 +101,7 @@ class VImage2 : public VulkanCore::VObject
     vk::DescriptorImageInfo   GetDescriptorImageInfo();
     vk::ImageSubresourceRange GetSubresrouceRange();
     uint32_t                  GetPixelCount();
+    void                      GiveDebugName(const std::string& name);
 
     vk::DeviceSize GetImageSizeBytes();
     VmaAllocation& GetImageAllocation();
@@ -170,7 +173,9 @@ void VImage2::FillWithImageData(const VulkanStructs::VImageData<T>& imageData,
     Utils::Logger::LogInfoVerboseOnly("Image data copied");
 
     // transition image to the transfer dst optimal layout so that data can be copied to it
-    VulkanUtils::PlaceImageMemoryBarrier2(*this, cmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, VulkanUtils::VImage_Undefined_ToTransferDst);;
+    VulkanUtils::PlaceImageMemoryBarrier2(*this, cmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal,
+                                          VulkanUtils::VImage_Undefined_ToTransferDst);
+    ;
     //TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 
     vk::BufferImageCopy region = {};
@@ -195,12 +200,12 @@ void VImage2::FillWithImageData(const VulkanStructs::VImageData<T>& imageData,
                                                    vk::ImageLayout::eTransferDstOptimal, 1, &region);
 
     Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is true, executing transition...");
-    VulkanUtils::VBarrierPosition barrierPos = {
-        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
-         vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead
-    };
+    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
+                                                vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eFragmentShader,
+                                                vk::AccessFlagBits2::eShaderRead};
 
-    PlaceImageMemoryBarrier2(*this, cmdBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
+    PlaceImageMemoryBarrier2(*this, cmdBuffer, vk::ImageLayout::eTransferDstOptimal,
+                             vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
 
     // this should be safe, since data are in staging
     imageData.Clear();
@@ -272,7 +277,9 @@ void VImage2::FillWithImageData(const std::vector<VulkanStructs::VImageData<T>>&
     m_stagingBufferWithPixelData->UnMapStagingBuffer();
 
     // transition image to the transfer dst optimal layout so that data can be copied to it
-    VulkanUtils::PlaceImageMemoryBarrier2(*this, cmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, VulkanUtils::VImage_Undefined_ToTransferDst);;
+    VulkanUtils::PlaceImageMemoryBarrier2(*this, cmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal,
+                                          VulkanUtils::VImage_Undefined_ToTransferDst);
+    ;
 
     cmdBuffer.GetCommandBuffer().copyBufferToImage(m_stagingBufferWithPixelData->GetStagingBuffer(), m_imageVK,
                                                    vk::ImageLayout::eTransferDstOptimal, copyRegions.size(), copyRegions.data());
@@ -280,12 +287,12 @@ void VImage2::FillWithImageData(const std::vector<VulkanStructs::VImageData<T>>&
 
     Utils::Logger::LogInfoVerboseOnly("Flag transitionToShaderReadOnly is true, executing transition...");
 
-    VulkanUtils::VBarrierPosition barrierPos = {
-        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
-         vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead
-    };
+    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
+                                                vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eFragmentShader,
+                                                vk::AccessFlagBits2::eShaderRead};
 
-    VulkanUtils::PlaceImageMemoryBarrier2(*this, cmdBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
+    VulkanUtils::PlaceImageMemoryBarrier2(*this, cmdBuffer, vk::ImageLayout::eTransferDstOptimal,
+                                          vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
 
     //imageData.clear();
 }

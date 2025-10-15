@@ -27,15 +27,15 @@ VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, Ap
 
     //===================================================
     // create render target
-    Renderer::RenderTarget2CreatInfo shadowMapCI{
-        width,
-        height,
-        false,
-        false,
-        vk::Format::eR16G16B16A16Sfloat,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
-        vk::ResolveModeFlagBits::eNone,
-    };
+    Renderer::RenderTarget2CreatInfo shadowMapCI{width,
+                                                 height,
+                                                 false,
+                                                 false,
+                                                 vk::Format::eR16G16B16A16Sfloat,
+                                                 vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                 vk::ResolveModeFlagBits::eNone,
+                                                 false,
+                                                 "visibility buffer attachment"};
 
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI));
 }

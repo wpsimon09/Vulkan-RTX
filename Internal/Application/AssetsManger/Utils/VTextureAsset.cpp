@@ -87,6 +87,7 @@ bool ApplicationCore::VTextureAsset::Sync()
             m_isInSync       = true;
             m_assetPath      = fetchedData.fileName;
             m_deviceHandle   = std::make_shared<VulkanCore::VImage2>(m_device, fetchedData);
+            m_deviceHandle->GiveDebugName("Image assets at path" + this->m_originalPathToTexture->string());
             m_transferOpsManager.DestroyBuffer(m_deviceHandle->GetImageStagingvBuffer(), true);
             return true;
         },

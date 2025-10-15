@@ -5,10 +5,14 @@
 #include "VImage2.hpp"
 
 #include "Application/Logger/Logger.hpp"
+#include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include <cstdint>
+#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_enums.hpp>
+#include <vulkan/vulkan_structs.hpp>
 
 namespace VulkanCore {
 VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& info)
@@ -24,6 +28,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& inf
 
     AllocateImage();
     GenerateImageView();
+    GiveDebugName(info.imageDebugName);
     m_imageFlags.IsStorage     = info.isStorage;
     m_imageFlags.IsDepthBuffer = IsDepth(m_imageInfo.format);
 }
@@ -37,6 +42,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& inf
     m_imageFlags.IsSwapChainImage = true;
 
     GenerateImageView();
+    GiveDebugName("Swap chain image");
 }
 
 VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<uint32_t>& imageData)
@@ -55,6 +61,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<ui
     AllocateImage();
     GenerateImageView();
     FillWithImageData(imageData, m_device.GetTransferOpsManager().GetCommandBuffer());
+    GiveDebugName("Texture Image");
 }
 
 VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<float>& imageData)
@@ -73,6 +80,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<fl
     AllocateImage();
     GenerateImageView();
     FillWithImageData<float>(imageData, device.GetTransferOpsManager().GetCommandBuffer());
+    GiveDebugName("Texture Image");
 }
 VImage2::VImage2(const VulkanCore::VDevice& device, std::vector<VulkanStructs::VImageData<float>>& imageDataArray)
     : m_device(device)
@@ -96,6 +104,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, std::vector<VulkanStructs::V
     AllocateImage();
     GenerateImageView();
     FillWithImageData(imageDataArray, device.GetTransferOpsManager().GetCommandBuffer());
+    GiveDebugName("Texture array");
 }
 
 void VImage2::Resize(uint32_t newWidth, uint32_t newHeight)
@@ -153,6 +162,7 @@ void VImage2::AllocateImage()
 
 void VImage2::GenerateImageView()
 {
+
     vk::ImageViewCreateInfo createInfo{};
     createInfo.image                           = m_imageVK;
     createInfo.format                          = m_imageInfo.format;
@@ -247,6 +257,20 @@ vk::ImageSubresourceRange VImage2::GetSubresrouceRange()
     sub.layerCount     = m_imageInfo.arrayLayers;
 
     return sub;
+}
+
+void VImage2::GiveDebugName(const std::string& name)
+{
+    if(!name.empty() && GlobalState::InDebugMode)
+    {
+        vk::DebugUtilsObjectNameInfoEXT nameInfo;
+        nameInfo.objectType   = m_imageVK.objectType;
+        nameInfo.objectHandle = (uint64_t)static_cast<VkImage>(m_imageVK);
+        nameInfo.pObjectName  = name.c_str();
+
+        auto result = m_device.GetDevice().setDebugUtilsObjectNameEXT(&nameInfo, m_device.DispatchLoader);
+        assert(result == vk::Result::eSuccess);
+    }
 }
 
 uint32_t VImage2::GetPixelCount()

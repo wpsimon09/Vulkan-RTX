@@ -23,16 +23,19 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     attachemtImageCI.width  = m_renderTargetInfo.width;
     attachemtImageCI.layout = m_renderTargetInfo.initialLayout;
     attachemtImageCI.samples = m_renderTargetInfo.multiSampled ? m_device.GetSampleCount() : vk::SampleCountFlagBits::e1;
-    attachemtImageCI.mipLevels = 1;
+    attachemtImageCI.mipLevels      = 1;
+    attachemtImageCI.imageDebugName = m_renderTargetInfo.imageDebugName;
     attachemtImageCI.aspecFlags = m_renderTargetInfo.isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
     if(m_renderTargetInfo.isDepth)
     {
         assert(!m_renderTargetInfo.computeShaderOutput && "Depth image can not be storage image ");
+        attachemtImageCI.imageDebugName = m_renderTargetInfo.imageDebugName + " | depth-stencil attachment";
         attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
     }
     else if(m_renderTargetInfo.computeShaderOutput)
     {
         assert(!m_renderTargetInfo.isDepth && "Storage image can not be depth buffer");
+        attachemtImageCI.imageDebugName = m_renderTargetInfo.imageDebugName + " | compute shader attachment";
         attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eStorage;
         attachemtImageCI.isStorage = true;
     }
@@ -81,7 +84,8 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     if(m_renderTargetInfo.multiSampled && m_renderTargetInfo.resolveMode != vk::ResolveModeFlagBits::eNone)
     {
         attachemtImageCI.samples = vk::SampleCountFlagBits::e1;
-        m_resolvedAttachment     = std::make_unique<VulkanCore::VImage2>(m_device, attachemtImageCI);
+        attachemtImageCI.imageDebugName += " | resolved attachment ";
+        m_resolvedAttachment = std::make_unique<VulkanCore::VImage2>(m_device, attachemtImageCI);
 
         //===================================
         // transition to specified layout
