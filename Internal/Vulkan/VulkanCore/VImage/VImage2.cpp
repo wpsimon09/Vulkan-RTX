@@ -270,6 +270,13 @@ void VImage2::GiveDebugName(const std::string& name)
 
         auto result = m_device.GetDevice().setDebugUtilsObjectNameEXT(&nameInfo, m_device.DispatchLoader);
         assert(result == vk::Result::eSuccess);
+
+        if(m_imageView != nullptr)
+        {
+            nameInfo.objectType   = m_imageView.objectType;
+            nameInfo.objectHandle = (uint64_t)static_cast<VkImageView>(m_imageView);
+            nameInfo.pObjectName  = name.c_str();
+        }
     }
 }
 

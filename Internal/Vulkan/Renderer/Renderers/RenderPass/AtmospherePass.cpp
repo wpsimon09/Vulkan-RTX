@@ -186,12 +186,20 @@ void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cm
 
     m_transmitanceLutEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
+    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                                                vk::AccessFlagBits2::eShaderRead, vk::PipelineStageFlagBits2::eComputeShader,
+                                                vk::AccessFlagBits2::eShaderWrite};
+
+    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EAtmosphereAttachments::TransmitanceLUT]->GetPrimaryImage(),
+                                          cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
+
+
     cmdBuffer.GetCommandBuffer().dispatch(m_renderTargets[EAtmosphereAttachments::TransmitanceLUT]->GetWidth() / 16,
                                           m_renderTargets[EAtmosphereAttachments::TransmitanceLUT]->GetHeight() / 16, 1);
 
-    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
-                                                vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
-                                                vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eShaderSampledRead};
+    barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite | vk::AccessFlagBits2::eShaderStorageWrite,
+                  vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                  vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eShaderSampledRead};
 
     VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EAtmosphereAttachments::TransmitanceLUT]->GetPrimaryImage(),
                                           cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
@@ -205,11 +213,16 @@ void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cm
 
     m_multipleScatteringLutEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
+    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EAtmosphereAttachments::MultipleScatteringLut]->GetPrimaryImage(),
+                                          cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
+
+
     cmdBuffer.GetCommandBuffer().dispatch(m_renderTargets[EAtmosphereAttachments::MultipleScatteringLut]->GetWidth(),
                                           m_renderTargets[EAtmosphereAttachments::MultipleScatteringLut]->GetHeight(), 1);
 
     VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EAtmosphereAttachments::MultipleScatteringLut]->GetPrimaryImage(),
                                           cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
+
 
     //========================================
     // Sky view LUT
@@ -219,6 +232,11 @@ void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cm
     pcInfo.layout = m_skyViewLutEffect->GetPipelineLayout();
 
     m_skyViewLutEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+
+    barrierPos.dstData |= vk::AccessFlagBits2::eShaderWrite;
+    VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetPrimaryImage(),
+                                          cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
+
 
     cmdBuffer.GetCommandBuffer().dispatch(m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetWidth() / 16,
                                           m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetHeight() / 16, 1);
