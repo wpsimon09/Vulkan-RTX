@@ -29,6 +29,9 @@ Sampler2D depthTexture;
 [[vk::binding(3, 0)]]
 Sampler2D skyViewLut;
 
+[[vk::binding(4, 0)]]
+Sampler2D transmitanceLut;
+
 [[vk::push_constant]]
 AtmosphereParamsCPU atmosphereParams;
 
@@ -99,7 +102,18 @@ float4 fragmentMain(VertexOut fsIn){
         // if des not ray intersect the ground and thus goes all the way to the atmosphere, render the small sun 
         if(!intersectsGround){
             if(atmosphere.DrawSun){
-                L += sunWithHalo(worldDir, sunDir);
+                // the lut params for Transmitance texture look up,
+                // they are altitude and zenith angle, zenit angle between vertical vector and sun direction
+                float2 transLutParams = float2(length(worldPos), dot(-sunDir, upVector));
+                
+                // get coordinates to sample from transmitance texture calculated earliear 
+                float2 transmitanceUV = GetTransmittanceTextureUvFromRMu(atmosphere, transLutParams.x, transLutParams.y);
+                
+                // if we didnt have it precompute we would have to ray march towards sun as well 
+                float3 transmitanceToSun = transmitanceLut.Sample(transmitanceUV).xyz;
+
+      
+                L += (sunWithHalo(worldDir, sunDir) * transmitanceToSun) ;
             }
         }
 

@@ -99,7 +99,7 @@ void AtmospherePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferMana
 
     //=============================
 
-    m_atmospherePassEffect->SetNumWrites(2, 4, 0);
+    m_atmospherePassEffect->SetNumWrites(2, 5, 0);
     m_atmospherePassEffect->WriteBuffer(currentFrameIndex, 0, 0,
                                         uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
     m_atmospherePassEffect->WriteBuffer(currentFrameIndex, 0, 1,
@@ -110,6 +110,10 @@ void AtmospherePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferMana
     m_atmospherePassEffect->WriteImage(currentFrameIndex, 0, 3,
                                        GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::SkyViewLut,
                                                                           VulkanCore::VSamplers::Sampler2D));
+    m_atmospherePassEffect->WriteImage(currentFrameIndex, 0, 4,
+                                       GetPrimaryAttachemntDescriptorInfo(EAtmosphereAttachments::TransmitanceLUT,
+                                                                          VulkanCore::VSamplers::Sampler2D));
+
 
     m_atmospherePassEffect->ApplyWrites(currentFrameIndex);
 }

@@ -323,8 +323,9 @@ void ToneMappingPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
     //=================================================
     // Average luminance
     //=================================================
-    VulkanUtils::VBarrierPosition imageBarrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead,
-                                                     vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite};
+    VulkanUtils::VBarrierPosition imageBarrierPos = {
+        vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eFragmentShader,
+        vk::AccessFlagBits2::eShaderRead, vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite};
 
     m_renderTargets[EToneMappingAttachments::LuminanceAverage]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral,
                                                                                       vk::ImageLayout::eGeneral, imageBarrierPos);
@@ -820,7 +821,8 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
 
     //============================================
     // Combine the bloom with rendered image
-    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderSampledRead,
+    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eFragmentShader,
+                                                vk::AccessFlagBits2::eShaderSampledRead,
                                                 vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite};
 
     VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EBloomAttachments::BloomOutput]->GetPrimaryImage(), cmdBuffer,
