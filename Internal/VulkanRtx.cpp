@@ -21,6 +21,7 @@
 
 
 // Vulkan Core
+#include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/VulkanCore/Instance/VInstance.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/SwapChain/VSwapChain.hpp"
@@ -185,8 +186,9 @@ void Application::Update()
     {
         m_frame->GetTimelineSemaphore().CpuWaitIdle(EFrameStages::TransferFinish);
         m_vulkanDevice->GetTransferOpsManager().ClearResources();
+        m_vulkanDevice->GetTransferOpsManager().StartRecording();
     }
-    if(m_vulkanDevice->CurrentFrame > 0)
+    if(m_vulkanDevice->CurrentFrame > 0 && m_vulkanDevice->CurrentFrame < GlobalVariables::MAX_FRAMES_IN_FLIGHT)
     {
         m_vulkanDevice->GetTransferOpsManager().GetCommandBuffer().Reset();
         m_vulkanDevice->GetTransferOpsManager().StartRecording();

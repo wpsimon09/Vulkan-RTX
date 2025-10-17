@@ -272,14 +272,14 @@ VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> MeshDatatManager::Re
     VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> vertexReadBackBufferInfos;
 
     // create staging buffer to copy readback memory from
-    vertexReadBackBufferInfos.size = m_vertexBuffer.currentOffset;
-    vertexReadBackBufferInfos.data.resize(m_vertexBuffer.currentOffset / sizeof(ApplicationCore::Vertex));
+    vertexReadBackBufferInfos.size = m_vertexBufferHandle->GetCurrentOffset();
+    vertexReadBackBufferInfos.data.resize(m_vertexBufferHandle->GetCurrentOffset() / sizeof(ApplicationCore::Vertex));
 
-    auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_vertexBuffer.size);
+    auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_vertexBufferHandle->GetCurrentOffset());
     stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
 
     VulkanUtils::CopyBuffers(m_device, *bufferCopiedFence, m_vertexBufferHandle->GetHandle().buffer,
-                             stagingBuffer.m_stagingBufferVK, m_vertexBuffer.currentOffset, 0, 0);
+                             stagingBuffer.m_stagingBufferVK, m_vertexBufferHandle->GetCurrentOffset(), 0, 0);
     bufferCopiedFence->WaitForFence();
     bufferCopiedFence->ResetFence();
     memcpy(vertexReadBackBufferInfos.data.data(), stagingBuffer.mappedPointer, m_vertexBuffer.currentOffset);
@@ -300,14 +300,14 @@ VulkanStructs::VReadBackBufferInfo<uint32_t> MeshDatatManager::ReadBackIndexBuff
 
     // create staging buffer to copy readback memory from
 
-    indexReadBackBuffer.size = m_indexBuffer.size;
-    indexReadBackBuffer.data.resize(m_indexBuffer.currentOffset / sizeof(uint32_t));
+    indexReadBackBuffer.size = m_indexBufferHandle->GetCurrentOffset();
+    indexReadBackBuffer.data.resize(m_indexBufferHandle->GetCurrentOffset() / sizeof(uint32_t));
 
-    auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_indexBuffer.size);
+    auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_indexBufferHandle->GetCurrentOffset());
     stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
 
     VulkanUtils::CopyBuffers(m_device, *bufferCopiedFence, m_indexBufferHandle->GetHandle().buffer,
-                             stagingBuffer.m_stagingBufferVK, m_indexBuffer.currentOffset, 0, 0);
+                             stagingBuffer.m_stagingBufferVK, m_indexBufferHandle->GetCurrentOffset(), 0, 0);
     bufferCopiedFence->WaitForFence();
     bufferCopiedFence->ResetFence();
     memcpy(indexReadBackBuffer.data.data(), stagingBuffer.mappedPointer, m_indexBuffer.currentOffset);

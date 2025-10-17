@@ -324,9 +324,9 @@ void Frame::FinishFrame()
       */
     std::vector<vk::SemaphoreSubmitInfo> waitSemaphres = {
         // wait until transfer is finished
-        m_frameTimeLine[m_frameInFlightID]->GetSemaphoreWaitSubmitInfo(EFrameStages::TransferFinish,
-                                                                       vk::PipelineStageFlagBits2::eVertexAttributeInput
-                                                                           | vk::PipelineStageFlagBits2::eRayTracingShaderKHR),
+        m_frameTimeLine[m_frameInFlightID]->GetSemaphoreWaitSubmitInfo(
+            EFrameStages::TransferFinish, vk::PipelineStageFlagBits2::eVertexAttributeInput | vk::PipelineStageFlagBits2::eRayTracingShaderKHR
+                                              | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR),
         // wait until image to present is awailable
         imageAvailableSubmitInfo};
 

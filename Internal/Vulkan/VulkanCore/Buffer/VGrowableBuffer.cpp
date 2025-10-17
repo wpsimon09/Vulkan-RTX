@@ -9,11 +9,11 @@
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include <vulkan/vulkan.hpp>
+#include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 
 namespace VulkanCore {
 VGrowableBuffer::VGrowableBuffer(const VulkanCore::VDevice& device, vk::DeviceSize initialSize, vk::DeviceSize chunkSize)
     : m_device(device)
-    , m_transferCmdBuffer(device.GetTransferOpsManager().GetCommandBuffer())
     , VObject()
 {
     m_bufferSize    = initialSize;
@@ -41,6 +41,7 @@ void VGrowableBuffer::Allocate(vk::BufferUsageFlags usage)
 
 void VGrowableBuffer::Remove(vk::DeviceSize offset, vk::DeviceSize size, OnBufferDelete onBufferDelete)
 {
+    auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
     // where region that we want to remove ends
     vk::DeviceSize tailOffset = offset + size;
 
@@ -50,10 +51,10 @@ void VGrowableBuffer::Remove(vk::DeviceSize offset, vk::DeviceSize size, OnBuffe
            && "Tail offset is bigger then the size of the buffer which is never supposed to be a case and indicates bug somewhere else ");
     vk::DeviceSize tailSize = m_bufferSize - tailOffset;
 
+
     m_scratchBuffer = VulkanUtils::CreateStagingBuffer(m_device, tailSize);
 
-    VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer, m_scratchBuffer.m_stagingBufferVK,
-                             tailSize, tailOffset);
+    VulkanUtils::CopyBuffers(cmdBuffer.GetCommandBuffer(), m_handle.buffer, m_scratchBuffer.m_stagingBufferVK, tailSize, tailOffset);
 
     VulkanUtils::VBarrierPosition barrierPos = {
         vk::PipelineStageFlagBits2::eCopy,
@@ -61,10 +62,9 @@ void VGrowableBuffer::Remove(vk::DeviceSize offset, vk::DeviceSize size, OnBuffe
         vk::PipelineStageFlagBits2::eCopy,
         vk::AccessFlagBits2::eTransferRead,
     };
-    VulkanUtils::PlaceBufferMemoryBarrier2(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, barrierPos);
+    VulkanUtils::PlaceBufferMemoryBarrier2(cmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, barrierPos);
 
-    VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, m_handle.buffer,
-                             tailSize, 0, offset);
+    VulkanUtils::CopyBuffers(cmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, m_handle.buffer, tailSize, 0, offset);
 
     barrierPos = {
         vk::PipelineStageFlagBits2::eCopy,
@@ -72,7 +72,7 @@ void VGrowableBuffer::Remove(vk::DeviceSize offset, vk::DeviceSize size, OnBuffe
         vk::PipelineStageFlagBits2::eVertexShader | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR,
         vk::AccessFlagBits2::eTransferRead,
     };
-    VulkanUtils::PlaceBufferMemoryBarrier2(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer, barrierPos);
+    VulkanUtils::PlaceBufferMemoryBarrier2(cmdBuffer.GetCommandBuffer(), m_handle.buffer, barrierPos);
 
     ClearUpStaging();
 
@@ -95,12 +95,14 @@ VulkanStructs::BufferHandle& VGrowableBuffer::GetHandle()
 
 void VGrowableBuffer::Resize(vk::DeviceSize chunkSize, const OnBufferResize& onBufferResize)
 {
+    auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
+
     //==========================================================
     // create new buffer that will be used as a copy destination
     Utils::Logger::LogInfo("Resiting buffer...");
     auto newBuffer = VulkanUtils::CreateBuffer(m_device, m_bufferUsage, m_bufferSize + chunkSize);
 
-    VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_handle.buffer, newBuffer.buffer, m_handle.size);
+    VulkanUtils::CopyBuffers(cmdBuffer.GetCommandBuffer(), m_handle.buffer, newBuffer.buffer, m_handle.size);
 
     m_device.GetTransferOpsManager().DestroyBuffer(m_handle.buffer, m_handle.allocation);
 
@@ -131,9 +133,5 @@ vk::DeviceSize VGrowableBuffer::GetCurrentOffset()
     return m_currentOffset;
 }
 
-vk::DeviceSize VGrowableBuffer::GetOccupiedSize()
-{
-    return m_bufferSize;
-}
 
 }  // namespace VulkanCore

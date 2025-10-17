@@ -45,8 +45,6 @@ class VGrowableBuffer : public VulkanCore::VObject
 
     void Destroy() override;
 
-    vk::DeviceSize GetOccupiedSize();
-
     vk::DeviceSize GetCurrentOffset();
 
     VulkanStructs::BufferHandle& GetHandle();
@@ -65,8 +63,6 @@ class VGrowableBuffer : public VulkanCore::VObject
     vk::DeviceSize             m_availabelSize;
     vk::BufferUsageFlags       m_bufferUsage;
 
-    const VulkanCore::VCommandBuffer& m_transferCmdBuffer;
-
     // scratch buffer is used to store temporary information and for staging
     VulkanStructs::BufferHandle                   m_handle;
     VulkanStructs::VStagingBufferInfo             m_scratchBuffer;
@@ -79,6 +75,8 @@ class VGrowableBuffer : public VulkanCore::VObject
 template <typename T>
 void VGrowableBuffer::Fill(T* data, vk::DeviceSize size, OnBufferResize onBufferResize)
 {
+    auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
+
     // Check if this data will fit the buffer
     if(size > m_availabelSize)
     {
@@ -92,7 +90,7 @@ void VGrowableBuffer::Fill(T* data, vk::DeviceSize size, OnBufferResize onBuffer
     memcpy(m_scratchBuffer.mappedPointer, data, size);
 
     // 0 offset since this will rewrite everything in the buffer
-    VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, m_handle.buffer, size);
+    VulkanUtils::CopyBuffers(cmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, m_handle.buffer, size);
 
     UpdateSizes(size);
     ClearUpStaging();
@@ -101,6 +99,8 @@ void VGrowableBuffer::Fill(T* data, vk::DeviceSize size, OnBufferResize onBuffer
 template <typename T>
 void VGrowableBuffer::PushBack(T* data, vk::DeviceSize size, OnBufferResize onBufferResize)
 {
+    auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
+
     // Check if this data will fit the buffer
     if(size > m_availabelSize)
     {
@@ -114,8 +114,7 @@ void VGrowableBuffer::PushBack(T* data, vk::DeviceSize size, OnBufferResize onBu
     memcpy(m_scratchBuffer.mappedPointer, data, size);
 
     // 0 offset since this will rewrite everything in the buffer
-    VulkanUtils::CopyBuffers(m_transferCmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, m_handle.buffer,
-                             size, 0, m_currentOffset);
+    VulkanUtils::CopyBuffers(cmdBuffer.GetCommandBuffer(), m_scratchBuffer.m_stagingBufferVK, m_handle.buffer, size, 0, m_currentOffset);
 
     UpdateSizes(size);
     ClearUpStaging();
