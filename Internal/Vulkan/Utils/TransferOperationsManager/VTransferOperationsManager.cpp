@@ -20,6 +20,8 @@ VTransferOperationsManager::VTransferOperationsManager(const VulkanCore::VDevice
     for(int i = 0; i < GlobalVariables::MAX_FRAMES_IN_FLIGHT; i++)
     {
         m_commandBuffer[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
+        auto cmdBufferName = "Transfer command buffer | frame index: " + std::to_string(i);
+        m_commandBuffer[i]->GiveName(cmdBufferName);
     }
     m_clearBuffersVKVMA.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);
     m_clearImages.resize(GlobalVariables::MAX_FRAMES_IN_FLIGHT);

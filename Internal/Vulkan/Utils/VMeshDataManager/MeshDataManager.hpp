@@ -45,16 +45,15 @@ class MeshDatatManager : public VObject
     VulkanStructs::VMeshData2 AddMeshData(std::vector<ApplicationCore::Vertex>& vertices, std::vector<uint32_t>& indices);
 
     /**
-         * Sends every staging buffer to the GPU in a batch
-         * @param semaphore semaphore to secure that transfering the vertex buffer is done
+         * Sends every staging buffer to the GPU in a batch records transfer command buffer with data in the staging vertices and staging indcies 
          */
-    void UpdateGPU(vk::Semaphore semaphore);
+    void UpdateGPU();
 
     void Destroy() override;
 
     void ProcessRemove(VulkanStructs::VMeshData2& subAllocation);
 
-    VulkanStructs::VReadBackBufferInfo<uint32_t> ReadBackIndexBuffers();
+    VulkanStructs::VReadBackBufferInfo<uint32_t>                ReadBackIndexBuffers();
     VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> ReadBackVertexBuffer();
 
     ~MeshDatatManager() = default;
@@ -70,36 +69,36 @@ class MeshDatatManager : public VObject
     //==================================
     // VERTEX BUFFER
     //==================================
-    VulkanStructs::VGPUBufferInfo m_vertexBuffer;
+    VulkanStructs::VGPUBufferInfo                m_vertexBuffer;
     std::unique_ptr<VulkanCore::VGrowableBuffer> m_vertexBufferHandle;
-    std::list<VulkanStructs::VGPUSubBufferInfo> m_vertexSubAllocations;
+    std::list<VulkanStructs::VGPUSubBufferInfo>  m_vertexSubAllocations;
 
     //==================================
     // INDEX BUFFER
     //==================================
-    VulkanStructs::VGPUBufferInfo m_indexBuffer;
+    VulkanStructs::VGPUBufferInfo                m_indexBuffer;
     std::unique_ptr<VulkanCore::VGrowableBuffer> m_indexBufferHandle;
-    std::list<VulkanStructs::VGPUSubBufferInfo> m_indexSubAllocations;
+    std::list<VulkanStructs::VGPUSubBufferInfo>  m_indexSubAllocations;
 
 
     //==================================
     // BOUNDING BOX VERTEX BUFFER
     //==================================
-    std::unique_ptr<VulkanCore::VGrowableBuffer> m_vertexBufferHandl_BB;
-    VulkanStructs::VGPUBufferInfo m_vertexBuffers_BB;  // to visualize bounding box
+    std::unique_ptr<VulkanCore::VGrowableBuffer>  m_vertexBufferHandl_BB;
+    VulkanStructs::VGPUBufferInfo                 m_vertexBuffers_BB;  // to visualize bounding box
     std::vector<VulkanStructs::VGPUSubBufferInfo> m_vertexSubAllocations_BB;
 
     //=========================================
     // BOUNDING BOX INDEX - is allways the same
     //========================================
-    std::unique_ptr<VulkanCore::VGrowableBuffer> m_indexBufferHandle_BB;
-    VulkanStructs::VGPUBufferInfo m_indexBuffer_BB;  // to visualize bounding box
+    std::unique_ptr<VulkanCore::VGrowableBuffer>  m_indexBufferHandle_BB;
+    VulkanStructs::VGPUBufferInfo                 m_indexBuffer_BB;  // to visualize bounding box
     std::vector<VulkanStructs::VGPUSubBufferInfo> m_indexSubAllocations_BB;
 
     //===========================================
     // Transfer pool
     //===========================================
-    const VulkanCore::VDevice&                  m_device;
+    const VulkanCore::VDevice& m_device;
 
   private:
     //=========================================================================================

@@ -9,6 +9,7 @@
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
+#include <vulkan/vulkan_structs.hpp>
 
 namespace VulkanCore {
 
@@ -29,9 +30,8 @@ VCommandBuffer::VCommandBuffer(const VulkanCore::VDevice& device, const VulkanCo
                                           "Created SECONDARY" + std::string("which can be used which ")
                                               + device.GetQueueFamilyString(commandPool.GetQueueFamily().first) + " queue");
 
-    m_cmdBufferSubmitInfo.commandBuffer  = m_commandBuffer;
-    m_cmdBufferSubmitInfo.deviceMask = 0;
-
+    m_cmdBufferSubmitInfo.commandBuffer = m_commandBuffer;
+    m_cmdBufferSubmitInfo.deviceMask    = 0;
 }
 
 void VCommandBuffer::Destroy()
@@ -50,14 +50,16 @@ void VCommandBuffer::BeginRecording()
     Utils::Logger::LogInfoVerboseRendering("Begin recording command buffer...");
     vk::CommandBufferBeginInfo beginInfo{};
 
-    if((m_commandPool.GetQueueFamily().first == Transfer || m_commandPool.GetQueueFamily().second == Compute)  && GlobalState::AutoCommandBufferFlags)
+    if((m_commandPool.GetQueueFamily().first == Transfer || m_commandPool.GetQueueFamily().second == Compute)
+       && GlobalState::AutoCommandBufferFlags)
     {
         Utils::Logger::LogInfoVerboseOnly(
             "Command buffer is going to be used with transfer family. Setting flags to be eOneTimeSubmit, this can be changed in global state by setting variable AutoCommandBufferFlags to false!");
         beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
     }
     beginInfo.pInheritanceInfo = nullptr;
-    if (m_isCurrentlyRecording == false) {
+    if(m_isCurrentlyRecording == false)
+    {
         m_isCurrentlyRecording = true;
         m_commandBuffer.begin(beginInfo);
     }
@@ -111,19 +113,21 @@ void VCommandBuffer::EndAndFlush(const vk::Queue&               queue,
     submit.pCommandBuffers    = &m_commandBuffer;
 
     submit.pWaitDstStageMask = pWaitStages;
-    VulkanUtils::Check(queue.submit(1, &submit, nullptr) , vk::Result::eSuccess);
+    VulkanUtils::Check(queue.submit(1, &submit, nullptr), vk::Result::eSuccess);
 }
-void VCommandBuffer::EndAndFlush2(const vk::Queue& queue,const vk::SemaphoreSubmitInfo& pSignalSemaphores,const vk::SemaphoreSubmitInfo& pWaitSemaphores)
+void VCommandBuffer::EndAndFlush2(const vk::Queue&               queue,
+                                  const vk::SemaphoreSubmitInfo& pSignalSemaphores,
+                                  const vk::SemaphoreSubmitInfo& pWaitSemaphores)
 {
     EndRecording();
 
     vk::SubmitInfo2 submitInfo;
-    submitInfo.commandBufferInfoCount = 1;
-    submitInfo.pCommandBufferInfos    = &m_cmdBufferSubmitInfo;
+    submitInfo.commandBufferInfoCount   = 1;
+    submitInfo.pCommandBufferInfos      = &m_cmdBufferSubmitInfo;
     submitInfo.signalSemaphoreInfoCount = 1;
-    submitInfo.pWaitSemaphoreInfos = &pWaitSemaphores;
-    submitInfo.waitSemaphoreInfoCount = 1;
-    submitInfo.pSignalSemaphoreInfos = &pSignalSemaphores;
+    submitInfo.pWaitSemaphoreInfos      = &pWaitSemaphores;
+    submitInfo.waitSemaphoreInfoCount   = 1;
+    submitInfo.pSignalSemaphoreInfos    = &pSignalSemaphores;
 
     auto queueResult = queue.submit2(1, &submitInfo, nullptr);
 
@@ -140,11 +144,12 @@ void VCommandBuffer::EndAndFlush2(const vk::Queue&                            qu
     submitInfo.pCommandBufferInfos    = &m_cmdBufferSubmitInfo;
 
     submitInfo.signalSemaphoreInfoCount = pSignalSemaphores.size();
-    submitInfo.pSignalSemaphoreInfos = pSignalSemaphores.data();
+    submitInfo.pSignalSemaphoreInfos    = pSignalSemaphores.data();
 
-    if (!pWaitSemaphores.empty()) {
+    if(!pWaitSemaphores.empty())
+    {
         submitInfo.waitSemaphoreInfoCount = pWaitSemaphores.size();
-        submitInfo.pWaitSemaphoreInfos = pWaitSemaphores.data();
+        submitInfo.pWaitSemaphoreInfos    = pWaitSemaphores.data();
     }
 
     auto queueResult = queue.submit2(1, &submitInfo, nullptr);
@@ -171,6 +176,20 @@ void VCommandBuffer::EndAndFlush(const vk::Queue&                     queue,
     submitInfo.signalSemaphoreCount = signalSemaphores.size();
     submitInfo.pSignalSemaphores    = signalSemaphores.data();
     assert(queue.submit(1, &submitInfo, VK_NULL_HANDLE) == vk::Result::eSuccess);
+}
+
+void VCommandBuffer::GiveName(std::string& name)
+{
+    if(name.empty() && !GlobalState::InDebugMode)
+    {
+        return;
+    }
+    vk::DebugUtilsObjectNameInfoEXT cmdBufferNameInfo;
+    cmdBufferNameInfo.objectHandle = (uint64_t)static_cast<VkCommandBuffer>(m_commandBuffer);
+    cmdBufferNameInfo.objectType   = m_commandBuffer.objectType;
+    cmdBufferNameInfo.pObjectName  = name.c_str();
+
+    m_device.GetDevice().setDebugUtilsObjectNameEXT(cmdBufferNameInfo, m_device.DispatchLoader);
 }
 
 }  // namespace VulkanCore

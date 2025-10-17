@@ -103,9 +103,9 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
 
             for(fastgltf::Material& m : gltf.materials)
             {
-                MaterialPaths                paths    = {.saveToDisk = true};
-                std::shared_ptr<PBRMaterial> material = std::make_shared<ApplicationCore::PBRMaterial>(
-                    Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
+                MaterialPaths                paths = {.saveToDisk = true};
+                std::shared_ptr<PBRMaterial> material =
+                    std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
                 material->SetSavable(true);
                 material->GetMaterialDescription().values.albedo.x = m.pbrData.baseColorFactor.x();
                 material->GetMaterialDescription().values.albedo.y = m.pbrData.baseColorFactor.y();
@@ -195,9 +195,9 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
         else
         {
 
-            MaterialPaths                paths    = {.saveToDisk = true};
-            std::shared_ptr<PBRMaterial> material = std::make_shared<ApplicationCore::PBRMaterial>(
-                Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
+            MaterialPaths                paths = {.saveToDisk = true};
+            std::shared_ptr<PBRMaterial> material =
+                std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
             materials.emplace_back(material);
             m_assetsManager.m_materials.emplace_back(material);
         }
@@ -224,8 +224,8 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
 
             MaterialPaths paths;
 
-            std::shared_ptr<PBRMaterial> mat = std::make_shared<ApplicationCore::PBRMaterial>(
-                Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
+            std::shared_ptr<PBRMaterial> mat =
+                std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
 
 
             for(auto& p : m.primitives)
@@ -335,9 +335,6 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
 
             //m_rootNode->AddChild(createdMehs);
         }
-
-        m_assetsManager.GetBufferAllocator().UpdateGPU(VK_NULL_HANDLE);
-
         //=====================================
         // LOAD NODES
         //=====================================

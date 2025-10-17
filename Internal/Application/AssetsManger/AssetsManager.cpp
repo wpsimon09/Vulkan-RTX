@@ -73,8 +73,8 @@ std::shared_ptr<StaticMesh> AssetsManager::GetDefaultMesh(EMeshGeometryType geom
     {
         return std::make_shared<StaticMesh>(result->second, m_dummyMaterial);
     }
-    // load them otherwise
 
+    // load them otherwise
     VulkanStructs::VMeshData2 data;
     switch(geometryType)
     {
@@ -125,8 +125,6 @@ std::shared_ptr<StaticMesh> AssetsManager::GetDefaultMesh(EMeshGeometryType geom
     }
 
     m_preloadedMeshes[geometryType] = data;
-
-    m_meshDataManager.UpdateGPU(nullptr);
 
     return std::make_shared<StaticMesh>(data, m_dummyMaterial);
 }

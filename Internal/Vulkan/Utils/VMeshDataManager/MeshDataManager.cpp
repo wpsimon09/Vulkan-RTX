@@ -154,13 +154,15 @@ void MeshDatatManager::OnVertexBufferResized(VulkanStructs::BufferHandle& newHan
         subAlloc.buffer = newHandle.buffer;
     }
 }
-void MeshDatatManager::OnVertexBufferDeleted(vk::DeviceSize removedRegionSize, VulkanStructs::VGPUSubBufferInfo* subBuffer ) {
+void MeshDatatManager::OnVertexBufferDeleted(vk::DeviceSize removedRegionSize, VulkanStructs::VGPUSubBufferInfo* subBuffer)
+{
 
     // since on std::list [i] does not work i have to manually advance iterator
     auto it = m_vertexSubAllocations.begin();
     std::advance(it, subBuffer->index + 1);
 
-    for (; it != m_vertexSubAllocations.end(); ++it) {
+    for(; it != m_vertexSubAllocations.end(); ++it)
+    {
         auto& subAlloc = *it;
         subAlloc.offset -= removedRegionSize;
         subAlloc.index--;
@@ -169,13 +171,14 @@ void MeshDatatManager::OnVertexBufferDeleted(vk::DeviceSize removedRegionSize, V
     auto itDel = m_vertexSubAllocations.begin();
     std::advance(itDel, subBuffer->index);
     m_vertexSubAllocations.erase(itDel);
-
 }
-void MeshDatatManager::OnIndexBufferDeleted(vk::DeviceSize removedRegionSize, VulkanStructs::VGPUSubBufferInfo* subBuffer) {
+void MeshDatatManager::OnIndexBufferDeleted(vk::DeviceSize removedRegionSize, VulkanStructs::VGPUSubBufferInfo* subBuffer)
+{
     auto it = m_indexSubAllocations.begin();
-    std::advance(it, subBuffer->index + 1 );
+    std::advance(it, subBuffer->index + 1);
 
-    for (; it != m_indexSubAllocations.end(); ++it) {
+    for(; it != m_indexSubAllocations.end(); ++it)
+    {
         auto& subAlloc = *it;
         subAlloc.offset -= removedRegionSize;
         subAlloc.index--;
@@ -186,43 +189,55 @@ void MeshDatatManager::OnIndexBufferDeleted(vk::DeviceSize removedRegionSize, Vu
     m_indexSubAllocations.erase(itDel);
 }
 
-void MeshDatatManager::UpdateGPU(vk::Semaphore semaphore)
+void MeshDatatManager::UpdateGPU()
 {
 
     assert(m_transferOpsManager.GetCommandBuffer().GetIsRecording()
            && "Command buffer is not recording any commands, before using it make sure it is in recording state  !");
     auto& cmdBuffer = m_transferOpsManager.GetCommandBuffer().GetCommandBuffer();
 
-    Utils::Logger::LogSuccess("Buffer copy of vertex and index buffer completed !");
-    //=========================================================================================================================================
+    //============================================
     // VERTEX STAGING BUFFER
-    //==========================================================================================================================================
+    //============================================
+    if(m_stagingVertices.size() > 0)
+    {
+        m_vertexBufferHandle->PushBack(m_stagingVertices.data(), m_stagingVertices.size() * sizeof(ApplicationCore::Vertex),
+                                       std::bind(&MeshDatatManager::OnVertexBufferResized, this, std::placeholders::_1));
 
-    m_vertexBufferHandle->PushBack(m_stagingVertices.data(), m_stagingVertices.size() * sizeof(ApplicationCore::Vertex),
-                                   std::bind(&MeshDatatManager::OnVertexBufferResized, this, std::placeholders::_1));
+        //place barrier so that everything that reads this have to wait until it is done
+        VulkanUtils::VBarrierPosition barrierPos = {
+            vk::PipelineStageFlagBits2::eCopy,
+            vk::AccessFlagBits2::eTransferWrite,
+            vk::PipelineStageFlagBits2::eVertexAttributeInput | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR,
+            vk::AccessFlagBits2::eVertexAttributeRead | vk::AccessFlagBits2::eAccelerationStructureReadKHR,
+        };
 
-    //place barrier so that everything that reads this have to wait until it is done
-    VulkanUtils::VBarrierPosition barrierPos ={
-        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
-        vk::PipelineStageFlagBits2::eVertexAttributeInput | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR, vk::AccessFlagBits2::eVertexAttributeRead | vk::AccessFlagBits2::eAccelerationStructureReadKHR,
-    };
-
-    VulkanUtils::PlaceBufferMemoryBarrier2(m_transferOpsManager.GetCommandBuffer().GetCommandBuffer(), m_vertexBufferHandle->GetHandle().buffer, barrierPos);
-
-    //=========================================================================================================================================
+        VulkanUtils::PlaceBufferMemoryBarrier2(m_transferOpsManager.GetCommandBuffer().GetCommandBuffer(),
+                                               m_vertexBufferHandle->GetHandle().buffer, barrierPos);
+    }
+    //============================================
     // VERTEX_BB STAGING BUFFER
-    //==========================================================================================================================================
-    m_indexBufferHandle->PushBack(m_stagingIndices.data(), m_stagingIndices.size() * sizeof(uint32_t),
-                                  std::bind(&MeshDatatManager::OnIndexBufferResized, this, std::placeholders::_1));
+    //============================================
 
-    barrierPos = {
-        vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
-        vk::PipelineStageFlagBits2::eIndexInput | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR, vk::AccessFlagBits2::eIndexRead | vk::AccessFlagBits2::eAccelerationStructureReadKHR
-    };
-    VulkanUtils::PlaceBufferMemoryBarrier2(m_transferOpsManager.GetCommandBuffer().GetCommandBuffer(), m_indexBufferHandle->GetHandle().buffer, barrierPos);
-    //=========================================================================================================================================
+
+    //============================================
     // INDEX STAGING BUFFER
-    //==========================================================================================================================================
+    //============================================
+    if(m_stagingIndices.size() > 0)
+    {
+
+        m_indexBufferHandle->PushBack(m_stagingIndices.data(), m_stagingIndices.size() * sizeof(uint32_t),
+                                      std::bind(&MeshDatatManager::OnIndexBufferResized, this, std::placeholders::_1));
+
+        VulkanUtils::VBarrierPosition barrierPos = {
+            vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
+            vk::PipelineStageFlagBits2::eIndexInput | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR,
+            vk::AccessFlagBits2::eIndexRead | vk::AccessFlagBits2::eAccelerationStructureReadKHR};
+        VulkanUtils::PlaceBufferMemoryBarrier2(m_transferOpsManager.GetCommandBuffer().GetCommandBuffer(),
+                                               m_indexBufferHandle->GetHandle().buffer, barrierPos);
+        //=========================================================================================================================================
+    }
+
     // CLEAN UP ONCE ALL DATA ARE IN GPU
     {
 
@@ -238,10 +253,13 @@ void MeshDatatManager::Destroy()
     m_indexBufferHandle->Destroy();
 }
 
-void MeshDatatManager::ProcessRemove(VulkanStructs::VMeshData2& meshData) {
-    m_vertexBufferHandle->Remove(meshData.vertexData->offset, meshData.vertexData->size, std::bind(&MeshDatatManager::OnVertexBufferDeleted, this, std::placeholders::_1, meshData.vertexData));
-    m_indexBufferHandle->Remove(meshData.indexData->offset, meshData.indexData->size, std::bind(&MeshDatatManager::OnIndexBufferDeleted, this, std::placeholders::_1, meshData.indexData));
-
+void MeshDatatManager::ProcessRemove(VulkanStructs::VMeshData2& meshData)
+{
+    m_vertexBufferHandle->Remove(meshData.vertexData->offset, meshData.vertexData->size,
+                                 std::bind(&MeshDatatManager::OnVertexBufferDeleted, this, std::placeholders::_1,
+                                           meshData.vertexData));
+    m_indexBufferHandle->Remove(meshData.indexData->offset, meshData.indexData->size,
+                                std::bind(&MeshDatatManager::OnIndexBufferDeleted, this, std::placeholders::_1, meshData.indexData));
 }
 
 

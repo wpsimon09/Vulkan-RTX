@@ -90,7 +90,10 @@ Frame::Frame(const VulkanCore::VulkanInstance&    instance,
     {
         m_frameTimeLine[i] = std::make_unique<VulkanCore::VTimelineSemaphore2>(m_device, EFrameStages::NumStages);
         m_imageAvailableSemaphores[i] = std::make_unique<VulkanCore::VSyncPrimitive<vk::Semaphore>>(m_device);
-        m_renderingCommandBuffers[i]  = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_renderingCommandPool);
+
+        m_renderingCommandBuffers[i] = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_renderingCommandPool);
+        auto cmdBufferName           = "Rendering command buffer | frame index: " + std::to_string(i);
+        m_renderingCommandBuffers[i]->GiveName(cmdBufferName);
     }
     m_ableToPresentSemaphore.resize(m_swapChain->GetImageCount());
 

@@ -221,7 +221,6 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice&                   devic
     auto  cmdBuffer  = VulkanCore::VCommandBuffer(device, comandPool);
     Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
 
-    cmdBuffer.BeginRecording();
 
     vk::BufferCopy bufferCopy{};
     bufferCopy.srcOffset = srcOffset;
@@ -229,8 +228,6 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice&                   devic
     bufferCopy.size      = size;
 
     cmdBuffer.GetCommandBuffer().copyBuffer(srcBuffer, dstBuffer, bufferCopy);
-
-    cmdBuffer.EndRecording();
 
     vk::SubmitInfo submitInfo{};
     submitInfo.commandBufferCount = 1;
@@ -279,8 +276,6 @@ void VulkanUtils::CopyBuffersWithBariers(const VulkanCore::VDevice& device,
 
     Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
 
-    cmdBuffer.BeginRecording();
-
     vk::BufferCopy bufferCopy{};
     bufferCopy.srcOffset = srcOffset;
     bufferCopy.dstOffset = dstOffset;
@@ -321,8 +316,9 @@ VulkanStructs::BufferHandle VulkanUtils::CreateBuffer(const VulkanCore::VDevice&
     VmaAllocationCreateInfo allocationCreateInfo = {};
     allocationCreateInfo.usage                   = VMA_MEMORY_USAGE_AUTO;
     allocationCreateInfo.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
-    Check(static_cast<vk::Result>(vmaCreateBuffer(device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo, &handle.buffer, &handle.allocation, nullptr)
-           ),vk::Result::eSuccess);
+    Check(static_cast<vk::Result>(vmaCreateBuffer(device.GetAllocator(), &bufferCreateInfo, &allocationCreateInfo,
+                                                  &handle.buffer, &handle.allocation, nullptr)),
+          vk::Result::eSuccess);
 
     handle.size = size;
 

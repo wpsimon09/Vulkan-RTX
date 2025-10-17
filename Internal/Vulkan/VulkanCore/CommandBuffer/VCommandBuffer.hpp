@@ -22,14 +22,17 @@ class VCommandBuffer : public VObject
     const vk::CommandBuffer& GetCommandBuffer() const { return m_commandBuffer; };
     const bool               GetIsRecording() const { return m_isCurrentlyRecording; }
     const void               Reset();
+    void                     GiveName(std::string& name);
 
     void BeginRecording();
     void EndRecording();
     void EndAndFlush(const vk::Queue& queue);
     void EndAndFlush(const vk::Queue& queue, const vk::Fence& fence);
     void EndAndFlush(const vk::Queue& queue, vk::Semaphore& timeline, VkTimelineSemaphoreSubmitInfo& timelineInfo, vk::PipelineStageFlags* pWaitStages);
-    void EndAndFlush2(const vk::Queue& queue,const vk::SemaphoreSubmitInfo& pSignalSemaphores,const vk::SemaphoreSubmitInfo& pWaitSemaphores);
-    void EndAndFlush2(const vk::Queue& queue, const std::vector<vk::SemaphoreSubmitInfo>& pSignalSemaphores, const  std::vector<vk::SemaphoreSubmitInfo>& pWaitSemaphores);
+    void EndAndFlush2(const vk::Queue& queue, const vk::SemaphoreSubmitInfo& pSignalSemaphores, const vk::SemaphoreSubmitInfo& pWaitSemaphores);
+    void EndAndFlush2(const vk::Queue&                            queue,
+                      const std::vector<vk::SemaphoreSubmitInfo>& pSignalSemaphores,
+                      const std::vector<vk::SemaphoreSubmitInfo>& pWaitSemaphores);
 
     void EndAndFlush(const vk::Queue&                     queue,
                      std::vector<vk::Semaphore>&          waitSemaphores,
