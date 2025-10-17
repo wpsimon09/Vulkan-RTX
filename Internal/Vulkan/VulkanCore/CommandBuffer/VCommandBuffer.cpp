@@ -178,7 +178,7 @@ void VCommandBuffer::EndAndFlush(const vk::Queue&                     queue,
     assert(queue.submit(1, &submitInfo, VK_NULL_HANDLE) == vk::Result::eSuccess);
 }
 
-void VCommandBuffer::GiveName(std::string& name)
+void VCommandBuffer::GiveName(const std::string& name)
 {
     if(name.empty() && !GlobalState::InDebugMode)
     {

@@ -367,12 +367,12 @@ void DetailsPanel::RenderPBRMaterialDetails(ApplicationCore::PBRMaterial* materi
         //===============
         ImGui::SeparatorText("Emissive");
         ImGui::Checkbox("Use texture##e", reinterpret_cast<bool*>(&material->GetMaterialDescription().features.hasEmissiveTexture));
+        ImGui::DragFloat("Emissive strength", &material->GetMaterialDescription().values.emissive_strength.w, 0.5f, 0.0f);
         if(material->GetMaterialDescription().features.hasEmissiveTexture)
         {
         }
         else
         {
-            ImGui::DragFloat("Emissive strength", &material->GetMaterialDescription().values.emissive_strength.w, 0.5f, 0.0f);
             ImGui::SetNextItemWidth(colourPickerWidth);
             ImGui::ColorEdit3("Emission", &material->GetMaterialDescription().values.emissive_strength.x, ImGuiColorEditFlags_NoInputs);
         }

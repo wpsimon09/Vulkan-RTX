@@ -32,8 +32,6 @@ MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device)
     , m_vertexBuffers_BB{}
     , m_indexBuffer_BB{}
     , m_device(device)
-    , m_transferOpsManager(device.GetTransferOpsManager())
-
 {
 
     Utils::Logger::LogInfoVerboseOnly("Allocating VertexBuffer");
@@ -191,10 +189,10 @@ void MeshDatatManager::OnIndexBufferDeleted(vk::DeviceSize removedRegionSize, Vu
 
 void MeshDatatManager::UpdateGPU()
 {
+    auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
 
-    assert(m_transferOpsManager.GetCommandBuffer().GetIsRecording()
+    assert(cmdBuffer.GetIsRecording()
            && "Command buffer is not recording any commands, before using it make sure it is in recording state  !");
-    auto& cmdBuffer = m_transferOpsManager.GetCommandBuffer().GetCommandBuffer();
 
     //============================================
     // VERTEX STAGING BUFFER
@@ -212,8 +210,7 @@ void MeshDatatManager::UpdateGPU()
             vk::AccessFlagBits2::eVertexAttributeRead | vk::AccessFlagBits2::eAccelerationStructureReadKHR,
         };
 
-        VulkanUtils::PlaceBufferMemoryBarrier2(m_transferOpsManager.GetCommandBuffer().GetCommandBuffer(),
-                                               m_vertexBufferHandle->GetHandle().buffer, barrierPos);
+        VulkanUtils::PlaceBufferMemoryBarrier2(cmdBuffer.GetCommandBuffer(), m_vertexBufferHandle->GetHandle().buffer, barrierPos);
     }
     //============================================
     // VERTEX_BB STAGING BUFFER
@@ -233,8 +230,7 @@ void MeshDatatManager::UpdateGPU()
             vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferWrite,
             vk::PipelineStageFlagBits2::eIndexInput | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR,
             vk::AccessFlagBits2::eIndexRead | vk::AccessFlagBits2::eAccelerationStructureReadKHR};
-        VulkanUtils::PlaceBufferMemoryBarrier2(m_transferOpsManager.GetCommandBuffer().GetCommandBuffer(),
-                                               m_indexBufferHandle->GetHandle().buffer, barrierPos);
+        VulkanUtils::PlaceBufferMemoryBarrier2(cmdBuffer.GetCommandBuffer(), m_indexBufferHandle->GetHandle().buffer, barrierPos);
         //=========================================================================================================================================
     }
 

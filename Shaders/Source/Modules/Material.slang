@@ -101,9 +101,7 @@ public struct PBRMaterial : IMaterial
         if (features.hasEmissiveTexture) {
             float4 emissive = emissive_map.Sample(geometry.uv);
             brdf.emission = emissive;
-            if (brdf.emission.w == 0.0) {
-                brdf.emission.w = values.emissive_strength.w;
-            }
+            brdf.emission.w = values.emissive_strength.w;
         } else {
             brdf.emission = values.emissive_strength;
         }

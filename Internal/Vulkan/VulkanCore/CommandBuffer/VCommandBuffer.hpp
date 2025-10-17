@@ -22,7 +22,7 @@ class VCommandBuffer : public VObject
     const vk::CommandBuffer& GetCommandBuffer() const { return m_commandBuffer; };
     const bool               GetIsRecording() const { return m_isCurrentlyRecording; }
     const void               Reset();
-    void                     GiveName(std::string& name);
+    void                     GiveName(const std::string& name);
 
     void BeginRecording();
     void EndRecording();

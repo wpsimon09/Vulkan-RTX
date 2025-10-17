@@ -4,13 +4,14 @@
 
 #include "VRayTracingDataManager.hpp"
 
+#include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "VulkanRtx.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
-#include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhr.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingBuilderKhrHelpers.hpp"
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "vulkan/vulkan.hpp"
+#include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp"
 
 namespace VulkanUtils {
 VRayTracingDataManager::VRayTracingDataManager(const VulkanCore::VDevice& device)
@@ -19,6 +20,7 @@ VRayTracingDataManager::VRayTracingDataManager(const VulkanCore::VDevice& device
     m_rayTracingBuilder = std::make_unique<VulkanCore::RTX::VRayTracingBuilderKHR>(device);
     m_cmdPool           = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Compute);
     m_cmdBuffer         = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_cmdPool);
+    m_cmdBuffer->GiveName("AS build command buffer");
 }
 void VRayTracingDataManager::UpdateData(SceneUpdateContext& sceneUpdateContext, std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
 {
@@ -33,13 +35,18 @@ void VRayTracingDataManager::RecordAndSubmitAsBuld(VulkanCore::VTimelineSemaphor
         if(m_blasInputs.empty())
             return;
 
+        frameSemaphore.CpuWaitIdle(EFrameStages::RenderFinish);
+
         // implicity destroys all used resources, so no cleanup of previous resources is needed
         InitAs(m_blasInputs, frameSemaphore);
         Utils::Logger::LogInfo("Rebuilding AS");
+        return;
     }
 
     if(m_sceneUpdateContext->updateAs)
     {
+        frameSemaphore.CpuWaitIdle(EFrameStages::RenderFinish);
+
         // for now every instance will be every BLAS, i will have to later redo how scene is describing the
         for(int i = 0; i < (int)m_blasInputs.size(); i++)
         {

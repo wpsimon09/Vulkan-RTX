@@ -347,13 +347,14 @@ void Frame::FinishFrame()
     // submits data to GPU
     m_device.GetTransferOpsManager().UpdateGPU(*m_frameTimeLine[m_frameInFlightID]);
 
-    // waits until data are on GPU
-    m_rayTracingDataManager.RecordAndSubmitAsBuld(*m_frameTimeLine[m_frameInFlightID]);
 
     m_renderingCommandBuffers[m_frameInFlightID]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
 
+    // waits until data are on GPU
+
     m_uiRenderer->Present(m_acquiredImage.second, m_ableToPresentSemaphore[m_acquiredImage.second]->GetSyncPrimitive());
 
+    m_rayTracingDataManager.RecordAndSubmitAsBuld(*m_frameTimeLine[m_frameInFlightID]);
 
     m_frameInFlightID               = (m_frameInFlightID + 1) % GlobalVariables::MAX_FRAMES_IN_FLIGHT;
     m_device.CurrentFrameInFlight   = m_frameInFlightID;

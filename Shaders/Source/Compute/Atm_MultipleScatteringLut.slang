@@ -98,7 +98,7 @@ RayMarchResult IntegrateScatteredLuminance(AtmosphereParamsGPU atmosphere, float
 
 
 [shader("compute")]
-[numthreads(1, 1, 64)]
+[numthreads(2, 2, 64)]
 void computeMain(int3 threadIdx: SV_DispatchThreadID){
     
     int width, height;

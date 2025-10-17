@@ -107,8 +107,7 @@ class MeshDatatManager : public VObject
     VulkanStructs::VGPUSubBufferInfo* GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices);
     VulkanStructs::VGPUSubBufferInfo* GenerateVertexBuffer_BB(VulkanStructs::VBounds& bounds);
 
-    VulkanStructs::VGPUSubBufferInfo*        GenerateIndexBuffer(const std::vector<uint32_t>& indices);
-    VulkanUtils::VTransferOperationsManager& m_transferOpsManager;
+    VulkanStructs::VGPUSubBufferInfo* GenerateIndexBuffer(const std::vector<uint32_t>& indices);
 
     //=========================================
     // Callbacks

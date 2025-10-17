@@ -77,8 +77,10 @@ bool intersectRayCircle(float2 o, float2 d, float R, out float t){
     float B = 2 * dot(o, d);
     float C = dot(o, o) - R * R;
     float delta = B * B - 4 * A * C;
-    if(delta < 0)
+    if(delta < 0){
+        t = -1;
         return false;
+    }
     t = (-B + (C <= 0 ? sqrt(delta) : -sqrt(delta))) / (2 * A);
     return (C <= 0) | (B <= 0);
 }
@@ -88,8 +90,11 @@ bool intersectRaySphere(float3 o, float3 d, float R, out float t){
     float B = 2 * dot(o, d);
     float C = dot(o, o) - R * R;
     float delta = B * B - 4 * A * C;
-    if(delta < 0)
+    if(delta < 0){
+        t = -1.0;
         return false;
+    }
+
     t = (-B + (C <= 0 ? sqrt(delta) : -sqrt(delta))) / (2 * A);
     return (C <= 0) | (B <= 0);
 }

@@ -92,7 +92,9 @@ vk:
                                                           vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR);
 
             m_asBuildSemaphore.SetWaitAndSignal(0, 2);
-            vk::SemaphoreSubmitInfo signalBuildIsComplete = {m_asBuildSemaphore.GetSemaphore(), m_asBuildSemaphore.GetCurrentSignalValue(), vk::PipelineStageFlagBits2::eAllCommands};
+            vk::SemaphoreSubmitInfo signalBuildIsComplete = {m_asBuildSemaphore.GetSemaphore(),
+                                                             m_asBuildSemaphore.GetCurrentSignalValue(),
+                                                             vk::PipelineStageFlagBits2::eAllCommands};
 
             cmdBuffer.EndAndFlush2(m_device.GetComputeQueue(), signalBuildIsComplete, waitUntilTransferFinished);
 
@@ -107,7 +109,7 @@ vk:
 
             std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
             cmdBuffer.EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
-                                     m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), waitStages.data());
+                                  m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(2, 4), waitStages.data());
             m_asBuildSemaphore.CpuWaitIdle(4);
 
             blasBuilder.DestroyNonCompactedBlas();
@@ -150,8 +152,9 @@ void VRayTracingBuilderKHR::BuildTLAS(const std::vector<vk::AccelerationStructur
 
     CmdCreteTlas(cmdBuffer.GetCommandBuffer(), instances.size(), buffer.GetBufferAdress(), scratchBuffer, flags, update, motion);
     std::vector<vk::PipelineStageFlags> waitStages = {vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR};
+
     cmdBuffer.EndAndFlush(m_device.GetComputeQueue(), m_asBuildSemaphore.GetSemaphore(),
-                             m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
+                          m_asBuildSemaphore.GetTimeLineSemaphoreSubmitInfo(0, 2), waitStages.data());
 
     m_asBuildSemaphore.CpuWaitIdle(2);
 
