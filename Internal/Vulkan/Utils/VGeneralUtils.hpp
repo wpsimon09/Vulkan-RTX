@@ -55,6 +55,10 @@ void GetVertexBindingAndAttributeDescription(vk::VertexInputBindingDescription& 
                                              std::vector<vk::VertexInputAttributeDescription>& attributeDescription,
                                              EVertexInput                                      vertexInput = Full);
 
+/**
+Creates one time submit command buffer, copies the buffer and waits until the operation is complete 
+                                             
+                                             */
 void CopyBuffers(const VulkanCore::VDevice&                   device,
                  const VulkanCore::VSyncPrimitive<vk::Fence>& fence,
                  const vk::Buffer&                            srcBuffer,
@@ -63,7 +67,7 @@ void CopyBuffers(const VulkanCore::VDevice&                   device,
                  vk::DeviceSize                               srcOffset = 0,
                  vk::DeviceSize                               dstOffset = 0);
 
-// records copy command to the command buffer provided, usually this is called during acceleration structure build
+// records copy command to the command buffer provided, usually this is called during acceleration structure build, it does not submit the command buffer
 void CopyBuffers(const vk::CommandBuffer& commandBuffer,
                  const vk::Buffer&        srcBuffer,
                  const vk::Buffer&        dstBuffer,
@@ -110,7 +114,10 @@ vk::ShaderModule CreateShaderModule(const VulkanCore::VDevice& device, const std
 
 void Check(vk::Result result, vk::Result expectedResult = vk::Result::eSuccess);
 
-vk::DescriptorPool CreatePool(const VulkanCore::VDevice& devic, const VulkanCore::VDescriptorAllocator::PoolSizes& poolSizes, int count, vk::DescriptorPoolCreateFlags flags);
+vk::DescriptorPool CreatePool(const VulkanCore::VDevice&                         devic,
+                              const VulkanCore::VDescriptorAllocator::PoolSizes& poolSizes,
+                              int                                                count,
+                              vk::DescriptorPoolCreateFlags                      flags);
 
 void WriteMaterialToDescriptorSet(ApplicationCore::BaseMaterial* mat, VEffect& effect);
 

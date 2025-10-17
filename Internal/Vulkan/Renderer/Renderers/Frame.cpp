@@ -351,7 +351,6 @@ void Frame::FinishFrame()
     m_renderingCommandBuffers[m_frameInFlightID]->EndAndFlush2(m_device.GetGraphicsQueue(), signalSemaphores, waitSemaphres);
 
     // waits until data are on GPU
-
     m_uiRenderer->Present(m_acquiredImage.second, m_ableToPresentSemaphore[m_acquiredImage.second]->GetSyncPrimitive());
 
     m_rayTracingDataManager.RecordAndSubmitAsBuld(*m_frameTimeLine[m_frameInFlightID]);

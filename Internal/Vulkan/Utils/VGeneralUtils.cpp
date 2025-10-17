@@ -221,6 +221,7 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice&                   devic
     auto  cmdBuffer  = VulkanCore::VCommandBuffer(device, comandPool);
     Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
 
+    cmdBuffer.BeginRecording();
 
     vk::BufferCopy bufferCopy{};
     bufferCopy.srcOffset = srcOffset;
@@ -228,6 +229,8 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice&                   devic
     bufferCopy.size      = size;
 
     cmdBuffer.GetCommandBuffer().copyBuffer(srcBuffer, dstBuffer, bufferCopy);
+
+    cmdBuffer.EndRecording();
 
     vk::SubmitInfo submitInfo{};
     submitInfo.commandBufferCount = 1;
@@ -241,6 +244,7 @@ void VulkanUtils::CopyBuffers(const VulkanCore::VDevice&                   devic
 
     Utils::Logger::LogSuccess("Buffer copy completed !");
 }
+
 void VulkanUtils::CopyBuffers(const vk::CommandBuffer& commandBuffer,
                               const vk::Buffer&        srcBuffer,
                               const vk::Buffer&        dstBuffer,
@@ -275,6 +279,8 @@ void VulkanUtils::CopyBuffersWithBariers(const VulkanCore::VDevice& device,
     auto  fence       = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(device);
 
     Utils::Logger::LogInfoVerboseOnly("Copying buffers...");
+
+    cmdBuffer.BeginRecording();
 
     vk::BufferCopy bufferCopy{};
     bufferCopy.srcOffset = srcOffset;

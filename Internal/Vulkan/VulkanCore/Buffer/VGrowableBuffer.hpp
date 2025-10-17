@@ -28,10 +28,10 @@ class VGrowableBuffer : public VulkanCore::VObject
 {
     //===================
     // Call back function
-    typedef std::function<void (VulkanStructs::BufferHandle&)> OnBufferResize;
-    typedef std::function<void (vk::DeviceSize)> OnBufferDelete;
+    typedef std::function<void(VulkanStructs::BufferHandle&)> OnBufferResize;
+    typedef std::function<void(vk::DeviceSize)>               OnBufferDelete;
 
-    public:
+  public:
     VGrowableBuffer(const VulkanCore::VDevice& device, vk::DeviceSize initialSize, vk::DeviceSize chunkSize = SIZE_8_MB);
     void Allocate(vk::BufferUsageFlags usage);
 
@@ -44,6 +44,10 @@ class VGrowableBuffer : public VulkanCore::VObject
     void Remove(vk::DeviceSize offset, vk::DeviceSize size, OnBufferDelete onBufferDelete);
 
     void Destroy() override;
+
+    vk::DeviceSize GetOccupiedSize();
+
+    vk::DeviceSize GetCurrentOffset();
 
     VulkanStructs::BufferHandle& GetHandle();
 
@@ -73,7 +77,7 @@ class VGrowableBuffer : public VulkanCore::VObject
 };
 
 template <typename T>
-void VGrowableBuffer::Fill(T* data, vk::DeviceSize size, OnBufferResize onBufferResize )
+void VGrowableBuffer::Fill(T* data, vk::DeviceSize size, OnBufferResize onBufferResize)
 {
     // Check if this data will fit the buffer
     if(size > m_availabelSize)

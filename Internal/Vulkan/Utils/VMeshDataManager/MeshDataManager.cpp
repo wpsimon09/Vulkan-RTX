@@ -13,12 +13,14 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Application/Utils/ApplicationUtils.hpp"
 #include <limits>
+#include <memory>
 
 #include "Vulkan/Global/EngineOptions.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/Buffer/VGrowableBuffer.hpp"
+#include "Vulkan/VulkanCore/CommandBuffer/VCommandBuffer.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore.hpp"
 
 
@@ -47,6 +49,9 @@ MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device)
     m_vertexBufferHandle->Allocate(vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst
                                    | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress
                                    | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR);
+
+    m_readBackCommandBuffer = std::make_unique<VulkanCore::VCommandBuffer>(m_device, m_device.GetTransferCommandPool());
+
 
     //m_indexBufferHandle_BB = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
 
@@ -262,14 +267,12 @@ void MeshDatatManager::ProcessRemove(VulkanStructs::VMeshData2& meshData)
 VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> MeshDatatManager::ReadBackVertexBuffer()
 {
 
-
     auto bufferCopiedFence = std::make_unique<VulkanCore::VSyncPrimitive<vk::Fence>>(m_device);
 
     VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> vertexReadBackBufferInfos;
 
     // create staging buffer to copy readback memory from
-
-    vertexReadBackBufferInfos.size = m_vertexBuffer.size;
+    vertexReadBackBufferInfos.size = m_vertexBuffer.currentOffset;
     vertexReadBackBufferInfos.data.resize(m_vertexBuffer.currentOffset / sizeof(ApplicationCore::Vertex));
 
     auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_vertexBuffer.size);

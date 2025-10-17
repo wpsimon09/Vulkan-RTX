@@ -109,6 +109,8 @@ class MeshDatatManager : public VObject
 
     VulkanStructs::VGPUSubBufferInfo* GenerateIndexBuffer(const std::vector<uint32_t>& indices);
 
+    std::unique_ptr<VulkanCore::VCommandBuffer> m_readBackCommandBuffer;
+
     //=========================================
     // Callbacks
     void OnIndexBufferResized(VulkanStructs::BufferHandle& newHandle);

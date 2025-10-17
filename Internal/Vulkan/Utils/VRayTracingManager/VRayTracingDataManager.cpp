@@ -22,7 +22,7 @@ VRayTracingDataManager::VRayTracingDataManager(const VulkanCore::VDevice& device
     m_cmdBuffer         = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_cmdPool);
     m_cmdBuffer->GiveName("AS build command buffer");
 }
-void VRayTracingDataManager::UpdateData(SceneUpdateContext& sceneUpdateContext, std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
+void VRayTracingDataManager::UpdateContext(SceneUpdateContext& sceneUpdateContext, std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
 {
     m_blasInputs         = blasInputs;
     m_sceneUpdateContext = &sceneUpdateContext;

@@ -23,7 +23,7 @@ class VDevice;
 
 namespace VulkanUtils {
 /**
-     * Will operate only on transfer queues and record commands and submits for transfer operations to happen
+     * Will operate only with transfer operations  and record commands and submits for transfer operations to happen
      */
 class VTransferOperationsManager
 {
@@ -50,6 +50,7 @@ class VTransferOperationsManager
     bool                                                     m_hasPandingWork = false;
     const VulkanCore::VDevice&                               m_device;
     std::vector<std::unique_ptr<VulkanCore::VCommandBuffer>> m_commandBuffer;
+
 
     std::vector<std::vector<std::pair<VkBuffer, VmaAllocation>>>    m_clearBuffersVKVMA;
     std::vector<std::vector<std::pair<bool, VulkanCore::VBuffer*>>> m_clearVBuffers;

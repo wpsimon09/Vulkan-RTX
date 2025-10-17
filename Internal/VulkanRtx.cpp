@@ -218,7 +218,7 @@ void Application::Update()
     //=====================================================
     // Update accelerations structures
     auto blasInputs = m_client->GetScene().GetBLASInputs();
-    m_rayTracingDataManager->UpdateData(m_client->GetScene().GetSceneUpdateFlags(), blasInputs);
+    m_rayTracingDataManager->UpdateContext(m_client->GetScene().GetSceneUpdateFlags(), blasInputs);
 
     m_client->GetApplicationState().SetIsWindowResized(m_windowManager->GetHasResized());
 }
