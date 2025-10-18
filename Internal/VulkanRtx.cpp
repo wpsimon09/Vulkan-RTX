@@ -217,6 +217,7 @@ void Application::Update()
     // Send geometry data to the GPU
     m_vulkanDevice->GetMeshDataManager().UpdateGPU();
 
+
     //=====================================================
     // Update accelerations structures
     auto blasInputs = m_client->GetScene().GetBLASInputs();
@@ -247,6 +248,7 @@ void Application::PostRender()
 {
     m_client->GetScene().Reset();
     m_client->GetApplicationState().Reset();
+    m_vulkanDevice->GetMeshDataManager().Reset();
 }
 
 Application::~Application()

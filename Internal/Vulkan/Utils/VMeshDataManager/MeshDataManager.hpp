@@ -53,6 +53,9 @@ class MeshDatatManager : public VObject
 
     void ProcessRemove(VulkanStructs::VMeshData2& subAllocation);
 
+    void Reset();
+
+    bool                                                        WasResized();
     VulkanStructs::VReadBackBufferInfo<uint32_t>                ReadBackIndexBuffers();
     VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> ReadBackVertexBuffer();
 
@@ -80,24 +83,6 @@ class MeshDatatManager : public VObject
     std::unique_ptr<VulkanCore::VGrowableBuffer> m_indexBufferHandle;
     std::list<VulkanStructs::VGPUSubBufferInfo>  m_indexSubAllocations;
 
-
-    //==================================
-    // BOUNDING BOX VERTEX BUFFER
-    //==================================
-    std::unique_ptr<VulkanCore::VGrowableBuffer>  m_vertexBufferHandl_BB;
-    VulkanStructs::VGPUBufferInfo                 m_vertexBuffers_BB;  // to visualize bounding box
-    std::vector<VulkanStructs::VGPUSubBufferInfo> m_vertexSubAllocations_BB;
-
-    //=========================================
-    // BOUNDING BOX INDEX - is allways the same
-    //========================================
-    std::unique_ptr<VulkanCore::VGrowableBuffer>  m_indexBufferHandle_BB;
-    VulkanStructs::VGPUBufferInfo                 m_indexBuffer_BB;  // to visualize bounding box
-    std::vector<VulkanStructs::VGPUSubBufferInfo> m_indexSubAllocations_BB;
-
-    //===========================================
-    // Transfer pool
-    //===========================================
     const VulkanCore::VDevice& m_device;
 
   private:
@@ -105,8 +90,6 @@ class MeshDatatManager : public VObject
     // FUNCTIONS THAT GENERATES STRUCTS THAT DEFINE OFFSET AND SIZE OF THE SUB - BUFFER
     //=========================================================================================
     VulkanStructs::VGPUSubBufferInfo* GenerateVertexBuffer(const std::vector<ApplicationCore::Vertex>& vertices);
-    VulkanStructs::VGPUSubBufferInfo* GenerateVertexBuffer_BB(VulkanStructs::VBounds& bounds);
-
     VulkanStructs::VGPUSubBufferInfo* GenerateIndexBuffer(const std::vector<uint32_t>& indices);
 
     std::unique_ptr<VulkanCore::VCommandBuffer> m_readBackCommandBuffer;
@@ -118,6 +101,9 @@ class MeshDatatManager : public VObject
 
     void OnVertexBufferDeleted(vk::DeviceSize removedRegionSize, VulkanStructs::VGPUSubBufferInfo* subBuffer);
     void OnIndexBufferDeleted(vk::DeviceSize removedRegionSize, VulkanStructs::VGPUSubBufferInfo* subBuffer);
+
+    // was any mesh buffer resized ? if yes we have to rebuild AS
+    bool m_wasResized = false;
 };
 
 }  // namespace VulkanCore

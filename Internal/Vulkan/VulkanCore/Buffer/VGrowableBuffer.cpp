@@ -9,6 +9,7 @@
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_enums.hpp>
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 
 namespace VulkanCore {
@@ -93,16 +94,21 @@ VulkanStructs::BufferHandle& VGrowableBuffer::GetHandle()
     return m_handle;
 }
 
-void VGrowableBuffer::Resize(vk::DeviceSize chunkSize, const OnBufferResize& onBufferResize)
+void VGrowableBuffer::Resize(vk::DeviceSize requiredSize, vk::DeviceSize chunkSize, const OnBufferResize& onBufferResize)
 {
     auto& cmdBuffer = m_device.GetTransferOpsManager().GetCommandBuffer();
 
     //==========================================================
     // create new buffer that will be used as a copy destination
     Utils::Logger::LogInfo("Resiting buffer...");
-    auto newBuffer = VulkanUtils::CreateBuffer(m_device, m_bufferUsage, m_bufferSize + chunkSize);
+    auto newBuffer = VulkanUtils::CreateBuffer(m_device, m_bufferUsage, CalculateAppropriateSize(requiredSize, chunkSize));
 
     VulkanUtils::CopyBuffers(cmdBuffer.GetCommandBuffer(), m_handle.buffer, newBuffer.buffer, m_handle.size);
+
+    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eTransfer,
+                                                vk::AccessFlagBits2::eTransferWrite, vk::PipelineStageFlagBits2::eTransfer,
+                                                vk::AccessFlagBits2::eTransferWrite | vk::AccessFlagBits2::eTransferRead};
+    VulkanUtils::PlaceBufferMemoryBarrier2(cmdBuffer.GetCommandBuffer(), newBuffer.buffer, barrierPos);
 
     m_device.GetTransferOpsManager().DestroyBuffer(m_handle.buffer, m_handle.allocation);
 
@@ -131,6 +137,18 @@ void VGrowableBuffer::ClearUpStaging()
 vk::DeviceSize VGrowableBuffer::GetCurrentOffset()
 {
     return m_currentOffset;
+}
+
+vk::DeviceSize VGrowableBuffer::CalculateAppropriateSize(vk::DeviceSize requiredSize, vk::DeviceSize chunkSize)
+{
+    // 10 053 912
+    //
+    vk::DeviceSize calculatedSize = m_bufferSize;
+    do
+    {
+        calculatedSize += chunkSize;
+    } while(calculatedSize < requiredSize + chunkSize);
+    return calculatedSize;
 }
 
 

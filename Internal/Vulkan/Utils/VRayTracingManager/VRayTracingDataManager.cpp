@@ -30,7 +30,8 @@ void VRayTracingDataManager::UpdateContext(SceneUpdateContext& sceneUpdateContex
 
 void VRayTracingDataManager::RecordAndSubmitAsBuld(VulkanCore::VTimelineSemaphore2& frameSemaphore)
 {
-    if(m_sceneUpdateContext->rebuildAs)
+
+    if(m_sceneUpdateContext->rebuildAs || m_device.GetMeshDataManager().WasResized())
     {
         if(m_blasInputs.empty())
             return;

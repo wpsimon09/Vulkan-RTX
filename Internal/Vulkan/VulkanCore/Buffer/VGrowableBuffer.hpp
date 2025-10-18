@@ -51,9 +51,10 @@ class VGrowableBuffer : public VulkanCore::VObject
 
 
   private:
-    void Resize(vk::DeviceSize chunkSize, const OnBufferResize& onBufferResize);
-    void UpdateSizes(vk::DeviceSize size);
-    void ClearUpStaging();
+    void           Resize(vk::DeviceSize requiredSize, vk::DeviceSize chunkSize, const OnBufferResize& onBufferResize);
+    void           UpdateSizes(vk::DeviceSize size);
+    void           ClearUpStaging();
+    vk::DeviceSize CalculateAppropriateSize(vk::DeviceSize requiredSize, vk::DeviceSize chunkSize);
 
   private:
     const VulkanCore::VDevice& m_device;
@@ -80,7 +81,7 @@ void VGrowableBuffer::Fill(T* data, vk::DeviceSize size, OnBufferResize onBuffer
     // Check if this data will fit the buffer
     if(size > m_availabelSize)
     {
-        Resize(m_chunkSize, onBufferResize);
+        Resize(size, m_chunkSize, onBufferResize);
     }
 
     // allocate scratch buffer
@@ -104,7 +105,7 @@ void VGrowableBuffer::PushBack(T* data, vk::DeviceSize size, OnBufferResize onBu
     // Check if this data will fit the buffer
     if(size > m_availabelSize)
     {
-        Resize(m_chunkSize, onBufferResize);
+        Resize(size, m_chunkSize, onBufferResize);
     }
 
     // allocate scratch buffer

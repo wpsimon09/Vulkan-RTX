@@ -31,8 +31,6 @@ namespace VulkanCore {
 MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device)
     : m_vertexBuffer{}
     , m_indexBuffer{}
-    , m_vertexBuffers_BB{}
-    , m_indexBuffer_BB{}
     , m_device(device)
 {
 
@@ -96,36 +94,6 @@ VulkanStructs::VGPUSubBufferInfo* MeshDatatManager::GenerateVertexBuffer(const s
     return &m_vertexSubAllocations.back();
 }
 
-VulkanStructs::VGPUSubBufferInfo* MeshDatatManager::GenerateVertexBuffer_BB(VulkanStructs::VBounds& bounds)
-{
-    /*
-    std::vector<ApplicationCore::Vertex> Vertices_BB = {
-        {bounds.origin + glm::vec3(-bounds.extents.x, -bounds.extents.y, -bounds.extents.z), {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},  // V0
-        {bounds.origin + glm::vec3(+bounds.extents.x, -bounds.extents.y, -bounds.extents.z), {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},  // V1
-        {bounds.origin + glm::vec3(+bounds.extents.x, +bounds.extents.y, -bounds.extents.z), {1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},  // V2
-        {bounds.origin + glm::vec3(-bounds.extents.x, +bounds.extents.y, -bounds.extents.z), {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},  // V3
-        {bounds.origin + glm::vec3(-bounds.extents.x, -bounds.extents.y, +bounds.extents.z), {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},  // V4
-        {bounds.origin + glm::vec3(+bounds.extents.x, -bounds.extents.y, +bounds.extents.z), {1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // V5
-        {bounds.origin + glm::vec3(+bounds.extents.x, +bounds.extents.y, +bounds.extents.z), {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},  // V6
-        {bounds.origin + glm::vec3(-bounds.extents.x, +bounds.extents.y, +bounds.extents.z), {0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},  // V7
-    };
-
-    m_stagingVertices_BB[0].insert(m_stagingVertices_BB[0].end(), Vertices_BB.begin(), Vertices_BB.end());
-
-    VulkanStructs::VGPUSubBufferInfo bufferInfo = {.size   = Vertices_BB.size() * sizeof(ApplicationCore::Vertex),
-                                                  .offset = m_currentVertexBuffer_BB->currentOffset,
-                                                  .buffer = m_currentVertexBuffer_BB->bufferVK,
-                                                  .ID = VulkanUtils::random_int(1, std::numeric_limits<int>::max() - 1),
-                                                  .BufferID      = m_currentVertexBuffer_BB->ID,
-                                                  .bufferAddress = m_currentVertexBuffer_BB->bufferAddress};
-
-    m_currentVertexBuffer_BB->currentOffset += Vertices_BB.size() * sizeof(ApplicationCore::Vertex);
-
-    return bufferInfo;
-    */
-    return nullptr;
-}
-
 
 VulkanStructs::VGPUSubBufferInfo* MeshDatatManager::GenerateIndexBuffer(const std::vector<uint32_t>& indices)
 {
@@ -145,16 +113,20 @@ VulkanStructs::VGPUSubBufferInfo* MeshDatatManager::GenerateIndexBuffer(const st
 }
 void MeshDatatManager::OnIndexBufferResized(VulkanStructs::BufferHandle& newHandle)
 {
+    m_wasResized = true;
     for(auto& subAlloc : m_indexSubAllocations)
     {
-        subAlloc.buffer = newHandle.buffer;
+        subAlloc.buffer        = newHandle.buffer;
+        subAlloc.bufferAddress = newHandle.bufferAddress;
     }
 }
 void MeshDatatManager::OnVertexBufferResized(VulkanStructs::BufferHandle& newHandle)
 {
+    m_wasResized = true;
     for(auto& subAlloc : m_vertexSubAllocations)
     {
-        subAlloc.buffer = newHandle.buffer;
+        subAlloc.buffer        = newHandle.buffer;
+        subAlloc.bufferAddress = newHandle.bufferAddress;
     }
 }
 void MeshDatatManager::OnVertexBufferDeleted(vk::DeviceSize removedRegionSize, VulkanStructs::VGPUSubBufferInfo* subBuffer)
@@ -318,4 +290,15 @@ VulkanStructs::VReadBackBufferInfo<uint32_t> MeshDatatManager::ReadBackIndexBuff
     bufferCopiedFence->Destroy();
     return indexReadBackBuffer;
 }
+
+void MeshDatatManager::Reset()
+{
+    m_wasResized = false;
+}
+
+bool MeshDatatManager::WasResized()
+{
+    return m_wasResized;
+}
+
 }  // namespace VulkanCore

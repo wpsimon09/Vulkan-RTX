@@ -190,7 +190,7 @@ void missMain(inout RayPayLoad payload) {
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 64.0) * _lightInfo.dirLight.intensity.w;
 
     payload.normal = float3(0.0f);
-    payload.incomingLightColour += ((lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1))) * payload.rayColour;
+    payload.incomingLightColour += (((lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1))) * payload.rayColour) * _lightInfo.dirLight.intensity.w;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
@@ -250,7 +250,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     float p_specular = max(max(Ks.x, Ks.y), Ks.z);
     bool sampleSpecular = RandomValue(payLoad.randomContext) < p_specular;
 
-    float PDF;
+    float PDF = 1.0;
     float3 wi;
     float3 f = {};
     
@@ -266,7 +266,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }
 
     if(globalData.accumulateFrames){
-        payLoad.rayColour *= f;
+        payLoad.rayColour *= f/PDF;
     }else{
         payLoad.rayColour *= f/PDF;
     }
