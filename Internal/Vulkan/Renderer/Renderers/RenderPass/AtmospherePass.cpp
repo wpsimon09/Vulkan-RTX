@@ -237,6 +237,8 @@ void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cm
 
     m_skyViewLutEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
+    barrierPos.srcPipelineStage |= vk::PipelineStageFlagBits2::eFragmentShader;
+    barrierPos.srcData |= vk::AccessFlagBits2::eShaderSampledRead;
     barrierPos.dstData |= vk::AccessFlagBits2::eShaderWrite;
     VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetPrimaryImage(),
                                           cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);

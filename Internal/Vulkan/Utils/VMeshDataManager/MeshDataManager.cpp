@@ -278,8 +278,8 @@ VulkanStructs::VReadBackBufferInfo<ApplicationCore::Vertex> MeshDatatManager::Re
     auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_vertexBufferHandle->GetCurrentOffset());
     stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
 
-    VulkanUtils::CopyBuffers(m_device, *bufferCopiedFence, m_vertexBufferHandle->GetHandle().buffer,
-                             stagingBuffer.m_stagingBufferVK, m_vertexBufferHandle->GetCurrentOffset(), 0, 0);
+    VulkanUtils::SafeCopyBuffers(m_device, *bufferCopiedFence, m_vertexBufferHandle->GetHandle().buffer,
+                                 stagingBuffer.m_stagingBufferVK, m_vertexBufferHandle->GetCurrentOffset(), 0, 0);
     bufferCopiedFence->WaitForFence();
     bufferCopiedFence->ResetFence();
     memcpy(vertexReadBackBufferInfos.data.data(), stagingBuffer.mappedPointer, m_vertexBuffer.currentOffset);
@@ -306,8 +306,8 @@ VulkanStructs::VReadBackBufferInfo<uint32_t> MeshDatatManager::ReadBackIndexBuff
     auto stagingBuffer          = VulkanUtils::CreateStagingBuffer(m_device, m_indexBufferHandle->GetCurrentOffset());
     stagingBuffer.copyDstBuffer = stagingBuffer.m_stagingBufferVK;
 
-    VulkanUtils::CopyBuffers(m_device, *bufferCopiedFence, m_indexBufferHandle->GetHandle().buffer,
-                             stagingBuffer.m_stagingBufferVK, m_indexBufferHandle->GetCurrentOffset(), 0, 0);
+    VulkanUtils::SafeCopyBuffers(m_device, *bufferCopiedFence, m_indexBufferHandle->GetHandle().buffer,
+                                 stagingBuffer.m_stagingBufferVK, m_indexBufferHandle->GetCurrentOffset(), 0, 0);
     bufferCopiedFence->WaitForFence();
     bufferCopiedFence->ResetFence();
     memcpy(indexReadBackBuffer.data.data(), stagingBuffer.mappedPointer, m_indexBuffer.currentOffset);

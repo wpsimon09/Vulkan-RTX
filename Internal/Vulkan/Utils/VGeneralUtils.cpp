@@ -207,13 +207,13 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
     }
 }
 
-void VulkanUtils::CopyBuffers(const VulkanCore::VDevice&                   device,
-                              const VulkanCore::VSyncPrimitive<vk::Fence>& fence,
-                              const vk::Buffer&                            srcBuffer,
-                              const vk::Buffer&                            dstBuffer,
-                              vk::DeviceSize                               size,
-                              vk::DeviceSize                               srcOffset,
-                              vk::DeviceSize                               dstOffset)
+void VulkanUtils::SafeCopyBuffers(const VulkanCore::VDevice&                   device,
+                                  const VulkanCore::VSyncPrimitive<vk::Fence>& fence,
+                                  const vk::Buffer&                            srcBuffer,
+                                  const vk::Buffer&                            dstBuffer,
+                                  vk::DeviceSize                               size,
+                                  vk::DeviceSize                               srcOffset,
+                                  vk::DeviceSize                               dstOffset)
 {
 
 
