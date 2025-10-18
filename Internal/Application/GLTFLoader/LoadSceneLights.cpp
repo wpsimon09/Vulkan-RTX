@@ -124,4 +124,9 @@ void ApplicationCore::LoadSceneLights(ApplicationCore::Scene& scene, std::filesy
 
         scene.AddSkyBox(&envLight);
     }
+
+    if(ini.has("atmosphere"))
+    {
+        scene.AddAtmosphere();
+    }
 }

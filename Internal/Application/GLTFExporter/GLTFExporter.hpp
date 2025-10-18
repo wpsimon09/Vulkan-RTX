@@ -63,6 +63,7 @@ class GLTFExporter
 
     std::filesystem::path m_lightInfoPath;
     mINI::INIFile         m_lightInfo;
+    SceneNode*            m_atmosphereNode = nullptr;
 };
 }  // namespace ApplicationCore
 

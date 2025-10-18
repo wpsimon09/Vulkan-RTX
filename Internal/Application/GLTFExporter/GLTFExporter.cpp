@@ -1,4 +1,5 @@
 #include "GLTFExporter.hpp"
+#include "Application/Enums/ClientEnums.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "fastgltf/math.hpp"
@@ -12,6 +13,7 @@
 #include <Application/Utils/MathUtils.hpp>
 #include <Application/AssetsManger/Utils/VTextureAsset.hpp>
 #include <Vulkan/VulkanCore/VImage/VImage.hpp>
+#include <string>
 
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Mesh/StaticMesh.hpp"
@@ -153,6 +155,11 @@ void ApplicationCore::GLTFExporter::ParseScene(std::shared_ptr<SceneNode> sceneN
     //===================================================
     // PARSE MESH DATA
     //===================================================
+    if(sceneNode->GetSceneNodeMetaData().nodeType == ENodeType::Atmosphere)
+    {
+        m_atmosphereNode = sceneNode.get();
+    }
+
     if(IsNodeValid(sceneNode))
     {
         fastgltf::Node node{};
@@ -493,6 +500,11 @@ void ApplicationCore::GLTFExporter::ParseLights(Scene& scene)
         ini["sky-box"]["ambient-intensity"] = std::to_string(lightInfo.environmentLight->ambientIntensity);
     }
 
+    if(m_atmosphereNode)
+    {
+
+        ini["atmosphere"]["render"] = std::to_string((int)true);
+    }
 
     assert(iniFile.generate(ini, true) == true && "Failed to save light info)");
 }
@@ -505,7 +517,8 @@ void ApplicationCore::GLTFExporter::Clear()
     m_childNodes.clear();
     m_textureToIndex.clear();
 
-    m_nodeCounter = 0;
+    m_atmosphereNode = nullptr;
+    m_nodeCounter    = 0;
 }
 
 bool ApplicationCore::GLTFExporter::IsNodeValid(const std::shared_ptr<SceneNode>& sceneNode)
@@ -513,6 +526,7 @@ bool ApplicationCore::GLTFExporter::IsNodeValid(const std::shared_ptr<SceneNode>
     return (sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::AreaLightNode
             && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::DirectionalLightNode
             && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::PointLightNode
-            && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::SkyBoxNode && sceneNode->GetName() != "Root-Node"
-            && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::FogVolume);
+            && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::SkyBoxNode
+            && sceneNode->GetName() != "Root-Node" && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::FogVolume
+            && sceneNode->GetSceneNodeMetaData().nodeType != ENodeType::Atmosphere);
 }
