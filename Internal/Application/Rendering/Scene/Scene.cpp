@@ -57,8 +57,10 @@ void Scene::Init()
 void Scene::Update()
 {
     m_root->Update(m_sceneUpdateFlags);
-    if (!m_sceneNodesToRemove.empty()) {
-        for (auto& node : m_sceneNodesToRemove) {
+    if(!m_sceneNodesToRemove.empty())
+    {
+        for(auto& node : m_sceneNodesToRemove)
+        {
             RemoveNode(node->GetParent(), node);
         }
     }
@@ -79,23 +81,25 @@ void Scene::Render(VulkanUtils::RenderContext* ctx, std::shared_ptr<SceneNode> s
 
 void Scene::Reset()
 {
-    m_sceneUpdateFlags.Reset();
+    //m_sceneUpdateFlags.Reset();
     m_sceneStatistics.Reset();
 }
-void Scene::ProcessNodeRemove(std::shared_ptr<SceneNode> sceneNode) {
+void Scene::ProcessNodeRemove(std::shared_ptr<SceneNode> sceneNode)
+{
     m_sceneNodesToRemove.push_back(sceneNode);
 }
 
 void Scene::RemoveNode(SceneNode* parent, std::shared_ptr<SceneNode> nodeToRemove)
 {
-    auto& children               = parent->GetChildrenByRef();
+    auto& children = parent->GetChildrenByRef();
     for(auto it = children.begin(); it != children.end();)
     {
         if(*it == nodeToRemove)
         {
             auto node = it->get();
 
-            if (node->HasMesh()) {
+            if(node->HasMesh())
+            {
                 m_assetsManager.GetMeshDataManager().ProcessRemove(*node->GetMesh()->GetMeshData());
             }
 
@@ -213,8 +217,9 @@ void Scene::AddFogVolume()
     node->SetName("Fog ##" + VulkanUtils::random_string(5));
     AddNode(node);
 }
-void Scene::AddAtmosphere() {
-    auto obj = m_assetsManager.GetDefaultMesh(PostProcessQuad);
+void Scene::AddAtmosphere()
+{
+    auto obj  = m_assetsManager.GetDefaultMesh(PostProcessQuad);
     auto node = std::make_shared<AtmosphereSceneNode>(obj);
     node->SetName("Atmosphere ##" + VulkanUtils::random_string(5));
     AddNode(node);

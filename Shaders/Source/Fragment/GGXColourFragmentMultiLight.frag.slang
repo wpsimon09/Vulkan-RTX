@@ -98,9 +98,9 @@ float4 fragmentMain(VertexOutput fsIn)
         float2 trnansUv = GetTransmittanceTextureUvFromRMu(float2(globalData.atmosphereInfo.x,globalData.atmosphereInfo.y), transmitanceTextureWH, height, viewZenithAngle);
         transmitanceToSun = TransmitanceLUT.Sample(trnansUv).xyz;
         
-        lightingEnv.first.first.transmitanceToSun = transmitanceToSun;
+        TransmitanceToSun = transmitanceToSun;
     }else{
-        lightingEnv.first.first.transmitanceToSun = transmitanceToSun;
+        TransmitanceToSun = transmitanceToSun;
     }
 
     

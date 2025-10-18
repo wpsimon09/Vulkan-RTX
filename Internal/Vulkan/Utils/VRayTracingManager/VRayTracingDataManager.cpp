@@ -41,6 +41,9 @@ void VRayTracingDataManager::RecordAndSubmitAsBuld(VulkanCore::VTimelineSemaphor
         // implicity destroys all used resources, so no cleanup of previous resources is needed
         InitAs(m_blasInputs, frameSemaphore);
         Utils::Logger::LogInfo("Rebuilding AS");
+
+        m_sceneUpdateContext->Reset();
+
         return;
     }
 
@@ -60,6 +63,8 @@ void VRayTracingDataManager::RecordAndSubmitAsBuld(VulkanCore::VTimelineSemaphor
                                        vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace
                                            | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate,
                                        true);
+        m_sceneUpdateContext->Reset();
+
         Utils::Logger::LogInfo("Updating AS");
     }
 }

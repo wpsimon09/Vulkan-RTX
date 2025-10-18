@@ -217,7 +217,6 @@ void Application::Update()
     // Send geometry data to the GPU
     m_vulkanDevice->GetMeshDataManager().UpdateGPU();
 
-
     //=====================================================
     // Update accelerations structures
     auto blasInputs = m_client->GetScene().GetBLASInputs();
@@ -232,6 +231,7 @@ void Application::Render()
     m_client->Render(m_frame->GetRenderContext());
 
     m_editor->Render();
+
 
     // the frame update has to be here since editor render might change some stuff based on the UI alterations
     // this should be fixed with Command pattern or similar techinique
