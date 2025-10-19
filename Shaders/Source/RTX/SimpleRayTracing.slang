@@ -6,6 +6,7 @@ import Surface;
 import RandomValues;
 import Core;
 import RayTracingUtils;
+import Camera;
 
 // global data for the ray tracing 
 [[vk::binding(0, 0)]]
@@ -38,6 +39,11 @@ void rayGenMain() {
     uint2 threadIdx = DispatchRaysIndex().xy;
     uint2 launchSize = DispatchRaysDimensions().xy;
 
+    float2 pixel = float2(DispatchRaysIndex().xy);
+    float2 resolution = float2(DispatchRaysDimensions().xy);
+
+    pixel = ((( pixel + 0.5f) / resolution) * 2.f - 1.f);
+
     const float2 pixelCenter = float2(threadIdx.xy) + float2(0.5, 0.5);
     
     // get position on the screen inf 0, 1 interval
@@ -49,8 +55,6 @@ void rayGenMain() {
 
     uint randomSeed = tea(pixelIndex, (uint)globalData.currentFrame);
 
-    // pixel position on view plane 
-    float4 target = mul(globalData.invProjection, float4(d.x, d.y, 1.0, 1.0));
     
     float3 totalRadiance = 0.0f;
 
@@ -67,40 +71,13 @@ void rayGenMain() {
 
             //=========================
             // Full shading is enabled 
-            for (int i = 0; i < globalData.raysPerPixel; i++) {
-    
+            for (int i = 0; i < 1; i++) {
                 
-                //========================================================================================c
-                // get initial jitter samples 
-                float2 jitter = RandomPointInCircle(randomSeed) * 0.2 / launchSize.x;
-                float2 deFocusJitter = RandomPointInCircle(randomSeed) * aparatureSize;
-                float3 jitteredTarget = target.xyz + camRight * jitter.x + camUp * jitter.y;
+                 
+                var camera = ProjectiveCamera(globalData.projection, globalData.view, globalData.inverseView);
                 
-    
-                //========================================================================================c
-                // define ray origin in the camera space and translate it to the worlds space 
-                float3 rayOriginWS = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-    
-                //===========================================================================
-                // jitter the ray origin 
-                float3 jitteredRayOriginWS =rayOriginWS + camRight * deFocusJitter.x +  camUp * deFocusJitter.y; // offset the ray origin
-                
-                //======================================================
-                // calulate where the ray will shoot in the world space 
-                float3 rayDirecionWS = normalize(mul(globalData.inverseView, float4(target.xyz, 0.0))).xyz;
-                
-                //======================================================
-                // find the focal point, the point where objects are in focuse 
-                float3 focalPoint = rayOriginWS + rayDirecionWS * focalLenth;
-                
-                //======================================================
-                // descibbe ray
-                RayDesc ray;
-                ray.Origin = jitteredRayOriginWS;
-                ray.Direction = normalize(focalPoint - ray.Origin); // direction from jittered origin to the focal point 
-                ray.TMin = 0.001f;
-                ray.TMax = 10000.0f;
-    
+                var ray = camera.GenerateRayToScene(pixel, randomSeed);
+
                 // RESET PAY LOAD FOR EACH RAY 
                 payload.incomingLightColour = float3(0.0);
                 payload.hasHit = true;
@@ -108,6 +85,8 @@ void rayGenMain() {
                 payload.depth = 0;
                 payload.rayColour = float3(1.0);
                 payload.incomingLightColour = float3(0.0);
+                payload.rayOrigin = ray.Origin;
+                payload.rayDirection = ray.Direction;
     
                 float3 rayRadiacne = float3(0.0);
                 int numSamples = 1;
@@ -145,26 +124,19 @@ void rayGenMain() {
         case ERenderOutputRTX::Normals: {
             
             
-            RayDesc ray;
-            ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-            ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
-            //ray.Direction = normalize(worldSpaceDirection).xyz;
-            ray.TMin = 0.001f;
-            ray.TMax = 10000.0f;
+            var camera = ProjectiveCamera(globalData.projection, globalData.view, globalData.inverseView);
+                
+            var ray = camera.GenerateRayToScene(pixel, randomSeed);
             
             let N = TraceSingleRay(ray, _TLAS, randomSeed).normal;
             
-            _accumulationImage[int2(threadIdx.xy)] = float4(N, 1.0) ;
+            _accumulationImage[int2(threadIdx.xy)] = float4(ray.Direction, 1.0) ;
             
             break;
         }
         case ERenderOutputRTX::PDF: {
-            RayDesc ray;
-            ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-            ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
-            //ray.Direction = normalize(worldSpaceDirection).xyz;
-            ray.TMin = 0.001f;
-            ray.TMax = 10000.0f;
+            var camera = ProjectiveCamera(globalData.projection, globalData.view, globalData.inverseView);
+            var ray = camera.GenerateRayToScene(pixel, randomSeed);;
             
             let PDF = TraceSingleRay(ray, _TLAS, randomSeed).PDF;
             
@@ -266,7 +238,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }
 
     if(globalData.accumulateFrames){
-        payLoad.rayColour *= f/PDF;
+        payLoad.rayColour *= f;
     }else{
         payLoad.rayColour *= f/PDF;
     }
