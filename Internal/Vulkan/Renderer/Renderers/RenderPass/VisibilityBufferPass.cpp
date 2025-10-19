@@ -27,8 +27,8 @@ VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, Ap
 
     //===================================================
     // create render target
-    Renderer::RenderTarget2CreatInfo shadowMapCI{width,
-                                                 height,
+    Renderer::RenderTarget2CreatInfo shadowMapCI{width / 2,
+                                                 height / 2,
                                                  false,
                                                  false,
                                                  vk::Format::eR16G16B16A16Sfloat,
@@ -95,7 +95,7 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
 
     vk::RenderingInfo renderingInfo{};
     renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
-    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
+    renderingInfo.renderArea.extent    = vk::Extent2D(m_width / 2, m_height / 2);
     renderingInfo.layerCount           = 1;
     renderingInfo.colorAttachmentCount = renderingOutputs.size();
     renderingInfo.pColorAttachments    = renderingOutputs.data();
