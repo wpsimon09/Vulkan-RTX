@@ -184,7 +184,7 @@ void Application::Update()
 {
     if(m_vulkanDevice->CurrentFrame >= GlobalVariables::MAX_FRAMES_IN_FLIGHT)
     {
-        m_frame->GetTimelineSemaphore().CpuWaitIdle(EFrameStages::TransferFinish);
+        m_frame->GetTimelineSemaphore().CpuWaitIdle(EFrameStages::RenderFinish);
         m_vulkanDevice->GetTransferOpsManager().ClearResources();
         m_vulkanDevice->GetTransferOpsManager().StartRecording();
     }
