@@ -23,10 +23,13 @@ public struct ProjectiveCamera : ICamera{
     public RayDesc GenerateRayToScene(float2 pixelPos, inout uint u){
         // first generate ray in camera space 
         float aspect = dims.x / dims.y;
+
+        float2 pixel = float2(pixelPos.x, -pixelPos.y);
+
         float tanHalfAngle = tan(FOV * 0.5f);
         float3 direction = normalize(float3(
-            pixelPos.x * tanHalfAngle,
-            pixelPos.y * tanHalfAngle / aspect,
+            pixel.x * tanHalfAngle,
+            pixel.y * tanHalfAngle / aspect,
             -1.0f));
 
 
@@ -42,7 +45,7 @@ public struct ProjectiveCamera : ICamera{
         result.TMin = inRay.TMin;
         result.Direction = mul(float3x3(cameraToWorld), inRay.Direction);
         // third row in inverse view is camera position 
-        result.Origin = transpose(cameraToWorld)[3].xyz;
+        result.Origin = float3(cameraToWorld._m03, cameraToWorld._m13, cameraToWorld._m23);
         return result;
     }
 

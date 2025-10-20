@@ -43,11 +43,6 @@ void rayGenMain() {
     uint2 threadIdx = DispatchRaysIndex().xy;
     uint2 launchSize = DispatchRaysDimensions().xy;
 
-    float2 pixel = float2(DispatchRaysIndex().xy);
-    float2 resolution = float2(DispatchRaysDimensions().xy);
-
-    pixel = ((( pixel + 0.5f) / dims) * 2.f - 1.f);
-
     const float2 pixelCenter = float2(threadIdx.xy) + float2(0.5, 0.5);
     
     // get position on the screen inf 0, 1 interval
@@ -80,7 +75,7 @@ void rayGenMain() {
                  
                 var camera = ProjectiveCamera(globalData.cameraPostiion.w, dims, globalData.projection, globalData.view, globalData.inverseView);
                 
-                var ray = camera.GenerateRayToScene(pixel, randomSeed);
+                var ray = camera.GenerateRayToScene(d, randomSeed);
 
                 // RESET PAY LOAD FOR EACH RAY 
                 payload.incomingLightColour = float3(0.0);
@@ -138,8 +133,8 @@ void rayGenMain() {
         }
         case ERenderOutputRTX::PDF: {
             
-            var camera = ProjectiveCamera(globalData.cameraPostiion.w, resolution, globalData.projection, globalData.view, globalData.inverseView);
-            var ray = camera.GenerateRayToScene(pixel, randomSeed);;
+            var camera = ProjectiveCamera(globalData.cameraPostiion.w, dims, globalData.projection, globalData.view, globalData.inverseView);
+            var ray = camera.GenerateRayToScene(d, randomSeed);;
             
             let PDF = TraceSingleRay(ray, _TLAS, randomSeed).PDF;
             
