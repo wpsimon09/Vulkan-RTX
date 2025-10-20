@@ -35,6 +35,10 @@ struct RayPayloadShadow {
 
 [[shader("raygeneration")]]
 void rayGenMain() {
+    float2 dims;
+
+    _film.GetDimensions(dims.x, dims.y);
+
     // this is the pixel ID
     uint2 threadIdx = DispatchRaysIndex().xy;
     uint2 launchSize = DispatchRaysDimensions().xy;
@@ -42,7 +46,7 @@ void rayGenMain() {
     float2 pixel = float2(DispatchRaysIndex().xy);
     float2 resolution = float2(DispatchRaysDimensions().xy);
 
-    pixel = ((( pixel + 0.5f) / resolution) * 2.f - 1.f);
+    pixel = ((( pixel + 0.5f) / dims) * 2.f - 1.f);
 
     const float2 pixelCenter = float2(threadIdx.xy) + float2(0.5, 0.5);
     
@@ -74,7 +78,7 @@ void rayGenMain() {
             for (int i = 0; i < 1; i++) {
                 
                  
-                var camera = ProjectiveCamera(globalData.cameraPostiion.w, resolution, globalData.projection, globalData.view, globalData.inverseView);
+                var camera = ProjectiveCamera(globalData.cameraPostiion.w, dims, globalData.projection, globalData.view, globalData.inverseView);
                 
                 var ray = camera.GenerateRayToScene(pixel, randomSeed);
 
@@ -124,13 +128,13 @@ void rayGenMain() {
         case ERenderOutputRTX::Normals: {
             
             
-            var camera = ProjectiveCamera(globalData.cameraPostiion.w, resolution, globalData.projection, globalData.view, globalData.inverseView);
+            var camera = ProjectiveCamera(globalData.cameraPostiion.w, dims, globalData.projection, globalData.view, globalData.inverseView);
                 
-            var ray = camera.GenerateRayToScene(pixel, randomSeed);
+            var ray = camera.GenerateRayToScene(d, randomSeed);
             
-            let N = TraceSingleRay(ray, _TLAS, randomSeed).normal;
+            let N = TraceSingleRay(ray, _TLAS, randomSeed).distance;
             
-            _accumulationImage[int2(threadIdx.xy)] = float4(ray.Direction, 1.0) ;
+            _accumulationImage[int2(threadIdx.xy)] = float4(ray.Direction ,1.0) ;
             
             break;
         }

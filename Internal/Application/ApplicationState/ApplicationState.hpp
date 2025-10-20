@@ -60,10 +60,11 @@ class ApplicationState
     void  SetIsWindowResized(bool windowResized);
 
   public:
-    EDebugRendering    m_rendererOutput   = EDebugRendering::Lit;
-    EDebugRenderingRTX m_rtxRenderOutput  = EDebugRenderingRTX::PathTraced;
-    bool               m_accumulateFrames = true;
-    bool               m_ambientOcclusion = false;
+    EDebugRendering    m_rendererOutput       = EDebugRendering::Lit;
+    EDebugRenderingRTX m_rtxRenderOutput      = EDebugRenderingRTX::PathTraced;
+    bool               m_accumulateFrames     = true;
+    bool               m_ambientOcclusion     = false;
+    bool               m_enablePostProcessing = true;
 
 
   private:

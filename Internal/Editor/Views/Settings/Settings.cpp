@@ -211,78 +211,85 @@ void Settings::RenderRenderingSettings()
         ImGui::TreePop();
     }
 
-    if(ImGui::TreeNode("Tone mapping options"))
+    ImGui::Checkbox("Enable post processing ", &m_client.GetApplicationState().m_enablePostProcessing);
+    if(m_client.GetApplicationState().m_enablePostProcessing)
     {
-        auto& applicationState = m_client.GetApplicationState();
 
-        if(ImGui::BeginCombo("Tone mapping curve",
-                             m_toneMappingCurves[(EToneMappingCurve)applicationState.GetToneMappingParameters().curve]))
+        if(ImGui::TreeNode("Tone mapping options"))
         {
-            int j = 0;
-            for(auto& curve : m_toneMappingCurves)
+
+            auto& applicationState = m_client.GetApplicationState();
+
+
+            if(ImGui::BeginCombo("Tone mapping curve",
+                                 m_toneMappingCurves[(EToneMappingCurve)applicationState.GetToneMappingParameters().curve]))
             {
-                if(ImGui::Selectable(m_toneMappingCurves[j],
-                                     (EToneMappingCurve)applicationState.GetToneMappingParameters().curve == (EToneMappingCurve)j))
+                int j = 0;
+                for(auto& curve : m_toneMappingCurves)
                 {
-                    applicationState.GetToneMappingParameters().curve = (EToneMappingCurve)j;
+                    if(ImGui::Selectable(m_toneMappingCurves[j],
+                                         (EToneMappingCurve)applicationState.GetToneMappingParameters().curve == (EToneMappingCurve)j))
+                    {
+                        applicationState.GetToneMappingParameters().curve = (EToneMappingCurve)j;
+                    }
+                    j++;
                 }
-                j++;
+                ImGui::EndCombo();
             }
-            ImGui::EndCombo();
-        }
 
-        if(ImGui::TreeNode("Luminance"))
-        {
-            ImGui::SeparatorText("Histogram");
+            if(ImGui::TreeNode("Luminance"))
+            {
+                ImGui::SeparatorText("Histogram");
 
-            ImGui::SliderFloat("Minimal logaritmic luminance",
-                               &applicationState.GetLuminanceHistogramParameters().minLogLuminance, -95, 0);
+                ImGui::SliderFloat("Minimal logaritmic luminance",
+                                   &applicationState.GetLuminanceHistogramParameters().minLogLuminance, -95, 0);
 
-            ImGui::SliderFloat("Maximal logaritmic luminance",
-                               &applicationState.GetLuminanceHistogramParameters().maxLogLuminance, -50, 50);
+                ImGui::SliderFloat("Maximal logaritmic luminance",
+                                   &applicationState.GetLuminanceHistogramParameters().maxLogLuminance, -50, 50);
 
-            float luminanceRange = applicationState.GetLuminanceHistogramParameters().CalculateLuminanceRange();
-            ImGui::Text("Luminance range: %f", luminanceRange);
-            ImGui::Text("One over range: %f", applicationState.GetLuminanceHistogramParameters().oneOverLogLuminanceRange);
+                float luminanceRange = applicationState.GetLuminanceHistogramParameters().CalculateLuminanceRange();
+                ImGui::Text("Luminance range: %f", luminanceRange);
+                ImGui::Text("One over range: %f", applicationState.GetLuminanceHistogramParameters().oneOverLogLuminanceRange);
 
-            ImGui::SeparatorText("Average");
+                ImGui::SeparatorText("Average");
 
-            ImGui::SliderFloat("Tau", &applicationState.GetLuminanceAverageParameters().tau, 0.0, 5.0);
+                ImGui::SliderFloat("Tau", &applicationState.GetLuminanceAverageParameters().tau, 0.0, 5.0);
 
+
+                ImGui::TreePop();
+            }
 
             ImGui::TreePop();
         }
 
-        ImGui::TreePop();
-    }
 
-
-    if(ImGui::TreeNode("Lens flare"))
-    {
-        auto& applicationState = m_client.GetApplicationState();
-
-        ImGui::SliderFloat("Strength", &applicationState.GetLensFlareParameters().lensFlareStrength, 0.1f, 100.0f);
-        ImGui::SliderFloat("F1 Strength:", &applicationState.GetLensFlareParameters().f1Strength, 0.1f, 100.0f);
-        ImGui::SliderFloat("F2 Strength:", &applicationState.GetLensFlareParameters().f2Strength, 0.1f, 100.0f);
-        ImGui::SliderFloat("F3 Strength:", &applicationState.GetLensFlareParameters().f3Strength, 0.1f, 100.0f);
-
-        ImGui::TreePop();
-    }
-
-    if(ImGui::TreeNode("Bloom"))
-    {
-        auto& bloomSettings = m_client.GetApplicationState().GetBloomSettings();
-
-        ImGui::Checkbox("Lens dirt", reinterpret_cast<bool*>(&bloomSettings.dirtTexture));
-        if(bloomSettings.dirtTexture)
+        if(ImGui::TreeNode("Lens flare"))
         {
-            ImGui::DragFloat("Dirt texture intensity", &bloomSettings.dirstIntensity, 0.1, 0.0);
+            auto& applicationState = m_client.GetApplicationState();
+
+            ImGui::SliderFloat("Strength", &applicationState.GetLensFlareParameters().lensFlareStrength, 0.1f, 100.0f);
+            ImGui::SliderFloat("F1 Strength:", &applicationState.GetLensFlareParameters().f1Strength, 0.1f, 100.0f);
+            ImGui::SliderFloat("F2 Strength:", &applicationState.GetLensFlareParameters().f2Strength, 0.1f, 100.0f);
+            ImGui::SliderFloat("F3 Strength:", &applicationState.GetLensFlareParameters().f3Strength, 0.1f, 100.0f);
+
+            ImGui::TreePop();
         }
 
-        ImGui::SliderFloat("Bloom strength", &bloomSettings.bloomStrenght, 0.0, 1.0);
-        ImGui::SliderFloat("Filter radius", &bloomSettings.filterRadius, 0.001, 1.0);
+        if(ImGui::TreeNode("Bloom"))
+        {
+            auto& bloomSettings = m_client.GetApplicationState().GetBloomSettings();
 
-        ImGui::TreePop();
+            ImGui::Checkbox("Lens dirt", reinterpret_cast<bool*>(&bloomSettings.dirtTexture));
+            if(bloomSettings.dirtTexture)
+            {
+                ImGui::DragFloat("Dirt texture intensity", &bloomSettings.dirstIntensity, 0.1, 0.0);
+            }
+
+            ImGui::SliderFloat("Bloom strength", &bloomSettings.bloomStrenght, 0.0, 1.0);
+            ImGui::SliderFloat("Filter radius", &bloomSettings.filterRadius, 0.001, 1.0);
+
+            ImGui::TreePop();
+        }
     }
 }
 }  // namespace VEditor

@@ -16,6 +16,7 @@ public struct ProjectiveCamera : ICamera{
         cameraToWorld = CameraToWorld;
         projection = projection;
         FOV = fov;
+        this.dims = dims;
     };
 
     // generates ray in world space
@@ -32,16 +33,16 @@ public struct ProjectiveCamera : ICamera{
         let rayCameraSpaca = RayDesc(float3(0.0f), 0.0f, direction, 10000.0f);        
 
         // convert the generated ray to world space where light transport
-        return CameraToWorld(rayCameraSpaca);;
+        return CameraToWorld(rayCameraSpaca);
     }
 
     RayDesc CameraToWorld(RayDesc inRay){
         RayDesc result;
         result.TMax = inRay.TMax;
         result.TMin = inRay.TMin;
-        result.Direction = mul(float3x3(cameraToWorld), inRay.Direction);
+        result.Direction = mul(inRay.Direction, transpose(float3x3(cameraToWorld)));
         // third row in inverse view is camera position 
-        result.Origin = cameraToWorld[3].xyz + inRay.Origin;
+        result.Origin = cameraToWorld[3].xyz;
         return result;
     }
 
