@@ -119,6 +119,7 @@ void Settings::RenderApplicationSettings()
         ImGui::DragFloat("Near plane:", &m_client.GetCamera().GetNearPlane(), 1.f, 0.2f, std::numeric_limits<float>::max());
 
         ImGui::SliderFloat("FOV", &m_client.GetCamera().GetFOV(), 1, 360);
+        ImGui::Text("FOV Radians: %f", m_client.GetCamera().GetFOVRad());
 
         ImGui::DragFloat("Focal length:", &m_client.GetCamera().GetFocalLength(), 0.2f);
 

@@ -8,8 +8,10 @@
 #include "Application/Structs/ApplicationStructs.hpp"
 
 
+#include <glm/ext/scalar_constants.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/trigonometric.hpp>
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
@@ -68,6 +70,8 @@ class Camera
     float& GetSpeed() { return this->m_speed; }
 
     float& GetFOV() { return this->m_FOV; }
+
+    float GetFOVRad() { return this->m_FOV * glm::pi<float>() / 180; }
 
     float& GetFocalLength() { return this->m_focalLength; }
 

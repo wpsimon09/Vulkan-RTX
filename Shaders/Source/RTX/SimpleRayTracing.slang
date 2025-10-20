@@ -74,7 +74,7 @@ void rayGenMain() {
             for (int i = 0; i < 1; i++) {
                 
                  
-                var camera = ProjectiveCamera(globalData.projection, globalData.view, globalData.inverseView);
+                var camera = ProjectiveCamera(globalData.cameraPostiion.w, resolution, globalData.projection, globalData.view, globalData.inverseView);
                 
                 var ray = camera.GenerateRayToScene(pixel, randomSeed);
 
@@ -124,7 +124,7 @@ void rayGenMain() {
         case ERenderOutputRTX::Normals: {
             
             
-            var camera = ProjectiveCamera(globalData.projection, globalData.view, globalData.inverseView);
+            var camera = ProjectiveCamera(globalData.cameraPostiion.w, resolution, globalData.projection, globalData.view, globalData.inverseView);
                 
             var ray = camera.GenerateRayToScene(pixel, randomSeed);
             
@@ -135,7 +135,8 @@ void rayGenMain() {
             break;
         }
         case ERenderOutputRTX::PDF: {
-            var camera = ProjectiveCamera(globalData.projection, globalData.view, globalData.inverseView);
+            
+            var camera = ProjectiveCamera(globalData.cameraPostiion.w, resolution, globalData.projection, globalData.view, globalData.inverseView);
             var ray = camera.GenerateRayToScene(pixel, randomSeed);;
             
             let PDF = TraceSingleRay(ray, _TLAS, randomSeed).PDF;

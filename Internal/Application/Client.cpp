@@ -107,7 +107,7 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
                                                         m_camera->GetNearPlane(), m_camera->GetFarPlane());
     m_globalRenderingData.reccursionDepth   = GlobalVariables::RenderingOptions::MaxRecursionDepth;
     m_globalRenderingData.raysPerPixel      = GlobalVariables::RenderingOptions::RaysPerPixel;
-    m_globalRenderingData.cameraPosition    = glm::vec4(m_camera->GetPosition(), 1.0);
+    m_globalRenderingData.cameraPosition    = glm::vec4(m_camera->GetPosition(), m_camera->GetFOVRad());
     m_globalRenderingData.rendererOutput    = m_applicationState->m_rendererOutput;
     m_globalRenderingData.rendererOutputRTX = m_applicationState->m_rtxRenderOutput;
     m_globalRenderingData.accumulateFrames  = static_cast<bool>(m_applicationState->m_accumulateFrames);

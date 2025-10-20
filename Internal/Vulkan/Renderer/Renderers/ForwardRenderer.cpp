@@ -130,7 +130,10 @@ void ForwardRenderer::Render(int                                       currentFr
     // generates depth buffer
     DepthPrePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
-    m_atmospherePass->Precompute(currentFrameIndex, cmdBuffer, m_renderContextPtr);
+    if(m_renderContextPtr->atmosphereCall.has_value())
+    {
+        m_atmospherePass->Precompute(currentFrameIndex, cmdBuffer, m_renderContextPtr);
+    }
 
 
     //===========================

@@ -116,7 +116,7 @@ void ApplicationCore::Camera::ProcessResize(int newWidht, int newHeight)
     ;
     m_projection[1][1] *= -1;
     //m_farPlane = GetFarPlane();
-    m_position = getEye();
+    m_position   = getEye();
     m_hasChanged = true;
 }
 
@@ -157,7 +157,8 @@ void ApplicationCore::Camera::SetPosition(glm::vec3& newPosition)
 
 void ApplicationCore::Camera::Update(CameraUpdateInfo& cameraUpdateInfo, SceneUpdateContext& sceneUpdateFlags)
 {
-    if (m_previusUpdateInfo != cameraUpdateInfo) {
+    if(m_previusUpdateInfo != cameraUpdateInfo)
+    {
         RotateAzimutn(cameraUpdateInfo.RotateAzimuthValue);
         RotatePolar(cameraUpdateInfo.RotatePolarValue);
         Zoom(cameraUpdateInfo.ZoomValue);
@@ -177,7 +178,10 @@ void ApplicationCore::Camera::Update(CameraUpdateInfo& cameraUpdateInfo, SceneUp
         sceneUpdateFlags.resetAccumulation = true;
         ProcessResize(cameraUpdateInfo.NewWidth, cameraUpdateInfo.NewHeight);
     }
-    if (m_hasChanged) {sceneUpdateFlags.resetAccumulation = true;}
+    if(m_hasChanged)
+    {
+        sceneUpdateFlags.resetAccumulation = true;
+    }
 
     cameraUpdateInfo.Reset();
     m_hasChanged = false;

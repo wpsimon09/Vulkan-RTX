@@ -6,35 +6,47 @@ public struct ProjectiveCamera : ICamera{
     float4x4 worldToCamera; // view matrix 
     float4x4 cameraToWorld; // invViewMatrix
     float4x4 projection;
+    float2 dims;
+    float FOV;
 
     float4 film = {0.0f};
 
-    public __init (float4x4 projection, float4x4 WorldToCamera, float4x4 CameraToWorld){
+    public __init (float fov, float2 dims, float4x4 projection, float4x4 WorldToCamera, float4x4 CameraToWorld){
         worldToCamera = WorldToCamera;
         cameraToWorld = CameraToWorld;
         projection = projection;
+        FOV = fov;
     };
 
+    // generates ray in world space
     public RayDesc GenerateRayToScene(float2 pixelPos, inout uint u){
-        RayDesc ray;
+        // first generate ray in camera space 
+        float aspect = dims.x / dims.y;
+        float tanHalfAngle = tan(FOV * 0.5f);
+        float3 direction = normalize(float3(
+            pixelPos.x * tanHalfAngle,
+            -pixelPos.y * tanHalfAngle / aspect,
+            -1.0f));
 
-        ray.Origin = cameraToWorld[3].xyz;  
-        ray.TMin = 0.0f;
-        ray.TMax = float.maxValue;
 
-        float tanHalfFoVY = 1.0f / projection[1][1];
-        float aspect = projection[1][1] / projection[0][0];
-        float tanHalfFoVX = tanHalfFoVY * aspect;
+        let rayCameraSpaca = RayDesc(float3(0.0f), 0.0f, direction, 10000.0f);        
 
-        pixelPos.y = -pixelPos.y;
+        // convert the generated ray to world space where light transport
+        return CameraToWorld(rayCameraSpaca);;
+    }
 
-        ray.Direction = normalize(
-            pixelPos.x * tanHalfFoVX * cameraToWorld[0].xyz + 
-            pixelPos.y * tanHalfFoVY * cameraToWorld[1].xyz + 
-            cameraToWorld[2].xyz                              
-        );
+    RayDesc CameraToWorld(RayDesc inRay){
+        RayDesc result;
+        result.TMax = inRay.TMax;
+        result.TMin = inRay.TMin;
+        result.Direction = mul(float3x3(cameraToWorld), inRay.Direction);
+        // third row in inverse view is camera position 
+        result.Origin = cameraToWorld[3].xyz + inRay.Origin;
+        return result;
+    }
 
-        return ray;
+    RayDesc WorldToCamera(){
+
     }
 }
 
@@ -44,8 +56,8 @@ public struct ThinLensCamera : ICamera{
     float aparatureSize;
     float focalLength;
 
-    __init (float aparatureSize, float focalLenght,float4x4 projection, float4x4 WorldToCamera, float4x4 CameraToWorld){
-        this.projectiveCamera = ProjectiveCamera(projection, WorldToCamera, CameraToWorld);
+    __init (float aparatureSize, float focalLenght,float fov, float2 dims ,float4x4 projection, float4x4 WorldToCamera, float4x4 CameraToWorld){
+        this.projectiveCamera = ProjectiveCamera(fov, dims, projection, WorldToCamera, CameraToWorld);
         this.aparatureSize = aparatureSize;
         this.focalLength = focalLenght;
     };
