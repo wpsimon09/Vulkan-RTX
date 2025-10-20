@@ -26,7 +26,7 @@ public struct ProjectiveCamera : ICamera{
         float tanHalfAngle = tan(FOV * 0.5f);
         float3 direction = normalize(float3(
             pixelPos.x * tanHalfAngle,
-            -pixelPos.y * tanHalfAngle / aspect,
+            pixelPos.y * tanHalfAngle / aspect,
             -1.0f));
 
 
@@ -40,9 +40,9 @@ public struct ProjectiveCamera : ICamera{
         RayDesc result;
         result.TMax = inRay.TMax;
         result.TMin = inRay.TMin;
-        result.Direction = mul(inRay.Direction, transpose(float3x3(cameraToWorld)));
+        result.Direction = mul(float3x3(cameraToWorld), inRay.Direction);
         // third row in inverse view is camera position 
-        result.Origin = cameraToWorld[3].xyz;
+        result.Origin = transpose(cameraToWorld)[3].xyz;
         return result;
     }
 

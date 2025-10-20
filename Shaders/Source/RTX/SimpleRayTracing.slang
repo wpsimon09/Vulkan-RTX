@@ -75,7 +75,7 @@ void rayGenMain() {
 
             //=========================
             // Full shading is enabled 
-            for (int i = 0; i < 1; i++) {
+            for (int i = 0; i < globalData.raysPerPixel; i++) {
                 
                  
                 var camera = ProjectiveCamera(globalData.cameraPostiion.w, dims, globalData.projection, globalData.view, globalData.inverseView);
@@ -89,8 +89,6 @@ void rayGenMain() {
                 payload.depth = 0;
                 payload.rayColour = float3(1.0);
                 payload.incomingLightColour = float3(0.0);
-                payload.rayOrigin = ray.Origin;
-                payload.rayDirection = ray.Direction;
     
                 float3 rayRadiacne = float3(0.0);
                 int numSamples = 1;
@@ -132,9 +130,9 @@ void rayGenMain() {
                 
             var ray = camera.GenerateRayToScene(d, randomSeed);
             
-            let N = TraceSingleRay(ray, _TLAS, randomSeed).distance;
+            let N = TraceSingleRay(ray, _TLAS, randomSeed).normal;
             
-            _accumulationImage[int2(threadIdx.xy)] = float4(ray.Direction ,1.0) ;
+            _accumulationImage[int2(threadIdx.xy)] = float4(N,1.0) ;
             
             break;
         }
