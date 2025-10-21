@@ -79,6 +79,8 @@ class Camera
 
     float& GetDefocuseStrength() { return this->m_defocuseStrength; }
 
+    float GetAspectRatio() { return m_aspect; }
+
     void SetPosition(glm::vec3& newPosition);
 
     void Update(CameraUpdateInfo& cameraUpdateInfo, SceneUpdateContext& sceneUpdateFlags);

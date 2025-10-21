@@ -5,32 +5,31 @@ internal interface ICamera{
 public struct ProjectiveCamera : ICamera{
     float4x4 worldToCamera; // view matrix 
     float4x4 cameraToWorld; // invViewMatrix
-    float4x4 projection;
-    float2 dims;
-    float FOV;
+    float tanFloat2;
+    float aspect; 
 
     float4 film = {0.0f};
 
-    public __init (float fov, float2 dims, float4x4 projection, float4x4 WorldToCamera, float4x4 CameraToWorld){
+    public __init (float tanFloat2, float aspectRatio, float4x4 WorldToCamera, float4x4 CameraToWorld){
         worldToCamera = WorldToCamera;
         cameraToWorld = CameraToWorld;
-        projection = projection;
-        FOV = fov;
-        this.dims = dims;
+        this.tanFloat2 = tanFloat2;
+        aspect = aspectRatio;
     };
 
     // generates ray in world space
     public RayDesc GenerateRayToScene(float2 pixelPos, inout uint u){
         // first generate ray in camera space 
-        float aspect = dims.x / dims.y;
 
         float2 pixel = float2(pixelPos.x, -pixelPos.y);
 
-        float tanHalfAngle = tan(FOV * 0.5f);
+        float tanHalfFovX  = tanFloat2 * aspect;
+        float tanHalfFovY  = tanFloat2;
+
         float3 direction = normalize(float3(
-            pixel.x * tanHalfAngle,
-            pixel.y * tanHalfAngle / aspect,
-            -1.0f));
+            pixel.x * tanHalfFovX,
+            pixel.y * tanHalfFovY,
+            -1.0f));  
 
 
         let rayCameraSpaca = RayDesc(float3(0.0f), 0.0f, direction, 10000.0f);        
@@ -60,8 +59,8 @@ public struct ThinLensCamera : ICamera{
     float aparatureSize;
     float focalLength;
 
-    __init (float aparatureSize, float focalLenght,float fov, float2 dims ,float4x4 projection, float4x4 WorldToCamera, float4x4 CameraToWorld){
-        this.projectiveCamera = ProjectiveCamera(fov, dims, projection, WorldToCamera, CameraToWorld);
+    __init (float aparatureSize, float focalLenght, float tanFloat2, float aspect, float4x4 WorldToCamera, float4x4 CameraToWorld){
+        this.projectiveCamera = ProjectiveCamera(tanFloat2, aspect, WorldToCamera, CameraToWorld);
         this.aparatureSize = aparatureSize;
         this.focalLength = focalLenght;
     };
