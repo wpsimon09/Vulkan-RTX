@@ -27,6 +27,10 @@ ConstantBuffer<RWTexture2D> _film;
 [[vk::binding(6, 0)]]
 ConstantBuffer<RWTexture2D> _accumulationImage;
 
+/*
+[[vk::binding(7,0)]]
+SamplerCube envMap;
+*/
 
 
 struct RayPayloadShadow {
@@ -63,8 +67,6 @@ void rayGenMain() {
     float aparatureSize = globalData.viewParams.x; // bigger apprature, bigger blur
     float focalLenth = globalData.viewParams.y; // position of the focuse plane
 
-    RayPayLoad payload;
-
     switch((ERenderOutputRTX)globalData.renderOutputRTX){
         case ERenderOutputRTX::PathTraced:{
 
@@ -77,21 +79,13 @@ void rayGenMain() {
                 
                 var ray = camera.GenerateRayToScene(d, randomSeed);
 
-                // RESET PAY LOAD FOR EACH RAY 
-                payload.incomingLightColour = float3(0.0);
-                payload.hasHit = true;
+                RayPayLoad payload = {};
                 payload.randomContext = randomSeed;
-                payload.depth = 0;
-                payload.rayColour = float3(1.0);
-                payload.incomingLightColour = float3(0.0);
-    
-                float3 rayRadiacne = float3(0.0);
+                
                 int numSamples = 1;
                 for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
     
-                    TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
-                    rayRadiacne += payload.incomingLightColour;
-                    
+                    TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);                    
                     if (!payload.hasHit){
                         break;
                     } 
@@ -99,7 +93,8 @@ void rayGenMain() {
                     ray.Origin = payload.rayOrigin;
                     ray.Direction = payload.rayDirection;
                 }
-                totalRadiance += (1/(float)numSamples) * rayRadiacne;
+
+                totalRadiance += (1/(float)numSamples) * payload.radiance;
             }
             
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
@@ -159,7 +154,8 @@ void missMain(inout RayPayLoad payload) {
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 64.0) * _lightInfo.dirLight.intensity.w;
 
     payload.normal = float3(0.0f);
-    payload.incomingLightColour += (((lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1))) * payload.rayColour) * _lightInfo.dirLight.intensity.w;
+    float3 skyColour =  (((lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1)))) * _lightInfo.dirLight.intensity.w;
+    payload.radiance += payload.throughput * skyColour;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
@@ -180,7 +176,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     //========================
     // direct light
     float3 L = _lightInfo.dirLight.direction.xyz;
-    float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
+    float3 Li = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
     
     float3 albedo = m.albedo.xyz; // float3(0.2, 0.2, 1.0);
     
@@ -203,9 +199,9 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
     if (!shadowPayLoad.inShadow) {
         
-        float3 directLightContribution = Le * m.Evaluate(wo, L, g.shadingNormal);
+        float3 directLightContribution = Li * m.Evaluate(wo, L, g.shadingNormal);
         
-        payLoad.incomingLightColour += directLightContribution ;
+        payLoad.radiance += directLightContribution ;
     }
 
     //==============================
@@ -223,8 +219,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     float3 wi;
     float3 f = {};
     
-    float3 emmittedLight = m.emission.xyz * m.emission.w;
-    payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
+    float3 Le = m.emission.xyz * m.emission.w;
     
     if( sampleSpecular){
         wi = m.SampleGGX_VND(wo, g, PDF,  payLoad.randomContext);
@@ -235,9 +230,9 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }
 
     if(globalData.accumulateFrames){
-        payLoad.rayColour *= f;
+        payLoad.throughput *= (Le * f);
     }else{
-        payLoad.rayColour *= f/PDF;
+        payLoad.throughput *= (Le * f)/PDF;
     }
     payLoad.normal = g.shadingNormal;
     payLoad.rayOrigin = g.shadingPosition;    
