@@ -100,9 +100,12 @@ void rayGenMain() {
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
             _film[int2(threadIdx.xy)] = float4(totalRadiance / globalData.raysPerPixel, 1.0);
             
+
+            float3 pixelColour = totalRadiance/globalData.raysPerPixel;
+
             if(globalData.accumulateFrames){
                 float weight = max(1.0 / (globalData.currentFrame + 1), 0);
-                float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
+                float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (pixelColour) * weight : 0.0;
                 // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
                 _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
             }
@@ -230,9 +233,9 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }
 
     if(globalData.accumulateFrames){
-        payLoad.throughput *= (Le * f);
+        payLoad.throughput *= (Le + f)/PDF;
     }else{
-        payLoad.throughput *= (Le * f)/PDF;
+        payLoad.throughput *= (Le + f)/PDF;
     }
     payLoad.normal = g.shadingNormal;
     payLoad.rayOrigin = g.shadingPosition;    
