@@ -24,8 +24,10 @@ public struct GlobalData {
     public column_major float4x4 invProjection;
 
     public float4 atmosphereInfo; // x - bottom atmosphere radius, y - up atmosphere radius, zw - padding
-    public float4 cameraPostiion; // xyz - camera position, w - bottom atmosphere radius
+    public float4 cameraPostiion; // xyz - camera position, w - fov in radians  
     public float4 viewParams; // x - defocuse strength, y - focal plane pos, z - nerPlane, w - far plane
+    public float4 viewParams2;  // x - FOV, y - aspect ratio, zw -empty
+
     public float raysPerPixel;
     public float reccursionDepth;
     public float2 screenSize;
@@ -40,27 +42,6 @@ public struct GlobalData {
     public bool accountForSunTransmitance;
 };
 
-
-
-//===============================================================
-// same as global data but with meanigfull names for ray tracing 
-public struct GlobalDataRTX {
-    public column_major float4x4 view;
-    public column_major float4x4 projection;
-    public column_major float4x4 inverseView;
-    public column_major float4x4 invProjection;
-
-    public float4 lightPosition;
-    public float4 cameraPostiion;
-    public float4 viewParams; // xy- camera plane width and height,z - nerPlane, w - focal length
-
-    public float raysPerPixel;
-    public float reccursionDepth;
-    public float2 screenSize;
-
-    public float currentFrame;
-    public ERenderOutput renderOutput;
-};
 
 public struct PermodelData {
     public float4x4 modelMatrix;
@@ -121,19 +102,19 @@ public struct HitInfo{
 }
 
 public struct RayPayLoad {
-    public float3 distance;
-    public float3 normal;
-    public float3 reflector;
+    public float3 distance = {0.0};
+    public float3 normal = {0.0};
+    public float3 reflector = {0.0};
 
-    public float3 incomingLightColour;
-    public float3 rayColour;
+    public float3 throughput = 1.0;
+    public float3 radiance = 0.0;
 
-    public float3 rayDirection;
-    public float3 rayOrigin;
+    public float3 rayDirection = {};
+    public float3 rayOrigin = {};
 
     public float PDF = 0;  
-    public uint depth;
+    public uint depth = 0;
     public uint randomContext;
 
-    public bool hasHit;
+    public bool hasHit = true;
 }

@@ -6,6 +6,7 @@ import Surface;
 import RandomValues;
 import Core;
 import RayTracingUtils;
+import Camera;
 
 // global data for the ray tracing 
 [[vk::binding(0, 0)]]
@@ -26,6 +27,10 @@ ConstantBuffer<RWTexture2D> _film;
 [[vk::binding(6, 0)]]
 ConstantBuffer<RWTexture2D> _accumulationImage;
 
+/*
+[[vk::binding(7,0)]]
+SamplerCube envMap;
+*/
 
 
 struct RayPayloadShadow {
@@ -34,6 +39,10 @@ struct RayPayloadShadow {
 
 [[shader("raygeneration")]]
 void rayGenMain() {
+    float2 dims;
+
+    _film.GetDimensions(dims.x, dims.y);
+
     // this is the pixel ID
     uint2 threadIdx = DispatchRaysIndex().xy;
     uint2 launchSize = DispatchRaysDimensions().xy;
@@ -49,8 +58,6 @@ void rayGenMain() {
 
     uint randomSeed = tea(pixelIndex, (uint)globalData.currentFrame);
 
-    // pixel position on view plane 
-    float4 target = mul(globalData.invProjection, float4(d.x, d.y, 1.0, 1.0));
     
     float3 totalRadiance = 0.0f;
 
@@ -60,62 +67,25 @@ void rayGenMain() {
     float aparatureSize = globalData.viewParams.x; // bigger apprature, bigger blur
     float focalLenth = globalData.viewParams.y; // position of the focuse plane
 
-    RayPayLoad payload;
-
     switch((ERenderOutputRTX)globalData.renderOutputRTX){
         case ERenderOutputRTX::PathTraced:{
 
             //=========================
             // Full shading is enabled 
             for (int i = 0; i < globalData.raysPerPixel; i++) {
-    
                 
-                //========================================================================================c
-                // get initial jitter samples 
-                float2 jitter = RandomPointInCircle(randomSeed) * 0.2 / launchSize.x;
-                float2 deFocusJitter = RandomPointInCircle(randomSeed) * aparatureSize;
-                float3 jitteredTarget = target.xyz + camRight * jitter.x + camUp * jitter.y;
+                 
+                var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);
                 
-    
-                //========================================================================================c
-                // define ray origin in the camera space and translate it to the worlds space 
-                float3 rayOriginWS = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-    
-                //===========================================================================
-                // jitter the ray origin 
-                float3 jitteredRayOriginWS =rayOriginWS + camRight * deFocusJitter.x +  camUp * deFocusJitter.y; // offset the ray origin
-                
-                //======================================================
-                // calulate where the ray will shoot in the world space 
-                float3 rayDirecionWS = normalize(mul(globalData.inverseView, float4(target.xyz, 0.0))).xyz;
-                
-                //======================================================
-                // find the focal point, the point where objects are in focuse 
-                float3 focalPoint = rayOriginWS + rayDirecionWS * focalLenth;
-                
-                //======================================================
-                // descibbe ray
-                RayDesc ray;
-                ray.Origin = jitteredRayOriginWS;
-                ray.Direction = normalize(focalPoint - ray.Origin); // direction from jittered origin to the focal point 
-                ray.TMin = 0.001f;
-                ray.TMax = 10000.0f;
-    
-                // RESET PAY LOAD FOR EACH RAY 
-                payload.incomingLightColour = float3(0.0);
-                payload.hasHit = true;
+                var ray = camera.GenerateRayToScene(d, randomSeed);
+
+                RayPayLoad payload = {};
                 payload.randomContext = randomSeed;
-                payload.depth = 0;
-                payload.rayColour = float3(1.0);
-                payload.incomingLightColour = float3(0.0);
-    
-                float3 rayRadiacne = float3(0.0);
+                
                 int numSamples = 1;
                 for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
     
-                    TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
-                    rayRadiacne += payload.incomingLightColour;
-                    
+                    TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);                    
                     if (!payload.hasHit){
                         break;
                     } 
@@ -123,15 +93,19 @@ void rayGenMain() {
                     ray.Origin = payload.rayOrigin;
                     ray.Direction = payload.rayDirection;
                 }
-                totalRadiance += (1/(float)numSamples) * rayRadiacne;
+
+                totalRadiance += (1/(float)numSamples) * payload.radiance;
             }
             
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
             _film[int2(threadIdx.xy)] = float4(totalRadiance / globalData.raysPerPixel, 1.0);
             
+
+            float3 pixelColour = totalRadiance/globalData.raysPerPixel;
+
             if(globalData.accumulateFrames){
                 float weight = max(1.0 / (globalData.currentFrame + 1), 0);
-                float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (totalRadiance/globalData.raysPerPixel) * weight : 0.0;
+                float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (pixelColour) * weight : 0.0;
                 // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
                 _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
             }
@@ -145,26 +119,19 @@ void rayGenMain() {
         case ERenderOutputRTX::Normals: {
             
             
-            RayDesc ray;
-            ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-            ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
-            //ray.Direction = normalize(worldSpaceDirection).xyz;
-            ray.TMin = 0.001f;
-            ray.TMax = 10000.0f;
+var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);                
+            var ray = camera.GenerateRayToScene(d, randomSeed);
             
             let N = TraceSingleRay(ray, _TLAS, randomSeed).normal;
             
-            _accumulationImage[int2(threadIdx.xy)] = float4(N, 1.0) ;
+            _accumulationImage[int2(threadIdx.xy)] = float4(ray.Direction,1.0) ;
             
             break;
         }
         case ERenderOutputRTX::PDF: {
-            RayDesc ray;
-            ray.Origin = mul(globalData.inverseView, float4(0.0, 0.0, 0.0, 1.0)).xyz;
-            ray.Direction = mul(globalData.inverseView, float4(normalize(target.xyz), 0.0)).xyz;
-            //ray.Direction = normalize(worldSpaceDirection).xyz;
-            ray.TMin = 0.001f;
-            ray.TMax = 10000.0f;
+            
+            var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);
+            var ray = camera.GenerateRayToScene(d, randomSeed);;
             
             let PDF = TraceSingleRay(ray, _TLAS, randomSeed).PDF;
             
@@ -190,7 +157,8 @@ void missMain(inout RayPayLoad payload) {
     float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 64.0) * _lightInfo.dirLight.intensity.w;
 
     payload.normal = float3(0.0f);
-    payload.incomingLightColour += (((lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1))) * payload.rayColour) * _lightInfo.dirLight.intensity.w;
+    float3 skyColour =  (((lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1)))) * _lightInfo.dirLight.intensity.w;
+    payload.radiance += payload.throughput * skyColour;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
 }
@@ -211,7 +179,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     //========================
     // direct light
     float3 L = _lightInfo.dirLight.direction.xyz;
-    float3 Le = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
+    float3 Li = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
     
     float3 albedo = m.albedo.xyz; // float3(0.2, 0.2, 1.0);
     
@@ -234,9 +202,9 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
     if (!shadowPayLoad.inShadow) {
         
-        float3 directLightContribution = Le * m.Evaluate(wo, L, g.shadingNormal);
+        float3 directLightContribution = Li * m.Evaluate(wo, L, g.shadingNormal);
         
-        payLoad.incomingLightColour += directLightContribution ;
+        payLoad.radiance += directLightContribution ;
     }
 
     //==============================
@@ -254,8 +222,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     float3 wi;
     float3 f = {};
     
-    float3 emmittedLight = m.emission.xyz * m.emission.w;
-    payLoad.incomingLightColour += emmittedLight * payLoad.rayColour;
+    float3 Le = m.emission.xyz * m.emission.w;
     
     if( sampleSpecular){
         wi = m.SampleGGX_VND(wo, g, PDF,  payLoad.randomContext);
@@ -266,9 +233,9 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }
 
     if(globalData.accumulateFrames){
-        payLoad.rayColour *= f/PDF;
+        payLoad.throughput *= (Le + f)/PDF;
     }else{
-        payLoad.rayColour *= f/PDF;
+        payLoad.throughput *= (Le + f)/PDF;
     }
     payLoad.normal = g.shadingNormal;
     payLoad.rayOrigin = g.shadingPosition;    

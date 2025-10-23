@@ -102,12 +102,13 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData.inverseView = m_camera->GetInverseViewMatrix();
     m_globalRenderingData.inverseProj = m_camera->GetinverseProjectionMatrix();
     m_globalRenderingData.screenSize = {GlobalVariables::RenderTargetResolutionWidth, GlobalVariables::RenderTargetResolutionHeight};
+    m_globalRenderingData.viewParams2 = {glm::tan(m_camera->GetFOVRad() / 2.0), m_camera->GetAspectRatio(), 0.0, 0.0};
 
     m_globalRenderingData.viewParams        = glm::vec4(m_camera->GetDefocuseStrength(), m_camera->GetFocalLength(),
                                                         m_camera->GetNearPlane(), m_camera->GetFarPlane());
     m_globalRenderingData.reccursionDepth   = GlobalVariables::RenderingOptions::MaxRecursionDepth;
     m_globalRenderingData.raysPerPixel      = GlobalVariables::RenderingOptions::RaysPerPixel;
-    m_globalRenderingData.cameraPosition    = glm::vec4(m_camera->GetPosition(), 1.0);
+    m_globalRenderingData.cameraPosition    = glm::vec4(m_camera->GetPosition(), m_camera->GetFOVRad());
     m_globalRenderingData.rendererOutput    = m_applicationState->m_rendererOutput;
     m_globalRenderingData.rendererOutputRTX = m_applicationState->m_rtxRenderOutput;
     m_globalRenderingData.accumulateFrames  = static_cast<bool>(m_applicationState->m_accumulateFrames);
@@ -117,8 +118,6 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)
 {
     // deprecated
-    m_globalRenderingData.atmosphereParams.x += lightUpdateInfo.moveLightX;
-    m_globalRenderingData.atmosphereParams.y += lightUpdateInfo.moveLightY;
     m_isRTXOn = lightUpdateInfo.isRTXon;
 
     lightUpdateInfo.Reset();

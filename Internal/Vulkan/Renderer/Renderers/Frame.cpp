@@ -149,6 +149,23 @@ void Frame::Init()
 
 void Frame::Update(ApplicationCore::ApplicationState& applicationState)
 {
+    if(applicationState.m_enablePostProcessing)
+    {
+        m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(0), m_frameInFlightID);
+        if(m_isRayTracing)
+        {
+            m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer)
+                .OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_frameInFlightID), m_frameInFlightID);
+        }
+    }
+    else
+    {
+        m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(*m_forwardRenderer->GetForwardRendererResult(), m_frameInFlightID);
+        if(m_isRayTracing)
+        {
+            m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).OverwriteImage(m_rayTracer->GetRenderedImage(m_frameInFlightID), m_frameInFlightID);
+        }
+    }
     m_sceneLightInfo = &applicationState.GetSceneLightInfo();
 
     if(applicationState.GetSceneUpdateFlags().resetAccumulation)
@@ -208,8 +225,6 @@ void Frame::Update(ApplicationCore::ApplicationState& applicationState)
     m_postProcessingContext.luminanceHistrogramParameters = &applicationState.GetLuminanceHistogramParameters();
     m_postProcessingContext.luminanceAverageParameters    = &applicationState.GetLuminanceAverageParameters();
     m_postProcessingContext.deltaTime                     = ImGui::GetIO().DeltaTime;
-
-    m_uiContext.GetViewPortContext(ViewPortType::eMain).OverwriteImage(m_postProcessingSystem->GetRenderedResult(m_frameInFlightID), m_frameInFlightID);
 }
 
 

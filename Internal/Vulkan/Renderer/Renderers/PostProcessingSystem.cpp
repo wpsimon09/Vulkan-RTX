@@ -13,6 +13,7 @@
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
+#include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include <cstdint>
 #include <memory>
 #include <vulkan/vulkan_enums.hpp>
@@ -44,6 +45,7 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
 void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext)
 {
 
+
     if(postProcessingContext.bloomEffect)
     {
         Bloom(frameIndex, commandBuffer, postProcessingContext);
@@ -59,6 +61,7 @@ void PostProcessingSystem::Update(int                                   frameInd
                                   VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                                   VulkanStructs::PostProcessingContext& postProcessingCotext)
 {
+
     if(postProcessingCotext.bloomEffect)
     {
         m_bloomPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
