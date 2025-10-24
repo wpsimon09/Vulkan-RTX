@@ -134,7 +134,7 @@ public interface IBRDF
      * N  -         normalVector;
      * float3 -     result colour
      */
-    float3 EvaluateSpecular(float3 wo, float3 wi, float3 N, float PDF);
+    float3 EvaluateSpecular(float3 wo, float3 wi, float3 N);
 
     /**
      * wo -         incoming view direction
@@ -142,7 +142,7 @@ public interface IBRDF
      * N  -         normalVector;
      * float3 -     result colour
      */
-    float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N, float PDF);
+    float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N);
 
     /**
      * wo -         incoming view direction
@@ -245,38 +245,47 @@ public struct CookTorrence_GGX : IBRDF
                         pow(1.0 - cosTheta, 5.0);
     }
 
+    /*
+    Evaluates BRDF for both specular and diffuse reflection given the known incoming light direction 
+    */
     public float3 Evaluate(float3 V, float3 L, float3  N)
     {
-
-        float3 F0 = float3(0.04);
-        F0 = lerp(F0, albedo.xyz, metallnes);
-        float3 H = normalize(V + L);
-
-        float NDF = DistributionGGX(N, H);
-        float G = GeometrySmith(N, V, L);
-        float3 F = FresnelShlick(max(dot(H, V), 0.0), F0);
-
-        float3 numerator = NDF * G * F;
-
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.01);
-
-        float PDF_Spec = 0.0;
-        float PDF_Diff = 0.0;
-        float3 specular = EvaluateSpecular(V, L, N, PDF_Spec);
-        float3 diffuse = EvaluateDiffuse(V, L, N, PDF_Diff);
-
-        float3 ks = F;
-        float3 kd = float3(1.0) - ks;
-
-        kd *= 1.0 - metallnes;
+        float3 specular = EvaluateSpecular(V, L, N);
+        float3 diffuse = EvaluateDiffuse(V, L, N);
 
         float NdotL = max(dot(N, L), 0);
 
         float3 colour = (specular + diffuse) * NdotL;
 
-        //colour += (this.emission.xyz * this.emission.w);
-
         return colour;
+    }
+
+
+    public float3 EvaluateSpecular(float3 wo, float3 wi, float3 N){
+        /*
+        GGX Microfacet 
+        */
+        float3 F0 = float3(0.04);
+        F0 = lerp(F0, albedo.xyz, metallnes);
+        float3 H = normalize(wo + wi);
+
+        float NDF = DistributionGGX(N, H);
+        float G = GeometrySmith(N, wo, wi);
+        float3 F = FresnelShlick(max(dot(H, wo), 0.0), F0);
+
+        float3 numerator = NDF * G * F;
+
+        float denominator = 4.0 * max(dot(N, wo), 0.0) * max(dot(N, wi), 0.01);
+
+        float3 specular = numerator / (max(denominator, 0.001));
+
+        return specular;
+    }
+
+    public float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N){
+
+        float cosTheta = max(dot(N, wo), 0.001);
+        return diffuseReflectance.xyz * (ONE_OVER_PI * cosTheta);
     }
 
 
@@ -333,30 +342,6 @@ public struct CookTorrence_GGX : IBRDF
         PDF = (GometryShlickGGXHeitz(NdotV) * max(0, dot(wo_T, Ne)) * DistributionGGX(Ne, g.normal )) / wo.z;
 
         return wi;
-    }
-
-    public float3 EvaluateSpecular(float3 wo, float3 wi, float3 N, float PDF ){
-        float3 F0 = float3(0.04);
-        F0 = lerp(F0, albedo.xyz, metallnes);
-        float3 H = normalize(wo + wi);
-
-        float NDF = DistributionGGX(N, H);
-        float G = GeometrySmith(N, wo, wi);
-        float3 F = FresnelShlick(max(dot(H, wo), 0.0), F0);
-
-        float3 numerator = NDF * G * F;
-
-        float denominator = 4.0 * max(dot(N, wo), 0.0) * max(dot(N, wi), 0.01);
-
-        float3 specular = numerator / (max(denominator, 0.001));
-
-        return specular;
-    }
-
-    public float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N, float PDF){
-
-        float cosTheta = max(dot(N, wo), 0);
-        return diffuseReflectance.xyz * (ONE_OVER_PI * cosTheta);
     }
 
     public float3 SampleLambertianDiffuse(float3 wo, SurfaceGeometry g ,out float PDF, inout uint randomContex){

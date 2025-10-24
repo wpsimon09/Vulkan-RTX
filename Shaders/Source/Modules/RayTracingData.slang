@@ -30,14 +30,14 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
 
     ObjDescription object = descriptions[instanceIndex];
 
-    // //=================================================
-    // // for each vertex there is one index that can
-    // // be used to look up the correct vertex in the array
+    //=================================================
+    // for each vertex there is one index that can
+    // be used to look up the correct vertex in the array
     int i1 = object.indexAddress[primitiveIndex * 3];     // First index
     int i2 = object.indexAddress[primitiveIndex * 3 + 1]; // Second index
     int i3 = object.indexAddress[primitiveIndex * 3 + 2]; // Third index
 
-    // // Fetch the corresponding vertices
+    // Fetch the corresponding vertices
     Vertex v1 = object.vertexAddresses[i1];
     Vertex v2 = object.vertexAddresses[i2];
     Vertex v3 = object.vertexAddresses[i3];

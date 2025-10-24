@@ -2,6 +2,7 @@
 // Structs that are the core functionality of shaders
 // global data, per object data
 module Core;
+import Surface;
 
 public enum ERenderOutput{
     FullLit = 0,
@@ -103,8 +104,8 @@ public struct HitInfo{
 
 public struct RayPayLoad {
     public float3 distance = {0.0};
-    public float3 normal = {0.0};
     public float3 reflector = {0.0};
+    public Optional<SurfaceGeometry> hitSurface;
 
     public float3 throughput = 1.0;
     public float3 radiance = 0.0;
@@ -112,7 +113,6 @@ public struct RayPayLoad {
     public float3 rayDirection = {};
     public float3 rayOrigin = {};
 
-    public float PDF = 0;  
     public uint depth = 0;
     public uint randomContext;
 

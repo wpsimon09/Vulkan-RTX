@@ -132,10 +132,13 @@ void rayGenMain() {
             var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);                
             var ray = camera.GenerateRayToScene(d, randomSeed);
             
-            let N = TraceSingleRay(ray, _TLAS, randomSeed).normal;
+            float3 worldNormal = {};
+            if(let s = TraceSingleRay(ray, _TLAS, randomSeed).hitSurface){
+                worldNormal = s.shadingNormal;
+            }
             
-            _accumulationImage[int2(threadIdx.xy)] = float4(ray.Direction,1.0) ;
-            
+            _accumulationImage[int2(threadIdx.xy)] = float4(worldNormal, 1.0) ;
+      
             break;
         }
         case ERenderOutputRTX::PDF: {
@@ -143,9 +146,12 @@ void rayGenMain() {
             var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);
             var ray = camera.GenerateRayToScene(d, randomSeed);;
             
-            let PDF = TraceSingleRay(ray, _TLAS, randomSeed).PDF;
+            float3 geometryNormal = {};
+            if(let s = TraceSingleRay(ray, _TLAS, randomSeed).hitSurface){
+                geometryNormal = s.normal;
+            }
             
-            _accumulationImage[int2(threadIdx.xy)] = float4(float3(PDF), 1.0) ;
+            _accumulationImage[int2(threadIdx.xy)] = float4(geometryNormal, 1.0) ;
             
             break;
         }
@@ -154,7 +160,6 @@ void rayGenMain() {
 
 [[shader("miss")]]
 void missMain(inout RayPayLoad payload) {
-    payload.normal = float3(0.0f);
     float3 skyColour =  float3(1.0);//envMap.Sample(normalize(payload.rayDirection.xyz)).xyz;
     payload.radiance += payload.throughput * skyColour;
     payload.randomContext = payload.randomContext;
@@ -207,7 +212,8 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     //==============================
     // Path tracing 
-
+    if (dot(g.shadingNormal, wo) <= 0.0f)
+        return;
 
     float3 F0 = lerp(float3(0.04), m.albedo.xyz, m.metallnes);
     float3 Ks =  F0;
@@ -224,11 +230,11 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     
     if( sampleSpecular){
         wi = m.SampleGGX_VND(wo, g, PDF,  payLoad.randomContext);
-        f = m.EvaluateSpecular(wo, wi, g.shadingNormal, PDF) ;
+        f = m.EvaluateSpecular(wo, wi, g.shadingNormal) ;
         PDF = 1;
     }else{
         wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);
-        f = m.EvaluateDiffuse(wo, wi, g.shadingNormal, PDF); 
+        f = m.EvaluateDiffuse(wo, wi, g.shadingNormal); 
     }
 
     if(globalData.accumulateFrames){
@@ -238,10 +244,9 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }
     payLoad.radiance += Le * payLoad.throughput;
 
-    payLoad.normal = g.shadingNormal;
-    payLoad.rayOrigin = g.shadingPosition;    
-    payLoad.rayDirection = wi + g.shadingNormal * 0.0001;
-    payLoad.PDF = PDF;
+    payLoad.hitSurface = g;
+    payLoad.rayOrigin = offsetRay(g.shadingPosition, g.normal);    
+    payLoad.rayDirection = wi;
     
 
     // other direction
