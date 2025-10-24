@@ -3,9 +3,8 @@ module Material;
 import Utils;
 import Surface;
 import RandomValues;
-#define PI 3.14159265359
 
-
+static const float ONE_OVER_PI = 1/float.getPi();
 
 public struct MaterialConstantValues
 {
@@ -64,6 +63,7 @@ public struct PBRMaterial : IMaterial
     public Sampler2D emissive_map;
     
     public float4 albedo;
+    public float3 diffuseReflectance;
     public float4 emission;
     
     public float metallness;
@@ -105,6 +105,7 @@ public struct PBRMaterial : IMaterial
         } else {
             brdf.emission = values.emissive_strength;
         }
+        brdf.diffuseReflectance = brdf.albedo.xyz * (1.0 - brdf.metallnes); 
 
         return brdf;
     }
@@ -174,6 +175,8 @@ public struct CookTorrence_GGX : IBRDF
 
     public float4 albedo;
 
+    public float3 diffuseReflectance;
+
     public float roughness;
 
     public float metallnes;
@@ -181,6 +184,7 @@ public struct CookTorrence_GGX : IBRDF
     public float ao;
 
     public float4 emission;
+
 
     /*
     Normal distribution 
@@ -256,7 +260,10 @@ public struct CookTorrence_GGX : IBRDF
 
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.01);
 
-        float3 specular = numerator / (max(denominator, 0.001));
+        float PDF_Spec = 0.0;
+        float PDF_Diff = 0.0;
+        float3 specular = EvaluateSpecular(V, L, N, PDF_Spec);
+        float3 diffuse = EvaluateDiffuse(V, L, N, PDF_Diff);
 
         float3 ks = F;
         float3 kd = float3(1.0) - ks;
@@ -265,7 +272,7 @@ public struct CookTorrence_GGX : IBRDF
 
         float NdotL = max(dot(N, L), 0);
 
-        float3 colour =  (kd * albedo.xyz / PI + specular) * NdotL;
+        float3 colour = (specular + diffuse) * NdotL;
 
         //colour += (this.emission.xyz * this.emission.w);
 
@@ -349,7 +356,7 @@ public struct CookTorrence_GGX : IBRDF
     public float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N, float PDF){
 
         float cosTheta = max(dot(N, wo), 0);
-        return albedo.xyz * cosTheta;
+        return diffuseReflectance.xyz * (ONE_OVER_PI * cosTheta);
     }
 
     public float3 SampleLambertianDiffuse(float3 wo, SurfaceGeometry g ,out float PDF, inout uint randomContex){
