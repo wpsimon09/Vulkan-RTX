@@ -21,7 +21,7 @@ public struct Vertex {
     public float3 pos;
     public float3 norm;
     public float2 uv;
-    public float4 tangent; 
+    public float4    tangent; 
 }
 
 public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric)
