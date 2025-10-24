@@ -304,7 +304,7 @@ bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
     else
     {
         // path trace the scene
-        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_frameInFlightID], m_uniformBufferManager, m_frameInFlightID);
+        m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_frameInFlightID], m_uniformBufferManager, &m_renderContext, m_frameInFlightID);
         m_accumulatedFramesCount++;
 
         m_postProcessingContext.sceneRender                         = &m_rayTracer->GetRenderedImage(m_frameInFlightID);

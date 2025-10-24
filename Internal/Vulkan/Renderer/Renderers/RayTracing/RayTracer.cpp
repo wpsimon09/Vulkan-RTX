@@ -17,7 +17,7 @@
 #include "Vulkan/VulkanCore/Pipeline/VRayTracingPipeline.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
-
+#include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 namespace Renderer {
 RayTracer::RayTracer(const VulkanCore::VDevice&           device,
                      ApplicationCore::EffectsLibrary&     effectsLibrary,
@@ -45,13 +45,10 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
         m_resultImage[i] = std::make_unique<VulkanCore::VImage2>(device, imageCI);
 
 
-
-        VulkanUtils::VBarrierPosition barrierPosition{{},
-                                                  {},
-                                                  vk::PipelineStageFlagBits2::eRayTracingShaderKHR,
-                                                  vk::AccessFlagBits2::eShaderWrite};
-        VulkanUtils::PlaceImageMemoryBarrier2(*m_resultImage[i], cmdBuffer,
-                                              vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, barrierPosition);
+        VulkanUtils::VBarrierPosition barrierPosition{
+            {}, {}, vk::PipelineStageFlagBits2::eRayTracingShaderKHR, vk::AccessFlagBits2::eShaderWrite};
+        VulkanUtils::PlaceImageMemoryBarrier2(*m_resultImage[i], cmdBuffer, vk::ImageLayout::eUndefined,
+                                              vk::ImageLayout::eGeneral, barrierPosition);
     }
 
     VulkanCore::VImage2CreateInfo imageCI;
@@ -66,12 +63,9 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
 
     m_accumulationResultImage = std::make_unique<VulkanCore::VImage2>(device, imageCI);
 
-    VulkanUtils::VBarrierPosition barrierPosition{{},
-                                            {},
-                                            vk::PipelineStageFlagBits2::eRayTracingShaderKHR,
-                                            vk::AccessFlagBits2::eShaderRead};
-    VulkanUtils::PlaceImageMemoryBarrier2(*m_accumulationResultImage, cmdBuffer,
-                                          vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPosition);
+    VulkanUtils::VBarrierPosition barrierPosition{{}, {}, vk::PipelineStageFlagBits2::eRayTracingShaderKHR, vk::AccessFlagBits2::eShaderRead};
+    VulkanUtils::PlaceImageMemoryBarrier2(*m_accumulationResultImage, cmdBuffer, vk::ImageLayout::eUndefined,
+                                          vk::ImageLayout::eShaderReadOnlyOptimal, barrierPosition);
 
 
     m_rtxEffect = effectsLibrary.effects[ApplicationCore::EEffectType::RayTracing];
@@ -94,6 +88,7 @@ RayTracer::RayTracer(const VulkanCore::VDevice&           device,
 
 void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                           const VulkanUtils::VUniformBufferManager& unifromBufferManager,
+                          VulkanUtils::RenderContext*               renderingContext,
                           int                                       currentFrame)
 {
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recordgin !");
@@ -103,17 +98,15 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
     m_rtxEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
 
 
+    VulkanUtils::VBarrierPosition barrierPosition{vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead,
+                                                  vk::PipelineStageFlagBits2::eRayTracingShaderKHR,
+                                                  vk::AccessFlagBits2::eShaderWrite};
 
-    VulkanUtils::VBarrierPosition barrierPosition{vk::PipelineStageFlagBits2::eFragmentShader,
-                                            vk::AccessFlagBits2::eShaderRead,
-                                            vk::PipelineStageFlagBits2::eRayTracingShaderKHR,
-                                            vk::AccessFlagBits2::eShaderWrite};
-
-    VulkanUtils::PlaceImageMemoryBarrier2(*m_accumulationResultImage, cmdBuffer,
-                                          vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, barrierPosition);
+    VulkanUtils::PlaceImageMemoryBarrier2(*m_accumulationResultImage, cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                          vk::ImageLayout::eGeneral, barrierPosition);
 
 
-    m_rtxEffect->SetNumWrites(4, 10, 1);
+    m_rtxEffect->SetNumWrites(4, 12, 1);
 
     m_rtxEffect->WriteBuffer(currentFrame, 0, 0, unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
     m_rtxEffect->WriteBuffer(currentFrame, 0, 1, unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
@@ -134,7 +127,11 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
 
     m_rtxEffect->SetNumWrites(0, 1200, 0);
     m_rtxEffect->WriteImageArray(currentFrame, 0, 7, unifromBufferManager.GetAll2DTextureDescriptorImageInfo());
-
+    if(renderingContext->hdrCubeMap)
+    {
+        m_rtxEffect->WriteImage(currentFrame, 0, 8,
+                                renderingContext->hdrCubeMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    }
     m_rtxEffect->ApplyWrites(currentFrame);
 
     // bind them
@@ -150,13 +147,11 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                       m_resultImage[currentFrame]->GetImageInfo().width,
                       m_resultImage[currentFrame]->GetImageInfo().height, 1, m_device.DispatchLoader);
 
-    barrierPosition = {
-        vk::PipelineStageFlagBits2::eRayTracingShaderKHR, vk::AccessFlagBits2::eShaderWrite,
-        vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead
-    };
+    barrierPosition = {vk::PipelineStageFlagBits2::eRayTracingShaderKHR, vk::AccessFlagBits2::eShaderWrite,
+                       vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead};
 
-    VulkanUtils::PlaceImageMemoryBarrier2(*m_accumulationResultImage, cmdBuffer,
-                                              vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, barrierPosition);
+    VulkanUtils::PlaceImageMemoryBarrier2(*m_accumulationResultImage, cmdBuffer, vk::ImageLayout::eGeneral,
+                                          vk::ImageLayout::eShaderReadOnlyOptimal, barrierPosition);
 
 
     //======================================

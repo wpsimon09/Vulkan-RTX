@@ -27,11 +27,8 @@ ConstantBuffer<RWTexture2D> _film;
 [[vk::binding(6, 0)]]
 ConstantBuffer<RWTexture2D> _accumulationImage;
 
-/*
-[[vk::binding(7,0)]]
+[[vk::binding(8,0)]]
 SamplerCube envMap;
-*/
-
 
 struct RayPayloadShadow {
     bool inShadow;
@@ -119,7 +116,7 @@ void rayGenMain() {
         case ERenderOutputRTX::Normals: {
             
             
-var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);                
+            var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);                
             var ray = camera.GenerateRayToScene(d, randomSeed);
             
             let N = TraceSingleRay(ray, _TLAS, randomSeed).normal;
@@ -144,20 +141,8 @@ var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y
 
 [[shader("miss")]]
 void missMain(inout RayPayLoad payload) {
-    float3 SkyColorHorizon = float3(1.0, 1.0, 1.0);
-    float3 SkyColorZenith = float3(0.7, 0.7, 0.9);
-    float3 GroundColor = float3(0.4, 0.4, 0.4);
-
-    float3 ray_d = WorldRayDirection().xyz;
-
-    float skyGradientT = pow(smoothstep(0, 0.4, ray_d.y), 0.35);
-    float groundToSkyT = smoothstep(-0.01, 0, ray_d.y);
-
-    float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
-    float sun = pow(max(0, dot(ray_d, normalize(_lightInfo.dirLight.direction.xyz))), 64.0) * _lightInfo.dirLight.intensity.w;
-
     payload.normal = float3(0.0f);
-    float3 skyColour =  (((lerp(GroundColor, skyGradient, groundToSkyT) + sun * (float)(groundToSkyT >= 1)))) * _lightInfo.dirLight.intensity.w;
+    float3 skyColour =  envMap.Sample(normalize(payload.rayDirection.xyz)).xyz;
     payload.radiance += payload.throughput * skyColour;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
@@ -174,7 +159,6 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
     CookTorrence_GGX m = GetMaterial(InstanceID(), g);
-
 
     //========================
     // direct light
@@ -200,7 +184,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     
     float3 wo = -WorldRayDirection();
     float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
-    if (!shadowPayLoad.inShadow) {
+    if (!shadowPayLoad.inShadow && (bool)_lightInfo.dirLight.parameters.z) {
         
         float3 directLightContribution = Li * m.Evaluate(wo, L, g.shadingNormal);
         
@@ -233,7 +217,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }
 
     if(globalData.accumulateFrames){
-        payLoad.throughput *= (Le + f)/PDF;
+        payLoad.throughput *= (Le + f);
     }else{
         payLoad.throughput *= (Le + f)/PDF;
     }

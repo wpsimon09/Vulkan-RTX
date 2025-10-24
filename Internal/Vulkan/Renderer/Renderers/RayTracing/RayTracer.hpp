@@ -27,10 +27,11 @@ class VRayTracingEffect;
 }
 namespace VulkanUtils {
 class VRayTracingDataManager;
-}
-namespace VulkanUtils {
 class VUniformBufferManager;
-}
+struct RenderContext;
+}  // namespace VulkanUtils
+
+
 namespace VulkanCore {
 class VDescriptorLayoutCache;
 class VTimelineSemaphore;
@@ -53,6 +54,7 @@ class RayTracer
 
     void TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
                    const VulkanUtils::VUniformBufferManager& unifromBufferManager,
+                   VulkanUtils::RenderContext*               renderingContext,
                    int                                       currentFrame);
 
     void ProcessResize(int newWidth, int newHeight);

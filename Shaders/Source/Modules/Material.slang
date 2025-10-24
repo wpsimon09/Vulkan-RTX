@@ -199,11 +199,11 @@ public struct CookTorrence_GGX : IBRDF
 
     float D_v(float3 wo, float3 N_i, SurfaceGeometry g){
         float NiDotV = max(dot(N_i, wo), 0.0);
-        float NdotV  = max(dot(g.shadingNormal, wo), 0.0);
+        float NdotV  = max(dot(g.normal, wo), 0.0);
         float G_1 = GometryShlickGGXHeitz(NdotV);
         float D = DistributionGGX(g.shadingNormal, N_i);
 
-        return (G_1 * NiDotV * D) / max(NdotV ,1e-5);
+        return (G_1 * D) / 4 * max(NdotV ,1e-5);
     }
 
     float GometryShlickGGXHeitz(float NdotV){
@@ -320,7 +320,10 @@ public struct CookTorrence_GGX : IBRDF
         // Transform sampled direction to world space
         float3 wi = normalize(mul(g.TBN, wi_T));
 
-        PDF = D_v(wo, wi, g) / (max(4 * (dot(wo, wi)), 1e-5));
+        float NdotV = dot(g.normal, wo);
+
+        // TODO: this is accordint to the paper for the BRDF that is a bit differnet then my evaluation
+        PDF = D_v(wo, wi, g);
 
         return wi;
     }
