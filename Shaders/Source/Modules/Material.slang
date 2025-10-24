@@ -182,6 +182,9 @@ public struct CookTorrence_GGX : IBRDF
 
     public float4 emission;
 
+    /*
+    Normal distribution 
+    */
     float DistributionGGX(float3 N, float3 H)
     {
         float a = roughness * roughness;
@@ -195,15 +198,6 @@ public struct CookTorrence_GGX : IBRDF
         float denonm = PI * denom * denom;
 
         return num / denom;
-    }
-
-    float D_v(float3 wo, float3 N_i, SurfaceGeometry g){
-        float NiDotV = max(dot(N_i, wo), 0.0);
-        float NdotV  = max(dot(g.normal, wo), 0.0);
-        float G_1 = GometryShlickGGXHeitz(NdotV);
-        float D = DistributionGGX(g.shadingNormal, N_i);
-
-        return (G_1 * D) / 4 * max(NdotV ,1e-5);
     }
 
     float GometryShlickGGXHeitz(float NdotV){
@@ -278,7 +272,13 @@ public struct CookTorrence_GGX : IBRDF
         return colour;
     }
 
-    
+
+    /*
+    wo - view direction 
+    g - geometry abstraciton
+    PDF - probability of sampling this vector
+    returns, sampled vector 
+    */
     public float3 SampleGGX_VND(float3 wo, SurfaceGeometry g, out float PDF, inout uint randomContext){       
         //***********************************************************************************************************************************
         // this is unintuitive but it physically correct, the wo is outgoing direciton which is the ray that hit the surface which normal
@@ -320,10 +320,10 @@ public struct CookTorrence_GGX : IBRDF
         // Transform sampled direction to world space
         float3 wi = normalize(mul(g.TBN, wi_T));
 
-        float NdotV = dot(g.normal, wo);
+        float NdotV = max(0.0, dot(g.normal, wo));
 
         // TODO: this is accordint to the paper for the BRDF that is a bit differnet then my evaluation
-        PDF = D_v(wo, wi, g);
+        PDF = (GometryShlickGGXHeitz(NdotV) * max(0, dot(wo_T, Ne)) * DistributionGGX(Ne, g.normal )) / wo.z;
 
         return wi;
     }

@@ -7,6 +7,7 @@ import RandomValues;
 import Core;
 import RayTracingUtils;
 import Camera;
+import ColourSpaceConversions;;
 
 // global data for the ray tracing 
 [[vk::binding(0, 0)]]
@@ -33,6 +34,8 @@ SamplerCube envMap;
 struct RayPayloadShadow {
     bool inShadow;
 }
+
+static const int MIN_BOUNCES_TO_TERMINATE = 6.0;
 
 [[shader("raygeneration")]]
 void rayGenMain() {
@@ -75,17 +78,22 @@ void rayGenMain() {
                 var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);
                 
                 var ray = camera.GenerateRayToScene(d, randomSeed);
-
+                
                 RayPayLoad payload = {};
                 payload.randomContext = randomSeed;
                 
                 int numSamples = 1;
                 for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
     
+                    
                     TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);                    
                     if (!payload.hasHit){
                         break;
                     } 
+                    // russian rullete
+                    if(payload.depth > MIN_BOUNCES_TO_TERMINATE){
+                        float rr_p = min(0.95f, RGBToLuminance(payload.throughput));
+                    }
                     numSamples++;
                     ray.Origin = payload.rayOrigin;
                     ray.Direction = payload.rayDirection;
@@ -142,7 +150,7 @@ void rayGenMain() {
 [[shader("miss")]]
 void missMain(inout RayPayLoad payload) {
     payload.normal = float3(0.0f);
-    float3 skyColour =  envMap.Sample(normalize(payload.rayDirection.xyz)).xyz;
+    float3 skyColour =  float3(1.0);//envMap.Sample(normalize(payload.rayDirection.xyz)).xyz;
     payload.radiance += payload.throughput * skyColour;
     payload.randomContext = payload.randomContext;
     payload.hasHit = false;
@@ -162,6 +170,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     //========================
     // direct light
+    /*
     float3 L = _lightInfo.dirLight.direction.xyz;
     float3 Li = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
     
@@ -180,17 +189,17 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         
         TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
     }
-    
-    
-    float3 wo = -WorldRayDirection();
-    float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
     if (!shadowPayLoad.inShadow && (bool)_lightInfo.dirLight.parameters.z) {
         
         float3 directLightContribution = Li * m.Evaluate(wo, L, g.shadingNormal);
         
-        payLoad.radiance += directLightContribution ;
+        //payLoad.radiance += directLightContribution ;
     }
-
+    */
+    
+    
+    float3 wo = -WorldRayDirection();
+    float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
     //==============================
     // Path tracing 
 
@@ -200,7 +209,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     float3 Kd = (1.0 - Ks) * (1.0 - m.metallnes);
 
     float p_specular = max(max(Ks.x, Ks.y), Ks.z);
-    bool sampleSpecular = RandomValue(payLoad.randomContext) < p_specular;
+    bool sampleSpecular = false;//RandomValue(payLoad.randomContext) < p_specular;
 
     float PDF = 1.0;
     float3 wi;
@@ -210,17 +219,21 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     
     if( sampleSpecular){
         wi = m.SampleGGX_VND(wo, g, PDF,  payLoad.randomContext);
-        f = m.EvaluateSpecular(wo, wi, g.shadingNormal, PDF);
+        f = m.EvaluateSpecular(wo, wi, g.shadingNormal, PDF) ;
+        PDF = 1;
     }else{
         wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);
         f = m.EvaluateDiffuse(wo, wi, g.shadingNormal, PDF); 
+        PDF = 1;
     }
 
     if(globalData.accumulateFrames){
-        payLoad.throughput *= (Le + f);
+        payLoad.throughput *= f/ PDF;
     }else{
-        payLoad.throughput *= (Le + f)/PDF;
+        payLoad.throughput *= f / PDF;
     }
+    payLoad.radiance += Le * payLoad.throughput;
+
     payLoad.normal = g.shadingNormal;
     payLoad.rayOrigin = g.shadingPosition;    
     payLoad.rayDirection = wi;
