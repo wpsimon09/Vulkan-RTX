@@ -354,25 +354,24 @@ public struct CookTorrence_GGX : IBRDF
 
     public float3 SampleLambertianDiffuse(float3 wo, SurfaceGeometry g ,out float PDF, inout uint randomContex){
 
-        float u1 = RandomValue(randomContex);
-        float u2 = RandomValue(randomContex);
+        float2 u;
+        u.x = RandomValue(randomContex);
+        u.y = RandomValue(randomContex);
+    
 
-        float r = sqrt(u1);
-        float theta = 2.0f * float.getPi() * u2;
+        float a = sqrt(u.x);
+        float b = 2 * float.getPi() * u.y;
 
-        float x = r * cos(theta);
-        float y = r * sin(theta);
-        float z = sqrt(1.0f - u1);  // this ensures cosine-weighting
-
-        // cosine weighted tangent hemisphere vector
-        float3 dir = float3(x, y, z);
+        float3 result = float3(
+            a * cos(b),
+            a * sin(b),
+            sqrt(1.0f - u.x)
+        );
 
         // go from tangent space to the world space for cosine calculation
-        float3 dir_Ws = mul(g.TBN , dir);
+        float3 dir_Ws = mul(g.TBN , result);
 
-        float cosTheta = max(0.0, dot(g.shadingNormal, dir_Ws));
-
-        PDF =  cosTheta / float.getPi();
+        PDF =  result.z * (1.0 / float.getPi());
         
         return dir_Ws;
     }

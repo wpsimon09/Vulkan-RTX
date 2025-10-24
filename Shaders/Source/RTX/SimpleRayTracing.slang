@@ -35,7 +35,7 @@ struct RayPayloadShadow {
     bool inShadow;
 }
 
-static const int MIN_BOUNCES_TO_TERMINATE = 6.0;
+static const int MIN_BOUNCES_TO_TERMINATE = 2;
 
 [[shader("raygeneration")]]
 void rayGenMain() {
@@ -93,6 +93,11 @@ void rayGenMain() {
                     // russian rullete
                     if(payload.depth > MIN_BOUNCES_TO_TERMINATE){
                         float rr_p = min(0.95f, RGBToLuminance(payload.throughput));
+                        if(rr_p < RandomValue(payload.randomContext)){
+                            break;
+                        }else{
+                            payload.throughput /= rr_p;
+                        }
                     }
                     numSamples++;
                     ray.Origin = payload.rayOrigin;
@@ -199,7 +204,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     
     
     float3 wo = -WorldRayDirection();
-    float3 V = normalize(globalData.cameraPostiion.xyz - g.shadingPosition);
+
     //==============================
     // Path tracing 
 
@@ -224,7 +229,6 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }else{
         wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);
         f = m.EvaluateDiffuse(wo, wi, g.shadingNormal, PDF); 
-        PDF = 1;
     }
 
     if(globalData.accumulateFrames){
@@ -236,7 +240,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     payLoad.normal = g.shadingNormal;
     payLoad.rayOrigin = g.shadingPosition;    
-    payLoad.rayDirection = wi;
+    payLoad.rayDirection = wi + g.shadingNormal * 0.0001;
     payLoad.PDF = PDF;
     
 
