@@ -336,10 +336,12 @@ public struct CookTorrence_GGX : IBRDF
         // Transform sampled direction to world space
         float3 wi = normalize(mul(g.TBN, wi_T));
 
-        float NdotV = max(0.0, dot(g.normal, wo));
+        float NdotV = max(0.0, dot(Ne, wo_T));
 
         // TODO: this is accordint to the paper for the BRDF that is a bit differnet then my evaluation
-        PDF = (GometryShlickGGXHeitz(NdotV) * max(0, dot(wo_T, Ne)) * DistributionGGX(Ne, g.normal )) / wo.z;
+        let D_h = DistributionGGX(g.normal, Ne);
+        let G = GeometrySmith(Ne, wo_T, wi_T); // TODO: maybe rewrite
+        PDF = (D_h * G) / (4 * NdotV);
 
         return wi;
     }

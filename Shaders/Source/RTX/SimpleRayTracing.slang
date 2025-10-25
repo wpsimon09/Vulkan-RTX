@@ -220,7 +220,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     float3 Kd = (1.0 - Ks) * (1.0 - m.metallnes);
 
     float p_specular = max(max(Ks.x, Ks.y), Ks.z);
-    bool sampleSpecular = false;//RandomValue(payLoad.randomContext) < p_specular;
+    bool sampleSpecular = RandomValue(payLoad.randomContext) < p_specular;
 
     float PDF = 1.0;
     float3 wi;
@@ -228,10 +228,10 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     
     float3 Le = m.emission.xyz * m.emission.w;
     
-    if( sampleSpecular){
-        wi = m.SampleGGX_VND(wo, g, PDF,  payLoad.randomContext);
+    if(sampleSpecular){
+        wi = m.SampleGGX_VND(wo, g, PDF, payLoad.randomContext);
         f = m.EvaluateSpecular(wo, wi, g.shadingNormal) ;
-        PDF = 1;
+        PDF = 1.0;
     }else{
         wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);
         f = m.EvaluateDiffuse(wo, wi, g.shadingNormal); 
