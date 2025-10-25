@@ -245,7 +245,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     payLoad.radiance += Le * payLoad.throughput;
 
     payLoad.hitSurface = g;
-    payLoad.rayOrigin = offsetRay(g.position, g.shadingNormal);    
+    payLoad.rayOrigin = g.shadingPosition + g.shadingNormal * 0.001;    
     payLoad.rayDirection = wi;
 
     // other direction
