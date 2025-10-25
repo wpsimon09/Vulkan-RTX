@@ -37,6 +37,17 @@ public struct Material
     public MaterialFeatures Features;
 };
 
+struct BrdfEvalContext{
+    float3 NdotL;
+    float3 NdotV;
+    float3 NdotH;
+    float3 VdotH;
+    
+    bool VBackFacing;
+    bool LBackFacing;
+
+}
+
 
 
 
@@ -185,7 +196,6 @@ public struct CookTorrence_GGX : IBRDF
 
     public float4 emission;
 
-
     /*
     Normal distribution 
     */
@@ -258,6 +268,15 @@ public struct CookTorrence_GGX : IBRDF
         float3 colour = (specular + diffuse) * NdotL;
 
         return colour;
+    }
+
+    float Smith_G1_GGX(float NdotS){
+        float alpha = roughness * roughness;
+        float alphaSquare = alpha * alpha;
+        float NdotSSquared = NdotS * NdotS;
+        return 2.0f / (sqrt(((alphaSquare * (1.0f - NdotSSquared)) + NdotSSquared) /
+                      NdotSSquared) +
+                 1.0f);
     }
 
 
@@ -334,14 +353,18 @@ public struct CookTorrence_GGX : IBRDF
         float3 wi_T = reflect(-wo_T, Ne); // light direction in tangent space
 
         // Transform sampled direction to world space
+
         float3 wi = normalize(mul(g.TBN, wi_T));
 
-        float NdotV = max(0.0, dot(Ne, wo_T));
-
+        float NdotV = max(0.0001, dot(Ne, wo_T));
+        float3 H = normalize(Ne);          // microfacet normal (tangent space)
+        float3 V = normalize(wo_T);        // view direction (tangent space)
+        float3 L = normalize(wi_T);        // calculated light direction tangent space 
+        
         // TODO: this is accordint to the paper for the BRDF that is a bit differnet then my evaluation
         let D_h = DistributionGGX(g.normal, Ne);
-        let G = GeometrySmith(Ne, wo_T, wi_T); // TODO: maybe rewrite
-        PDF = (D_h * G) / (4 * NdotV);
+        let G_1 = Smith_G1_GGX(NdotV); // TODO: maybe rewrite
+        PDF = (D_h * G_1) / 4 * NdotV;
 
         return wi;
     }

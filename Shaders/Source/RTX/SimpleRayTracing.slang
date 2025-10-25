@@ -180,7 +180,9 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     //========================
     // direct light
-    /*
+    
+        float3 wo = -WorldRayDirection();
+
     float3 L = _lightInfo.dirLight.direction.xyz;
     float3 Li = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
     
@@ -203,12 +205,11 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         
         float3 directLightContribution = Li * m.Evaluate(wo, L, g.shadingNormal);
         
-        //payLoad.radiance += directLightContribution ;
+        payLoad.radiance += directLightContribution ;
     }
-    */
     
     
-    float3 wo = -WorldRayDirection();
+    
 
     //==============================
     // Path tracing 
@@ -231,12 +232,21 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     if(sampleSpecular){
         wi = m.SampleGGX_VND(wo, g, PDF, payLoad.randomContext);
         f = m.EvaluateSpecular(wo, wi, g.shadingNormal) ;
-        PDF = 1.0;
+        if(dot(g.shadingNormal, wo) <= 0.0f){
+            f = 0.0;    
+        }else{
+            f = m.EvaluateSpecular(wo, wi, g.shadingNormal) ;
+        }
     }else{
         wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);
-        f = m.EvaluateDiffuse(wo, wi, g.shadingNormal); 
+        if(dot(g.shadingNormal, wo) <= 0.0f){
+            f = 0.0;    
+        }else{
+            f = m.EvaluateDiffuse(wo, wi, g.shadingNormal); 
+        }
+        
     }
-
+    
     if(globalData.accumulateFrames){
         payLoad.throughput *= f/ PDF;
     }else{
