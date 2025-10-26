@@ -46,36 +46,34 @@ void rayGenMain() {
     // this is the pixel ID
     uint2 threadIdx = DispatchRaysIndex().xy;
     uint2 launchSize = DispatchRaysDimensions().xy;
+    uint pixelIndex = threadIdx.y * launchSize.x + threadIdx.x;
+    uint randomSeed = tea(pixelIndex, (uint)globalData.currentFrame);
 
-    const float2 pixelCenter = float2(threadIdx.xy) + float2(0.5, 0.5);
+
+    float2 pixelCenter = float2(threadIdx.xy) + float2(0.5, 0.5);
+    float2 offset = float2(RandomValue(randomSeed), RandomValue(randomSeed));
     
     // get position on the screen inf 0, 1 interval
     const float2 inUv = pixelCenter / float2(launchSize);
 
     float2 d = inUv * 2.0 - 1.0;
 
-    uint pixelIndex = threadIdx.y * launchSize.x + threadIdx.x;
-
-    uint randomSeed = tea(pixelIndex, (uint)globalData.currentFrame);
-
+    ThinCameraParameters cameraParameters;
+    cameraParameters.aparatureSize = globalData.viewParams2.z;
+    cameraParameters.imagePlaneDistance  = globalData.viewParams.x;
+    cameraParameters.focalLength = globalData.viewParams.y;
     
-    float3 totalRadiance = 0.0f;
-
-    float3 camRight = globalData.view._m00_m10_m20;
-    float3 camUp = globalData.view._m01_m11_m21;
-
-    float aparatureSize = globalData.viewParams.x; // bigger apprature, bigger blur
-    float focalLenth = globalData.viewParams.y; // position of the focuse plane
+    float tanFov2 = globalData.viewParams2.x;
+    float aspect = globalData.viewParams2.y;
 
     switch((ERenderOutputRTX)globalData.renderOutputRTX){
         case ERenderOutputRTX::PathTraced:{
 
+            var camera = ThinLensCamera(cameraParameters, tanFov2 , aspect, globalData.view, globalData.inverseView);
+            
             //=========================
             // Full shading is enabled 
             for (int i = 0; i < globalData.raysPerPixel; i++) {
-                
-                 
-                var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);
                 
                 var ray = camera.GenerateRayToScene(d, randomSeed);
                 
@@ -104,25 +102,25 @@ void rayGenMain() {
                     ray.Direction = payload.rayDirection;
                 }
 
-                totalRadiance += (1/(float)numSamples) * payload.radiance;
+                camera.film += (1/(float)numSamples) * payload.radiance;
             }
             
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
-            _film[int2(threadIdx.xy)] = float4(totalRadiance / globalData.raysPerPixel, 1.0);
+            _film[int2(threadIdx.xy)] = float4(camera.film / globalData.raysPerPixel, 1.0);
             
 
-            float3 pixelColour = totalRadiance/globalData.raysPerPixel;
+            float3 pixelColour = camera.film/globalData.raysPerPixel;
 
             if(globalData.accumulateFrames){
                 float weight = max(1.0 / (globalData.currentFrame + 1), 0);
                 float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (pixelColour) * weight : 0.0;
                 // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
-                _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : totalRadiance / globalData.raysPerPixel, 1.0);
+                _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : camera.film / globalData.raysPerPixel, 1.0);
             }
             else{
-                _accumulationImage[int2(threadIdx.xy)] = float4(totalRadiance / globalData.raysPerPixel, 1.0);
+                _accumulationImage[int2(threadIdx.xy)] = float4(camera.film / globalData.raysPerPixel, 1.0);
             }
-        
+            
 
             break;
         }
@@ -231,7 +229,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     payLoad.radiance += Le * payLoad.throughput;
     
     if(sampleSpecular){
-        wi = m.SampleGGX_VND(wo, g, PDF, payLoad.randomContext);
+        wi = m.SampleGGX_VND(wo, g, PDF, payLoad.randomContext);       
         f = m.EvaluateSpecular(wo, wi, g.shadingNormal) ;
     }else{
         wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);

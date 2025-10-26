@@ -1,3 +1,11 @@
+import RandomValues;
+
+public struct ThinCameraParameters{
+    public float aparatureSize = {0.0f};
+    public float focalLength = {0.0f};
+    public float imagePlaneDistance = {0.0f};
+}
+
 internal interface ICamera{
     internal RayDesc GenerateRayToScene(float2 pixelPos, inout uint u);
 }
@@ -8,7 +16,7 @@ public struct ProjectiveCamera : ICamera{
     float tanFloat2;
     float aspect; 
 
-    float4 film = {0.0f};
+    public float3 film = {0.0f};
 
     public __init (float tanFloat2, float aspectRatio, float4x4 WorldToCamera, float4x4 CameraToWorld){
         worldToCamera = WorldToCamera;
@@ -56,20 +64,42 @@ public struct ProjectiveCamera : ICamera{
 public struct ThinLensCamera : ICamera{
     internal ProjectiveCamera projectiveCamera;
 
-    float aparatureSize;
-    float focalLength;
+    ThinCameraParameters p;
 
-    __init (float aparatureSize, float focalLenght, float tanFloat2, float aspect, float4x4 WorldToCamera, float4x4 CameraToWorld){
+    public float3 film;
+
+    public __init (ThinCameraParameters params,  float tanFloat2, float aspect, float4x4 WorldToCamera, float4x4 CameraToWorld){
         this.projectiveCamera = ProjectiveCamera(tanFloat2, aspect, WorldToCamera, CameraToWorld);
-        this.aparatureSize = aparatureSize;
-        this.focalLength = focalLenght;
+        p = params;
     };
 
 
     public RayDesc GenerateRayToScene(float2 pixelPos, inout uint u){
         var ray = projectiveCamera.GenerateRayToScene(pixelPos, u);
 
-        return RayDesc();
+        //ration of focal lenth to aparature size
+        float fStop = p.focalLength / p.aparatureSize;
+
+        float2 lensOffset = float2(RandomValue(u), RandomValue(u));
+        
+        float theta = lensOffset.x * 2.0f * float.getPi();
+        float radius = lensOffset.y;
+
+        float u = cos(theta) * sqrt(radius);
+        float v = sin(theta) * sqrt(radius);
+
+        float focusPlane = (p.imagePlaneDistance * p.focalLength) / (p.imagePlaneDistance - p.focalLength);
+
+        float3 focusPoint = ray.Direction * (focusPlane / dot(ray.Direction, float3( 0.0f, 0.0f, -1.0f)));
+
+        float circleOfConfusionRadius = p.focalLength / (2.0f * fStop);
+
+        float3 origin = float3 (1.f, 0.f, 0.f) * (u * circleOfConfusionRadius ) + float3
+                        (0.f, 1.f, 0.f) * (v * circleOfConfusionRadius);
+        
+        float3 direction = normalize(focusPoint - origin);
+
+        return projectiveCamera.CameraToWorld(RayDesc(origin, ray.TMin, direction, ray.TMax));
     }
 
 }

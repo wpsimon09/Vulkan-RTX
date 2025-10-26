@@ -23,8 +23,8 @@ struct GlobalRenderingInfo
 
     glm::vec4 atmosphereParams;
     glm::vec4 cameraPosition;
-    glm::vec4 viewParams;
-    glm::vec4 viewParams2;  // x - FOV, y - aspect ratio, zw -empty
+    glm::vec4 viewParams;   // x - image plane distance, y - focal length, z - near plane, w -far plane
+    glm::vec4 viewParams2;  // x - FOV, y - aspect ratio, z - aparature size, w -empty
 
     float raysPerPixel;
     float reccursionDepth;

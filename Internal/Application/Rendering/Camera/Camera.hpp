@@ -77,9 +77,14 @@ class Camera
 
     float& GetMaxReccursion() { return this->m_maxReccursion; }
 
+    float& GetImagePlaneDistance() { return this->m_imagePlaneDistance; }
+
     float& GetDefocuseStrength() { return this->m_defocuseStrength; }
 
+    float& GetAparatureSize() { return this->m_aparatureSize; }
+
     float GetAspectRatio() { return m_aspect; }
+
 
     void SetPosition(glm::vec3& newPosition);
 
@@ -100,8 +105,11 @@ class Camera
     float m_aspect;
     float m_defocuseStrength = 0.2f;
     float m_speed            = 3.3f;
-    float m_focalLength      = 0.35f;  // focal lenght is in CM
-    float m_maxReccursion    = 10;     // max ray reccrusion from the camera
+
+    float m_aparatureSize      = 2;
+    float m_focalLength        = 0.35f;  // focal lenght is in M
+    float m_maxReccursion      = 10;     // max ray reccrusion from the camera
+    float m_imagePlaneDistance = 1;
 
     glm::vec3 m_position;
     glm::vec3 m_center;

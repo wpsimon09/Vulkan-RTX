@@ -123,6 +123,10 @@ void Settings::RenderApplicationSettings()
 
         ImGui::DragFloat("Focal length:", &m_client.GetCamera().GetFocalLength(), 0.2f);
 
+        ImGui::DragFloat("Aparature size ", &m_client.GetCamera().GetAparatureSize(), 0.1f, 0.0f);
+
+        ImGui::DragFloat("Image plane distance ", &m_client.GetCamera().GetImagePlaneDistance(), 0.1, 0.0f);
+
         ImGui::DragFloat("Defocuse strength", &m_client.GetCamera().GetDefocuseStrength(), 0.1f, 0.0);
 
         m_client.GetCamera().Recalculate();
