@@ -284,6 +284,11 @@ public struct CookTorrence_GGX : IBRDF
         /*
         GGX Microfacet 
         */
+        if(dot(N, wo) <= 0.0f){
+            return float3(0.0f);
+        }   
+
+
         float3 F0 = float3(0.04);
         F0 = lerp(F0, albedo.xyz, metallnes);
         float3 H = normalize(wo + wi);
@@ -302,7 +307,9 @@ public struct CookTorrence_GGX : IBRDF
     }
 
     public float3 EvaluateDiffuse(float3 wo, float3 wi, float3 N){
-
+        if(dot(N, wo) <= 0.0f){
+            return float3(0.0f);
+        }
         float cosTheta = max(dot(N, wo), 0.001);
         return diffuseReflectance.xyz * (ONE_OVER_PI * cosTheta);
     }

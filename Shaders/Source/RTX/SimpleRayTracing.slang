@@ -205,7 +205,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         
         float3 directLightContribution = Li * m.Evaluate(wo, L, g.shadingNormal);
         
-        payLoad.radiance += directLightContribution ;
+        payLoad.radiance += payLoad.throughput * directLightContribution ;
     }
     
     
@@ -228,23 +228,14 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     float3 f = {};
     
     float3 Le = m.emission.xyz * m.emission.w;
+    payLoad.radiance += Le * payLoad.throughput;
     
     if(sampleSpecular){
         wi = m.SampleGGX_VND(wo, g, PDF, payLoad.randomContext);
         f = m.EvaluateSpecular(wo, wi, g.shadingNormal) ;
-        if(dot(g.shadingNormal, wo) <= 0.0f){
-            f = 0.0;    
-        }else{
-            f = m.EvaluateSpecular(wo, wi, g.shadingNormal) ;
-        }
     }else{
         wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);
-        if(dot(g.shadingNormal, wo) <= 0.0f){
-            f = 0.0;    
-        }else{
-            f = m.EvaluateDiffuse(wo, wi, g.shadingNormal); 
-        }
-        
+        f = m.EvaluateDiffuse(wo, wi, g.shadingNormal); 
     }
     
     if(globalData.accumulateFrames){
@@ -252,7 +243,6 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }else{
         payLoad.throughput *= f / PDF;
     }
-    payLoad.radiance += Le * payLoad.throughput;
 
     payLoad.hitSurface = g;
     payLoad.rayOrigin = g.shadingPosition + g.shadingNormal * 0.001;    
