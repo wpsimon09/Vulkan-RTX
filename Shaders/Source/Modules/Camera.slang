@@ -7,6 +7,9 @@ public struct ThinCameraParameters{
 }
 
 internal interface ICamera{
+    /*
+    Generates ray in the camera space, it is 
+    */
     internal RayDesc GenerateRayToScene(float2 pixelPos, inout uint u);
 }
 
@@ -43,7 +46,7 @@ public struct ProjectiveCamera : ICamera{
         let rayCameraSpaca = RayDesc(float3(0.0f), 0.0f, direction, 10000.0f);        
 
         // convert the generated ray to world space where light transport
-        return CameraToWorld(rayCameraSpaca);
+        return rayCameraSpaca;
     }
 
     RayDesc CameraToWorld(RayDesc inRay){
@@ -66,7 +69,7 @@ public struct ThinLensCamera : ICamera{
 
     ThinCameraParameters p;
 
-    public float3 film;
+    public float3 film = {0.0f};
 
     public __init (ThinCameraParameters params,  float tanFloat2, float aspect, float4x4 WorldToCamera, float4x4 CameraToWorld){
         this.projectiveCamera = ProjectiveCamera(tanFloat2, aspect, WorldToCamera, CameraToWorld);
@@ -99,7 +102,11 @@ public struct ThinLensCamera : ICamera{
         
         float3 direction = normalize(focusPoint - origin);
 
-        return projectiveCamera.CameraToWorld(RayDesc(origin, ray.TMin, direction, ray.TMax));
+        return RayDesc(origin, ray.TMin, direction, ray.TMax);
+    }
+
+    public RayDesc CameraToWorld(RayDesc inRay){
+        return projectiveCamera.CameraToWorld(inRay);
     }
 
 }

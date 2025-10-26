@@ -75,7 +75,7 @@ void rayGenMain() {
             // Full shading is enabled 
             for (int i = 0; i < globalData.raysPerPixel; i++) {
                 
-                var ray = camera.GenerateRayToScene(d, randomSeed);
+                var ray = camera.CameraToWorld(camera.GenerateRayToScene(d, randomSeed));
                 
                 RayPayLoad payload = {};
                 payload.randomContext = randomSeed;
