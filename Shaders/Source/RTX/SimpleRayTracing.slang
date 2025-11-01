@@ -102,7 +102,7 @@ void rayGenMain() {
                     ray.Direction = payload.rayDirection;
                 }
 
-                camera.film += (1/(float)numSamples) * payload.radiance;
+                camera.film += payload.radiance;
             }
             
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
@@ -179,7 +179,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     //========================
     // direct light
     
-        float3 wo = -WorldRayDirection();
+    float3 wo = -WorldRayDirection();
 
     float3 L = _lightInfo.dirLight.direction.xyz;
     float3 Li = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
@@ -225,9 +225,13 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     float3 wi;
     float3 f = {};
     
+    //==========================================
+    // Account for emmision
     float3 Le = m.emission.xyz * m.emission.w;
     payLoad.radiance += Le * payLoad.throughput;
     
+    //==========================================
+    // Evaluate surface scattering 
     if(sampleSpecular){
         wi = m.SampleGGX_VND(wo, g, PDF, payLoad.randomContext);       
         f = m.EvaluateSpecular(wo, wi, g.shadingNormal) ;
@@ -236,11 +240,8 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         f = m.EvaluateDiffuse(wo, wi, g.shadingNormal); 
     }
     
-    if(globalData.accumulateFrames){
-        payLoad.throughput *= f/ PDF;
-    }else{
-        payLoad.throughput *= f / PDF;
-    }
+    payLoad.throughput *= f/ PDF;
+
 
     payLoad.hitSurface = g;
     payLoad.rayOrigin = g.shadingPosition + g.shadingNormal * 0.001;    

@@ -49,6 +49,10 @@ float4 fragmentMain(VertexOutput fsIn)
 
     let brdf_ = material.Prepare(g);
 
+    if(brdf_.albedo.w < 0.9) {
+        discard;
+    }
+
     if(material.features.hasNormalTexture){
         g.shadingNormal = SampleNormalMap(material.normal_map, g.uv, fsIn.vertexData.TBN);
     }

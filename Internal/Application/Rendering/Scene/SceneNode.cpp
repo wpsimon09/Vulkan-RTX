@@ -272,12 +272,12 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         if(m_mesh->m_currentMaterial->IsTransparent())
         {
             data.inDepthPrePass = false;
-            data.effect         = Renderer::EForwardRenderEffects::ForwardShader;
+            data.effect         = Renderer::EForwardRenderEffects::AplhaBlend;
         }
         else
         {
             //data.effect = effectsLibrary.GetEffect(EEffectType::ForwardShader);
-            data.effect = m_mesh->GetMaterial()->GetMatearialEffect();
+            data.effect = Renderer::EForwardRenderEffects::ForwardShader;
         }
 
         data.position = m_transformation->GetPosition();

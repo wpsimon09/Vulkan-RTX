@@ -33,9 +33,9 @@ ForwardRender::ForwardRender(const VulkanCore::VDevice& device, ApplicationCore:
     //=====================================================================
     // Transparent Forward Lit (alpha blend / additive pass)
     //=====================================================================
-    // m_effects[EForwardRenderEffects::AplhaBlend] =
-    //     effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::AplhaBlend);
-    //;
+    m_effects[EForwardRenderEffects::AplhaBlend] =
+        effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::AplhaBlend);
+    ;
 
     //=====================================================================
     // Editor Billboards (icons, gizmos, unlit quads)
