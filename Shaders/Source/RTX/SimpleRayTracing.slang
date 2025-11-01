@@ -69,7 +69,7 @@ void rayGenMain() {
     switch((ERenderOutputRTX)globalData.renderOutputRTX){
         case ERenderOutputRTX::PathTraced:{
 
-            var camera = ThinLensCamera(cameraParameters, tanFov2 , aspect, globalData.view, globalData.inverseView);
+            var camera = ProjectiveCamera(tanFov2 , aspect, globalData.view, globalData.inverseView);
             
             //=========================
             // Full shading is enabled 
@@ -85,7 +85,7 @@ void rayGenMain() {
     
                     
                     TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);                    
-                    if (!payload.hasHit){
+                    if (!payload.hitSurface.hasValue){
                         break;
                     } 
                     // russian rullete
@@ -102,7 +102,7 @@ void rayGenMain() {
                     ray.Direction = payload.rayDirection;
                 }
 
-                camera.film += payload.radiance;
+                camera.film += payload.radiance / numSamples;;
             }
             
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
@@ -124,11 +124,9 @@ void rayGenMain() {
 
             break;
         }
-        case ERenderOutputRTX::Normals: {
-            
-            
+        case ERenderOutputRTX::Normals: {    
             var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);                
-            var ray = camera.GenerateRayToScene(d, randomSeed);
+            var ray = camera.CameraToWorld(camera.GenerateRayToScene(d, randomSeed));
             
             float3 worldNormal = {};
             if(let s = TraceSingleRay(ray, _TLAS, randomSeed).hitSurface){
@@ -161,7 +159,7 @@ void missMain(inout RayPayLoad payload) {
     float3 skyColour =  float3(1.0);//envMap.Sample(normalize(payload.rayDirection.xyz)).xyz;
     payload.radiance += payload.throughput * skyColour;
     payload.randomContext = payload.randomContext;
-    payload.hasHit = false;
+    payload.hitSurface = {};
 }
 
 [[shader("miss")]]
@@ -246,8 +244,4 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     payLoad.hitSurface = g;
     payLoad.rayOrigin = g.shadingPosition + g.shadingNormal * 0.001;    
     payLoad.rayDirection = wi;
-
-    // other direction
-    payLoad.hasHit = true;
-
 }

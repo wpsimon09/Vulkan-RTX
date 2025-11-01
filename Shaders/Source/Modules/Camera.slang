@@ -49,7 +49,7 @@ public struct ProjectiveCamera : ICamera{
         return rayCameraSpaca;
     }
 
-    RayDesc CameraToWorld(RayDesc inRay){
+    public RayDesc CameraToWorld(RayDesc inRay){
         RayDesc result;
         result.TMax = inRay.TMax;
         result.TMin = inRay.TMin;
