@@ -102,7 +102,7 @@ void rayGenMain() {
                     ray.Direction = payload.rayDirection;
                 }
 
-                camera.film += payload.radiance / numSamples;;
+                camera.film += payload.radiance ;
             }
             
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
