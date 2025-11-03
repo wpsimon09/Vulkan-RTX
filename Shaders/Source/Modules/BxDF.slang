@@ -5,28 +5,39 @@ import Utils;
 import Surface;
 import RandomValues;
 
+public static const float ONE_OVER_PI = 1/float.getPi();
+
+
 public struct BxDFSample{
     float3 wi;
     float PDF;
 }
 
 public struct BxDFContext{
-    float3 albedo;
-    float metallnes;
-    float roughness;
-    float ao;
+    public float4 albedo;
+    public float3 emmision;
+    public float emissionStrength;
+    public float metallnes;
+    public float roughness;
+    public float ao;
 }
 
 public interface IBRDF{
-    public BxDFSample Sample(float3 wo, SurfaceGeometry g, inout uint u);
+    public Optional<BxDFSample> Sample(float3 wo, SurfaceGeometry g, inout uint u);
     public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g);
     public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse);
 }
 
 
 public struct Specular_GGX : IBRDF{
-
+    
     BxDFContext context;
+    public float3 F0;
+
+    public __init(BxDFContext context){
+        this.context = context;
+        F0 = lerp(context.metallnes, 0.4, context.metallnes);
+    }
     /*
     Normal distribution 
     */
@@ -45,7 +56,7 @@ public struct Specular_GGX : IBRDF{
         return num / denom;
     }
 
-    float3 FresnelSchlick(float cosTheta, float3 F0){
+    public float3 FresnelSchlick(float cosTheta, float3 F0){
         return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
     }
 
@@ -67,7 +78,7 @@ public struct Specular_GGX : IBRDF{
         return ggx1 * ggx2;
     }
 
-    public BxDFSample Sample(float3 wo, SurfaceGeometry g, inout uint u){
+    public Optional<BxDFSample> Sample(float3 wo, SurfaceGeometry g, inout uint u){
 
         // Transform outgoing/view direction from world to tangent space
         float3 wo_T = normalize(mul(g.iTBN, wo)); // view direction in tangent space
@@ -121,6 +132,116 @@ public struct Specular_GGX : IBRDF{
         return sample;
     } 
       
-    public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g);
-    public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse);
+    public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g)
+    {
+        if(dot(g.shadingNormal, wo) <= 0.0f){
+            return float3(0.0f);
+        }   
+
+        float3 F0 = float3(0.04);
+        F0 = lerp(F0, context.albedo.xyz, context.metallnes);
+        float3 H = normalize(wo + wi);
+
+        float NDF = DistributionGGX(g.shadingNormal, H);
+        float G = GeometrySmith(g.shadingNormal, wo, wi);
+        float3 F = FresnelSchlick(max(dot(H, wo), 0.0), F0);
+
+        float3 numerator = NDF * G * F;
+
+        float denominator = 4.0 * max(dot(g.shadingNormal, wo), 0.0) * max(dot(g.shadingNormal, wi), 0.01);
+
+        float3 col = numerator / (max(denominator, 0.001));
+
+        return col;
+    }
+
+    public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse){
+        return context.albedo.xyz;
+    }
+}
+
+
+public struct LamberianDiffuse : IBRDF{
+
+    public __init(BxDFContext context){
+        this.context = context;
+    }
+
+    BxDFContext context;
+
+    public Optional<BxDFSample> Sample(float3 wo, SurfaceGeometry g, inout uint u){
+        float2 u2;
+        u2.x = RandomValue(u);
+        u2.y = RandomValue(u);
+    
+
+        float a = sqrt(u2.x);
+        float b = 2 * float.getPi() * u2.y;
+
+        float3 result = float3(
+            a * cos(b),
+            a * sin(b),
+            sqrt(1.0f - u2.x)
+        );
+
+        // go from tangent space to the world space for cosine calculation
+        float3 dir_Ws = mul(g.TBN , result);
+
+        BxDFSample sample;
+
+        sample.PDF =  result.z * (1.0 / float.getPi());
+        sample.wi  = dir_Ws;
+
+        return sample;
+    }
+    public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g){
+        if(dot(g.shadingNormal, wo) <= 0.0f){
+            return float3(0.0f);
+        }
+        float3 diffuseReflectance = context.albedo.xyz * (1.0 - context.metallnes);
+        float cosTheta = max(dot(g.shadingNormal, wo), 0.001);
+        return diffuseReflectance * (ONE_OVER_PI * cosTheta);
+    }
+
+    public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse){
+        return context.albedo.xyz;
+    }
+}
+ 
+/*
+Used for rasterisation and combines both lambertian and specular brdf
+*/
+public struct DeterministicBRDF : IBRDF{
+    LamberianDiffuse diffuseBrdf;
+    Specular_GGX specularBrdf;
+
+    BxDFContext context;
+
+    __init(BxDFContext context){
+        this.specularBrdf = Specular_GGX(context);
+        this.diffuseBrdf = LamberianDiffuse(context);
+        this.context = context;
+    };
+
+    public Optional<BxDFSample> Sample(float3 wo, SurfaceGeometry g, inout uint u){
+        return {};
+    }
+    
+    public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g){
+        float3 diffuse = diffuseBrdf.Evaluate(wo, wi, g);
+        float3 specular = specularBrdf.Evaluate(wo, wi, g);
+
+        float3 ks = specularBrdf.FresnelSchlick(dot(wo, wi), specularBrdf.F0);
+        float3 kD = float3(1.0) - ks;
+
+        kD *= 1.0 -  context.metallnes;
+
+        
+
+    }
+    
+    public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse){
+
+    }
+
 }
