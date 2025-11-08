@@ -2,6 +2,7 @@ import Material;
 import Light;
 import Surface;
 import Atmosphere;
+import BxDF;
 #include "ShaderBindingGroups/ForwardLit.slang"
 
 struct FragmentShaderIn
@@ -47,9 +48,9 @@ float4 fragmentMain(VertexOutput fsIn)
     material.normal_map = textures[mat.Features.normalTextureIdx];
     material.emissive_map = textures[mat.Features.emissiveTextureIdx];
 
-    let brdf_ = material.Prepare(g);
+    let brdfContext = material.Prepare(g);
 
-    if(brdf_.albedo.w < 0.9) {
+    if(brdfContext.albedo.w < 0.9) {
         discard;
     }
 
@@ -66,9 +67,9 @@ float4 fragmentMain(VertexOutput fsIn)
     LightPair<LightArray<AreaLight,4>,AmbientLight> AreaAndAmbient;
 
     AmbientLight ambientLight;
-    ambientLight.albedo = brdf_.albedo.xyz;
+    ambientLight.albedo = brdfContext.albedo.xyz;
     ambientLight.aoIntensity = _lightInfo.info.y;
-    ambientLight.roughness = brdf_.roughness;
+    ambientLight.roughness = brdfContext.roughness;
     ambientLight.applyIBL = bool(_lightInfo.info.x);
     ambientLight.IrradianceMap = IrradianceMap;
     ambientLight.PrefilterMap = PrefilterMap;
@@ -107,9 +108,11 @@ float4 fragmentMain(VertexOutput fsIn)
         TransmitanceToSun = transmitanceToSun;
     }
 
+    var brdf = DeterministicBRDF(brdfContext);
+
     
-    finalColor = lerp(ambientLight.illuminate(g, brdf_, V) * 0.2, lightingEnv.illuminate(g, brdf_, V)  + ambientLight.illuminate(g, brdf_, V),   shadowFactor.x);
-    finalColor.xyz += (brdf_.emission.xyz * brdf_.emission.w);
+    finalColor = lerp(ambientLight.illuminate(g, brdf, V) * 0.2, lightingEnv.illuminate(g, brdf, V)  + ambientLight.illuminate(g, brdf, V),   shadowFactor.x);
+    finalColor.xyz += (brdfContext.emmision * brdfContext.emissionStrength);
 
     // shadow factor.y is an ambient occlusion data 
     finalColor.xyz *= shadowFactor.y;
@@ -125,10 +128,10 @@ float4 fragmentMain(VertexOutput fsIn)
             return float4(finalColor,1.0);
         };
         case ERenderOutput::Albedo:{
-            return float4(brdf_.albedo.xyz, 1.0);
+            return float4(brdfContext.albedo.xyz, 1.0);
         }
         case ERenderOutput::Arm:{
-            return float4(brdf_.ao, brdf_.roughness, brdf_.metallnes, 1.0);
+            return float4(brdfContext.ao, brdfContext.roughness, brdfContext.metallnes, 1.0);
         }
         default: {
             return float4(1.0);

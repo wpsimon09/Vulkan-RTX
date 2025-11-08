@@ -215,24 +215,24 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     if (dot(g.shadingNormal, wo) <= 0.0f)
         return;
     */
-
-    float PDF = 1.0;
-    float3 f = {};
     
-    //==========================================
+    //============================
     // Account for emmision
     float3 Le = bxdfContext.emmision * bxdfContext.emissionStrength;
     payLoad.radiance += Le * payLoad.throughput;
     
     //==========================================
     // Evaluate surface scattering 
+
+    // which brdf to sample 
     var brdf = m.Sample(bxdfContext, payLoad.randomContext);
     
     if(let brdfSample = brdf.Sample(wo, g, payLoad.randomContext)){
         float3 Lo = brdf.Evaluate(wo, brdfSample.wi, g) / brdfSample.PDF;
-        
+
         payLoad.rayDirection = brdfSample.wi;
-        payLoad.throughput *= f/ PDF;
+        payLoad.throughput *= Lo;
+        
         payLoad.hitSurface = g;
         payLoad.rayOrigin = g.shadingPosition + g.shadingNormal * 0.001;    
     }

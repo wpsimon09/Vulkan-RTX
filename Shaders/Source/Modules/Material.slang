@@ -222,3 +222,11 @@ public float3 CalculateAreaLightLo(float3 wo, float3 P, float3 N, float3x3 MinV,
 
     return float3(sum, sum, sum);
 }
+
+public float3 FresnellShlickRoughness(float cosTheta, BxDFContext ctx)
+{
+    float3 F0 = float3(0.04);
+    F0 = lerp(F0, ctx.albedo.xyz, ctx.metallnes);
+    return F0 + (max(float3(1.0 - ctx.roughness), F0) - F0) *
+                    pow(1.0 - cosTheta, 5.0);
+}

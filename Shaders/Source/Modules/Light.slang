@@ -117,7 +117,7 @@ public struct AmbientLight : ILightEnv {
 
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         if (applyIBL) { // passed from application based on if the env is nullptr or not 
-            float3 kS = brdf.FresnellShlickRoughness(max(dot(g.shadingNormal, wo), 0.0));
+            float3 kS = FresnellShlickRoughness(max(dot(g.shadingNormal, wo), 0.0), brdf.GetContext());
             float3 kD = float3(1.0) - kS;
             float3 irradiance = IrradianceMap.Sample(g.shadingNormal.xyz).xyz;
             float3 diffuse = irradiance * albedo;
@@ -139,7 +139,7 @@ public struct AmbientLight : ILightEnv {
 
     public float3 illuminateDiffuse<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo){
         if (applyIBL) { // passed from application based on if the env is nullptr or not 
-            float3 kS = brdf.FresnellShlickRoughness(max(dot(g.shadingNormal, wo), 0.0));
+            float3 kS = FresnellShlickRoughness(max(dot(g.shadingNormal, wo), 0.0), brdf.GetContext());
             float3 kD = float3(1.0) - kS;
             float3 irradiance = IrradianceMap.Sample(g.shadingNormal.xyz).xyz;
             float3 diffuse = irradiance * albedo ;

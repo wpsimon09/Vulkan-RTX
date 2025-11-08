@@ -26,6 +26,7 @@ public interface IBRDF{
     public Optional<BxDFSample> Sample(float3 wo, SurfaceGeometry g, inout uint u);
     public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g);
     public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse);
+    public BxDFContext GetContext();
 }
 
 
@@ -158,6 +159,10 @@ public struct Specular_GGX : IBRDF{
     public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse){
         return context.albedo.xyz;
     }
+
+    public BxDFContext GetContext(){
+        return this.context;
+    }
 }
 
 
@@ -206,6 +211,10 @@ public struct LamberianDiffuse : IBRDF{
     public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse){
         return context.albedo.xyz;
     }
+
+    public BxDFContext GetContext(){
+        return this.context;
+    }
 }
  
 /*
@@ -243,6 +252,10 @@ public struct DeterministicBRDF : IBRDF{
     
     public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse){
         return float3(1.0f);
+    }
+
+    public BxDFContext GetContext(){
+        return this.context;
     }
 
 }
