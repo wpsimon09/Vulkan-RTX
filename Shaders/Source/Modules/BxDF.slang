@@ -9,8 +9,8 @@ public static const float ONE_OVER_PI = 1/float.getPi();
 
 
 public struct BxDFSample{
-    float3 wi;
-    float PDF;
+    public float3 wi;
+    public float PDF;
 }
 
 public struct BxDFContext{
@@ -217,7 +217,7 @@ public struct DeterministicBRDF : IBRDF{
 
     BxDFContext context;
 
-    __init(BxDFContext context){
+    public __init(BxDFContext context){
         this.specularBrdf = Specular_GGX(context);
         this.diffuseBrdf = LamberianDiffuse(context);
         this.context = context;
@@ -231,17 +231,18 @@ public struct DeterministicBRDF : IBRDF{
         float3 diffuse = diffuseBrdf.Evaluate(wo, wi, g);
         float3 specular = specularBrdf.Evaluate(wo, wi, g);
 
-        float3 ks = specularBrdf.FresnelSchlick(dot(wo, wi), specularBrdf.F0);
-        float3 kD = float3(1.0) - ks;
+        float3 kS = specularBrdf.FresnelSchlick(dot(wo, wi), specularBrdf.F0);
+        float3 kD = float3(1.0) - kS;
 
         kD *= 1.0 -  context.metallnes;
 
-        
+        float cosTheta = max(dot(g.shadingNormal, wi),0.0);
 
+        return ((kD * diffuse) + (kS * specular)) * cosTheta;
     }
     
     public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse){
-
+        return float3(1.0f);
     }
 
 }

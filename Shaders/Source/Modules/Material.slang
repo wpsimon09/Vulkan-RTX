@@ -45,6 +45,7 @@ public struct Material
 public interface IMaterial
 {
     BxDFContext Prepare(SurfaceGeometry geometry);
+    IBRDF Sample(BxDFContext ctx, inout uint u);
 }
 
 public struct PBRMaterial : IMaterial
@@ -103,6 +104,22 @@ public struct PBRMaterial : IMaterial
             brdf.emissionStrength = values.emissive_strength.w;
         }
         return brdf;
+    }
+
+    public IBRDF Sample(BxDFContext ctx, inout uint u){
+        float3 F0 = lerp(float3(0.04), ctx.albedo.xyz, ctx.metallnes);
+        float3 Ks =  F0;
+        float3 Kd = (1.0 - Ks) * (1.0 - ctx.metallnes);
+        float p_specular = max(max(Ks.x, Ks.y), Ks.z);
+
+        bool sampleSpecular = RandomValue(u) < p_specular;
+
+        if(sampleSpecular){
+            return Specular_GGX(ctx);
+        }else{
+            return LamberianDiffuse(ctx);
+        }
+
     }
 }
 

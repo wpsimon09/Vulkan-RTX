@@ -5,6 +5,8 @@ import Surface;
 import Utils;
 import RandomValues;
 
+import BxDF;
+
 public static float3 TransmitanceToSun = float3(1.0);
 
 
@@ -28,7 +30,7 @@ public struct DirectionalLight : ILightEnv {
 
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         if((bool)parameters.z){
-            return ((intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g.shadingNormal) * TransmitanceToSun );
+            return ((intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g) * TransmitanceToSun );
         }
         return float3(0.0);
 
@@ -49,7 +51,7 @@ public struct PointLight : ILightEnv {
 
         float  attentuation = 1.0f / (CLQU_Parameters.x + (CLQU_Parameters.y * distance) + (CLQU_Parameters.z * (distance * distance)));
         float3 illuminance = (intensity.xyz * intensity.w).xyz;
-        return illuminance * attentuation * brdf.Evaluate(wo, direction, g.shadingNormal);
+        return illuminance * attentuation * brdf.Evaluate(wo, direction, g);
 
     }
 }
