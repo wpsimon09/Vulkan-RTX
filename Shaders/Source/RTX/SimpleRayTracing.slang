@@ -201,9 +201,10 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         
         var brdf = DeterministicBRDF(bxdfContext);
 
-        float3 directLightContribution = Li * brdf.Evaluate(wo, L, g);
+        float cosTheta = max(dot(g.shadingNormal, L),0.0);
+        float3 directLightContribution = Li * (brdf.Evaluate(wo, L, g) * cosTheta) ;
         
-        payLoad.radiance += payLoad.throughput * directLightContribution ;
+        //payLoad.radiance += payLoad.throughput * directLightContribution ;
     }
     
     
@@ -227,14 +228,19 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     // which brdf to sample 
     var brdf = m.Sample(bxdfContext, payLoad.randomContext);
     
-    if(let brdfSample = brdf.Sample(wo, g, payLoad.randomContext)){
-        float3 Lo = brdf.Evaluate(wo, brdfSample.wi, g) / brdfSample.PDF;
+    let brdfSample = brdf.Sample(wo, g, payLoad.randomContext);
 
-        payLoad.rayDirection = brdfSample.wi;
+    if(brdfSample.hasValue){
+        float cosTheta = max(dot(g.shadingNormal, normalize(brdfSample.value.wi)),0.0);
+        float3 Lo = (brdf.Evaluate(wo, brdfSample.value.wi, g) * cosTheta) / brdfSample.value.PDF;
+
         payLoad.throughput *= Lo;
+        payLoad.rayDirection = brdfSample.value.wi;
         
         payLoad.hitSurface = g;
         payLoad.rayOrigin = g.shadingPosition + g.shadingNormal * 0.001;    
+    }else{
+        payLoad.hitSurface = {};
     }
 
 }

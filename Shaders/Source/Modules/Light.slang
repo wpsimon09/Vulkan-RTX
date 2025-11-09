@@ -30,7 +30,11 @@ public struct DirectionalLight : ILightEnv {
 
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         if((bool)parameters.z){
-            return ((intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g) * TransmitanceToSun );
+            float3 wi = this.direction.xyz;
+            
+            float cosTheta = max(0.0, dot(g.shadingNormal, wi));
+            
+            return ((intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g) * cosTheta * TransmitanceToSun );
         }
         return float3(0.0);
 
@@ -49,9 +53,11 @@ public struct PointLight : ILightEnv {
         float distance = length(delta);
         float3 direction = normalize(delta);
 
+        float cosTheta = max(dot(g.shadingNormal, direction), 0.0);
+
         float  attentuation = 1.0f / (CLQU_Parameters.x + (CLQU_Parameters.y * distance) + (CLQU_Parameters.z * (distance * distance)));
         float3 illuminance = (intensity.xyz * intensity.w).xyz;
-        return illuminance * attentuation * brdf.Evaluate(wo, direction, g);
+        return illuminance * attentuation * brdf.Evaluate(wo, direction, g) * cosTheta;
 
     }
 }
@@ -126,6 +132,7 @@ public struct AmbientLight : ILightEnv {
             const float MAX_REFLECTION_LOD = 6.0;
 
             float3 prefilteredColor = PrefilterMap.SampleLevel(R, roughness * MAX_REFLECTION_LOD).xyz;
+
 
             float2 envBrdf = BRDF_Lut.Sample(float2(max(dot(g.shadingNormal, wo), 0.0f), roughness)).xy;
             float3 spec = prefilteredColor * (kS * envBrdf.x + envBrdf.y);
