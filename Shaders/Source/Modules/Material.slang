@@ -114,8 +114,8 @@ public struct PBRMaterial : IMaterial
 
         bool sampleSpecular = RandomValue(u) < p_specular;
 
+        return Specular_GGX(ctx);
         if(sampleSpecular){
-            return Specular_GGX(ctx);
         }else{
             return LamberianDiffuse(ctx);
         }

@@ -21,7 +21,7 @@ public struct BxDFContext{
     public float roughness;
     public float ao;
 
-    internal float alpha;
+    public float alpha;
 }
 
 public interface IBRDF{
@@ -49,7 +49,7 @@ public struct Specular_GGX : IBRDF{
     float DistributionGGX(float3 N, float3 H)
     {
         float NdotH = max(0.0, dot(N, H));
-        float alphaSquared = context.alpha * context.alpha;
+        float alphaSquared = max(0.000001,context.alpha * context.alpha);
 
         float b = ((alphaSquared - 1.0f) * NdotH * NdotH + 1.0f);
         return alphaSquared / (PI * b * b);
@@ -63,7 +63,7 @@ public struct Specular_GGX : IBRDF{
         float alpha = context.alpha;
         float alphaSqared = alpha * alpha;
 
-        float NdotS = normalize(max(dot(w1, w2), 0.0));
+        float NdotS = max(dot(w1, w2), 0.0);
         float NdotSSquared = NdotS * NdotS;
         
          return 2.0f / (sqrt(((alphaSqared * (1.0f - NdotSSquared)) + NdotSSquared) /
@@ -72,7 +72,7 @@ public struct Specular_GGX : IBRDF{
     }
 
     float GeometrySmith(float3 N, float3 V, float3 L){
-        float ggx2 = Smith_G1(N , V);
+        float ggx2 = Smith_G1(N, V);
         float ggx1 = Smith_G1(N, L);
 
         return ggx1 * ggx2;
@@ -121,7 +121,7 @@ public struct Specular_GGX : IBRDF{
         float NdotV = max(0.0001f, dot(Nlocal, Ve));
 
         let D_h = DistributionGGX(Nlocal, Ne);
-        let G_1 = Smith_G1(Ve, Nlocal);
+        let G_1 = Smith_G1(Nlocal, Ve);
 
         sample.PDF = (D_h * G_1) / (4 * NdotV);
 
@@ -131,13 +131,11 @@ public struct Specular_GGX : IBRDF{
     } 
       
     public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g)
-    {
-        if(dot(g.shadingNormal, wo) <= 0.0f){
-                return float3(0.0f);
-        }   
-
+    { 
         float3 F0 = float3(0.04);
-        F0 = lerp(F0, context.albedo.xyz, context.metallnes);
+
+        F0 = lerp( context.albedo.xyz, F0, context.metallnes);
+
         float3 H = normalize(wo + wi);
 
         float NDF = DistributionGGX(g.shadingNormal, H);
@@ -191,7 +189,7 @@ public struct LamberianDiffuse : IBRDF{
 
         BxDFSample sample;
 
-        sample.PDF =  result.z * (1.0 / float.getPi());
+        sample.PDF =  result.z * ONE_OVER_PI;
         sample.wi  = dir_Ws;
 
         return sample;
@@ -225,7 +223,7 @@ public struct DeterministicBRDF : IBRDF{
 
     public __init(BxDFContext context){
         this.specularBrdf = Specular_GGX(context);
-        this.diffuseBrdf = LamberianDiffuse(context);
+        this.diffuseBrdf =  LamberianDiffuse(context);
         this.context = context;
     };
 
@@ -242,7 +240,7 @@ public struct DeterministicBRDF : IBRDF{
 
         kD *= 1.0 -  context.metallnes;
         
-        return ((diffuse) + (specular));
+        return (kD * diffuse) + specular;
     }
     
     public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse){

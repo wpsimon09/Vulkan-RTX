@@ -3,6 +3,7 @@
 // global data, per object data
 module Core;
 import Surface;
+import BxDF;
 
 public enum ERenderOutput{
     FullLit = 0,
@@ -113,4 +114,6 @@ public struct RayPayLoad {
 
     public uint depth = 0;
     public uint randomContext;
+
+    public Optional<BxDFContext> brdfContext;
 }

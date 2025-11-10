@@ -141,14 +141,15 @@ void rayGenMain() {
         case ERenderOutputRTX::PDF: {
             
             var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);
-            var ray = camera.GenerateRayToScene(d, randomSeed);;
+            var ray = camera.CameraToWorld(camera.GenerateRayToScene(d, randomSeed));
             
-            float3 geometryNormal = {};
-            if(let s = TraceSingleRay(ray, _TLAS, randomSeed).hitSurface){
-                geometryNormal = s.normal;
+            float3 albedo = float3(0.0f);
+            
+            if(let s = TraceSingleRay(ray, _TLAS, randomSeed).brdfContext){
+                albedo = float3(s.alpha);
             }
             
-            _accumulationImage[int2(threadIdx.xy)] = float4(geometryNormal, 1.0) ;
+            _accumulationImage[int2(threadIdx.xy)] = float4(albedo, 1.0) ;
             
             break;
         }
@@ -225,7 +226,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     //==========================================
     // Evaluate surface scattering 
 
-    // which brdf to sample 
+    // which brdf to use 
     var brdf = m.Sample(bxdfContext, payLoad.randomContext);
     
     let brdfSample = brdf.Sample(wo, g, payLoad.randomContext);
@@ -239,8 +240,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         
         payLoad.hitSurface = g;
         payLoad.rayOrigin = g.shadingPosition + g.shadingNormal * 0.001;    
-    }else{
-        payLoad.hitSurface = {};
     }
+
 
 }
