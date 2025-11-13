@@ -2,6 +2,7 @@ module RayTracingData;
 import Surface;
 import Material;
 import Utils;
+import BxDF;
 
 [[vk::binding(2, 0)]]
 StructuredBuffer<ObjDescription> descriptions;
@@ -85,7 +86,7 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     return g;
 }
     
-public CookTorrence_GGX GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
+public PBRMaterial GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
     PBRMaterial pbrMat;
     pbrMat.features = materialValues[instanceIndex].Features;
     pbrMat.values = materialValues[instanceIndex].Values;
@@ -93,5 +94,6 @@ public CookTorrence_GGX GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
     pbrMat.arm_map = textures[pbrMat.features.armTextureIdx];
     pbrMat.emissive_map = textures[pbrMat.features.emissiveTextureIdx];
 
-    return pbrMat.Prepare(g);
+    return pbrMat;
 }
+

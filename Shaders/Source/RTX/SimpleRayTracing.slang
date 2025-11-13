@@ -7,7 +7,8 @@ import RandomValues;
 import Core;
 import RayTracingUtils;
 import Camera;
-import ColourSpaceConversions;;
+import ColourSpaceConversions;
+import BxDF;
 
 // global data for the ray tracing 
 [[vk::binding(0, 0)]]
@@ -138,16 +139,16 @@ void rayGenMain() {
             break;
         }
         case ERenderOutputRTX::PDF: {
-            
             var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);
-            var ray = camera.GenerateRayToScene(d, randomSeed);;
+            var ray = camera.CameraToWorld(camera.GenerateRayToScene(d, randomSeed));
             
-            float3 geometryNormal = {};
-            if(let s = TraceSingleRay(ray, _TLAS, randomSeed).hitSurface){
-                geometryNormal = s.normal;
+            float3 albedo = float3(0.0f);
+            
+            if(let s = TraceSingleRay(ray, _TLAS, randomSeed).brdfContext){
+                albedo = float3(s.alpha);
             }
             
-            _accumulationImage[int2(threadIdx.xy)] = float4(geometryNormal, 1.0) ;
+            _accumulationImage[int2(threadIdx.xy)] = float4(albedo, 1.0) ;
             
             break;
         }
@@ -171,8 +172,9 @@ void missMain2(inout RayPayloadShadow payload) {
 void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
 {
 
-    SurfaceGeometry g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
-    CookTorrence_GGX m = GetMaterial(InstanceID(), g);
+    var g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
+    var m = GetMaterial(InstanceID(), g);
+    var bxdfContext = m.Prepare(g);
 
     //========================
     // direct light
@@ -181,8 +183,6 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
 
     float3 L = _lightInfo.dirLight.direction.xyz;
     float3 Li = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
-    
-    float3 albedo = m.albedo.xyz; // float3(0.2, 0.2, 1.0);
     
     RayPayloadShadow shadowPayLoad;
     shadowPayLoad.inShadow = true;
@@ -199,49 +199,48 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }
     if (!shadowPayLoad.inShadow && (bool)_lightInfo.dirLight.parameters.z) {
         
-        float3 directLightContribution = Li * m.Evaluate(wo, L, g.shadingNormal);
+        var brdf = DeterministicBRDF(bxdfContext);
+
+        float cosTheta = max(dot(g.shadingNormal, L),0.0);
+        float3 directLightContribution = Li * (brdf.Evaluate(wo, L, g) * cosTheta) ;
         
-        payLoad.radiance += payLoad.throughput * directLightContribution ;
+        //payLoad.radiance += payLoad.throughput * directLightContribution ;
     }
-    
-    
-    
 
     //==============================
     // Path tracing 
+    /*
     if (dot(g.shadingNormal, wo) <= 0.0f)
         return;
-
-    float3 F0 = lerp(float3(0.04), m.albedo.xyz, m.metallnes);
-    float3 Ks =  F0;
-    float3 Kd = (1.0 - Ks) * (1.0 - m.metallnes);
-
-    float p_specular = max(max(Ks.x, Ks.y), Ks.z);
-    bool sampleSpecular = RandomValue(payLoad.randomContext) < p_specular;
-
-    float PDF = 1.0;
-    float3 wi;
-    float3 f = {};
+    */
     
-    //==========================================
+    //============================
     // Account for emmision
-    float3 Le = m.emission.xyz * m.emission.w;
+    float3 Le = bxdfContext.emmision * bxdfContext.emissionStrength;
     payLoad.radiance += Le * payLoad.throughput;
     
     //==========================================
     // Evaluate surface scattering 
-    if(sampleSpecular){
-        wi = m.SampleGGX_VND(wo, g, PDF, payLoad.randomContext);       
-        f = m.EvaluateSpecular(wo, wi, g.shadingNormal) ;
-    }else{
-        wi = m.SampleLambertianDiffuse(wo, g, PDF, payLoad.randomContext);
-        f = m.EvaluateDiffuse(wo, wi, g.shadingNormal); 
-    }
+
+    // which brdf to use 
+    var selectedBrdf = m.Sample(bxdfContext, payLoad.randomContext, g,payLoad.randomContext);
     
-    payLoad.throughput *= f/ PDF;
+    let brdfSample = selectedBrdf.brdf.Sample(wo, g, payLoad.randomContext);
+
+    if(brdfSample.hasValue){
+        float cosTheta = max(dot(g.shadingNormal, normalize(brdfSample.value.wi)),0.0);
+        float3 Lo = (selectedBrdf.brdf.Evaluate(wo, brdfSample.value.wi, g) * cosTheta) / brdfSample.value.PDF;
+
+        payLoad.throughput /= selectedBrdf.p;
+        payLoad.throughput *= Lo;
+        payLoad.rayDirection = brdfSample.value.wi;
+        
+        payLoad.hitSurface = g;
+        payLoad.rayOrigin = g.shadingPosition + g.shadingNormal * 0.001;    
+    }
+    else{
+        payLoad.hitSurface = {};
+    }
 
 
-    payLoad.hitSurface = g;
-    payLoad.rayOrigin = g.shadingPosition + g.shadingNormal * 0.001;    
-    payLoad.rayDirection = wi;
 }

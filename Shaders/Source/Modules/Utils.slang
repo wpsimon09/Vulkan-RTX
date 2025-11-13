@@ -179,6 +179,26 @@ public float SafeSqrt(float a) {
   return sqrt(max(a, 0.0 * (m2)));
 }
 
+public float4 getRotationToZAxis(float3 input){
+    if (input.z < -0.99999f)
+        return float4(1.0f, 0.0f, 0.0f, 0.0f);
+
+    return normalize(float4(input.y, -input.x, 0.0f, 1.0f + input.z));
+}
+
+// Optimized point rotation using quaternion
+// Source:
+// https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
+public float3 rotatePoint(float4 q, float3 v) {
+  const float3 qAxis = float3(q.x, q.y, q.z);
+  return 2.0f * dot(qAxis, v) * qAxis + (q.w * q.w - dot(qAxis, qAxis)) * v +
+         2.0f * q.w * cross(qAxis, v);
+}
+
+
+public float4 invertRotation(float4 q) { return float4(-q.x, -q.y, -q.z, q.w); }
+
+
 
 
 
