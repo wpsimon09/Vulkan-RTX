@@ -4,6 +4,7 @@ import Utils;
 import Surface;
 import RandomValues;
 import BxDF;
+import ColourSpaceConversions;
 
 public static const float ONE_OVER_PI = 1/float.getPi();
 
@@ -42,10 +43,18 @@ public struct Material
 // MATERIAL INTERFACE DEFINITIONS
 //===================================
 
+public struct MaterialSample{
+    public IBRDF brdf;
+    public float p_r = 0.0f; // probabiltiiy of reflections
+    public float p_t = 0.0f; // probability of transmision (TODO)
+    public float p_d = 0.0f; // probability of diffuse
+    public float p = 0.0f;
+}
+
 public interface IMaterial
 {
     BxDFContext Prepare(SurfaceGeometry geometry);
-    IBRDF Sample(BxDFContext ctx, inout uint u);
+    MaterialSample Sample(BxDFContext ctx, float3 wo, SurfaceGeometry g, inout uint u);
 }
 
 public struct PBRMaterial : IMaterial
@@ -106,19 +115,33 @@ public struct PBRMaterial : IMaterial
         return brdf;
     }
 
-    public IBRDF Sample(BxDFContext ctx, inout uint u){
-        float3 F0 = lerp(float3(0.04), ctx.albedo.xyz, ctx.metallnes);
-        float3 Ks =  F0;
-        float3 Kd = (1.0 - Ks) * (1.0 - ctx.metallnes);
-        float p_specular = max(max(Ks.x, Ks.y), Ks.z);
+    public MaterialSample Sample(BxDFContext ctx, float3 wo, SurfaceGeometry g, inout uint u){
+        float specularF0 = RGBToLuminance(lerp(float3(0.04), ctx.albedo.xyz, ctx.metallnes));
+        float diffuseReflectance =  RGBToLuminance(ctx.metallnes * (1.0 - ctx.metallnes));
+        float Fresnel = saturate(RGBToLuminance(FresnelShlick(specularF0, max(0.0f, dot(wo, g.shadingNormal)))));
 
-        bool sampleSpecular = RandomValue(u) < p_specular;
 
-        return Specular_GGX(ctx);
+        float specular = Fresnel;
+        float diffuse  = diffuseReflectance * (1.0 - Fresnel);
+
+        float p = (specular / max(0.0001f, (specular + diffuse)));
+
+        MaterialSample sample;
+        p = clamp(p, 0.1, 0.9);
+        sample.p_r = p; // probability of specualr reflection 
+        sample.p_d = 1.0 - p; // probability of diffuse reflection 
+
+        bool sampleSpecular = RandomValue(u) < sample.p_r;
+
         if(sampleSpecular){
+            sample.p = p; 
+            sample.brdf = Specular_GGX(ctx);
         }else{
-            return LamberianDiffuse(ctx);
+            sample.p = 1.0 - p;
+            sample.brdf = LamberianDiffuse(ctx);
         }
+
+        return sample;
 
     }
 }
@@ -228,5 +251,9 @@ public float3 FresnellShlickRoughness(float cosTheta, BxDFContext ctx)
     float3 F0 = float3(0.04);
     F0 = lerp(F0, ctx.albedo.xyz, ctx.metallnes);
     return F0 + (max(float3(1.0 - ctx.roughness), F0) - F0) *
-                    pow(1.0 - cosTheta, 5.0);
+              pow(1.0 - cosTheta, 5.0);
+}
+
+public float3 FresnelShlick(float3 F0, float NdotS){
+      return F0 + (1.0 - F0) * pow(1.0f - NdotS, 5.0f);
 }

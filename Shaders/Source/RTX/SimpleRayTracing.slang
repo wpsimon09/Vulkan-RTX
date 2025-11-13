@@ -139,7 +139,6 @@ void rayGenMain() {
             break;
         }
         case ERenderOutputRTX::PDF: {
-            
             var camera = ProjectiveCamera(globalData.viewParams2.x, globalData.viewParams2.y, globalData.view, globalData.inverseView);
             var ray = camera.CameraToWorld(camera.GenerateRayToScene(d, randomSeed));
             
@@ -207,9 +206,6 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         
         //payLoad.radiance += payLoad.throughput * directLightContribution ;
     }
-    
-    
-    
 
     //==============================
     // Path tracing 
@@ -227,19 +223,23 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     // Evaluate surface scattering 
 
     // which brdf to use 
-    var brdf = m.Sample(bxdfContext, payLoad.randomContext);
+    var selectedBrdf = m.Sample(bxdfContext, payLoad.randomContext, g,payLoad.randomContext);
     
-    let brdfSample = brdf.Sample(wo, g, payLoad.randomContext);
+    let brdfSample = selectedBrdf.brdf.Sample(wo, g, payLoad.randomContext);
 
     if(brdfSample.hasValue){
         float cosTheta = max(dot(g.shadingNormal, normalize(brdfSample.value.wi)),0.0);
-        float3 Lo = (brdf.Evaluate(wo, brdfSample.value.wi, g) * cosTheta) / brdfSample.value.PDF;
+        float3 Lo = (selectedBrdf.brdf.Evaluate(wo, brdfSample.value.wi, g) * cosTheta) / brdfSample.value.PDF;
 
+        payLoad.throughput /= selectedBrdf.p;
         payLoad.throughput *= Lo;
         payLoad.rayDirection = brdfSample.value.wi;
         
         payLoad.hitSurface = g;
         payLoad.rayOrigin = g.shadingPosition + g.shadingNormal * 0.001;    
+    }
+    else{
+        payLoad.hitSurface = {};
     }
 
 

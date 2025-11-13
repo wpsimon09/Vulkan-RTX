@@ -119,11 +119,11 @@ public struct Specular_GGX : IBRDF{
   
         const float3 Nlocal = float3(0.0f, 0.0f, 1.0f);
         float NdotV = max(0.0001f, dot(Nlocal, Ve));
-
-        let D_h = DistributionGGX(Nlocal, Ne);
+        float VeDotNe  = max(0, dot(Ve, Ne));
+        let D_h = DistributionGGX(Nlocal, Ve);
         let G_1 = Smith_G1(Nlocal, Ve);
 
-        sample.PDF = (D_h * G_1) / (4 * NdotV);
+        sample.PDF = G_1 * max(0, dot(Ve, Ne)) * DistributionGGX(Nlocal, Ne) / Ve.z;
 
         sample.wi = Li_world;
 
