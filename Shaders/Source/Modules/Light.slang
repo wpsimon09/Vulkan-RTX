@@ -34,7 +34,7 @@ public struct DirectionalLight : ILightEnv {
             
             float cosTheta = max(0.0, dot(g.shadingNormal, wi));
             
-            return ((intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, direction.xyz, g) * cosTheta * TransmitanceToSun );
+            return ((intensity.xyz * intensity.w).xyz * brdf.Evaluate(wo, wi, g) * cosTheta * TransmitanceToSun );
         }
         return float3(0.0);
 
@@ -88,8 +88,6 @@ public struct AreaLight : ILightEnv {
 public struct LightArray<L : ILightEnv, let N : int> : ILightEnv {
     public L lights[N];
     public RaytracingAccelerationStructure sceneAccelerationStrucuture;
-
-    
 
     public float3 illuminate<B : IBRDF>(SurfaceGeometry g, B brdf, float3 wo) {
         float3 sum = 0;

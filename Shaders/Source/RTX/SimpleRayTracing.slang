@@ -204,7 +204,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         float cosTheta = max(dot(g.shadingNormal, L),0.0);
         float3 directLightContribution = Li * (brdf.Evaluate(wo, L, g) * cosTheta) ;
         
-        //payLoad.radiance += payLoad.throughput * directLightContribution ;
+        payLoad.radiance += payLoad.throughput * directLightContribution ;
     }
 
     //==============================

@@ -41,7 +41,6 @@ public struct Specular_GGX : IBRDF{
         this.context = context;
         this.context.alpha = context.roughness * context.roughness;
         
-        F0 = lerp(context.albedo.xyz, 0.4, context.metallnes);
     }
     /*
     Normal distribution 
@@ -51,11 +50,14 @@ public struct Specular_GGX : IBRDF{
         float NdotH = max(0.0, dot(N, H));
         float alphaSquared = max(0.000001,context.alpha * context.alpha);
 
-        float b = ((alphaSquared - 1.0f) * NdotH * NdotH + 1.0f);
-        return alphaSquared / (PI * b * b);
+        float b = ((alphaSquared - 1.0f) * (NdotH * NdotH) + 1.0f);
+        return alphaSquared / (PI * (b * b));
     }
 
-    public float3 FresnelSchlick(float cosTheta, float3 F0){
+    public float3 FresnelSchlick(float cosTheta){
+
+        float3 F0 = lerp(float3(0.04), context.albedo.xyz , context.metallnes);
+
         return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
     }
 
@@ -72,6 +74,7 @@ public struct Specular_GGX : IBRDF{
     }
 
     float GeometrySmith(float3 N, float3 V, float3 L){
+
         float ggx2 = Smith_G1(N, V);
         float ggx1 = Smith_G1(N, L);
 
@@ -118,12 +121,8 @@ public struct Specular_GGX : IBRDF{
         BxDFSample sample;
   
         const float3 Nlocal = float3(0.0f, 0.0f, 1.0f);
-        float NdotV = max(0.0001f, dot(Nlocal, Ve));
-        float VeDotNe  = max(0, dot(Ve, Ne));
-        let D_h = DistributionGGX(Nlocal, Ve);
-        let G_1 = Smith_G1(Nlocal, Ve);
-
-        sample.PDF = G_1 * max(0, dot(Ve, Ne)) * DistributionGGX(Nlocal, Ne) / Ve.z;
+        
+        sample.PDF = DistributionGGX(Nlocal, Ne) * Smith_G1(Nlocal, Ve) / (4 * max(dot(Ne, Ve), 0.00001));;
 
         sample.wi = Li_world;
 
@@ -132,21 +131,17 @@ public struct Specular_GGX : IBRDF{
       
     public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g)
     { 
-        float3 F0 = float3(0.04);
-
-        F0 = lerp( context.albedo.xyz, F0, context.metallnes);
-
         float3 H = normalize(wo + wi);
 
         float NDF = DistributionGGX(g.shadingNormal, H);
-        float G = GeometrySmith(g.shadingNormal, wo, wi);
-        float3 F = FresnelSchlick(max(dot(H, wo), 0.0), F0);
+        float G = GeometrySmith(H, wo, wi);
+        float3 F = FresnelSchlick(max(dot(H, wo), 0.0));
 
         float3 numerator = NDF * G * F;
 
-        float denominator = 4.0 * max(dot(g.shadingNormal, wo), 0.0) * max(dot(g.shadingNormal, wi), 0.01);
+        float denominator = 4.0 * max(dot(g.shadingNormal, wo), 0.0) * max(dot(g.shadingNormal, wi), 0.00) + 0.00001;
 
-        float3 col = numerator / (max(denominator, 0.001));
+        float3 col = numerator / denominator;
 
         return col;
     }
@@ -195,11 +190,10 @@ public struct LamberianDiffuse : IBRDF{
         return sample;
     }
     public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g){
-        if(dot(g.shadingNormal, wo) <= 0.0f){
+        if(dot(g.shadingNormal,wi) <= 0.0f){
             return float3(0.0f);
         }
         float3 diffuseReflectance = context.albedo.xyz * (1.0 - context.metallnes);
-        float cosTheta = max(dot(g.shadingNormal, wo), 0.001);
         return diffuseReflectance * ONE_OVER_PI;
     }
 
@@ -228,6 +222,7 @@ public struct DeterministicBRDF : IBRDF{
     };
 
     public Optional<BxDFSample> Sample(float3 wo, SurfaceGeometry g, inout uint u){
+        // we are not going to implement sampling of driac delta distribution 
         return {};
     }
     
@@ -235,7 +230,8 @@ public struct DeterministicBRDF : IBRDF{
         float3 diffuse = diffuseBrdf.Evaluate(wo, wi, g);
         float3 specular = specularBrdf.Evaluate(wo, wi, g);
 
-        float3 kS = specularBrdf.FresnelSchlick(dot(wo, wi), specularBrdf.F0);
+        float3 H = normalize(wo + wi);
+        float3 kS = specularBrdf.FresnelSchlick(dot(H, wo));
         float3 kD = float3(1.0) - kS;
 
         kD *= 1.0 -  context.metallnes;
@@ -244,7 +240,7 @@ public struct DeterministicBRDF : IBRDF{
     }
     
     public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse){
-        return float3(1.0f);
+        return float3(0.0f);
     }
 
     public BxDFContext GetContext(){
