@@ -202,6 +202,9 @@ public bool SameHemisphere(float3 w, float3 wp){
     return w.z* wp.z > 0;
 }
 
+public bool IsNan(float3 vec){
+    return (isnan(vec.x) || isnan(vec.y) || isnan(vec.z));
+}
 
 
 
