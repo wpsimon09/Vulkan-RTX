@@ -90,6 +90,7 @@ void rayGenMain() {
                     if (!payload.hitSurface.hasValue){
                         break;
                     } 
+                    
                     // russian rullete
                     if(payload.depth > MIN_BOUNCES_TO_TERMINATE){
                         float rr_p = min(0.95f, RGBToLuminance(payload.throughput));
@@ -99,6 +100,7 @@ void rayGenMain() {
                             payload.throughput /= rr_p;
                         }
                     }
+                
                     numSamples++;
                     ray.Origin = payload.rayOrigin;
                     ray.Direction = payload.rayDirection;

@@ -5,7 +5,7 @@ import Utils;
 import Surface;
 import RandomValues;
 
-public static const float ONE_OVER_PI = 1/float.getPi();
+public static const float ONE_OVER_PI = 1.0/float.getPi();
 
 
 public struct BxDFSample{
@@ -61,22 +61,23 @@ public struct Specular_GGX : IBRDF{
         return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
     }
 
-    float Smith_G1(float3 w1, float3 w2){
+    float Smith_G1(float3 H, float3 S){
         float alpha = context.alpha;
         float alphaSqared = alpha * alpha;
 
-        float NdotS = max(dot(w1, w2), 0.0);
-        float NdotSSquared = NdotS * NdotS;
+        float HdotS = max(dot(H, S), 0.0);
+        float HdotSSquared = HdotS * HdotS;
         
-         return 2.0f / (sqrt(((alphaSqared * (1.0f - NdotSSquared)) + NdotSSquared) /
-                      NdotSSquared) +
-                 1.0f);
+        float a = HdotS / (alpha * SafeSqrt(1.0 - HdotSSquared));
+
+        return 1.0 / (1.0 + Lambda(a));
+
     }
 
-    float GeometrySmith(float3 N, float3 V, float3 L){
+    float GeometrySmith(float3 H, float3 V, float3 L){
 
-        float ggx2 = Smith_G1(N, V);
-        float ggx1 = Smith_G1(N, L);
+        float ggx1 = Smith_G1(H, L);
+        float ggx2 = Smith_G1(H, V);
 
         return ggx1 * ggx2;
     }
@@ -118,6 +119,10 @@ public struct Specular_GGX : IBRDF{
 
         float3 Li_world = normalize(rotatePoint(invertRotation(qRotationToZ), Li));
 
+        if (dot(g.shadingNormal, Li_world) <= 0.0f){
+            return {};
+        }
+
         BxDFSample sample;
   
         //===============================
@@ -131,7 +136,7 @@ public struct Specular_GGX : IBRDF{
         float D = DistributionGGX(N, Ne);
         float G1 = Smith_G1(N, Ve);
 
-        sample.PDF = (D * G1 * VdotH) / (4.0 * VdotH * NdotL + 1e-6);
+        sample.PDF = (D * G1 * VdotH) / (4.0 * dot(Li, Ne) + 1e-6);
 
         sample.wi = Li_world;
 
@@ -257,4 +262,10 @@ public struct DeterministicBRDF : IBRDF{
         return this.context;
     }
 
+}
+
+internal float Lambda(float a){
+    float nom = (-1.0 + SafeSqrt(1.0 + 1.0 / (a * a)));
+    float denom = 2.0;
+    return nom / denom;
 }
