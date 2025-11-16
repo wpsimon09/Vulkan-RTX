@@ -107,16 +107,34 @@ void rayGenMain() {
             }
             
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
-            _film[int2(threadIdx.xy)] = float4(camera.film / globalData.raysPerPixel, 1.0);
+            float3 pixelColour = camera.film/globalData.raysPerPixel;
+            _film[int2(threadIdx.xy)] = float4(pixelColour, 1.0);
             
 
-            float3 pixelColour = camera.film/globalData.raysPerPixel;
 
             if(globalData.accumulateFrames){
+                float3 previousColour =  _accumulationImage[int2(threadIdx.xy)].rgb;
+                float3 accumulatedColour = previousColour + pixelColour;
+                _accumulationImage[int2(threadIdx.xy)] =  
+
                 float weight = max(1.0 / (globalData.currentFrame + 1), 0);
                 float3 accumulatedAverage = globalData.currentFrame > 0 ? _accumulationImage[int2(threadIdx.xy)].rgb * (1 - weight) + (pixelColour) * weight : 0.0;
                 // idk if reading is faster then calculating the total radiance, so I will just leave it like this and later check for preformance
-                _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : camera.film / globalData.raysPerPixel, 1.0);
+                float3 colour = camera.film r/ globalData.raysPerPixel;
+
+                if(!isfinite(colour).x){
+                    accumulatedAverage.x = 1.0;
+                }
+
+                if(!isfinite(colour).y){
+                    accumulatedAverage.y = 0.0;
+                }
+
+                if(!isfinite(colour).z){
+                    accumulatedAverage.z = 1.0;
+                }
+
+                _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedAverage : colour, 1.0);
             }
             else{
                 _accumulationImage[int2(threadIdx.xy)] = float4(camera.film / globalData.raysPerPixel, 1.0);

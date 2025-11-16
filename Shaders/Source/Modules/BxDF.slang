@@ -82,11 +82,11 @@ public struct Specular_GGX : IBRDF{
     }
 
     public Optional<BxDFSample> Sample(float3 wo, SurfaceGeometry g, inout uint u){
-
+        
         float4 qRotationToZ = getRotationToZAxis(g.shadingNormal);
         float3 Ve = rotatePoint(qRotationToZ, wo);
         float2 alpha2D = float2(context.alpha, context.alpha);
-
+        
         // Compute stretched view direction (i only use issotropic case for now)
         float3 Vh = normalize(float3(alpha2D.x * Ve.x, alpha2D.y * Ve.y, Ve.z)); // stretched view
 
@@ -120,9 +120,18 @@ public struct Specular_GGX : IBRDF{
 
         BxDFSample sample;
   
-        const float3 Nlocal = float3(0.0f, 0.0f, 1.0f);
-        
-        sample.PDF = DistributionGGX(Nlocal, Ne) * Smith_G1(Nlocal, Ve) / (4 * max(dot(Ne, Ve), 0.00001));;
+        //===============================
+        // PDF calculation 
+        const float3 N = float3(0.0f, 0.0f, 1.0f);
+
+        float NdotL = max(dot(N, Li), 0.0);
+        float NdotV = max(dot(N, Ve), 0.0);
+        float VdotH = max(dot(Ve, Ne), 0.0);
+
+        float D = DistributionGGX(N, Ne);
+        float G1 = Smith_G1(N, Ve);
+
+        sample.PDF = (D * G1 * VdotH) / (4.0 * VdotH * NdotL + 1e-6);
 
         sample.wi = Li_world;
 
@@ -131,6 +140,7 @@ public struct Specular_GGX : IBRDF{
       
     public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g)
     { 
+
         float3 H = normalize(wo + wi);
 
         float NDF = DistributionGGX(g.shadingNormal, H);

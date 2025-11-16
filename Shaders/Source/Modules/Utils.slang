@@ -198,6 +198,10 @@ public float3 rotatePoint(float4 q, float3 v) {
 
 public float4 invertRotation(float4 q) { return float4(-q.x, -q.y, -q.z, q.w); }
 
+public bool SameHemisphere(float3 w, float3 wp){
+    return w.z* wp.z > 0;
+}
+
 
 
 
