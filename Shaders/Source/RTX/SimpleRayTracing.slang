@@ -167,7 +167,7 @@ void rayGenMain() {
 
 [[shader("miss")]]
 void missMain(inout RayPayLoad payload) {
-    float3 skyColour =  float3(1.0);//envMap.Sample(normalize(payload.rayDirection.xyz)).xyz;
+    float3 skyColour =  float3(0.2);//envMap.Sample(normalize(payload.rayDirection.xyz)).xyz;
     payload.radiance += payload.throughput * skyColour;
     payload.randomContext = payload.randomContext;
     payload.hitSurface = {};
@@ -196,6 +196,13 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     
     RayPayloadShadow shadowPayLoad;
     shadowPayLoad.inShadow = true;
+
+    if(dot(g.shadingNormal, wo) <0.0f){
+        g.shadingNormal = -g.shadingNormal;
+    }
+    if(dot(g.normal, wo) < 0.0f){
+        g.normal = -g.normal;
+    }   
     
     if (dot(g.shadingNormal, L) > 0.0) {
         // trace the shadow rays
@@ -214,7 +221,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         float cosTheta = max(dot(g.shadingNormal, L),0.0);
         float3 directLightContribution = Li * (brdf.Evaluate(wo, L, g) * cosTheta) ;
         
-        payLoad.radiance += payLoad.throughput * directLightContribution ;
+        //payLoad.radiance += payLoad.throughput * directLightContribution ;
     }
 
     //==============================
@@ -239,7 +246,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
  
         Lo = (selectedBrdf.brdf.Evaluate(wo, brdfSample.value.wi, g) * cosTheta) / brdfSample.value.PDF;
 
-        //payLoad.throughput /= selectedBrdf.p;
+        payLoad.throughput /= selectedBrdf.p;
         payLoad.throughput *= Lo;
         payLoad.rayDirection = brdfSample.value.wi;
         
