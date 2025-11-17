@@ -123,7 +123,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
                 if(m.pbrData.metallicRoughnessTexture.has_value())
                 {
                     auto& textureIndex = m.pbrData.metallicRoughnessTexture.value().textureIndex;
-                    if(textureIndex <= m_textures.size())
+                    if(textureIndex <= m_textures.size() - 1.0)
                     {
                         material->GetTexture(ETextureType::arm) = m_textures[textureIndex];
                         material->GetMaterialPaths().ArmMapPath = m_textures[textureIndex]->GetAssetPath();

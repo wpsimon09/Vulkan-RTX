@@ -55,8 +55,8 @@ void rayGenMain() {
     float2 offset = float2(RandomValue(randomSeed), RandomValue(randomSeed));
     
     // get position on the screen inf 0, 1 interval
-    const float2 inUv = pixelCenter / float2(launchSize);
-
+    float2 jitteredCenter = float2(threadIdx.xy) + offset;
+    float2 inUv = jitteredCenter / float2(launchSize);
     float2 d = inUv * 2.0 - 1.0;
 
     ThinCameraParameters cameraParameters;
@@ -67,6 +67,7 @@ void rayGenMain() {
     float tanFov2 = globalData.viewParams2.x;
     float aspect = globalData.viewParams2.y;
 
+
     switch((ERenderOutputRTX)globalData.renderOutputRTX){
         case ERenderOutputRTX::PathTraced:{
 
@@ -75,8 +76,12 @@ void rayGenMain() {
             //=========================
             // Full shading is enabled 
             for (int i = 0; i < globalData.raysPerPixel; i++) {
+                float2 offset = float2(RandomValue(randomSeed), RandomValue(randomSeed));
+                float2 jitteredCenter = float2(threadIdx.xy) + offset;
+                float2 sampleUv = jitteredCenter / float2(launchSize);
+                float2 sampleD = sampleUv * 2.0 - 1.0;
                 
-                var ray = camera.CameraToWorld(camera.GenerateRayToScene(d, randomSeed));
+                var ray = camera.CameraToWorld(camera.GenerateRayToScene(sampleD, randomSeed));
                 
                 RayPayLoad payload = {};
                 payload.randomContext = randomSeed;
