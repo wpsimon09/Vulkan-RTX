@@ -140,8 +140,8 @@ public struct PBRMaterial : IMaterial
             sample.p = 1.0 - p;
             sample.brdf = LamberianDiffuse(ctx);
         }
-
         return sample;
+        
 
     }
 }

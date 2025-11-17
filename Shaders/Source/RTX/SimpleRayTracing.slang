@@ -84,7 +84,6 @@ void rayGenMain() {
                 int numSamples = 1;
                 for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
     
-                    
                     TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
 
                     if (!payload.hitSurface.hasValue){
@@ -105,29 +104,26 @@ void rayGenMain() {
                     ray.Origin = payload.rayOrigin;
                     ray.Direction = payload.rayDirection;
                 }
+    
                 if(IsNan(payload.radiance)){
-                    payload.radiance= float3(0.0, 0.0, 0.0);
+                    camera.film += float3(1.0, 0.0, 0.0) ;                    
+                }else{
+                    camera.film += payload.radiance ;
                 }
 
-                camera.film += payload.radiance ;
             }
             
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
             float3 pixelColour = camera.film / globalData.raysPerPixel;
             
             //will make the pixel colour pink if it is nan
-            if(IsNan(pixelColour)){
-               pixelColour = float3(1.0 ,0.0, 1.0); 
-            }
-            
+        
             _film[int2(threadIdx.xy)] = float4(pixelColour, 1.0);
     
 
             if(globalData.accumulateFrames){
                 float3 previousColour =  _accumulationImage[int2(threadIdx.xy)].rgb;
-                if(IsNan(previousColour)){
-                    previousColour = float3(1.0, 0.0, 1.0);
-                }
+    
                 float3 accumulatedColour = previousColour + pixelColour;
              
                 _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedColour : pixelColour, 1.0);  
@@ -222,11 +218,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     }
 
     //==============================
-    // Path tracing 
-    /*
-    if (dot(g.shadingNormal, wo) <= 0.0f)
-        return;
-    */
+    // Path tracing
     
     //============================
     // Account for emmision
@@ -242,15 +234,18 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
     let brdfSample = selectedBrdf.brdf.Sample(wo, g, payLoad.randomContext);
 
     if(brdfSample.hasValue){
+        float3 Lo;
         float cosTheta = max(dot(g.shadingNormal, normalize(brdfSample.value.wi)),0.0);
-        float3 Lo = (selectedBrdf.brdf.Evaluate(wo, brdfSample.value.wi, g) * cosTheta) / brdfSample.value.PDF;
+ 
+        Lo = (selectedBrdf.brdf.Evaluate(wo, brdfSample.value.wi, g) * cosTheta) / brdfSample.value.PDF;
 
-        payLoad.throughput /= selectedBrdf.p;
+        //payLoad.throughput /= selectedBrdf.p;
         payLoad.throughput *= Lo;
         payLoad.rayDirection = brdfSample.value.wi;
         
         payLoad.hitSurface = g;
         payLoad.rayOrigin = g.shadingPosition + g.shadingNormal * 0.001;    
+        payLoad.depth++;
     }
     else{
         payLoad.hitSurface = {};

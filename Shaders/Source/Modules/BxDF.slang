@@ -112,7 +112,7 @@ public struct Specular_GGX : IBRDF{
         // Transform Nh back to the hemisphere configuration
 
         // half way vector 
-        float3 Ne = normalize(float3(alpha2D.x * Nh.x, alpha2D.y * Nh.y, max(0.0, Nh.z)));
+        float3 Ne = normalize(float3(alpha2D.x * Nh.x, alpha2D.y * Nh.y, max(0.0001, Nh.z)));
 
         // local light direction 
         float3 Li = reflect(-Ve, Ne);
@@ -133,10 +133,12 @@ public struct Specular_GGX : IBRDF{
         float NdotV = max(dot(N, Ve), 0.0);
         float VdotH = max(dot(Ve, Ne), 0.0);
 
+        float G1 = Smith_G1(Ne, Ve);
         float D = DistributionGGX(N, Ne);
-        float G1 = Smith_G1(N, Ve);
 
-        sample.PDF = (D * G1 * VdotH) / (4.0 * dot(Li, Ne) + 1e-6);
+        sample.PDF = (D * G1) / (4 * NdotV);
+
+        if (!isfinite(sample.PDF)) return {};
 
         sample.wi = Li_world;
 
@@ -157,6 +159,10 @@ public struct Specular_GGX : IBRDF{
         float denominator = 4.0 * max(dot(g.shadingNormal, wo), 0.0) * max(dot(g.shadingNormal, wi), 0.00) + 0.00001;
 
         float3 col = numerator / denominator;
+
+        if(IsNan(col)){
+            return float3(1.0, 0.0, 0.0);
+        }
 
         return col;
     }
@@ -197,6 +203,12 @@ public struct LamberianDiffuse : IBRDF{
         // go from tangent space to the world space for cosine calculation
         float3 dir_Ws = mul(g.TBN , result);
 
+
+
+        if(dot(g.shadingNormal, dir_Ws)<=0.0){
+            return {};
+        }
+
         BxDFSample sample;
 
         sample.PDF =  result.z * ONE_OVER_PI;
@@ -205,11 +217,17 @@ public struct LamberianDiffuse : IBRDF{
         return sample;
     }
     public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g){
-        if(dot(g.shadingNormal,wi) <= 0.0f){
+        if(dot(g.shadingNormal, wi) <= 0.0f){
             return float3(0.0f);
         }
         float3 diffuseReflectance = context.albedo.xyz * (1.0 - context.metallnes);
-        return diffuseReflectance * ONE_OVER_PI;
+        
+        float3 col = diffuseReflectance * ONE_OVER_PI;
+
+        if(IsNan(col)){
+            return float3(0.0, 1.0, 0.0);
+        }
+        return col;
     }
 
     public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse){
@@ -265,6 +283,7 @@ public struct DeterministicBRDF : IBRDF{
 }
 
 internal float Lambda(float a){
+    a = max(a, 1e-6);
     float nom = (-1.0 + SafeSqrt(1.0 + 1.0 / (a * a)));
     float denom = 2.0;
     return nom / denom;
