@@ -71,7 +71,7 @@ void rayGenMain() {
     switch((ERenderOutputRTX)globalData.renderOutputRTX){
         case ERenderOutputRTX::PathTraced:{
 
-            var camera = ProjectiveCamera(tanFov2 , aspect, globalData.view, globalData.inverseView);
+            var camera = ThinLensCamera(cameraParameters, tanFov2 , aspect, globalData.view, globalData.inverseView);
             
             //=========================
             // Full shading is enabled 

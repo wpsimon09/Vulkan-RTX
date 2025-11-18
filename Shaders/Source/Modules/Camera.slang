@@ -80,6 +80,7 @@ public struct ThinLensCamera : ICamera{
     public RayDesc GenerateRayToScene(float2 pixelPos, inout uint u){
         var ray = projectiveCamera.GenerateRayToScene(pixelPos, u);
 
+        /*
         //ration of focal lenth to aparature size
         float fStop = p.focalLength / p.aparatureSize;
 
@@ -101,8 +102,19 @@ public struct ThinLensCamera : ICamera{
                         (0.f, 1.f, 0.f) * (v * circleOfConfusionRadius);
         
         float3 direction = normalize(focusPoint - origin);
+        */
 
-        return RayDesc(origin, ray.TMin, direction, ray.TMax);
+        float focusPlane = (p.imagePlaneDistance * p.focalLength) / (p.imagePlaneDistance - p.focalLength);
+
+        float3 focalPoint = ray.Origin + ray.Direction * focusPlane;
+
+        float2 apertureSample = SampleHemisphere(u).xy;
+        float3 rightVector = projectiveCamera.worldToCamera[0].xyz;
+        float3 upVector = projectiveCamera.worldToCamera[1].xyz;
+
+        ray.Origin = ray.Origin + rightVector * apertureSample.x + upVector * apertureSample.y;
+        ray.Direction = normalize(focalPoint - ray.Origin);
+        return ray;
     }
 
     public RayDesc CameraToWorld(RayDesc inRay){
