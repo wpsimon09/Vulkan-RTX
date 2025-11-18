@@ -147,7 +147,3 @@ https://github.com/user-attachments/assets/f35be847-0669-4854-a1f1-b33462a8afd5
 
 <img width="2880" height="1719" alt="Screenshot From 2025-09-23 08-23-31" src="https://github.com/user-attachments/assets/b1f3cb08-801b-4b77-a330-e9ef01ad4fb7" />
 
-<img width="2880" height="1620" alt="image" src="https://github.com/user-attachments/assets/66cfda6b-8572-41db-8da5-efa4a3ff78ec" />
-
-<img width="2871" height="1545" alt="Screenshot From 2025-07-25 20-49-26" src="https://github.com/user-attachments/assets/fa6218d8-9176-4c48-8754-d363c81c0fa8" />
-
