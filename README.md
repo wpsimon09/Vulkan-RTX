@@ -136,6 +136,8 @@ The `--no-skip-unchanged` option forces all shaders to compile, even if they hav
 
 https://github.com/user-attachments/assets/f35be847-0669-4854-a1f1-b33462a8afd5
 
+<img width="2880" height="1726" alt="image" src="https://github.com/user-attachments/assets/535c0838-4fe4-4a0a-8616-81693e7a43b2" />
+
 
 <img width="2880" height="1719" alt="Screenshot From 2025-09-23 08-29-38" src="https://github.com/user-attachments/assets/afddae93-faa1-4ea8-b115-25d0502cb06c" />
 
@@ -144,8 +146,4 @@ https://github.com/user-attachments/assets/f35be847-0669-4854-a1f1-b33462a8afd5
 <img width="2880" height="1719" alt="Screenshot From 2025-09-23 08-22-15" src="https://github.com/user-attachments/assets/f0d8836b-10c7-406b-a307-0f904f797af6" />
 
 <img width="2880" height="1719" alt="Screenshot From 2025-09-23 08-23-31" src="https://github.com/user-attachments/assets/b1f3cb08-801b-4b77-a330-e9ef01ad4fb7" />
-
-<img width="2880" height="1620" alt="image" src="https://github.com/user-attachments/assets/66cfda6b-8572-41db-8da5-efa4a3ff78ec" />
-
-<img width="2871" height="1545" alt="Screenshot From 2025-07-25 20-49-26" src="https://github.com/user-attachments/assets/fa6218d8-9176-4c48-8754-d363c81c0fa8" />
 
