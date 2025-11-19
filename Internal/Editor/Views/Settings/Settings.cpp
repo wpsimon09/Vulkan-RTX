@@ -118,16 +118,34 @@ void Settings::RenderApplicationSettings()
         ImGui::DragFloat("Far plane:", &m_client.GetCamera().GetFarPlane(), 1.f, 40.0f, std::numeric_limits<float>::max());
         ImGui::DragFloat("Near plane:", &m_client.GetCamera().GetNearPlane(), 1.f, 0.2f, std::numeric_limits<float>::max());
 
-        ImGui::SliderFloat("FOV", &m_client.GetCamera().GetFOV(), 1, 360);
-        ImGui::Text("FOV Radians: %f", m_client.GetCamera().GetFOVRad());
+        if(ImGui::TreeNode(ICON_FA_CAMERA "Camera"))
+        {
+            if(ImGui::BeginCombo(ICON_FA_CAMERA_RETRO "Type", m_cameraOption[m_client.GetCamera().GetCurrentCameraType()]))
+            {
 
-        ImGui::DragFloat("Focal length:", &m_client.GetCamera().GetFocalLength(), 0.2f);
+                for(int i = 0; i < m_cameraOption.size(); i++)
+                {
+                    if(ImGui::Selectable(m_cameraOption[i], i == m_client.GetCamera().GetCurrentCameraType()))
+                    {
+                        m_client.GetCamera().GetCurrentCameraType() = (ECameraTypes)i;
+                    }
+                }
+                ImGui::EndCombo();
+            }
 
-        ImGui::DragFloat("Aparature size ", &m_client.GetCamera().GetAparatureSize(), 0.1f, 0.0f);
+            ImGui::SliderFloat("FOV", &m_client.GetCamera().GetFOV(), 1, 360);
+            ImGui::Text("FOV Radians: %f", m_client.GetCamera().GetFOVRad());
 
-        ImGui::DragFloat("Image plane distance ", &m_client.GetCamera().GetImagePlaneDistance(), 0.1, 0.0f);
+            ImGui::DragFloat("Focal length:", &m_client.GetCamera().GetFocalLength(), 0.2f);
 
-        ImGui::DragFloat("Defocuse strength", &m_client.GetCamera().GetDefocuseStrength(), 0.1f, 0.0);
+            ImGui::DragFloat("Aparature size ", &m_client.GetCamera().GetAparatureSize(), 0.1f, 0.0f);
+
+            ImGui::DragFloat("Image plane distance ", &m_client.GetCamera().GetImagePlaneDistance(), 0.1, 0.0f);
+
+            ImGui::DragFloat("Defocuse strength", &m_client.GetCamera().GetDefocuseStrength(), 0.1f, 0.0);
+
+            ImGui::TreePop();
+        }
 
         m_client.GetCamera().Recalculate();
 

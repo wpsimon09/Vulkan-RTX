@@ -67,11 +67,25 @@ void rayGenMain() {
     float tanFov2 = globalData.viewParams2.x;
     float aspect = globalData.viewParams2.y;
 
+    ECameraType cameraType = (ECameraType)globalData.viewParams2.w;
 
     switch((ERenderOutputRTX)globalData.renderOutputRTX){
         case ERenderOutputRTX::PathTraced:{
 
-            var camera = ThinLensCamera(cameraParameters, tanFov2 , aspect, globalData.view, globalData.inverseView);
+            ICamera camera; 
+
+            float3 acumulatedRadiance = {0.0};
+        
+            switch(cameraType){
+                case ECameraType::PinHole:{
+                    camera = ProjectiveCamera(tanFov2 , aspect, globalData.view, globalData.inverseView);
+                    break;
+                }
+                case ECameraType::ThinLens:{
+                    camera = ThinLensCamera(cameraParameters, tanFov2 , aspect, globalData.view, globalData.inverseView);
+                    break;
+                }
+            }
             
             //=========================
             // Full shading is enabled 
@@ -111,13 +125,15 @@ void rayGenMain() {
                 }
     
                 if(IsNan(payload.radiance)){
-                    camera.film += float3(1.0, 0.0, 0.0) ;                    
+                    acumulatedRadiance += float3(1.0, 0.0, 0.0) ;                    
                 }else{
-                    camera.film += payload.radiance ;
+                    acumulatedRadiance += payload.radiance ;
                 }
 
             }
             
+            camera.film = acumulatedRadiance;
+
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
             float3 pixelColour = camera.film / globalData.raysPerPixel;
             

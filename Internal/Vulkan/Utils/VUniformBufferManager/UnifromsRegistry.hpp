@@ -24,14 +24,16 @@ struct GlobalRenderingInfo
     glm::vec4 atmosphereParams;
     glm::vec4 cameraPosition;
     glm::vec4 viewParams;   // x - image plane distance, y - focal length, z - near plane, w -far plane
-    glm::vec4 viewParams2;  // x - FOV, y - aspect ratio, z - aparature size, w -empty
+    glm::vec4 viewParams2;  // x - FOV, y - aspect ratio, z - aparature size, w -cameraType
 
     float raysPerPixel;
     float reccursionDepth;
     alignas(8) glm::vec2 screenSize;
+
     float numberOfFrames;
     alignas(4) int rendererOutput;  // ClientEnums/EDebugRendering
     alignas(4) int rendererOutputRTX;
+
     alignas(4) int accumulateFrames                 = 1.0;
     alignas(4) int aoOcclusion                      = 1.0f;
     alignas(4) int isRayTracing                     = 0.0;

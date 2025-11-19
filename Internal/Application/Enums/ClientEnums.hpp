@@ -115,5 +115,10 @@ enum EToneMappingCurve
     Aces_Full
 };
 
+enum ECameraTypes
+{
+    Pinhole = 0,
+    ThinLens
+};
 
 #endif  //CLIENTENUMS_HPP

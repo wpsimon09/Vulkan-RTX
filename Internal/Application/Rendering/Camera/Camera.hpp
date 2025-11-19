@@ -5,6 +5,7 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
+#include "Application/Enums/ClientEnums.hpp"
 #include "Application/Structs/ApplicationStructs.hpp"
 
 
@@ -92,6 +93,8 @@ class Camera
 
     void Recalculate();
 
+    ECameraTypes& GetCurrentCameraType() { return m_currentCameraType; }
+
     ~Camera() = default;
 
   private:
@@ -122,6 +125,8 @@ class Camera
 
     float m_farPlane;
     float m_nearPlane;
+
+    ECameraTypes m_currentCameraType = ECameraTypes::Pinhole;
 
     CameraUpdateInfo m_previusUpdateInfo;
     bool             m_hasChanged = true;

@@ -17,7 +17,12 @@ public enum ERenderOutputRTX{
     PathTraced = 0,
     Normals,
     PDF,
-}
+};
+
+public enum ECameraType{
+    PinHole = 0, 
+    ThinLens
+};
 
 public struct GlobalData {
     public column_major float4x4 view;
@@ -28,7 +33,7 @@ public struct GlobalData {
     public float4 atmosphereInfo; // x - bottom atmosphere radius, y - up atmosphere radius, zw - padding
     public float4 cameraPostiion; // xyz - camera position, w - fov in radians  
     public float4 viewParams; // x - defocuse strength, y - focal plane pos, z - nerPlane, w - far plane
-    public float4 viewParams2;  // x - FOV, y - aspect ratio, zw -empty
+    public float4 viewParams2;  // x - FOV, y - aspect ratio, zw -camera type
 
     public float raysPerPixel;
     public float reccursionDepth;
