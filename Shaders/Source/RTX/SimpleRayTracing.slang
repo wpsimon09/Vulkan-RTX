@@ -132,7 +132,7 @@ void rayGenMain() {
 
             }
             
-            camera.film = acumulatedRadiance;
+            camera.film = float4(acumulatedRadiance, 1.0);
 
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
             float3 pixelColour = camera.film / globalData.raysPerPixel;

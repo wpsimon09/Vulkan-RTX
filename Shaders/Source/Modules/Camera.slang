@@ -7,34 +7,32 @@ public struct ThinCameraParameters{
 }
 
 public interface ICamera{
-    public property float3 film {get; set;};
+    public property float4 film;
     /*
-    Generates ray in the camera space, it is 
+    Generates ray in the camera space 
     */
     public RayDesc GenerateRayToScene(float2 pixelPos, inout uint u);
+    
+    /*
+    Transforms the generated ray from camera space to world space 
+    */
     public RayDesc CameraToWorld(RayDesc inRay);
 }
 
 public struct ProjectiveCamera : ICamera{
-    float4x4 worldToCamera; // view matrix 
+    float4x4 worldToCamera; // view mat rix 
     float4x4 cameraToWorld; // invViewMatrix
     float tanFloat2;
     float aspect; 
 
-    float3 Film;
+    public property float4 film;
 
-    public property film : float3 
-    {
-        get{return this.Film;}
-        set{this.Film = newValue;}
-    }
 
     public __init (float tanFloat2, float aspectRatio, float4x4 WorldToCamera, float4x4 CameraToWorld){
         worldToCamera = WorldToCamera;
         cameraToWorld = CameraToWorld;
         this.tanFloat2 = tanFloat2;
         aspect = aspectRatio;
-        Film = {0.0};
     };
 
     // generates ray in world space
@@ -71,21 +69,15 @@ public struct ProjectiveCamera : ICamera{
     RayDesc WorldToCamera(){
 
     }
+
+    
 }
 
 public struct ThinLensCamera : ICamera{
     internal ProjectiveCamera projectiveCamera;
 
     ThinCameraParameters p;
-
-
-
-    public float3 Film = {0.0f};
-
-    public property float3 film {
-        get{return this.Film;}
-        set{this.Film = newValue;}
-    }
+    public property float4 film;
 
     public __init (ThinCameraParameters params,  float tanFloat2, float aspect, float4x4 WorldToCamera, float4x4 CameraToWorld){
         this.projectiveCamera = ProjectiveCamera(tanFloat2, aspect, WorldToCamera, CameraToWorld);
