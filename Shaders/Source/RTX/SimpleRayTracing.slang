@@ -126,7 +126,7 @@ void rayGenMain() {
     
                 if(IsNan(payload.radiance)){
                     acumulatedRadiance += float3(1.0, 0.0, 0.0) ;                    
-                }else{
+                }else{  
                     acumulatedRadiance += payload.radiance ;
                 }
 
