@@ -53,6 +53,7 @@ inline DesiredDeviceFeatures secondaryDeviceFeatures = {.deviceType = vk::Physic
 
 };
 
+
 inline vk::PhysicalDeviceProperties2                        GpuProperties                 = {};
 inline vk::PhysicalDeviceMemoryProperties2                  GpuMemoryProperties           = {};
 inline vk::PhysicalDeviceAccelerationStructurePropertiesKHR AccelerationStructProperties  = {};

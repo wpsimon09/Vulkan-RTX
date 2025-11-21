@@ -47,6 +47,8 @@ public struct GlobalData {
     public bool aoOcclusion;
     public bool isRayTracing;
     public bool accountForSunTransmitance;
+
+    public bool useSER = false;
 };
 
 

@@ -5,6 +5,7 @@
 #include "VDevice.hpp"
 
 #include <set>
+#include <vulkan/vulkan_handles.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
 #include "Application/Logger/Logger.hpp"
@@ -114,8 +115,11 @@ vk::PhysicalDevice VulkanCore::VDevice::PickPhysicalDevice()
             Utils::Logger::LogError("Forcing the use of CPU !");
             Utils::Logger::LogSuccess("Going to use: " + std::string(device.getProperties().deviceName));
 
+            //query for reordering heree
+            // TODO: this should be in the KHR but my vulkan still does not contain this
             GlobalVariables::GlobalStructs::GpuProperties       = device.getProperties();
             GlobalVariables::GlobalStructs::GpuMemoryProperties = device.getMemoryProperties();
+
             return device;
         }
     }

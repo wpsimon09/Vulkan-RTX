@@ -108,7 +108,13 @@ void rayGenMain() {
                 int numSamples = 1;
                 for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
     
-                    TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
+                    if(globalData.useSER){
+                        HitObject hitObj = HitObject::TraceRay(_TLAS,RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
+                        ReorderThread(hitObj);
+                        HitObject::Invoke(_TLAS, hitObj, payload);
+                    }else{
+                        TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
+                    }
 
                     if (!payload.hitSurface.hasValue){
                         break;

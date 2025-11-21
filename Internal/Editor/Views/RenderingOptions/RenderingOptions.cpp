@@ -41,6 +41,8 @@ void RenderingOptions::Render()
     if(ImGui::TreeNode(ICON_FA_ARROWS_LEFT_RIGHT_TO_LINE " RTX"))
     {
         ImGui::Checkbox("RTX ", &m_renderingSystem->m_isRayTracing);
+        ImGui::Checkbox("SER (Shader exectution reordering)",
+                        reinterpret_cast<bool*>(&m_applicationState.GetGlobalRenderingInfo().useSer));
         ImGui::Checkbox("Accumulate frames ", &m_applicationState.m_accumulateFrames);
         ImGui::Checkbox("Ambient occlusion ", &m_applicationState.m_ambientOcclusion);
 

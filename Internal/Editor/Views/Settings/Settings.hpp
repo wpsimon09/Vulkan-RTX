@@ -32,7 +32,7 @@ class Settings : public IUserInterfaceElement
     Editor* m_editor;
 
     std::vector<const char*> m_toneMappingCurves = {"Aces aproximated", "Uchimura", "Aces full"};
-    std::vector<const char*> m_cameraOption      = {"Pinhole", "Thin lens"}
+    std::vector<const char*> m_cameraOption      = {"Pinhole", "Thin lens"};
 };
 
 }  // namespace VEditor
