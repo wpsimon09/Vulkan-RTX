@@ -109,7 +109,6 @@ float4 fragmentMain(VertexOutput fsIn)
     }
 
     var brdf = DeterministicBRDF(brdfContext);
-
     
     finalColor = lerp(ambientLight.illuminate(g, brdf, V) * 0.2, lightingEnv.illuminate(g, brdf, V)  + ambientLight.illuminate(g, brdf, V),   shadowFactor.x);
     finalColor.xyz += (brdfContext.emmision * brdfContext.emissionStrength);

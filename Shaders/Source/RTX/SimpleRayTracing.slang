@@ -72,20 +72,25 @@ void rayGenMain() {
     switch((ERenderOutputRTX)globalData.renderOutputRTX){
         case ERenderOutputRTX::PathTraced:{
 
-            ICamera camera; 
-
-            float3 acumulatedRadiance = {0.0};
-        
+            var camera = ProjectiveCamera(tanFov2, aspect, globalData.view, globalData.projection);
+            /*
             switch(cameraType){
-                case ECameraType::PinHole:{
-                    camera = ProjectiveCamera(tanFov2 , aspect, globalData.view, globalData.inverseView);
-                    break;
-                }
-                case ECameraType::ThinLens:{
-                    camera = ThinLensCamera(cameraParameters, tanFov2 , aspect, globalData.view, globalData.inverseView);
-                    break;
-                }
+            case ECameraType::PinHole:{
+                camera = ProjectiveCamera( tanFov2 , aspect, globalData.view, globalData.inverseView);
+                break;
             }
+            case ECameraType::ThinLens:{
+                camera = ThinLensCamera( tanFov2 , aspect, globalData.view, globalData.inverseView);
+                break;
+            }
+            default:{
+                camera = ProjectiveCamera(tanFov2 , aspect, globalData.view, globalData.inverseView);
+                break;
+            }
+            }            
+
+            */
+            float3 acumulatedRadiance = {0.0};
             
             //=========================
             // Full shading is enabled 
@@ -135,22 +140,22 @@ void rayGenMain() {
             camera.film = float4(acumulatedRadiance, 1.0);
 
             // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
-            float3 pixelColour = camera.film / globalData.raysPerPixel;
+            float4 pixelColour = camera.film / globalData.raysPerPixel;
             
             //will make the pixel colour pink if it is nan
         
-            _film[int2(threadIdx.xy)] = float4(pixelColour, 1.0);
+            _film[int2(threadIdx.xy)] = pixelColour;
     
 
             if(globalData.accumulateFrames){
-                float3 previousColour =  _accumulationImage[int2(threadIdx.xy)].rgb;
+                float4 previousColour =  _accumulationImage[int2(threadIdx.xy)];
     
-                float3 accumulatedColour = previousColour + pixelColour;
+                float4 accumulatedColour = previousColour + pixelColour;
              
-                _accumulationImage[int2(threadIdx.xy)] = float4(globalData.currentFrame > 0 ? accumulatedColour : pixelColour, 1.0);  
+                _accumulationImage[int2(threadIdx.xy)] = globalData.currentFrame > 0 ? accumulatedColour : pixelColour, 1.0;  
             }
             else{                
-                _accumulationImage[int2(threadIdx.xy)] = float4(pixelColour, 1.0);
+                _accumulationImage[int2(threadIdx.xy)] = pixelColour;
             }
             
 

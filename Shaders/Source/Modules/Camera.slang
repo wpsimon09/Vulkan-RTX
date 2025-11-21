@@ -7,6 +7,8 @@ public struct ThinCameraParameters{
 }
 
 public interface ICamera{
+    public __init (float tanFloat2, float aspect, float4x4 WorldToCamera, float4x4 CameraToWorld);
+
     public property float4 film {get; set;}
     /*
     Generates ray in the camera space 
@@ -33,7 +35,7 @@ public struct ProjectiveCamera : ICamera{
         set{this.Film = newValue;}
     }
 
-    
+    public void SetParams(ThinCameraParameters p){}
 
     public __init (float tanFloat2, float aspectRatio, float4x4 WorldToCamera, float4x4 CameraToWorld){
         worldToCamera = WorldToCamera;
@@ -88,13 +90,18 @@ public struct ThinLensCamera : ICamera{
     public property float4 film
     {
         get{return this.projectiveCamera.Film;}
-        set{this.projectiveCamera.Film = film;}
+        set{this.projectiveCamera.Film = newValue;}
     }
 
-    public __init (ThinCameraParameters params,  float tanFloat2, float aspect, float4x4 WorldToCamera, float4x4 CameraToWorld){
+    public __init (float tanFloat2, float aspect, float4x4 WorldToCamera, float4x4 CameraToWorld){
         this.projectiveCamera = ProjectiveCamera(tanFloat2, aspect, WorldToCamera, CameraToWorld);
-        p = params;
     };
+
+    [mutating]
+    public void SetParams(ThinCameraParameters p){
+        this.p = p;
+    }
+
 
 
     public RayDesc GenerateRayToScene(float2 pixelPos, inout uint u){
