@@ -60,11 +60,11 @@ public struct ProjectiveCamera : ICamera{
 
 
         let rayCameraSpaca = RayDesc(float3(0.0f), 0.0f, direction, 10000.0f);        
-
-        // convert the generated ray to world space where light transport
+        
         return rayCameraSpaca;
     }
-
+    
+    // convert the generated ray to world space where light transport is evaluated 
     public RayDesc CameraToWorld(RayDesc inRay){
         RayDesc result;
         result.TMax = inRay.TMax;

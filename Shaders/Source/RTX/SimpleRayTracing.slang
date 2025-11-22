@@ -72,24 +72,7 @@ void rayGenMain() {
     switch((ERenderOutputRTX)globalData.renderOutputRTX){
         case ERenderOutputRTX::PathTraced:{
 
-            var camera = ProjectiveCamera(tanFov2, aspect, globalData.view, globalData.projection);
-            /*
-            switch(cameraType){
-            case ECameraType::PinHole:{
-                camera = ProjectiveCamera( tanFov2 , aspect, globalData.view, globalData.inverseView);
-                break;
-            }
-            case ECameraType::ThinLens:{
-                camera = ThinLensCamera( tanFov2 , aspect, globalData.view, globalData.inverseView);
-                break;
-            }
-            default:{
-                camera = ProjectiveCamera(tanFov2 , aspect, globalData.view, globalData.inverseView);
-                break;
-            }
-            }            
-
-            */
+            var camera = ProjectiveCamera(tanFov2, aspect, globalData.view, globalData.inverseView);
             float3 acumulatedRadiance = {0.0};
             
             //=========================
@@ -111,7 +94,11 @@ void rayGenMain() {
                     if(globalData.useSER){
                         HitObject hitObj = HitObject::TraceRay(_TLAS,RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
                         ReorderThread(hitObj);
+
                         HitObject::Invoke(_TLAS, hitObj, payload);
+                        
+                        //TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
+
                     }else{
                         TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
                     }
@@ -145,10 +132,7 @@ void rayGenMain() {
             
             camera.film = float4(acumulatedRadiance, 1.0);
 
-            // write to total radiance to separate buffer, in case i will need it later, most probably I wont and i am just wasting memmory here :D
             float4 pixelColour = camera.film / globalData.raysPerPixel;
-            
-            //will make the pixel colour pink if it is nan
         
             _film[int2(threadIdx.xy)] = pixelColour;
     
@@ -213,14 +197,12 @@ void missMain2(inout RayPayloadShadow payload) {
 [[shader("closesthit")]]
 void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
 {
-
     var g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
     var m = GetMaterial(InstanceID(), g);
     var bxdfContext = m.Prepare(g);
 
     //========================
     // direct light
-    
     float3 wo = -WorldRayDirection();
 
     float3 L = _lightInfo.dirLight.direction.xyz;
