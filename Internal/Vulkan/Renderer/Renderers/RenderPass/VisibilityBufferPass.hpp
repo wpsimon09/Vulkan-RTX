@@ -5,6 +5,7 @@
 #ifndef RTSHADOWMAPPASS_HPP
 #define RTSHADOWMAPPASS_HPP
 #include "RenderPass.hpp"
+#include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 
 namespace VulkanCore {
 class VCommandBuffer;
@@ -17,7 +18,8 @@ namespace Renderer {
 
 enum EVisibilityBufferAttachments
 {
-    VisibilityBuffer = 0
+    ShadowMap = 0,
+    AoMap
 };
 
 class VisibilityBufferPass : public Renderer::RenderPass
@@ -37,8 +39,8 @@ class VisibilityBufferPass : public Renderer::RenderPass
     void Destroy() override;
 
   private:
-    std::shared_ptr<VulkanUtils::VRasterEffect> m_rayTracedShadowEffect;
-    AoOcclusionParameters                       m_aoOcclusionParameters;
+    std::shared_ptr<VulkanUtils::VComputeEffect> m_rayTracedShadowEffect;
+    AoOcclusionParameters                        m_aoOcclusionParameters;
 };
 
 }  // namespace Renderer

@@ -94,11 +94,7 @@ void rayGenMain() {
                     if(globalData.useSER){
                         HitObject hitObj = HitObject::TraceRay(_TLAS,RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
                         ReorderThread(hitObj);
-
                         HitObject::Invoke(_TLAS, hitObj, payload);
-                        
-                        //TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
-
                     }else{
                         TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
                     }
