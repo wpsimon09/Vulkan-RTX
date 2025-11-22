@@ -85,9 +85,8 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
 
     //=========================================================================
     // Transition shadow map from shader read only optimal to general
-    m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eAttachmentOptimal,
-                                                                                    vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                                                    VulkanUtils::VImage_SampledRead_To_General);
+    m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->TransitionAttachments(
+        cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, VulkanUtils::VImage_SampledRead_To_General);
 
 
     auto& cmdB = cmdBuffer.GetCommandBuffer();
@@ -102,7 +101,7 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
     cmdB.dispatch(width / 8, height / 8, 1);
 
     m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->TransitionAttachments(
-        cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eAttachmentOptimal,
+        cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
         VulkanUtils::VImage_SampledRead_To_General.Switch());
 }
 
