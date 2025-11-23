@@ -8,7 +8,7 @@ import RandomValues;
 writeonly RWTexture2D visibilityBuffer;
 
 [[shader("compute")]]
-[[numthreads(8, 8, 1)]]
+[[numthreads(16, 16, 1)]]
 void computeMain(uint3 threadID : SV_DispatchThreadID){
     float2 dstWriteCoords = float2(threadID.xy);
     float2 dims;
