@@ -28,8 +28,8 @@ VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& inf
 
     AllocateImage();
     GenerateImageView();
-    //  VulkanUtils::SetDebugName<VkImage>(m_device, m_imageVK.objectType, m_imageVMA, info.imageDebugName)
-    GiveDebugName(info.imageDebugName);
+    VulkanUtils::SetDebugName<VkImage>(m_device, m_imageVK.objectType, m_imageVMA, info.imageDebugName);
+    //GiveDebugName(info.imageDebugName);
     m_imageFlags.IsStorage     = info.isStorage;
     m_imageFlags.IsDepthBuffer = IsDepth(m_imageInfo.format);
 }
@@ -43,7 +43,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& inf
     m_imageFlags.IsSwapChainImage = true;
 
     GenerateImageView();
-    GiveDebugName("Swap chain image");
+    VulkanUtils::SetDebugName<VkImage>(m_device, m_imageVK.objectType, m_imageVK, info.imageDebugName);
 }
 
 VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<uint32_t>& imageData)
@@ -62,7 +62,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<ui
     AllocateImage();
     GenerateImageView();
     FillWithImageData(imageData, m_device.GetTransferOpsManager().GetCommandBuffer());
-    GiveDebugName("Texture Image");
+    VulkanUtils::SetDebugName<VkImage>(m_device, m_imageVK.objectType, m_imageVK, "Texture image");
 }
 
 VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<float>& imageData)
@@ -81,7 +81,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<fl
     AllocateImage();
     GenerateImageView();
     FillWithImageData<float>(imageData, device.GetTransferOpsManager().GetCommandBuffer());
-    GiveDebugName("Texture Image");
+    VulkanUtils::SetDebugName<VkImage>(m_device, m_imageVK.objectType, m_imageVK, "Texture image ");
 }
 VImage2::VImage2(const VulkanCore::VDevice& device, std::vector<VulkanStructs::VImageData<float>>& imageDataArray)
     : m_device(device)
