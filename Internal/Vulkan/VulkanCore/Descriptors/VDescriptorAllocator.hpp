@@ -41,7 +41,7 @@ class VDescriptorAllocator : public VulkanCore::VObject
     void Destroy() override;
 
     void ResetPools();
-    bool Allocate(vk::DescriptorSet* set, vk::DescriptorSetLayout dLayout);
+    bool Allocate(vk::DescriptorSet* set, vk::DescriptorSetLayout dLayout, const std::string& name = "");
 
   private:
     vk::DescriptorPool GrabPool();
@@ -105,7 +105,7 @@ class VDescriptorBuilder
     std::vector<vk::DescriptorSetLayoutBinding> m_layoutBindings;
 
     VDescriptorLayoutCache* m_descLayoutCache = nullptr;
-    VDescriptorAllocator*   m_descAllocator = nullptr;
+    VDescriptorAllocator*   m_descAllocator   = nullptr;
 
 
   private:

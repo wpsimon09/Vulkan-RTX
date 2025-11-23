@@ -47,7 +47,7 @@ vk::DescriptorPool VDescriptorAllocator::GrabPool()
     }
 }
 
-bool VDescriptorAllocator::Allocate(vk::DescriptorSet* set, vk::DescriptorSetLayout dLayout)
+bool VDescriptorAllocator::Allocate(vk::DescriptorSet* set, vk::DescriptorSetLayout dLayout, const std::string& name)
 {
     if(m_currentPool == nullptr)
     {
@@ -65,6 +65,7 @@ bool VDescriptorAllocator::Allocate(vk::DescriptorSet* set, vk::DescriptorSetLay
 
     switch(m_device.GetDevice().allocateDescriptorSets(&allocInfo, set))
     {
+
         case vk::Result::eSuccess: {
             return true;
         };
@@ -96,19 +97,20 @@ bool VDescriptorAllocator::Allocate(vk::DescriptorSet* set, vk::DescriptorSetLay
 //======================================================================================================
 
 VDescriptorLayoutCache::VDescriptorLayoutCache(const VDevice& device)
-    : m_device(device), VObject()
+    : m_device(device)
+    , VObject()
 {
 }
 void VDescriptorLayoutCache::Destroy()
 {
-    for (auto& layout: m_layoutCache) {
+    for(auto& layout : m_layoutCache)
+    {
         m_device.GetDevice().destroyDescriptorSetLayout(layout.second);
     }
 }
 
-vk::DescriptorSetLayout VDescriptorLayoutCache::CreateDescriptorSetLayout(const vk::DescriptorSetLayoutCreateInfo* info )
+vk::DescriptorSetLayout VDescriptorLayoutCache::CreateDescriptorSetLayout(const vk::DescriptorSetLayoutCreateInfo* info)
 {
-
 
 
     assert(info->bindingCount > 0);
@@ -158,7 +160,6 @@ vk::DescriptorSetLayout VDescriptorLayoutCache::CreateDescriptorSetLayout(const 
         m_layoutCache[layoutInfo] = layout;
         return layout;
     }
-
 }
 
 bool VDescriptorLayoutCache::DescriptorSetLayoutInfo::operator==(const DescriptorSetLayoutInfo& other) const
@@ -191,7 +192,8 @@ bool VDescriptorLayoutCache::DescriptorSetLayoutInfo::operator==(const Descripto
         return true;
     }
 }
-size_t VDescriptorLayoutCache::DescriptorSetLayoutInfo::hash() const {
+size_t VDescriptorLayoutCache::DescriptorSetLayoutInfo::hash() const
+{
     using std::hash;
     using std::size_t;
 
@@ -214,11 +216,12 @@ size_t VDescriptorLayoutCache::DescriptorSetLayoutInfo::hash() const {
 //======================================================================================================
 //======================================================================================================
 
-VDescriptorBuilder VDescriptorBuilder::Begin(VDescriptorLayoutCache* layoutCache, VDescriptorAllocator* allocator) {
+VDescriptorBuilder VDescriptorBuilder::Begin(VDescriptorLayoutCache* layoutCache, VDescriptorAllocator* allocator)
+{
     VDescriptorBuilder builder;
 
     builder.m_descLayoutCache = layoutCache;
-    builder.m_descAllocator = allocator;
+    builder.m_descAllocator   = allocator;
     return builder;
 }
 

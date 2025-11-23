@@ -28,6 +28,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& inf
 
     AllocateImage();
     GenerateImageView();
+    //  VulkanUtils::SetDebugName<VkImage>(m_device, m_imageVK.objectType, m_imageVMA, info.imageDebugName)
     GiveDebugName(info.imageDebugName);
     m_imageFlags.IsStorage     = info.isStorage;
     m_imageFlags.IsDepthBuffer = IsDepth(m_imageInfo.format);
