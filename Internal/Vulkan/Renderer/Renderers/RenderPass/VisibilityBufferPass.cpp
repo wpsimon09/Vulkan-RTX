@@ -8,6 +8,7 @@
 #include "Application/Utils/LookUpTables.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
+#include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
@@ -15,6 +16,8 @@
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
+#include <memory>
+#include <vulkan/vulkan_core.h>
 
 namespace Renderer {
 VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
@@ -23,7 +26,7 @@ VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, Ap
 {
     //=================================================
     // create the effect
-    m_rayTracedShadowEffect = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::RTShadowPass);
+    m_rayTracedShadowEffect = effectLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::RTShadowPass);
 
     //===================================================
     // create render target
@@ -31,18 +34,21 @@ VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, Ap
                                                  height / 2,
                                                  false,
                                                  false,
-                                                 vk::Format::eR16G16B16A16Sfloat,
+                                                 vk::Format::eR16Sfloat,
                                                  vk::ImageLayout::eShaderReadOnlyOptimal,
                                                  vk::ResolveModeFlagBits::eNone,
-                                                 false,
+                                                 true,
                                                  "visibility buffer attachment"};
 
+    m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI));
+
+    shadowMapCI.imageDebugName = "Ambient occlusion map";
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI));
 }
 void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
 
-    m_rayTracedShadowEffect->SetNumWrites(3, 4, 1);
+    m_rayTracedShadowEffect->SetNumWrites(3, 5, 1);
 
     m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[frameIndex]);
 
@@ -60,6 +66,8 @@ void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManag
     m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 5,
                                         renderContext->normalMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
+    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 6,
+                                        GetPrimaryAttachemntDescriptorInfo(EVisibilityBufferAttachments::ShadowMap));
 
     m_rayTracedShadowEffect->ApplyWrites(frameIndex);
 }
@@ -83,54 +91,25 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
                                       vk::PipelineStageFlagBits::eFragmentShader);
 
     //=========================================================================
-    // Transition shadow map from shader read only optimal to render attachment
-    m_renderTargets[EVisibilityBufferAttachments::VisibilityBuffer]->TransitionAttachments(
-        cmdBuffer, vk::ImageLayout::eAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
-        VulkanUtils::VRenderTarget_ToAttachment_FromSample);
+    // Transition shadow map from shader read only optimal to general
+    m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->TransitionAttachments(
+        cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, VulkanUtils::VImage_SampledRead_To_General);
 
-
-    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {
-        m_renderTargets[EVisibilityBufferAttachments::VisibilityBuffer]->GenerateAttachmentInfo(
-            vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
-
-    vk::RenderingInfo renderingInfo{};
-    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
-    renderingInfo.renderArea.extent    = vk::Extent2D(m_width / 2, m_height / 2);
-    renderingInfo.layerCount           = 1;
-    renderingInfo.colorAttachmentCount = renderingOutputs.size();
-    renderingInfo.pColorAttachments    = renderingOutputs.data();
-    renderingInfo.pDepthAttachment     = nullptr;
 
     auto& cmdB = cmdBuffer.GetCommandBuffer();
-
-    cmdB.beginRendering(&renderingInfo);
-
-    Renderer::ConfigureViewPort(cmdB, renderingInfo.renderArea.extent.width, renderingInfo.renderArea.extent.height);
-
-    cmdB.setStencilTestEnable(false);
 
     m_rayTracedShadowEffect->BindPipeline(cmdB);
     m_rayTracedShadowEffect->BindDescriptorSet(cmdB, currentFrame, 0);
 
-    //===========================================
-    // ambient occlusion parrameters
+    //dispatch
+    float width, height;
+    width  = m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->GetWidth();
+    height = m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->GetHeight();
+    cmdB.dispatch(width / 16, height / 16, 1);
 
-    vk::PushConstantsInfo pcInfo;
-    pcInfo.layout     = m_rayTracedShadowEffect->GetPipelineLayout();
-    pcInfo.size       = sizeof(AoOcclusionParameters);
-    pcInfo.offset     = 0;
-    pcInfo.pValues    = &m_aoOcclusionParameters;
-    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
-
-    m_rayTracedShadowEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
-
-    cmdB.draw(3, 1, 0, 0);
-
-    cmdB.endRendering();
-
-    m_renderTargets[EVisibilityBufferAttachments::VisibilityBuffer]->TransitionAttachments(
-        cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eAttachmentOptimal,
-        VulkanUtils::VRenderTarget_Color_ToSample_InShader_BarrierPosition);
+    m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->TransitionAttachments(
+        cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
+        VulkanUtils::VImage_SampledRead_To_General.Switch());
 }
 
 void VisibilityBufferPass::Destroy()

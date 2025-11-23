@@ -44,6 +44,7 @@ void VComputeEffect::BuildEffect()
     m_computePipeline = result_pipeline.value;
     m_computeShader.DestroyExistingShaderModules();
 
+
     Utils::Logger::LogSuccess("Compute pipeline for effect: " + m_name + " created !");
 }
 

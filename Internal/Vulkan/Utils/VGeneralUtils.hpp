@@ -9,7 +9,10 @@
 #include <stb_image/stb_image.h>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_enums.hpp>
+#include <vulkan/vulkan_structs.hpp>
 
+#include "Vulkan/Global/GlobalState.hpp"
 #include "fastgltf/base64.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
 #include "Vulkan/Global/VulkanStructs.hpp"
@@ -123,6 +126,25 @@ void WriteMaterialToDescriptorSet(ApplicationCore::BaseMaterial* mat, VEffect& e
 std::string DescriptorTypeToString(vk::DescriptorType descriptorType);
 
 bool RelaxedAssert(bool condition, std::string msg);
+
+/*
+    Sets the debug name of the vulkan object which will be displayed in the validation layer logs 
+    T - shoudld be vulkan.h handle (VkImage, VkBuffer etc....)
+*/
+template <typename T>
+void SetDebugName(const VulkanCore::VDevice& device, vk::ObjectType obj, T handle, const std::string& name)
+{
+    if(GlobalState::InDebugMode && !name.empty())
+    {
+        vk::DebugUtilsObjectNameInfoEXT nameInfo;
+        nameInfo.objectType   = obj;
+        nameInfo.objectHandle = (uint64_t)static_cast<T>(handle);
+        nameInfo.pObjectName  = name.c_str();
+
+        auto result = device.GetDevice().setDebugUtilsObjectNameEXT(&nameInfo, device.DispatchLoader);
+        assert(result == vk::Result::eSuccess && "Failed to set object debug name");
+    }
+}
 
 }  // namespace VulkanUtils
 

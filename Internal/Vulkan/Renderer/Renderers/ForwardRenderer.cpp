@@ -69,8 +69,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_visibilityBufferPass  = std::make_unique<Renderer::VisibilityBufferPass>(device, effectsLibrary, width, height);
     m_gBufferPass           = std::make_unique<Renderer::GBufferPass>(device, effectsLibrary, width, height);
     m_visibilityDenoisePass = std::make_unique<Renderer::BilateralFilterPass>(
-        device, effectsLibrary,
-        m_visibilityBufferPass->GetPrimaryResult(EVisibilityBufferAttachments::VisibilityBuffer), width, height);
+        device, effectsLibrary, m_visibilityBufferPass->GetPrimaryResult(EVisibilityBufferAttachments::ShadowMap), width, height);
     m_forwardRenderPass = std::make_unique<Renderer::ForwardRender>(device, effectsLibrary, width, height);
     m_fogPass           = std::make_unique<Renderer::FogPass>(device, effectsLibrary, width, height);
     m_atmospherePass    = std::make_unique<Renderer::AtmospherePass>(device, effectsLibrary, width, height);
@@ -135,7 +134,6 @@ void ForwardRenderer::Render(int                                       currentFr
         m_atmospherePass->Precompute(currentFrameIndex, cmdBuffer, m_renderContextPtr);
     }
 
-
     //===========================
     // generates shadow mapp in  screen space
     ShadowMapPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
@@ -148,12 +146,11 @@ void ForwardRenderer::Render(int                                       currentFr
     // uses forward renderer to render the scene
     DrawScene(currentFrameIndex, cmdBuffer, uniformBufferManager);
 
-
     //============================
     // Atmosphere pass
     if(m_renderContextPtr->atmosphereCall.has_value())
     {
-        // ** renderes the scene to the output of forward render !
+        // ** renderes the scene to the output of forward render (forward render is used as ) !
         AtmospherePass(currentFrameIndex, cmdBuffer, uniformBufferManager);
     }
 
@@ -163,7 +160,6 @@ void ForwardRenderer::Render(int                                       currentFr
     {
         PostProcessingFogPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
     }
-
 
     m_frameCount++;
 }

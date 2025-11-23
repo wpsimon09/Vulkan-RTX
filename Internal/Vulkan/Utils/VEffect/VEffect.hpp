@@ -6,6 +6,7 @@
 #define VEFFECT_HPP
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
+#include <cstdint>
 #include <vulkan/vulkan_enums.hpp>
 
 namespace VulkanCore {

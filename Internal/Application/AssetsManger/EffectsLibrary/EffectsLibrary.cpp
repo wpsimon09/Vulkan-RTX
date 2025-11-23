@@ -164,17 +164,9 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     effects[EEffectType::RayTracing] = std::move(rayTracingEffect);
 
     //===============================================================================
-    auto rtShadowPass = std::make_shared<VulkanUtils::VRasterEffect>(device, "Ray traced shadow map effect",
-                                                                     "Shaders/Compiled/RTShadowPass.vert.spv",
-                                                                     "Shaders/Compiled/RTShadowPass.frag.spv",
-                                                                     descLayoutCache, EShaderBindingGroup::ShadowRT);
-    rtShadowPass->SetDisableDepthTest()
-        .DisableStencil()
-        .SetCullNone()
-        .SetNullVertexBinding()
-        .SetColourOutputFormat(vk::Format::eR16G16B16A16Sfloat)
-        .SetPiplineNoMultiSampling();
-
+    auto rtShadowPass = std::make_shared<VulkanUtils::VComputeEffect>(device, "Ray traced shadow map effect",
+                                                                      "Shaders/Compiled/ShadowMapPass.spv",
+                                                                      descLayoutCache, EShaderBindingGroup::ShadowRT);
     effects[EEffectType::RTShadowPass] = std::move(rtShadowPass);
 
     //===============================================================================

@@ -5,23 +5,23 @@ import Light;
 //=================================
 // Set 0
 [[vk::binding(0,0)]]
-ConstantBuffer<GlobalData> globalData;
+public ConstantBuffer<GlobalData> globalData;
 
 // those two are for shadow calculations 
 [[vk::binding(1, 0)]]
-ConstantBuffer<LightInfo> _lightInfo;
+public ConstantBuffer<LightInfo> _lightInfo;
 
 [[vk::binding(2, 0)]]
-RaytracingAccelerationStructure _tlas;
+public RaytracingAccelerationStructure _tlas;
 
 [[vk::binding(3, 0)]]
-Sampler2D _positionTexture;
+public Sampler2D _positionTexture;
 
 [[vk::binding(4,0)]]
-Sampler2D _blueNoiseTextureArray;
+public Sampler2D _blueNoiseTextureArray;
 
 [[vk::binding(5,0)]]
-Sampler2D _normalTexture;
+public Sampler2D _normalTexture;
 
 public struct AoOcclusionParameters{
     public float radius;
@@ -30,7 +30,7 @@ public struct AoOcclusionParameters{
 }
 
 [[vk::push_constant]]
-AoOcclusionParameters _aoParameters;
+public AoOcclusionParameters _aoParameters;
 
 
 public static const float2 BlueNoiseInDisk[64] = float2[64](
