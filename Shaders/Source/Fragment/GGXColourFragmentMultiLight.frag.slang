@@ -85,7 +85,7 @@ float4 fragmentMain(VertexOutput fsIn)
     float3 V = normalize(fsIn.vertexData.cameraPos - fsIn.vertexData.fragPos);
 
     float3 finalColor;
-    float2 shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).xy;
+    float shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).x;
 
     
     float3 transmitanceToSun = float3(1.0);
@@ -110,11 +110,11 @@ float4 fragmentMain(VertexOutput fsIn)
 
     var brdf = DeterministicBRDF(brdfContext);
     
-    finalColor = lerp(ambientLight.illuminate(g, brdf, V) * 0.2, lightingEnv.illuminate(g, brdf, V)  + ambientLight.illuminate(g, brdf, V),   shadowFactor.x);
+    finalColor = lerp(ambientLight.illuminate(g, brdf, V) * 0.2, lightingEnv.illuminate(g, brdf, V)  + ambientLight.illuminate(g, brdf, V),   shadowFactor);
     finalColor.xyz += (brdfContext.emmision * brdfContext.emissionStrength);
 
     // shadow factor.y is an ambient occlusion data 
-    finalColor.xyz *= shadowFactor.y;
+    //finalColor.xyz *= shadowFactor.y;
 
     switch(globalData.renderOutput){
         case ERenderOutput::FullLit :{
