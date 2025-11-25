@@ -152,9 +152,8 @@ void VulkanCore::VulkanInstance::CreateInstance(std::string appName)
         extensionVector.insert(extensionVector.end(), GlobalVariables::instanceLevelExtensions.begin(),
                                GlobalVariables::instanceLevelExtensions.end());
 
-        instanceInfo.enabledLayerCount   = static_cast<uint32_t>(GlobalVariables::validationLayers.size());
-        instanceInfo.ppEnabledLayerNames = GlobalVariables::validationLayers.data();
-
+        instanceInfo.enabledLayerCount       = static_cast<uint32_t>(GlobalVariables::validationLayers.size());
+        instanceInfo.ppEnabledLayerNames     = GlobalVariables::validationLayers.data();
         instanceInfo.enabledExtensionCount   = static_cast<uint32_t>(extensionVector.size());
         instanceInfo.ppEnabledExtensionNames = extensionVector.data();
     }
@@ -209,6 +208,7 @@ void VulkanCore::VulkanInstance::CreateDebugUtilsMessenger()
         vk::DebugUtilsMessageTypeFlagsEXT     messageTypeFlags(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
                                                                | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
                                                                | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
+
 
         m_debugMessenger = m_instance.createDebugUtilsMessengerEXT(
             vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &debugMessageFunc));

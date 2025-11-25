@@ -6,6 +6,7 @@
 
 #include "Application/Logger/Logger.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
+#include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
@@ -262,7 +263,7 @@ vk::ImageSubresourceRange VImage2::GetSubresrouceRange()
 
 void VImage2::GiveDebugName(const std::string& name)
 {
-    if(!name.empty() && GlobalState::InDebugMode)
+    if(!name.empty() && GlobalState::InDebugMode && GlobalState::ValidationLayersEnabled)
     {
         vk::DebugUtilsObjectNameInfoEXT nameInfo;
         nameInfo.objectType   = m_imageVK.objectType;

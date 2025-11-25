@@ -134,7 +134,7 @@ bool RelaxedAssert(bool condition, std::string msg);
 template <typename T>
 void SetDebugName(const VulkanCore::VDevice& device, vk::ObjectType obj, T handle, const std::string& name)
 {
-    if(GlobalState::InDebugMode && !name.empty())
+    if(GlobalState::InDebugMode && GlobalState::ValidationLayersEnabled && !name.empty())
     {
         vk::DebugUtilsObjectNameInfoEXT nameInfo;
         nameInfo.objectType   = obj;

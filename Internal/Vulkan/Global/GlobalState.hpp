@@ -9,7 +9,7 @@
 
 namespace GlobalState {
 
-inline bool ValidationLayersEnabled = true;
+inline bool ValidationLayersEnabled = false;
 inline bool LoggingEnabled          = true;
 inline bool Verbose                 = false;
 inline bool VerboseInRendering      = false;
@@ -29,9 +29,9 @@ inline void DisableLogging()
 inline int LogLimit = 700;  // entires in console
 
 #ifdef NDEBUG
-    inline bool InDebugMode = false;
+inline bool InDebugMode = false;
 #else
-    inline bool InDebugMode = true;
+inline bool InDebugMode = true;
 #endif
 
 

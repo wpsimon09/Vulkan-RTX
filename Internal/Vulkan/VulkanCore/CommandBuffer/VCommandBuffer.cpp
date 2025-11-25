@@ -180,7 +180,8 @@ void VCommandBuffer::EndAndFlush(const vk::Queue&                     queue,
 
 void VCommandBuffer::GiveName(const std::string& name)
 {
-    if(name.empty() && !GlobalState::InDebugMode)
+    /*
+    if(name.empty() && GlobalState::ValidationLayersEnabled)
     {
         return;
     }
@@ -188,8 +189,9 @@ void VCommandBuffer::GiveName(const std::string& name)
     cmdBufferNameInfo.objectHandle = (uint64_t)static_cast<VkCommandBuffer>(m_commandBuffer);
     cmdBufferNameInfo.objectType   = m_commandBuffer.objectType;
     cmdBufferNameInfo.pObjectName  = name.c_str();
-
+    
     m_device.GetDevice().setDebugUtilsObjectNameEXT(cmdBufferNameInfo, m_device.DispatchLoader);
+    */
 }
 
 }  // namespace VulkanCore
