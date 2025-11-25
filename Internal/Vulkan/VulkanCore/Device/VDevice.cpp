@@ -5,6 +5,7 @@
 #include "VDevice.hpp"
 
 #include <set>
+#include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
@@ -249,6 +250,10 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     synchronization2Features.synchronization2 = true;
     synchronization2Features.pNext            = &robustens2;
 
+    vk::PhysicalDeviceRayTracingInvocationReorderFeaturesNV serFeatures{};
+    serFeatures.rayTracingInvocationReorder = vk::True;
+    serFeatures.pNext                       = &synchronization2Features;
+
 
     vk::PhysicalDeviceFeatures deviceFeatures{};
     deviceFeatures.fillModeNonSolid  = true;
@@ -277,7 +282,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     {
         deviceCreateInfo.enabledLayerCount = 0;
     }
-    deviceCreateInfo.pNext = &synchronization2Features;
+    deviceCreateInfo.pNext = &serFeatures;
 
     m_device = m_physicalDevice.createDevice(deviceCreateInfo);
     assert(m_device);
