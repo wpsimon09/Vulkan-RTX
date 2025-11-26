@@ -20,7 +20,7 @@ struct FilterParameters{
    float width;
    float height;
 };
-static const int MSize = 3;
+static const int MSize = 4;
 
 [[vk::push_constant]]
 ConstantBuffer<FilterParameters> _filterParameters;
@@ -58,7 +58,7 @@ float3 bilaterialFilter(uint3 threadID){
     // - bialteral is composed of two weights, special and range 
     // - 2 parts spacial and range 
     const float kernel[MSize] = {
-        0.031225216, 0.033322271, 0.035206333, //0.036826804, 0.038138565, 0.039104044, 0.039695028//, 0.039894000, 0.039695028,    
+        0.031225216, 0.033322271, 0.035206333, 0.036826804, //0.038138565  //, 0.039104044, 0.039695028, 0.039894000, 0.039695028,    
         // 0.039104044, 0.038138565, 0.036826804, 0.035206333, 0.033322271, 0.031225216
     };
 
@@ -71,7 +71,9 @@ float3 bilaterialFilter(uint3 threadID){
     float factor;
 
     // read the image
+    [unroll]
     for(int i= -kSize; i <= kSize; ++i){
+        [unroll]
         for( int j =-kSize; j <= kSize; ++j){
             int2 samplePos = int2(threadID.xy) + int2(i, j);
             float2 uv = float2(samplePos) / float2(_filterParameters.width, _filterParameters.height);
@@ -85,7 +87,7 @@ float3 bilaterialFilter(uint3 threadID){
             // RANGE KERNEL
             // - how similuar the neightboring pixels are 
             // - based on normla vector simiularity and depth similuarity
-            n_sample = normalize(_nomrmalMap.Sample(uv).xyz);
+            n_sample = _nomrmalMap.Sample(uv).xyz;
             float rangeWeight =  edge_stoping_weight(n_c, n_sample, _filterParameters.BSigma);
 
             //rangeWeight * 
