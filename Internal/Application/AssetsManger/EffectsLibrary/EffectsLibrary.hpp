@@ -60,7 +60,8 @@ enum class EEffectType : std::uint8_t
     AtmosphereTransmitanceLUT,
     MultipleScatteringLUT,
     SkyViewLUT,
-    AtmospherePass
+    AtmospherePass,
+    FogVolumeCompute
 };
 
 class EffectsLibrary

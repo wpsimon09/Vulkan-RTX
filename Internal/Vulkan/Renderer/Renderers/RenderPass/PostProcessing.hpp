@@ -17,7 +17,8 @@ namespace Renderer {
 
 enum EFogPassAttachments
 {
-    FogMain = 0
+    FogMain = 0,
+    FogCompute,
 };
 
 enum EToneMappingAttachments
@@ -60,8 +61,10 @@ class FogPass : public Renderer::RenderPass
     void Destroy() override;
 
   private:
-    FogVolumeParameters                         m_parameters;
-    std::shared_ptr<VulkanUtils::VRasterEffect> m_fogPassEffect;
+    FogVolumeParameters m_parameters;
+
+    std::shared_ptr<VulkanUtils::VRasterEffect>  m_fogMergeEffect;
+    std::shared_ptr<VulkanUtils::VComputeEffect> m_fogCalcEffect;
 };
 
 //============================================================================================================================================================

@@ -23,6 +23,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_structs.hpp>
@@ -36,7 +37,8 @@ FogPass::FogPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibr
     : RenderPass(device, width, height)
     , m_parameters{}
 {
-    m_fogPassEffect = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::FogVolume);
+    m_fogMergeEffect = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::FogVolume);
+    m_fogCalcEffect = effectLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::FogVolumeCompute);
 
     //===========================
     // Generate attachment
@@ -53,10 +55,17 @@ FogPass::FogPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibr
                                                      "Fog pass output attachment"};
 
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI));
+
+    fogPassOutputCI.width               = fogPassOutputCI.width / 2;
+    fogPassOutputCI.heigh               = fogPassOutputCI.heigh / 2;
+    fogPassOutputCI.computeShaderOutput = true;
+    fogPassOutputCI.imageDebugName      = "Fog pass compute output";
+
+    m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, fogPassOutputCI));
 }
 void FogPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
-    auto& e = m_fogPassEffect;
+    auto& e = m_fogMergeEffect;
     e->SetNumWrites(4, 7, 2);
 
     e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
@@ -74,6 +83,17 @@ void FogPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniform
 
 
     e->ApplyWrites(currentFrame);
+
+    auto& e2 = m_fogCalcEffect;
+    e2->SetNumWrites(2, 4, 1);
+    e2->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+    e2->WriteImage(currentFrame, 0, 1, renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    e2->WriteImage(currentFrame, 0, 2,
+                   MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    e2->WriteBuffer(currentFrame, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
+    e2->WriteAccelerationStrucutre(currentFrame, 0, 4, renderContext->tlas);
+    e2->WriteImage(currentFrame, 0, 5, GetPrimaryAttachemntDescriptorInfo(EFogPassAttachments::FogCompute));
+    e2->ApplyWrites(currentFrame);
 }
 
 void FogPass::Update(int                                   currentFrame,
@@ -81,11 +101,15 @@ void FogPass::Update(int                                   currentFrame,
                      VulkanUtils::RenderContext*           renderContext,
                      VulkanStructs::PostProcessingContext* postProcessingContext)
 {
-    auto& e = m_fogPassEffect;
+    auto& e = m_fogMergeEffect;
     e->SetNumWrites(4, 7, 2);
     e->WriteAccelerationStrucutre(currentFrame, 0, 6, renderContext->tlas);
     e->ApplyWrites(currentFrame);
 
+    auto& e2 = m_fogCalcEffect;
+    e2->SetNumWrites(0, 0, 1);
+    e2->WriteAccelerationStrucutre(currentFrame, 0, 4, renderContext->tlas);
+    e2->ApplyWrites(currentFrame);
 
     if(uniformBufferManager.GetApplicationState()->GetFogVolumeParameters())
     {
@@ -98,54 +122,75 @@ void FogPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, Vu
     // TODO: fog volume parameters are now push constant instead of UBO
     // this might not be the best thing to do but for now it should suffice
 
+    /*
     m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                              VulkanUtils::VRenderTarget_ToAttachment_FromSample);
-
+    VulkanUtils::VRenderTarget_ToAttachment_FromSample);
+    
     std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_renderTargets[0]->GenerateAttachmentInfo(
         vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
-
-    vk::RenderingInfo renderingInfo{};
-    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
-    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
-    renderingInfo.layerCount           = 1;
-    renderingInfo.colorAttachmentCount = renderingOutputs.size();
-    renderingInfo.pColorAttachments    = renderingOutputs.data();
-    renderingInfo.pDepthAttachment     = nullptr;
-
-    auto& cmdB = cmdBuffer.GetCommandBuffer();
-
-    cmdB.beginRendering(&renderingInfo);
-
-    Renderer::ConfigureViewPort(cmdB, renderingInfo.renderArea.extent.width, renderingInfo.renderArea.extent.height);
-
-    cmdB.setStencilTestEnable(false);
-
-    m_fogPassEffect->BindPipeline(cmdB);
-    m_fogPassEffect->BindDescriptorSet(cmdB, currentFrame, 0);
+        
+        vk::RenderingInfo renderingInfo{};
+        renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
+        renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
+        renderingInfo.layerCount           = 1;
+        renderingInfo.colorAttachmentCount = renderingOutputs.size();
+        renderingInfo.pColorAttachments    = renderingOutputs.data();
+        renderingInfo.pDepthAttachment     = nullptr;
+        
+        auto& cmdB = cmdBuffer.GetCommandBuffer();
+        
+        cmdB.beginRendering(&renderingInfo);
+        
+        Renderer::ConfigureViewPort(cmdB, renderingInfo.renderArea.extent.width, renderingInfo.renderArea.extent.height);
+        
+        cmdB.setStencilTestEnable(false);
+        
+        m_fogMergeEffect->BindPipeline(cmdB);
+        m_fogMergeEffect->BindDescriptorSet(cmdB, currentFrame, 0);
+        m_fogMergeEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+    
+    
+        cmdB.draw(3, 1, 0, 0);
+    
+        cmdB.endRendering();
+    
+        m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal,
+                                                  VulkanUtils::VRenderTarget_Color_ToSample_InShader_BarrierPosition);
+    */
 
 
     vk::PushConstantsInfo pcInfo;
-    pcInfo.layout     = m_fogPassEffect->GetPipelineLayout();
+    pcInfo.layout     = m_fogMergeEffect->GetPipelineLayout();
     pcInfo.size       = sizeof(FogVolumeParameters);
     pcInfo.offset     = 0;
     pcInfo.pValues    = &m_parameters;
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
 
-    m_fogPassEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+    assert(cmdBuffer.GetIsRecording() && "Command buffer is not in the recording state");
+    VulkanUtils::VBarrierPosition barrier = {vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead,
+                                             vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite};
 
+    m_renderTargets[EFogPassAttachments::FogCompute]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral,
+                                                                            vk::ImageLayout::eShaderReadOnlyOptimal, barrier);
+    m_fogCalcEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
+    m_fogCalcEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
 
-    cmdB.draw(3, 1, 0, 0);
+    m_fogCalcEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+    int w = m_renderTargets[EFogPassAttachments::FogCompute]->GetWidth();
+    int h = m_renderTargets[EFogPassAttachments::FogCompute]->GetHeight();
+    cmdBuffer.GetCommandBuffer().dispatch(w / 16, h / 16, 1);
 
-    cmdB.endRendering();
+    barrier = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+               vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead};
 
-    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal,
-                                              VulkanUtils::VRenderTarget_Color_ToSample_InShader_BarrierPosition);
+    m_renderTargets[EFogPassAttachments::FogCompute]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                                            vk::ImageLayout::eGeneral, barrier);
 }
 
 void FogPass::Destroy()
 {
     RenderPass::Destroy();
-    m_fogPassEffect->Destroy();
+    m_fogMergeEffect->Destroy();
 }
 
 //=============================================================================

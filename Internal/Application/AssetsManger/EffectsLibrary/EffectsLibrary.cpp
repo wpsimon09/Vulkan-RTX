@@ -278,9 +278,16 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     atmospherePass->SetDisableDepthWrite();
     atmospherePass->SetCullNone();
 
-
     atmospherePass->SetDisableDepthTest();
     effects[EEffectType::AtmospherePass] = std::move(atmospherePass);
+
+    //=====================================================================================
+
+    auto fogComputeEffect = std::make_shared<VulkanUtils::VComputeEffect>(device, "Volumetric fog compute effect",
+                                                                          "Shaders/Compiled/VolumetricFog.spv", descLayoutCache,
+                                                                          EShaderBindingGroup::ComputePostProecess);
+
+    effects[EEffectType::FogVolumeCompute] = std::move(fogComputeEffect);
 
     BuildAllEffects();
 }

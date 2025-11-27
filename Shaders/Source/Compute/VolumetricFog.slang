@@ -6,19 +6,19 @@ import Light;
 [[vk::binding(0, 0)]]
 ConstantBuffer<GlobalData> _globalData;
 
-[[vk::binding(2, 0)]]
+[[vk::binding(1, 0)]]
 Sampler2D _inputTexture_WorldPosition;
 
-[[vk::binding(3, 0)]]
+[[vk::binding(2, 0)]]
 Sampler2D _inputTexture_BlueNoise;
 
-[[vk::binding(4, 0)]]
+[[vk::binding(3, 0)]]
 ConstantBuffer<LightInfo> _light;
 
-[[vk::binding(5, 0)]]
+[[vk::binding(4, 0)]]
 RaytracingAccelerationStructure _tlas;
 
-[[vk::binding(6, 0)]]
+[[vk::binding(5, 0)]]
 RWTexture2D _outputFog; 
 
 [[vk::push_constant]]
