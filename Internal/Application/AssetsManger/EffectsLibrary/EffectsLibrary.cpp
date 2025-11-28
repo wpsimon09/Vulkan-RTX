@@ -190,7 +190,7 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     fog->SetDisableDepthTest().SetNullVertexBinding().SetCullNone().SetPiplineNoMultiSampling();
 
-    effects[EEffectType::FogVolume] = std::move(fog);
+    effects[EEffectType::FogComposition] = std::move(fog);
 
     //================================================================================
 
@@ -288,6 +288,19 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
                                                                           EShaderBindingGroup::ComputePostProecess);
 
     effects[EEffectType::FogVolumeCompute] = std::move(fogComputeEffect);
+
+    //=======================================================================================
+    auto fogMergEffect = std::make_shared<VulkanUtils::VRasterEffect>(device, "Volumetric fog composition",
+                                                                      "Shaders/Compiled/FogMerge.vert.spv",
+                                                                      "Shaders/Compiled/FogMerge.frag.spv", descLayoutCache,
+                                                                      EShaderBindingGroup::ComputePostProecess);
+
+    fogMergEffect->EnableAlphaBlending();
+    fogMergEffect->SetPiplineNoMultiSampling();
+    fogMergEffect->SetDisableDepthWrite();
+    fogMergEffect->SetCullNone();
+
+    effects[EEffectType::FogComposition] = std::move(fogMergEffect);
 
     BuildAllEffects();
 }

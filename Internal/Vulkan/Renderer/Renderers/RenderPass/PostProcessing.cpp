@@ -37,7 +37,7 @@ FogPass::FogPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibr
     : RenderPass(device, width, height)
     , m_parameters{}
 {
-    m_fogMergeEffect = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::FogVolume);
+    m_fogMergeEffect = effectLibrary.GetEffect<VulkanUtils::VRasterEffect>(ApplicationCore::EEffectType::FogComposition);
     m_fogCalcEffect = effectLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::FogVolumeCompute);
 
     //===========================
@@ -66,22 +66,10 @@ FogPass::FogPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibr
 void FogPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
     auto& e = m_fogMergeEffect;
-    e->SetNumWrites(4, 7, 2);
-
+    e->SetNumWrites(1, 1, 0);
     e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
-
-    e->WriteImage(currentFrame, 0, 1, renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-    e->WriteImage(currentFrame, 0, 2, renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
-
-    e->WriteImage(currentFrame, 0, 3,
-                  MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-    e->WriteImage(currentFrame, 0, 4, renderContext->lightPassOutput->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-    e->WriteBuffer(currentFrame, 0, 5, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
-
-    e->WriteAccelerationStrucutre(currentFrame, 0, 6, renderContext->tlas);
-
-
+    e->WriteImage(currentFrame, 0, 1,
+                  GetPrimaryAttachemntDescriptorInfo(EFogPassAttachments::FogCompute, VulkanCore::VSamplers::Sampler2D));
     e->ApplyWrites(currentFrame);
 
     auto& e2 = m_fogCalcEffect;
@@ -101,11 +89,6 @@ void FogPass::Update(int                                   currentFrame,
                      VulkanUtils::RenderContext*           renderContext,
                      VulkanStructs::PostProcessingContext* postProcessingContext)
 {
-    auto& e = m_fogMergeEffect;
-    e->SetNumWrites(4, 7, 2);
-    e->WriteAccelerationStrucutre(currentFrame, 0, 6, renderContext->tlas);
-    e->ApplyWrites(currentFrame);
-
     auto& e2 = m_fogCalcEffect;
     e2->SetNumWrites(0, 0, 1);
     e2->WriteAccelerationStrucutre(currentFrame, 0, 4, renderContext->tlas);
@@ -123,39 +106,7 @@ void FogPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, Vu
     // this might not be the best thing to do but for now it should suffice
 
     /*
-    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
-    VulkanUtils::VRenderTarget_ToAttachment_FromSample);
     
-    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {m_renderTargets[0]->GenerateAttachmentInfo(
-        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
-        
-        vk::RenderingInfo renderingInfo{};
-        renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
-        renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
-        renderingInfo.layerCount           = 1;
-        renderingInfo.colorAttachmentCount = renderingOutputs.size();
-        renderingInfo.pColorAttachments    = renderingOutputs.data();
-        renderingInfo.pDepthAttachment     = nullptr;
-        
-        auto& cmdB = cmdBuffer.GetCommandBuffer();
-        
-        cmdB.beginRendering(&renderingInfo);
-        
-        Renderer::ConfigureViewPort(cmdB, renderingInfo.renderArea.extent.width, renderingInfo.renderArea.extent.height);
-        
-        cmdB.setStencilTestEnable(false);
-        
-        m_fogMergeEffect->BindPipeline(cmdB);
-        m_fogMergeEffect->BindDescriptorSet(cmdB, currentFrame, 0);
-        m_fogMergeEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
-    
-    
-        cmdB.draw(3, 1, 0, 0);
-    
-        cmdB.endRendering();
-    
-        m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eColorAttachmentOptimal,
-                                                  VulkanUtils::VRenderTarget_Color_ToSample_InShader_BarrierPosition);
     */
 
 
@@ -185,6 +136,37 @@ void FogPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, Vu
 
     m_renderTargets[EFogPassAttachments::FogCompute]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                                             vk::ImageLayout::eGeneral, barrier);
+
+
+    //=====================================================================
+    // Merge fog pass, will combine compute shader output with scene render
+    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {renderContext->lightPassOutputRenderTarget->GenerateAttachmentInfo(
+        vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore)};
+
+    vk::RenderingInfo renderingInfo{};
+    renderingInfo.renderArea.offset    = vk::Offset2D(0, 0);
+    renderingInfo.renderArea.extent    = vk::Extent2D(m_width, m_height);
+    renderingInfo.layerCount           = 1;
+    renderingInfo.colorAttachmentCount = renderingOutputs.size();
+    renderingInfo.pColorAttachments    = renderingOutputs.data();
+    renderingInfo.pDepthAttachment     = nullptr;
+
+    auto& cmdB = cmdBuffer.GetCommandBuffer();
+
+    cmdB.beginRendering(&renderingInfo);
+
+    Renderer::ConfigureViewPort(cmdB, renderingInfo.renderArea.extent.width, renderingInfo.renderArea.extent.height);
+
+    cmdB.setStencilTestEnable(false);
+
+    m_fogMergeEffect->BindPipeline(cmdB);
+    m_fogMergeEffect->BindDescriptorSet(cmdB, currentFrame, 0);
+    m_fogMergeEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+
+
+    cmdB.draw(3, 1, 0, 0);
+
+    cmdB.endRendering();
 }
 
 void FogPass::Destroy()

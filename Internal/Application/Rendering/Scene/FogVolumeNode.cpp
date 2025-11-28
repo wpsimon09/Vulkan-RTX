@@ -32,7 +32,7 @@ void FogVolumeNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, Vulk
     drawCall.postProcessingEffect = true;
     drawCall.vertexData           = m_mesh->GetMeshData()->vertexData;
     drawCall.indexData            = m_mesh->GetMeshData()->indexData;
-    drawCall.effect               = static_cast<uint32_t>(EEffectType::FogVolume);
+    drawCall.effect               = static_cast<uint32_t>(EEffectType::FogComposition);
     drawCall.material             = nullptr;
     if(m_sceneNodeMetaData.IsVisible)
     {
