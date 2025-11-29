@@ -6,6 +6,7 @@
 #define GLOBALVARIABLES_HPP
 
 #include <vector>
+#include <vulkan/vulkan.hpp>
 
 #include "Application/Structs/ApplicationStructs.hpp"
 #include "filesystem"

@@ -183,14 +183,6 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     effects[EEffectType::ToneMappingPass] = std::move(toneMappingPass);
 
-    //================================================================================
-    auto fog = std::make_shared<VulkanUtils::VRasterEffect>(device, "Fog volume post processing", "Shaders/Compiled/FogVolume.vert.spv",
-                                                            "Shaders/Compiled/FogVolume.frag.spv", descLayoutCache,
-                                                            EShaderBindingGroup::FogBinding);
-
-    fog->SetDisableDepthTest().SetNullVertexBinding().SetCullNone().SetPiplineNoMultiSampling();
-
-    effects[EEffectType::FogVolume] = std::move(fog);
 
     //================================================================================
 
@@ -277,10 +269,33 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     atmospherePass->SetPiplineNoMultiSampling();
     atmospherePass->SetDisableDepthWrite();
     atmospherePass->SetCullNone();
-
-
     atmospherePass->SetDisableDepthTest();
+
     effects[EEffectType::AtmospherePass] = std::move(atmospherePass);
+
+    //=====================================================================================
+
+    auto fogComputeEffect = std::make_shared<VulkanUtils::VComputeEffect>(device, "Volumetric fog compute effect",
+                                                                          "Shaders/Compiled/VolumetricFog.spv", descLayoutCache,
+                                                                          EShaderBindingGroup::ComputePostProecess);
+
+    effects[EEffectType::FogVolumeCompute] = std::move(fogComputeEffect);
+
+    //=======================================================================================
+    auto fogMergEffect = std::make_shared<VulkanUtils::VRasterEffect>(device, "Volumetric fog composition",
+                                                                      "Shaders/Compiled/FogMerge.vert.spv",
+                                                                      "Shaders/Compiled/FogMerge.frag.spv",
+                                                                      descLayoutCache, EShaderBindingGroup::FogBinding);
+
+    fogMergEffect->EnableAlphaBlending();
+    fogMergEffect->SetPiplineNoMultiSampling();
+    fogMergEffect->SetDisableDepthWrite();
+    fogMergEffect->SetCullNone();
+
+    effects[EEffectType::FogComposition] = std::move(fogMergEffect);
+
+    //=======================================================================================
+
 
     BuildAllEffects();
 }

@@ -48,7 +48,7 @@ enum class EEffectType : std::uint8_t
     DepthPrePass,
     RTShadowPass,
     ToneMappingPass,
-    FogVolume,
+    FogComposition,
     LensFlare,
     ComputePostProcess,
     LuminanceHistrogram,
@@ -60,7 +60,8 @@ enum class EEffectType : std::uint8_t
     AtmosphereTransmitanceLUT,
     MultipleScatteringLUT,
     SkyViewLUT,
-    AtmospherePass
+    AtmospherePass,
+    FogVolumeCompute
 };
 
 class EffectsLibrary

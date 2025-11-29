@@ -129,9 +129,9 @@ static constexpr VBarrierPosition VImage_Undefined_ToDepthStencilReadOnly{{},
                                                                           vk::AccessFlagBits2::eDepthStencilAttachmentWrite};
 
 static constexpr VBarrierPosition VImage_SampledRead_To_General{
-    vk::PipelineStageFlagBits2::eFragmentShader,
+    vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
     vk::AccessFlagBits2::eShaderRead,
-    vk::PipelineStageFlagBits2::eComputeShader,
+    vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eComputeShader,
     vk::AccessFlagBits2::eShaderWrite,
 };
 

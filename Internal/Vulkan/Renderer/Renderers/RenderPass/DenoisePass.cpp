@@ -14,6 +14,7 @@
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
+#include <vulkan/vulkan_enums.hpp>
 
 namespace Renderer {
 BilateralFilterPass::BilateralFilterPass(const VulkanCore::VDevice&       device,
@@ -79,8 +80,9 @@ void BilateralFilterPass::Render(int currentFrame, VulkanCore::VCommandBuffer& c
 {
     assert(cmdBuffer.GetIsRecording() && " Command buffer is not in recording state");
 
-    VulkanUtils::VBarrierPosition barrier = {vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::AccessFlagBits2::eColorAttachmentWrite,
-                                             vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite};
+    VulkanUtils::VBarrierPosition barrier = {vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                             vk::AccessFlagBits2::eColorAttachmentWrite, vk::PipelineStageFlagBits2::eComputeShader,
+                                             vk::AccessFlagBits2::eShaderSampledRead | vk::AccessFlagBits2::eShaderWrite};
     m_renderTargets[EBilateralFilterAttachments::Result]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral,
                                                                                 vk::ImageLayout::eShaderReadOnlyOptimal, barrier);
 
@@ -99,7 +101,8 @@ void BilateralFilterPass::Render(int currentFrame, VulkanCore::VCommandBuffer& c
     cmdBuffer.GetCommandBuffer().dispatch(m_bilateralFilterParameters.width / 16, m_bilateralFilterParameters.height / 16, 1);
 
     VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
-                                                vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead};
+                                                vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                                                vk::AccessFlagBits2::eShaderRead};
 
     m_renderTargets[EBilateralFilterAttachments::Result]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
                                                                                 vk::ImageLayout::eGeneral, barrierPos);
