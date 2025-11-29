@@ -111,7 +111,7 @@ void FogPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, Vu
 
 
     vk::PushConstantsInfo pcInfo;
-    pcInfo.layout     = m_fogMergeEffect->GetPipelineLayout();
+    pcInfo.layout     = m_fogCalcEffect->GetPipelineLayout();
     pcInfo.size       = sizeof(FogVolumeParameters);
     pcInfo.offset     = 0;
     pcInfo.pValues    = &m_parameters;
@@ -140,7 +140,7 @@ void FogPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, Vu
 
     //=====================================================================
     // Merge fog pass, will combine compute shader output with scene render
-    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {renderContext->lightPassOutputRenderTarget->GenerateAttachmentInfo(
+    std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {renderContext->lightPassOutputRenderTarget->GenerateAttachmentInfoFromResolvedImage(
         vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore)};
 
     vk::RenderingInfo renderingInfo{};
