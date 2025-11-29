@@ -9,9 +9,6 @@ ConstantBuffer<GlobalData> _globalData;
 [[vk::binding(1, 0)]]
 Sampler2D _inputeTextureFog;
 
-[[vk::push_constant]]
-FogVolumeParameters _fogVolumeParametres;
-
 struct VertexOut {
     float4 pos : SV_Position;
     float2 uv : TEXCOORDS;

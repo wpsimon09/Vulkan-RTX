@@ -131,7 +131,6 @@ void AtmospherePass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuf
 {
     //!NOTE: it will render to the final rendered image and not to its own
 
-
     std::vector<vk::RenderingAttachmentInfo> renderingOutputs = {renderContext->lightPassOutputRenderTarget->GenerateAttachmentInfoFromResolvedImage(
         vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore)};
 
@@ -167,12 +166,15 @@ void AtmospherePass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuf
 
     cmdB.endRendering();
 
-    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
-                                                vk::AccessFlagBits2::eShaderRead, vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-                                                vk::AccessFlagBits2::eColorAttachmentWrite};
+    if(!renderContext->fogDrawCall.has_value())
+    {
+        VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                                                    vk::AccessFlagBits2::eShaderRead, vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                    vk::AccessFlagBits2::eColorAttachmentWrite};
 
-    renderContext->lightPassOutputRenderTarget->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                                      vk::ImageLayout::eAttachmentOptimal, barrierPos.Switch());
+        renderContext->lightPassOutputRenderTarget->TransitionAttachments(
+            cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eAttachmentOptimal, barrierPos.Switch());
+    }
 }
 
 void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)

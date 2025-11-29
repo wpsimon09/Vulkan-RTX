@@ -161,12 +161,18 @@ void FogPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, Vu
 
     m_fogMergeEffect->BindPipeline(cmdB);
     m_fogMergeEffect->BindDescriptorSet(cmdB, currentFrame, 0);
-    m_fogMergeEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
 
     cmdB.draw(3, 1, 0, 0);
 
     cmdB.endRendering();
+
+    VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                                                vk::AccessFlagBits2::eShaderWrite, vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                                                vk::AccessFlagBits2::eColorAttachmentWrite};
+
+    renderContext->lightPassOutputRenderTarget->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                                      vk::ImageLayout::eAttachmentOptimal, barrierPos);
 }
 
 void FogPass::Destroy()
