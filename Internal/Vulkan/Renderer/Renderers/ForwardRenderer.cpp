@@ -158,6 +158,7 @@ void ForwardRenderer::Render(int                                       currentFr
     // render the fog if it is in scene
     if(m_renderContextPtr->fogDrawCall.has_value())
     {
+        //** again renders to the output of the final render  */
         PostProcessingFogPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
     }
 
@@ -238,7 +239,7 @@ void ForwardRenderer::PostProcessingFogPass(int                                 
 {
     // this might not be the best thing to do but for now it should suffice
     m_fogPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
-    m_forwardRendererOutput = &m_fogPass->GetPrimaryResult();
+    //m_forwardRendererOutput = &m_fogPass->GetPrimaryResult();
 }
 
 void ForwardRenderer::AtmospherePass(int                                       currentFrameIndex,

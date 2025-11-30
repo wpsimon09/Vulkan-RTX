@@ -6,25 +6,25 @@ import Light;
 [[vk::binding(0, 0)]]
 ConstantBuffer<GlobalData> _globalData;
 
-[[vk::binding(2, 0)]]
+[[vk::binding(1, 0)]]
 Sampler2D _inputTexture_WorldPosition;
 
-[[vk::binding(3, 0)]]
+[[vk::binding(2, 0)]]
 Sampler2D _inputTexture_BlueNoise;
 
-[[vk::binding(4, 0)]]
+[[vk::binding(3, 0)]]
 ConstantBuffer<LightInfo> _light;
 
-[[vk::binding(5, 0)]]
+[[vk::binding(4, 0)]]
 RaytracingAccelerationStructure _tlas;
 
-[[vk::binding(6, 0)]]
+[[vk::binding(5, 0)]]
 RWTexture2D _outputFog; 
 
 [[vk::push_constant]]
 FogVolumeParameters _fogVolumeParametres;
 
-float3 ApproximateFog(RayDesc ray,float T, float T_light ,float worldY, float3 pixelColour){
+float4 ApproximateFog(RayDesc ray,float T ,float worldY){
     
     float sunAmmount = max(dot(ray.Direction, normalize(_light.dirLight.direction.xyz)), 0.0);
 
@@ -43,8 +43,10 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light ,float worldY, float3 p
 
     T = exp(-beta_S * heightFactor * ray.TMax);
 
-    float3 finalColour = pixelColour  * T +  in_scattering  + (1-T) * fogColor ;
- 
+    float4 finalColour;
+    finalColour.xyz = T +  in_scattering  + (1-T) * fogColor ;
+    finalColour.w = 1.0 - T;
+
     return finalColour;
 }
 
@@ -77,7 +79,7 @@ float EvaluateHeightDensity(float3 world){
     return density;
 }
 
-float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelColour)
+float4 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise)
 {
     float stepSize = ray.TMax / _fogVolumeParametres.raySteps;
     float numSteps = _fogVolumeParametres.raySteps;
@@ -117,7 +119,10 @@ float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
         
     }
 
-    return pixelColour * T + In_Scattering + (1-T);
+    float4 finalColour;
+    finalColour.xyz = T + In_Scattering + (1-T); 
+    finalColour.w = 1.0 - T;
+    return finalColour;
 }
 
 [shader("compute")]
@@ -144,19 +149,18 @@ void computeMain(uint3 threadID :SV_DispatchThreadID){
     
     float blueNoise = _inputTexture_BlueNoise.Sample(texCoords).x ;
 
-    float3 finalColour;
+    float4 finalColour;
     if(_fogVolumeParametres.rayMarched){ 
         //=====================
         // ray marched fog 
         //finalColour = RayMarchFog(ray, fsIn.screenSize, pixelColour);
-        finalColour = RayMarchFog(ray,worldPos, blueNoise, pixelColour);
-
+        finalColour = RayMarchFog(ray,worldPos, blueNoise);
     }else{
         //====================
         // approximate fog 
-        finalColour = ApproximateFog(ray, T, T_light,worldPos.y, pixelColour);
+        finalColour = ApproximateFog(ray, T, worldPos.y);
     }
 
-    return float4( finalColour, 1.0);
+    _outputFog[threadID.xy] = finalColour;
 }
 

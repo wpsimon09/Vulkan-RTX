@@ -43,7 +43,7 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     return output;
 }
 
-float3 ApproximateFog(RayDesc ray,float T, float T_light ,float worldY, float3 pixelColour){
+float4 ApproximateFog(RayDesc ray,float T, float T_light ,float worldY, float3 pixelColour){
     
     float sunAmmount = max(dot(ray.Direction, normalize(_light.dirLight.direction.xyz)), 0.0);
 
@@ -64,7 +64,7 @@ float3 ApproximateFog(RayDesc ray,float T, float T_light ,float worldY, float3 p
 
     float3 finalColour = pixelColour  * T +  in_scattering  + (1-T) * fogColor ;
  
-    return finalColour;
+    return float4(finalColour, T);
 }
 
 // Physically based rendering, 11.2
@@ -98,7 +98,7 @@ float EvaluateHeightDensity(float3 world){
 }
 
 
-float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelColour)
+float4 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelColour)
 {
     float stepSize = ray.TMax / _fogVolumeParametres.raySteps;
     float numSteps = _fogVolumeParametres.raySteps;
@@ -138,7 +138,7 @@ float3 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
         
     }
 
-    return pixelColour * T + In_Scattering + (1-T);
+    return float4(pixelColour * T + In_Scattering + (1-T), T);
 }
 
 
@@ -165,7 +165,7 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     
     float blueNoise = _inputTexture_BlueNoise.Sample(fsIn.uv).x ;
 
-    float3 finalColour;
+    float4 finalColour;
     if(_fogVolumeParametres.rayMarched){ 
         //=====================
         // ray marched fog 
@@ -178,6 +178,6 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
         finalColour = ApproximateFog(ray, T, T_light,worldPos.y, pixelColour);
     }
 
-    return float4( finalColour, 1.0);
+    return finalColour;
 
 }
