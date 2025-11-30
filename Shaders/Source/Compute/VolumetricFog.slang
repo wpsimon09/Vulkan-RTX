@@ -45,7 +45,7 @@ float4 ApproximateFog(RayDesc ray,float T ,float worldY){
 
     float4 finalColour;
     finalColour.xyz = T +  in_scattering  + (1-T) * fogColor ;
-    finalColour.w = T;
+    finalColour.w = 1.0 - T;
 
     return finalColour;
 }
@@ -121,7 +121,7 @@ float4 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise)
 
     float4 finalColour;
     finalColour.xyz = T + In_Scattering + (1-T); 
-    finalColour.w = T;
+    finalColour.w = 1.0 - T;
     return finalColour;
 }
 
