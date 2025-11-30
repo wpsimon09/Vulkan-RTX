@@ -392,6 +392,13 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
                                                                                 vk::ImageLayout::eColorAttachmentOptimal,
                                                                                 barrierPos.Switch());
     }
+    else
+    {
+        // put barrier here so that atmosphere has to wait until the colour of the forward is available
+        m_renderTargets[EForwardRenderAttachments::Main]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eColorAttachmentOptimal,
+                                                                                vk::ImageLayout::eColorAttachmentOptimal,
+                                                                                barrierPos.Switch());
+    }
 
     barrierPos = {vk::PipelineStageFlagBits2::eColorAttachmentOutput | vk::PipelineStageFlagBits2::eLateFragmentTests,
                   vk::AccessFlagBits2::eColorAttachmentWrite | vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
