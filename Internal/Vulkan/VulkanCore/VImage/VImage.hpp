@@ -73,8 +73,8 @@ class VImage : public VulkanCore::VObject
 
     template <typename T>
     void FillWithImageData(const VulkanStructs::VImageData<T>& imageData,
-                           bool                               transitionToShaderReadOnly = true,
-                           bool                               destroyCurrentImage        = false);
+                           bool                                transitionToShaderReadOnly = true,
+                           bool                                destroyCurrentImage        = false);
 
     std::string            GetPath() { return m_path; }
     void                   SetPath(const std::string& path) { m_path = path; }

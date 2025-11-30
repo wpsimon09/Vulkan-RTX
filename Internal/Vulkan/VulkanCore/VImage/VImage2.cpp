@@ -265,6 +265,8 @@ void VImage2::GiveDebugName(const std::string& name)
 {
     if(!name.empty() && GlobalState::InDebugMode && GlobalState::ValidationLayersEnabled)
     {
+        VulkanUtils::SetDebugName<VkImage>(m_device, m_imageVK.objectType, m_imageVK, name);
+        /*
         vk::DebugUtilsObjectNameInfoEXT nameInfo;
         nameInfo.objectType   = m_imageVK.objectType;
         nameInfo.objectHandle = (uint64_t)static_cast<VkImage>(m_imageVK);
@@ -272,13 +274,13 @@ void VImage2::GiveDebugName(const std::string& name)
 
         auto result = m_device.GetDevice().setDebugUtilsObjectNameEXT(&nameInfo, m_device.DispatchLoader);
         assert(result == vk::Result::eSuccess);
-
         if(m_imageView != nullptr)
         {
             nameInfo.objectType   = m_imageView.objectType;
             nameInfo.objectHandle = (uint64_t)static_cast<VkImageView>(m_imageView);
             nameInfo.pObjectName  = name.c_str();
         }
+        */
     }
 }
 

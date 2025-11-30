@@ -7,43 +7,24 @@ import Light;
 ConstantBuffer<GlobalData> _globalData;
 
 [[vk::binding(1, 0)]]
-Sampler2D _inputTexture_ShadowMap;
-
-[[vk::binding(2, 0)]]
 Sampler2D _inputTexture_WorldPosition;
 
-[[vk::binding(3, 0)]]
+[[vk::binding(2, 0)]]
 Sampler2D _inputTexture_BlueNoise;
 
-[[vk::binding(4, 0)]]
-Sampler2D _inputTexture_SceneColour;
-
-[[vk::binding(5, 0)]]
+[[vk::binding(3, 0)]]
 ConstantBuffer<LightInfo> _light;
 
-[[vk::binding(6, 0)]]
+[[vk::binding(4, 0)]]
 RaytracingAccelerationStructure _tlas;
+
+[[vk::binding(5, 0)]]
+RWTexture2D _outputFog; 
 
 [[vk::push_constant]]
 FogVolumeParameters _fogVolumeParametres;
 
-struct VertexOut {
-    float4 pos : SV_Position;
-    float2 uv : TEXCOORDS;
-    float2 screenSize : SCREEN_SIZE;
-};
-
-[shader("vertex")]
-VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
-    // draw indexed with 3 vertices, requires no VAO binding
-    VertexOut output;
-    output.uv = float2((VertexIndex << 1) & 2, VertexIndex & 2);
-    output.pos = float4(output.uv * 2.0f - 1.0f, 0.0f, 1.0f);
-    output.screenSize = _globalData.screenSize; 
-    return output;
-}
-
-float4 ApproximateFog(RayDesc ray,float T, float T_light ,float worldY, float3 pixelColour){
+float4 ApproximateFog(RayDesc ray,float T ,float worldY){
     
     float sunAmmount = max(dot(ray.Direction, normalize(_light.dirLight.direction.xyz)), 0.0);
 
@@ -62,9 +43,11 @@ float4 ApproximateFog(RayDesc ray,float T, float T_light ,float worldY, float3 p
 
     T = exp(-beta_S * heightFactor * ray.TMax);
 
-    float3 finalColour = pixelColour  * T +  in_scattering  + (1-T) * fogColor ;
- 
-    return float4(finalColour, T);
+    float4 finalColour;
+    finalColour.xyz = T +  in_scattering  + (1-T) * fogColor ;
+    finalColour.w = 1.0 - T;
+
+    return finalColour;
 }
 
 // Physically based rendering, 11.2
@@ -74,7 +57,6 @@ float Henyey_GreensteinPhaseFunction(float g, float cosTheta){
     float denom = 1.0 + g * g - 2.0 * g * cosTheta;
     return Inv4Pi * (1.0 - g * g) / (denom * sqrt(denom));
 }
-
 
 /**
 * Calculates in scattering of the light at the sample position 
@@ -97,8 +79,7 @@ float EvaluateHeightDensity(float3 world){
     return density;
 }
 
-
-float4 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelColour)
+float4 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise)
 {
     float stepSize = ray.TMax / _fogVolumeParametres.raySteps;
     float numSteps = _fogVolumeParametres.raySteps;
@@ -138,15 +119,23 @@ float4 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise, float3 pixelCol
         
     }
 
-    return float4(pixelColour * T + In_Scattering + (1-T), T);
+    float4 finalColour;
+    finalColour.xyz = T + In_Scattering + (1-T); 
+    finalColour.w = 1.0 - T;
+    return finalColour;
 }
 
+[shader("compute")]
+[[numthreads(16, 16, 1)]]
+void computeMain(uint3 threadID :SV_DispatchThreadID){
+    float2 dstWriteCoords = float2(threadID.xy);
+    float2 dims;
+    _outputFog.GetDimensions(dims.x, dims.y);
 
-[shader("fragment")]
-float4 fragmentMain(VertexOut fsIn) : SV_Target {
+    float2 texCoords = (dstWriteCoords + 0.5) / dims;
 
-    
-    float3 worldPos = _inputTexture_WorldPosition.Sample(fsIn.uv).xyz;
+    float3 worldPos = _inputTexture_WorldPosition.Sample(texCoords).xyz;
+
 
     RayDesc ray;
     ray.Direction = normalize(worldPos - _globalData.cameraPostiion.xyz);
@@ -154,30 +143,24 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     ray.TMin = 0.001;
     // get the disnatnce that the ray will travel
     ray.TMax = min(distance(worldPos ,_globalData.cameraPostiion.xyz), 10000);
-    
-    float2 shadow_t_light = _inputTexture_ShadowMap.Sample(fsIn.uv).xy;
-    
+        
     // calculate transmission using beers law
     float T = exp(-ray.TMax * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));
-    float3 pixelColour = _inputTexture_SceneColour.Sample(fsIn.uv).xyz;
-
-    float T_light = exp(-shadow_t_light.y * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));
     
-    float blueNoise = _inputTexture_BlueNoise.Sample(fsIn.uv).x ;
+    float blueNoise = _inputTexture_BlueNoise.Sample(texCoords).x ;
 
     float4 finalColour;
     if(_fogVolumeParametres.rayMarched){ 
         //=====================
         // ray marched fog 
         //finalColour = RayMarchFog(ray, fsIn.screenSize, pixelColour);
-        finalColour = RayMarchFog(ray,worldPos, blueNoise, pixelColour);
-
+        finalColour = RayMarchFog(ray,worldPos, blueNoise);
     }else{
         //====================
         // approximate fog 
-        finalColour = ApproximateFog(ray, T, T_light,worldPos.y, pixelColour);
+        finalColour = ApproximateFog(ray, T, worldPos.y);
     }
 
-    return finalColour;
-
+    _outputFog[threadID.xy] = finalColour;
 }
+

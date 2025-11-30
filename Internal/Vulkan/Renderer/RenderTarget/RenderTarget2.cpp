@@ -155,9 +155,13 @@ vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfo(vk::ImageLayou
         attachmentInfo.resolveImageLayout = layout;
     }
 
-    attachmentInfo.loadOp                          = loadOp;
-    attachmentInfo.storeOp                         = storeOp;
-    attachmentInfo.clearValue.color                = {0.0f, 0.0f, 0.0f, 1.0f};
+    attachmentInfo.loadOp  = loadOp;
+    attachmentInfo.storeOp = storeOp;
+
+    attachmentInfo.clearValue.color.setFloat32({0.0f, 0.0f, 0.0f, 1.0f});
+    attachmentInfo.clearValue.color.setInt32({0, 0, 0, 1});
+    attachmentInfo.clearValue.color.setUint32({0, 0, 0, 1});
+
     attachmentInfo.clearValue.depthStencil.depth   = 1.0f;
     attachmentInfo.clearValue.depthStencil.stencil = 0.0f;
 
@@ -171,12 +175,16 @@ vk::RenderingAttachmentInfo RenderTarget2::GenerateAttachmentInfoFromResolvedIma
         throw std::runtime_error("This attachemtn does not have resovled output ! ");
 
     vk::RenderingAttachmentInfo attachmentInfo;
-    attachmentInfo.imageView                       = m_resolvedAttachment->GetImageView();
-    attachmentInfo.imageLayout                     = layout;
-    attachmentInfo.resolveMode                     = vk::ResolveModeFlagBits::eNone;
-    attachmentInfo.loadOp                          = loadOp;
-    attachmentInfo.storeOp                         = storeOp;
-    attachmentInfo.clearValue.color                = {0.0f, 0.0f, 0.0f, 1.0f};
+    attachmentInfo.imageView   = m_resolvedAttachment->GetImageView();
+    attachmentInfo.imageLayout = layout;
+    attachmentInfo.resolveMode = vk::ResolveModeFlagBits::eNone;
+    attachmentInfo.loadOp      = loadOp;
+    attachmentInfo.storeOp     = storeOp;
+
+    attachmentInfo.clearValue.color.setFloat32({0.0f, 0.0f, 0.0f, 1.0f});
+    attachmentInfo.clearValue.color.setInt32({0, 0, 0, 1});
+    attachmentInfo.clearValue.color.setUint32({0, 0, 0, 1});
+
     attachmentInfo.clearValue.depthStencil.depth   = 1.0f;
     attachmentInfo.clearValue.depthStencil.stencil = 0.0f;
 

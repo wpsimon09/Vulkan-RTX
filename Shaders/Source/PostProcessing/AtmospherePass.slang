@@ -118,8 +118,7 @@ float4 fragmentMain(VertexOut fsIn){
         }
 
         return float4(L * light.dirLight.intensity.w, 1.0);
-
     }else{
-        return float4(0.0);
+        return float4(0.2, 0.3, 0.2, 0.0);
     }
 }
