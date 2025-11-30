@@ -25,7 +25,7 @@ public struct Vertex {
     public float4    tangent; 
 }
 
-public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric)
+public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric, float3x4 objectToWorld)
 {
     const float3 barycentricCoords = float3(1.0f - baricentric.x - baricentric.y, baricentric.x, baricentric.y);
 
@@ -50,12 +50,14 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     SurfaceGeometry g;
     float3 N = v1.norm * barycentricCoords.x + v2.norm * barycentricCoords.y + v3.norm * barycentricCoords.z;
     g.normal = N;
-    g.shadingNormal = mul(ObjectToWorld(), float4(N, 0.0));
 
+    float3x4 ObjToWorld = objectToWorld;
+    
+    g.shadingNormal = mul(ObjToWorld, float4(N, 0.0));
     
     float3 pos = v1.pos * barycentricCoords.x + v2.pos * barycentricCoords.y + v3.pos * barycentricCoords.z;
     g.position = pos;
-    g.shadingPosition = mul(ObjectToWorld(), float4(pos, 1.0)).xyz;
+    g.shadingPosition = mul(ObjToWorld, float4(pos, 1.0)).xyz;
     
     float2 uv = v1.uv.xy * barycentricCoords.x + v2.uv.xy * barycentricCoords.y + v3.uv.xy * barycentricCoords.z;
     g.uv = uv;
@@ -74,17 +76,23 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
 
     
 
-    g.TBN = CalculateTBN(g.normal, g.tangent, (float3x3)ObjectToWorld());
+    g.TBN = CalculateTBN(g.normal, g.tangent, (float3x3)ObjToWorld);
     g.iTBN = transpose((g.TBN));
 
     if(features.hasNormalTexture){
         g.shadingNormal = normalize(SampleNormalMap(textures[features.normalTextureIdx],g.uv, g.TBN));
     }else{
-        g.shadingNormal = normalize(mul(ObjectToWorld(), float4(N, 0.0)));
+        g.shadingNormal = normalize(mul(ObjToWorld, float4(N, 0.0)));
     }
     
     return g;
 }
+
+
+public SurfaceGeometry GetSurfaceInfoFromHitObject(HitObject hitObject){
+    return GetSurfaceInfo(hitObject.GetPrimitiveIndex(), hitObject.GetInstanceID(), hitObject.GetAttributes<float2>(), transpose(hitObject.GetObjectToWorld()));
+}
+
     
 public PBRMaterial GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
     PBRMaterial pbrMat;

@@ -122,5 +122,5 @@ public struct RayPayLoad {
     public uint depth = 0;
     public uint randomContext;
 
-    public Optional<BxDFContext> brdfContext;
+    public Optional<BxDFContext> brdfContext = {};
 }

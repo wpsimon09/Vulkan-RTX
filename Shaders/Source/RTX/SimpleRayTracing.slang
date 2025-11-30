@@ -193,13 +193,18 @@ void missMain2(inout RayPayloadShadow payload) {
 [[shader("closesthit")]]
 void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttributes attr)
 {
-    var g = GetSurfaceInfo(PrimitiveIndex(), InstanceID(), attr.barycentrics);
-    var m = GetMaterial(InstanceID(), g);
+    SurfaceGeometry g;
+    float3 wo = float3(0.0);
+    PBRMaterial m;
+
+    g = GetSurfaceInfo(PrimitiveIndex(), InstanceIndex(), attr.barycentrics, ObjectToWorld());
+    wo  = -WorldRayDirection();
+    m = GetMaterial(InstanceID(), g);
+
     var bxdfContext = m.Prepare(g);
 
     //========================
     // direct light
-    float3 wo = -WorldRayDirection();
 
     float3 L = _lightInfo.dirLight.direction.xyz;
     float3 Li = (_lightInfo.dirLight.intensity.xyz * _lightInfo.dirLight.intensity.w).xyz;
@@ -222,7 +227,7 @@ void closestHitMain(inout RayPayLoad payLoad, in BuiltInTriangleIntersectionAttr
         shadowRay.TMax = 10000;
         shadowRay.TMin = 0.01;
         
-        TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
+        //TraceRay(_TLAS, RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, 0xFF, 0, 0, 1, shadowRay, shadowPayLoad);
     }
     if (!shadowPayLoad.inShadow && (bool)_lightInfo.dirLight.parameters.z) {
         
