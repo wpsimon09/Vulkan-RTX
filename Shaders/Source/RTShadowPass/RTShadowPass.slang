@@ -106,8 +106,6 @@ float4 fragmentMain(VertexOut fsIn) :SV_Target {
     }
 
     if(globalData.aoOcclusion){
-
-
         float3 x, y, z;
         compute_default_basis(normal, x, y, z);
         for(int i = 0; i < _aoParameters.sampleCount; ++i){
