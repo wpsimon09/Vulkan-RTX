@@ -18,6 +18,7 @@
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include <memory>
 #include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace Renderer {
 VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
@@ -40,9 +41,6 @@ VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, Ap
                                                  true,
                                                  "visibility buffer attachment"};
 
-    m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI));
-
-    shadowMapCI.imageDebugName = "Ambient occlusion map";
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI));
 }
 void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
@@ -117,5 +115,69 @@ void VisibilityBufferPass::Destroy()
     RenderPass::Destroy();
     m_rayTracedShadowEffect->Destroy();
 }
+
+
+//************************************************************************ */
+//********************************* RT- Ambient occlusion **************** */
+//************************************************************************ */
+AoOcclusionPass::AoOcclusionPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height)
+    : Renderer::RenderPass(device, width, height)
+    , m_aoOcclusionParameters{}
+{
+    //=================================================
+    // create the effect
+    m_aoEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::RT_AoOcclusionPass);
+
+    //===================================================
+    // create render target
+    Renderer::RenderTarget2CreatInfo aoPassCi{
+        width, height, false, false, vk::Format::eR16Sfloat, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ResolveModeFlagBits::eNone, true, "AO Pass attachment"};
+
+    m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(device, aoPassCi));
+}
+
+void AoOcclusionPass::Init(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
+{
+    m_aoEffect->SetNumWrites(3, 0, 1);
+
+    m_aoEffect->WriteImage(frameIndex, 0, 0, renderContext->normalMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    m_aoEffect->WriteImage(frameIndex, 0, 1, renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    m_aoEffect->WriteImage(frameIndex, 0, 3, GetPrimaryAttachemntDescriptorInfo(0));
+    m_aoEffect->WriteAccelerationStrucutre(frameIndex, 0, 4, renderContext->tlas);
+
+    m_aoEffect->ApplyWrites(frameIndex);
+}
+
+void AoOcclusionPass::Update(int                                   currentFrame,
+                             VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                             VulkanUtils::RenderContext*           renderContext,
+                             VulkanStructs::PostProcessingContext* postProcessingContext)
+{
+    m_aoEffect->SetNumWrites(0, 0, 1);
+    m_aoEffect->WriteAccelerationStrucutre(currentFrame, 0, 4, renderContext->tlas);
+    m_aoEffect->ApplyWrites(currentFrame);
+
+    m_aoOcclusionParameters              = uniformBufferManager.GetApplicationState()->GetAoOcclusionParameters();
+    m_aoOcclusionParameters.currentFrame = m_device.CurrentFrame;
+}
+
+void AoOcclusionPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
+{
+    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                              VulkanUtils::VImage_SampledRead_To_General);
+
+    m_aoEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
+    m_aoEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+    cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
+
+    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
+                                              VulkanUtils::VImage_SampledRead_To_General.Switch());
+}
+
+void AoOcclusionPass::Destroy()
+{
+    RenderPass::Destroy();
+}
+
 
 }  // namespace Renderer
