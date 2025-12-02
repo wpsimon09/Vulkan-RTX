@@ -32,9 +32,15 @@ void compute_default_basis(const float3 normal, out float3 x, out float3 y, out 
 void computeMain(uint3 threadID: SV_DispatchThreadID){
     uint2 dims;
     _aoMap.GetDimensions(dims.x, dims.y);
-    float2 texCoords = threadID.xy / dims;
+    float2 texCoords = (threadID.xy + 0.5) / dims;
 
     float3 N = _normalMap.Sample(texCoords).xyz;
+
+    if(N.equals(float3(0.0))){
+        _aoMap[threadID.xy].x = 1.0;
+    }
+
+    N = normalize(N);
     float3 X = _posMap.Sample(texCoords).xyz;
     float3 x, y, z;
     compute_default_basis(N, x,y,z);
@@ -43,18 +49,22 @@ void computeMain(uint3 threadID: SV_DispatchThreadID){
 
     uint rng = tea(pixelId, (uint)_aoParameters.currentFrame);
 
-    float aoFactor;
+    float aoFactor = 0.0;
 
     for(int i = 0; i < _aoParameters.sampleCount; i++){
         float r1 = RandomValue(rng);
         float r2 = RandomValue(rng);
         float sq = sqrt(1.0 - r2);
 
-        float3 aoDir = float3(cos(2 * PI * r1) * sq, sin(2 * PI * r1) * sq, sqrt(r2));
+        // from spherical coordinate sysetm to cartesians, where (0, 0, 1) the 1 is normal vector 
+        float3 aoDir = float3(
+            cos(2 * PI * r1) * sq, 
+            sin(2 * PI * r1) * sq, 
+            sqrt(r2));
+        
+        // transform sampled direction back to the world space by rotating it 
         aoDir = aoDir.x * x + aoDir.y * y + aoDir.z * z;
 
-        aoDir = normalize(SampleHemisphere(transpose(float3x3(x, y, z)), rng));
-        
         float tHit = _aoParameters.radius;
         bool occluded = IntersectsP(InitRay(X + normalize(N) * 0.1, aoDir, tHit),_tlas, tHit);
         
@@ -64,5 +74,5 @@ void computeMain(uint3 threadID: SV_DispatchThreadID){
     aoFactor = 1.0 - (aoFactor / _aoParameters.sampleCount);
     aoFactor = pow(clamp(aoFactor, 0, 1), _aoParameters.strenght);
 
-    _aoMap[threadID.xy] = aoFactor;
+    _aoMap[threadID.xy].x = aoFactor;
 }

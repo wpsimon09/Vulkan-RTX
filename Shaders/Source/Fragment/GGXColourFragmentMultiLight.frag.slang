@@ -115,7 +115,7 @@ float4 fragmentMain(VertexOutput fsIn)
 
     // shadow factor.y is an ambient occlusion data 
     if(globalData.aoOcclusion){
-        finalColor.xyz *= AoOcclusionMap.Sample(fsIn.vertexData.uv).x;
+        finalColor.xyz *= AoOcclusionMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x;
     }
 
     switch(globalData.renderOutput){
@@ -126,7 +126,7 @@ float4 fragmentMain(VertexOutput fsIn)
             return float4(g.shadingNormal, 1.0);
         }
         case ERenderOutput::LightOnly:{
-            return float4(finalColor,1.0);
+            return float4(float3(AoOcclusionMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x),1.0);
         };
         case ERenderOutput::Albedo:{
             return float4(brdfContext.albedo.xyz, 1.0);
