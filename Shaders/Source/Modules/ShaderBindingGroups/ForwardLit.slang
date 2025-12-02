@@ -30,6 +30,9 @@ Sampler2D LTC_Inverse;
 [[vk::binding(7,0)]]
 Sampler2D TransmitanceLUT;
 
+[[vk::binding(8, 0)]]
+Sampler2D AoOcclusionMap;
+
 
 //========================
 // set 1

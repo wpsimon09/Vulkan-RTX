@@ -90,6 +90,7 @@ class ForwardRenderer
     Renderer::RenderTarget2& GetNormalBufferOutput() const;
     VulkanCore::VImage2&     GetDenoisedVisibilityBuffer() const;
 
+
     void Destroy();
 
   protected:
@@ -110,6 +111,10 @@ class ForwardRenderer
     void DenoiseVisibility(int                                       currentFrameIndex,
                            VulkanCore::VCommandBuffer&               cmdBuffer,
                            const VulkanUtils::VUniformBufferManager& uniformBufferManager);
+
+    void AmbientOcclusion(int                                       currentFrameIndex,
+                          VulkanCore::VCommandBuffer&               cmdBuffer,
+                          const VulkanUtils::VUniformBufferManager& uniformBufferManager);
 
 
   private:
@@ -133,6 +138,7 @@ class ForwardRenderer
 
     std::unique_ptr<Renderer::VisibilityBufferPass> m_visibilityBufferPass;
     std::unique_ptr<Renderer::GBufferPass>          m_gBufferPass;
+    std::unique_ptr<Renderer::AoOcclusionPass>      m_aoOcclusionPass;
     std::unique_ptr<Renderer::BilateralFilterPass>  m_visibilityDenoisePass;
     std::unique_ptr<Renderer::ForwardRender>        m_forwardRenderPass;
     std::unique_ptr<Renderer::FogPass>              m_fogPass;

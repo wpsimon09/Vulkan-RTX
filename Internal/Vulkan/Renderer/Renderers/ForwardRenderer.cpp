@@ -73,6 +73,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_forwardRenderPass = std::make_unique<Renderer::ForwardRender>(device, effectsLibrary, width, height);
     m_fogPass           = std::make_unique<Renderer::FogPass>(device, effectsLibrary, width, height);
     m_atmospherePass    = std::make_unique<Renderer::AtmospherePass>(device, effectsLibrary, width, height);
+    m_aoOcclusionPass   = std::make_unique<Renderer::AoOcclusionPass>(device, effectsLibrary, width / 2, width / 2);
 
     m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
     m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
@@ -80,6 +81,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_renderContextPtr->lightPassOutputRenderTarget = &m_forwardRenderPass->GetRenderTarget(EForwardRenderAttachments::Main);
     m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
     m_renderContextPtr->lightPassOutput  = &m_forwardRenderPass->GetResolvedResult();
+    m_renderContextPtr->aoOcclusionMap   = &m_aoOcclusionPass->GetResolvedResult();
 
 
     Utils::Logger::LogSuccess("Forward renderer created !");
@@ -96,6 +98,7 @@ void ForwardRenderer::Init(int                                  frameIndex,
     m_visibilityDenoisePass->Init(frameIndex, uniformBufferManager, renderContext);
     m_forwardRenderPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_fogPass->Init(frameIndex, uniformBufferManager, renderContext);
+    m_aoOcclusionPass->Init(frameIndex, uniformBufferManager, renderContext);
 }
 
 void ForwardRenderer::Update(int                                   currentFrame,
@@ -109,6 +112,7 @@ void ForwardRenderer::Update(int                                   currentFrame,
     m_forwardRenderPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_fogPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_atmospherePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_aoOcclusionPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,
@@ -141,6 +145,13 @@ void ForwardRenderer::Render(int                                       currentFr
     //===========================
     // denoise the shadow pass
     DenoiseVisibility(currentFrameIndex, cmdBuffer, uniformBufferManager);
+
+    //===========================
+    // ambient occlusion pass
+    if(uniformBufferManager.GetApplicationState()->m_ambientOcclusion)
+    {
+        AmbientOcclusion(currentFrameIndex, cmdBuffer, uniformBufferManager);
+    }
 
     //============================
     // uses forward renderer to render the scene
@@ -249,6 +260,13 @@ void ForwardRenderer::AtmospherePass(int                                       c
     m_atmospherePass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
 }
 
+void ForwardRenderer::AmbientOcclusion(int                                       currentFrameIndex,
+                                       VulkanCore::VCommandBuffer&               cmdBuffer,
+                                       const VulkanUtils::VUniformBufferManager& uniformBufferManager)
+{
+    m_aoOcclusionPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
+}
+
 
 void ForwardRenderer::Destroy()
 {
@@ -259,6 +277,7 @@ void ForwardRenderer::Destroy()
     m_forwardRenderPass->Destroy();
     m_fogPass->Destroy();
     m_atmospherePass->Destroy();
+    m_aoOcclusionPass->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer

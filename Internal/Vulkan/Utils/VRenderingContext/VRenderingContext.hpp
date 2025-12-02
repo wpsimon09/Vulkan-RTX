@@ -60,6 +60,7 @@ struct RenderContext
     VulkanCore::VImage2*     visibilityBuffer            = nullptr;
     Renderer::RenderTarget2* depthBuffer                 = nullptr;
     Renderer::RenderTarget2* lightPassOutputRenderTarget = nullptr;
+    VulkanCore::VImage2*     aoOcclusionMap              = nullptr;
 
     std::shared_ptr<VulkanCore::VImage2> defaultTexture = nullptr;
 
