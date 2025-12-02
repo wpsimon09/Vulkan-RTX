@@ -138,12 +138,12 @@ AoOcclusionPass::AoOcclusionPass(const VulkanCore::VDevice& device, ApplicationC
 
 void AoOcclusionPass::Init(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
-    m_aoEffect->SetNumWrites(3, 0, 1);
+    m_aoEffect->SetNumWrites(0, 3, 1);
 
     m_aoEffect->WriteImage(frameIndex, 0, 0, renderContext->normalMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     m_aoEffect->WriteImage(frameIndex, 0, 1, renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-    m_aoEffect->WriteImage(frameIndex, 0, 3, GetPrimaryAttachemntDescriptorInfo(0));
-    m_aoEffect->WriteAccelerationStrucutre(frameIndex, 0, 4, renderContext->tlas);
+    m_aoEffect->WriteImage(frameIndex, 0, 2, GetPrimaryAttachemntDescriptorInfo(0));
+    m_aoEffect->WriteAccelerationStrucutre(frameIndex, 0, 3, renderContext->tlas);
 
     m_aoEffect->ApplyWrites(frameIndex);
 }
@@ -154,7 +154,7 @@ void AoOcclusionPass::Update(int                                   currentFrame,
                              VulkanStructs::PostProcessingContext* postProcessingContext)
 {
     m_aoEffect->SetNumWrites(0, 0, 1);
-    m_aoEffect->WriteAccelerationStrucutre(currentFrame, 0, 4, renderContext->tlas);
+    m_aoEffect->WriteAccelerationStrucutre(currentFrame, 0, 3, renderContext->tlas);
     m_aoEffect->ApplyWrites(currentFrame);
 
     m_aoOcclusionParameters              = uniformBufferManager.GetApplicationState()->GetAoOcclusionParameters();

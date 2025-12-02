@@ -114,7 +114,9 @@ float4 fragmentMain(VertexOutput fsIn)
     finalColor.xyz += (brdfContext.emmision * brdfContext.emissionStrength);
 
     // shadow factor.y is an ambient occlusion data 
-    finalColor.xyz *= AoOcclusionMap.Sample(fsIn.vertexData.uv).x;
+    if(globalData.aoOcclusion){
+        finalColor.xyz *= AoOcclusionMap.Sample(fsIn.vertexData.uv).x;
+    }
 
     switch(globalData.renderOutput){
         case ERenderOutput::FullLit :{

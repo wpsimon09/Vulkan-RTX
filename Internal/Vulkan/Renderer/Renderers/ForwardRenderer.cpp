@@ -81,7 +81,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_renderContextPtr->lightPassOutputRenderTarget = &m_forwardRenderPass->GetRenderTarget(EForwardRenderAttachments::Main);
     m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
     m_renderContextPtr->lightPassOutput  = &m_forwardRenderPass->GetResolvedResult();
-    m_renderContextPtr->aoOcclusionMap   = &m_aoOcclusionPass->GetResolvedResult();
+    m_renderContextPtr->aoOcclusionMap   = &m_aoOcclusionPass->GetPrimaryResult();
 
 
     Utils::Logger::LogSuccess("Forward renderer created !");
@@ -112,7 +112,10 @@ void ForwardRenderer::Update(int                                   currentFrame,
     m_forwardRenderPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_fogPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_atmospherePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
-    m_aoOcclusionPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    if(uniformBufferManager.GetApplicationState()->m_ambientOcclusion)
+    {
+        m_aoOcclusionPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    }
 }
 
 void ForwardRenderer::Render(int                                       currentFrameIndex,
