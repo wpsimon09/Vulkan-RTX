@@ -299,6 +299,7 @@ bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
 
         m_postProcessingContext.sceneRender = m_forwardRenderer->GetForwardRendererResult();
         m_postProcessingContext.shadowMap   = &m_forwardRenderer->GetShadowMapOutput().GetPrimaryImage();
+        m_postProcessingContext.aoMap       = &m_forwardRenderer->GetAmbientOcclusionOutpu().GetPrimaryImage();
         m_postProcessingContext.toneMappingParameters->isRayTracing = false;
     }
     else
@@ -306,6 +307,9 @@ bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
         // path trace the scene
         m_rayTracer->TraceRays(*m_renderingCommandBuffers[m_frameInFlightID], m_uniformBufferManager, &m_renderContext, m_frameInFlightID);
         m_accumulatedFramesCount++;
+
+        m_postProcessingContext.shadowMap = nullptr;
+        m_postProcessingContext.aoMap     = nullptr;
 
         m_postProcessingContext.sceneRender                         = &m_rayTracer->GetRenderedImage(m_frameInFlightID);
         m_postProcessingContext.toneMappingParameters->isRayTracing = true;

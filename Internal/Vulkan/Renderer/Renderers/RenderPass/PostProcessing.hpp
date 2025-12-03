@@ -139,6 +139,7 @@ class BloomPass : public RenderPass
     BloomSettings         m_bloomSettings;
 };
 
+
 }  // namespace Renderer
 
 #endif  //VULKAN_RTX_POSTPROCESSING_HPP

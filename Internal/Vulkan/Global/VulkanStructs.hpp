@@ -209,6 +209,7 @@ struct PostProcessingContext
 {
     VulkanCore::VImage2*                 sceneRender;
     VulkanCore::VImage2*                 shadowMap;
+    VulkanCore::VImage2*                 aoMap;
     std::shared_ptr<VulkanCore::VImage2> dummyTexture;
     LensFlareParameters*                 lensFlareParameters;
     ToneMappingParameters*               toneMappingParameters;

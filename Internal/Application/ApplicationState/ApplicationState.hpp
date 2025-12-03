@@ -65,6 +65,7 @@ class ApplicationState
     bool               m_accumulateFrames     = true;
     bool               m_ambientOcclusion     = false;
     bool               m_enablePostProcessing = true;
+    bool               m_denoise              = true;
 
 
   private:
