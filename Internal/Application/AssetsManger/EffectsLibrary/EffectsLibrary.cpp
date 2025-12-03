@@ -302,6 +302,12 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     //=======================================================================================
 
+    auto compositePass = std::make_shared<VulkanUtils::VComputeEffect>(device, "Compositing pass (shadow and ao)",
+                                                                       "Shaders/Compiled/CompositePass.spv", descLayoutCache,
+                                                                       EShaderBindingGroup::ComputePostProecess);
+
+    effects[EEffectType::CompositePass] = std::move(compositePass);
+
     BuildAllEffects();
 }
 

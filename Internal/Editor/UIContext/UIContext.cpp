@@ -58,7 +58,8 @@ void UIContext::Initialize(const VulkanCore::VSwapChain& swapChain)
     };
 
     vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo{};
-    descriptorPoolCreateInfo.flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet | vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind;
+    descriptorPoolCreateInfo.flags =
+        vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet | vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind;
     descriptorPoolCreateInfo.maxSets       = 200;
     descriptorPoolCreateInfo.poolSizeCount = static_cast<uint32_t>(IM_ARRAYSIZE(poolSizes));
     descriptorPoolCreateInfo.pPoolSizes    = poolSizes;

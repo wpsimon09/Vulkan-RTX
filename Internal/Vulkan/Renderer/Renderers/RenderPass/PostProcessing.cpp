@@ -899,5 +899,79 @@ void BloomPass::Destroy()
     RenderPass::Destroy();
 }
 
+//=======================================================================================================
+//***************************************** COMPOSITE ***************************************************
+//=======================================================================================================
+/*
+ Combines final rendered image with the results of ambient occlusion and shadow map both of which are in the screen space 
+*/
+
+CompositePass::CompositePass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height)
+    : RenderPass(device, width, height)
+{
+    RenderTarget2CreatInfo compositeAttachemntCi{width,
+                                                 height,
+                                                 false,
+                                                 false,
+                                                 vk::Format::eR16G16B16A16Sfloat,
+                                                 vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                 vk::ResolveModeFlagBits::eNone,
+                                                 true,
+                                                 "Composite pass attachemtn"};
+
+    m_renderTargets.emplace_back(std::make_unique<RenderTarget2>(device, compositeAttachemntCi));
+
+    m_compositeEffect = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::CompositePass);
+}
+
+void CompositePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
+{
+    m_compositeEffect->SetNumWrites(0, 3, 0);
+    m_compositeEffect->WriteImage(currentFrameIndex, 0, 0, GetPrimaryAttachemntDescriptorInfo(0));
+    m_compositeEffect->WriteImage(currentFrameIndex, 0, 1,
+                                  renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    m_compositeEffect->WriteImage(currentFrameIndex, 0, 2,
+                                  renderContext->aoOcclusionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    m_compositeEffect->WriteImage(currentFrameIndex, 0, 3,
+                                  renderContext->lightPassOutput->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    m_compositeEffect->ApplyWrites(currentFrameIndex);
+}
+
+void CompositePass::Update(int                                   currentFrame,
+                           VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                           VulkanUtils::RenderContext*           renderContext,
+                           VulkanStructs::PostProcessingContext* postProcessingContext)
+{
+    m_compositeEffect->SetNumWrites(0, 3, 0);
+    m_compositeEffect->WriteImage(currentFrame, 0, 1,
+                                  renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    m_compositeEffect->WriteImage(currentFrame, 0, 2,
+                                  renderContext->aoOcclusionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+    m_compositeEffect->ApplyWrites(currentFrame);
+}
+
+void CompositePass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
+{
+
+    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                              VulkanUtils::VImage_SampledRead_To_General);
+
+    m_compositeEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
+    m_compositeEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+
+    int width  = m_renderTargets[0]->GetWidth();
+    int height = m_renderTargets[0]->GetHeight();
+    cmdBuffer.GetCommandBuffer().dispatch(width / 16, height / 16, 1);
+
+    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
+                                              VulkanUtils::VImage_SampledRead_To_General.Switch());
+}
+
+void CompositePass::Destroy()
+{
+    RenderPass::Destroy();
+}
+
 
 }  // namespace Renderer

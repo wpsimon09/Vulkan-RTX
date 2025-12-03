@@ -149,11 +149,13 @@ void ForwardRenderer::Render(int                                       currentFr
     // denoise the shadow pass
     if(uniformBufferManager.GetApplicationState()->m_denoise)
     {
+        // if denoising is available use denoised up-scaled shadow map
         DenoiseVisibility(currentFrameIndex, cmdBuffer, uniformBufferManager);
         m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetRenderTarget(0).GetPrimaryImage();
     }
     else
     {
+        // otherwise use low res noise shadow map
         m_renderContextPtr->visibilityBuffer = &m_visibilityBufferPass->GetRenderTarget(0).GetPrimaryImage();
     }
 

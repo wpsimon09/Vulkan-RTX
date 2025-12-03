@@ -298,7 +298,7 @@ bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
                                   m_uniformBufferManager, &m_renderContext);
 
         m_postProcessingContext.sceneRender = m_forwardRenderer->GetForwardRendererResult();
-        m_postProcessingContext.shadowMap   = &m_forwardRenderer->GetShadowMapOutput().GetPrimaryImage();
+        m_postProcessingContext.shadowMap   = m_renderContext.visibilityBuffer;
         m_postProcessingContext.aoMap       = &m_forwardRenderer->GetAmbientOcclusionOutpu().GetPrimaryImage();
         m_postProcessingContext.toneMappingParameters->isRayTracing = false;
     }

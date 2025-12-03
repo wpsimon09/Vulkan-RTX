@@ -225,7 +225,9 @@ void Settings::RenderRenderingSettings()
 
         if(ImGui::TreeNode("De-noising"))
         {
-            if(ImGui::Checkbox("Denoise", &applicationState.m_denoise))
+            ImGui::Checkbox("Denoise", &applicationState.m_denoise);
+
+            if(applicationState.m_denoise)
             {
 
                 ImGui::SliderFloat("Spacial", &applicationState.GetBilateralFilaterParameters().sigma, 0.001, 300.0);
