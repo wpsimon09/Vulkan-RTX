@@ -30,7 +30,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& inf
     AllocateImage();
     GenerateImageView();
     VulkanUtils::SetDebugName<VkImage>(m_device, m_imageVK.objectType, m_imageVMA, info.imageDebugName);
-    //GiveDebugName(info.imageDebugName);
+    GiveDebugName(info.imageDebugName);
     m_imageFlags.IsStorage     = info.isStorage;
     m_imageFlags.IsDepthBuffer = IsDepth(m_imageInfo.format);
 }
@@ -43,6 +43,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& inf
 {
     m_imageFlags.IsSwapChainImage = true;
 
+    GiveDebugName("swap chain image");
     GenerateImageView();
     VulkanUtils::SetDebugName<VkImage>(m_device, m_imageVK.objectType, m_imageVK, info.imageDebugName);
 }
@@ -63,7 +64,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<ui
     AllocateImage();
     GenerateImageView();
     FillWithImageData(imageData, m_device.GetTransferOpsManager().GetCommandBuffer());
-    VulkanUtils::SetDebugName<VkImage>(m_device, m_imageVK.objectType, m_imageVK, "Texture image");
+    GiveDebugName("Texture image");
 }
 
 VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<float>& imageData)
@@ -82,7 +83,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, VulkanStructs::VImageData<fl
     AllocateImage();
     GenerateImageView();
     FillWithImageData<float>(imageData, device.GetTransferOpsManager().GetCommandBuffer());
-    VulkanUtils::SetDebugName<VkImage>(m_device, m_imageVK.objectType, m_imageVK, "Texture image ");
+    GiveDebugName("Texture image");
 }
 VImage2::VImage2(const VulkanCore::VDevice& device, std::vector<VulkanStructs::VImageData<float>>& imageDataArray)
     : m_device(device)
@@ -106,7 +107,7 @@ VImage2::VImage2(const VulkanCore::VDevice& device, std::vector<VulkanStructs::V
     AllocateImage();
     GenerateImageView();
     FillWithImageData(imageDataArray, device.GetTransferOpsManager().GetCommandBuffer());
-    GiveDebugName("Texture array");
+    GiveDebugName(&"Texture array with image number: "[imageDataArray.size()]);
 }
 
 void VImage2::Resize(uint32_t newWidth, uint32_t newHeight)
@@ -271,16 +272,14 @@ void VImage2::GiveDebugName(const std::string& name)
         nameInfo.objectType   = m_imageVK.objectType;
         nameInfo.objectHandle = (uint64_t)static_cast<VkImage>(m_imageVK);
         nameInfo.pObjectName  = name.c_str();
-
+        
         auto result = m_device.GetDevice().setDebugUtilsObjectNameEXT(&nameInfo, m_device.DispatchLoader);
         assert(result == vk::Result::eSuccess);
+        */
         if(m_imageView != nullptr)
         {
-            nameInfo.objectType   = m_imageView.objectType;
-            nameInfo.objectHandle = (uint64_t)static_cast<VkImageView>(m_imageView);
-            nameInfo.pObjectName  = name.c_str();
+            VulkanUtils::SetDebugName<VkImageView>(m_device, m_imageView.objectType, m_imageView, name + "| image view ");
         }
-        */
     }
 }
 

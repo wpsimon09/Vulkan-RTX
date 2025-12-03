@@ -6,7 +6,7 @@ struct FragmentShaderIn {
 };
 
 
-const float2 invAtan = float2(0.1591, 0.3183);
+static const float2 invAtan = float2(0.1591, 0.3183);
 
 float2 SampleSphericalMap(float3 dir) {
     float2 uv = float2(atan2(-dir.z, dir.x), asin(dir.y));

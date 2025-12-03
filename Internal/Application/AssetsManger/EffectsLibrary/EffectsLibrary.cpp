@@ -295,7 +295,12 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     effects[EEffectType::FogComposition] = std::move(fogMergEffect);
 
     //=======================================================================================
+    auto aoPass = std::make_shared<VulkanUtils::VComputeEffect>(device, "Ambient occlusion pass",
+                                                                "Shaders/Compiled/AmbientOcclusionPass.spv",
+                                                                descLayoutCache, EShaderBindingGroup::ComputePostProecess);
+    effects[EEffectType::RT_AoOcclusionPass] = std::move(aoPass);
 
+    //=======================================================================================
 
     BuildAllEffects();
 }
@@ -330,7 +335,7 @@ void EffectsLibrary::UpdatePerFrameWrites(const Renderer::ForwardRenderer&      
                                           VulkanStructs::PostProcessingContext&     postProcessingContext,
                                           const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
-    // TODO: fog binding is missing
+    // DEPRECATED !
 }
 
 void EffectsLibrary::ConfigureDescriptorWrites(const Renderer::ForwardRenderer&     sceneRenderer,
