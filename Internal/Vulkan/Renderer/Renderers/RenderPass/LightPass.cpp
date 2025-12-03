@@ -126,10 +126,6 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 // std::vector<PerObjectData> SSBO.
                 e->WriteBuffer(currentFrame, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
 
-                // visibility buffer.
-                e->WriteImage(currentFrame, 0, 4,
-                              renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
                 // ltc
                 e->WriteImage(currentFrame, 0, 5,
                               MathUtils::LookUpTables.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
@@ -140,9 +136,6 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
 
                 e->WriteImage(currentFrame, 0, 7,
                               renderContext->transmitanceLut->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-                e->WriteImage(currentFrame, 0, 8,
-                              renderContext->aoOcclusionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
 
                 break;
