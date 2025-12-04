@@ -127,14 +127,14 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 e->WriteBuffer(currentFrame, 0, 3, uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
 
                 // ltc
-                e->WriteImage(currentFrame, 0, 5,
+                e->WriteImage(currentFrame, 0, 4,
                               MathUtils::LookUpTables.LTC->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                 // ltc inverse
-                e->WriteImage(currentFrame, 0, 6,
+                e->WriteImage(currentFrame, 0, 5,
                               MathUtils::LookUpTables.LTCInverse->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
-                e->WriteImage(currentFrame, 0, 7,
+                e->WriteImage(currentFrame, 0, 6,
                               renderContext->transmitanceLut->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
 

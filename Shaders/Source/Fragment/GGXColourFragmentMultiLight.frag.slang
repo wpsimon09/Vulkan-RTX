@@ -111,10 +111,6 @@ float4 fragmentMain(VertexOutput fsIn)
     finalColor = (ambientLight.illuminate(g, brdf, V) * 0.2) + (lightingEnv.illuminate(g, brdf, V)  + ambientLight.illuminate(g, brdf, V));
     finalColor.xyz += (brdfContext.emmision * brdfContext.emissionStrength);
 
-    // shadow factor.y is an ambient occlusion data 
-    if(globalData.aoOcclusion){
-        //finalColor.xyz *= AoOcclusionMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x;
-    }
 
     switch(globalData.renderOutput){
         case ERenderOutput::FullLit :{

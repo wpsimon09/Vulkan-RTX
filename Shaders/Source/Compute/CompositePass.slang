@@ -15,13 +15,13 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
     float2 texCoords = (float2(threadID.xy) + 0.5) / dims;
     
-    float shadowFactor = _dirLightShadowMap.Sample(texCoords).y;
+    float shadowFactor = _dirLightShadowMap.Sample(texCoords).x;
 
     float occlusionStrenth = shadowFactor;
 
     if(_globalData.aoOcclusion){
         float aoFactor = _aoMap.Sample(texCoords).x;
-        occlusionStrenth *= aoFactor;
+        //occlusionStrenth *= aoFactor;
     }
 
     float3 col = _renderedImage.Sample(texCoords.x).xyz;
