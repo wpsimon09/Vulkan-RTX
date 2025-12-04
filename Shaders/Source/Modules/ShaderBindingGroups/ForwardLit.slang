@@ -18,13 +18,13 @@ StructuredBuffer<Material> materialValues;
 [[vk::binding(3, 0)]]
 ConstantBuffer<LightInfo> _lightInfo;
 
-[[vk::binding(5,0)]]
+[[vk::binding(4,0)]]
 Sampler2D LTC;
 
-[[vk::binding(6,0)]]
+[[vk::binding(5,0)]]
 Sampler2D LTC_Inverse;
 
-[[vk::binding(7,0)]]
+[[vk::binding(6,0)]]
 Sampler2D TransmitanceLUT;
 
 

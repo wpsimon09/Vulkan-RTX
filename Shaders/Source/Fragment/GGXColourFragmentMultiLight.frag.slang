@@ -23,7 +23,6 @@ struct VertexOutput {
 }
 
 static const float cameraScale = 0.1;
-// TODO: figure out how to pass atmosphere botom radius
 
 [shader("pixel")]
 float4 fragmentMain(VertexOutput fsIn)
@@ -81,7 +80,6 @@ float4 fragmentMain(VertexOutput fsIn)
     lightingEnv.first = DirAndPoint;
     lightingEnv.second = AreaAndAmbient;
 
-    //CookTorrence_GGX brdf;
     float3 V = normalize(fsIn.vertexData.cameraPos - fsIn.vertexData.fragPos);
 
     float3 finalColor;
@@ -110,7 +108,7 @@ float4 fragmentMain(VertexOutput fsIn)
 
     var brdf = DeterministicBRDF(brdfContext);
     
-    //finalColor = lerp(ambientLight.illuminate(g, brdf, V) * 0.2, lightingEnv.illuminate(g, brdf, V)  + ambientLight.illuminate(g, brdf, V),   shadowFactor);
+    finalColor = (ambientLight.illuminate(g, brdf, V) * 0.2) + (lightingEnv.illuminate(g, brdf, V)  + ambientLight.illuminate(g, brdf, V));
     finalColor.xyz += (brdfContext.emmision * brdfContext.emissionStrength);
 
     // shadow factor.y is an ambient occlusion data 
@@ -120,13 +118,13 @@ float4 fragmentMain(VertexOutput fsIn)
 
     switch(globalData.renderOutput){
         case ERenderOutput::FullLit :{
-            return float4(finalColor, 1);
+            return float4(finalColor, 1.0);
         }
         case ERenderOutput::NormalVectors:{
             return float4(g.shadingNormal, 1.0);
         }
         case ERenderOutput::LightOnly:{
-            //return float4(float3(AoOcclusionMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x),1.0);
+            return float4(finalColor,1.0);
         };
         case ERenderOutput::Albedo:{
             return float4(brdfContext.albedo.xyz, 1.0);
