@@ -143,6 +143,7 @@ class BloomPass : public RenderPass
 
 class CompositePass : public RenderPass
 {
+  public:
     CompositePass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height);
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
     void Update(int                                   currentFrame,

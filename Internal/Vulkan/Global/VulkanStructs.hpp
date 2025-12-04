@@ -219,6 +219,7 @@ struct PostProcessingContext
     float deltaTime       = 0.0;
     bool  lensFlareEffect = false;
     bool  bloomEffect     = true;
+    bool  isRayTracing    = false;
 };
 
 struct BufferHandle

@@ -60,6 +60,8 @@ class PostProcessingSystem
 
     void Bloom(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
 
+    void Composite(int currentIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext);
+
   private:
     const VulkanCore::VDevice&          m_device;
     VulkanUtils::VUniformBufferManager& m_uniformBufferManager;
@@ -67,6 +69,7 @@ class PostProcessingSystem
     std::unique_ptr<Renderer::ToneMappingPass> m_toneMappingPass;
     std::unique_ptr<Renderer::LensFlarePass>   m_lensFlarePass;
     std::unique_ptr<Renderer::BloomPass>       m_bloomPass;
+    std::unique_ptr<Renderer::RenderPass>      m_compositionPass;
 
     VulkanCore::VImage2* m_finalRender = nullptr;
 

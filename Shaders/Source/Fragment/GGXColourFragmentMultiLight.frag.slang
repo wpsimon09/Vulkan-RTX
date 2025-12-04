@@ -85,7 +85,7 @@ float4 fragmentMain(VertexOutput fsIn)
     float3 V = normalize(fsIn.vertexData.cameraPos - fsIn.vertexData.fragPos);
 
     float3 finalColor;
-    float shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).x;
+    //float shadowFactor = _shadowMapScreenSpace.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV ).x;
 
     
     float3 transmitanceToSun = float3(1.0);
@@ -110,12 +110,12 @@ float4 fragmentMain(VertexOutput fsIn)
 
     var brdf = DeterministicBRDF(brdfContext);
     
-    finalColor = lerp(ambientLight.illuminate(g, brdf, V) * 0.2, lightingEnv.illuminate(g, brdf, V)  + ambientLight.illuminate(g, brdf, V),   shadowFactor);
+    //finalColor = lerp(ambientLight.illuminate(g, brdf, V) * 0.2, lightingEnv.illuminate(g, brdf, V)  + ambientLight.illuminate(g, brdf, V),   shadowFactor);
     finalColor.xyz += (brdfContext.emmision * brdfContext.emissionStrength);
 
     // shadow factor.y is an ambient occlusion data 
     if(globalData.aoOcclusion){
-        finalColor.xyz *= AoOcclusionMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x;
+        //finalColor.xyz *= AoOcclusionMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x;
     }
 
     switch(globalData.renderOutput){
@@ -126,7 +126,7 @@ float4 fragmentMain(VertexOutput fsIn)
             return float4(g.shadingNormal, 1.0);
         }
         case ERenderOutput::LightOnly:{
-            return float4(float3(AoOcclusionMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x),1.0);
+            //return float4(float3(AoOcclusionMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x),1.0);
         };
         case ERenderOutput::Albedo:{
             return float4(brdfContext.albedo.xyz, 1.0);

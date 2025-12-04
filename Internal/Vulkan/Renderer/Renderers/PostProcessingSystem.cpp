@@ -9,6 +9,7 @@
 #include "RenderPass/PostProcessing.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
+#include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
@@ -16,6 +17,7 @@
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include <cstdint>
 #include <memory>
+#include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
 
 namespace Renderer {
@@ -36,6 +38,7 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
     m_toneMappingPass = std::make_unique<Renderer::ToneMappingPass>(device, effectsLibrary, width, height);
     m_lensFlarePass   = std::make_unique<Renderer::LensFlarePass>(device, effectsLibrary, width, height);
     m_bloomPass       = std::make_unique<Renderer::BloomPass>(device, effectsLibrary, width, height);
+    m_compositionPass = std::make_unique<Renderer::CompositePass>(device, effectsLibrary, width, height);
 
     m_finalRender = &m_toneMappingPass->GetPrimaryResult(EToneMappingAttachments::LDR);
 
@@ -45,7 +48,10 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
 void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext)
 {
 
-
+    if(!postProcessingContext.isRayTracing)
+    {
+        Composite(frameIndex, commandBuffer, postProcessingContext);
+    }
     if(postProcessingContext.bloomEffect)
     {
         Bloom(frameIndex, commandBuffer, postProcessingContext);
@@ -61,6 +67,11 @@ void PostProcessingSystem::Update(int                                   frameInd
                                   VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                                   VulkanStructs::PostProcessingContext& postProcessingCotext)
 {
+    if(!postProcessingCotext.isRayTracing)
+    {
+        m_compositionPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
+        postProcessingCotext.sceneRender = &m_compositionPass->GetPrimaryResult(0);
+    }
 
     if(postProcessingCotext.bloomEffect)
     {
@@ -90,6 +101,7 @@ void PostProcessingSystem::Init(int                                   frameIndex
     m_bloomPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_toneMappingPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_lensFlarePass->Init(frameIndex, uniformBufferManager, renderContext);
+    m_compositionPass->Init(frameIndex, uniformBufferManager, renderContext);
 }
 
 
@@ -118,12 +130,21 @@ void PostProcessingSystem::Bloom(int currentIndex, VulkanCore::VCommandBuffer& c
     m_bloomPass->Render(currentIndex, commandBuffer, nullptr);
 }
 
+void PostProcessingSystem::Composite(int                                   currentIndex,
+                                     VulkanCore::VCommandBuffer&           commandBuffer,
+                                     VulkanStructs::PostProcessingContext& postProcessingContext)
+{
+    m_compositionPass->Render(currentIndex, commandBuffer, nullptr);
+    postProcessingContext.sceneRender = &m_compositionPass->GetPrimaryResult(0);
+}
+
 
 void PostProcessingSystem::Destroy()
 {
     m_toneMappingPass->Destroy();
     m_lensFlarePass->Destroy();
     m_bloomPass->Destroy();
+    m_compositionPass->Destroy();
 }
 
 

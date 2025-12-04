@@ -301,6 +301,7 @@ bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
         m_postProcessingContext.shadowMap   = m_renderContext.visibilityBuffer;
         m_postProcessingContext.aoMap       = &m_forwardRenderer->GetAmbientOcclusionOutpu().GetPrimaryImage();
         m_postProcessingContext.toneMappingParameters->isRayTracing = false;
+        m_postProcessingContext.isRayTracing                        = false;
     }
     else
     {
@@ -311,6 +312,7 @@ bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
         m_postProcessingContext.shadowMap = nullptr;
         m_postProcessingContext.aoMap     = nullptr;
 
+        m_postProcessingContext.isRayTracing                        = true;
         m_postProcessingContext.sceneRender                         = &m_rayTracer->GetRenderedImage(m_frameInFlightID);
         m_postProcessingContext.toneMappingParameters->isRayTracing = true;
     }
