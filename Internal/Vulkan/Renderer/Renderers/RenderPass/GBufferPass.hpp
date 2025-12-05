@@ -5,6 +5,7 @@
 #ifndef VULKAN_RTX_GBUFFERPASS_HPP
 #define VULKAN_RTX_GBUFFERPASS_HPP
 #include "RenderPass.hpp"
+#include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 
 namespace Renderer {
 
@@ -12,6 +13,7 @@ enum EGBufferAttachments
 {
     Position = 0,
     Normal,
+    Albedo,
     // put all attachments above this
     Size
 };

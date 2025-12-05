@@ -14,6 +14,7 @@
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
+#include <vulkan/vulkan_enums.hpp>
 
 namespace Renderer {
 GBufferPass::GBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
@@ -58,8 +59,11 @@ GBufferPass::GBufferPass(const VulkanCore::VDevice& device, ApplicationCore::Eff
 
 void GBufferPass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
-    m_gBufferEffect->SetNumWrites(3, 0, 0);
+    m_gBufferEffect->SetNumWrites(4, 2000, 0);
+
     m_gBufferEffect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+    m_gBufferEffect->WriteBuffer(currentFrameIndex, 1, 0, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrameIndex));
+    m_gBufferEffect->WriteImageArray(currentFrameIndex, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
 
     m_gBufferEffect->ApplyWrites(currentFrameIndex);
 }
@@ -69,6 +73,12 @@ void GBufferPass::Update(int                                   currentFrame,
                          VulkanUtils::RenderContext*           renderContext,
                          VulkanStructs::PostProcessingContext* postProcessingContext)
 {
+    m_gBufferEffect->SetNumWrites(1, 2000, 0);
+
+    m_gBufferEffect->WriteImageArray(currentFrame, 1, 0, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
+    m_gBufferEffect->WriteBuffer(currentFrame, 1, 1, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrame));
+
+    m_gBufferEffect->ApplyWrites(currentFrame);
 }
 
 void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
@@ -97,7 +107,9 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
         m_renderTargets[EGBufferAttachments::Position]->GenerateAttachmentInfo(
             vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
         m_renderTargets[EGBufferAttachments::Normal]->GenerateAttachmentInfo(
-            vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
+            vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
+        m_renderTargets[EGBufferAttachments::Albedo]->GenerateAttachmentInfo(
+            vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     auto depthPrePassDepthAttachment =
         m_depthBuffer->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,

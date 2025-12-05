@@ -84,7 +84,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }
 
-    visibilityBuffer[threadID.xy] = float4(1.0 - shadowFactor, float3(1.0));
+    visibilityBuffer[threadID.xy] = float4(shadowFactor, float3(1.0));
 
 }
 

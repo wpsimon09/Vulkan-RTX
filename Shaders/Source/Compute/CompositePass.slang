@@ -24,7 +24,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         //occlusionStrenth *= aoFactor;
     }
 
-    float3 col = _renderedImage.Sample(texCoords.x).xyz;
+    float3 col = _renderedImage.Sample(texCoords).xyz;
 
     _finalImage[threadID.xy].xyz = col * occlusionStrenth;
 }

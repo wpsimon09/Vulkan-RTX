@@ -14,7 +14,6 @@ struct FragmentShaderIn
     int materialIdx : OUT_MATERIAL;
     float2 screenSpaceUV: OUT_SCREEN_UV;
     float3x3 TBN : OUT_TBN;
-
 };
 
 struct VertexOutput {

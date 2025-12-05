@@ -110,6 +110,9 @@ public struct HitInfo{
     float t = -1.0;
 }
 
+//======================================
+// Pay load struct used to be passed around in the ray tracing shaders 
+// TODO: remove unimportant fields
 public struct RayPayLoad {
     public Optional<SurfaceGeometry> hitSurface = {};
 
