@@ -77,6 +77,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
     m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
+    m_renderContextPtr->albedoMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Albedo);
     m_renderContextPtr->depthBuffer = &m_gBufferPass->GetDepthAttachment();
     m_renderContextPtr->lightPassOutputRenderTarget = &m_forwardRenderPass->GetRenderTarget(EForwardRenderAttachments::Main);
     m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();

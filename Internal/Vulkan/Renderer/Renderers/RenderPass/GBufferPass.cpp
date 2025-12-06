@@ -52,8 +52,10 @@ GBufferPass::GBufferPass(const VulkanCore::VDevice& device, ApplicationCore::Eff
                                                          "G buffer attachemnt"};
     for(int i = 0; i < m_numGBufferAttachments; i++)
     {
-        gBufferAttachmentCI.imageDebugName += " | number" + std::to_string(i);
+
+        gBufferAttachmentCI.imageDebugName += AttachmentToString((EGBufferAttachments)i);
         m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, gBufferAttachmentCI));
+        gBufferAttachmentCI.imageDebugName = "G Buffer attachment";
     }
 }
 
@@ -240,6 +242,22 @@ RenderTarget2& GBufferPass::GetDepthAttachment()
 {
     return *m_depthBuffer;
 }
+
+std::string GBufferPass::AttachmentToString(EGBufferAttachments attachment)
+{
+    switch(attachment)
+    {
+        case Renderer::EGBufferAttachments::Albedo:
+            return "Albedo";
+        case Renderer::EGBufferAttachments::Normal:
+            return "Normal";
+        case Renderer::EGBufferAttachments::Position:
+            return "Position";
+        default:
+            return "undefined !";
+    }
+}
+
 
 void GBufferPass::Destroy()
 {

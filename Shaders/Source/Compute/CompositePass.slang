@@ -5,6 +5,7 @@ RWTexture2D _finalImage;
 Sampler2D _dirLightShadowMap;
 Sampler2D _aoMap;
 Sampler2D _renderedImage;
+Sampler2D _albedoMap;
 
 ConstantBuffer<GlobalData> _globalData;
 
@@ -21,10 +22,12 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
     if(_globalData.aoOcclusion){
         float aoFactor = _aoMap.Sample(texCoords).x;
-        //occlusionStrenth *= aoFactor;
+        occlusionStrenth *= aoFactor;
     }
 
     float3 col = _renderedImage.Sample(texCoords).xyz;
+
+    col = lerp(_albedoMap.Sample(texCoords).xyz * 0.4, col, occlusionStrenth);
 
     _finalImage[threadID.xy].xyz = col * occlusionStrenth;
 }

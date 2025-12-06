@@ -36,6 +36,8 @@ class GBufferPass : public Renderer::RenderPass
 
     RenderTarget2& GetDepthAttachment();
 
+    std::string AttachmentToString(EGBufferAttachments attachment);
+
   private:
     int                                         m_numGBufferAttachments = EGBufferAttachments::Size;
     std::shared_ptr<VulkanUtils::VRasterEffect> m_gBufferEffect;
