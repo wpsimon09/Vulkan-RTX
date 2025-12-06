@@ -110,6 +110,7 @@ void ForwardRenderer::Update(int                                   currentFrame,
 {
     m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_visibilityDenoisePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_gBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_forwardRenderPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_fogPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_atmospherePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);

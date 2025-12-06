@@ -5,8 +5,8 @@ import Utils;
 
 struct VertexInput {
     float3 inPosition :POSITION ;
-    float2 inUv : UV;
     float3 inNormal: NORMAL;
+    float2 inUv : UV;
 };
 
 struct VertexOutput {

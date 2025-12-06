@@ -77,8 +77,8 @@ void GBufferPass::Update(int                                   currentFrame,
 {
     m_gBufferEffect->SetNumWrites(1, 2000, 0);
 
-    m_gBufferEffect->WriteImageArray(currentFrame, 1, 0, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
-    m_gBufferEffect->WriteBuffer(currentFrame, 1, 1, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrame));
+    m_gBufferEffect->WriteBuffer(currentFrame, 1, 0, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrame));
+    m_gBufferEffect->WriteImageArray(currentFrame, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
 
     m_gBufferEffect->ApplyWrites(currentFrame);
 }
