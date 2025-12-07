@@ -77,6 +77,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
     m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
+    m_renderContextPtr->albedoMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Albedo);
     m_renderContextPtr->depthBuffer = &m_gBufferPass->GetDepthAttachment();
     m_renderContextPtr->lightPassOutputRenderTarget = &m_forwardRenderPass->GetRenderTarget(EForwardRenderAttachments::Main);
     m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
@@ -109,6 +110,7 @@ void ForwardRenderer::Update(int                                   currentFrame,
 {
     m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_visibilityDenoisePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_gBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_forwardRenderPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_fogPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_atmospherePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
@@ -147,7 +149,17 @@ void ForwardRenderer::Render(int                                       currentFr
 
     //===========================
     // denoise the shadow pass
-    DenoiseVisibility(currentFrameIndex, cmdBuffer, uniformBufferManager);
+    if(uniformBufferManager.GetApplicationState()->m_denoise)
+    {
+        // if denoising is available use denoised up-scaled shadow map
+        DenoiseVisibility(currentFrameIndex, cmdBuffer, uniformBufferManager);
+        m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetRenderTarget(0).GetPrimaryImage();
+    }
+    else
+    {
+        // otherwise use low res noise shadow map
+        m_renderContextPtr->visibilityBuffer = &m_visibilityBufferPass->GetRenderTarget(0).GetPrimaryImage();
+    }
 
     //===========================
     // ambient occlusion pass
@@ -210,6 +222,11 @@ VulkanCore::VImage2& ForwardRenderer::GetDenoisedVisibilityBuffer() const
     return m_visibilityDenoisePass->GetPrimaryResult(EBilateralFilterAttachments::Result);
 }
 
+Renderer::RenderTarget2& ForwardRenderer::GetAmbientOcclusionOutpu() const
+{
+    return m_aoOcclusionPass->GetRenderTarget(0);  // there only one render pass in ao occlusion
+}
+
 void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
                                    VulkanCore::VCommandBuffer&               cmdBuffer,
                                    const VulkanUtils::VUniformBufferManager& uniformBufferManager)
@@ -234,6 +251,7 @@ void ForwardRenderer::DenoiseVisibility(int                                     
                                         VulkanCore::VCommandBuffer&               cmdBuffer,
                                         const VulkanUtils::VUniformBufferManager& uniformBufferManager)
 {
+
     m_visibilityDenoisePass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
 }
 

@@ -5,6 +5,7 @@
 #ifndef VULKAN_RTX_GBUFFERPASS_HPP
 #define VULKAN_RTX_GBUFFERPASS_HPP
 #include "RenderPass.hpp"
+#include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 
 namespace Renderer {
 
@@ -12,6 +13,7 @@ enum EGBufferAttachments
 {
     Position = 0,
     Normal,
+    Albedo,
     // put all attachments above this
     Size
 };
@@ -33,6 +35,8 @@ class GBufferPass : public Renderer::RenderPass
     void Destroy() override;
 
     RenderTarget2& GetDepthAttachment();
+
+    std::string AttachmentToString(EGBufferAttachments attachment);
 
   private:
     int                                         m_numGBufferAttachments = EGBufferAttachments::Size;

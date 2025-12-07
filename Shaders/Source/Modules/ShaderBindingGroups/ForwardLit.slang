@@ -19,19 +19,19 @@ StructuredBuffer<Material> materialValues;
 ConstantBuffer<LightInfo> _lightInfo;
 
 [[vk::binding(4,0)]]
-Sampler2D _shadowMapScreenSpace;
-
-[[vk::binding(5,0)]]
 Sampler2D LTC;
 
-[[vk::binding(6,0)]]
+[[vk::binding(5,0)]]
 Sampler2D LTC_Inverse;
 
-[[vk::binding(7,0)]]
+[[vk::binding(6,0)]]
 Sampler2D TransmitanceLUT;
 
+[[vk::binding(7, 0)]]
+Sampler2D _directionalLightShadowMap;
+
 [[vk::binding(8, 0)]]
-Sampler2D AoOcclusionMap;
+Sampler2D _abmbientOcclusionMap;
 
 
 //========================

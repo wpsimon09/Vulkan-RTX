@@ -209,6 +209,7 @@ struct PostProcessingContext
 {
     VulkanCore::VImage2*                 sceneRender;
     VulkanCore::VImage2*                 shadowMap;
+    VulkanCore::VImage2*                 aoMap;
     std::shared_ptr<VulkanCore::VImage2> dummyTexture;
     LensFlareParameters*                 lensFlareParameters;
     ToneMappingParameters*               toneMappingParameters;
@@ -218,6 +219,7 @@ struct PostProcessingContext
     float deltaTime       = 0.0;
     bool  lensFlareEffect = false;
     bool  bloomEffect     = true;
+    bool  isRayTracing    = false;
 };
 
 struct BufferHandle

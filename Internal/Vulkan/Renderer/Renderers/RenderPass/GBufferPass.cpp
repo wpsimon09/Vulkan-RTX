@@ -14,6 +14,8 @@
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Pipeline/VGraphicsPipeline.hpp"
+#include <exception>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace Renderer {
 GBufferPass::GBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
@@ -51,15 +53,21 @@ GBufferPass::GBufferPass(const VulkanCore::VDevice& device, ApplicationCore::Eff
                                                          "G buffer attachemnt"};
     for(int i = 0; i < m_numGBufferAttachments; i++)
     {
-        gBufferAttachmentCI.imageDebugName += " | number" + std::to_string(i);
+
+        gBufferAttachmentCI.imageDebugName += AttachmentToString((EGBufferAttachments)i);
         m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, gBufferAttachmentCI));
+        gBufferAttachmentCI.imageDebugName = "G Buffer attachment";
     }
 }
 
 void GBufferPass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
-    m_gBufferEffect->SetNumWrites(3, 0, 0);
+    m_gBufferEffect->SetNumWrites(4, 10, 0);
+
     m_gBufferEffect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+    m_gBufferEffect->WriteBuffer(currentFrameIndex, 1, 0, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrameIndex));
+    m_gBufferEffect->WriteImageArray(currentFrameIndex, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
+    m_gBufferEffect->WriteBuffer(currentFrameIndex, 1, 2, uniformBufferManager.GetPerObjectBuffer(currentFrameIndex));
 
     m_gBufferEffect->ApplyWrites(currentFrameIndex);
 }
@@ -69,6 +77,12 @@ void GBufferPass::Update(int                                   currentFrame,
                          VulkanUtils::RenderContext*           renderContext,
                          VulkanStructs::PostProcessingContext* postProcessingContext)
 {
+    m_gBufferEffect->SetNumWrites(2, uniformBufferManager.GetAll2DTextureDescriptorImageInfo().size() + 4, 0);
+
+    m_gBufferEffect->WriteBuffer(currentFrame, 1, 0, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrame));
+    m_gBufferEffect->WriteImageArray(currentFrame, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
+
+    m_gBufferEffect->ApplyWrites(currentFrame);
 }
 
 void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
@@ -97,7 +111,9 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
         m_renderTargets[EGBufferAttachments::Position]->GenerateAttachmentInfo(
             vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
         m_renderTargets[EGBufferAttachments::Normal]->GenerateAttachmentInfo(
-            vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
+            vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
+        m_renderTargets[EGBufferAttachments::Albedo]->GenerateAttachmentInfo(
+            vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     auto depthPrePassDepthAttachment =
         m_depthBuffer->GenerateAttachmentInfo(vk::ImageLayout::eDepthStencilAttachmentOptimal,
@@ -152,58 +168,56 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
     //=================================================
     for(auto& drawCall : renderContext->drawCalls)
     {
-        if(drawCall.second.inDepthPrePass)
+
+
+        //================================================================================================
+        // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
+        //================================================================================================
+        if(currentVertexBuffer->BufferID != drawCall.second.vertexData->BufferID)
         {
+            auto firstBinding = 0;
 
-            //================================================================================================
-            // BIND VERTEX BUFFER ONLY IF IT HAS CHANGED
-            //================================================================================================
-            if(currentVertexBuffer->BufferID != drawCall.second.vertexData->BufferID)
-            {
-                auto firstBinding = 0;
-
-                std::vector<vk::Buffer>     vertexBuffers = {drawCall.second.vertexData->buffer};
-                std::vector<vk::DeviceSize> offsets       = {0};
-                vertexBuffers                             = {drawCall.second.vertexData->buffer};
-                cmdB.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
-                currentVertexBuffer = drawCall.second.vertexData;
-            }
-
-            if(currentIndexBuffer->BufferID != drawCall.second.indexData->BufferID)
-            {
-                indexBufferOffset = 0;
-                cmdB.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
-                currentIndexBuffer = drawCall.second.indexData;
-            }
-
-            if(drawCall.second.selected)
-            {
-                cmdB.setStencilTestEnable(true);
-            }
-            else
-            {
-                cmdB.setStencilTestEnable(false);
-            }
-
-            PerObjectPushConstant pc{};
-            pc.indexes.x   = drawCall.second.drawCallID;
-            pc.modelMatrix = drawCall.second.modelMatrix;
-
-            vk::PushConstantsInfo pcInfo;
-            pcInfo.layout     = m_gBufferEffect->GetPipelineLayout();
-            pcInfo.size       = sizeof(PerObjectPushConstant);
-            pcInfo.offset     = 0;
-            pcInfo.pValues    = &pc;
-            pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
-
-            m_gBufferEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
-
-            cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
-                             drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
-                             drawCall.second.vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
-
-            drawCallCount++;
+            std::vector<vk::Buffer>     vertexBuffers = {drawCall.second.vertexData->buffer};
+            std::vector<vk::DeviceSize> offsets       = {0};
+            vertexBuffers                             = {drawCall.second.vertexData->buffer};
+            cmdB.bindVertexBuffers(firstBinding, vertexBuffers, offsets);
+            currentVertexBuffer = drawCall.second.vertexData;
         }
+
+        if(currentIndexBuffer->BufferID != drawCall.second.indexData->BufferID)
+        {
+            indexBufferOffset = 0;
+            cmdB.bindIndexBuffer(drawCall.second.indexData->buffer, 0, vk::IndexType::eUint32);
+            currentIndexBuffer = drawCall.second.indexData;
+        }
+
+        if(drawCall.second.selected)
+        {
+            cmdB.setStencilTestEnable(true);
+        }
+        else
+        {
+            cmdB.setStencilTestEnable(false);
+        }
+
+        PerObjectPushConstant pc{};
+        pc.indexes.x   = drawCall.second.drawCallID;
+        pc.modelMatrix = drawCall.second.modelMatrix;
+
+        vk::PushConstantsInfo pcInfo;
+        pcInfo.layout     = m_gBufferEffect->GetPipelineLayout();
+        pcInfo.size       = sizeof(PerObjectPushConstant);
+        pcInfo.offset     = 0;
+        pcInfo.pValues    = &pc;
+        pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+        m_gBufferEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+
+        cmdB.drawIndexed(drawCall.second.indexData->size / sizeof(uint32_t), 1,
+                         drawCall.second.indexData->offset / static_cast<vk::DeviceSize>(sizeof(uint32_t)),
+                         drawCall.second.vertexData->offset / static_cast<vk::DeviceSize>(sizeof(ApplicationCore::Vertex)), 0);
+
+        drawCallCount++;
     }
     cmdB.endRendering();
     for(int i = 0; i < m_numGBufferAttachments; i++)
@@ -228,6 +242,22 @@ RenderTarget2& GBufferPass::GetDepthAttachment()
 {
     return *m_depthBuffer;
 }
+
+std::string GBufferPass::AttachmentToString(EGBufferAttachments attachment)
+{
+    switch(attachment)
+    {
+        case Renderer::EGBufferAttachments::Albedo:
+            return "Albedo";
+        case Renderer::EGBufferAttachments::Normal:
+            return "Normal";
+        case Renderer::EGBufferAttachments::Position:
+            return "Position";
+        default:
+            return "undefined !";
+    }
+}
+
 
 void GBufferPass::Destroy()
 {

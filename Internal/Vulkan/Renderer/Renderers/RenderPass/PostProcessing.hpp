@@ -4,10 +4,12 @@
 
 #ifndef VULKAN_RTX_POSTPROCESSING_HPP
 #define VULKAN_RTX_POSTPROCESSING_HPP
+#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
 #include "Application/Structs/ParameterStructs.hpp"
 #include "RenderPass.hpp"
 #include "Application/AssetsManger/AssetsManager.hpp"
+#include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
 namespace VulkanUtils {
@@ -137,6 +139,22 @@ class BloomPass : public RenderPass
     BloomDownSampleParams m_downSampleParams;
     BloomUpSampleParams   m_upSampleParams;
     BloomSettings         m_bloomSettings;
+};
+
+class CompositePass : public RenderPass
+{
+  public:
+    CompositePass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height);
+    void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
+    void Update(int                                   currentFrame,
+                VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                VulkanUtils::RenderContext*           renderContext,
+                VulkanStructs::PostProcessingContext* postProcessingContext) override;
+    void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
+    void Destroy() override;
+
+  private:
+    std::shared_ptr<VulkanUtils::VComputeEffect> m_compositeEffect;
 };
 
 }  // namespace Renderer

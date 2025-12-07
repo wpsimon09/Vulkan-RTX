@@ -86,6 +86,7 @@ class ForwardRenderer
     Renderer::RenderTarget2& GetDepthPrePassOutput() const;
     Renderer::RenderTarget2& GetPositionBufferOutput() const;
     Renderer::RenderTarget2& GetShadowMapOutput() const;
+    Renderer::RenderTarget2& GetAmbientOcclusionOutpu() const;
     Renderer::RenderTarget2& GetLightPassOutput() const;
     Renderer::RenderTarget2& GetNormalBufferOutput() const;
     VulkanCore::VImage2&     GetDenoisedVisibilityBuffer() const;

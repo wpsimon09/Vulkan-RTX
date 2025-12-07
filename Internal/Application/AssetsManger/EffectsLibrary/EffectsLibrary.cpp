@@ -145,10 +145,12 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     auto depthPrePass =
         std::make_shared<VulkanUtils::VRasterEffect>(device, "Depth-PrePass effect", "Shaders/Compiled/DepthPrePass.vert.spv",
                                                      "Shaders/Compiled/DepthPrePass.frag.spv", descLayoutCache,
-                                                     EShaderBindingGroup::ForwardUnlitNoMaterial, 2);
-    depthPrePass->SetVertexInputMode(EVertexInput::Position_Normal).SetDepthOpLess();
+                                                     EShaderBindingGroup::ForwardUnlitNoMaterial, 3);
+    depthPrePass->SetVertexInputMode(EVertexInput::Position_Normal_Uv).SetDepthOpLess();
 
     depthPrePass->AddColourAttachmentFormat(vk::Format::eR16G16B16A16Sfloat);
+    depthPrePass->AddColourAttachmentFormat(vk::Format::eR16G16B16A16Sfloat);
+
 
     effects[EEffectType::DepthPrePass] = std::move(depthPrePass);
 
@@ -301,6 +303,12 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     effects[EEffectType::RT_AoOcclusionPass] = std::move(aoPass);
 
     //=======================================================================================
+
+    auto compositePass = std::make_shared<VulkanUtils::VComputeEffect>(device, "Compositing pass (shadow and ao)",
+                                                                       "Shaders/Compiled/CompositePass.spv", descLayoutCache,
+                                                                       EShaderBindingGroup::ComputePostProecess);
+
+    effects[EEffectType::CompositePass] = std::move(compositePass);
 
     BuildAllEffects();
 }
