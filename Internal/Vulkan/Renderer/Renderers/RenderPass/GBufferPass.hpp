@@ -14,6 +14,7 @@ enum EGBufferAttachments
     Position = 0,
     Normal,
     Albedo,
+    Arm,
     // put all attachments above this
     Size
 };

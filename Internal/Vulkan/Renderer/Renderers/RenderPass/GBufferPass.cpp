@@ -113,6 +113,8 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
         m_renderTargets[EGBufferAttachments::Normal]->GenerateAttachmentInfo(
             vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
         m_renderTargets[EGBufferAttachments::Albedo]->GenerateAttachmentInfo(
+            vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
+        m_renderTargets[EGBufferAttachments::Arm]->GenerateAttachmentInfo(
             vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     auto depthPrePassDepthAttachment =
@@ -127,7 +129,6 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
     renderingInfo.pColorAttachments    = depthPrePassColourAttachments.data();
     renderingInfo.pDepthAttachment     = &depthPrePassDepthAttachment;
     renderingInfo.pStencilAttachment   = &depthPrePassDepthAttachment;
-
 
     m_gBufferEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_gBufferEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);

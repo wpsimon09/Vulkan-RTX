@@ -45,6 +45,7 @@ struct FragmentOut{
     float4 position : SV_Target0;
     float4 normal : SV_Target1;
     float4 albedo : SV_Target2;
+    float4 arm : SV_Target3;
 }
 
 [shader("fragment")]
@@ -63,9 +64,19 @@ FragmentOut fragmentMain(VertexOutput fsIn) {
     }else{
         albedo = material.values.diffuse;
     }
-
+    
+    float3 arm;
+    if(material.features.hasArmTexture){
+        arm = textures[material.features.armTextureIdx].Sample(fsIn.uv).xyz;
+    }else{
+        arm.x = material.values.roughness;
+        arm.y = material.values.metalness;
+        arm.z = 1.0;
+    }
+    
     out.position = float4(fsIn.worldPos, 1.0);
     out.normal = float4(fsIn.worldNormal, 1.0);
     out.albedo = albedo;
+    out.arm = float4(arm,1.0);
     return out;
 }
