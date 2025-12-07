@@ -32,9 +32,9 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         float aoFactor = _aoMap.Sample(texCoords).x;
         occlusionStrenth *= aoFactor;
     }
-    
 
-    col = lerp(_albedoMap.Sample(texCoords).xyz * 0.4, col, occlusionStrenth);
 
-    _finalImage[threadID.xy].xyz = col * occlusionStrenth;
+    col = lerp(_albedoMap.Sample(texCoords).xyz, col, occlusionStrenth);
+
+    _finalImage[threadID.xy].xyz = col;
 }

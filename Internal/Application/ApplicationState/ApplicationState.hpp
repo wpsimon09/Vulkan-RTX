@@ -66,6 +66,7 @@ class ApplicationState
     bool               m_ambientOcclusion     = false;
     bool               m_enablePostProcessing = true;
     bool               m_denoise              = true;
+    bool m_composite = true;  // use separate draw pass to composite the visibility buffer with the rest of the scene
 
 
   private:

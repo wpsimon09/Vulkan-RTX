@@ -8,6 +8,7 @@
 #include "Application/Utils/LookUpTables.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
@@ -109,7 +110,7 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
 
             case EShaderBindingGroup::ForwardLit: {
 
-                e->SetNumWrites(7, 5, 0);
+                e->SetNumWrites(7, 7, 0);
                 //===================================
                 // global data
                 e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
@@ -137,6 +138,11 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 e->WriteImage(currentFrame, 0, 6,
                               renderContext->transmitanceLut->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
+                e->WriteImage(currentFrame, 0, 7,
+                              renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+                e->WriteImage(currentFrame, 0, 8,
+                              renderContext->aoOcclusionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                 break;
             }
@@ -210,6 +216,10 @@ void ForwardRender::Update(int                                   currentFrame,
                     e->WriteImage(currentFrame, 1, 4,
                                   renderContext->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                 }
+
+                e->WriteImage(currentFrame, 0, 7,
+                              renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
                 break;
             }
             case EShaderBindingGroup::ForwardUnlit: {

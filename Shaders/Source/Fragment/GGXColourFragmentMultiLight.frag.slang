@@ -104,13 +104,25 @@ float4 fragmentMain(VertexOutput fsIn)
     }else{
         TransmitanceToSun = transmitanceToSun;
     }
-
+    
     var brdf = DeterministicBRDF(brdfContext);
     
-    finalColor = (ambientLight.illuminate(g, brdf, V) * 0.2) + (lightingEnv.illuminate(g, brdf, V)  + ambientLight.illuminate(g, brdf, V));
-    finalColor.xyz += (brdfContext.emmision * brdfContext.emissionStrength);
+    if(globalData.useComposition){
+        // shadows and ao will be applied in the post processing pass
+        finalColor = (ambientLight.illuminate(g, brdf, V) * 0.2) + (lightingEnv.illuminate(g, brdf, V)  + ambientLight.illuminate(g, brdf, V));
+    }else {
+        // apply shadows here directly 
+        float shadowFactor = _directionalLightShadowMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x;
+        
+        if(globalData.aoOcclusion){
+            shadowFactor *= _abmbientOcclusionMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x;
+        }
+        
+        finalColor = lerp(ambientLight.illuminate(g, brdf, V) * 0.2, lightingEnv.illuminate(g, brdf, V)  + ambientLight.illuminate(g, brdf, V),   shadowFactor); 
+    }
 
-
+    finalColor.xyz += (brdfContext.emmision * brdfContext.emissionStrength);        
+    
     switch(globalData.renderOutput){
         case ERenderOutput::FullLit :{
             return float4(finalColor, 1.0);

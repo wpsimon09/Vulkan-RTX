@@ -48,7 +48,7 @@ PostProcessingSystem::PostProcessingSystem(const VulkanCore::VDevice&          d
 void PostProcessingSystem::Render(int frameIndex, VulkanCore::VCommandBuffer& commandBuffer, VulkanStructs::PostProcessingContext& postProcessingContext)
 {
 
-    if(!postProcessingContext.isRayTracing)
+    if(!postProcessingContext.isRayTracing && m_uniformBufferManager.GetApplicationState()->m_composite)
     {
         Composite(frameIndex, commandBuffer, postProcessingContext);
     }
@@ -67,7 +67,7 @@ void PostProcessingSystem::Update(int                                   frameInd
                                   VulkanUtils::VUniformBufferManager&   uniformBufferManager,
                                   VulkanStructs::PostProcessingContext& postProcessingCotext)
 {
-    if(!postProcessingCotext.isRayTracing)
+    if(!postProcessingCotext.isRayTracing && m_uniformBufferManager.GetApplicationState()->m_composite)
     {
         m_compositionPass->Update(frameIndex, uniformBufferManager, nullptr, &postProcessingCotext);
         postProcessingCotext.sceneRender = &m_compositionPass->GetPrimaryResult(0);

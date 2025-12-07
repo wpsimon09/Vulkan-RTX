@@ -66,7 +66,6 @@ FragmentOut fragmentMain(VertexOutput fsIn) {
 
     out.position = float4(fsIn.worldPos, 1.0);
     out.normal = float4(fsIn.worldNormal, 1.0);
-    out.albedo = float4(albedo.xyz, 1.0);
-
+    out.albedo = albedo;
     return out;
 }

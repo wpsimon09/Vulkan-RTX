@@ -49,6 +49,7 @@ public struct GlobalData {
     public bool accountForSunTransmitance;
 
     public bool useSER = false;
+    public bool useComposition = true;
 };
 
 
