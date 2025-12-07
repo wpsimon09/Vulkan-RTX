@@ -55,8 +55,6 @@ void RenderingOptions::Render()
         ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_renderContext.RenderBillboards);
         ImGui::Checkbox("Wire frame mode", &m_renderingSystem->m_renderContext.WireFrameRendering);
         ImGui::Checkbox("Composite", &m_applicationState.m_composite);
-        ImGui::SetTooltip("Uses separate render pass to composite lightning pass with the shadows and ambient occlusion");
-
         ImGui::SeparatorText("Draw calls");
         ImGui::Text("Total draw call count: %i", m_renderingSystem->m_forwardRenderer->m_renderingStatistics.DrawCallCount);
         if(ImGui::Button("Show window with all draw calls"))

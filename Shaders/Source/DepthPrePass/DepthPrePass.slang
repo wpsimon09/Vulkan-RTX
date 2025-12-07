@@ -51,12 +51,12 @@ struct FragmentOut{
 FragmentOut fragmentMain(VertexOutput fsIn) {
     FragmentOut out;
 
-    Material mat = materialValues[perObjectPC.perObjectDataIndex.x];
+    Material mat = materialValues[perObjectData[perObjectPC.perObjectDataIndex.x].indexes.x];
 
     PBRMaterial material;
     material.features = mat.Features;
     material.values = mat.Values;
-    
+
     float4 albedo = float4(0.0);
     if(material.features.hasDiffuseTexture){
         albedo = textures[material.features.albedoTextureIdx].Sample(fsIn.uv);
