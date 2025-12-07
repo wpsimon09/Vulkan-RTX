@@ -926,7 +926,7 @@ CompositePass::CompositePass(const VulkanCore::VDevice& device, ApplicationCore:
 
 void CompositePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
-    m_compositeEffect->SetNumWrites(1, 5, 0);
+    m_compositeEffect->SetNumWrites(1, 6, 0);
     m_compositeEffect->WriteImage(currentFrameIndex, 0, 0, GetPrimaryAttachemntDescriptorInfo(0));
     m_compositeEffect->WriteImage(currentFrameIndex, 0, 1,
                                   renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
@@ -938,7 +938,10 @@ void CompositePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManag
     m_compositeEffect->WriteImage(currentFrameIndex, 0, 4,
                                   renderContext->albedoMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
-    m_compositeEffect->WriteBuffer(currentFrameIndex, 0, 5, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+    m_compositeEffect->WriteImage(currentFrameIndex, 0, 5,
+                                  renderContext->depthBuffer->GetResolvedImage().GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+    m_compositeEffect->WriteBuffer(currentFrameIndex, 0, 6, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
 
     m_compositeEffect->ApplyWrites(currentFrameIndex);
 }

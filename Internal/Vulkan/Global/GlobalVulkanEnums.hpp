@@ -49,6 +49,7 @@ enum EVertexInput
     PositionOnly,
     Position_UV,
     Position_Normal,
+    Position_Normal_Uv,
     Empty
 };
 

@@ -202,6 +202,27 @@ void VulkanUtils::GetVertexBindingAndAttributeDescription(vk::VertexInputBinding
 
             break;
         }
+        case Position_Normal_Uv: {
+            attributeDescription.resize(4);  // enum specifies the number
+
+            // FOR POSITION
+            attributeDescription[0].binding  = 0;
+            attributeDescription[0].location = 0;
+            attributeDescription[0].format   = vk::Format::eR32G32B32Sfloat;
+            attributeDescription[0].offset   = offsetof(ApplicationCore::Vertex, position);
+
+            // NORMALS
+            attributeDescription[1].binding  = 0;
+            attributeDescription[1].location = 1;
+            attributeDescription[1].format   = vk::Format::eR32G32B32Sfloat;
+            attributeDescription[1].offset   = offsetof(ApplicationCore::Vertex, normal);
+
+            // uv
+            attributeDescription[2].binding  = 0;
+            attributeDescription[2].location = 2;
+            attributeDescription[2].format   = vk::Format::eR32G32Sfloat;
+            attributeDescription[2].offset   = offsetof(ApplicationCore::Vertex, uv);
+        }
         case Empty: {
         }
     }
