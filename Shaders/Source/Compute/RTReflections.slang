@@ -1,18 +1,23 @@
-module RayTracingData;
-import Surface;
-import Material;
-import Utils;
-import BxDF;
 import Core;
+import Material;
+import BxDF;
+import Surface;
+import Utils;
+import RandomValues;
 
-[[vk::binding(2, 0)]]
+RWTexture2D _outputImage;
+
+Sampler2D _positionBuffer;
+Sampler2D _depthMap;
+Sampler2D _normalMap;
+Sampler2D _armMap;
+Sampler2D _colourMap;
+
 StructuredBuffer<ObjDescription> descriptions;
-
-[[vk::binding(5, 0)]]
 StructuredBuffer<Material> materialValues;
-
-[[vk::binding(7, 0)]]
 Sampler2D textures[];
+
+ConstantBuffer<GlobalData> _globalData;
 
 public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric, float3x4 objectToWorld)
 {
@@ -78,19 +83,65 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
 }
 
 
-public SurfaceGeometry GetSurfaceInfoFromHitObject(HitObject hitObject){
-    return GetSurfaceInfo(hitObject.GetPrimitiveIndex(), hitObject.GetInstanceID(), hitObject.GetAttributes<float2>(), transpose(hitObject.GetObjectToWorld()));
-}
+/*
+Reflection map will be lerped in the composite pass based on its alpha channel
+*/
+[[numthreads(16,16,1)]]
+[[shader("compute")]]
+void computeMain(uint3 threadID : SV_DispatchThreadID){
+    float2 dims;
+    _outputImage.GetDimensions(dims.x, dims.y);
+    float2 texCoords = (dims + 0.5) / threadID.xy;
 
+    float depht = _depthMap.Sample(texCoords).x;
+
+    if(depht == 1.0){
+        _outputImage[threadID.xy] = float4(0.0);
+        return;
+    }
+
+    float3 pos = _positionBuffer.Sample(texCoords).xyz;
+    float3 arm = _armMap.Sample(texCoords).xyz;
+    float3 albedo = _colourMap.Sample(texCoords).xyz;
+    float3 N = _normalMap.Sample(texCoords).xyz;
+
+    float3 wo = _globalData.cameraPostiion.xyz - pos;
+
+    uint pixelID = threadID.x + threadID.y * (uint)dims.x;
+    uint u = tea(pixelID, (uint)_globalData.currentFrame);
     
-public PBRMaterial GetMaterial(uint32_t instanceIndex, SurfaceGeometry g) {
-    PBRMaterial pbrMat;
-    pbrMat.features = materialValues[instanceIndex].Features;
-    pbrMat.values = materialValues[instanceIndex].Values;
-    pbrMat.albedo_map = textures[pbrMat.features.albedoTextureIdx];
-    pbrMat.arm_map = textures[pbrMat.features.armTextureIdx];
-    pbrMat.emissive_map = textures[pbrMat.features.emissiveTextureIdx];
+    PBRMaterial mat;
+    mat.albedo = float4(albedo,1.0);
+    mat.roughness = arm.x; 
+    mat.metallness = arm.y;
+    
+    BxDFContext context;
+    context.albedo = float4(albedo,1.0);
+    mat.roughness = arm.x;
+    mat.metallness = arm.y;
 
-    return pbrMat;
+    SurfaceGeometry g;
+    g.normal = N;
+    g.shadingNormal = N;
+    g.shadingPosition = pos;
+    
+
+    var sample = mat.Sample(context, wo, g, u);
+    
+    // we do not need to shoot ray from camear to world sice whe have the closest intersection in the postion buffer
+    if(let sample = sample.brdf.Sample(wo, g, u)){
+        RayDesc ray;
+        ray.Origin = pos;    
+        ray.Direction = sample.wi;
+        ray.TMin = 0.0001;
+        ray.TMax = 10000;
+
+        //=========================
+        // Trace ray and determine the reflected colour based on the surface hit 
+        
+
+    }
+
+
+
 }
-
