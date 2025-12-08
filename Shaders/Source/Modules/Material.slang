@@ -146,7 +146,6 @@ public struct PBRMaterial : IMaterial
     }
 }
 
-
 //================================
 // UTILITIES
 //================================

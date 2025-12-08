@@ -250,6 +250,8 @@ set(SOURCES
         Internal/Vulkan/Renderer/Renderers/RenderPass/AtmospherePass.hpp
         Internal/Application/Rendering/Scene/AtmosphereSceneNode.cpp
         Internal/Application/Rendering/Scene/AtmosphereSceneNode.hpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/ReflectionsPass.cpp
+        Internal/Vulkan/Renderer/Renderers/RenderPass/ReflectionsPass.hpp
 
 )
 
