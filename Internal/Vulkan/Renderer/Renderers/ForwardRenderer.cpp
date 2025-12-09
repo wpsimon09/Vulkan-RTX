@@ -153,10 +153,6 @@ void ForwardRenderer::Render(int                                       currentFr
         m_atmospherePass->Precompute(currentFrameIndex, cmdBuffer, m_renderContextPtr);
     }
 
-    if(uniformBufferManager.GetApplicationState()->m_rayTracedReflections)
-    {
-        m_rayTracedReflectionPass->Render(currentFrameIndex, cmdBuffer, renderContext);
-    }
 
     //===========================
     // generates shadow mapp in  screen space
@@ -202,6 +198,12 @@ void ForwardRenderer::Render(int                                       currentFr
         //** again renders to the output of the final render  */
         PostProcessingFogPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
     }
+
+    if(uniformBufferManager.GetApplicationState()->m_rayTracedReflections)
+    {
+        m_rayTracedReflectionPass->Render(currentFrameIndex, cmdBuffer, renderContext);
+    }
+
 
     m_frameCount++;
 }
