@@ -42,6 +42,7 @@
 #include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/ReflectionsPass.hpp"
 
 
 namespace Renderer {
@@ -73,17 +74,20 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_forwardRenderPass = std::make_unique<Renderer::ForwardRender>(device, effectsLibrary, width, height);
     m_fogPass           = std::make_unique<Renderer::FogPass>(device, effectsLibrary, width, height);
     m_atmospherePass    = std::make_unique<Renderer::AtmospherePass>(device, effectsLibrary, width, height);
-    m_aoOcclusionPass   = std::make_unique<Renderer::AoOcclusionPass>(device, effectsLibrary, width / 2, width / 2);
-
+    m_aoOcclusionPass   = std::make_unique<Renderer::AoOcclusionPass>(device, effectsLibrary, width / 2, height / 2);
+    m_rayTracedReflectionPass =
+        std::make_unique<Renderer::RayTracedReflectionsPass>(device, effectsLibrary, width / 2, height / 2);
+    //====================================================================================================
+    // Populate render context with all the images that will be rendered
     m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
     m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
     m_renderContextPtr->albedoMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Albedo);
     m_renderContextPtr->depthBuffer = &m_gBufferPass->GetDepthAttachment();
+    m_renderContextPtr->armMap      = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Arm);
     m_renderContextPtr->lightPassOutputRenderTarget = &m_forwardRenderPass->GetRenderTarget(EForwardRenderAttachments::Main);
     m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
     m_renderContextPtr->lightPassOutput  = &m_forwardRenderPass->GetResolvedResult();
     m_renderContextPtr->aoOcclusionMap   = &m_aoOcclusionPass->GetPrimaryResult();
-
 
     Utils::Logger::LogSuccess("Forward renderer created !");
 }
@@ -95,6 +99,7 @@ void ForwardRenderer::Init(int                                  frameIndex,
     m_gBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_atmospherePass->Init(frameIndex, uniformBufferManager, renderContext);
 
+    m_rayTracedReflectionPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_visibilityBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_visibilityDenoisePass->Init(frameIndex, uniformBufferManager, renderContext);
     m_forwardRenderPass->Init(frameIndex, uniformBufferManager, renderContext);
@@ -109,6 +114,7 @@ void ForwardRenderer::Update(int                                   currentFrame,
                              VulkanStructs::PostProcessingContext* postProcessingContext)
 {
     m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    m_rayTracedReflectionPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_visibilityDenoisePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_gBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_forwardRenderPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);

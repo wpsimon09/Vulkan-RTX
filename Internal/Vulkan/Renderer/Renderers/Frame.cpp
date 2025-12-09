@@ -44,6 +44,7 @@
 #include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/AtmospherePass.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/ReflectionsPass.hpp"
 
 
 #include "imgui.h"
@@ -210,13 +211,14 @@ void Frame::Update(ApplicationCore::ApplicationState& applicationState)
                                           *m_frameTimeLine[m_frameInFlightID]);
     //====================================================================
     // pass necessary data to the rendering context
-    m_renderContext.hdrCubeMap    = m_envLightGenerator->GetCubeMapRaw();
-    m_renderContext.irradianceMap = m_envLightGenerator->GetIrradianceMapRaw();
-    m_renderContext.prefilterMap  = m_envLightGenerator->GetPrefilterMapRaw();
-    m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
-    m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
-    m_renderContext.deltaTime     = ImGui::GetIO().DeltaTime;
-    m_renderContext.tlas          = m_rayTracingDataManager.GetTLAS();
+    m_renderContext.hdrCubeMap     = m_envLightGenerator->GetCubeMapRaw();
+    m_renderContext.irradianceMap  = m_envLightGenerator->GetIrradianceMapRaw();
+    m_renderContext.prefilterMap   = m_envLightGenerator->GetPrefilterMapRaw();
+    m_renderContext.brdfMap        = m_envLightGenerator->GetBRDFLutRaw();
+    m_renderContext.dummyCubeMap   = m_envLightGenerator->GetDummyCubeMapRaw();
+    m_renderContext.deltaTime      = ImGui::GetIO().DeltaTime;
+    m_renderContext.tlas           = m_rayTracingDataManager.GetTLAS();
+    m_renderContext.rtxObjectBufer = m_rayTracingDataManager.GetObjDescriptionBufferInfo();
 
     //==================================================
     // Pass parameters to the post processing context

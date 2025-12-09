@@ -6,19 +6,39 @@ import Utils;
 import RandomValues;
 import RayTracingUtils;
 
+//========================
+// set 0 
+[[vk::binding(0,0)]]
 RWTexture2D _outputImage;
 
+[[vk::binding(1,0)]]
 Sampler2D _positionBuffer;
-Sampler2D _depthMap;
-Sampler2D _normalMap;
-Sampler2D _armMap;
-RaytracingAccelerationStructure _tlas;
 
+[[vk::binding(2,0)]]
+Sampler2D _depthMap;
+
+[[vk::binding(3,0)]]
+Sampler2D _normalMap;
+
+[[vk::binding(4,0)]]
+Sampler2D _armMap;
+
+[[vk::binding(5,0)]]
+ConstantBuffer<GlobalData> _globalData;
+
+//=====================
+// set 1 
+[[vk::binding(0,1)]]
 StructuredBuffer<ObjDescription> descriptions;
+
+[[vk::binding(1,1)]]
 StructuredBuffer<Material> materialValues;
+
+[[vk::binding(2,1)]]
 Sampler2D textures[];
 
-ConstantBuffer<GlobalData> _globalData;
+[[vk::binding(3,1)]]
+RaytracingAccelerationStructure _tlas;
 
 public float2 GetUv(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric)
 {

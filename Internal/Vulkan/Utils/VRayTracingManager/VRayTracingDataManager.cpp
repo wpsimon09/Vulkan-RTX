@@ -12,6 +12,7 @@
 #include "Vulkan/VulkanCore/CommandBuffer/VCommandPool.hpp"
 #include "vulkan/vulkan.hpp"
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp"
+#include <vulkan/vulkan_core.h>
 
 namespace VulkanUtils {
 VRayTracingDataManager::VRayTracingDataManager(const VulkanCore::VDevice& device)
@@ -21,6 +22,10 @@ VRayTracingDataManager::VRayTracingDataManager(const VulkanCore::VDevice& device
     m_cmdPool           = std::make_unique<VulkanCore::VCommandPool>(m_device, EQueueFamilyIndexType::Compute);
     m_cmdBuffer         = std::make_unique<VulkanCore::VCommandBuffer>(m_device, *m_cmdPool);
     m_cmdBuffer->GiveName("AS build command buffer");
+
+    m_objDescriptionBuffer = std::make_unique<VulkanCore::VBuffer>(m_device, "All vertex and index data for RTX");
+    m_objDescriptionBuffer->CreateBuffer(1, static_cast<VkBufferUsageFlags>(vk::BufferUsageFlagBits::eShaderDeviceAddress
+                                                                            | vk::BufferUsageFlagBits::eStorageBuffer));
 }
 void VRayTracingDataManager::UpdateContext(SceneUpdateContext& sceneUpdateContext, std::vector<VulkanCore::RTX::BLASInput>& blasInputs)
 {

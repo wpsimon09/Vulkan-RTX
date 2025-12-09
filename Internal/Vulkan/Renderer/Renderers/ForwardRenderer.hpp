@@ -32,6 +32,7 @@ class GBufferPass;
 class RenderTarget2;
 class VisibilityBufferPass;
 class AtmospherePass;
+class RayTracedReflectionsPass;
 }  // namespace Renderer
 
 namespace VulkanCore {
@@ -137,13 +138,14 @@ class ForwardRenderer
 
     VulkanStructs::VDrawCallData* m_postProcessingFogVolumeDrawCall = nullptr;
 
-    std::unique_ptr<Renderer::VisibilityBufferPass> m_visibilityBufferPass;
-    std::unique_ptr<Renderer::GBufferPass>          m_gBufferPass;
-    std::unique_ptr<Renderer::AoOcclusionPass>      m_aoOcclusionPass;
-    std::unique_ptr<Renderer::BilateralFilterPass>  m_visibilityDenoisePass;
-    std::unique_ptr<Renderer::ForwardRender>        m_forwardRenderPass;
-    std::unique_ptr<Renderer::FogPass>              m_fogPass;
-    std::unique_ptr<Renderer::AtmospherePass>       m_atmospherePass;
+    std::unique_ptr<Renderer::VisibilityBufferPass>     m_visibilityBufferPass;
+    std::unique_ptr<Renderer::GBufferPass>              m_gBufferPass;
+    std::unique_ptr<Renderer::AoOcclusionPass>          m_aoOcclusionPass;
+    std::unique_ptr<Renderer::BilateralFilterPass>      m_visibilityDenoisePass;
+    std::unique_ptr<Renderer::ForwardRender>            m_forwardRenderPass;
+    std::unique_ptr<Renderer::FogPass>                  m_fogPass;
+    std::unique_ptr<Renderer::AtmospherePass>           m_atmospherePass;
+    std::unique_ptr<Renderer::RayTracedReflectionsPass> m_rayTracedReflectionPass;
     // Editor integration
     friend class VEditor::RenderingOptions;
 };

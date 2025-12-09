@@ -4,6 +4,7 @@
 
 #ifndef VRAYTRACINGMANAGER_HPP
 #define VRAYTRACINGMANAGER_HPP
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Vulkan/VulkanCore/RayTracing/VRayTracingStructs.hpp"
 
 
@@ -34,7 +35,6 @@ class VRayTracingDataManager
     VRayTracingDataManager(const VulkanCore::VDevice& device);
 
     vk::DescriptorBufferInfo GetObjDescriptionBufferInfo();
-
 
     void UpdateContext(SceneUpdateContext& sceneUpdateContext, std::vector<VulkanCore::RTX::BLASInput>& blasInputs);
     void RecordAndSubmitAsBuld(VulkanCore::VTimelineSemaphore2& frameSemaphore);

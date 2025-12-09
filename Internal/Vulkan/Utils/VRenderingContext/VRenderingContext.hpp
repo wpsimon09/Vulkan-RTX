@@ -9,6 +9,7 @@
 #include <vector>
 #include <glm/mat4x4.hpp>
 #include "Application/Rendering/Scene/SceneData.hpp"
+#include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "vulkan/vulkan.hpp"
 #include "Vulkan/Global/GlobalStructs.hpp"
 
@@ -62,7 +63,8 @@ struct RenderContext
     Renderer::RenderTarget2* lightPassOutputRenderTarget = nullptr;
     VulkanCore::VImage2*     aoOcclusionMap              = nullptr;
     VulkanCore::VImage2*     albedoMap                   = nullptr;
-
+    VulkanCore::VImage2*     armMap                      = nullptr;
+    vk::DescriptorBufferInfo rtxObjectBufer;
 
     std::shared_ptr<VulkanCore::VImage2> defaultTexture = nullptr;
 

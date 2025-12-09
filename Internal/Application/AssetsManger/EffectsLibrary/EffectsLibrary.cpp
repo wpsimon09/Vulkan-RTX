@@ -310,6 +310,15 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
 
     effects[EEffectType::CompositePass] = std::move(compositePass);
 
+    //========================================================================================
+    auto rtReflectionsPass =
+        std::make_shared<VulkanUtils::VComputeEffect>(device, "Ray traced reflection pass", "Shaders/Compiled/RTReflections.spv",
+                                                      descLayoutCache, EShaderBindingGroup::ComputePostProecess);
+
+    effects[EEffectType::RT_Reflections] = std::move(rtReflectionsPass);
+
+    //========================================================================================
+
     BuildAllEffects();
 }
 
