@@ -75,5 +75,15 @@ void RayTracedReflectionsPass::Update(int                                   curr
 
 void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
 {
+    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                              VulkanUtils::VImage_SampledRead_To_General);
+
+    m_rayTracedReflectionEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
+    m_rayTracedReflectionEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+
+    cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
+
+    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
+                                              VulkanUtils::VImage_SampledRead_To_General.Switch());
 }
 }  // namespace Renderer

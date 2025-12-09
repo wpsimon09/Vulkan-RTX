@@ -19,6 +19,7 @@
 #include <memory>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
+#include <vulkan/vulkan_structs.hpp>
 
 namespace Renderer {
 VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
@@ -168,6 +169,15 @@ void AoOcclusionPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
 
     m_aoEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_aoEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+
+    vk::PushConstantsInfo pcInfo;
+    pcInfo.layout     = m_aoEffect->GetPipelineLayout();
+    pcInfo.offset     = 0;
+    pcInfo.size       = sizeof(m_aoOcclusionParameters);
+    pcInfo.pValues    = &m_aoOcclusionParameters;
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+    m_aoEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
     cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
 
     m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,

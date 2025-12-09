@@ -6,6 +6,7 @@
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 
+#include <exception>
 #include <memory>
 #include <sys/wait.h>
 #include <vulkan/vulkan_enums.hpp>
@@ -114,7 +115,10 @@ void ForwardRenderer::Update(int                                   currentFrame,
                              VulkanStructs::PostProcessingContext* postProcessingContext)
 {
     m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
-    m_rayTracedReflectionPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    if(uniformBufferManager.GetApplicationState()->m_rayTracedReflections)
+    {
+        m_rayTracedReflectionPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    }
     m_visibilityDenoisePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_gBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_forwardRenderPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
@@ -147,6 +151,11 @@ void ForwardRenderer::Render(int                                       currentFr
     if(m_renderContextPtr->atmosphereCall.has_value())
     {
         m_atmospherePass->Precompute(currentFrameIndex, cmdBuffer, m_renderContextPtr);
+    }
+
+    if(uniformBufferManager.GetApplicationState()->m_rayTracedReflections)
+    {
+        m_rayTracedReflectionPass->Render(currentFrameIndex, cmdBuffer, renderContext);
     }
 
     //===========================
@@ -305,6 +314,7 @@ void ForwardRenderer::Destroy()
     m_fogPass->Destroy();
     m_atmospherePass->Destroy();
     m_aoOcclusionPass->Destroy();
+    m_rayTracedReflectionPass->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer
