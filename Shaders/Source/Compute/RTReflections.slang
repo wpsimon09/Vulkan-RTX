@@ -83,7 +83,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
     float3 pos = _positionBuffer.Sample(texCoords).xyz;
     float3 arm = _armMap.Sample(texCoords).xyz;
-    float3 N = _normalMap.Sample(texCoords).xyz;
+    float3 N = normalize(_normalMap.Sample(texCoords).xyz);
 
     float3 wo = normalize(_globalData.cameraPostiion.xyz - pos);
 
@@ -93,16 +93,18 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     PBRMaterial mat;
     mat.roughness = arm.x; 
     mat.metallness = arm.y;
+
     
     BxDFContext context;
     context.albedo = float4(1.0);
-    mat.roughness = arm.x;
-    mat.metallness = arm.y;
+    context.roughness = arm.x;
+    context.metallnes = arm.y;
 
     SurfaceGeometry g;
     g.normal = N;
     g.shadingNormal = N;
     g.shadingPosition = pos;
+    g.position = pos;
     
     var sample = mat.Sample(context, wo, g, u);
     
@@ -116,14 +118,20 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
         //======================================================================
         // Trace ray and determine the reflected colour based on the surface hit 
-        var result = TraceRayInline(ray, _tlas, u);
+        RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> result;
+
+	    result.TraceRayInline(_tlas, RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH, 0xFF, ray);
+
+        result.Proceed();
+        //var result = TraceRayInline(ray, _tlas, u);
         if(result.CommittedStatus() == COMMITTED_TRIANGLE_HIT)
         {
-            float2 uv = GetUv(result.CommittedPrimitiveIndex(), result.CommittedInstanceID(), result.CommittedTriangleBarycentrics());
+            float2 uv = GetUv(result.CommittedPrimitiveIndex(), result.CommittedInstanceIndex(), result.CommittedTriangleBarycentrics());
 
-            let features = materialValues[result.CommittedInstanceID()].Features;
-            let values = materialValues[result.CommittedInstanceID()].Values;
+            let features = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Features;
+            let values = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Values;
             if(features.hasDiffuseTexture){
+
                 _outputImage[threadID.xy] = float4(textures[features.albedoTextureIdx].Sample(uv).xyz, 1.0);
                 return;
             }else{
@@ -133,5 +141,5 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         }
     }
 
-    _outputImage[threadID.xy] = float4(ray.Direction, 1.0);
+    _outputImage[threadID.xy] = float4(float3(0.0), 1.0);
 }

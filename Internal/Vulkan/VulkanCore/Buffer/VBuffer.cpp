@@ -76,7 +76,6 @@ void VBuffer::CreateHostVisibleBuffer(VkDeviceSize size, VkBufferUsageFlags usag
     stagingAllocationCreateInfo.priority                = 1.0f;
 
 
-
     Utils::Logger::LogInfoVerboseOnly("Creating staging buffer...");
 
     if(aligment == 0)
@@ -102,6 +101,7 @@ void VBuffer::CreateHostVisibleBuffer(VkDeviceSize size, VkBufferUsageFlags usag
         m_bufferAddress         = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
     }
 
+    VulkanUtils::SetDebugName<VkBuffer>(m_device, m_stagingBufferVK.objectType, m_stagingBufferVK, allocationNme);
     Utils::Logger::LogSuccess("Staging buffer created || SIZE: " + std::to_string(size) + "bytes ||");
 }
 
@@ -135,6 +135,7 @@ void VBuffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage)
         bufferAdressInfo.buffer = m_bufferVK;
         m_bufferAddress         = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
     }
+    VulkanUtils::SetDebugName<VkBuffer>(m_device, m_bufferVK.objectType, m_bufferVK, m_allocationName);
 }
 void VBuffer::CreateBufferWithAligment(VkDeviceSize size, VkBufferUsageFlags usage, vk::DeviceSize minAligment)
 {
@@ -163,6 +164,8 @@ void VBuffer::CreateBufferWithAligment(VkDeviceSize size, VkBufferUsageFlags usa
     vk::BufferDeviceAddressInfo bufferAdressInfo;
     bufferAdressInfo.buffer = m_bufferVK;
     m_bufferAddress         = m_device.GetDevice().getBufferAddress(bufferAdressInfo);
+
+    VulkanUtils::SetDebugName<VkBuffer>(m_device, m_bufferVK.objectType, m_bufferVK, m_allocationName + " | aligned");
 }
 
 void VBuffer::DestroyStagingBuffer() const
