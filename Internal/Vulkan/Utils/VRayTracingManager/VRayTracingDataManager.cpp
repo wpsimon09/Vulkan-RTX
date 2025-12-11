@@ -79,7 +79,7 @@ vk::DescriptorBufferInfo VRayTracingDataManager::GetObjDescriptionBufferInfo()
 {
     vk::DescriptorBufferInfo info{};
     info.buffer = m_objDescriptionBuffer->GetBuffer();
-    info.range  = vk::WholeSize;
+    info.range  = m_objDescriptionBuffer->GetBuffeSizeInBytes();
     return info;
 }
 

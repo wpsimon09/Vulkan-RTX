@@ -72,12 +72,12 @@ Reflection map will be lerped in the composite pass based on its alpha channel
 void computeMain(uint3 threadID : SV_DispatchThreadID){
     float2 dims;
     _outputImage.GetDimensions(dims.x, dims.y);
-    float2 texCoords = (dims + 0.5) / threadID.xy;
+    float2 texCoords = (threadID.xy + 0.5) / dims;
 
     float depht = _depthMap.Sample(texCoords).x;
 
     if(depht == 1.0){
-        _outputImage[threadID.xy] = float4(0.0);
+        _outputImage[threadID.xy] = float4(1.0);
         return;
     }
 
@@ -85,7 +85,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     float3 arm = _armMap.Sample(texCoords).xyz;
     float3 N = _normalMap.Sample(texCoords).xyz;
 
-    float3 wo = _globalData.cameraPostiion.xyz - pos;
+    float3 wo = normalize(_globalData.cameraPostiion.xyz - pos);
 
     uint pixelID = threadID.x + threadID.y * (uint)dims.x;
     uint u = tea(pixelID, (uint)_globalData.currentFrame);
@@ -106,9 +106,9 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     
     var sample = mat.Sample(context, wo, g, u);
     
+    RayDesc ray;
     // we do not need to shoot ray from camear to world sice whe have the closest intersection in the postion buffer
     if(let sample = sample.brdf.Sample(wo, g, u)){
-        RayDesc ray;
         ray.Origin = pos;    
         ray.Direction = sample.wi;
         ray.TMin = 0.0001;
@@ -124,13 +124,14 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             let features = materialValues[result.CommittedInstanceID()].Features;
             let values = materialValues[result.CommittedInstanceID()].Values;
             if(features.hasDiffuseTexture){
-                _outputImage[threadID.xy] = textures[features.albedoTextureIdx].Sample(uv);
+                _outputImage[threadID.xy] = float4(textures[features.albedoTextureIdx].Sample(uv).xyz, 1.0);
                 return;
             }else{
-                _outputImage[threadID.xy] = values.diffuse;
+                _outputImage[threadID.xy] = float4(values.diffuse.xyz, 1.0);
                 return;
             }
         }
     }
-    _outputImage[threadID.xy] = float4(0.0);
+
+    _outputImage[threadID.xy] = float4(ray.Direction, 1.0);
 }

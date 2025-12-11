@@ -20,10 +20,7 @@ public RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> TraceRayInline(RayDesc
 
     rayQuery.Proceed();
 
-    if(rayQuery.CommittedStatus() == COMMITTED_TRIANGLE_HIT){
-        return rayQuery;
-    }
-	return {};
+    return rayQuery;
 }
 
 // Clever offset_ray function from Ray Tracing Gems chapter 6

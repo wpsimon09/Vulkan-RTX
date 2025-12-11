@@ -244,6 +244,12 @@ Renderer::RenderTarget2& ForwardRenderer::GetAmbientOcclusionOutpu() const
     return m_aoOcclusionPass->GetRenderTarget(0);  // there only one render pass in ao occlusion
 }
 
+Renderer::RenderTarget2& ForwardRenderer::GetReflectionsBuffer() const
+{
+    return m_rayTracedReflectionPass->GetRenderTarget(0);
+}
+
+
 void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
                                    VulkanCore::VCommandBuffer&               cmdBuffer,
                                    const VulkanUtils::VUniformBufferManager& uniformBufferManager)
@@ -260,6 +266,7 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording ! ");
     m_visibilityBufferPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
 }
+
 
 //==================================================================
 // De noiser pass, applies bilateral filter to the visibility buffer

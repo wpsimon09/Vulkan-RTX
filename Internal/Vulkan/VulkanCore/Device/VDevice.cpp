@@ -215,6 +215,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     physicalDeviceVulkan12Features.descriptorBindingSampledImageUpdateAfterBind  = true;
     physicalDeviceVulkan12Features.descriptorBindingStorageBufferUpdateAfterBind = true;
     physicalDeviceVulkan12Features.descriptorBindingUniformBufferUpdateAfterBind = true;
+    physicalDeviceVulkan12Features.scalarBlockLayout                             = true;
 
     // used in fore frame captures....
     if(GlobalState::ValidationLayersEnabled)
@@ -259,6 +260,7 @@ void VulkanCore::VDevice::CreateLogicalDevice()
     deviceFeatures.fillModeNonSolid  = true;
     deviceFeatures.samplerAnisotropy = true;
     deviceFeatures.wideLines         = true;
+
 
     //create the logical device
     vk::DeviceCreateInfo deviceCreateInfo{};
