@@ -50,6 +50,7 @@ public struct GlobalData {
 
     public bool useSER = false;
     public bool useComposition = true;
+    public bool useReflection = true;
 };
 
 

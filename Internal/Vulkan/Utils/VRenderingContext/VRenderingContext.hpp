@@ -64,6 +64,7 @@ struct RenderContext
     VulkanCore::VImage2*     aoOcclusionMap              = nullptr;
     VulkanCore::VImage2*     albedoMap                   = nullptr;
     VulkanCore::VImage2*     armMap                      = nullptr;
+    VulkanCore::VImage2*     reflectionMap               = nullptr;
     vk::DescriptorBufferInfo rtxObjectBufer;
 
     std::shared_ptr<VulkanCore::VImage2> defaultTexture = nullptr;

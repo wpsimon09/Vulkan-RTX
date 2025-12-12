@@ -40,6 +40,7 @@ struct GlobalRenderingInfo
     alignas(4) int accountForAtmosphereTransmitance = 0.0;
     alignas(4) int useSer                           = 0.0;
     alignas(4) int useComposition                   = 1.0f;
+    alignas(4) int useReflection                    = 1.0f;
 };
 
 struct ObjectDataUniform
