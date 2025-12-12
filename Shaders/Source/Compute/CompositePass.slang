@@ -29,13 +29,13 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     float shadowFactor = _dirLightShadowMap.Sample(texCoords).x;
     
     float occlusionStrenth = shadowFactor;
+        
+    col = lerp(_albedoMap.Sample(texCoords).xyz * 0.5, col, shadowFactor);
     
     if(_globalData.aoOcclusion){
         float aoFactor = _aoMap.Sample(texCoords).x;
-        occlusionStrenth *= aoFactor;
+        col *= clamp(0.001, 1.0 ,aoFactor);
     }
-
-    col = lerp(_albedoMap.Sample(texCoords).xyz * 0.5, col, occlusionStrenth);
 
     if(_globalData.useReflection){
         float3 reflectionValue = _reflectionMap.Sample(texCoords).xyz;
