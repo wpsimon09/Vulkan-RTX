@@ -50,6 +50,7 @@ public struct GlobalData {
 
     public bool useSER = false;
     public bool useComposition = true;
+    public bool useReflection = true;
 };
 
 
@@ -127,4 +128,22 @@ public struct RayPayLoad {
     public uint randomContext;
 
     public Optional<BxDFContext> brdfContext = {};
+}
+
+//=========================================
+// used to look up hit geometry by the rays 
+public struct ObjDescription {
+    public Vertex* vertexAddresses;
+    public int* indexAddress;
+}
+
+
+
+//=========================================
+// Vertex struct store int he above
+public struct Vertex {
+    public float3 pos;
+    public float3 norm;
+    public float2 uv;
+    public float4 tangent; 
 }

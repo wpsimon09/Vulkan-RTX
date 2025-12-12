@@ -7,6 +7,8 @@ Sampler2D _aoMap;
 Sampler2D _renderedImage;
 Sampler2D _albedoMap;
 Sampler2D _depthMap;
+Sampler2D _armMap;
+Sampler2D _reflectionMap;
 
 ConstantBuffer<GlobalData> _globalData;
 
@@ -27,14 +29,19 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     float shadowFactor = _dirLightShadowMap.Sample(texCoords).x;
     
     float occlusionStrenth = shadowFactor;
+        
+    col = lerp(_albedoMap.Sample(texCoords).xyz * 0.5, col, shadowFactor);
     
     if(_globalData.aoOcclusion){
         float aoFactor = _aoMap.Sample(texCoords).x;
-        occlusionStrenth *= aoFactor;
+        col *= clamp(0.001, 1.0 ,aoFactor);
     }
 
-
-    col = lerp(_albedoMap.Sample(texCoords).xyz, col, occlusionStrenth);
+    if(_globalData.useReflection){
+        float3 reflectionValue = _reflectionMap.Sample(texCoords).xyz;
+        float roughness = _armMap.Sample(texCoords).x;
+        col = lerp(reflectionValue, col , roughness);
+    }
 
     _finalImage[threadID.xy].xyz = col;
 }

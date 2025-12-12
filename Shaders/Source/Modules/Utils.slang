@@ -104,7 +104,7 @@ public double3 WorldPosFromDepth(double depth, float2 uv, float4x4 inverseProj, 
 }
 
 public float3 WorldPosFromLinearDepth(float depth,float2 uv, float4x4 inverseProj, float4x4 inverseView){
-   float z = depth;
+    float z = depth;
     float4 clipSpacePos = float4(uv * 2.0 - 1.0, 1.0, 1.0);
     float4 viewRay = mul( inverseProj, clipSpacePos);
     

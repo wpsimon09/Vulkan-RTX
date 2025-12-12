@@ -13,6 +13,16 @@ public RayPayLoad TraceSingleRay(RayDesc ray,RaytracingAccelerationStructure _tl
     return payload;
 }
 
+public RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> TraceRayInline(RayDesc ray, RaytracingAccelerationStructure _tlas, inout uint u){
+	RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> rayQuery;
+
+	rayQuery.TraceRayInline(_tlas, RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH, 0xFF, ray);
+
+    rayQuery.Proceed();
+
+    return rayQuery;
+}
+
 // Clever offset_ray function from Ray Tracing Gems chapter 6
 // Offsets the ray origin from current position p, along normal n (which must be geometric normal)
 // so that no self-intersection can occur.

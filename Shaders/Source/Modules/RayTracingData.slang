@@ -3,6 +3,7 @@ import Surface;
 import Material;
 import Utils;
 import BxDF;
+import Core;
 
 [[vk::binding(2, 0)]]
 StructuredBuffer<ObjDescription> descriptions;
@@ -12,18 +13,6 @@ StructuredBuffer<Material> materialValues;
 
 [[vk::binding(7, 0)]]
 Sampler2D textures[];
-
-public struct ObjDescription {
-    public Vertex* vertexAddresses;
-    public int* indexAddress;
-}
-
-public struct Vertex {
-    public float3 pos;
-    public float3 norm;
-    public float2 uv;
-    public float4    tangent; 
-}
 
 public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric, float3x4 objectToWorld)
 {

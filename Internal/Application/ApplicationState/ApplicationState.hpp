@@ -66,8 +66,8 @@ class ApplicationState
     bool               m_ambientOcclusion     = false;
     bool               m_enablePostProcessing = true;
     bool               m_denoise              = true;
-    bool m_composite = true;  // use separate draw pass to composite the visibility buffer with the rest of the scene
-
+    bool m_composite = true;  // use separate draw pass to composite the visibility buffer and any other effects that might contribute with the rest of the scene
+    bool m_rayTracedReflections = true;
 
   private:
     LightStructs::SceneLightInfo* m_sceneLight          = nullptr;  // instantiated in Scene.hpp
@@ -84,6 +84,7 @@ class ApplicationState
     LuminanceHistogramParameters        m_luminanceHistrogramParameters;
     LuminanceHistogramAverageParameters m_luminanceAverageParameters;
     BloomSettings                       m_bloomSettings;
+
 
     bool m_windowResized = false;
 };

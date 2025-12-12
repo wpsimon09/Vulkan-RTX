@@ -6,6 +6,7 @@
 
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 
+#include <exception>
 #include <memory>
 #include <sys/wait.h>
 #include <vulkan/vulkan_enums.hpp>
@@ -42,6 +43,7 @@
 #include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/ReflectionsPass.hpp"
 
 
 namespace Renderer {
@@ -73,17 +75,21 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_forwardRenderPass = std::make_unique<Renderer::ForwardRender>(device, effectsLibrary, width, height);
     m_fogPass           = std::make_unique<Renderer::FogPass>(device, effectsLibrary, width, height);
     m_atmospherePass    = std::make_unique<Renderer::AtmospherePass>(device, effectsLibrary, width, height);
-    m_aoOcclusionPass   = std::make_unique<Renderer::AoOcclusionPass>(device, effectsLibrary, width / 2, width / 2);
-
+    m_aoOcclusionPass   = std::make_unique<Renderer::AoOcclusionPass>(device, effectsLibrary, width / 4, height / 4);
+    m_rayTracedReflectionPass =
+        std::make_unique<Renderer::RayTracedReflectionsPass>(device, effectsLibrary, width / 3, height / 3);
+    //====================================================================================================
+    // Populate render context with all the images that will be rendered
     m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
     m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
     m_renderContextPtr->albedoMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Albedo);
     m_renderContextPtr->depthBuffer = &m_gBufferPass->GetDepthAttachment();
+    m_renderContextPtr->armMap      = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Arm);
     m_renderContextPtr->lightPassOutputRenderTarget = &m_forwardRenderPass->GetRenderTarget(EForwardRenderAttachments::Main);
     m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
     m_renderContextPtr->lightPassOutput  = &m_forwardRenderPass->GetResolvedResult();
     m_renderContextPtr->aoOcclusionMap   = &m_aoOcclusionPass->GetPrimaryResult();
-
+    m_renderContextPtr->reflectionMap    = &m_rayTracedReflectionPass->GetPrimaryResult();
 
     Utils::Logger::LogSuccess("Forward renderer created !");
 }
@@ -95,6 +101,7 @@ void ForwardRenderer::Init(int                                  frameIndex,
     m_gBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_atmospherePass->Init(frameIndex, uniformBufferManager, renderContext);
 
+    m_rayTracedReflectionPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_visibilityBufferPass->Init(frameIndex, uniformBufferManager, renderContext);
     m_visibilityDenoisePass->Init(frameIndex, uniformBufferManager, renderContext);
     m_forwardRenderPass->Init(frameIndex, uniformBufferManager, renderContext);
@@ -109,11 +116,16 @@ void ForwardRenderer::Update(int                                   currentFrame,
                              VulkanStructs::PostProcessingContext* postProcessingContext)
 {
     m_visibilityBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    if(uniformBufferManager.GetApplicationState()->m_rayTracedReflections)
+    {
+        m_rayTracedReflectionPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+    }
     m_visibilityDenoisePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_gBufferPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_forwardRenderPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_fogPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
     m_atmospherePass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
+
     if(uniformBufferManager.GetApplicationState()->m_ambientOcclusion)
     {
         m_aoOcclusionPass->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
@@ -142,6 +154,7 @@ void ForwardRenderer::Render(int                                       currentFr
     {
         m_atmospherePass->Precompute(currentFrameIndex, cmdBuffer, m_renderContextPtr);
     }
+
 
     //===========================
     // generates shadow mapp in  screen space
@@ -188,6 +201,12 @@ void ForwardRenderer::Render(int                                       currentFr
         PostProcessingFogPass(currentFrameIndex, cmdBuffer, uniformBufferManager);
     }
 
+    if(uniformBufferManager.GetApplicationState()->m_rayTracedReflections)
+    {
+        m_rayTracedReflectionPass->Render(currentFrameIndex, cmdBuffer, renderContext);
+    }
+
+
     m_frameCount++;
 }
 VulkanCore::VImage2* ForwardRenderer::GetForwardRendererResult() const
@@ -227,6 +246,12 @@ Renderer::RenderTarget2& ForwardRenderer::GetAmbientOcclusionOutpu() const
     return m_aoOcclusionPass->GetRenderTarget(0);  // there only one render pass in ao occlusion
 }
 
+Renderer::RenderTarget2& ForwardRenderer::GetReflectionsBuffer() const
+{
+    return m_rayTracedReflectionPass->GetRenderTarget(0);
+}
+
+
 void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
                                    VulkanCore::VCommandBuffer&               cmdBuffer,
                                    const VulkanUtils::VUniformBufferManager& uniformBufferManager)
@@ -243,6 +268,7 @@ void ForwardRenderer::ShadowMapPass(int                                       cu
     assert(cmdBuffer.GetIsRecording() && "Command buffer is not recording ! ");
     m_visibilityBufferPass->Render(currentFrameIndex, cmdBuffer, m_renderContextPtr);
 }
+
 
 //==================================================================
 // De noiser pass, applies bilateral filter to the visibility buffer
@@ -299,6 +325,7 @@ void ForwardRenderer::Destroy()
     m_fogPass->Destroy();
     m_atmospherePass->Destroy();
     m_aoOcclusionPass->Destroy();
+    m_rayTracedReflectionPass->Destroy();
     //m_shadowMap->Destroy();
 }
 }  // namespace Renderer

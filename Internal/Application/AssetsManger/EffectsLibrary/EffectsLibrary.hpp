@@ -64,6 +64,7 @@ enum class EEffectType : std::uint8_t
     FogVolumeCompute,
     RT_AoOcclusionPass,
     CompositePass,
+    RT_Reflections,
 };
 
 class EffectsLibrary

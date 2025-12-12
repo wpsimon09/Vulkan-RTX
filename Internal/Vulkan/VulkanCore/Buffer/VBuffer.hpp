@@ -137,6 +137,8 @@ void VBuffer::MakeUniformBuffer(const T& uniformBuffer, vk::DeviceSize size, boo
     m_descriptorBufferInfo.buffer = m_bufferVK;
     m_descriptorBufferInfo.range  = size;
     m_descriptorBufferInfo.offset = 0;
+
+    VulkanUtils::SetDebugName<VkBuffer>(m_device, m_bufferVK.objectType, m_bufferVK, m_allocationName + " | uniform buffer");
 }
 template <typename T>
 void VBuffer::CreateBufferAndPutDataOnDevice(const vk::CommandBuffer& commandBuffer, const std::vector<T>& data, vk::BufferUsageFlags usage)
@@ -146,6 +148,7 @@ void VBuffer::CreateBufferAndPutDataOnDevice(const vk::CommandBuffer& commandBuf
     memcpy(MapStagingBuffer(), data.data(), data.size() * sizeof(T));
     UnMapStagingBuffer();
     VulkanUtils::CopyBuffers(commandBuffer, m_stagingBufferVMA, m_bufferVMA, data.size() * sizeof(T));
+    VulkanUtils::SetDebugName<VkBuffer>(m_device, m_bufferVK.objectType, m_bufferVK, m_allocationName);
 }
 
 }  // namespace VulkanCore

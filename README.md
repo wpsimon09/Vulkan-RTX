@@ -7,7 +7,7 @@ Simple Vulkan physically based render that can render meshes in classic rasteris
 - _Rendering API_ - [Vulkan](https://www.vulkan.org/) (`vulkan.hpp`)
 - _Shading Language_ - [Slang](https://shader-slang.org/)
 - _Language_ - C++
-- _Math_ - [glm](https://github.com/g-truc/glm)  
+- _Math_ - [glm](https://github.com/g-truc/glm)
 - _User interface_ - [Dear ImGui](https://github.com/ocornut/imgui)
 - _.glTF parsing_ - [fastgltf](https://github.com/spnda/fastgltf)
 - _.ini parsing_ - [mINI](https://github.com/metayeti/mINI)
@@ -16,12 +16,12 @@ Simple Vulkan physically based render that can render meshes in classic rasteris
 
 ## Build
 
-To run this project, for now it is crucial that your GPU supports `VK_KHR_ray_tracing_pipeline` ! 
+To run this project, for now it is crucial that your GPU supports `VK_KHR_ray_tracing_pipeline` !
 
 ### 1. Clone this repo
 
 ```sh
-git clone https://github.com/wpsimon09/Vulkan-RTX.git --recursive  ## recursive has to be there 
+git clone https://github.com/wpsimon09/Vulkan-RTX.git --recursive  ## recursive has to be there
 ```
 
 ### 2. Download GLFW
@@ -29,10 +29,11 @@ git clone https://github.com/wpsimon09/Vulkan-RTX.git --recursive  ## recursive 
 - this library is used for window creation and provides context for Vulkan
 
 **On windows**
+
 - [downald link](https://www.glfw.org/)
 
 **On Linux**
-     
+
 ```sh
 # On Ubuntu/Debian:
 sudo apt update && sudo apt install -y libglfw3 libglfw3-dev
@@ -47,12 +48,15 @@ sudo dnf install -y glfw glfw-devel
 sudo zypper install glfw-devel
 
 ```
+
 ### 3. Download GLM
 
 **On windows**
+
 - [downald link](https://sourceforge.net/projects/glm.mirror/)
 
 **On Linux**
+
 ```bash
 # On Ubuntu/Debian:
 sudo apt update && sudo apt install -y libglm-dev
@@ -79,11 +83,12 @@ sh build.sh debug
 ## in release mode (app wont work in release mode now)
 sh build.sh release
 ```
+
 ---
 
 ## Compiling shaders
 
-Note that you must have python installed verify this by running 
+Note that you must have python installed verify this by running
 
 ```
 python --help
@@ -98,12 +103,14 @@ To get started, navigate to the `Shaders` directory:
 ```bash
 cd Shaders
 ```
+
 Then, open `compileSlang.py` and change the variable `SLANGC_PATH` to point to the `slangc` executable.
 
-*Example:*  
+_Example:_  
 `SLANGC_PATH = "/home/user/SDKs/slang/bin/slangc"`
 
 Once done, use Python to compile the shaders from the `Shaders` directory:
+
 ```bash
 ## assuming you are in the Shaders directory
 python compileSlang.py --verbose --no-skip-unchanged
@@ -112,16 +119,17 @@ python compileSlang.py --verbose --no-skip-unchanged
 The `--no-skip-unchanged` option forces all shaders to compile, even if they haven’t changed. `--verbose` flag, will print detailed messages about compilation process
 
 ## Features:
-- Model Loading  
-- Scene Exporting (To glTF)  
-- Forward Renderer  
-- Area Light With LTC  
-- Ray Traced soft shadows  
+
+- Model Loading
+- Scene Exporting (To glTF)
+- Forward Renderer
+- Area Light With LTC
+- Ray Traced soft shadows
 - Real time path tracing (with RT cores)
-- Image Based Lighting  
+- Image Based Lighting
 - Real time selectable Tone mapping curves
-- Automatic exposure  
-- Scene Editor With Gizmos  
+- Automatic exposure
+- Scene Editor With Gizmos
 - Real Time Material Customisation
 - Multy threaded lazy texture loading
 - Bindless descritptors for material textures
@@ -130,20 +138,18 @@ The `--no-skip-unchanged` option forces all shaders to compile, even if they hav
 - Bilateral filter denoiser
 - Physically based bloom
 - Atmospheric scattering
+- Ray traced reflections with importance sampling
 
 ## Little showcase
-
 
 https://github.com/user-attachments/assets/f35be847-0669-4854-a1f1-b33462a8afd5
 
 <img width="2880" height="1726" alt="image" src="https://github.com/user-attachments/assets/535c0838-4fe4-4a0a-8616-81693e7a43b2" />
 
-
 <img width="2880" height="1719" alt="Screenshot From 2025-09-23 08-29-38" src="https://github.com/user-attachments/assets/afddae93-faa1-4ea8-b115-25d0502cb06c" />
 
-![image](https://github.com/user-attachments/assets/69a1ac89-3466-49b0-b9ef-e5a453318cb1 )
+![image](https://github.com/user-attachments/assets/69a1ac89-3466-49b0-b9ef-e5a453318cb1)
 
 <img width="2880" height="1719" alt="Screenshot From 2025-09-23 08-22-15" src="https://github.com/user-attachments/assets/f0d8836b-10c7-406b-a307-0f904f797af6" />
 
 <img width="2880" height="1719" alt="Screenshot From 2025-09-23 08-23-31" src="https://github.com/user-attachments/assets/b1f3cb08-801b-4b77-a330-e9ef01ad4fb7" />
-

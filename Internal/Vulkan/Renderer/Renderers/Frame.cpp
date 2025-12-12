@@ -44,6 +44,7 @@
 #include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/PostProcessing.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/AtmospherePass.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/ReflectionsPass.hpp"
 
 
 #include "imgui.h"
@@ -139,7 +140,7 @@ void Frame::Init()
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
             .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
-        m_uiContext.GetViewPortContext(ViewPortType::eShadowMap).SetImage(m_forwardRenderer->GetDenoisedVisibilityBuffer(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::eShadowMap).SetImage(m_forwardRenderer->GetReflectionsBuffer().GetPrimaryImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
             .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
         m_uiContext.GetViewPortContext(ViewPortType::eNormalBuffer).SetImage(m_forwardRenderer->GetNormalBufferOutput().GetResolvedImage(), i);
@@ -210,13 +211,14 @@ void Frame::Update(ApplicationCore::ApplicationState& applicationState)
                                           *m_frameTimeLine[m_frameInFlightID]);
     //====================================================================
     // pass necessary data to the rendering context
-    m_renderContext.hdrCubeMap    = m_envLightGenerator->GetCubeMapRaw();
-    m_renderContext.irradianceMap = m_envLightGenerator->GetIrradianceMapRaw();
-    m_renderContext.prefilterMap  = m_envLightGenerator->GetPrefilterMapRaw();
-    m_renderContext.brdfMap       = m_envLightGenerator->GetBRDFLutRaw();
-    m_renderContext.dummyCubeMap  = m_envLightGenerator->GetDummyCubeMapRaw();
-    m_renderContext.deltaTime     = ImGui::GetIO().DeltaTime;
-    m_renderContext.tlas          = m_rayTracingDataManager.GetTLAS();
+    m_renderContext.hdrCubeMap     = m_envLightGenerator->GetCubeMapRaw();
+    m_renderContext.irradianceMap  = m_envLightGenerator->GetIrradianceMapRaw();
+    m_renderContext.prefilterMap   = m_envLightGenerator->GetPrefilterMapRaw();
+    m_renderContext.brdfMap        = m_envLightGenerator->GetBRDFLutRaw();
+    m_renderContext.dummyCubeMap   = m_envLightGenerator->GetDummyCubeMapRaw();
+    m_renderContext.deltaTime      = ImGui::GetIO().DeltaTime;
+    m_renderContext.tlas           = m_rayTracingDataManager.GetTLAS();
+    m_renderContext.rtxObjectBufer = m_rayTracingDataManager.GetObjDescriptionBufferInfo();
 
     //==================================================
     // Pass parameters to the post processing context
@@ -346,8 +348,9 @@ void Frame::FinishFrame()
     std::vector<vk::SemaphoreSubmitInfo> waitSemaphres = {
         // wait until transfer is finished
         m_frameTimeLine[m_frameInFlightID]->GetSemaphoreWaitSubmitInfo(
-            EFrameStages::TransferFinish, vk::PipelineStageFlagBits2::eVertexAttributeInput | vk::PipelineStageFlagBits2::eRayTracingShaderKHR
-                                              | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR),
+            EFrameStages::TransferFinish,
+            vk::PipelineStageFlagBits2::eVertexAttributeInput | vk::PipelineStageFlagBits2::eRayTracingShaderKHR
+                | vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR | vk::PipelineStageFlagBits2::eComputeShader),
         // wait until image to present is awailable
         imageAvailableSubmitInfo};
 
