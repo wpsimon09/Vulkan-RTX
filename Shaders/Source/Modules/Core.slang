@@ -48,9 +48,9 @@ public struct GlobalData {
     public bool isRayTracing;
     public bool accountForSunTransmitance;
 
-    public bool useSER = false;
-    public bool useComposition = true;
-    public bool useReflection = true;
+    public bool useSER;
+    public bool useComposition;
+    public bool useReflection;
 };
 
 

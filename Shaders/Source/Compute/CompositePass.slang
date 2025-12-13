@@ -1,13 +1,27 @@
 import Core;
 
+[[vk::binding(0,0)]]
 RWTexture2D _finalImage;
 
+[[vk::binding(1,0)]]
 Sampler2D _dirLightShadowMap;
+
+[[vk::binding(2,0)]]
 Sampler2D _aoMap;
+
+[[vk::binding(3,0)]]
 Sampler2D _renderedImage;
+
+[[vk::binding(4,0)]]
 Sampler2D _albedoMap;
+
+[[vk::binding(5,0)]]
 Sampler2D _depthMap;
+
+[[vk::binding(6,0)]]
 Sampler2D _armMap;
+
+[[vk::binding(7,0)]]
 Sampler2D _reflectionMap;
 
 ConstantBuffer<GlobalData> _globalData;
@@ -34,7 +48,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     
     if(_globalData.aoOcclusion){
         float aoFactor = _aoMap.Sample(texCoords).x;
-        col *= clamp(0.001, 1.0 ,aoFactor);
+        col *= clamp(0.1, 1.0 ,aoFactor);
     }
 
     if(_globalData.useReflection){

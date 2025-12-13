@@ -64,6 +64,47 @@ public float2 GetUv(uint32_t primitiveIndex, uint32_t instanceIndex, float2 bari
 }
 
 
+public SurfaceGeometry GetSurface(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric, float3x4 objectToWorld)
+{
+    SurfaceGeometry g;
+    const float3 barycentricCoords = float3(1.0f - baricentric.x - baricentric.y, baricentric.x, baricentric.y);
+
+    ObjDescription object = descriptions[instanceIndex];
+
+    //=================================================
+    // for each vertex there is one index that can
+    // be used to look up the correct vertex in the array
+    int i1 = object.indexAddress[primitiveIndex * 3];     // First index
+    int i2 = object.indexAddress[primitiveIndex * 3 + 1]; // Second index
+    int i3 = object.indexAddress[primitiveIndex * 3 + 2]; // Third index
+
+    // Fetch the corresponding vertices
+    Vertex v1 = object.vertexAddresses[i1];
+    Vertex v2 = object.vertexAddresses[i2];
+    Vertex v3 = object.vertexAddresses[i3];
+    
+    //================================
+    // Texture coordinates 
+    g.uv = v1.uv.xy * barycentricCoords.x + v2.uv.xy * barycentricCoords.y + v3.uv.xy * barycentricCoords.z;
+
+    //=================================
+    // Normal vector retrieval
+    // - wont use the normal map since for reflections it des not matter that much, also it is 1/3 of resolution
+    float3 N = v1.norm * barycentricCoords.x + v2.norm * barycentricCoords.y + v3.norm * barycentricCoords.z;
+    g.normal = N;
+    g.shadingNormal = mul(objectToWorld, float4(g.normal,1.0)).xyz;
+
+    //=================================
+    // Position retrieval
+    g.position = v1.pos * barycentricCoords.x + v2.pos * barycentricCoords.y + v3.pos * barycentricCoords.z;    
+    g.shadingNormal = mul(objectToWorld, float4(g.position,1.0)).xyz;
+
+
+    return g;
+}
+
+
+
 /*
 Reflection map will be lerped in the composite pass based on its alpha channel
 */
@@ -126,13 +167,18 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         //var result = TraceRayInline(ray, _tlas, u);
         if(result.CommittedStatus() == COMMITTED_TRIANGLE_HIT)
         {
-            float2 uv = GetUv(result.CommittedPrimitiveIndex(), result.CommittedInstanceIndex(), result.CommittedTriangleBarycentrics());
+            SurfaceGeometry g = GetSurface(result.CommittedPrimitiveIndex(), result.CommittedInstanceIndex(), result.CommittedTriangleBarycentrics(), result.CandidateObjectToWorld3x4());
 
             let features = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Features;
             let values = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Values;
-            if(features.hasDiffuseTexture){
 
-                _outputImage[threadID.xy] = float4(textures[features.albedoTextureIdx].Sample(uv).xyz, 1.0);
+            PBRMaterial hitMaterial = {};
+            hitMaterial.features = features;
+            hitMaterial.values = values;
+
+            var hitBrfd = hitMaterial.Prepare(g);
+            if(features.hasDiffuseTexture){
+                _outputImage[threadID.xy] = float4(textures[features.albedoTextureIdx].Sample(g.uv).xyz, 1.0);
                 return;
             }else{
                 _outputImage[threadID.xy] = float4(values.diffuse.xyz, 1.0);

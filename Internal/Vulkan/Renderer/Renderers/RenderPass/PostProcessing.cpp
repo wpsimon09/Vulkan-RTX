@@ -962,8 +962,6 @@ void CompositePass::Update(int                                   currentFrame,
     m_compositeEffect->SetNumWrites(0, 3, 0);
     m_compositeEffect->WriteImage(currentFrame, 0, 1,
                                   postProcessingContext->shadowMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-    m_compositeEffect->WriteImage(currentFrame, 0, 2,
-                                  postProcessingContext->aoMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
     m_compositeEffect->ApplyWrites(currentFrame);
 }

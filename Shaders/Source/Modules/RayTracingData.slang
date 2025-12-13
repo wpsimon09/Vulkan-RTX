@@ -66,7 +66,7 @@ public SurfaceGeometry GetSurfaceInfo(uint32_t primitiveIndex, uint32_t instance
     
 
     g.TBN = CalculateTBN(g.normal, g.tangent, (float3x3)ObjToWorld);
-    g.iTBN = transpose((g.TBN));
+    g.iTBN = transpose(g.TBN);
 
     if(features.hasNormalTexture){
         g.shadingNormal = normalize(SampleNormalMap(textures[features.normalTextureIdx],g.uv, g.TBN));
