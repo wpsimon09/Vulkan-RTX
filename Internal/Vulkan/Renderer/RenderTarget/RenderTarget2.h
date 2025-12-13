@@ -4,11 +4,21 @@
 
 #ifndef RENDERTARGET2_H
 #define RENDERTARGET2_H
-#include "VulkanRtx.hpp"
 
+#include "vulkan/vulkan.hpp"
+#include "memory"
+#include "vector"
 namespace VulkanUtils {
 struct VBarrierPosition;
 }
+
+namespace VulkanCore {
+class VImage2;
+class VDevice;
+class VSwapChain;
+class VCommandBuffer;
+}  // namespace VulkanCore
+
 namespace Renderer {
 
 /**
@@ -65,17 +75,29 @@ class RenderTarget2
 
     ~RenderTarget2();
 
-  private:
-    const VulkanCore::VDevice& m_device;
+  protected:
+    const VulkanCore::VDevice&  m_device;
+    vk::RenderingAttachmentInfo m_renderingAttachmentInfo;
+    RenderTarget2CreatInfo      m_renderTargetInfo;
 
-    vk::RenderingAttachmentInfo          m_renderingAttachmentInfo;
+  private:
     std::unique_ptr<VulkanCore::VImage2> m_primaryAttachment;
     std::unique_ptr<VulkanCore::VImage2> m_resolvedAttachment;
 
     std::vector<std::unique_ptr<VulkanCore::VImage2>> m_swapChainImages;
-    RenderTarget2CreatInfo                            m_renderTargetInfo;
+    bool                                              m_isForSwapChain = false;
+};
 
-    bool m_isForSwapChain = false;
+//=============================================================================================
+
+class RenderTargetAccumulated : public RenderTarget2
+{
+  public:
+    RenderTargetAccumulated(int numFrames, const VulkanCore::VDevice& device, RenderTarget2CreatInfo& createInfo);
+    RenderTarget2& Get(int frame);
+
+  private:
+    std::vector<std::unique_ptr<RenderTarget2>> m_renderTargets;
 };
 
 }  // namespace Renderer

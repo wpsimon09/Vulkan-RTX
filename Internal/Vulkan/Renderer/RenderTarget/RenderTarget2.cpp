@@ -271,4 +271,24 @@ void RenderTarget2::Destroy()
 
 RenderTarget2::~RenderTarget2() {}
 
+//***********************************************************************/
+//********************** Temporally accumulated *************************/
+//***********************************************************************/
+
+RenderTargetAccumulated::RenderTargetAccumulated(int numFrames, const VulkanCore::VDevice& device, RenderTarget2CreatInfo& m_renderTargetInfo)
+    : RenderTarget2(device, m_renderTargetInfo)
+{
+    m_renderTargets.resize(numFrames);
+    for(int i = 0; i < numFrames; i++)
+    {
+        m_renderTargets[i] = std::make_unique<Renderer::RenderTarget2>(device, m_renderTargetInfo);
+    }
+}
+
+RenderTarget2& RenderTargetAccumulated::Get(int frame)
+{
+    assert(frame <= m_renderTargets.size() && "Frame is bigger then available render targets ");
+    return *m_renderTargets[frame];
+}
+
 }  // namespace Renderer

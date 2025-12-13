@@ -251,6 +251,11 @@ Renderer::RenderTarget2& ForwardRenderer::GetReflectionsBuffer() const
     return m_rayTracedReflectionPass->GetRenderTarget(0);
 }
 
+Renderer::RenderTarget2& ForwardRenderer::GetArmBuffer() const
+{
+    return m_gBufferPass->GetRenderTarget(EGBufferAttachments::Arm);
+}
+
 
 void ForwardRenderer::DepthPrePass(int                                       currentFrameIndex,
                                    VulkanCore::VCommandBuffer&               cmdBuffer,
