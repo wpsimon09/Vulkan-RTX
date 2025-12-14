@@ -204,6 +204,7 @@ void SceneNode::ProcessNodeRemove(const SceneNode& node, SceneData& sceneData)
 
 void SceneNode::Update(SceneUpdateContext& sceneUpdateFlags)
 {
+    m_prevFrameModelMatrix = m_transformation->GetModelMatrix();
     if(m_parent)
     {
         m_transformation->ComputeModelMatrix(m_parent->m_transformation->GetModelMatrix());
@@ -267,7 +268,8 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         data.vertexData = m_mesh->GetMeshData()->vertexData;
         data.indexData  = m_mesh->GetMeshData()->indexData;
 
-        data.modelMatrix = m_transformation->GetModelMatrix();
+        data.modelMatrix         = m_transformation->GetModelMatrix();
+        data.previousModelMatrix = m_prevFrameModelMatrix;
 
         if(m_mesh->m_currentMaterial->IsTransparent())
         {

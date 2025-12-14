@@ -174,6 +174,7 @@ struct VDrawCallData
     mutable int drawCallID = 0;
 
     glm::mat4 modelMatrix{};
+    glm::mat4 previousModelMatrix{};
     glm::vec3 position{};
 
     float depth = -1.0f;

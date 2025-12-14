@@ -51,6 +51,9 @@ public struct GlobalData {
     public bool useSER;
     public bool useComposition;
     public bool useReflection;
+
+    public column_major float4x4 previousView;
+    public column_major float4x4 preeviousProjection;
 };
 
 
@@ -68,6 +71,7 @@ public struct PermodelData {
 public struct PerObjectPushConstatn {
     public int4 perObjectDataIndex; //x- index to the the material yzw - other indexes
     public column_major float4x4 modelMatrix;
+    public column_major float4x4 previousModelMatrix;
 }
 
 //===============================================

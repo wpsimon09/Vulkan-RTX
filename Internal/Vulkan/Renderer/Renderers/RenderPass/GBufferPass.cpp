@@ -202,8 +202,9 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
         }
 
         PerObjectPushConstant pc{};
-        pc.indexes.x   = drawCall.second.drawCallID;
-        pc.modelMatrix = drawCall.second.modelMatrix;
+        pc.indexes.x      = drawCall.second.drawCallID;
+        pc.modelMatrix    = drawCall.second.modelMatrix;
+        pc.prevModelMatix = drawCall.second.previousModelMatrix;
 
         vk::PushConstantsInfo pcInfo;
         pcInfo.layout     = m_gBufferEffect->GetPipelineLayout();

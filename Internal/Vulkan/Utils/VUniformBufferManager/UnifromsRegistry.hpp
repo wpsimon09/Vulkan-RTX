@@ -41,6 +41,9 @@ struct GlobalRenderingInfo
     alignas(4) int useSer                           = 0.0;
     alignas(4) int useComposition                   = 1.0f;
     alignas(4) int useReflection                    = 1.0f;
+
+    glm::mat4 viewPrevFrame = glm::mat4(1.0);
+    glm::mat4 projPrevFrame = glm::mat4(1.0);
 };
 
 struct ObjectDataUniform
@@ -101,6 +104,7 @@ struct PerObjectPushConstant
 {
     glm::ivec4 indexes{};  // x - object index, yzw - padding for now in future can be other indexes
     glm::mat4  modelMatrix{};
+    glm::mat4  prevModelMatix{};
 };
 
 

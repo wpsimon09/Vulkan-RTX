@@ -369,6 +369,7 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
         PerObjectPushConstant pc{};
         pc.indexes.x   = drawCall.second.drawCallID;
         pc.modelMatrix = drawCall.second.modelMatrix;
+        pc.modelMatrix = drawCall.second.previousModelMatrix;
 
         vk::PushConstantsInfo pcInfo;
         pcInfo.layout     = m_effects[static_cast<EForwardRenderEffects>(drawCall.second.effect)]->GetPipelineLayout();

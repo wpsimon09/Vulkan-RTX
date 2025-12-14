@@ -172,11 +172,6 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             let features = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Features;
             let values = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Values;
 
-            PBRMaterial hitMaterial = {};
-            hitMaterial.features = features;
-            hitMaterial.values = values;
-
-            var hitBrfd = hitMaterial.Prepare(g);
             if(features.hasDiffuseTexture){
                 _outputImage[threadID.xy] = float4(textures[features.albedoTextureIdx].Sample(g.uv).xyz, 1.0);
                 return;

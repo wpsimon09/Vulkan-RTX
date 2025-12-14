@@ -95,6 +95,10 @@ const void Client::Destroy()
 
 void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 {
+    // before camera is update we have the previous projection and view matrix
+    m_globalRenderingData.viewPrevFrame = m_camera->GetViewMatrix();
+    m_globalRenderingData.projPrevFrame = m_camera->GetProjectionMatrix();
+
     m_camera->Update(cameraUpdateInfo, m_scene->GetSceneUpdateFlags());
 
     m_globalRenderingData.proj        = m_camera->GetProjectionMatrix();
