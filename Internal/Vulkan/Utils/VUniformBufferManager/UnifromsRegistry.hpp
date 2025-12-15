@@ -21,6 +21,9 @@ struct GlobalRenderingInfo
     glm::mat4 inverseView;
     glm::mat4 inverseProj;
 
+    glm::mat4 viewPrevFrame = glm::mat4(1.0);
+    glm::mat4 projPrevFrame = glm::mat4(1.0);
+
     glm::vec4 atmosphereParams;
     glm::vec4 cameraPosition;
     glm::vec4 viewParams;   // x - image plane distance, y - focal length, z - near plane, w -far plane
@@ -41,9 +44,6 @@ struct GlobalRenderingInfo
     alignas(4) int useSer                           = 0.0;
     alignas(4) int useComposition                   = 1.0f;
     alignas(4) int useReflection                    = 1.0f;
-
-    glm::mat4 viewPrevFrame = glm::mat4(1.0);
-    glm::mat4 projPrevFrame = glm::mat4(1.0);
 };
 
 struct ObjectDataUniform

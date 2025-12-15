@@ -170,7 +170,10 @@ void VBuffer::CreateBufferWithAligment(VkDeviceSize size, VkBufferUsageFlags usa
 
 void VBuffer::DestroyStagingBuffer() const
 {
-    vmaDestroyBuffer(m_device.GetAllocator(), m_stagingBufferVMA, m_stagingAllocation);
+    if(m_stagingAllocation != nullptr)
+    {
+        vmaDestroyBuffer(m_device.GetAllocator(), m_stagingBufferVMA, m_stagingAllocation);
+    }
 }
 
 }  // namespace VulkanCore

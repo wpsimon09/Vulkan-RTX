@@ -29,6 +29,8 @@ public struct GlobalData {
     public column_major float4x4 projection;
     public column_major float4x4 inverseView;
     public column_major float4x4 invProjection;
+    public column_major float4x4 previousView;
+    public column_major float4x4 preeviousProjection;
 
     public float4 atmosphereInfo; // x - bottom atmosphere radius, y - up atmosphere radius, zw - padding
     public float4 cameraPostiion; // xyz - camera position, w - fov in radians  
@@ -52,8 +54,6 @@ public struct GlobalData {
     public bool useComposition;
     public bool useReflection;
 
-    public column_major float4x4 previousView;
-    public column_major float4x4 preeviousProjection;
 };
 
 
