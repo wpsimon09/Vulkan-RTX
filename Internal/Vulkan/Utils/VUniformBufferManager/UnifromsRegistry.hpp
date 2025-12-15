@@ -36,14 +36,37 @@ struct GlobalRenderingInfo
     float numberOfFrames;
     alignas(4) int rendererOutput;  // ClientEnums/EDebugRendering
     alignas(4) int rendererOutputRTX;
+    alignas(4) int accumulateFrames = 1.0;
 
-    alignas(4) int accumulateFrames                 = 1.0;
     alignas(4) int aoOcclusion                      = 1.0f;
     alignas(4) int isRayTracing                     = 0.0;
     alignas(4) int accountForAtmosphereTransmitance = 0.0;
     alignas(4) int useSer                           = 0.0;
-    alignas(4) int useComposition                   = 1.0f;
-    alignas(4) int useReflection                    = 1.0f;
+
+    alignas(4) int useComposition = 1.0f;
+    alignas(4) int useReflection  = 1.0f;
+};
+
+struct GlobalRenderingInfo2
+{
+    glm::mat4 view;
+    glm::mat4 proj;
+    glm::mat4 inverseView;
+    glm::mat4 inverseProj;
+
+    glm::mat4 viewPrevFrame = glm::mat4(1.0);
+    glm::mat4 projPrevFrame = glm::mat4(1.0);
+
+    glm::vec4 atmosphereParams;
+    glm::vec4 cameraPosition;
+    glm::vec4 viewParams;   // x - image plane distance, y - focal length, z - near plane, w -far plane
+    glm::vec4 viewParams2;  // x - FOV, y - aspect ratio, z - aparature size, w -cameraType
+
+    glm::vec4 renderingInfo;   // x - rays per pixel | y - recursion depth | zw - screen size
+    glm::vec4 renderingInfo2;  // x - number of frames | y - render outpu | z - render output RTX | w - accumulateFrames
+
+    glm::vec4 renderingFeatures;  // x - ambientOcclusion | y - is ray tracing |  z - accont for atmosphere transmitance | w - use SER
+    glm::vec4 renderingFeatures2;  // x - use composition | y - use reflection | zw - unused
 };
 
 struct ObjectDataUniform
