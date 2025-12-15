@@ -82,8 +82,9 @@ class Client
     std::unique_ptr<ApplicationCore::GLTFExporter>                  m_gltfExporter;
     std::unique_ptr<ApplicationCore::ApplicationState>              m_applicationState;
 
-    GlobalRenderingInfo m_globalRenderingData;
-    bool                m_isRTXOn = false;
+    GlobalRenderingInfo  m_globalRenderingData;
+    GlobalRenderingInfo2 m_globalRenderingData2;
+    bool                 m_isRTXOn = false;
 };
 
 

@@ -55,7 +55,9 @@
 /**
  * DISCLAIMER:
  * this class needs major refactor together with submitting transfer operations, but in the current time i have no idea
- * how to go with this, so i am gona keep it as it is, because it works and does to job for now
+ * how to go with this, so i am gona keep it as it is, because it works and does the job for now
+ * the whole rendering orchestration should happen through the frame graph since i allready have quite a lot render passes
+ * plus it would be very nice to have async compute
  */
 namespace Renderer {
 Frame::Frame(const VulkanCore::VulkanInstance&    instance,
@@ -173,9 +175,16 @@ void Frame::Update(ApplicationCore::ApplicationState& applicationState)
         m_renderContext.hasSceneChanged = true;
     }
 
-    // ==== check if it is possible ot use env light
+    // ==== check if application is path tracing and updates all necesary variables
     if(m_isRayTracing)
     {
+        applicationState.GetGlobalRenderingInfo2().renderingInfo.z =
+            m_rayTracer->GetRenderedImage(m_frameInFlightID).GetImageInfo().width;
+        applicationState.GetGlobalRenderingInfo2().renderingInfo.w =
+            m_rayTracer->GetRenderedImage(m_frameInFlightID).GetImageInfo().height;
+        applicationState.GetGlobalRenderingInfo2().renderingInfo2.w = m_accumulatedFramesCount;
+
+        //===============================
         applicationState.GetGlobalRenderingInfo().screenSize.x =
             m_rayTracer->GetRenderedImage(m_frameInFlightID).GetImageInfo().width;
         applicationState.GetGlobalRenderingInfo().screenSize.y =
@@ -185,6 +194,8 @@ void Frame::Update(ApplicationCore::ApplicationState& applicationState)
     }
     else
     {
+        applicationState.GetGlobalRenderingInfo2().renderingInfo2.w = m_frameCount;
+
         applicationState.GetGlobalRenderingInfo().numberOfFrames = m_frameCount;
     }
 
@@ -192,6 +203,8 @@ void Frame::Update(ApplicationCore::ApplicationState& applicationState)
     //=====================================================================
     // IMPORTANT: this sends all data accumulated over the frame to the GPU
     applicationState.GetGlobalRenderingInfo().isRayTracing = static_cast<int>(m_isRayTracing);
+    applicationState.GetGlobalRenderingInfo2().renderingFeatures.y = static_cast<int>(m_isRayTracing);  // is ray tracing ?
+
     m_uniformBufferManager.Update(m_frameInFlightID, applicationState, m_renderContext.GetAllDrawCall());
 
     //=================================================

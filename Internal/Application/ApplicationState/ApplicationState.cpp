@@ -122,6 +122,21 @@ void ApplicationState::pSetAtmosphereParameters(AtmosphereParameters* pAtmospher
     // camera position in global data is going to be bottom sphere radius
     m_globalRenderingInfo->atmosphereParams.x = pAtmosphereParams->groundAlbedo.w;
     m_globalRenderingInfo->atmosphereParams.y = pAtmosphereParams->rayleighScattering.w;
+
+    // for the new packed type
+    m_globalRenderingData2->atmosphereParams.x = pAtmosphereParams->groundAlbedo.w;        // top radius
+    m_globalRenderingData2->atmosphereParams.y = pAtmosphereParams->rayleighScattering.w;  // botom radius
+    m_globalRenderingData2->atmosphereParams.z = static_cast<bool>(pAtmosphereParams->booleans.z);  // account for transmitance in the light calculations
+}
+
+void ApplicationState::pSetGlobalRenderingInfoData2(GlobalRenderingInfo2* pGlobalRenderingInfo)
+{
+    m_globalRenderingData2 = pGlobalRenderingInfo;
+}
+
+GlobalRenderingInfo2& ApplicationState::GetGlobalRenderingInfo2()
+{
+    return *m_globalRenderingData2;
 }
 
 

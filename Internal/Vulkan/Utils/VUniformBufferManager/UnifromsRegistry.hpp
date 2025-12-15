@@ -63,9 +63,9 @@ struct GlobalRenderingInfo2
     glm::vec4 viewParams2;  // x - FOV, y - aspect ratio, z - aparature size, w -cameraType
 
     glm::vec4 renderingInfo;   // x - rays per pixel | y - recursion depth | zw - screen size
-    glm::vec4 renderingInfo2;  // x - number of frames | y - render outpu | z - render output RTX | w - accumulateFrames
+    glm::vec4 renderingInfo2;  // x - number of frames | y - render outpu | z - render output RTX | w - numbrer of frames (accumulated for RTX, general in rasterization)
 
-    glm::vec4 renderingFeatures;  // x - ambientOcclusion | y - is ray tracing |  z - accont for atmosphere transmitance | w - use SER
+    glm::vec4 renderingFeatures;  // x - ambientOcclusion | y - is ray tracing |  z - use SER  | w - use Accumulateion ?
     glm::vec4 renderingFeatures2;  // x - use composition | y - use reflection | zw - unused
 };
 
