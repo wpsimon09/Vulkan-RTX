@@ -57,6 +57,72 @@ public struct GlobalData {
 };
 
 
+public struct ParsedGlobalData2{
+    public float raysPerPixel;
+    public float reccursionDepth;
+    public float2 screenSize;
+
+    public float currentFrame;
+    public ERenderOutput renderOutput; 
+    public ERenderOutputRTX renderOutputRTX;
+
+    public bool accumulateFrames;
+    public bool aoOcclusion;
+    public bool isRayTracing;
+    public bool accountForSunTransmitance;
+
+    public bool useSER;
+    public bool useComposition;
+    public bool useReflection;
+
+}
+
+public struct GlobalData2
+{
+    public float4x4 view;
+    public float4x4 proj;
+    public float4x4 inverseView;
+    public float4x4 inverseProj;
+
+    public float4x4 viewPrevFrame = float4x4(1.0);
+    public float4x4 projPrevFrame = float4x4(1.0);
+
+    public float4 atmosphereParams;
+    public float4 cameraPosition;
+    public float4 viewParams;   // x - image plane distance, y - focal length, z - near plane, w -far plane
+    public float4 viewParams2;  // x - FOV, y - aspect ratio, z - aparature size, w -cameraType
+
+    float4 renderingInfo;   // x - rays per pixel | y - recursion depth | zw - screen size
+    float4 renderingInfo2;  // x - number of frames | y - render outpu | z - render output RTX | w - numbrer of frames (accumulated for RTX, general in rasterization
+    
+    float4 renderingFeatures;  // x - ambientOcclusion | y - is ray tracing |  z - use SER  | w - use Accumulateion ?
+    float4 renderingFeatures2;  // x - use composition | y - use reflection | zw - unused
+
+    public ParsedGlobalData2 Parse()
+    {
+        ParsedGlobalData2 result = {};
+
+        result.raysPerPixel = renderingInfo.x;
+        result.reccursionDepth = renderingInfo.y;
+        result.screenSize = float2(renderingInfo.z, renderingInfo.w);
+
+        result.currentFrame = renderingInfo2.w;
+        result.renderOutput = (ERenderOutput)renderingInfo2.y;
+        result.renderOutputRTX = (ERenderOutputRTX)renderingInfo2.z;
+
+        result.accumulateFrames = (bool)renderingFeatures.w;
+        result.isRayTracing = (bool)renderingFeatures.y;
+        result.accountForSunTransmitance = (bool)atmosphereParams.z;
+        
+        result.useSER = (bool)renderingFeatures.z;
+        result.useComposition =(bool)renderingFeatures2.x;
+        result.useReflection = (bool)renderingFeatures2.y;
+        
+        return result;
+    }
+
+};
+
 public struct PermodelData {
     public float4x4 modelMatrix;
     public float4x4 normalMatrix;

@@ -27,7 +27,10 @@ static const float cameraScale = 0.1;
 float4 fragmentMain(VertexOutput fsIn)
     : SV_Target
 {
-   SurfaceGeometry g;
+    var globalDataParsed = globalData.Parse();
+
+
+    SurfaceGeometry g;
     g.position = fsIn.vertexData.fragPos;
     g.shadingPosition = fsIn.vertexData.fragPos;
     g.shadingNormal = normalize(fsIn.vertexData.normal);
@@ -86,8 +89,8 @@ float4 fragmentMain(VertexOutput fsIn)
 
     
     float3 transmitanceToSun = float3(1.0);
-    if(globalData.accountForSunTransmitance){
-        float3 worldPosInAtmosphere = fsIn.vertexData.fragPos * cameraScale + float3(0.0, globalData.atmosphereInfo.x , 0.0);
+    if(globalDataParsed.accountForSunTransmitance){
+        float3 worldPosInAtmosphere = fsIn.vertexData.fragPos * cameraScale + float3(0.0, globalData.atmosphereParams.x , 0.0);
         float height = length(worldPosInAtmosphere);
         float3 upVector = worldPosInAtmosphere / height;
         // TODO: do i reall need to revert the light direction ? 
@@ -97,7 +100,7 @@ float4 fragmentMain(VertexOutput fsIn)
         float2 transmitanceTextureWH;
         TransmitanceLUT.GetDimensions(transmitanceTextureWH.x, transmitanceTextureWH.y);
         
-        float2 trnansUv = GetTransmittanceTextureUvFromRMu(float2(globalData.atmosphereInfo.x,globalData.atmosphereInfo.y), transmitanceTextureWH, height, viewZenithAngle);
+        float2 trnansUv = GetTransmittanceTextureUvFromRMu(float2(globalData.atmosphereParams.x,globalData.atmosphereParams.y), transmitanceTextureWH, height, viewZenithAngle);
         transmitanceToSun = TransmitanceLUT.Sample(trnansUv).xyz;
         
         TransmitanceToSun = transmitanceToSun;
@@ -110,11 +113,11 @@ float4 fragmentMain(VertexOutput fsIn)
     finalColor = (ambientLight.illuminate(g, brdf, V) * 0.2) + (lightingEnv.illuminate(g, brdf, V));
 
 
-    if(!globalData.useComposition){
+    if(!globalDataParsed.useComposition){
         // shadows and ao will be applied in the post processing pass
         float shadowFactor = _directionalLightShadowMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x;
         
-        if(globalData.aoOcclusion){
+        if(globalDataParsed.aoOcclusion){
             shadowFactor *= _abmbientOcclusionMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x;
         }
         
@@ -123,7 +126,7 @@ float4 fragmentMain(VertexOutput fsIn)
 
     finalColor.xyz += (brdfContext.emmision * brdfContext.emissionStrength);        
     
-    switch(globalData.renderOutput){
+    switch(globalDataParsed.renderOutput){
         case ERenderOutput::FullLit :{
             return float4(finalColor, 1.0);
         }

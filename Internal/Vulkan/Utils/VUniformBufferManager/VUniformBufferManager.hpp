@@ -6,9 +6,11 @@
 #define VUNIFORMBUFFERMANAGER_HPP
 #include <memory>
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_structs.hpp>
 
 #include "Application/ApplicationState/ApplicationState.hpp"
 #include "VUniform.hpp"
+#include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 
 
@@ -42,6 +44,7 @@ class VUniformBufferManager
 
 
     const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;  // per frame in flight
+    vk::DescriptorBufferInfo                     GetGlobalBufferDescriptorInfo2(int frameIndex);
     const vk::DescriptorBufferInfo               GetPostProcessingBufferDescriptorInfo(int frameIndex) const;
     const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
@@ -63,6 +66,8 @@ class VUniformBufferManager
   private:
     void UpdatePerFrameUniformData(int frameIndex, GlobalRenderingInfo& perFrameData) const;
 
+    void UpdatePerFrameUniformData2(int frameIndex, GlobalRenderingInfo2& perFrameData) const;
+
     void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls) const;
 
     void UpdateLightUniformData(int frameIndex, LightStructs::SceneLightInfo& sceneLightInfo) const;
@@ -80,7 +85,8 @@ class VUniformBufferManager
     // TODO: this will be storage buffer
     std::unique_ptr<VUniform<LightUniforms>> m_lightUniform;
 
-    std::unique_ptr<VulkanUtils::VUniform<GlobalRenderingInfo>> m_perFrameUniform;
+    std::unique_ptr<VulkanUtils::VUniform<GlobalRenderingInfo>>  m_perFrameUniform;
+    std::unique_ptr<VulkanUtils::VUniform<GlobalRenderingInfo2>> m_perFrameUniform2;
     //=======================================================
     // storage buffers containing all of the data for materials
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_sceneMaterials;

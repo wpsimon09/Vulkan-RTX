@@ -7,7 +7,7 @@ import Light;
 // set 0
 
 [[vk::binding(0, 0)]]
-ConstantBuffer<GlobalData> globalData;
+ConstantBuffer<GlobalData2> globalData;
 
 [[vk::binding(1,0)]]
 StructuredBuffer<PermodelData, Std430DataLayout> perObjectData ;

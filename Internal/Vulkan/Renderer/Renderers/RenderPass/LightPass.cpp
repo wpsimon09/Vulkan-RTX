@@ -113,7 +113,7 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 e->SetNumWrites(7, 7, 0);
                 //===================================
                 // global data
-                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrame));
 
                 //===================================
                 // materials
