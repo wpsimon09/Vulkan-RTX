@@ -15,6 +15,7 @@ enum EGBufferAttachments
     Normal,
     Albedo,
     Arm,
+    MotionVector,
     // put all attachments above this
     Size
 };

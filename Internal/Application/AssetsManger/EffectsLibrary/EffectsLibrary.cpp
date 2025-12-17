@@ -151,6 +151,8 @@ EffectsLibrary::EffectsLibrary(const VulkanCore::VDevice&           device,
     depthPrePass->AddColourAttachmentFormat(vk::Format::eR16G16B16A16Sfloat);
     depthPrePass->AddColourAttachmentFormat(vk::Format::eR16G16B16A16Sfloat);
     depthPrePass->AddColourAttachmentFormat(vk::Format::eR16G16B16A16Sfloat);
+    depthPrePass->AddColourAttachmentFormat(vk::Format::eR16G16B16A16Sfloat);
+    depthPrePass->AddColourAttachmentFormat(vk::Format::eR16G16B16A16Sfloat);
 
     effects[EEffectType::DepthPrePass] = std::move(depthPrePass);
 

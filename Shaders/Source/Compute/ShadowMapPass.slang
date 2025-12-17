@@ -80,7 +80,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
         bool inShadow = false;
     
-        inShadow = IntersectsP(InitRay( worldSpacePos + normalize(normal) * shadowBias, shadowRayDir, 1000), _tlas, tHit);           
+        inShadow = IntersectsP(InitRay(worldSpacePos + normalize(normal) * shadowBias, shadowRayDir, 1000), _tlas, tHit);           
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
 
         

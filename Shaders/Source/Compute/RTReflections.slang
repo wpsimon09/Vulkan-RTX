@@ -24,7 +24,7 @@ Sampler2D _normalMap;
 Sampler2D _armMap;
 
 [[vk::binding(5,0)]]
-ConstantBuffer<GlobalData> _globalData;
+ConstantBuffer<GlobalData2> _globalData;
 
 //=====================
 // set 1 
@@ -114,6 +114,8 @@ Reflection map will be lerped in the composite pass based on its alpha channel
 [[numthreads(16,16,1)]]
 [[shader("compute")]]
 void computeMain(uint3 threadID : SV_DispatchThreadID){
+
+    var parsedData = _globalData.Parse();
     float2 dims;
     _outputImage.GetDimensions(dims.x, dims.y);
     float2 texCoords = (threadID.xy + 0.5) / dims;
@@ -129,10 +131,10 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     float3 arm = _armMap.Sample(texCoords).xyz;
     float3 N = normalize(_normalMap.Sample(texCoords).xyz);
 
-    float3 wo = normalize(_globalData.cameraPostiion.xyz - pos);
+    float3 wo = normalize(_globalData.cameraPosition.xyz - pos);
 
     uint pixelID = threadID.x + threadID.y * (uint)dims.x;
-    uint u = tea(pixelID, (uint)_globalData.currentFrame);
+    uint u = tea(pixelID, (uint)parsedData.currentFrame);
     
     PBRMaterial mat;
     mat.roughness = arm.x; 

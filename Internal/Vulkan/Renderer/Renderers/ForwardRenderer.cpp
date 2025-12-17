@@ -80,11 +80,12 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
         std::make_unique<Renderer::RayTracedReflectionsPass>(device, effectsLibrary, width / 3, height / 3);
     //====================================================================================================
     // Populate render context with all the images that will be rendered
-    m_renderContextPtr->normalMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
-    m_renderContextPtr->positionMap = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
-    m_renderContextPtr->albedoMap   = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Albedo);
-    m_renderContextPtr->depthBuffer = &m_gBufferPass->GetDepthAttachment();
-    m_renderContextPtr->armMap      = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Arm);
+    m_renderContextPtr->normalMap    = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);
+    m_renderContextPtr->positionMap  = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Position);
+    m_renderContextPtr->albedoMap    = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Albedo);
+    m_renderContextPtr->armMap       = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Arm);
+    m_renderContextPtr->depthBuffer  = &m_gBufferPass->GetDepthAttachment();
+    m_renderContextPtr->motionVector = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::MotionVector);
     m_renderContextPtr->lightPassOutputRenderTarget = &m_forwardRenderPass->GetRenderTarget(EForwardRenderAttachments::Main);
     m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
     m_renderContextPtr->lightPassOutput  = &m_forwardRenderPass->GetResolvedResult();
@@ -254,6 +255,12 @@ Renderer::RenderTarget2& ForwardRenderer::GetReflectionsBuffer() const
 Renderer::RenderTarget2& ForwardRenderer::GetArmBuffer() const
 {
     return m_gBufferPass->GetRenderTarget(EGBufferAttachments::Arm);
+}
+
+
+Renderer::RenderTarget2& ForwardRenderer::GetMotionVectorBuffer() const
+{
+    return m_gBufferPass->GetRenderTarget(EGBufferAttachments::MotionVector);
 }
 
 

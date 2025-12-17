@@ -115,6 +115,8 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
         m_renderTargets[EGBufferAttachments::Albedo]->GenerateAttachmentInfo(
             vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
         m_renderTargets[EGBufferAttachments::Arm]->GenerateAttachmentInfo(
+            vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
+        m_renderTargets[EGBufferAttachments::MotionVector]->GenerateAttachmentInfo(
             vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     auto depthPrePassDepthAttachment =
@@ -255,6 +257,10 @@ std::string GBufferPass::AttachmentToString(EGBufferAttachments attachment)
             return "Normal";
         case Renderer::EGBufferAttachments::Position:
             return "Position";
+        case Renderer::EGBufferAttachments::Arm:
+            return "Roughness,Metallnes, Ao";
+        case Renderer::EGBufferAttachments::MotionVector:
+            return "Velocity";
         default:
             return "undefined !";
     }

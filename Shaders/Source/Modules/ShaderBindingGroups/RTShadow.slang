@@ -5,7 +5,7 @@ import Light;
 //=================================
 // Set 0
 [[vk::binding(0,0)]]
-public ConstantBuffer<GlobalData> globalData;
+public ConstantBuffer<GlobalData2> globalData;
 
 // those two are for shadow calculations 
 [[vk::binding(1, 0)]]
@@ -22,16 +22,6 @@ public Sampler2D _blueNoiseTextureArray;
 
 [[vk::binding(5,0)]]
 public Sampler2D _normalTexture;
-
-public struct AoOcclusionParameters{
-    public float radius;
-    public float sampleCount;
-    public float strenght;
-}
-
-[[vk::push_constant]]
-public AoOcclusionParameters _aoParameters;
-
 
 public static const float2 BlueNoiseInDisk[64] = float2[64](
     float2(0.478712,0.875764),

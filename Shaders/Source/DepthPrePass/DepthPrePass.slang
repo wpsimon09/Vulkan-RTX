@@ -58,7 +58,7 @@ struct FragmentOut{
     float4 normal : SV_Target1;
     float4 albedo : SV_Target2;
     float4 arm : SV_Target3;
-    float2 motionVector : SV_Target4;
+    float4 motionVector : SV_Target4;
 }
 
 [shader("fragment")]
@@ -80,7 +80,8 @@ FragmentOut fragmentMain(VertexOutput fsIn) {
     
     float3 arm;
     if(material.features.hasArmTexture){
-        arm = textures[material.features.armTextureIdx].Sample(fsIn.uv).xyz;
+        arm.xy = textures[material.features.armTextureIdx].Sample(fsIn.uv).xy;
+        arm.z = 1.0;
     }else{
         arm.x = material.values.roughness;
         arm.y = material.values.metalness;
@@ -94,6 +95,7 @@ FragmentOut fragmentMain(VertexOutput fsIn) {
 
     float2 currentPosTextureSpace = (fsIn.worldPos.xy / fsIn.worldPos.w) * 0.5 + 0.5;
     float2 prevPosTextureSpace = (fsIn.worldPosPrevFrame.xy / fsIn.worldPosPrevFrame.w) * 0.5 + 0.5;
-    out.motionVector = currentPosTextureSpace - prevPosTextureSpace;
+    out.motionVector = float4(currentPosTextureSpace - prevPosTextureSpace, 0.0, 1.0);
+    
     return out;
 }
