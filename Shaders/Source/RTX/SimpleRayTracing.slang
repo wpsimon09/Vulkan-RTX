@@ -12,7 +12,7 @@ import BxDF;
 
 // global data for the ray tracing 
 [[vk::binding(0, 0)]]
-ConstantBuffer<GlobalData> globalData;
+ConstantBuffer<GlobalData2> globalData;
 
 // light light in scene information
 [[vk::binding(1, 0)]]
@@ -40,6 +40,8 @@ static const int MIN_BOUNCES_TO_TERMINATE = 2;
 
 [[shader("raygeneration")]]
 void rayGenMain() {
+
+    var parsed = globalData.Parse();
     float2 dims;
 
     _film.GetDimensions(dims.x, dims.y);
@@ -48,7 +50,7 @@ void rayGenMain() {
     uint2 threadIdx = DispatchRaysIndex().xy;
     uint2 launchSize = DispatchRaysDimensions().xy;
     uint pixelIndex = threadIdx.y * launchSize.x + threadIdx.x;
-    uint randomSeed = tea(pixelIndex, (uint)globalData.currentFrame);
+    uint randomSeed = tea(pixelIndex, (uint)parsed.currentFrame);
 
 
     float2 pixelCenter = float2(threadIdx.xy) + float2(0.5, 0.5);
@@ -69,7 +71,7 @@ void rayGenMain() {
 
     ECameraType cameraType = (ECameraType)globalData.viewParams2.w;
 
-    switch((ERenderOutputRTX)globalData.renderOutputRTX){
+    switch((ERenderOutputRTX)parsed.renderOutputRTX){
         case ERenderOutputRTX::PathTraced:{
 
             var camera = ProjectiveCamera(tanFov2, aspect, globalData.view, globalData.inverseView);
@@ -77,7 +79,7 @@ void rayGenMain() {
             
             //=========================
             // Full shading is enabled 
-            for (int i = 0; i < globalData.raysPerPixel; i++) {
+            for (int i = 0; i < parsed.raysPerPixel; i++) {
                 float2 offset = float2(RandomValue(randomSeed), RandomValue(randomSeed));
                 float2 jitteredCenter = float2(threadIdx.xy) + offset;
                 float2 sampleUv = jitteredCenter / float2(launchSize);
@@ -89,9 +91,9 @@ void rayGenMain() {
                 payload.randomContext = randomSeed;
                 
                 int numSamples = 1;
-                for (; payload.depth < globalData.reccursionDepth; payload.depth++) {
+                for (; payload.depth < parsed.reccursionDepth; payload.depth++) {
     
-                    if(globalData.useSER){
+                    if(parsed.useSER){
                         HitObject hitObj = HitObject::TraceRay(_TLAS,RAY_FLAG_FORCE_OPAQUE, 0xFF, 0, 0, 0, ray, payload);
                         ReorderThread(hitObj);
                         HitObject::Invoke(_TLAS, hitObj, payload);
@@ -128,17 +130,17 @@ void rayGenMain() {
             
             camera.film = float4(acumulatedRadiance, 1.0);
 
-            float4 pixelColour = camera.film / globalData.raysPerPixel;
+            float4 pixelColour = camera.film / parsed.raysPerPixel;
         
             _film[int2(threadIdx.xy)] = pixelColour;
     
 
-            if(globalData.accumulateFrames){
+            if(parsed.accumulateFrames){
                 float4 previousColour =  _accumulationImage[int2(threadIdx.xy)];
     
                 float4 accumulatedColour = previousColour + pixelColour;
              
-                _accumulationImage[int2(threadIdx.xy)] = globalData.currentFrame > 0 ? accumulatedColour : pixelColour, 1.0;  
+                _accumulationImage[int2(threadIdx.xy)] = parsed.currentFrame > 0 ? accumulatedColour : pixelColour, 1.0;  
             }
             else{                
                 _accumulationImage[int2(threadIdx.xy)] = pixelColour;

@@ -4,7 +4,7 @@ import Utils;
 import Light;
 
 [[vk::binding(0, 0)]]
-ConstantBuffer<GlobalData> _globalData;
+ConstantBuffer<GlobalData2> _globalData;
 
 [[vk::binding(1, 0)]]
 Sampler2D _inputeTextureFog;
@@ -18,10 +18,11 @@ struct VertexOut {
 [shader("vertex")]
 VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     // draw indexed with 3 vertices, requires no VAO binding
+    var parsed = _globalData.Parse();
     VertexOut output;
     output.uv = float2((VertexIndex << 1) & 2, VertexIndex & 2);
     output.pos = float4(output.uv * 2.0f - 1.0f, 0.0f, 1.0f);
-    output.screenSize = _globalData.screenSize; 
+    output.screenSize = parsed.screenSize; 
     return output;
 }
 

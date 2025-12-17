@@ -14,6 +14,8 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     float2 dims;
     visibilityBuffer.GetDimensions(dims.x, dims.y);
 
+    var parsed = globalData.Parse();
+
     float2 texCoords = (dstWriteCoords + 0.5) / dims;
 
     // light is turned off
@@ -59,8 +61,8 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     float shadowBias = 0.1;
 
     // calculate the pixel ID and rangom state to later use for sampling hte shadow rays 
-    uint pixelID = threadID.x + threadID.y * (uint)globalData.screenSize.x;
-    uint rng = tea(pixelID, (uint)globalData.currentFrame);
+    uint pixelID = threadID.x + threadID.y * (uint)parsed.screenSize.x;
+    uint rng = tea(pixelID, (uint)parsed.currentFrame);
 
     for(int i = 0; i < nShadowRays; i++){
         float2 samplePos = BlueNoiseInDisk[i];

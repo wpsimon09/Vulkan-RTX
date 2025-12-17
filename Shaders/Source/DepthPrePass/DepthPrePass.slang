@@ -24,6 +24,7 @@ PerObjectPushConstatn perObjectPC;
 [shader("vertex")]
 VertexOutput vertexMain(VertexInput VAO)
 {
+    
     // sotre for later
     float3 vertexPos = VAO.inPosition;
     
@@ -34,13 +35,13 @@ VertexOutput vertexMain(VertexInput VAO)
     
     //===============================
     // current world space position
-    float4x4 viewProj = mul(globalData.projection, globalData.view);
+    float4x4 viewProj = mul(globalData.proj, globalData.view);
     out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
     out.worldPos = out.sv_position;
 
     //=============================
     // previosu world space postion
-    float4x4 viewPorjPrevFrame = mul(globalData.preeviousProjection, globalData.previousView);
+    float4x4 viewPorjPrevFrame = mul(globalData.projPrevFrame, globalData.viewPrevFrame);
     out.worldPosPrevFrame = mul(viewPorjPrevFrame , float4(vertexPosPreFrame,1.0));
 
     //=============================
@@ -96,6 +97,6 @@ FragmentOut fragmentMain(VertexOutput fsIn) {
     float2 currentPosTextureSpace = (fsIn.worldPos.xy / fsIn.worldPos.w) * 0.5 + 0.5;
     float2 prevPosTextureSpace = (fsIn.worldPosPrevFrame.xy / fsIn.worldPosPrevFrame.w) * 0.5 + 0.5;
     out.motionVector = float4(currentPosTextureSpace - prevPosTextureSpace, 0.0, 1.0);
-    
+
     return out;
 }

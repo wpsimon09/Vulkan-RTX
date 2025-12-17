@@ -18,7 +18,7 @@ struct VertexOut {
 };
 
 [[vk::binding(0, 0)]]
-ConstantBuffer<GlobalData> globalData;
+ConstantBuffer<GlobalData2> globalData;
 
 [[vk::binding(1, 0)]]
 ConstantBuffer<LightInfo> light;
@@ -51,10 +51,11 @@ float3 sunWithHalo(float3 worldDir, float3 sunDir){
 [shader("vertex")]
 VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     // draw indexed with 3 vertices, requires no VAO binding
+    var parsed = globalData.Parse();
     VertexOut output;
     output.uv = float2((VertexIndex << 1) & 2, VertexIndex & 2);
     output.pos = float4(output.uv * 2.0f - 1.0f, 0.0f, 1.0f);
-    output.screenSize = globalData.screenSize; 
+    output.screenSize = parsed.screenSize; 
     return output;
 }
 
@@ -63,7 +64,7 @@ float4 fragmentMain(VertexOut fsIn){
 
     AtmosphereParamsGPU atmosphere = atmosphereParams.Parse();
 
-    const float3 camera = globalData.cameraPostiion.xyz;
+    const float3 camera = globalData.cameraPosition.xyz;
     const float3 sunDir = -light.dirLight.direction.xyz;
     float2 skyViewDims;
     skyViewLut.GetDimensions(skyViewDims.x, skyViewDims.y);
@@ -71,7 +72,7 @@ float4 fragmentMain(VertexOut fsIn){
     float2 atmosphereBoundareis = float2(atmosphere.radiusBottom, atmosphere.radiusTop);
 
     // tansform pixel to the world pos 
-    float4x4 invViewProjMat = mul(globalData.inverseView , globalData.invProjection);
+    float4x4 invViewProjMat = mul(globalData.inverseView , globalData.inverseProj);
     float2 pixPos = fsIn.uv;
     float3 clipSpace = float3(pixPos * float2(2.0) - float2(1.0), 1.0);
     float4 Hpos = mul(invViewProjMat, float4(clipSpace, 1.0));
