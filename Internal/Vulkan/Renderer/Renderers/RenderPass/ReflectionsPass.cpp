@@ -54,7 +54,7 @@ void RayTracedReflectionsPass::Init(int                                 currentF
     m_rayTracedReflectionEffect->WriteImage(currentFrameIndex, 0, 4,
                                             renderContext->armMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     m_rayTracedReflectionEffect->WriteBuffer(currentFrameIndex, 0, 5,
-                                             uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+                                             uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrameIndex));
 
     m_rayTracedReflectionEffect->ApplyWrites(currentFrameIndex);
 }

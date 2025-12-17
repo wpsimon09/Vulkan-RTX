@@ -101,7 +101,7 @@ void AtmospherePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferMana
 
     m_atmospherePassEffect->SetNumWrites(2, 5, 0);
     m_atmospherePassEffect->WriteBuffer(currentFrameIndex, 0, 0,
-                                        uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+                                        uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrameIndex));
     m_atmospherePassEffect->WriteBuffer(currentFrameIndex, 0, 1,
                                         uniformBufferManager.GetLightBufferDescriptorInfo()[currentFrameIndex]);
     m_atmospherePassEffect->WriteImage(currentFrameIndex, 0, 2,

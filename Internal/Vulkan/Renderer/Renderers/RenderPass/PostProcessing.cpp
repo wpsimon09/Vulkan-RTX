@@ -67,14 +67,14 @@ void FogPass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& uniform
 {
     auto& e = m_fogMergeEffect;
     e->SetNumWrites(1, 1, 0);
-    e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+    e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrame));
     e->WriteImage(currentFrame, 0, 1,
                   GetPrimaryAttachemntDescriptorInfo(EFogPassAttachments::FogCompute, VulkanCore::VSamplers::Sampler2D));
     e->ApplyWrites(currentFrame);
 
     auto& e2 = m_fogCalcEffect;
     e2->SetNumWrites(2, 4, 1);
-    e2->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+    e2->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrame));
     e2->WriteImage(currentFrame, 0, 1, renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
     e2->WriteImage(currentFrame, 0, 2,
                    MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
@@ -483,7 +483,7 @@ void LensFlarePass::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
 {
     m_lensFlareEffect->SetNumWrites(3, 2, 0);
 
-    m_lensFlareEffect->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+    m_lensFlareEffect->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrame));
 
     m_lensFlareEffect->WriteImage(currentFrame, 0, 1,
                                   MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
@@ -949,7 +949,7 @@ void CompositePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManag
                                   renderContext->reflectionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
 
-    m_compositeEffect->WriteBuffer(currentFrameIndex, 0, 8, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+    m_compositeEffect->WriteBuffer(currentFrameIndex, 0, 8, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrameIndex));
 
     m_compositeEffect->ApplyWrites(currentFrameIndex);
 }

@@ -64,7 +64,7 @@ void GBufferPass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager
 {
     m_gBufferEffect->SetNumWrites(4, 10, 0);
 
-    m_gBufferEffect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+    m_gBufferEffect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrameIndex));
     m_gBufferEffect->WriteBuffer(currentFrameIndex, 1, 0, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrameIndex));
     m_gBufferEffect->WriteImageArray(currentFrameIndex, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
     m_gBufferEffect->WriteBuffer(currentFrameIndex, 1, 2, uniformBufferManager.GetPerObjectBuffer(currentFrameIndex));

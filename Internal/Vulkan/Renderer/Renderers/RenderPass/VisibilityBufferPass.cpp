@@ -49,7 +49,7 @@ void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManag
 
     m_rayTracedShadowEffect->SetNumWrites(3, 5, 1);
 
-    m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[frameIndex]);
+    m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(frameIndex));
 
     m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 1, uniformBufferManager.GetLightBufferDescriptorInfo()[frameIndex]);
 

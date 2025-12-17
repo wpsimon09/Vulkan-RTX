@@ -44,7 +44,7 @@ const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager:
     return m_perFrameUniform->GetDescriptorBufferInfos();
 }
 
-vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetGlobalBufferDescriptorInfo2(int currentFrame)
+vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetGlobalBufferDescriptorInfo2(int currentFrame) const
 {
     return m_perFrameUniform2->GetDescriptorBufferInfos()[currentFrame];
 }

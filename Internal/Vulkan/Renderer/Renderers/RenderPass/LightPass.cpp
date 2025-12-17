@@ -99,7 +99,7 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
 
                 //========================
                 // global data
-                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrame));
 
                 //========================
                 // per model data
@@ -151,7 +151,7 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 e->SetNumWrites(7, 4, 0);
                 //===================================
                 // global data
-                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrame));
 
                 //===================================
                 // materials
@@ -168,7 +168,7 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
 
                 //====================================
                 // global data
-                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrame));
                 break;
             }
         }

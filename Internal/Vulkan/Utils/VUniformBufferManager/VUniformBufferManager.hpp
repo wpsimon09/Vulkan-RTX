@@ -44,7 +44,7 @@ class VUniformBufferManager
 
 
     const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;  // per frame in flight
-    vk::DescriptorBufferInfo                     GetGlobalBufferDescriptorInfo2(int frameIndex);
+    vk::DescriptorBufferInfo                     GetGlobalBufferDescriptorInfo2(int frameIndex) const;
     const vk::DescriptorBufferInfo               GetPostProcessingBufferDescriptorInfo(int frameIndex) const;
     const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
     const std::vector<vk::DescriptorBufferInfo>& GetPerObjectDescriptorBufferInfo(int meshIndex) const;  // per object per frame in flight
