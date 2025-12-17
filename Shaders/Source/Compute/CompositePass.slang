@@ -24,10 +24,13 @@ Sampler2D _armMap;
 [[vk::binding(7,0)]]
 Sampler2D _reflectionMap;
 
-ConstantBuffer<GlobalData> _globalData;
+ConstantBuffer<GlobalData2> _globalData;
 
 [[numthreads(16, 16, 1)]]
 void computeMain(uint3 threadID : SV_DispatchThreadID){
+
+    var parsedGlobalData = _globalData.Parse();
+
     uint2 dims;
     _finalImage.GetDimensions(dims.x, dims.y);
 
@@ -46,12 +49,12 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         
     col = lerp(_albedoMap.Sample(texCoords).xyz * 0.5, col, shadowFactor);
     
-    if(_globalData.aoOcclusion){
+    if(parsedGlobalData.aoOcclusion){
         float aoFactor = _aoMap.Sample(texCoords).x;
         col *= clamp(0.1, 1.0 ,aoFactor);
     }
 
-    if(_globalData.useReflection){
+    if(parsedGlobalData.useReflection){
         float3 reflectionValue = _reflectionMap.Sample(texCoords).xyz;
         float roughness = _armMap.Sample(texCoords).x;
         col = lerp(reflectionValue, col , roughness);
