@@ -62,7 +62,6 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
     // calculate the pixel ID and rangom state to later use for sampling hte shadow rays 
     uint pixelID = threadID.x + threadID.y * (uint)parsed.screenSize.x;
-    uint rng = tea(pixelID, (uint)parsed.currentFrame);
 
     for(int i = 0; i < nShadowRays; i++){
         float2 samplePos = BlueNoiseInDisk[i];
@@ -84,8 +83,6 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     
         inShadow = IntersectsP(InitRay(worldSpacePos + normalize(normal) * shadowBias, shadowRayDir, 1000), _tlas, tHit);           
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
-
-        
     }
 
     visibilityBuffer[threadID.xy] = float4(shadowFactor, float3(1.0));

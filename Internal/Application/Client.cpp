@@ -100,7 +100,7 @@ const void Client::Destroy()
 
 void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 {
-    // before camera is update we have the previous projection and view matrix
+ /*    // before camera is update we have the previous projection and view matrix
     m_globalRenderingData.viewPrevFrame = m_camera->GetViewMatrix();
     m_globalRenderingData.projPrevFrame = m_camera->GetProjectionMatrix();
 
@@ -128,7 +128,7 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData.aoOcclusion      = static_cast<bool>(m_applicationState->m_ambientOcclusion);
     m_globalRenderingData.useComposition   = m_applicationState->m_composite;
     m_globalRenderingData.useReflection    = m_applicationState->m_rayTracedReflections;
-
+ */
     //=======================================
     // New tightly packed format....
     // - atmosphere parameters are being filled in the ApplicationStateManager
