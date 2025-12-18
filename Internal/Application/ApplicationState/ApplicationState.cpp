@@ -117,16 +117,6 @@ AtmosphereParameters* ApplicationState::GetAtmosphereParameters()
 void ApplicationState::pSetAtmosphereParameters(AtmosphereParameters* pAtmosphereParams)
 {
     m_atmosphereParams = pAtmosphereParams;
-    // TODO: for now i dont know of better place to tell renderer that it should attenuate sun based on the zenith angle
-    m_globalRenderingInfo->accountForAtmosphereTransmitance = static_cast<bool>(pAtmosphereParams->booleans.z);
-    // camera position in global data is going to be bottom sphere radius
-    m_globalRenderingInfo->atmosphereParams.x = pAtmosphereParams->groundAlbedo.w;
-    m_globalRenderingInfo->atmosphereParams.y = pAtmosphereParams->rayleighScattering.w;
-
-    // for the new packed type
-    m_globalRenderingData2->atmosphereParams.x = pAtmosphereParams->groundAlbedo.w;        // top radius
-    m_globalRenderingData2->atmosphereParams.y = pAtmosphereParams->rayleighScattering.w;  // botom radius
-    m_globalRenderingData2->atmosphereParams.z = static_cast<bool>(pAtmosphereParams->booleans.z);  // account for transmitance in the light calculations
 }
 
 void ApplicationState::pSetGlobalRenderingInfoData2(GlobalRenderingInfo2* pGlobalRenderingInfo)

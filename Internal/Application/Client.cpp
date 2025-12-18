@@ -150,7 +150,17 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData2.inverseProj = m_camera->GetinverseProjectionMatrix();
 
 
-    m_globalRenderingData2.atmosphereParams = glm::vec4(0);
+    
+    if(m_applicationState->GetAtmosphereParameters()){
+        auto ap = m_applicationState->GetAtmosphereParameters();
+        m_globalRenderingData2.atmosphereParams = glm::vec4(
+            ap->groundAlbedo.w,
+            ap->rayleighScattering.w,
+            static_cast<bool>(ap->booleans.z),
+            0.0
+        );
+    }
+    
     m_globalRenderingData2.cameraPosition   = glm::vec4(m_camera->GetPosition(), m_camera->GetFOVRad());
 
     //========================

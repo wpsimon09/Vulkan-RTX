@@ -57,7 +57,7 @@ struct GlobalRenderingInfo2
     glm::mat4 viewPrevFrame = glm::mat4(1.0);
     glm::mat4 projPrevFrame = glm::mat4(1.0);
 
-    glm::vec4 atmosphereParams;
+    glm::vec4 atmosphereParams; // x - bottom radius , y - top radius, z - account for scattering
     glm::vec4 cameraPosition;
     glm::vec4 viewParams;   // x - image plane distance, y - focal length, z - near plane, w -far plane
     glm::vec4 viewParams2;  // x - FOV, y - aspect ratio, z - aparature size, w -cameraType
