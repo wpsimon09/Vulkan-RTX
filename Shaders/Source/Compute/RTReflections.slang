@@ -26,6 +26,15 @@ Sampler2D _armMap;
 [[vk::binding(5,0)]]
 ConstantBuffer<GlobalData2> _globalData;
 
+[[vk::binding(6,0)]]
+Sampler2D _motionVector;
+
+
+[[vk::binding(7,0)]]
+Sampler2D _previousSampled;
+
+
+
 //=====================
 // set 1 
 [[vk::binding(0,1)]]
@@ -177,13 +186,30 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             let features = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Features;
             let values = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Values;
 
+            float4 reflectedColour;
+
+            
+
             if(features.hasDiffuseTexture){
-                _outputImage[threadID.xy] = float4(textures[features.albedoTextureIdx].Sample(g.uv).xyz, 1.0);
-                return;
+                reflectedColour = float4(textures[features.albedoTextureIdx].Sample(g.uv).xyz, 1.0);
             }else{
-                _outputImage[threadID.xy] = float4(values.diffuse.xyz, 1.0);
-                return;
+                reflectedColour = float4(values.diffuse.xyz, 1.0);
             }
+
+            if(isfinite(_outputImage[threadID.xy]).x){
+
+                float alpha = 0.3;
+                float2 motionVector = _motionVector.Sample(texCoords).xy;
+                motionVector.y = 1.0f - motionVector.y;
+                motionVector = motionVector * 2.0 - 1.0f; 
+                
+                float2 reprojectedTexCoord = texCoords - motionVector;
+                float4 reflLast = _previousSampled.Sample(reprojectedTexCoord);
+                
+                reflectedColour.xyz = alpha * (float3(1.0) - reflectedColour.xyz) + (1.0f - alpha) * reflLast.xyz;
+
+            }    
+            _outputImage[threadID.xy] = reflectedColour;
         }
     }
 

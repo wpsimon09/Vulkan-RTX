@@ -138,12 +138,6 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 e->WriteImage(currentFrame, 0, 6,
                               renderContext->transmitanceLut->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
-                e->WriteImage(currentFrame, 0, 7,
-                              renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-                e->WriteImage(currentFrame, 0, 8,
-                              renderContext->aoOcclusionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
                 break;
             }
 
@@ -216,9 +210,6 @@ void ForwardRender::Update(int                                   currentFrame,
                     e->WriteImage(currentFrame, 1, 4,
                                   renderContext->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                 }
-
-                e->WriteImage(currentFrame, 0, 7,
-                              renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                 break;
             }

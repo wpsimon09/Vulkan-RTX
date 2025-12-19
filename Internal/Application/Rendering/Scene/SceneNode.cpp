@@ -268,8 +268,8 @@ void SceneNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary, VulkanUt
         data.vertexData = m_mesh->GetMeshData()->vertexData;
         data.indexData  = m_mesh->GetMeshData()->indexData;
 
-        data.modelMatrix         = m_transformation->GetModelMatrix();
         data.previousModelMatrix = m_prevFrameModelMatrix;
+        data.modelMatrix         = m_transformation->GetModelMatrix();
 
         if(m_mesh->m_currentMaterial->IsTransparent())
         {
