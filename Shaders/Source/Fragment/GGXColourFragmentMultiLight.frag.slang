@@ -112,18 +112,6 @@ float4 fragmentMain(VertexOutput fsIn)
 
     finalColor = (ambientLight.illuminate(g, brdf, V) * 0.2) + (lightingEnv.illuminate(g, brdf, V));
 
-
-    if(!globalDataParsed.useComposition){
-        // shadows and ao will be applied in the post processing pass
-        float shadowFactor = _directionalLightShadowMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x;
-        
-        if(globalDataParsed.aoOcclusion){
-            shadowFactor *= _abmbientOcclusionMap.Sample(fsIn.sv_position.xy / fsIn.vertexData.screenSpaceUV).x;
-        }
-        
-        finalColor = lerp(ambientLight.illuminate(g, brdf, V) * 0.2, finalColor, shadowFactor); 
-    }
-
     finalColor.xyz += (brdfContext.emmision * brdfContext.emissionStrength);        
     
     switch(globalDataParsed.renderOutput){

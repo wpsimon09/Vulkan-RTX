@@ -27,12 +27,6 @@ Sampler2D LTC_Inverse;
 [[vk::binding(6,0)]]
 Sampler2D TransmitanceLUT;
 
-[[vk::binding(7, 0)]]
-Sampler2D _directionalLightShadowMap;
-
-[[vk::binding(8, 0)]]
-Sampler2D _abmbientOcclusionMap;
-
 
 //========================
 // set 1

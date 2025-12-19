@@ -51,7 +51,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     
     if(parsedGlobalData.aoOcclusion){
         float aoFactor = _aoMap.Sample(texCoords).x;
-        col *= clamp(0.1, 1.0 ,aoFactor);
+        col *= clamp(aoFactor, 0.1, 1.0);
     }
 
     if(parsedGlobalData.useReflection){
