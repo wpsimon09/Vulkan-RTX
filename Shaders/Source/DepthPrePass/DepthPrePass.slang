@@ -7,6 +7,7 @@ struct VertexInput {
     float3 inPosition :POSITION ;
     float3 inNormal: NORMAL;
     float2 inUv : UV;
+    float4 inTangent : TANGENT;
 };
 
 struct VertexOutput {
@@ -15,7 +16,7 @@ struct VertexOutput {
     float3 worldNormal : WORLD_N;
     float2 uv : UV;
     float4 worldPosPrevFrame : WORLD_POS_PREV_FRAME;
-    
+    float3x3 TBN : TBN;
 }
 
 [[vk::push_constant]]
@@ -50,6 +51,7 @@ VertexOutput vertexMain(VertexInput VAO)
     float3 NormalWorldPos = mul(normalMatrix, float4(VAO.inNormal.xyz, 0.0)).xyz;
     out.worldNormal = NormalWorldPos;
     out.uv = VAO.inUv;
+    out.TBN = CalculateTBN(VAO.inNormal, VAO.inTangent, (float3x3)normalMatrix);
 
     return out;
 }
@@ -89,6 +91,12 @@ FragmentOut fragmentMain(VertexOutput fsIn) {
         arm.z = 1.0;
     }
     
+    float3 N = fsIn.worldNormal;
+    
+    if(material.features.hasNormalTexture){
+        N = SampleNormalMap(textures[material.features.normalTextureIdx], fsIn.uv, fsIn.TBN);
+    }
+
     out.position = fsIn.worldPos;
     out.normal = float4(fsIn.worldNormal, 1.0);
     out.albedo = albedo;
