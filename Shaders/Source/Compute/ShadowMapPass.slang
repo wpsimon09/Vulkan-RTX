@@ -3,8 +3,29 @@ import Core;
 import Material;
 import Utils;
 import RandomValues;
+import Light;
 
-[[vk::binding(6, 0)]]
+
+//=================================
+// Set 0
+
+// those two are for shadow calculations 
+[[vk::binding(0, 0)]]
+public ConstantBuffer<LightInfo> _lightInfo;
+
+[[vk::binding(1, 0)]]
+public RaytracingAccelerationStructure _tlas;
+
+[[vk::binding(2, 0)]]
+public Sampler2D _positionTexture;
+
+[[vk::binding(3,0)]]
+public Sampler2D _blueNoiseTextureArray;
+
+[[vk::binding(4,0)]]
+public Sampler2D _normalTexture;
+
+[[vk::binding(5, 0)]]
 writeonly RWTexture2D visibilityBuffer;
 
 [[shader("compute")]]
@@ -13,8 +34,6 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     float2 dstWriteCoords = float2(threadID.xy);
     float2 dims;
     visibilityBuffer.GetDimensions(dims.x, dims.y);
-
-    var parsed = globalData.Parse();
 
     float2 texCoords = (dstWriteCoords + 0.5) / dims;
 

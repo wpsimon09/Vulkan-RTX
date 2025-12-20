@@ -49,23 +49,21 @@ void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManag
 
     m_rayTracedShadowEffect->SetNumWrites(3, 5, 1);
 
-    m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(frameIndex));
+    m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 0, uniformBufferManager.GetLightBufferDescriptorInfo()[frameIndex]);
 
-    m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 1, uniformBufferManager.GetLightBufferDescriptorInfo()[frameIndex]);
+    m_rayTracedShadowEffect->WriteAccelerationStrucutre(frameIndex, 0, 1, renderContext->tlas);
 
-    m_rayTracedShadowEffect->WriteAccelerationStrucutre(frameIndex, 0, 2, renderContext->tlas);
-
-    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 3,
+    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 2,
                                         renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
-    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 4,
+    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 3,
                                         MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
                                             VulkanCore::VSamplers::Sampler2D));
 
-    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 5,
+    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 4,
                                         renderContext->normalMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
-    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 6,
+    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 5,
                                         GetPrimaryAttachemntDescriptorInfo(EVisibilityBufferAttachments::ShadowMap));
 
     m_rayTracedShadowEffect->ApplyWrites(frameIndex);
@@ -77,7 +75,7 @@ void VisibilityBufferPass::Update(int                                   currentF
                                   VulkanStructs::PostProcessingContext* postProcessingContext)
 {
     m_rayTracedShadowEffect->SetNumWrites(0, 0, 1);
-    m_rayTracedShadowEffect->WriteAccelerationStrucutre(currentFrame, 0, 2, renderContext->tlas);
+    m_rayTracedShadowEffect->WriteAccelerationStrucutre(currentFrame, 0, 1, renderContext->tlas);
     m_rayTracedShadowEffect->ApplyWrites(currentFrame);
 
     m_aoOcclusionParameters = uniformBufferManager.GetApplicationState()->GetAoOcclusionParameters();

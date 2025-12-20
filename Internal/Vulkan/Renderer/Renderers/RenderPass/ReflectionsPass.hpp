@@ -10,11 +10,10 @@ namespace VulkanUtils {
 class VComputeEffect;
 }
 namespace Renderer {
-
 class RayTracedReflectionsPass : public Renderer::RenderPass
 {
   public:
-    RayTracedReflectionsPass(const VulkanCore::VDevice& device,ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height);
+    RayTracedReflectionsPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height);
 
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
     void Update(int                                   currentFrame,
@@ -22,8 +21,12 @@ class RayTracedReflectionsPass : public Renderer::RenderPass
                 VulkanUtils::RenderContext*           renderContext,
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
-private:
+
+  private:
     std::shared_ptr<VulkanUtils::VComputeEffect> m_rayTracedReflectionEffect;
+
+    RenderTarget2* m_currentImage;
+    RenderTarget2* m_previousImage;
 };
 
 }  // namespace Renderer

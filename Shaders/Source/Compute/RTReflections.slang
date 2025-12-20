@@ -9,30 +9,22 @@ import RayTracingUtils;
 //========================
 // set 0 
 [[vk::binding(0,0)]]
-RWTexture2D _outputImage;
-
-[[vk::binding(1,0)]]
 Sampler2D _positionBuffer;
 
-[[vk::binding(2,0)]]
+[[vk::binding(1,0)]]
 Sampler2D _depthMap;
 
-[[vk::binding(3,0)]]
+[[vk::binding(2,0)]]
 Sampler2D _normalMap;
 
-[[vk::binding(4,0)]]
+[[vk::binding(3,0)]]
 Sampler2D _armMap;
 
-[[vk::binding(5,0)]]
+[[vk::binding(4,0)]]
 ConstantBuffer<GlobalData2> _globalData;
 
-[[vk::binding(6,0)]]
+[[vk::binding(5,0)]]
 Sampler2D _motionVector;
-
-
-[[vk::binding(7,0)]]
-Sampler2D _previousSampled;
-
 
 
 //=====================
@@ -48,6 +40,13 @@ Sampler2D textures[];
 
 [[vk::binding(3,1)]]
 RaytracingAccelerationStructure _tlas;
+
+[[vk::binding(4,1)]]
+Sampler2D _previousSampled;
+
+[[vk::binding(5,1)]]
+RWTexture2D _outputImage;
+
 
 public float2 GetUv(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric)
 {
@@ -196,18 +195,17 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
                 reflectedColour = float4(values.diffuse.xyz, 1.0);
             }
 
-            if(isfinite(_outputImage[threadID.xy]).x){
-
-                float alpha = 0.3;
-                float2 motionVector = _motionVector.Sample(texCoords).xy;
-                motionVector.y = 1.0f - motionVector.y;
-                motionVector = motionVector * 2.0 - 1.0f; 
-                
-                float2 reprojectedTexCoord = texCoords - motionVector;
-                float4 reflLast = _previousSampled.Sample(reprojectedTexCoord);
-                
+            
+            float alpha = 0.3;
+            float2 motionVector = _motionVector.Sample(texCoords).xy;
+            motionVector.y = 1.0f - motionVector.y;
+            motionVector = motionVector * 2.0 - 1.0f; 
+            
+            float2 reprojectedTexCoord = texCoords - motionVector;
+            
+            float4 reflLast = _previousSampled.Sample(reprojectedTexCoord);
+            if(isfinite(reflLast).x){
                 reflectedColour.xyz = alpha * (float3(1.0) - reflectedColour.xyz) + (1.0f - alpha) * reflLast.xyz;
-
             }    
             _outputImage[threadID.xy] = reflectedColour;
         }

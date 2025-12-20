@@ -99,7 +99,9 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     }
 }
 
-
+/*
+    Constructor for render target created from the swap chain image
+*/
 RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain)
     : m_device(device)
     , m_isForSwapChain(true)

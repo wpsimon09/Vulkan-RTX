@@ -1,27 +1,7 @@
 module SBG_ShadowPass;
 import Core;
-import Light;
 
-//=================================
-// Set 0
-[[vk::binding(0,0)]]
-public ConstantBuffer<GlobalData2> globalData;
 
-// those two are for shadow calculations 
-[[vk::binding(1, 0)]]
-public ConstantBuffer<LightInfo> _lightInfo;
-
-[[vk::binding(2, 0)]]
-public RaytracingAccelerationStructure _tlas;
-
-[[vk::binding(3, 0)]]
-public Sampler2D _positionTexture;
-
-[[vk::binding(4,0)]]
-public Sampler2D _blueNoiseTextureArray;
-
-[[vk::binding(5,0)]]
-public Sampler2D _normalTexture;
 
 public static const float2 BlueNoiseInDisk[64] = float2[64](
     float2(0.478712,0.875764),
