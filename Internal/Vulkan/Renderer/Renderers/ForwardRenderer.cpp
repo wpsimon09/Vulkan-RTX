@@ -249,7 +249,7 @@ Renderer::RenderTarget2& ForwardRenderer::GetAmbientOcclusionOutpu() const
 
 Renderer::RenderTarget2& ForwardRenderer::GetReflectionsBuffer() const
 {
-    return m_rayTracedReflectionPass->GetRenderTarget(0);
+    return *m_rayTracedReflectionPass->GetAccumulatedResult();
 }
 
 Renderer::RenderTarget2& ForwardRenderer::GetArmBuffer() const

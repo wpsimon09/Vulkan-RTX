@@ -101,23 +101,23 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
     m_currentImage->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal,
                                           VulkanUtils::VImage_SampledRead_To_General);
 
-    m_previousImage->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
-                                           VulkanUtils::VImage_SampledRead_To_General.Switch());
-
     m_rayTracedReflectionEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_rayTracedReflectionEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
 
     cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
 
+    // storage image now will be read so read only layout
     m_currentImage->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
                                           VulkanUtils::VImage_SampledRead_To_General.Switch());
-
-    m_previousImage->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral,
-                                           VulkanUtils::VImage_SampledRead_To_General);
-
 
     auto temp       = m_currentImage;
     m_currentImage  = m_previousImage;
     m_previousImage = temp;
+}
+
+RenderTarget2* RayTracedReflectionsPass::GetAccumulatedResult() const
+{
+    // return whatever was rendered last and is in hte shader read only position
+    return m_previousImage;
 }
 }  // namespace Renderer

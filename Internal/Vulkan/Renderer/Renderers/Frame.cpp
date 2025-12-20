@@ -309,9 +309,10 @@ bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
         m_forwardRenderer->Render(m_frameInFlightID, *m_renderingCommandBuffers[m_frameInFlightID],
                                   m_uniformBufferManager, &m_renderContext);
 
-        m_postProcessingContext.sceneRender = m_forwardRenderer->GetForwardRendererResult();
-        m_postProcessingContext.shadowMap   = m_renderContext.visibilityBuffer;
-        m_postProcessingContext.aoMap       = &m_forwardRenderer->GetAmbientOcclusionOutpu().GetPrimaryImage();
+        m_postProcessingContext.sceneRender    = m_forwardRenderer->GetForwardRendererResult();
+        m_postProcessingContext.shadowMap      = m_renderContext.visibilityBuffer;
+        m_postProcessingContext.aoMap          = &m_forwardRenderer->GetAmbientOcclusionOutpu().GetPrimaryImage();
+        m_postProcessingContext.reflectionsMap = &m_forwardRenderer->GetReflectionsBuffer().GetPrimaryImage();
         m_postProcessingContext.toneMappingParameters->isRayTracing = false;
         m_postProcessingContext.isRayTracing                        = false;
     }
