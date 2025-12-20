@@ -945,11 +945,12 @@ void CompositePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManag
                                   renderContext->armMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
 
+    m_compositeEffect->WriteBuffer(currentFrameIndex, 0, 8, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrameIndex));
+
+
     m_compositeEffect->WriteImage(currentFrameIndex, 0, 7,
                                   renderContext->reflectionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
-
-    m_compositeEffect->WriteBuffer(currentFrameIndex, 0, 8, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrameIndex));
 
     m_compositeEffect->ApplyWrites(currentFrameIndex);
 }
@@ -960,6 +961,7 @@ void CompositePass::Update(int                                   currentFrame,
                            VulkanStructs::PostProcessingContext* postProcessingContext)
 {
     m_compositeEffect->SetNumWrites(0, 3, 0);
+
     m_compositeEffect->WriteImage(currentFrame, 0, 1,
                                   postProcessingContext->shadowMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 

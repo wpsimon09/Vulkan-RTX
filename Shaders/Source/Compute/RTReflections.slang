@@ -8,23 +8,30 @@ import RayTracingUtils;
 
 //========================
 // set 0 
+
 [[vk::binding(0,0)]]
-Sampler2D _positionBuffer;
+RWTexture2D _outputImage;
 
 [[vk::binding(1,0)]]
-Sampler2D _depthMap;
+Sampler2D _positionBuffer;
 
 [[vk::binding(2,0)]]
-Sampler2D _normalMap;
+Sampler2D _depthMap;
 
 [[vk::binding(3,0)]]
-Sampler2D _armMap;
+Sampler2D _normalMap;
 
 [[vk::binding(4,0)]]
-ConstantBuffer<GlobalData2> _globalData;
+Sampler2D _armMap;
 
 [[vk::binding(5,0)]]
+ConstantBuffer<GlobalData2> _globalData;
+
+[[vk::binding(6,0)]]
 Sampler2D _motionVector;
+
+[[vk::binding(7,0)]]
+Sampler2D _previousSampled;
 
 
 //=====================
@@ -40,12 +47,6 @@ Sampler2D textures[];
 
 [[vk::binding(3,1)]]
 RaytracingAccelerationStructure _tlas;
-
-[[vk::binding(4,1)]]
-Sampler2D _previousSampled;
-
-[[vk::binding(5,1)]]
-RWTexture2D _outputImage;
 
 
 public float2 GetUv(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric)
@@ -109,7 +110,6 @@ public SurfaceGeometry GetSurface(uint32_t primitiveIndex, uint32_t instanceInde
     // Position retrieval
     g.position = v1.pos * barycentricCoords.x + v2.pos * barycentricCoords.y + v3.pos * barycentricCoords.z;    
     g.shadingNormal = mul(objectToWorld, float4(g.position,1.0)).xyz;
-
 
     return g;
 }
@@ -204,7 +204,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             float2 reprojectedTexCoord = texCoords - motionVector;
             
             float4 reflLast = _previousSampled.Sample(reprojectedTexCoord);
-            if(isfinite(reflLast).x){
+            if(isfinite(reflLast).x && !reflLast.equals(0.0)){
                 reflectedColour.xyz = alpha * (float3(1.0) - reflectedColour.xyz) + (1.0f - alpha) * reflLast.xyz;
             }    
             _outputImage[threadID.xy] = reflectedColour;
