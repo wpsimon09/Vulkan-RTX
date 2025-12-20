@@ -129,8 +129,8 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
     cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
 
     // storage image now will be read so read only layout
-    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
-                                              VulkanUtils::VImage_SampledRead_To_General.Switch());
+    m_currentImage->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
+                                          VulkanUtils::VImage_SampledRead_To_General.Switch());
 
     //======================================
     // Copy the result to the previous image
@@ -169,5 +169,11 @@ RenderTarget2* RayTracedReflectionsPass::GetAccumulatedResult() const
 {
     // return whatever was rendered last and is in hte shader read only position
     return m_renderTargets[0].get();
+}
+
+RenderTarget2* RayTracedReflectionsPass::GetAccumulatedResult() const
+{
+    // return whatever was rendered last and is in hte shader read only position
+    return m_previousImage;
 }
 }  // namespace Renderer
