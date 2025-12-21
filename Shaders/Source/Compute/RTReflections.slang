@@ -33,7 +33,6 @@ Sampler2D _motionVector;
 [[vk::binding(7,0)]]
 Sampler2D _previousSampled;
 
-
 //=====================
 // set 1 
 [[vk::binding(0,1)]]
@@ -204,10 +203,11 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             float2 reprojectedTexCoord = texCoords - motionVector;
             
             float4 reflLast = _previousSampled.Sample(reprojectedTexCoord);
-            if(isfinite(reflLast).x && !reflLast.equals(0.0)){
+            if(isfinite(reflLast).x){
                 reflectedColour.xyz = alpha * (float3(1.0) - reflectedColour.xyz) + (1.0f - alpha) * reflLast.xyz;
             }    
             _outputImage[threadID.xy] = reflectedColour;
+            return;
         }
     }
 
