@@ -97,10 +97,10 @@ FragmentOut fragmentMain(VertexOutput fsIn) {
     //    N = SampleNormalMap(textures[material.features.normalTextureIdx], fsIn.uv, fsIn.TBN);
     }
 
-    out.position = fsIn.worldPos;
+    out.position = float4(fsIn.worldPos.xyz, 1.0);
     out.normal = float4(fsIn.worldNormal, 1.0);
-    out.albedo = albedo;
-    out.arm = float4(arm,1.0);
+    out.albedo = float4(albedo.xyz,1.0);
+    out.arm = float4(arm.xy,0.0,1.0);
 
     float2 currentPosTextureSpace = (fsIn.worldPos.xy / fsIn.worldPos.w) * 0.5 + 0.5;
     float2 prevPosTextureSpace = (fsIn.worldPosPrevFrame.xy / fsIn.worldPosPrevFrame.w) * 0.5 + 0.5;

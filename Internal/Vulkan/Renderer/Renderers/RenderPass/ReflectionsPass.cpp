@@ -5,6 +5,7 @@
 #include "ReflectionsPass.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
+#include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include <cstdint>
@@ -184,6 +185,12 @@ RenderTarget2* RayTracedReflectionsPass::GetAccumulatedResult() const
 {
     // return whatever was rendered last and is in hte shader read only position
     return m_renderTargets[0].get();
+}
+
+void RayTracedReflectionsPass::Destroy()
+{
+    RenderPass::Destroy();
+    m_previousImage->Destroy();
 }
 
 }  // namespace Renderer

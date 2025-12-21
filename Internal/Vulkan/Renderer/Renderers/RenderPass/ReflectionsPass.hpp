@@ -23,6 +23,8 @@ class RayTracedReflectionsPass : public Renderer::RenderPass
                 VulkanStructs::PostProcessingContext* postProcessingContext) override;
     void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
 
+    void Destroy() override;
+
     RenderTarget2* GetAccumulatedResult() const;
 
   private:

@@ -93,7 +93,7 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
 
     //dispatch
 
-    cmdB.dispatch(m_width / 16, m_height / 16, 1);
+    cmdB.dispatch(m_width / 16, (m_height / 16) + 1, 1);
 
     m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->TransitionAttachments(
         cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,

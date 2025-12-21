@@ -26,7 +26,7 @@ public Sampler2D _blueNoiseTextureArray;
 public Sampler2D _normalTexture;
 
 [[vk::binding(5, 0)]]
-writeonly RWTexture2D visibilityBuffer;
+writeonly RWTexture2D<float> visibilityBuffer;
 
 [[shader("compute")]]
 [[numthreads(16, 16, 1)]]
@@ -35,11 +35,15 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     float2 dims;
     visibilityBuffer.GetDimensions(dims.x, dims.y);
 
+    if (threadID.x >= dims.x || threadID.y >= dims.y){
+        return;
+    }
+
     float2 texCoords = (dstWriteCoords + 0.5) / dims;
 
     // light is turned off
     if(!(bool)_lightInfo.dirLight.parameters.z){
-        visibilityBuffer[threadID.xy].xyz = float3(1.0);
+        visibilityBuffer[threadID.xy].x = 1.0;
         return;
     }
 
@@ -47,6 +51,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
     // get the initial position 
     float3 worldSpacePos = _positionTexture.Sample(texCoords).xyz;
+    worldSpacePos.y -= 1.0;
     float3 direction = normalize(_lightInfo.dirLight.direction.xyz);
     float sunRadius = _lightInfo.dirLight.direction.w;
 
@@ -95,11 +100,11 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
         bool inShadow = false;
     
-        inShadow = IntersectsP(InitRay(worldSpacePos + normalize(direction) * shadowBias, shadowRayDir, 3000), _tlas, tHit);           
+        inShadow = IntersectsP(InitRay(worldSpacePos + normalize(normal) * shadowBias, shadowRayDir, 3000), _tlas, tHit);           
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }
 
-    visibilityBuffer[threadID.xy] = float4(shadowFactor, float3(1.0));
+    visibilityBuffer[threadID.xy] = shadowFactor;
 
 }
 

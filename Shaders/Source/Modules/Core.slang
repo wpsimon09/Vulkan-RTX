@@ -79,13 +79,13 @@ public struct ParsedGlobalData2{
 
 public struct GlobalData2
 {
-    public float4x4 view;
-    public float4x4 proj;
-    public float4x4 inverseView;
-    public float4x4 inverseProj;
+    public column_major float4x4 view;
+    public column_major float4x4 proj;
+    public column_major float4x4 inverseView;
+    public column_major float4x4 inverseProj;
 
-    public float4x4 viewPrevFrame = float4x4(1.0);
-    public float4x4 projPrevFrame = float4x4(1.0);
+    public column_major float4x4 viewPrevFrame = float4x4(1.0);
+    public column_major float4x4 projPrevFrame = float4x4(1.0);
 
     public float4 atmosphereParams;
     public float4 cameraPosition;
