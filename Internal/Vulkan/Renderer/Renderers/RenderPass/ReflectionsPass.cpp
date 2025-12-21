@@ -7,6 +7,7 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
+#include <cstdint>
 #include <exception>
 #include <memory>
 #include <vulkan/vulkan_enums.hpp>
@@ -28,15 +29,18 @@ RayTracedReflectionsPass::RayTracedReflectionsPass(const VulkanCore::VDevice&   
     m_rayTracedReflectionEffect =
         effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::RT_Reflections);
 
-    Renderer::RenderTarget2CreatInfo rtReflectionTargetCi{
-        width, height, false, false, vk::Format::eR16G16B16A16Sfloat, vk::ImageLayout::eGeneral, vk::ResolveModeFlagBits::eNone, true, "Ray traced reflection output - 0"};
+    Renderer::RenderTarget2CreatInfo rtReflectionTargetCi{width,
+                                                          height,
+                                                          false,
+                                                          false,
+                                                          vk::Format::eR16G16B16A16Sfloat,
+                                                          vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                          vk::ResolveModeFlagBits::eNone,
+                                                          true,
+                                                          "Ray traced reflection output - 0",
+                                                          vk::ImageUsageFlagBits::eTransferSrc};
 
     // frame 1
-    m_renderTargets.emplace_back(std::make_unique<RenderTarget2>(device, rtReflectionTargetCi));
-
-    rtReflectionTargetCi.imageDebugName = "Ray traced reflection output";
-    rtReflectionTargetCi.initialLayout  = vk::ImageLayout::eShaderReadOnlyOptimal;
-    // frame 2
     m_renderTargets.emplace_back(std::make_unique<RenderTarget2>(device, rtReflectionTargetCi));
 
     VulkanCore::VImage2CreateInfo previousImageCI{width,
@@ -128,9 +132,12 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
 
     cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
 
+    VulkanUtils::VBarrierPosition barrierPosSrcOptimal = {vk::PipelineStageFlagBits2::eComputeShader,
+                                                          vk::AccessFlagBits2::eShaderWrite, vk::PipelineStageFlagBits2::eCopy,
+                                                          vk::AccessFlagBits2::eTransferRead};
     // storage image now will be read so read only layout
-    m_currentImage->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
-                                          VulkanUtils::VImage_SampledRead_To_General.Switch());
+    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eTransferSrcOptimal,
+                                              vk::ImageLayout::eGeneral, barrierPosSrcOptimal);
 
     //======================================
     // Copy the result to the previous image
@@ -142,15 +149,14 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
                                           vk::ImageLayout::eTransferDstOptimal, VulkanUtils::VImage_ShaderRead_ToTransferDst);
 
     vk::ImageCopy2 regions;
-    regions.dstOffset      = 0.0;
-    regions.srcOffset      = 0.0;
-    regions.dstSubresource = regions.srcSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1
-
-    };
+    regions.dstOffset = 0.0;
+    regions.srcOffset = regions.dstOffset = 0.0;
+    regions.dstSubresource = regions.srcSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
+    regions.extent = vk::Extent3D{static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height), 1};
 
     vk::CopyImageInfo2 cpyInfo;
     cpyInfo.srcImage       = m_renderTargets[0]->GetPrimaryImage().GetImage();
-    cpyInfo.srcImageLayout = vk::ImageLayout::eGeneral;
+    cpyInfo.srcImageLayout = vk::ImageLayout::eTransferSrcOptimal;
     cpyInfo.dstImage       = m_previousImage->GetImage();
     cpyInfo.dstImageLayout = vk::ImageLayout::eTransferDstOptimal;
     cpyInfo.regionCount    = 1;
@@ -160,9 +166,16 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
 
     auto barrierPos             = VulkanUtils::VImage_TransferDst_ToShaderRead;
     barrierPos.dstPipelineStage = vk::PipelineStageFlagBits2::eBottomOfPipe;
+    barrierPos.dstData          = vk::AccessFlagBits2::eNone;
 
     VulkanUtils::PlaceImageMemoryBarrier2(*m_previousImage, cmdBuffer, vk::ImageLayout::eTransferDstOptimal,
                                           vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
+
+    barrierPosSrcOptimal = {vk::PipelineStageFlagBits2::eTransfer, vk::AccessFlagBits2::eTransferRead,
+                            vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead};
+    // storage image now will be read so read only layout
+    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                              vk::ImageLayout::eTransferSrcOptimal, barrierPosSrcOptimal);
 }
 
 RenderTarget2* RayTracedReflectionsPass::GetAccumulatedResult() const
@@ -171,9 +184,4 @@ RenderTarget2* RayTracedReflectionsPass::GetAccumulatedResult() const
     return m_renderTargets[0].get();
 }
 
-RenderTarget2* RayTracedReflectionsPass::GetAccumulatedResult() const
-{
-    // return whatever was rendered last and is in hte shader read only position
-    return m_previousImage;
-}
 }  // namespace Renderer

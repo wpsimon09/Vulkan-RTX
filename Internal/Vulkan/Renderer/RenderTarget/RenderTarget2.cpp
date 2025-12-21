@@ -30,19 +30,20 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     {
         assert(!m_renderTargetInfo.computeShaderOutput && "Depth image can not be storage image ");
         attachemtImageCI.imageDebugName = m_renderTargetInfo.imageDebugName + " | depth-stencil attachment";
-        attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
+        attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eDepthStencilAttachment
+                                       | vk::ImageUsageFlagBits::eSampled | m_renderTargetInfo.additionalFlags;
     }
     else if(m_renderTargetInfo.computeShaderOutput)
     {
         assert(!m_renderTargetInfo.isDepth && "Storage image can not be depth buffer");
         attachemtImageCI.imageDebugName = m_renderTargetInfo.imageDebugName + " | compute shader attachment";
-        attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eStorage;
+        attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eStorage | m_renderTargetInfo.additionalFlags;
         attachemtImageCI.isStorage = true;
     }
     else
     {
         attachemtImageCI.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled
-                                      | vk::ImageUsageFlagBits::eInputAttachment;
+                                      | vk::ImageUsageFlagBits::eInputAttachment | m_renderTargetInfo.additionalFlags;
     }
 
 
