@@ -55,7 +55,6 @@ class Client
 
     ApplicationCore::AssetsManager& GetAssetsManager() const { return *m_assetsManager; }
 
-    GlobalRenderingInfo&    GetGlobalDataUpdateInformation() { return m_globalRenderingData; }
     ApplicationCore::Scene& GetScene() const { return *m_scene; };
     ;
     ApplicationCore::GLTFLoader&   GetGLTFLoader() const { return *m_gltfLoader; };
@@ -82,7 +81,6 @@ class Client
     std::unique_ptr<ApplicationCore::GLTFExporter>                  m_gltfExporter;
     std::unique_ptr<ApplicationCore::ApplicationState>              m_applicationState;
 
-    GlobalRenderingInfo  m_globalRenderingData;
     GlobalRenderingInfo2 m_globalRenderingData2;
     bool                 m_isRTXOn = false;
 };

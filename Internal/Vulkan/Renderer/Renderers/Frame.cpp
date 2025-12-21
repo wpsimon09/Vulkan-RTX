@@ -183,26 +183,15 @@ void Frame::Update(ApplicationCore::ApplicationState& applicationState)
         applicationState.GetGlobalRenderingInfo2().renderingInfo.w =
             m_rayTracer->GetRenderedImage(m_frameInFlightID).GetImageInfo().height;
         applicationState.GetGlobalRenderingInfo2().renderingInfo2.w = m_accumulatedFramesCount;
-
-        //===============================
-        applicationState.GetGlobalRenderingInfo().screenSize.x =
-            m_rayTracer->GetRenderedImage(m_frameInFlightID).GetImageInfo().width;
-        applicationState.GetGlobalRenderingInfo().screenSize.y =
-            m_rayTracer->GetRenderedImage(m_frameInFlightID).GetImageInfo().height;
-        // will cause to multiply by 0 thus clear the colour
-        applicationState.GetGlobalRenderingInfo().numberOfFrames = m_accumulatedFramesCount;
     }
     else
     {
         applicationState.GetGlobalRenderingInfo2().renderingInfo2.w = m_frameCount;
-
-        applicationState.GetGlobalRenderingInfo().numberOfFrames = m_frameCount;
     }
 
 
     //=====================================================================
     // IMPORTANT: this sends all data accumulated over the frame to the GPU
-    applicationState.GetGlobalRenderingInfo().isRayTracing = static_cast<int>(m_isRayTracing);
     applicationState.GetGlobalRenderingInfo2().renderingFeatures.y = static_cast<int>(m_isRayTracing);  // is ray tracing ?
 
     m_uniformBufferManager.Update(m_frameInFlightID, applicationState, m_renderContext.GetAllDrawCall());

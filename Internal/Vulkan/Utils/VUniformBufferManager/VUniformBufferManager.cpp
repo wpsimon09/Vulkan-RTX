@@ -39,10 +39,6 @@ VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDev
     Utils::Logger::LogSuccess("Uniform buffer manager created successfully");
 }
 
-const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::GetGlobalBufferDescriptorInfo() const
-{
-    return m_perFrameUniform->GetDescriptorBufferInfos();
-}
 
 vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetGlobalBufferDescriptorInfo2(int currentFrame) const
 {
@@ -97,12 +93,6 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetMaterialDescript
     return descriptorBuffer;
 }
 
-
-void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameIndex, GlobalRenderingInfo& perFrameData) const
-{
-    m_perFrameUniform->GetUBOStruct() = perFrameData;
-    m_perFrameUniform->UpdateGPUBuffer(frameIndex);
-}
 
 void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData2(int frameIndex, GlobalRenderingInfo2& perFrameData) const
 {
@@ -207,7 +197,6 @@ void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, con
 void VulkanUtils::VUniformBufferManager::Destroy() const
 {
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager and all its data...");
-    m_perFrameUniform->Destory();
     m_lightUniform->Destory();
 
 
@@ -258,7 +247,6 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     GlobalState::EnableLogging();
     Utils::Logger::LogSuccess("Allocated uniform and storage buffers");
 
-    m_perFrameUniform  = std::make_unique<VUniform<GlobalRenderingInfo>>(m_device);
     m_perFrameUniform2 = std::make_unique<VUniform<GlobalRenderingInfo2>>(m_device);
 
     m_lightUniform = std::make_unique<VUniform<LightUniforms>>(m_device);
@@ -276,9 +264,8 @@ void VulkanUtils::VUniformBufferManager::Update(int                             
 {
     m_applicationState = &applicationState;
 
-    UpdatePerFrameUniformData(frameIndex, applicationState.GetGlobalRenderingInfo());
+    UpdatePerFrameUniformData2(frameIndex, applicationState.GetGlobalRenderingInfo2());
     UpdateLightUniformData(frameIndex, applicationState.GetSceneLightInfo());
     UpdatePerObjectUniformData(frameIndex, drawCalls);
     UpdateSceneDataInfo(frameIndex, applicationState.GetSceneData());
-    UpdatePerFrameUniformData2(frameIndex, applicationState.GetGlobalRenderingInfo2());
 }

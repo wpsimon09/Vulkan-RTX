@@ -94,7 +94,7 @@ FragmentOut fragmentMain(VertexOutput fsIn) {
     float3 N = fsIn.worldNormal;
     
     if(material.features.hasNormalTexture){
-        N = SampleNormalMap(textures[material.features.normalTextureIdx], fsIn.uv, fsIn.TBN);
+    //    N = SampleNormalMap(textures[material.features.normalTextureIdx], fsIn.uv, fsIn.TBN);
     }
 
     out.position = fsIn.worldPos;

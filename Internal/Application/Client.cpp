@@ -29,12 +29,10 @@
 #include "ApplicationState/ApplicationState.hpp"
 
 Client::Client()
-    : m_globalRenderingData{}
-    , m_globalRenderingData2{}
+    : m_globalRenderingData2{}
 {
     m_applicationState = std::make_unique<ApplicationCore::ApplicationState>();
 
-    m_applicationState->pSetGlobalRenderingInfo(&m_globalRenderingData);
     m_applicationState->pSetGlobalRenderingInfoData2(&m_globalRenderingData2);
 }
 
@@ -100,7 +98,7 @@ const void Client::Destroy()
 
 void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 {
- /*    // before camera is update we have the previous projection and view matrix
+    /*    // before camera is update we have the previous projection and view matrix
     m_globalRenderingData.viewPrevFrame = m_camera->GetViewMatrix();
     m_globalRenderingData.projPrevFrame = m_camera->GetProjectionMatrix();
 
@@ -150,18 +148,14 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     m_globalRenderingData2.inverseProj = m_camera->GetinverseProjectionMatrix();
 
 
-    
-    if(m_applicationState->GetAtmosphereParameters()){
+    if(m_applicationState->GetAtmosphereParameters())
+    {
         auto ap = m_applicationState->GetAtmosphereParameters();
-        m_globalRenderingData2.atmosphereParams = glm::vec4(
-            ap->groundAlbedo.w,
-            ap->rayleighScattering.w,
-            static_cast<bool>(ap->booleans.z),
-            0.0
-        );
+        m_globalRenderingData2.atmosphereParams =
+            glm::vec4(ap->groundAlbedo.w, ap->rayleighScattering.w, static_cast<bool>(ap->booleans.z), 0.0);
     }
-    
-    m_globalRenderingData2.cameraPosition   = glm::vec4(m_camera->GetPosition(), m_camera->GetFOVRad());
+
+    m_globalRenderingData2.cameraPosition = glm::vec4(m_camera->GetPosition(), m_camera->GetFOVRad());
 
     //========================
     // View parameters I

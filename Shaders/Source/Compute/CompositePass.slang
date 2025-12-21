@@ -34,13 +34,13 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     uint2 dims;
     _finalImage.GetDimensions(dims.x, dims.y);
 
-    float2 texCoords = (float2(threadID.xy) + 0.5) / dims;
+    float2 texCoords = (threadID.xy + 0.5) / dims;
     
     float3 col = _renderedImage.Sample(texCoords).xyz;
     
     if(_depthMap.Sample(texCoords).x > 0.999){
-      //  _finalImage[threadID.xy] = float4(col,1.0); 
-      //  return;
+      _finalImage[threadID.xy] = float4(col,1.0); 
+      return;
     }
     
     float shadowFactor = _dirLightShadowMap.Sample(texCoords).x;
@@ -51,13 +51,13 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     
     if(parsedGlobalData.aoOcclusion){
         float aoFactor = _aoMap.Sample(texCoords).x;
-        col *= clamp(aoFactor, 0.1, 1.0);
+        col *= aoFactor;
     }
 
     if(parsedGlobalData.useReflection){
         float3 reflectionValue = _reflectionMap.Sample(texCoords).xyz;
         float roughness = _armMap.Sample(texCoords).x;
-        col = lerp(reflectionValue, col , roughness);
+        col = lerp(reflectionValue, col , 0.5);
     }
 
     _finalImage[threadID.xy] = float4(lerp(col, float3(texCoords,1.0), 0.),1.0f);

@@ -43,7 +43,6 @@ class VUniformBufferManager
     VUniformBufferManager(const VulkanCore::VDevice& device);
 
 
-    const std::vector<vk::DescriptorBufferInfo>& GetGlobalBufferDescriptorInfo() const;  // per frame in flight
     vk::DescriptorBufferInfo                     GetGlobalBufferDescriptorInfo2(int frameIndex) const;
     const vk::DescriptorBufferInfo               GetPostProcessingBufferDescriptorInfo(int frameIndex) const;
     const std::vector<vk::DescriptorBufferInfo>& GetLightBufferDescriptorInfo() const;
@@ -64,8 +63,6 @@ class VUniformBufferManager
     void Destroy() const;
 
   private:
-    void UpdatePerFrameUniformData(int frameIndex, GlobalRenderingInfo& perFrameData) const;
-
     void UpdatePerFrameUniformData2(int frameIndex, GlobalRenderingInfo2& perFrameData) const;
 
     void UpdatePerObjectUniformData(int frameIndex, std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls) const;
@@ -85,7 +82,6 @@ class VUniformBufferManager
     // TODO: this will be storage buffer
     std::unique_ptr<VUniform<LightUniforms>> m_lightUniform;
 
-    std::unique_ptr<VulkanUtils::VUniform<GlobalRenderingInfo>>  m_perFrameUniform;
     std::unique_ptr<VulkanUtils::VUniform<GlobalRenderingInfo2>> m_perFrameUniform2;
     //=======================================================
     // storage buffers containing all of the data for materials

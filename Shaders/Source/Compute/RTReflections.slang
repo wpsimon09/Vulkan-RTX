@@ -195,7 +195,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             float alpha = 0.3;
             float2 motionVector = _motionVector.Sample(texCoords).xy;
         
-            float2 reprojectedTexCoord = texCoords - motionVector;
+            float2 UnifreprojectedTexCoord = texCoords - motionVector;
             
             float4 reflLast = _previousSampled.Sample(texCoords);
             
