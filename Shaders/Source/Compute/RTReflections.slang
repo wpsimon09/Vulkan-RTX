@@ -177,6 +177,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
         result.Proceed();
         //var result = TraceRayInline(ray, _tlas, u);
+        float4 reflectedColour = 0.0;
         if(result.CommittedStatus() == COMMITTED_TRIANGLE_HIT)
         {
             float2 uv = GetUv(result.CommittedPrimitiveIndex(), result.CommittedInstanceIndex(), result.CommittedTriangleBarycentrics());//, result.CandidateObjectToWorld3x4());
@@ -184,25 +185,24 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             let features = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Features;
             let values = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Values;
 
-            float4 reflectedColour;
 
             if(features.hasDiffuseTexture){
                 reflectedColour = float4(textures[features.albedoTextureIdx].Sample(uv).xyz, 1.0);
             }else{
                 reflectedColour = float4(values.diffuse.xyz, 1.0);
             }
-            
-            float alpha = 0.3;
-            float2 motionVector = _motionVector.Sample(texCoords).xy;
-        
-            float2 UnifreprojectedTexCoord = texCoords - motionVector;
-            
-            float4 reflLast = _previousSampled.Sample(texCoords);
-            
-            reflectedColour.xyz = alpha * reflectedColour.xyz + (1.0f - alpha) * reflLast.xyz;
-            _outputImage[threadID.xy] = reflectedColour;
-            return;
         }
+
+        float alpha = 0.3;
+        float2 motionVector = _motionVector.Sample(texCoords).xy;
+    
+        float2 reprojectedCoords = texCoords - motionVector;
+        
+        float4 reflLast = _previousSampled.Sample(reprojectedCoords);
+        
+        reflectedColour.xyz = alpha * reflectedColour.xyz + (1.0f - alpha) * reflLast.xyz;
+        _outputImage[threadID.xy] = reflectedColour;
+        return;
     }
 
     _outputImage[threadID.xy] = float4(float3(0.0), 1.0);

@@ -43,12 +43,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         return;
     }
 
-    float3 normal = _normalTexture.Sample(texCoords).xyz;
-
-    if(normal.equals(float3(0.0))) {
-        visibilityBuffer[threadID.xy] = float4(1.0);
-        return;
-    };
+    float3 normal = normalize(_normalTexture.Sample(texCoords)).xyz;
 
     // get the initial position 
     float3 worldSpacePos = _positionTexture.Sample(texCoords).xyz;
@@ -100,7 +95,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
         bool inShadow = false;
     
-        inShadow = IntersectsP(InitRay(worldSpacePos + normalize(normal) * shadowBias, shadowRayDir, 3000), _tlas, tHit);           
+        inShadow = IntersectsP(InitRay(worldSpacePos + normalize(direction) * shadowBias, shadowRayDir, 3000), _tlas, tHit);           
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }
 

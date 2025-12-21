@@ -110,10 +110,11 @@ public struct GlobalData2
         result.renderOutput = (ERenderOutput)renderingInfo2.y;
         result.renderOutputRTX = (ERenderOutputRTX)renderingInfo2.z;
 
-        result.accumulateFrames = (bool)renderingFeatures.w;
+        result.aoOcclusion = (bool)renderingFeatures.x;
         result.isRayTracing = (bool)renderingFeatures.y;
         result.accountForSunTransmitance = (bool)atmosphereParams.z;
-        
+        result.accumulateFrames = (bool)renderingFeatures.w;
+
         result.useSER = (bool)renderingFeatures.z;
         result.useComposition =(bool)renderingFeatures2.x;
         result.useReflection = (bool)renderingFeatures2.y;
