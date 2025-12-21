@@ -132,12 +132,10 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
 
     cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
 
-    VulkanUtils::VBarrierPosition barrierPosSrcOptimal = {vk::PipelineStageFlagBits2::eComputeShader,
-                                                          vk::AccessFlagBits2::eShaderWrite, vk::PipelineStageFlagBits2::eCopy,
-                                                          vk::AccessFlagBits2::eTransferRead};
+    auto barrierPos = VulkanUtils::VBarrierPosition{vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+                                                    vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferRead};
     // storage image now will be read so read only layout
-    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eTransferSrcOptimal,
-                                              vk::ImageLayout::eGeneral, barrierPosSrcOptimal);
+    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eGeneral, barrierPos);
 
     //======================================
     // Copy the result to the previous image
@@ -145,8 +143,11 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
     // - copy the values
     // - make shader read only again
 
+    barrierPos = VulkanUtils::VImage_ShaderRead_ToTransferDst;
+    barrierPos.srcPipelineStage |= vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eCopy;
+    barrierPos.srcData |= vk::AccessFlagBits2::eShaderRead;
     VulkanUtils::PlaceImageMemoryBarrier2(*m_previousImage, cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                          vk::ImageLayout::eTransferDstOptimal, VulkanUtils::VImage_ShaderRead_ToTransferDst);
+                                          vk::ImageLayout::eTransferDstOptimal, barrierPos);
 
     vk::ImageCopy2 regions;
     regions.dstOffset = 0.0;
@@ -164,18 +165,19 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
 
     cmdBuffer.GetCommandBuffer().copyImage2(cpyInfo);
 
-    auto barrierPos             = VulkanUtils::VImage_TransferDst_ToShaderRead;
+    barrierPos                  = VulkanUtils::VImage_TransferDst_ToShaderRead;
     barrierPos.dstPipelineStage = vk::PipelineStageFlagBits2::eBottomOfPipe;
     barrierPos.dstData          = vk::AccessFlagBits2::eNone;
 
     VulkanUtils::PlaceImageMemoryBarrier2(*m_previousImage, cmdBuffer, vk::ImageLayout::eTransferDstOptimal,
                                           vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
 
-    barrierPosSrcOptimal = {vk::PipelineStageFlagBits2::eTransfer, vk::AccessFlagBits2::eTransferRead,
-                            vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderSampledRead};
+    barrierPos = {vk::PipelineStageFlagBits2::eTransfer, vk::AccessFlagBits2::eTransferRead,
+                  vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                  vk::AccessFlagBits2::eShaderSampledRead};
     // storage image now will be read so read only layout
     m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                              vk::ImageLayout::eTransferSrcOptimal, barrierPosSrcOptimal);
+                                              vk::ImageLayout::eTransferSrcOptimal, barrierPos);
 }
 
 RenderTarget2* RayTracedReflectionsPass::GetAccumulatedResult() const

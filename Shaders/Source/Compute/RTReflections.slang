@@ -186,8 +186,6 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
             float4 reflectedColour;
 
-            
-
             if(features.hasDiffuseTexture){
                 reflectedColour = float4(textures[features.albedoTextureIdx].Sample(g.uv).xyz, 1.0);
             }else{
@@ -204,7 +202,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             
             float4 reflLast = _previousSampled.Sample(reprojectedTexCoord);
             if(isfinite(reflLast).x){
-                reflectedColour.xyz = alpha * (float3(1.0) - reflectedColour.xyz) + (1.0f - alpha) * reflLast.xyz;
+                reflectedColour.xyz = alpha * (float3(1.0) - reflectedColour.xyz); // + (1.0f - alpha) * reflLast.xyz;
             }    
             _outputImage[threadID.xy] = reflectedColour;
             return;
