@@ -38,7 +38,7 @@ VertexOutput vertexMain(VertexInput VAO)
     // current world space position
     float4x4 viewProj = mul(globalData.proj, globalData.view);
     out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
-    out.worldPos = out.sv_position;
+    out.worldPos = float4(FragmentWorldPos, 1.0);
 
     //=============================
     // previosu world space postion
