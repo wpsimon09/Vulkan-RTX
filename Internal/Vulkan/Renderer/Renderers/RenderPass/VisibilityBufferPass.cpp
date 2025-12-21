@@ -32,15 +32,8 @@ VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, Ap
 
     //===================================================
     // create render target
-    Renderer::RenderTarget2CreatInfo shadowMapCI{width / 2,
-                                                 height / 2,
-                                                 false,
-                                                 false,
-                                                 vk::Format::eR16Sfloat,
-                                                 vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                 vk::ResolveModeFlagBits::eNone,
-                                                 true,
-                                                 "visibility buffer attachment"};
+    Renderer::RenderTarget2CreatInfo shadowMapCI{
+        width, height, false, false, vk::Format::eR16Sfloat, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ResolveModeFlagBits::eNone, true, "visibility buffer attachment"};
 
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI));
 }
@@ -99,10 +92,8 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
     m_rayTracedShadowEffect->BindDescriptorSet(cmdB, currentFrame, 0);
 
     //dispatch
-    float width, height;
-    width  = m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->GetWidth();
-    height = m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->GetHeight();
-    cmdB.dispatch(width / 16, height / 16, 1);
+
+    cmdB.dispatch(m_height / 16, m_height / 16, 1);
 
     m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->TransitionAttachments(
         cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,

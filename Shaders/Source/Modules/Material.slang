@@ -119,8 +119,7 @@ public struct PBRMaterial : IMaterial
         float specularF0 = RGBToLuminance(lerp(float3(0.04), ctx.albedo.xyz, ctx.metallnes));
         float diffuseReflectance =  RGBToLuminance(ctx.metallnes * (1.0 - ctx.metallnes));
         float Fresnel = saturate(RGBToLuminance(FresnelShlick(specularF0, max(0.0f, dot(wo, g.shadingNormal)))));
-
-
+        
         float specular = Fresnel;
         float diffuse  = diffuseReflectance * (1.0 - Fresnel);
 

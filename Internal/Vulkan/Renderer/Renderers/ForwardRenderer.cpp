@@ -68,7 +68,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
 
     //==================================================================================================
     // New render pass system
-    m_visibilityBufferPass  = std::make_unique<Renderer::VisibilityBufferPass>(device, effectsLibrary, width, height);
+    m_visibilityBufferPass = std::make_unique<Renderer::VisibilityBufferPass>(device, effectsLibrary, width / 2, height / 2);
     m_gBufferPass           = std::make_unique<Renderer::GBufferPass>(device, effectsLibrary, width, height);
     m_visibilityDenoisePass = std::make_unique<Renderer::BilateralFilterPass>(
         device, effectsLibrary, m_visibilityBufferPass->GetPrimaryResult(EVisibilityBufferAttachments::ShadowMap), width, height);

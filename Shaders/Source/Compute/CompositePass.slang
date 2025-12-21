@@ -38,9 +38,9 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     
     float3 col = _renderedImage.Sample(texCoords).xyz;
     
-    if(_depthMap.Sample(texCoords).x == 1.0){
-        _finalImage[threadID.xy] = float4(col,1.0); 
-        return;
+    if(_depthMap.Sample(texCoords).x > 0.999){
+      //  _finalImage[threadID.xy] = float4(col,1.0); 
+      //  return;
     }
     
     float shadowFactor = _dirLightShadowMap.Sample(texCoords).x;
@@ -60,5 +60,5 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         col = lerp(reflectionValue, col , roughness);
     }
 
-    _finalImage[threadID.xy].xyz = col;
+    _finalImage[threadID.xy] = float4(lerp(col, float3(texCoords,1.0), 0.),1.0f);
 }
