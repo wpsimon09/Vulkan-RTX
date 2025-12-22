@@ -200,7 +200,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             float4 reflLast = _previousSampled.Sample(reprojectedCoords);
             
             reflectedColour.xyz = alpha * reflectedColour.xyz + (1.0f - alpha) * reflLast.xyz;
-            _outputImage[threadID.xy] = reflectedColour;
+            _outputImage[threadID.xy] += reflectedColour;
             return;
         }
 
