@@ -325,14 +325,15 @@ public struct Specular_Phong : IBRDF{
 
         float3 R = reflect(-wo, g.normal);
 
-        sample.wi = 
+        sample.wi = toWorld(wi_Tangent, g.shadingNormal);
 
-
+        return sample;
     }
     
     public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g)
     {
-
+        float3 R = reflect(-wi, g.shadingNormal);
+        return F0 * (phongNormalizationTerm(shininess) * pow(max(0.0f, dot(R, wo)), shininess));
     }
     
     public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse)
@@ -342,7 +343,7 @@ public struct Specular_Phong : IBRDF{
     
     public BxDFContext GetContext()
     {
-
+        return context;
     }
 }
 
@@ -355,4 +356,27 @@ internal float beckmannAlphaToShininess(float alpha) {
 // For derivation see "Phong Normalization Factor derivation" by Giesen
 float phongNormalizationTerm(float shininess) {
 	return (1.0f + shininess) * ONE_OVER_2_PI;
+}
+
+internal void constructLocalFrame(float3 N, out float3 T, out float3 B){
+    // construct local frame for sampling 
+    float3 up = (fabs(N.z) < 0.999f) ? float3(0.0f, 0.0f, 1.0f)
+                        : float3(1.0f, 0.0f, 0.0f);
+
+    T = normalize(cross(up, N));
+    B = cross(N, T);
+}
+
+internal float3 toLocal(float3 world, float3 N){
+    float3 T, B;
+    constructLocalFrame(N, T, B);
+    return float3(dot(world, T), dot(world, B), dot(world, N));
+}
+
+internal float3 toWorld(float3 local, float3 N){
+    // transfer from local coordinate system to the world coordinate system
+    // this is not covered in the workshop please see chapter 3.1 - Coordinate system in PBRT (https://pbr-book.org/4ed/Geometry_and_Transformations/Coordinate_Systems)
+    float3 T, B;
+    constructLocalFrame(N, T, B);
+    return normalize(local.x * T + local.y * B + local.z * N);
 }

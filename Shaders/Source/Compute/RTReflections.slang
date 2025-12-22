@@ -167,7 +167,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         ray.Origin = pos;    
         ray.Direction = sample.wi;
         ray.TMin = 0.0001;
-        ray.TMax = 100;
+        ray.TMax = 1000;
 
         //======================================================================
         // Trace ray and determine the reflected colour based on the surface hit 
