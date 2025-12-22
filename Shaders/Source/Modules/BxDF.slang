@@ -5,8 +5,9 @@ import Utils;
 import Surface;
 import RandomValues;
 
-public static const float ONE_OVER_PI = 1.0/float.getPi();
-
+public static const float ONE_OVER_PI   = 1.0/float.getPi();
+public static const float ONE_OVER_2_PI = 1.0 / (2* float.getPi());
+public static const float TWO_PI        = 2.0 * float.getPi();
 
 public struct BxDFSample{
     public float3 wi;
@@ -287,4 +288,71 @@ internal float Lambda(float a){
     float nom = (-1.0 + SafeSqrt(1.0 + 1.0 / (a * a)));
     float denom = 2.0;
     return nom / denom;
+}
+
+public struct Specular_Phong : IBRDF{
+    BxDFContext context;
+    public float3 F0;
+    public float shininess;
+    public __init(BxDFContext context){
+        this.context = context;
+        this.context.alpha = context.roughness * context.roughness;
+        F0 = lerp(float3(0.4), context.albedo.xyz, context.metallnes);
+        this.shininess = beckmannAlphaToShininess(context.roughness);
+    }
+
+
+    public Optional<BxDFSample> Sample(float3 wo, SurfaceGeometry g, inout uint u)
+    {
+        BxDFSample sample;
+        
+        float2 rand = float2(RandomValue(u), RandomValue(u));
+        
+
+        float cosTheta = pow(1.0f - rand.x, 1.0 / (1.0f + this.shininess));
+        float sinTheta = sqrt(1.0f - cosTheta * cosTheta);
+
+        float phi = TWO_PI * rand.y;
+
+        sample.PDF = phongNormalizationTerm(shininess) * pow(cosTheta, shininess);
+        
+        // converte from spherical to cartesian in sampling space
+        float3 wi_Tangent = float3(
+            cos(phi) * sinTheta,  
+            sin(phi) * sinTheta,
+            cosTheta  
+        );
+
+        float3 R = reflect(-wo, g.normal);
+
+        sample.wi = 
+
+
+    }
+    
+    public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g)
+    {
+
+    }
+    
+    public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse)
+    {
+        return float3(0.0f);
+    }
+    
+    public BxDFContext GetContext()
+    {
+
+    }
+}
+
+// Converts Beckmann roughness (alpha) to Phong's exponent (shininess)
+// Source: "Microfacet Models for Refraction through Rough Surfaces" by Walter et al.
+internal float beckmannAlphaToShininess(float alpha) {
+	return 2.0f / min(0.9999f, max(0.0002f, (alpha * alpha))) - 2.0f;
+}
+
+// For derivation see "Phong Normalization Factor derivation" by Giesen
+float phongNormalizationTerm(float shininess) {
+	return (1.0f + shininess) * ONE_OVER_2_PI;
 }

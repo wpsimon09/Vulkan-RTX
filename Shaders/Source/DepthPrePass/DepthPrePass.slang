@@ -15,8 +15,9 @@ struct VertexOutput {
     float4 worldPos : WORLD_POS;
     float3 worldNormal : WORLD_N;
     float2 uv : UV;
-    float4 worldPosPrevFrame : WORLD_POS_PREV_FRAME;
     float3x3 TBN : TBN;
+    float4 clipCurrent : CLIP_CURRENT;
+    float4 clipPrevious : CLIP_PREVIOUS;
 }
 
 [[vk::push_constant]]
@@ -30,20 +31,23 @@ VertexOutput vertexMain(VertexInput VAO)
     float3 vertexPos = VAO.inPosition;
     
     float3 FragmentWorldPos = mul(perObjectPC.modelMatrix, float4(vertexPos, 1.0)).xyz;
-    float3 vertexPosPreFrame = mul(perObjectPC.previousModelMatrix, float4(vertexPos, 1.0)).xyz;
+    float3 FragmentWolrdPosPrev = mul(perObjectPC.previousModelMatrix, float4(vertexPos, 1.0)).xyz;
     
     VertexOutput out;
     
     //===============================
     // current world space position
     float4x4 viewProj = mul(globalData.proj, globalData.view);
-    out.sv_position = mul(viewProj, float4(FragmentWorldPos, 1.0));
+    float4 clipCurrent =  mul(viewProj, float4(FragmentWorldPos, 1.0));;
+    out.sv_position = clipCurrent;
+    out.clipCurrent = clipCurrent;
+
     out.worldPos = float4(FragmentWorldPos, 1.0);
 
     //=============================
     // previosu world space postion
     float4x4 viewPorjPrevFrame = mul(globalData.projPrevFrame, globalData.viewPrevFrame);
-    out.worldPosPrevFrame = mul(viewPorjPrevFrame , float4(vertexPosPreFrame,1.0));
+    out.clipPrevious = mul(viewPorjPrevFrame , float4(FragmentWolrdPosPrev,1.0));
 
     //=============================
     // Transfer the normal vectors 
@@ -94,17 +98,17 @@ FragmentOut fragmentMain(VertexOutput fsIn) {
     float3 N = fsIn.worldNormal;
     
     if(material.features.hasNormalTexture){
-    //    N = SampleNormalMap(textures[material.features.normalTextureIdx], fsIn.uv, fsIn.TBN);
+        N = SampleNormalMap(textures[material.features.normalTextureIdx], fsIn.uv, fsIn.TBN);
     }
 
     out.position = float4(fsIn.worldPos.xyz, 1.0);
-    out.normal = float4(fsIn.worldNormal, 1.0);
+    out.normal = float4(N, 1.0);
     out.albedo = float4(albedo.xyz,1.0);
     out.arm = float4(arm.xy,0.0,1.0);
 
-    float2 currentPosTextureSpace = (fsIn.worldPos.xy / fsIn.worldPos.w) * 0.5 + 0.5;
-    float2 prevPosTextureSpace = (fsIn.worldPosPrevFrame.xy / fsIn.worldPosPrevFrame.w) * 0.5 + 0.5;
-    out.motionVector = float4(currentPosTextureSpace - prevPosTextureSpace, 0.0, 1.0);
+    float2 currentPosTextureSpace = (fsIn.clipCurrent.xy / fsIn.clipCurrent.w) * 0.5 + 0.5;
+    float2 prevPosTextureSpace = (fsIn.clipPrevious.xy / fsIn.clipPrevious.w) * 0.5 + 0.5;
+    out.motionVector = float4(prevPosTextureSpace - currentPosTextureSpace, 0.0, 1.0);
 
     return out;
 }

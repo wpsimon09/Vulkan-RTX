@@ -51,7 +51,6 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
     // get the initial position 
     float3 worldSpacePos = _positionTexture.Sample(texCoords).xyz;
-    worldSpacePos.y -= 1.0;
     float3 direction = normalize(_lightInfo.dirLight.direction.xyz);
     float sunRadius = _lightInfo.dirLight.direction.w;
 

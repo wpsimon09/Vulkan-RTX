@@ -140,8 +140,92 @@ public struct PBRMaterial : IMaterial
             sample.brdf = LamberianDiffuse(ctx);
         }
         return sample;
-        
+    }
+}
 
+public struct PhongMaterial : IMaterial
+{
+
+    public MaterialFeatures features;
+    public MaterialConstantValues values;
+    
+    public Sampler2D albedo_map;
+    public Sampler2D arm_map;
+    public Sampler2D normal_map;
+    public Sampler2D emissive_map;
+    
+    public float4 albedo;
+    public float3 diffuseReflectance;
+    public float4 emission;
+    
+    public float metallness;
+    public float roughness;
+    public float ao;
+    
+    public typedef IBRDF BRDF;
+
+    public BxDFContext Prepare(SurfaceGeometry geometry)
+    {
+        BxDFContext brdf;
+        if (features.hasDiffuseTexture)
+        {
+            brdf.albedo = albedo_map.Sample(geometry.uv);
+        }
+        else
+        {
+            brdf.albedo = values.diffuse ;
+        }
+
+        if (features.hasArmTexture)
+        {
+            float3 armValues = arm_map.Sample(geometry.uv).rgb;
+            brdf.ao = armValues.r;
+            brdf.roughness = armValues.g;
+            brdf.metallnes = armValues.b;
+        }
+        else
+        {
+            brdf.roughness = values.roughness;
+            brdf.metallnes = values.metalness;
+            brdf.ao = values.ao;
+        }
+
+        if (features.hasEmissiveTexture) {
+            float4 emissive = emissive_map.Sample(geometry.uv);
+            brdf.emmision = emissive.xyz;
+            brdf.emissionStrength = values.emissive_strength.w;
+        } else {
+            brdf.emmision = values.emissive_strength.xyz;
+            brdf.emissionStrength = values.emissive_strength.w;
+        }
+        return brdf;
+    }
+
+    public MaterialSample Sample(BxDFContext ctx, float3 wo, SurfaceGeometry g, inout uint u){
+        float specularF0 = RGBToLuminance(lerp(float3(0.04), ctx.albedo.xyz, ctx.metallnes));
+        float diffuseReflectance =  RGBToLuminance(ctx.metallnes * (1.0 - ctx.metallnes));
+        float Fresnel = saturate(RGBToLuminance(FresnelShlick(specularF0, max(0.0f, dot(wo, g.shadingNormal)))));
+        
+        float specular = Fresnel;
+        float diffuse  = diffuseReflectance * (1.0 - Fresnel);
+
+        float p = (specular / max(0.0001f, (specular + diffuse)));
+
+        MaterialSample sample;
+        p = clamp(p, 0.1, 0.9);
+        sample.p_r = p; // probability of specualr reflection 
+        sample.p_d = 1.0 - p; // probability of diffuse reflection 
+
+        bool sampleSpecular = RandomValue(u) < sample.p_r;
+
+        if(sampleSpecular){
+            sample.p = p; 
+            sample.brdf = PhongSpecular(ctx);
+        }else{
+            sample.p = 1.0 - p;
+            sample.brdf = LamberianDiffuse(ctx);
+        }
+        return sample;
     }
 }
 

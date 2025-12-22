@@ -127,13 +127,13 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     _outputImage.GetDimensions(dims.x, dims.y);
     float2 texCoords = (threadID.xy + 0.5) / dims;
 
-    /* float depht = _depthMap.Sample(texCoords).x;
+     float depht = _depthMap.Sample(texCoords).x;
 
     if(depht == 1.0){
-        //_outputImage[threadID.xy] = float4(1.0);
-        //return;
+        _outputImage[threadID.xy] = float4(1.0);
+        return;
     }
- */
+ 
     float3 pos = _positionBuffer.Sample(texCoords).xyz;
     float3 arm = _armMap.Sample(texCoords).xyz;
     float3 N = normalize(_normalMap.Sample(texCoords).xyz);
@@ -191,18 +191,19 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             }else{
                 reflectedColour = float4(values.diffuse.xyz, 1.0);
             }
+            
+            float alpha = 0.3;
+            float2 motionVector = _motionVector.Sample(texCoords).xy;
+        
+            float2 reprojectedCoords = texCoords - motionVector;
+            
+            float4 reflLast = _previousSampled.Sample(reprojectedCoords);
+            
+            reflectedColour.xyz = alpha * reflectedColour.xyz + (1.0f - alpha) * reflLast.xyz;
+            _outputImage[threadID.xy] = reflectedColour;
+            return;
         }
 
-        float alpha = 0.3;
-        float2 motionVector = _motionVector.Sample(texCoords).xy;
-    
-        float2 reprojectedCoords = texCoords - motionVector;
-        
-        float4 reflLast = _previousSampled.Sample(reprojectedCoords);
-        
-        reflectedColour.xyz = alpha * reflectedColour.xyz + (1.0f - alpha) * reflLast.xyz;
-        _outputImage[threadID.xy] = reflectedColour;
-        return;
     }
 
     _outputImage[threadID.xy] = float4(float3(0.0), 1.0);
