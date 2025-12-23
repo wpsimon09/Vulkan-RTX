@@ -32,15 +32,8 @@ VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, Ap
 
     //===================================================
     // create render target
-    Renderer::RenderTarget2CreatInfo shadowMapCI{width / 2,
-                                                 height / 2,
-                                                 false,
-                                                 false,
-                                                 vk::Format::eR16Sfloat,
-                                                 vk::ImageLayout::eShaderReadOnlyOptimal,
-                                                 vk::ResolveModeFlagBits::eNone,
-                                                 true,
-                                                 "visibility buffer attachment"};
+    Renderer::RenderTarget2CreatInfo shadowMapCI{
+        width, height, false, false, vk::Format::eR16Sfloat, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ResolveModeFlagBits::eNone, true, "visibility buffer attachment"};
 
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI));
 }
@@ -49,23 +42,21 @@ void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManag
 
     m_rayTracedShadowEffect->SetNumWrites(3, 5, 1);
 
-    m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[frameIndex]);
+    m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 0, uniformBufferManager.GetLightBufferDescriptorInfo()[frameIndex]);
 
-    m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 1, uniformBufferManager.GetLightBufferDescriptorInfo()[frameIndex]);
+    m_rayTracedShadowEffect->WriteAccelerationStrucutre(frameIndex, 0, 1, renderContext->tlas);
 
-    m_rayTracedShadowEffect->WriteAccelerationStrucutre(frameIndex, 0, 2, renderContext->tlas);
-
-    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 3,
+    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 2,
                                         renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
-    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 4,
+    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 3,
                                         MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
                                             VulkanCore::VSamplers::Sampler2D));
 
-    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 5,
+    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 4,
                                         renderContext->normalMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
-    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 6,
+    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 5,
                                         GetPrimaryAttachemntDescriptorInfo(EVisibilityBufferAttachments::ShadowMap));
 
     m_rayTracedShadowEffect->ApplyWrites(frameIndex);
@@ -77,7 +68,7 @@ void VisibilityBufferPass::Update(int                                   currentF
                                   VulkanStructs::PostProcessingContext* postProcessingContext)
 {
     m_rayTracedShadowEffect->SetNumWrites(0, 0, 1);
-    m_rayTracedShadowEffect->WriteAccelerationStrucutre(currentFrame, 0, 2, renderContext->tlas);
+    m_rayTracedShadowEffect->WriteAccelerationStrucutre(currentFrame, 0, 1, renderContext->tlas);
     m_rayTracedShadowEffect->ApplyWrites(currentFrame);
 
     m_aoOcclusionParameters = uniformBufferManager.GetApplicationState()->GetAoOcclusionParameters();
@@ -101,10 +92,8 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
     m_rayTracedShadowEffect->BindDescriptorSet(cmdB, currentFrame, 0);
 
     //dispatch
-    float width, height;
-    width  = m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->GetWidth();
-    height = m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->GetHeight();
-    cmdB.dispatch(width / 16, height / 16, 1);
+
+    cmdB.dispatch(m_width / 16, (m_height / 16) + 1, 1);
 
     m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->TransitionAttachments(
         cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,

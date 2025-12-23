@@ -42,7 +42,7 @@ void RenderingOptions::Render()
     {
         ImGui::Checkbox("RTX ", &m_renderingSystem->m_isRayTracing);
         ImGui::Checkbox("SER (Shader exectution reordering)",
-                        reinterpret_cast<bool*>(&m_applicationState.GetGlobalRenderingInfo().useSer));
+                        reinterpret_cast<bool*>(&m_applicationState.GetGlobalRenderingInfo2().renderingFeatures.z));
         ImGui::Checkbox("Accumulate frames ", &m_applicationState.m_accumulateFrames);
         ImGui::Checkbox("Ambient occlusion ", &m_applicationState.m_ambientOcclusion);
 

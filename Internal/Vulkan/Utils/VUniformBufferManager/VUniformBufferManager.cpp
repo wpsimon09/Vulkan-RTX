@@ -13,6 +13,7 @@
 #include "Application/Lightning/LightStructs.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/Rendering/Scene/SceneData.hpp"
+#include "Vulkan/Utils/VUniformBufferManager/VUniform.hpp"
 #include "fastgltf/types.hpp"
 #include "Vulkan/Global/GlobalState.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
@@ -38,9 +39,10 @@ VulkanUtils::VUniformBufferManager::VUniformBufferManager(const VulkanCore::VDev
     Utils::Logger::LogSuccess("Uniform buffer manager created successfully");
 }
 
-const std::vector<vk::DescriptorBufferInfo>& VulkanUtils::VUniformBufferManager::GetGlobalBufferDescriptorInfo() const
+
+vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetGlobalBufferDescriptorInfo2(int currentFrame) const
 {
-    return m_perFrameUniform->GetDescriptorBufferInfos();
+    return m_perFrameUniform2->GetDescriptorBufferInfos()[currentFrame];
 }
 
 
@@ -92,11 +94,12 @@ vk::DescriptorBufferInfo VulkanUtils::VUniformBufferManager::GetMaterialDescript
 }
 
 
-void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData(int frameIndex, GlobalRenderingInfo& perFrameData) const
+void VulkanUtils::VUniformBufferManager::UpdatePerFrameUniformData2(int frameIndex, GlobalRenderingInfo2& perFrameData) const
 {
-    m_perFrameUniform->GetUBOStruct() = perFrameData;
-    m_perFrameUniform->UpdateGPUBuffer(frameIndex);
+    m_perFrameUniform2->GetUBOStruct() = perFrameData;
+    m_perFrameUniform2->UpdateGPUBuffer(frameIndex);
 }
+
 
 void VulkanUtils::VUniformBufferManager::UpdatePerObjectUniformData(int frameIndex,
                                                                     std::vector<std::pair<unsigned long, VulkanStructs::VDrawCallData>>& drawCalls) const
@@ -194,8 +197,8 @@ void VulkanUtils::VUniformBufferManager::UpdateSceneDataInfo(int frameIndex, con
 void VulkanUtils::VUniformBufferManager::Destroy() const
 {
     Utils::Logger::LogInfoVerboseOnly("Destroying uniform buffer manager and all its data...");
-    m_perFrameUniform->Destory();
     m_lightUniform->Destory();
+
 
     for(auto& luminanceHistogram : m_luminanceHistogram)
     {
@@ -211,6 +214,8 @@ void VulkanUtils::VUniformBufferManager::Destroy() const
     {
         perObjectUbo->Destroy();
     }
+
+    m_perFrameUniform2->Destory();
 
     Utils::Logger::LogInfoVerboseOnly("Uniform buffer manager destroyed");
 }
@@ -242,8 +247,7 @@ void VulkanUtils::VUniformBufferManager::CreateUniforms()
     GlobalState::EnableLogging();
     Utils::Logger::LogSuccess("Allocated uniform and storage buffers");
 
-    m_perFrameUniform = std::make_unique<VUniform<GlobalRenderingInfo>>(m_device);
-
+    m_perFrameUniform2 = std::make_unique<VUniform<GlobalRenderingInfo2>>(m_device);
 
     m_lightUniform = std::make_unique<VUniform<LightUniforms>>(m_device);
 }
@@ -260,7 +264,7 @@ void VulkanUtils::VUniformBufferManager::Update(int                             
 {
     m_applicationState = &applicationState;
 
-    UpdatePerFrameUniformData(frameIndex, applicationState.GetGlobalRenderingInfo());
+    UpdatePerFrameUniformData2(frameIndex, applicationState.GetGlobalRenderingInfo2());
     UpdateLightUniformData(frameIndex, applicationState.GetSceneLightInfo());
     UpdatePerObjectUniformData(frameIndex, drawCalls);
     UpdateSceneDataInfo(frameIndex, applicationState.GetSceneData());

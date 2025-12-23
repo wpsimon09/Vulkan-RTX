@@ -19,7 +19,7 @@ RWTexture2D skyViewLut;
 ConstantBuffer<LightInfo> light;
 
 [[vk::binding(4,0)]]
-ConstantBuffer<GlobalData> globalData;
+ConstantBuffer<GlobalData2> globalData2;
 
 [vk::push_constant]
 AtmosphereParamsCPU atmosphereParamsCPU;
@@ -139,7 +139,7 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     AtmosphereParamsGPU atmosParams = atmosphereParamsCPU.Parse();
 
     float2 atmosphereBoundaries = float2(atmosParams.radiusBottom, atmosParams.radiusTop);
-    const float camearHeight = globalData.cameraPostiion.y * cameraScale;
+    const float camearHeight = globalData2.cameraPosition.y * cameraScale;
 
     float3 sunDirection = light.dirLight.direction.xyz;
     // in papaer this is with .z up, however this uses .y up 

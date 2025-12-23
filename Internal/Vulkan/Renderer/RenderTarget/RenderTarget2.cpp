@@ -30,19 +30,20 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     {
         assert(!m_renderTargetInfo.computeShaderOutput && "Depth image can not be storage image ");
         attachemtImageCI.imageDebugName = m_renderTargetInfo.imageDebugName + " | depth-stencil attachment";
-        attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
+        attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eDepthStencilAttachment
+                                       | vk::ImageUsageFlagBits::eSampled | m_renderTargetInfo.additionalFlags;
     }
     else if(m_renderTargetInfo.computeShaderOutput)
     {
         assert(!m_renderTargetInfo.isDepth && "Storage image can not be depth buffer");
         attachemtImageCI.imageDebugName = m_renderTargetInfo.imageDebugName + " | compute shader attachment";
-        attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eStorage;
+        attachemtImageCI.imageUsage |= vk::ImageUsageFlagBits::eStorage | m_renderTargetInfo.additionalFlags;
         attachemtImageCI.isStorage = true;
     }
     else
     {
         attachemtImageCI.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled
-                                      | vk::ImageUsageFlagBits::eInputAttachment;
+                                      | vk::ImageUsageFlagBits::eInputAttachment | m_renderTargetInfo.additionalFlags;
     }
 
 
@@ -99,7 +100,9 @@ RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, RenderTarget2Cre
     }
 }
 
-
+/*
+    Constructor for render target created from the swap chain image
+*/
 RenderTarget2::RenderTarget2(const VulkanCore::VDevice& device, const VulkanCore::VSwapChain& swapChain)
     : m_device(device)
     , m_isForSwapChain(true)
@@ -270,5 +273,25 @@ void RenderTarget2::Destroy()
 }
 
 RenderTarget2::~RenderTarget2() {}
+
+//***********************************************************************/
+//********************** Temporally accumulated *************************/
+//***********************************************************************/
+
+RenderTargetAccumulated::RenderTargetAccumulated(int numFrames, const VulkanCore::VDevice& device, RenderTarget2CreatInfo& m_renderTargetInfo)
+    : RenderTarget2(device, m_renderTargetInfo)
+{
+    m_renderTargets.resize(numFrames);
+    for(int i = 0; i < numFrames; i++)
+    {
+        m_renderTargets[i] = std::make_unique<Renderer::RenderTarget2>(device, m_renderTargetInfo);
+    }
+}
+
+RenderTarget2& RenderTargetAccumulated::Get(int frame)
+{
+    assert(frame <= m_renderTargets.size() && "Frame is bigger then available render targets ");
+    return *m_renderTargets[frame];
+}
 
 }  // namespace Renderer

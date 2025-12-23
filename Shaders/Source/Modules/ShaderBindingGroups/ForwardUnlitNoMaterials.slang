@@ -10,7 +10,7 @@ import Material;
 //=================================
 // Set 0
 [[vk::binding(0,0)]]
-ConstantBuffer<GlobalData> globalData;
+ConstantBuffer<GlobalData2> globalData;
 
 //===================================
 // Set 1 

@@ -8,7 +8,7 @@ from rich.text import Text
 console = Console()
 
 # Path to slangc compiler
-SLANGC_PATH = "/home/wpsimon09/SDKs/slang/bin/slangc"
+SLANGC_PATH = "/home/simon/SDKs/slang/bin/slangc"
 
 def has_changed_with_git(path):
     """Check if a file has uncommitted changes in git."""

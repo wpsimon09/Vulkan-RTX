@@ -109,7 +109,7 @@ void RayTracer::TraceRays(const VulkanCore::VCommandBuffer&         cmdBuffer,
 
     m_rtxEffect->SetNumWrites(4, 12, 1);
 
-    m_rtxEffect->WriteBuffer(currentFrame, 0, 0, unifromBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+    m_rtxEffect->WriteBuffer(currentFrame, 0, 0, unifromBufferManager.GetGlobalBufferDescriptorInfo2(currentFrame));
     m_rtxEffect->WriteBuffer(currentFrame, 0, 1, unifromBufferManager.GetLightBufferDescriptorInfo()[currentFrame]);
     m_rtxEffect->WriteBuffer(currentFrame, 0, 2, m_rtxDataManager.GetObjDescriptionBufferInfo());
 

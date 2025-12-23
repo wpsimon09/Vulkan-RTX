@@ -7,7 +7,7 @@ import Light;
 // set 0
 
 [[vk::binding(0, 0)]]
-ConstantBuffer<GlobalData> globalData;
+ConstantBuffer<GlobalData2> globalData;
 
 [[vk::binding(1,0)]]
 StructuredBuffer<PermodelData, Std430DataLayout> perObjectData ;
@@ -26,12 +26,6 @@ Sampler2D LTC_Inverse;
 
 [[vk::binding(6,0)]]
 Sampler2D TransmitanceLUT;
-
-[[vk::binding(7, 0)]]
-Sampler2D _directionalLightShadowMap;
-
-[[vk::binding(8, 0)]]
-Sampler2D _abmbientOcclusionMap;
 
 
 //========================

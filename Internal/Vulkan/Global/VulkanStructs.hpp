@@ -174,6 +174,7 @@ struct VDrawCallData
     mutable int drawCallID = 0;
 
     glm::mat4 modelMatrix{};
+    glm::mat4 previousModelMatrix{};
     glm::vec3 position{};
 
     float depth = -1.0f;
@@ -210,11 +211,13 @@ struct PostProcessingContext
     VulkanCore::VImage2*                 sceneRender;
     VulkanCore::VImage2*                 shadowMap;
     VulkanCore::VImage2*                 aoMap;
+    VulkanCore::VImage2*                 reflectionsMap;
     std::shared_ptr<VulkanCore::VImage2> dummyTexture;
     LensFlareParameters*                 lensFlareParameters;
     ToneMappingParameters*               toneMappingParameters;
     LuminanceHistogramParameters*        luminanceHistrogramParameters;
     LuminanceHistogramAverageParameters* luminanceAverageParameters;
+
 
     float deltaTime       = 0.0;
     bool  lensFlareEffect = false;

@@ -47,6 +47,9 @@ class ApplicationState
     AtmosphereParameters* GetAtmosphereParameters();
     void                  pSetAtmosphereParameters(AtmosphereParameters* pAtmosphereParams);
 
+    GlobalRenderingInfo2& GetGlobalRenderingInfo2();
+    void                  pSetGlobalRenderingInfoData2(GlobalRenderingInfo2* pGlobalRenderingInfo);
+
     BilaterialFilterParameters&          GetBilateralFilaterParameters();
     AoOcclusionParameters&               GetAoOcclusionParameters();
     ToneMappingParameters&               GetToneMappingParameters();
@@ -67,15 +70,16 @@ class ApplicationState
     bool               m_enablePostProcessing = true;
     bool               m_denoise              = true;
     bool m_composite = true;  // use separate draw pass to composite the visibility buffer and any other effects that might contribute with the rest of the scene
-    bool m_rayTracedReflections = true;
+    bool m_rayTracedReflections = false;
 
   private:
-    LightStructs::SceneLightInfo* m_sceneLight          = nullptr;  // instantiated in Scene.hpp
-    SceneData*                    m_sceneData           = nullptr;  // instantiated in Scene.hpp
-    SceneUpdateContext*           m_sceneUpdateFlags    = nullptr;  // instantiated in Scene.hpp
-    GlobalRenderingInfo*          m_globalRenderingInfo = nullptr;  // instantiated in Client.hpp
-    FogVolumeParameters*          m_fogVolumeParameters = nullptr;
-    AtmosphereParameters*         m_atmosphereParams    = nullptr;
+    LightStructs::SceneLightInfo* m_sceneLight           = nullptr;  // instantiated in Scene.hpp
+    SceneData*                    m_sceneData            = nullptr;  // instantiated in Scene.hpp
+    SceneUpdateContext*           m_sceneUpdateFlags     = nullptr;  // instantiated in Scene.hpp
+    GlobalRenderingInfo*          m_globalRenderingInfo  = nullptr;  // instantiated in Client.hpp
+    FogVolumeParameters*          m_fogVolumeParameters  = nullptr;  // instantiaded in FogNode.hpp
+    AtmosphereParameters*         m_atmosphereParams     = nullptr;  // instantiated in AtmosphereNode.hpp
+    GlobalRenderingInfo2*         m_globalRenderingData2 = nullptr;  // instantiaded in Clinet.hpp
 
     BilaterialFilterParameters          m_bilaterialFilaterParameters;
     AoOcclusionParameters               m_aoOcclusionParameters;

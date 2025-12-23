@@ -27,7 +27,7 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
     const float BillboardScale = 30.f;
 
     // sotre for later
-    float3 CameraForwardWorld = normalize(globalData.cameraPostiion.xyz - perModelData[perObjectPC.perObjectDataIndex.x].positionWorldSpace.xyz);
+    float3 CameraForwardWorld = normalize(globalData.cameraPosition.xyz - perModelData[perObjectPC.perObjectDataIndex.x].positionWorldSpace.xyz);
     float3 CameraUpWorld = { 0, 1, 0};
     float3 CameraRightWorld = normalize(cross(CameraUpWorld, CameraForwardWorld));
     float3 Up = cross(CameraForwardWorld, CameraRightWorld);
@@ -40,7 +40,7 @@ VertexOutput vertexMain(VertexInput VAO) // VAO input{
     out.vertexData.uv = VAO.inUV;
     out.vertexData.mat = perModelData[perObjectPC.perObjectDataIndex.x].indexes.x;
     
-    float4x4 viewProj = mul(globalData.view, globalData.projection);
+    float4x4 viewProj = mul(globalData.view, globalData.proj);
     out.sv_position = mul(viewProj, float4(vertexPosWorldSpace, 1.0));
 
     return out;

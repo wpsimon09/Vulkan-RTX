@@ -64,7 +64,7 @@ void GBufferPass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager
 {
     m_gBufferEffect->SetNumWrites(4, 10, 0);
 
-    m_gBufferEffect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
+    m_gBufferEffect->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrameIndex));
     m_gBufferEffect->WriteBuffer(currentFrameIndex, 1, 0, uniformBufferManager.GetMaterialDescriptionBuffer(currentFrameIndex));
     m_gBufferEffect->WriteImageArray(currentFrameIndex, 1, 1, uniformBufferManager.GetAll2DTextureDescriptorImageInfo());
     m_gBufferEffect->WriteBuffer(currentFrameIndex, 1, 2, uniformBufferManager.GetPerObjectBuffer(currentFrameIndex));
@@ -115,6 +115,8 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
         m_renderTargets[EGBufferAttachments::Albedo]->GenerateAttachmentInfo(
             vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
         m_renderTargets[EGBufferAttachments::Arm]->GenerateAttachmentInfo(
+            vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore),
+        m_renderTargets[EGBufferAttachments::MotionVector]->GenerateAttachmentInfo(
             vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore)};
 
     auto depthPrePassDepthAttachment =
@@ -202,8 +204,9 @@ void GBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
         }
 
         PerObjectPushConstant pc{};
-        pc.indexes.x   = drawCall.second.drawCallID;
-        pc.modelMatrix = drawCall.second.modelMatrix;
+        pc.indexes.x      = drawCall.second.drawCallID;
+        pc.modelMatrix    = drawCall.second.modelMatrix;
+        pc.prevModelMatix = drawCall.second.previousModelMatrix;
 
         vk::PushConstantsInfo pcInfo;
         pcInfo.layout     = m_gBufferEffect->GetPipelineLayout();
@@ -254,6 +257,10 @@ std::string GBufferPass::AttachmentToString(EGBufferAttachments attachment)
             return "Normal";
         case Renderer::EGBufferAttachments::Position:
             return "Position";
+        case Renderer::EGBufferAttachments::Arm:
+            return "Roughness,Metallnes, Ao";
+        case Renderer::EGBufferAttachments::MotionVector:
+            return "Velocity";
         default:
             return "undefined !";
     }

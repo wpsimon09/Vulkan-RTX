@@ -92,6 +92,8 @@ class ForwardRenderer
     Renderer::RenderTarget2& GetNormalBufferOutput() const;
     VulkanCore::VImage2&     GetDenoisedVisibilityBuffer() const;
     Renderer::RenderTarget2& GetReflectionsBuffer() const;
+    Renderer::RenderTarget2& GetArmBuffer() const;
+    Renderer::RenderTarget2& GetMotionVectorBuffer() const;
 
 
     void Destroy();

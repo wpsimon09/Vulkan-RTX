@@ -99,7 +99,7 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
 
                 //========================
                 // global data
-                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrame));
 
                 //========================
                 // per model data
@@ -113,7 +113,7 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 e->SetNumWrites(7, 7, 0);
                 //===================================
                 // global data
-                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrame));
 
                 //===================================
                 // materials
@@ -138,12 +138,6 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 e->WriteImage(currentFrame, 0, 6,
                               renderContext->transmitanceLut->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
-                e->WriteImage(currentFrame, 0, 7,
-                              renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
-                e->WriteImage(currentFrame, 0, 8,
-                              renderContext->aoOcclusionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
-
                 break;
             }
 
@@ -151,7 +145,7 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
                 e->SetNumWrites(7, 4, 0);
                 //===================================
                 // global data
-                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrame));
 
                 //===================================
                 // materials
@@ -168,7 +162,7 @@ void ForwardRender::Init(int currentFrame, VulkanUtils::VUniformBufferManager& u
 
                 //====================================
                 // global data
-                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrame]);
+                e->WriteBuffer(currentFrame, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo2(currentFrame));
                 break;
             }
         }
@@ -216,9 +210,6 @@ void ForwardRender::Update(int                                   currentFrame,
                     e->WriteImage(currentFrame, 1, 4,
                                   renderContext->brdfMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
                 }
-
-                e->WriteImage(currentFrame, 0, 7,
-                              renderContext->visibilityBuffer->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
                 break;
             }
@@ -369,6 +360,7 @@ void ForwardRender::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
         PerObjectPushConstant pc{};
         pc.indexes.x   = drawCall.second.drawCallID;
         pc.modelMatrix = drawCall.second.modelMatrix;
+        pc.modelMatrix = drawCall.second.previousModelMatrix;
 
         vk::PushConstantsInfo pcInfo;
         pcInfo.layout     = m_effects[static_cast<EForwardRenderEffects>(drawCall.second.effect)]->GetPipelineLayout();

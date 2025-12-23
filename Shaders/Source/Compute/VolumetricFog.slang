@@ -4,7 +4,7 @@ import Utils;
 import Light;
 
 [[vk::binding(0, 0)]]
-ConstantBuffer<GlobalData> _globalData;
+ConstantBuffer<GlobalData2> _globalData;
 
 [[vk::binding(1, 0)]]
 Sampler2D _inputTexture_WorldPosition;
@@ -108,7 +108,7 @@ float4 RayMarchFog(RayDesc ray,float3 worldPos, float blueNoise)
             bool hit = IntersectsP(InitRay(samplePos, normalize(_light.dirLight.direction.xyz), 4000), _tlas, lightTravelDistance);
             float v = hit ? 0.0 : 1.0;
     
-            float3 V = normalize(samplePos - _globalData.cameraPostiion.xyz );
+            float3 V = normalize(samplePos - _globalData.cameraPosition.xyz );
             float cos_theta = dot(V, normalize(_light.dirLight.direction.xyz));
             float p = Henyey_GreensteinPhaseFunction(_fogVolumeParametres.asymetryFactor, cos_theta);
     
@@ -136,13 +136,12 @@ void computeMain(uint3 threadID :SV_DispatchThreadID){
 
     float3 worldPos = _inputTexture_WorldPosition.Sample(texCoords).xyz;
 
-
     RayDesc ray;
-    ray.Direction = normalize(worldPos - _globalData.cameraPostiion.xyz);
-    ray.Origin = _globalData.cameraPostiion.xyz;
+    ray.Direction = normalize(worldPos - _globalData.cameraPosition.xyz);
+    ray.Origin = _globalData.cameraPosition.xyz;
     ray.TMin = 0.001;
     // get the disnatnce that the ray will travel
-    ray.TMax = min(distance(worldPos ,_globalData.cameraPostiion.xyz), 10000);
+    ray.TMax = min(distance(worldPos ,_globalData.cameraPosition.xyz), 10000);
         
     // calculate transmission using beers law
     float T = exp(-ray.TMax * (_fogVolumeParametres.sigma_s + _fogVolumeParametres.sigma_a));

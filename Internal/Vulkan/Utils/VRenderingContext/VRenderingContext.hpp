@@ -61,6 +61,7 @@ struct RenderContext
     VulkanCore::VImage2*     visibilityBuffer            = nullptr;
     Renderer::RenderTarget2* depthBuffer                 = nullptr;
     Renderer::RenderTarget2* lightPassOutputRenderTarget = nullptr;
+    VulkanCore::VImage2*     motionVector                = nullptr;
     VulkanCore::VImage2*     aoOcclusionMap              = nullptr;
     VulkanCore::VImage2*     albedoMap                   = nullptr;
     VulkanCore::VImage2*     armMap                      = nullptr;

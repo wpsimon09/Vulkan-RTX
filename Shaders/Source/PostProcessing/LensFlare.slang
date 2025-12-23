@@ -7,7 +7,7 @@ import Light;
 LensFlareParameters _lensFlareParams;
 
 [[vk::binding(0, 0)]]
-ConstantBuffer<GlobalData> _globalData;
+ConstantBuffer<GlobalData2> _globalData;
 
 [[vk::binding(1, 0)]]
 Sampler2D _inputTexture_BlueNoise;
@@ -28,14 +28,15 @@ struct VertexOut {
 [shader("vertex")]
 VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     // draw indexed with 3 vertices, requires no VAO binding
+    var parsed = _globalData.Parse();
     VertexOut output;
     output.uv = float2((VertexIndex << 1) & 2, VertexIndex & 2);
     output.pos = float4(output.uv * 2.0f - 1.0f, 0.0f, 1.0f);
-    output.screenSize = _globalData.screenSize; 
+    output.screenSize = parsed.screenSize; 
 
-    float4 sunPosWorld = _globalData.cameraPostiion - normalize(_light.dirLight.direction) * 1.0f;
+    float4 sunPosWorld = _globalData.cameraPosition - normalize(_light.dirLight.direction) * 1.0f;
 
-    float4x4 viewProj = mul(_globalData.projection, _globalData.view);
+    float4x4 viewProj = mul(_globalData.proj, _globalData.view);
 
     float4 sunClipSacpe = mul(viewProj, float4(sunPosWorld.xyz, 1.0));
 
@@ -57,19 +58,19 @@ VertexOut vertexMain(uint VertexIndex: SV_VertexID) {
     return output;
 }
 
-float noise_float(float t)
+float noise_float(float t, float2 screenSize)
 {
-	return _inputTexture_BlueNoise.Sample(float2(t,0.0)/_globalData.screenSize.xy).x;
+	return _inputTexture_BlueNoise.Sample(float2(t,0.0)/screenSize).x;
 }
 
-float noise_float2(float2 t)
+float noise_float2(float2 t, float2 screenSize)
 {
-	return _inputTexture_BlueNoise.Sample(t/_globalData.screenSize.xy).x;
+	return _inputTexture_BlueNoise.Sample(t/screenSize).x;
 }
 
 // lens flare from:
 //https://godotshaders.com/shader/lens-flare-shader/
-float3 LensFlare(float2 uv, float2 pos){
+float3 LensFlare(float2 uv, float2 pos, float2 screenSize){
     float2 main = uv - pos;
     float2 uvd = uv * (length(uv));
 
@@ -79,12 +80,12 @@ float3 LensFlare(float2 uv, float2 pos){
     
     // Do not need an artificial sun
 	float f0 = 1.0/(length(uv-pos)*16.0+1.0) ;
-	f0 = f0 + f0*(sin(noise_float(sin(ang*2.+pos.x)*4.0 - cos(ang*3.+pos.y))*16.)*.1 + dist*.1 + .8);
+	f0 = f0 + f0*(sin(noise_float(sin(ang*2.+pos.x)*4.0 - cos(ang*3.+pos.y), screenSize)*16.)*.1 + dist*.1 + .8);
     //f0 *= _light.dirLight.intensity.xyz;
 	
 
 
-    float n = noise_float2(float2(ang * 16.0, dist * 32.0));
+    float n = noise_float2(float2(ang * 16.0, dist * 32.0), screenSize);
 
     //=========================
     // each F represents different ghost with different screen space offset
@@ -133,9 +134,10 @@ float3 cc(float3 color, float factor,float factor2) // color modifier
 [shader("fragment")]
 float4 fragmentMain(VertexOut fsIn) : SV_Target {
 
+    var parsed = _globalData.Parse();
 
     float2 uv = fsIn.uv;
-    float2 resolution = 1.0 / _globalData.screenSize;
+    float2 resolution = 1.0 / parsed.screenSize;
 
     float4 previousColour = _inputTexture_RenderedImage.Sample(uv);
     float3 col = previousColour.xyz;
@@ -144,8 +146,8 @@ float4 fragmentMain(VertexOut fsIn) : SV_Target {
     float sunFalloff = 1.0 - smoothstep(0.9, 1.5, length(sunDist)); // fade out after screen edges
 
 
-    col += float3(1.4,1.2,1.0) * LensFlare(uv, fsIn.sunPosition) ;
-    col -= noise_float2(fsIn.pos.xy) * 0.015;
+    col += float3(1.4,1.2,1.0) * LensFlare(uv, fsIn.sunPosition, parsed.screenSize) ;
+    col -= noise_float2(fsIn.pos.xy, parsed.screenSize) * 0.015;
     col = cc(col, 0.5, 0.1);
     
     return float4( col, 1.0);

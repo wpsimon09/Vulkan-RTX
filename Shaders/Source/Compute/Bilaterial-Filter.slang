@@ -1,8 +1,6 @@
 import Core;
 import Utils;
 
-[[vk::binding(0,0)]]
-ConstantBuffer<GlobalData> _globalData;
 
 [[vk::binding(1, 0)]]
 Sampler2D _noisyImage;

@@ -132,6 +132,7 @@ class SceneNode : public std::enable_shared_from_this<SceneNode>
 
   public:
     Transformations* m_transformation = nullptr;
+    glm::mat4        m_prevFrameModelMatrix;
 
   protected:
     //=========================

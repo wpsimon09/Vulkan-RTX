@@ -55,7 +55,9 @@
 /**
  * DISCLAIMER:
  * this class needs major refactor together with submitting transfer operations, but in the current time i have no idea
- * how to go with this, so i am gona keep it as it is, because it works and does to job for now
+ * how to go with this, so i am gona keep it as it is, because it works and does the job for now
+ * the whole rendering orchestration should happen through the frame graph since i allready have quite a lot render passes
+ * plus it would be very nice to have async compute
  */
 namespace Renderer {
 Frame::Frame(const VulkanCore::VulkanInstance&    instance,
@@ -138,12 +140,9 @@ void Frame::Init()
         m_uiContext.GetViewPortContext(ViewPortType::eMain).SetImage(m_postProcessingSystem->GetRenderedResult(0), i);
 
         m_uiContext.GetViewPortContext(ViewPortType::eMainRayTracer).SetImage(m_postProcessingSystem->GetRenderedResult(i), i);
-        m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
-            .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
-        m_uiContext.GetViewPortContext(ViewPortType::eShadowMap).SetImage(m_forwardRenderer->GetReflectionsBuffer().GetPrimaryImage(), i);
-        m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer)
-            .SetImage(m_forwardRenderer->GetPositionBufferOutput().GetResolvedImage(), i);
-        m_uiContext.GetViewPortContext(ViewPortType::eNormalBuffer).SetImage(m_forwardRenderer->GetNormalBufferOutput().GetResolvedImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::ePositionBuffer).SetImage(m_forwardRenderer->GetReflectionsBuffer().GetPrimaryImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::eShadowMap).SetImage(m_forwardRenderer->GetMotionVectorBuffer().GetResolvedImage(), i);
+        m_uiContext.GetViewPortContext(ViewPortType::eNormalBuffer).SetImage(m_forwardRenderer->GetArmBuffer().GetPrimaryImage(), i);
     }
 }
 
@@ -176,25 +175,25 @@ void Frame::Update(ApplicationCore::ApplicationState& applicationState)
         m_renderContext.hasSceneChanged = true;
     }
 
-    // ==== check if it is possible ot use env light
+    // ==== check if application is path tracing and updates all necesary variables
     if(m_isRayTracing)
     {
-        applicationState.GetGlobalRenderingInfo().screenSize.x =
+        applicationState.GetGlobalRenderingInfo2().renderingInfo.z =
             m_rayTracer->GetRenderedImage(m_frameInFlightID).GetImageInfo().width;
-        applicationState.GetGlobalRenderingInfo().screenSize.y =
+        applicationState.GetGlobalRenderingInfo2().renderingInfo.w =
             m_rayTracer->GetRenderedImage(m_frameInFlightID).GetImageInfo().height;
-        // will cause to multiply by 0 thus clear the colour
-        applicationState.GetGlobalRenderingInfo().numberOfFrames = m_accumulatedFramesCount;
+        applicationState.GetGlobalRenderingInfo2().renderingInfo2.w = m_accumulatedFramesCount;
     }
     else
     {
-        applicationState.GetGlobalRenderingInfo().numberOfFrames = m_frameCount;
+        applicationState.GetGlobalRenderingInfo2().renderingInfo2.w = m_frameCount;
     }
 
 
     //=====================================================================
     // IMPORTANT: this sends all data accumulated over the frame to the GPU
-    applicationState.GetGlobalRenderingInfo().isRayTracing = static_cast<int>(m_isRayTracing);
+    applicationState.GetGlobalRenderingInfo2().renderingFeatures.y = static_cast<int>(m_isRayTracing);  // is ray tracing ?
+
     m_uniformBufferManager.Update(m_frameInFlightID, applicationState, m_renderContext.GetAllDrawCall());
 
     //=================================================
@@ -299,9 +298,10 @@ bool Frame::Render(ApplicationCore::ApplicationState& applicationState)
         m_forwardRenderer->Render(m_frameInFlightID, *m_renderingCommandBuffers[m_frameInFlightID],
                                   m_uniformBufferManager, &m_renderContext);
 
-        m_postProcessingContext.sceneRender = m_forwardRenderer->GetForwardRendererResult();
-        m_postProcessingContext.shadowMap   = m_renderContext.visibilityBuffer;
-        m_postProcessingContext.aoMap       = &m_forwardRenderer->GetAmbientOcclusionOutpu().GetPrimaryImage();
+        m_postProcessingContext.sceneRender    = m_forwardRenderer->GetForwardRendererResult();
+        m_postProcessingContext.shadowMap      = m_renderContext.visibilityBuffer;
+        m_postProcessingContext.aoMap          = &m_forwardRenderer->GetAmbientOcclusionOutpu().GetPrimaryImage();
+        m_postProcessingContext.reflectionsMap = &m_forwardRenderer->GetReflectionsBuffer().GetPrimaryImage();
         m_postProcessingContext.toneMappingParameters->isRayTracing = false;
         m_postProcessingContext.isRayTracing                        = false;
     }
