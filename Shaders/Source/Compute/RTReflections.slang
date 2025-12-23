@@ -48,39 +48,13 @@ Sampler2D textures[];
 RaytracingAccelerationStructure _tlas;
 
 
-public float2 GetUv(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric)
-{
-    const float3 barycentricCoords = float3(1.0f - baricentric.x - baricentric.y, baricentric.x, baricentric.y);
 
-    if(instanceIndex > descriptions.getCount()){
-        return float2(0.0);
-    }
-    ObjDescription object = descriptions[NonUniformResourceIndex(instanceIndex)];
-
-    //=================================================
-    // for each vertex there is one index that can
-    // be used to look up the correct vertex in the array
-    int i1 = object.indexAddress[primitiveIndex * 3];     // First index
-    int i2 = object.indexAddress[primitiveIndex * 3 + 1]; // Second index
-    int i3 = object.indexAddress[primitiveIndex * 3 + 2]; // Third index
-
-    // Fetch the corresponding vertices
-    Vertex v1 = object.vertexAddresses[i1];
-    Vertex v2 = object.vertexAddresses[i2];
-    Vertex v3 = object.vertexAddresses[i3];
-    
-    float2 uv = v1.uv.xy * barycentricCoords.x + v2.uv.xy * barycentricCoords.y + v3.uv.xy * barycentricCoords.z;
-
-    return uv;
-}
-
-
-public SurfaceGeometry GetSurface(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric, float3x4 objectToWorld)
+internal SurfaceGeometry GetSurface(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric, float3x4 objectToWorld)
 {
     SurfaceGeometry g;
     const float3 barycentricCoords = float3(1.0f - baricentric.x - baricentric.y, baricentric.x, baricentric.y);
 
-    ObjDescription object = descriptions[instanceIndex];
+    ObjDescription object = descriptions[NonUniformResourceIndex(instanceIndex)];
 
     //=================================================
     // for each vertex there is one index that can
@@ -103,17 +77,54 @@ public SurfaceGeometry GetSurface(uint32_t primitiveIndex, uint32_t instanceInde
     // - wont use the normal map since for reflections it des not matter that much, also it is 1/3 of resolution
     float3 N = v1.norm * barycentricCoords.x + v2.norm * barycentricCoords.y + v3.norm * barycentricCoords.z;
     g.normal = N;
-    g.shadingNormal = mul(objectToWorld, float4(g.normal,1.0)).xyz;
 
     //=================================
     // Position retrieval
     g.position = v1.pos * barycentricCoords.x + v2.pos * barycentricCoords.y + v3.pos * barycentricCoords.z;    
-    g.shadingNormal = mul(objectToWorld, float4(g.normal,1.0)).xyz;
+
+    //=================================
+    // Calculate tangent basis
+    float4 tangennt = float4(
+        // interpolate tangent vector across the triangle 
+        v1.tangent.xyz * barycentricCoords.x + v2.tangent.xyz * barycentricCoords.y + v3.tangent.xyz * barycentricCoords.z ,1.0);  // should we flip the orientation of tangent vector ? 
+        
+    float handedness = v1.tangent.w * barycentricCoords.x +
+    v2.tangent.w * barycentricCoords.y +
+    v3.tangent.w * barycentricCoords.z;
+        
+        
+    tangennt.w = handedness;
+    g.tangent = tangennt;
+
+    g.TBN = CalculateTBN(g.normal, g.tangent, (float3x3)objectToWorld);
+    g.iTBN = transpose(g.TBN);
+
+    //=====================================
+    // Retrieve the normal vectors
+    
+    let features = materialValues[instanceIndex].Features;
+    let values = materialValues[instanceIndex].Values;
+    
+ 
+    if(features.hasNormalTexture){
+        g.shadingNormal = normalize(SampleNormalMap(textures[features.normalTextureIdx],g.uv, g.TBN));
+    }else{
+        g.shadingNormal = normalize(mul(objectToWorld, float4(N, 0.0)));
+    }
 
     return g;
 }
 
+public PBRMaterial GetMaterial(uint32_t instnaceIndex){
+    PBRMaterial pbrMat;
+    pbrMat.features = materialValues[instnaceIndex].Features;
+    pbrMat.values = materialValues[instnaceIndex].Values;
+    pbrMat.albedo_map = textures[pbrMat.features.albedoTextureIdx];
+    pbrMat.arm_map = textures[pbrMat.features.armTextureIdx];
+    pbrMat.emissive_map = textures[pbrMat.features.emissiveTextureIdx];
 
+    return pbrMat;
+}
 
 /*
 Reflection map will be lerped in the composite pass based on its alpha channel
@@ -147,7 +158,6 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     mat.roughness = arm.x; 
     mat.metallness = arm.y;
 
-    
     BxDFContext context;
     context.albedo = float4(1.0);
     context.roughness = arm.x;
@@ -180,27 +190,30 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         float4 reflectedColour = 0.0;
         if(result.CommittedStatus() == COMMITTED_TRIANGLE_HIT)
         {
-            float2 uv = GetUv(result.CommittedPrimitiveIndex(), result.CommittedInstanceIndex(), result.CommittedTriangleBarycentrics());//, result.CandidateObjectToWorld3x4());
+            var surface = GetSurface(result.CommittedPrimitiveIndex(), result.CommittedInstanceIndex(), result.CommittedTriangleBarycentrics(), result.CandidateObjectToWorld3x4());
 
             let features = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Features;
             let values = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Values;
 
+            var mat = GetMaterial(result.CommittedInstanceID());
+            var brdfContext = mat.Prepare(surface);
+            var brdf = mat.Sample(brdfContext, wo, g, u);
+            
+            if (let brdfSample = brdf.brdf.Sample(wo, g, u)){
 
-            if(features.hasDiffuseTexture){
-                reflectedColour = float4(textures[features.albedoTextureIdx].Sample(uv).xyz, 1.0);
-            }else{
-                reflectedColour = float4(values.diffuse.xyz, 1.0);
+                float3 col = (brdf.brdf.Evaluate(wo, brdfSample.wi, g) * dot(normalize(wo), normalize(g.normal))) / sample.PDF;
+
+                float alpha = 0.3;
+                float2 motionVector = _motionVector.Sample(texCoords).xy;
+            
+                float2 reprojectedCoords = texCoords - motionVector;
+                
+                float4 reflLast = _previousSampled.Sample(reprojectedCoords);
+                
+                reflectedColour.xyz = alpha * reflectedColour.xyz + (1.0f - alpha) * reflLast.xyz;
             }
-            
-            float alpha = 0.3;
-            float2 motionVector = _motionVector.Sample(texCoords).xy;
-        
-            float2 reprojectedCoords = texCoords - motionVector;
-            
-            float4 reflLast = _previousSampled.Sample(reprojectedCoords);
-            
-            reflectedColour.xyz = alpha * reflectedColour.xyz + (1.0f - alpha) * reflLast.xyz;
             _outputImage[threadID.xy] += reflectedColour;
+
             return;
         }
 

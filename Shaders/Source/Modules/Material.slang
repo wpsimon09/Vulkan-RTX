@@ -220,7 +220,7 @@ public struct PhongMaterial : IMaterial
 
         if(sampleSpecular){
             sample.p = p; 
-            sample.brdf = PhongSpecular(ctx);
+            sample.brdf = Specular_Phong(ctx);
         }else{
             sample.p = 1.0 - p;
             sample.brdf = LamberianDiffuse(ctx);
