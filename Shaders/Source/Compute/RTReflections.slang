@@ -33,6 +33,9 @@ Sampler2D _motionVector;
 [[vk::binding(7,0)]]
 Sampler2D _previousSampled;
 
+[[vk::binding(8, 0)]]
+Sampler2D _albedoMap;
+
 //=====================
 // set 1 
 [[vk::binding(0,1)]]
@@ -133,6 +136,9 @@ Reflection map will be lerped in the composite pass based on its alpha channel
 [[shader("compute")]]
 void computeMain(uint3 threadID : SV_DispatchThreadID){
 
+    float3 throughPut = 1.0;
+    float3 radiance = 0.0;
+    
     var parsedData = _globalData.Parse();
     float2 dims;
     _outputImage.GetDimensions(dims.x, dims.y);
@@ -159,10 +165,10 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     mat.metallness = arm.y;
 
     BxDFContext context;
-    context.albedo = float4(1.0);
+    context.albedo = _albedoMap.Sample(texCoords);
     context.roughness = arm.x;
     context.metallnes = arm.y;
-
+    
     SurfaceGeometry g;
     g.normal = N;
     g.shadingNormal = N;
@@ -170,16 +176,23 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     g.position = pos;
     
     var sample = mat.Sample(context, wo, g, u);
-    
+
     RayDesc ray;
     // we do not need to shoot ray from camear to world sice whe have the closest intersection in the postion buffer
-    if(let sample = sample.brdf.Sample(wo, g, u)){
+    if(let brdfSample1 = sample.brdf.Sample(wo, g, u)){
+        
+        //==============================================================
+        // first bounce, wo - camera ray, wi - constructed from GBuffer 
+    
+        float cosTheta = max(dot(g.shadingNormal, normalize(brdfSample1.wi)),0.0);
+        throughPut *= (sample.brdf.Evaluate(wo, brdfSample1.wi, g) * cosTheta) / brdfSample1.PDF;
+
         ray.Origin = pos;    
-        ray.Direction = sample.wi;
+        ray.Direction = brdfSample1.wi;
         ray.TMin = 0.0001;
         ray.TMax = 1000;
 
-        //======================================================================
+        //================================================y======================
         // Trace ray and determine the reflected colour based on the surface hit 
         RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> result;
 
@@ -187,33 +200,32 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
         result.Proceed();
         //var result = TraceRayInline(ray, _tlas, u);
-        float4 reflectedColour = 0.0;
+        
         if(result.CommittedStatus() == COMMITTED_TRIANGLE_HIT)
         {
-            var surface = GetSurface(result.CommittedPrimitiveIndex(), result.CommittedInstanceIndex(), result.CommittedTriangleBarycentrics(), result.CandidateObjectToWorld3x4());
+            wo = normalize(-result.WorldRayDirection());
+            g = GetSurface(result.CommittedPrimitiveIndex(), result.CommittedInstanceIndex(), result.CommittedTriangleBarycentrics(), result.CandidateObjectToWorld3x4());
+            mat = GetMaterial(result.CommittedInstanceIndex());
+            context = mat.Prepare(g);
+            var brdf = mat.Sample(context, wo, g, u);
 
-            let features = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Features;
-            let values = materialValues[NonUniformResourceIndex(result.CommittedInstanceIndex())].Values;
+            if(let brdfSample2 = brdf.brdf.Sample(wo, g, u)){
+                cosTheta = max(dot(g.shadingNormal, normalize(brdfSample2.wi)),0.0);
 
-            var mat = GetMaterial(result.CommittedInstanceID());
-            var brdfContext = mat.Prepare(surface);
-            var brdf = mat.Sample(brdfContext, wo, g, u);
+                throughPut *= (brdf.brdf.Evaluate(wo, brdfSample2.wi, g) * cosTheta) / brdfSample2.PDF;
+        
+            }    
+
+            radiance += throughPut;
+
+            float alpha = 0.3;
+            float2 motionVector = _motionVector.Sample(texCoords).xy;
+        
+            float2 reprojectedCoords = texCoords - motionVector;
             
-            if (let brdfSample = brdf.brdf.Sample(wo, g, u)){
-
-                float3 col = (brdf.brdf.Evaluate(wo, brdfSample.wi, g) * dot(normalize(wo), normalize(g.normal))) / sample.PDF;
-
-                float alpha = 0.3;
-                float2 motionVector = _motionVector.Sample(texCoords).xy;
+            float4 reflLast = _previousSampled.Sample(reprojectedCoords);
             
-                float2 reprojectedCoords = texCoords - motionVector;
-                
-                float4 reflLast = _previousSampled.Sample(reprojectedCoords);
-                
-                reflectedColour.xyz = alpha * reflectedColour.xyz + (1.0f - alpha) * reflLast.xyz;
-            }
-            _outputImage[threadID.xy] += reflectedColour;
-
+            _outputImage[threadID.xy].xyz = alpha * radiance + (1.0f - alpha) * reflLast.xyz;;
             return;
         }
 

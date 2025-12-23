@@ -100,6 +100,10 @@ void RayTracedReflectionsPass::Init(int                                 currentF
     m_rayTracedReflectionEffect->WriteImage(currentFrameIndex, 0, 7,
                                             m_previousImage->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
+
+    m_rayTracedReflectionEffect->WriteImage(currentFrameIndex, 0, 8,
+                                            renderContext->albedoMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
     m_rayTracedReflectionEffect->ApplyWrites(currentFrameIndex);
 }
 
