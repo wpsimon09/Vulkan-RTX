@@ -57,7 +57,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     if(parsedGlobalData.useReflection){
         float3 reflectionValue = _reflectionMap.Sample(texCoords).xyz;
         float roughness = _armMap.Sample(texCoords).x;
-        col = lerp(reflectionValue, col , roughness);
+        col = lerp(reflectionValue, col ,clamp(roughness, 0.3, 1.0));
     }
 
     _finalImage[threadID.xy] = float4(col,1.0f);

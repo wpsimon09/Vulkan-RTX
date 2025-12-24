@@ -213,21 +213,19 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
                 cosTheta = max(dot(g.shadingNormal, normalize(brdfSample2.wi)),0.0);
 
                 throughPut *= (brdf.brdf.Evaluate(wo, brdfSample2.wi, g) * cosTheta) / brdfSample2.PDF;
-        
             }    
-
-            radiance += throughPut;
-
-            float alpha = 0.3;
-            float2 motionVector = _motionVector.Sample(texCoords).xy;
-        
-            float2 reprojectedCoords = texCoords - motionVector;
-            
-            float4 reflLast = _previousSampled.Sample(reprojectedCoords);
-            
-            _outputImage[threadID.xy].xyz = alpha * radiance + (1.0f - alpha) * reflLast.xyz;;
-            return;
         }
+        radiance += throughPut;
+        
+        float alpha = 0.2;
+        float2 motionVector = _motionVector.Sample(texCoords).xy;
+    
+        float2 reprojectedCoords = texCoords - motionVector;
+        
+        float4 reflLast = _previousSampled.Sample(reprojectedCoords);
+        
+        _outputImage[threadID.xy].xyz = alpha * radiance + (1.0f - alpha) * reflLast.xyz;;
+        return;
 
     }
 
