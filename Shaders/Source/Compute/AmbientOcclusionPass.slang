@@ -5,8 +5,10 @@ import Utils;
 Sampler2D _normalMap;
 Sampler2D _posMap;
 
-RWTexture2D _aoMap;
+RWTexture2D<float> _aoMap;
 RaytracingAccelerationStructure _tlas;
+Sampler2D _previousImage;
+Sampler2D _motionVector;
 
 public struct AoOcclusionParameters{
     float radius;
@@ -74,5 +76,13 @@ void computeMain(uint3 threadID: SV_DispatchThreadID){
     aoFactor = 1.0 - (aoFactor / _aoParameters.sampleCount);
     aoFactor = pow(clamp(aoFactor, 0, 1), _aoParameters.strenght);
 
-    _aoMap[threadID.xy].x = aoFactor;
+    //============================
+    // Temporally accumulate
+    float alpha = 0.4;
+    float2 motionVector = _motionVector.Sample(texCoords).xy;
+    float2 reprojectedCoords = texCoords - motionVector;
+    float aolast = _previousImage.Sample(reprojectedCoords).x;
+
+
+    _aoMap[threadID.xy] = alpha * aoFactor + (1.0f - alpha) * aolast;
 }

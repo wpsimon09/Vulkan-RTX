@@ -127,6 +127,14 @@ std::string DescriptorTypeToString(vk::DescriptorType descriptorType);
 
 bool RelaxedAssert(bool condition, std::string msg);
 
+void CopyImageWithBarriers(uint32_t                    width,
+                           uint32_t                    height,
+                           VulkanCore::VCommandBuffer& cmdBuffer,
+                           VulkanCore::VImage2&        srcImage,
+                           VulkanCore::VImage2&        dstImage,
+                           uint32_t                    srcOffset = 0,
+                           uint32_t                    dstOffset = 0);
+
 /*
     Sets the debug name of the vulkan object which will be displayed in the validation layer logs 
     T - shoudld be vulkan.h handle (VkImage, VkBuffer etc....)
@@ -145,6 +153,7 @@ void SetDebugName(const VulkanCore::VDevice& device, vk::ObjectType obj, T handl
         assert(result == vk::Result::eSuccess && "Failed to set object debug name");
     }
 }
+
 
 }  // namespace VulkanUtils
 

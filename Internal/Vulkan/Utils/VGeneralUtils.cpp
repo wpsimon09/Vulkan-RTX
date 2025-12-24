@@ -5,7 +5,7 @@
 #include "VGeneralUtils.hpp"
 #include "stb_image/stb_image.h"
 #include "stb_image/stb_image_write.h"
-
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include <stdexcept>
 #include <thread>
 
@@ -841,4 +841,42 @@ bool VulkanUtils::RelaxedAssert(bool condition, std::string msg)
         return false;
     }
     return true;
+}
+
+void VulkanUtils::CopyImageWithBarriers(uint32_t                    width,
+                                        uint32_t                    height,
+                                        VulkanCore::VCommandBuffer& cmdBuffer,
+                                        VulkanCore::VImage2&        srcImage,
+                                        VulkanCore::VImage2&        dstImage,
+                                        uint32_t                    srcOffset,
+                                        uint32_t                    dstOffset)
+{
+    auto barrierPos = VulkanUtils::VImage_ShaderRead_ToTransferDst;
+    barrierPos.srcPipelineStage |= vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eCopy;
+    barrierPos.srcData |= vk::AccessFlagBits2::eShaderRead;
+    VulkanUtils::PlaceImageMemoryBarrier2(dstImage, cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                          vk::ImageLayout::eTransferDstOptimal, barrierPos);
+
+    vk::ImageCopy2 regions;
+    regions.dstOffset      = dstOffset;
+    regions.srcOffset      = srcOffset;
+    regions.dstSubresource = regions.srcSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
+    regions.extent                                  = vk::Extent3D{width, height, 1};
+
+    vk::CopyImageInfo2 cpyInfo;
+    cpyInfo.srcImage       = srcImage.GetImage();
+    cpyInfo.srcImageLayout = vk::ImageLayout::eTransferSrcOptimal;
+    cpyInfo.dstImage       = dstImage.GetImage();
+    cpyInfo.dstImageLayout = vk::ImageLayout::eTransferDstOptimal;
+    cpyInfo.regionCount    = 1;
+    cpyInfo.pRegions       = &regions;
+
+    cmdBuffer.GetCommandBuffer().copyImage2(cpyInfo);
+
+    barrierPos                  = VulkanUtils::VImage_TransferDst_ToShaderRead;
+    barrierPos.dstPipelineStage = vk::PipelineStageFlagBits2::eBottomOfPipe;
+    barrierPos.dstData          = vk::AccessFlagBits2::eNone;
+
+    VulkanUtils::PlaceImageMemoryBarrier2(dstImage, cmdBuffer, vk::ImageLayout::eTransferDstOptimal,
+                                          vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
 }

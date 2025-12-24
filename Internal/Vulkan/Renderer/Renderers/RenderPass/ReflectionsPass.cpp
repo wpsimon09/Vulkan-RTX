@@ -12,6 +12,7 @@
 #include <exception>
 #include <memory>
 #include <vulkan/vulkan_enums.hpp>
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
@@ -147,35 +148,7 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
     // - make previous transfer dst
     // - copy the values
     // - make shader read only again
-
-    barrierPos = VulkanUtils::VImage_ShaderRead_ToTransferDst;
-    barrierPos.srcPipelineStage |= vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eCopy;
-    barrierPos.srcData |= vk::AccessFlagBits2::eShaderRead;
-    VulkanUtils::PlaceImageMemoryBarrier2(*m_previousImage, cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                          vk::ImageLayout::eTransferDstOptimal, barrierPos);
-
-    vk::ImageCopy2 regions;
-    regions.dstOffset = 0.0;
-    regions.srcOffset = regions.dstOffset = 0.0;
-    regions.dstSubresource = regions.srcSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
-    regions.extent = vk::Extent3D{static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height), 1};
-
-    vk::CopyImageInfo2 cpyInfo;
-    cpyInfo.srcImage       = m_renderTargets[0]->GetPrimaryImage().GetImage();
-    cpyInfo.srcImageLayout = vk::ImageLayout::eTransferSrcOptimal;
-    cpyInfo.dstImage       = m_previousImage->GetImage();
-    cpyInfo.dstImageLayout = vk::ImageLayout::eTransferDstOptimal;
-    cpyInfo.regionCount    = 1;
-    cpyInfo.pRegions       = &regions;
-
-    cmdBuffer.GetCommandBuffer().copyImage2(cpyInfo);
-
-    barrierPos                  = VulkanUtils::VImage_TransferDst_ToShaderRead;
-    barrierPos.dstPipelineStage = vk::PipelineStageFlagBits2::eBottomOfPipe;
-    barrierPos.dstData          = vk::AccessFlagBits2::eNone;
-
-    VulkanUtils::PlaceImageMemoryBarrier2(*m_previousImage, cmdBuffer, vk::ImageLayout::eTransferDstOptimal,
-                                          vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
+    VulkanUtils::CopyImageWithBarriers(m_width, m_height, cmdBuffer, m_renderTargets[0]->GetPrimaryImage(), *m_previousImage);
 
     barrierPos = {vk::PipelineStageFlagBits2::eTransfer, vk::AccessFlagBits2::eTransferRead,
                   vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
