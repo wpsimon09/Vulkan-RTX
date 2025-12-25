@@ -202,6 +202,7 @@ void AoOcclusionPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
     pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
 
     m_aoEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+
     cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
 
 

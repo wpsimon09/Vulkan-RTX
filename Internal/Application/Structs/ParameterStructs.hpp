@@ -19,7 +19,7 @@ struct AoOcclusionParameters
     float sampleCount  = 2.0;
     float strenght     = 4.0;
     float currentFrame = 0;
-    float accumulate   = 1.0;
+    int   accumulate   = 1.0;
 };
 
 struct ToneMappingParameters
@@ -106,7 +106,7 @@ struct BloomSettings
 
 struct ReflectionsParameters
 {
-    float accumulate = 1.0f;
+    int accumulate = 1.0f;
 };
 
 struct AtmosphereParameters
