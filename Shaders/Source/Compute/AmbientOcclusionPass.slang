@@ -14,7 +14,8 @@ public struct AoOcclusionParameters{
     float radius;
     float sampleCount;
     float strenght;
-    float currentFrame; 
+    float currentFrame;
+    float accumulate; 
 }
 
 [[vk::push_constant]]
@@ -78,11 +79,15 @@ void computeMain(uint3 threadID: SV_DispatchThreadID){
 
     //============================
     // Temporally accumulate
-    float alpha = 0.4;
-    float2 motionVector = _motionVector.Sample(texCoords).xy;
-    float2 reprojectedCoords = texCoords - motionVector;
-    float aolast = _previousImage.Sample(reprojectedCoords).x;
-
-
-    _aoMap[threadID.xy] = alpha * aoFactor + (1.0f - alpha) * aolast;
+    if((bool)_aoParameters.accumulate){
+        float alpha = 0.4;
+        float2 motionVector = _motionVector.Sample(texCoords).xy;
+        float2 reprojectedCoords = texCoords - motionVector;
+        float aolast = _previousImage.Sample(reprojectedCoords).x;
+    
+    
+        _aoMap[threadID.xy] = alpha * aoFactor + (1.0f - alpha) * aolast;
+    }else{
+        _aoMap[threadID.xy] = aoFactor;
+    }
 }

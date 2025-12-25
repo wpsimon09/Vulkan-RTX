@@ -184,6 +184,8 @@ void AoOcclusionPass::Update(int                                   currentFrame,
 
     m_aoOcclusionParameters              = uniformBufferManager.GetApplicationState()->GetAoOcclusionParameters();
     m_aoOcclusionParameters.currentFrame = m_device.CurrentFrame;
+
+    m_accumulate = uniformBufferManager.GetApplicationState()->m_accumulateFrames;
 }
 
 void AoOcclusionPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
@@ -204,26 +206,39 @@ void AoOcclusionPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
     m_aoEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
     cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
 
-    auto barrierPos = VulkanUtils::VBarrierPosition{vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
-                                                    vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferRead};
 
-    // storage image now will be read so read only layout
-    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eGeneral, barrierPos);
+    VulkanUtils::VBarrierPosition barrierPos;
+    if(m_accumulate)
+    {
 
-    //======================================
-    // Copy the result to the previous image
-    // - make previous transfer dst
-    // - copy the values
-    // - make shader read only again
-    VulkanUtils::CopyImageWithBarriers(m_width, m_height, cmdBuffer, m_renderTargets[0]->GetPrimaryImage(), *m_previousFrame);
 
-    barrierPos = {vk::PipelineStageFlagBits2::eTransfer, vk::AccessFlagBits2::eTransferRead,
-                  vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
-                  vk::AccessFlagBits2::eShaderSampledRead};
+        barrierPos = VulkanUtils::VBarrierPosition{vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+                                                   vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferRead};
 
-    // storage image now will be read so read only layout
-    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
-                                              vk::ImageLayout::eTransferSrcOptimal, barrierPos);
+        // storage image now will be read so read only layout
+        m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eTransferSrcOptimal,
+                                                  vk::ImageLayout::eGeneral, barrierPos);
+
+        //======================================
+        // Copy the result to the previous image
+        // - make previous transfer dst
+        // - copy the values
+        // - make shader read only again
+        VulkanUtils::CopyImageWithBarriers(m_width, m_height, cmdBuffer, m_renderTargets[0]->GetPrimaryImage(), *m_previousFrame);
+
+        barrierPos = {vk::PipelineStageFlagBits2::eTransfer, vk::AccessFlagBits2::eTransferRead,
+                      vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                      vk::AccessFlagBits2::eShaderSampledRead};
+
+        // storage image now will be read so read only layout
+        m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                  vk::ImageLayout::eTransferSrcOptimal, barrierPos);
+    }
+    else
+    {
+        m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eTransferSrcOptimal,
+                                                  VulkanUtils::VImage_SampledRead_To_General.Switch());
+    }
 }
 
 void AoOcclusionPass::Destroy()

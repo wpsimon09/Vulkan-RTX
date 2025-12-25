@@ -66,7 +66,7 @@ struct GlobalRenderingInfo2
     glm::vec4 renderingInfo2;  // x - number of frames | y - render outpu | z - render output RTX | w - numbrer of frames (accumulated for RTX, general in rasterization)
 
     glm::vec4 renderingFeatures;  // x - ambientOcclusion | y - is ray tracing |  z - use SER  | w - use Accumulateion ?
-    glm::vec4 renderingFeatures2;  // x - use composition | y - use reflection | zw - unused
+    glm::vec4 renderingFeatures2;  // x - use composition | y - use reflection | z - use accumulation | w - unused
 };
 
 struct ObjectDataUniform

@@ -30,6 +30,7 @@ class RayTracedReflectionsPass : public Renderer::RenderPass
   private:
     std::shared_ptr<VulkanUtils::VComputeEffect> m_rayTracedReflectionEffect;
     std::unique_ptr<VulkanCore::VImage2>         m_previousImage;
+    bool                                         m_accumulate;
 };
 
 }  // namespace Renderer

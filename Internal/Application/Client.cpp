@@ -191,7 +191,8 @@ void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
     // Features  II
     m_globalRenderingData2.renderingFeatures2.x = m_applicationState->m_composite;
     m_globalRenderingData2.renderingFeatures2.y = m_applicationState->m_rayTracedReflections;
-    //zw - is padding
+    m_globalRenderingData2.renderingFeatures2.z = m_applicationState->m_accumulateFrames;
+    //w - is padding
 }
 
 void Client::UpdateClient(ClientUpdateInfo& lightUpdateInfo)

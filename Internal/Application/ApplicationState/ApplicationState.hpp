@@ -9,6 +9,7 @@
 #include "Application/Enums/ClientEnums.hpp"
 #include "Application/Structs/ParameterStructs.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
+
 struct GlobalRenderingInfo;
 struct SceneUpdateContext;
 namespace LightStructs {
@@ -57,6 +58,7 @@ class ApplicationState
     LuminanceHistogramParameters&        GetLuminanceHistogramParameters();
     LuminanceHistogramAverageParameters& GetLuminanceAverageParameters();
     BloomSettings&                       GetBloomSettings();
+    ReflectionsParameters&               GetReflectionsParameters();
 
 
     bool& IsWindowResized();
@@ -71,6 +73,8 @@ class ApplicationState
     bool               m_denoise              = true;
     bool m_composite = true;  // use separate draw pass to composite the visibility buffer and any other effects that might contribute with the rest of the scene
     bool m_rayTracedReflections = false;
+    bool m_temporalAccumulation = true;
+
 
   private:
     LightStructs::SceneLightInfo* m_sceneLight           = nullptr;  // instantiated in Scene.hpp
@@ -88,6 +92,7 @@ class ApplicationState
     LuminanceHistogramParameters        m_luminanceHistrogramParameters;
     LuminanceHistogramAverageParameters m_luminanceAverageParameters;
     BloomSettings                       m_bloomSettings;
+    ReflectionsParameters               m_reflectionsParameters;
 
 
     bool m_windowResized = false;

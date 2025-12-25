@@ -44,7 +44,6 @@ void RenderingOptions::Render()
         ImGui::Checkbox("SER (Shader exectution reordering)",
                         reinterpret_cast<bool*>(&m_applicationState.GetGlobalRenderingInfo2().renderingFeatures.z));
         ImGui::Checkbox("Accumulate frames ", &m_applicationState.m_accumulateFrames);
-        ImGui::Checkbox("Ambient occlusion ", &m_applicationState.m_ambientOcclusion);
 
         ImGui::TreePop();
     }
@@ -55,7 +54,21 @@ void RenderingOptions::Render()
         ImGui::Checkbox("Editor billboards ", &m_renderingSystem->m_renderContext.RenderBillboards);
         ImGui::Checkbox("Wire frame mode", &m_renderingSystem->m_renderContext.WireFrameRendering);
         ImGui::Checkbox("Composite", &m_applicationState.m_composite);
-        ImGui::Checkbox("RayTraced reflections", &m_applicationState.m_rayTracedReflections);
+        if(ImGui::TreeNode("Ray traced reflections"))
+        {
+            ImGui::Checkbox("RayTraced reflections", &m_applicationState.m_rayTracedReflections);
+            ImGui::Checkbox("Accumulate#1", reinterpret_cast<bool*>(&m_applicationState.GetReflectionsParameters().accumulate));
+            ImGui::TreePop();
+        }
+
+        if(ImGui::TreeNode("Ambient occlusion "))
+        {
+            ImGui::Checkbox("Ambient occlusion ", &m_applicationState.m_ambientOcclusion);
+            ImGui::Checkbox("Temporal accumulation#2",
+                            reinterpret_cast<bool*>(&m_applicationState.GetAoOcclusionParameters().accumulate));
+
+            ImGui::TreePop();
+        }
 
         ImGui::SeparatorText("Draw calls");
         ImGui::Text("Total draw call count: %i", m_renderingSystem->m_forwardRenderer->m_renderingStatistics.DrawCallCount);

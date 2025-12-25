@@ -50,6 +50,13 @@ Sampler2D textures[];
 [[vk::binding(3,1)]]
 RaytracingAccelerationStructure _tlas;
 
+struct ReflectionsParameters{
+    float accumulate;
+}
+
+[[vk::push_constant]]
+ReflectionsParameters reflectionsParameters;
+
 
 
 internal SurfaceGeometry GetSurface(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric, float3x4 objectToWorld)
@@ -217,14 +224,19 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         }
         radiance += throughPut;
         
-        float alpha = 0.2;
-        float2 motionVector = _motionVector.Sample(texCoords).xy;
-    
-        float2 reprojectedCoords = texCoords - motionVector;
-        
-        float4 reflLast = _previousSampled.Sample(reprojectedCoords);
-        
-        _outputImage[threadID.xy].xyz = alpha * radiance + (1.0f - alpha) * reflLast.xyz;;
+        if((bool)reflectionsParameters.accumulate){
+
+            float alpha = 0.2;
+            float2 motionVector = _motionVector.Sample(texCoords).xy;
+            
+            float2 reprojectedCoords = texCoords - motionVector;
+            
+            float4 reflLast = _previousSampled.Sample(reprojectedCoords);
+            
+            _outputImage[threadID.xy].xyz = alpha * radiance + (1.0f - alpha) * reflLast.xyz;;
+        }else{
+            _outputImage[threadID.xy].xyz = radiance; 
+        }
         return;
 
     }

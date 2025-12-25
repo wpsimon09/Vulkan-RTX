@@ -63,6 +63,7 @@ class AoOcclusionPass : public Renderer::RenderPass
     std::shared_ptr<VulkanUtils::VComputeEffect> m_aoEffect;
     std::unique_ptr<VulkanCore::VImage2>         m_previousFrame;
     AoOcclusionParameters                        m_aoOcclusionParameters;
+    bool                                         m_accumulate;
 };
 
 }  // namespace Renderer
