@@ -184,8 +184,6 @@ void AoOcclusionPass::Update(int                                   currentFrame,
 
     m_aoOcclusionParameters              = uniformBufferManager.GetApplicationState()->GetAoOcclusionParameters();
     m_aoOcclusionParameters.currentFrame = m_device.CurrentFrame;
-
-    m_accumulate = uniformBufferManager.GetApplicationState()->m_accumulateFrames;
 }
 
 void AoOcclusionPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
@@ -208,7 +206,7 @@ void AoOcclusionPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
 
 
     VulkanUtils::VBarrierPosition barrierPos;
-    if(m_accumulate)
+    if((bool)m_aoOcclusionParameters.accumulate)
     {
 
 

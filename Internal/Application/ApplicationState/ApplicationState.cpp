@@ -129,5 +129,10 @@ GlobalRenderingInfo2& ApplicationState::GetGlobalRenderingInfo2()
     return *m_globalRenderingData2;
 }
 
+ReflectionsParameters& ApplicationState::GetReflectionsParameters()
+{
+    return m_reflectionsParameters;
+}
+
 
 }  // namespace ApplicationCore

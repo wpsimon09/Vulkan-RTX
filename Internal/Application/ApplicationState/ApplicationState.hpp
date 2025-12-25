@@ -73,7 +73,6 @@ class ApplicationState
     bool               m_denoise              = true;
     bool m_composite = true;  // use separate draw pass to composite the visibility buffer and any other effects that might contribute with the rest of the scene
     bool m_rayTracedReflections = false;
-    bool m_temporalAccumulation = true;
 
 
   private:

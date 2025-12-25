@@ -107,7 +107,7 @@ struct BloomSettings
 struct ReflectionsParameters
 {
     float accumulate = 1.0f;
-}
+};
 
 struct AtmosphereParameters
 {

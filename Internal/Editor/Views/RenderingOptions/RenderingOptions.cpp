@@ -57,15 +57,14 @@ void RenderingOptions::Render()
         if(ImGui::TreeNode("Ray traced reflections"))
         {
             ImGui::Checkbox("RayTraced reflections", &m_applicationState.m_rayTracedReflections);
-            ImGui::Checkbox("Accumulate#1", reinterpret_cast<bool*>(&m_applicationState.GetReflectionsParameters().accumulate));
+            ImGui::Checkbox("Accumulate##1", reinterpret_cast<bool*>(&m_applicationState.GetReflectionsParameters().accumulate));
             ImGui::TreePop();
         }
 
         if(ImGui::TreeNode("Ambient occlusion "))
         {
             ImGui::Checkbox("Ambient occlusion ", &m_applicationState.m_ambientOcclusion);
-            ImGui::Checkbox("Temporal accumulation#2",
-                            reinterpret_cast<bool*>(&m_applicationState.GetAoOcclusionParameters().accumulate));
+            ImGui::Checkbox("Accumulate##2", reinterpret_cast<bool*>(&m_applicationState.GetAoOcclusionParameters().accumulate));
 
             ImGui::TreePop();
         }

@@ -4,6 +4,7 @@
 
 #ifndef VULKAN_RTX_REFLECTIONSPASS_HPP
 #define VULKAN_RTX_REFLECTIONSPASS_HPP
+#include "Application/Structs/ParameterStructs.hpp"
 #include "RenderPass.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 
@@ -30,7 +31,7 @@ class RayTracedReflectionsPass : public Renderer::RenderPass
   private:
     std::shared_ptr<VulkanUtils::VComputeEffect> m_rayTracedReflectionEffect;
     std::unique_ptr<VulkanCore::VImage2>         m_previousImage;
-    bool                                         m_accumulate;
+    ReflectionsParameters                        m_reflectionsParameters;
 };
 
 }  // namespace Renderer

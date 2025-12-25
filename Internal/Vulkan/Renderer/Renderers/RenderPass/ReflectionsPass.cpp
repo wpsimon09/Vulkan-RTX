@@ -127,7 +127,7 @@ void RayTracedReflectionsPass::Update(int                                   curr
 
     m_rayTracedReflectionEffect->ApplyWrites(currentFrame);
 
-    m_accumulate = uniformBufferManager.GetApplicationState()->m_accumulateFrames;
+    m_reflectionsParameters = uniformBufferManager.GetApplicationState()->GetReflectionsParameters();
 }
 
 void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
@@ -138,11 +138,21 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
     m_rayTracedReflectionEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_rayTracedReflectionEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
 
+
+    vk::PushConstantsInfo pcInfo;
+    pcInfo.layout     = m_rayTracedReflectionEffect->GetPipelineLayout();
+    pcInfo.offset     = 0;
+    pcInfo.size       = sizeof(m_reflectionsParameters);
+    pcInfo.pValues    = &m_reflectionsParameters;
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+
+    m_rayTracedReflectionEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
+
     cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
 
     VulkanUtils::VBarrierPosition barrierPos;
 
-    if(m_accumulate)
+    if((bool)m_reflectionsParameters.accumulate)
     {
 
         barrierPos = VulkanUtils::VBarrierPosition{vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
