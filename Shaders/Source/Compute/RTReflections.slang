@@ -144,7 +144,6 @@ Reflection map will be lerped in the composite pass based on its alpha channel
 void computeMain(uint3 threadID : SV_DispatchThreadID){
 
     float3 throughPut = 1.0;
-    float3 radiance = 0.0;
     
     var parsedData = _globalData.Parse();
     float2 dims;
@@ -182,20 +181,16 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     g.shadingPosition = pos;
     g.position = pos;
     
-    var sample = mat.Sample(context, wo, g, u);
+    var sampleBrdf = Specular_GGX(context);
 
     RayDesc ray;
     // we do not need to shoot ray from camear to world sice whe have the closest intersection in the postion buffer
-    if(let brdfSample1 = sample.brdf.Sample(wo, g, u)){
+    if(let brdfSample = sampleBrdf.Sample(wo, g, u)){
         
         //==============================================================
         // first bounce, wo - camera ray, wi - constructed from GBuffer 
-    
-        float cosTheta = max(dot(g.shadingNormal, normalize(brdfSample1.wi)),0.0);
-        throughPut *= (sample.brdf.Evaluate(wo, brdfSample1.wi, g) * cosTheta) / brdfSample1.PDF;
-
         ray.Origin = pos;    
-        ray.Direction = brdfSample1.wi;
+        ray.Direction = brdfSample.wi;
         ray.TMin = 0.0001;
         ray.TMax = 1000;
 
@@ -206,23 +201,14 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 	    result.TraceRayInline(_tlas, RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH, 0xFF, ray);
 
         result.Proceed();
-        //var result = TraceRayInline(ray, _tlas, u);
         
         if(result.CommittedStatus() == COMMITTED_TRIANGLE_HIT)
         {
-            wo = normalize(-result.WorldRayDirection());
-            g = GetSurface(result.CommittedPrimitiveIndex(), result.CommittedInstanceIndex(), result.CommittedTriangleBarycentrics(), result.CandidateObjectToWorld3x4());
-            mat = GetMaterial(result.CommittedInstanceIndex());
-            context = mat.Prepare(g);
-            var brdf = mat.Sample(context, wo, g, u);
-
-            if(let brdfSample2 = brdf.brdf.Sample(wo, g, u)){
-                cosTheta = max(dot(g.shadingNormal, normalize(brdfSample2.wi)),0.0);
-
-                throughPut *= (brdf.brdf.Evaluate(wo, brdfSample2.wi, g) * cosTheta) / brdfSample2.PDF;
-            }    
+            var hitG = GetSurface(result.CommittedPrimitiveIndex(), result.CommittedInstanceIndex(), result.CommittedTriangleBarycentrics(), result.CandidateObjectToWorld3x4());
+            var hitMat = GetMaterial(result.CommittedInstanceIndex());
+            var hitContext = hitMat.Prepare(hitG);
+            throughPut = hitContext.albedo.xyz;  
         }
-        radiance += throughPut;
         
         if(reflectionsParameters.accumulate){
 
@@ -233,10 +219,10 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             
             float4 reflLast = _previousSampled.Sample(reprojectedCoords);
             
-            _outputImage[threadID.xy].xyz = alpha * radiance + (1.0f - alpha) * reflLast.xyz;
+            _outputImage[threadID.xy].xyz = alpha * throughPut + (1.0f - alpha) * reflLast.xyz;
             return;
         }else{
-            _outputImage[threadID.xy].xyz = radiance;
+            _outputImage[threadID.xy].xyz = throughPut;
             return; 
         }
         return;
