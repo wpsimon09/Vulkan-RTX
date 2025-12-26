@@ -380,3 +380,8 @@ internal float3 toWorld(float3 local, float3 N){
     constructLocalFrame(N, T, B);
     return normalize(local.x * T + local.y * B + local.z * N);
 }
+
+
+public float3 FresnelSchlick(float cosTheta, float3 F0){
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}

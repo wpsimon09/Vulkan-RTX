@@ -1,4 +1,6 @@
 import Core;
+import Utils;
+import BxDF;
 
 [[vk::binding(0,0)]]
 RWTexture2D _finalImage;
@@ -24,6 +26,10 @@ Sampler2D _armMap;
 [[vk::binding(7,0)]]
 Sampler2D _reflectionMap;
 
+[[vk::binding(8, 0)]]
+Sampler2D _normalMap;
+
+[[vk::binding(9, 0)]]
 ConstantBuffer<GlobalData2> _globalData;
 
 [[numthreads(16, 16, 1)]]
@@ -37,17 +43,22 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     float2 texCoords = (threadID.xy + 0.5) / dims;
     
     float3 col = _renderedImage.Sample(texCoords).xyz;
+    float3 N = normalize(_normalMap.Sample(texCoords).xyz);
     
-    if(_depthMap.Sample(texCoords).x > 0.999){
-      _finalImage[threadID.xy] = float4(col,1.0); 
-      return;
+    float depth = _depthMap.Sample(texCoords).x;
+    if(depth > 0.999){
+        _finalImage[threadID.xy] = float4(col,1.0); 
+        return;
     }
+
+    float3 position = WorldPosFromDepth(depth, texCoords,_globalData.inverseProj, _globalData.inverseView);
     
     float shadowFactor = _dirLightShadowMap.Sample(texCoords).x;
     
     float occlusionStrenth = shadowFactor;
         
-    col = lerp(_albedoMap.Sample(texCoords).xyz * 0.5, col, shadowFactor);
+    float3 albedo = _albedoMap.Sample(texCoords).xyz;
+    col = lerp(albedo * 0.5, col, shadowFactor);
     
     if(parsedGlobalData.aoOcclusion){
         float aoFactor = _aoMap.Sample(texCoords).x;
@@ -56,8 +67,20 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
     if(parsedGlobalData.useReflection){
         float3 reflectionValue = _reflectionMap.Sample(texCoords).xyz;
-        float roughness = _armMap.Sample(texCoords).x;
-        col = lerp(reflectionValue, col ,clamp(roughness, 0.3, 1.0));
+        float2 roughnessMetallnes = _armMap.Sample(texCoords).xy;
+        float3 F0 = lerp(0.04,albedo,roughnessMetallnes.y );
+        float3 V = normalize(_globalData.cameraPosition.xyz - position );
+        
+        float cosTheta = max(dot(N, V ), 0.0);
+        
+        float3 F = FresnelSchlick(cosTheta, F0);
+
+        float specualarWeight = (1.0 - roughnessMetallnes.x);
+        specualarWeight *= specualarWeight;
+
+        float3 specular = reflectionValue * F * specualarWeight;
+
+        col += specular;
     }
 
     _finalImage[threadID.xy] = float4(col,1.0f);
