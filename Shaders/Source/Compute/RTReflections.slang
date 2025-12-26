@@ -143,7 +143,7 @@ Reflection map will be lerped in the composite pass based on its alpha channel
 [[shader("compute")]]
 void computeMain(uint3 threadID : SV_DispatchThreadID){
 
-    float3 throughPut = 1.0;
+    float3 reflection = float3(0.0, 0.0, 0.0);
     
     var parsedData = _globalData.Parse();
     float2 dims;
@@ -189,10 +189,10 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         
         //==============================================================
         // first bounce, wo - camera ray, wi - constructed from GBuffer 
-        ray.Origin = pos;    
+        ray.Origin = pos + N * 0.02;    
         ray.Direction = brdfSample.wi;
         ray.TMin = 0.0001;
-        ray.TMax = 1000;
+        ray.TMax = 10000;
 
         //================================================y======================
         // Trace ray and determine the reflected colour based on the surface hit 
@@ -204,10 +204,23 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         
         if(result.CommittedStatus() == COMMITTED_TRIANGLE_HIT)
         {
+            var hitWo = - result.WorldRayDirection();
             var hitG = GetSurface(result.CommittedPrimitiveIndex(), result.CommittedInstanceIndex(), result.CommittedTriangleBarycentrics(), result.CandidateObjectToWorld3x4());
             var hitMat = GetMaterial(result.CommittedInstanceIndex());
             var hitContext = hitMat.Prepare(hitG);
-            throughPut = hitContext.albedo.xyz;  
+            
+            var brdf2 = Specular_GGX(hitContext);
+
+            var sample2 = brdf2.Sample(hitWo, hitG, u).value;
+
+            float cosTheta = max(dot(hitG.shadingNormal, sample2.wi), 0.0);
+            float3 f = brdf2.Evaluate(hitWo, sample2.wi, hitG);
+            if(!f.equals(0.0) && isfinite(sample2.PDF)){
+                reflection = hitContext.albedo.xyz *  ( f * cosTheta) / max(sample2.PDF, 0.00001);  
+            }
+            else{
+                reflection = float3(0.0, 1.0 ,0.0);
+            }
         }
         
         if(reflectionsParameters.accumulate){
@@ -219,10 +232,10 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             
             float4 reflLast = _previousSampled.Sample(reprojectedCoords);
             
-            _outputImage[threadID.xy].xyz = alpha * throughPut + (1.0f - alpha) * reflLast.xyz;
+            _outputImage[threadID.xy].xyz = alpha * reflection + (1.0f - alpha) * reflLast.xyz;
             return;
         }else{
-            _outputImage[threadID.xy].xyz = throughPut;
+            _outputImage[threadID.xy].xyz = reflection;
             return; 
         }
         return;

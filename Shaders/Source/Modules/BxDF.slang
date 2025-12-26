@@ -298,7 +298,7 @@ public struct Specular_Phong : IBRDF{
         this.context = context;
         this.context.alpha = context.roughness * context.roughness;
         F0 = lerp(float3(0.4), context.albedo.xyz, context.metallnes);
-        this.shininess = beckmannAlphaToShininess(context.roughness);
+        this.shininess = beckmannAlphaToShininess(context.roughness * context.roughness);
     }
 
 
@@ -325,7 +325,7 @@ public struct Specular_Phong : IBRDF{
 
         float3 R = reflect(-wo, g.normal);
 
-        sample.wi = toWorld(wi_Tangent, g.shadingNormal);
+        sample.wi = toWorld(wi_Tangent, R);
 
         return sample;
     }
