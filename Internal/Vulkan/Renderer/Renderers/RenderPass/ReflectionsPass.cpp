@@ -5,6 +5,7 @@
 #include "ReflectionsPass.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
+#include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
@@ -20,6 +21,8 @@
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "vulkan/vulkan.hpp"
+#include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
+
 namespace Renderer {
 
 RayTracedReflectionsPass::RayTracedReflectionsPass(const VulkanCore::VDevice&       device,
@@ -67,6 +70,9 @@ RayTracedReflectionsPass::RayTracedReflectionsPass(const VulkanCore::VDevice&   
     VulkanUtils::PlaceImageMemoryBarrier2(*m_previousImage, m_device.GetTransferOpsManager().GetCommandBuffer(),
                                           vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal,
                                           VulkanUtils::VImage_Undefined_ToShaderRead);
+
+    m_denoiser = std::make_unique<Renderer::BilateralFilterPass>(m_device, effectsLibrary,
+                                                                 m_renderTargets[0]->GetPrimaryImage(), width, height);
 }
 
 void RayTracedReflectionsPass::Init(int                                 currentFrameIndex,
@@ -106,6 +112,8 @@ void RayTracedReflectionsPass::Init(int                                 currentF
                                             renderContext->albedoMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
     m_rayTracedReflectionEffect->ApplyWrites(currentFrameIndex);
+
+    m_denoiser->Init(currentFrameIndex, uniformBufferManager, renderContext);
 }
 
 void RayTracedReflectionsPass::Update(int                                   currentFrame,
@@ -128,6 +136,8 @@ void RayTracedReflectionsPass::Update(int                                   curr
     m_rayTracedReflectionEffect->ApplyWrites(currentFrame);
 
     m_reflectionsParameters = uniformBufferManager.GetApplicationState()->GetReflectionsParameters();
+
+    m_denoiser->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
 }
 
 void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
@@ -137,7 +147,6 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
 
     m_rayTracedReflectionEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_rayTracedReflectionEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
-
 
     vk::PushConstantsInfo pcInfo;
     pcInfo.layout     = m_rayTracedReflectionEffect->GetPipelineLayout();
@@ -181,12 +190,14 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
         m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
                                                   VulkanUtils::VImage_SampledRead_To_General.Switch());
     }
+
+    m_denoiser->Render(currentFrame, cmdBuffer, renderContext);
 }
 
 RenderTarget2* RayTracedReflectionsPass::GetAccumulatedResult() const
 {
     // return whatever was rendered last and is in hte shader read only position
-    return m_renderTargets[0].get();
+    return &m_denoiser->GetRenderTarget(0);
 }
 
 void RayTracedReflectionsPass::Destroy()

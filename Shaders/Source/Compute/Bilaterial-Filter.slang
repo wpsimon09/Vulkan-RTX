@@ -2,13 +2,13 @@ import Core;
 import Utils;
 
 
-[[vk::binding(1, 0)]]
+[[vk::binding(0, 0)]]
 Sampler2D _noisyImage;
 
-[[vk::binding(2, 0)]]
+[[vk::binding(1, 0)]]
 RWTexture2D _denoisedImage;
 
-[[vk::binding(3, 0)]]
+[[vk::binding(2, 0)]]
 Sampler2D _nomrmalMap;
 
 
@@ -69,9 +69,7 @@ float3 bilaterialFilter(uint3 threadID){
     float factor;
 
     // read the image
-    [unroll]
     for(int i= -kSize; i <= kSize; ++i){
-        [unroll]
         for( int j =-kSize; j <= kSize; ++j){
             int2 samplePos = int2(threadID.xy) + int2(i, j);
             float2 uv = float2(samplePos) / float2(_filterParameters.width, _filterParameters.height);

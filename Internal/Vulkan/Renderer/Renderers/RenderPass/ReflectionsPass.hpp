@@ -12,6 +12,7 @@ namespace VulkanUtils {
 class VComputeEffect;
 }
 namespace Renderer {
+class BilateralFilterPass;
 class RayTracedReflectionsPass : public Renderer::RenderPass
 {
   public:
@@ -29,8 +30,9 @@ class RayTracedReflectionsPass : public Renderer::RenderPass
     RenderTarget2* GetAccumulatedResult() const;
 
   private:
-    std::shared_ptr<VulkanUtils::VComputeEffect> m_rayTracedReflectionEffect;
-    std::unique_ptr<VulkanCore::VImage2>         m_previousImage;
+    std::shared_ptr<VulkanUtils::VComputeEffect>   m_rayTracedReflectionEffect;
+    std::unique_ptr<VulkanCore::VImage2>           m_previousImage;
+    std::unique_ptr<Renderer::BilateralFilterPass> m_denoiser;
 
     ReflectionsParameters m_reflectionsParameters;
 };

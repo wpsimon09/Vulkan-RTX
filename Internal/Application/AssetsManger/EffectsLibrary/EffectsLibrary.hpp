@@ -85,6 +85,9 @@ class EffectsLibrary
     void BuildAllEffects();
     void Destroy();
 
+    VulkanCore::VDescriptorLayoutCache& GetDescriptorLayoutCache() { return m_descLayoutCache; };
+
+
     void UpdatePerFrameWrites(const Renderer::ForwardRenderer&          sceneRenderer,
                               VulkanUtils::VRayTracingDataManager&      rayTracingDataManager,
                               VulkanUtils::RenderContext*               renderingContext,

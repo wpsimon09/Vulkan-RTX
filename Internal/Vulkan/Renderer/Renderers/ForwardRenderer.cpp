@@ -90,7 +90,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_renderContextPtr->visibilityBuffer = &m_visibilityDenoisePass->GetPrimaryResult();
     m_renderContextPtr->lightPassOutput  = &m_forwardRenderPass->GetResolvedResult();
     m_renderContextPtr->aoOcclusionMap   = &m_aoOcclusionPass->GetPrimaryResult();
-    m_renderContextPtr->reflectionMap    = &m_rayTracedReflectionPass->GetPrimaryResult();
+    m_renderContextPtr->reflectionMap    = &m_rayTracedReflectionPass->GetAccumulatedResult()->GetPrimaryImage();
 
     Utils::Logger::LogSuccess("Forward renderer created !");
 }

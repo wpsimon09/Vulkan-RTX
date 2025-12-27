@@ -14,6 +14,7 @@
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
+#include <memory>
 #include <vulkan/vulkan_enums.hpp>
 
 namespace Renderer {
@@ -26,21 +27,25 @@ BilateralFilterPass::BilateralFilterPass(const VulkanCore::VDevice&       device
     , m_inputImage(inputImage)
 {
 
-    //===========================================================
-    // create and build effect
-    m_bilateralFileter = effectsLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::BilateralFilter);
+    //==============================================================================================
+    // create and build effect, it has to be recreated so that it can be reused through the renderer
+    m_bilateralFileter = std::make_unique<VulkanUtils::VComputeEffect>(device, "Bilateral filter", "Shaders/Compiled/Bilaterial-Filter.spv",
+                                                                       effectsLibrary.GetDescriptorLayoutCache(),
+                                                                       EShaderBindingGroup::ComputePostProecess);
+    m_bilateralFileter->BuildEffect();
+
     //============================================================
     // create compute attachment
     Renderer::RenderTarget2CreatInfo denoisedResultCI;
     denoisedResultCI.width               = width;
     denoisedResultCI.heigh               = height;
-    denoisedResultCI.format              = vk::Format::eR16G16B16A16Sfloat;
+    denoisedResultCI.format              = m_inputImage.GetImageInfo().format;
     denoisedResultCI.initialLayout       = vk::ImageLayout::eShaderReadOnlyOptimal;
     denoisedResultCI.isDepth             = false;
     denoisedResultCI.multiSampled        = false;
     denoisedResultCI.computeShaderOutput = true;
 
-    denoisedResultCI.imageDebugName = "Denoise pass result";
+    denoisedResultCI.imageDebugName = "Denoise pass result | Reflections";
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, denoisedResultCI));
 }
 
@@ -52,12 +57,12 @@ void BilateralFilterPass::Init(int                                 currentFrameI
 
     //m_bilateralFileter->WriteBuffer(currentFrameIndex, 0, 0, uniformBufferManager.GetGlobalBufferDescriptorInfo()[currentFrameIndex]);
 
-    m_bilateralFileter->WriteImage(currentFrameIndex, 0, 1, m_inputImage.GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    m_bilateralFileter->WriteImage(currentFrameIndex, 0, 0, m_inputImage.GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
-    m_bilateralFileter->WriteImage(currentFrameIndex, 0, 2,
+    m_bilateralFileter->WriteImage(currentFrameIndex, 0, 1,
                                    m_renderTargets[EBilateralFilterAttachments::Result]->GetPrimaryImage().GetDescriptorImageInfo());
 
-    m_bilateralFileter->WriteImage(currentFrameIndex, 0, 3,
+    m_bilateralFileter->WriteImage(currentFrameIndex, 0, 2,
                                    renderContext->normalMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
     m_bilateralFileter->ApplyWrites(currentFrameIndex);
@@ -80,8 +85,10 @@ void BilateralFilterPass::Render(int currentFrame, VulkanCore::VCommandBuffer& c
 {
     assert(cmdBuffer.GetIsRecording() && " Command buffer is not in recording state");
 
-    VulkanUtils::VBarrierPosition barrier = {vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-                                             vk::AccessFlagBits2::eColorAttachmentWrite, vk::PipelineStageFlagBits2::eComputeShader,
+
+    VulkanUtils::VBarrierPosition barrier = {vk::PipelineStageFlagBits2::eColorAttachmentOutput | vk::PipelineStageFlagBits2::eComputeShader,
+                                             vk::AccessFlagBits2::eColorAttachmentWrite | vk::AccessFlagBits2::eShaderWrite,
+                                             vk::PipelineStageFlagBits2::eComputeShader,
                                              vk::AccessFlagBits2::eShaderSampledRead | vk::AccessFlagBits2::eShaderWrite};
     m_renderTargets[EBilateralFilterAttachments::Result]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral,
                                                                                 vk::ImageLayout::eShaderReadOnlyOptimal, barrier);

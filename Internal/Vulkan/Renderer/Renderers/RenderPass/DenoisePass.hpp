@@ -5,6 +5,7 @@
 #ifndef VULKAN_RTX_DENOISEPASS_HPP
 #define VULKAN_RTX_DENOISEPASS_HPP
 #include "RenderPass.hpp"
+#include <memory>
 
 namespace VulkanUtils {
 class VComputeEffect;
@@ -37,7 +38,7 @@ class BilateralFilterPass : public Renderer::RenderPass
 
   private:
     VulkanCore::VImage2&                         m_inputImage;
-    std::shared_ptr<VulkanUtils::VComputeEffect> m_bilateralFileter;
+    std::unique_ptr<VulkanUtils::VComputeEffect> m_bilateralFileter;
     BilaterialFilterParameters                   m_bilateralFilterParameters;
 };
 
