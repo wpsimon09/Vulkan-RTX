@@ -219,7 +219,6 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
                float3 f = brdf2.brdf.Evaluate(hitWo, sample2.wi, hitG);
                    reflection = (radiance * f * cosTheta) / sample2.PDF;
                    reflection *= 1 / max(brdf2.p, 0.00001);   
-
             }
             
         }

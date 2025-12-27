@@ -18,7 +18,7 @@ writeonly RWTexture2D _downSampleResults[];
 
 float KarisAverage(float3 colour){
     //TODO: maybe converte to srgb but the format is srgb already in vulkan
-    float luma = RGBToLuminance(ToSRGB(colour)) * 0.25;
+    float luma = RGBToLuminance(colour) * 0.25;
     return 1.0f / (1.0f + luma);
 }
 
@@ -26,7 +26,6 @@ float KarisAverage(float3 colour){
 [numthreads(8, 8, 1)]
 void computeMain(uint3 threadId : SV_DispatchThreadID){
     uint2 dstCoord = threadId.xy;
-    
     
     // Get resolutions from push constants
     float2 srcResolution = float2(_bloomDownsampleParams.src_dst_resolution.x, _bloomDownsampleParams.src_dst_resolution.y);

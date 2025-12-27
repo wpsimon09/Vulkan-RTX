@@ -127,7 +127,7 @@ public struct PBRMaterial : IMaterial
 
         MaterialSample sample;
         p = clamp(p, 0.1, 0.9);
-        sample.p_r = p; // probability of specualr reflection 
+        sample.p_r = p;       // probability of specualr reflection 
         sample.p_d = 1.0 - p; // probability of diffuse reflection 
 
         bool sampleSpecular = RandomValue(u) < sample.p_r;
