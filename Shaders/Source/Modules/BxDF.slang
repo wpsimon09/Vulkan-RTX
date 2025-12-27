@@ -28,6 +28,7 @@ public struct BxDFContext{
 public interface IBRDF{
     public Optional<BxDFSample> Sample(float3 wo, SurfaceGeometry g, inout uint u);
     public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g);
+    public float3 EvaluateRayTracing(float3 wo, float3 wi, SurfaceGeometry g);
     public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse);
     public BxDFContext GetContext();
 }
@@ -149,6 +150,7 @@ public struct Specular_GGX : IBRDF{
     public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g)
     { 
 
+        
         float3 H = normalize(wo + wi);
 
         float NDF = DistributionGGX(g.shadingNormal, H);
@@ -164,7 +166,7 @@ public struct Specular_GGX : IBRDF{
         if(IsNan(col)){
             return float3(1.0, 0.0, 0.0);
         }
-
+            
         return col;
     }
 
@@ -174,6 +176,16 @@ public struct Specular_GGX : IBRDF{
 
     public BxDFContext GetContext(){
         return this.context;
+    }
+
+    public float3 EvaluateRayTracing(float3 wo, float3 wi, SurfaceGeometry g)
+    {
+        float3 H = normalize(wo + wi);
+        float3 F = FresnelSchlick(max(dot(H, wo), 0.0));
+        float G1 = Smith_G1(H, wo);
+        float G2 = GeometrySmith(H, wo, wi);
+
+        return (F * G2) / max(G1,0.00001);
     }
 }
 
@@ -204,8 +216,6 @@ public struct LamberianDiffuse : IBRDF{
         // go from tangent space to the world space for cosine calculation
         float3 dir_Ws = mul(g.TBN , result);
 
-
-
         if(dot(g.shadingNormal, dir_Ws)<=0.0){
             return {};
         }
@@ -217,6 +227,7 @@ public struct LamberianDiffuse : IBRDF{
 
         return sample;
     }
+    
     public float3 Evaluate(float3 wo, float3 wi, SurfaceGeometry g){
         if(dot(g.shadingNormal, wi) <= 0.0f){
             return float3(0.0f);
@@ -229,6 +240,10 @@ public struct LamberianDiffuse : IBRDF{
             return float3(0.0, 1.0, 0.0);
         }
         return col;
+    }
+
+    public float3 EvaluateRayTracing(float3 wo, float3 wi, SurfaceGeometry g){
+        return Evaluate(wo, wi, g);
     }
 
     public float3 EvaluateByLTC(float3 wo, SurfaceGeometry g, float4 points, Sampler2D LTC, Sampler2D LTC_Inverse){
@@ -268,7 +283,7 @@ public struct DeterministicBRDF : IBRDF{
         float3 kS = specularBrdf.FresnelSchlick(dot(H, wo));
         float3 kD = float3(1.0) - kS;
 
-        kD *= 1.0 -  context.metallnes;
+        kD *= 1.0 - context.metallnes;
         
         return (kD * diffuse) + specular;
     }
@@ -279,6 +294,10 @@ public struct DeterministicBRDF : IBRDF{
 
     public BxDFContext GetContext(){
         return this.context;
+    }
+
+    public float3 EvaluateRayTracing(float3 wo, float3 wi, SurfaceGeometry g){
+        return Evaluate(wo, wi, g);
     }
 
 }
@@ -344,6 +363,10 @@ public struct Specular_Phong : IBRDF{
     public BxDFContext GetContext()
     {
         return context;
+    }
+
+    public float3 EvaluateRayTracing(float3 wo, float3 wi, SurfaceGeometry g){
+        return Evaluate(wo, wi, g);
     }
 }
 

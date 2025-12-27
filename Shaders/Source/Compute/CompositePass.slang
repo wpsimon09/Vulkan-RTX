@@ -75,7 +75,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         
         float3 F = FresnelSchlick(cosTheta, F0);
 
-        float specualarWeight = (1.0 - roughnessMetallnes.x);
+        float3 specualarWeight = (1.0 - roughnessMetallnes.x);
 
         float3 specular = reflectionValue * F * specualarWeight;
 

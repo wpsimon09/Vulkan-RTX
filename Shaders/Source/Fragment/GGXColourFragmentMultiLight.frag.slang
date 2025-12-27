@@ -122,13 +122,13 @@ float4 fragmentMain(VertexOutput fsIn)
             return float4(g.shadingNormal, 1.0);
         }
         case ERenderOutput::LightOnly:{
-            return float4(finalColor,1.0);
+            return float4(float3(brdfContext.metallnes),1.0);
         };
         case ERenderOutput::Albedo:{
             return float4(brdfContext.albedo.xyz, 1.0);
         }
         case ERenderOutput::Arm:{
-            return float4(brdfContext.ao, brdfContext.roughness, brdfContext.metallnes, 1.0);
+            return float4(1.0, brdfContext.roughness, brdfContext.metallnes, 1.0);
         }
         default: {
             return float4(1.0);

@@ -1,4 +1,4 @@
-$SLANGC_PATH="C:\SDKs\slang\slangc.exe"  # Update this path to point to the slangc binary
+s$SLANGC_PATH="C:\SDKs\slang\slangc.exe"  # Update this path to point to the slangc binary
 
 if (!(Test-Path $SLANGC_PATH -PathType Leaf)) {
     Write-Host "Error: Slang compiler not found at $SLANGC_PATH"
