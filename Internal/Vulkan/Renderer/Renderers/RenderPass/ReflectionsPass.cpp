@@ -28,7 +28,9 @@ namespace Renderer {
 RayTracedReflectionsPass::RayTracedReflectionsPass(const VulkanCore::VDevice&       device,
                                                    ApplicationCore::EffectsLibrary& effectsLibrary,
                                                    int                              width,
-                                                   int                              height)
+                                                   int                              height,
+                                                   int                              targetWidth,
+                                                   int                              targetHeight)
     : RenderPass(device, width, height)
 {
     m_rayTracedReflectionEffect =
@@ -72,7 +74,7 @@ RayTracedReflectionsPass::RayTracedReflectionsPass(const VulkanCore::VDevice&   
                                           VulkanUtils::VImage_Undefined_ToShaderRead);
 
     m_denoiser = std::make_unique<Renderer::BilateralFilterPass>(m_device, effectsLibrary,
-                                                                 m_renderTargets[0]->GetPrimaryImage(), width, height);
+                                                                 m_renderTargets[0]->GetPrimaryImage(), targetWidth, targetHeight);
 }
 
 void RayTracedReflectionsPass::Init(int                                 currentFrameIndex,

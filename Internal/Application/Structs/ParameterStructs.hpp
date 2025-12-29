@@ -110,6 +110,7 @@ struct BloomSettings
 struct ReflectionsParameters
 {
     int accumulate = 1.0f;
+    float specularLobeTrashHold = 0.7f;  // if probability that specular reflection on the surface will occure is below this we will not trace rays
 };
 
 struct AtmosphereParameters

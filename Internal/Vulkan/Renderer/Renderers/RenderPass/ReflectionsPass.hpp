@@ -16,7 +16,12 @@ class BilateralFilterPass;
 class RayTracedReflectionsPass : public Renderer::RenderPass
 {
   public:
-    RayTracedReflectionsPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectsLibrary, int width, int height);
+    RayTracedReflectionsPass(const VulkanCore::VDevice&       device,
+                             ApplicationCore::EffectsLibrary& effectsLibrary,
+                             int                              width,
+                             int                              height,
+                             int                              targetWidth,
+                             int                              targetHeight);
 
     void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
     void Update(int                                   currentFrame,

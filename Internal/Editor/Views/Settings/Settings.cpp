@@ -214,15 +214,6 @@ void Settings::RenderRenderingSettings()
         ImGui::SliderInt("Reccursion depth", &GlobalVariables::RenderingOptions::MaxRecursionDepth, 1, 20);
         ImGui::SliderInt("Rays per pixel", &GlobalVariables::RenderingOptions::RaysPerPixel, 1, 20);
 
-        if(ImGui::TreeNode("RT Ambient occlusion"))
-        {
-            ImGui::DragFloat("Radius", &applicationState.GetAoOcclusionParameters().radius, 0.2);
-            ImGui::DragFloat("Sample count ", &applicationState.GetAoOcclusionParameters().sampleCount, 1);
-            ImGui::DragFloat("Intensity ", &applicationState.GetAoOcclusionParameters().strenght, 1);
-
-            ImGui::TreePop();
-        }
-
         if(ImGui::TreeNode("De-noising"))
         {
             ImGui::Checkbox("Denoise", &applicationState.m_denoise);

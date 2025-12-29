@@ -77,7 +77,7 @@ ForwardRenderer::ForwardRenderer(const VulkanCore::VDevice&          device,
     m_atmospherePass    = std::make_unique<Renderer::AtmospherePass>(device, effectsLibrary, width, height);
     m_aoOcclusionPass   = std::make_unique<Renderer::AoOcclusionPass>(device, effectsLibrary, width / 4, height / 4);
     m_rayTracedReflectionPass =
-        std::make_unique<Renderer::RayTracedReflectionsPass>(device, effectsLibrary, width / 4, height / 4);
+        std::make_unique<Renderer::RayTracedReflectionsPass>(device, effectsLibrary, width / 4, height / 4, width, height);
     //====================================================================================================
     // Populate render context with all the images that will be rendered
     m_renderContextPtr->normalMap    = &m_gBufferPass->GetResolvedResult(EGBufferAttachments::Normal);

@@ -58,12 +58,19 @@ void RenderingOptions::Render()
         {
             ImGui::Checkbox("RayTraced reflections", &m_applicationState.m_rayTracedReflections);
             ImGui::Checkbox("Accumulate##1", reinterpret_cast<bool*>(&m_applicationState.GetReflectionsParameters().accumulate));
+            ImGui::SliderFloat("Reflections trash hold",
+                               &m_applicationState.GetReflectionsParameters().specularLobeTrashHold, 0.0, 1.0);
             ImGui::TreePop();
         }
 
         if(ImGui::TreeNode("Ambient occlusion "))
         {
             ImGui::Checkbox("Ambient occlusion ", &m_applicationState.m_ambientOcclusion);
+
+            ImGui::DragFloat("Radius", &m_applicationState.GetAoOcclusionParameters().radius, 0.2);
+            ImGui::DragFloat("Sample count ", &m_applicationState.GetAoOcclusionParameters().sampleCount, 1);
+            ImGui::DragFloat("Intensity ", &m_applicationState.GetAoOcclusionParameters().strenght, 1);
+
             ImGui::Checkbox("Accumulate##2", reinterpret_cast<bool*>(&m_applicationState.GetAoOcclusionParameters().accumulate));
 
             ImGui::TreePop();

@@ -21,7 +21,7 @@
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_structs.hpp>
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
-
+#include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
 namespace Renderer {
 VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
     : Renderer::RenderPass(device, width, height)

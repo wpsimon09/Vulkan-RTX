@@ -52,6 +52,7 @@ RaytracingAccelerationStructure _tlas;
 
 struct ReflectionsParameters{
     bool accumulate;
+    float specularLobeTrashHold;
 }
 
 [[vk::push_constant]]
@@ -182,11 +183,19 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     g.position = pos;
     
     // sample the brdf of the surface 
-    var sampleBrdf = mat.Sample(context, wo, g, u);
+    var testBrdf = mat.Sample(context, wo, g, u);
+
+    if(testBrdf.p_r < reflectionsParameters.specularLobeTrashHold){
+        _outputImage[threadID.xy] = float4(1.0);
+        return;
+    }
+
+    var sampleBrdf = Specular_GGX(context);
+
 
     RayDesc ray;
     // we do not need to shoot ray from camear to world sice whe have the closest intersection in the postion buffer
-    if(let brdfSample = sampleBrdf.brdf.Sample(wo, g, u)){
+    if(let brdfSample = sampleBrdf.Sample(wo, g, u)){
 
         //==============================================================
         // first bounce, wo - camera ray, wi - constructed from GBuffer 
@@ -218,7 +227,6 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
                float3 radiance = float3(1.0);
                float3 f = brdf2.brdf.Evaluate(hitWo, sample2.wi, hitG);
                    reflection = (radiance * f * cosTheta) / sample2.PDF;
-                   reflection *= 1 / max(brdf2.p, 0.00001);   
             }
             
         }

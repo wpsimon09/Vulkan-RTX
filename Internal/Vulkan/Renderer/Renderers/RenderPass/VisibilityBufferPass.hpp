@@ -4,9 +4,7 @@
 
 #ifndef RTSHADOWMAPPASS_HPP
 #define RTSHADOWMAPPASS_HPP
-#include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "RenderPass.hpp"
-#include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 
 namespace VulkanCore {
 class VCommandBuffer;
@@ -14,9 +12,11 @@ class VCommandBuffer;
 namespace VulkanUtils {
 struct RenderContext;
 class VRasterEffect;
+class VComputeEffect;
 }  // namespace VulkanUtils
 namespace Renderer {
 
+class BilateralFilterPass;
 enum EVisibilityBufferAttachments
 {
     ShadowMap = 0,
@@ -60,9 +60,10 @@ class AoOcclusionPass : public Renderer::RenderPass
     void Destroy() override;
 
   private:
-    std::shared_ptr<VulkanUtils::VComputeEffect> m_aoEffect;
-    std::unique_ptr<VulkanCore::VImage2>         m_previousFrame;
-    AoOcclusionParameters                        m_aoOcclusionParameters;
+    std::shared_ptr<VulkanUtils::VComputeEffect>   m_aoEffect;
+    std::unique_ptr<VulkanCore::VImage2>           m_previousFrame;
+    AoOcclusionParameters                          m_aoOcclusionParameters;
+    std::unique_ptr<Renderer::BilateralFilterPass> m_denoiser;
 };
 
 }  // namespace Renderer

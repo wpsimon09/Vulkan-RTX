@@ -45,6 +45,9 @@ class UpscalePass : public RenderPass
 class BilateralFilterPass : public Renderer::RenderPass
 {
   public:
+    /*
+    Bilaterral filter denoiser, you can supply width and heigh higher to upscale the image 
+    */
     BilateralFilterPass(const VulkanCore::VDevice&       device,
                         ApplicationCore::EffectsLibrary& effectsLibrary,
                         VulkanCore::VImage2&             inputImage,

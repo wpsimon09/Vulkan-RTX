@@ -27,6 +27,9 @@ BilateralFilterPass::BilateralFilterPass(const VulkanCore::VDevice&       device
     , m_inputImage(inputImage)
 {
 
+    assert(width >= inputImage.GetImageInfo().width && height >= inputImage.GetImageInfo().height
+           && "You can not downscale the denoise image only upsale");
+
     //==============================================================================================
     // create and build effect, it has to be recreated so that it can be reused through the renderer
     m_bilateralFileter = std::make_unique<VulkanUtils::VComputeEffect>(device, "Bilateral filter", "Shaders/Compiled/Bilaterial-Filter.spv",
