@@ -49,11 +49,8 @@ float edge_stoping_weight (float3 center_normal, float3 sampled_normal, float ph
 
 float3 bilaterialFilter(uint3 threadID){
     
-    float2 scale = float2(_filterParameters.width / _filterParameters.targetWidth, 
-                      _filterParameters.height / _filterParameters.targetHeight);
-
     // dispatching on big image so use the target height and widht to compute uv coordinates 
-    float2 centerUV = (float2(threadID.xy) + 0.5) * scale / float2(_filterParameters.width, _filterParameters.height);
+    float2 centerUV = (float2(threadID.xy) + 0.5) * float2(_filterParameters.targetWidth, _filterParameters.targetHeight);
     float3 c = _noisyImage.Sample(centerUV).xyz;
 
     uint2 normalMapDims;
@@ -84,9 +81,8 @@ float3 bilaterialFilter(uint3 threadID){
     for(int i= -kSize; i <= kSize; ++i){
         for( int j =-kSize; j <= kSize; ++j){
             int2 samplePos = int2(threadID.xy) + int2(i, j);
-            float2 lowResUV = (float2(threadID.xy) + float2(i, j) + 0.5) * scale / float2(_filterParameters.width, _filterParameters.height);
-            float2 fullResUv = float2(threadID.xy + 0.5) / float2(_filterParameters.targetWidth, _filterParameters.targetHeight); 
-            float2 normalMapUvs = float2(threadID.xy + 0.5) / float2(normalMapDims.x, normalMapDims.y);
+            float2 UVs = (float2(threadID.xy) + float2(i, j) + 0.5) / float2(_filterParameters.targetWidth, _filterParameters.targetHeight);
+            float2 normalMapUvs = (float2(threadID.xy + 0.5) + int2(i,j)) / float2(normalMapDims.x, normalMapDims.y);
             // SAMPLE THE PPoRECOMPUTED GAUSIANG WEIGHT KERNEL
             // - it stores how far away are neighboring pixels and their weight according to the normal istribution
             // - samples closer to the center affect the final result mmore  
@@ -101,7 +97,8 @@ float3 bilaterialFilter(uint3 threadID){
             //rangeWeight * 
             factor = spacialWeight * rangeWeight;
                         
-            cc = _noisyImage.Sample(lowResUV).xyz;
+            
+            cc = _noisyImage.Sample(UVs).xyz;
             final_colour += factor * cc;
             total_weight += factor;
 

@@ -110,7 +110,8 @@ void BilateralFilterPass::Render(int currentFrame, VulkanCore::VCommandBuffer& c
 
     m_bilateralFileter->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-    cmdBuffer.GetCommandBuffer().dispatch(m_bilateralFilterParameters.width / 16, m_bilateralFilterParameters.height / 16, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(m_bilateralFilterParameters.targetWdidth / 16,
+                                          m_bilateralFilterParameters.targetHeight / 16, 1);
 
     VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                                                 vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
