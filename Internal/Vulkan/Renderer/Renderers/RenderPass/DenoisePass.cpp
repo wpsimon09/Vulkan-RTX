@@ -75,10 +75,15 @@ void BilateralFilterPass::Update(int                                   currentFr
 {
     m_bilateralFilterParameters = uniformBufferManager.GetApplicationState()->GetBilateralFilaterParameters();
 
-    m_bilateralFilterParameters.width =
-        m_renderTargets[EBilateralFilterAttachments::Result]->GetPrimaryImage().GetImageInfo().width;
-    m_bilateralFilterParameters.height =
-        m_renderTargets[EBilateralFilterAttachments::Result]->GetPrimaryImage().GetImageInfo().height;
+    if(m_inputImage.GetImageInfo().width != m_width || m_inputImage.GetImageInfo().height != m_height)
+    {
+        m_bilateralFilterParameters.upscale      = true;
+        m_bilateralFilterParameters.targetWdidth = m_renderTargets[EBilateralFilterAttachments::Result]->GetWidth();
+        m_bilateralFilterParameters.targetHeight = m_renderTargets[EBilateralFilterAttachments::Result]->GetHeight();
+    }
+
+    m_bilateralFilterParameters.width  = m_inputImage.GetImageInfo().width;
+    m_bilateralFilterParameters.height = m_inputImage.GetImageInfo().height;
 }
 
 void BilateralFilterPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
@@ -119,6 +124,69 @@ void BilateralFilterPass::Destroy()
 {
     RenderPass::Destroy();
     m_bilateralFileter->Destroy();
+}
+
+//=========================================================
+// Very simple upscaler
+//=========================================================
+
+UpscalePass::UpscalePass(const VulkanCore::VDevice&       device,
+                         ApplicationCore::EffectsLibrary& effectsLibrary,
+                         VulkanCore::VImage2&             inputImage,
+                         int                              targetWidth,
+                         int                              targetHeight)
+    : RenderPass(device, targetWidth, targetHeight)
+    , m_inputImage(inputImage)
+{
+    Renderer::RenderTarget2CreatInfo upscaleResultCI;
+    upscaleResultCI.width               = targetWidth;
+    upscaleResultCI.heigh               = targetHeight;
+    upscaleResultCI.format              = inputImage.GetImageInfo().format;
+    upscaleResultCI.initialLayout       = vk::ImageLayout::eShaderReadOnlyOptimal;
+    upscaleResultCI.isDepth             = false;
+    upscaleResultCI.multiSampled        = false;
+    upscaleResultCI.computeShaderOutput = true;
+
+    upscaleResultCI.imageDebugName = "Upscaler result pass";
+    m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, upscaleResultCI));
+
+    m_upsacleEffect = std::make_unique<VulkanUtils::VComputeEffect>(device, "Bilateral filter", "Shaders/Compiled/Upscale.spv",
+                                                                    effectsLibrary.GetDescriptorLayoutCache(),
+                                                                    EShaderBindingGroup::ComputePostProecess);
+    m_upsacleEffect->BuildEffect();
+}
+
+void UpscalePass::Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
+{
+    m_upsacleEffect->SetNumWrites(0, 2, 0);
+    m_upsacleEffect->WriteImage(currentFrameIndex, 0, 0, m_inputImage.GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+    m_upsacleEffect->WriteImage(currentFrameIndex, 0, 1, GetPrimaryAttachemntDescriptorInfo(0));
+    m_upsacleEffect->ApplyWrites(currentFrameIndex);
+}
+
+void UpscalePass::Update(int                                   currentFrame,
+                         VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                         VulkanUtils::RenderContext*           renderContext,
+                         VulkanStructs::PostProcessingContext* postProcessingContext)
+{
+}
+
+void UpscalePass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
+{
+    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                              VulkanUtils::VImage_SampledRead_To_General);
+
+    m_upsacleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
+    m_upsacleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
+    cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
+
+    m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
+                                              VulkanUtils::VImage_SampledRead_To_General.Switch());
+}
+
+void UpscalePass::Destroy()
+{
+    RenderPass::Destroy();
 }
 
 }  // namespace Renderer

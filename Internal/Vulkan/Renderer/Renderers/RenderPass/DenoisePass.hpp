@@ -17,6 +17,31 @@ enum EBilateralFilterAttachments
     Result = 0
 };
 
+class UpscalePass : public RenderPass
+{
+  public:
+    UpscalePass(const VulkanCore::VDevice&       devcice,
+                ApplicationCore::EffectsLibrary& effectsLibrary,
+                VulkanCore::VImage2&             inputImage,
+                int                              targetWidth,
+                int                              targetHeight);
+
+    void Init(int currentFrameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext) override;
+
+    void Update(int                                   currentFrame,
+                VulkanUtils::VUniformBufferManager&   uniformBufferManager,
+                VulkanUtils::RenderContext*           renderContext,
+                VulkanStructs::PostProcessingContext* postProcessingContext) override;
+
+    void Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext) override;
+
+    void Destroy() override;
+
+  private:
+    std::unique_ptr<VulkanUtils::VComputeEffect> m_upsacleEffect;
+    VulkanCore::VImage2&                         m_inputImage;
+};
+
 class BilateralFilterPass : public Renderer::RenderPass
 {
   public:
@@ -37,10 +62,12 @@ class BilateralFilterPass : public Renderer::RenderPass
     void Destroy() override;
 
   private:
+    std::unique_ptr<Renderer::UpscalePass>       m_upscalePass;
     VulkanCore::VImage2&                         m_inputImage;
     std::unique_ptr<VulkanUtils::VComputeEffect> m_bilateralFileter;
     BilaterialFilterParameters                   m_bilateralFilterParameters;
 };
+
 
 }  // namespace Renderer
 

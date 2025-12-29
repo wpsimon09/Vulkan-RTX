@@ -17,8 +17,11 @@ struct FilterParameters{
    float BSigma; // weight factor 
    float width;
    float height;
+   bool upscale;
+   float targetHeight;
+   float targetWidth;
 };
-static const int MSize = 4;
+static const int MSize = 5;
 
 [[vk::push_constant]]
 ConstantBuffer<FilterParameters> _filterParameters;
@@ -45,9 +48,18 @@ float edge_stoping_weight (float3 center_normal, float3 sampled_normal, float ph
 
 
 float3 bilaterialFilter(uint3 threadID){
-    float2 centerUV = float2(float(threadID.x) / _filterParameters.width, ((float)threadID.y) / (float)_filterParameters.height);
+    
+    float2 scale = float2(_filterParameters.width / _filterParameters.targetWidth, 
+                      _filterParameters.height / _filterParameters.targetHeight);
+
+    // dispatching on big image so use the target height and widht to compute uv coordinates 
+    float2 centerUV = (float2(threadID.xy) + 0.5) * scale / float2(_filterParameters.width, _filterParameters.height);
     float3 c = _noisyImage.Sample(centerUV).xyz;
-    float3 n_c = _nomrmalMap.Sample(centerUV).xyz;
+
+    uint2 normalMapDims;
+    _nomrmalMap.GetDimensions(normalMapDims.x, normalMapDims.y);
+    float2 normalMapCoords = threadID.xy / normalMapDims.xy;
+    float3 n_c = _nomrmalMap.Sample(normalMapCoords).xyz;
 
     const int kSize = (MSize - 1) / 2; // kernel size in one dimension
     // SPACIAL KERNEL
@@ -56,7 +68,7 @@ float3 bilaterialFilter(uint3 threadID){
     // - bialteral is composed of two weights, special and range 
     // - 2 parts spacial and range 
     const float kernel[MSize] = {
-        0.031225216, 0.033322271, 0.035206333, 0.036826804, //0.038138565  //, 0.039104044, 0.039695028, 0.039894000, 0.039695028,    
+        0.031225216, 0.033322271, 0.035206333, 0.036826804, 0.038138565 //, 0.039104044, 0.039695028, 0.039894000, 0.039695028,    
         // 0.039104044, 0.038138565, 0.036826804, 0.035206333, 0.033322271, 0.031225216
     };
 
@@ -72,10 +84,10 @@ float3 bilaterialFilter(uint3 threadID){
     for(int i= -kSize; i <= kSize; ++i){
         for( int j =-kSize; j <= kSize; ++j){
             int2 samplePos = int2(threadID.xy) + int2(i, j);
-            float2 uv = float2(samplePos) / float2(_filterParameters.width, _filterParameters.height);
-    
-    
-            // SAMPLE THE PRECOMPUTED GAUSIANG WEIGHT KERNEL
+            float2 lowResUV = (float2(threadID.xy) + float2(i, j) + 0.5) * scale / float2(_filterParameters.width, _filterParameters.height);
+            float2 fullResUv = float2(threadID.xy + 0.5) / float2(_filterParameters.targetWidth, _filterParameters.targetHeight); 
+            float2 normalMapUvs = float2(threadID.xy + 0.5) / float2(normalMapDims.x, normalMapDims.y);
+            // SAMPLE THE PPoRECOMPUTED GAUSIANG WEIGHT KERNEL
             // - it stores how far away are neighboring pixels and their weight according to the normal istribution
             // - samples closer to the center affect the final result mmore  
             float spacialWeight = kernel[kSize + j] * kernel[kSize + i];
@@ -83,14 +95,13 @@ float3 bilaterialFilter(uint3 threadID){
             // RANGE KERNEL
             // - how similuar the neightboring pixels are 
             // - based on normla vector simiularity and depth similuarity
-            n_sample = _nomrmalMap.Sample(uv).xyz;
+            n_sample = normalize(_nomrmalMap.Sample(normalMapUvs).xyz);
             float rangeWeight =  edge_stoping_weight(n_c, n_sample, _filterParameters.BSigma);
 
             //rangeWeight * 
             factor = spacialWeight * rangeWeight;
-            
-            cc = _noisyImage.Sample(uv).xyz;
-
+                        
+            cc = _noisyImage.Sample(lowResUV).xyz;
             final_colour += factor * cc;
             total_weight += factor;
 

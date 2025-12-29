@@ -157,6 +157,7 @@ class CompositePass : public RenderPass
     std::shared_ptr<VulkanUtils::VComputeEffect> m_compositeEffect;
 };
 
+
 }  // namespace Renderer
 
 #endif  //VULKAN_RTX_POSTPROCESSING_HPP

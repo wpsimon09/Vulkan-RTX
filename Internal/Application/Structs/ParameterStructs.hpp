@@ -11,6 +11,9 @@ struct BilaterialFilterParameters
     float BSigma = 1.0f;
     float width;
     float height;
+    int   upscale;
+    float targetHeight;
+    float targetWdidth;
 };
 
 struct AoOcclusionParameters
