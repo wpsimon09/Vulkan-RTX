@@ -65,9 +65,9 @@ struct ReflectionsParameters{
     // when we miss we accumulate atmosphere stuff or IBL
     float atmosphereBottom;
     float atmosphereTop;
+    float reflectionStrenght;
     float3 sunDirection;
     float sunStrenght;
-    float reflectionStrenght;
 }
 
 [[vk::push_constant]]
@@ -240,7 +240,8 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
                float cosTheta = max(dot(hitG.shadingNormal, sample2.wi), 0.0);
                float3 radiance = float3(1.0);
                float3 f = brdf2.brdf.Evaluate(hitWo, sample2.wi, hitG);
-               reflection = ((radiance * f * cosTheta) / sample2.PDF) * reflectionsParameters.reflectionStrenght;
+               reflection = (radiance * f * cosTheta) / sample2.PDF;
+               reflection *= reflectionsParameters.reflectionStrenght;
             }   
         }
 
@@ -249,7 +250,8 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         {
             if(reflectionsParameters.hasAtmosphere){
                 float3 worldPos = ray.Origin + float3(0, reflectionsParameters.atmosphereBottom,0.0);
-r    
+                float3 worldDir = ray.Direction; // NEGATE ?
+    
                 float viewHeight = length(worldPos); 
                 float3 L = float3(0.0);
     

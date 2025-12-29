@@ -115,9 +115,9 @@ struct ReflectionsParameters
     int       hasAtmosphere;
     float     atmosphereBottom;
     float     atmosphereRadiusTop;
+    float     reflectionsStrength;
     glm::vec3 sunDirection;
     float     sunStrenght = 1.0f;
-    float     reflectionsStrength;
 };
 
 struct AtmosphereParameters
