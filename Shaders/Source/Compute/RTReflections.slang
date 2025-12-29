@@ -5,7 +5,8 @@ import Surface;
 import Utils;
 import RandomValues;
 import RayTracingUtils;
-
+import Intersections;
+import Atmosphere;
 //========================
 // set 0 
 
@@ -36,6 +37,9 @@ Sampler2D _previousSampled;
 [[vk::binding(8, 0)]]
 Sampler2D _albedoMap;
 
+[[vk::binding(9, 0)]]
+Sampler2D _skyViewLut;
+
 //=====================
 // set 1 
 [[vk::binding(0,1)]]
@@ -50,15 +54,24 @@ Sampler2D textures[];
 [[vk::binding(3,1)]]
 RaytracingAccelerationStructure _tlas;
 
+
+
 struct ReflectionsParameters{
     bool accumulate;
     float specularLobeTrashHold;
+
+    bool hasAtmosphere;
+
+    // when we miss we accumulate atmosphere stuff or IBL
+    float atmosphereBottom;
+    float atmosphereTop;
+    float3 sunDirection;
+    float sunStrenght;
+    float reflectionStrenght;
 }
 
 [[vk::push_constant]]
 ReflectionsParameters reflectionsParameters;
-
-
 
 internal SurfaceGeometry GetSurface(uint32_t primitiveIndex, uint32_t instanceIndex, float2 baricentric, float3x4 objectToWorld)
 {
@@ -212,6 +225,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
         result.Proceed();
         
+        // we have a hit
         if(result.CommittedStatus() == COMMITTED_TRIANGLE_HIT)
         {
             var hitWo = -result.WorldRayDirection();
@@ -226,9 +240,35 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
                float cosTheta = max(dot(hitG.shadingNormal, sample2.wi), 0.0);
                float3 radiance = float3(1.0);
                float3 f = brdf2.brdf.Evaluate(hitWo, sample2.wi, hitG);
-                   reflection = (radiance * f * cosTheta) / sample2.PDF;
+               reflection = ((radiance * f * cosTheta) / sample2.PDF) * reflectionsParameters.reflectionStrenght;
+            }   
+        }
+
+        // we dont have a hit so sample atmosphere or IBL
+        else
+        {
+            if(reflectionsParameters.hasAtmosphere){
+                float3 worldPos = ray.Origin + float3(0, reflectionsParameters.atmosphereBottom,0.0);
+r    
+                float viewHeight = length(worldPos); 
+                float3 L = float3(0.0);
+    
+                float2 uv;
+                float3 upVector = normalize(worldPos);
+                float viewZenithAngle = acos(dot(worldDir, upVector));
+                float lightViewAngle = acos(dot(normalize(float3(reflectionsParameters.sunDirection.xz, 0.0)), normalize(float3(worldDir.xz, 0.0))));
+    
+                float2 skyViewDims;
+                _skyViewLut.GetDimensions(skyViewDims.x, skyViewDims.y);
+    
+                bool intersetcsGround = raySphereIntersectNearest(worldPos, worldDir, float3(0.0), reflectionsParameters.atmosphereBottom) >= 0;
+                uv = SkyViewLutParamsToUv(intersetcsGround, float2(viewZenithAngle, lightViewAngle),viewHeight, float2(reflectionsParameters.atmosphereBottom, reflectionsParameters.atmosphereTop), skyViewDims);
+    
+                reflection += _skyViewLut.Sample(uv).xyz * reflectionsParameters.sunStrenght;
+            }    
+            else{
+                reflection = 1.0;
             }
-            
         }
         
         if(reflectionsParameters.accumulate){

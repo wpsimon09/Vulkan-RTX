@@ -60,6 +60,7 @@ void RenderingOptions::Render()
             ImGui::Checkbox("Accumulate##1", reinterpret_cast<bool*>(&m_applicationState.GetReflectionsParameters().accumulate));
             ImGui::SliderFloat("Reflections trash hold",
                                &m_applicationState.GetReflectionsParameters().specularLobeTrashHold, 0.0, 1.0);
+            ImGui::DragFloat("Reflections strenght", &m_applicationState.GetReflectionsParameters().reflectionsStrength, 1.0, 1.0);
             ImGui::TreePop();
         }
 

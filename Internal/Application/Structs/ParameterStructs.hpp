@@ -111,6 +111,13 @@ struct ReflectionsParameters
 {
     int accumulate = 1.0f;
     float specularLobeTrashHold = 0.7f;  // if probability that specular reflection on the surface will occure is below this we will not trace rays
+
+    int       hasAtmosphere;
+    float     atmosphereBottom;
+    float     atmosphereRadiusTop;
+    glm::vec3 sunDirection;
+    float     sunStrenght = 1.0f;
+    float     reflectionsStrength;
 };
 
 struct AtmosphereParameters

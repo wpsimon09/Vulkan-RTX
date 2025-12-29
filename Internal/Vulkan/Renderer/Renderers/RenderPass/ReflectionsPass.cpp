@@ -3,12 +3,14 @@
 //
 
 #include "ReflectionsPass.hpp"
+#include "Application/Structs/ParameterStructs.hpp"
 #include "Vulkan/Global/GlobalVulkanEnums.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/RenderPass.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
+#include <cstddef>
 #include <cstdint>
 #include <exception>
 #include <memory>
@@ -22,6 +24,7 @@
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "vulkan/vulkan.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
+#include "Application/Lightning/LightStructs.hpp"
 
 namespace Renderer {
 
@@ -113,6 +116,10 @@ void RayTracedReflectionsPass::Init(int                                 currentF
     m_rayTracedReflectionEffect->WriteImage(currentFrameIndex, 0, 8,
                                             renderContext->albedoMap->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
+
+    m_rayTracedReflectionEffect->WriteImage(currentFrameIndex, 0, 9,
+                                            renderContext->skyViewLut->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
     m_rayTracedReflectionEffect->ApplyWrites(currentFrameIndex);
 
     m_denoiser->Init(currentFrameIndex, uniformBufferManager, renderContext);
@@ -124,7 +131,7 @@ void RayTracedReflectionsPass::Update(int                                   curr
                                       VulkanStructs::PostProcessingContext* postProcessingContext)
 {
 
-    m_rayTracedReflectionEffect->SetNumWrites(3, uniformBufferManager.GetAll2DTextureDescriptorImageInfo().size() + 6, 1);
+    m_rayTracedReflectionEffect->SetNumWrites(3, uniformBufferManager.GetAll2DTextureDescriptorImageInfo().size() + 7, 1);
 
 
     m_rayTracedReflectionEffect->WriteBuffer(currentFrame, 1, 0, renderContext->rtxObjectBufer);
@@ -138,6 +145,20 @@ void RayTracedReflectionsPass::Update(int                                   curr
     m_rayTracedReflectionEffect->ApplyWrites(currentFrame);
 
     m_reflectionsParameters = uniformBufferManager.GetApplicationState()->GetReflectionsParameters();
+    m_reflectionsParameters.hasAtmosphere = uniformBufferManager.GetApplicationState()->GetAtmosphereParameters() != nullptr;
+    if(m_reflectionsParameters.hasAtmosphere)
+    {
+        auto* atmosphereParams = uniformBufferManager.GetApplicationState()->GetAtmosphereParameters();
+        m_reflectionsParameters.atmosphereBottom    = atmosphereParams->groundAlbedo.w;
+        m_reflectionsParameters.atmosphereRadiusTop = atmosphereParams->rayleighScattering.w;
+    }
+    if(uniformBufferManager.GetApplicationState()->GetSceneLightInfo().DirectionalLightInfo)
+    {
+        m_reflectionsParameters.sunDirection =
+            uniformBufferManager.GetApplicationState()->GetSceneLightInfo().DirectionalLightInfo->direction;
+        m_reflectionsParameters.sunStrenght =
+            uniformBufferManager.GetApplicationState()->GetSceneLightInfo().DirectionalLightInfo->colour.w;
+    }
 
     m_denoiser->Update(currentFrame, uniformBufferManager, renderContext, postProcessingContext);
 }

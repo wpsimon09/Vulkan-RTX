@@ -77,7 +77,7 @@ float4 fragmentMain(VertexOut fsIn){
     float3 clipSpace = float3(pixPos * float2(2.0) - float2(1.0), 1.0);
     float4 Hpos = mul(invViewProjMat, float4(clipSpace, 1.0));
 
-    float3 worldDir = normalize(Hpos.xyz / Hpos.w - camera);
+    float3 worldDir = normalize((Hpos.xyz / Hpos.w) - camera);
     float3 worldPos = camera * cameraScale + float3(0, atmosphere.radiusBottom,0.0);
 
     float viewHeight = length(worldPos);
