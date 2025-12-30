@@ -132,6 +132,11 @@ void computeMain(uint3 threadID :SV_DispatchThreadID){
     float2 dims;
     _outputFog.GetDimensions(dims.x, dims.y);
 
+     if(threadID.x >= dims.x || threadID.y >= dims.y){
+        return;
+    }
+    
+
     float2 texCoords = (dstWriteCoords + 0.5) / dims;
 
     float3 worldPos = _inputTexture_WorldPosition.Sample(texCoords).xyz;

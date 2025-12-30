@@ -9,6 +9,7 @@
 #include "Vulkan/Renderer/RenderingUtils.hpp"
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
 #include "Vulkan/Utils/VRayTracingManager/VRayTracingDataManager.hpp"
@@ -140,7 +141,7 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
     pcInfo.pValues    = &m_shadowMapParameters;
 
     m_rayTracedShadowEffect->CmdPushConstant(cmdB, pcInfo);
-    cmdB.dispatch(m_width / 16, (m_height / 16) + 1, 1);
+    cmdB.dispatch(VulkanUtils::celiDiv(m_width, 16), VulkanUtils::celiDiv(m_height, 16), 1);
 
     VulkanUtils::VBarrierPosition barrierPos;
     if((bool)m_shadowMapParameters.accumulate)
@@ -277,7 +278,7 @@ void AoOcclusionPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBu
 
     m_aoEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-    cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(VulkanUtils::celiDiv(m_width, 16), VulkanUtils::celiDiv(m_height, 16), 1);
 
 
     VulkanUtils::VBarrierPosition barrierPos;

@@ -135,6 +135,8 @@ void CopyImageWithBarriers(uint32_t                    width,
                            uint32_t                    srcOffset = 0,
                            uint32_t                    dstOffset = 0);
 
+int celiDiv(uint32_t x, uint32_t y);
+
 /*
     Sets the debug name of the vulkan object which will be displayed in the validation layer logs 
     T - shoudld be vulkan.h handle (VkImage, VkBuffer etc....)

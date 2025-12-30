@@ -180,7 +180,7 @@ void RayTracedReflectionsPass::Render(int currentFrame, VulkanCore::VCommandBuff
 
     m_rayTracedReflectionEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-    cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(VulkanUtils::celiDiv(m_width, 16), VulkanUtils::celiDiv(m_height, 16), 1);
 
     VulkanUtils::VBarrierPosition barrierPos;
 

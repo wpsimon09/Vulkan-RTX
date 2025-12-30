@@ -35,6 +35,11 @@ void compute_default_basis(const float3 normal, out float3 x, out float3 y, out 
 void computeMain(uint3 threadID: SV_DispatchThreadID){
     uint2 dims;
     _aoMap.GetDimensions(dims.x, dims.y);
+
+     if(threadID.x >= dims.x || threadID.y >= dims.y){
+        return;
+    }
+    
     float2 texCoords = (threadID.xy + 0.5) / dims;
 
     float3 N = _normalMap.Sample(texCoords).xyz;

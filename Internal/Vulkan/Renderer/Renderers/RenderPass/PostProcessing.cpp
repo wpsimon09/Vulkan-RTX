@@ -14,6 +14,7 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Utils/TransferOperationsManager/VTransferOperationsManager.hpp"
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/VUniformBufferManager.hpp"
@@ -129,7 +130,7 @@ void FogPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, Vu
     m_fogCalcEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
     int w = m_renderTargets[EFogPassAttachments::FogCompute]->GetWidth();
     int h = m_renderTargets[EFogPassAttachments::FogCompute]->GetHeight();
-    cmdBuffer.GetCommandBuffer().dispatch(w / 16, h / 16, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(VulkanUtils::celiDiv(w, 16), VulkanUtils::celiDiv(h, 16), 1);
 
     barrier = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                vk::PipelineStageFlagBits2::eFragmentShader, vk::AccessFlagBits2::eShaderRead};
@@ -792,8 +793,8 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
 
         m_downSampleEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-        cmdBuffer.GetCommandBuffer().dispatch((m_downSampleParams.src_xy_dst_xy.z) / 8,
-                                              (m_downSampleParams.src_xy_dst_xy.w) / 8, 1);
+        cmdBuffer.GetCommandBuffer().dispatch(VulkanUtils::celiDiv(m_downSampleParams.src_xy_dst_xy.z, 8),
+                                              VulkanUtils::celiDiv(m_downSampleParams.src_xy_dst_xy.w, 8), 1);
 
         VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                                                     vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};
@@ -843,7 +844,8 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         m_upSampleEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
 
-        cmdBuffer.GetCommandBuffer().dispatch((m_upSampleParams.src_xy_dst_xy.z) / 8, (m_upSampleParams.src_xy_dst_xy.w) / 8, 1);
+        cmdBuffer.GetCommandBuffer().dispatch(VulkanUtils::celiDiv(m_upSampleParams.src_xy_dst_xy.z, 8),
+                                              VulkanUtils::celiDiv(m_upSampleParams.src_xy_dst_xy.w, 8), 1);
 
         VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                                                     vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};
@@ -880,8 +882,9 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
 
     m_combineEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-    cmdBuffer.GetCommandBuffer().dispatch(m_renderTargets[EBloomAttachments::BloomOutput]->GetWidth() / 16,
-                                          m_renderTargets[EBloomAttachments::BloomOutput]->GetHeight() / 16, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(
+        VulkanUtils::celiDiv(m_renderTargets[EBloomAttachments::BloomOutput]->GetWidth(), 16),
+        VulkanUtils::celiDiv(m_renderTargets[EBloomAttachments::BloomOutput]->GetHeight(), 16), 1);
 
     barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                   vk::PipelineStageFlagBits2::eComputeShader | vk::PipelineStageFlagBits2::eFragmentShader,
@@ -987,7 +990,7 @@ void CompositePass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuff
 
     int width  = m_renderTargets[0]->GetWidth();
     int height = m_renderTargets[0]->GetHeight();
-    cmdBuffer.GetCommandBuffer().dispatch(width / 16, height / 16, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(VulkanUtils::celiDiv(width, 16), VulkanUtils::celiDiv(height, 16), 1);
 
     m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
                                               VulkanUtils::VImage_SampledRead_To_General.Switch());

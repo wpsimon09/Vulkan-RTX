@@ -52,6 +52,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     if (threadID.x >= dims.x || threadID.y >= dims.y){
         return;
     }
+    
 
     float2 texCoords = (dstWriteCoords + 0.5) / dims;
 

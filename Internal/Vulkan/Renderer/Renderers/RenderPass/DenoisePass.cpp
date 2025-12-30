@@ -113,8 +113,8 @@ void BilateralFilterPass::Render(int currentFrame, VulkanCore::VCommandBuffer& c
 
     m_bilateralFileter->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-    cmdBuffer.GetCommandBuffer().dispatch(m_bilateralFilterParameters.targetWdidth / 16,
-                                          m_bilateralFilterParameters.targetHeight / 16, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(VulkanUtils::celiDiv(m_bilateralFilterParameters.targetWdidth, 16),
+                                          VulkanUtils::celiDiv(m_bilateralFilterParameters.targetHeight, 16), 1);
 
     VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                                                 vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
@@ -182,7 +182,7 @@ void UpscalePass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer
 
     m_upsacleEffect->BindPipeline(cmdBuffer.GetCommandBuffer());
     m_upsacleEffect->BindDescriptorSet(cmdBuffer.GetCommandBuffer(), currentFrame, 0);
-    cmdBuffer.GetCommandBuffer().dispatch(m_width / 16, m_height / 16, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(VulkanUtils::celiDiv(m_width, 16), VulkanUtils::celiDiv(m_height, 16), 1);
 
     m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
                                               VulkanUtils::VImage_SampledRead_To_General.Switch());

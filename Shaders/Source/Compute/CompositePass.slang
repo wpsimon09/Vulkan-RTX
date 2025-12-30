@@ -35,10 +35,16 @@ ConstantBuffer<GlobalData2> _globalData;
 [[numthreads(16, 16, 1)]]
 void computeMain(uint3 threadID : SV_DispatchThreadID){
 
+    
+    
     var parsedGlobalData = _globalData.Parse();
-
+    
     uint2 dims;
     _finalImage.GetDimensions(dims.x, dims.y);
+
+    if(threadID.x >= dims.x || threadID.y >= dims.y){
+        return;
+    }
 
     float2 texCoords = (threadID.xy + 0.5) / dims;
     

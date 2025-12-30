@@ -10,6 +10,7 @@
 #include "Vulkan/Utils/VEffect/VComputeEffect.hpp"
 #include "Application/AssetsManger/EffectsLibrary/EffectsLibrary.hpp"
 #include "Vulkan/Utils/VEffect/VRasterEffect.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 #include "Vulkan/Utils/VPipelineBarriers.hpp"
 #include "Vulkan/VulkanCore/Samplers/VSamplers.hpp"
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
@@ -200,8 +201,9 @@ void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cm
                                           cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
 
 
-    cmdBuffer.GetCommandBuffer().dispatch(m_renderTargets[EAtmosphereAttachments::TransmitanceLUT]->GetWidth() / 16,
-                                          m_renderTargets[EAtmosphereAttachments::TransmitanceLUT]->GetHeight() / 16, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(
+        VulkanUtils::celiDiv(m_renderTargets[EAtmosphereAttachments::TransmitanceLUT]->GetWidth(), 16),
+        VulkanUtils::celiDiv(m_renderTargets[EAtmosphereAttachments::TransmitanceLUT]->GetHeight(), 16), 1);
 
     barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite | vk::AccessFlagBits2::eShaderStorageWrite,
                   vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
@@ -246,8 +248,9 @@ void AtmospherePass::Precompute(int currentFrame, VulkanCore::VCommandBuffer& cm
                                           cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);
 
 
-    cmdBuffer.GetCommandBuffer().dispatch(m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetWidth() / 16,
-                                          m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetHeight() / 16, 1);
+    cmdBuffer.GetCommandBuffer().dispatch(
+        VulkanUtils::celiDiv(m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetWidth(), 16),
+        VulkanUtils::celiDiv(m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetHeight(), 16), 1);
 
     VulkanUtils::PlaceImageMemoryBarrier2(m_renderTargets[EAtmosphereAttachments::SkyViewLut]->GetPrimaryImage(),
                                           cmdBuffer, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral, barrierPos);

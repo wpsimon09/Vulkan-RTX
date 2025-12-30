@@ -29,7 +29,12 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
 
     
     float2 texCooreds = (dstWriteCoords + 0.5) / dstDim; // convert to normlaised 0,1 space 
+
+    if(threadId.x >= dstDim.x || threadId.y >= dstDim.y){
+        return;
+    }
     
+
     float4 HDRColour = hdrTexture.Sample(texCooreds);
     float4 BloomResult = _bloomUpSampleResult_A.Sample(texCooreds);
     

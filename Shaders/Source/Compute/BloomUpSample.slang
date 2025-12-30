@@ -20,9 +20,13 @@ BloomUpSampleParams _bloomUpSampleParams;
 [numthreads(8, 8, 1)]
 void computeMain(uint3 threadId : SV_DispatchThreadID){
     int2 dstCoord = threadId.xy;
-
+    
     float2 srcRes = _bloomUpSampleParams.src_xy_dst_xy.xy;
     float2 dstRes = _bloomUpSampleParams.src_xy_dst_xy.zw;
+    if(threadId.x >= dstRes.x || threadId.y > =dstRes.y){
+        return;
+    }
+    
 
     float2 texelSize = 1.0 / srcRes;
     // filter is in textel size

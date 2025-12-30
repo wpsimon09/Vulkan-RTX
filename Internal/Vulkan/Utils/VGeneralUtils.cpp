@@ -880,3 +880,8 @@ void VulkanUtils::CopyImageWithBarriers(uint32_t                    width,
     VulkanUtils::PlaceImageMemoryBarrier2(dstImage, cmdBuffer, vk::ImageLayout::eTransferDstOptimal,
                                           vk::ImageLayout::eShaderReadOnlyOptimal, barrierPos);
 }
+
+int VulkanUtils::celiDiv(uint32_t x, uint32_t y)
+{
+    return (x + y - 1) / y;
+}

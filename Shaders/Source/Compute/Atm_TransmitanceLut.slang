@@ -15,6 +15,11 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
    int width, height;
    transmittanceLut.GetDimensions(width, height);
 
+   if(threadIdx.x >= width || threadIdx.y >= height){
+      return;
+   }
+   
+
    AtmosphereParamsGPU atmos = atmosphereParams.Parse();
    atmos.transmitanceTextureWidth = width;
    atmos.transmitanceTextureHeight = height;

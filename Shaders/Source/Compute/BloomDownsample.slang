@@ -29,6 +29,11 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     // Get resolutions from push constants
     float2 srcResolution = float2(_bloomDownsampleParams.src_dst_resolution.x, _bloomDownsampleParams.src_dst_resolution.y);
     float2 dstResolution = float2(_bloomDownsampleParams.src_dst_resolution.z, _bloomDownsampleParams.src_dst_resolution.w);
+
+     if(threadId.x >= dstResolution.x || threadId.y >= dstResolution.y){
+        return;
+    }
+    
     
     // since i am using sampler the tex coordinates have to be in 0 - 1 range which is achieved by deviding by the src resolution
     float2 srcTexCoord = (float2(threadId.xy) + 0.5) / dstResolution;
