@@ -206,6 +206,22 @@ public bool IsNan(float3 vec){
     return (isnan(vec.x) || isnan(vec.y) || isnan(vec.z));
 }
 
+/*
+Checks if the point was occluded in the previous frame 
+*/
+public bool PlaneDistanceDissOcclusion(float3 currentPos, float3 historyPos, float3 current_normal, float TRASHOLD)
+{
+    float3 to_current = currentPos - historyPos;
+    float distanceToPlane = abs(dot(to_current, current_normal));
+
+    return distanceToPlane > TRASHOLD;
+}
+
+public bool NormalsDissocclusionCheck(float3 currentN, float3 historyN, float TRASHOLD)
+{
+    return pow(abs(dot(currentN, historyN)), 2) > TRASHOLD;
+}
+
 
 
 

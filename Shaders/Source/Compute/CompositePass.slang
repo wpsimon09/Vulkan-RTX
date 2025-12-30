@@ -77,7 +77,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
 
         float3 specualarWeight = (1.0 - roughnessMetallnes.x);
 
-        float3 specular = reflectionValue * (specualarWeight * specualarWeight);
+        float3 specular = reflectionValue * ( specualarWeight);
 
         col += specular;
     }

@@ -54,8 +54,6 @@ Sampler2D textures[];
 [[vk::binding(3,1)]]
 RaytracingAccelerationStructure _tlas;
 
-
-
 struct ReflectionsParameters{
     bool accumulate;
     float specularLobeTrashHold;
@@ -148,6 +146,13 @@ public PBRMaterial GetMaterial(uint32_t instnaceIndex){
     pbrMat.emissive_map = textures[pbrMat.features.emissiveTextureIdx];
 
     return pbrMat;
+}
+
+
+
+bool IsReprojectionValid( float3 currentPos, float3 previousPos,  float3 currentN, float3 previousN){
+    return PlaneDistanceDissOcclusion(currentPos, previousPos,currentN, 5.0f) && NormalsDissocclusionCheck(currentN, previousN, 0.1f);
+
 }
 
 /*
@@ -273,13 +278,15 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
             }
         }
         
-        if(reflectionsParameters.accumulate){
+        float alpha = 0.2;
+        float2 motionVector = _motionVector.Sample(texCoords).xy;
+        
+        float2 reprojectedCoords = texCoords - motionVector;
+        float3 previousNormal = normalize(_normalMap.Sample(reprojectedCoords).xyz);
+        float3 previousPosition = _positionBuffer.Sample(reprojectedCoords).xyz;
+        
+        if(reflectionsParameters.accumulate && IsReprojectionValid(pos, previousNormal, N, previousNormal)){
 
-            float alpha = 0.2;
-            float2 motionVector = _motionVector.Sample(texCoords).xy;
-            
-            float2 reprojectedCoords = texCoords - motionVector;
-            
             float4 reflLast = _previousSampled.Sample(reprojectedCoords);
             
             _outputImage[threadID.xy].xyz = alpha * reflection + (1.0f - alpha) * reflLast.xyz;
