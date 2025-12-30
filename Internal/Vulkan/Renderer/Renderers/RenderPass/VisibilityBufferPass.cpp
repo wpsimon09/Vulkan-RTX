@@ -25,23 +25,55 @@
 namespace Renderer {
 VisibilityBufferPass::VisibilityBufferPass(const VulkanCore::VDevice& device, ApplicationCore::EffectsLibrary& effectLibrary, int width, int height)
     : Renderer::RenderPass(device, width, height)
-    , m_aoOcclusionParameters{}
+    , m_shadowMapParameters{}
 {
+
     //=================================================
     // create the effect
     m_rayTracedShadowEffect = effectLibrary.GetEffect<VulkanUtils::VComputeEffect>(ApplicationCore::EEffectType::RTShadowPass);
 
     //===================================================
     // create render target
-    Renderer::RenderTarget2CreatInfo shadowMapCI{
-        width, height, false, false, vk::Format::eR16Sfloat, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ResolveModeFlagBits::eNone, true, "visibility buffer attachment"};
+    Renderer::RenderTarget2CreatInfo shadowMapCI{width,
+                                                 height,
+                                                 false,
+                                                 false,
+                                                 vk::Format::eR16Sfloat,
+                                                 vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                 vk::ResolveModeFlagBits::eNone,
+                                                 true,
+                                                 "visibility buffer attachment",
+                                                 vk::ImageUsageFlagBits::eTransferSrc};
 
     m_renderTargets.emplace_back(std::make_unique<Renderer::RenderTarget2>(m_device, shadowMapCI));
+
+    VulkanCore::VImage2CreateInfo previousImageCI{width,
+                                                  height,
+                                                  4,
+                                                  1,
+                                                  "generated",
+                                                  EImageSource::Generated,
+                                                  1,
+                                                  1,
+                                                  vk::Format::eR16Sfloat,
+                                                  vk::ImageAspectFlagBits::eColor,
+                                                  vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
+                                                  vk::SampleCountFlagBits::e1,
+                                                  vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                  "Previously sampled Shadow map",
+                                                  "Previously sampled Shadow Map",
+                                                  false};
+
+    m_previousFrame = std::make_unique<VulkanCore::VImage2>(m_device, previousImageCI);
+
+    VulkanUtils::PlaceImageMemoryBarrier2(*m_previousFrame, m_device.GetTransferOpsManager().GetCommandBuffer(),
+                                          vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                          VulkanUtils::VImage_Undefined_ToShaderRead);
 }
 void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManager& uniformBufferManager, VulkanUtils::RenderContext* renderContext)
 {
 
-    m_rayTracedShadowEffect->SetNumWrites(3, 5, 1);
+    m_rayTracedShadowEffect->SetNumWrites(3, 7, 1);
 
     m_rayTracedShadowEffect->WriteBuffer(frameIndex, 0, 0, uniformBufferManager.GetLightBufferDescriptorInfo()[frameIndex]);
 
@@ -50,15 +82,20 @@ void VisibilityBufferPass::Init(int frameIndex, VulkanUtils::VUniformBufferManag
     m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 2,
                                         renderContext->positionMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
-    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 3,
-                                        MathUtils::LookUpTables.BlueNoise1024->GetHandle()->GetDescriptorImageInfo(
-                                            VulkanCore::VSamplers::Sampler2D));
+    m_rayTracedShadowEffect->WriteImage(
+        frameIndex, 0, 3, MathUtils::LookUpTables.BlueNoise64->GetHandle()->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
 
     m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 4,
                                         renderContext->normalMap->GetDescriptorImageInfo(VulkanCore::VSamplers::SamplerDepth));
 
     m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 5,
                                         GetPrimaryAttachemntDescriptorInfo(EVisibilityBufferAttachments::ShadowMap));
+
+    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 6,
+                                        renderContext->motionVector->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
+    m_rayTracedShadowEffect->WriteImage(frameIndex, 0, 7, m_previousFrame->GetDescriptorImageInfo(VulkanCore::VSamplers::Sampler2D));
+
 
     m_rayTracedShadowEffect->ApplyWrites(frameIndex);
 }
@@ -72,7 +109,9 @@ void VisibilityBufferPass::Update(int                                   currentF
     m_rayTracedShadowEffect->WriteAccelerationStrucutre(currentFrame, 0, 1, renderContext->tlas);
     m_rayTracedShadowEffect->ApplyWrites(currentFrame);
 
-    m_aoOcclusionParameters = uniformBufferManager.GetApplicationState()->GetAoOcclusionParameters();
+    m_shadowMapParameters = uniformBufferManager.GetApplicationState()->GetShadowMapParmaeters();
+    m_shadowMapParameters.sampleLevel =
+        m_device.CurrentFrame % MathUtils::LookUpTables.BlueNoise64->GetHandle()->GetImageInfo().arrayLayers;
 }
 
 void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, VulkanUtils::RenderContext* renderContext)
@@ -93,12 +132,47 @@ void VisibilityBufferPass::Render(int currentFrame, VulkanCore::VCommandBuffer& 
     m_rayTracedShadowEffect->BindDescriptorSet(cmdB, currentFrame, 0);
 
     //dispatch
+    vk::PushConstantsInfo pcInfo;
+    pcInfo.layout     = m_rayTracedShadowEffect->GetPipelineLayout();
+    pcInfo.offset     = 0;
+    pcInfo.size       = sizeof(m_shadowMapParameters);
+    pcInfo.stageFlags = vk::ShaderStageFlagBits::eAll;
+    pcInfo.pValues    = &m_shadowMapParameters;
 
+    m_rayTracedShadowEffect->CmdPushConstant(cmdB, pcInfo);
     cmdB.dispatch(m_width / 16, (m_height / 16) + 1, 1);
 
-    m_renderTargets[EVisibilityBufferAttachments::ShadowMap]->TransitionAttachments(
-        cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
-        VulkanUtils::VImage_SampledRead_To_General.Switch());
+    VulkanUtils::VBarrierPosition barrierPos;
+    if((bool)m_shadowMapParameters.accumulate)
+    {
+
+        barrierPos = VulkanUtils::VBarrierPosition{vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
+                                                   vk::PipelineStageFlagBits2::eCopy, vk::AccessFlagBits2::eTransferRead};
+
+        // storage image now will be read so read only layout
+        m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eTransferSrcOptimal,
+                                                  vk::ImageLayout::eGeneral, barrierPos);
+
+        //======================================
+        // Copy the result to the previous image
+        // - make previous transfer dst
+        // - copy the values
+        // - make shader read only again
+        VulkanUtils::CopyImageWithBarriers(m_width, m_height, cmdBuffer, m_renderTargets[0]->GetPrimaryImage(), *m_previousFrame);
+
+        barrierPos = {vk::PipelineStageFlagBits2::eTransfer, vk::AccessFlagBits2::eTransferRead,
+                      vk::PipelineStageFlagBits2::eFragmentShader | vk::PipelineStageFlagBits2::eComputeShader,
+                      vk::AccessFlagBits2::eShaderSampledRead};
+
+        // storage image now will be read so read only layout
+        m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                  vk::ImageLayout::eTransferSrcOptimal, barrierPos);
+    }
+    else
+    {
+        m_renderTargets[0]->TransitionAttachments(cmdBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral,
+                                                  VulkanUtils::VImage_SampledRead_To_General.Switch());
+    }
 }
 
 void VisibilityBufferPass::Destroy()
@@ -244,6 +318,7 @@ void AoOcclusionPass::Destroy()
 {
     RenderPass::Destroy();
     m_previousFrame->Destroy();
+    //m_denoiser->Destroy();
 }
 
 

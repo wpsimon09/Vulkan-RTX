@@ -227,6 +227,7 @@ void RayTracedReflectionsPass::Destroy()
 {
     RenderPass::Destroy();
     m_previousImage->Destroy();
+    m_denoiser->Destroy();
 }
 
 }  // namespace Renderer

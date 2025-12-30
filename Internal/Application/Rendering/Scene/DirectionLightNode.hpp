@@ -4,6 +4,7 @@
 
 #ifndef DRECTIONAL_LIGHT_NODE_H
 #define DRECTIONAL_LIGHT_NODE_H
+#include "Application/Structs/ParameterStructs.hpp"
 #include "SceneNode.hpp"
 #include "Application/Lightning/LightStructs.hpp"
 #include "Base/LightNode.hpp"
@@ -22,8 +23,11 @@ class DirectionLightNode : public ApplicationCore::LightNode<LightStructs::Direc
     void Update(SceneUpdateContext& sceneUpdateFlags) override;
     void ProcessNodeRemove() override;
 
+    ShadowMapParameters& GetShadowMapParameters();
+
   private:
     LightStructs::SceneLightInfo& m_sceneLightInfo;
+    ShadowMapParameters           m_shadowMapParams;
 };
 
 }  // namespace ApplicationCore

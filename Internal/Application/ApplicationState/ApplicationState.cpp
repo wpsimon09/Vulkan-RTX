@@ -135,4 +135,15 @@ ReflectionsParameters& ApplicationState::GetReflectionsParameters()
 }
 
 
+ShadowMapParameters& ApplicationState::GetShadowMapParmaeters()
+{
+    return *m_shadowMapParameters;
+}
+
+void ApplicationState::pSetShadowMapParameters(ShadowMapParameters* shadowMapParameters)
+{
+    m_shadowMapParameters = shadowMapParameters;
+}
+
+
 }  // namespace ApplicationCore

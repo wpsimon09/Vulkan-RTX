@@ -51,6 +51,9 @@ class ApplicationState
     GlobalRenderingInfo2& GetGlobalRenderingInfo2();
     void                  pSetGlobalRenderingInfoData2(GlobalRenderingInfo2* pGlobalRenderingInfo);
 
+    ShadowMapParameters& GetShadowMapParmaeters();
+    void                 pSetShadowMapParameters(ShadowMapParameters* shadowMapParameters);
+
     BilaterialFilterParameters&          GetBilateralFilaterParameters();
     AoOcclusionParameters&               GetAoOcclusionParameters();
     ToneMappingParameters&               GetToneMappingParameters();
@@ -83,6 +86,7 @@ class ApplicationState
     FogVolumeParameters*          m_fogVolumeParameters  = nullptr;  // instantiaded in FogNode.hpp
     AtmosphereParameters*         m_atmosphereParams     = nullptr;  // instantiated in AtmosphereNode.hpp
     GlobalRenderingInfo2*         m_globalRenderingData2 = nullptr;  // instantiaded in Clinet.hpp
+    ShadowMapParameters*          m_shadowMapParameters  = nullptr;  // instantiaaded in DirectionalLight.hpp
 
     BilaterialFilterParameters          m_bilaterialFilaterParameters;
     AoOcclusionParameters               m_aoOcclusionParameters;

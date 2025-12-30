@@ -6,13 +6,15 @@
 
 #include "Vulkan/Global/VulkanStructs.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
-
+#include "Application/Structs/ParameterStructs.hpp"
+#include "Application/ApplicationState/ApplicationState.hpp"
 namespace ApplicationCore {
 DirectionLightNode::DirectionLightNode(LightStructs::SceneLightInfo&   sceneLightInfo,
                                        std::shared_ptr<StaticMesh>     mesh,
                                        LightStructs::DirectionalLight* directionalLightData)
     : LightNode<LightStructs::DirectionalLight>(mesh, directionalLightData)
     , m_sceneLightInfo(sceneLightInfo)
+    , m_shadowMapParams{}
 {
     m_sceneNodeMetaData.nodeType        = ENodeType::DirectionalLightNode;
     sceneLightInfo.DirectionalLightInfo = &m_lightStruct;
@@ -25,7 +27,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
 {
     if(!renderingContext->RenderBillboards)
         return;
-    if (m_mesh && m_sceneNodeMetaData.IsVisible)
+    if(m_mesh && m_sceneNodeMetaData.IsVisible)
     {
         //==========================
         // render editor billboard
@@ -33,7 +35,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
         // frustrum culling
         if(m_sceneNodeMetaData.FrustumCull && GlobalVariables::RenderingOptions::EnableFrustrumCulling)
         {
-            if(!VulkanUtils::IsInViewFrustum (&m_mesh->GetMeshData()->bounds, m_transformation->GetModelMatrix(),
+            if(!VulkanUtils::IsInViewFrustum(&m_mesh->GetMeshData()->bounds, m_transformation->GetModelMatrix(),
                                              renderingContext->view, renderingContext->projection))
             {
                 return;
@@ -46,9 +48,9 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
         data.indexCount = m_mesh->GetMeshIndexCount();
         // data.indexCount_BB = m_mesh->GetMeshData()->indexData_BB.size / sizeof(uint32_t);
 
-        data.bounds     =  &m_mesh->GetMeshData()->bounds;
-        data.vertexData =  m_mesh->GetMeshData()->vertexData;
-        data.indexData  =  m_mesh->GetMeshData()->indexData;
+        data.bounds     = &m_mesh->GetMeshData()->bounds;
+        data.vertexData = m_mesh->GetMeshData()->vertexData;
+        data.indexData  = m_mesh->GetMeshData()->indexData;
 
         data.modelMatrix = m_transformation->GetModelMatrix();
         data.material    = m_mesh->GetMaterial().get();
@@ -59,7 +61,7 @@ void DirectionLightNode::Render(ApplicationCore::EffectsLibrary& effectsLibrary,
 
         data.position = m_transformation->GetPosition();
 
-        data.bounds   =  &m_mesh->GetMeshData()->bounds;
+        data.bounds   = &m_mesh->GetMeshData()->bounds;
         data.material = m_mesh->GetMaterial().get();
 
         renderingContext->AddDrawCall(data);
@@ -83,9 +85,10 @@ void DirectionLightNode::Update(SceneUpdateContext& sceneUpdateFlags)
     m_lightStruct.direction =
         glm::normalize(glm::vec3(m_transformation->GetRotationMatrix() * glm::vec4(glm::vec3(-1.0f, 0.0f, 0.0f), 0.0f)));
 
-
     m_lightStruct.inUse = m_sceneNodeMetaData.IsVisible;
     SceneNode::Update(sceneUpdateFlags);
+
+    sceneUpdateFlags.applicationState->pSetShadowMapParameters(&m_shadowMapParams);
 }
 
 void DirectionLightNode::ProcessNodeRemove()
@@ -93,5 +96,10 @@ void DirectionLightNode::ProcessNodeRemove()
     SceneNode::ProcessNodeRemove();
     m_lightStruct.Reset();
     m_sceneLightInfo.DirectionalLightInfo = nullptr;
+}
+
+ShadowMapParameters& DirectionLightNode::GetShadowMapParameters()
+{
+    return m_shadowMapParams;
 }
 }  // namespace ApplicationCore

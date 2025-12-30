@@ -20,13 +20,27 @@ public RaytracingAccelerationStructure _tlas;
 public Sampler2D _positionTexture;
 
 [[vk::binding(3,0)]]
-public Sampler2D _blueNoiseTextureArray;
+public Sampler2DArray _blueNoiseTextureArray;
 
 [[vk::binding(4,0)]]
 public Sampler2D _normalTexture;
 
 [[vk::binding(5, 0)]]
 writeonly RWTexture2D<float> visibilityBuffer;
+
+[[vk::binding(6, 0)]]
+Sampler2D _motionVector;
+
+[[vk::binding(7, 0)]]
+Sampler2D _previousShadow;
+
+struct ShadowMapParameters{
+    float sampleLevel;
+    bool temporalyAccumulate;
+}
+
+[[vk::push_constant]]
+ShadowMapParameters _params;
 
 [[shader("compute")]]
 [[numthreads(16, 16, 1)]]
@@ -54,7 +68,7 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
     float3 direction = normalize(_lightInfo.dirLight.direction.xyz);
     float sunRadius = _lightInfo.dirLight.direction.w;
 
-    float blueNoise = _blueNoiseTextureArray.Sample(texCoords).x;
+    float blueNoise = _blueNoiseTextureArray.Sample(float3(texCoords,  _params.sampleLevel)).x;
 
     // TODO: once temporal accumulation is working this will create uniue sample each pixel 
     //blueNoise = fract(blueNoise + goldenRatioConjugate * float(globalData.currentFrame) );
@@ -103,7 +117,18 @@ void computeMain(uint3 threadID : SV_DispatchThreadID){
         shadowFactor = lerp(shadowFactor, (inShadow ? 0.0 : 1.0), 1.0/float(i+1)) ;
     }
 
-    visibilityBuffer[threadID.xy] = shadowFactor;
+    if(_params.temporalyAccumulate){
+        float alpha = 0.4;
+        float2 motion = _motionVector.Sample(texCoords).xy;
+        float2 previousTexCoords = texCoords - motion;
+        float shadowLast = _previousShadow.Sample(previousTexCoords).x;
+
+        visibilityBuffer[threadID.xy] = alpha * shadowFactor + (1.0f - alpha) * shadowLast;
+        return;
+    }else{
+        visibilityBuffer[threadID.xy] = shadowFactor;
+    }
+
 
 }
 

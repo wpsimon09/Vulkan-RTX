@@ -5,6 +5,7 @@
 #ifndef DETAILSPANNEL_HPP
 #define DETAILSPANNEL_HPP
 
+#include "Application/ApplicationState/ApplicationState.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Scene/SceneNode.hpp"
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"

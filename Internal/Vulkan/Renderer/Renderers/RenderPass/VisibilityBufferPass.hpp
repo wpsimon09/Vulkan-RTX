@@ -4,6 +4,7 @@
 
 #ifndef RTSHADOWMAPPASS_HPP
 #define RTSHADOWMAPPASS_HPP
+#include "Application/Structs/ParameterStructs.hpp"
 #include "RenderPass.hpp"
 
 namespace VulkanCore {
@@ -40,7 +41,9 @@ class VisibilityBufferPass : public Renderer::RenderPass
 
   private:
     std::shared_ptr<VulkanUtils::VComputeEffect> m_rayTracedShadowEffect;
-    AoOcclusionParameters                        m_aoOcclusionParameters;
+    std::unique_ptr<VulkanCore::VImage2>         m_previousFrame;
+
+    ShadowMapParameters m_shadowMapParameters;
 };
 
 

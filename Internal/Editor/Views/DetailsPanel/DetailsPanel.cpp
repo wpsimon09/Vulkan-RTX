@@ -194,7 +194,8 @@ void DetailsPanel::RenderMeshOnlyUI()
 
 void DetailsPanel::RenderDirectionLightUI()
 {
-    auto DirLightNode = dynamic_cast<ApplicationCore::DirectionLightNode*>(m_selectedSceneNode.get());
+    auto  DirLightNode        = dynamic_cast<ApplicationCore::DirectionLightNode*>(m_selectedSceneNode.get());
+    auto& shadowMapParameters = DirLightNode->GetShadowMapParameters();
 
     ImGui::SeparatorText("General light settings");
     ImGui::SetNextItemWidth(600.0f);
@@ -206,6 +207,7 @@ void DetailsPanel::RenderDirectionLightUI()
 
     ImGui::SliderInt("Shadow rays", &DirLightNode->GetLightStruct().shadowRaysPerPixel, 1, 64);
     ImGui::SliderFloat("Shadow bias", &DirLightNode->GetLightStruct().shadowBias, 0.0001f, 10.0);
+    ImGui::Checkbox("Accumulate shadows", reinterpret_cast<bool*>(&shadowMapParameters.accumulate));
 }
 
 void DetailsPanel::RenderPointLightUI()

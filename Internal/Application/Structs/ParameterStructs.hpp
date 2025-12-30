@@ -132,4 +132,10 @@ struct AtmosphereParameters
     glm::ivec4 booleans = {0.0, 0.0, 0.0, 0.0};
 };
 
+struct ShadowMapParameters
+{
+    float sampleLevel = 1.0;
+    int   accumulate;
+};
+
 #endif

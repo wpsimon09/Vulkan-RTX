@@ -80,7 +80,7 @@ void computeMain(uint3 threadID: SV_DispatchThreadID){
     //============================
     // Temporally accumulate
     if(_aoParameters.accumulate){
-        float alpha = 0.4;
+        float alpha = 0.25;
         float2 motionVector = _motionVector.Sample(texCoords).xy;
         float2 reprojectedCoords = texCoords - motionVector;
         float aolast = _previousImage.Sample(reprojectedCoords).x;
