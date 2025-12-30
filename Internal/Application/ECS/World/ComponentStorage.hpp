@@ -4,7 +4,7 @@
 
 #ifndef VULKAN_RTX_COMPONENTSTORAGE_HPP
 #define VULKAN_RTX_COMPONENTSTORAGE_HPP
-#include "Application/ECS/Entity.hpp"
+#include "Application/ECS/Types.hpp"
 
 #include <unordered_map>
 

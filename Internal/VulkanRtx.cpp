@@ -73,6 +73,9 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Renderer/Renderers/PostProcessingSystem.h"
 #include "Application/ApplicationState/ApplicationState.hpp"
+#include "Application/ECS/Components/TransformComponent.hpp"
+#include "Application/ECS/World/ComponentManager.hpp"
+#include "Application/ECS/World/EntityManager.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/GBufferPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
@@ -150,6 +153,14 @@ void Application::Init()
     ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 
     m_client->GetApplicationState().GetSceneUpdateFlags().rebuildAs = true;
+
+    ECS::EntityManager    entityManager;
+    auto                  entity = entityManager.CreateEntity();
+    ECS::ComponentManager m_componentManager;
+    m_componentManager.RegisterComponent<ECS::TransformComponent>();
+
+    ECS::TransformComponent transform;
+    m_componentManager.AddComponentTo<ECS::TransformComponent>(entity, transform);
 }
 
 void Application::MainLoop()

@@ -252,13 +252,15 @@ set(SOURCES
         Internal/Application/Rendering/Scene/AtmosphereSceneNode.hpp
         Internal/Vulkan/Renderer/Renderers/RenderPass/ReflectionsPass.cpp
         Internal/Vulkan/Renderer/Renderers/RenderPass/ReflectionsPass.hpp
-        Internal/Application/ECS/Entity.hpp
+        Internal/Application/ECS/Types.hpp
         Internal/Application/ECS/Components/TransformComponent.hpp
         Internal/Application/ECS/Components/Component.hpp
         Internal/Application/ECS/World/EntityManager.cpp
         Internal/Application/ECS/World/EntityManager.hpp
         Internal/Application/ECS/World/ComponentStorage.cpp
         Internal/Application/ECS/World/ComponentStorage.hpp
+        Internal/Application/ECS/World/ComponentManager.cpp
+        Internal/Application/ECS/World/ComponentManager.hpp
 
 )
 

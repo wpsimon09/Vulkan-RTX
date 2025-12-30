@@ -4,7 +4,7 @@
 
 #ifndef VULKAN_RTX_WORLD_HPP
 #define VULKAN_RTX_WORLD_HPP
-#include "Application/ECS/Entity.hpp"
+#include "Application/ECS/Types.hpp"
 
 
 #include <queue>
