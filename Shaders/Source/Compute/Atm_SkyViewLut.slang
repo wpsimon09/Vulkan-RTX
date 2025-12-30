@@ -135,11 +135,6 @@ void computeMain(int3 threadIdx: SV_DispatchThreadID){
     
     float width, height;
     skyViewLut.GetDimensions(width, height);
-
-    if(threadIdx.x >= width || threadIdx.x >== height){
-        return;
-    }
-    
     
     AtmosphereParamsGPU atmosParams = atmosphereParamsCPU.Parse();
 

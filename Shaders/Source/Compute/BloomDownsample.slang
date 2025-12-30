@@ -22,7 +22,7 @@ float KarisAverage(float3 colour){
 }
 
 [[shader("compute")]]
-[numthreads(8, 8, 1)]
+[numthreads(16, 16, 1)]
 void computeMain(uint3 threadId : SV_DispatchThreadID){
     uint2 dstCoord = threadId.xy;
     
@@ -31,6 +31,7 @@ void computeMain(uint3 threadId : SV_DispatchThreadID){
     float2 dstResolution = float2(_bloomDownsampleParams.src_dst_resolution.z, _bloomDownsampleParams.src_dst_resolution.w);
 
      if(threadId.x >= dstResolution.x || threadId.y >= dstResolution.y){
+        _downSampleResults[_bloomDownsampleParams.dstImage][dstCoord.xy].xyz = float3(0.0); 
         return;
     }
     

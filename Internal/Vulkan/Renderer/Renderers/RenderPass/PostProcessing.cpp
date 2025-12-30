@@ -793,8 +793,8 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
 
         m_downSampleEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
-        cmdBuffer.GetCommandBuffer().dispatch(VulkanUtils::celiDiv(m_downSampleParams.src_xy_dst_xy.z, 8),
-                                              VulkanUtils::celiDiv(m_downSampleParams.src_xy_dst_xy.w, 8), 1);
+        cmdBuffer.GetCommandBuffer().dispatch(VulkanUtils::celiDiv(m_downSampleParams.src_xy_dst_xy.z, 16),
+                                              VulkanUtils::celiDiv(m_downSampleParams.src_xy_dst_xy.w, 16), 1);
 
         VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                                                     vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};
@@ -844,8 +844,8 @@ void BloomPass::Render(int currentFrame, VulkanCore::VCommandBuffer& cmdBuffer, 
         m_upSampleEffect->CmdPushConstant(cmdBuffer.GetCommandBuffer(), pcInfo);
 
 
-        cmdBuffer.GetCommandBuffer().dispatch(VulkanUtils::celiDiv(m_upSampleParams.src_xy_dst_xy.z, 8),
-                                              VulkanUtils::celiDiv(m_upSampleParams.src_xy_dst_xy.w, 8), 1);
+        cmdBuffer.GetCommandBuffer().dispatch(VulkanUtils::celiDiv(m_upSampleParams.src_xy_dst_xy.z, 16),
+                                              VulkanUtils::celiDiv(m_upSampleParams.src_xy_dst_xy.w, 16), 1);
 
         VulkanUtils::VBarrierPosition barrierPos = {vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderWrite,
                                                     vk::PipelineStageFlagBits2::eComputeShader, vk::AccessFlagBits2::eShaderRead};

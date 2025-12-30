@@ -17,13 +17,14 @@ RWTexture2D DstImage[]; // the up-sampled texture where we up sample + apply blu
 BloomUpSampleParams _bloomUpSampleParams;
 
 [[shader("compute")]]
-[numthreads(8, 8, 1)]
+[numthreads(16, 16, 1)]
 void computeMain(uint3 threadId : SV_DispatchThreadID){
     int2 dstCoord = threadId.xy;
     
     float2 srcRes = _bloomUpSampleParams.src_xy_dst_xy.xy;
     float2 dstRes = _bloomUpSampleParams.src_xy_dst_xy.zw;
-    if(threadId.x >= dstRes.x || threadId.y > =dstRes.y){
+    if(threadId.x >= dstRes.x || threadId.y >= dstRes.y){
+        DstImage[(int)_bloomUpSampleParams.dstImage][uint2(dstCoord )].xyz = float3(0.0);
         return;
     }
     
