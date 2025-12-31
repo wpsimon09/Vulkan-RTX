@@ -2,11 +2,10 @@
 // Created by simon on 30/12/2025.
 //
 
-#ifndef VULKAN_RTX_WORLD_HPP
-#define VULKAN_RTX_WORLD_HPP
+#ifndef VULKAN_RTX_ENTITYMANAGER_HPP
+#define VULKAN_RTX_ENTITYMANAGER_HPP
+
 #include "Application/ECS/Types.hpp"
-
-
 #include <queue>
 
 namespace ECS {
@@ -28,7 +27,8 @@ class EntityManager
     /*
    * Stores unissued IDs of the entities
    */
-    std::queue<Entity> m_availableEntities;
+    std::queue<Entity> m_availableEntities{};
+
     /*
    * Contains bit fields for each entity
    * we decompose each bit of the 32-bit number where each bit is representing weather given
@@ -36,11 +36,11 @@ class EntityManager
    * Example: 1001
    * - transform component (y) rigid body (n) light (n) mesh (y)
    */
-    std::array<Signature, MAX_ENTITIES> m_signatures;
+    std::array<Signature, MAX_ENTITIES> m_signatures{};
 
-    uint32_t m_livingEntityCount;
+    uint32_t m_livingEntityCount{};
 };
 
 }  // namespace ECS
 
-#endif  //VULKAN_RTX_WORLD_HPP
+#endif  //VULKAN_RTX_ENTITYMANAGER_HPP

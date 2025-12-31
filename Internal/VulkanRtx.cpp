@@ -87,13 +87,15 @@
 #include "Vulkan/Renderer/Renderers/RenderPass/ReflectionsPass.hpp"
 
 
-Application::Application() = default;
+Application::Application()
+{
+    m_client = std::make_unique<Client>();
+}
 
 void Application::Init()
 {
     ApplicationCore::LoadConfig();
 
-    m_client = std::make_unique<Client>();
 
     m_windowManager = std::make_unique<WindowManager>(1000, 800);
     m_windowManager->InitWindow();
@@ -154,13 +156,12 @@ void Application::Init()
 
     m_client->GetApplicationState().GetSceneUpdateFlags().rebuildAs = true;
 
-    ECS::EntityManager    entityManager;
-    auto                  entity = entityManager.CreateEntity();
+    ECS::EntityManager    entiyManager;
+    auto                  entt = entiyManager.CreateEntity();
     ECS::ComponentManager m_componentManager;
     m_componentManager.RegisterComponent<ECS::TransformComponent>();
-
     ECS::TransformComponent transform;
-    m_componentManager.AddComponentTo<ECS::TransformComponent>(entity, transform);
+    m_componentManager.AddComponentTo<ECS::TransformComponent>(entt, transform);
 }
 
 void Application::MainLoop()

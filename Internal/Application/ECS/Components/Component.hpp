@@ -9,7 +9,7 @@
 namespace ECS {
 struct IComponent
 {
-    std::string_view name = "unknown";
+    std::string name = "unknown";
 };
 }  // namespace ECS
 

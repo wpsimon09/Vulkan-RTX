@@ -15,7 +15,7 @@
 namespace VulkanCore {
 class VGrowableBuffer;
 class VDescriptorLayoutCache;
-}
+}  // namespace VulkanCore
 namespace ApplicationCore {
 class EffectsLibrary;
 }
@@ -23,7 +23,7 @@ class EffectsLibrary;
 namespace VulkanUtils {
 class VRayTracingDataManager;
 class VTransferOperationsManager;
-}
+}  // namespace VulkanUtils
 
 namespace VEditor {
 class Editor;
@@ -58,40 +58,41 @@ class VulkanInstance;
 
 class Application
 {
-public:
-  Application();
+  public:
+    Application();
 
-  void Init();
+    void Init();
 
-  void Run();
+    void Run();
 
-  void Update();
+    void Update();
 
-  void Render();
+    void Render();
 
-  void PostRender();
+    void PostRender();
 
-  void MainLoop();
+    void MainLoop();
 
-  ~Application();
+    ~Application();
 
-private:
-  std::unique_ptr<class Client> m_client;
+  private:
+    std::unique_ptr<class Client> m_client;
 
-  std::unique_ptr<class WindowManager>                          m_windowManager;
-  std::unique_ptr<class VulkanUtils::VUniformBufferManager>     m_uniformBufferManager;
-  std::unique_ptr<class VulkanCore::VulkanInstance>             m_vulkanInstance;
-  std::unique_ptr<class VulkanCore::VDevice>                    m_vulkanDevice;
-  std::unique_ptr<class VEditor::UIContext>                     m_uiContext;
-  std::unique_ptr<class VEditor::Editor>                        m_editor;
-  std::unique_ptr<class Renderer::Frame>              m_frame;
-  std::unique_ptr<class VulkanCore::VDescriptorLayoutCache>     m_descriptorSetLayoutCache;
-  std::unique_ptr<class ApplicationCore::EffectsLibrary>        m_effectsLibrary;
-  std::unique_ptr<class VulkanUtils::VRayTracingDataManager>    m_rayTracingDataManager;
-  std::unique_ptr<class VulkanCore::VGrowableBuffer>            m_testGrowableBuffer;
+    std::unique_ptr<class WindowManager>                       m_windowManager;
+    std::unique_ptr<class VulkanUtils::VUniformBufferManager>  m_uniformBufferManager;
+    std::unique_ptr<class VulkanCore::VulkanInstance>          m_vulkanInstance;
+    std::unique_ptr<class VulkanCore::VDevice>                 m_vulkanDevice;
+    std::unique_ptr<class VEditor::UIContext>                  m_uiContext;
+    std::unique_ptr<class VEditor::Editor>                     m_editor;
+    std::unique_ptr<class Renderer::Frame>                     m_frame;
+    std::unique_ptr<class VulkanCore::VDescriptorLayoutCache>  m_descriptorSetLayoutCache;
+    std::unique_ptr<class ApplicationCore::EffectsLibrary>     m_effectsLibrary;
+    std::unique_ptr<class VulkanUtils::VRayTracingDataManager> m_rayTracingDataManager;
+    std::unique_ptr<class VulkanCore::VGrowableBuffer>         m_testGrowableBuffer;
 
-  // debu
-  bool m_buildAS = true;;
+    // debu
+    bool m_buildAS = true;
+    ;
 };
 
 #endif  //VULKANRTX_HPP
