@@ -27,6 +27,7 @@
 #include "Vulkan/Utils/VRenderingContext/VRenderingContext.hpp"
 #include "AssetsManger/Utils/VTextureAsset.hpp"
 #include "ApplicationState/ApplicationState.hpp"
+#include "World/World.hpp"
 
 Client::Client()
     : m_globalRenderingData2{}
@@ -34,6 +35,8 @@ Client::Client()
     m_applicationState = std::make_unique<ApplicationCore::ApplicationState>();
 
     m_applicationState->pSetGlobalRenderingInfoData2(&m_globalRenderingData2);
+
+    m_world = std::make_unique<ApplicationCore::World>(*m_applicationState);
 }
 
 void Client::Init()

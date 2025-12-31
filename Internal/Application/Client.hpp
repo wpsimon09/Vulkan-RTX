@@ -16,8 +16,9 @@
 
 
 namespace ApplicationCore {
+class World;
 class ApplicationState;
-}
+}  // namespace ApplicationCore
 namespace ApplicationCore {
 class GLTFLoader;
 }
@@ -62,6 +63,8 @@ class Client
 
     ApplicationCore::ApplicationState& GetApplicationState() { return *m_applicationState; }
 
+    ApplicationCore::World& GetWorld() { return *m_world; };
+
 
     void Update();
     void UpdateCamera(CameraUpdateInfo& cameraUpdateInfo);
@@ -80,9 +83,9 @@ class Client
     std::unique_ptr<ApplicationCore::GLTFLoader>                    m_gltfLoader;
     std::unique_ptr<ApplicationCore::GLTFExporter>                  m_gltfExporter;
     std::unique_ptr<ApplicationCore::ApplicationState>              m_applicationState;
-
-    GlobalRenderingInfo2 m_globalRenderingData2;
-    bool                 m_isRTXOn = false;
+    std::unique_ptr<ApplicationCore::World>                         m_world;
+    GlobalRenderingInfo2                                            m_globalRenderingData2;
+    bool                                                            m_isRTXOn = false;
 };
 
 

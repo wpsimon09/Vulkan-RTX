@@ -266,6 +266,8 @@ set(SOURCES
         Internal/Application/ECS/System/SystemManager.hpp
         Internal/Application/ECS/Coordinator.cpp
         Internal/Application/ECS/Coordinator.hpp
+        Internal/Application/World/World.cpp
+        Internal/Application/World/World.hpp
 
 )
 
