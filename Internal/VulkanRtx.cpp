@@ -85,7 +85,8 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/AtmospherePass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/ReflectionsPass.hpp"
-
+#include "Application/World/World.hpp"
+#include "Application/ECS/Coordinator.hpp"
 
 Application::Application()
 {

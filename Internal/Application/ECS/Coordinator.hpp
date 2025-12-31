@@ -25,9 +25,11 @@ class Coordinator
     Coordinator();
 
     ECS::Entity CreateEntity();
+    ECS::Entity CreateEntityWithMetadata(std::string name, char* icon, std::string tag);
+    void        DestroyEntity(Entity entity);
+    int         GetAllAliveEntities();
 
-    void DestroyEntity(Entity entity);
-
+    //===========================================
     template <typename T>
     void RegisterComponent()
     {

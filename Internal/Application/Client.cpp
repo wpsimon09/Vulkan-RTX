@@ -28,6 +28,7 @@
 #include "AssetsManger/Utils/VTextureAsset.hpp"
 #include "ApplicationState/ApplicationState.hpp"
 #include "World/World.hpp"
+#include "Application/ECS/Coordinator.hpp"
 
 Client::Client()
     : m_globalRenderingData2{}
@@ -37,6 +38,7 @@ Client::Client()
     m_applicationState->pSetGlobalRenderingInfoData2(&m_globalRenderingData2);
 
     m_world = std::make_unique<ApplicationCore::World>(*m_applicationState);
+    m_world->RegisterAll();
 }
 
 void Client::Init()

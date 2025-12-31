@@ -23,6 +23,8 @@ class EntityManager
 
     Signature GetSignature(Entity entity);
 
+    uint32_t GetLivingEntityCount();
+
   private:
     /*
    * Stores unissued IDs of the entities

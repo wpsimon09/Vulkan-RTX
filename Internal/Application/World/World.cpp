@@ -5,6 +5,7 @@
 #include "World.hpp"
 
 #include "Application/ECS/Coordinator.hpp"
+#include "Application/ECS/Components/MetadataComponent.hpp"
 #include "Application/ECS/Components/TransformComponent.hpp"
 
 namespace ApplicationCore {
@@ -17,6 +18,7 @@ World::World(ApplicationState& applicationState)
 void World::RegisterAll()
 {
     m_ecsCoordinator->RegisterComponent<ECS::TransformComponent>();
+    m_ecsCoordinator->RegisterComponent<ECS::MetadataComponent>();
 }
 
 ECS::Coordinator& World::GetECS()

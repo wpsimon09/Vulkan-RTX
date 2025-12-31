@@ -268,6 +268,9 @@ set(SOURCES
         Internal/Application/ECS/Coordinator.hpp
         Internal/Application/World/World.cpp
         Internal/Application/World/World.hpp
+        Internal/Editor/Views/SceneView/WorldOutline.cpp
+        Internal/Editor/Views/SceneView/WorldOutline.hpp
+        Internal/Application/ECS/Components/MetadataComponent.hpp
 
 )
 
