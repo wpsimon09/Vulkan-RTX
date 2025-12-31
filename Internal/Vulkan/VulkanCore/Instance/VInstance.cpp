@@ -218,7 +218,7 @@ void VulkanCore::VulkanInstance::CreateDebugUtilsMessenger()
 void VulkanCore::VulkanInstance::CreateSurface(GLFWwindow* window)
 {
     VkSurfaceKHR surface;
-    if(glfwCreateWindowSurface(VkInstance(m_instance), window, nullptr, &surface) != VK_SUCCESS)
+    if(glfwCreateWindowSurface(static_cast<VkInstance>(m_instance), window, nullptr, &surface) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create window surface");
     }

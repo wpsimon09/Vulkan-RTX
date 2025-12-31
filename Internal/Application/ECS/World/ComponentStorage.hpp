@@ -4,7 +4,7 @@
 
 #ifndef VULKAN_RTX_COMPONENTSTORAGE_HPP
 #define VULKAN_RTX_COMPONENTSTORAGE_HPP
-#include "Application/ECS/Entity.hpp"
+#include "Application/ECS/Types.hpp"
 
 #include <unordered_map>
 
@@ -30,7 +30,7 @@ class ComponentStorage : public IComponentStorage
   public:
     void InsertData(Entity entity, T component)
     {
-        assert(m_entityToIndexMap.contains(entity) && "This entity already has this component");
+        assert(!m_entityToIndexMap.contains(entity) && "This entity already has this component");
         size_t newIndex              = m_size;
         m_entityToIndexMap[entity]   = newIndex;
         m_indexToEntityMap[newIndex] = entity;
@@ -54,7 +54,7 @@ class ComponentStorage : public IComponentStorage
 
     T& GetData(Entity entity)
     {
-        assert(!m_entityToIndexMap.contains(entity) && "This entity does not exist");
+        assert(m_entityToIndexMap.contains(entity) && "This entity does not exist");
         return m_componentsArray[m_entityToIndexMap[entity]];
     }
     void OnEntityDestroyed(Entity entity) override
@@ -67,15 +67,15 @@ class ComponentStorage : public IComponentStorage
 
   private:
     // components for hte given type (can be transformation, rigid body etc etc...)
-    std::array<T, MAX_ENTITIES> m_componentsArray;
+    std::array<T, MAX_ENTITIES> m_componentsArray{};
 
     // get specific compoents based on the entity idE
-    std::unordered_map<Entity, size_t> m_entityToIndexMap;
+    std::unordered_map<Entity, size_t> m_entityToIndexMap{};
 
     // suply component id and get entity id
-    std::unordered_map<size_t, Entity> m_indexToEntityMap;
+    std::unordered_map<size_t, Entity> m_indexToEntityMap{};
 
-    size_t m_size = 0;
+    size_t m_size{};
 };
 
 }  // namespace ECS

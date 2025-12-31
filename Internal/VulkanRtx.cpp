@@ -73,6 +73,9 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Renderer/Renderers/PostProcessingSystem.h"
 #include "Application/ApplicationState/ApplicationState.hpp"
+#include "Application/ECS/Components/TransformComponent.hpp"
+#include "Application/ECS/World/ComponentManager.hpp"
+#include "Application/ECS/World/EntityManager.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/VisibilityBufferPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/GBufferPass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/DenoisePass.hpp"
@@ -82,15 +85,18 @@
 #include "Vulkan/VulkanCore/Synchronization/VTimelineSemaphore2.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/AtmospherePass.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/ReflectionsPass.hpp"
+#include "Application/World/World.hpp"
+#include "Application/ECS/ECSCoordinator.hpp"
 
-
-Application::Application() = default;
+Application::Application()
+{
+    m_client = std::make_unique<Client>();
+}
 
 void Application::Init()
 {
     ApplicationCore::LoadConfig();
 
-    m_client = std::make_unique<Client>();
 
     m_windowManager = std::make_unique<WindowManager>(1000, 800);
     m_windowManager->InitWindow();
@@ -150,6 +156,13 @@ void Application::Init()
     ApplicationCore::LoadClientSideConfig(*m_client, *m_uiContext);
 
     m_client->GetApplicationState().GetSceneUpdateFlags().rebuildAs = true;
+
+    ECS::EntityManager    entiyManager;
+    auto                  entt = entiyManager.CreateEntity();
+    ECS::ComponentManager m_componentManager;
+    m_componentManager.RegisterComponent<ECS::TransformComponent>();
+    ECS::TransformComponent transform;
+    m_componentManager.AddComponentTo<ECS::TransformComponent>(entt, transform);
 }
 
 void Application::MainLoop()

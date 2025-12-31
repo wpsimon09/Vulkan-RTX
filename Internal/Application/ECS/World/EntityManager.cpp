@@ -12,6 +12,7 @@ EntityManager::EntityManager()
         m_availableEntities.push(entity);
     }
 }
+
 ECS::Entity EntityManager::CreateEntity()
 {
     assert(m_livingEntityCount < ECS::MAX_ENTITIES && "Too many entities alive in the scene");
@@ -38,6 +39,10 @@ Signature EntityManager::GetSignature(Entity entity)
 {
     assert(entity < ECS::MAX_ENTITIES && "Entity out of range");
     return m_signatures[entity];
+}
+uint32_t EntityManager::GetLivingEntityCount()
+{
+    return m_livingEntityCount;
 }
 
 
