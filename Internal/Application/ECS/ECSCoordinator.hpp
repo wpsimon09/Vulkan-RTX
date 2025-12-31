@@ -2,8 +2,8 @@
 // Created by simon on 31/12/2025.
 //
 
-#ifndef VULKAN_RTX_COORDINATOR_HPP
-#define VULKAN_RTX_COORDINATOR_HPP
+#ifndef VULKAN_RTX_ECSCOORDINATOR_HPP
+#define VULKAN_RTX_ECSCOORDINATOR_HPP
 #include "Types.hpp"
 #include "System/SystemManager.hpp"
 #include "World/ComponentManager.hpp"
@@ -19,13 +19,13 @@ class EntityManager;
  * Ties together entire ECS
  * this what the world will be using
  */
-class Coordinator
+class ECSCoordinator
 {
   public:
-    Coordinator();
+    ECSCoordinator();
 
     ECS::Entity CreateEntity();
-    ECS::Entity CreateEntityWithMetadata(std::string name, char* icon, std::string tag);
+    ECS::Entity CreateEntityWithMetadata(const std::string& name, const char* icon, std::string tag);
     void        DestroyEntity(Entity entity);
     int         GetAllAliveEntities();
 
@@ -93,4 +93,4 @@ class Coordinator
 
 }  // namespace ECS
 
-#endif  //VULKAN_RTX_COORDINATOR_HPP
+#endif  //VULKAN_RTX_ECSCOORDINATOR_HPP

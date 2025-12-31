@@ -4,7 +4,7 @@
 
 #include "World.hpp"
 
-#include "Application/ECS/Coordinator.hpp"
+#include "Application/ECS/ECSCoordinator.hpp"
 #include "Application/ECS/Components/MetadataComponent.hpp"
 #include "Application/ECS/Components/TransformComponent.hpp"
 
@@ -12,7 +12,7 @@ namespace ApplicationCore {
 World::World(ApplicationState& applicationState)
     : m_applicationState(applicationState)
 {
-    m_ecsCoordinator = std::make_unique<ECS::Coordinator>();
+    m_ecsCoordinator = std::make_unique<ECS::ECSCoordinator>();
 }
 
 void World::RegisterAll()
@@ -21,7 +21,7 @@ void World::RegisterAll()
     m_ecsCoordinator->RegisterComponent<ECS::MetadataComponent>();
 }
 
-ECS::Coordinator& World::GetECS()
+ECS::ECSCoordinator& World::GetECS()
 {
     return *m_ecsCoordinator;
 }

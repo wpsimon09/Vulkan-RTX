@@ -5,7 +5,7 @@
 #include "WorldOutline.hpp"
 
 #include "IconsFontAwesome6.h"
-#include "Application/ECS/Coordinator.hpp"
+#include "Application/ECS/ECSCoordinator.hpp"
 #include "Application/ECS/Components/MetadataComponent.hpp"
 #include "Application/World/World.hpp"
 

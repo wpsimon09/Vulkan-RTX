@@ -28,7 +28,7 @@
 #include "AssetsManger/Utils/VTextureAsset.hpp"
 #include "ApplicationState/ApplicationState.hpp"
 #include "World/World.hpp"
-#include "Application/ECS/Coordinator.hpp"
+#include "Application/ECS/ECSCoordinator.hpp"
 
 Client::Client()
     : m_globalRenderingData2{}

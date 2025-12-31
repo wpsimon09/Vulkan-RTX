@@ -7,7 +7,7 @@
 #include <memory>
 
 namespace ECS {
-class Coordinator;
+class ECSCoordinator;
 }
 namespace ApplicationCore {
 class ApplicationState;
@@ -19,11 +19,11 @@ class World
 
     void RegisterAll();
 
-    ECS::Coordinator& GetECS();
+    ECS::ECSCoordinator& GetECS();
 
   private:
-    ApplicationState&                 m_applicationState;
-    std::unique_ptr<ECS::Coordinator> m_ecsCoordinator;
+    ApplicationState&                    m_applicationState;
+    std::unique_ptr<ECS::ECSCoordinator> m_ecsCoordinator;
 };
 
 }  // namespace ApplicationCore
