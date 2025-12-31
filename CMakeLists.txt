@@ -261,6 +261,11 @@ set(SOURCES
         Internal/Application/ECS/World/ComponentStorage.hpp
         Internal/Application/ECS/World/ComponentManager.cpp
         Internal/Application/ECS/World/ComponentManager.hpp
+        Internal/Application/ECS/System/System.hpp
+        Internal/Application/ECS/System/SystemManager.cpp
+        Internal/Application/ECS/System/SystemManager.hpp
+        Internal/Application/ECS/Coordinator.cpp
+        Internal/Application/ECS/Coordinator.hpp
 
 )
 

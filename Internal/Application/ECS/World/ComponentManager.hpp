@@ -76,7 +76,6 @@ class ComponentManager
         return GetStorageForComponentType<T>()->GetData(entity);
     }
 
-    template <typename T>
     void OnEntityDestroyed(Entity entity)
     {
         for(auto const& pair : m_componentsStorages)
@@ -96,6 +95,7 @@ class ComponentManager
      **/
     std::unordered_map<const char*, std::shared_ptr<ECS::IComponentStorage>> m_componentsStorages{};
 
+    // there is only max 32 components so each bit in the 32-bit unsigned integer, we increment this    // to know a chich bit to set the signature to true
     ECS::ComponentType m_nextComponentType{};
 
     template <typename T>
