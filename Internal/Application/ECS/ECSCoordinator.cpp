@@ -24,7 +24,8 @@ ECS::Entity ECSCoordinator::CreateEntity()
 ECS::Entity ECSCoordinator::CreateEntityWithMetadata(const std::string& name, const char* icon, std::string tag)
 {
     auto entity   = m_entityManager->CreateEntity();
-    auto metaData = ECS::MetadataComponent{name, ICON_FA_INFO, 0, ""};
+    auto metaData = ECS::MetadataComponent(name, ICON_FA_INFO, 0, "");
+
     m_componentManager->AddComponentTo<MetadataComponent>(entity, metaData);
 
     return entity;

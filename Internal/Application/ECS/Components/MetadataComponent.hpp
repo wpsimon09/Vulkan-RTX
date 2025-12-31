@@ -29,6 +29,7 @@ struct MetadataComponent : public ECS::IComponent
         , tag(tag)
         , icon(icon)
     {
+        this->name = "Meta data component";
     }
 };
 

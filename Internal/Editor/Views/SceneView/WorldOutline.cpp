@@ -14,12 +14,6 @@ WorldOutline::WorldOutline(ApplicationCore::World& world)
     : m_world(world)
 {
     auto ecs = &m_world.GetECS();
-
-    ecs->CreateEntityWithMetadata("test1", ICON_FA_TABLE, "");
-    ecs->CreateEntityWithMetadata("test2", ICON_FA_2, "");
-    ecs->CreateEntityWithMetadata("test3", ICON_FA_A, "");
-    ecs->CreateEntityWithMetadata("test4", ICON_FA_ANCHOR_CIRCLE_CHECK, "");
-    ecs->CreateEntityWithMetadata("test5", ICON_FA_4, "");
 }
 void WorldOutline::Render()
 {
@@ -29,7 +23,7 @@ void WorldOutline::Render()
     for(ECS::Entity entity = 0; entity < ecs->GetAllAliveEntities(); entity++)
     {
         auto& data = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
-        ImGui::Text("Entity: %s", data.name.c_str());
+        ImGui::Text("Entity: %s", data.entityName.c_str());
     }
 
     ImGui::End();
