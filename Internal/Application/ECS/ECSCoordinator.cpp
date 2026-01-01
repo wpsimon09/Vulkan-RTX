@@ -41,4 +41,8 @@ int ECSCoordinator::GetAllAliveEntities()
 {
     return m_entityManager->GetLivingEntityCount();
 }
+Signature ECSCoordinator::GetSignatureOf(Entity entity)
+{
+    return m_entityManager->GetSignature(entity);
+}
 }  // namespace ECS

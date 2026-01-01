@@ -28,6 +28,7 @@ class ECSCoordinator
     ECS::Entity CreateEntityWithMetadata(const std::string& name, const char* icon, std::string tag);
     void        DestroyEntity(Entity entity);
     int         GetAllAliveEntities();
+    Signature   GetSignatureOf(Entity entity);
 
     //===========================================
     template <typename T>

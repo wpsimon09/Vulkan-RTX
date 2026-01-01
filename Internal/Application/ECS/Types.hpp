@@ -16,6 +16,7 @@ using Signature                        = std::bitset<MAX_ENTITIES>;
 using ComponentType                    = uint8_t;
 constexpr ComponentType MAX_COMPONENTS = 32;
 
+
 }  // namespace ECS
 
 

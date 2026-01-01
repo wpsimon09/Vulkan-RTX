@@ -24,7 +24,7 @@ SceneView::SceneView(ApplicationCore::Scene& scene)
     auto detailsPnel = std::make_unique<VEditor::DetailsPanel>(scene.GetAssetsManager());
     m_uiChildren.emplace_back(std::move(detailsPnel));
 
-    m_detailsPanale = static_cast<DetailsPanel*>(m_uiChildren.back().get());
+    m_detailsPanale = dynamic_cast<DetailsPanel*>(m_uiChildren.back().get());
 }
 
 void SceneView::Resize(int newWidth, int newHeight) {}

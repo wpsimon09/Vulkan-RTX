@@ -271,6 +271,10 @@ set(SOURCES
         Internal/Editor/Views/SceneView/WorldOutline.cpp
         Internal/Editor/Views/SceneView/WorldOutline.hpp
         Internal/Application/ECS/Components/MetadataComponent.hpp
+        Internal/Editor/Views/SceneView/ComponentPanel.cpp
+        Internal/Editor/Views/SceneView/ComponentPanel.hpp
+        Internal/Editor/Views/SceneView/ComponentDrawUtils.cpp
+        Internal/Editor/Views/SceneView/ComponentDrawUtils.hpp
 
 )
 

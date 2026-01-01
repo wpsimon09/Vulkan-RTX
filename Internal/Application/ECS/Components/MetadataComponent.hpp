@@ -19,17 +19,18 @@ struct MetadataComponent : public ECS::IComponent
     std::string tag  = {};
     const char* icon = ICON_FA_CUBES_STACKED;
     MetadataComponent()
-        : uuid(0)
+        : IComponent("Meta data component", ICON_FA_INFO)
+
     {
-        name = "Meta data component";
     }
+
     MetadataComponent(const std::string& name, const char* icon, uint64_t uuid, std::string tag)
-        : entityName(name)
+        : IComponent("Meta data component", ICON_FA_INFO)
+        , entityName(name)
         , uuid(uuid)
         , tag(tag)
         , icon(icon)
     {
-        this->name = "Meta data component";
     }
 };
 
