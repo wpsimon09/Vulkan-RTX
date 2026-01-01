@@ -24,7 +24,9 @@ void World::RegisterAll()
     m_ecsCoordinator->CreateEntityWithMetadata("test2", ICON_FA_2, "");
     m_ecsCoordinator->CreateEntityWithMetadata("test3", ICON_FA_A, "");
     m_ecsCoordinator->CreateEntityWithMetadata("test4", ICON_FA_ANCHOR_CIRCLE_CHECK, "");
-    m_ecsCoordinator->CreateEntityWithMetadata("test5", ICON_FA_4, "");
+
+    auto e = m_ecsCoordinator->CreateEntityWithMetadata("test5", ICON_FA_4, "");
+    m_ecsCoordinator->AddComponentTo(e, ECS::TransformComponent());
 }
 
 ECS::ECSCoordinator& World::GetECS()

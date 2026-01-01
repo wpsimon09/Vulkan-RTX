@@ -28,7 +28,7 @@ void WorldOutline::Render()
     for(ECS::Entity entity = 0; entity < ecs->GetAllAliveEntities(); entity++)
     {
         auto&       data  = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
-        std::string label = data.icon + data.entityName;
+        std::string label = std::string(data.icon) + " " + data.entityName;
         if(ImGui::Selectable(label.c_str(), m_selectedEntities.contains(entity) || m_selectedEntity == entity))
         {
             m_selectedEntity = entity;

@@ -62,9 +62,9 @@ class ComponentManager
      * Removes component from the entity
      */
     template <typename T>
-    void RemoveComponentFrom(Entity entity, T component)
+    void RemoveComponentFrom(Entity entity)
     {
-        GetStorageForComponentType<T>()->RemoveData(entity, component);
+        GetStorageForComponentType<T>()->RemoveData(entity);
     }
 
     /*

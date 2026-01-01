@@ -5,6 +5,7 @@
 #ifndef VULKAN_RTX_COMPONENTSTORAGE_HPP
 #define VULKAN_RTX_COMPONENTSTORAGE_HPP
 #include "Application/ECS/Types.hpp"
+#include "Vulkan/Utils/VGeneralUtils.hpp"
 
 #include <unordered_map>
 
@@ -30,7 +31,7 @@ class ComponentStorage : public IComponentStorage
   public:
     void InsertData(Entity entity, T component)
     {
-        assert(!m_entityToIndexMap.contains(entity) && "This entity already has this component");
+        VulkanUtils::RelaxedAssert(!m_entityToIndexMap.contains(entity), "This entity already has this component");
         size_t newIndex              = m_size;
         m_entityToIndexMap[entity]   = newIndex;
         m_indexToEntityMap[newIndex] = entity;
@@ -41,7 +42,7 @@ class ComponentStorage : public IComponentStorage
 
     void RemoveData(Entity entity)
     {
-        assert(!m_entityToIndexMap.contains(entity) && "This entity does not exist");
+        assert(m_entityToIndexMap.contains(entity) && "This entity does not exist");
         size_t indexOfRemovedEntity             = m_entityToIndexMap[entity];
         size_t indexOfLastElement               = m_size - 1;
         m_componentsArray[indexOfRemovedEntity] = m_componentsArray[indexOfLastElement];

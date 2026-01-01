@@ -8,6 +8,7 @@
 #include "System/SystemManager.hpp"
 #include "World/ComponentManager.hpp"
 #include "World/EntityManager.hpp"
+#include "fastgltf/types.hpp"
 
 namespace ECS {
 ECSCoordinator::ECSCoordinator()
@@ -24,9 +25,9 @@ ECS::Entity ECSCoordinator::CreateEntity()
 ECS::Entity ECSCoordinator::CreateEntityWithMetadata(const std::string& name, const char* icon, std::string tag)
 {
     auto entity   = m_entityManager->CreateEntity();
-    auto metaData = ECS::MetadataComponent(name, ICON_FA_INFO, 0, "");
+    auto metaData = ECS::MetadataComponent(name.c_str(), ICON_FA_INFO, 0, "");
 
-    m_componentManager->AddComponentTo<MetadataComponent>(entity, metaData);
+    this->AddComponentTo<MetadataComponent>(entity, metaData);
 
     return entity;
 }

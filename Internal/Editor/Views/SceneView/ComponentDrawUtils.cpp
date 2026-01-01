@@ -7,6 +7,7 @@
 #include "Application/ECS/ECSCoordinator.hpp"
 #include "Application/ECS/Components/MetadataComponent.hpp"
 #include "Application/ECS/Components/TransformComponent.hpp"
+#include "Application/Rendering/Transformations/Transformations.hpp"
 
 namespace VEditor {
 ComponentDrawUtils::ComponentDrawUtils(ECS::ECSCoordinator& ecs)
@@ -27,7 +28,7 @@ ComponentDrawUtils::ComponentDrawUtils(ECS::ECSCoordinator& ecs)
 void ComponentDrawUtils::Draw(ECS::Entity entity)
 {
     auto signature = m_ecs.GetSignatureOf(entity);
-    for(size_t componentType = 0; componentType < ECS::MAX_COMPONENTS; componentType++)
+    for(size_t componentType = 0; componentType < ECS::MAX_COMPONENTS; ++componentType)
     {
         if(signature.test(componentType))
         {
@@ -46,6 +47,7 @@ void ComponentDrawUtils::DrawTransform(ECS::Entity entity)
     ImGui::SetNextItemOpen(true);
     if(ImGui::TreeNodeEx(ICON_FA_MAP " Transformations"))
     {
+        RenderOptions<ECS::TransformComponent>(entity);
         // position
         {
             if(ImGui::Button(ICON_FA_REPLY "##ResetPos"))
@@ -103,10 +105,11 @@ void ComponentDrawUtils::DrawMetadataComponent(ECS::Entity entity)
 {
     if(ImGui::TreeNodeEx(ICON_FA_CIRCLE_INFO " Informations"))
     {
+        RenderOptions<ECS::MetadataComponent>(entity);
         auto& data = m_ecs.GetComponentFrom<ECS::MetadataComponent>(entity);
         ImGui::Text(data.componentLabel.c_str());
-        ImGui::InputText("Entity name", data.entityName.data(), data.entityName.size());
-        ImGui::InputText("Tag", data.entityName.data(), data.entityName.size());
+        ImGui::InputText("Entity name", data.entityName, IM_ARRAYSIZE(data.entityName));
+        ImGui::InputText("Tag", data.tag.data(), data.tag.size(), ImGuiInputTextFlags_ReadOnly);
         ImGui::TreePop();
     }
 }

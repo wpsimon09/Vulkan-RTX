@@ -4,6 +4,10 @@
 
 #ifndef VULKAN_RTX_COMPONENTDRAWUTILS_HPP
 #define VULKAN_RTX_COMPONENTDRAWUTILS_HPP
+
+#include "IconsFontAwesome6.h"
+#include "imgui_internal.h"
+#include "Application/ECS/ECSCoordinator.hpp"
 #include "Application/ECS/Types.hpp"
 
 
@@ -34,6 +38,20 @@ class ComponentDrawUtils
     // State variables
     float m_uniformScaleScalar = 1.0;
     bool  m_isUniformScaleOn   = false;
+
+  private:
+    template <typename T>
+    void RenderOptions(ECS::Entity entity)
+    {
+        if(ImGui::BeginPopupContextItem())
+        {
+            if(ImGui::MenuItem(ICON_FA_TRASH_CAN " Remove from entity"))
+            {
+                m_ecs.RemoveComponentFrom<T>(entity);
+            }
+            ImGui::EndPopup();
+        }
+    }
 };
 
 }  // namespace VEditor

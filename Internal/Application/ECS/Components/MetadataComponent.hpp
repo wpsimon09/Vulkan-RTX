@@ -14,7 +14,7 @@ namespace ECS {
 
 struct MetadataComponent : public ECS::IComponent
 {
-    std::string entityName = "unknown entity";
+    char        entityName[60] = "unknown entity";
     uint64_t    uuid{};  // TODO
     std::string tag  = {};
     const char* icon = ICON_FA_CUBES_STACKED;
@@ -24,13 +24,13 @@ struct MetadataComponent : public ECS::IComponent
     {
     }
 
-    MetadataComponent(const std::string& name, const char* icon, uint64_t uuid, std::string tag)
+    MetadataComponent(const char* entityName, const char* icon, uint64_t uuid, std::string tag)
         : IComponent("Meta data component", ICON_FA_INFO)
-        , entityName(name)
         , uuid(uuid)
         , tag(tag)
         , icon(icon)
     {
+        std::strcpy(this->entityName, entityName);
     }
 };
 
