@@ -30,6 +30,7 @@ class ComponentDrawUtils
     void DrawTransform(ECS::Entity entity);
 
     void DrawMetadataComponent(ECS::Entity entity);
+    void DrawStaticMeshComponent(ECS::Entity entity);
 
   private:
     ECS::ECSCoordinator&                                                     m_ecs;

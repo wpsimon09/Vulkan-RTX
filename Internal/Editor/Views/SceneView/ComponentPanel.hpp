@@ -33,10 +33,10 @@ class ComponentPanel : public VEditor::IUserInterfaceElement
 
   private:
     void CreateAddComponentPopUp();
+
     template <typename T>
     void AddComponentMenuItem(const char* label)
     {
-
         if(m_ecs.GetSignatureOf(*m_selectedEntity).test(m_ecs.GetComopnentType<T>()))
         {
             return;

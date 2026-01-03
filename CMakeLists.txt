@@ -275,6 +275,8 @@ set(SOURCES
         Internal/Editor/Views/SceneView/ComponentPanel.hpp
         Internal/Editor/Views/SceneView/ComponentDrawUtils.cpp
         Internal/Editor/Views/SceneView/ComponentDrawUtils.hpp
+        Internal/Application/ECS/Components/StaticMeshComponent.hpp
+        Internal/Application/ECS/Components/MaterialComponent.hpp
 
 )
 

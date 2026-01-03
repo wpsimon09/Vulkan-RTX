@@ -6,6 +6,7 @@
 
 #include "Application/ECS/ECSCoordinator.hpp"
 #include "Application/ECS/Components/MetadataComponent.hpp"
+#include "Application/ECS/Components/StaticMeshComponent.hpp"
 #include "Application/ECS/Components/TransformComponent.hpp"
 
 namespace ApplicationCore {
@@ -19,6 +20,7 @@ void World::RegisterAll()
 {
     m_ecsCoordinator->RegisterComponent<ECS::TransformComponent>();
     m_ecsCoordinator->RegisterComponent<ECS::MetadataComponent>();
+    m_ecsCoordinator->RegisterComponent<ECS::StaticMeshComponent>();
 
     m_ecsCoordinator->CreateEntityWithMetadata("test1", ICON_FA_TABLE, "");
     m_ecsCoordinator->CreateEntityWithMetadata("test2", ICON_FA_2, "");

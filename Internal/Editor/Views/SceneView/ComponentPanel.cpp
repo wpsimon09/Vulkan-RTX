@@ -8,6 +8,7 @@
 #include "imgui.h"
 #include "Application/ECS/ECSCoordinator.hpp"
 #include "Application/ECS/Components/MetadataComponent.hpp"
+#include "Application/ECS/Components/StaticMeshComponent.hpp"
 #include "Application/ECS/Components/TransformComponent.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
@@ -65,7 +66,7 @@ void ComponentPanel::CreateAddComponentPopUp()
     {
         AddComponentMenuItem<ECS::TransformComponent>(ICON_FA_MAP " Transformation");
         AddComponentMenuItem<ECS::MetadataComponent>(ICON_FA_CIRCLE_INFO "Metadata");
-
+        AddComponentMenuItem<ECS::StaticMeshComponent>(ICON_FA_CUBE "Static mesh component");
         ImGui::EndPopup();
     }
 }

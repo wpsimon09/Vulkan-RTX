@@ -6,6 +6,7 @@
 
 #include "Application/ECS/ECSCoordinator.hpp"
 #include "Application/ECS/Components/MetadataComponent.hpp"
+#include "Application/ECS/Components/StaticMeshComponent.hpp"
 #include "Application/ECS/Components/TransformComponent.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
 
@@ -22,6 +23,10 @@ ComponentDrawUtils::ComponentDrawUtils(ECS::ECSCoordinator& ecs)
 
     m_drawFunctions[m_ecs.GetComopnentType<ECS::MetadataComponent>()] = [this](ECS::Entity entity) {
         DrawMetadataComponent(entity);
+    };
+
+    m_drawFunctions[m_ecs.GetComopnentType<ECS::StaticMeshComponent>()] = [this](ECS::Entity entity) {
+        DrawStaticMeshComponent(entity);
     };
 }
 
@@ -110,6 +115,17 @@ void ComponentDrawUtils::DrawMetadataComponent(ECS::Entity entity)
         ImGui::Text(data.componentLabel.c_str());
         ImGui::InputText("Entity name", data.entityName, IM_ARRAYSIZE(data.entityName));
         ImGui::InputText("Tag", data.tag.data(), data.tag.size(), ImGuiInputTextFlags_ReadOnly);
+        ImGui::TreePop();
+    }
+}
+void ComponentDrawUtils::DrawStaticMeshComponent(ECS::Entity entity)
+{
+    if(ImGui::TreeNode(ICON_FA_CUBE " Static mesh component"))
+    {
+        RenderOptions<ECS::StaticMeshComponent>(entity);
+        auto& data = m_ecs.GetComponentFrom<ECS::StaticMeshComponent>(entity);
+        ImGui::InputText("Mesh name", data.meshName, IM_ARRAYSIZE(data.meshName));
+
         ImGui::TreePop();
     }
 }
