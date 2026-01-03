@@ -47,6 +47,11 @@ class ComponentStorage : public IComponentStorage
         size_t indexOfLastElement               = m_size - 1;
         m_componentsArray[indexOfRemovedEntity] = m_componentsArray[indexOfLastElement];
 
+        // since component was removed we need move that data in the map and make entity point there
+        Entity entityOfLastElement               = m_indexToEntityMap[indexOfLastElement];
+        m_entityToIndexMap[entityOfLastElement]  = indexOfLastElement;
+        m_indexToEntityMap[indexOfRemovedEntity] = entityOfLastElement;
+
         m_entityToIndexMap.erase(entity);
         m_indexToEntityMap.erase(indexOfLastElement);
 
@@ -68,15 +73,15 @@ class ComponentStorage : public IComponentStorage
 
   private:
     // components for hte given type (can be transformation, rigid body etc etc...)
-    std::array<T, MAX_ENTITIES> m_componentsArray{};
+    std::array<T, MAX_ENTITIES> m_componentsArray;
 
     // get specific compoents based on the entity idE
-    std::unordered_map<Entity, size_t> m_entityToIndexMap{};
+    std::unordered_map<Entity, size_t> m_entityToIndexMap;
 
-    // suply component id and get entity id
-    std::unordered_map<size_t, Entity> m_indexToEntityMap{};
+    // suply component id located in (m_componentsArray) and get entity id
+    std::unordered_map<size_t, Entity> m_indexToEntityMap;
 
-    size_t m_size{};
+    size_t m_size = 0;
 };
 
 }  // namespace ECS
