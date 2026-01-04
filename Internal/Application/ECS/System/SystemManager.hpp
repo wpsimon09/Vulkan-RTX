@@ -44,7 +44,6 @@ class SystemManager
 
     void OnEntityDestroyed(Entity entity);
 
-
   private:
     // maps signatures to the system (a.k.a) what components does this system operate on
     std::unordered_map<const char*, ECS::Signature>                m_signatures{};

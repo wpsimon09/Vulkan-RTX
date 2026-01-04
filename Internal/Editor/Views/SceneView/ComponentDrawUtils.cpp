@@ -110,11 +110,11 @@ void ComponentDrawUtils::DrawMetadataComponent(ECS::Entity entity)
 {
     if(ImGui::TreeNodeEx(ICON_FA_CIRCLE_INFO " Informations"))
     {
-        RenderOptions<ECS::MetadataComponent>(entity);
         auto& data = m_ecs.GetComponentFrom<ECS::MetadataComponent>(entity);
         ImGui::Text(data.componentLabel.c_str());
         ImGui::InputText("Entity name", data.entityName, IM_ARRAYSIZE(data.entityName));
         ImGui::InputText("Tag", data.tag.data(), data.tag.size(), ImGuiInputTextFlags_ReadOnly);
+
         ImGui::TreePop();
     }
 }
@@ -122,8 +122,9 @@ void ComponentDrawUtils::DrawStaticMeshComponent(ECS::Entity entity)
 {
     if(ImGui::TreeNode(ICON_FA_CUBE " Static mesh component"))
     {
-        RenderOptions<ECS::StaticMeshComponent>(entity);
         auto& data = m_ecs.GetComponentFrom<ECS::StaticMeshComponent>(entity);
+        RenderOptions<ECS::StaticMeshComponent>(entity);
+
         ImGui::InputText("Mesh name", data.meshName, IM_ARRAYSIZE(data.meshName));
 
         ImGui::TreePop();
