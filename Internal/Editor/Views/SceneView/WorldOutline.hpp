@@ -4,6 +4,7 @@
 
 #ifndef VULKAN_RTX_WORLDOUTLINE_HPP
 #define VULKAN_RTX_WORLDOUTLINE_HPP
+#include "imgui.h"
 #include "Application/ECS/Types.hpp"
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
@@ -25,10 +26,11 @@ class WorldOutline : public VEditor::IUserInterfaceElement
     void Update() override;
 
   private:
-    ECS::Entity             m_selectedEntity;
-    std::set<ECS::Entity>   m_selectedEntities;
-    ApplicationCore::World& m_world;
-    ComponentPanel*         m_componentPanel;
+    ECS::Entity                m_selectedEntity;
+    std::set<ECS::Entity>      m_selectedEntities;
+    ApplicationCore::World&    m_world;
+    ComponentPanel*            m_componentPanel;
+    ImGuiSelectionBasicStorage m_selection;
 };
 
 }  // namespace VEditor

@@ -25,18 +25,26 @@ void WorldOutline::Render()
     auto ecs = &m_world.GetECS();
 
     ImGui::Begin(ICON_FA_MOUNTAIN " World outline");
-    for(ECS::Entity entity = 0; entity < ecs->GetAllAliveEntities(); entity++)
+
+    if(ImGui::BeginChild("##World outline", ImVec2(-FLT_MIN, ImGui::GetFontSize() * 20), ImGuiChildFlags_FrameStyle | ImGuiChildFlags_ResizeY))
     {
-        auto&       data  = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
-        std::string label = std::string(data.icon) + " " + data.entityName;
-        if(ImGui::Selectable(label.c_str(), m_selectedEntities.contains(entity) || m_selectedEntity == entity))
+        ImGuiMultiSelectFlags flags = ImGuiMultiSelectFlags_ClearOnEscape | ImGuiMultiSelectFlags_BoxSelect1d;
+        ImGuiMultiSelectIO*   ms_io = ImGui::BeginMultiSelect(flags, m_selection.Size, ecs->GetAllAliveEntities());
+        m_selection.ApplyRequests(ms_io);
+
+        for(ECS::Entity entity = 0; entity < ecs->GetAllAliveEntities(); entity++)
         {
-            m_selectedEntity = entity;
-            m_componentPanel->SetSelectedEntity(&m_selectedEntity);
+            auto&       data             = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
+            std::string label            = std::string(data.icon) + " " + data.entityName;
+            bool        item_is_selected = m_selection.Contains((ImGuiID)entity);
+            ImGui::SetNextItemSelectionUserData(entity);
+            ImGui::Selectable(label.c_str(), item_is_selected);
         }
+
+        ms_io = ImGui::EndMultiSelect();
+        m_selection.ApplyRequests(ms_io);
     }
-
-
+    ImGui::EndChild();
     ImGui::End();
 
     IUserInterfaceElement::Render();
