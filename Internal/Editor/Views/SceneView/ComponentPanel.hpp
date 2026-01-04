@@ -19,7 +19,7 @@ static const auto V_EDITOR_ADD_COMPONENT_POP_UP_ID = "AddComponentPopUp";
 class ComponentPanel : public VEditor::IUserInterfaceElement
 {
   public:
-    ComponentPanel(ECS::ECSCoordinator& ecs);
+    ComponentPanel(ECS::ECSCoordinator& ecs, ImGuiSelectionBasicStorage* multiselectStorage);
     void Render() override;
     void Resize(int newWidth, int newHeight) override;
     void Update() override;
@@ -30,6 +30,8 @@ class ComponentPanel : public VEditor::IUserInterfaceElement
     ECS::ECSCoordinator&        m_ecs;
     ECS::Entity*                m_selectedEntity = nullptr;
     VEditor::ComponentDrawUtils m_drawCommands;
+
+    ImGuiSelectionBasicStorage* m_selectionStorage = nullptr;
 
   private:
     void CreateAddComponentPopUp();

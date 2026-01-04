@@ -29,12 +29,14 @@ class ECSCoordinator
     void        DestroyEntity(Entity entity);
     int         GetAllAliveEntities();
     Signature   GetSignatureOf(Entity entity);
+    int         GetNumberOfRegisteredComponents();
 
     //===========================================
     template <typename T>
     void RegisterComponent()
     {
         m_componentManager->RegisterComponent<T>();
+        m_registeredComponents++;
     }
 
     template <typename T>
@@ -90,6 +92,7 @@ class ECSCoordinator
     std::unique_ptr<ECS::EntityManager>    m_entityManager;
     std::unique_ptr<ECS::ComponentManager> m_componentManager;
     std::unique_ptr<ECS::SystemManager>    m_systemManager;
+    int                                    m_registeredComponents;
 };
 
 }  // namespace ECS

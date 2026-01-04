@@ -15,15 +15,21 @@
 
 namespace VEditor {
 
-ComponentPanel::ComponentPanel(ECS::ECSCoordinator& ecs)
+ComponentPanel::ComponentPanel(ECS::ECSCoordinator& ecs, ImGuiSelectionBasicStorage* multiselectStorage)
     : m_ecs(ecs)
     , m_drawCommands(ecs)
+    , m_selectionStorage(multiselectStorage)
 {
 }
 
 void ComponentPanel::Render()
 {
     ImGui::Begin(ICON_FA_CUBES "Components");
+
+    if(m_selectionStorage->Size > 0)
+    {
+        m_drawCommands.DrawMultiSelect(m_selectionStorage);
+    }
 
     if(m_selectedEntity != nullptr)
     {

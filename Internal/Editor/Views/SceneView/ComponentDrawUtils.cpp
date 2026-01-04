@@ -29,6 +29,36 @@ ComponentDrawUtils::ComponentDrawUtils(ECS::ECSCoordinator& ecs)
         DrawStaticMeshComponent(entity);
     };
 }
+void ComponentDrawUtils::DrawMultiSelect(ImGuiSelectionBasicStorage* storage)
+{
+    if(!storage)
+        return;
+
+    ImGuiID        id = 0;
+    void*          it = NULL;
+    int            i  = 0;
+    ECS::Signature sharedSignature;
+
+    std::vector<ECS::Entity> entitiesToEdit;
+    entitiesToEdit.reserve(storage->Size);
+
+    while(storage->GetNextSelectedItem(&it, &id))
+    {
+        auto entity    = (ECS::Entity)id;
+        auto signature = m_ecs.GetSignatureOf(entity);
+
+        entitiesToEdit.push_back(entity);
+
+        if(i == 0)
+        {
+            // get the shared signatuer to know which components to draw
+            sharedSignature = signature;
+        }
+
+        sharedSignature &= signature;
+        i++;
+    }
+}
 
 void ComponentDrawUtils::Draw(ECS::Entity entity)
 {

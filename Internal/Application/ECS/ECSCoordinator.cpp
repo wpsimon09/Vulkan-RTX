@@ -46,4 +46,8 @@ Signature ECSCoordinator::GetSignatureOf(Entity entity)
 {
     return m_entityManager->GetSignature(entity);
 }
+int ECSCoordinator::GetNumberOfRegisteredComponents()
+{
+    return m_registeredComponents;
+}
 }  // namespace ECS

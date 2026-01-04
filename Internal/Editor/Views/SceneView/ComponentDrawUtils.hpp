@@ -24,6 +24,8 @@ class ComponentDrawUtils
   public:
     explicit ComponentDrawUtils(ECS::ECSCoordinator& ecs);
 
+
+    void DrawMultiSelect(ImGuiSelectionBasicStorage* storage);
     void Draw(ECS::Entity entity);
 
   private:

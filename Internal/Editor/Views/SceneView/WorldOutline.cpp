@@ -17,7 +17,7 @@ WorldOutline::WorldOutline(ApplicationCore::World& world)
 {
     auto ecs = &m_world.GetECS();
 
-    m_uiChildren.push_back(std::make_unique<VEditor::ComponentPanel>(m_world.GetECS()));
+    m_uiChildren.push_back(std::make_unique<VEditor::ComponentPanel>(m_world.GetECS(), &m_selection));
     m_componentPanel = dynamic_cast<ComponentPanel*>(m_uiChildren.back().get());
 }
 void WorldOutline::Render()
@@ -34,8 +34,8 @@ void WorldOutline::Render()
 
         for(ECS::Entity entity = 0; entity < ecs->GetAllAliveEntities(); entity++)
         {
-            auto&       data             = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
-            std::string label            = std::string(data.icon) + " " + data.entityName;
+            auto&       data  = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
+            std::string label = std::string(data.icon) + " " + data.entityName + "##" + std::to_string(entity);
             bool        item_is_selected = m_selection.Contains((ImGuiID)entity);
             ImGui::SetNextItemSelectionUserData(entity);
             ImGui::Selectable(label.c_str(), item_is_selected);
