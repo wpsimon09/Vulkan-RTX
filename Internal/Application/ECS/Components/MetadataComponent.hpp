@@ -11,7 +11,6 @@
 #include <string>
 
 namespace ECS {
-
 struct MetadataComponent : public ECS::IComponent
 {
     char        entityName[60] = "unknown entity";
@@ -32,7 +31,13 @@ struct MetadataComponent : public ECS::IComponent
     {
         std::strcpy(this->entityName, entityName);
     }
-};
 
+    friend bool operator==(const MetadataComponent& lhs, const MetadataComponent& rhs)
+    {
+        return std::strcmp(lhs.entityName, rhs.entityName) == 0 && lhs.uuid == rhs.uuid && lhs.tag == rhs.tag;
+    }
+
+    friend bool operator!=(const MetadataComponent& lhs, const MetadataComponent& rhs) { return !(lhs == rhs); }
+};
 }  // namespace ECS
 #endif  //VULKAN_RTX_METADATACOMPONENT_HPP

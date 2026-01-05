@@ -23,6 +23,13 @@ struct TransformComponent : public IComponent
     {
         componentLabel = "Transformation component";
     }
+
+    friend bool operator==(const TransformComponent& lhs, const TransformComponent& rhs)
+    {
+        return lhs.position == rhs.position && lhs.rotation == rhs.rotation && lhs.rotationEurel == rhs.rotationEurel
+               && lhs.scale == rhs.scale;
+    }
+    friend bool operator!=(const TransformComponent& lhs, const TransformComponent& rhs) { return !(lhs == rhs); }
 };
 }  // namespace ECS
 

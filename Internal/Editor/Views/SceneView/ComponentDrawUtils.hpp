@@ -29,18 +29,27 @@ class ComponentDrawUtils
     void Draw(ECS::Entity entity);
 
   private:
-    void DrawTransform(ECS::Entity entity);
+    void Draw(ECS::Signature signature, const std::vector<ECS::Entity>& entities);
 
+    void DrawTransform(ECS::Entity entity);
     void DrawMetadataComponent(ECS::Entity entity);
     void DrawStaticMeshComponent(ECS::Entity entity);
+
+    void DrawTransformMultiselect(const std::vector<ECS::Entity>& entities);
+    void DrawMetadataComponent(const std::vector<ECS::Entity>& entities);
+    void DrawStaticMeshComponent(const std::vector<ECS::Entity>& entities);
 
   private:
     ECS::ECSCoordinator&                                                     m_ecs;
     std::unordered_map<ECS::ComponentType, std::function<void(ECS::Entity)>> m_drawFunctions;
+
+    std::unordered_map<ECS::ComponentType, std::function<void(const std::vector<ECS::Entity>&)>> m_drawMultiSelectFunctions;
     //=================================
     // State variables
-    float m_uniformScaleScalar = 1.0;
-    bool  m_isUniformScaleOn   = false;
+    float                    m_uniformScaleScalar = 1.0;
+    bool                     m_isUniformScaleOn   = false;
+    std::vector<ECS::Entity> m_entitiesToEdit     = {};
+
 
   private:
     template <typename T>
@@ -53,6 +62,15 @@ class ComponentDrawUtils
                 m_ecs.RemoveComponentFrom<T>(entity);
             }
             ImGui::EndPopup();
+        }
+    }
+
+    template <typename T>
+    void ApplyToAll(T changedComponent, const std::vector<ECS::Entity>& entities)
+    {
+        for(auto& e : entities)
+        {
+            m_ecs.SetComponentValue<T>(changedComponent, e);
         }
     }
 };

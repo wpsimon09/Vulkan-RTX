@@ -87,6 +87,11 @@ class ECSCoordinator
         m_systemManager->SetSignature<T>(signature);
     }
 
+    template <typename T>
+    void SetComponentValue(T& component, Entity entity) {
+        m_componentManager->SetComponentValue(component, entity);
+    }
+
 
   private:
     std::unique_ptr<ECS::EntityManager>    m_entityManager;

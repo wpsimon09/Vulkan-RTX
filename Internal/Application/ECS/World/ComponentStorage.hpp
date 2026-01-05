@@ -63,6 +63,9 @@ class ComponentStorage : public IComponentStorage
         assert(m_entityToIndexMap.contains(entity) && "This entity does not exist");
         return m_componentsArray[m_entityToIndexMap[entity]];
     }
+
+    void SetData(T& data, Entity entity) { m_componentsArray[entity] = data; }
+
     void OnEntityDestroyed(Entity entity) override
     {
         if(!m_entityToIndexMap.contains(entity))

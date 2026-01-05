@@ -23,6 +23,13 @@ struct StaticMeshComponent : public ECS::IComponent
     {
     }
     bool IsValid() { return vertexData != nullptr && indexData != nullptr; }
+
+    friend bool operator==(const StaticMeshComponent& lhs, const StaticMeshComponent& rhs)
+    {
+        return lhs.vertexData == rhs.vertexData && lhs.indexData == rhs.indexData && lhs.indexCount == rhs.indexCount
+               && lhs.deviceAddress == rhs.deviceAddress;
+    }
+    friend bool operator!=(const StaticMeshComponent& lhs, const StaticMeshComponent& rhs) { return !(lhs == rhs); }
 };
 }  // namespace ECS
 

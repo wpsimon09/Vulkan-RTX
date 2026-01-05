@@ -76,6 +76,12 @@ class ComponentManager
         return GetStorageForComponentType<T>()->GetData(entity);
     }
 
+    template <typename T>
+    void SetComponentValue(T& component, Entity entity)
+    {
+        GetStorageForComponentType<T>()->SetData(component, entity);
+    }
+
     void OnEntityDestroyed(Entity entity)
     {
         for(auto const& pair : m_componentsStorages)
