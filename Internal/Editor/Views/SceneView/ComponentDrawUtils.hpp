@@ -25,7 +25,7 @@ class ComponentDrawUtils
     explicit ComponentDrawUtils(ECS::ECSCoordinator& ecs);
 
 
-    void DrawMultiSelect(ImGuiSelectionBasicStorage* storage);
+    void DrawMultiSelect(ECS::Signature signature, const std::vector<ECS::Entity>& entities);
     void Draw(ECS::Entity entity);
 
   private:

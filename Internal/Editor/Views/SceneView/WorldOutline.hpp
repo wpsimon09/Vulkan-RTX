@@ -31,6 +31,7 @@ class WorldOutline : public VEditor::IUserInterfaceElement
     ApplicationCore::World&    m_world;
     ComponentPanel*            m_componentPanel;
     ImGuiSelectionBasicStorage m_selection;
+    char                       m_searchPhrase[70];
 };
 
 }  // namespace VEditor

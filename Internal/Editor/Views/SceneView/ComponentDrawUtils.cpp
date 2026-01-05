@@ -30,45 +30,17 @@ ComponentDrawUtils::ComponentDrawUtils(ECS::ECSCoordinator& ecs)
     };
 
 
-    m_drawMultiSelectFunctions[ecs.GetComopnentType<ECS::TransformComponent>()] = [this](std::vector<ECS::Entity>& entities) {
-
-    };
+    m_drawMultiSelectFunctions[ecs.GetComopnentType<ECS::TransformComponent>()] =
+        [this](const std::vector<ECS::Entity>& entities) { DrawTransformMultiselect(entities); };
 }
 
-void ComponentDrawUtils::DrawMultiSelect(ImGuiSelectionBasicStorage* storage)
+void ComponentDrawUtils::DrawMultiSelect(ECS::Signature signature, const std::vector<ECS::Entity>& entities)
 {
-    if(!storage)
+    if(entities.empty())
         return;
 
-    ImGuiID        id = 0;
-    void*          it = NULL;
-    int            i  = 0;
-    ECS::Signature sharedSignature;
-
-
-    m_entitiesToEdit.reserve(storage->Size);
-
-    while(storage->GetNextSelectedItem(&it, &id))
-    {
-        auto entity    = (ECS::Entity)id;
-        auto signature = m_ecs.GetSignatureOf(entity);
-
-        m_entitiesToEdit.push_back(entity);
-
-        if(i == 0)
-        {
-            // get the shared signatuer to know which components to draw
-            sharedSignature = signature;
-        }
-
-        sharedSignature &= signature;
-        i++;
-    }
-
     // draw the ui
-
-    // clear the list of entities to be editted
-    m_entitiesToEdit.clear();
+    Draw(signature, entities);
 }
 
 void ComponentDrawUtils::Draw(ECS::Entity entity)

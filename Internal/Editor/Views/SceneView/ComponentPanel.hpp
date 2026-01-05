@@ -32,6 +32,7 @@ class ComponentPanel : public VEditor::IUserInterfaceElement
     VEditor::ComponentDrawUtils m_drawCommands;
 
     ImGuiSelectionBasicStorage* m_selectionStorage = nullptr;
+    std::vector<ECS::Entity>    m_selectedEntities{};
 
   private:
     void CreateAddComponentPopUp();
@@ -39,13 +40,12 @@ class ComponentPanel : public VEditor::IUserInterfaceElement
     template <typename T>
     void AddComponentMenuItem(const char* label)
     {
-        if(m_ecs.GetSignatureOf(*m_selectedEntity).test(m_ecs.GetComopnentType<T>()))
-        {
-            return;
-        }
         if(ImGui::MenuItem(label))
         {
-            m_ecs.AddComponentTo<T>(*m_selectedEntity, T());
+            for(auto& entity : m_selectedEntities)
+            {
+                m_ecs.AddComponentTo<T>(entity, T());
+            }
         }
     }
 };

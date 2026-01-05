@@ -26,31 +26,61 @@ void ComponentPanel::Render()
 {
     ImGui::Begin(ICON_FA_CUBES "Components");
 
-    if(m_selectionStorage->Size > 0)
+    ImGuiID        id = 0;
+    void*          it = NULL;
+    int            i  = 0;
+    ECS::Signature sharedSignature;
+
+    // parse entities to the vector
+    m_selectedEntities.reserve(m_selectionStorage->Size);
+
+    while(m_selectionStorage->GetNextSelectedItem(&it, &id))
     {
-        m_drawCommands.DrawMultiSelect(m_selectionStorage);
+        auto entity    = (ECS::Entity)id;
+        auto signature = m_ecs.GetSignatureOf(entity);
+
+        m_selectedEntities.push_back(entity);
+
+        if(i == 0)
+        {
+            // get the shared signatuer to know which components to draw
+            sharedSignature = signature;
+        }
+
+        sharedSignature &= signature;
+        i++;
     }
 
-    if(m_selectedEntity != nullptr)
+    if(m_selectionStorage->Size > 0)
     {
-        m_drawCommands.Draw(*m_selectedEntity);
-
-        CreateAddComponentPopUp();
+        m_drawCommands.DrawMultiSelect(sharedSignature, m_selectedEntities);
 
         ImVec2 cursorPos = ImGui::GetCursorPos();
         cursorPos.y += 10;
         ImGui::SetCursorPos(cursorPos);
-
         if(ImGui::Button(ICON_FA_CIRCLE_PLUS " Add component"))
         {
             ImGui::OpenPopup(V_EDITOR_ADD_COMPONENT_POP_UP_ID);
         }
+
+
+        CreateAddComponentPopUp();
     }
+    /*  if(m_selectedEntity != nullptr)
+    {
+        m_drawCommands.Draw(*m_selectedEntity);
+
+
+
+    } */
     else
     {
         ImGui::Text(ICON_FA_CIRCLE_EXCLAMATION " Nothing selected");
     }
 
+
+    // clear the list of entities to be editted
+    m_selectedEntities.clear();
 
     ImGui::End();
     IUserInterfaceElement::Render();

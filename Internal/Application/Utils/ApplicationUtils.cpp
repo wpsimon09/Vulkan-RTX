@@ -18,13 +18,24 @@ VulkanStructs::VBounds CalculateBounds(const std::vector<ApplicationCore::Vertex
         maxPos = glm::max(maxPos, i.position);
     }
     VulkanStructs::VBounds bounds = {};
-    bounds.origin                = (maxPos + minPos) / 2.f;
-    bounds.extents               = (maxPos - minPos) / 2.f;
-    bounds.max                   = maxPos;
-    bounds.min                   = minPos;
-    bounds.radius                = glm::length(bounds.extents);
+    bounds.origin                 = (maxPos + minPos) / 2.f;
+    bounds.extents                = (maxPos - minPos) / 2.f;
+    bounds.max                    = maxPos;
+    bounds.min                    = minPos;
+    bounds.radius                 = glm::length(bounds.extents);
 
     return bounds;
+}
+
+bool StringContains(const std::string& text, const std::string& search)
+{
+    if(search.empty())
+        return true;
+
+    auto it = std::search(text.begin(), text.end(), search.begin(), search.end(),
+                          [](char ch1, char ch2) { return std::tolower(ch1) == std::tolower(ch2); });
+
+    return it != text.end();
 }
 }  // namespace ApplicationCore
 
