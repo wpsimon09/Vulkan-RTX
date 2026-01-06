@@ -31,10 +31,6 @@ class ComponentDrawUtils
   private:
     void Draw(ECS::Signature signature, const std::vector<ECS::Entity>& entities);
 
-    void DrawTransform(ECS::Entity entity);
-    void DrawMetadataComponent(ECS::Entity entity);
-    void DrawStaticMeshComponent(ECS::Entity entity);
-
     void DrawTransformMultiselect(const std::vector<ECS::Entity>& entities);
     void DrawMetadataComponent(const std::vector<ECS::Entity>& entities);
     void DrawStaticMeshComponent(const std::vector<ECS::Entity>& entities);

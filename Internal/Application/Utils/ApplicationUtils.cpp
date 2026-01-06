@@ -27,16 +27,6 @@ VulkanStructs::VBounds CalculateBounds(const std::vector<ApplicationCore::Vertex
     return bounds;
 }
 
-bool StringContains(const std::string& text, const std::string& search)
-{
-    if(search.empty())
-        return true;
-
-    auto it = std::search(text.begin(), text.end(), search.begin(), search.end(),
-                          [](char ch1, char ch2) { return std::tolower(ch1) == std::tolower(ch2); });
-
-    return it != text.end();
-}
 }  // namespace ApplicationCore
 
 std::string ThemeToString(ETheme theme)
@@ -50,4 +40,14 @@ std::string ThemeToString(ETheme theme)
         default:
             return "Dark";
     }
+}
+bool StringContains(const std::string& text, const std::string& search)
+{
+    if(search.empty())
+        return true;
+
+    auto it = std::search(text.begin(), text.end(), search.begin(), search.end(),
+                          [](char ch1, char ch2) { return std::tolower(ch1) == std::tolower(ch2); });
+
+    return it != text.end();
 }

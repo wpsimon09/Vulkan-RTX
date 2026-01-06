@@ -10,6 +10,8 @@
 #include "Application/ECS/Components/MetadataComponent.hpp"
 #include "Application/World/World.hpp"
 #include "imgui.h"
+#include "Application/Utils/ApplicationUtils.hpp"
+
 #include <string_view>
 
 namespace VEditor {
@@ -37,12 +39,15 @@ void WorldOutline::Render()
 
         for(ECS::Entity entity = 0; entity < ecs->GetAllAliveEntities(); entity++)
         {
-            auto&       data  = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
-            std::string label = std::string(data.icon) + " " + data.entityName + "##" + std::to_string(entity);
-            if(StringContains(label, std::string_view(m_searchPhrase))
+            auto&       data        = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
+            std::string label       = std::string(data.icon) + " " + data.entityName + "##" + std::to_string(entity);
+            std::string searchPrase = m_searchPhrase;
+            if(StringContains(label, searchPrase))
+            {
                 bool item_is_selected = m_selection.Contains((ImGuiID)entity);
-            ImGui::SetNextItemSelectionUserData(entity);
-            ImGui::Selectable(label.c_str(), item_is_selected);
+                ImGui::SetNextItemSelectionUserData(entity);
+                ImGui::Selectable(label.c_str(), item_is_selected);
+            }
         }
 
         ms_io = ImGui::EndMultiSelect();
