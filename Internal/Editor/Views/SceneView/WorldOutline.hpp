@@ -33,7 +33,7 @@ class WorldOutline : public VEditor::IUserInterfaceElement
 
   private:
     void           RenderWorldOutlineOptions();
-    ECS::Signature ParseSelectionAndProcessDelete(bool wantDelete);
+    ECS::Signature ParseSelectionAndPreformActions(bool wantDelete, bool wantCopy, bool wantPaste);
 
   private:
     ECS::Entity              m_selectedEntity;
@@ -43,6 +43,8 @@ class WorldOutline : public VEditor::IUserInterfaceElement
     WindowManager&           m_windowManager;
     std::vector<ECS::Entity> m_selectedEntities{};
     bool                     m_requestDelete;
+    bool                     m_requestCopy;
+    bool                     m_requestPaste;
     char                     m_searchPhrase[70] = "";
 };
 
