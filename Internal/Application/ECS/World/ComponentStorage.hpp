@@ -68,7 +68,7 @@ class ComponentStorage : public IComponentStorage
 
     void OnEntityDestroyed(Entity entity) override
     {
-        if(!m_entityToIndexMap.contains(entity))
+        if(m_entityToIndexMap.contains(entity))
         {
             RemoveData(entity);
         }

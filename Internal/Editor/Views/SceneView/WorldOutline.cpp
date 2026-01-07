@@ -34,32 +34,82 @@ void WorldOutline::Render()
 
     if(ImGui::BeginChild("##World outline", ImVec2(-FLT_MIN, ImGui::GetFontSize() * 20), ImGuiChildFlags_FrameStyle | ImGuiChildFlags_ResizeY))
     {
+        std::vector<ECS::Entity> visibleEntities;
+        visibleEntities.clear();
+
+        for(ECS::Entity entity = 0; entity < ecs->GetAllAliveEntities(); entity++)
+        {
+            auto&       meta  = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
+            std::string label = std::string(meta.icon) + " " + meta.entityName;
+
+            if(StringContains(label, m_searchPhrase))
+            {
+                visibleEntities.push_back(entity);
+            }
+        }
+
         ImGuiMultiSelectFlags flags = ImGuiMultiSelectFlags_ClearOnEscape | ImGuiMultiSelectFlags_BoxSelect1d;
         ImGuiMultiSelectIO*   ms_io = ImGui::BeginMultiSelect(flags, m_selection.Size, ecs->GetAllAliveEntities());
         m_selection.ApplyRequests(ms_io);
 
-        for(ECS::Entity entity = 0; entity < ecs->GetAllAliveEntities(); entity++)
+        const bool wantDelete = (ImGui::Shortcut(ImGuiKey_Delete, ImGuiInputFlags_Repeat) && m_selection.Size > 0) || m_requestDelete;
+
+        const int focus_idx = wantDelete ? m_selection.ApplyDeletionPreLoop(ms_io, ecs->GetAllAliveEntities()) : -1;
+
+        m_requestDelete = false;
+
+        ImGuiListClipper clipper;
+        clipper.Begin(visibleEntities.size());
+        if(focus_idx != -1)
+            clipper.IncludeItemByIndex(focus_idx);
+
+        if(ms_io->RangeSrcItem != -1)
+            clipper.IncludeItemByIndex((int)ms_io->RangeSrcItem);
+
+
+        while(clipper.Step())
         {
-            auto&       data        = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
-            std::string label       = std::string(data.icon) + " " + data.entityName + "##" + std::to_string(entity);
-            std::string searchPrase = m_searchPhrase;
-            if(StringContains(label, searchPrase))
+            for(ECS::Entity entity = clipper.DisplayStart; entity < clipper.DisplayEnd; entity++)
             {
+                auto&       data  = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
+                std::string label = std::string(data.icon) + " " + data.entityName + "##" + std::to_string(entity);
+                std::string searchPrase = m_searchPhrase;
+
+                ImGui::PushID(entity);
                 bool item_is_selected = m_selection.Contains((ImGuiID)entity);
                 ImGui::SetNextItemSelectionUserData(entity);
                 ImGui::Selectable(label.c_str(), item_is_selected);
+
+                if(focus_idx == entity)
+                {
+                    ImGui::SetKeyboardFocusHere(-1);
+                }
+
+                if(ImGui::BeginPopupContextItem())
+                {
+                    ImGui::BeginDisabled(m_selection.Size == 0);
+                    if(ImGui::Selectable(ICON_FA_TRASH_CAN " Delete"))
+                    {
+                        m_requestDelete = true;
+                    }
+                    ImGui::EndDisabled();
+
+                    ImGui::EndPopup();
+                }
+                ImGui::PopID();
             }
         }
 
         ms_io = ImGui::EndMultiSelect();
         m_selection.ApplyRequests(ms_io);
+
+        if(m_selection.Size > 0)
+        {
+            m_componentPanel->SetSharedSignature(ParseSelectionAndProcessDelete(wantDelete));
+        }
     }
 
-    if(m_selection.Size > 0)
-    {
-        auto sharedSignature = ParseSelection();
-        m_componentPanel->SetSharedSignature(sharedSignature);
-    }
+
     ImGui::EndChild();
     ImGui::End();
 
@@ -74,8 +124,21 @@ void WorldOutline::Update()
 {
     IUserInterfaceElement::Update();
 }
-ECS::Signature WorldOutline::ParseSelection()
+
+ECS::Signature WorldOutline::ParseSelectionAndProcessDelete(bool wantDelete)
 {
+    if(wantDelete)
+    {
+        void*   it = nullptr;
+        ImGuiID id;
+
+        while(m_selection.GetNextSelectedItem(&it, &id))
+        {
+            m_world.GetECS().DestroyEntity((ECS::Entity)id);
+        }
+        m_selectedEntities.clear();
+        return 0;
+    }
     auto ecs = &m_world.GetECS();
 
     ImGuiID        id = 0;
