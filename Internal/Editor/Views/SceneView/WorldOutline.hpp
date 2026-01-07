@@ -10,6 +10,8 @@
 
 #include <set>
 
+
+class WindowManager;
 namespace ApplicationCore {
 class World;
 }
@@ -19,19 +21,25 @@ class ComponentPanel;
 class WorldOutline : public VEditor::IUserInterfaceElement
 {
   public:
-    explicit WorldOutline(ApplicationCore::World& world);
+    explicit WorldOutline(WindowManager& windowManager, ApplicationCore::World& world);
 
     void Render() override;
     void Resize(int newWidth, int newHeight) override;
     void Update() override;
 
   private:
+    ECS::Signature ParseSelection();
+
+  private:
     ECS::Entity                m_selectedEntity;
-    std::set<ECS::Entity>      m_selectedEntities;
     ApplicationCore::World&    m_world;
     ComponentPanel*            m_componentPanel;
     ImGuiSelectionBasicStorage m_selection;
-    char                       m_searchPhrase[70];
+    WindowManager&             m_windowManager;
+    std::vector<ECS::Entity>   m_selectedEntities{};
+
+
+    char m_searchPhrase[70];
 };
 
 }  // namespace VEditor

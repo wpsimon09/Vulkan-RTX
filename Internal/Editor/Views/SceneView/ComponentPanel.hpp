@@ -19,20 +19,18 @@ static const auto V_EDITOR_ADD_COMPONENT_POP_UP_ID = "AddComponentPopUp";
 class ComponentPanel : public VEditor::IUserInterfaceElement
 {
   public:
-    ComponentPanel(ECS::ECSCoordinator& ecs, ImGuiSelectionBasicStorage* multiselectStorage);
+    ComponentPanel(ECS::ECSCoordinator& ecs, std::vector<ECS::Entity>& selectedEntities);
     void Render() override;
     void Resize(int newWidth, int newHeight) override;
     void Update() override;
-
-    void SetSelectedEntity(ECS::Entity* entity);
+    void SetSharedSignature(ECS::Signature signature);
 
   private:
     ECS::ECSCoordinator&        m_ecs;
-    ECS::Entity*                m_selectedEntity = nullptr;
     VEditor::ComponentDrawUtils m_drawCommands;
 
-    ImGuiSelectionBasicStorage* m_selectionStorage = nullptr;
-    std::vector<ECS::Entity>    m_selectedEntities{};
+    std::vector<ECS::Entity>& m_selectedEntities;
+    ECS::Signature            m_sharedSignature;
 
   private:
     void CreateAddComponentPopUp();

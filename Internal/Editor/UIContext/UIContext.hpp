@@ -55,7 +55,7 @@ class UIContext
     void EndRender();
     void Destroy();
     void SetCurrentOperation(ImGuizmo::OPERATION operation) { m_operation = operation; }
-    std::unordered_map<ViewPortType, ViewPortContext>&  GetViewPorts() {return m_viewports;};
+    std::unordered_map<ViewPortType, ViewPortContext>& GetViewPorts() { return m_viewports; };
 
     ;
     void SetSelectedSceneNode(std::shared_ptr<ApplicationCore::SceneNode> sceneNode)
@@ -71,6 +71,7 @@ class UIContext
   public:
     ApplicationCore::Scene& GetScene() const { return m_client.GetScene(); }
     Client&                 GetClient() { return m_client; }
+    WindowManager&          GetWindowManager() { return m_windowManager; }
 
   private:
     const VulkanCore::VDevice&        m_device;

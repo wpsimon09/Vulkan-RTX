@@ -110,10 +110,7 @@ void ComponentDrawUtils::DrawTransformMultiselect(const std::vector<ECS::Entity>
         ImGui::TreePop();
     }
 
-    if(entities.size() > 1)
-    {
-        ApplyToAll<ECS::TransformComponent>(data, entities);
-    }
+    ApplyToAll<ECS::TransformComponent>(data, entities);
 }
 
 void ComponentDrawUtils::DrawMetadataComponent(const std::vector<ECS::Entity>& entities)
