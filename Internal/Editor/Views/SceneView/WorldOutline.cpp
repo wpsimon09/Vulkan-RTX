@@ -69,14 +69,16 @@ void WorldOutline::Render()
 
         while(clipper.Step())
         {
-            for(ECS::Entity entity = clipper.DisplayStart; entity < clipper.DisplayEnd; entity++)
+            for(ECS::Entity n = clipper.DisplayStart; n < clipper.DisplayEnd; n++)
             {
-                auto&       data  = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
-                std::string label = std::string(data.icon) + " " + data.entityName + "##" + std::to_string(entity);
+                auto&       entity = visibleEntities[n];
+                auto&       data   = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
+                std::string label  = std::string(data.icon) + " " + data.entityName + "##" + std::to_string(entity);
                 std::string searchPrase = m_searchPhrase;
 
                 ImGui::PushID(entity);
                 bool item_is_selected = m_selection.Contains((ImGuiID)entity);
+                // here i have to index to the array of visible entities to get the correct one
                 ImGui::SetNextItemSelectionUserData(entity);
                 ImGui::Selectable(label.c_str(), item_is_selected);
 
