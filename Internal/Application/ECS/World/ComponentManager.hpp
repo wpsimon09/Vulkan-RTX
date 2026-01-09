@@ -84,6 +84,7 @@ class ComponentManager
 
     void OnEntityDestroyed(Entity entity)
     {
+        // In case an entity was destoryed destroy the components associated with this entity
         for(auto const& pair : m_componentsStorages)
         {
             auto const& component = pair.second;

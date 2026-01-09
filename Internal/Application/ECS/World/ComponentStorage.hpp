@@ -42,15 +42,37 @@ class ComponentStorage : public IComponentStorage
 
     void RemoveData(Entity entity)
     {
+        /*
+         * m_componentsArray -> array of all components
+         * [ECS::Transfrom, ECS::Transfrom, ECS::Transform]
+         * --------------------
+         * m_indexToEntity map --> maps which components belong to what entity
+         * [componentId : key, entityId: value]
+         * --------------------
+         * m_entityToIndexMap -> maps which entity goes to which index in the components array
+         * [entityId : key, componentId : value]
+         * --------------------
+         * the `componentId` is allways index to the m_componentsArray !
+        */
         assert(m_entityToIndexMap.contains(entity) && "This entity does not exist");
-        size_t indexOfRemovedEntity             = m_entityToIndexMap[entity];
-        size_t indexOfLastElement               = m_size - 1;
-        m_componentsArray[indexOfRemovedEntity] = m_componentsArray[indexOfLastElement];
 
-        // since component was removed we need move that data in the map and make entity point there
-        Entity entityOfLastElement               = m_indexToEntityMap[indexOfLastElement];
-        m_entityToIndexMap[entityOfLastElement]  = indexOfLastElement;
-        m_indexToEntityMap[indexOfRemovedEntity] = entityOfLastElement;
+        // get the index of a component that the entity belongs to
+        size_t componentIndexOfRemovedEntity = m_entityToIndexMap[entity];
+
+        // get the index of the last component in the components array
+        size_t indexOfLastElement = m_size - 1;
+
+        // move last component in place of removed entity
+        m_componentsArray[componentIndexOfRemovedEntity] = m_componentsArray[indexOfLastElement];
+
+        // get the entity that belonged to the last element which was moved in place of deleted entity
+        Entity entityOfLastElement = m_indexToEntityMap[indexOfLastElement];
+
+        // move the removed entity to the place of the last entity.
+        // make the last entity point to the index of the compoennt from the entity which was removed and moved to the end        m_entityToIndexMap[entityOfLastElement] = componentIndexOfRemovedEntity;
+
+        // make the component of the removed entity point to the entity at the end of the array which is now the deleted entity
+        m_indexToEntityMap[componentIndexOfRemovedEntity] = entityOfLastElement;
 
         m_entityToIndexMap.erase(entity);
         m_indexToEntityMap.erase(indexOfLastElement);
@@ -64,7 +86,7 @@ class ComponentStorage : public IComponentStorage
         return m_componentsArray[m_entityToIndexMap[entity]];
     }
 
-    void SetData(T& data, Entity entity) { m_componentsArray[entity] = data; }
+    void SetData(T& data, Entity entity) { m_componentsArray[m_entityToIndexMap.at(entity)] = data; }
 
     void OnEntityDestroyed(Entity entity) override
     {

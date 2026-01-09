@@ -7,6 +7,7 @@
 
 #include "Application/ECS/Types.hpp"
 #include <queue>
+#include <unordered_map>
 
 namespace ECS {
 
@@ -25,11 +26,18 @@ class EntityManager
 
     uint32_t GetLivingEntityCount();
 
+    const std::vector<Entity>& GetAliveEntities();
+
   private:
     /*
    * Stores unissued IDs of the entities
    */
     std::queue<Entity> m_availableEntities{};
+
+    /*
+   * Stores all alive entities
+   */
+    std::vector<Entity> m_livingEntities{};
 
     /*
    * Contains bit fields for each entity
@@ -39,6 +47,8 @@ class EntityManager
    * - transform component (y) rigid body (n) light (n) mesh (y)
    */
     std::array<Signature, MAX_ENTITIES> m_signatures{};
+
+    std::array<Entity, MAX_ENTITIES> m_entityToLivingEntity{};
 
     uint32_t m_livingEntityCount{};
 };

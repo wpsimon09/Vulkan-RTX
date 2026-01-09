@@ -50,4 +50,8 @@ int ECSCoordinator::GetNumberOfRegisteredComponents()
 {
     return m_registeredComponents;
 }
+const std::vector<ECS::Entity>& ECSCoordinator::GetAliveEntities()
+{
+    return m_entityManager->GetAliveEntities();
+}
 }  // namespace ECS

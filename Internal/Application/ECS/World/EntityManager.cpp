@@ -16,16 +16,35 @@ EntityManager::EntityManager()
 ECS::Entity EntityManager::CreateEntity()
 {
     assert(m_livingEntityCount < ECS::MAX_ENTITIES && "Too many entities alive in the scene");
+
     ECS::Entity id = m_availableEntities.front();
     m_availableEntities.pop();
-    ++m_livingEntityCount;
 
+    // map the ID of the crated entity to the one that will be in the living etities array
+    // m_livingEntities[id] is the index of the created entity in the all entites array
+    m_entityToLivingEntity[id] = m_livingEntities.size();
+    m_livingEntities.push_back(id);
+
+    ++m_livingEntityCount;
     return id;
 }
 void EntityManager::DestroyEntity(ECS::Entity entity)
 {
+
     assert(entity < ECS::MAX_ENTITIES && "Entity out of range");
+
     m_signatures[entity].reset();
+
+    // the same principle as with compoennts it replaces deleted entitiy with the entity that was last in the array
+    size_t removedIndex = m_entityToLivingEntity[entity];
+    size_t lastIndex    = m_livingEntities.size() - 1;
+
+    ECS::Entity lastEntity = m_livingEntities[lastIndex];
+
+    m_livingEntities[removedIndex]     = lastEntity;
+    m_entityToLivingEntity[lastEntity] = removedIndex;
+
+    m_livingEntities.pop_back();
 
     m_availableEntities.push(entity);
     --m_livingEntityCount;
@@ -43,6 +62,10 @@ Signature EntityManager::GetSignature(Entity entity)
 uint32_t EntityManager::GetLivingEntityCount()
 {
     return m_livingEntityCount;
+}
+const std::vector<Entity>& EntityManager::GetAliveEntities()
+{
+    return m_livingEntities;
 }
 
 

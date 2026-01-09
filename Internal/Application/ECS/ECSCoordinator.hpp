@@ -30,6 +30,7 @@ class ECSCoordinator
     int         GetAllAliveEntities();
     Signature   GetSignatureOf(Entity entity);
     int         GetNumberOfRegisteredComponents();
+    const std::vector<ECS::Entity>& GetAliveEntities();
 
     //===========================================
     template <typename T>
@@ -88,7 +89,8 @@ class ECSCoordinator
     }
 
     template <typename T>
-    void SetComponentValue(T& component, Entity entity) {
+    void SetComponentValue(T& component, Entity entity)
+    {
         m_componentManager->SetComponentValue(component, entity);
     }
 

@@ -34,12 +34,15 @@ void WorldOutline::Render()
 
     //====================================
     // Filter entities based on the search
+    // - does entity mach the search ?
+    // - store its index to the visible entieis
+    // - continue to loop through it as ususla
+    std::vector<ECS::Entity> visibleEntities;
+    visibleEntities.clear();
     if(ImGui::BeginChild("##World outline", ImVec2(-FLT_MIN, ImGui::GetFontSize() * 20), ImGuiChildFlags_FrameStyle | ImGuiChildFlags_ResizeY))
     {
-        std::vector<ECS::Entity> visibleEntities;
-        visibleEntities.clear();
 
-        for(ECS::Entity entity = 0; entity < ecs->GetAllAliveEntities(); entity++)
+        for(auto& entity : ecs->GetAliveEntities())
         {
             auto&       meta  = ecs->GetComponentFrom<ECS::MetadataComponent>(entity);
             std::string label = std::string(meta.icon) + " " + meta.entityName;
@@ -56,9 +59,12 @@ void WorldOutline::Render()
         ImGuiMultiSelectIO*   ms_io = ImGui::BeginMultiSelect(flags, m_selection.Size, ecs->GetAllAliveEntities());
         m_selection.ApplyRequests(ms_io);
 
+        //==================================
+        // Either shortcut key was pressed
+        // or last frame requested this action through context menu
         const bool wantDelete = (ImGui::Shortcut(ImGuiKey_Delete, ImGuiInputFlags_Repeat) && m_selection.Size > 0) || m_requestDelete;
         const bool wantCopy  = (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_C) && m_selection.Size > 0) || m_requestCopy;
-        const bool wantPaste = (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_P) || m_requestPaste);
+        const bool wantPaste = ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_P) || m_requestPaste;
 
         const int focus_idx = wantDelete ? m_selection.ApplyDeletionPreLoop(ms_io, ecs->GetAllAliveEntities()) : -1;
 
