@@ -70,9 +70,10 @@ class ComponentStorage : public IComponentStorage
 
         // move the removed entity to the place of the last entity.
         // make the last entity point to the index of the compoennt from the entity which was removed and moved to the end        m_entityToIndexMap[entityOfLastElement] = componentIndexOfRemovedEntity;
-
         // make the component of the removed entity point to the entity at the end of the array which is now the deleted entity
+        m_entityToIndexMap[entityOfLastElement]           = componentIndexOfRemovedEntity;
         m_indexToEntityMap[componentIndexOfRemovedEntity] = entityOfLastElement;
+        ;
 
         m_entityToIndexMap.erase(entity);
         m_indexToEntityMap.erase(indexOfLastElement);

@@ -34,9 +34,9 @@ ECS::Entity ECSCoordinator::CreateEntityWithMetadata(const std::string& name, co
 
 void ECSCoordinator::DestroyEntity(Entity entity)
 {
-    m_entityManager->DestroyEntity(entity);
     m_componentManager->OnEntityDestroyed(entity);
     m_systemManager->OnEntityDestroyed(entity);
+    m_entityManager->DestroyEntity(entity);
 }
 int ECSCoordinator::GetAllAliveEntities()
 {
