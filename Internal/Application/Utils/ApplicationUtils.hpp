@@ -81,4 +81,5 @@ std::string ThemeToString(ETheme theme);
 
 bool StringContains(const std::string& text, const std::string& search);
 
+
 #endif  //APPLICATIONUTILS_HPP

@@ -37,7 +37,7 @@ void EntityManager::DestroyEntity(ECS::Entity entity)
 
     // the same principle as with compoennts it replaces deleted entitiy with the entity that was last in the array
     size_t removedIndex = m_entityToLivingEntity[entity];
-    size_t lastIndex    = m_livingEntities.size() - 1;
+    size_t lastIndex    = m_livingEntities.size() - 2;
 
     ECS::Entity lastEntity = m_livingEntities[lastIndex];
 

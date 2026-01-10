@@ -117,13 +117,12 @@ void ComponentDrawUtils::DrawMetadataComponent(const std::vector<ECS::Entity>& e
 {
     if(ImGui::TreeNodeEx(ICON_FA_CIRCLE_INFO " Informations"))
     {
-
         auto& data = m_ecs.GetComponentFrom<ECS::MetadataComponent>(entities[0]);
         ImGui::SeparatorText(data.componentLabel.c_str());
         ImGui::InputText("Entity name", data.entityName, IM_ARRAYSIZE(data.entityName));
         ImGui::InputText("Tag", data.tag.data(), data.tag.size(), ImGuiInputTextFlags_ReadOnly);
-
-        ApplyToAll(data, entities);
+        ImGui::Text("UUID: %s", data.uuid.c_str());
+        ApplyToAll<ECS::MetadataComponent>(data, entities);
 
         ImGui::TreePop();
     }

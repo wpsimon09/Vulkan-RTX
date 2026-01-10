@@ -279,6 +279,7 @@ set(SOURCES
         Internal/Application/ECS/Components/MaterialComponent.hpp
         Internal/Application/ECS/Components/Parented.hpp
         Internal/Editor/Views/SceneView/ImGuiSelectionWithDeletion.hpp
+        Internal/Application/Utils/Uuid.hpp
 
 )
 
