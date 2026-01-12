@@ -24,16 +24,11 @@ class Scene;
 struct ViewPortContext;
 
 namespace VEditor {
+class ActionsPanel;
 class ViewPort : public IUserInterfaceElement
 {
   public:
-    explicit ViewPort(std::unordered_map<ViewPortType, ViewPortContext>& viewPorts,
-                      ViewPortContext&                                   rasterViewportContext,
-                      ViewPortContext&                                   rayTracedViewPortContext,
-                      bool&                                              isRayTracing,
-                      ApplicationCore::Scene&                            scene,
-                      WindowManager&                                     windowManager,
-                      ApplicationCore::ApplicationState&                 applicationState);
+    explicit ViewPort(UIContext& uiContext);
 
     virtual void Render() override;
 
@@ -51,6 +46,7 @@ class ViewPort : public IUserInterfaceElement
     ViewPortContext&                                   m_rasterViewPortContext;
     ViewPortContext&                                   m_rayTracedViewPortContext;
     std::unordered_map<ViewPortType, ViewPortContext>& m_viewPorts;
+    std::unique_ptr<ActionsPanel>                      m_actionsPanel;
 
     ViewPortType m_selectedViewPort = ViewPortType::eMain;
 

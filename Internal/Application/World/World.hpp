@@ -8,7 +8,7 @@
 
 namespace ECS {
 class ECSCoordinator;
-}
+}  // namespace ECS
 namespace ApplicationCore {
 class ApplicationState;
 

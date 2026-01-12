@@ -4,6 +4,8 @@
 
 #include "ViewPort.hpp"
 
+#include "ActionsPanel.hpp"
+
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,32 +16,29 @@
 #include "Application/Rendering/Camera/Camera.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Application/WindowManager/WindowManager.hpp"
+#include "Editor/UIContext/UIContext.hpp"
 #include "Editor/UIContext/ViewPortContext.hpp"
 #include "Vulkan/Global/GlobalVariables.hpp"
+#include "Editor/Views/ViewPort/ActionsPanel.hpp"
 
-
-VEditor::ViewPort::ViewPort(std::unordered_map<ViewPortType, ViewPortContext>& viewPorts,
-                            ViewPortContext&                                   rasterViewportContext,
-                            ViewPortContext&                                   rayTracedViewPortContext,
-                            bool&                                              isRayTracing,
-                            ApplicationCore::Scene&                            scene,
-                            WindowManager&                                     windowManager,
-                            ApplicationCore::ApplicationState&                 applicationState)
-    : m_rasterViewPortContext(rasterViewportContext)
-    , m_rayTracedViewPortContext(rayTracedViewPortContext)
-    , m_isRayTracing(isRayTracing)
-    , m_scene(scene)
-    , m_windowManager(windowManager)
-    , m_viewPorts(viewPorts)
-    , m_applicationSate(applicationState)
-
+VEditor::ViewPort::ViewPort(UIContext& uiContext)
+    : IUserInterfaceElement()
+    , m_rasterViewPortContext(uiContext.GetViewPortContext(ViewPortType::eMain))
+    , m_rayTracedViewPortContext(uiContext.GetViewPortContext(ViewPortType::eMainRayTracer))
+    , m_isRayTracing(uiContext.m_isRayTracing)
+    , m_scene(uiContext.GetScene())
+    , m_windowManager(uiContext.GetWindowManager())
+    , m_viewPorts(uiContext.GetViewPorts())
+    , m_applicationSate(uiContext.GetClient().GetApplicationState())
 {
-    m_previousHeight = rasterViewportContext.height;
-    m_previousWidth  = rasterViewportContext.width;
+    m_previousWidth  = m_rasterViewPortContext.width;
+    m_previousHeight = m_rasterViewPortContext.height;
+    m_actionsPanel   = std::make_unique<ActionsPanel>(uiContext.GetClient().GetWorld());
 }
 
 void VEditor::ViewPort::Render()
 {
+
 
     // Render the "Scene view port" windowe
     ImGui::Begin(ICON_FA_CAMERA " Scene view port", &m_isOpen, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar);
@@ -50,10 +49,13 @@ void VEditor::ViewPort::Render()
     ImGui::SetNextItemAllowOverlap();
     ImGui::BeginMenuBar();
 
+    /*
     if(ImGui::MenuItem(ICON_FA_PLUS " Add"))
     {
         ImGui::OpenPopup("AddPopUp");
     }
+    */
+    m_actionsPanel->Render();
 
     if(ImGui::MenuItem(ICON_FA_CAMERA " View port"))
     {

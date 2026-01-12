@@ -22,6 +22,7 @@
 #include "Vulkan/Renderer/Renderers/Frame.hpp"
 #include "imgui.h"
 #include "Views/SceneView/WorldOutline.hpp"
+#include "Views/ViewPort/ActionsPanel.hpp"
 
 namespace VEditor {
 Editor::Editor(UIContext& uiContext)
@@ -35,10 +36,7 @@ Editor::Editor(UIContext& uiContext)
     auto index = std::make_unique<VEditor::Index>(uiContext.m_windowManager.GetWindowWidth(),
                                                   uiContext.m_windowManager.GetWindowHeight());
 
-    auto viewPort = std::make_unique<ViewPort>(uiContext.GetViewPorts(), uiContext.m_viewports[ViewPortType::eMain],
-                                               uiContext.m_viewports[ViewPortType::eMainRayTracer],
-                                               uiContext.m_isRayTracing, m_uiContext.m_client.GetScene(),
-                                               m_uiContext.m_windowManager, m_uiContext.GetClient().GetApplicationState());
+    auto viewPort = std::make_unique<ViewPort>(uiContext);
     index->m_uiChildren.emplace_back(std::move(viewPort));
 
     auto console = std::make_unique<Console>();
