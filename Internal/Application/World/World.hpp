@@ -10,12 +10,13 @@ namespace ECS {
 class ECSCoordinator;
 }  // namespace ECS
 namespace ApplicationCore {
+class AssetsManager;
 class ApplicationState;
 
 class World
 {
   public:
-    explicit World(ApplicationState& applicationState);
+    explicit World(ApplicationState& applicationState, AssetsManager& assetsManager);
 
     void RegisterAll();
 
@@ -24,6 +25,8 @@ class World
   private:
     ApplicationState&                    m_applicationState;
     std::unique_ptr<ECS::ECSCoordinator> m_ecsCoordinator;
+    AssetsManager& m_assetsManager;
+
 };
 
 }  // namespace ApplicationCore

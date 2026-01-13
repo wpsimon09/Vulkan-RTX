@@ -55,6 +55,7 @@ void VEditor::ViewPort::Render()
         ImGui::OpenPopup("AddPopUp");
     }
     */
+    // renders child window with all teh actions of the view port
     m_actionsPanel->Render();
 
     if(ImGui::MenuItem(ICON_FA_CAMERA " View port"))
@@ -64,64 +65,7 @@ void VEditor::ViewPort::Render()
 
     RenderViewPortSelection();
 
-    if(ImGui::BeginPopup("AddPopUp"))
-    {
-        if(ImGui::BeginMenu(ICON_FA_SHAPES " Meshes"))
-        {
-            if(ImGui::Selectable(ICON_FA_CIRCLE " Sphere"))
-            {
-                m_scene.AddSphereToScene();
-            }
-            if(ImGui::Selectable(ICON_FA_CUBE " Cube"))
-            {
-                m_scene.AddCubeToScene();
-            }
-            if(ImGui::Selectable(ICON_FA_SQUARE " Plane"))
-            {
-                m_scene.AddPlaneToScene();
-            }
-
-            ImGui::EndMenu();
-        }
-        if(ImGui::BeginMenu(ICON_FA_WAND_MAGIC_SPARKLES " Effects"))
-        {
-            if(ImGui::Selectable(ICON_FA_SMOG " Fog volume"))
-            {
-                m_scene.AddFogVolume();
-            }
-            ImGui::EndMenu();
-        }
-
-        if(ImGui::BeginMenu(ICON_FA_SUN " Lights"))
-        {
-            if(ImGui::Selectable(ICON_FA_CLOUD_SUN "Atmosphere "))
-            {
-                m_scene.AddAtmosphere();
-            }
-            if(ImGui::Selectable(ICON_FA_SUN " Directional"))
-            {
-                m_scene.AddDirectionalLight();
-            }
-            if(ImGui::Selectable(ICON_FA_LIGHTBULB " Point"))
-            {
-                m_scene.AddPointLight();
-            }
-            if(ImGui::Selectable(ICON_FA_SQUARE " Area"))
-            {
-                m_scene.AddAreaLight();
-            }
-            if(ImGui::Selectable(ICON_FA_MOUNTAIN_SUN " Sky-Box"))
-            {
-                m_scene.AddSkyBox();
-            }
-
-            ImGui::EndMenu();
-        }
-
-        ImGui::EndPopup();
-    }
-
-    ImGui::EndMenuBar();
+ ImGui::EndMenuBar();
 
     ImVec2 viewportPanelSize = ImGui::GetWindowSize();
     auto   imageSize         = ImVec2{viewportPanelSize.x - 20, viewportPanelSize.y - 60};

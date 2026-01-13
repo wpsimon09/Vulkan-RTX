@@ -10,8 +10,9 @@
 #include "Application/ECS/Components/TransformComponent.hpp"
 
 namespace ApplicationCore {
-World::World(ApplicationState& applicationState)
+World::World(ApplicationState& applicationState, AssetsManager& assetsManager)
     : m_applicationState(applicationState)
+    , m_assetsManager(assetsManager)
 {
     m_ecsCoordinator = std::make_unique<ECS::ECSCoordinator>();
 }

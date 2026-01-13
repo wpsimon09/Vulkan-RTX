@@ -36,9 +36,6 @@ Client::Client()
     m_applicationState = std::make_unique<ApplicationCore::ApplicationState>();
 
     m_applicationState->pSetGlobalRenderingInfoData2(&m_globalRenderingData2);
-
-    m_world = std::make_unique<ApplicationCore::World>(*m_applicationState);
-    m_world->RegisterAll();
 }
 
 void Client::Init()
@@ -52,6 +49,9 @@ void Client::Init()
 
     m_scene = std::make_unique<ApplicationCore::Scene>(*m_applicationState, *m_assetsManager, *m_camera);
     m_scene->Init();
+
+    m_world = std::make_unique<ApplicationCore::World>(*m_applicationState);
+    m_world->RegisterAll();
 
     ApplicationCore::LoadSceneLights(*m_scene, GlobalVariables::lightInfoPath);
 

@@ -29,6 +29,9 @@ class ActionsPanel : public IUserInterfaceElement
     void                    RenderAddPopUp();
     ECS::ECSCoordinator&    m_ecs;
     ApplicationCore::World& m_world;
+
+  private:
+    void RenderAddNewPopUp();
 };
 };  // namespace VEditor
 

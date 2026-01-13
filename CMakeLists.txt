@@ -282,6 +282,13 @@ set(SOURCES
         Internal/Application/Utils/Uuid.hpp
         Internal/Editor/Views/ViewPort/ActionsPanel.cpp
         Internal/Editor/Views/ViewPort/ActionsPanel.hpp
+        Internal/Application/World/WorldCreatorHelper.cpp
+        Internal/Application/World/WorldCreatorHelper.hpp
+        Internal/Application/ECS/Components/FogComponent.hpp
+        Internal/Application/ECS/Components/AtmosphereComponent.hpp
+        Internal/Application/ECS/Components/LightComponents.hpp
+        Internal/Editor/UIContext/ImGuiImage.cpp
+        Internal/Editor/UIContext/ImGuiImage.hpp
 
 )
 
