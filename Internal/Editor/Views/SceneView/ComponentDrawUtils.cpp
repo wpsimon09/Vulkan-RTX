@@ -5,6 +5,9 @@
 #include "ComponentDrawUtils.hpp"
 
 #include "Application/ECS/ECSCoordinator.hpp"
+#include "Application/ECS/Components/AtmosphereComponent.hpp"
+#include "Application/ECS/Components/FogComponent.hpp"
+#include "Application/ECS/Components/LightComponents.hpp"
 #include "Application/ECS/Components/MetadataComponent.hpp"
 #include "Application/ECS/Components/StaticMeshComponent.hpp"
 #include "Application/ECS/Components/TransformComponent.hpp"
@@ -23,6 +26,19 @@ ComponentDrawUtils::ComponentDrawUtils(ECS::ECSCoordinator& ecs)
         [this](const std::vector<ECS::Entity>& entities) { DrawMetadataComponent(entities); };
     m_drawMultiSelectFunctions[ecs.GetComopnentType<ECS::StaticMeshComponent>()] =
         [this](const std::vector<ECS::Entity>& entities) { DrawStaticMeshComponent(entities); };
+    m_drawMultiSelectFunctions[ecs.GetComopnentType<ECS::FogComponent>()] = [this](const std::vector<ECS::Entity>& entities) {
+        DrawFogComponent(entities);
+    };
+    m_drawMultiSelectFunctions[ecs.GetComopnentType<ECS::AtmosphereComponent>()] =
+        [this](const std::vector<ECS::Entity>& entities) { DrawAtmosphereComponent(entities); };
+    m_drawMultiSelectFunctions[ecs.GetComopnentType<ECS::DirectionalLightComponent>()] =
+        [this](const std::vector<ECS::Entity>& entities) { DrawDirectionalLightComponent(entities); };
+    m_drawMultiSelectFunctions[ecs.GetComopnentType<ECS::PointLightComponent>()] =
+        [this](const std::vector<ECS::Entity>& entities) { DrawPointLightComponent(entities); };
+    m_drawMultiSelectFunctions[ecs.GetComopnentType<ECS::AreaLightComponent>()] =
+        [this](const std::vector<ECS::Entity>& entities) { DrawAreaLightComponent(entities); };
+    m_drawMultiSelectFunctions[ecs.GetComopnentType<ECS::EnvironemntLightComponent>()] =
+        [this](const std::vector<ECS::Entity>& entities) { DrawEnvironemtnLightComponent(entities); };
 }
 
 void ComponentDrawUtils::DrawMultiSelect(ECS::Signature signature, const std::vector<ECS::Entity>& entities)
@@ -142,5 +158,11 @@ void ComponentDrawUtils::DrawStaticMeshComponent(const std::vector<ECS::Entity>&
         ImGui::TreePop();
     }
 }
+void ComponentDrawUtils::DrawFogComponent(const std::vector<ECS::Entity>& entities) {}
+void ComponentDrawUtils::DrawAtmosphereComponent(const std::vector<ECS::Entity>& entities) {}
+void ComponentDrawUtils::DrawDirectionalLightComponent(const std::vector<ECS::Entity>& entities) {}
+void ComponentDrawUtils::DrawPointLightComponent(const std::vector<ECS::Entity>& entities) {}
+void ComponentDrawUtils::DrawAreaLightComponent(const std::vector<ECS::Entity>& entities) {}
+void ComponentDrawUtils::DrawEnvironemtnLightComponent(const std::vector<ECS::Entity>& entities) {}
 
 }  // namespace VEditor

@@ -19,7 +19,7 @@ void ActionsPanel::Render()
 {
     bool open = true;
     ImGui::BeginChild("Actions panel", ImVec2(ImGui::GetContentRegionAvail().x * 0.2, 40));
-    if(ImGui::Button(ICON_FA_CIRCLE_PLUS "New"))
+    if(ImGui::Button(ICON_FA_CIRCLE_PLUS " New"))
     {
         ImGui::OpenPopup(ADD_POP_UP_ID);
     }
@@ -38,7 +38,7 @@ void ActionsPanel::RenderAddPopUp() {}
 
 void ActionsPanel::RenderAddNewPopUp()
 {
-    if(ImGui::BeginPopup("AddPopUp"))
+    if(ImGui::BeginPopup(ADD_POP_UP_ID))
     {
         if(ImGui::BeginMenu(ICON_FA_SHAPES " Meshes"))
         {

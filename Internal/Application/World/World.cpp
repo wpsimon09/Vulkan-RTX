@@ -5,6 +5,9 @@
 #include "World.hpp"
 
 #include "Application/ECS/ECSCoordinator.hpp"
+#include "Application/ECS/Components/AtmosphereComponent.hpp"
+#include "Application/ECS/Components/FogComponent.hpp"
+#include "Application/ECS/Components/LightComponents.hpp"
 #include "Application/ECS/Components/MetadataComponent.hpp"
 #include "Application/ECS/Components/StaticMeshComponent.hpp"
 #include "Application/ECS/Components/TransformComponent.hpp"
@@ -22,6 +25,12 @@ void World::RegisterAll()
     m_ecsCoordinator->RegisterComponent<ECS::TransformComponent>();
     m_ecsCoordinator->RegisterComponent<ECS::MetadataComponent>();
     m_ecsCoordinator->RegisterComponent<ECS::StaticMeshComponent>();
+    m_ecsCoordinator->RegisterComponent<ECS::AtmosphereComponent>();
+    m_ecsCoordinator->RegisterComponent<ECS::FogComponent>();
+    m_ecsCoordinator->RegisterComponent<ECS::DirectionalLightComponent>();
+    m_ecsCoordinator->RegisterComponent<ECS::PointLightComponent>();
+    m_ecsCoordinator->RegisterComponent<ECS::AreaLightComponent>();
+    m_ecsCoordinator->RegisterComponent<ECS::EnvironemntLightComponent>();
 
     m_ecsCoordinator->CreateEntityWithMetadata("test1", ICON_FA_TABLE, "");
     m_ecsCoordinator->CreateEntityWithMetadata("test2", ICON_FA_2, "");

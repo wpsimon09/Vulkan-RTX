@@ -15,9 +15,12 @@
 namespace ApplicationCore {
 class VTextureAsset;
 }
+
+namespace ECS {
+
 struct DirectionalLightComponent : public ECS::IComponent
 {
-    glm::vec4 colour             = {1.0};
+    glm::vec4 colour             = glm::vec4{1.0};
     glm::vec4 direction          = {0.0, -1.0, 0.0, 0.0};
     float     radius             = {0.01};
     int       shadowRaysPerPixel = {2};
@@ -43,8 +46,8 @@ struct PointLightComponent : public ECS::IComponent
     bool isPointLightInUse       = false;
 
     /*
-     *Returns constant factor, linear factor, quadratic factor into the single glm::vec4
-     */
+         *Returns constant factor, linear factor, quadratic factor into the single glm::vec4
+         */
     glm::vec4 PackTerms() const
     {
         return glm::vec4(constantFactor, linearFactor, quadraticFactor, useAdvancedAttentuation);
@@ -57,7 +60,7 @@ struct PointLightComponent : public ECS::IComponent
 
 struct AreaLightComponent : public ECS::IComponent
 {
-    glm::vec4 colour   = {1.0};
+    glm::vec4 colour   = glm::vec4{1.0};
     bool      twoSided = false;
 
     std::array<glm::vec4, 4> edges = {glm::vec4{-0.5f, -0.5f, 0.0f, 1.0f},  // First point (bottom-left corner)
@@ -73,6 +76,11 @@ struct AreaLightComponent : public ECS::IComponent
     }
 
     std::array<glm::vec4, 4>& GetEdges() { return edges; }
+
+    AreaLightComponent()
+        : IComponent("Area light component", ICON_FA_RECTANGLE_XMARK)
+    {
+    }
 };
 
 struct EnvironemntLightComponent
@@ -82,5 +90,6 @@ struct EnvironemntLightComponent
     // VEditor::ImGuiImagae
     float ambientIntensity;
 };
+}  // namespace ECS
 
 #endif  //VULKAN_RTX_LIGHTCOMPONENTS_HPP

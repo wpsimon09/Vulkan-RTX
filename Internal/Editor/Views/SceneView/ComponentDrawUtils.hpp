@@ -34,6 +34,12 @@ class ComponentDrawUtils
     void DrawTransformMultiselect(const std::vector<ECS::Entity>& entities);
     void DrawMetadataComponent(const std::vector<ECS::Entity>& entities);
     void DrawStaticMeshComponent(const std::vector<ECS::Entity>& entities);
+    void DrawFogComponent(const std::vector<ECS::Entity>& entities);
+    void DrawAtmosphereComponent(const std::vector<ECS::Entity>& entities);
+    void DrawDirectionalLightComponent(const std::vector<ECS::Entity>& entities);
+    void DrawPointLightComponent(const std::vector<ECS::Entity>& entities);
+    void DrawAreaLightComponent(const std::vector<ECS::Entity>& entities);
+    void DrawEnvironemtnLightComponent(const std::vector<ECS::Entity>& entities);
 
   private:
     ECS::ECSCoordinator&                                                     m_ecs;

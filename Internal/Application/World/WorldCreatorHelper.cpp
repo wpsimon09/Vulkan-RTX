@@ -15,14 +15,14 @@ void ApplicationCore::AddStaticMeshEntity(World& world)
     world.GetECS().AddComponentTo<ECS::StaticMeshComponent>(newEntity, mesh);
 }
 
-void ApplicationCore::AddFogEntity(World& world)
-{
-    void ApplicationCore::AddAtmosphereEntity(World & world) {}
+void ApplicationCore::AddFogEntity(World& world) {}
 
-    void ApplicationCore::AddSunLightEntity(World & world) {}
+void ApplicationCore::AddAtmosphereEntity(World& world) {}
 
-    void ApplicationCore::AddPointLightEntity(World & world) {}
+void ApplicationCore::AddSunLightEntity(World& world) {}
 
-    void ApplicationCore::AddAreaLightEntity(World & world) {}
+void ApplicationCore::AddPointLightEntity(World& world) {}
 
-    void ApplicationCore::AddEnvironmentLightEntity(World & world) {}
+void ApplicationCore::AddAreaLightEntity(World& world) {}
+
+void ApplicationCore::AddEnvironmentLightEntity(World& world) {}

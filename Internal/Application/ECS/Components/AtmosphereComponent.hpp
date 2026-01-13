@@ -8,6 +8,7 @@
 
 #include <glm/vec4.hpp>
 
+namespace ECS {
 struct AtmosphereComponent : public ECS::IComponent
 {
     glm::vec4 groundAlbedo = {0.3, 0.3, 0.3, 6360};                         // xyz: as-is, w: Radius bottom
@@ -24,5 +25,6 @@ struct AtmosphereComponent : public ECS::IComponent
     {
     }
 };
+}  // namespace ECS
 
 #endif  //VULKAN_RTX_ATMOSPHERECOMPONENT_HPP
