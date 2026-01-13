@@ -26,6 +26,7 @@ struct DirectionalLightComponent : public ECS::IComponent
     int       shadowRaysPerPixel = {2};
     float     shadowBias         = {0.1};
     bool      inUse              = true;
+    bool accumulate = true;  // TODO: thsi is not supposed to be here since this is about rendering and not the ECS or what not
     DirectionalLightComponent()
         : IComponent("Directional light component", ICON_FA_SUN)
     {
@@ -89,6 +90,7 @@ struct EnvironemntLightComponent
     // for preview in ImGui
     // VEditor::ImGuiImagae
     float ambientIntensity;
+    bool  showBackground;
 };
 }  // namespace ECS
 

@@ -54,17 +54,26 @@ class ComponentDrawUtils
 
 
   private:
+    /*
+     *Returns one if the component edit should not be done
+     */
     template <typename T>
-    void RenderOptions(ECS::Entity entity)
+    int RenderOptions(const std::vector<ECS::Entity>& entities)
     {
         if(ImGui::BeginPopupContextItem())
         {
             if(ImGui::MenuItem(ICON_FA_TRASH_CAN " Remove from entity"))
             {
-                m_ecs.RemoveComponentFrom<T>(entity);
+                for(auto& e : entities)
+                {
+                    m_ecs.RemoveComponentFrom<T>(e);
+                }
+                ImGui::EndPopup();
+                return 1;
             }
             ImGui::EndPopup();
         }
+        return 0;
     }
 
     template <typename T>

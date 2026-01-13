@@ -94,7 +94,6 @@ class ECSCoordinator
         m_componentManager->SetComponentValue(component, entity);
     }
 
-
   private:
     std::unique_ptr<ECS::EntityManager>    m_entityManager;
     std::unique_ptr<ECS::ComponentManager> m_componentManager;
