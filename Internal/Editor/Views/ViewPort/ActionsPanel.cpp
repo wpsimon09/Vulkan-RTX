@@ -7,6 +7,7 @@
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
 #include "Application/World/World.hpp"
+#include "Application/World/WorldCreatorHelper.hpp"
 
 namespace VEditor {
 ActionsPanel::ActionsPanel(ApplicationCore::World& world)
@@ -44,6 +45,7 @@ void ActionsPanel::RenderAddNewPopUp()
         {
             if(ImGui::MenuItem(ICON_FA_CUBES "Static mesh entity"))
             {
+                ApplicationCore::AddStaticMeshEntity(m_world);
             }
             ImGui::EndMenu();
         }
@@ -51,6 +53,7 @@ void ActionsPanel::RenderAddNewPopUp()
         {
             if(ImGui::Selectable(ICON_FA_SMOG " Fog entity"))
             {
+                ApplicationCore::AddFogEntity(m_world);
             }
             ImGui::EndMenu();
         }
@@ -59,18 +62,23 @@ void ActionsPanel::RenderAddNewPopUp()
         {
             if(ImGui::Selectable(ICON_FA_CLOUD_SUN "Atmosphere entity"))
             {
+                ApplicationCore::AddAtmosphereEntity(m_world);
             }
             if(ImGui::Selectable(ICON_FA_SUN " Sun light entity"))
             {
+                ApplicationCore::AddSunLightEntity(m_world);
             }
             if(ImGui::Selectable(ICON_FA_LIGHTBULB " Point light entity"))
             {
+                ApplicationCore::AddPointLightEntity(m_world);
             }
             if(ImGui::Selectable(ICON_FA_SQUARE " Area light entity"))
             {
+                ApplicationCore::AddAreaLightEntity(m_world);
             }
             if(ImGui::Selectable(ICON_FA_MOUNTAIN_SUN " Environment map entity"))
             {
+                ApplicationCore::AddEnvironmentLightEntity(m_world);
             }
 
             ImGui::EndMenu();

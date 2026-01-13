@@ -86,11 +86,11 @@ struct AreaLightComponent : public ECS::IComponent
 
 struct EnvironemntLightComponent
 {
-    std::shared_ptr<ApplicationCore::VTextureAsset> hdrImage;
+    std::shared_ptr<ApplicationCore::VTextureAsset> hdrImage = nullptr;
     // for preview in ImGui
     // VEditor::ImGuiImagae
-    float ambientIntensity;
-    bool  showBackground;
+    float ambientIntensity = {0.2};
+    bool  showBackground   = true;
 };
 }  // namespace ECS
 

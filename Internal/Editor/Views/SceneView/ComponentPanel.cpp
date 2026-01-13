@@ -31,16 +31,19 @@ void ComponentPanel::Render()
 
     if(!m_selectedEntities.empty())
     {
-        m_drawCommands.DrawMultiSelect(m_sharedSignature, m_selectedEntities);
 
-        ImVec2 cursorPos = ImGui::GetCursorPos();
-        cursorPos.y += 10;
-        ImGui::SetCursorPos(cursorPos);
         if(ImGui::Button(ICON_FA_CIRCLE_PLUS " Add component"))
         {
             ImGui::OpenPopup(V_EDITOR_ADD_COMPONENT_POP_UP_ID);
         }
         CreateAddComponentPopUp();
+
+        ImGui::Separator();
+
+        ImVec2 cursorPos = ImGui::GetCursorPos();
+        cursorPos.y += 10;
+        ImGui::SetCursorPos(cursorPos);
+        m_drawCommands.DrawMultiSelect(m_sharedSignature, m_selectedEntities);
     }
     else
     {
