@@ -133,7 +133,7 @@ void Utils::Logger::LogInfoCLI(const std::string& msg)
     std::time_t        currentTime = std::chrono::system_clock::to_time_t(time);
     std::tm*           localTime   = std::localtime(&currentTime);
     std::ostringstream oss;
-    std::cout << "LOG::INFO::CLI[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+    std::cout << "LOG::INFO::CLI[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg << std::endl;
 }
 
 void Utils::Logger::LogErrorCLI(const std::string& msg)
@@ -142,7 +142,7 @@ void Utils::Logger::LogErrorCLI(const std::string& msg)
     std::time_t        currentTime = std::chrono::system_clock::to_time_t(time);
     std::tm*           localTime   = std::localtime(&currentTime);
     std::ostringstream oss;
-    std::cerr << "LOG::ERROR::CLI[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg;
+    std::cerr << "LOG::ERROR::CLI[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] - " << msg << std::endl;
 }
 
 void Utils::Logger::LogInfoVerboseOnly(const std::string& msg)

@@ -13,17 +13,36 @@ namespace ApplicationCore {
 
 using json = nlohmann::json;
 
+//=================================================
+// Struct defining how the project config will look
+struct ProjectConfig
+{
+    struct Meta
+    {
+        const char* JSON_FIELD_NAME = "Meta";
+
+        std::string projectName;
+        const char* JSON_FIELD_PROJECT_NAME = "Project name";
+    } meta;
+};
+
+
 class Project
 {
   public:
     Project();
     void PrintHelp();
-    void CrateNew(std::filesystem::path path);
-    void OpenFrom(std::filesystem::path path);
+    void CrateNew(const std::filesystem::path& path, const std::string& name);
+    void OpenFrom(const std::filesystem::path& path);
 
   private:
-    std::filesystem::path m_projectPath;
-    json                  m_json;
+    ProjectConfig               projectConfig;
+    std::filesystem::path       m_projectPath;
+    const std::filesystem::path m_templatePath = "Resources/ProjectTemplate";
+    ProjectConfig               m_projectConfig;
+
+    void WriteProjectConfig(std::filesystem::path& path);
+    void ReadProjectConfig(std::filesystem::path& path);
 };
 
 }  // namespace ApplicationCore

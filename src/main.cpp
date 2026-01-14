@@ -18,8 +18,9 @@ int main(int argc, char* argv[])
         CLI::InputParser         inputParser(argc, argv);
         ApplicationCore::Project project;
 
-        auto& openProjectPath   = inputParser.getCmdOption("--open");
-        auto& createProjectPath = inputParser.getCmdOption("--create");
+        auto& openProjectPath   = inputParser.getCmdOption("--open", "-o");
+        auto& createProjectPath = inputParser.getCmdOption("--create", "-c");
+        auto& newProjectName    = inputParser.getCmdOption("--name", "-n");
         bool  printInfo         = inputParser.cmdOptionExists("-h") || inputParser.cmdOptionExists("--help");
 
         if(printInfo)
@@ -30,10 +31,12 @@ int main(int argc, char* argv[])
         if(!openProjectPath.empty())
         {
             project.OpenFrom(openProjectPath);
+            return 0;
         }
         else if(!createProjectPath.empty())
         {
-            project.CrateNew(createProjectPath);
+            project.CrateNew(createProjectPath, newProjectName);
+            return 0;
         }
 
 
