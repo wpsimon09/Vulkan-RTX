@@ -41,6 +41,10 @@ class Logger
     static void LogInfoClient(const std::string& msg);
     static void LogInfoVerboseOnlyClient(const std::string& msg);
 
+    static void LogInfoCLI(const std::string& msg);
+    static void LogErrorCLI(const std::string& msg);
+
+
     static void LogInfoVerboseOnly(const std::string& msg);
     static void LogInfoVerboseRendering(const std::string& msg);
 

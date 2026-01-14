@@ -87,16 +87,18 @@
 #include "Vulkan/Renderer/Renderers/RenderPass/ReflectionsPass.hpp"
 #include "Application/World/World.hpp"
 #include "Application/ECS/ECSCoordinator.hpp"
+#include "Application/Project/Project.hpp"
 
-Application::Application()
+Application::Application(ApplicationCore::Project& project)
+    : m_project(project)
 {
+
     m_client = std::make_unique<Client>();
 }
 
 void Application::Init()
 {
     ApplicationCore::LoadConfig();
-
 
     m_windowManager = std::make_unique<WindowManager>(1000, 800);
     m_windowManager->InitWindow();

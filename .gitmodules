@@ -20,3 +20,6 @@
 	path = External/MikkTSpace
 	url = https://github.com/mmikk/MikkTSpace.git
 
+[submodule "External/json"]
+	path = External/json
+	url = https://github.com/nlohmann/json.git

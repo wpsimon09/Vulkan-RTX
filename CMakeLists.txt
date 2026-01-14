@@ -289,7 +289,9 @@ set(SOURCES
         Internal/Application/ECS/Components/LightComponents.hpp
         Internal/Editor/UIContext/ImGuiImage.cpp
         Internal/Editor/UIContext/ImGuiImage.hpp
-
+        Internal/Application/Project/Project.cpp
+        Internal/Application/Project/Project.hpp
+        Internal/Application/Utils/InputParser.hpp
 )
 
 
@@ -329,6 +331,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
         ${CMAKE_SOURCE_DIR}/External/
         ${CMAKE_SOURCE_DIR}/External/IconFontCppHeaders
         ${CMAKE_SOURCE_DIR}/Resources/
+        ${CMAKE_SOURCE_DIR}/External/json/single_include/nlohmann
 )
 
 

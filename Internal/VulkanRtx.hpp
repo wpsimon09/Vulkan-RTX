@@ -17,8 +17,9 @@ class VGrowableBuffer;
 class VDescriptorLayoutCache;
 }  // namespace VulkanCore
 namespace ApplicationCore {
+class Project;
 class EffectsLibrary;
-}
+}  // namespace ApplicationCore
 
 namespace VulkanUtils {
 class VRayTracingDataManager;
@@ -59,7 +60,7 @@ class VulkanInstance;
 class Application
 {
   public:
-    Application();
+    Application(ApplicationCore::Project& project);
 
     void Init();
 
@@ -89,6 +90,7 @@ class Application
     std::unique_ptr<class ApplicationCore::EffectsLibrary>     m_effectsLibrary;
     std::unique_ptr<class VulkanUtils::VRayTracingDataManager> m_rayTracingDataManager;
     std::unique_ptr<class VulkanCore::VGrowableBuffer>         m_testGrowableBuffer;
+    ApplicationCore::Project&                                  m_project;
 
     // debu
     bool m_buildAS = true;
