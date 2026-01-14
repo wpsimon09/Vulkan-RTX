@@ -31,12 +31,13 @@ class Project
 {
   public:
     Project();
-    void PrintHelp();
-    void CrateNew(const std::filesystem::path& path, const std::string& name);
-    void OpenFrom(const std::filesystem::path& path);
+    static void PrintHelp();
+    void        CrateNew(const std::filesystem::path& path, const std::string& name);
+    void        OpenFrom(const std::filesystem::path& path);
+
+    ProjectConfig& GetProjectConfig();
 
   private:
-    ProjectConfig               projectConfig;
     std::filesystem::path       m_projectPath;
     const std::filesystem::path m_templatePath = "Resources/ProjectTemplate";
     ProjectConfig               m_projectConfig;

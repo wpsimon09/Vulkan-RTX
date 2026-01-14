@@ -9,6 +9,7 @@
 
 #include "Application/GLTFExporter/GLTFExporter.hpp"
 #include "Application/Logger/Logger.hpp"
+#include "Application/Project/Project.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/UIContext/UIContext.hpp"
 #include "Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.hpp"
@@ -33,6 +34,11 @@ void MenuBar::Render()
 {
     //TODO: disable window border
     ImGui::BeginMainMenuBar();
+    ImGui::Text(ICON_FA_DOVE " Opened project: %s",
+                m_editor->m_uiContext.GetClient().GetProject().GetProjectConfig().meta.projectName.c_str());
+
+    ImGui::Separator();
+
     if(ImGui::BeginMenu("File"))
     {
         if(ImGui::MenuItem(ICON_FA_DOWNLOAD " Import"))

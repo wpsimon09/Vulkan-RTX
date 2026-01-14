@@ -16,6 +16,7 @@
 
 
 namespace ApplicationCore {
+class Project;
 class World;
 class ApplicationState;
 }  // namespace ApplicationCore
@@ -47,7 +48,7 @@ class GLTFExporter;
 class Client
 {
   public:
-    Client();
+    Client(ApplicationCore::Project& project);
     void                                                                   Init();
     const std::vector<std::reference_wrapper<ApplicationCore::StaticMesh>> GetMeshes() const;
     void                                                                   Render(VulkanUtils::RenderContext* ctx);
@@ -64,6 +65,8 @@ class Client
     ApplicationCore::ApplicationState& GetApplicationState() { return *m_applicationState; }
 
     ApplicationCore::World& GetWorld() { return *m_world; };
+
+    ApplicationCore::Project& GetProject() { return m_project; };
 
 
     void Update();
@@ -86,6 +89,7 @@ class Client
     std::unique_ptr<ApplicationCore::World>                         m_world;
     GlobalRenderingInfo2                                            m_globalRenderingData2;
     bool                                                            m_isRTXOn = false;
+    ApplicationCore::Project&                                       m_project;
 };
 
 

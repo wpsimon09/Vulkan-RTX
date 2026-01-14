@@ -93,7 +93,7 @@ Application::Application(ApplicationCore::Project& project)
     : m_project(project)
 {
 
-    m_client = std::make_unique<Client>();
+    m_client = std::make_unique<Client>(project);
 }
 
 void Application::Init()

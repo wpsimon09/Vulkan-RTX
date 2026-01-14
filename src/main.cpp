@@ -25,29 +25,28 @@ int main(int argc, char* argv[])
 
         if(printInfo)
         {
-            project.PrintHelp();
+            ApplicationCore::Project::PrintHelp();
             return 0;
         }
         if(!openProjectPath.empty())
         {
             project.OpenFrom(openProjectPath);
-            return 0;
         }
         else if(!createProjectPath.empty())
         {
             project.CrateNew(createProjectPath, newProjectName);
-            return 0;
         }
 
 
         Application application(project);
-        Utils::Logger::LogSuccess("Starting the application...");
+        Utils::Logger::LogInfoCLI("Project loading done, strting the engine !");
         application.Run();
-        Utils::Logger::LogInfo("Application is stopping...");
+        Utils::Logger::LogInfoCLI("Application is stopping !");
     }
     catch(std::exception& e)
     {
         Utils::Logger::LogError(e.what());
     }
+    Utils::Logger::LogInfoCLI("Engine stopped correctly, bye bye ! :3");
     return 0;
 }

@@ -30,8 +30,9 @@
 #include "World/World.hpp"
 #include "Application/ECS/ECSCoordinator.hpp"
 
-Client::Client()
+Client::Client(ApplicationCore::Project& project)
     : m_globalRenderingData2{}
+    , m_project(project)
 {
     m_applicationState = std::make_unique<ApplicationCore::ApplicationState>();
 

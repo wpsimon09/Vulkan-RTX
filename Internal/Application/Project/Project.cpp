@@ -10,7 +10,7 @@
 
 
 namespace ApplicationCore {
-Project::Project() {}
+Project::Project() = default;
 
 void Project::PrintHelp()
 {
@@ -57,8 +57,12 @@ void Project::OpenFrom(const std::filesystem::path& path)
     else
     {
         Utils::Logger::LogInfoCLI("Loading your project....");
+        ReadProjectConfig(projectConfigPath);
     }
-    ReadProjectConfig(projectConfigPath);
+}
+ProjectConfig& Project::GetProjectConfig()
+{
+    return m_projectConfig;
 }
 
 void Project::WriteProjectConfig(std::filesystem::path& path)
@@ -72,6 +76,7 @@ void Project::WriteProjectConfig(std::filesystem::path& path)
 
 void Project::ReadProjectConfig(std::filesystem::path& path)
 {
+    Utils::Logger::LogInfoCLI("Reading project config from path:" + path.string());
     std::ifstream file(path);
     if(!file.is_open())
         throw std::runtime_error("Project config file not found");
@@ -85,5 +90,8 @@ void Project::ReadProjectConfig(std::filesystem::path& path)
         const auto& data     = j[cfg.meta.JSON_FIELD_NAME];
         cfg.meta.projectName = data.value(cfg.meta.JSON_FIELD_PROJECT_NAME, "Unknown project name");
     }
+
+    Utils::Logger::LogInfoCLI("Done !");
+    m_projectConfig = cfg;
 }
 }  // namespace ApplicationCore
