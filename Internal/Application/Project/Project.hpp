@@ -35,7 +35,8 @@ class Project
     void        CrateNew(const std::filesystem::path& path, const std::string& name);
     void        OpenFrom(const std::filesystem::path& path);
 
-    ProjectConfig& GetProjectConfig();
+    ProjectConfig&        GetProjectConfig();
+    std::filesystem::path GetProjectPath();
 
   private:
     std::filesystem::path       m_projectPath;

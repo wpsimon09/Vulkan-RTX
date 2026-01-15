@@ -21,6 +21,7 @@
 #include "Views/ViewPort/ViewPort.hpp"
 #include "Vulkan/Renderer/Renderers/Frame.hpp"
 #include "imgui.h"
+#include "Views/AssetsBrowser/AssetsBrowser.hpp"
 #include "Views/SceneView/WorldOutline.hpp"
 #include "Views/ViewPort/ActionsPanel.hpp"
 
@@ -54,6 +55,9 @@ Editor::Editor(UIContext& uiContext)
 
     auto worldOutline = std::make_unique<WorldOutline>(uiContext.GetWindowManager(), uiContext.GetClient().GetWorld());
     index->m_uiChildren.emplace_back(std::move(worldOutline));
+
+    auto projectBrowser = std::make_unique<AssetsBrowser>(m_uiContext.GetClient().GetProject());
+    index->m_uiChildren.emplace_back(std::move(projectBrowser));
 
     auto menuBar = std::make_unique<MenuBar>(this);
 

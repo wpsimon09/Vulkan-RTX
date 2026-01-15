@@ -26,6 +26,7 @@ MenuBar::MenuBar(Editor* editor)
     m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
     m_uiChildren.emplace_back(std::make_unique<VEditor::Settings>(m_editor->m_uiContext.GetClient(), editor));
     m_settings = dynamic_cast<Settings*>(m_uiChildren.back().get());
+    m_project  = &editor->m_uiContext.GetClient().GetProject();
 }
 
 void MenuBar::Resize(int newWidth, int newHeight) {}
@@ -34,8 +35,7 @@ void MenuBar::Render()
 {
     //TODO: disable window border
     ImGui::BeginMainMenuBar();
-    ImGui::Text(ICON_FA_DOVE " Opened project: %s",
-                m_editor->m_uiContext.GetClient().GetProject().GetProjectConfig().meta.projectName.c_str());
+    ImGui::Text(ICON_FA_TREE_CITY "  %s", m_project->GetProjectConfig().meta.projectName.c_str());
 
     ImGui::Separator();
 

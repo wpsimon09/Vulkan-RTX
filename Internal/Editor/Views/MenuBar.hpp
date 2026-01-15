@@ -6,6 +6,9 @@
 #define MENUBAR_HPP
 #include "UserInterface/IUserInterfaceElement.hpp"
 
+namespace ApplicationCore {
+class Project;
+}
 namespace VEditor {
 class Settings;
 class FileExplorer;
@@ -20,9 +23,10 @@ class MenuBar : public IUserInterfaceElement
     void Update() override;
 
   private:
-    FileExplorer* m_fileExplorer;
-    Settings*     m_settings;
-    Editor*       m_editor;
+    FileExplorer*             m_fileExplorer;
+    Settings*                 m_settings;
+    Editor*                   m_editor;
+    ApplicationCore::Project* m_project;
 
     bool m_isFileDialoOpen = false;
 

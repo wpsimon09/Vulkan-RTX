@@ -64,6 +64,10 @@ ProjectConfig& Project::GetProjectConfig()
 {
     return m_projectConfig;
 }
+std::filesystem::path Project::GetProjectPath()
+{
+    return m_projectPath;
+}
 
 void Project::WriteProjectConfig(std::filesystem::path& path)
 {

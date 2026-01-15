@@ -292,6 +292,9 @@ set(SOURCES
         Internal/Application/Project/Project.cpp
         Internal/Application/Project/Project.hpp
         Internal/Application/Utils/InputParser.hpp
+        Internal/Editor/Views/AssetsBrowser/AssetsBrowser.cpp
+        Internal/Editor/Views/AssetsBrowser/AssetsBrowser.hpp
+        Internal/Editor/Views/AssetsBrowser/AssetsBrowserDrawUtils.hpp
 )
 
 
