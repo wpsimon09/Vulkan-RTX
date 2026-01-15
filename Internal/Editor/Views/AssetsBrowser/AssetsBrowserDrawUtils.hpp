@@ -13,7 +13,7 @@
 struct DirectoryItem
 {
     bool                  isFile{true};
-    const char*           name{""};
+    std::string           name{""};
     const char*           icon{ICON_FA_QUESTION};
     std::filesystem::path path{};
     int                   id;

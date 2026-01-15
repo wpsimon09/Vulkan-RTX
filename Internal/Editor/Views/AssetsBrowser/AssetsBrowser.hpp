@@ -14,6 +14,8 @@ class Project;
 }
 namespace VEditor {
 
+constexpr char* POP_UP_NEW_FOLDER_NAME = "PopUpNewFolder";
+
 class AssetsBrowser : public IUserInterfaceElement
 {
   public:
@@ -25,9 +27,19 @@ class AssetsBrowser : public IUserInterfaceElement
   private:
     ApplicationCore::Project& m_project;
 
-    std::filesystem::path   m_previousPath;
-    std::filesystem::path   m_currentPath;
-    ImVector<DirectoryItem> m_items;
+    std::filesystem::path      m_previousPath;
+    std::filesystem::path      m_currentPath;
+    std::vector<DirectoryItem> m_items;
+    char                       newFolderName[100] = "New folder";
+
+    std::vector<DirectoryItem> ReadContentsOf(std::filesystem::path path);
+
+    bool                  m_deleteRequested = false;
+    bool                  m_createRequested = true;
+    std::filesystem::path m_pathToDelete    = "";
+
+    void RenderDirectoryTree(const std::filesystem::path& directory);
+    void RenderCreateNewFolder();
 };
 
 }  // namespace VEditor
