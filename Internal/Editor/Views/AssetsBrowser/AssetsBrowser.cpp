@@ -6,6 +6,7 @@
 
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "Application/Project/Project.hpp"
 
 #include <filesystem>
@@ -16,12 +17,36 @@ namespace VEditor {
 AssetsBrowser::AssetsBrowser(ApplicationCore::Project& project)
     : IUserInterfaceElement()
     , m_project(project)
-    , m_currentPath(project.GetProjectPath())
-    , m_assetsBrowserGridDrawData(project.GetProjectConfig().editorConfig)
+    , m_assetsBrowserGridDrawData(project.GetProjectConfig().editorConfig, m_currentPath)
 {
 }
+void AssetsBrowser::RenderActions()
+{
+
+    if(ImGui::Button(ICON_FA_CIRCLE_LEFT, ImVec2(ImGui::GetFontSize() + 10.0f, 0)))
+    {
+        if(m_currentPath.has_parent_path() && m_currentPath != m_project.GetProjectPath())
+        {
+            m_currentPath = m_currentPath.parent_path();
+        }
+    }
+    ImGui::SameLine();
+
+    if(ImGui::Button(ICON_FA_TOOLBOX " Options"))
+    {
+        ImGui::OpenPopup(POP_UP_ASSETS_PANEL_SETTINGS);
+    }
+    RenderAssetsPanelSettings();
+    ImGui::Text(m_currentPath.c_str());
+}
+
 void AssetsBrowser::Render()
 {
+    if(m_currentPath.empty())
+    {
+        m_currentPath = m_project.GetProjectPath();
+    }
+
     ImGui::Begin(ICON_FA_FOLDER " Project browser");
 
     //====================================================
@@ -47,12 +72,8 @@ void AssetsBrowser::Render()
     // The actual assets browser
     ImGui::BeginChild(ICON_FA_MAGNIFYING_GLASS " Current folder ", ImVec2(ImGui::GetContentRegionAvail().x, 0), ImGuiChildFlags_Border);
     {
+        RenderActions();
 
-        if(ImGui::Button(ICON_FA_TOOLBOX " Options"))
-        {
-            ImGui::OpenPopup(POP_UP_ASSETS_PANEL_SETTINGS);
-        }
-        RenderAssetsPanelSettings();
         ImGui::Separator();
 
         m_assetsBrowserGridDrawData.DrawGrid(m_items);

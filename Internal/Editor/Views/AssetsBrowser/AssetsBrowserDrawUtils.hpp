@@ -49,11 +49,12 @@ struct DirectoryItem
 struct AssetsBrowserDrawData
 {
     ApplicationCore::EditorConfig& editorConf;
+    int                            SelectedIndex = -1;
+    std::filesystem::path&         m_currentPath;
 
-    int SelectedIndex = -1;
-
-    AssetsBrowserDrawData(ApplicationCore::EditorConfig& editorConfig)
+    AssetsBrowserDrawData(ApplicationCore::EditorConfig& editorConfig, std::filesystem::path& currentPath)
         : editorConf(editorConfig)
+        , m_currentPath(currentPath)
     {
     }
 
@@ -87,11 +88,16 @@ struct AssetsBrowserDrawData
 
             ImGui::InvisibleButton("item", ImVec2(editorConf.TileSize, editorConf.TileSize));
 
-            bool hovered = ImGui::IsItemHovered();
-            bool clicked = ImGui::IsItemClicked();
+            bool hovered       = ImGui::IsItemHovered();
+            bool clicked       = ImGui::IsItemClicked();
+            bool doubleClicked = ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left);
 
             if(clicked)
                 SelectedIndex = i;
+            if(doubleClicked && !directoryItems[i].isFile)
+            {
+                m_currentPath = directoryItems[i].path;
+            }
 
             ImU32 bg_col = (SelectedIndex == i) ? IM_COL32(120, 140, 255, 255) :
                            hovered              ? IM_COL32(80, 80, 80, 255) :

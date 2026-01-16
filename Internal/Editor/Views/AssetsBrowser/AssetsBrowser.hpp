@@ -21,6 +21,7 @@ class AssetsBrowser : public IUserInterfaceElement
 {
   public:
     AssetsBrowser(ApplicationCore::Project& project);
+    void RenderActions();
     void Render() override;
     void Resize(int newWidth, int newHeight) override;
     void Update() override;
@@ -31,19 +32,18 @@ class AssetsBrowser : public IUserInterfaceElement
     std::filesystem::path      m_previousPath;
     std::filesystem::path      m_currentPath;
     std::vector<DirectoryItem> m_items;
-    char                       newFolderName[100] = "New folder";
+    std::filesystem::path      m_pathToDelete = "";
+    AssetsBrowserDrawData      m_assetsBrowserGridDrawData;
 
+    char newFolderName[100] = "New folder";
+    bool m_deleteRequested  = false;
+    bool m_createRequested  = true;
+
+  private:
     std::vector<DirectoryItem> ReadContentsOf(std::filesystem::path path);
-
-    bool                  m_deleteRequested = false;
-    bool                  m_createRequested = true;
-    std::filesystem::path m_pathToDelete    = "";
-    AssetsBrowserDrawData m_assetsBrowserGridDrawData;
-
-
-    void RenderDirectoryTree(const std::filesystem::path& directory);
-    void RenderCreateNewFolder();
-    void RenderAssetsPanelSettings();
+    void                       RenderDirectoryTree(const std::filesystem::path& directory);
+    void                       RenderCreateNewFolder();
+    void                       RenderAssetsPanelSettings();
 };
 
 }  // namespace VEditor

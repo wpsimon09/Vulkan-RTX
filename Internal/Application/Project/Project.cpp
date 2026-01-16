@@ -53,6 +53,7 @@ void Project::OpenFrom(const std::filesystem::path& path)
     if(access(projectConfigPath.c_str(), F_OK) == -1)
     {
         Utils::Logger::LogErrorCLI("Project config VProject.json file not found at:" + projectConfigPath.string());
+        throw std::runtime_error("Project config VProject.json file not found, create new project with --create [project]");
     }
     else
     {
