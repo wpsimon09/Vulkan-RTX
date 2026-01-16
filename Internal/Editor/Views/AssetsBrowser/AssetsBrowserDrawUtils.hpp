@@ -6,10 +6,13 @@
 #define VULKAN_RTX_ASSETSBROWSERDRAWUTILS_HPP
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
+#include "Application/Project/Project.hpp"
 
 #include <filesystem>
 #include <vector>
 
+namespace ApplicationCore {
+}
 struct DirectoryItem
 {
     bool                  isFile{true};
@@ -45,19 +48,20 @@ struct DirectoryItem
 
 struct AssetsBrowserDrawData
 {
-    float IconSize    = 64.0f;
-    float IconSpacing = 12.0f;
-    int   Columns     = 1;
+    ApplicationCore::EditorConfig& editorConf;
 
     int SelectedIndex = -1;
 
-    AssetsBrowserDrawData() {}
+    AssetsBrowserDrawData(ApplicationCore::EditorConfig& editorConfig)
+        : editorConf(editorConfig)
+    {
+    }
 
     void UpdateLayout(float avail_width)
     {
-        Columns = (int)(avail_width / (IconSize + IconSpacing));
-        if(Columns < 1)
-            Columns = 1;
+        editorConf.Columns = (int)(avail_width / (editorConf.TileSize + editorConf.IconSpacing));
+        if(editorConf.Columns < 1)
+            editorConf.Columns = 1;
     }
 
 
@@ -72,15 +76,16 @@ struct AssetsBrowserDrawData
 
         for(int i = 0; i < directoryItems.size(); i++)
         {
-            int col = i % Columns;
-            int row = i / Columns;
+            int col = i % editorConf.Columns;
+            int row = i / editorConf.Columns;
 
-            ImVec2 pos = {start.x + col * (IconSize + IconSpacing), start.y + row * (IconSize + IconSpacing)};
+            ImVec2 pos = {start.x + col * (editorConf.TileSize + editorConf.IconSpacing),
+                          start.y + row * (editorConf.TileSize + editorConf.IconSpacing)};
 
             ImGui::SetCursorScreenPos(pos);
             ImGui::PushID((int)directoryItems[i].id);
 
-            ImGui::InvisibleButton("item", ImVec2(IconSize, IconSize));
+            ImGui::InvisibleButton("item", ImVec2(editorConf.TileSize, editorConf.TileSize));
 
             bool hovered = ImGui::IsItemHovered();
             bool clicked = ImGui::IsItemClicked();
@@ -92,24 +97,27 @@ struct AssetsBrowserDrawData
                            hovered              ? IM_COL32(80, 80, 80, 255) :
                                                   IM_COL32(50, 50, 50, 255);
 
-            draw_list->AddRect(pos, ImVec2(pos.x + IconSize, pos.y + IconSize), bg_col, 6.0f);
+            draw_list->AddRect(pos, ImVec2(pos.x + editorConf.TileSize, pos.y + editorConf.TileSize), bg_col, 6.0f);
 
+            ImGui::PushFont(NULL, editorConf.AssetBrowserIconSize);
             const char* icon      = directoryItems[i].icon;
-            ImVec2      icon_size = ImVec2(IconSize - 10, IconSize - 10);
-
-            ImVec2 icon_pos = {pos.x + (IconSize - icon_size.x) * 0.5f, pos.y + (IconSize - icon_size.y) * 0.5f};
-
+            ImVec2      icon_size = ImGui::CalcTextSize(icon);
+            ImVec2      icon_pos  = {pos.x + (editorConf.TileSize - icon_size.x) * 0.5f,
+                                     pos.y + (editorConf.TileSize - icon_size.y) * 0.5f};
             draw_list->AddText(icon_pos, IM_COL32(255, 255, 255, 255), icon);
+
+            ImGui::PopFont();
 
             char label[16];
             sprintf(label, "%s", directoryItems[i].name.c_str());
-            draw_list->AddText(ImVec2(pos.x, pos.y + IconSize + 6), IM_COL32_WHITE, label);
+            draw_list->AddText(ImVec2(pos.x, pos.y + editorConf.TileSize + 6), IM_COL32_WHITE, label);
+
 
             ImGui::PopID();
         }
 
-        int rows = (directoryItems.size() + Columns - 1) / Columns;
-        ImGui::Dummy(ImVec2(1.0f, rows * (IconSize + IconSpacing)));
+        int rows = (directoryItems.size() + editorConf.Columns - 1) / editorConf.Columns;
+        ImGui::Dummy(ImVec2(1.0f, rows * (editorConf.TileSize + editorConf.IconSpacing)));
     }
 };
 

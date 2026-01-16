@@ -225,9 +225,10 @@ RenderTarget2* RayTracedReflectionsPass::GetAccumulatedResult() const
 
 void RayTracedReflectionsPass::Destroy()
 {
-    RenderPass::Destroy();
     m_previousImage->Destroy();
     m_denoiser->Destroy();
+
+    RenderPass::Destroy();
 }
 
 }  // namespace Renderer

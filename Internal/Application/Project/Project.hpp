@@ -15,15 +15,38 @@ using json = nlohmann::json;
 
 //=================================================
 // Struct defining how the project config will look
+struct EditorConfig
+{
+    const char* JSON_NAME = "Assets browser config";
+
+    const char* JSON_ASSETS_BROWSER_ICON_SIZE = "Assets browser icon size";
+    float       AssetBrowserIconSize          = 56.0f;
+
+    const char* JSON_ASSETS_BROWSER_TILE_SIZE = "Assets browser tile size";
+    float       TileSize                      = 64.0f;
+
+    const char* JSON_ASSETS_BROWSER_ICON_SPACING = "Assets browser icon spacing";
+    float       IconSpacing                      = 12.0f;
+
+    const char* JSON_ASSETS_BROWSER_COLUMNS = "Assets browser columns";
+    int         Columns                     = 1;
+
+    const char* JSON_ASSETS_BROWSER_SHOW_ICONS = "Assets browser show icons";
+    bool        showIcons                      = true;
+};
+
+struct Meta
+{
+    const char* JSON_FIELD_NAME = "Meta";
+
+    std::string projectName;
+    const char* JSON_FIELD_PROJECT_NAME = "Project name";
+};
+
 struct ProjectConfig
 {
-    struct Meta
-    {
-        const char* JSON_FIELD_NAME = "Meta";
-
-        std::string projectName;
-        const char* JSON_FIELD_PROJECT_NAME = "Project name";
-    } meta;
+    EditorConfig editorConfig;
+    Meta         meta;
 };
 
 
@@ -37,11 +60,14 @@ class Project
 
     ProjectConfig&        GetProjectConfig();
     std::filesystem::path GetProjectPath();
+    void                  End();
 
   private:
     std::filesystem::path       m_projectPath;
     const std::filesystem::path m_templatePath = "Resources/ProjectTemplate";
     ProjectConfig               m_projectConfig;
+    const std::filesystem::path m_projectConfigFile = "VProject.json";
+
 
     void WriteProjectConfig(std::filesystem::path& path);
     void ReadProjectConfig(std::filesystem::path& path);

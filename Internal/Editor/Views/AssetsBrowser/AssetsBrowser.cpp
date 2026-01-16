@@ -17,7 +17,7 @@ AssetsBrowser::AssetsBrowser(ApplicationCore::Project& project)
     : IUserInterfaceElement()
     , m_project(project)
     , m_currentPath(project.GetProjectPath())
-    , m_assetsBrowserGridDrawData()
+    , m_assetsBrowserGridDrawData(project.GetProjectConfig().editorConfig)
 {
 }
 void AssetsBrowser::Render()
@@ -169,9 +169,10 @@ void AssetsBrowser::RenderAssetsPanelSettings()
 {
     if(ImGui::BeginPopupContextItem(POP_UP_ASSETS_PANEL_SETTINGS))
     {
-        ImGui::DragFloat("Icon size", &m_assetsBrowserGridDrawData.IconSize, 1.0, 0.1);
-        ImGui::DragFloat("Icon spacing", &m_assetsBrowserGridDrawData.IconSpacing, 0.1);
-        ImGui::DragInt("Max Columns", &m_assetsBrowserGridDrawData.Columns, 1, 0);
+        ImGui::DragFloat("Tile size", &m_assetsBrowserGridDrawData.editorConf.TileSize, 1.0, 0.1);
+        ImGui::DragFloat("Icon spacing", &m_assetsBrowserGridDrawData.editorConf.IconSpacing, 0.1);
+        ImGui::DragFloat("Icon font size", &m_assetsBrowserGridDrawData.editorConf.AssetBrowserIconSize, 0.5, 1.0);
+        ImGui::DragInt("Max Columns", &m_assetsBrowserGridDrawData.editorConf.Columns, 1, 0);
         ImGui::EndPopup();
     }
 }

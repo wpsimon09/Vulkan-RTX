@@ -42,6 +42,7 @@ int main(int argc, char* argv[])
         Utils::Logger::LogInfoCLI("Project loading done, strting the engine !");
         application.Run();
         Utils::Logger::LogInfoCLI("Application is stopping !");
+        project.End();
     }
     catch(std::exception& e)
     {

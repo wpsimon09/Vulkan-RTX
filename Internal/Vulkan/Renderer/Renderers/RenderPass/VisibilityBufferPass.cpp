@@ -180,6 +180,7 @@ void VisibilityBufferPass::Destroy()
 {
     RenderPass::Destroy();
     m_rayTracedShadowEffect->Destroy();
+    m_previousFrame->Destroy();
 }
 
 
@@ -319,6 +320,7 @@ void AoOcclusionPass::Destroy()
 {
     RenderPass::Destroy();
     m_previousFrame->Destroy();
+    //
     //m_denoiser->Destroy();
 }
 

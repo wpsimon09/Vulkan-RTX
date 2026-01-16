@@ -49,7 +49,7 @@ void Project::OpenFrom(const std::filesystem::path& path)
 {
     Utils::Logger::LogInfoCLI("Opening project from path :" + path.string());
     m_projectPath          = path;
-    auto projectConfigPath = m_projectPath / "VProject.json";
+    auto projectConfigPath = m_projectPath / m_projectConfigFile;
     if(access(projectConfigPath.c_str(), F_OK) == -1)
     {
         Utils::Logger::LogErrorCLI("Project config VProject.json file not found at:" + projectConfigPath.string());
@@ -69,10 +69,28 @@ std::filesystem::path Project::GetProjectPath()
     return m_projectPath;
 }
 
+void Project::End()
+{
+    auto projectConfigPath = m_projectPath / m_projectConfigFile;
+    WriteProjectConfig(projectConfigPath);
+}
+
 void Project::WriteProjectConfig(std::filesystem::path& path)
 {
-    json j;
-    j[m_projectConfig.meta.JSON_FIELD_NAME] = {{m_projectConfig.meta.JSON_FIELD_PROJECT_NAME, m_projectConfig.meta.projectName}};
+    //=================================
+    // Meta data about project
+    json  j;
+    auto& m                                 = m_projectConfig.meta;
+    j[m_projectConfig.meta.JSON_FIELD_NAME] = {{m.JSON_FIELD_PROJECT_NAME, m.projectName}};
+
+    //================================
+    // Editor config
+    auto& ec        = m_projectConfig.editorConfig;
+    j[ec.JSON_NAME] = {{ec.JSON_ASSETS_BROWSER_ICON_SIZE, ec.AssetBrowserIconSize},
+                       {ec.JSON_ASSETS_BROWSER_TILE_SIZE, ec.TileSize},
+                       {ec.JSON_ASSETS_BROWSER_ICON_SPACING, ec.IconSpacing},
+                       {ec.JSON_ASSETS_BROWSER_COLUMNS, ec.Columns},
+                       {ec.JSON_ASSETS_BROWSER_SHOW_ICONS, ec.showIcons}};
 
     std::ofstream file(path.string());
     file << j.dump(4);
@@ -93,6 +111,21 @@ void Project::ReadProjectConfig(std::filesystem::path& path)
     {
         const auto& data     = j[cfg.meta.JSON_FIELD_NAME];
         cfg.meta.projectName = data.value(cfg.meta.JSON_FIELD_PROJECT_NAME, "Unknown project name");
+    }
+
+    if(j.contains(cfg.editorConfig.JSON_NAME))
+    {
+        const auto& data = j[cfg.editorConfig.JSON_NAME];
+
+        cfg.editorConfig.AssetBrowserIconSize = data[cfg.editorConfig.JSON_ASSETS_BROWSER_ICON_SIZE];
+
+        cfg.editorConfig.TileSize = data[cfg.editorConfig.JSON_ASSETS_BROWSER_TILE_SIZE];
+
+        cfg.editorConfig.IconSpacing = data[cfg.editorConfig.JSON_ASSETS_BROWSER_ICON_SPACING];
+
+        cfg.editorConfig.Columns = data[cfg.editorConfig.JSON_ASSETS_BROWSER_COLUMNS];
+
+        cfg.editorConfig.showIcons = data[cfg.editorConfig.JSON_ASSETS_BROWSER_SHOW_ICONS];
     }
 
     Utils::Logger::LogInfoCLI("Done !");
