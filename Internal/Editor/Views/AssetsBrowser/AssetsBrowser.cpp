@@ -26,7 +26,7 @@ void AssetsBrowser::Render()
 
     //====================================================
     // Right panel with overview of the directory structure
-    ImGui::BeginChild(ICON_FA_FOLDER_TREE " Project overview", ImVec2(ImGui::GetWindowWidth() / 4, 0), ImGuiChildFlags_Border);
+    ImGui::BeginChild(ICON_FA_FOLDER_TREE " Project overview", ImVec2(ImGui::GetContentRegionAvail().x / 4, 0), ImGuiChildFlags_Border);
     {
         if(ImGui::Button(ICON_FA_CIRCLE_PLUS " Create folder "))
         {
@@ -45,7 +45,7 @@ void AssetsBrowser::Render()
 
     //=========================================
     // The actual assets browser
-    ImGui::BeginChild(ICON_FA_MAGNIFYING_GLASS " Current folder ", ImVec2(ImGui::GetWindowWidth() - 10, 0), ImGuiChildFlags_Border);
+    ImGui::BeginChild(ICON_FA_MAGNIFYING_GLASS " Current folder ", ImVec2(ImGui::GetContentRegionAvail().x, 0), ImGuiChildFlags_Border);
     {
 
         if(ImGui::Button(ICON_FA_TOOLBOX " Options"))

@@ -92,11 +92,18 @@ struct AssetsBrowserDrawData
                            hovered              ? IM_COL32(80, 80, 80, 255) :
                                                   IM_COL32(50, 50, 50, 255);
 
-            draw_list->AddRectFilled(pos, ImVec2(pos.x + IconSize, pos.y + IconSize), bg_col, 6.0f);
+            draw_list->AddRect(pos, ImVec2(pos.x + IconSize, pos.y + IconSize), bg_col, 6.0f);
+
+            const char* icon      = directoryItems[i].icon;
+            ImVec2      icon_size = ImVec2(IconSize - 10, IconSize - 10);
+
+            ImVec2 icon_pos = {pos.x + (IconSize - icon_size.x) * 0.5f, pos.y + (IconSize - icon_size.y) * 0.5f};
+
+            draw_list->AddText(icon_pos, IM_COL32(255, 255, 255, 255), icon);
 
             char label[16];
             sprintf(label, "%s", directoryItems[i].name.c_str());
-            draw_list->AddText(ImVec2(pos.x + 6, pos.y + 6), IM_COL32_WHITE, label);
+            draw_list->AddText(ImVec2(pos.x, pos.y + IconSize + 6), IM_COL32_WHITE, label);
 
             ImGui::PopID();
         }
