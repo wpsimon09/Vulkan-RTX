@@ -17,22 +17,41 @@ struct DirectoryItem
     const char*           icon{ICON_FA_QUESTION};
     std::filesystem::path path{};
     int                   id;
+    DirectoryItem() = default;
+
+    // Copy constructor
+    DirectoryItem(const DirectoryItem& other)
+        : isFile(other.isFile)
+        , name(other.name)
+        , icon(other.icon)
+        , path(other.path)
+        , id(other.id)
+    {
+    }
+
+    DirectoryItem& operator=(const DirectoryItem& other)
+    {
+        if(this != &other)
+        {
+            isFile = other.isFile;
+            name   = other.name;
+            icon   = other.icon;
+            path   = other.path;
+            id     = other.id;
+        }
+        return *this;
+    }
 };
 
 struct AssetsBrowserDrawData
 {
-    ImVector<DirectoryItem> assets;
-
     float IconSize    = 64.0f;
     float IconSpacing = 12.0f;
     int   Columns     = 1;
 
     int SelectedIndex = -1;
 
-    AssetsBrowserDrawData(const ImVector<DirectoryItem>& assets)
-        : assets(ImVector(assets))
-    {
-    }
+    AssetsBrowserDrawData() {}
 
     void UpdateLayout(float avail_width)
     {
@@ -42,7 +61,7 @@ struct AssetsBrowserDrawData
     }
 
 
-    void DrawGrid()
+    void DrawGrid(const std::vector<DirectoryItem>& directoryItems)
     {
         ImDrawList* draw_list   = ImGui::GetWindowDrawList();
         float       avail_width = ImGui::GetContentRegionAvail().x;
@@ -51,7 +70,7 @@ struct AssetsBrowserDrawData
 
         ImVec2 start = ImGui::GetCursorScreenPos();
 
-        for(int i = 0; i < assets.Size; i++)
+        for(int i = 0; i < directoryItems.size(); i++)
         {
             int col = i % Columns;
             int row = i / Columns;
@@ -59,7 +78,7 @@ struct AssetsBrowserDrawData
             ImVec2 pos = {start.x + col * (IconSize + IconSpacing), start.y + row * (IconSize + IconSpacing)};
 
             ImGui::SetCursorScreenPos(pos);
-            ImGui::PushID((int)assets[i].id);
+            ImGui::PushID((int)directoryItems[i].id);
 
             ImGui::InvisibleButton("item", ImVec2(IconSize, IconSize));
 
@@ -76,13 +95,13 @@ struct AssetsBrowserDrawData
             draw_list->AddRectFilled(pos, ImVec2(pos.x + IconSize, pos.y + IconSize), bg_col, 6.0f);
 
             char label[16];
-            sprintf(label, "%d", assets[i].id);
+            sprintf(label, "%s", directoryItems[i].name.c_str());
             draw_list->AddText(ImVec2(pos.x + 6, pos.y + 6), IM_COL32_WHITE, label);
 
             ImGui::PopID();
         }
 
-        int rows = (assets.Size + Columns - 1) / Columns;
+        int rows = (directoryItems.size() + Columns - 1) / Columns;
         ImGui::Dummy(ImVec2(1.0f, rows * (IconSize + IconSpacing)));
     }
 };

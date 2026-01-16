@@ -17,6 +17,7 @@ AssetsBrowser::AssetsBrowser(ApplicationCore::Project& project)
     : IUserInterfaceElement()
     , m_project(project)
     , m_currentPath(project.GetProjectPath())
+    , m_assetsBrowserGridDrawData()
 {
 }
 void AssetsBrowser::Render()
@@ -36,6 +37,7 @@ void AssetsBrowser::Render()
         ImGui::Separator();
 
         RenderDirectoryTree(m_project.GetProjectPath());
+
         ImGui::EndChild();
     }
 
@@ -45,6 +47,16 @@ void AssetsBrowser::Render()
     // The actual assets browser
     ImGui::BeginChild(ICON_FA_MAGNIFYING_GLASS " Current folder ", ImVec2(ImGui::GetWindowWidth() - 10, 0), ImGuiChildFlags_Border);
     {
+
+        if(ImGui::Button(ICON_FA_TOOLBOX " Options"))
+        {
+            ImGui::OpenPopup(POP_UP_ASSETS_PANEL_SETTINGS);
+        }
+        RenderAssetsPanelSettings();
+        ImGui::Separator();
+
+        m_assetsBrowserGridDrawData.DrawGrid(m_items);
+
         ImGui::EndChild();
     }
 
@@ -60,10 +72,6 @@ void AssetsBrowser::Update()
     {
         std::filesystem::remove_all(m_pathToDelete);
     }
-    if(m_createRequested)
-    {
-    }
-    m_createRequested = false;
     m_deleteRequested = false;
 
     if(m_currentPath != m_previousPath)
@@ -80,8 +88,13 @@ std::vector<DirectoryItem> AssetsBrowser::ReadContentsOf(std::filesystem::path p
     int                        id = 0;
     for(const auto& directory : std::filesystem::directory_iterator(m_currentPath))
     {
-        DirectoryItem item{directory.is_regular_file(), directory.path().filename().c_str(),
-                           directory.is_regular_file() ? ICON_FA_FILE : ICON_FA_FOLDER, directory, id};
+        DirectoryItem item;
+        item.path   = directory;
+        item.icon   = directory.is_directory() ? ICON_FA_FOLDER : ICON_FA_FILE;
+        item.id     = id;
+        item.isFile = directory.is_regular_file();
+        item.name   = directory.path().filename().string();
+
         result.push_back(item);
         id++;
     }
@@ -117,7 +130,7 @@ void AssetsBrowser::RenderDirectoryTree(const std::filesystem::path& directory)
         if(ImGui::BeginPopupContextItem())
         {
             m_currentPath = path;
-            if(ImGui::MenuItem(ICON_FA_TRASH " Delete folder"))
+            if(ImGui::MenuItem(ICON_FA_TRASH " Delete folder") || ImGui::Shortcut(ImGuiKey_Delete))
             {
                 m_deleteRequested = true;
                 m_pathToDelete    = m_currentPath;
@@ -149,6 +162,16 @@ void AssetsBrowser::RenderCreateNewFolder()
             std::filesystem::create_directory(m_currentPath / newFolderName);
             strcpy(newFolderName, "New folder name");
         }
+        ImGui::EndPopup();
+    }
+}
+void AssetsBrowser::RenderAssetsPanelSettings()
+{
+    if(ImGui::BeginPopupContextItem(POP_UP_ASSETS_PANEL_SETTINGS))
+    {
+        ImGui::DragFloat("Icon size", &m_assetsBrowserGridDrawData.IconSize, 1.0, 0.1);
+        ImGui::DragFloat("Icon spacing", &m_assetsBrowserGridDrawData.IconSpacing, 0.1);
+        ImGui::DragInt("Max Columns", &m_assetsBrowserGridDrawData.Columns, 1, 0);
         ImGui::EndPopup();
     }
 }

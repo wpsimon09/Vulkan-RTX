@@ -14,7 +14,8 @@ class Project;
 }
 namespace VEditor {
 
-constexpr char* POP_UP_NEW_FOLDER_NAME = "PopUpNewFolder";
+constexpr char* POP_UP_NEW_FOLDER_NAME       = "PopUpNewFolder";
+constexpr char* POP_UP_ASSETS_PANEL_SETTINGS = "PopUpAssetPannelSettings";
 
 class AssetsBrowser : public IUserInterfaceElement
 {
@@ -37,9 +38,12 @@ class AssetsBrowser : public IUserInterfaceElement
     bool                  m_deleteRequested = false;
     bool                  m_createRequested = true;
     std::filesystem::path m_pathToDelete    = "";
+    AssetsBrowserDrawData m_assetsBrowserGridDrawData;
+
 
     void RenderDirectoryTree(const std::filesystem::path& directory);
     void RenderCreateNewFolder();
+    void RenderAssetsPanelSettings();
 };
 
 }  // namespace VEditor
