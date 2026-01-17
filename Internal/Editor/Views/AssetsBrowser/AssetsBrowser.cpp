@@ -44,11 +44,11 @@ void AssetsBrowser::RenderActions()
     ImGui::Button("Drop here");
     if(ImGui::BeginDragDropTarget())
     {
-        char* itemName = nullptr;
+
         if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL))
         {
-            strcpy(itemName, static_cast<const char*>(payload->Data));
-            Utils::Logger::LogInfoClient("Drag successfull" + std::string(itemName));
+            auto itemName = static_cast<char*>(payload->Data);
+            Utils::Logger::LogInfoClient("Drag successfull: " + std::string(itemName));
         }
         ImGui::EndDragDropTarget();
     }

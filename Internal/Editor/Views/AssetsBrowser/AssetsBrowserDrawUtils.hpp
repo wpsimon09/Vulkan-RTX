@@ -9,6 +9,7 @@
 #include "AssetsBrowser.hpp"
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
+#include "Application/Logger/Logger.hpp"
 #include "Application/Project/Project.hpp"
 #include "Editor/Editor.hpp"
 
@@ -136,8 +137,9 @@ struct AssetsBrowserDrawData
                     ImGui::PopFont();
                     ImGui::Text(directoryItems[i].name.c_str());
 
-                    ImGui::SetDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL, &directoryItems[i].name,
-                                              sizeof(const char*) * directoryItems[i].name.size());
+                    ImGui::SetDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL, directoryItems[i].name.c_str(),
+                                              directoryItems[i].name.size() * sizeof(char));
+
                     ImGui::EndDragDropSource();
                 }
             }
