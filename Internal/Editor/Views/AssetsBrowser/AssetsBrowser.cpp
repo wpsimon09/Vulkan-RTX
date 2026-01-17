@@ -7,6 +7,7 @@
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "Application/Logger/Logger.hpp"
 #include "Application/Project/Project.hpp"
 
 #include <filesystem>
@@ -23,14 +24,14 @@ AssetsBrowser::AssetsBrowser(ApplicationCore::Project& project)
 void AssetsBrowser::RenderActions()
 {
 
+    bool disabledBackButton = m_currentPath.has_parent_path() && m_currentPath == m_project.GetProjectPath();
+    ImGui::BeginDisabled(disabledBackButton);
     if(ImGui::Button(ICON_FA_CIRCLE_LEFT, ImVec2(ImGui::GetFontSize() + 10.0f, 0)))
     {
-        if(m_currentPath.has_parent_path() && m_currentPath != m_project.GetProjectPath())
-        {
-            m_currentPath = m_currentPath.parent_path();
-        }
+        m_currentPath = m_currentPath.parent_path();
     }
     ImGui::SameLine();
+    ImGui::EndDisabled();
 
     if(ImGui::Button(ICON_FA_TOOLBOX " Options"))
     {
@@ -38,6 +39,19 @@ void AssetsBrowser::RenderActions()
     }
     RenderAssetsPanelSettings();
     ImGui::Text(m_currentPath.c_str());
+
+
+    ImGui::Button("Drop here");
+    if(ImGui::BeginDragDropTarget())
+    {
+        char* itemName = nullptr;
+        if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL))
+        {
+            strcpy(itemName, static_cast<const char*>(payload->Data));
+            Utils::Logger::LogInfoClient("Drag successfull" + std::string(itemName));
+        }
+        ImGui::EndDragDropTarget();
+    }
 }
 
 void AssetsBrowser::Render()
@@ -147,6 +161,10 @@ void AssetsBrowser::RenderDirectoryTree(const std::filesystem::path& directory)
 
         if(ImGui::IsItemClicked() && isDirectory)
             m_currentPath = path;
+        else if(ImGui::IsItemClicked() && !isDirectory)
+        {
+            m_currentPath = path.parent_path();
+        }
 
         if(ImGui::BeginPopupContextItem())
         {

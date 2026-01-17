@@ -4,15 +4,22 @@
 
 #ifndef VULKAN_RTX_ASSETSBROWSERDRAWUTILS_HPP
 #define VULKAN_RTX_ASSETSBROWSERDRAWUTILS_HPP
+#include "AssetsBrowser.hpp"
+#include "AssetsBrowser.hpp"
+#include "AssetsBrowser.hpp"
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
 #include "Application/Project/Project.hpp"
+#include "Editor/Editor.hpp"
 
 #include <filesystem>
 #include <vector>
 
-namespace ApplicationCore {
-}
+
+namespace VEditor {
+static auto DRAG_DROP_PAYLOAD_MESH     = "DragDropPayloadMesh";
+static auto DRAG_DROP_PAYLOAD_MATERIAL = "DragDropPayloadMaterial";
+
 struct DirectoryItem
 {
     bool                  isFile{true};
@@ -103,6 +110,7 @@ struct AssetsBrowserDrawData
                            hovered              ? IM_COL32(80, 80, 80, 255) :
                                                   IM_COL32(50, 50, 50, 255);
 
+
             draw_list->AddRect(pos, ImVec2(pos.x + editorConf.TileSize, pos.y + editorConf.TileSize), bg_col, 6.0f);
 
             ImGui::PushFont(NULL, editorConf.AssetBrowserIconSize);
@@ -118,6 +126,21 @@ struct AssetsBrowserDrawData
             sprintf(label, "%s", directoryItems[i].name.c_str());
             draw_list->AddText(ImVec2(pos.x, pos.y + editorConf.TileSize + 6), IM_COL32_WHITE, label);
 
+            if(directoryItems[i].isFile)
+            {
+
+                if(ImGui::BeginDragDropSource())
+                {
+                    ImGui::PushFont(NULL, 40.0f);
+                    ImGui::Text(ICON_FA_FILE);
+                    ImGui::PopFont();
+                    ImGui::Text(directoryItems[i].name.c_str());
+
+                    ImGui::SetDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL, &directoryItems[i].name,
+                                              sizeof(const char*) * directoryItems[i].name.size());
+                    ImGui::EndDragDropSource();
+                }
+            }
 
             ImGui::PopID();
         }
@@ -126,5 +149,6 @@ struct AssetsBrowserDrawData
         ImGui::Dummy(ImVec2(1.0f, rows * (editorConf.TileSize + editorConf.IconSpacing)));
     }
 };
+}  // namespace VEditor
 
 #endif  //VULKAN_RTX_ASSETSBROWSERDRAWUTILS_HPP
