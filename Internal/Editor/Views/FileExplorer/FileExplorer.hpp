@@ -26,7 +26,6 @@ class FileExplorer : public IUserInterfaceElement
 {
   public:
     explicit FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader, ApplicationCore::Scene& scene);
-
     std::filesystem::path* OpenForSceneImport();
     std::filesystem::path* OpenForMaterialImport();
 
@@ -42,6 +41,12 @@ class FileExplorer : public IUserInterfaceElement
     const ApplicationCore::GLTFLoader&           m_gltfLoader;
     std::filesystem::path                        m_filePath;
     std::unique_ptr<VEditor::ModelImportOptions> m_importOptions;
+};
+
+class FileExplorer2 : public IUserInterfaceElement
+{
+  public:
+    explicit FileExplorer2();
 };
 
 }  // namespace VEditor

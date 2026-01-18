@@ -295,6 +295,15 @@ set(SOURCES
         Internal/Editor/Views/AssetsBrowser/AssetsBrowser.cpp
         Internal/Editor/Views/AssetsBrowser/AssetsBrowser.hpp
         Internal/Editor/Views/AssetsBrowser/AssetsBrowserDrawUtils.hpp
+        Internal/Application/AssetsSystem/VAsset2.cpp
+        Internal/Application/AssetsSystem/VAsset2.hpp
+        Internal/Application/AssetsSystem/VTexture.cpp
+        Internal/Application/AssetsSystem/VTexture.hpp
+        Internal/Application/AssetsSystem/VMesh.cpp
+        Internal/Application/AssetsSystem/VMesh.hpp
+        Internal/Application/AssetsSystem/VMaterial.cpp
+        Internal/Application/AssetsSystem/VMaterial.hpp
+        Internal/Application/AssetsSystem/FileHeaders.hpp
 )
 
 

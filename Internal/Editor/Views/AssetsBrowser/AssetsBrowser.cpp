@@ -41,14 +41,26 @@ void AssetsBrowser::RenderActions()
     ImGui::Text(m_currentPath.c_str());
 
 
+    bool dragActive = ImGui::IsDragDropActive();
+
+    if(dragActive)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.5f, 0.9f, 0.4f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.5f, 0.9f, 0.6f));
+    }
+
     ImGui::Button("Drop here");
+
+    if(dragActive)
+        ImGui::PopStyleColor(2);
+
     if(ImGui::BeginDragDropTarget())
     {
 
         if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL))
         {
             auto itemName = static_cast<char*>(payload->Data);
-            Utils::Logger::LogInfoClient("Drag successfull: " + std::string(itemName));
+            Utils::Logger::LogInfoClient("Drag successfully: " + std::string(itemName));
         }
         ImGui::EndDragDropTarget();
     }
