@@ -7,8 +7,10 @@
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "Application/AssetsSystem/VMesh.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Project/Project.hpp"
+#include "Application/VertexArray/VertexArray.hpp"
 
 #include <filesystem>
 #include <glm/ext/matrix_projection.hpp>
@@ -63,6 +65,13 @@ void AssetsBrowser::RenderActions()
             Utils::Logger::LogInfoClient("Drag successfully: " + std::string(itemName));
         }
         ImGui::EndDragDropTarget();
+    }
+
+    if(ImGui::Button("Add mesh"))
+    {
+        std::vector<ApplicationCore::Vertex> test  = {{}, {}, {}};
+        std::vector<uint32_t>                testi = {0, 1, 2, 3, 4, 5};
+        ApplicationCore::VMesh               testMesh("test", m_currentPath, test, testi);
     }
 }
 

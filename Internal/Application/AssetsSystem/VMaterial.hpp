@@ -4,14 +4,19 @@
 
 #ifndef VULKAN_RTX_VMATERIAL_HPP
 #define VULKAN_RTX_VMATERIAL_HPP
+#include "FileHeaders.hpp"
 #include "VAsset2.hpp"
 
 namespace ApplicationCore {
 
-class VMaterial : public VAsset2
+class VMaterial : public VAsset2<VMaterialHeader>
 {
   public:
-    bool Save(std::filesystem::path& path) override;
+    VMaterial();
+    VMaterial(std::filesystem::path& path, VMaterialHeader& materialData);
+    bool     Save(std::filesystem::path& path) override;
+    bool     Load() override;
+    std::any LoadData() override;
 };
 
 }  // namespace ApplicationCore

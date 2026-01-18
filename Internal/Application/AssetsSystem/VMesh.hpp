@@ -4,14 +4,24 @@
 
 #ifndef VULKAN_RTX_VMESH_HPP
 #define VULKAN_RTX_VMESH_HPP
+#include "FileHeaders.hpp"
 #include "VAsset2.hpp"
 
 namespace ApplicationCore {
+struct MeshData
+{
+    std::vector<Vertex>   vertices;
+    std::vector<uint32_t> indices;
+};
 
-class VMesh : public VAsset2
+class VMesh : public VAsset2<VMeshHeader>
 {
   public:
-    bool Save(std::filesystem::path& path) override;
+    VMesh();
+    VMesh(std::string name, std::filesystem::path& directory, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
+    bool     Save(std::filesystem::path& path) override;
+    bool     Load() override;
+    std::any LoadData() override;
 };
 
 }  // namespace ApplicationCore

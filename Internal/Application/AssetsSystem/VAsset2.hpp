@@ -6,6 +6,7 @@
 #define VULKAN_RTX_VFILE_HPP
 
 #include "Application/Utils/Uuid.hpp"
+#include "Application/VertexArray/VertexArray.hpp"
 
 
 #include <any>
@@ -17,22 +18,20 @@ template <typename Header>
 class VAsset2
 {
   public:
-    VAsset2(std::string name, std::string fileType);
-    virtual bool     Save(std::filesystem::path& path);
-    virtual bool     Load();
-    virtual std::any LoadData();
+    VAsset2(std::string fileType);
+    virtual bool     Save(std::filesystem::path& path) = 0;
+    virtual bool     Load()                            = 0;
+    virtual std::any LoadData()                        = 0;
 
   protected:
     Header                m_fileHeader;
     uuid::UUID            m_uuid;
     std::filesystem::path m_path;
-    std::string           m_name     = "unknonw";
     std::string           m_fileType = ".VAsset";
 };
 template <typename Header>
-VAsset2<Header>::VAsset2(std::string name, std::string fileType)
-    : m_name(name)
-    , m_fileType(fileType)
+VAsset2<Header>::VAsset2(std::string fileType)
+    : m_fileType(fileType)
 {
 }
 

@@ -4,14 +4,19 @@
 
 #ifndef VULKAN_RTX_VTEXTURE_HPP
 #define VULKAN_RTX_VTEXTURE_HPP
+#include "FileHeaders.hpp"
 #include "VAsset2.hpp"
 
 namespace ApplicationCore {
 
-class VTexture : public VAsset2
+class VTexture : public VAsset2<VTextureHeader>
 {
   public:
-    bool Save(std::filesystem::path& path) override;
+    VTexture();
+    VTexture(std::filesystem::path& path, VTextureHeader& header, void* pixels);
+    bool     Save(std::filesystem::path& path) override;
+    bool     Load() override;
+    std::any LoadData() override;
 };
 
 }  // namespace ApplicationCore

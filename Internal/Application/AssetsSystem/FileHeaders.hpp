@@ -5,6 +5,8 @@
 #ifndef VULKAN_RTX_FILEHEADERS_HPP
 #define VULKAN_RTX_FILEHEADERS_HPP
 #include "Application/Utils/Uuid.hpp"
+#include "Vulkan/Global/GlobalVulkanEnums.hpp"
+#include "vulkan/vulkan.hpp"
 
 #include <glm/vec4.hpp>
 
@@ -45,7 +47,10 @@ struct VMeshHeader : public IFileHeader
 
 struct VTextureHeader : public IFileHeader
 {
-
+    int          widht, height, channels;
+    std::string  fileName;
+    EImageSource sourceType = EImageSource::Generated;
+    vk::Format   format     = vk::Format::eR8G8B8A8Unorm;
 };
 
 }  // namespace ApplicationCore
