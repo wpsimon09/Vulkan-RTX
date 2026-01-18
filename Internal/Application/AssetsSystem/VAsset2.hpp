@@ -28,12 +28,23 @@ class VAsset2
     uuid::UUID            m_uuid;
     std::filesystem::path m_path;
     std::string           m_fileType = ".VAsset";
+protected:
+  void SaveHeader(std::filesystem::path& path);
 };
+
+
 template <typename Header>
 VAsset2<Header>::VAsset2(std::string fileType)
     : m_fileType(fileType)
 {
 }
+
+template <typename Header>
+void VAsset2<Header>::SaveHeader(std::filesystem::path& path)
+{
+
+}
+
 
 }  // namespace ApplicationCore
 

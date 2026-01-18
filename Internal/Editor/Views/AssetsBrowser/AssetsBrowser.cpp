@@ -40,6 +40,13 @@ void AssetsBrowser::RenderActions()
         ImGui::OpenPopup(POP_UP_ASSETS_PANEL_SETTINGS);
     }
     RenderAssetsPanelSettings();
+    ImGui::SameLine();
+
+    if(ImGui::Button(ICON_FA_REPLY))
+    {
+        m_refreshRequested = true;
+    }
+
     ImGui::Text(m_currentPath.c_str());
 
 
@@ -130,11 +137,12 @@ void AssetsBrowser::Update()
     }
     m_deleteRequested = false;
 
-    if(m_currentPath != m_previousPath)
+    if((m_currentPath != m_previousPath) || m_refreshRequested)
     {
         m_previousPath = m_currentPath;
         m_items.clear();
-        m_items = ReadContentsOf(m_currentPath);
+        m_items            = ReadContentsOf(m_currentPath);
+        m_refreshRequested = false;
     }
     IUserInterfaceElement::Update();
 }

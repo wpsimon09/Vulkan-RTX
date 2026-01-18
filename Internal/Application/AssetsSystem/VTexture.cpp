@@ -4,15 +4,37 @@
 
 #include "VTexture.hpp"
 
+#include <fstream>
+
 namespace ApplicationCore {
 VTexture::VTexture()
     : VAsset2<ApplicationCore::VTextureHeader>(".Vtex")
 {
 }
-VTexture::VTexture(std::filesystem::path& path, VTextureHeader& header, void* pixels)
+VTexture::VTexture(std::string name, std::filesystem::path& path, VTextureHeader& header, void* pixels, size_t size)
     : VAsset2<ApplicationCore::VTextureHeader>(".Vtex")
 {
+    // since it would take a big line to specify all header parameters, the parser will instead fill in the header
+    m_fileHeader = header;
+
+    m_fileHeader.uuid = uuid::generate_uuid_v4();
+
+    std::ofstream file(m_path, std::ios::binary);
+
+    //==================================
+    // save to file and delete the object
+    if(file.is_open())
+    {
+        file.write(reinterpret_cast<char*>(&m_fileHeader), sizeof(m_fileHeader));
+
+        // Write vertex data
+        size_t pixelSize = m_fileHeader.widht * m_fileHeader.height * m_fileHeader.channels;
+        file.write(reinterpret_cast<const char*>(pixels), pixelSize);
+
+        file.close();
+    }
 }
+
 bool     VTexture::Save(std::filesystem::path& path) {}
 bool     VTexture::Load() {}
 std::any VTexture::LoadData() {}

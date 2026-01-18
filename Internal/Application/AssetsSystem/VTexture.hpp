@@ -13,7 +13,7 @@ class VTexture : public VAsset2<VTextureHeader>
 {
   public:
     VTexture();
-    VTexture(std::filesystem::path& path, VTextureHeader& header, void* pixels);
+    VTexture(std::string name, std::filesystem::path& path, VTextureHeader& header, void* pixels, size_t size);
     bool     Save(std::filesystem::path& path) override;
     bool     Load() override;
     std::any LoadData() override;

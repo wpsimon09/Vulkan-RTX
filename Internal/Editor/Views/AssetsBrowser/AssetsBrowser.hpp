@@ -38,6 +38,7 @@ class AssetsBrowser : public IUserInterfaceElement
     char newFolderName[100] = "New folder";
     bool m_deleteRequested  = false;
     bool m_createRequested  = true;
+    bool m_refreshRequested = true;
 
   private:
     std::vector<DirectoryItem> ReadContentsOf(std::filesystem::path path);

@@ -5,6 +5,7 @@
 #ifndef VULKAN_RTX_PROJECT_HPP
 #define VULKAN_RTX_PROJECT_HPP
 #include "json.hpp"
+#include "Application/Utils/Uuid.hpp"
 
 
 #include <filesystem>
@@ -71,6 +72,26 @@ class Project
 
     void WriteProjectConfig(std::filesystem::path& path);
     void ReadProjectConfig(std::filesystem::path& path);
+};
+
+struct AssetEntry
+{
+    std::string           type;  // "mesh", "material", "texture"
+    std::filesystem::path path;
+    std::string           name;
+    uuid::UUID            materialUUID;
+};
+
+class AssetsDatabase
+{
+  public:
+    AssetsDatabase(std::filesystem::path& projectPath);
+
+    void AddAsset(uuid::UUID uuid, AssetEntry& entry);
+    void RemoveAsset(uuid::UUID uuid);
+
+  private:
+    std::unordered_map<uuid::UUID, AssetEntry> m_assets;
 };
 
 }  // namespace ApplicationCore
