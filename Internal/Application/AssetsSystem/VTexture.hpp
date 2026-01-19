@@ -12,8 +12,8 @@ namespace ApplicationCore {
 class VTexture : public VAsset2<VTextureHeader>
 {
   public:
-    VTexture();
-    VTexture(std::string name, std::filesystem::path& path, VTextureHeader& header, void* pixels, size_t size);
+    VTexture(AssetEntry& databaseEntry);
+    VTexture(AssetEntry& databaseEntry, VTextureHeader& header, void* pixels, size_t size);
     bool     Save(std::filesystem::path& path) override;
     bool     Load() override;
     std::any LoadData() override;

@@ -12,6 +12,10 @@
 
 namespace ApplicationCore {
 
+static const char* ASSET_TYPE_MESH     = "mesh";
+static const char* ASSET_TYPE_MATERIAL = "material";
+static const char* ASSET_TYPE_TEXTURE  = "texture";
+
 using json = nlohmann::json;
 
 //=================================================
@@ -50,8 +54,20 @@ struct ProjectConfig
     Meta         meta;
 };
 
+
+//===========================================================================
+
+//=========================================================
+// Assets database
+// - main point of this class is to map assets to the correct paths
+// - TODO: figure out how the changes of paths will be handled
+// - when asset is imported from gltf or whatever, it is being assigned UUID which is used
+// to look up the given asset from here
+// - this class just returns abstract AssetEntry struct with all info that engine needs to load the asset from the file
+//==========================================================
 struct AssetEntry
 {
+    uuid::UUID            uuid;
     std::string           type;  // "mesh", "material", "texture"
     std::filesystem::path path;
     std::string           name;
@@ -63,9 +79,12 @@ class AssetsDatabase
   public:
     AssetsDatabase(const std::filesystem::path& projectPath);
 
-    void AddAsset(uuid::UUID uuid, AssetEntry& entry);
-    void RemoveAsset(uuid::UUID uuid);
-    void Save();
+    void        AddAsset(uuid::UUID uuid, AssetEntry& entry);
+    void        RemoveAsset(uuid::UUID uuid);
+    void        Save();
+    AssetEntry  GetAsset(uuid::UUID uuid);
+    AssetEntry& RequestNewAssetEntry(std::string type, std::filesystem::path path, std::string name);
+
 
   private:
     const std::filesystem::path                m_projectDbFile = "VAssets.json";
@@ -73,6 +92,11 @@ class AssetsDatabase
     std::unordered_map<uuid::UUID, AssetEntry> m_assets;
 };
 
+//=========================================================
+// Project class
+// - responsible for handling the project (stores all paths, textures and whatnot
+// - it is created before everything else and is being passed down to the application// - it contains instance of assets database used to retrieve any asset requested by the application
+//==========================================================
 
 class Project
 {
@@ -85,6 +109,13 @@ class Project
     ProjectConfig&        GetProjectConfig();
     std::filesystem::path GetProjectPath();
     void                  End();
+
+    void        AddAsset(uuid::UUID uuid, AssetEntry& entry);
+    void        RemoveAsset(uuid::UUID uuid);
+    AssetEntry  GetAsset(uuid::UUID uuid);
+    AssetEntry& RequestAssetEntry(std::string type, std::filesystem::path path, std::string name);
+    AssetEntry& RequestAssetEntryAndRegister(std::string type, std::filesystem::path path, std::string name);
+
 
   private:
     std::filesystem::path           m_projectPath;

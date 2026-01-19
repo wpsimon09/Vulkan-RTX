@@ -17,8 +17,8 @@ struct MeshData
 class VMesh : public VAsset2<VMeshHeader>
 {
   public:
-    VMesh();
-    VMesh(std::string name, std::filesystem::path& directory, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
+    VMesh(AssetEntry& databaseEntry);
+    VMesh(AssetEntry& databaseEntry, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
     bool     Save(std::filesystem::path& path) override;
     bool     Load() override;
     std::any LoadData() override;

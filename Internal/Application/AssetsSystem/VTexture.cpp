@@ -7,12 +7,12 @@
 #include <fstream>
 
 namespace ApplicationCore {
-VTexture::VTexture()
-    : VAsset2<ApplicationCore::VTextureHeader>(".Vtex")
+VTexture::VTexture(AssetEntry& databaseEntry)
+    : VAsset2<ApplicationCore::VTextureHeader>(databaseEntry, ".Vtex")
 {
 }
-VTexture::VTexture(std::string name, std::filesystem::path& path, VTextureHeader& header, void* pixels, size_t size)
-    : VAsset2<ApplicationCore::VTextureHeader>(".Vtex")
+VTexture::VTexture(AssetEntry& databaseEntry, VTextureHeader& header, void* pixels, size_t size)
+    : VAsset2<ApplicationCore::VTextureHeader>(databaseEntry, ".Vtex")
 {
     // since it would take a big line to specify all header parameters, the parser will instead fill in the header
     m_fileHeader = header;

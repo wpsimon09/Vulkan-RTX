@@ -5,12 +5,12 @@
 #include "VMaterial.hpp"
 
 namespace ApplicationCore {
-VMaterial::VMaterial()
-    : VAsset2<ApplicationCore::VMaterialHeader>(".Vmat")
+VMaterial::VMaterial(AssetEntry& databaseEntry)
+    : VAsset2<ApplicationCore::VMaterialHeader>(databaseEntry, ".Vmat")
 {
 }
-VMaterial::VMaterial(std::filesystem::path& path, VMaterialHeader& materialData)
-    : VAsset2<ApplicationCore::VMaterialHeader>(".Vmat")
+VMaterial::VMaterial(AssetEntry& databaseEntry, VMaterialHeader& materialData)
+    : VAsset2<ApplicationCore::VMaterialHeader>(databaseEntry, ".Vmat")
 {
     m_fileHeader = materialData;
 }

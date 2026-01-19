@@ -12,8 +12,8 @@ namespace ApplicationCore {
 class VMaterial : public VAsset2<VMaterialHeader>
 {
   public:
-    VMaterial();
-    VMaterial(std::filesystem::path& path, VMaterialHeader& materialData);
+    VMaterial(AssetEntry& databaseEntry);
+    VMaterial(AssetEntry& databaseEntry, VMaterialHeader& materialData);
     bool     Save(std::filesystem::path& path) override;
     bool     Load() override;
     std::any LoadData() override;

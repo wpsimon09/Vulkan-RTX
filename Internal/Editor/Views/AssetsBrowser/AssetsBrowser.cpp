@@ -79,7 +79,8 @@ void AssetsBrowser::RenderActions()
     {
         std::vector<ApplicationCore::Vertex> test  = {{}, {}, {}};
         std::vector<uint32_t>                testi = {0, 1, 2, 3, 4, 5};
-        ApplicationCore::VMesh               testMesh("test", m_currentPath, test, testi);
+        auto newAssetInfo = m_project.RequestAssetEntry(ApplicationCore::ASSET_TYPE_MESH, m_currentPath, "test");
+        ApplicationCore::VMesh testMesh(newAssetInfo, test, testi);
     }
 }
 

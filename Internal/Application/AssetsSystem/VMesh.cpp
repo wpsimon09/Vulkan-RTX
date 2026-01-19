@@ -7,21 +7,21 @@
 #include <fstream>
 
 namespace ApplicationCore {
-VMesh::VMesh()
-    : VAsset2<ApplicationCore::VMeshHeader>(".Vmesh")
+VMesh::VMesh(AssetEntry& databaseEntry)
+    : VAsset2<ApplicationCore::VMeshHeader>(databaseEntry, ".Vmesh")
 {
 }
 
-VMesh::VMesh(std::string name, std::filesystem::path& directory, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
-    : VAsset2<ApplicationCore::VMeshHeader>(".Vmesh")
+VMesh::VMesh(AssetEntry& databaseEntry, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
+    : VAsset2<ApplicationCore::VMeshHeader>(databaseEntry, ".Vmesh")
 {
     //==================================
     // save to file and delete the object
     m_fileHeader.uuid        = uuid::generate_uuid_v4();
-    m_fileHeader.name        = name;
+    m_fileHeader.name        = databaseEntry.name;
     m_fileHeader.indexCount  = indices.size();
     m_fileHeader.vertexCount = vertices.size();
-    m_path                   = directory / (name + m_fileType);
+    m_path                   = databaseEntry.path / (databaseEntry.name + m_fileType);
 
     std::ofstream file(m_path, std::ios::binary);
 

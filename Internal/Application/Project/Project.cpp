@@ -85,6 +85,24 @@ void Project::End()
     WriteProjectConfig(projectConfigPath);
     m_assetsDatabase->Save();
 }
+void Project::AddAsset(uuid::UUID uuid, AssetEntry& entry)
+{
+    m_assetsDatabase->AddAsset(uuid, entry);
+}
+
+void Project::RemoveAsset(uuid::UUID uuid)
+{
+    m_assetsDatabase->RemoveAsset(uuid);
+}
+AssetEntry Project::GetAsset(uuid::UUID uuid)
+{
+    m_assetsDatabase->GetAsset(uuid);
+}
+
+AssetEntry& Project::RequestAssetEntryAndRegister(std::string type, std::filesystem::path path, std::string name)
+{
+    auto& assetEntiry = m_assetsDatabase->RequestNewAssetEntry(type, path, name);
+}
 
 void Project::WriteProjectConfig(std::filesystem::path& path)
 {
@@ -191,4 +209,17 @@ void AssetsDatabase::Save()
 
     file << j.dump(4);
 }  // namespace ApplicationCore
+AssetEntry AssetsDatabase::GetAsset(uuid::UUID uuid)
+{
+    assert(m_assets.contains(uuid) && "Asset was not found");
+    return m_assets[uuid];
+}
+
+AssetEntry& AssetsDatabase::RequestNewAssetEntry(std::string type, std::filesystem::path path, std::string name)
+{
+    auto newAsset = {uuid::generate_uuid_v4(), type, path, name, ""};
+    m_assets.insert({newAsset.uuid, newAsset});
+    return m_assets[newAsset.uuid];
+}
+
 }  // namespace ApplicationCore
