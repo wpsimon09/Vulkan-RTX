@@ -25,11 +25,11 @@ class VAsset2
     virtual std::any LoadData()                        = 0;
 
   protected:
-    Header                      m_fileHeader;
-    uuid::UUID                  m_uuid;
-    std::filesystem::path       m_path;
-    std::string                 m_fileType = ".VAsset";
-    ApplicationCore::AssetEntry m_databaseEntry;
+    Header                       m_fileHeader;
+    uuid::UUID                   m_uuid;
+    std::filesystem::path        m_path;
+    std::string                  m_fileType = ".VAsset";
+    ApplicationCore::AssetEntry& m_databaseEntry;
 
   protected:
     void SaveHeader(std::filesystem::path& path);

@@ -21,6 +21,28 @@ namespace VEditor {
 static auto DRAG_DROP_PAYLOAD_MESH     = "DragDropPayloadMesh";
 static auto DRAG_DROP_PAYLOAD_MATERIAL = "DragDropPayloadMaterial";
 
+inline const char* GetIconFromFileExtension(const std::string& fileExtension)
+{
+    if(fileExtension == ".VTexture")
+    {
+        return ICON_FA_IMAGE;
+    }
+
+    if(fileExtension == ".VMesh")
+    {
+        return ICON_FA_CUBE;
+    }
+    if(fileExtension == ".VMaterial")
+    {
+        return ICON_FA_BRUSH;
+    }
+    if(fileExtension == ".json")
+    {
+        return ICON_FA_GEARS;
+    }
+    return ICON_FA_QUESTION;
+}
+
 struct DirectoryItem
 {
     bool                  isFile{true};
@@ -85,8 +107,10 @@ struct AssetsBrowserDrawData
 
         for(int i = 0; i < directoryItems.size(); i++)
         {
-            int col = i % editorConf.Columns;
-            int row = i / editorConf.Columns;
+
+            std::string icon;
+            int         col = i % editorConf.Columns;
+            int         row = i / editorConf.Columns;
 
             ImVec2 pos = {start.x + col * (editorConf.TileSize + editorConf.IconSpacing),
                           start.y + row * (editorConf.TileSize + editorConf.IconSpacing)};
@@ -115,11 +139,10 @@ struct AssetsBrowserDrawData
             draw_list->AddRect(pos, ImVec2(pos.x + editorConf.TileSize, pos.y + editorConf.TileSize), bg_col, 6.0f);
 
             ImGui::PushFont(NULL, editorConf.AssetBrowserIconSize);
-            const char* icon      = directoryItems[i].icon;
-            ImVec2      icon_size = ImGui::CalcTextSize(icon);
-            ImVec2      icon_pos  = {pos.x + (editorConf.TileSize - icon_size.x) * 0.5f,
-                                     pos.y + (editorConf.TileSize - icon_size.y) * 0.5f};
-            draw_list->AddText(icon_pos, IM_COL32(255, 255, 255, 255), icon);
+            ImVec2 icon_size = ImGui::CalcTextSize(directoryItems[i].icon);
+            ImVec2 icon_pos  = {pos.x + (editorConf.TileSize - icon_size.x) * 0.5f,
+                                pos.y + (editorConf.TileSize - icon_size.y) * 0.5f};
+            draw_list->AddText(icon_pos, IM_COL32(255, 255, 255, 255), directoryItems[i].icon);
 
             ImGui::PopFont();
 
@@ -133,7 +156,7 @@ struct AssetsBrowserDrawData
                 if(ImGui::BeginDragDropSource())
                 {
                     ImGui::PushFont(NULL, 40.0f);
-                    ImGui::Text(ICON_FA_FILE);
+                    ImGui::Text(directoryItems[i].icon);
                     ImGui::PopFont();
                     ImGui::Text(directoryItems[i].name.c_str());
 
@@ -151,6 +174,8 @@ struct AssetsBrowserDrawData
         ImGui::Dummy(ImVec2(1.0f, rows * (editorConf.TileSize + editorConf.IconSpacing)));
     }
 };
+
+
 }  // namespace VEditor
 
 #endif  //VULKAN_RTX_ASSETSBROWSERDRAWUTILS_HPP

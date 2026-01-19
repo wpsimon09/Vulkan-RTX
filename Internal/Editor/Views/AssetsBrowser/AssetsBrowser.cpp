@@ -79,7 +79,7 @@ void AssetsBrowser::RenderActions()
     {
         std::vector<ApplicationCore::Vertex> test  = {{}, {}, {}};
         std::vector<uint32_t>                testi = {0, 1, 2, 3, 4, 5};
-        auto newAssetInfo = m_project.RequestAssetEntry(ApplicationCore::ASSET_TYPE_MESH, m_currentPath, "test");
+        auto& newAssetInfo = m_project.RequestAssetEntryAndRegister(ApplicationCore::ASSET_TYPE_MESH, m_currentPath, "test");
         ApplicationCore::VMesh testMesh(newAssetInfo, test, testi);
     }
 }
@@ -155,8 +155,16 @@ std::vector<DirectoryItem> AssetsBrowser::ReadContentsOf(std::filesystem::path p
     for(const auto& directory : std::filesystem::directory_iterator(m_currentPath))
     {
         DirectoryItem item;
-        item.path   = directory;
-        item.icon   = directory.is_directory() ? ICON_FA_FOLDER : ICON_FA_FILE;
+        item.path = directory;
+
+        if(directory.is_directory())
+        {
+            item.icon = ICON_FA_FOLDER;
+        }
+        else
+        {
+            item.icon = GetIconFromFileExtension(directory.path().extension().string());
+        }
         item.id     = id;
         item.isFile = directory.is_regular_file();
         item.name   = directory.path().filename().string();
@@ -183,7 +191,9 @@ void AssetsBrowser::RenderDirectoryTree(const std::filesystem::path& directory)
         ImGuiID id     = ImGui::GetID(path.c_str());
         bool    isOpen = ImGui::GetStateStorage()->GetBool(id, false);
 
-        const char* icon = (isDirectory && isOpen) ? ICON_FA_FOLDER_OPEN : (isDirectory ? ICON_FA_FOLDER : ICON_FA_FILE);
+        const char* icon = (isDirectory && isOpen) ?
+                               ICON_FA_FOLDER_OPEN :
+                               (isDirectory ? ICON_FA_FOLDER : GetIconFromFileExtension(entry.path().extension().string()));
 
         std::string label = std::string(icon) + " " + path.filename().string();
 

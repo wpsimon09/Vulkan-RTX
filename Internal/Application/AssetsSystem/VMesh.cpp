@@ -8,12 +8,12 @@
 
 namespace ApplicationCore {
 VMesh::VMesh(AssetEntry& databaseEntry)
-    : VAsset2<ApplicationCore::VMeshHeader>(databaseEntry, ".Vmesh")
+    : VAsset2<ApplicationCore::VMeshHeader>(databaseEntry, ".VMesh")
 {
 }
 
 VMesh::VMesh(AssetEntry& databaseEntry, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
-    : VAsset2<ApplicationCore::VMeshHeader>(databaseEntry, ".Vmesh")
+    : VAsset2<ApplicationCore::VMeshHeader>(databaseEntry, ".VMesh")
 {
     //==================================
     // save to file and delete the object

@@ -101,7 +101,7 @@ AssetEntry Project::GetAsset(uuid::UUID uuid)
 
 AssetEntry& Project::RequestAssetEntryAndRegister(std::string type, std::filesystem::path path, std::string name)
 {
-    auto& assetEntiry = m_assetsDatabase->RequestNewAssetEntry(type, path, name);
+    return m_assetsDatabase->RequestNewAssetEntry(type, path, name);
 }
 
 void Project::WriteProjectConfig(std::filesystem::path& path)
@@ -217,7 +217,7 @@ AssetEntry AssetsDatabase::GetAsset(uuid::UUID uuid)
 
 AssetEntry& AssetsDatabase::RequestNewAssetEntry(std::string type, std::filesystem::path path, std::string name)
 {
-    auto newAsset = {uuid::generate_uuid_v4(), type, path, name, ""};
+    auto newAsset = AssetEntry{uuid::generate_uuid_v4(), type, path, name, ""};
     m_assets.insert({newAsset.uuid, newAsset});
     return m_assets[newAsset.uuid];
 }

@@ -6,11 +6,11 @@
 
 namespace ApplicationCore {
 VMaterial::VMaterial(AssetEntry& databaseEntry)
-    : VAsset2<ApplicationCore::VMaterialHeader>(databaseEntry, ".Vmat")
+    : VAsset2<ApplicationCore::VMaterialHeader>(databaseEntry, ".VMat")
 {
 }
 VMaterial::VMaterial(AssetEntry& databaseEntry, VMaterialHeader& materialData)
-    : VAsset2<ApplicationCore::VMaterialHeader>(databaseEntry, ".Vmat")
+    : VAsset2<ApplicationCore::VMaterialHeader>(databaseEntry, ".VMat")
 {
     m_fileHeader = materialData;
 }
