@@ -22,6 +22,7 @@ VMesh::VMesh(AssetEntry& databaseEntry, std::vector<Vertex>& vertices, std::vect
     m_fileHeader.indexCount  = indices.size();
     m_fileHeader.vertexCount = vertices.size();
     m_path                   = databaseEntry.path / (databaseEntry.name + m_fileType);
+    m_databaseEntry.path     = m_path;
 
     std::ofstream file(m_path, std::ios::binary);
 

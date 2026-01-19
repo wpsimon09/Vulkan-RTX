@@ -24,6 +24,7 @@ AssetsBrowser::AssetsBrowser(ApplicationCore::Project& project)
     , m_currentPath(project.GetProjectPath())
 {
 }
+
 void AssetsBrowser::RenderActions()
 {
 
@@ -49,7 +50,6 @@ void AssetsBrowser::RenderActions()
     }
 
     ImGui::Text(m_currentPath.c_str());
-
 
     bool dragActive = ImGui::IsDragDropActive();
 
