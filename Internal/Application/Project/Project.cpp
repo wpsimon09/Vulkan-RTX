@@ -23,6 +23,10 @@ void Project::PrintHelp()
 
 void Project::CrateNew(const std::filesystem::path& path, const std::string& name)
 {
+    //===================================
+    // create assets database
+    m_assetsDatabase = std::make_unique<AssetsDatabase>(path);
+
     //====================================
     // Configure all paths
     std::string projectName = name.empty() ? "VulkanRtx" : name;
@@ -43,6 +47,7 @@ void Project::CrateNew(const std::filesystem::path& path, const std::string& nam
     // Load the config file
     m_projectConfig.meta.projectName = name;
     Project::WriteProjectConfig(projectConfigPath);
+    m_assetsDatabase->Save();
 }
 
 void Project::OpenFrom(const std::filesystem::path& path)
@@ -60,6 +65,10 @@ void Project::OpenFrom(const std::filesystem::path& path)
         Utils::Logger::LogInfoCLI("Loading your project....");
         ReadProjectConfig(projectConfigPath);
     }
+
+    //===================================
+    // create assets database
+    m_assetsDatabase = std::make_unique<AssetsDatabase>(path);
 }
 ProjectConfig& Project::GetProjectConfig()
 {
@@ -74,6 +83,7 @@ void Project::End()
 {
     auto projectConfigPath = m_projectPath / m_projectConfigFile;
     WriteProjectConfig(projectConfigPath);
+    m_assetsDatabase->Save();
 }
 
 void Project::WriteProjectConfig(std::filesystem::path& path)
@@ -132,4 +142,53 @@ void Project::ReadProjectConfig(std::filesystem::path& path)
     Utils::Logger::LogInfoCLI("Done !");
     m_projectConfig = cfg;
 }
+
+AssetsDatabase::AssetsDatabase(const std::filesystem::path& projectPath)
+    : m_projectDbPath(projectPath)
+{
+    //open the file    Utils::Logger::LogInfoCLI("Reading project config from path:" + path.string());
+    const auto&   dbPath = m_projectDbPath / m_projectDbFile;
+    std::ifstream file(dbPath);
+    if(file.is_open())
+    {
+        json j;
+        file >> j;
+
+        for(auto& [uuidStr, value] : j.items())
+        {
+            AssetEntry entry;
+            entry.type = value["type"];
+            entry.path = value["path"].get<std::string>();
+            entry.name = value["name"];
+            if(value.contains("material"))
+                entry.materialUUID = value["material"];
+            m_assets[uuidStr] = entry;
+        }
+    }
+}
+
+void AssetsDatabase::AddAsset(uuid::UUID uuid, AssetEntry& entry)
+{
+    m_assets[uuid] = entry;
+}
+
+void AssetsDatabase::RemoveAsset(uuid::UUID uuid)
+{
+    m_assets.erase(uuid);
+}
+
+void AssetsDatabase::Save()
+{
+    json j;
+    for(auto& [uuidStr, value] : m_assets)
+    {
+        j[uuidStr] = {{"type", value.type}, {"path", value.path}, {"name", value.name}, {"material_id", value.materialUUID}};
+    }
+
+    std::ofstream file(m_projectDbPath / m_projectDbFile);
+    if(!file.is_open())
+        throw std::runtime_error("Project db file not found");
+
+    file << j.dump(4);
+}  // namespace ApplicationCore
 }  // namespace ApplicationCore

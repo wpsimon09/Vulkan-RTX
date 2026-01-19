@@ -21,6 +21,7 @@ AssetsBrowser::AssetsBrowser(ApplicationCore::Project& project)
     : IUserInterfaceElement()
     , m_project(project)
     , m_assetsBrowserGridDrawData(project.GetProjectConfig().editorConfig, m_currentPath)
+    , m_currentPath(project.GetProjectPath())
 {
 }
 void AssetsBrowser::RenderActions()
@@ -42,7 +43,7 @@ void AssetsBrowser::RenderActions()
     RenderAssetsPanelSettings();
     ImGui::SameLine();
 
-    if(ImGui::Button(ICON_FA_REPLY))
+    if(ImGui::Button(ICON_FA_ARROWS_TO_CIRCLE))
     {
         m_refreshRequested = true;
     }

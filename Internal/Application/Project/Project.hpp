@@ -50,6 +50,29 @@ struct ProjectConfig
     Meta         meta;
 };
 
+struct AssetEntry
+{
+    std::string           type;  // "mesh", "material", "texture"
+    std::filesystem::path path;
+    std::string           name;
+    uuid::UUID            materialUUID;
+};
+
+class AssetsDatabase
+{
+  public:
+    AssetsDatabase(const std::filesystem::path& projectPath);
+
+    void AddAsset(uuid::UUID uuid, AssetEntry& entry);
+    void RemoveAsset(uuid::UUID uuid);
+    void Save();
+
+  private:
+    const std::filesystem::path                m_projectDbFile = "VAssets.json";
+    std::filesystem::path                      m_projectDbPath;
+    std::unordered_map<uuid::UUID, AssetEntry> m_assets;
+};
+
 
 class Project
 {
@@ -64,35 +87,17 @@ class Project
     void                  End();
 
   private:
-    std::filesystem::path       m_projectPath;
-    const std::filesystem::path m_templatePath = "Resources/ProjectTemplate";
-    ProjectConfig               m_projectConfig;
-    const std::filesystem::path m_projectConfigFile = "VProject.json";
+    std::filesystem::path           m_projectPath;
+    const std::filesystem::path     m_templatePath = "Resources/ProjectTemplate";
+    ProjectConfig                   m_projectConfig;
+    const std::filesystem::path     m_projectConfigFile = "VProject.json";
+    std::unique_ptr<AssetsDatabase> m_assetsDatabase;
 
 
     void WriteProjectConfig(std::filesystem::path& path);
     void ReadProjectConfig(std::filesystem::path& path);
 };
 
-struct AssetEntry
-{
-    std::string           type;  // "mesh", "material", "texture"
-    std::filesystem::path path;
-    std::string           name;
-    uuid::UUID            materialUUID;
-};
-
-class AssetsDatabase
-{
-  public:
-    AssetsDatabase(std::filesystem::path& projectPath);
-
-    void AddAsset(uuid::UUID uuid, AssetEntry& entry);
-    void RemoveAsset(uuid::UUID uuid);
-
-  private:
-    std::unordered_map<uuid::UUID, AssetEntry> m_assets;
-};
 
 }  // namespace ApplicationCore
 
