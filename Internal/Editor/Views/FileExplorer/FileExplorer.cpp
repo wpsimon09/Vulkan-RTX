@@ -29,7 +29,7 @@ std::filesystem::path* FileExplorer::OpenForSceneImport()
     ImGuiFileDialog::Instance()->OpenDialog("SelectModelKey", "Choose Model file", ".glb,.gltf,.hdr", config);
     ImGuiFileDialog::Instance()->Display("SelectModelKey");
 
-    return nullptr;
+    return &m_filePath;
 }
 
 std::filesystem::path* FileExplorer::OpenForMaterialImport()
@@ -40,7 +40,7 @@ std::filesystem::path* FileExplorer::OpenForMaterialImport()
     ImGuiFileDialog::Instance()->OpenDialog("SelectMaterialKey", "Choose File material file", ".cpp,.h,.hpp", config);
     ImGuiFileDialog::Instance()->Display("SelectMaterialKey");
 
-    return nullptr;
+    return &m_filePath;
 }
 
 void FileExplorer::Render()
@@ -59,17 +59,6 @@ void FileExplorer::Render()
             {
                 //m_scene.GetAssetsManager().AddSkyBoxMaterial(m_filePath);
             }
-        }
-
-        // close
-        ImGuiFileDialog::Instance()->Close();
-    }
-
-    if(ImGuiFileDialog::Instance()->Display("SelectMaterialKey"))
-    {
-        if(ImGuiFileDialog::Instance()->IsOk())
-        {  // action if OK
-            m_filePath = ImGuiFileDialog::Instance()->GetFilePathName();
         }
 
         // close

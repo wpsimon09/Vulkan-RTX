@@ -24,8 +24,8 @@ void ModelImportOptions::Render()
 {
     if(ImGui::BeginPopupModal(ICON_FA_TOOLBOX " Import options"))
     {
-        auto path = "Model name: " + m_path->string().substr(m_path->string().rfind('/', m_path->string().size() - 1));
-        ImGui::Text(path.c_str());
+        //auto path = "Model name: " + m_path->string().substr(m_path->string().rfind('/', m_path->string().size() - 1));
+        //ImGui::Text(path.c_str());
 
         ImGui::Checkbox("Import materials", &m_options.importMaterials);
         ImGui::Checkbox("Import only materials", &m_options.importOnlyMaterials);
@@ -35,15 +35,6 @@ void ModelImportOptions::Render()
         if(ImGui::Button("Import"))
         {
             //m_gltfLoader.LoadGLTFScene(m_scene, *m_path, m_options);
-
-            ImGui::OpenPopup("Importing");
-
-            if(ImGui::BeginPopupModal("Importing"))
-            {
-                ImGui::Text("Importing, please wait");
-
-                ImGui::EndPopup();
-            }
             ImGui::CloseCurrentPopup();
         }
 

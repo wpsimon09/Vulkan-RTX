@@ -37,7 +37,7 @@ class AssetsBrowser : public IUserInterfaceElement
     std::filesystem::path      m_pathToDelete = "";
     AssetsBrowserDrawData      m_assetsBrowserGridDrawData;
     VEditor::FileExplorer*     m_fileExplorer;
-    std::filesystem::path*     m_importPath;
+    std::filesystem::path*     m_importPath = nullptr;
 
     char newFolderName[100] = "New folder";
     bool m_deleteRequested  = false;

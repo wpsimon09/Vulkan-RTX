@@ -119,11 +119,13 @@ void AssetsBrowser::Render()
         }
         RenderCreateNewFolder();
 
-        ImGui::SameLine();
-
         if(ImGui::Button(ICON_FA_FILE_IMPORT " Import"))
         {
             m_importPath = m_fileExplorer->OpenForSceneImport();
+        }
+        if(m_importPath && !m_importPath->empty())
+        {
+            ImGui::Text(m_importPath->c_str());
         }
 
         ImGui::Separator();

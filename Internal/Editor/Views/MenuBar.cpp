@@ -12,17 +12,14 @@
 #include "Application/Project/Project.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/UIContext/UIContext.hpp"
-#include "Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.hpp"
 #include "FileExplorer/FileExplorer.hpp"
 #include "Settings/Settings.hpp"
+
 
 namespace VEditor {
 MenuBar::MenuBar(Editor* editor)
     : m_editor(editor)
 {
-    auto fileExplorer = std::make_unique<FileExplorer>(editor->m_uiContext.GetClient().GetGLTFLoader());
-    m_uiChildren.emplace_back(std::move(fileExplorer));
-    m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
     m_uiChildren.emplace_back(std::make_unique<VEditor::Settings>(m_editor->m_uiContext.GetClient(), editor));
     m_settings = dynamic_cast<Settings*>(m_uiChildren.back().get());
     m_project  = &editor->m_uiContext.GetClient().GetProject();
@@ -40,10 +37,7 @@ void MenuBar::Render()
 
     if(ImGui::BeginMenu("File"))
     {
-        if(ImGui::MenuItem(ICON_FA_DOWNLOAD " Import"))
-        {
-            OnImportSelect();
-        }
+
         if(ImGui::MenuItem(ICON_FA_FILE " Save"))
         {
             Utils::Logger::LogInfo("Saving scene...");
@@ -72,11 +66,5 @@ void MenuBar::Update()
     IUserInterfaceElement::Update();
 }
 
-void MenuBar::OnImportSelect()
-{
-    Utils::Logger::LogInfo("Importing file...");
-    m_isFileDialoOpen = true;
-    m_fileExplorer->OpenForSceneImport();
-}
 
 }  // namespace VEditor
