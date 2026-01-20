@@ -86,7 +86,7 @@ const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsMana
 {
     Utils::Logger::LogInfoClient("Mounting assets manger...");
     m_assetsManager = std::move(assetsManager);
-    m_gltfLoader    = std::make_unique<ApplicationCore::GLTFLoader>(*m_assetsManager);
+    m_gltfLoader    = std::make_unique<ApplicationCore::GLTFLoader>(m_project, *m_assetsManager);
     m_gltfExporter  = std::make_unique<ApplicationCore::GLTFExporter>();
     assert(m_assetsManager);
     Utils::Logger::LogInfoClient("Mounted assets manager successfuly to the client");

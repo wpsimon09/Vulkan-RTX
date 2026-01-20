@@ -15,9 +15,8 @@ VTexture::VTexture(AssetEntry& databaseEntry, VTextureHeader& header, void* pixe
     : VAsset2<ApplicationCore::VTextureHeader>(databaseEntry, ".VTex")
 {
     // since it would take a big line to specify all header parameters, the parser will instead fill in the header
-    m_fileHeader = header;
-
-    m_fileHeader.uuid = uuid::generate_uuid_v4();
+    m_fileHeader      = header;
+    m_fileHeader.uuid = databaseEntry.uuid;
 
     std::ofstream file(m_path, std::ios::binary);
 

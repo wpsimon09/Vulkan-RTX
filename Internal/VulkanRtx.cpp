@@ -145,7 +145,7 @@ void Application::Init()
 
     if(std::filesystem::exists("cache/scene.gltf"))
     {
-        m_client->GetGLTFLoader().LoadGLTFScene(m_client->GetScene(), "cache/scene.gltf", importOptions);
+        //m_client->GetGLTFLoader().LoadGLTFScene(m_client->GetScene(),"",  "cache/scene.gltf", importOptions);
     }
     else
     {

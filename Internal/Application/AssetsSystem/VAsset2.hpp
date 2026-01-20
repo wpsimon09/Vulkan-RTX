@@ -40,6 +40,7 @@ template <typename Header>
 VAsset2<Header>::VAsset2(AssetEntry& assetEntry, std::string fileType)
     : m_databaseEntry(assetEntry)
     , m_fileType(fileType)
+    , m_path(assetEntry.path)
 {
 }
 

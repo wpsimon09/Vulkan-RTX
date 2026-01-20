@@ -4,6 +4,9 @@
 
 #ifndef GLTFLOADER_HPP
 #define GLTFLOADER_HPP
+#include "Application/AssetsSystem/VTexture.hpp"
+
+
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -42,7 +45,7 @@ class GLTFLoader
   public:
     explicit GLTFLoader(Project& project, ApplicationCore::AssetsManager& assetsManager);
 
-    void LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, const ImportOptions& importOptions) const;
+    void LoadGLTFScene(Scene& scene, std::filesystem::path& saveToPath, std::filesystem::path gltfPath, const ImportOptions& importOptions) const;
 
 
     ~GLTFLoader() = default;
@@ -54,11 +57,11 @@ class GLTFLoader
 
   private:
     void PostLoadClear();
-    void LoadImage(fastgltf::Asset&                                              asset,
-                   std::string                                                   parentPath,
-                   fastgltf::Image&                                              image,
-                   std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>& imageStorage,
-                   bool                                                          saveToDisk = true) const;
+    void LoadImage(fastgltf::Asset&       asset,
+                   std::string            parentPath,
+                   fastgltf::Image&       image,
+                   std::vector<VTexture>& imageStorage,
+                   std::filesystem::path& saveToDirectory) const;
 };
 
 }  // namespace ApplicationCore

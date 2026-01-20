@@ -175,11 +175,9 @@ AssetsDatabase::AssetsDatabase(const std::filesystem::path& projectPath)
         for(auto& [uuidStr, value] : j.items())
         {
             AssetEntry entry;
-            entry.type = value["type"];
-            entry.path = value["path"].get<std::string>();
-            entry.name = value["name"];
-            if(value.contains("material"))
-                entry.materialUUID = value["material"];
+            entry.type        = value["type"];
+            entry.path        = value["path"].get<std::string>();
+            entry.name        = value["name"];
             m_assets[uuidStr] = entry;
         }
     }
@@ -217,9 +215,10 @@ AssetEntry AssetsDatabase::GetAsset(uuid::UUID uuid)
 
 AssetEntry& AssetsDatabase::RequestNewAssetEntry(std::string type, std::filesystem::path path, std::string name)
 {
-    auto newAsset = AssetEntry{uuid::generate_uuid_v4(), type, path, name, ""};
+    auto newAsset = AssetEntry{uuid::generate_uuid_v4(), type, path, name};
     m_assets.insert({newAsset.uuid, newAsset});
     return m_assets[newAsset.uuid];
 }
+
 
 }  // namespace ApplicationCore

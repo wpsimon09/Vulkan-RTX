@@ -67,8 +67,10 @@ struct ProjectConfig
 //==========================================================
 struct AssetEntry
 {
-    uuid::UUID            uuid;
-    std::string           type;  // "mesh", "material", "texture"
+    uuid::UUID  uuid;
+    std::string type;  // "mesh", "material", "texture"
+
+    // the path is being modified in the VAsset2 class where it constructs to correct path based on the directory, file name and path
     std::filesystem::path path;
     std::string           name;
 };
@@ -83,7 +85,6 @@ class AssetsDatabase
     void        Save();
     AssetEntry  GetAsset(uuid::UUID uuid);
     AssetEntry& RequestNewAssetEntry(std::string type, std::filesystem::path path, std::string name);
-
 
   private:
     const std::filesystem::path                m_projectDbFile = "VAssets.json";
@@ -112,9 +113,7 @@ class Project
     void        AddAsset(uuid::UUID uuid, AssetEntry& entry);
     void        RemoveAsset(uuid::UUID uuid);
     AssetEntry  GetAsset(uuid::UUID uuid);
-    AssetEntry& RequestAssetEntry(std::string type, std::filesystem::path path, std::string name);
     AssetEntry& RequestAssetEntryAndRegister(std::string type, std::filesystem::path path, std::string name);
-
 
   private:
     std::filesystem::path           m_projectPath;
@@ -122,7 +121,6 @@ class Project
     ProjectConfig                   m_projectConfig;
     const std::filesystem::path     m_projectConfigFile = "VProject.json";
     std::unique_ptr<AssetsDatabase> m_assetsDatabase;
-
 
     void WriteProjectConfig(std::filesystem::path& path);
     void ReadProjectConfig(std::filesystem::path& path);

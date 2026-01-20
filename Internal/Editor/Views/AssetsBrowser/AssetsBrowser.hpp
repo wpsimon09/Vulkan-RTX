@@ -10,9 +10,11 @@
 #include <filesystem>
 
 namespace ApplicationCore {
+class GLTFLoader;
 class Project;
-}
+}  // namespace ApplicationCore
 namespace VEditor {
+class FileExplorer;
 
 constexpr char* POP_UP_NEW_FOLDER_NAME       = "PopUpNewFolder";
 constexpr char* POP_UP_ASSETS_PANEL_SETTINGS = "PopUpAssetPannelSettings";
@@ -20,7 +22,7 @@ constexpr char* POP_UP_ASSETS_PANEL_SETTINGS = "PopUpAssetPannelSettings";
 class AssetsBrowser : public IUserInterfaceElement
 {
   public:
-    AssetsBrowser(ApplicationCore::Project& project);
+    AssetsBrowser(ApplicationCore::GLTFLoader& gltfLoader, ApplicationCore::Project& project);
     void RenderActions();
     void Render() override;
     void Resize(int newWidth, int newHeight) override;
@@ -34,6 +36,8 @@ class AssetsBrowser : public IUserInterfaceElement
     std::vector<DirectoryItem> m_items;
     std::filesystem::path      m_pathToDelete = "";
     AssetsBrowserDrawData      m_assetsBrowserGridDrawData;
+    VEditor::FileExplorer*     m_fileExplorer;
+    std::filesystem::path*     m_importPath;
 
     char newFolderName[100] = "New folder";
     bool m_deleteRequested  = false;

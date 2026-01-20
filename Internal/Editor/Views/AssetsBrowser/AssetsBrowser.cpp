@@ -11,18 +11,23 @@
 #include "Application/Logger/Logger.hpp"
 #include "Application/Project/Project.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
+#include "Editor/Views/FileExplorer/FileExplorer.hpp"
+#include "Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.hpp"
 
 #include <filesystem>
 #include <glm/ext/matrix_projection.hpp>
 
 namespace VEditor {
 
-AssetsBrowser::AssetsBrowser(ApplicationCore::Project& project)
+AssetsBrowser::AssetsBrowser(ApplicationCore::GLTFLoader& gltfLoader, ApplicationCore::Project& project)
     : IUserInterfaceElement()
     , m_project(project)
     , m_assetsBrowserGridDrawData(project.GetProjectConfig().editorConfig, m_currentPath)
     , m_currentPath(project.GetProjectPath())
 {
+    auto fileExplorer = std::make_unique<VEditor::FileExplorer>(gltfLoader);
+    m_uiChildren.push_back(std::move(fileExplorer));
+    m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
 }
 
 void AssetsBrowser::RenderActions()
@@ -36,6 +41,7 @@ void AssetsBrowser::RenderActions()
     {
         m_currentPath = m_currentPath.parent_path();
     }
+
     ImGui::SameLine();
     ImGui::EndDisabled();
 
@@ -112,6 +118,13 @@ void AssetsBrowser::Render()
             ImGui::OpenPopup(POP_UP_NEW_FOLDER_NAME);
         }
         RenderCreateNewFolder();
+
+        ImGui::SameLine();
+
+        if(ImGui::Button(ICON_FA_FILE_IMPORT " Import"))
+        {
+            m_importPath = m_fileExplorer->OpenForSceneImport();
+        }
 
         ImGui::Separator();
 

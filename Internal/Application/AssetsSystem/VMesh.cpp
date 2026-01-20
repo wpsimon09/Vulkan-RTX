@@ -17,12 +17,10 @@ VMesh::VMesh(AssetEntry& databaseEntry, std::vector<Vertex>& vertices, std::vect
 {
     //==================================
     // save to file and delete the object
-    m_fileHeader.uuid        = uuid::generate_uuid_v4();
+    m_fileHeader.uuid        = databaseEntry.uuid;
     m_fileHeader.name        = databaseEntry.name;
     m_fileHeader.indexCount  = indices.size();
     m_fileHeader.vertexCount = vertices.size();
-    m_path                   = databaseEntry.path / (databaseEntry.name + m_fileType);
-    m_databaseEntry.path     = m_path;
 
     std::ofstream file(m_path, std::ios::binary);
 

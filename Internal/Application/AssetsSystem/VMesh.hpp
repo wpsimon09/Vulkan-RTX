@@ -8,11 +8,7 @@
 #include "VAsset2.hpp"
 
 namespace ApplicationCore {
-struct MeshData
-{
-    std::vector<Vertex>   vertices;
-    std::vector<uint32_t> indices;
-};
+
 
 class VMesh : public VAsset2<VMeshHeader>
 {

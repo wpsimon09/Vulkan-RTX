@@ -16,6 +16,7 @@
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Vulkan/Utils/VUniformBufferManager/UnifromsRegistry.hpp"
 #include "Application/Structs/ParameterStructs.hpp"
+#include "Application/AssetsSystem/FileHeaders.hpp"
 
 #include <map>
 
@@ -64,6 +65,19 @@ struct VImageData
         {
             stbi_image_free(pixels);
         }
+    }
+
+    ApplicationCore::VTextureHeader ToTextureHeader()
+    {
+        ApplicationCore::VTextureHeader result;
+        result.widht      = widht;
+        result.height     = height;
+        result.channels   = channels;
+        result.fileName   = fileName;
+        result.format     = format;
+        result.sourceType = sourceType;
+
+        return result;
     }
 };
 

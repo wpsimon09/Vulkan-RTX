@@ -23,7 +23,7 @@ VulkanStructs::VImageData<> LoadImage(const std::string& path, bool saveToDisk)
         stbi_load(path.c_str(), &imageData.widht, &imageData.height, &imageData.channels, STBI_rgb_alpha));
     imageData.channels   = 4;
     auto imageName       = path.substr(path.rfind("/") + 1);
-    imageData.fileName   = GlobalVariables::textureFolder / imageName;
+    imageData.fileName   = imageName;
     imageData.sourceType = EImageSource::File;
     auto folder          = GlobalVariables::textureFolder.string();
 
@@ -307,8 +307,8 @@ bool GeneratTangents(std::vector<ApplicationCore::Vertex>& vertices, std::vector
     };
 
     iface.m_setTSpaceBasic = [](const SMikkTSpaceContext* ctx, const float tangent[3], float sign, int face, int vert) {
-        auto* data = static_cast<MikkData*>(ctx->m_pUserData);
-        int index = data->indices[face * 3 + vert];
+        auto* data  = static_cast<MikkData*>(ctx->m_pUserData);
+        int   index = data->indices[face * 3 + vert];
 
         glm::vec3 tangentVec(tangent[0], tangent[1], tangent[2]);
         data->vertices[index].tangent = glm::vec4(tangentVec, sign);

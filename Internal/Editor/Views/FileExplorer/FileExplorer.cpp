@@ -15,11 +15,10 @@
 
 namespace VEditor {
 
-FileExplorer::FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader, ApplicationCore::Scene& scene)
-    : m_scene(scene)
-    , m_gltfLoader(gltfLoader)
+FileExplorer::FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader)
+    : m_gltfLoader(gltfLoader)
 {
-    m_uiChildren.emplace_back(std::make_unique<VEditor::ModelImportOptions>(&m_filePath, gltfLoader, scene));
+    m_uiChildren.emplace_back(std::make_unique<VEditor::ModelImportOptions>(&m_filePath, gltfLoader));
 }
 
 std::filesystem::path* FileExplorer::OpenForSceneImport()
@@ -58,7 +57,7 @@ void FileExplorer::Render()
             }
             else
             {
-                m_scene.GetAssetsManager().AddSkyBoxMaterial(m_filePath);
+                //m_scene.GetAssetsManager().AddSkyBoxMaterial(m_filePath);
             }
         }
 
