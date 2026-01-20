@@ -23,15 +23,19 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
+#include "Application/AssetsSystem/VMaterial.hpp"
+#include "Application/AssetsSystem/VMesh.hpp"
+#include "Application/AssetsSystem/VTexture.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 
 namespace ApplicationCore {
 
-GLTFLoader::GLTFLoader(ApplicationCore::AssetsManager& assetsManager)
+GLTFLoader::GLTFLoader(Project& project, ApplicationCore::AssetsManager& assetsManager)
     : m_device(assetsManager.m_device)
     , m_assetsManager(assetsManager)
+    , m_project(project)
 {
     Utils::Logger::LogSuccess("Crated GLTFLoader !");
 }
@@ -51,10 +55,13 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
     std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures;
     std::vector<std::shared_ptr<PBRMaterial>>                    materials;
 
+    std::vector<std::unique_ptr<VMesh>>     meshes;
+    std::vector<std::unique_ptr<VTexture>>  textures;
+    std::vector<std::unique_ptr<VMaterial>> mats;
+
     Utils::Logger::LogInfoClient("Loading model from path: " + gltfPath.string());
 
     m_rootNode = std::make_unique<SceneNode>();
-
 
     fastgltf::Parser parser{};
 

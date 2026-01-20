@@ -71,7 +71,6 @@ struct AssetEntry
     std::string           type;  // "mesh", "material", "texture"
     std::filesystem::path path;
     std::string           name;
-    uuid::UUID            materialUUID;
 };
 
 class AssetsDatabase

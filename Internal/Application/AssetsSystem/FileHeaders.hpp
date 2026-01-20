@@ -41,8 +41,9 @@ struct VMaterialHeader : public IFileHeader
 
 struct VMeshHeader : public IFileHeader
 {
-    uint32_t vertexCount{0};
-    uint32_t indexCount{0};
+    uint32_t   vertexCount{0};
+    uint32_t   indexCount{0};
+    uuid::UUID materialId{0};
 };
 
 struct VTextureHeader : public IFileHeader

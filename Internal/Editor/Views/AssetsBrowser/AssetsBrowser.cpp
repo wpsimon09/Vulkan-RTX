@@ -30,6 +30,8 @@ void AssetsBrowser::RenderActions()
 
     bool disabledBackButton = m_currentPath.has_parent_path() && m_currentPath == m_project.GetProjectPath();
     ImGui::BeginDisabled(disabledBackButton);
+    //============================
+    // Go back button
     if(ImGui::Button(ICON_FA_CIRCLE_LEFT, ImVec2(ImGui::GetFontSize() + 10.0f, 0)))
     {
         m_currentPath = m_currentPath.parent_path();
@@ -37,6 +39,8 @@ void AssetsBrowser::RenderActions()
     ImGui::SameLine();
     ImGui::EndDisabled();
 
+    //==============================
+    // Assets browser display options
     if(ImGui::Button(ICON_FA_TOOLBOX " Options"))
     {
         ImGui::OpenPopup(POP_UP_ASSETS_PANEL_SETTINGS);
@@ -44,13 +48,17 @@ void AssetsBrowser::RenderActions()
     RenderAssetsPanelSettings();
     ImGui::SameLine();
 
-    if(ImGui::Button(ICON_FA_ARROWS_TO_CIRCLE))
+    //===============================
+    // Refresh button
+    if(ImGui::Button(ICON_FA_ARROWS_ROTATE))
     {
         m_refreshRequested = true;
     }
 
     ImGui::Text(m_currentPath.c_str());
 
+    //===============================
+    // !!! debug tools here
     bool dragActive = ImGui::IsDragDropActive();
 
     if(dragActive)
@@ -84,6 +92,8 @@ void AssetsBrowser::RenderActions()
     }
 }
 
+//=======================================
+// Rendering function
 void AssetsBrowser::Render()
 {
     if(m_currentPath.empty())
@@ -124,8 +134,6 @@ void AssetsBrowser::Render()
 
         ImGui::EndChild();
     }
-
-
     ImGui::End();
     IUserInterfaceElement::Render();
 }

@@ -200,7 +200,7 @@ void AssetsDatabase::Save()
     json j;
     for(auto& [uuidStr, value] : m_assets)
     {
-        j[uuidStr] = {{"type", value.type}, {"path", value.path}, {"name", value.name}, {"material_id", value.materialUUID}};
+        j[uuidStr] = {{"type", value.type}, {"path", value.path}, {"name", value.name}};
     }
 
     std::ofstream file(m_projectDbPath / m_projectDbFile);

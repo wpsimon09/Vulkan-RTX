@@ -18,6 +18,7 @@ class VImage;
 }
 
 namespace ApplicationCore {
+class Project;
 class Scene;
 class VTextureAsset;
 class PBRMaterial;
@@ -39,7 +40,7 @@ struct ImportOptions
 class GLTFLoader
 {
   public:
-    explicit GLTFLoader(ApplicationCore::AssetsManager& assetsManager);
+    explicit GLTFLoader(Project& project, ApplicationCore::AssetsManager& assetsManager);
 
     void LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, const ImportOptions& importOptions) const;
 
@@ -49,6 +50,7 @@ class GLTFLoader
   private:
     const VulkanCore::VDevice&      m_device;
     ApplicationCore::AssetsManager& m_assetsManager;
+    Project&                        m_project;
 
   private:
     void PostLoadClear();
