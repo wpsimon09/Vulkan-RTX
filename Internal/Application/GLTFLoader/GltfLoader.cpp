@@ -40,7 +40,7 @@ GLTFLoader::GLTFLoader(Project& project, ApplicationCore::AssetsManager& assetsM
     Utils::Logger::LogSuccess("Crated GLTFLoader !");
 }
 
-void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path& saveToPath, std::filesystem::path gltfPath, const ImportOptions& importOptions) const
+void GLTFLoader::LoadGLTFScene(std::filesystem::path& saveToPath, std::filesystem::path gltfPath, const ImportOptions& importOptions) const
 {
     const auto& model = m_assetsManager.GetModel(gltfPath.string());
     if(!model.empty())
@@ -109,6 +109,8 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path& saveToPath, 
             {
                 LoadImage(gltf, gltfPath.parent_path(), image, textures, saveToDirectory);
             }
+
+            return;
 
             //m_assetsManager.Sync();
 
@@ -389,7 +391,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path& saveToPath, 
 
         for(auto c : gltf.nodes[i].children)
         {
-            sceneNode->AddChild(scene.GetSceneData(), m_nodes[c]);
+            //sceneNode->AddChild(scene.GetSceneData(), m_nodes[c]);
         }
     }
 
@@ -410,10 +412,10 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path& saveToPath, 
 
     for(auto& sceneNode : m_topNodes)
     {
-        scene.AddNode(sceneNode);
+        //   scene.AddNode(sceneNode);
     }
 
-    scene.Update();
+    //scene.Update();
 
     GlobalState::EnableLogging();
     Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");

@@ -10,6 +10,7 @@
 #include <filesystem>
 
 namespace ApplicationCore {
+struct ImportOptions;
 class GLTFLoader;
 class Project;
 }  // namespace ApplicationCore
@@ -39,16 +40,18 @@ class AssetsBrowser : public IUserInterfaceElement
     VEditor::FileExplorer*     m_fileExplorer;
     std::filesystem::path*     m_importPath = nullptr;
 
-    char newFolderName[100] = "New folder";
-    bool m_deleteRequested  = false;
-    bool m_createRequested  = true;
-    bool m_refreshRequested = true;
+    char                         newFolderName[100] = "New folder";
+    bool                         m_deleteRequested  = false;
+    bool                         m_createRequested  = true;
+    bool                         m_refreshRequested = true;
+    ApplicationCore::GLTFLoader& m_gltfLoader;
 
   private:
     std::vector<DirectoryItem> ReadContentsOf(std::filesystem::path path);
     void                       RenderDirectoryTree(const std::filesystem::path& directory);
     void                       RenderCreateNewFolder();
     void                       RenderAssetsPanelSettings();
+    void                       OnAssetImport(std::filesystem::path path, ApplicationCore::ImportOptions& importOptions);
 };
 
 }  // namespace VEditor

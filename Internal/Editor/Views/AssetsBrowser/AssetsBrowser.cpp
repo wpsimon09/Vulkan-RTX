@@ -24,8 +24,9 @@ AssetsBrowser::AssetsBrowser(ApplicationCore::GLTFLoader& gltfLoader, Applicatio
     , m_project(project)
     , m_assetsBrowserGridDrawData(project.GetProjectConfig().editorConfig, m_currentPath)
     , m_currentPath(project.GetProjectPath())
+    , m_gltfLoader(gltfLoader)
 {
-    auto fileExplorer = std::make_unique<VEditor::FileExplorer>(gltfLoader);
+    auto fileExplorer = std::make_unique<VEditor::FileExplorer>(gltfLoader, m_currentPath);
     m_uiChildren.push_back(std::move(fileExplorer));
     m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
 }

@@ -45,7 +45,7 @@ class GLTFLoader
   public:
     explicit GLTFLoader(Project& project, ApplicationCore::AssetsManager& assetsManager);
 
-    void LoadGLTFScene(Scene& scene, std::filesystem::path& saveToPath, std::filesystem::path gltfPath, const ImportOptions& importOptions) const;
+    void LoadGLTFScene(std::filesystem::path& saveToPath, std::filesystem::path gltfPath, const ImportOptions& importOptions) const;
 
 
     ~GLTFLoader() = default;

@@ -15,10 +15,10 @@
 
 namespace VEditor {
 
-FileExplorer::FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader)
+FileExplorer::FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader, std::filesystem::path& currentPath)
     : m_gltfLoader(gltfLoader)
 {
-    m_uiChildren.emplace_back(std::make_unique<VEditor::ModelImportOptions>(&m_filePath, gltfLoader));
+    m_uiChildren.emplace_back(std::make_unique<VEditor::ModelImportOptions>(&m_filePath, currentPath));
 }
 
 std::filesystem::path* FileExplorer::OpenForSceneImport()

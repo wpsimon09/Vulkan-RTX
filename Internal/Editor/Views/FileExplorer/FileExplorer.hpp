@@ -8,13 +8,16 @@
 
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
 
+#include <functional>
+
 namespace VEditor {
 class ModelImportOptions;
 }
 
 namespace ApplicationCore {
+struct ImportOptions;
 class GLTFLoader;
-}
+}  // namespace ApplicationCore
 
 namespace ApplicationCore {
 class Scene;
@@ -25,7 +28,7 @@ namespace VEditor {
 class FileExplorer : public IUserInterfaceElement
 {
   public:
-    explicit FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader);
+    explicit FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader, std::filesystem::path& m_currentPath);
     std::filesystem::path* OpenForSceneImport();
     std::filesystem::path* OpenForMaterialImport();
 
