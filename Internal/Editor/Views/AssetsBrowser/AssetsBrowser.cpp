@@ -89,14 +89,6 @@ void AssetsBrowser::RenderActions()
         }
         ImGui::EndDragDropTarget();
     }
-
-    if(ImGui::Button("Add mesh"))
-    {
-        std::vector<ApplicationCore::Vertex> test  = {{}, {}, {}};
-        std::vector<uint32_t>                testi = {0, 1, 2, 3, 4, 5};
-        auto& newAssetInfo = m_project.RequestAssetEntryAndRegister(ApplicationCore::ASSET_TYPE_MESH, m_currentPath, "test");
-        ApplicationCore::VMesh testMesh(newAssetInfo, test, testi);
-    }
 }
 
 //=======================================

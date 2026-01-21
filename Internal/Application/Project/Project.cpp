@@ -99,7 +99,7 @@ AssetEntry Project::GetAsset(uuid::UUID uuid)
     m_assetsDatabase->GetAsset(uuid);
 }
 
-AssetEntry& Project::RequestAssetEntryAndRegister(std::string type, std::filesystem::path path, std::string name)
+AssetEntry& Project::RequestAssetEntryAndRegister(EAssetEntryType type, std::filesystem::path path, std::string name)
 {
     return m_assetsDatabase->RequestNewAssetEntry(type, path, name);
 }
@@ -198,7 +198,7 @@ void AssetsDatabase::Save()
     json j;
     for(auto& [uuidStr, value] : m_assets)
     {
-        j[uuidStr] = {{"type", value.type}, {"path", value.path}, {"name", value.name}};
+        j[uuidStr] = {{"type", value.type}, {"typeE", value.eType}, {"path", value.path}, {"name", value.name}};
     }
 
     std::ofstream file(m_projectDbPath / m_projectDbFile);
@@ -213,11 +213,44 @@ AssetEntry AssetsDatabase::GetAsset(uuid::UUID uuid)
     return m_assets[uuid];
 }
 
-AssetEntry& AssetsDatabase::RequestNewAssetEntry(std::string type, std::filesystem::path path, std::string name)
+AssetEntry& AssetsDatabase::RequestNewAssetEntry(EAssetEntryType type, std::filesystem::path path, std::string name)
 {
-    auto newAsset = AssetEntry{uuid::generate_uuid_v4(), type, path, name};
+    std::string typeStr;
+    switch(type)
+    {
+        case EAssetEntryType::Material: {
+            typeStr = ASSET_TYPE_MATERIAL;
+            break;
+        }
+        case EAssetEntryType::Texture: {
+            typeStr = ASSET_TYPE_TEXTURE;
+            break;
+        }
+        case EAssetEntryType::Mesh: {
+            typeStr = ASSET_TYPE_MESH;
+            break;
+        }
+    }
+
+    path.replace_extension(ExtensionFromType(type));
+    auto newAsset = AssetEntry{uuid::generate_uuid_v4(), type, typeStr, path, name};
     m_assets.insert({newAsset.uuid, newAsset});
     return m_assets[newAsset.uuid];
+}
+std::string AssetsDatabase::ExtensionFromType(EAssetEntryType type)
+{
+    switch(type)
+    {
+        case EAssetEntryType::Material: {
+            return ".VMat";
+        }
+        case EAssetEntryType::Texture: {
+            return ".VTex";
+        }
+        case EAssetEntryType::Mesh: {
+            return ".VMesh";
+        }
+    }
 }
 
 

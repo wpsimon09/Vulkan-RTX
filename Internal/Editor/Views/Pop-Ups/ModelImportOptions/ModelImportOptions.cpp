@@ -13,10 +13,13 @@
 
 namespace VEditor {
 
-ModelImportOptions::ModelImportOptions(std::filesystem::path* modelPath, std::filesystem::path& saveToPath)
+ModelImportOptions::ModelImportOptions(const ApplicationCore::GLTFLoader& gltfLoader,
+                                       std::filesystem::path*             modelPath,
+                                       std::filesystem::path&             saveToPath)
     : m_path(modelPath)
     , m_saveToPath(saveToPath)
     , m_options{}
+    , m_gltfLoader(gltfLoader)
 {
 }
 void ModelImportOptions::Render()
@@ -34,6 +37,7 @@ void ModelImportOptions::Render()
 
         if(ImGui::Button("Import"))
         {
+            m_gltfLoader.LoadGLTFScene(m_saveToPath, *m_path, m_options);
             ImGui::CloseCurrentPopup();
         }
 

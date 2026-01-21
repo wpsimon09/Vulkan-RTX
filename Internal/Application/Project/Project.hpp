@@ -65,10 +65,17 @@ struct ProjectConfig
 // to look up the given asset from here
 // - this class just returns abstract AssetEntry struct with all info that engine needs to load the asset from the file
 //==========================================================
+enum EAssetEntryType
+{
+    Mesh = 0,
+    Material,
+    Texture,
+};
 struct AssetEntry
 {
-    uuid::UUID  uuid;
-    std::string type;  // "mesh", "material", "texture"
+    uuid::UUID      uuid;
+    EAssetEntryType eType;  // same as type but not string for faster if statements
+    std::string     type;   // "mesh", "material", "texture"
 
     // the path is being modified in the VAsset2 class where it constructs to correct path based on the directory, file name and path
     std::filesystem::path path;
@@ -84,7 +91,8 @@ class AssetsDatabase
     void        RemoveAsset(uuid::UUID uuid);
     void        Save();
     AssetEntry  GetAsset(uuid::UUID uuid);
-    AssetEntry& RequestNewAssetEntry(std::string type, std::filesystem::path path, std::string name);
+    AssetEntry& RequestNewAssetEntry(EAssetEntryType type, std::filesystem::path path, std::string name);
+    std::string ExtensionFromType(EAssetEntryType type);
 
   private:
     const std::filesystem::path                m_projectDbFile = "VAssets.json";
@@ -113,7 +121,7 @@ class Project
     void        AddAsset(uuid::UUID uuid, AssetEntry& entry);
     void        RemoveAsset(uuid::UUID uuid);
     AssetEntry  GetAsset(uuid::UUID uuid);
-    AssetEntry& RequestAssetEntryAndRegister(std::string type, std::filesystem::path path, std::string name);
+    AssetEntry& RequestAssetEntryAndRegister(EAssetEntryType type, std::filesystem::path path, std::string name);
 
   private:
     std::filesystem::path           m_projectPath;

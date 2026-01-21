@@ -91,10 +91,9 @@ void GLTFLoader::LoadGLTFScene(std::filesystem::path& saveToPath, std::filesyste
     else
     {
         gltf = std::move(asset.get());
-
         //===================================================
         // crate directory where the gltf will be exported to
-        auto saveToDirectory = saveToPath / gltfPath.filename();
+        auto saveToDirectory = saveToPath / gltf.scenes[0].name;
         std::filesystem::create_directory(saveToDirectory);
         Utils::Logger::LogSuccessClient("GLTF File parsed successfully !");
 
@@ -434,13 +433,21 @@ void GLTFLoader::LoadImage(fastgltf::Asset&       asset,
 
             [&](fastgltf::sources::URI& filePath) {
                 // this is path to the texture from the gltf file
-                auto imagePath   = parentPath + "/" + filePath.uri.c_str();
+                auto imagePath   = std::filesystem::path(parentPath) / filePath.uri.string();
                 auto textureInfo = ApplicationCore::LoadImage(imagePath);
                 auto header      = textureInfo.ToTextureHeader();
 
                 // this is path to the project file browser
-                auto saveToPath  = saveToDirectory / filePath.uri.c_str();
-                auto assetHandle = m_project.RequestAssetEntryAndRegister(ASSET_TYPE_TEXTURE, saveToPath, header.name);
+                std::filesystem::path saveToPath = saveToDirectory;
+                if(image.name.empty())
+                {
+                    saveToPath /= imagePath.filename();
+                }
+                else
+                {
+                    saveToPath /= image.name;
+                }
+                auto assetHandle = m_project.RequestAssetEntryAndRegister(EAssetEntryType::Texture, saveToPath, header.name);
                 imageStorage.emplace_back(VTexture(assetHandle, header, (void*)textureInfo.pixels, textureInfo.GetSize()));
             },
 
