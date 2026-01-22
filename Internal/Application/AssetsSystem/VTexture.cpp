@@ -26,7 +26,7 @@ VTexture::VTexture(AssetEntry& databaseEntry, VTextureHeader& header, void* pixe
     {
         file.write(reinterpret_cast<char*>(&m_fileHeader), sizeof(m_fileHeader));
 
-        // Write vertex data
+        // Write texutre data
         size_t pixelSize = m_fileHeader.widht * m_fileHeader.height * m_fileHeader.channels;
         file.write(reinterpret_cast<const char*>(pixels), pixelSize);
 

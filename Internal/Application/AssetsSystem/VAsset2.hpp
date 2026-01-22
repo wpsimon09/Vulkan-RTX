@@ -24,12 +24,14 @@ class VAsset2
     virtual bool     Load()                            = 0;
     virtual std::any LoadData()                        = 0;
 
+    uuid::UUID GetUUID();
+
   protected:
     Header                       m_fileHeader;
-    uuid::UUID                   m_uuid;
     std::filesystem::path        m_path;
     std::string                  m_fileType = ".VAsset";
     ApplicationCore::AssetEntry& m_databaseEntry;
+
 
   protected:
     void SaveHeader(std::filesystem::path& path);
@@ -42,6 +44,11 @@ VAsset2<Header>::VAsset2(AssetEntry& assetEntry, std::string fileType)
     , m_fileType(fileType)
     , m_path(assetEntry.path)
 {
+}
+template <typename Header>
+uuid::UUID VAsset2<Header>::GetUUID()
+{
+    return m_databaseEntry.uuid;
 }
 
 template <typename Header>

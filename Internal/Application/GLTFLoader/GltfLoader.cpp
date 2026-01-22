@@ -109,7 +109,6 @@ void GLTFLoader::LoadGLTFScene(std::filesystem::path& saveToPath, std::filesyste
                 LoadImage(gltf, gltfPath.parent_path(), image, textures, saveToDirectory);
             }
 
-            return;
 
             //m_assetsManager.Sync();
 
@@ -119,82 +118,58 @@ void GLTFLoader::LoadGLTFScene(std::filesystem::path& saveToPath, std::filesyste
 
             for(fastgltf::Material& m : gltf.materials)
             {
-                MaterialPaths                paths = {.saveToDisk = true};
-                std::shared_ptr<PBRMaterial> material =
-                    std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
-                material->SetSavable(true);
-                material->GetMaterialDescription().values.albedo.x = m.pbrData.baseColorFactor.x();
-                material->GetMaterialDescription().values.albedo.y = m.pbrData.baseColorFactor.y();
-                material->GetMaterialDescription().values.albedo.z = m.pbrData.baseColorFactor.z();
-                material->GetMaterialDescription().values.albedo.a = m.pbrData.baseColorFactor.w();
+                VMaterialHeader materialData{};
+                MaterialPaths   paths = {.saveToDisk = true};
 
-                material->GetMaterialDescription().values.emissive_strength.x = m.emissiveFactor.x();
-                material->GetMaterialDescription().values.emissive_strength.y = m.emissiveFactor.y();
-                material->GetMaterialDescription().values.emissive_strength.z = m.emissiveFactor.z();
-                material->GetMaterialDescription().values.emissive_strength.w = m.emissiveStrength;
+                // albedo
+                memcpy(&materialData.albedo, m.pbrData.baseColorFactor.data(), m.pbrData.baseColorFactor.size_bytes());
 
-                material->GetMaterialDescription().values.metalness = m.pbrData.metallicFactor;
-                material->GetMaterialDescription().values.roughness = m.pbrData.roughnessFactor;
+                // emissive
+                memcpy(&materialData.emissive_strength, m.emissiveFactor.data(), m.emissiveFactor.size_bytes());
+                materialData.emissive_strength.w = m.emissiveStrength;
+
+                materialData.metalness = m.pbrData.metallicFactor;
+                materialData.roughness = m.pbrData.roughnessFactor;
 
                 if(m.pbrData.metallicRoughnessTexture.has_value())
                 {
                     auto& textureIndex = m.pbrData.metallicRoughnessTexture.value().textureIndex;
                     if(textureIndex <= m_textures.size() - 1.0)
                     {
-                        material->GetTexture(ETextureType::arm) = m_textures[textureIndex];
-                        material->GetMaterialPaths().ArmMapPath = m_textures[textureIndex]->GetAssetPath();
-                        material->GetMaterialDescription().features.hasArmTexture = true;
-                    }
-                    else
-                    {
-                        material->GetMaterialDescription().features.hasArmTexture = false;
+                        materialData.armTextureIdx    = textures[textureIndex].GetUUID();
+                        materialData.hasAlbedoTexture = true;
                     }
                 }
                 if(m.pbrData.baseColorTexture.has_value())
                 {
                     auto& textureIndex = m.pbrData.baseColorTexture.value().textureIndex;
-                    if(textureIndex < m_textures.size())
+                    if(textureIndex <= m_textures.size() - 1.0)
                     {
-                        material->GetTexture(ETextureType::Diffues) = m_textures[textureIndex];
-                        material->GetMaterialPaths().DiffuseMapPath = m_textures[textureIndex]->GetAssetPath();
-                        material->GetMaterialDescription().features.hasAlbedoTexture = true;
-                    }
-                    else
-                    {
-                        material->GetMaterialDescription().features.hasAlbedoTexture = false;
+                        materialData.alebdoTexture    = textures[textureIndex].GetUUID();
+                        materialData.hasAlbedoTexture = true;
                     }
                 }
                 if(m.emissiveTexture.has_value())
                 {
                     auto& textureIndex = m.emissiveTexture.value().textureIndex;
-                    if(textureIndex < m_textures.size())
+                    if(textureIndex <= m_textures.size() - 1.0)
                     {
-                        material->GetTexture(ETextureType::Emissive) = m_textures[textureIndex];
-                        material->GetMaterialPaths().EmmisivePath    = m_textures[textureIndex]->GetAssetPath();
-                        material->GetMaterialDescription().features.hasEmissiveTexture = true;
-                    }
-                    else
-                    {
-                        material->GetMaterialDescription().features.hasEmissiveTexture = false;
+                        materialData.emissiveTextureIdx = textures[textureIndex].GetUUID();
+                        materialData.hasEmissiveTexture = true;
                     }
                 }
                 if(m.normalTexture.has_value())
                 {
                     auto& textureIndex = m.normalTexture.value().textureIndex;
-                    if(textureIndex <= m_textures.size())
+                    if(textureIndex <= m_textures.size() - 1.0)
                     {
-                        material->GetTexture(normal) = m_textures[m.normalTexture.value().textureIndex];
-                        material->GetMaterialPaths().NormalMapPath =
-                            m_textures[m.normalTexture.value().textureIndex]->GetAssetPath();
-                        material->GetMaterialDescription().features.hasNormalTexture = true;
-                    }
-                    else
-                    {
-                        material->GetMaterialDescription().features.hasNormalTexture = false;
+                        materialData.normalTextureIdx = textures[textureIndex].GetUUID();
+                        materialData.hasNormalTexture = true;
                     }
                 }
-                material->SetMaterialname(std::string(m.name) + "##" + VulkanUtils::random_string(4));
+                materialData.name = std::string(m.name);
 
+                /*
                 if(m.alphaMode == fastgltf::AlphaMode::Blend)
                 {
                     material->SetMaterialEffect(Renderer::AplhaBlend);
@@ -206,6 +181,11 @@ void GLTFLoader::LoadGLTFScene(std::filesystem::path& saveToPath, std::filesyste
                 material->SetTransparent(m.alphaMode == fastgltf::AlphaMode::Blend);
                 materials.emplace_back(material);
                 m_assetsManager.m_materials.emplace_back(material);
+                */
+                auto saveToPath = saveToDirectory / materialData.name;
+                auto assetsEntry =
+                    m_project.RequestAssetEntryAndRegister(EAssetEntryType::Material, saveToPath, materialData.name);
+                mats.emplace_back(assetsEntry, materialData);
             }
         }
         else
@@ -217,6 +197,8 @@ void GLTFLoader::LoadGLTFScene(std::filesystem::path& saveToPath, std::filesyste
             materials.emplace_back(material);
             m_assetsManager.m_materials.emplace_back(material);
         }
+
+        return;
 
         //==============================================================
         // MESHES LOADING
