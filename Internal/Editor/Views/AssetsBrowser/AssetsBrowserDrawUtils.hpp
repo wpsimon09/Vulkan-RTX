@@ -105,12 +105,21 @@ struct AssetsBrowserDrawData
 
         ImVec2 start = ImGui::GetCursorScreenPos();
 
+        std::vector<DirectoryItem> iterableItems;
+
         for(int i = 0; i < directoryItems.size(); i++)
         {
-            if(strcmp(directoryItems[i].icon, ICON_FA_IMAGE) == 0 && !editorConf.showTextures)
+            if(directoryItems[i].path.extension() == ".VTex" && !editorConf.showTextures)
             {
+                // if item is texture and textures are not being rendered, dont draw the item
                 continue;
             }
+            iterableItems.push_back(directoryItems[i]);
+        }
+
+        for(int i = 0; i < iterableItems.size(); i++)
+        {
+
             std::string icon;
             int         col = i % editorConf.Columns;
             int         row = i / editorConf.Columns;
@@ -120,7 +129,7 @@ struct AssetsBrowserDrawData
                           start.y + row * (editorConf.TileSize + editorConf.IconSpacing)};
 
             ImGui::SetCursorScreenPos(pos);
-            ImGui::PushID((int)directoryItems[i].id);
+            ImGui::PushID((int)iterableItems[i].id);
 
             ImGui::InvisibleButton("item", ImVec2(editorConf.TileSize, editorConf.TileSize));
 
@@ -130,9 +139,9 @@ struct AssetsBrowserDrawData
 
             if(clicked)
                 SelectedIndex = i;
-            if(doubleClicked && !directoryItems[i].isFile)
+            if(doubleClicked && !iterableItems[i].isFile)
             {
-                m_currentPath = directoryItems[i].path;
+                m_currentPath = iterableItems[i].path;
             }
 
             ImU32 bg_col = (SelectedIndex == i) ? IM_COL32(120, 140, 255, 255) :
@@ -143,29 +152,29 @@ struct AssetsBrowserDrawData
             draw_list->AddRect(pos, ImVec2(pos.x + editorConf.TileSize, pos.y + editorConf.TileSize), bg_col, 6.0f);
 
             ImGui::PushFont(NULL, editorConf.AssetBrowserIconSize);
-            ImVec2 icon_size = ImGui::CalcTextSize(directoryItems[i].icon);
+            ImVec2 icon_size = ImGui::CalcTextSize(iterableItems[i].icon);
             ImVec2 icon_pos  = {pos.x + (editorConf.TileSize - icon_size.x) * 0.5f,
                                 pos.y + (editorConf.TileSize - icon_size.y) * 0.5f};
-            draw_list->AddText(icon_pos, IM_COL32(255, 255, 255, 255), directoryItems[i].icon);
+            draw_list->AddText(icon_pos, IM_COL32(255, 255, 255, 255), iterableItems[i].icon);
 
             ImGui::PopFont();
 
             char label[16];
-            sprintf(label, "%s", directoryItems[i].name.c_str());
+            sprintf(label, "%s", iterableItems[i].name.c_str());
             draw_list->AddText(ImVec2(pos.x, pos.y + editorConf.TileSize + 6), IM_COL32_WHITE, label);
 
-            if(directoryItems[i].isFile)
+            if(iterableItems[i].isFile)
             {
 
                 if(ImGui::BeginDragDropSource())
                 {
                     ImGui::PushFont(NULL, 40.0f);
-                    ImGui::Text(directoryItems[i].icon);
+                    ImGui::Text(iterableItems[i].icon);
                     ImGui::PopFont();
-                    ImGui::Text(directoryItems[i].name.c_str());
+                    ImGui::Text(iterableItems[i].name.c_str());
 
-                    ImGui::SetDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL, directoryItems[i].name.c_str(),
-                                              directoryItems[i].name.size() * sizeof(char));
+                    ImGui::SetDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL, iterableItems[i].name.c_str(),
+                                              iterableItems[i].name.size() * sizeof(char));
 
                     ImGui::EndDragDropSource();
                 }
@@ -174,7 +183,7 @@ struct AssetsBrowserDrawData
             ImGui::PopID();
         }
 
-        int rows = (directoryItems.size() + editorConf.Columns - 1) / editorConf.Columns;
+        int rows = (iterableItems.size() + editorConf.Columns - 1) / editorConf.Columns;
         ImGui::Dummy(ImVec2(1.0f, rows * (editorConf.TileSize + editorConf.IconSpacing)));
     }
 };

@@ -27,10 +27,10 @@ class VAsset2
     uuid::UUID GetUUID();
 
   protected:
-    Header                       m_fileHeader;
-    std::filesystem::path        m_path;
-    std::string                  m_fileType = ".VAsset";
-    ApplicationCore::AssetEntry& m_databaseEntry;
+    Header                      m_fileHeader;
+    std::filesystem::path       m_path;
+    std::string                 m_fileType = ".VAsset";
+    ApplicationCore::AssetEntry m_databaseEntry;
 
 
   protected:
