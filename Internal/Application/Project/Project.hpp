@@ -38,6 +38,9 @@ struct EditorConfig
 
     const char* JSON_ASSETS_BROWSER_SHOW_ICONS = "Assets browser show icons";
     bool        showIcons                      = true;
+
+    const char* JSON_ASSETS_BROWSER_SHOW_TEXTURES = "Assets browser show textures";
+    bool        showTextures                      = true;
 };
 
 struct Meta

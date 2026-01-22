@@ -119,7 +119,8 @@ void Project::WriteProjectConfig(std::filesystem::path& path)
                        {ec.JSON_ASSETS_BROWSER_TILE_SIZE, ec.TileSize},
                        {ec.JSON_ASSETS_BROWSER_ICON_SPACING, ec.IconSpacing},
                        {ec.JSON_ASSETS_BROWSER_COLUMNS, ec.Columns},
-                       {ec.JSON_ASSETS_BROWSER_SHOW_ICONS, ec.showIcons}};
+                       {ec.JSON_ASSETS_BROWSER_SHOW_ICONS, ec.showIcons},
+                       {ec.JSON_ASSETS_BROWSER_SHOW_TEXTURES, ec.showTextures}};
 
     std::ofstream file(path.string());
     file << j.dump(4);
@@ -146,15 +147,17 @@ void Project::ReadProjectConfig(std::filesystem::path& path)
     {
         const auto& data = j[cfg.editorConfig.JSON_NAME];
 
-        cfg.editorConfig.AssetBrowserIconSize = data[cfg.editorConfig.JSON_ASSETS_BROWSER_ICON_SIZE];
+        cfg.editorConfig.AssetBrowserIconSize = data.value(cfg.editorConfig.JSON_ASSETS_BROWSER_ICON_SIZE, 55);
 
-        cfg.editorConfig.TileSize = data[cfg.editorConfig.JSON_ASSETS_BROWSER_TILE_SIZE];
+        cfg.editorConfig.TileSize = data.value(cfg.editorConfig.JSON_ASSETS_BROWSER_TILE_SIZE, 20);
 
-        cfg.editorConfig.IconSpacing = data[cfg.editorConfig.JSON_ASSETS_BROWSER_ICON_SPACING];
+        cfg.editorConfig.IconSpacing = data.value(cfg.editorConfig.JSON_ASSETS_BROWSER_ICON_SPACING, 10);
 
-        cfg.editorConfig.Columns = data[cfg.editorConfig.JSON_ASSETS_BROWSER_COLUMNS];
+        cfg.editorConfig.Columns = data.value(cfg.editorConfig.JSON_ASSETS_BROWSER_COLUMNS, 3);
 
-        cfg.editorConfig.showIcons = data[cfg.editorConfig.JSON_ASSETS_BROWSER_SHOW_ICONS];
+        cfg.editorConfig.showIcons = data.value(cfg.editorConfig.JSON_ASSETS_BROWSER_SHOW_ICONS, true);
+
+        cfg.editorConfig.showTextures = data.value(cfg.editorConfig.JSON_ASSETS_BROWSER_SHOW_TEXTURES, true);
     }
 
     Utils::Logger::LogInfoCLI("Done !");

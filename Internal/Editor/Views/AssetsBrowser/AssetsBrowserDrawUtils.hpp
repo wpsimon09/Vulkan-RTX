@@ -107,10 +107,14 @@ struct AssetsBrowserDrawData
 
         for(int i = 0; i < directoryItems.size(); i++)
         {
-
+            if(strcmp(directoryItems[i].icon, ICON_FA_IMAGE) == 0 && !editorConf.showTextures)
+            {
+                continue;
+            }
             std::string icon;
             int         col = i % editorConf.Columns;
             int         row = i / editorConf.Columns;
+
 
             ImVec2 pos = {start.x + col * (editorConf.TileSize + editorConf.IconSpacing),
                           start.y + row * (editorConf.TileSize + editorConf.IconSpacing)};

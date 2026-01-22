@@ -51,7 +51,6 @@ class AssetsBrowser : public IUserInterfaceElement
     void                       RenderDirectoryTree(const std::filesystem::path& directory);
     void                       RenderCreateNewFolder();
     void                       RenderAssetsPanelSettings();
-    void                       OnAssetImport(std::filesystem::path path, ApplicationCore::ImportOptions& importOptions);
 };
 
 }  // namespace VEditor

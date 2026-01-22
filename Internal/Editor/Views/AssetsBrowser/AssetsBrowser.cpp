@@ -269,6 +269,7 @@ void AssetsBrowser::RenderAssetsPanelSettings()
         ImGui::DragFloat("Icon spacing", &m_assetsBrowserGridDrawData.editorConf.IconSpacing, 0.1);
         ImGui::DragFloat("Icon font size", &m_assetsBrowserGridDrawData.editorConf.AssetBrowserIconSize, 0.5, 1.0);
         ImGui::DragInt("Max Columns", &m_assetsBrowserGridDrawData.editorConf.Columns, 1, 0);
+        ImGui::Checkbox("ShowTextures", &m_assetsBrowserGridDrawData.editorConf.showTextures);
         ImGui::EndPopup();
     }
 }
