@@ -23,7 +23,7 @@ static auto DRAG_DROP_PAYLOAD_MATERIAL = "DragDropPayloadMaterial";
 
 inline const char* GetIconFromFileExtension(const std::string& fileExtension)
 {
-    if(fileExtension == ".VTexture")
+    if(fileExtension == ".VTex")
     {
         return ICON_FA_IMAGE;
     }
@@ -32,7 +32,7 @@ inline const char* GetIconFromFileExtension(const std::string& fileExtension)
     {
         return ICON_FA_CUBE;
     }
-    if(fileExtension == ".VMaterial")
+    if(fileExtension == ".VMat")
     {
         return ICON_FA_BRUSH;
     }
