@@ -304,6 +304,8 @@ set(SOURCES
         Internal/Application/AssetsSystem/VMaterial.cpp
         Internal/Application/AssetsSystem/VMaterial.hpp
         Internal/Application/AssetsSystem/FileHeaders.hpp
+        Internal/Application/AssetsSystem/RuntimeAssetsManager/RuntimeAssetsManager.cpp
+        Internal/Application/AssetsSystem/RuntimeAssetsManager/RuntimeAssetsManager.hpp
 )
 
 

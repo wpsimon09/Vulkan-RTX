@@ -8,12 +8,12 @@
 
 namespace ApplicationCore {
 VMesh::VMesh(AssetEntry& databaseEntry)
-    : VAsset2<ApplicationCore::VMeshHeader>(databaseEntry, ".VMesh")
+    : VAsset2<ApplicationCore::VMeshHeader, VulkanStructs::VMeshData2>(databaseEntry, ".VMesh")
 {
 }
 
-VMesh::VMesh(AssetEntry& databaseEntry, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
-    : VAsset2<ApplicationCore::VMeshHeader>(databaseEntry, ".VMesh")
+VMesh::VMesh(AssetEntry& databaseEntry, uuid::UUID materialUUID, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
+    : VAsset2<ApplicationCore::VMeshHeader, VulkanStructs::VMeshData2>(databaseEntry, ".VMesh")
 {
     //==================================
     // save to file and delete the object
@@ -21,6 +21,7 @@ VMesh::VMesh(AssetEntry& databaseEntry, std::vector<Vertex>& vertices, std::vect
     m_fileHeader.name        = databaseEntry.name;
     m_fileHeader.indexCount  = indices.size();
     m_fileHeader.vertexCount = vertices.size();
+    m_fileHeader.materialId  = materialUUID;
 
     std::ofstream file(m_path, std::ios::binary);
 

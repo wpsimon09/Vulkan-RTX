@@ -8,11 +8,11 @@
 
 namespace ApplicationCore {
 VMaterial::VMaterial(AssetEntry& databaseEntry)
-    : VAsset2<ApplicationCore::VMaterialHeader>(databaseEntry, ".VMat")
+    : VAsset2<ApplicationCore::VMaterialHeader, int>(databaseEntry, ".VMat")
 {
 }
 VMaterial::VMaterial(AssetEntry& databaseEntry, VMaterialHeader& materialData)
-    : VAsset2<ApplicationCore::VMaterialHeader>(databaseEntry, ".VMat")
+    : VAsset2<ApplicationCore::VMaterialHeader, int>(databaseEntry, ".VMat")
 {
     m_fileHeader      = materialData;
     m_fileHeader.uuid = databaseEntry.uuid;

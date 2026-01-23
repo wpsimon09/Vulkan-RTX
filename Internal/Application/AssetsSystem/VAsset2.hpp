@@ -15,7 +15,7 @@
 
 namespace ApplicationCore {
 
-template <typename Header>
+template <typename Header, typename VulkanHandle>
 class VAsset2
 {
   public:
@@ -26,11 +26,14 @@ class VAsset2
 
     uuid::UUID GetUUID();
 
+    void SetVulkanHandle(std::unique_ptr<VulkanHandle> vulkanHandle);
+
   protected:
-    Header                      m_fileHeader;
-    std::filesystem::path       m_path;
-    std::string                 m_fileType = ".VAsset";
-    ApplicationCore::AssetEntry m_databaseEntry;
+    Header                        m_fileHeader;
+    std::filesystem::path         m_path;
+    std::string                   m_fileType = ".VAsset";
+    ApplicationCore::AssetEntry   m_databaseEntry;
+    std::unique_ptr<VulkanHandle> m_vulkanHandle;
 
 
   protected:
@@ -38,21 +41,27 @@ class VAsset2
 };
 
 
-template <typename Header>
-VAsset2<Header>::VAsset2(AssetEntry& assetEntry, std::string fileType)
+template <typename Header, typename VulkanHandle>
+VAsset2<Header, VulkanHandle>::VAsset2(AssetEntry& assetEntry, std::string fileType)
     : m_databaseEntry(assetEntry)
     , m_fileType(fileType)
     , m_path(assetEntry.path)
 {
 }
-template <typename Header>
-uuid::UUID VAsset2<Header>::GetUUID()
+template <typename Header, typename VulkanHandle>
+uuid::UUID VAsset2<Header, VulkanHandle>::GetUUID()
 {
     return m_databaseEntry.uuid;
 }
 
-template <typename Header>
-void VAsset2<Header>::SaveHeader(std::filesystem::path& path)
+template <typename Header, typename VulkanHandle>
+void VAsset2<Header, VulkanHandle>::SetVulkanHandle(std::unique_ptr<VulkanHandle> vulkanHandle)
+{
+    m_vulkanHandle = std::move(vulkanHandle);
+}
+
+template <typename Header, typename VulkanHandle>
+void VAsset2<Header, VulkanHandle>::SaveHeader(std::filesystem::path& path)
 {
 }
 

@@ -205,7 +205,6 @@ void GLTFLoader::LoadGLTFScene(std::filesystem::path& saveToPath, std::filesyste
             m_assetsManager.m_materials.emplace_back(material);
         }
 
-        return;
 
         //==============================================================
         // MESHES LOADING
@@ -221,29 +220,15 @@ void GLTFLoader::LoadGLTFScene(std::filesystem::path& saveToPath, std::filesyste
         for(fastgltf::Mesh& m : gltf.meshes)
         {
             indices.clear();
+            int materialIndex = -1;
             indices.shrink_to_fit();
 
             vertices.clear();
             vertices.shrink_to_fit();
             VulkanStructs::VBounds bounds = {};
-
-            MaterialPaths paths;
-
-            std::shared_ptr<PBRMaterial> mat =
-                std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
-
-
             for(auto& p : m.primitives)
             {
-                if(!importOptions.importMaterials)
-                {
-                    p.materialIndex = 0;  // first element in materials array
-                }
-                if(p.materialIndex.has_value())
-                {
-                    mat = materials[p.materialIndex.value()];
-                }
-
+                materialIndex = p.materialIndex.value_or(-1);
 
                 size_t initialIndex = vertices.size();
 
@@ -326,20 +311,34 @@ void GLTFLoader::LoadGLTFScene(std::filesystem::path& saveToPath, std::filesyste
             assert(result = true && "Failed to generate tangent vectors ! ");
 
             // store vertex array to assets manager
-            auto meshData = m_assetsManager.GetBufferAllocator().AddMeshData(vertices, indices);
+            //auto meshData = m_assetsManager.GetBufferAllocator().AddMeshData(vertices, indices);
 
             // create shared ptr to mesh
-            auto createdMehs                              = std::make_shared<StaticMesh>(meshData, mat);
-            createdMehs->GeteMeshInfo().numberOfTriangles = m.primitives.size();
-            createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(15));
+            //auto createdMehs                              = std::make_shared<StaticMesh>(meshData, mat);
+            //createdMehs->GeteMeshInfo().numberOfTriangles = m.primitives.size();
+            //createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(15));
 
             // store the shared ptr to mesh
-            m_assetsManager.AddMesh(std::string(m.name), createdMehs);
-            m_meshes.push_back(createdMehs);
+            //m_assetsManager.AddMesh(std::string(m.name), createdMehs);
+            //m_meshes.push_back(createdMehs);
 
+            //============================
+            // Create the mesh
+            uuid::UUID materialUUID;
+            if(materialIndex > -1)
+            {
+                materialUUID = mats[materialIndex].GetUUID();
+            }
+
+            auto saveToLocation = saveToDirectory / m.name;
+            auto assetsEntry =
+                m_project.RequestAssetEntryAndRegister(EAssetEntryType::Mesh, saveToLocation, std::string(m.name));
+            meshes.emplace_back(assetsEntry, materialUUID, vertices, indices);
 
             //m_rootNode->AddChild(createdMehs);
         }
+
+        return;
         //=====================================
         // LOAD NODES
         //=====================================

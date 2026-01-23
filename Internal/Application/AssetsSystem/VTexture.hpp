@@ -9,7 +9,7 @@
 
 namespace ApplicationCore {
 
-class VTexture : public VAsset2<VTextureHeader>
+class VTexture : public VAsset2<VTextureHeader, VulkanCore::VImage2>
 {
   public:
     VTexture(AssetEntry& databaseEntry);

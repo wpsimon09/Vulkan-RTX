@@ -9,7 +9,8 @@
 
 namespace ApplicationCore {
 
-class VMaterial : public VAsset2<VMaterialHeader>
+// IDK yet what will be the material's Vulkan header so i will use just int for that for now
+class VMaterial : public VAsset2<VMaterialHeader, int>
 {
   public:
     VMaterial(AssetEntry& databaseEntry);

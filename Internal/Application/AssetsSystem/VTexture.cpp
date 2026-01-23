@@ -8,11 +8,11 @@
 
 namespace ApplicationCore {
 VTexture::VTexture(AssetEntry& databaseEntry)
-    : VAsset2<ApplicationCore::VTextureHeader>(databaseEntry, ".VTex")
+    : VAsset2<ApplicationCore::VTextureHeader, VulkanCore::VImage2>(databaseEntry, ".VTex")
 {
 }
 VTexture::VTexture(AssetEntry& databaseEntry, VTextureHeader& header, void* pixels, size_t size)
-    : VAsset2<ApplicationCore::VTextureHeader>(databaseEntry, ".VTex")
+    : VAsset2<ApplicationCore::VTextureHeader, VulkanCore::VImage2>(databaseEntry, ".VTex")
 {
     // since it would take a big line to specify all header parameters, the parser will instead fill in the header
     m_fileHeader      = header;

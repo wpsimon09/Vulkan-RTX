@@ -9,6 +9,7 @@
 #include "AssetsBrowser.hpp"
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
+#include "Application/AssetsSystem/VMesh.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Project/Project.hpp"
 #include "Editor/Editor.hpp"
