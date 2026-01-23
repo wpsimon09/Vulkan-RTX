@@ -24,15 +24,18 @@ class RuntimeAssetsManager
   public:
     RuntimeAssetsManager(Project& project, const VulkanCore::VDevice& device);
 
-    std::shared_ptr<VMesh>     LoadMesh(AssetEntry& meshAssetEntry);
-    std::shared_ptr<VMaterial> LoadMaterial(AssetEntry& materialAssetEntry);
-    std::shared_ptr<VTexture>  LoadTexture(AssetEntry& textureAssetEntry);
+    std::shared_ptr<VMesh>     LoadMesh(uuid::UUID& uuid);
+    std::shared_ptr<VMaterial> LoadMaterial(uuid::UUID& uuid);
+    std::shared_ptr<VTexture>  LoadTexture(uuid::UUID& uuid);
 
     void UnloadTexture(std::shared_ptr<VTexture> texture);
     void UnloadMaterial(std::shared_ptr<VMaterial> material);
     void UnloadMesh(std::shared_ptr<VMesh> mesh);
 
   private:
+    AssetEntry& GetAssetEntry(uuid::UUID& uuid);
+
+
     Project&                                                   m_project;
     const VulkanCore::VDevice&                                 m_device;
     VulkanCore::MeshDatatManager&                              m_meshDataManager;

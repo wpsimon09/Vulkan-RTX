@@ -82,12 +82,14 @@ void Client::Render(VulkanUtils::RenderContext* ctx)
     m_scene->Render(ctx, m_scene->GetRootNode());
 }
 
-const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager)
+const void Client::MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager>        assetsManager,
+                                     std::unique_ptr<ApplicationCore::RuntimeAssetsManager> runtimeAssetsManager)
 {
     Utils::Logger::LogInfoClient("Mounting assets manger...");
-    m_assetsManager = std::move(assetsManager);
-    m_gltfLoader    = std::make_unique<ApplicationCore::GLTFLoader>(m_project, *m_assetsManager);
-    m_gltfExporter  = std::make_unique<ApplicationCore::GLTFExporter>();
+    m_assetsManager        = std::move(assetsManager);
+    m_runtimeAssetsManager = std::move(runtimeAssetsManager);
+    m_gltfLoader           = std::make_unique<ApplicationCore::GLTFLoader>(m_project, *m_assetsManager);
+    m_gltfExporter         = std::make_unique<ApplicationCore::GLTFExporter>();
     assert(m_assetsManager);
     Utils::Logger::LogInfoClient("Mounted assets manager successfuly to the client");
 }

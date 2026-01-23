@@ -94,7 +94,7 @@ void Project::RemoveAsset(uuid::UUID uuid)
 {
     m_assetsDatabase->RemoveAsset(uuid);
 }
-AssetEntry Project::GetAsset(uuid::UUID uuid)
+AssetEntry& Project::GetAsset(uuid::UUID& uuid)
 {
     m_assetsDatabase->GetAsset(uuid);
 }
@@ -178,21 +178,25 @@ AssetsDatabase::AssetsDatabase(const std::filesystem::path& projectPath)
         for(auto& [uuidStr, value] : j.items())
         {
             AssetEntry entry;
-            entry.type        = value["type"];
-            entry.path        = value["path"].get<std::string>();
-            entry.name        = value["name"];
-            m_assets[uuidStr] = entry;
+            entry.type                = value["type"];
+            entry.path                = value["path"].get<std::string>();
+            entry.name                = value["name"];
+            m_assets[uuidStr]         = entry;
+            m_pathToAsset[entry.path] = entry.path;
         }
     }
 }
 
 void AssetsDatabase::AddAsset(uuid::UUID uuid, AssetEntry& entry)
 {
-    m_assets[uuid] = entry;
+    m_assets[uuid]            = entry;
+    m_pathToAsset[entry.path] = uuid;
 }
 
 void AssetsDatabase::RemoveAsset(uuid::UUID uuid)
 {
+    auto& path = m_assets.at(uuid).path;
+    m_pathToAsset.erase(path);
     m_assets.erase(uuid);
 }
 
@@ -213,6 +217,13 @@ void AssetsDatabase::Save()
 AssetEntry AssetsDatabase::GetAsset(uuid::UUID uuid)
 {
     assert(m_assets.contains(uuid) && "Asset was not found");
+    return m_assets[uuid];
+}
+
+AssetEntry& AssetsDatabase::GetAsset(std::filesystem::path& path)
+{
+    assert(m_pathToAsset.contains(path) && "Asset was not found");
+    auto uuid = m_pathToAsset.at(path);
     return m_assets[uuid];
 }
 
@@ -238,6 +249,7 @@ AssetEntry& AssetsDatabase::RequestNewAssetEntry(EAssetEntryType type, std::file
     path.replace_extension(ExtensionFromType(type));
     auto newAsset = AssetEntry{uuid::generate_uuid_v4(), type, typeStr, path, name};
     m_assets.insert({newAsset.uuid, newAsset});
+    m_pathToAsset[path] = newAsset.uuid;
     return m_assets[newAsset.uuid];
 }
 std::string AssetsDatabase::ExtensionFromType(EAssetEntryType type)

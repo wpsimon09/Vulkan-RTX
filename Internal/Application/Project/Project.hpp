@@ -94,13 +94,15 @@ class AssetsDatabase
     void        RemoveAsset(uuid::UUID uuid);
     void        Save();
     AssetEntry  GetAsset(uuid::UUID uuid);
+    AssetEntry& GetAsset(std::filesystem::path& path);
     AssetEntry& RequestNewAssetEntry(EAssetEntryType type, std::filesystem::path path, std::string name);
     std::string ExtensionFromType(EAssetEntryType type);
 
   private:
-    const std::filesystem::path                m_projectDbFile = "VAssets.json";
-    std::filesystem::path                      m_projectDbPath;
-    std::unordered_map<uuid::UUID, AssetEntry> m_assets;
+    const std::filesystem::path                           m_projectDbFile = "VAssets.json";
+    std::filesystem::path                                 m_projectDbPath;
+    std::unordered_map<uuid::UUID, AssetEntry>            m_assets;
+    std::unordered_map<std::filesystem::path, uuid::UUID> m_pathToAsset;
 };
 
 //=========================================================
@@ -123,7 +125,7 @@ class Project
 
     void        AddAsset(uuid::UUID uuid, AssetEntry& entry);
     void        RemoveAsset(uuid::UUID uuid);
-    AssetEntry  GetAsset(uuid::UUID uuid);
+    AssetEntry& GetAsset(uuid::UUID& uuid);
     AssetEntry& RequestAssetEntryAndRegister(EAssetEntryType type, std::filesystem::path path, std::string name);
 
   private:

@@ -73,6 +73,7 @@
 #include "Vulkan/Renderer/RenderTarget/RenderTarget2.h"
 #include "Vulkan/Renderer/Renderers/PostProcessingSystem.h"
 #include "Application/ApplicationState/ApplicationState.hpp"
+#include "Application/AssetsSystem/RuntimeAssetsManager/RuntimeAssetsManager.hpp"
 #include "Application/ECS/Components/TransformComponent.hpp"
 #include "Application/ECS/World/ComponentManager.hpp"
 #include "Application/ECS/World/EntityManager.hpp"
@@ -123,8 +124,9 @@ void Application::Init()
                                                                          *m_rayTracingDataManager, *m_descriptorSetLayoutCache);
 
 
-    auto assetManger = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_effectsLibrary);
-    m_client->MountAssetsManger(std::move(assetManger));
+    auto assetManger          = std::make_unique<ApplicationCore::AssetsManager>(*m_vulkanDevice, *m_effectsLibrary);
+    auto runtimeAssetsManager = std::make_unique<ApplicationCore::RuntimeAssetsManager>(m_project, *m_vulkanDevice);
+    m_client->MountAssetsManger(std::move(assetManger), std::move(runtimeAssetsManager));
     m_client->Init();
     m_uiContext = std::make_unique<VEditor::UIContext>(*m_vulkanDevice, *m_vulkanInstance, *m_windowManager, *m_client);
 
