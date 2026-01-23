@@ -5,6 +5,7 @@
 #include "VTexture.hpp"
 
 #include <fstream>
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore {
 VTexture::VTexture(AssetEntry& databaseEntry)

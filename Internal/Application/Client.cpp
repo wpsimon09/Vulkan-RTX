@@ -29,6 +29,7 @@
 #include "ApplicationState/ApplicationState.hpp"
 #include "World/World.hpp"
 #include "Application/ECS/ECSCoordinator.hpp"
+#include "Application/AssetsSystem/RuntimeAssetsManager/RuntimeAssetsManager.hpp"
 
 Client::Client(ApplicationCore::Project& project)
     : m_globalRenderingData2{}

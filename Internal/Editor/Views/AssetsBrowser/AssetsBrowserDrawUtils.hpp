@@ -21,6 +21,7 @@
 namespace VEditor {
 static auto DRAG_DROP_PAYLOAD_MESH     = "DragDropPayloadMesh";
 static auto DRAG_DROP_PAYLOAD_MATERIAL = "DragDropPayloadMaterial";
+static auto POP_UP_OPEN_INSPECT        = ICON_FA_EYE " Inspect asset";
 
 inline const char* GetIconFromFileExtension(const std::string& fileExtension)
 {
@@ -97,7 +98,7 @@ struct AssetsBrowserDrawData
     }
 
 
-    void DrawGrid(const std::vector<DirectoryItem>& directoryItems)
+    std::optional<DirectoryItem> DrawGrid(const std::vector<DirectoryItem>& directoryItems)
     {
         ImDrawList* draw_list   = ImGui::GetWindowDrawList();
         float       avail_width = ImGui::GetContentRegionAvail().x;
@@ -144,6 +145,16 @@ struct AssetsBrowserDrawData
             {
                 m_currentPath = iterableItems[i].path;
             }
+            if(ImGui::BeginPopupContextItem())
+            {
+                //TODO: make the modal pop up work
+                SelectedIndex = i;
+                if(ImGui::MenuItem(ICON_FA_EYE " Inspect") && iterableItems[i].isFile)
+                {
+                    ImGui::OpenPopup(POP_UP_OPEN_INSPECT);
+                }
+                ImGui::EndPopup();
+            }
 
             ImU32 bg_col = (SelectedIndex == i) ? IM_COL32(120, 140, 255, 255) :
                            hovered              ? IM_COL32(80, 80, 80, 255) :
@@ -174,21 +185,25 @@ struct AssetsBrowserDrawData
                     ImGui::PopFont();
                     ImGui::Text(iterableItems[i].name.c_str());
 
-                    ImGui::SetDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL, iterableItems[i].name.c_str(),
-                                              iterableItems[i].name.size() * sizeof(char));
+                    ImGui::SetDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL, iterableItems[i].path.c_str(),
+                                              iterableItems[i].path.string().size() * sizeof(char));
 
                     ImGui::EndDragDropSource();
                 }
             }
-
             ImGui::PopID();
         }
 
         int rows = (iterableItems.size() + editorConf.Columns - 1) / editorConf.Columns;
         ImGui::Dummy(ImVec2(1.0f, rows * (editorConf.TileSize + editorConf.IconSpacing)));
+
+        if(SelectedIndex != -1)
+        {
+            return iterableItems[SelectedIndex];
+        }
+        return {};
     }
 };
-
 
 }  // namespace VEditor
 

@@ -31,68 +31,10 @@ AssetsBrowser::AssetsBrowser(ApplicationCore::GLTFLoader& gltfLoader, Applicatio
     m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
 }
 
-void AssetsBrowser::RenderActions()
-{
 
-    bool disabledBackButton = m_currentPath.has_parent_path() && m_currentPath == m_project.GetProjectPath();
-    ImGui::BeginDisabled(disabledBackButton);
-    //============================
-    // Go back button
-    if(ImGui::Button(ICON_FA_CIRCLE_LEFT, ImVec2(ImGui::GetFontSize() + 10.0f, 0)))
-    {
-        m_currentPath = m_currentPath.parent_path();
-    }
-
-    ImGui::SameLine();
-    ImGui::EndDisabled();
-
-    //==============================
-    // Assets browser display options
-    if(ImGui::Button(ICON_FA_TOOLBOX " Options"))
-    {
-        ImGui::OpenPopup(POP_UP_ASSETS_PANEL_SETTINGS);
-    }
-    RenderAssetsPanelSettings();
-    ImGui::SameLine();
-
-    //===============================
-    // Refresh button
-    if(ImGui::Button(ICON_FA_ARROWS_ROTATE))
-    {
-        m_refreshRequested = true;
-    }
-
-    ImGui::Text(m_currentPath.c_str());
-
-    //===============================
-    // !!! debug tools here
-    bool dragActive = ImGui::IsDragDropActive();
-
-    if(dragActive)
-    {
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.5f, 0.9f, 0.4f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.5f, 0.9f, 0.6f));
-    }
-
-    ImGui::Button("Drop here");
-
-    if(dragActive)
-        ImGui::PopStyleColor(2);
-
-    if(ImGui::BeginDragDropTarget())
-    {
-
-        if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL))
-        {
-            auto itemName = static_cast<char*>(payload->Data);
-            Utils::Logger::LogInfoClient("Drag successfully: " + std::string(itemName));
-        }
-        ImGui::EndDragDropTarget();
-    }
-}
-
-//=======================================
-// Rendering function
+//======================================================
+//  Rendering function ---------------------------------
+//=======================================================
 void AssetsBrowser::Render()
 {
     if(m_currentPath.empty())
@@ -132,19 +74,24 @@ void AssetsBrowser::Render()
 
     //=========================================
     // The actual assets browser
+    //=========================================
     ImGui::BeginChild(ICON_FA_MAGNIFYING_GLASS " Current folder ", ImVec2(ImGui::GetContentRegionAvail().x, 0), ImGuiChildFlags_Border);
     {
         RenderActions();
 
         ImGui::Separator();
 
-        m_assetsBrowserGridDrawData.DrawGrid(m_items);
+        m_selectedItem = m_assetsBrowserGridDrawData.DrawGrid(m_items);
 
         ImGui::EndChild();
     }
     ImGui::End();
+    RenderInspectPopUp();
     IUserInterfaceElement::Render();
 }
+
+//============================================================================================================================
+
 void AssetsBrowser::Resize(int newWidth, int newHeight) {}
 
 void AssetsBrowser::Update()
@@ -273,5 +220,77 @@ void AssetsBrowser::RenderAssetsPanelSettings()
         ImGui::EndPopup();
     }
 }
+void AssetsBrowser::RenderInspectPopUp()
+{
+    if(m_selectedItem.has_value())
+    {
+        if(ImGui::BeginPopupModal(POP_UP_OPEN_INSPECT))
+        {
+            ImGui::Text(m_selectedItem.value().path.c_str());
+            ImGui::EndPopup();
+        }
+    }
+}
+
+void AssetsBrowser::RenderActions()
+{
+
+    bool disabledBackButton = m_currentPath.has_parent_path() && m_currentPath == m_project.GetProjectPath();
+    ImGui::BeginDisabled(disabledBackButton);
+    //============================
+    // Go back button
+    if(ImGui::Button(ICON_FA_CIRCLE_LEFT, ImVec2(ImGui::GetFontSize() + 10.0f, 0)))
+    {
+        m_currentPath = m_currentPath.parent_path();
+    }
+
+    ImGui::SameLine();
+    ImGui::EndDisabled();
+
+    //==============================
+    // Assets browser display options
+    if(ImGui::Button(ICON_FA_TOOLBOX " Options"))
+    {
+        ImGui::OpenPopup(POP_UP_ASSETS_PANEL_SETTINGS);
+    }
+    RenderAssetsPanelSettings();
+    ImGui::SameLine();
+
+    //===============================
+    // Refresh button
+    if(ImGui::Button(ICON_FA_ARROWS_ROTATE))
+    {
+        m_refreshRequested = true;
+    }
+
+    ImGui::Text(m_currentPath.c_str());
+
+    //===============================
+    // !!! debug tools here
+    bool dragActive = ImGui::IsDragDropActive();
+
+    if(dragActive)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.5f, 0.9f, 0.4f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.5f, 0.9f, 0.6f));
+    }
+
+    ImGui::Button("Drop here");
+
+    if(dragActive)
+        ImGui::PopStyleColor(2);
+
+    if(ImGui::BeginDragDropTarget())
+    {
+
+        if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL))
+        {
+            auto itemName = static_cast<char*>(payload->Data);
+            Utils::Logger::LogInfoClient("Drag successfully: " + std::string(itemName));
+        }
+        ImGui::EndDragDropTarget();
+    }
+}
+
 
 }  // namespace VEditor
