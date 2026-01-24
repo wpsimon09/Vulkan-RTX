@@ -300,6 +300,22 @@ void AssetsBrowser::RenderInspectPopUp()
             ImGui::Text("Name: %s", assetItem.name.c_str());
             ImGui::Text("Type: %s", assetItem.type.c_str());
 
+            switch(assetItem.eType)
+            {
+                case ApplicationCore::Material: {
+                    RenderPopUpForMaterial(assetItem);
+                    break;
+                }
+                case ApplicationCore::Mesh: {
+                    RenderPopUpForMesh(assetItem);
+                    break;
+                }
+                case ApplicationCore::Texture: {
+                    RenderPopUpForTexture(assetItem);
+                    break;
+                }
+            }
+
             if(ImGui::Button("Close"))
             {
                 ImGui::CloseCurrentPopup();

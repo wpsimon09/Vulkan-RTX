@@ -186,6 +186,7 @@ AssetsDatabase::AssetsDatabase(const std::filesystem::path& projectPath)
             entry.type                = value["type"];
             entry.path                = value["path"].get<std::string>();
             entry.name                = value["name"];
+            entry.uuid                = uuidStr;
             m_assets[uuidStr]         = entry;
             m_pathToAsset[entry.path] = uuidStr;
         }

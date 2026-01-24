@@ -9,7 +9,9 @@
 #include "AssetsBrowser.hpp"
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
+#include "Application/AssetsSystem/VMaterial.hpp"
 #include "Application/AssetsSystem/VMesh.hpp"
+#include "Application/AssetsSystem/VTexture.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Project/Project.hpp"
 #include "Editor/Editor.hpp"
@@ -21,7 +23,7 @@
 namespace VEditor {
 static auto        DRAG_DROP_PAYLOAD_MESH     = "DragDropPayloadMesh";
 static auto        DRAG_DROP_PAYLOAD_MATERIAL = "DragDropPayloadMaterial";
-static const char* POP_UP_OPEN_INSPECT        = "Inspectasset";
+static const char* POP_UP_OPEN_INSPECT        = ICON_FA_EYE " Inspect asset";
 
 inline const char* GetIconFromFileExtension(const std::string& fileExtension)
 {
@@ -206,6 +208,22 @@ struct AssetsBrowserDrawData
         return {};
     }
 };
+
+inline void RenderPopUpForMaterial(ApplicationCore::AssetEntry& assetEntry)
+{
+    auto mat = ApplicationCore::VMaterial(assetEntry);
+}
+
+inline void RenderPopUpForMesh(ApplicationCore::AssetEntry& assetEntry)
+{
+    auto mesh = ApplicationCore::VMesh(assetEntry);
+}
+
+inline void RenderPopUpForTexture(ApplicationCore::AssetEntry& assetEntry)
+{
+    auto texture = ApplicationCore::VTexture(assetEntry);
+}
+
 
 }  // namespace VEditor
 
