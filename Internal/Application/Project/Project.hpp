@@ -126,6 +126,8 @@ class Project
     void        AddAsset(uuid::UUID uuid, AssetEntry& entry);
     void        RemoveAsset(uuid::UUID uuid);
     AssetEntry& GetAsset(uuid::UUID& uuid);
+    AssetEntry& GetAsset(std::filesystem::path& path);
+
     AssetEntry& RequestAssetEntryAndRegister(EAssetEntryType type, std::filesystem::path path, std::string name);
 
   private:

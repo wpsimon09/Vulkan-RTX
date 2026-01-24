@@ -99,6 +99,11 @@ AssetEntry& Project::GetAsset(uuid::UUID& uuid)
     m_assetsDatabase->GetAsset(uuid);
 }
 
+AssetEntry& Project::GetAsset(std::filesystem::path& path)
+{
+    return m_assetsDatabase->GetAsset(path);
+}
+
 AssetEntry& Project::RequestAssetEntryAndRegister(EAssetEntryType type, std::filesystem::path path, std::string name)
 {
     return m_assetsDatabase->RequestNewAssetEntry(type, path, name);
@@ -182,7 +187,7 @@ AssetsDatabase::AssetsDatabase(const std::filesystem::path& projectPath)
             entry.path                = value["path"].get<std::string>();
             entry.name                = value["name"];
             m_assets[uuidStr]         = entry;
-            m_pathToAsset[entry.path] = entry.path;
+            m_pathToAsset[entry.path] = uuidStr;
         }
     }
 }

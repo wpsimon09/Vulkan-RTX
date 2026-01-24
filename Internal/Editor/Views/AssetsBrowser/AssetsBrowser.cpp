@@ -86,6 +86,7 @@ void AssetsBrowser::Render()
         ImGui::EndChild();
     }
     ImGui::End();
+
     RenderInspectPopUp();
     IUserInterfaceElement::Render();
 }
@@ -100,7 +101,8 @@ void AssetsBrowser::Update()
     {
         std::filesystem::remove_all(m_pathToDelete);
     }
-    m_deleteRequested = false;
+    m_deleteRequested                              = false;
+    m_assetsBrowserGridDrawData.requestInspectOpen = false;
 
     if((m_currentPath != m_previousPath) || m_refreshRequested)
     {
@@ -220,17 +222,6 @@ void AssetsBrowser::RenderAssetsPanelSettings()
         ImGui::EndPopup();
     }
 }
-void AssetsBrowser::RenderInspectPopUp()
-{
-    if(m_selectedItem.has_value())
-    {
-        if(ImGui::BeginPopupModal(POP_UP_OPEN_INSPECT))
-        {
-            ImGui::Text(m_selectedItem.value().path.c_str());
-            ImGui::EndPopup();
-        }
-    }
-}
 
 void AssetsBrowser::RenderActions()
 {
@@ -289,6 +280,32 @@ void AssetsBrowser::RenderActions()
             Utils::Logger::LogInfoClient("Drag successfully: " + std::string(itemName));
         }
         ImGui::EndDragDropTarget();
+    }
+}
+
+void AssetsBrowser::RenderInspectPopUp()
+{
+    if(m_assetsBrowserGridDrawData.requestInspectOpen)
+    {
+        ImGui::OpenPopup(POP_UP_OPEN_INSPECT);
+    }
+    if(m_selectedItem.has_value())
+    {
+        if(ImGui::BeginPopupModal(POP_UP_OPEN_INSPECT, NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+
+            auto assetItem = m_project.GetAsset(m_selectedItem->path);
+
+            ImGui::Text("UUID: %s", assetItem.uuid.c_str());
+            ImGui::Text("Name: %s", assetItem.name.c_str());
+            ImGui::Text("Type: %s", assetItem.type.c_str());
+
+            if(ImGui::Button("Close"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
     }
 }
 

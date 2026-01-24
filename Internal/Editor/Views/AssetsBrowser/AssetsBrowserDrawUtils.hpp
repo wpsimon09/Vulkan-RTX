@@ -19,9 +19,9 @@
 
 
 namespace VEditor {
-static auto DRAG_DROP_PAYLOAD_MESH     = "DragDropPayloadMesh";
-static auto DRAG_DROP_PAYLOAD_MATERIAL = "DragDropPayloadMaterial";
-static auto POP_UP_OPEN_INSPECT        = ICON_FA_EYE " Inspect asset";
+static auto        DRAG_DROP_PAYLOAD_MESH     = "DragDropPayloadMesh";
+static auto        DRAG_DROP_PAYLOAD_MATERIAL = "DragDropPayloadMaterial";
+static const char* POP_UP_OPEN_INSPECT        = "Inspectasset";
 
 inline const char* GetIconFromFileExtension(const std::string& fileExtension)
 {
@@ -83,6 +83,7 @@ struct AssetsBrowserDrawData
     ApplicationCore::EditorConfig& editorConf;
     int                            SelectedIndex = -1;
     std::filesystem::path&         m_currentPath;
+    bool                           requestInspectOpen = false;
 
     AssetsBrowserDrawData(ApplicationCore::EditorConfig& editorConfig, std::filesystem::path& currentPath)
         : editorConf(editorConfig)
@@ -147,11 +148,11 @@ struct AssetsBrowserDrawData
             }
             if(ImGui::BeginPopupContextItem())
             {
-                //TODO: make the modal pop up work
                 SelectedIndex = i;
-                if(ImGui::MenuItem(ICON_FA_EYE " Inspect") && iterableItems[i].isFile)
+                if(ImGui::MenuItem(ICON_FA_EYE " Inspect"))
                 {
-                    ImGui::OpenPopup(POP_UP_OPEN_INSPECT);
+                    if(iterableItems[i].isFile)
+                        requestInspectOpen = true;
                 }
                 ImGui::EndPopup();
             }
@@ -197,7 +198,8 @@ struct AssetsBrowserDrawData
         int rows = (iterableItems.size() + editorConf.Columns - 1) / editorConf.Columns;
         ImGui::Dummy(ImVec2(1.0f, rows * (editorConf.TileSize + editorConf.IconSpacing)));
 
-        if(SelectedIndex != -1)
+
+        if(SelectedIndex != -1 && SelectedIndex <= iterableItems.size() - 1)
         {
             return iterableItems[SelectedIndex];
         }
