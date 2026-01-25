@@ -211,7 +211,21 @@ struct AssetsBrowserDrawData
 
 inline void RenderPopUpForMaterial(ApplicationCore::AssetEntry& assetEntry)
 {
-    auto mat = ApplicationCore::VMaterial(assetEntry);
+    auto mat        = ApplicationCore::VMaterial(assetEntry);
+    auto mathHeader = mat.GetHeader();
+
+    ImGui::SeparatorText("Text");
+    ImGui::Text("Has albedo texture: %s", mathHeader.hasAlbedoTexture ? "yes" : "no");
+    ImGui::Text("Has ARM texture: %s", mathHeader.hasArmTexture ? "yes" : "no");
+    ImGui::Text("Has normal texture: %s", mathHeader.hasNormalTexture ? "yes" : "no");
+    ImGui::Text("Has emissive texture: %s", mathHeader.hasEmissiveTexture ? "yes" : "no");
+
+
+    ImGui::SeparatorText("Textures");
+
+    ImGui::Text("Albedo UUID: %s", mathHeader.alebdoTexture.c_str());
+    ImGui::Text("Arm UUID: %s", mathHeader.armTextureIdx.c_str());
+    ImGui::Text("Normal UUID: %s", mathHeader.normalTextureIdx.c_str());
 }
 
 inline void RenderPopUpForMesh(ApplicationCore::AssetEntry& assetEntry)

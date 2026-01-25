@@ -26,7 +26,8 @@ class VAsset2
 
     uuid::UUID GetUUID();
 
-    void SetVulkanHandle(std::unique_ptr<VulkanHandle> vulkanHandle);
+    Header GetHeader();
+    void   SetVulkanHandle(std::unique_ptr<VulkanHandle> vulkanHandle);
 
   protected:
     Header                        m_fileHeader;
@@ -52,6 +53,11 @@ template <typename Header, typename VulkanHandle>
 uuid::UUID VAsset2<Header, VulkanHandle>::GetUUID()
 {
     return m_databaseEntry.uuid;
+}
+template <typename Header, typename VulkanHandle>
+Header VAsset2<Header, VulkanHandle>::GetHeader()
+{
+    return m_fileHeader;
 }
 
 template <typename Header, typename VulkanHandle>
