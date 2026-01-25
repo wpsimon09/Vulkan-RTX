@@ -4,6 +4,9 @@
 
 #ifndef GLTFLOADER_HPP
 #define GLTFLOADER_HPP
+#include "Application/AssetsSystem/VTexture.hpp"
+
+
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -18,6 +21,7 @@ class VImage;
 }
 
 namespace ApplicationCore {
+class Project;
 class Scene;
 class VTextureAsset;
 class PBRMaterial;
@@ -39,9 +43,9 @@ struct ImportOptions
 class GLTFLoader
 {
   public:
-    explicit GLTFLoader(ApplicationCore::AssetsManager& assetsManager);
+    explicit GLTFLoader(Project& project, ApplicationCore::AssetsManager& assetsManager);
 
-    void LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, const ImportOptions& importOptions) const;
+    void LoadGLTFScene(std::filesystem::path& saveToPath, std::filesystem::path gltfPath, const ImportOptions& importOptions) const;
 
 
     ~GLTFLoader() = default;
@@ -49,14 +53,15 @@ class GLTFLoader
   private:
     const VulkanCore::VDevice&      m_device;
     ApplicationCore::AssetsManager& m_assetsManager;
+    Project&                        m_project;
 
   private:
     void PostLoadClear();
-    void LoadImage(fastgltf::Asset&                                              asset,
-                   std::string                                                   parentPath,
-                   fastgltf::Image&                                              image,
-                   std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>& imageStorage,
-                   bool                                                          saveToDisk = true) const;
+    void LoadImage(fastgltf::Asset&       asset,
+                   std::string            parentPath,
+                   fastgltf::Image&       image,
+                   std::vector<VTexture>& imageStorage,
+                   std::filesystem::path& saveToDirectory) const;
 };
 
 }  // namespace ApplicationCore

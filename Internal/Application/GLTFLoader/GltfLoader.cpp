@@ -23,20 +23,24 @@
 #include "Vulkan/VulkanCore/VImage/VImage.hpp"
 #include "Vulkan/VulkanCore/Buffer/VBuffer.hpp"
 #include "Application/AssetsManger/Utils/VTextureAsset.hpp"
+#include "Application/AssetsSystem/VMaterial.hpp"
+#include "Application/AssetsSystem/VMesh.hpp"
+#include "Application/AssetsSystem/VTexture.hpp"
 #include "Application/Rendering/Material/PBRMaterial.hpp"
 #include "Application/Rendering/Scene/Scene.hpp"
 #include "Vulkan/Renderer/Renderers/RenderPass/LightPass.hpp"
 
 namespace ApplicationCore {
 
-GLTFLoader::GLTFLoader(ApplicationCore::AssetsManager& assetsManager)
+GLTFLoader::GLTFLoader(Project& project, ApplicationCore::AssetsManager& assetsManager)
     : m_device(assetsManager.m_device)
     , m_assetsManager(assetsManager)
+    , m_project(project)
 {
     Utils::Logger::LogSuccess("Crated GLTFLoader !");
 }
 
-void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, const ImportOptions& importOptions) const
+void GLTFLoader::LoadGLTFScene(std::filesystem::path& saveToPath, std::filesystem::path gltfPath, const ImportOptions& importOptions) const
 {
     const auto& model = m_assetsManager.GetModel(gltfPath.string());
     if(!model.empty())
@@ -51,10 +55,15 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
     std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>> m_textures;
     std::vector<std::shared_ptr<PBRMaterial>>                    materials;
 
+    std::vector<VMesh>     meshes;
+    std::vector<VTexture>  textures;
+    std::vector<VMaterial> mats;
+
+    //create directory in the save to paht
+
     Utils::Logger::LogInfoClient("Loading model from path: " + gltfPath.string());
 
     m_rootNode = std::make_unique<SceneNode>();
-
 
     fastgltf::Parser parser{};
 
@@ -82,6 +91,10 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
     else
     {
         gltf = std::move(asset.get());
+        //===================================================
+        // crate directory where the gltf will be exported to
+        auto saveToDirectory = saveToPath / gltf.scenes[0].name;
+        std::filesystem::create_directory(saveToDirectory);
         Utils::Logger::LogSuccessClient("GLTF File parsed successfully !");
 
         GlobalState::DisableLogging();
@@ -90,10 +103,12 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
         //==============================================================
         if(importOptions.importMaterials)
         {
+            textures.reserve(gltf.images.size());
             for(auto& image : gltf.images)
             {
-                LoadImage(gltf, gltfPath.parent_path(), image, m_textures, true);
+                LoadImage(gltf, gltfPath.parent_path(), image, textures, saveToDirectory);
             }
+
 
             //m_assetsManager.Sync();
 
@@ -103,82 +118,65 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
 
             for(fastgltf::Material& m : gltf.materials)
             {
-                MaterialPaths                paths = {.saveToDisk = true};
-                std::shared_ptr<PBRMaterial> material =
-                    std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
-                material->SetSavable(true);
-                material->GetMaterialDescription().values.albedo.x = m.pbrData.baseColorFactor.x();
-                material->GetMaterialDescription().values.albedo.y = m.pbrData.baseColorFactor.y();
-                material->GetMaterialDescription().values.albedo.z = m.pbrData.baseColorFactor.z();
-                material->GetMaterialDescription().values.albedo.a = m.pbrData.baseColorFactor.w();
+                VMaterialHeader materialData{};
+                MaterialPaths   paths = {.saveToDisk = true};
 
-                material->GetMaterialDescription().values.emissive_strength.x = m.emissiveFactor.x();
-                material->GetMaterialDescription().values.emissive_strength.y = m.emissiveFactor.y();
-                material->GetMaterialDescription().values.emissive_strength.z = m.emissiveFactor.z();
-                material->GetMaterialDescription().values.emissive_strength.w = m.emissiveStrength;
+                // albedo
+                materialData.albedo = {m.pbrData.baseColorFactor.x(), m.pbrData.baseColorFactor.y(),
+                                       m.pbrData.baseColorFactor.z(), 0.0};
+                // emissive
+                materialData.emissive_strength = {m.emissiveFactor.x(), m.emissiveFactor.y(), m.emissiveFactor.z(), m.emissiveStrength};
 
-                material->GetMaterialDescription().values.metalness = m.pbrData.metallicFactor;
-                material->GetMaterialDescription().values.roughness = m.pbrData.roughnessFactor;
+                materialData.metalness = m.pbrData.metallicFactor;
+                materialData.roughness = m.pbrData.roughnessFactor;
 
+                //======================
+                // ARM texture
                 if(m.pbrData.metallicRoughnessTexture.has_value())
                 {
                     auto& textureIndex = m.pbrData.metallicRoughnessTexture.value().textureIndex;
-                    if(textureIndex <= m_textures.size() - 1.0)
+                    if(textureIndex <= textures.size() - 1.0)
                     {
-                        material->GetTexture(ETextureType::arm) = m_textures[textureIndex];
-                        material->GetMaterialPaths().ArmMapPath = m_textures[textureIndex]->GetAssetPath();
-                        material->GetMaterialDescription().features.hasArmTexture = true;
-                    }
-                    else
-                    {
-                        material->GetMaterialDescription().features.hasArmTexture = false;
+                        materialData.armTextureIdx    = textures[textureIndex].GetUUID();
+                        materialData.hasAlbedoTexture = true;
                     }
                 }
+                //=====================
+                // ALBEDO texture
                 if(m.pbrData.baseColorTexture.has_value())
                 {
                     auto& textureIndex = m.pbrData.baseColorTexture.value().textureIndex;
-                    if(textureIndex < m_textures.size())
+                    if(textureIndex <= textures.size() - 1.0)
                     {
-                        material->GetTexture(ETextureType::Diffues) = m_textures[textureIndex];
-                        material->GetMaterialPaths().DiffuseMapPath = m_textures[textureIndex]->GetAssetPath();
-                        material->GetMaterialDescription().features.hasAlbedoTexture = true;
-                    }
-                    else
-                    {
-                        material->GetMaterialDescription().features.hasAlbedoTexture = false;
+                        materialData.alebdoTexture    = textures[textureIndex].GetUUID();
+                        materialData.hasAlbedoTexture = true;
                     }
                 }
+                //========================
+                // EMISSIVE texture
                 if(m.emissiveTexture.has_value())
                 {
                     auto& textureIndex = m.emissiveTexture.value().textureIndex;
-                    if(textureIndex < m_textures.size())
+                    if(textureIndex <= textures.size() - 1.0)
                     {
-                        material->GetTexture(ETextureType::Emissive) = m_textures[textureIndex];
-                        material->GetMaterialPaths().EmmisivePath    = m_textures[textureIndex]->GetAssetPath();
-                        material->GetMaterialDescription().features.hasEmissiveTexture = true;
-                    }
-                    else
-                    {
-                        material->GetMaterialDescription().features.hasEmissiveTexture = false;
+                        materialData.emissiveTextureIdx = textures[textureIndex].GetUUID();
+                        materialData.hasEmissiveTexture = true;
                     }
                 }
+                //==========================
+                // Normal texture
                 if(m.normalTexture.has_value())
                 {
                     auto& textureIndex = m.normalTexture.value().textureIndex;
-                    if(textureIndex <= m_textures.size())
+                    if(textureIndex <= textures.size() - 1.0)
                     {
-                        material->GetTexture(normal) = m_textures[m.normalTexture.value().textureIndex];
-                        material->GetMaterialPaths().NormalMapPath =
-                            m_textures[m.normalTexture.value().textureIndex]->GetAssetPath();
-                        material->GetMaterialDescription().features.hasNormalTexture = true;
-                    }
-                    else
-                    {
-                        material->GetMaterialDescription().features.hasNormalTexture = false;
+                        materialData.normalTextureIdx = textures[textureIndex].GetUUID();
+                        materialData.hasNormalTexture = true;
                     }
                 }
-                material->SetMaterialname(std::string(m.name) + "##" + VulkanUtils::random_string(4));
+                materialData.name = std::string(m.name);
 
+                /*
                 if(m.alphaMode == fastgltf::AlphaMode::Blend)
                 {
                     material->SetMaterialEffect(Renderer::AplhaBlend);
@@ -190,6 +188,11 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
                 material->SetTransparent(m.alphaMode == fastgltf::AlphaMode::Blend);
                 materials.emplace_back(material);
                 m_assetsManager.m_materials.emplace_back(material);
+                */
+                auto saveToLocation = saveToDirectory / materialData.name;
+                auto assetsEntry =
+                    m_project.RequestAssetEntryAndRegister(EAssetEntryType::Material, saveToLocation, materialData.name);
+                mats.emplace_back(assetsEntry, materialData);
             }
         }
         else
@@ -201,6 +204,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
             materials.emplace_back(material);
             m_assetsManager.m_materials.emplace_back(material);
         }
+
 
         //==============================================================
         // MESHES LOADING
@@ -216,29 +220,15 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
         for(fastgltf::Mesh& m : gltf.meshes)
         {
             indices.clear();
+            int materialIndex = -1;
             indices.shrink_to_fit();
 
             vertices.clear();
             vertices.shrink_to_fit();
             VulkanStructs::VBounds bounds = {};
-
-            MaterialPaths paths;
-
-            std::shared_ptr<PBRMaterial> mat =
-                std::make_shared<ApplicationCore::PBRMaterial>(Renderer::EForwardRenderEffects::ForwardShader, paths, m_assetsManager);
-
-
             for(auto& p : m.primitives)
             {
-                if(!importOptions.importMaterials)
-                {
-                    p.materialIndex = 0;  // first element in materials array
-                }
-                if(p.materialIndex.has_value())
-                {
-                    mat = materials[p.materialIndex.value()];
-                }
-
+                materialIndex = p.materialIndex.value_or(-1);
 
                 size_t initialIndex = vertices.size();
 
@@ -321,20 +311,34 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
             assert(result = true && "Failed to generate tangent vectors ! ");
 
             // store vertex array to assets manager
-            auto meshData = m_assetsManager.GetBufferAllocator().AddMeshData(vertices, indices);
+            //auto meshData = m_assetsManager.GetBufferAllocator().AddMeshData(vertices, indices);
 
             // create shared ptr to mesh
-            auto createdMehs                              = std::make_shared<StaticMesh>(meshData, mat);
-            createdMehs->GeteMeshInfo().numberOfTriangles = m.primitives.size();
-            createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(15));
+            //auto createdMehs                              = std::make_shared<StaticMesh>(meshData, mat);
+            //createdMehs->GeteMeshInfo().numberOfTriangles = m.primitives.size();
+            //createdMehs->SetName(std::string(m.name) + "##" + VulkanUtils::random_string(15));
 
             // store the shared ptr to mesh
-            m_assetsManager.AddMesh(std::string(m.name), createdMehs);
-            m_meshes.push_back(createdMehs);
+            //m_assetsManager.AddMesh(std::string(m.name), createdMehs);
+            //m_meshes.push_back(createdMehs);
 
+            //============================
+            // Create the mesh
+            uuid::UUID materialUUID;
+            if(materialIndex > -1)
+            {
+                materialUUID = mats[materialIndex].GetUUID();
+            }
+
+            auto saveToLocation = saveToDirectory / m.name;
+            auto assetsEntry =
+                m_project.RequestAssetEntryAndRegister(EAssetEntryType::Mesh, saveToLocation, std::string(m.name));
+            meshes.emplace_back(assetsEntry, materialUUID, vertices, indices);
 
             //m_rootNode->AddChild(createdMehs);
         }
+
+        return;
         //=====================================
         // LOAD NODES
         //=====================================
@@ -374,7 +378,7 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
 
         for(auto c : gltf.nodes[i].children)
         {
-            sceneNode->AddChild(scene.GetSceneData(), m_nodes[c]);
+            //sceneNode->AddChild(scene.GetSceneData(), m_nodes[c]);
         }
     }
 
@@ -395,30 +399,44 @@ void GLTFLoader::LoadGLTFScene(Scene& scene, std::filesystem::path gltfPath, con
 
     for(auto& sceneNode : m_topNodes)
     {
-        scene.AddNode(sceneNode);
+        //   scene.AddNode(sceneNode);
     }
 
-    scene.Update();
+    //scene.Update();
 
     GlobalState::EnableLogging();
     Utils::Logger::LogSuccess("Model at path" + gltfPath.string() + "was loaded successfully");
 }
 
 
-void GLTFLoader::LoadImage(fastgltf::Asset&                                              asset,
-                           std::string                                                   parentPath,
-                           fastgltf::Image&                                              image,
-                           std::vector<std::shared_ptr<ApplicationCore::VTextureAsset>>& imageStorage,
-                           bool                                                          saveToDisk) const
+void GLTFLoader::LoadImage(fastgltf::Asset&       asset,
+                           std::string            parentPath,
+                           fastgltf::Image&       image,
+                           std::vector<VTexture>& imageStorage,
+                           std::filesystem::path& saveToDirectory) const
 {
     std::visit(fastgltf::visitor{
                    [](auto& arg) {},
 
                    [&](fastgltf::sources::URI& filePath) {
-                       std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
-                       const std::string path(filePath.uri.path().begin(), filePath.uri.path().end());
-                       m_assetsManager.GetTexture(loadedTexture, parentPath + "/" + path, saveToDisk);
-                       imageStorage.emplace_back(loadedTexture);
+                       // this is path to the texture from the gltf file
+                       auto imagePath   = std::filesystem::path(parentPath) / filePath.uri.string();
+                       auto textureInfo = ApplicationCore::LoadImage(imagePath);
+                       auto header      = textureInfo.ToTextureHeader();
+
+                       // this is path to the project file browser
+                       std::filesystem::path saveToPath = saveToDirectory;
+                       if(image.name.empty())
+                       {
+                           saveToPath /= imagePath.filename();
+                       }
+                       else
+                       {
+                           saveToPath /= image.name;
+                       }
+                       auto assetHandle =
+                           m_project.RequestAssetEntryAndRegister(EAssetEntryType::Texture, saveToPath, header.name);
+                       imageStorage.emplace_back(assetHandle, header, (void*)textureInfo.pixels, textureInfo.GetSize());
                    },
 
                    [&](fastgltf::sources::Vector& vector) {
@@ -428,53 +446,52 @@ void GLTFLoader::LoadImage(fastgltf::Asset&                                     
                        bufferInfo.data = vector.bytes.data();
                        bufferInfo.size = vector.bytes.size();
 
-                       m_assetsManager.GetTexture(loadedTexture, textureID, bufferInfo, saveToDisk);
-                       imageStorage.emplace_back(loadedTexture);
+                       m_assetsManager.GetTexture(loadedTexture, textureID, bufferInfo, false);
+                       //imageStorage.emplace_back(loadedTexture);
                    },
 
                    [&](fastgltf::sources::BufferView& view) {
                        auto& bufferView = asset.bufferViews[view.bufferViewIndex];
                        auto& buffer     = asset.buffers[bufferView.bufferIndex];
 
-                       std::visit(fastgltf::visitor{
-                                      // We only care about VectorWithMime here, because we
-                                      // specify LoadExternalBuffers, meaning all buffers
-                                      // are already loaded into a vector.
-                                      [](auto& arg) {},
-                                      [&](fastgltf::sources::Vector& vector) {
-                                          std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
-                                          const std::string textureID = VulkanUtils::random_string(10);
-                                          TextureBufferInfo textureBufferInfo{};
-                                          textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
-                                          textureBufferInfo.size = vector.bytes.size();
+                       std::visit(fastgltf::visitor{// We only care about VectorWithMime here, because we
+                                                    // specify LoadExternalBuffers, meaning all buffers
+                                                    // are already loaded into a vector.
+                                                    [](auto& arg) {},
+                                                    [&](fastgltf::sources::Vector& vector) {
+                                                        std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
+                                                        const std::string textureID = VulkanUtils::random_string(10);
+                                                        TextureBufferInfo textureBufferInfo{};
+                                                        textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
+                                                        textureBufferInfo.size = vector.bytes.size();
 
-                                          if(image.name.empty())
-                                          {
-                                              image.name = textureID;
-                                          }
-                                          auto name = std::string(image.name.c_str()) + ".png";
+                                                        if(image.name.empty())
+                                                        {
+                                                            image.name = textureID;
+                                                        }
+                                                        auto name = std::string(image.name.c_str()) + ".png";
 
-                                          m_assetsManager.GetTexture(loadedTexture, name, textureBufferInfo, saveToDisk);
-                                          imageStorage.emplace_back(loadedTexture);
-                                      },
-                                      [&](fastgltf::sources::Array& vector) {
-                                          std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
-                                          const std::string textureID = VulkanUtils::random_string(10);
-                                          TextureBufferInfo textureBufferInfo{};
-                                          textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
-                                          textureBufferInfo.size = vector.bytes.size();
+                                                        m_assetsManager.GetTexture(loadedTexture, name, textureBufferInfo, false);
+                                                        //imageStorage.emplace_back(loadedTexture);
+                                                    },
+                                                    [&](fastgltf::sources::Array& vector) {
+                                                        std::shared_ptr<ApplicationCore::VTextureAsset> loadedTexture;
+                                                        const std::string textureID = VulkanUtils::random_string(10);
+                                                        TextureBufferInfo textureBufferInfo{};
+                                                        textureBufferInfo.data = vector.bytes.data() + bufferView.byteOffset;
+                                                        textureBufferInfo.size = vector.bytes.size();
 
-                                          if(image.name.empty())
-                                          {
-                                              image.name = textureID;
-                                          }
-                                          auto name                   = std::string(image.name.c_str()) + ".png";
-                                          textureBufferInfo.textureID = name;
+                                                        if(image.name.empty())
+                                                        {
+                                                            image.name = textureID;
+                                                        }
+                                                        auto name = std::string(image.name.c_str()) + ".png";
+                                                        textureBufferInfo.textureID = name;
 
 
-                                          m_assetsManager.GetTexture(loadedTexture, name, textureBufferInfo, saveToDisk);
-                                          imageStorage.emplace_back(loadedTexture);
-                                      }},
+                                                        m_assetsManager.GetTexture(loadedTexture, name, textureBufferInfo, false);
+                                                        // imageStorage.emplace_back(loadedTexture);
+                                                    }},
                                   buffer.data);
                    },
                },

@@ -56,7 +56,8 @@ Editor::Editor(UIContext& uiContext)
     auto worldOutline = std::make_unique<WorldOutline>(uiContext.GetWindowManager(), uiContext.GetClient().GetWorld());
     index->m_uiChildren.emplace_back(std::move(worldOutline));
 
-    auto projectBrowser = std::make_unique<AssetsBrowser>(m_uiContext.GetClient().GetProject());
+    auto projectBrowser =
+        std::make_unique<AssetsBrowser>(m_uiContext.GetClient().GetGLTFLoader(), m_uiContext.GetClient().GetProject());
     index->m_uiChildren.emplace_back(std::move(projectBrowser));
 
     auto menuBar = std::make_unique<MenuBar>(this);

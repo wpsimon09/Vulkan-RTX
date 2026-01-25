@@ -10,9 +10,12 @@
 #include <filesystem>
 
 namespace ApplicationCore {
+struct ImportOptions;
+class GLTFLoader;
 class Project;
-}
+}  // namespace ApplicationCore
 namespace VEditor {
+class FileExplorer;
 
 constexpr char* POP_UP_NEW_FOLDER_NAME       = "PopUpNewFolder";
 constexpr char* POP_UP_ASSETS_PANEL_SETTINGS = "PopUpAssetPannelSettings";
@@ -20,7 +23,7 @@ constexpr char* POP_UP_ASSETS_PANEL_SETTINGS = "PopUpAssetPannelSettings";
 class AssetsBrowser : public IUserInterfaceElement
 {
   public:
-    AssetsBrowser(ApplicationCore::Project& project);
+    AssetsBrowser(ApplicationCore::GLTFLoader& gltfLoader, ApplicationCore::Project& project);
     void RenderActions();
     void Render() override;
     void Resize(int newWidth, int newHeight) override;
@@ -29,21 +32,27 @@ class AssetsBrowser : public IUserInterfaceElement
   private:
     ApplicationCore::Project& m_project;
 
-    std::filesystem::path      m_previousPath;
-    std::filesystem::path      m_currentPath;
-    std::vector<DirectoryItem> m_items;
-    std::filesystem::path      m_pathToDelete = "";
-    AssetsBrowserDrawData      m_assetsBrowserGridDrawData;
+    std::filesystem::path        m_previousPath;
+    std::filesystem::path        m_currentPath;
+    std::vector<DirectoryItem>   m_items;
+    std::filesystem::path        m_pathToDelete = "";
+    AssetsBrowserDrawData        m_assetsBrowserGridDrawData;
+    VEditor::FileExplorer*       m_fileExplorer;
+    std::filesystem::path*       m_importPath = nullptr;
+    std::optional<DirectoryItem> m_selectedItem;
 
-    char newFolderName[100] = "New folder";
-    bool m_deleteRequested  = false;
-    bool m_createRequested  = true;
+    char                         newFolderName[100] = "New folder";
+    bool                         m_deleteRequested  = false;
+    bool                         m_createRequested  = true;
+    bool                         m_refreshRequested = true;
+    ApplicationCore::GLTFLoader& m_gltfLoader;
 
   private:
     std::vector<DirectoryItem> ReadContentsOf(std::filesystem::path path);
     void                       RenderDirectoryTree(const std::filesystem::path& directory);
     void                       RenderCreateNewFolder();
     void                       RenderAssetsPanelSettings();
+    void                       RenderInspectPopUp();
 };
 
 }  // namespace VEditor

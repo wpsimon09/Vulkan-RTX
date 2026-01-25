@@ -23,14 +23,9 @@ class MenuBar : public IUserInterfaceElement
     void Update() override;
 
   private:
-    FileExplorer*             m_fileExplorer;
     Settings*                 m_settings;
     Editor*                   m_editor;
     ApplicationCore::Project* m_project;
-
-    bool m_isFileDialoOpen = false;
-
-    void OnImportSelect();
 };
 
 }  // namespace VEditor

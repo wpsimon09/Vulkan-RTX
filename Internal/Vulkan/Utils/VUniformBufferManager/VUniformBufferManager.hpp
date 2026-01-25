@@ -83,6 +83,7 @@ class VUniformBufferManager
     std::unique_ptr<VUniform<LightUniforms>> m_lightUniform;
 
     std::unique_ptr<VulkanUtils::VUniform<GlobalRenderingInfo2>> m_perFrameUniform2;
+
     //=======================================================
     // storage buffers containing all of the data for materials
     std::vector<std::unique_ptr<VulkanCore::VShaderStorageBuffer>> m_sceneMaterials;

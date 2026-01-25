@@ -16,6 +16,7 @@
 
 
 namespace ApplicationCore {
+class RuntimeAssetsManager;
 class Project;
 class World;
 class ApplicationState;
@@ -52,7 +53,8 @@ class Client
     void                                                                   Init();
     const std::vector<std::reference_wrapper<ApplicationCore::StaticMesh>> GetMeshes() const;
     void                                                                   Render(VulkanUtils::RenderContext* ctx);
-    const void MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager> assetsManager);
+    const void MountAssetsManger(std::unique_ptr<ApplicationCore::AssetsManager>        assetsManager,
+                                 std::unique_ptr<ApplicationCore::RuntimeAssetsManager> runtimeAssetsManager);
     const void Destroy();
 
     ApplicationCore::AssetsManager& GetAssetsManager() const { return *m_assetsManager; }
@@ -87,6 +89,7 @@ class Client
     std::unique_ptr<ApplicationCore::GLTFExporter>                  m_gltfExporter;
     std::unique_ptr<ApplicationCore::ApplicationState>              m_applicationState;
     std::unique_ptr<ApplicationCore::World>                         m_world;
+    std::unique_ptr<ApplicationCore::RuntimeAssetsManager>          m_runtimeAssetsManager;
     GlobalRenderingInfo2                                            m_globalRenderingData2;
     bool                                                            m_isRTXOn = false;
     ApplicationCore::Project&                                       m_project;

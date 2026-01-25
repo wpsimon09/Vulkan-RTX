@@ -19,17 +19,17 @@ class FileExplorer;
 class ModelImportOptions : public IUserInterfaceElement
 {
   public:
-    ModelImportOptions(std::filesystem::path* path, const ApplicationCore::GLTFLoader& gltfLoader, ApplicationCore::Scene& scene);
+    ModelImportOptions(const ApplicationCore::GLTFLoader& gltfLoader, std::filesystem::path* modelPath, std::filesystem::path& saveToPath);
 
     void Render() override;
     void Resize(int newWidth, int newHeight) override;
     void Update() override;
 
   private:
-    const ApplicationCore::GLTFLoader& m_gltfLoader;
-    ApplicationCore::Scene&      m_scene;
     std::filesystem::path*             m_path;
+    std::filesystem::path&             m_saveToPath;
     ApplicationCore::ImportOptions     m_options;
+    const ApplicationCore::GLTFLoader& m_gltfLoader;
 };
 
 }  // namespace VEditor

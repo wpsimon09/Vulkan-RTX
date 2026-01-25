@@ -7,53 +7,34 @@
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "Application/AssetsSystem/VMesh.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Project/Project.hpp"
+#include "Application/VertexArray/VertexArray.hpp"
+#include "Editor/Views/FileExplorer/FileExplorer.hpp"
+#include "Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.hpp"
 
 #include <filesystem>
 #include <glm/ext/matrix_projection.hpp>
 
 namespace VEditor {
 
-AssetsBrowser::AssetsBrowser(ApplicationCore::Project& project)
+AssetsBrowser::AssetsBrowser(ApplicationCore::GLTFLoader& gltfLoader, ApplicationCore::Project& project)
     : IUserInterfaceElement()
     , m_project(project)
     , m_assetsBrowserGridDrawData(project.GetProjectConfig().editorConfig, m_currentPath)
+    , m_currentPath(project.GetProjectPath())
+    , m_gltfLoader(gltfLoader)
 {
-}
-void AssetsBrowser::RenderActions()
-{
-
-    bool disabledBackButton = m_currentPath.has_parent_path() && m_currentPath == m_project.GetProjectPath();
-    ImGui::BeginDisabled(disabledBackButton);
-    if(ImGui::Button(ICON_FA_CIRCLE_LEFT, ImVec2(ImGui::GetFontSize() + 10.0f, 0)))
-    {
-        m_currentPath = m_currentPath.parent_path();
-    }
-    ImGui::SameLine();
-    ImGui::EndDisabled();
-
-    if(ImGui::Button(ICON_FA_TOOLBOX " Options"))
-    {
-        ImGui::OpenPopup(POP_UP_ASSETS_PANEL_SETTINGS);
-    }
-    RenderAssetsPanelSettings();
-    ImGui::Text(m_currentPath.c_str());
-
-
-    ImGui::Button("Drop here");
-    if(ImGui::BeginDragDropTarget())
-    {
-
-        if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL))
-        {
-            auto itemName = static_cast<char*>(payload->Data);
-            Utils::Logger::LogInfoClient("Drag successfull: " + std::string(itemName));
-        }
-        ImGui::EndDragDropTarget();
-    }
+    auto fileExplorer = std::make_unique<VEditor::FileExplorer>(gltfLoader, m_currentPath);
+    m_uiChildren.push_back(std::move(fileExplorer));
+    m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
 }
 
+
+//======================================================
+//  Rendering function ---------------------------------
+//=======================================================
 void AssetsBrowser::Render()
 {
     if(m_currentPath.empty())
@@ -73,6 +54,15 @@ void AssetsBrowser::Render()
         }
         RenderCreateNewFolder();
 
+        if(ImGui::Button(ICON_FA_FILE_IMPORT " Import"))
+        {
+            m_importPath = m_fileExplorer->OpenForSceneImport();
+        }
+        if(m_importPath && !m_importPath->empty())
+        {
+            ImGui::Text(m_importPath->c_str());
+        }
+
         ImGui::Separator();
 
         RenderDirectoryTree(m_project.GetProjectPath());
@@ -84,21 +74,25 @@ void AssetsBrowser::Render()
 
     //=========================================
     // The actual assets browser
+    //=========================================
     ImGui::BeginChild(ICON_FA_MAGNIFYING_GLASS " Current folder ", ImVec2(ImGui::GetContentRegionAvail().x, 0), ImGuiChildFlags_Border);
     {
         RenderActions();
 
         ImGui::Separator();
 
-        m_assetsBrowserGridDrawData.DrawGrid(m_items);
+        m_selectedItem = m_assetsBrowserGridDrawData.DrawGrid(m_items);
 
         ImGui::EndChild();
     }
-
-
     ImGui::End();
+
+    RenderInspectPopUp();
     IUserInterfaceElement::Render();
 }
+
+//============================================================================================================================
+
 void AssetsBrowser::Resize(int newWidth, int newHeight) {}
 
 void AssetsBrowser::Update()
@@ -107,13 +101,15 @@ void AssetsBrowser::Update()
     {
         std::filesystem::remove_all(m_pathToDelete);
     }
-    m_deleteRequested = false;
+    m_deleteRequested                              = false;
+    m_assetsBrowserGridDrawData.requestInspectOpen = false;
 
-    if(m_currentPath != m_previousPath)
+    if((m_currentPath != m_previousPath) || m_refreshRequested)
     {
         m_previousPath = m_currentPath;
         m_items.clear();
-        m_items = ReadContentsOf(m_currentPath);
+        m_items            = ReadContentsOf(m_currentPath);
+        m_refreshRequested = false;
     }
     IUserInterfaceElement::Update();
 }
@@ -124,8 +120,16 @@ std::vector<DirectoryItem> AssetsBrowser::ReadContentsOf(std::filesystem::path p
     for(const auto& directory : std::filesystem::directory_iterator(m_currentPath))
     {
         DirectoryItem item;
-        item.path   = directory;
-        item.icon   = directory.is_directory() ? ICON_FA_FOLDER : ICON_FA_FILE;
+        item.path = directory;
+
+        if(directory.is_directory())
+        {
+            item.icon = ICON_FA_FOLDER;
+        }
+        else
+        {
+            item.icon = GetIconFromFileExtension(directory.path().extension().string());
+        }
         item.id     = id;
         item.isFile = directory.is_regular_file();
         item.name   = directory.path().filename().string();
@@ -152,7 +156,9 @@ void AssetsBrowser::RenderDirectoryTree(const std::filesystem::path& directory)
         ImGuiID id     = ImGui::GetID(path.c_str());
         bool    isOpen = ImGui::GetStateStorage()->GetBool(id, false);
 
-        const char* icon = (isDirectory && isOpen) ? ICON_FA_FOLDER_OPEN : (isDirectory ? ICON_FA_FOLDER : ICON_FA_FILE);
+        const char* icon = (isDirectory && isOpen) ?
+                               ICON_FA_FOLDER_OPEN :
+                               (isDirectory ? ICON_FA_FOLDER : GetIconFromFileExtension(entry.path().extension().string()));
 
         std::string label = std::string(icon) + " " + path.filename().string();
 
@@ -212,8 +218,112 @@ void AssetsBrowser::RenderAssetsPanelSettings()
         ImGui::DragFloat("Icon spacing", &m_assetsBrowserGridDrawData.editorConf.IconSpacing, 0.1);
         ImGui::DragFloat("Icon font size", &m_assetsBrowserGridDrawData.editorConf.AssetBrowserIconSize, 0.5, 1.0);
         ImGui::DragInt("Max Columns", &m_assetsBrowserGridDrawData.editorConf.Columns, 1, 0);
+        ImGui::Checkbox("ShowTextures", &m_assetsBrowserGridDrawData.editorConf.showTextures);
         ImGui::EndPopup();
     }
 }
+
+void AssetsBrowser::RenderActions()
+{
+
+    bool disabledBackButton = m_currentPath.has_parent_path() && m_currentPath == m_project.GetProjectPath();
+    ImGui::BeginDisabled(disabledBackButton);
+    //============================
+    // Go back button
+    if(ImGui::Button(ICON_FA_CIRCLE_LEFT, ImVec2(ImGui::GetFontSize() + 10.0f, 0)))
+    {
+        m_currentPath = m_currentPath.parent_path();
+    }
+
+    ImGui::SameLine();
+    ImGui::EndDisabled();
+
+    //==============================
+    // Assets browser display options
+    if(ImGui::Button(ICON_FA_TOOLBOX " Options"))
+    {
+        ImGui::OpenPopup(POP_UP_ASSETS_PANEL_SETTINGS);
+    }
+    RenderAssetsPanelSettings();
+    ImGui::SameLine();
+
+    //===============================
+    // Refresh button
+    if(ImGui::Button(ICON_FA_ARROWS_ROTATE))
+    {
+        m_refreshRequested = true;
+    }
+
+    ImGui::Text(m_currentPath.c_str());
+
+    //===============================
+    // !!! debug tools here
+    bool dragActive = ImGui::IsDragDropActive();
+
+    if(dragActive)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.5f, 0.9f, 0.4f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.5f, 0.9f, 0.6f));
+    }
+
+    ImGui::Button("Drop here");
+
+    if(dragActive)
+        ImGui::PopStyleColor(2);
+
+    if(ImGui::BeginDragDropTarget())
+    {
+
+        if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL))
+        {
+            auto itemName = static_cast<char*>(payload->Data);
+            Utils::Logger::LogInfoClient("Drag successfully: " + std::string(itemName));
+        }
+        ImGui::EndDragDropTarget();
+    }
+}
+
+void AssetsBrowser::RenderInspectPopUp()
+{
+    if(m_assetsBrowserGridDrawData.requestInspectOpen)
+    {
+        ImGui::OpenPopup(POP_UP_OPEN_INSPECT);
+    }
+    if(m_selectedItem.has_value())
+    {
+        if(ImGui::BeginPopupModal(POP_UP_OPEN_INSPECT, NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+
+            auto assetItem = m_project.GetAsset(m_selectedItem->path);
+
+            ImGui::Text("UUID: %s", assetItem.uuid.c_str());
+            ImGui::Text("Name: %s", assetItem.name.c_str());
+            ImGui::Text("Type: %s", assetItem.type.c_str());
+
+            switch(assetItem.eType)
+            {
+                case ApplicationCore::Material: {
+                    RenderPopUpForMaterial(assetItem);
+                    break;
+                }
+                case ApplicationCore::Mesh: {
+                    RenderPopUpForMesh(assetItem);
+                    break;
+                }
+                case ApplicationCore::Texture: {
+                    RenderPopUpForTexture(assetItem);
+                    break;
+                }
+            }
+
+            if(ImGui::Button("Close"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+    }
+}
+
 
 }  // namespace VEditor

@@ -15,11 +15,10 @@
 
 namespace VEditor {
 
-FileExplorer::FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader, ApplicationCore::Scene& scene)
-    : m_scene(scene)
-    , m_gltfLoader(gltfLoader)
+FileExplorer::FileExplorer(const ApplicationCore::GLTFLoader& gltfLoader, std::filesystem::path& currentPath)
+    : m_gltfLoader(gltfLoader)
 {
-    m_uiChildren.emplace_back(std::make_unique<VEditor::ModelImportOptions>(&m_filePath, gltfLoader, scene));
+    m_uiChildren.emplace_back(std::make_unique<VEditor::ModelImportOptions>(gltfLoader, &m_filePath, currentPath));
 }
 
 std::filesystem::path* FileExplorer::OpenForSceneImport()
@@ -30,7 +29,7 @@ std::filesystem::path* FileExplorer::OpenForSceneImport()
     ImGuiFileDialog::Instance()->OpenDialog("SelectModelKey", "Choose Model file", ".glb,.gltf,.hdr", config);
     ImGuiFileDialog::Instance()->Display("SelectModelKey");
 
-    return nullptr;
+    return &m_filePath;
 }
 
 std::filesystem::path* FileExplorer::OpenForMaterialImport()
@@ -41,7 +40,7 @@ std::filesystem::path* FileExplorer::OpenForMaterialImport()
     ImGuiFileDialog::Instance()->OpenDialog("SelectMaterialKey", "Choose File material file", ".cpp,.h,.hpp", config);
     ImGuiFileDialog::Instance()->Display("SelectMaterialKey");
 
-    return nullptr;
+    return &m_filePath;
 }
 
 void FileExplorer::Render()
@@ -58,19 +57,8 @@ void FileExplorer::Render()
             }
             else
             {
-                m_scene.GetAssetsManager().AddSkyBoxMaterial(m_filePath);
+                //m_scene.GetAssetsManager().AddSkyBoxMaterial(m_filePath);
             }
-        }
-
-        // close
-        ImGuiFileDialog::Instance()->Close();
-    }
-
-    if(ImGuiFileDialog::Instance()->Display("SelectMaterialKey"))
-    {
-        if(ImGuiFileDialog::Instance()->IsOk())
-        {  // action if OK
-            m_filePath = ImGuiFileDialog::Instance()->GetFilePathName();
         }
 
         // close
