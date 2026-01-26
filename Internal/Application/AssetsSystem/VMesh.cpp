@@ -28,7 +28,7 @@ VMesh::VMesh(AssetEntry& databaseEntry, uuid::UUID materialUUID, std::vector<Ver
 
     if(file.is_open())
     {
-        file.write(reinterpret_cast<char*>(&m_fileHeader), sizeof(m_fileHeader));
+        m_fileHeader.Serialize(file);
 
         // Write vertex data
         file.write(reinterpret_cast<const char*>(vertices.data()), sizeof(Vertex) * vertices.size());

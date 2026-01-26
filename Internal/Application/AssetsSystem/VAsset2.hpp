@@ -79,6 +79,8 @@ void VAsset2<Header, VulkanHandle>::LoadHeader()
     std::ifstream input;
     input.open(m_path, std::ios::in | std::ios::binary);
 
+    Header header;
+
     input.read(reinterpret_cast<char*>(&m_fileHeader), sizeof(m_fileHeader));
 
     if(input.fail())
@@ -125,10 +127,8 @@ Header VAsset2<Header, VulkanHandle>::ReadHeader(const std::filesystem::path& pa
                 Utils::Logger::LogInfoVerboseOnlyClient("File: " + path.filename().string() + " read successfully ! ");
         }
     }
-    else
-    {
-        input.close();
-    }
+
+    return header;
 }
 
 template <typename Header, typename VulkanHandle>

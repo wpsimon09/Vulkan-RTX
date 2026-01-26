@@ -254,6 +254,11 @@ void AssetsBrowser::RenderActions()
         m_refreshRequested = true;
     }
 
+    if(ImGui::Button(ICON_FA_FOLDER_TREE "Re-index"))
+    {
+        m_project.Reindex();
+    }
+
     ImGui::Text(m_currentPath.c_str());
 
     //===============================

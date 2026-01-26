@@ -109,6 +109,10 @@ AssetEntry& Project::RequestAssetEntryAndRegister(EAssetEntryType type, std::fil
 {
     return m_assetsDatabase->RequestNewAssetEntry(type, path, name);
 }
+void Project::Reindex()
+{
+    m_assetsDatabase->Reindex();
+}
 
 void Project::WriteProjectConfig(std::filesystem::path& path)
 {
@@ -279,6 +283,8 @@ std::string AssetsDatabase::ExtensionFromType(EAssetEntryType type)
         case EAssetEntryType::Mesh: {
             return ".VMesh";
         }
+        default:
+            return "Unknown asset type";
     }
 }
 EAssetEntryType AssetsDatabase::TypeFromExtension(std::string extension)
@@ -293,8 +299,11 @@ EAssetEntryType AssetsDatabase::TypeFromExtension(std::string extension)
     }
     else if(extension == ".VMesh")
     {
-
         return EAssetEntryType::Mesh;
+    }
+    else
+    {
+        return EAssetEntryType::Unknown;
     }
 }
 void AssetsDatabase::Reindex()
@@ -314,6 +323,8 @@ void AssetsDatabase::ParseDirectoryStructure(std::filesystem::path path)
             entry.path  = directory.path();
             entry.eType = TypeFromExtension(directory.path().extension().string());
             entry.type  = ExtensionFromType(entry.eType);
+            if(entry.eType == Unknown)
+                continue;
             switch(entry.eType)
             {
                 case EAssetEntryType::Material: {
@@ -336,7 +347,7 @@ void AssetsDatabase::ParseDirectoryStructure(std::filesystem::path path)
                 }
             }
             m_assets.insert({entry.uuid, std::move(entry)});
-            m_pathToAsset[path] = entry.uuid;
+            m_pathToAsset[entry.path] = entry.uuid;
         }
         else
         {

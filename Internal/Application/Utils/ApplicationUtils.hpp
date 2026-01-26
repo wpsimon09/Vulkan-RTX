@@ -9,6 +9,9 @@
 
 #include "Application/Enums/ClientEnums.hpp"
 
+#include <cstdint>
+#include <istream>
+
 namespace VulkanStructs {
 struct VBounds;
 }
@@ -81,5 +84,39 @@ std::string ThemeToString(ETheme theme);
 
 bool StringContains(const std::string& text, const std::string& search);
 
+
+inline void WriteString(std::ostream& out, const std::string& s)
+{
+    uint64_t size = s.size();
+    out.write(reinterpret_cast<const char*>(&size), sizeof(size));
+    out.write(s.data(), size);
+}
+
+/*
+ * Reads string from the stream
+ */
+inline void ReadString(std::istream& in, std::string& s)
+{
+    uint64_t size;
+    in.read(reinterpret_cast<char*>(&size), sizeof(size));
+    s.resize(size);
+    in.read(s.data(), size);
+}
+
+
+template <typename T>
+inline void WritePod(std::ostream& out, const T& v)
+{
+    static_assert(std::is_trivially_copyable_v<T>);
+    out.write(reinterpret_cast<const char*>(&v), sizeof(T));
+}
+
+
+template <typename T>
+inline void ReadPod(std::istream& in, T& v)
+{
+    static_assert(std::is_trivially_copyable_v<T>);
+    in.read(reinterpret_cast<char*>(&v), sizeof(T));
+}
 
 #endif  //APPLICATIONUTILS_HPP

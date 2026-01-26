@@ -73,6 +73,7 @@ enum EAssetEntryType
     Mesh = 0,
     Material,
     Texture,
+    Unknown
 };
 struct AssetEntry
 {
@@ -134,6 +135,7 @@ class Project
     AssetEntry& GetAsset(std::filesystem::path& path);
 
     AssetEntry& RequestAssetEntryAndRegister(EAssetEntryType type, std::filesystem::path path, std::string name);
+    void        Reindex();
 
   private:
     std::filesystem::path           m_projectPath;
