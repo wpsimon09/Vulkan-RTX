@@ -10,6 +10,7 @@ namespace ApplicationCore {
 VMaterial::VMaterial(AssetEntry& databaseEntry)
     : VAsset2<ApplicationCore::VMaterialHeader, int>(databaseEntry, ".VMat")
 {
+    LoadHeader();
 }
 VMaterial::VMaterial(AssetEntry& databaseEntry, VMaterialHeader& materialData)
     : VAsset2<ApplicationCore::VMaterialHeader, int>(databaseEntry, ".VMat")

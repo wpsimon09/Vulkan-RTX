@@ -97,6 +97,11 @@ class AssetsDatabase
     AssetEntry& GetAsset(std::filesystem::path& path);
     AssetEntry& RequestNewAssetEntry(EAssetEntryType type, std::filesystem::path path, std::string name);
     std::string ExtensionFromType(EAssetEntryType type);
+    EAssetEntryType TypeFromExtension(std::string extension);
+    void        Reindex();
+
+  private:
+    void ParseDirectoryStructure(std::filesystem::path path);
 
   private:
     const std::filesystem::path                           m_projectDbFile = "VAssets.json";

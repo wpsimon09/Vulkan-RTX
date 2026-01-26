@@ -10,6 +10,7 @@ namespace ApplicationCore {
 VMesh::VMesh(AssetEntry& databaseEntry)
     : VAsset2<ApplicationCore::VMeshHeader, VulkanStructs::VMeshData2>(databaseEntry, ".VMesh")
 {
+    LoadHeader();
 }
 
 VMesh::VMesh(AssetEntry& databaseEntry, uuid::UUID materialUUID, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
@@ -23,7 +24,7 @@ VMesh::VMesh(AssetEntry& databaseEntry, uuid::UUID materialUUID, std::vector<Ver
     m_fileHeader.vertexCount = vertices.size();
     m_fileHeader.materialId  = materialUUID;
 
-    std::ofstream file(m_path, std::ios::binary);
+    std::ofstream file(m_path, std::ios::binary | std::ios::out);
 
     if(file.is_open())
     {
