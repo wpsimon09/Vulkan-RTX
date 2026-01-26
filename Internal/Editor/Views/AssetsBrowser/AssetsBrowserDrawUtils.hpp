@@ -220,7 +220,6 @@ inline void RenderPopUpForMaterial(ApplicationCore::AssetEntry& assetEntry)
     ImGui::Text("Has normal texture: %s", mathHeader.hasNormalTexture ? "yes" : "no");
     ImGui::Text("Has emissive texture: %s", mathHeader.hasEmissiveTexture ? "yes" : "no");
 
-
     ImGui::SeparatorText("Textures");
 
     ImGui::Text("Albedo UUID: %s", mathHeader.alebdoTexture.c_str());

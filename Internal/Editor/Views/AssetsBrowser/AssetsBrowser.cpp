@@ -13,7 +13,7 @@
 #include "Application/VertexArray/VertexArray.hpp"
 #include "Editor/Views/FileExplorer/FileExplorer.hpp"
 #include "Editor/Views/Pop-Ups/ModelImportOptions/ModelImportOptions.hpp"
-
+#include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 #include <filesystem>
 #include <glm/ext/matrix_projection.hpp>
 

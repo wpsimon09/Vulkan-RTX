@@ -4,6 +4,7 @@
 
 #include "Project.hpp"
 
+#include "Application/AssetsSystem/VAsset2.hpp"
 #include "Application/Logger/Logger.hpp"
 
 #include <fstream>
@@ -169,6 +170,11 @@ void Project::ReadProjectConfig(std::filesystem::path& path)
     m_projectConfig = cfg;
 }
 
+
+//=====================================================
+// ------------------- Assets database ----------------
+//=====================================================
+
 AssetsDatabase::AssetsDatabase(const std::filesystem::path& projectPath)
     : m_projectDbPath(projectPath)
 {
@@ -187,6 +193,7 @@ AssetsDatabase::AssetsDatabase(const std::filesystem::path& projectPath)
             entry.path                = value["path"].get<std::string>();
             entry.name                = value["name"];
             entry.uuid                = uuidStr;
+            entry.eType               = static_cast<EAssetEntryType>(value["typeE"]);
             m_assets[uuidStr]         = entry;
             m_pathToAsset[entry.path] = uuidStr;
         }
@@ -211,7 +218,8 @@ void AssetsDatabase::Save()
     json j;
     for(auto& [uuidStr, value] : m_assets)
     {
-        j[uuidStr] = {{"type", value.type}, {"typeE", value.eType}, {"path", value.path}, {"name", value.name}};
+        j[uuidStr] = {
+            {"type", value.type}, {"typeE", static_cast<int>(value.eType)}, {"path", value.path}, {"name", value.name}};
     }
 
     std::ofstream file(m_projectDbPath / m_projectDbFile);
@@ -273,6 +281,68 @@ std::string AssetsDatabase::ExtensionFromType(EAssetEntryType type)
         }
     }
 }
+EAssetEntryType AssetsDatabase::TypeFromExtension(std::string extension)
+{
+    if(extension == ".VMat")
+    {
+        return EAssetEntryType::Material;
+    }
+    else if(extension == ".VTex")
+    {
+        return EAssetEntryType::Texture;
+    }
+    else if(extension == ".VMesh")
+    {
 
+        return EAssetEntryType::Mesh;
+    }
+}
+void AssetsDatabase::Reindex()
+{
+    m_assets.clear();
+    m_pathToAsset.clear();
+
+    ParseDirectoryStructure(m_projectDbPath);
+}
+void AssetsDatabase::ParseDirectoryStructure(std::filesystem::path path)
+{
+    for(const auto& directory : std::filesystem::directory_iterator(path))
+    {
+        if(!directory.is_directory())
+        {
+            AssetEntry entry;
+            entry.path  = directory.path();
+            entry.eType = TypeFromExtension(directory.path().extension().string());
+            entry.type  = ExtensionFromType(entry.eType);
+            switch(entry.eType)
+            {
+                case EAssetEntryType::Material: {
+                    auto header = VAsset2<VMaterialHeader, int>::ReadHeader(directory.path());
+                    entry.uuid  = header.uuid;
+                    entry.name  = header.name;
+                    break;
+                }
+                case EAssetEntryType::Texture: {
+                    auto header = VAsset2<VTextureHeader, int>::ReadHeader(directory.path());
+                    entry.uuid  = header.uuid;
+                    entry.name  = header.name;
+                    break;
+                }
+                case EAssetEntryType::Mesh: {
+                    auto header = VAsset2<VMeshHeader, int>::ReadHeader(directory.path());
+                    entry.uuid  = header.uuid;
+                    entry.name  = header.name;
+                    break;
+                }
+            }
+            m_assets.insert({entry.uuid, std::move(entry)});
+            m_pathToAsset[path] = entry.uuid;
+        }
+        else
+        {
+            ParseDirectoryStructure(directory.path());
+        }
+    }
+}
 
 }  // namespace ApplicationCore
