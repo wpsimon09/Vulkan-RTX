@@ -27,8 +27,7 @@ VTexture::VTexture(AssetEntry& databaseEntry, VTextureHeader& header, void* pixe
     // save to file and delete the object
     if(file.is_open())
     {
-        file.write(reinterpret_cast<char*>(&m_fileHeader), sizeof(m_fileHeader));
-
+        m_fileHeader.Serialize(file);
         // Write texutre data
         size_t pixelSize = m_fileHeader.widht * m_fileHeader.height * m_fileHeader.channels;
         file.write(reinterpret_cast<const char*>(pixels), pixelSize);

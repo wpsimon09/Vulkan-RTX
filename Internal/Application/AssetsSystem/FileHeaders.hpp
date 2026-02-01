@@ -53,7 +53,7 @@ struct VMaterialHeader : public IFileHeader
     {
         IFileHeader::Serialize(out);
 
-        /*
+
         WritePod(out, roughness);
         WritePod(out, metalness);
         WritePod(out, ao);
@@ -70,14 +70,12 @@ struct VMaterialHeader : public IFileHeader
         WriteString(out, armTextureIdx);
         WriteString(out, emissiveTextureIdx);
         WriteString(out, normalTextureIdx);
-        */
     }
 
     void Deserialize(std::istream& in)
     {
         IFileHeader::Deserialize(in);
 
-        /*
         ReadPod(in, roughness);
         ReadPod(in, metalness);
         ReadPod(in, ao);
@@ -94,7 +92,6 @@ struct VMaterialHeader : public IFileHeader
         ReadString(in, armTextureIdx);
         ReadString(in, emissiveTextureIdx);
         ReadString(in, normalTextureIdx);
-        */
     }
 };
 

@@ -201,7 +201,7 @@ struct AssetsBrowserDrawData
         ImGui::Dummy(ImVec2(1.0f, rows * (editorConf.TileSize + editorConf.IconSpacing)));
 
 
-        if(!iterableItems.empty() && SelectedIndex <= iterableItems.size())
+        if(!iterableItems.empty() && SelectedIndex <= iterableItems.size()-1)
         {
             return iterableItems[SelectedIndex];
         }

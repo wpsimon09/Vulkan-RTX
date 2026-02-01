@@ -99,6 +99,11 @@ inline void ReadString(std::istream& in, std::string& s)
 {
     unsigned stringsize;
     in.read(reinterpret_cast<char*>(&stringsize), sizeof(unsigned));
+    if(stringsize == 0)
+    {
+        s = std::string();
+        return;
+    }
     std::vector<char> temp(stringsize);
     in.read(reinterpret_cast<char*>(&temp[0]), stringsize * sizeof(char));
     s = std::string(temp.begin(), temp.end());

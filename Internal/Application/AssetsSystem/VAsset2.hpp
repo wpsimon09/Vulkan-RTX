@@ -54,7 +54,6 @@ VAsset2<Header, VulkanHandle>::VAsset2(AssetEntry& assetEntry, std::string fileT
     , m_fileType(fileType)
     , m_path(assetEntry.path)
 {
-    m_loaded = true;
 }
 
 template <typename Header, typename VulkanHandle>
@@ -74,7 +73,7 @@ void VAsset2<Header, VulkanHandle>::LoadHeader()
 {
     if(m_loaded)
     {
-        // return;
+        return;
     }
     std::ifstream input;
     input.open(m_path, std::ios::in | std::ios::binary);
@@ -84,8 +83,7 @@ void VAsset2<Header, VulkanHandle>::LoadHeader()
         Utils::Logger::LogErrorClient("File " + m_path.string() + " is corrupted ! ");
     }
 
-    Header header;
-    header.Deserialize(input);
+    m_fileHeader.Deserialize(input);
 
     if(input.fail())
     {
@@ -103,6 +101,7 @@ void VAsset2<Header, VulkanHandle>::LoadHeader()
     {
         input.close();
     }
+    m_loaded = true;
 }
 
 template <typename Header, typename VulkanHandle>
