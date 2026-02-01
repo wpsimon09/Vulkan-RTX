@@ -62,26 +62,30 @@ uuid::UUID VAsset2<Header, VulkanHandle>::GetUUID()
 {
     return m_databaseEntry.uuid;
 }
-
 template <typename Header, typename VulkanHandle>
 Header VAsset2<Header, VulkanHandle>::GetHeader()
 {
-    assert(m_loaded && "Header not loaded yet, make sure LoadHeader() method is being called");
+
     return m_fileHeader;
 }
+
 template <typename Header, typename VulkanHandle>
 void VAsset2<Header, VulkanHandle>::LoadHeader()
 {
     if(m_loaded)
     {
-        return;
+        // return;
     }
     std::ifstream input;
     input.open(m_path, std::ios::in | std::ios::binary);
 
-    Header header;
+    if(!input.good())
+    {
+        Utils::Logger::LogErrorClient("File " + m_path.string() + " is corrupted ! ");
+    }
 
-    input.read(reinterpret_cast<char*>(&m_fileHeader), sizeof(m_fileHeader));
+    Header header;
+    header.Deserialize(input);
 
     if(input.fail())
     {
@@ -92,7 +96,7 @@ void VAsset2<Header, VulkanHandle>::LoadHeader()
             case ENOENT:
                 throw std::runtime_error("Error at: " + m_path.string() + " file not found");
             default:
-                Utils::Logger::LogInfoVerboseOnlyClient("File: " + m_path.filename().string() + " read successfully ! ");
+                Utils::Logger::LogInfoVerboseOnlyClient("File: " + m_path.filename().string() + " procdues unknown error while reading  ! ");
         }
     }
     else
@@ -109,11 +113,12 @@ void VAsset2<Header, VulkanHandle>::SetVulkanHandle(std::unique_ptr<VulkanHandle
 template <typename Header, typename VulkanHandle>
 Header VAsset2<Header, VulkanHandle>::ReadHeader(const std::filesystem::path& path)
 {
-    Header        header;
+    auto header = Header();
+
     std::ifstream input;
     input.open(path, std::ios::in | std::ios::binary);
 
-    input.read(reinterpret_cast<char*>(&header), sizeof(Header));
+    header.Deserialize(input);
 
     if(input.fail())
     {

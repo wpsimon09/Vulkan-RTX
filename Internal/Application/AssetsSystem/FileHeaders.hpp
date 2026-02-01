@@ -53,6 +53,7 @@ struct VMaterialHeader : public IFileHeader
     {
         IFileHeader::Serialize(out);
 
+        /*
         WritePod(out, roughness);
         WritePod(out, metalness);
         WritePod(out, ao);
@@ -65,16 +66,18 @@ struct VMaterialHeader : public IFileHeader
         WritePod(out, hasNormalTexture);
         WritePod(out, hasArmTexture);
 
-        WritePod(out, alebdoTexture);
-        WritePod(out, armTextureIdx);
-        WritePod(out, emissiveTextureIdx);
-        WritePod(out, normalTextureIdx);
+        WriteString(out, alebdoTexture);
+        WriteString(out, armTextureIdx);
+        WriteString(out, emissiveTextureIdx);
+        WriteString(out, normalTextureIdx);
+        */
     }
 
     void Deserialize(std::istream& in)
     {
         IFileHeader::Deserialize(in);
 
+        /*
         ReadPod(in, roughness);
         ReadPod(in, metalness);
         ReadPod(in, ao);
@@ -87,10 +90,11 @@ struct VMaterialHeader : public IFileHeader
         ReadPod(in, hasNormalTexture);
         ReadPod(in, hasArmTexture);
 
-        ReadPod(in, alebdoTexture);
-        ReadPod(in, armTextureIdx);
-        ReadPod(in, emissiveTextureIdx);
-        ReadPod(in, normalTextureIdx);
+        ReadString(in, alebdoTexture);
+        ReadString(in, armTextureIdx);
+        ReadString(in, emissiveTextureIdx);
+        ReadString(in, normalTextureIdx);
+        */
     }
 };
 
@@ -105,7 +109,7 @@ struct VMeshHeader : public IFileHeader
         IFileHeader::Serialize(out);
         WritePod(out, vertexCount);
         WritePod(out, indexCount);
-        WritePod(out, materialId);
+        WriteString(out, materialId);
     }
 
     void Deserialize(std::istream& in)
@@ -113,7 +117,7 @@ struct VMeshHeader : public IFileHeader
         IFileHeader::Deserialize(in);
         ReadPod(in, vertexCount);
         ReadPod(in, indexCount);
-        ReadPod(in, materialId);
+        ReadString(in, materialId);
     }
 };
 

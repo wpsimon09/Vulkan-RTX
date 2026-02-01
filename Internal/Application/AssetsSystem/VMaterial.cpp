@@ -23,7 +23,7 @@ VMaterial::VMaterial(AssetEntry& databaseEntry, VMaterialHeader& materialData)
     if(file.is_open())
     {
         // the material file just store its data
-        file.write(reinterpret_cast<char*>(&m_fileHeader), sizeof(m_fileHeader));
+        m_fileHeader.Serialize(file);
         file.close();
     }
 }
