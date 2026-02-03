@@ -21,6 +21,7 @@ template <typename Header, typename VulkanHandle>
 class VAsset2
 {
   public:
+    VAsset2(std::string fileType);
     VAsset2(AssetEntry& assetEntry, std::string fileType);
     virtual bool     Save(std::filesystem::path& path) = 0;
     virtual bool     Load()                            = 0;
@@ -47,6 +48,13 @@ class VAsset2
     void SaveHeader(std::filesystem::path& path);
 };
 
+
+template <typename Header, typename VulkanHandle>
+VAsset2<Header, VulkanHandle>::VAsset2(std::string fileType)
+    : m_fileType(fileType)
+{
+    m_databaseEntry = {};
+}
 
 template <typename Header, typename VulkanHandle>
 VAsset2<Header, VulkanHandle>::VAsset2(AssetEntry& assetEntry, std::string fileType)

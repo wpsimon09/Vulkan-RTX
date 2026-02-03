@@ -109,7 +109,6 @@ inline void ReadString(std::istream& in, std::string& s)
     s = std::string(temp.begin(), temp.end());
 }
 
-
 template <typename T>
 inline void WritePod(std::ostream& out, const T& v)
 {

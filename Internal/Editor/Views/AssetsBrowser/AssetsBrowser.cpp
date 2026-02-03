@@ -25,12 +25,12 @@ AssetsBrowser::AssetsBrowser(ApplicationCore::GLTFLoader& gltfLoader, Applicatio
     , m_assetsBrowserGridDrawData(project.GetProjectConfig().editorConfig, m_currentPath)
     , m_currentPath(project.GetProjectPath())
     , m_gltfLoader(gltfLoader)
+
 {
     auto fileExplorer = std::make_unique<VEditor::FileExplorer>(gltfLoader, m_currentPath);
     m_uiChildren.push_back(std::move(fileExplorer));
     m_fileExplorer = dynamic_cast<FileExplorer*>(m_uiChildren.back().get());
 }
-
 
 //======================================================
 //  Rendering function ---------------------------------
@@ -304,19 +304,31 @@ void AssetsBrowser::RenderInspectPopUp()
             ImGui::Text("UUID: %s", assetItem.uuid.c_str());
             ImGui::Text("Name: %s", assetItem.name.c_str());
             ImGui::Text("Type: %s", assetItem.type.c_str());
-
+            // TODO: m_preview material is null first time, the default constructor should init the material which now has to be created
             switch(assetItem.eType)
             {
                 case ApplicationCore::Material: {
-                    RenderPopUpForMaterial(assetItem);
+                    if(m_previewMaterial.GetUUID() != assetItem.uuid)
+                    {
+                        m_previewMaterial = ApplicationCore::VMaterial(assetItem);
+                    }
+                    RenderPopUpForMaterial(&m_previewMaterial);
                     break;
                 }
                 case ApplicationCore::Mesh: {
-                    RenderPopUpForMesh(assetItem);
+                    if(m_previewMesh.GetUUID() != assetItem.uuid)
+                    {
+                        m_previewMesh = ApplicationCore::VMesh(assetItem);
+                    }
+                    RenderPopUpForMesh(&m_previewMesh);
                     break;
                 }
                 case ApplicationCore::Texture: {
-                    RenderPopUpForTexture(assetItem);
+                    if(m_previewTexture.GetUUID() != assetItem.uuid)
+                    {
+                        m_previewTexture = ApplicationCore::VTexture(assetItem);
+                    }
+                    RenderPopUpForTexture(&m_previewTexture);
                     break;
                 }
             }

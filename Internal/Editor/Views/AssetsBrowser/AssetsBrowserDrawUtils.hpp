@@ -25,6 +25,10 @@ static auto        DRAG_DROP_PAYLOAD_MESH     = "DragDropPayloadMesh";
 static auto        DRAG_DROP_PAYLOAD_MATERIAL = "DragDropPayloadMaterial";
 static const char* POP_UP_OPEN_INSPECT        = ICON_FA_EYE " Inspect asset";
 
+inline ApplicationCore::VMesh*     previewMesh;
+inline ApplicationCore::VTexture*  previewTexture;
+inline ApplicationCore::VMaterial* previewMaterial;
+
 inline const char* GetIconFromFileExtension(const std::string& fileExtension)
 {
     if(fileExtension == ".VTex")
@@ -201,7 +205,7 @@ struct AssetsBrowserDrawData
         ImGui::Dummy(ImVec2(1.0f, rows * (editorConf.TileSize + editorConf.IconSpacing)));
 
 
-        if(!iterableItems.empty() && SelectedIndex <= iterableItems.size()-1)
+        if(!iterableItems.empty() && SelectedIndex <= iterableItems.size() - 1)
         {
             return iterableItems[SelectedIndex];
         }
@@ -209,10 +213,12 @@ struct AssetsBrowserDrawData
     }
 };
 
-inline void RenderPopUpForMaterial(ApplicationCore::AssetEntry& assetEntry)
+inline void RenderPopUpForMaterial(ApplicationCore::VMaterial* mat)
 {
-    auto mat        = ApplicationCore::VMaterial(assetEntry);
-    auto mathHeader = mat.GetHeader();
+    if(mat == nullptr)
+        return;
+
+    auto mathHeader = mat->GetHeader();
 
     ImGui::SeparatorText("Text");
     ImGui::Text("Has albedo texture: %s", mathHeader.hasAlbedoTexture ? "yes" : "no");
@@ -227,15 +233,9 @@ inline void RenderPopUpForMaterial(ApplicationCore::AssetEntry& assetEntry)
     ImGui::Text("Normal UUID: %s", mathHeader.normalTextureIdx.c_str());
 }
 
-inline void RenderPopUpForMesh(ApplicationCore::AssetEntry& assetEntry)
-{
-    auto mesh = ApplicationCore::VMesh(assetEntry);
-}
+inline void RenderPopUpForMesh(ApplicationCore::VMesh* mesh) {}
 
-inline void RenderPopUpForTexture(ApplicationCore::AssetEntry& assetEntry)
-{
-    auto texture = ApplicationCore::VTexture(assetEntry);
-}
+inline void RenderPopUpForTexture(ApplicationCore::VTexture* texture) {}
 
 
 }  // namespace VEditor

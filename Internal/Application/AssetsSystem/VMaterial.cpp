@@ -7,6 +7,11 @@
 #include <fstream>
 
 namespace ApplicationCore {
+VMaterial::VMaterial()
+    : VAsset2<ApplicationCore::VMaterialHeader, int>(".VMat")
+{
+}
+
 VMaterial::VMaterial(AssetEntry& databaseEntry)
     : VAsset2<ApplicationCore::VMaterialHeader, int>(databaseEntry, ".VMat")
 {

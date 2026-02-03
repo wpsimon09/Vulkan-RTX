@@ -137,8 +137,8 @@ void GLTFLoader::LoadGLTFScene(std::filesystem::path& saveToPath, std::filesyste
                     auto& textureIndex = m.pbrData.metallicRoughnessTexture.value().textureIndex;
                     if(textureIndex <= textures.size() - 1.0)
                     {
-                        materialData.armTextureIdx    = textures[textureIndex].GetUUID();
-                        materialData.hasAlbedoTexture = true;
+                        materialData.armTextureIdx = textures[textureIndex].GetUUID();
+                        materialData.hasArmTexture = true;
                     }
                 }
                 //=====================

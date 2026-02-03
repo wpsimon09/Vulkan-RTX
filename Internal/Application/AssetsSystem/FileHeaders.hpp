@@ -67,9 +67,9 @@ struct VMaterialHeader : public IFileHeader
         WritePod(out, hasArmTexture);
 
         WriteString(out, alebdoTexture);
-        WriteString(out, armTextureIdx);
-        WriteString(out, emissiveTextureIdx);
         WriteString(out, normalTextureIdx);
+        WriteString(out, emissiveTextureIdx);
+        WriteString(out, armTextureIdx);
     }
 
     void Deserialize(std::istream& in)

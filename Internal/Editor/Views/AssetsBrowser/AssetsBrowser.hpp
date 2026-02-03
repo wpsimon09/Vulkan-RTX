@@ -41,6 +41,10 @@ class AssetsBrowser : public IUserInterfaceElement
     std::filesystem::path*       m_importPath = nullptr;
     std::optional<DirectoryItem> m_selectedItem;
 
+    ApplicationCore::VMaterial m_previewMaterial;
+    ApplicationCore::VTexture  m_previewTexture;
+    ApplicationCore::VMesh     m_previewMesh;
+
     char                         newFolderName[100] = "New folder";
     bool                         m_deleteRequested  = false;
     bool                         m_createRequested  = true;

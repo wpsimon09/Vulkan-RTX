@@ -8,6 +8,12 @@
 #include "Vulkan/VulkanCore/VImage/VImage2.hpp"
 
 namespace ApplicationCore {
+
+VTexture::VTexture()
+    : VAsset2<ApplicationCore::VTextureHeader, VulkanCore::VImage2>(".VTex")
+{
+}
+
 VTexture::VTexture(AssetEntry& databaseEntry)
     : VAsset2<ApplicationCore::VTextureHeader, VulkanCore::VImage2>(databaseEntry, ".VTex")
 {

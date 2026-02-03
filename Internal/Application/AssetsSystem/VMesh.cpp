@@ -7,6 +7,11 @@
 #include <fstream>
 
 namespace ApplicationCore {
+VMesh::VMesh()
+    : VAsset2<ApplicationCore::VMeshHeader, VulkanStructs::VMeshData2>(".Mesh")
+{
+}
+
 VMesh::VMesh(AssetEntry& databaseEntry)
     : VAsset2<ApplicationCore::VMeshHeader, VulkanStructs::VMeshData2>(databaseEntry, ".VMesh")
 {
