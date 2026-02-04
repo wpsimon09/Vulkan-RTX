@@ -331,6 +331,9 @@ void AssetsBrowser::RenderInspectPopUp()
                     RenderPopUpForTexture(&m_previewTexture);
                     break;
                 }
+                default: {
+                    break;
+                }
             }
 
             if(ImGui::Button("Close"))

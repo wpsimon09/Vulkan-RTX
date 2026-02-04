@@ -233,7 +233,10 @@ inline void RenderPopUpForMaterial(ApplicationCore::VMaterial* mat)
     ImGui::Text("Normal UUID: %s", mathHeader.normalTextureIdx.c_str());
 }
 
-inline void RenderPopUpForMesh(ApplicationCore::VMesh* mesh) {}
+inline void RenderPopUpForMesh(ApplicationCore::VMesh* mesh)
+{
+    ApplicationCore::VMeshHeader header = mesh->GetHeader();
+}
 
 inline void RenderPopUpForTexture(ApplicationCore::VTexture* texture) {}
 

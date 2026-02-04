@@ -77,13 +77,13 @@ enum EAssetEntryType
 };
 struct AssetEntry
 {
-    uuid::UUID      uuid;
-    EAssetEntryType eType;  // same as type but not string for faster if statements
-    std::string     type;   // "mesh", "material", "texture"
+    uuid::UUID      uuid  = "";
+    EAssetEntryType eType = EAssetEntryType::Unknown;  // same as type but not string for faster if statements
+    std::string     type  = "unknown";                 // "mesh", "material", "texture"
 
     // the path is being modified in the VAsset2 class where it constructs to correct path based on the directory, file name and path
-    std::filesystem::path path;
-    std::string           name;
+    std::filesystem::path path = "";
+    std::string           name = "";
 };
 
 class AssetsDatabase

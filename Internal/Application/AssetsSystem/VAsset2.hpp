@@ -29,9 +29,9 @@ class VAsset2
 
     uuid::UUID GetUUID();
 
-    Header GetHeader();
-    void   LoadHeader();
-    void   SetVulkanHandle(std::unique_ptr<VulkanHandle> vulkanHandle);
+    Header& GetHeader();
+    void    LoadHeader();
+    void    SetVulkanHandle(std::unique_ptr<VulkanHandle> vulkanHandle);
 
   public:
     static Header ReadHeader(const std::filesystem::path& path);
@@ -70,7 +70,7 @@ uuid::UUID VAsset2<Header, VulkanHandle>::GetUUID()
     return m_databaseEntry.uuid;
 }
 template <typename Header, typename VulkanHandle>
-Header VAsset2<Header, VulkanHandle>::GetHeader()
+Header& VAsset2<Header, VulkanHandle>::GetHeader()
 {
 
     return m_fileHeader;

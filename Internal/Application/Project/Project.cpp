@@ -346,8 +346,8 @@ void AssetsDatabase::ParseDirectoryStructure(std::filesystem::path path)
                     break;
                 }
             }
-            m_assets.insert({entry.uuid, std::move(entry)});
-            m_pathToAsset[entry.path] = entry.uuid;
+            m_assets.insert({entry.uuid, entry});
+            m_pathToAsset.insert({entry.path, entry.uuid});
         }
         else
         {
