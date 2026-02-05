@@ -10,6 +10,7 @@
 #include <filesystem>
 
 namespace ApplicationCore {
+class RuntimeAssetsManager;
 struct ImportOptions;
 class GLTFLoader;
 class Project;
@@ -23,7 +24,9 @@ constexpr char* POP_UP_ASSETS_PANEL_SETTINGS = "PopUpAssetPannelSettings";
 class AssetsBrowser : public IUserInterfaceElement
 {
   public:
-    AssetsBrowser(ApplicationCore::GLTFLoader& gltfLoader, ApplicationCore::Project& project);
+    AssetsBrowser(ApplicationCore::GLTFLoader&           gltfLoader,
+                  ApplicationCore::Project&              project,
+                  ApplicationCore::RuntimeAssetsManager& runtimeAssetsManager);
     void RenderActions();
     void Render() override;
     void Resize(int newWidth, int newHeight) override;
@@ -44,6 +47,8 @@ class AssetsBrowser : public IUserInterfaceElement
     ApplicationCore::VMaterial m_previewMaterial;
     ApplicationCore::VTexture  m_previewTexture;
     ApplicationCore::VMesh     m_previewMesh;
+
+    ApplicationCore::RuntimeAssetsManager& m_runtimeAssetsManager;
 
     char                         newFolderName[100] = "New folder";
     bool                         m_deleteRequested  = false;

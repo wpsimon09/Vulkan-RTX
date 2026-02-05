@@ -75,7 +75,8 @@ std::shared_ptr<StaticMesh> AssetsManager::GetDefaultMesh(EMeshGeometryType geom
     }
 
     // load them otherwise
-    VulkanStructs::VMeshData2 data;
+
+    std::shared_ptr<VulkanStructs::VMeshData2> data;
     switch(geometryType)
     {
         case Plane: {
@@ -124,9 +125,9 @@ std::shared_ptr<StaticMesh> AssetsManager::GetDefaultMesh(EMeshGeometryType geom
             throw std::runtime_error("This geometry type is not supported !");
     }
 
-    m_preloadedMeshes[geometryType] = data;
+    m_preloadedMeshes[geometryType] = *data.get();
 
-    return std::make_shared<StaticMesh>(data, m_dummyMaterial);
+    return std::make_shared<StaticMesh>(*data.get(), m_dummyMaterial);
 }
 
 void AssetsManager::GetTexture(std::shared_ptr<ApplicationCore::VTextureAsset>& texture, const std::string& path, bool saveToDisk)

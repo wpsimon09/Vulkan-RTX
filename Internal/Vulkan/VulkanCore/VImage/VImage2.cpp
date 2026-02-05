@@ -16,6 +16,7 @@
 #include <vulkan/vulkan_structs.hpp>
 
 namespace VulkanCore {
+
 VImage2::VImage2(const VulkanCore::VDevice& device, const VImage2CreateInfo& info)
     : m_device(device)
     , m_imageInfo(info)

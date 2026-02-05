@@ -56,15 +56,16 @@ MeshDatatManager::MeshDatatManager(const VulkanCore::VDevice& device)
     //m_vertexBufferHandl_BB = std::make_unique<VGrowableBuffer>(device, VulkanCore::SIZE_16_MB);
 }
 
-VulkanStructs::VMeshData2 MeshDatatManager::AddMeshData(std::vector<ApplicationCore::Vertex>& vertices, std::vector<uint32_t>& indices)
+std::shared_ptr<VulkanStructs::VMeshData2> MeshDatatManager::AddMeshData(std::vector<ApplicationCore::Vertex>& vertices,
+                                                                         std::vector<uint32_t>&                indices)
 {
 
-    auto                      bounds   = ApplicationCore::CalculateBounds(vertices);
-    VulkanStructs::VMeshData2 meshData = {};
+    auto bounds   = ApplicationCore::CalculateBounds(vertices);
+    auto meshData = std::make_shared<VulkanStructs::VMeshData2>();
 
-    meshData.vertexData = GenerateVertexBuffer(vertices);
-    meshData.indexData  = GenerateIndexBuffer(indices);
-    meshData.bounds     = bounds;
+    meshData->vertexData = GenerateVertexBuffer(vertices);
+    meshData->indexData  = GenerateIndexBuffer(indices);
+    meshData->bounds     = bounds;
     //meshData.vertexData_BB = GenerateVertexBuffer_BB(bounds);
 
     //meshData.indexData_BB.buffer = m_indexBuffer_BB.bufferVK;

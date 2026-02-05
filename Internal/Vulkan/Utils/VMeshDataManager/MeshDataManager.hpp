@@ -42,7 +42,8 @@ class MeshDatatManager : public VObject
   public:
     explicit MeshDatatManager(const VulkanCore::VDevice& device);
 
-    VulkanStructs::VMeshData2 AddMeshData(std::vector<ApplicationCore::Vertex>& vertices, std::vector<uint32_t>& indices);
+    std::shared_ptr<VulkanStructs::VMeshData2> AddMeshData(std::vector<ApplicationCore::Vertex>& vertices,
+                                                           std::vector<uint32_t>&                indices);
 
     /**
          * Sends every staging buffer to the GPU in a batch records transfer command buffer with data in the staging vertices and staging indcies 

@@ -104,6 +104,10 @@ const void Client::Destroy()
     Utils::Logger::LogInfoVerboseOnlyClient("Assets manager destroyed");
     Utils::Logger::LogInfoVerboseOnlyClient("Destroyed client");
 }
+ApplicationCore::RuntimeAssetsManager& Client::GetRuntimeAssetsManager()
+{
+    return *m_runtimeAssetsManager;
+}
 
 void Client::UpdateCamera(CameraUpdateInfo& cameraUpdateInfo)
 {

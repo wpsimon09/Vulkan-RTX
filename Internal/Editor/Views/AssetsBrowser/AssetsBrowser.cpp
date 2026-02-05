@@ -8,6 +8,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "Application/AssetsSystem/VMesh.hpp"
+#include "Application/AssetsSystem/RuntimeAssetsManager/RuntimeAssetsManager.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Project/Project.hpp"
 #include "Application/VertexArray/VertexArray.hpp"
@@ -19,12 +20,15 @@
 
 namespace VEditor {
 
-AssetsBrowser::AssetsBrowser(ApplicationCore::GLTFLoader& gltfLoader, ApplicationCore::Project& project)
+AssetsBrowser::AssetsBrowser(ApplicationCore::GLTFLoader&           gltfLoader,
+                             ApplicationCore::Project&              project,
+                             ApplicationCore::RuntimeAssetsManager& runtimeAssetsManager)
     : IUserInterfaceElement()
     , m_project(project)
     , m_assetsBrowserGridDrawData(project.GetProjectConfig().editorConfig, m_currentPath)
     , m_currentPath(project.GetProjectPath())
     , m_gltfLoader(gltfLoader)
+    , m_runtimeAssetsManager(runtimeAssetsManager)
 
 {
     auto fileExplorer = std::make_unique<VEditor::FileExplorer>(gltfLoader, m_currentPath);
@@ -281,8 +285,10 @@ void AssetsBrowser::RenderActions()
 
         if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MATERIAL))
         {
-            auto itemName = static_cast<char*>(payload->Data);
-            Utils::Logger::LogInfoClient("Drag successfully: " + std::string(itemName));
+            auto path       = std::filesystem::path(static_cast<char*>(payload->Data));
+            auto assetEntry = m_project.GetAsset(path);
+            auto mesh       = m_runtimeAssetsManager.LoadMesh(assetEntry.uuid);
+            Utils::Logger::LogInfoClient("Drag successfully: ");
         }
         ImGui::EndDragDropTarget();
     }

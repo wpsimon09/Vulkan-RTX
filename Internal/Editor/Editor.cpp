@@ -57,7 +57,8 @@ Editor::Editor(UIContext& uiContext)
     index->m_uiChildren.emplace_back(std::move(worldOutline));
 
     auto projectBrowser =
-        std::make_unique<AssetsBrowser>(m_uiContext.GetClient().GetGLTFLoader(), m_uiContext.GetClient().GetProject());
+        std::make_unique<AssetsBrowser>(m_uiContext.GetClient().GetGLTFLoader(), m_uiContext.GetClient().GetProject(),
+                                        m_uiContext.GetClient().GetRuntimeAssetsManager());
     index->m_uiChildren.emplace_back(std::move(projectBrowser));
 
     auto menuBar = std::make_unique<MenuBar>(this);
@@ -67,7 +68,6 @@ Editor::Editor(UIContext& uiContext)
 
     auto end      = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
 
     Utils::Logger::LogInfo("Visual editor initialized in: " + std::to_string(duration.count()) + "ms !");
 }

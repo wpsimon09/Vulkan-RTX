@@ -59,10 +59,11 @@ class Client
 
     ApplicationCore::AssetsManager& GetAssetsManager() const { return *m_assetsManager; }
 
-    ApplicationCore::Scene& GetScene() const { return *m_scene; };
-    ;
-    ApplicationCore::GLTFLoader&   GetGLTFLoader() const { return *m_gltfLoader; };
-    ApplicationCore::GLTFExporter& GetGLTFExporter() const { return *m_gltfExporter; };
+    ApplicationCore::Scene& GetScene() const { return *m_scene; }
+
+    ApplicationCore::RuntimeAssetsManager& GetRuntimeAssetsManager();
+    ApplicationCore::GLTFLoader&           GetGLTFLoader() const { return *m_gltfLoader; };
+    ApplicationCore::GLTFExporter&         GetGLTFExporter() const { return *m_gltfExporter; };
 
     ApplicationCore::ApplicationState& GetApplicationState() { return *m_applicationState; }
 

@@ -94,7 +94,7 @@ class AssetsDatabase
     void            AddAsset(uuid::UUID uuid, AssetEntry& entry);
     void            RemoveAsset(uuid::UUID uuid);
     void            Save();
-    AssetEntry      GetAsset(uuid::UUID uuid);
+    AssetEntry&     GetAsset(uuid::UUID uuid);
     AssetEntry&     GetAsset(std::filesystem::path& path);
     AssetEntry&     RequestNewAssetEntry(EAssetEntryType type, std::filesystem::path path, std::string name);
     std::string     ExtensionFromType(EAssetEntryType type);

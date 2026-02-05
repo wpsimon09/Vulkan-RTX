@@ -97,7 +97,7 @@ void Project::RemoveAsset(uuid::UUID uuid)
 }
 AssetEntry& Project::GetAsset(uuid::UUID& uuid)
 {
-    m_assetsDatabase->GetAsset(uuid);
+    return m_assetsDatabase->GetAsset(uuid);
 }
 
 AssetEntry& Project::GetAsset(std::filesystem::path& path)
@@ -232,7 +232,7 @@ void AssetsDatabase::Save()
 
     file << j.dump(4);
 }  // namespace ApplicationCore
-AssetEntry AssetsDatabase::GetAsset(uuid::UUID uuid)
+AssetEntry& AssetsDatabase::GetAsset(uuid::UUID uuid)
 {
     assert(m_assets.contains(uuid) && "Asset was not found");
     return m_assets[uuid];

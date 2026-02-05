@@ -43,7 +43,24 @@ VMesh::VMesh(AssetEntry& databaseEntry, uuid::UUID materialUUID, std::vector<Ver
         file.close();
     }
 }
-bool     VMesh::Save(std::filesystem::path& path) {}
-bool     VMesh::Load() {}
-std::any VMesh::LoadData() {}
+bool VMesh::Save(std::filesystem::path& path) {}
+bool VMesh::Load() {}
+
+std::any VMesh::LoadData()
+{
+    std::ifstream file(m_path, std::ios::binary);
+
+    if(!file.is_open())
+        return {};
+
+    std::vector<Vertex>   vertices(m_fileHeader.vertexCount);
+    std::vector<uint32_t> indices(m_fileHeader.indexCount);
+
+    file.read(reinterpret_cast<char*>(vertices.data()), sizeof(Vertex) * vertices.size());
+    file.read(reinterpret_cast<char*>(indices.data()), sizeof(uint32_t) * indices.size());
+
+    file.close();
+
+    return VulkanStructs::VMeshLoadReturnData{std::move(vertices), std::move(indices)};
+}
 }  // namespace ApplicationCore

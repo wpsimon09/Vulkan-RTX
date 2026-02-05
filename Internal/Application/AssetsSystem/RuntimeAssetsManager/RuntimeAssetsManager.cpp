@@ -4,6 +4,7 @@
 
 #include "RuntimeAssetsManager.hpp"
 
+#include "Application/AssetsSystem/VMesh.hpp"
 #include "Vulkan/VulkanCore/Device/VDevice.hpp"
 
 namespace ApplicationCore {
@@ -13,8 +14,20 @@ RuntimeAssetsManager::RuntimeAssetsManager(Project& project, const VulkanCore::V
     , m_meshDataManager(device.GetMeshDataManager())
 {
 }
-std::shared_ptr<VMesh> RuntimeAssetsManager::LoadMesh(uuid::UUID& uuid) {}
+std::shared_ptr<VMesh> RuntimeAssetsManager::LoadMesh(uuid::UUID& uuid)
+{
+    auto asset = m_project.GetAsset(uuid);
 
+    // load the mesh
+    auto mesh = std::make_shared<VMesh>(asset);
+
+    auto meshData   = std::any_cast<VulkanStructs::VMeshLoadReturnData>(mesh->LoadData());
+    auto meshHandle = m_meshDataManager.AddMeshData(meshData.vertices, meshData.indices);
+
+    m_loadedMeshes[uuid] = mesh;
+    mesh->SetVulkanHandle(meshHandle);
+    return mesh;
+}
 std::shared_ptr<VMaterial> RuntimeAssetsManager::LoadMaterial(uuid::UUID& uuid) {}
 
 std::shared_ptr<VTexture> RuntimeAssetsManager::LoadTexture(uuid::UUID& uuid) {}
@@ -27,6 +40,6 @@ void RuntimeAssetsManager::UnloadMesh(std::shared_ptr<VMesh> mesh) {}
 
 AssetEntry& RuntimeAssetsManager::GetAssetEntry(uuid::UUID& uuid)
 {
-    m_project.GetAsset(uuid);
+    return m_project.GetAsset(uuid);
 }
 }  // namespace ApplicationCore

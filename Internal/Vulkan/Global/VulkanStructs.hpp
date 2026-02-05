@@ -148,6 +148,12 @@ struct VMeshData2
     VBounds            bounds;
 };
 
+struct VMeshLoadReturnData
+{
+    std::vector<ApplicationCore::Vertex> vertices;
+    std::vector<uint32_t>                indices;
+};
+
 struct VGPUBufferInfo
 {
     vk::DeviceSize size          = 0;

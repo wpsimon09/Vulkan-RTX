@@ -31,7 +31,7 @@ class VAsset2
 
     Header& GetHeader();
     void    LoadHeader();
-    void    SetVulkanHandle(std::unique_ptr<VulkanHandle> vulkanHandle);
+    void    SetVulkanHandle(std::shared_ptr<VulkanHandle> vulkanHandle);
 
   public:
     static Header ReadHeader(const std::filesystem::path& path);
@@ -41,7 +41,7 @@ class VAsset2
     std::filesystem::path         m_path;
     std::string                   m_fileType = ".VAsset";
     ApplicationCore::AssetEntry   m_databaseEntry;
-    std::unique_ptr<VulkanHandle> m_vulkanHandle;
+    std::shared_ptr<VulkanHandle> m_vulkanHandle;
 
   protected:
     bool m_loaded = false;
@@ -113,9 +113,9 @@ void VAsset2<Header, VulkanHandle>::LoadHeader()
 }
 
 template <typename Header, typename VulkanHandle>
-void VAsset2<Header, VulkanHandle>::SetVulkanHandle(std::unique_ptr<VulkanHandle> vulkanHandle)
+void VAsset2<Header, VulkanHandle>::SetVulkanHandle(std::shared_ptr<VulkanHandle> vulkanHandle)
 {
-    m_vulkanHandle = std::move(vulkanHandle);
+    m_vulkanHandle = vulkanHandle;
 }
 template <typename Header, typename VulkanHandle>
 Header VAsset2<Header, VulkanHandle>::ReadHeader(const std::filesystem::path& path)
