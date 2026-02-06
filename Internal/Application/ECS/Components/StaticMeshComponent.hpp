@@ -12,6 +12,7 @@ namespace ECS {
 struct StaticMeshComponent : public ECS::IComponent
 {
     char                              meshName[100] = "unknown";
+    VulkanStructs::VMeshData2         meshData      = {};
     VulkanStructs::VGPUSubBufferInfo* vertexData    = nullptr;
     VulkanStructs::VGPUSubBufferInfo* indexData     = nullptr;
     VulkanStructs::VBounds            bounds        = {};
@@ -22,6 +23,8 @@ struct StaticMeshComponent : public ECS::IComponent
         : ECS::IComponent("Static mesh component", ICON_FA_CUBE)
     {
     }
+
+    void SetMesh(VulkanStructs::VMeshData2& data) { meshData = data; }
     bool IsValid() { return vertexData != nullptr && indexData != nullptr; }
 
     friend bool operator==(const StaticMeshComponent& lhs, const StaticMeshComponent& rhs)

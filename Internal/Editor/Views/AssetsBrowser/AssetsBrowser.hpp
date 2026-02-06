@@ -4,8 +4,8 @@
 
 #ifndef VULKAN_RTX_ASSETSBROWSER_HPP
 #define VULKAN_RTX_ASSETSBROWSER_HPP
-#include "AssetsBrowserDrawUtils.hpp"
 #include "Editor/Views/UserInterface/IUserInterfaceElement.hpp"
+#include "AssetsBrowserDrawUtils.hpp"
 
 #include <filesystem>
 

@@ -4,6 +4,8 @@
 
 #include "VMesh.hpp"
 
+#include "Application/ECS/Components/StaticMeshComponent.hpp"
+
 #include <fstream>
 
 namespace ApplicationCore {
@@ -43,6 +45,8 @@ VMesh::VMesh(AssetEntry& databaseEntry, uuid::UUID materialUUID, std::vector<Ver
         file.close();
     }
 }
+
+
 bool VMesh::Save(std::filesystem::path& path) {}
 bool VMesh::Load() {}
 

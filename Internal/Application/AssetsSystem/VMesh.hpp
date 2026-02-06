@@ -7,6 +7,9 @@
 #include "FileHeaders.hpp"
 #include "VAsset2.hpp"
 
+namespace ECS {
+struct StaticMeshComponent;
+}
 namespace ApplicationCore {
 
 
@@ -28,6 +31,7 @@ class VMesh : public VAsset2<VMeshHeader, VulkanStructs::VMeshData2>
    * @param indices indices buffer 
    */
     VMesh(AssetEntry& databaseEntry, uuid::UUID materialUUID, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
+
     bool     Save(std::filesystem::path& path) override;
     bool     Load() override;
     std::any LoadData() override;

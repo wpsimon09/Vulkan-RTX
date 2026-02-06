@@ -4,6 +4,7 @@
 
 #include "ComponentDrawUtils.hpp"
 
+#include "Application/AssetsSystem/RuntimeAssetsManager/RuntimeAssetsManager.hpp"
 #include "Application/ECS/ECSCoordinator.hpp"
 #include "Application/ECS/Components/AtmosphereComponent.hpp"
 #include "Application/ECS/Components/FogComponent.hpp"
@@ -12,11 +13,13 @@
 #include "Application/ECS/Components/StaticMeshComponent.hpp"
 #include "Application/ECS/Components/TransformComponent.hpp"
 #include "Application/Rendering/Transformations/Transformations.hpp"
+#include "Editor/Views/AssetsBrowser/AssetsBrowserDrawUtils.hpp"
 
 namespace VEditor {
-ComponentDrawUtils::ComponentDrawUtils(ECS::ECSCoordinator& ecs)
+ComponentDrawUtils::ComponentDrawUtils(ApplicationCore::RuntimeAssetsManager& runtimeAssetsManager, ECS::ECSCoordinator& ecs)
     : m_ecs(ecs)
     , m_drawFunctions{}
+    , m_runtimeAssetsManager(runtimeAssetsManager)
 {
     //===============================================================================================
     // Dumb design, but for now it suffice, it will store the functions for each component registered
@@ -158,6 +161,31 @@ void ComponentDrawUtils::DrawStaticMeshComponent(const std::vector<ECS::Entity>&
             ImGui::TreePop();
             return;
         };
+
+        bool dragActive = ImGui::IsDragDropActive();
+
+        if(dragActive)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.2f, 0.5f, 0.9f, 0.4f));
+
+            ImGui::Button("Drop here");
+            ImGui::PopStyleColor(1);
+        }
+
+        if(ImGui::BeginDragDropTarget())
+        {
+
+            if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(VEditor::DRAG_DROP_PAYLOAD_MESH))
+            {
+                auto path           = std::filesystem::path(static_cast<char*>(payload->Data));
+                auto meshData       = m_runtimeAssetsManager.LoadMesh(path);
+                auto handle         = meshData->CopyHandle();
+                data.meshData       = handle;
+                data.componentLabel = meshData->GetHeader().name.c_str();
+                Utils::Logger::LogInfoClient("Drag successfully: ");
+            }
+            ImGui::EndDragDropTarget();
+        }
 
         ImGui::InputText("Mesh name", data.meshName, IM_ARRAYSIZE(data.meshName));
 

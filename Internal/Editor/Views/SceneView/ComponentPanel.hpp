@@ -19,7 +19,9 @@ static const auto V_EDITOR_ADD_COMPONENT_POP_UP_ID = "AddComponentPopUp";
 class ComponentPanel : public VEditor::IUserInterfaceElement
 {
   public:
-    ComponentPanel(ECS::ECSCoordinator& ecs, std::vector<ECS::Entity>& selectedEntities);
+    ComponentPanel(ApplicationCore::RuntimeAssetsManager& runtimeAssetsManager,
+                   ECS::ECSCoordinator&                   ecs,
+                   std::vector<ECS::Entity>&              selectedEntities);
     void Render() override;
     void Resize(int newWidth, int newHeight) override;
     void Update() override;

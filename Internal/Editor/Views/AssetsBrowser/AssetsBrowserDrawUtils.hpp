@@ -4,9 +4,6 @@
 
 #ifndef VULKAN_RTX_ASSETSBROWSERDRAWUTILS_HPP
 #define VULKAN_RTX_ASSETSBROWSERDRAWUTILS_HPP
-#include "AssetsBrowser.hpp"
-#include "AssetsBrowser.hpp"
-#include "AssetsBrowser.hpp"
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
 #include "Application/AssetsSystem/VMaterial.hpp"
@@ -14,7 +11,6 @@
 #include "Application/AssetsSystem/VTexture.hpp"
 #include "Application/Logger/Logger.hpp"
 #include "Application/Project/Project.hpp"
-#include "Editor/Editor.hpp"
 
 #include <filesystem>
 #include <vector>

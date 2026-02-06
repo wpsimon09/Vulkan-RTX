@@ -53,7 +53,8 @@ Editor::Editor(UIContext& uiContext)
     auto contentBrowser = std::make_unique<ContentBrowser>(uiContext.GetScene().GetAssetsManager(), uiContext.GetScene());
     index->m_uiChildren.emplace_back(std::move(contentBrowser));
 
-    auto worldOutline = std::make_unique<WorldOutline>(uiContext.GetWindowManager(), uiContext.GetClient().GetWorld());
+    auto worldOutline = std::make_unique<WorldOutline>(uiContext.GetClient().GetRuntimeAssetsManager(),
+                                                       uiContext.GetWindowManager(), uiContext.GetClient().GetWorld());
     index->m_uiChildren.emplace_back(std::move(worldOutline));
 
     auto projectBrowser =

@@ -14,6 +14,7 @@
 
 class WindowManager;
 namespace ApplicationCore {
+class RuntimeAssetsManager;
 class World;
 }
 namespace VEditor {
@@ -25,7 +26,7 @@ static const auto WORLD_OUTLINE_OPTIONS_POP_UP = "WORLD_OUTLINE_OPTIONS_POP_UP";
 class WorldOutline : public VEditor::IUserInterfaceElement
 {
   public:
-    explicit WorldOutline(WindowManager& windowManager, ApplicationCore::World& world);
+    explicit WorldOutline(ApplicationCore::RuntimeAssetsManager& runtimeAssetsManager,WindowManager& windowManager, ApplicationCore::World& world);
 
     void Render() override;
     void Resize(int newWidth, int newHeight) override;

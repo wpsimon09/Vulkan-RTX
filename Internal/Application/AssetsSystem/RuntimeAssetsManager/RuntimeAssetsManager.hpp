@@ -25,6 +25,7 @@ class RuntimeAssetsManager
     RuntimeAssetsManager(Project& project, const VulkanCore::VDevice& device);
 
     std::shared_ptr<VMesh>     LoadMesh(uuid::UUID& uuid);
+    std::shared_ptr<VMesh>     LoadMesh(std::filesystem::path& path);
     std::shared_ptr<VMaterial> LoadMaterial(uuid::UUID& uuid);
     std::shared_ptr<VTexture>  LoadTexture(uuid::UUID& uuid);
 

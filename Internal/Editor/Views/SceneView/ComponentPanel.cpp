@@ -18,9 +18,11 @@
 
 namespace VEditor {
 
-ComponentPanel::ComponentPanel(ECS::ECSCoordinator& ecs, std::vector<ECS::Entity>& selectedEntities)
+ComponentPanel::ComponentPanel(ApplicationCore::RuntimeAssetsManager& runtimeAssetsManager,
+                               ECS::ECSCoordinator&                   ecs,
+                               std::vector<ECS::Entity>&              selectedEntities)
     : m_ecs(ecs)
-    , m_drawCommands(ecs)
+    , m_drawCommands(runtimeAssetsManager, ecs)
     , m_selectedEntities(selectedEntities)
 {
 }

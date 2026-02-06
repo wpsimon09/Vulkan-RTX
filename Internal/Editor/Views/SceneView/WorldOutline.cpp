@@ -15,13 +15,15 @@
 #include <string_view>
 
 namespace VEditor {
-WorldOutline::WorldOutline(WindowManager& windowManager, ApplicationCore::World& world)
+WorldOutline::WorldOutline(ApplicationCore::RuntimeAssetsManager& runtimeAssetsManager,
+                           WindowManager&                         windowManager,
+                           ApplicationCore::World&                world)
     : m_world(world)
     , m_windowManager(windowManager)
 {
     auto ecs = &m_world.GetECS();
 
-    m_uiChildren.push_back(std::make_unique<VEditor::ComponentPanel>(m_world.GetECS(), m_selectedEntities));
+    m_uiChildren.push_back(std::make_unique<VEditor::ComponentPanel>(runtimeAssetsManager, world.GetECS(), m_selectedEntities));
     m_componentPanel = dynamic_cast<ComponentPanel*>(m_uiChildren.back().get());
 }
 void WorldOutline::Render()

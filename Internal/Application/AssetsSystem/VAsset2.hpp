@@ -29,9 +29,11 @@ class VAsset2
 
     uuid::UUID GetUUID();
 
-    Header& GetHeader();
-    void    LoadHeader();
-    void    SetVulkanHandle(std::shared_ptr<VulkanHandle> vulkanHandle);
+    Header&       GetHeader();
+    VulkanHandle  CopyHandle();
+    VulkanHandle& GetHandle();
+    void          LoadHeader();
+    void          SetVulkanHandle(std::shared_ptr<VulkanHandle> vulkanHandle);
 
   public:
     static Header ReadHeader(const std::filesystem::path& path);
@@ -74,6 +76,16 @@ Header& VAsset2<Header, VulkanHandle>::GetHeader()
 {
 
     return m_fileHeader;
+}
+template <typename Header, typename VulkanHandle>
+VulkanHandle VAsset2<Header, VulkanHandle>::CopyHandle()
+{
+    return *m_vulkanHandle.get();
+}
+template <typename Header, typename VulkanHandle>
+VulkanHandle& VAsset2<Header, VulkanHandle>::GetHandle()
+{
+    return m_vulkanHandle;
 }
 
 template <typename Header, typename VulkanHandle>

@@ -14,6 +14,9 @@
 #include <functional>
 #include <unordered_map>
 
+namespace ApplicationCore {
+class RuntimeAssetsManager;
+}
 namespace ECS {
 class ECSCoordinator;
 }
@@ -22,8 +25,7 @@ namespace VEditor {
 class ComponentDrawUtils
 {
   public:
-    explicit ComponentDrawUtils(ECS::ECSCoordinator& ecs);
-
+    explicit ComponentDrawUtils(ApplicationCore::RuntimeAssetsManager& runtimeAssetsManager, ECS::ECSCoordinator& ecs);
 
     void DrawMultiSelect(ECS::Signature signature, const std::vector<ECS::Entity>& entities);
     void Draw(ECS::Entity entity);
@@ -48,9 +50,10 @@ class ComponentDrawUtils
     std::unordered_map<ECS::ComponentType, std::function<void(const std::vector<ECS::Entity>&)>> m_drawMultiSelectFunctions;
     //=================================
     // State variables
-    float                    m_uniformScaleScalar = 1.0;
-    bool                     m_isUniformScaleOn   = false;
-    std::vector<ECS::Entity> m_entitiesToEdit     = {};
+    float                                  m_uniformScaleScalar = 1.0;
+    bool                                   m_isUniformScaleOn   = false;
+    std::vector<ECS::Entity>               m_entitiesToEdit     = {};
+    ApplicationCore::RuntimeAssetsManager& m_runtimeAssetsManager;
 
 
   private:

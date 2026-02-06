@@ -28,6 +28,13 @@ std::shared_ptr<VMesh> RuntimeAssetsManager::LoadMesh(uuid::UUID& uuid)
     mesh->SetVulkanHandle(meshHandle);
     return mesh;
 }
+
+std::shared_ptr<VMesh> RuntimeAssetsManager::LoadMesh(std::filesystem::path& path)
+{
+    auto asset = m_project.GetAsset(path);
+    return LoadMesh(asset.uuid);
+}
+
 std::shared_ptr<VMaterial> RuntimeAssetsManager::LoadMaterial(uuid::UUID& uuid) {}
 
 std::shared_ptr<VTexture> RuntimeAssetsManager::LoadTexture(uuid::UUID& uuid) {}
