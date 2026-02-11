@@ -1,3 +1,5 @@
+> After some reflection, I have decided to move away from this project, mainly due to the lack of consistency and weaker architecture. I will make something new that is more of a “game engine” rather than a collection of random render passes glued together by an editor.
+
 # Vulkan RTX
 
 Simple Vulkan physically based render that can render meshes in classic rasterisation pipeline, but also contains Path tracer that uses `RayTracingPipeline` to utilise RT cores for a real time path tracing.
